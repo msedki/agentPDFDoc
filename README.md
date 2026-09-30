@@ -2,7 +2,7 @@
 
 Poste de lecture et d'analyse de PDF qui fonctionne entièrement sur un PC Windows 11 de 16 Gio, sur CPU, sans WSL, Docker ni service distant. Les réponses du modèle local ne citent que des passages enregistrés pour la question, et chaque citation s'ouvre dans le PDF à sa version, sa page et son bloc d'origine.
 
-**État au 30 septembre 2026 (commit `10b5dd9` et modifications de l'intégrateur de 19:47 UTC, non commitées) :** import, extraction, recherche et ouverture des citations exercés sur une instance réelle ; accès à l'atelier par une session locale ouverte avec `.\rag.ps1 open` ; coquille et textes de l'interface refondus, recette visuelle avec captures encore à faire ; génération des réponses bloquée sur ce poste par la mémoire disponible ; recette D01–D11 non close. Détail et prochaines actions dans le [plan du chantier](RAG_Local_Agents/PLAN.md).
+**État au 30 septembre 2026 (commit `6935e13`) :** import, extraction, recherche et ouverture des citations exercés sur une instance réelle ; accès à l'atelier par une session locale ouverte avec `.\rag.ps1 open` ; coquille et textes de l'interface refondus, recette visuelle avec captures encore à faire ; génération des réponses bloquée sur ce poste par la mémoire disponible ; recette D01–D11 non close. Détail et prochaines actions dans le [plan du chantier](RAG_Local_Agents/PLAN.md).
 
 ---
 
@@ -329,7 +329,7 @@ pnpm test:unit
 
 | Contrôle | Dernier résultat conservé | Limite |
 |---|---|---|
-| Suite pytest complète (unitaires et intégration, dont session et HTTPS réel) | 437 tests PASS le 30/09 à 19:47 UTC sur l'arbre de travail non commité ([junit](RAG_Local_Agents/reports/backend/2026-09-30-r20-w012-full.xml)) ; série précédente : 417 PASS à 18:13 ([junit](RAG_Local_Agents/reports/backend/2026-09-30-r17-r18-full.xml)) | Doubles explicites pour les services externes ; aucun document réel réextrait avec la règle W012 |
+| Suite pytest complète (unitaires et intégration, dont session et HTTPS réel) | 437 tests PASS le 30/09 à 19:47 UTC sur le contenu du commit `6935e13` ([junit](RAG_Local_Agents/reports/backend/2026-09-30-r20-w012-full.xml)) ; série précédente : 417 PASS à 18:13 ([junit](RAG_Local_Agents/reports/backend/2026-09-30-r17-r18-full.xml)) | Doubles explicites pour les services externes ; aucun document réel réextrait avec la règle W012 |
 | Build de l'interface refondue | Exit 0, 278 fichiers exportés ([journal](apps/web/reports/build-2026-09-30-r15-r17-integrated.log), [manifeste](apps/web/reports/export-manifest-2026-09-30-r15-r17-integrated.json)) | Mesures ponctuelles de mémoire, pas un pic continu |
 | Playwright en lecture seule | 8 PASS, 19 ignorés (import, cycle de vie et génération non autorisés), dont les 3 scénarios de session, sur l'instance principale ([preuves](apps/web/reports/e2e-2026-09-30-r17-readonly-1830-evidence.json)) | Import, cycle de vie et question réelle non rejoués ; rendu visuel non relu (R20) |
 

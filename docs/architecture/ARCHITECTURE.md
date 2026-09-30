@@ -1,6 +1,6 @@
 # Architecture technique du poste documentaire local
 
-**Rôle :** architecture de l'état livré (composants, flux, interfaces, données, sécurité, déploiement, observabilité) et écarts avec l'exigence V2.1 · **Statut :** Stabilisé · **Référence :** commit `10b5dd9` + modifications de l'intégrateur du 30/09 19:47 UTC · **Mis à jour :** 2026-09-30 19:59 (UTC) · **Source de vérité :** le code de `services/`, `apps/web/`, `rag.ps1` et le profil `config/local16.yaml` ; les renvois `fichier:ligne` pointent vers la référence · **Remplace :** aucun document (l'exigence reste [SPEC_ARCHITECTURE.md](../../RAG_Local_Agents/SPEC_ARCHITECTURE.md))
+**Rôle :** architecture de l'état livré (composants, flux, interfaces, données, sécurité, déploiement, observabilité) et écarts avec l'exigence V2.1 · **Statut :** Stabilisé · **Référence :** commit `6935e13` · **Mis à jour :** 2026-09-30 19:59 (UTC) · **Source de vérité :** le code de `services/`, `apps/web/`, `rag.ps1` et le profil `config/local16.yaml` ; les renvois `fichier:ligne` pointent vers la référence · **Remplace :** aucun document (l'exigence reste [SPEC_ARCHITECTURE.md](../../RAG_Local_Agents/SPEC_ARCHITECTURE.md))
 
 Ce document décrit ce qui est implémenté et ce qui a été exécuté, avec la preuve correspondante. Ce qui n'est que codé ou testé unitairement est signalé comme tel ; les écarts avec la [spécification V2.1](../../RAG_Local_Agents/SPEC_ARCHITECTURE.md) sont regroupés en [section 11](#11-écarts-constatés-avec-lexigence-v21).
 

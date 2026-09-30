@@ -1,6 +1,6 @@
 # Documentation du poste documentaire local
 
-**Rôle :** index de la documentation stabilisée, règle de séparation entre documents vivants et stabilisés, en-tête obligatoire · **Statut :** Stabilisé · **Référence :** commit `10b5dd9` + modifications de l'intégrateur du 30/09 19:47 UTC · **Mis à jour :** 2026-09-30 19:59 (UTC) · **Source de vérité :** ce fichier pour l'organisation de `docs/` ; chaque document pour son sujet · **Remplace :** aucun document
+**Rôle :** index de la documentation stabilisée, règle de séparation entre documents vivants et stabilisés, en-tête obligatoire · **Statut :** Stabilisé · **Référence :** commit `6935e13` · **Mis à jour :** 2026-09-30 19:59 (UTC) · **Source de vérité :** ce fichier pour l'organisation de `docs/` ; chaque document pour son sujet · **Remplace :** aucun document
 
 `docs/` décrit le système tel qu'il est livré à la référence citée en tête de chaque document. Le suivi du chantier (plan, journal, décisions, sources, rapports de preuve) et le référentiel d'exigences V2.1 restent dans [`RAG_Local_Agents/`](../RAG_Local_Agents/), dossier vivant qui n'est pas déplacé : ses outils `build_brief.py` et `verify_pack.py` dépendent de son emplacement. Le point d'entrée général est le [README racine](../README.md).
 
