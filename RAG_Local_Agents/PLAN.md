@@ -212,3 +212,9 @@ Prochaine action : lire le résultat de la question restaurée, puis intégrer R
 R4 VERIFIED au niveau unitaire et in-process (voir le tableau). Aucun parcours réel n'est déduit de ces tests. Conséquences à traiter : réindexation nécessaire pour les nouvelles règles d'identifiants (table `identifiers`), empreinte d'extraction modifiée par les changements d'ingestion (le prochain réindex relancera le worker), nouvelle fixture hostile et document de 14 pages disponibles pour R5/R9.
 
 Prochaine action exécutable : arrêter l'instance restaurée (ancien code), build surveillé de l'interface (R5), relancer l'instance restaurée sur le nouveau code pour la question D09.3 (R3), puis instance principale, réindex de DA-P01 et E2E réels (R2/R5). Un seul traitement lourd à la fois.
+
+## Point à 14:10 UTC — génération bloquée par la mémoire hôte
+
+Deux questions réelles sur l'instance restaurée (nouveau code, modèle texte) : 13:58 refus immédiat à 4723 < 4992 Mio ; 14:05 avec W008, état `waiting_for_resources` émis (4932 Mio), refus après 120 s à 4709 Mio ([preuve](reports/backend/2026-09-30-restored-question-w008-20260930T1405.json)). Nos services occupent ≈ 115 Mio après libération des caches ; la pression vient de processus étrangers (navigateur ≈ 1,5 Gio, antivirus, sessions Claude). Admettre la génération sans cette marge ferait tomber l'hôte sous la réserve de 1536 Mio (baisse mesurée 3327 Mio) : aucun seuil n'est abaissé.
+
+**BLOCKED — décision utilisateur :** libérer ≈ 0,5 Gio pendant les créneaux de génération (fermer le navigateur Edge hors de la recette ou d'autres applications), ou laisser D05/D07 génération et la question D09.3 bloquées sur ce poste. Travaux indépendants poursuivis : E2E sans génération (R5), OCR réel (R6), interface decodair (R16), documentation (R14).

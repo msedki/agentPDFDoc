@@ -1,0 +1,47 @@
+{
+  "instance_id": "03658ab8d89849f7a96fae6aee2559c5",
+  "status": "running",
+  "profile_path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\restored-profile.yaml",
+  "profile_sha256": "ae85167a1628e0a63988a349a45e8e6cb19ebf88328a18bfb16425dc98ccba4e",
+  "data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348",
+  "supervisor": {
+    "pid": 24952,
+    "created_at": 1790777098.9232087,
+    "executable": "D:\\enhacements\\agentragpdf\\.runtime\\python\\cpython-3.12.14-windows-x86_64-none\\python.exe"
+  },
+  "services": {
+    "qdrant": {
+      "pid": 27280,
+      "created_at": 1790777103.1492236,
+      "executable": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\qdrant-1.19.1\\qdrant.exe",
+      "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\logs\\03658ab8d89849f7a96fae6aee2559c5\\qdrant.log",
+      "exit_code": null
+    },
+    "ollama": {
+      "pid": 20648,
+      "created_at": 1790777105.3711195,
+      "executable": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\ollama-0.35.0\\ollama.exe",
+      "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\logs\\03658ab8d89849f7a96fae6aee2559c5\\ollama.log",
+      "exit_code": null
+    },
+    "api": {
+      "pid": 6600,
+      "created_at": 1790777109.2869868,
+      "executable": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+      "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\logs\\03658ab8d89849f7a96fae6aee2559c5\\api.log",
+      "exit_code": null
+    }
+  },
+  "shutdown_marker": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\control\\shutdown-03658ab8d89849f7a96fae6aee2559c5",
+  "app_url": "http://127.0.0.1:8795",
+  "stop_results": [],
+  "source_manifest_path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\logs\\03658ab8d89849f7a96fae6aee2559c5\\source-manifest.json",
+  "source_fingerprint": "7f06c60efd92f349a000c18f6c8a022cdcc8f48418b33da9e035e226515671ea",
+  "source_identity_kind": "working_files_sha256_manifest",
+  "qdrant_config_sha256": "084e982c8fd8930873c4a0222c7f2a5f9128a6096307b27281b159194b58f947",
+  "qdrant_data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\q\\827d9394",
+  "http_health": {
+    "status": "alive",
+    "service": "rag-api"
+  }
+}
