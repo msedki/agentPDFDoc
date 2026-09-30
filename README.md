@@ -455,6 +455,10 @@ Les messages cités sont ceux du code ; la liste complète est dans [docs/exploi
 # Import d'un dossier de PDF dans l'instance démarrée (rapport neuf hors Git)
 .\.venv\Scripts\python.exe tools\corpus\import_folder.py --source <dossier> --output .runtime\qa\import-<horodatage>.json
 
+# Profil d'un utilisateur, données hors du dossier du programme (installation par utilisateur en préparation)
+.\rag.ps1 init-profile -Target <racine-des-donnees> -QdrantStorage <dossier-court> -Ports 18785,16333,21434
+.\rag.ps1 up -Profile <racine-des-donnees>\profile.yaml
+
 # Sauvegarde et restauration
 .\rag.ps1 backup -Path <dossier-neuf>
 .\rag.ps1 verify -Path <snapshot>
