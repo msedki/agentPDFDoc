@@ -72,7 +72,7 @@ class JobSupervisor:
                 break
             except Exception as error:
                 if not isinstance(error, ApiError):
-                    # Cause technique conservée dans le journal de l'API (type et pile, aucun texte de document).
+                    # Cause technique conservée dans le journal de l'API : type, message et pile de l'exception.
                     logger.exception("Traitement %s interrompu par une erreur inattendue (%s)", job["id"], type(error).__name__)
                 admission_failure = error.__class__.__name__ == "ResourceAdmissionError"
                 code = error.code if isinstance(error, ApiError) else ("resource_admission_denied" if admission_failure else "ingestion_failed")

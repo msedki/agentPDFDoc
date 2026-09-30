@@ -2,7 +2,7 @@
 
 Poste de lecture et d'analyse de PDF qui fonctionne entièrement sur un PC Windows 11 de 16 Gio, sur CPU, sans WSL, Docker ni service distant. Les réponses du modèle local ne citent que des passages enregistrés pour la question, et chaque citation s'ouvre dans le PDF à sa version, sa page et son bloc d'origine.
 
-**État au 30 septembre 2026 (commit `6935e13`) :** import, extraction, recherche et ouverture des citations exercés sur une instance réelle ; accès à l'atelier par une session locale ouverte avec `.\rag.ps1 open` ; coquille et textes de l'interface refondus, recette visuelle avec captures encore à faire ; génération des réponses bloquée sur ce poste par la mémoire disponible ; recette D01–D11 non close. Détail et prochaines actions dans le [plan du chantier](RAG_Local_Agents/PLAN.md).
+**État au 30 septembre 2026 (commit `13d865f`) :** import, extraction, recherche, génération et ouverture des citations exercés sur une instance réelle ; 4 documents du corpus du poste extraits et publiés, 61 en pause jusqu'au feu vert de l'utilisateur ; accès à l'atelier par une session locale ouverte avec `.\rag.ps1 open` ; interface refondue et relue sur captures ; recherche évaluée sur ce corpus (157 blocs attendus sur 160 au top 10, [rapport](RAG_Local_Agents/reports/evaluation/corpus-reel-2026-09-30.md)) ; une réponse réelle complète en 298 s, dont 175 s avant le premier mot, loin de la cible D07 ([preuve](RAG_Local_Agents/reports/backend/2026-09-30-real-corpus-question-20260930T2029.json)) ; recette D01–D11 non close. Détail et prochaines actions dans le [plan du chantier](RAG_Local_Agents/PLAN.md).
 
 ---
 
@@ -329,9 +329,9 @@ pnpm test:unit
 
 | Contrôle | Dernier résultat conservé | Limite |
 |---|---|---|
-| Suite pytest complète (unitaires et intégration, dont session et HTTPS réel) | 437 tests PASS le 30/09 à 19:47 UTC sur le contenu du commit `6935e13` ([junit](RAG_Local_Agents/reports/backend/2026-09-30-r20-w012-full.xml)) ; série précédente : 417 PASS à 18:13 ([junit](RAG_Local_Agents/reports/backend/2026-09-30-r17-r18-full.xml)) | Doubles explicites pour les services externes ; aucun document réel réextrait avec la règle W012 |
+| Suite pytest entière (unitaires et toute l'intégration : session, HTTPS réel, OCR et rendu réels) | 480 tests le 30/09 de 21:46 à 22:02 UTC sur le contenu du commit `13d865f` avant ses deux corrections de tests : 477 PASS, 3 échecs analysés ([junit](RAG_Local_Agents/reports/backend/2026-09-30-r19-r21-full.xml)) ; reprise des fichiers corrigés : 7 PASS, 2 XFAIL ([junit](RAG_Local_Agents/reports/backend/2026-09-30-r19-r21-rerun.xml)) | Les 2 XFAIL reproduisent le défaut tiers W-PDF01 de `docling_parse` avec Torch, que la voie nominale n'emploie plus ([W009](RAG_Local_Agents/DECISIONS.md#w009-backend-pdf-nominal-pypdfium2-avec-repère-cropbox-corrigé)) |
 | Build de l'interface refondue | Exit 0, 278 fichiers exportés ([journal](apps/web/reports/build-2026-09-30-r15-r17-integrated.log), [manifeste](apps/web/reports/export-manifest-2026-09-30-r15-r17-integrated.json)) | Mesures ponctuelles de mémoire, pas un pic continu |
-| Playwright en lecture seule | 8 PASS, 19 ignorés (import, cycle de vie et génération non autorisés), dont les 3 scénarios de session, sur l'instance principale ([preuves](apps/web/reports/e2e-2026-09-30-r17-readonly-1830-evidence.json)) | Import, cycle de vie et question réelle non rejoués ; rendu visuel non relu (R20) |
+| Playwright en lecture seule et recette visuelle | 12 PASS, 19 ignorés (import, cycle de vie et génération non autorisés), dont les 3 scénarios de session, sur l'instance principale, avec captures relues ([preuves](apps/web/reports/e2e-2026-09-30-r20-final-2015-evidence.json), [captures](apps/web/reports/visual-qa-20260930T2015/)) | Import, cycle de vie et question réelle non rejoués en E2E |
 
 Le build surveillé écrit ses preuves dans `apps/web/reports/` : `.\.venv\Scripts\python.exe apps/web/scripts/build-monitored.py --tag <etiquette-neuve>` ; il attend Node sous `D:\node\node-v22.17.0-win-x64`. Les scénarios Playwright exigent une cible isolée et des autorisations explicites par variable (`RAG_E2E_IMPORT_ALLOWED`, `RAG_E2E_GENERATION_ALLOWED`, `RAG_E2E_READONLY_ALLOWED`) : voir [apps/web/README.md](apps/web/README.md). Leur préparation ouvre une session avec le jeton de contrôle de l'instance visée, lu dans `.runtime/data/control/admin-token` ou dans le fichier désigné par `RAG_E2E_CONTROL_TOKEN_FILE` ([global-setup.ts](apps/web/tests/global-setup.ts)).
 
@@ -343,9 +343,18 @@ Les critères de fin sont définis dans [DEFINITION_OF_DONE.md](RAG_Local_Agents
 
 Le jeu synthétique comprend 32 PDF et 200 questions : 100 de développement et 100 de test final, gelé par empreinte et réservé à la recette finale ([evals/qualification-v2.1](evals/qualification-v2.1/README.md), [outils](tools/qualification/README.md)).
 
+Sur le corpus réel du poste, `tools/qualification/corpus_eval.py` mesure la recherche sans appel au modèle, selon le protocole [W013](RAG_Local_Agents/DECISIONS.md#w013-protocole-dévaluation-sur-le-corpus-réel-sans-juge-et-sans-fuite-du-corpus) : le jeu de questions, qui contient du texte des documents, reste sous `.runtime/evals/` ; seuls les agrégats sont versionnés ([résultats et analyse](RAG_Local_Agents/reports/evaluation/corpus-reel-2026-09-30.md)).
+
+```powershell
+.\.venv\Scripts\python.exe tools/qualification/corpus_eval.py build --output .runtime\evals\corpus-reel\<horodatage>\dataset.json
+.\.venv\Scripts\python.exe tools/qualification/corpus_eval.py run --dataset .runtime\evals\corpus-reel\<horodatage>\dataset.json --report RAG_Local_Agents\reports\evaluation\<nom-neuf>.json
+```
+
+L'instance doit être démarrée et sans extraction en cours (`409 ingestion_active` sinon).
+
 Blocages actuels, détaillés dans le [plan](RAG_Local_Agents/PLAN.md) :
 
-- génération : dernière question refusée après 120 s d'attente à 4 709 Mio disponibles pour 4 992 requis, la pression venant de processus étrangers au projet ([preuve](RAG_Local_Agents/reports/backend/2026-09-30-restored-question-w008-20260930T1405.json)) ;
+- génération : admise ou refusée selon la mémoire laissée par les autres applications du poste ; refus à 14:05 après 120 s d'attente à 4 709 Mio disponibles pour 4 992 requis ([preuve](RAG_Local_Agents/reports/backend/2026-09-30-restored-question-w008-20260930T1405.json)) ; admission après 67 s d'attente à 20:29, réponse complète dont les 6 citations renvoient au registre de la question ([preuve](RAG_Local_Agents/reports/backend/2026-09-30-real-corpus-question-20260930T2029.json)) ;
 - D08.1 : pas de blocage réseau système sans droits administrateur, exclus depuis le 30/09 ; seule une coupure physique du réseau pendant la recette reste possible ;
 - qualification métier : aucun jeu de questions annotées sur les PDF métier ;
 - D07 : le préremplissage mesuré (environ 8,6 jetons/s) rend très improbable la cible de 45 s pour 3 000 jetons ; le seuil ne sera pas abaissé sans décision.

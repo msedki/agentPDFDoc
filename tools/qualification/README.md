@@ -7,6 +7,14 @@ de bindings lit uniquement l'API loopback réelle déjà démarrée par le super
 Seuls `answers.py` et `perf.py` soumettent des questions à cette API : chaque
 question y déclenche la génération réelle du modèle local, dans un créneau choisi.
 
+Exception : `corpus_eval.py` évalue la recherche sur le corpus réel publié dans
+l'instance (protocole W013). Il lit par l'API le texte des blocs publiés pour en
+tirer des questions, écrit ce jeu sous `.runtime/evals/` uniquement (refus
+ailleurs), puis interroge `POST /api/v1/admin/evaluation/context`, qui n'appelle
+pas le modèle. Son rapport ne contient que des identifiants et des agrégats ;
+`reaggregate` recalcule les mesures d'un rapport depuis ses lignes. Aucun fichier
+de `PDF/` n'est ouvert directement.
+
 Les skills appliqués sont [rag-qualification-fixtures](../../.agents/skills/rag-qualification-fixtures/SKILL.md),
 [rag-retrieval-evaluation](../../RAG_Local_Agents/skills/rag-retrieval-evaluation/SKILL.md) et
 [local-cpu-qualification](../../RAG_Local_Agents/skills/local-cpu-qualification/SKILL.md).
