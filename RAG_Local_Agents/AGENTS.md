@@ -59,3 +59,7 @@ Mettre à jour `PLAN.md` après un changement substantiel. Modifier les `.md` ca
 ## Documentation et textes d'interface
 
 Appliquer la section « Documentation et textes de l'interface » des `CLAUDE.md`/`AGENTS.md` racine : espace documentaire séparant documentation vivante et stabilisée, une source de vérité par information, statut explicite en tête de chaque document, schémas vectoriels (SVG) plutôt qu'art ASCII, registre humain et précis sans formulation générique. Les textes affichés par l'interface relèvent des mêmes exigences et du vocabulaire du travail documentaire et de maintenance technique de l'utilisateur.
+
+## Sécurité applicative
+
+Appliquer la règle « Référence de sécurité applicative » des `CLAUDE.md`/`AGENTS.md` racine : `D:\enhacements\decodair` sert de référence pour les cookies et sessions, l'expiration, la révocation côté serveur, la déconnexion, les autorisations et les protections de l'API, transposés seulement lorsqu'ils conviennent à une API loopback mono-utilisateur (D-01). Les choix sont vérifiés auprès de l'OWASP et des sources officielles, consignés dans `DECISIONS.md` ; en développement local, ni cookie `Secure` ni TLS imposés, en production des réglages adaptés pilotés par la configuration.

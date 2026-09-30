@@ -1,15 +1,16 @@
 import asyncio
 import json
 
+from test_api_storage import FakeEmbedding, import_fixture
+from test_api_storage import storage as storage
+from test_retrieval import CharTokenizer
+
 from services.api.context import ContextBuilder
 from services.api.db import json_dump, now, uid
 from services.api.query import QueryService
 from services.api.retrieval import SearchService
 from services.api.schemas import QueryRequest, Scope
 from services.api.scope import ScopeResolver
-
-from test_api_storage import FakeEmbedding, import_fixture, storage
-from test_retrieval import CharTokenizer
 
 
 def previous_question(db, conversation, question, snapshot):

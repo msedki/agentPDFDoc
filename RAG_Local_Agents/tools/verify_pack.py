@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Check the documentation pack and deterministic examples, not the future RAG app."""
 from __future__ import annotations
+
 import argparse
 import ast
 import hashlib
@@ -11,16 +12,16 @@ import re
 import sqlite3
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 try:
     import yaml
-except ImportError:
-    raise SystemExit('PyYAML absent. Provisionner tools/requirements.txt avant ce contrôle hors ligne.')
+except ImportError as exc:
+    raise SystemExit('PyYAML absent. Provisionner tools/requirements.txt avant ce contrôle hors ligne.') from exc
 
-from build_brief import ROOT, OUTPUT, ORDER, render
+from build_brief import ORDER, OUTPUT, ROOT, render
 
 RESULTS: list[dict] = []
 
@@ -36,7 +37,8 @@ def require(condition, message):
         raise AssertionError(message)
 
 def outside_code(text: str) -> str:
-    lines=[]; active=None
+    lines=[]
+    active=None
     for line in text.splitlines():
         fence=re.match(r'^\s*(`{3,}|~{3,})',line)
         if fence:
@@ -111,9 +113,11 @@ def markdown_check(root: Path = ROOT):
 def syntax_check():
     files=[]
     for p in sorted((ROOT/'config').iterdir()):
-        if p.suffix=='.json': json.loads(p.read_text(encoding='utf-8'))
+        if p.suffix=='.json':
+            json.loads(p.read_text(encoding='utf-8'))
         elif p.suffix=='.yaml':
-            obj=yaml.safe_load(p.read_text(encoding='utf-8')); require(isinstance(obj,dict),str(p))
+            obj=yaml.safe_load(p.read_text(encoding='utf-8'))
+            require(isinstance(obj,dict),str(p))
         elif p.suffix=='.env':
             for line in p.read_text(encoding='utf-8').splitlines():
                 if line.strip() and not line.lstrip().startswith('#'):
@@ -127,7 +131,8 @@ def config_check():
     c=yaml.safe_load((ROOT/'config/local16.yaml').read_text(encoding='utf-8'))
     v=json.loads((ROOT/'config/qdrant.collection.json').read_text(encoding='utf-8'))
     require(c['embedding']['dimensions']==c['qdrant']['vector_dimensions']==v['vectors']['dense']['size']==384,'Dimensions incohérentes')
-    r=c['retrieval']; llm=c['llm']
+    r=c['retrieval']
+    llm=c['llm']
     require(c['chunking']['max_prefixed_tokens']<=c['embedding']['max_model_tokens'],'Embedding overflow')
     require(r['max_evidence_llm_tokens']+r['max_history_llm_tokens']+r['max_instructions_question_llm_tokens']+r['context_safety_tokens']+llm['num_predict']<=llm['num_ctx'],'Token budgets incohérents')
     require(all(b<=r['max_evidence_llm_tokens'] for b in r['evidence_tokens_by_mode'].values()),'Mode evidence overflow')
@@ -285,13 +290,20 @@ def deterministic_examples():
     def to_utf16(cp): return len(text[:cp].encode('utf-16-le'))//2
     def to_cp(units):
         byte_length=units*2
-        try: return len(text.encode('utf-16-le')[:byte_length].decode('utf-16-le'))
-        except UnicodeDecodeError as exc: raise ValueError('Offset dans une paire surrogate') from exc
+        try:
+            return len(text.encode('utf-16-le')[:byte_length].decode('utf-16-le'))
+        except UnicodeDecodeError as exc:
+            raise ValueError('Offset dans une paire surrogate') from exc
     require(all(to_cp(to_utf16(i))==i for i in range(len(text)+1)),'Roundtrip offsets')
-    try: to_cp(2)
-    except ValueError: pass
-    else: raise AssertionError('Offset dans surrogate accepté')
-    n=30;p=27/n;z=1.959963984540054
+    try:
+        to_cp(2)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('Offset dans surrogate accepté')
+    n=30
+    p=27/n
+    z=1.959963984540054
     center=(p+z*z/(2*n))/(1+z*z/n)
     radius=z*math.sqrt(p*(1-p)/n+z*z/(4*n*n))/(1+z*z/n)
     return {'rrf_counterexample':{'exact_score':scores['exact'],'top6_without_exact':unconstrained,'illustrative_selection':reference_selection},'unicode_roundtrip':True,'dense_25000x384_float32_bytes':25000*384*4,'wilson_27_of_30_95pct':[center-radius,center+radius],'not_a_test_of_future_application':True}
@@ -309,8 +321,9 @@ def main():
         check(name,action)
     passed=all(r['status']=='PASS' for r in RESULTS)
     warnings=[w for r in RESULTS if isinstance(r['detail'],dict) for w in r['detail'].get('warnings',[])]
-    report={'pack':'RAG-LOCAL-16-v2.1','checked_at_utc':datetime.now(timezone.utc).isoformat(),'overall_status':'PASS' if passed else 'FAIL','scope':'Documentation, configuration syntax, runtime profile copy, skill format/registry, SQLite reference and deterministic examples ONLY','python_version':sys.version.split()[0],'pyyaml_version':importlib.metadata.version('PyYAML'),'results':RESULTS,'warnings':warnings,'not_executed':['LLM inference','Docling or OCR','Qdrant server/API','Frontend or browser E2E','16 GB target qualification','Native skill installation/discovery/invocation','External source link accessibility in this offline script']}
-    path=Path(args.report); path.parent.mkdir(parents=True,exist_ok=True)
+    report={'pack':'RAG-LOCAL-16-v2.1','checked_at_utc':datetime.now(UTC).isoformat(),'overall_status':'PASS' if passed else 'FAIL','scope':'Documentation, configuration syntax, runtime profile copy, skill format/registry, SQLite reference and deterministic examples ONLY','python_version':sys.version.split()[0],'pyyaml_version':importlib.metadata.version('PyYAML'),'results':RESULTS,'warnings':warnings,'not_executed':['LLM inference','Docling or OCR','Qdrant server/API','Frontend or browser E2E','16 GB target qualification','Native skill installation/discovery/invocation','External source link accessibility in this offline script']}
+    path=Path(args.report)
+    path.parent.mkdir(parents=True,exist_ok=True)
     path.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(report,ensure_ascii=False,indent=2))
     return 0 if passed else 1

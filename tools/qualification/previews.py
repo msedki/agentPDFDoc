@@ -30,7 +30,9 @@ def main():
             draw.text((x, y - 30), f"{key} / physical page {page_index+1}", fill="#20272b", font=ImageFont.load_default(size=16))
             image.close()
         finally:
-            bitmap.close(); page.close(); doc.close()
+            bitmap.close()
+            page.close()
+            doc.close()
     sheet.save(output / "contact-sheet.png")
     sheet.close()
     print(output / "contact-sheet.png")

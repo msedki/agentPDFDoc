@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Generate the single Markdown brief from canonical files, without network access."""
 from __future__ import annotations
+
 import argparse
 import os
 import re

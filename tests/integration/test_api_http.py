@@ -1,15 +1,15 @@
 """HTTP contracts against real isolated SQLite, fake models explicitly injected."""
 import asyncio
-from contextlib import asynccontextmanager
 import hashlib
 import json
-import pytest
+from contextlib import asynccontextmanager
 
+import pytest
 from fastapi.testclient import TestClient
 
+from services.api.db import now, uid
 from services.api.main import create_app
 from services.api.settings import Settings
-from services.api.db import now, uid
 
 
 class FakeEmbedding:
@@ -345,7 +345,7 @@ def test_api_rejects_host_origin_traversal_and_private_error_inputs(tmp_path):
 
 
 def test_api_backend_restart_marks_query_interrupted(tmp_path):
-    from services.api.db import Database, json_dump
+    from services.api.db import Database
     db = Database(tmp_path / "state.sqlite")
     db.initialize()
     query_id = uid()

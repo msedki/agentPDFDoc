@@ -26,7 +26,9 @@ def raw_page(path: Path, page_index=0, password=None) -> str:
     try:
         return text.get_text_bounded()
     finally:
-        text.close(); page.close(); doc.close()
+        text.close()
+        page.close()
+        doc.close()
 
 
 class CorpusStructure(unittest.TestCase):
@@ -174,10 +176,12 @@ class AnnotationResolver(unittest.TestCase):
     def test_refuse_wrong_file_hash_source_hash_revision_and_missing_ids(self):
         original = self.binding(["3.5 bar"])
         for field, value in (("file_sha256", "d" * 64), ("version_id", "another-version"), ("extraction_revision_id", "another-revision")):
-            changed = copy.deepcopy(original); changed[field] = value
+            changed = copy.deepcopy(original)
+            changed[field] = value
             self.assertEqual(resolve_unit(self.unit(), {"unit-fixture": changed})["resolution_status"], "UNRESOLVED")
         for field, value in (("source_text_hash", "0" * 64), ("id", None), ("extraction_revision_id", None)):
-            changed = copy.deepcopy(original); changed["pages"][0]["blocks"][0][field] = value
+            changed = copy.deepcopy(original)
+            changed["pages"][0]["blocks"][0][field] = value
             self.assertEqual(resolve_unit(self.unit(), {"unit-fixture": changed})["resolution_status"], "UNRESOLVED")
 
     def test_ligature_and_dehyphenation_are_not_guessed(self):

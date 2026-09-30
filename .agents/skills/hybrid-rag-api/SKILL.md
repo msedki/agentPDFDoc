@@ -41,6 +41,8 @@ suivantes décrivent des APIs ; elles ne certifient pas une performance sur ce p
   annulation du transport HTTP, redémarrage marqué interrupted. Sources avant
   deltas, citations inconnues refusées. Une limite de sortie reste visible.
 - Host/Origin loopback, chemins relatifs sûrs, originaux immuables, Range contrôlé.
+  Sessions, cookies, révocation et protections de l'API : suivre la règle « Référence
+  de sécurité applicative » du `CLAUDE.md` racine (decodair, OWASP, sources officielles).
   Aucun worker PDF ni modèle PyTorch résident dans le processus API.
 - La pause nominale est coopérative ; reprise manuelle depuis un checkpoint
   vérifié. Un watchdog distinct conserve motif et frontières durables. Avant une

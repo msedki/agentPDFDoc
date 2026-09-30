@@ -10,7 +10,6 @@ from services.api.retrieval import QdrantStore
 from services.api.scope import ScopeSnapshot
 from services.api.settings import Settings
 
-
 LOCKED_DIGEST = "a" * 64
 
 
@@ -211,7 +210,9 @@ def test_api_ollama_threads_follow_profile_and_physical_limit(tmp_path, monkeypa
 def test_api_embedding_release_preserves_tokenizer_and_measures_next_reload(tmp_path, monkeypatch):
     import sys
     from types import SimpleNamespace
+
     import psutil
+
     from services.api.embedding import EmbeddingService
     embedding = EmbeddingService(Settings(tmp_path))
     embedding._session = object()

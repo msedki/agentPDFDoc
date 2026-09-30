@@ -1,17 +1,17 @@
 """Real SQLite/FTS5 invariants with explicitly fake embedding/vector boundaries."""
 import asyncio
-from contextlib import asynccontextmanager, closing
 import hashlib
 import re
 import sqlite3
+from contextlib import closing
 
 import pytest
 
 from services.api.db import MIGRATIONS, Database, now, relative_pdf_path
 from services.api.errors import ApiError
 from services.api.indexing import Indexer
-from services.api.scope import ScopeResolver
 from services.api.schemas import Scope
+from services.api.scope import ScopeResolver
 from services.api.settings import Settings
 
 

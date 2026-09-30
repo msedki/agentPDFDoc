@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urlparse
 from urllib.request import HTTPRedirectHandler, ProxyHandler, build_opener
@@ -63,7 +63,7 @@ def main() -> None:
             if block.get("extraction_revision_id") != document["extraction_revision_id"]:
                 raise ValueError("Returned block revision diverges from the published generation")
     snapshot = {
-        "captured_at_utc": datetime.now(timezone.utc).isoformat(),
+        "captured_at_utc": datetime.now(UTC).isoformat(),
         "method": "Read-only loopback GET document detail and immutable version pages; UTF-8 JSON decoded explicitly; no retrieval/model/import.",
         "documents": {args.document_key: {
             "document_id": document["id"], "version_id": version_id,

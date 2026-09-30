@@ -1,15 +1,20 @@
 {
   "pack": "RAG-LOCAL-16-v2.1",
-  "checked_at_utc": "2026-09-30T08:53:13.666067+00:00",
-  "overall_status": "FAIL",
-  "scope": "Documentation, configuration syntax, SQLite reference and deterministic examples ONLY",
+  "checked_at_utc": "2026-09-30T17:13:22.251871+00:00",
+  "overall_status": "PASS",
+  "scope": "Documentation, configuration syntax, runtime profile copy, skill format/registry, SQLite reference and deterministic examples ONLY",
   "python_version": "3.12.14",
   "pyyaml_version": "6.0.3",
   "results": [
     {
       "id": "markdown_links",
-      "status": "FAIL",
-      "detail": "AssertionError: Lien hors dossier : ../apps/web/reports/QUALIFICATION_UI_NATIVE_2026-09-30.md"
+      "status": "PASS",
+      "detail": {
+        "local_links_checked": 368,
+        "links_to_project_outside_pack": 67,
+        "git_ignore_check": "PASS",
+        "external_urls_fetched": false
+      }
     },
     {
       "id": "syntax",
@@ -35,6 +40,16 @@
         "embedding_dimensions": 384,
         "max_declared_tokens_with_output": 7680,
         "parameters_are_unqualified_design_targets": true
+      }
+    },
+    {
+      "id": "runtime_profile_copy",
+      "status": "PASS",
+      "detail": {
+        "runtime_profile": "config/local16.yaml",
+        "documentary_copy": "RAG_Local_Agents/config/local16.yaml",
+        "sha256": "e43ef80746aeabe6631d5cf72bddc5c320b79926b641713d93180b354728493c",
+        "byte_identical": true
       }
     },
     {
@@ -65,6 +80,81 @@
         ],
         "syntax_and_links_only": true,
         "native_client_discovery_tested": false
+      }
+    },
+    {
+      "id": "agents_skill_format",
+      "status": "PASS",
+      "detail": {
+        "skills": [
+          "agent-introspection-debugging",
+          "backend-patterns",
+          "embedding-comparison-windows",
+          "frontend-design",
+          "frontend-skill",
+          "hybrid-rag-api",
+          "pdf-ingestion-windows",
+          "pdf-workspace-web",
+          "rag-qualification-fixtures",
+          "windows-rag-runtime"
+        ],
+        "warnings": [
+          "Fichier tiers mal rangé : .agents/skills/golang-general-backend-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-express-web-server-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-general-web-frontend-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-jquery-web-frontend-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-typescript-nextjs-web-server-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-typescript-react-web-frontend-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-typescript-vue-web-frontend-security.md",
+          "Fichier tiers mal rangé : .agents/skills/openai.yaml",
+          "Fichier tiers mal rangé : .agents/skills/python-django-web-server-security.md",
+          "Fichier tiers mal rangé : .agents/skills/python-fastapi-web-server-security.md",
+          "Fichier tiers mal rangé : .agents/skills/python-flask-web-server-security.md",
+          "Fichier tiers mal rangé : .agents/skills/SKILL.md (SKILL.md hors dossier de skill, non découvrable)"
+        ],
+        "syntax_and_links_only": true,
+        "native_client_discovery_tested": false
+      }
+    },
+    {
+      "id": "skills_registry",
+      "status": "PASS",
+      "detail": {
+        "pack": [
+          "local-cpu-qualification",
+          "official-source-review",
+          "pdf-workspace-e2e",
+          "rag-pdf-provenance",
+          "rag-retrieval-evaluation"
+        ],
+        "project": [
+          "embedding-comparison-windows",
+          "hybrid-rag-api",
+          "pdf-ingestion-windows",
+          "pdf-workspace-web",
+          "rag-qualification-fixtures",
+          "windows-rag-runtime"
+        ],
+        "third_party": [
+          "golang-general-backend-security.md",
+          "javascript-express-web-server-security.md",
+          "javascript-general-web-frontend-security.md",
+          "javascript-jquery-web-frontend-security.md",
+          "javascript-typescript-nextjs-web-server-security.md",
+          "javascript-typescript-react-web-frontend-security.md",
+          "javascript-typescript-vue-web-frontend-security.md",
+          "openai.yaml",
+          "python-django-web-server-security.md",
+          "python-fastapi-web-server-security.md",
+          "python-flask-web-server-security.md",
+          "SKILL.md",
+          "agent-introspection-debugging",
+          "backend-patterns",
+          "frontend-design",
+          "frontend-skill"
+        ],
+        "sha256_checked": 27,
+        "behavior_tested": false
       }
     },
     {
@@ -115,6 +205,20 @@
         "canonical_docs_and_configs_included": true
       }
     }
+  ],
+  "warnings": [
+    "Fichier tiers mal rangé : .agents/skills/golang-general-backend-security.md",
+    "Fichier tiers mal rangé : .agents/skills/javascript-express-web-server-security.md",
+    "Fichier tiers mal rangé : .agents/skills/javascript-general-web-frontend-security.md",
+    "Fichier tiers mal rangé : .agents/skills/javascript-jquery-web-frontend-security.md",
+    "Fichier tiers mal rangé : .agents/skills/javascript-typescript-nextjs-web-server-security.md",
+    "Fichier tiers mal rangé : .agents/skills/javascript-typescript-react-web-frontend-security.md",
+    "Fichier tiers mal rangé : .agents/skills/javascript-typescript-vue-web-frontend-security.md",
+    "Fichier tiers mal rangé : .agents/skills/openai.yaml",
+    "Fichier tiers mal rangé : .agents/skills/python-django-web-server-security.md",
+    "Fichier tiers mal rangé : .agents/skills/python-fastapi-web-server-security.md",
+    "Fichier tiers mal rangé : .agents/skills/python-flask-web-server-security.md",
+    "Fichier tiers mal rangé : .agents/skills/SKILL.md (SKILL.md hors dossier de skill, non découvrable)"
   ],
   "not_executed": [
     "LLM inference",

@@ -1,10 +1,10 @@
 import asyncio
 import json
 import os
-from pathlib import Path
 import sys
-import time
 import threading
+import time
+from pathlib import Path
 
 from .db import json_dump, now
 from .errors import ApiError
@@ -116,7 +116,7 @@ class JobSupervisor:
                     cancel_path.touch(exist_ok=True)
                 try:
                     await asyncio.wait_for(process.wait(), timeout=0.5)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     self.db.execute("UPDATE jobs SET heartbeat_at=?,updated_at=? WHERE id=?", (now(), now(), job["id"]))
                     files = [(path.name, path.stat().st_mtime_ns) for path in directory.glob("window-*.json")]
                     signature = tuple(sorted(files))

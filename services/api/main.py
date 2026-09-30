@@ -1,13 +1,13 @@
 import asyncio
-from contextlib import asynccontextmanager
 import hashlib
 import json
 import os
-from pathlib import Path
-import re
 import secrets
 import sqlite3
 import time
+from contextlib import asynccontextmanager
+from pathlib import Path
+from typing import Annotated
 
 from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
@@ -295,7 +295,8 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         return {"folders": db.rows("SELECT * FROM folders ORDER BY path"), "documents": documents, "total_documents": total, "total": total, "offset": offset, "limit": limit, "next_cursor": str(offset + limit) if offset + limit < total else None}
 
     @application.post(prefix + "/documents/import", status_code=202)
-    async def import_documents(files: list[UploadFile] = File(...), relative_paths: str | None = Form(None)):
+    async def import_documents(files: Annotated[list[UploadFile], File()],
+                               relative_paths: Annotated[str | None, Form()] = None):
         if not 1 <= len(files) <= 50:
             raise ApiError("invalid_file_count", "Importer entre un et cinquante fichiers.")
         try:

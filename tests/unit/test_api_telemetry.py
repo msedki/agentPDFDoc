@@ -5,13 +5,13 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
+from test_api_storage import import_fixture
+from test_api_storage import storage as storage
 
 from services.api.db import now, uid
 from services.api.embedding import EmbeddingService
 from services.api.jobs import JobSupervisor
 from services.api.settings import Settings
-
-from test_api_storage import import_fixture, storage
 
 
 def test_api_inference_counts_actual_session_runs_not_tokenizer_counts(tmp_path):

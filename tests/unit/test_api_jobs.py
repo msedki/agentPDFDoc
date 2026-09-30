@@ -1,13 +1,14 @@
 import asyncio
-from contextlib import asynccontextmanager
 import json
+from contextlib import asynccontextmanager
+
 import pytest
+from test_api_storage import import_fixture
+from test_api_storage import storage as storage
 
 from services.api.db import now, uid
-from services.api.jobs import JobSupervisor
 from services.api.errors import ApiError
-
-from test_api_storage import import_fixture, storage
+from services.api.jobs import JobSupervisor
 
 
 def test_api_job_pause_is_cooperative_and_resume_is_manual(storage):

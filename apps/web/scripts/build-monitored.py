@@ -3,11 +3,11 @@ import argparse
 import hashlib
 import json
 import os
-from pathlib import Path
 import re
 import subprocess
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from pathlib import Path
 
 import psutil
 
@@ -48,7 +48,7 @@ def main():
                         children.append({"id": child.pid, "parent_id": child.ppid(), "name": child.name(), "rss_mib": round(memory.rss / 1048576, 1), "private_mib": round(memory.private / 1048576, 1) if hasattr(memory, "private") else None})
                 except psutil.Error:
                     pass
-        return {"timestamp_utc": datetime.now(timezone.utc).isoformat(), "phase": phase, "host_available_mib": round(psutil.virtual_memory().available / 1048576, 1), "host_cpu_percent": psutil.cpu_percent(interval=None), "disk_free_bytes": psutil.disk_usage(str(web)).free, "owned_build_tree": children, "method": "Host/per-process snapshots about every 2 seconds; no summed RSS, continuous peak or 30-minute qualification claim"}
+        return {"timestamp_utc": datetime.now(UTC).isoformat(), "phase": phase, "host_available_mib": round(psutil.virtual_memory().available / 1048576, 1), "host_cpu_percent": psutil.cpu_percent(interval=None), "disk_free_bytes": psutil.disk_usage(str(web)).free, "owned_build_tree": children, "method": "Host/per-process snapshots about every 2 seconds; no summed RSS, continuous peak or 30-minute qualification claim"}
 
     started = time.monotonic()
     with resources.open("x", encoding="utf-8") as samples, log.open("xb") as output:

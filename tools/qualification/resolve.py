@@ -26,7 +26,8 @@ def whitespace_map(text: str) -> tuple[str, list[int]]:
             chars.append(char)
             mapping.append(index)
     while chars and chars[-1] == " ":
-        chars.pop(); mapping.pop()
+        chars.pop()
+        mapping.pop()
     return "".join(chars), mapping
 
 
@@ -85,9 +86,11 @@ def text_spans(blocks: list[dict], needle: str, binding: dict) -> tuple[list[dic
     positions: list[tuple[int, int] | None] = []
     for block_index, block in enumerate(blocks):
         if joined:
-            joined.append(" "); positions.append(None)
+            joined.append(" ")
+            positions.append(None)
         for index, char in enumerate(block["raw_text"]):
-            joined.append(char); positions.append((block_index, index))
+            joined.append(char)
+            positions.append((block_index, index))
     normalized, mapping = whitespace_map("".join(joined))
     target, _ = whitespace_map(needle)
     if not target:

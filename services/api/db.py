@@ -1,10 +1,9 @@
-from contextlib import contextmanager
-from datetime import datetime, timezone
-from pathlib import Path, PurePosixPath, PureWindowsPath
-import hashlib
 import json
 import re
 import sqlite3
+from contextlib import contextmanager
+from datetime import UTC, datetime
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from urllib.parse import unquote
 from uuid import uuid4
 
@@ -12,7 +11,7 @@ from .errors import ApiError
 
 
 def now():
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def uid():

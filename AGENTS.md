@@ -139,6 +139,18 @@ et permissions de l'environnement.
 - Ne pas affaiblir authentification, autorisation, TLS ou protections applicatives
   pour obtenir un résultat vert. Ne pas modifier le sandbox, les règles d'exécution,
   les contrôles d'approbation ou la configuration globale sans demande dédiée.
+- Référence de sécurité applicative : `D:\enhacements\decodair` pour la gestion
+  des cookies et sessions, leur expiration, l'invalidation et la révocation côté
+  serveur, la déconnexion, les autorisations et les protections de l'API. N'en
+  reprendre que les mécanismes pertinents et compatibles avec l'architecture réelle
+  de ce projet (API loopback mono-utilisateur, frontend statique de même origine) ;
+  vérifier ou compléter chaque choix auprès des publications officielles de l'OWASP
+  et des sources officielles des technologies concernées, dans le respect des
+  `SKILL.md` applicables.
+- Adapter ces paramètres à l'environnement : en développement local, n'imposer ni
+  cookie `Secure` ni TLS ; en production, appliquer les réglages adaptés (cookie
+  `Secure`, TLS, en-têtes associés), pilotés par la configuration et refusés au
+  démarrage s'ils sont incohérents.
 
 ## Validation proportionnée
 

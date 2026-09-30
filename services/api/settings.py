@@ -1,6 +1,6 @@
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
-import os
 from urllib.parse import urlparse
 
 from .errors import ApiError

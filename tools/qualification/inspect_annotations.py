@@ -8,7 +8,6 @@ from collections import Counter
 from pathlib import Path
 
 import pypdfium2 as pdfium
-
 from resolve import whitespace_map
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -24,11 +23,13 @@ def main():
         doc = pdfium.PdfDocument(str(ROOT / "fixtures" / entries[key]["path"]))
         try:
             for index in range(len(doc)):
-                page = doc[index]; textpage = page.get_textpage()
+                page = doc[index]
+                textpage = page.get_textpage()
                 try:
                     pages[(key, index)] = textpage.get_text_bounded()
                 finally:
-                    textpage.close(); page.close()
+                    textpage.close()
+                    page.close()
         finally:
             doc.close()
     observations = []
@@ -55,7 +56,8 @@ def main():
                     if len(hits) != 1:
                         matched = False
                     else:
-                        start = mapping[hits[0]]; end = mapping[hits[0] + len(target) - 1] + 1
+                        start = mapping[hits[0]]
+                        end = mapping[hits[0] + len(target) - 1] + 1
                         spans.append({"start_codepoint": start, "end_codepoint": end, "source_text": raw[start:end]})
             kind = entries[unit["document_key"]]["type"]
             status = "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT" if matched else "REQUIRES_OCR_PREFLIGHT" if not raw else "SCANNED_REGION_REQUIRES_OCR_PREFLIGHT" if kind == "native_paragraph_scanned_table" and unit["page_index"] == 1 else "EXPECTED_TEXT_NOT_FOUND_NATIVE_PREFLIGHT"

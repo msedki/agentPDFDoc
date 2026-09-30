@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pypdfium2 as pdfium
 import reportlab
+from corpus_data import DATASET_VERSION, dataset, document_descriptor, frozen_digest, records
 from reportlab.lib.colors import HexColor
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.pdfencrypt import StandardEncryption
@@ -20,8 +21,6 @@ from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
-
-from corpus_data import DATASET_VERSION, dataset, document_descriptor, frozen_digest, records
 
 ROOT = Path(__file__).resolve().parents[2]
 PAGE_W, PAGE_H = A4
@@ -255,8 +254,8 @@ def add_specials(base: Path) -> list[dict]:
 
     add("roman-labels", "labels/Préface romaine et annexe.pdf", "roman_arabic_labels", "Distinction page physique et folio logique", labels, pages=4, expected_labels=["i", "ii", "A-1", "A-2"])
     add("unicode-selection", "text/Unicode ligatures césures.pdf", "unicode_native", "Vrais glyphes vectoriels et ToUnicode : hors BMP, accent combinant, ligature et césure", lambda p: p.write_bytes(unicode_pdf()), required_native_codepoints=["U+1F600", "U+00E9", "U+FB01", "U+0065 U+0301"], font_method="project-authored Type3 vectors; UTF-16BE ToUnicode CMap")
-    for version, pressure in ((1, "2.7"), (2, "4.9")):
-        add(f"version-{version}", f"versions/v{version}/Procédure QV-01.pdf", "version_update", "Même chemin logique, changement de valeur : citation ancienne doit rester sur v1", lambda p, v=version, val=pressure: plain(p, f"QV-01 — révision {v}", [f"La pression de réglage de QV-01 est de {val} bar."]), logical_path="versions/Procédure QV-01.pdf", revision_label=f"v{version}", expected_pressure_bar=pressure)
+    for revision, pressure in ((1, "2.7"), (2, "4.9")):
+        add(f"version-{revision}", f"versions/v{revision}/Procédure QV-01.pdf", "version_update", "Même chemin logique, changement de valeur : citation ancienne doit rester sur v1", lambda p, v=revision, val=pressure: plain(p, f"QV-01 — révision {v}", [f"La pression de réglage de QV-01 est de {val} bar."]), logical_path="versions/Procédure QV-01.pdf", revision_label=f"v{revision}", expected_pressure_bar=pressure)
     for folder, identifier in (("Unité été", "QH-A"), ("Unité hiver", "QH-B")):
         add(identifier, f"imports/{folder}/Commun.pdf", "homonym_unicode_path", "Homonymes dans deux sous-dossiers Unicode distincts", lambda p, code=identifier: plain(p, f"Fiche {code}", [f"Le code de cette fiche est {code}, couple 11 N·m."]))
 
@@ -266,12 +265,14 @@ def add_specials(base: Path) -> list[dict]:
         y = heading(c, "Scan bilingue QS-FREN", "Page 1 / 1")
         for text in ("Le contrôle QS-FREN exige une pression de 3.8 bar et une tolérance de ± 0.2 bar.", "For test QS-FREN, maintain 3.8 bar with a tolerance of ± 0.2 bar."):
             y = line(c, text, 48, y) - 20
-        c.showPage(); c.save()
+        c.showPage()
+        c.save()
         image = render_bytes(native.getvalue())
         try:
             result = pdf_canvas(str(target))
             result.drawImage(ImageReader(image), 0, 0, width=PAGE_W, height=PAGE_H)
-            result.showPage(); result.save()
+            result.showPage()
+            result.save()
         finally:
             image.close()
 
@@ -312,7 +313,8 @@ def inspect_pdf(path: Path, entry: dict) -> dict:
                 raw_text = textpage.get_text_bounded()
                 pages.append({"page_index": index, "width": page.get_width(), "height": page.get_height(), "rotation": page.get_rotation(), "media_box": list(page.get_mediabox()), "crop_box": list(page.get_cropbox()), "effective_box": list(page.get_bbox()), "label": doc.get_page_label(index), "native_character_count": len(raw_text), "native_text_sha256": hashlib.sha256(raw_text.encode()).hexdigest(), "native_codepoints": sorted({f"U+{ord(c):04X}" for c in raw_text if ord(c) > 127}), "control_codepoints": sorted({f"U+{ord(c):04X}" for c in raw_text if ord(c) < 32 and c not in "\r\n\t"}), "ligature_expansion_observed": entry["key"] == "unicode-selection" and "fi" in raw_text and "\ufb01" not in raw_text, "hyphenation_marker_observed": entry["key"] == "unicode-selection" and "con\x02trole" in raw_text})
             finally:
-                textpage.close(); page.close()
+                textpage.close()
+                page.close()
         return {"open_status": "OPENED_WITH_FIXTURE_PASSWORD" if password else "OPENED", "pages": pages}
     finally:
         doc.close()

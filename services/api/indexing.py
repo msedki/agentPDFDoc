@@ -6,9 +6,9 @@ import struct
 import threading
 from uuid import UUID, uuid5
 
+from .context import LlmTokenizer
 from .db import json_dump, now, uid
 from .errors import ApiError
-from .context import LlmTokenizer
 from .retrieval import identifiers, normalized_identifier
 
 

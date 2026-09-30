@@ -6,13 +6,13 @@ resolved immutable source annotations; unresolved evidence is not a success.
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
 import hashlib
 import json
 import math
 import os
-from pathlib import Path
 import random
+from datetime import UTC, datetime
+from pathlib import Path
 from urllib.parse import urlparse
 
 import httpx
@@ -243,7 +243,7 @@ def run(dataset_path, source_path, output_path, base_url, split, freeze_path=Non
     metrics = summary(rows)
     complete = len(rows) == 100 and metrics["evaluated_questions"] == 100
     target = metrics["recall_at_10"]["rate"] is not None and metrics["recall_at_10"]["rate"] >= .9 and metrics["evidence_coverage_at_context"]["rate"] >= .9 and metrics["scope_leakage_count"] == 0
-    report = {"date_utc": datetime.now(timezone.utc).isoformat(), "split": split, "phase": "retrieval_and_final_context_no_generation", "status": "PASS" if complete and target else ("FAIL" if complete else "INCOMPLETE"),
+    report = {"date_utc": datetime.now(UTC).isoformat(), "split": split, "phase": "retrieval_and_final_context_no_generation", "status": "PASS" if complete and target else ("FAIL" if complete else "INCOMPLETE"),
               "source_dataset_sha256": canonical_sha(source), "resolved_annotations_sha256": canonical_sha(dataset), "identity": identity, "diagnostics": diagnostics, "metrics": metrics, "questions": rows,
               "limits": ["This result does not qualify answers, correct abstention, real LLM token counts or performance on 25000 chunks.", "Unresolved annotations and runtime errors remain explicit; percentages exclude unavailable gold units and cannot produce PASS."]}
     output_path.parent.mkdir(parents=True, exist_ok=True)
