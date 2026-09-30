@@ -135,10 +135,8 @@ class QdrantStore:
     async def ensure_collection(self):
         response = await self.client.get(f"/collections/{self.collection}")
         if response.status_code == 404:
-            config_path = self.settings.root / "config/qdrant.collection.json"
-            if not config_path.exists():
-                config_path = self.settings.root / "RAG_Local_Agents/config/qdrant.collection.json"
-            config = json.loads(config_path.read_text(encoding="utf-8"))
+            # Configuration runtime sous config/ (copie documentaire contrôlée par verify_pack) : aucun fichier du dossier de chantier.
+            config = json.loads((self.settings.root / "config/qdrant.collection.json").read_text(encoding="utf-8"))
             await self.request("PUT", f"/collections/{self.collection}", json=config)
         actual = await self.request("GET", f"/collections/{self.collection}")
         effective = actual["config"]

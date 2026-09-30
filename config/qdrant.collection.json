@@ -1,0 +1,21 @@
+{
+  "vectors": {
+    "dense": {
+      "size": 384,
+      "distance": "Cosine",
+      "on_disk": true
+    }
+  },
+  "shard_number": 1,
+  "replication_factor": 1,
+  "on_disk_payload": true,
+  "hnsw_config": {
+    "m": 16,
+    "ef_construct": 100,
+    "on_disk": false
+  },
+  "optimizers_config": {
+    "default_segment_number": 2,
+    "max_optimization_threads": 1
+  }
+}

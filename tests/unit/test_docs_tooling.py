@@ -260,3 +260,17 @@ def test_git_check_unavailable_is_reported_as_warning(tmp_path, monkeypatch):
     detail = vp.markdown_check(pack)
     assert detail['git_ignore_check'].startswith('NOT_RUN')
     assert detail['warnings'] and 'NOT_RUN' in detail['warnings'][0]
+
+
+def test_collection_config_copy_is_checked_like_the_profile(tmp_path: Path):
+    root = tmp_path / 'RAG_Local_Agents'
+    (tmp_path / 'config').mkdir()
+    (root / 'config').mkdir(parents=True)
+    for folder in (tmp_path, root):
+        (folder / 'config' / 'local16.yaml').write_bytes(b'a: 1\n')
+    (root / 'config' / 'qdrant.collection.json').write_bytes(b'{"x": 1}\n')
+    with pytest.raises(AssertionError, match='qdrant.collection.json'):
+        vp.config_identity_check(root)
+    (tmp_path / 'config' / 'qdrant.collection.json').write_bytes(b'{"x": 1}\n')
+    assert vp.config_identity_check(root)['collection_config']['byte_identical']
+    assert vp.config_identity_check()['collection_config']['runtime'] == 'config/qdrant.collection.json'
