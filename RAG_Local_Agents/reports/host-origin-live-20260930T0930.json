@@ -1,0 +1,64 @@
+{
+  "utc": "2026-09-30T09:30:09.920739+00:00",
+  "target": "instance restaurée 9c4868a1e51f438281c389fc31e1cd20 (API 127.0.0.1:8795, Qdrant 6343, Ollama 11445)",
+  "method": "curl loopback, en-têtes Host/Origin/Sec-Fetch-Site forgés ; GET /api/v1/health et POST /api/v1/search",
+  "results": [
+    {
+      "request": "GET Host=127.0.0.1:8795",
+      "status": 200
+    },
+    {
+      "request": "GET Host=evil.example",
+      "status": 400,
+      "code": "invalid_host"
+    },
+    {
+      "request": "GET Host=127.0.0.1:9999",
+      "status": 400,
+      "code": "invalid_host"
+    },
+    {
+      "request": "GET Origin=http://evil.example",
+      "status": 403,
+      "code": "invalid_origin"
+    },
+    {
+      "request": "POST /api/v1/search Origin=http://evil.example",
+      "status": 403,
+      "code": "invalid_origin"
+    },
+    {
+      "request": "POST /api/v1/search Origin=null",
+      "status": 403,
+      "code": "invalid_origin"
+    },
+    {
+      "request": "GET Sec-Fetch-Site=cross-site",
+      "status": 403
+    },
+    {
+      "request": "GET Host=localhost:8795",
+      "status": 200
+    },
+    {
+      "request": "GET Origin=http://127.0.0.1:8795",
+      "status": 200
+    },
+    {
+      "request": "Ollama GET /api/tags Host=evil.example",
+      "status": 403
+    },
+    {
+      "request": "Ollama GET /api/tags Origin=http://evil.example",
+      "status": 403
+    },
+    {
+      "request": "Qdrant GET /collections Host=evil.example",
+      "status": 200,
+      "finding": "DEFECT: Qdrant sans api_key accepte un Host étranger ; exposition possible des payloads (texte documentaire) par DNS rebinding depuis un navigateur local"
+    }
+  ],
+  "api_status": "PASS (Host/Origin/cross-site rejetés sur le serveur réel)",
+  "qdrant_status": "FAIL (contrôle Host absent, api_key non configurée)",
+  "limit": "Loopback uniquement ; ne prouve pas l'absence de bind LAN (voir relevé des sockets en écoute)"
+}

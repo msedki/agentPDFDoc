@@ -1,0 +1,63 @@
+{
+  "utc": "2026-09-30T09:31:52.949847+00:00",
+  "session": "reprise 30/09 08:43 UTC (Claude Code)",
+  "skills_read_by_integrator": [
+    {
+      "name": "windows-rag-runtime",
+      "path": ".agents/skills/windows-rag-runtime/SKILL.md",
+      "origin": "projet (créé par une session antérieure)",
+      "task": "W-M01 modèle texte, provisionnement pull-model, calibration, redémarrage instance restaurée",
+      "read_utc": "2026-09-30T09:13Z",
+      "sha256": "fb0b076d820cb4da0448eee37eeda7840343cc3b7bc56ef93c9149b3e283f451",
+      "behavioral_validation": "NOT_RUN (lecture explicite, pas de découverte native par ce client)"
+    },
+    {
+      "name": "local-cpu-qualification",
+      "path": "RAG_Local_Agents/skills/local-cpu-qualification/SKILL.md",
+      "origin": "pack V2.1",
+      "task": "pilotes mémoire/latence, optimisation ciblée use_mmap",
+      "read_utc": "2026-09-30T09:13Z",
+      "sha256": "df784ae4926e77983eec1eae08d6ef8cc8dc59c0f11b2f04fbe2d164b64442c3",
+      "behavioral_validation": "NOT_RUN (lecture explicite, pas de découverte native par ce client)"
+    }
+  ],
+  "builtin_tools": [
+    {
+      "name": "workflow-authoring",
+      "origin": "Claude Code intégré (non versionné dans le dépôt)",
+      "task": "orchestration des cartographies et du lot R4",
+      "read_utc": "2026-09-30T08:44Z"
+    }
+  ],
+  "skills_assigned_to_subagents_lot_R4": [
+    {
+      "zone": "retrieval",
+      "skills": ".agents/skills/hybrid-rag-api, RAG_Local_Agents/skills/rag-retrieval-evaluation"
+    },
+    {
+      "zone": "api",
+      "skills": ".agents/skills/hybrid-rag-api, RAG_Local_Agents/skills/rag-pdf-provenance, .agents/skills/python-fastapi-web-server-security.md"
+    },
+    {
+      "zone": "runtime",
+      "skills": ".agents/skills/windows-rag-runtime, RAG_Local_Agents/skills/local-cpu-qualification"
+    },
+    {
+      "zone": "ingestion",
+      "skills": ".agents/skills/pdf-ingestion-windows, RAG_Local_Agents/skills/rag-pdf-provenance"
+    },
+    {
+      "zone": "qualification-tools",
+      "skills": ".agents/skills/rag-qualification-fixtures, RAG_Local_Agents/skills/rag-retrieval-evaluation, RAG_Local_Agents/skills/local-cpu-qualification"
+    },
+    {
+      "zone": "docs-tooling",
+      "skills": "RAG_Local_Agents/skills/official-source-review"
+    },
+    {
+      "zone": "frontend",
+      "skills": ".agents/skills/pdf-workspace-web, RAG_Local_Agents/skills/pdf-workspace-e2e, .agents/skills/javascript-typescript-react-web-frontend-security.md, .agents/skills/javascript-typescript-nextjs-web-server-security.md"
+    }
+  ],
+  "note": "Les lectures déclarées par les sous-agents seront ajoutées depuis leurs rapports ; un skill assigné n'est pas un skill exécuté."
+}

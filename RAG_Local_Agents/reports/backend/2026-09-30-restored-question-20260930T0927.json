@@ -1,0 +1,3360 @@
+{
+  "base_url": "http://127.0.0.1:8795",
+  "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+  "request": {
+    "question": "Quelle est la pression nominale de DA-P01 ? Citez sa source.",
+    "scope": {
+      "kind": "documents",
+      "documentIds": [
+        "e01b0666-ae93-40e5-9403-35decf00ae84"
+      ]
+    },
+    "mode": "question"
+  },
+  "created": {
+    "query_id": "8fc1c8b5-32fe-4417-a4cb-f020ff35ed77",
+    "conversation_id": "d288d21d-1850-49cd-8685-c5bacdde5399",
+    "events_url": "/api/v1/queries/8fc1c8b5-32fe-4417-a4cb-f020ff35ed77/events"
+  },
+  "first_delta_s": 149.75,
+  "elapsed_s": 251.157,
+  "terminal": {
+    "id": "211",
+    "event": "error",
+    "data": {
+      "code": "resource_admission_denied",
+      "message": "Réserve hôte menacée pendant la génération ; requête annulée.",
+      "metrics": {
+        "model_called": true,
+        "queue_wait_ms": 54.69,
+        "retrieval_ms": 5627.98,
+        "local_prompt_tokens": 892,
+        "output_tokens": 384,
+        "evidence_tokens": 715,
+        "evidence_budget": 1536,
+        "exact_identifiers_required": [
+          "DA-P01",
+          "P01"
+        ],
+        "exact_identifiers_covered": [
+          "DA-P01",
+          "P01"
+        ],
+        "identifier_coverage_states": {
+          "DA-P01": "covered",
+          "P01": "covered"
+        },
+        "retrieved_chunk_ids": [
+          "0b2e78e6-4073-5ff6-982b-6ff0f244b8f1",
+          "43f9176e-ff42-509c-8c1a-5da67ec445b7",
+          "6de81372-f4b5-5429-9466-52dfcb1f760f",
+          "f367b483-7fe5-511e-8684-b20ed8c2b1c0",
+          "9319db49-7f5b-5e18-afe0-c7dbda98e1ec",
+          "eb54e0ca-ca0c-5fa2-a02e-6813e088b83d",
+          "f8bf0a69-a6cf-55f7-b999-0cbf9adaf794",
+          "90abbef8-443e-52c9-9ff8-c49705ad885d"
+        ],
+        "context_chunk_ids": [
+          "0b2e78e6-4073-5ff6-982b-6ff0f244b8f1",
+          "43f9176e-ff42-509c-8c1a-5da67ec445b7",
+          "6de81372-f4b5-5429-9466-52dfcb1f760f",
+          "f367b483-7fe5-511e-8684-b20ed8c2b1c0",
+          "9319db49-7f5b-5e18-afe0-c7dbda98e1ec",
+          "eb54e0ca-ca0c-5fa2-a02e-6813e088b83d",
+          "f8bf0a69-a6cf-55f7-b999-0cbf9adaf794",
+          "90abbef8-443e-52c9-9ff8-c49705ad885d"
+        ],
+        "evidence_coverage_at_context": 1.0,
+        "context_ms": 31.97,
+        "generation_admission_wait_ms": 111.78,
+        "model_call_attempted": true,
+        "elapsed_ms": 250702.4
+      }
+    },
+    "t_s": 251.157
+  },
+  "answer_text_from_deltas": "La pression nominale de l'équipement **DA-P01** est de **3,1 bar**.\n\nCette affirmation repose sur la preuve **[S001]**, qui contient explicitement la phrase : « La pression nominale de DA-P01 est de 3.1 bar. »\n\nIl convient de noter les points suivants concernant l'analyse des preuves fournies :\n*   **Nature des données** : Les preuves sont identifiées comme des « données non fiables ». Bien que le texte de [S001] contienne une valeur précise, la fiabilité globale du document est mise en doute par la métadonnée.\n*   **Absence de contradiction directe** : Aucune autre preuve ne mentionne une pression nominale différente pour DA-P01. Les autres documents ([S002], [S003], etc.) traitent d'autres paramètres (diamètres, débit de fuite) ou de titres génériques (« DOCUMENT SYNTHÉTIQUE », « Tableau de contrôle »).",
+  "event_counts": {
+    "error": 1,
+    "delta": 206,
+    "sources": 1,
+    "status": 3
+  },
+  "sources_event": {
+    "sources": [
+      {
+        "chunk_id": "0b2e78e6-4073-5ff6-982b-6ff0f244b8f1",
+        "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+        "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+        "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+        "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+        "text": "DA-P01 - banc pneumatique synthétique Atelier 1. La pression nominale de DA-P01 est de 3.1 bar. La tolérance de pression de DA-P01 est de ± 2.0 %. Le contrôle périodique de DA-P01 intervient toutes les 1020 h. Le couple de serrage prescrit pour DA-P01 est de 12 N·m. L'alimentation d'essai de DA-P01 est de 22 V.",
+        "blocks": [
+          {
+            "id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+            "block_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+            "page_index": 0,
+            "text": "DA-P01 - banc pneumatique synthétique Atelier 1. La pression nominale de DA-P01 est de 3.1 bar. La tolérance de pression de DA-P01 est de ± 2.0 %. Le contrôle périodique de DA-P01 intervient toutes les 1020 h. Le couple de serrage prescrit pour DA-P01 est de 12 N·m. L'alimentation d'essai de DA-P01 est de 22 V.",
+            "start_offset": 0,
+            "end_offset": 312,
+            "bbox": [
+              48.0,
+              502.1472216,
+              392.75976590000005,
+              702.6472216
+            ],
+            "precision": "block",
+            "type": "text",
+            "page": {
+              "alphanumeric_count": 404,
+              "classification": "native",
+              "coverage_regions": [
+                {
+                  "bbox": [
+                    48.0,
+                    742.5679247999999,
+                    279.65624960000014,
+                    750.5679247999999
+                  ],
+                  "block_id": "10d82f07-3c23-592d-9808-efb352c9652d",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    776.0460496000001,
+                    412.57812320000005,
+                    792.0460496000001
+                  ],
+                  "block_id": "81b57457-83ed-5f11-9b49-9fabfcaff157",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "heading"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    502.1472216,
+                    392.75976590000005,
+                    702.6472216
+                  ],
+                  "block_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    445.5472216,
+                    541.3027407,
+                    475.2472216
+                  ],
+                  "block_id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    29.837890399999992,
+                    93.25927829999999,
+                    38.83789039999999
+                  ],
+                  "block_id": "9397fcff-878b-5660-9cef-426fc6eece42",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                }
+              ],
+              "crop_box": null,
+              "crop_box_source": "unavailable_inherited_or_absent",
+              "display_height": 841.8897705078125,
+              "display_width": 595.2755737304688,
+              "effective_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "extraction_route": "structured",
+              "extraction_state": "native",
+              "height": 841.8897705078125,
+              "image_regions": [],
+              "label": null,
+              "media_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "media_box_source": "declared",
+              "native_text_regions": [
+                [
+                  49.34400177001953,
+                  776.4497680664062,
+                  411.1519775390625,
+                  792.6897583007812
+                ],
+                [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                [
+                  49.077999114990234,
+                  692.0128173828125,
+                  330.9529724121094,
+                  703.0897827148438
+                ],
+                [
+                  49.077999114990234,
+                  654.11279296875,
+                  309.00799560546875,
+                  664.749755859375
+                ],
+                [
+                  49.077999114990234,
+                  616.2128295898438,
+                  332.0639953613281,
+                  627.289794921875
+                ],
+                [
+                  49.077999114990234,
+                  578.3128051757812,
+                  391.2110595703125,
+                  589.3897705078125
+                ],
+                [
+                  49.077999114990234,
+                  540.412841796875,
+                  364.9319763183594,
+                  551.0498046875
+                ],
+                [
+                  49.077999114990234,
+                  504.64678955078125,
+                  297.5570068359375,
+                  513.1497802734375
+                ],
+                [
+                  49.077999114990234,
+                  464.61279296875,
+                  540.2281494140625,
+                  475.6897888183594
+                ],
+                [
+                  48.60499954223633,
+                  448.0467834472656,
+                  142.98500061035156,
+                  456.5497741699219
+                ]
+              ],
+              "native_text_sparse": false,
+              "needs_ocr": false,
+              "ocr_cell_count": 0,
+              "ocr_orientations": [],
+              "ocr_parser_regions": [],
+              "ocr_preprocessing": [],
+              "ocr_regions": [],
+              "ocr_used": false,
+              "orientation_correction": 0,
+              "orientation_source": "native_page_frame",
+              "page_index": 0,
+              "page_number": 1,
+              "replacement_ratio": 0.0,
+              "rotation": 0,
+              "routing_reason": "typography_requires_structure",
+              "table_orientation_corrections": [],
+              "text_character_count": 529,
+              "text_font_sizes": [
+                8.0,
+                9.0,
+                11.0,
+                16.0
+              ],
+              "text_mapping_warnings": [],
+              "unresolved_regions": [],
+              "vector_path_count": 1,
+              "width": 595.2755737304688
+            },
+            "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+            "source_text_hash": "587198c96b5f174c0bb1afdd36049cf514316a7001b02bbbe5b8edaa460f9737"
+          }
+        ],
+        "page_indices": [
+          0
+        ],
+        "parent_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+        "score": 0.03278688524590164,
+        "exact_identifier": true,
+        "coverage": {
+          "ocr": 0,
+          "processed": 2,
+          "total": 2,
+          "unresolved": 0,
+          "unresolved_regions": 0
+        },
+        "extraction_state": "ready",
+        "extraction_warnings": [],
+        "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "page_index": 0,
+        "page_number": 1,
+        "label": null,
+        "required_identifiers": [
+          "DA-P01",
+          "P01"
+        ],
+        "parent_expanded": false,
+        "source_id": "S001",
+        "query_id": "8fc1c8b5-32fe-4417-a4cb-f020ff35ed77",
+        "block_ids": [
+          "aabbf7be-8ddc-5458-bf8c-896487ae9c1c"
+        ],
+        "bboxes": [
+          [
+            48.0,
+            502.1472216,
+            392.75976590000005,
+            702.6472216
+          ]
+        ],
+        "precision": "block",
+        "citation_url": "/api/v1/citations/8fc1c8b5-32fe-4417-a4cb-f020ff35ed77/S001"
+      },
+      {
+        "chunk_id": "43f9176e-ff42-509c-8c1a-5da67ec445b7",
+        "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+        "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+        "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+        "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+        "text": "Référence | Valeur | Unité\nDA-P01-IN | 13 | mm\nDA-P01-OUT | 9 | mm\nDA-P01-LEAK | 0.1 | L/min",
+        "blocks": [
+          {
+            "id": "6531eb30-3493-56cf-8872-0e4b04476938",
+            "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+            "page_index": 1,
+            "text": "Référence | Valeur | Unité\nDA-P01-IN | 13 | mm\nDA-P01-OUT | 9 | mm\nDA-P01-LEAK | 0.1 | L/min",
+            "start_offset": 0,
+            "end_offset": 92,
+            "bbox": [
+              47.197009358351025,
+              489.3572097513303,
+              547.7652398158541,
+              619.929397550167
+            ],
+            "precision": "table",
+            "type": "table",
+            "page": {
+              "alphanumeric_count": 192,
+              "classification": "native",
+              "coverage_regions": [
+                {
+                  "bbox": [
+                    48.0,
+                    776.0460496000001,
+                    325.5703136000001,
+                    792.0460496000001
+                  ],
+                  "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "heading"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    742.5679247999999,
+                    279.65624960000014,
+                    750.5679247999999
+                  ],
+                  "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    691.6472216,
+                    372.2314493,
+                    702.6472216
+                  ],
+                  "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    629.4069872,
+                    182.9003904,
+                    641.4069872
+                  ],
+                  "block_id": "400df997-6d2d-563e-b813-db92651f7f49",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "heading"
+                },
+                {
+                  "bbox": [
+                    47.197009358351025,
+                    489.3572097513303,
+                    547.7652398158541,
+                    619.929397550167
+                  ],
+                  "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "table"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    29.837890399999992,
+                    93.25927829999999,
+                    38.83789039999999
+                  ],
+                  "block_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                }
+              ],
+              "crop_box": null,
+              "crop_box_source": "unavailable_inherited_or_absent",
+              "display_height": 841.8897705078125,
+              "display_width": 595.2755737304688,
+              "effective_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "extraction_route": "structured",
+              "extraction_state": "native",
+              "height": 841.8897705078125,
+              "image_regions": [],
+              "label": null,
+              "media_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "media_box_source": "declared",
+              "native_text_regions": [
+                [
+                  49.47200012207031,
+                  779.6817626953125,
+                  324.32000732421875,
+                  792.6897583007812
+                ],
+                [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                [
+                  49.077999114990234,
+                  692.0128173828125,
+                  370.70697021484375,
+                  702.6497802734375
+                ],
+                [
+                  48.060001373291016,
+                  632.1337890625,
+                  182.22000122070312,
+                  641.8897705078125
+                ],
+                [
+                  53.91999816894531,
+                  599.3598022460938,
+                  109.64999389648438,
+                  607.4898071289062
+                ],
+                [
+                  275.04998779296875,
+                  599.3598022460938,
+                  311.67999267578125,
+                  607.0897827148438
+                ],
+                [
+                  405.9200134277344,
+                  599.3598022460938,
+                  434.7300109863281,
+                  607.4898071289062
+                ],
+                [
+                  53.97999954223633,
+                  566.3598022460938,
+                  102.92999267578125,
+                  573.9097900390625
+                ],
+                [
+                  276.1000061035156,
+                  566.3598022460938,
+                  286.9200134277344,
+                  573.9097900390625
+                ],
+                [
+                  405.9100036621094,
+                  566.4898071289062,
+                  423.6300048828125,
+                  572.0897827148438
+                ],
+                [
+                  53.97999954223633,
+                  533.3598022460938,
+                  114.80999755859375,
+                  540.9097900390625
+                ],
+                [
+                  275.6300048828125,
+                  533.3598022460938,
+                  280.6600036621094,
+                  540.9097900390625
+                ],
+                [
+                  405.9100036621094,
+                  533.4898071289062,
+                  423.6300048828125,
+                  539.0897827148438
+                ],
+                [
+                  53.97999954223633,
+                  500.35980224609375,
+                  118.97999572753906,
+                  507.9098205566406
+                ],
+                [
+                  275.6600036621094,
+                  500.35980224609375,
+                  289.9700012207031,
+                  507.9098205566406
+                ],
+                [
+                  405.9800109863281,
+                  499.5697937011719,
+                  431.92999267578125,
+                  508.0898132324219
+                ]
+              ],
+              "native_text_sparse": false,
+              "needs_ocr": false,
+              "ocr_cell_count": 0,
+              "ocr_orientations": [],
+              "ocr_parser_regions": [],
+              "ocr_preprocessing": [],
+              "ocr_regions": [],
+              "ocr_used": false,
+              "orientation_correction": 0,
+              "orientation_source": "native_page_frame",
+              "page_index": 1,
+              "page_number": 2,
+              "replacement_ratio": 0.0,
+              "rotation": 0,
+              "routing_reason": "typography_requires_structure",
+              "table_orientation_corrections": [],
+              "text_character_count": 252,
+              "text_font_sizes": [
+                8.0,
+                9.0,
+                10.0,
+                11.0,
+                12.0,
+                16.0
+              ],
+              "text_mapping_warnings": [],
+              "unresolved_regions": [],
+              "vector_path_count": 6,
+              "width": 595.2755737304688
+            },
+            "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+            "source_text_hash": "b8905b7ddd2345f2f81baeb5638d1806cdd8dae8027724ac7962be9c01221ad5"
+          }
+        ],
+        "page_indices": [
+          1
+        ],
+        "parent_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+        "score": 0.03200204813108039,
+        "exact_identifier": true,
+        "coverage": {
+          "ocr": 0,
+          "processed": 2,
+          "total": 2,
+          "unresolved": 0,
+          "unresolved_regions": 0
+        },
+        "extraction_state": "ready",
+        "extraction_warnings": [],
+        "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "page_index": 1,
+        "page_number": 2,
+        "label": null,
+        "parent_expanded": false,
+        "source_id": "S002",
+        "query_id": "8fc1c8b5-32fe-4417-a4cb-f020ff35ed77",
+        "block_ids": [
+          "6531eb30-3493-56cf-8872-0e4b04476938"
+        ],
+        "bboxes": [
+          [
+            47.197009358351025,
+            489.3572097513303,
+            547.7652398158541,
+            619.929397550167
+          ]
+        ],
+        "precision": "block",
+        "citation_url": "/api/v1/citations/8fc1c8b5-32fe-4417-a4cb-f020ff35ed77/S002"
+      },
+      {
+        "chunk_id": "6de81372-f4b5-5429-9466-52dfcb1f760f",
+        "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+        "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+        "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+        "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+        "text": "Mesures de contrôle - DA-P01",
+        "blocks": [
+          {
+            "id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+            "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+            "page_index": 1,
+            "text": "Mesures de contrôle - DA-P01",
+            "start_offset": 0,
+            "end_offset": 28,
+            "bbox": [
+              48.0,
+              776.0460496000001,
+              325.5703136000001,
+              792.0460496000001
+            ],
+            "precision": "block",
+            "type": "heading",
+            "page": {
+              "alphanumeric_count": 192,
+              "classification": "native",
+              "coverage_regions": [
+                {
+                  "bbox": [
+                    48.0,
+                    776.0460496000001,
+                    325.5703136000001,
+                    792.0460496000001
+                  ],
+                  "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "heading"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    742.5679247999999,
+                    279.65624960000014,
+                    750.5679247999999
+                  ],
+                  "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    691.6472216,
+                    372.2314493,
+                    702.6472216
+                  ],
+                  "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    629.4069872,
+                    182.9003904,
+                    641.4069872
+                  ],
+                  "block_id": "400df997-6d2d-563e-b813-db92651f7f49",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "heading"
+                },
+                {
+                  "bbox": [
+                    47.197009358351025,
+                    489.3572097513303,
+                    547.7652398158541,
+                    619.929397550167
+                  ],
+                  "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "table"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    29.837890399999992,
+                    93.25927829999999,
+                    38.83789039999999
+                  ],
+                  "block_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                }
+              ],
+              "crop_box": null,
+              "crop_box_source": "unavailable_inherited_or_absent",
+              "display_height": 841.8897705078125,
+              "display_width": 595.2755737304688,
+              "effective_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "extraction_route": "structured",
+              "extraction_state": "native",
+              "height": 841.8897705078125,
+              "image_regions": [],
+              "label": null,
+              "media_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "media_box_source": "declared",
+              "native_text_regions": [
+                [
+                  49.47200012207031,
+                  779.6817626953125,
+                  324.32000732421875,
+                  792.6897583007812
+                ],
+                [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                [
+                  49.077999114990234,
+                  692.0128173828125,
+                  370.70697021484375,
+                  702.6497802734375
+                ],
+                [
+                  48.060001373291016,
+                  632.1337890625,
+                  182.22000122070312,
+                  641.8897705078125
+                ],
+                [
+                  53.91999816894531,
+                  599.3598022460938,
+                  109.64999389648438,
+                  607.4898071289062
+                ],
+                [
+                  275.04998779296875,
+                  599.3598022460938,
+                  311.67999267578125,
+                  607.0897827148438
+                ],
+                [
+                  405.9200134277344,
+                  599.3598022460938,
+                  434.7300109863281,
+                  607.4898071289062
+                ],
+                [
+                  53.97999954223633,
+                  566.3598022460938,
+                  102.92999267578125,
+                  573.9097900390625
+                ],
+                [
+                  276.1000061035156,
+                  566.3598022460938,
+                  286.9200134277344,
+                  573.9097900390625
+                ],
+                [
+                  405.9100036621094,
+                  566.4898071289062,
+                  423.6300048828125,
+                  572.0897827148438
+                ],
+                [
+                  53.97999954223633,
+                  533.3598022460938,
+                  114.80999755859375,
+                  540.9097900390625
+                ],
+                [
+                  275.6300048828125,
+                  533.3598022460938,
+                  280.6600036621094,
+                  540.9097900390625
+                ],
+                [
+                  405.9100036621094,
+                  533.4898071289062,
+                  423.6300048828125,
+                  539.0897827148438
+                ],
+                [
+                  53.97999954223633,
+                  500.35980224609375,
+                  118.97999572753906,
+                  507.9098205566406
+                ],
+                [
+                  275.6600036621094,
+                  500.35980224609375,
+                  289.9700012207031,
+                  507.9098205566406
+                ],
+                [
+                  405.9800109863281,
+                  499.5697937011719,
+                  431.92999267578125,
+                  508.0898132324219
+                ]
+              ],
+              "native_text_sparse": false,
+              "needs_ocr": false,
+              "ocr_cell_count": 0,
+              "ocr_orientations": [],
+              "ocr_parser_regions": [],
+              "ocr_preprocessing": [],
+              "ocr_regions": [],
+              "ocr_used": false,
+              "orientation_correction": 0,
+              "orientation_source": "native_page_frame",
+              "page_index": 1,
+              "page_number": 2,
+              "replacement_ratio": 0.0,
+              "rotation": 0,
+              "routing_reason": "typography_requires_structure",
+              "table_orientation_corrections": [],
+              "text_character_count": 252,
+              "text_font_sizes": [
+                8.0,
+                9.0,
+                10.0,
+                11.0,
+                12.0,
+                16.0
+              ],
+              "text_mapping_warnings": [],
+              "unresolved_regions": [],
+              "vector_path_count": 6,
+              "width": 595.2755737304688
+            },
+            "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+            "source_text_hash": "0ebf7ed65fd42e045e56f90f690d68cce6417a4294d4a21b47d4dd76fb6270d6"
+          }
+        ],
+        "page_indices": [
+          1
+        ],
+        "parent_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+        "score": 0.031754032258064516,
+        "exact_identifier": true,
+        "coverage": {
+          "ocr": 0,
+          "processed": 2,
+          "total": 2,
+          "unresolved": 0,
+          "unresolved_regions": 0
+        },
+        "extraction_state": "ready",
+        "extraction_warnings": [],
+        "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "page_index": 1,
+        "page_number": 2,
+        "label": null,
+        "parent_expanded": false,
+        "source_id": "S003",
+        "query_id": "8fc1c8b5-32fe-4417-a4cb-f020ff35ed77",
+        "block_ids": [
+          "f72eb719-496b-568c-b7ed-5f0b49eb1093"
+        ],
+        "bboxes": [
+          [
+            48.0,
+            776.0460496000001,
+            325.5703136000001,
+            792.0460496000001
+          ]
+        ],
+        "precision": "block",
+        "citation_url": "/api/v1/citations/8fc1c8b5-32fe-4417-a4cb-f020ff35ed77/S003"
+      },
+      {
+        "chunk_id": "f367b483-7fe5-511e-8684-b20ed8c2b1c0",
+        "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+        "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+        "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+        "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+        "text": "Les valeurs de ce tableau concernent uniquement DA-P01.",
+        "blocks": [
+          {
+            "id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+            "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+            "page_index": 1,
+            "text": "Les valeurs de ce tableau concernent uniquement DA-P01.",
+            "start_offset": 0,
+            "end_offset": 55,
+            "bbox": [
+              48.0,
+              691.6472216,
+              372.2314493,
+              702.6472216
+            ],
+            "precision": "block",
+            "type": "text",
+            "page": {
+              "alphanumeric_count": 192,
+              "classification": "native",
+              "coverage_regions": [
+                {
+                  "bbox": [
+                    48.0,
+                    776.0460496000001,
+                    325.5703136000001,
+                    792.0460496000001
+                  ],
+                  "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "heading"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    742.5679247999999,
+                    279.65624960000014,
+                    750.5679247999999
+                  ],
+                  "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    691.6472216,
+                    372.2314493,
+                    702.6472216
+                  ],
+                  "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    629.4069872,
+                    182.9003904,
+                    641.4069872
+                  ],
+                  "block_id": "400df997-6d2d-563e-b813-db92651f7f49",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "heading"
+                },
+                {
+                  "bbox": [
+                    47.197009358351025,
+                    489.3572097513303,
+                    547.7652398158541,
+                    619.929397550167
+                  ],
+                  "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "table"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    29.837890399999992,
+                    93.25927829999999,
+                    38.83789039999999
+                  ],
+                  "block_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                }
+              ],
+              "crop_box": null,
+              "crop_box_source": "unavailable_inherited_or_absent",
+              "display_height": 841.8897705078125,
+              "display_width": 595.2755737304688,
+              "effective_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "extraction_route": "structured",
+              "extraction_state": "native",
+              "height": 841.8897705078125,
+              "image_regions": [],
+              "label": null,
+              "media_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "media_box_source": "declared",
+              "native_text_regions": [
+                [
+                  49.47200012207031,
+                  779.6817626953125,
+                  324.32000732421875,
+                  792.6897583007812
+                ],
+                [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                [
+                  49.077999114990234,
+                  692.0128173828125,
+                  370.70697021484375,
+                  702.6497802734375
+                ],
+                [
+                  48.060001373291016,
+                  632.1337890625,
+                  182.22000122070312,
+                  641.8897705078125
+                ],
+                [
+                  53.91999816894531,
+                  599.3598022460938,
+                  109.64999389648438,
+                  607.4898071289062
+                ],
+                [
+                  275.04998779296875,
+                  599.3598022460938,
+                  311.67999267578125,
+                  607.0897827148438
+                ],
+                [
+                  405.9200134277344,
+                  599.3598022460938,
+                  434.7300109863281,
+                  607.4898071289062
+                ],
+                [
+                  53.97999954223633,
+                  566.3598022460938,
+                  102.92999267578125,
+                  573.9097900390625
+                ],
+                [
+                  276.1000061035156,
+                  566.3598022460938,
+                  286.9200134277344,
+                  573.9097900390625
+                ],
+                [
+                  405.9100036621094,
+                  566.4898071289062,
+                  423.6300048828125,
+                  572.0897827148438
+                ],
+                [
+                  53.97999954223633,
+                  533.3598022460938,
+                  114.80999755859375,
+                  540.9097900390625
+                ],
+                [
+                  275.6300048828125,
+                  533.3598022460938,
+                  280.6600036621094,
+                  540.9097900390625
+                ],
+                [
+                  405.9100036621094,
+                  533.4898071289062,
+                  423.6300048828125,
+                  539.0897827148438
+                ],
+                [
+                  53.97999954223633,
+                  500.35980224609375,
+                  118.97999572753906,
+                  507.9098205566406
+                ],
+                [
+                  275.6600036621094,
+                  500.35980224609375,
+                  289.9700012207031,
+                  507.9098205566406
+                ],
+                [
+                  405.9800109863281,
+                  499.5697937011719,
+                  431.92999267578125,
+                  508.0898132324219
+                ]
+              ],
+              "native_text_sparse": false,
+              "needs_ocr": false,
+              "ocr_cell_count": 0,
+              "ocr_orientations": [],
+              "ocr_parser_regions": [],
+              "ocr_preprocessing": [],
+              "ocr_regions": [],
+              "ocr_used": false,
+              "orientation_correction": 0,
+              "orientation_source": "native_page_frame",
+              "page_index": 1,
+              "page_number": 2,
+              "replacement_ratio": 0.0,
+              "rotation": 0,
+              "routing_reason": "typography_requires_structure",
+              "table_orientation_corrections": [],
+              "text_character_count": 252,
+              "text_font_sizes": [
+                8.0,
+                9.0,
+                10.0,
+                11.0,
+                12.0,
+                16.0
+              ],
+              "text_mapping_warnings": [],
+              "unresolved_regions": [],
+              "vector_path_count": 6,
+              "width": 595.2755737304688
+            },
+            "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+            "source_text_hash": "be0583a2a0033075e71f1c181e85e2d6f696a5e0a51f510471db05364d57cfc3"
+          }
+        ],
+        "page_indices": [
+          1
+        ],
+        "parent_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+        "score": 0.03125763125763126,
+        "exact_identifier": true,
+        "coverage": {
+          "ocr": 0,
+          "processed": 2,
+          "total": 2,
+          "unresolved": 0,
+          "unresolved_regions": 0
+        },
+        "extraction_state": "ready",
+        "extraction_warnings": [],
+        "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "page_index": 1,
+        "page_number": 2,
+        "label": null,
+        "parent_expanded": false,
+        "source_id": "S004",
+        "query_id": "8fc1c8b5-32fe-4417-a4cb-f020ff35ed77",
+        "block_ids": [
+          "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4"
+        ],
+        "bboxes": [
+          [
+            48.0,
+            691.6472216,
+            372.2314493,
+            702.6472216
+          ]
+        ],
+        "precision": "block",
+        "citation_url": "/api/v1/citations/8fc1c8b5-32fe-4417-a4cb-f020ff35ed77/S004"
+      },
+      {
+        "chunk_id": "9319db49-7f5b-5e18-afe0-c7dbda98e1ec",
+        "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+        "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+        "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+        "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+        "text": "La référence proche DA-P010 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P01.",
+        "blocks": [
+          {
+            "id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+            "block_id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+            "page_index": 0,
+            "text": "La référence proche DA-P010 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P01.",
+            "start_offset": 0,
+            "end_offset": 104,
+            "bbox": [
+              48.0,
+              445.5472216,
+              541.3027407,
+              475.2472216
+            ],
+            "precision": "block",
+            "type": "text",
+            "page": {
+              "alphanumeric_count": 404,
+              "classification": "native",
+              "coverage_regions": [
+                {
+                  "bbox": [
+                    48.0,
+                    742.5679247999999,
+                    279.65624960000014,
+                    750.5679247999999
+                  ],
+                  "block_id": "10d82f07-3c23-592d-9808-efb352c9652d",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    776.0460496000001,
+                    412.57812320000005,
+                    792.0460496000001
+                  ],
+                  "block_id": "81b57457-83ed-5f11-9b49-9fabfcaff157",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "heading"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    502.1472216,
+                    392.75976590000005,
+                    702.6472216
+                  ],
+                  "block_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    445.5472216,
+                    541.3027407,
+                    475.2472216
+                  ],
+                  "block_id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    29.837890399999992,
+                    93.25927829999999,
+                    38.83789039999999
+                  ],
+                  "block_id": "9397fcff-878b-5660-9cef-426fc6eece42",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                }
+              ],
+              "crop_box": null,
+              "crop_box_source": "unavailable_inherited_or_absent",
+              "display_height": 841.8897705078125,
+              "display_width": 595.2755737304688,
+              "effective_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "extraction_route": "structured",
+              "extraction_state": "native",
+              "height": 841.8897705078125,
+              "image_regions": [],
+              "label": null,
+              "media_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "media_box_source": "declared",
+              "native_text_regions": [
+                [
+                  49.34400177001953,
+                  776.4497680664062,
+                  411.1519775390625,
+                  792.6897583007812
+                ],
+                [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                [
+                  49.077999114990234,
+                  692.0128173828125,
+                  330.9529724121094,
+                  703.0897827148438
+                ],
+                [
+                  49.077999114990234,
+                  654.11279296875,
+                  309.00799560546875,
+                  664.749755859375
+                ],
+                [
+                  49.077999114990234,
+                  616.2128295898438,
+                  332.0639953613281,
+                  627.289794921875
+                ],
+                [
+                  49.077999114990234,
+                  578.3128051757812,
+                  391.2110595703125,
+                  589.3897705078125
+                ],
+                [
+                  49.077999114990234,
+                  540.412841796875,
+                  364.9319763183594,
+                  551.0498046875
+                ],
+                [
+                  49.077999114990234,
+                  504.64678955078125,
+                  297.5570068359375,
+                  513.1497802734375
+                ],
+                [
+                  49.077999114990234,
+                  464.61279296875,
+                  540.2281494140625,
+                  475.6897888183594
+                ],
+                [
+                  48.60499954223633,
+                  448.0467834472656,
+                  142.98500061035156,
+                  456.5497741699219
+                ]
+              ],
+              "native_text_sparse": false,
+              "needs_ocr": false,
+              "ocr_cell_count": 0,
+              "ocr_orientations": [],
+              "ocr_parser_regions": [],
+              "ocr_preprocessing": [],
+              "ocr_regions": [],
+              "ocr_used": false,
+              "orientation_correction": 0,
+              "orientation_source": "native_page_frame",
+              "page_index": 0,
+              "page_number": 1,
+              "replacement_ratio": 0.0,
+              "rotation": 0,
+              "routing_reason": "typography_requires_structure",
+              "table_orientation_corrections": [],
+              "text_character_count": 529,
+              "text_font_sizes": [
+                8.0,
+                9.0,
+                11.0,
+                16.0
+              ],
+              "text_mapping_warnings": [],
+              "unresolved_regions": [],
+              "vector_path_count": 1,
+              "width": 595.2755737304688
+            },
+            "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+            "source_text_hash": "379f5db8627a51ca834c62d1d6c9510206e3d7d2bb09ff788e1e76a331e6ddbd"
+          }
+        ],
+        "page_indices": [
+          0
+        ],
+        "parent_id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+        "score": 0.031009615384615385,
+        "exact_identifier": true,
+        "coverage": {
+          "ocr": 0,
+          "processed": 2,
+          "total": 2,
+          "unresolved": 0,
+          "unresolved_regions": 0
+        },
+        "extraction_state": "ready",
+        "extraction_warnings": [],
+        "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "page_index": 0,
+        "page_number": 1,
+        "label": null,
+        "parent_expanded": false,
+        "source_id": "S005",
+        "query_id": "8fc1c8b5-32fe-4417-a4cb-f020ff35ed77",
+        "block_ids": [
+          "4527a431-80ad-5265-b967-5243bbdd7f55"
+        ],
+        "bboxes": [
+          [
+            48.0,
+            445.5472216,
+            541.3027407,
+            475.2472216
+          ]
+        ],
+        "precision": "block",
+        "citation_url": "/api/v1/citations/8fc1c8b5-32fe-4417-a4cb-f020ff35ed77/S005"
+      },
+      {
+        "chunk_id": "eb54e0ca-ca0c-5fa2-a02e-6813e088b83d",
+        "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+        "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+        "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+        "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+        "text": "DOCUMENT SYNTHÉTIQUE - qualification technique, CC0",
+        "blocks": [
+          {
+            "id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+            "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+            "page_index": 1,
+            "text": "DOCUMENT SYNTHÉTIQUE - qualification technique, CC0",
+            "start_offset": 0,
+            "end_offset": 51,
+            "bbox": [
+              48.0,
+              742.5679247999999,
+              279.65624960000014,
+              750.5679247999999
+            ],
+            "precision": "block",
+            "type": "text",
+            "page": {
+              "alphanumeric_count": 192,
+              "classification": "native",
+              "coverage_regions": [
+                {
+                  "bbox": [
+                    48.0,
+                    776.0460496000001,
+                    325.5703136000001,
+                    792.0460496000001
+                  ],
+                  "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "heading"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    742.5679247999999,
+                    279.65624960000014,
+                    750.5679247999999
+                  ],
+                  "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    691.6472216,
+                    372.2314493,
+                    702.6472216
+                  ],
+                  "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    629.4069872,
+                    182.9003904,
+                    641.4069872
+                  ],
+                  "block_id": "400df997-6d2d-563e-b813-db92651f7f49",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "heading"
+                },
+                {
+                  "bbox": [
+                    47.197009358351025,
+                    489.3572097513303,
+                    547.7652398158541,
+                    619.929397550167
+                  ],
+                  "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "table"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    29.837890399999992,
+                    93.25927829999999,
+                    38.83789039999999
+                  ],
+                  "block_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                }
+              ],
+              "crop_box": null,
+              "crop_box_source": "unavailable_inherited_or_absent",
+              "display_height": 841.8897705078125,
+              "display_width": 595.2755737304688,
+              "effective_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "extraction_route": "structured",
+              "extraction_state": "native",
+              "height": 841.8897705078125,
+              "image_regions": [],
+              "label": null,
+              "media_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "media_box_source": "declared",
+              "native_text_regions": [
+                [
+                  49.47200012207031,
+                  779.6817626953125,
+                  324.32000732421875,
+                  792.6897583007812
+                ],
+                [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                [
+                  49.077999114990234,
+                  692.0128173828125,
+                  370.70697021484375,
+                  702.6497802734375
+                ],
+                [
+                  48.060001373291016,
+                  632.1337890625,
+                  182.22000122070312,
+                  641.8897705078125
+                ],
+                [
+                  53.91999816894531,
+                  599.3598022460938,
+                  109.64999389648438,
+                  607.4898071289062
+                ],
+                [
+                  275.04998779296875,
+                  599.3598022460938,
+                  311.67999267578125,
+                  607.0897827148438
+                ],
+                [
+                  405.9200134277344,
+                  599.3598022460938,
+                  434.7300109863281,
+                  607.4898071289062
+                ],
+                [
+                  53.97999954223633,
+                  566.3598022460938,
+                  102.92999267578125,
+                  573.9097900390625
+                ],
+                [
+                  276.1000061035156,
+                  566.3598022460938,
+                  286.9200134277344,
+                  573.9097900390625
+                ],
+                [
+                  405.9100036621094,
+                  566.4898071289062,
+                  423.6300048828125,
+                  572.0897827148438
+                ],
+                [
+                  53.97999954223633,
+                  533.3598022460938,
+                  114.80999755859375,
+                  540.9097900390625
+                ],
+                [
+                  275.6300048828125,
+                  533.3598022460938,
+                  280.6600036621094,
+                  540.9097900390625
+                ],
+                [
+                  405.9100036621094,
+                  533.4898071289062,
+                  423.6300048828125,
+                  539.0897827148438
+                ],
+                [
+                  53.97999954223633,
+                  500.35980224609375,
+                  118.97999572753906,
+                  507.9098205566406
+                ],
+                [
+                  275.6600036621094,
+                  500.35980224609375,
+                  289.9700012207031,
+                  507.9098205566406
+                ],
+                [
+                  405.9800109863281,
+                  499.5697937011719,
+                  431.92999267578125,
+                  508.0898132324219
+                ]
+              ],
+              "native_text_sparse": false,
+              "needs_ocr": false,
+              "ocr_cell_count": 0,
+              "ocr_orientations": [],
+              "ocr_parser_regions": [],
+              "ocr_preprocessing": [],
+              "ocr_regions": [],
+              "ocr_used": false,
+              "orientation_correction": 0,
+              "orientation_source": "native_page_frame",
+              "page_index": 1,
+              "page_number": 2,
+              "replacement_ratio": 0.0,
+              "rotation": 0,
+              "routing_reason": "typography_requires_structure",
+              "table_orientation_corrections": [],
+              "text_character_count": 252,
+              "text_font_sizes": [
+                8.0,
+                9.0,
+                10.0,
+                11.0,
+                12.0,
+                16.0
+              ],
+              "text_mapping_warnings": [],
+              "unresolved_regions": [],
+              "vector_path_count": 6,
+              "width": 595.2755737304688
+            },
+            "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+            "source_text_hash": "478d5b91bfbd9be453ca091a38c5bfb655696ab4f99045f3e53cc4a41a860995"
+          }
+        ],
+        "page_indices": [
+          1
+        ],
+        "parent_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+        "score": 0.03007688828584351,
+        "exact_identifier": false,
+        "coverage": {
+          "ocr": 0,
+          "processed": 2,
+          "total": 2,
+          "unresolved": 0,
+          "unresolved_regions": 0
+        },
+        "extraction_state": "ready",
+        "extraction_warnings": [],
+        "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "page_index": 1,
+        "page_number": 2,
+        "label": null,
+        "parent_expanded": false,
+        "source_id": "S006",
+        "query_id": "8fc1c8b5-32fe-4417-a4cb-f020ff35ed77",
+        "block_ids": [
+          "65b157d6-bb91-547b-9b9c-0c7c46e728a4"
+        ],
+        "bboxes": [
+          [
+            48.0,
+            742.5679247999999,
+            279.65624960000014,
+            750.5679247999999
+          ]
+        ],
+        "precision": "block",
+        "citation_url": "/api/v1/citations/8fc1c8b5-32fe-4417-a4cb-f020ff35ed77/S006"
+      },
+      {
+        "chunk_id": "f8bf0a69-a6cf-55f7-b999-0cbf9adaf794",
+        "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+        "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+        "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+        "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+        "text": "Tableau de contrôle",
+        "blocks": [
+          {
+            "id": "400df997-6d2d-563e-b813-db92651f7f49",
+            "block_id": "400df997-6d2d-563e-b813-db92651f7f49",
+            "page_index": 1,
+            "text": "Tableau de contrôle",
+            "start_offset": 0,
+            "end_offset": 19,
+            "bbox": [
+              48.0,
+              629.4069872,
+              182.9003904,
+              641.4069872
+            ],
+            "precision": "block",
+            "type": "heading",
+            "page": {
+              "alphanumeric_count": 192,
+              "classification": "native",
+              "coverage_regions": [
+                {
+                  "bbox": [
+                    48.0,
+                    776.0460496000001,
+                    325.5703136000001,
+                    792.0460496000001
+                  ],
+                  "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "heading"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    742.5679247999999,
+                    279.65624960000014,
+                    750.5679247999999
+                  ],
+                  "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    691.6472216,
+                    372.2314493,
+                    702.6472216
+                  ],
+                  "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    629.4069872,
+                    182.9003904,
+                    641.4069872
+                  ],
+                  "block_id": "400df997-6d2d-563e-b813-db92651f7f49",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "heading"
+                },
+                {
+                  "bbox": [
+                    47.197009358351025,
+                    489.3572097513303,
+                    547.7652398158541,
+                    619.929397550167
+                  ],
+                  "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "table"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    29.837890399999992,
+                    93.25927829999999,
+                    38.83789039999999
+                  ],
+                  "block_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                }
+              ],
+              "crop_box": null,
+              "crop_box_source": "unavailable_inherited_or_absent",
+              "display_height": 841.8897705078125,
+              "display_width": 595.2755737304688,
+              "effective_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "extraction_route": "structured",
+              "extraction_state": "native",
+              "height": 841.8897705078125,
+              "image_regions": [],
+              "label": null,
+              "media_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "media_box_source": "declared",
+              "native_text_regions": [
+                [
+                  49.47200012207031,
+                  779.6817626953125,
+                  324.32000732421875,
+                  792.6897583007812
+                ],
+                [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                [
+                  49.077999114990234,
+                  692.0128173828125,
+                  370.70697021484375,
+                  702.6497802734375
+                ],
+                [
+                  48.060001373291016,
+                  632.1337890625,
+                  182.22000122070312,
+                  641.8897705078125
+                ],
+                [
+                  53.91999816894531,
+                  599.3598022460938,
+                  109.64999389648438,
+                  607.4898071289062
+                ],
+                [
+                  275.04998779296875,
+                  599.3598022460938,
+                  311.67999267578125,
+                  607.0897827148438
+                ],
+                [
+                  405.9200134277344,
+                  599.3598022460938,
+                  434.7300109863281,
+                  607.4898071289062
+                ],
+                [
+                  53.97999954223633,
+                  566.3598022460938,
+                  102.92999267578125,
+                  573.9097900390625
+                ],
+                [
+                  276.1000061035156,
+                  566.3598022460938,
+                  286.9200134277344,
+                  573.9097900390625
+                ],
+                [
+                  405.9100036621094,
+                  566.4898071289062,
+                  423.6300048828125,
+                  572.0897827148438
+                ],
+                [
+                  53.97999954223633,
+                  533.3598022460938,
+                  114.80999755859375,
+                  540.9097900390625
+                ],
+                [
+                  275.6300048828125,
+                  533.3598022460938,
+                  280.6600036621094,
+                  540.9097900390625
+                ],
+                [
+                  405.9100036621094,
+                  533.4898071289062,
+                  423.6300048828125,
+                  539.0897827148438
+                ],
+                [
+                  53.97999954223633,
+                  500.35980224609375,
+                  118.97999572753906,
+                  507.9098205566406
+                ],
+                [
+                  275.6600036621094,
+                  500.35980224609375,
+                  289.9700012207031,
+                  507.9098205566406
+                ],
+                [
+                  405.9800109863281,
+                  499.5697937011719,
+                  431.92999267578125,
+                  508.0898132324219
+                ]
+              ],
+              "native_text_sparse": false,
+              "needs_ocr": false,
+              "ocr_cell_count": 0,
+              "ocr_orientations": [],
+              "ocr_parser_regions": [],
+              "ocr_preprocessing": [],
+              "ocr_regions": [],
+              "ocr_used": false,
+              "orientation_correction": 0,
+              "orientation_source": "native_page_frame",
+              "page_index": 1,
+              "page_number": 2,
+              "replacement_ratio": 0.0,
+              "rotation": 0,
+              "routing_reason": "typography_requires_structure",
+              "table_orientation_corrections": [],
+              "text_character_count": 252,
+              "text_font_sizes": [
+                8.0,
+                9.0,
+                10.0,
+                11.0,
+                12.0,
+                16.0
+              ],
+              "text_mapping_warnings": [],
+              "unresolved_regions": [],
+              "vector_path_count": 6,
+              "width": 595.2755737304688
+            },
+            "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+            "source_text_hash": "10185d1e82a5a6c4bc54bf3e8ce3d166c568899993bfe904f991a288f324d273"
+          }
+        ],
+        "page_indices": [
+          1
+        ],
+        "parent_id": "400df997-6d2d-563e-b813-db92651f7f49",
+        "score": 0.029418126757516764,
+        "exact_identifier": false,
+        "coverage": {
+          "ocr": 0,
+          "processed": 2,
+          "total": 2,
+          "unresolved": 0,
+          "unresolved_regions": 0
+        },
+        "extraction_state": "ready",
+        "extraction_warnings": [],
+        "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "page_index": 1,
+        "page_number": 2,
+        "label": null,
+        "parent_expanded": false,
+        "source_id": "S007",
+        "query_id": "8fc1c8b5-32fe-4417-a4cb-f020ff35ed77",
+        "block_ids": [
+          "400df997-6d2d-563e-b813-db92651f7f49"
+        ],
+        "bboxes": [
+          [
+            48.0,
+            629.4069872,
+            182.9003904,
+            641.4069872
+          ]
+        ],
+        "precision": "block",
+        "citation_url": "/api/v1/citations/8fc1c8b5-32fe-4417-a4cb-f020ff35ed77/S007"
+      },
+      {
+        "chunk_id": "90abbef8-443e-52c9-9ff8-c49705ad885d",
+        "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+        "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+        "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+        "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+        "text": "Page 2 / 2",
+        "blocks": [
+          {
+            "id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+            "block_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+            "page_index": 1,
+            "text": "Page 2 / 2",
+            "start_offset": 0,
+            "end_offset": 10,
+            "bbox": [
+              48.0,
+              29.837890399999992,
+              93.25927829999999,
+              38.83789039999999
+            ],
+            "precision": "block",
+            "type": "text",
+            "page": {
+              "alphanumeric_count": 192,
+              "classification": "native",
+              "coverage_regions": [
+                {
+                  "bbox": [
+                    48.0,
+                    776.0460496000001,
+                    325.5703136000001,
+                    792.0460496000001
+                  ],
+                  "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "heading"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    742.5679247999999,
+                    279.65624960000014,
+                    750.5679247999999
+                  ],
+                  "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    691.6472216,
+                    372.2314493,
+                    702.6472216
+                  ],
+                  "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    629.4069872,
+                    182.9003904,
+                    641.4069872
+                  ],
+                  "block_id": "400df997-6d2d-563e-b813-db92651f7f49",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "heading"
+                },
+                {
+                  "bbox": [
+                    47.197009358351025,
+                    489.3572097513303,
+                    547.7652398158541,
+                    619.929397550167
+                  ],
+                  "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "table"
+                },
+                {
+                  "bbox": [
+                    48.0,
+                    29.837890399999992,
+                    93.25927829999999,
+                    38.83789039999999
+                  ],
+                  "block_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+                  "extraction_method": "native",
+                  "route": "structured",
+                  "type": "text"
+                }
+              ],
+              "crop_box": null,
+              "crop_box_source": "unavailable_inherited_or_absent",
+              "display_height": 841.8897705078125,
+              "display_width": 595.2755737304688,
+              "effective_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "extraction_route": "structured",
+              "extraction_state": "native",
+              "height": 841.8897705078125,
+              "image_regions": [],
+              "label": null,
+              "media_box": [
+                0.0,
+                0.0,
+                595.2755737304688,
+                841.8897705078125
+              ],
+              "media_box_source": "declared",
+              "native_text_regions": [
+                [
+                  49.47200012207031,
+                  779.6817626953125,
+                  324.32000732421875,
+                  792.6897583007812
+                ],
+                [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                [
+                  49.077999114990234,
+                  692.0128173828125,
+                  370.70697021484375,
+                  702.6497802734375
+                ],
+                [
+                  48.060001373291016,
+                  632.1337890625,
+                  182.22000122070312,
+                  641.8897705078125
+                ],
+                [
+                  53.91999816894531,
+                  599.3598022460938,
+                  109.64999389648438,
+                  607.4898071289062
+                ],
+                [
+                  275.04998779296875,
+                  599.3598022460938,
+                  311.67999267578125,
+                  607.0897827148438
+                ],
+                [
+                  405.9200134277344,
+                  599.3598022460938,
+                  434.7300109863281,
+                  607.4898071289062
+                ],
+                [
+                  53.97999954223633,
+                  566.3598022460938,
+                  102.92999267578125,
+                  573.9097900390625
+                ],
+                [
+                  276.1000061035156,
+                  566.3598022460938,
+                  286.9200134277344,
+                  573.9097900390625
+                ],
+                [
+                  405.9100036621094,
+                  566.4898071289062,
+                  423.6300048828125,
+                  572.0897827148438
+                ],
+                [
+                  53.97999954223633,
+                  533.3598022460938,
+                  114.80999755859375,
+                  540.9097900390625
+                ],
+                [
+                  275.6300048828125,
+                  533.3598022460938,
+                  280.6600036621094,
+                  540.9097900390625
+                ],
+                [
+                  405.9100036621094,
+                  533.4898071289062,
+                  423.6300048828125,
+                  539.0897827148438
+                ],
+                [
+                  53.97999954223633,
+                  500.35980224609375,
+                  118.97999572753906,
+                  507.9098205566406
+                ],
+                [
+                  275.6600036621094,
+                  500.35980224609375,
+                  289.9700012207031,
+                  507.9098205566406
+                ],
+                [
+                  405.9800109863281,
+                  499.5697937011719,
+                  431.92999267578125,
+                  508.0898132324219
+                ]
+              ],
+              "native_text_sparse": false,
+              "needs_ocr": false,
+              "ocr_cell_count": 0,
+              "ocr_orientations": [],
+              "ocr_parser_regions": [],
+              "ocr_preprocessing": [],
+              "ocr_regions": [],
+              "ocr_used": false,
+              "orientation_correction": 0,
+              "orientation_source": "native_page_frame",
+              "page_index": 1,
+              "page_number": 2,
+              "replacement_ratio": 0.0,
+              "rotation": 0,
+              "routing_reason": "typography_requires_structure",
+              "table_orientation_corrections": [],
+              "text_character_count": 252,
+              "text_font_sizes": [
+                8.0,
+                9.0,
+                10.0,
+                11.0,
+                12.0,
+                16.0
+              ],
+              "text_mapping_warnings": [],
+              "unresolved_regions": [],
+              "vector_path_count": 6,
+              "width": 595.2755737304688
+            },
+            "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+            "source_text_hash": "234f1841e83c69fea6f9482fd4aa0c51bdbf34af0a545d3b8483cb24c17a228f"
+          }
+        ],
+        "page_indices": [
+          1
+        ],
+        "parent_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+        "score": 0.028790389395194696,
+        "exact_identifier": false,
+        "coverage": {
+          "ocr": 0,
+          "processed": 2,
+          "total": 2,
+          "unresolved": 0,
+          "unresolved_regions": 0
+        },
+        "extraction_state": "ready",
+        "extraction_warnings": [],
+        "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+        "page_index": 1,
+        "page_number": 2,
+        "label": null,
+        "parent_expanded": false,
+        "source_id": "S008",
+        "query_id": "8fc1c8b5-32fe-4417-a4cb-f020ff35ed77",
+        "block_ids": [
+          "6ce49513-fd6d-55fc-9c4c-df67b51e8627"
+        ],
+        "bboxes": [
+          [
+            48.0,
+            29.837890399999992,
+            93.25927829999999,
+            38.83789039999999
+          ]
+        ],
+        "precision": "block",
+        "citation_url": "/api/v1/citations/8fc1c8b5-32fe-4417-a4cb-f020ff35ed77/S008"
+      }
+    ]
+  },
+  "sse_sha256": "f6148a0cf334f96e547867cd317e1a34e6362791654277a52a998747c74142c0",
+  "memory_samples": [
+    {
+      "utc": "2026-09-30T09:27:55.895608+00:00",
+      "available_mib": 5556.8
+    },
+    {
+      "utc": "2026-09-30T09:27:56.908880+00:00",
+      "available_mib": 5460.9
+    },
+    {
+      "utc": "2026-09-30T09:27:57.932271+00:00",
+      "available_mib": 5392.4
+    },
+    {
+      "utc": "2026-09-30T09:27:58.945670+00:00",
+      "available_mib": 5234.9
+    },
+    {
+      "utc": "2026-09-30T09:27:59.958221+00:00",
+      "available_mib": 5210.6
+    },
+    {
+      "utc": "2026-09-30T09:28:00.991593+00:00",
+      "available_mib": 5111.4
+    },
+    {
+      "utc": "2026-09-30T09:28:02.002866+00:00",
+      "available_mib": 5102.8
+    },
+    {
+      "utc": "2026-09-30T09:28:03.019857+00:00",
+      "available_mib": 5006.8
+    },
+    {
+      "utc": "2026-09-30T09:28:04.065563+00:00",
+      "available_mib": 5028.7
+    },
+    {
+      "utc": "2026-09-30T09:28:05.082569+00:00",
+      "available_mib": 4991.7
+    },
+    {
+      "utc": "2026-09-30T09:28:06.108797+00:00",
+      "available_mib": 5042.8
+    },
+    {
+      "utc": "2026-09-30T09:28:07.136658+00:00",
+      "available_mib": 5017.8
+    },
+    {
+      "utc": "2026-09-30T09:28:08.152771+00:00",
+      "available_mib": 4950.2
+    },
+    {
+      "utc": "2026-09-30T09:28:09.170780+00:00",
+      "available_mib": 4994.5
+    },
+    {
+      "utc": "2026-09-30T09:28:10.188637+00:00",
+      "available_mib": 4934.1
+    },
+    {
+      "utc": "2026-09-30T09:28:11.205615+00:00",
+      "available_mib": 4846.3
+    },
+    {
+      "utc": "2026-09-30T09:28:12.224640+00:00",
+      "available_mib": 4578.7
+    },
+    {
+      "utc": "2026-09-30T09:28:13.241934+00:00",
+      "available_mib": 4342.4
+    },
+    {
+      "utc": "2026-09-30T09:28:14.269615+00:00",
+      "available_mib": 4144.9
+    },
+    {
+      "utc": "2026-09-30T09:28:15.323799+00:00",
+      "available_mib": 4046.0
+    },
+    {
+      "utc": "2026-09-30T09:28:16.344484+00:00",
+      "available_mib": 3924.6
+    },
+    {
+      "utc": "2026-09-30T09:28:17.362469+00:00",
+      "available_mib": 3839.5
+    },
+    {
+      "utc": "2026-09-30T09:28:18.379098+00:00",
+      "available_mib": 3690.0
+    },
+    {
+      "utc": "2026-09-30T09:28:19.395333+00:00",
+      "available_mib": 3549.2
+    },
+    {
+      "utc": "2026-09-30T09:28:20.412957+00:00",
+      "available_mib": 3401.5
+    },
+    {
+      "utc": "2026-09-30T09:28:21.432273+00:00",
+      "available_mib": 3254.9
+    },
+    {
+      "utc": "2026-09-30T09:28:22.449815+00:00",
+      "available_mib": 2982.6
+    },
+    {
+      "utc": "2026-09-30T09:28:23.464208+00:00",
+      "available_mib": 2834.2
+    },
+    {
+      "utc": "2026-09-30T09:28:24.482327+00:00",
+      "available_mib": 2603.1
+    },
+    {
+      "utc": "2026-09-30T09:28:25.501403+00:00",
+      "available_mib": 2238.8
+    },
+    {
+      "utc": "2026-09-30T09:28:26.516889+00:00",
+      "available_mib": 2139.1
+    },
+    {
+      "utc": "2026-09-30T09:28:27.541499+00:00",
+      "available_mib": 2107.0
+    },
+    {
+      "utc": "2026-09-30T09:28:28.556100+00:00",
+      "available_mib": 2024.5
+    },
+    {
+      "utc": "2026-09-30T09:28:29.576807+00:00",
+      "available_mib": 2009.7
+    },
+    {
+      "utc": "2026-09-30T09:28:30.597925+00:00",
+      "available_mib": 1985.3
+    },
+    {
+      "utc": "2026-09-30T09:28:31.649073+00:00",
+      "available_mib": 1978.2
+    },
+    {
+      "utc": "2026-09-30T09:28:32.669665+00:00",
+      "available_mib": 1972.3
+    },
+    {
+      "utc": "2026-09-30T09:28:33.697357+00:00",
+      "available_mib": 1962.8
+    },
+    {
+      "utc": "2026-09-30T09:28:34.713494+00:00",
+      "available_mib": 1968.3
+    },
+    {
+      "utc": "2026-09-30T09:28:35.728306+00:00",
+      "available_mib": 1997.4
+    },
+    {
+      "utc": "2026-09-30T09:28:36.765522+00:00",
+      "available_mib": 1978.4
+    },
+    {
+      "utc": "2026-09-30T09:28:37.785046+00:00",
+      "available_mib": 2012.8
+    },
+    {
+      "utc": "2026-09-30T09:28:38.803923+00:00",
+      "available_mib": 1982.8
+    },
+    {
+      "utc": "2026-09-30T09:28:39.820226+00:00",
+      "available_mib": 1989.7
+    },
+    {
+      "utc": "2026-09-30T09:28:40.839320+00:00",
+      "available_mib": 1998.3
+    },
+    {
+      "utc": "2026-09-30T09:28:41.854558+00:00",
+      "available_mib": 1981.9
+    },
+    {
+      "utc": "2026-09-30T09:28:42.878782+00:00",
+      "available_mib": 1959.7
+    },
+    {
+      "utc": "2026-09-30T09:28:43.923285+00:00",
+      "available_mib": 1976.1
+    },
+    {
+      "utc": "2026-09-30T09:28:44.940047+00:00",
+      "available_mib": 1955.7
+    },
+    {
+      "utc": "2026-09-30T09:28:45.956298+00:00",
+      "available_mib": 1938.1
+    },
+    {
+      "utc": "2026-09-30T09:28:46.972079+00:00",
+      "available_mib": 1929.7
+    },
+    {
+      "utc": "2026-09-30T09:28:47.991530+00:00",
+      "available_mib": 1931.9
+    },
+    {
+      "utc": "2026-09-30T09:28:49.011851+00:00",
+      "available_mib": 1914.1
+    },
+    {
+      "utc": "2026-09-30T09:28:50.102396+00:00",
+      "available_mib": 1940.0
+    },
+    {
+      "utc": "2026-09-30T09:28:51.146923+00:00",
+      "available_mib": 1934.0
+    },
+    {
+      "utc": "2026-09-30T09:28:52.161195+00:00",
+      "available_mib": 2044.2
+    },
+    {
+      "utc": "2026-09-30T09:28:53.182722+00:00",
+      "available_mib": 2028.5
+    },
+    {
+      "utc": "2026-09-30T09:28:54.214045+00:00",
+      "available_mib": 2017.5
+    },
+    {
+      "utc": "2026-09-30T09:28:55.232871+00:00",
+      "available_mib": 1999.7
+    },
+    {
+      "utc": "2026-09-30T09:28:56.252464+00:00",
+      "available_mib": 2001.3
+    },
+    {
+      "utc": "2026-09-30T09:28:57.268667+00:00",
+      "available_mib": 2013.1
+    },
+    {
+      "utc": "2026-09-30T09:28:58.285349+00:00",
+      "available_mib": 1999.4
+    },
+    {
+      "utc": "2026-09-30T09:28:59.303381+00:00",
+      "available_mib": 1996.1
+    },
+    {
+      "utc": "2026-09-30T09:29:00.319544+00:00",
+      "available_mib": 1999.4
+    },
+    {
+      "utc": "2026-09-30T09:29:01.334463+00:00",
+      "available_mib": 1995.9
+    },
+    {
+      "utc": "2026-09-30T09:29:02.349115+00:00",
+      "available_mib": 1990.3
+    },
+    {
+      "utc": "2026-09-30T09:29:03.364991+00:00",
+      "available_mib": 2006.4
+    },
+    {
+      "utc": "2026-09-30T09:29:04.394748+00:00",
+      "available_mib": 1992.5
+    },
+    {
+      "utc": "2026-09-30T09:29:05.463092+00:00",
+      "available_mib": 1968.7
+    },
+    {
+      "utc": "2026-09-30T09:29:06.482358+00:00",
+      "available_mib": 1971.8
+    },
+    {
+      "utc": "2026-09-30T09:29:07.510116+00:00",
+      "available_mib": 1994.4
+    },
+    {
+      "utc": "2026-09-30T09:29:08.525888+00:00",
+      "available_mib": 1998.5
+    },
+    {
+      "utc": "2026-09-30T09:29:09.543720+00:00",
+      "available_mib": 1995.6
+    },
+    {
+      "utc": "2026-09-30T09:29:10.558194+00:00",
+      "available_mib": 2013.1
+    },
+    {
+      "utc": "2026-09-30T09:29:11.587454+00:00",
+      "available_mib": 1993.6
+    },
+    {
+      "utc": "2026-09-30T09:29:12.617622+00:00",
+      "available_mib": 1984.3
+    },
+    {
+      "utc": "2026-09-30T09:29:13.636211+00:00",
+      "available_mib": 1989.0
+    },
+    {
+      "utc": "2026-09-30T09:29:14.652266+00:00",
+      "available_mib": 1990.4
+    },
+    {
+      "utc": "2026-09-30T09:29:15.681855+00:00",
+      "available_mib": 1989.9
+    },
+    {
+      "utc": "2026-09-30T09:29:16.699363+00:00",
+      "available_mib": 2001.6
+    },
+    {
+      "utc": "2026-09-30T09:29:17.739388+00:00",
+      "available_mib": 1986.4
+    },
+    {
+      "utc": "2026-09-30T09:29:18.754645+00:00",
+      "available_mib": 1989.2
+    },
+    {
+      "utc": "2026-09-30T09:29:19.771520+00:00",
+      "available_mib": 1996.1
+    },
+    {
+      "utc": "2026-09-30T09:29:20.788850+00:00",
+      "available_mib": 2041.3
+    },
+    {
+      "utc": "2026-09-30T09:29:21.805183+00:00",
+      "available_mib": 2029.9
+    },
+    {
+      "utc": "2026-09-30T09:29:22.825050+00:00",
+      "available_mib": 2019.3
+    },
+    {
+      "utc": "2026-09-30T09:29:23.842709+00:00",
+      "available_mib": 2037.7
+    },
+    {
+      "utc": "2026-09-30T09:29:24.858936+00:00",
+      "available_mib": 2041.0
+    },
+    {
+      "utc": "2026-09-30T09:29:25.874222+00:00",
+      "available_mib": 2034.7
+    },
+    {
+      "utc": "2026-09-30T09:29:26.890181+00:00",
+      "available_mib": 2038.5
+    },
+    {
+      "utc": "2026-09-30T09:29:27.910963+00:00",
+      "available_mib": 2050.5
+    },
+    {
+      "utc": "2026-09-30T09:29:28.926525+00:00",
+      "available_mib": 2052.7
+    },
+    {
+      "utc": "2026-09-30T09:29:29.940611+00:00",
+      "available_mib": 2050.3
+    },
+    {
+      "utc": "2026-09-30T09:29:30.996787+00:00",
+      "available_mib": 2038.7
+    },
+    {
+      "utc": "2026-09-30T09:29:32.014765+00:00",
+      "available_mib": 2029.0
+    },
+    {
+      "utc": "2026-09-30T09:29:33.029952+00:00",
+      "available_mib": 2029.3
+    },
+    {
+      "utc": "2026-09-30T09:29:34.048495+00:00",
+      "available_mib": 2024.2
+    },
+    {
+      "utc": "2026-09-30T09:29:35.078406+00:00",
+      "available_mib": 2009.0
+    },
+    {
+      "utc": "2026-09-30T09:29:36.095753+00:00",
+      "available_mib": 2009.7
+    },
+    {
+      "utc": "2026-09-30T09:29:37.126437+00:00",
+      "available_mib": 2019.9
+    },
+    {
+      "utc": "2026-09-30T09:29:38.152967+00:00",
+      "available_mib": 2030.9
+    },
+    {
+      "utc": "2026-09-30T09:29:39.185128+00:00",
+      "available_mib": 2023.7
+    },
+    {
+      "utc": "2026-09-30T09:29:40.201293+00:00",
+      "available_mib": 2035.8
+    },
+    {
+      "utc": "2026-09-30T09:29:41.227037+00:00",
+      "available_mib": 2061.4
+    },
+    {
+      "utc": "2026-09-30T09:29:42.248469+00:00",
+      "available_mib": 2043.1
+    },
+    {
+      "utc": "2026-09-30T09:29:43.263793+00:00",
+      "available_mib": 2032.7
+    },
+    {
+      "utc": "2026-09-30T09:29:44.292025+00:00",
+      "available_mib": 2029.7
+    },
+    {
+      "utc": "2026-09-30T09:29:45.308027+00:00",
+      "available_mib": 2033.9
+    },
+    {
+      "utc": "2026-09-30T09:29:46.339030+00:00",
+      "available_mib": 2033.5
+    },
+    {
+      "utc": "2026-09-30T09:29:47.353525+00:00",
+      "available_mib": 2040.6
+    },
+    {
+      "utc": "2026-09-30T09:29:48.368293+00:00",
+      "available_mib": 2026.9
+    },
+    {
+      "utc": "2026-09-30T09:29:49.398531+00:00",
+      "available_mib": 2023.1
+    },
+    {
+      "utc": "2026-09-30T09:29:50.415061+00:00",
+      "available_mib": 2027.4
+    },
+    {
+      "utc": "2026-09-30T09:29:51.432208+00:00",
+      "available_mib": 2031.4
+    },
+    {
+      "utc": "2026-09-30T09:29:52.447597+00:00",
+      "available_mib": 2021.6
+    },
+    {
+      "utc": "2026-09-30T09:29:53.466335+00:00",
+      "available_mib": 2003.2
+    },
+    {
+      "utc": "2026-09-30T09:29:54.493093+00:00",
+      "available_mib": 1948.5
+    },
+    {
+      "utc": "2026-09-30T09:29:55.513380+00:00",
+      "available_mib": 1891.4
+    },
+    {
+      "utc": "2026-09-30T09:29:56.608833+00:00",
+      "available_mib": 1755.4
+    },
+    {
+      "utc": "2026-09-30T09:29:57.642401+00:00",
+      "available_mib": 1775.9
+    },
+    {
+      "utc": "2026-09-30T09:29:58.684189+00:00",
+      "available_mib": 1730.8
+    },
+    {
+      "utc": "2026-09-30T09:29:59.710004+00:00",
+      "available_mib": 1735.0
+    },
+    {
+      "utc": "2026-09-30T09:30:00.730859+00:00",
+      "available_mib": 1696.7
+    },
+    {
+      "utc": "2026-09-30T09:30:01.749973+00:00",
+      "available_mib": 1695.6
+    },
+    {
+      "utc": "2026-09-30T09:30:02.770237+00:00",
+      "available_mib": 1671.8
+    },
+    {
+      "utc": "2026-09-30T09:30:03.786346+00:00",
+      "available_mib": 1670.6
+    },
+    {
+      "utc": "2026-09-30T09:30:04.814841+00:00",
+      "available_mib": 1665.7
+    },
+    {
+      "utc": "2026-09-30T09:30:05.843441+00:00",
+      "available_mib": 1652.7
+    },
+    {
+      "utc": "2026-09-30T09:30:06.863407+00:00",
+      "available_mib": 1656.5
+    },
+    {
+      "utc": "2026-09-30T09:30:07.919035+00:00",
+      "available_mib": 1661.0
+    },
+    {
+      "utc": "2026-09-30T09:30:08.945397+00:00",
+      "available_mib": 1715.4
+    },
+    {
+      "utc": "2026-09-30T09:30:09.962502+00:00",
+      "available_mib": 1727.2
+    },
+    {
+      "utc": "2026-09-30T09:30:10.981840+00:00",
+      "available_mib": 1736.2
+    },
+    {
+      "utc": "2026-09-30T09:30:11.999708+00:00",
+      "available_mib": 1733.1
+    },
+    {
+      "utc": "2026-09-30T09:30:13.032550+00:00",
+      "available_mib": 1721.1
+    },
+    {
+      "utc": "2026-09-30T09:30:14.051822+00:00",
+      "available_mib": 1734.9
+    },
+    {
+      "utc": "2026-09-30T09:30:15.072561+00:00",
+      "available_mib": 1756.4
+    },
+    {
+      "utc": "2026-09-30T09:30:16.106535+00:00",
+      "available_mib": 1757.8
+    },
+    {
+      "utc": "2026-09-30T09:30:17.127359+00:00",
+      "available_mib": 1773.7
+    },
+    {
+      "utc": "2026-09-30T09:30:18.146428+00:00",
+      "available_mib": 1787.8
+    },
+    {
+      "utc": "2026-09-30T09:30:19.163267+00:00",
+      "available_mib": 1817.5
+    },
+    {
+      "utc": "2026-09-30T09:30:20.179088+00:00",
+      "available_mib": 1797.9
+    },
+    {
+      "utc": "2026-09-30T09:30:21.196484+00:00",
+      "available_mib": 1756.6
+    },
+    {
+      "utc": "2026-09-30T09:30:22.226504+00:00",
+      "available_mib": 1837.2
+    },
+    {
+      "utc": "2026-09-30T09:30:23.248879+00:00",
+      "available_mib": 1834.2
+    },
+    {
+      "utc": "2026-09-30T09:30:24.278566+00:00",
+      "available_mib": 1791.2
+    },
+    {
+      "utc": "2026-09-30T09:30:25.308081+00:00",
+      "available_mib": 1723.7
+    },
+    {
+      "utc": "2026-09-30T09:30:26.352568+00:00",
+      "available_mib": 1716.4
+    },
+    {
+      "utc": "2026-09-30T09:30:27.385985+00:00",
+      "available_mib": 1727.1
+    },
+    {
+      "utc": "2026-09-30T09:30:28.438296+00:00",
+      "available_mib": 1728.6
+    },
+    {
+      "utc": "2026-09-30T09:30:29.461198+00:00",
+      "available_mib": 1726.9
+    },
+    {
+      "utc": "2026-09-30T09:30:30.576950+00:00",
+      "available_mib": 1741.9
+    },
+    {
+      "utc": "2026-09-30T09:30:31.607855+00:00",
+      "available_mib": 1763.1
+    },
+    {
+      "utc": "2026-09-30T09:30:32.649328+00:00",
+      "available_mib": 1758.2
+    },
+    {
+      "utc": "2026-09-30T09:30:33.742095+00:00",
+      "available_mib": 1644.2
+    },
+    {
+      "utc": "2026-09-30T09:30:34.794792+00:00",
+      "available_mib": 1648.7
+    },
+    {
+      "utc": "2026-09-30T09:30:35.816581+00:00",
+      "available_mib": 1642.5
+    },
+    {
+      "utc": "2026-09-30T09:30:36.858111+00:00",
+      "available_mib": 1626.2
+    },
+    {
+      "utc": "2026-09-30T09:30:37.880175+00:00",
+      "available_mib": 1647.9
+    },
+    {
+      "utc": "2026-09-30T09:30:38.916355+00:00",
+      "available_mib": 1656.6
+    },
+    {
+      "utc": "2026-09-30T09:30:39.957643+00:00",
+      "available_mib": 1656.1
+    },
+    {
+      "utc": "2026-09-30T09:30:40.978822+00:00",
+      "available_mib": 1684.7
+    },
+    {
+      "utc": "2026-09-30T09:30:41.996916+00:00",
+      "available_mib": 1716.5
+    },
+    {
+      "utc": "2026-09-30T09:30:43.025662+00:00",
+      "available_mib": 1711.7
+    },
+    {
+      "utc": "2026-09-30T09:30:44.064277+00:00",
+      "available_mib": 1714.0
+    },
+    {
+      "utc": "2026-09-30T09:30:45.085407+00:00",
+      "available_mib": 1747.8
+    },
+    {
+      "utc": "2026-09-30T09:30:46.107425+00:00",
+      "available_mib": 1786.3
+    },
+    {
+      "utc": "2026-09-30T09:30:47.133576+00:00",
+      "available_mib": 1791.3
+    },
+    {
+      "utc": "2026-09-30T09:30:48.191512+00:00",
+      "available_mib": 1785.9
+    },
+    {
+      "utc": "2026-09-30T09:30:49.218596+00:00",
+      "available_mib": 1771.4
+    },
+    {
+      "utc": "2026-09-30T09:30:50.254869+00:00",
+      "available_mib": 1768.8
+    },
+    {
+      "utc": "2026-09-30T09:30:51.275919+00:00",
+      "available_mib": 1765.1
+    },
+    {
+      "utc": "2026-09-30T09:30:52.298591+00:00",
+      "available_mib": 1754.1
+    },
+    {
+      "utc": "2026-09-30T09:30:53.317783+00:00",
+      "available_mib": 1733.3
+    },
+    {
+      "utc": "2026-09-30T09:30:54.342696+00:00",
+      "available_mib": 1739.6
+    },
+    {
+      "utc": "2026-09-30T09:30:55.366450+00:00",
+      "available_mib": 1735.7
+    },
+    {
+      "utc": "2026-09-30T09:30:56.390644+00:00",
+      "available_mib": 1741.5
+    },
+    {
+      "utc": "2026-09-30T09:30:57.412489+00:00",
+      "available_mib": 1735.2
+    },
+    {
+      "utc": "2026-09-30T09:30:58.438747+00:00",
+      "available_mib": 1740.1
+    },
+    {
+      "utc": "2026-09-30T09:30:59.459641+00:00",
+      "available_mib": 1725.5
+    },
+    {
+      "utc": "2026-09-30T09:31:00.496260+00:00",
+      "available_mib": 1729.4
+    },
+    {
+      "utc": "2026-09-30T09:31:01.518843+00:00",
+      "available_mib": 1724.2
+    },
+    {
+      "utc": "2026-09-30T09:31:02.541306+00:00",
+      "available_mib": 1750.6
+    },
+    {
+      "utc": "2026-09-30T09:31:03.562103+00:00",
+      "available_mib": 1734.5
+    },
+    {
+      "utc": "2026-09-30T09:31:04.593811+00:00",
+      "available_mib": 1727.6
+    },
+    {
+      "utc": "2026-09-30T09:31:05.618255+00:00",
+      "available_mib": 1729.9
+    },
+    {
+      "utc": "2026-09-30T09:31:06.643060+00:00",
+      "available_mib": 1743.0
+    },
+    {
+      "utc": "2026-09-30T09:31:07.665098+00:00",
+      "available_mib": 1638.0
+    },
+    {
+      "utc": "2026-09-30T09:31:08.686344+00:00",
+      "available_mib": 1739.8
+    },
+    {
+      "utc": "2026-09-30T09:31:09.707562+00:00",
+      "available_mib": 1748.2
+    },
+    {
+      "utc": "2026-09-30T09:31:10.729524+00:00",
+      "available_mib": 1725.3
+    },
+    {
+      "utc": "2026-09-30T09:31:11.775854+00:00",
+      "available_mib": 1735.7
+    },
+    {
+      "utc": "2026-09-30T09:31:12.814595+00:00",
+      "available_mib": 1733.5
+    },
+    {
+      "utc": "2026-09-30T09:31:13.851469+00:00",
+      "available_mib": 1720.0
+    },
+    {
+      "utc": "2026-09-30T09:31:14.873652+00:00",
+      "available_mib": 1718.5
+    },
+    {
+      "utc": "2026-09-30T09:31:15.910423+00:00",
+      "available_mib": 1698.8
+    },
+    {
+      "utc": "2026-09-30T09:31:16.935756+00:00",
+      "available_mib": 1709.5
+    },
+    {
+      "utc": "2026-09-30T09:31:17.960913+00:00",
+      "available_mib": 1733.6
+    },
+    {
+      "utc": "2026-09-30T09:31:18.981425+00:00",
+      "available_mib": 1736.3
+    },
+    {
+      "utc": "2026-09-30T09:31:20.007213+00:00",
+      "available_mib": 1751.5
+    },
+    {
+      "utc": "2026-09-30T09:31:21.027848+00:00",
+      "available_mib": 1730.3
+    },
+    {
+      "utc": "2026-09-30T09:31:22.078364+00:00",
+      "available_mib": 1724.1
+    },
+    {
+      "utc": "2026-09-30T09:31:23.098554+00:00",
+      "available_mib": 1749.9
+    },
+    {
+      "utc": "2026-09-30T09:31:24.150045+00:00",
+      "available_mib": 1736.7
+    },
+    {
+      "utc": "2026-09-30T09:31:25.175048+00:00",
+      "available_mib": 1801.3
+    },
+    {
+      "utc": "2026-09-30T09:31:26.196288+00:00",
+      "available_mib": 1772.0
+    },
+    {
+      "utc": "2026-09-30T09:31:27.227541+00:00",
+      "available_mib": 1779.8
+    },
+    {
+      "utc": "2026-09-30T09:31:28.247796+00:00",
+      "available_mib": 1783.9
+    },
+    {
+      "utc": "2026-09-30T09:31:29.280690+00:00",
+      "available_mib": 1794.4
+    },
+    {
+      "utc": "2026-09-30T09:31:30.397922+00:00",
+      "available_mib": 1821.0
+    },
+    {
+      "utc": "2026-09-30T09:31:31.416257+00:00",
+      "available_mib": 1811.2
+    },
+    {
+      "utc": "2026-09-30T09:31:32.439604+00:00",
+      "available_mib": 1805.7
+    },
+    {
+      "utc": "2026-09-30T09:31:33.481626+00:00",
+      "available_mib": 1791.1
+    },
+    {
+      "utc": "2026-09-30T09:31:34.502582+00:00",
+      "available_mib": 1796.9
+    },
+    {
+      "utc": "2026-09-30T09:31:35.525119+00:00",
+      "available_mib": 1781.4
+    },
+    {
+      "utc": "2026-09-30T09:31:36.554769+00:00",
+      "available_mib": 1796.3
+    },
+    {
+      "utc": "2026-09-30T09:31:37.586467+00:00",
+      "available_mib": 1793.4
+    },
+    {
+      "utc": "2026-09-30T09:31:38.622076+00:00",
+      "available_mib": 1787.5
+    },
+    {
+      "utc": "2026-09-30T09:31:39.640689+00:00",
+      "available_mib": 1804.0
+    },
+    {
+      "utc": "2026-09-30T09:31:40.658018+00:00",
+      "available_mib": 1799.3
+    },
+    {
+      "utc": "2026-09-30T09:31:41.679606+00:00",
+      "available_mib": 1765.8
+    },
+    {
+      "utc": "2026-09-30T09:31:42.699019+00:00",
+      "available_mib": 1791.7
+    },
+    {
+      "utc": "2026-09-30T09:31:43.735697+00:00",
+      "available_mib": 1781.9
+    },
+    {
+      "utc": "2026-09-30T09:31:44.757183+00:00",
+      "available_mib": 1768.0
+    },
+    {
+      "utc": "2026-09-30T09:31:45.774918+00:00",
+      "available_mib": 1765.5
+    },
+    {
+      "utc": "2026-09-30T09:31:46.793478+00:00",
+      "available_mib": 1753.0
+    },
+    {
+      "utc": "2026-09-30T09:31:47.851506+00:00",
+      "available_mib": 1736.8
+    },
+    {
+      "utc": "2026-09-30T09:31:48.890880+00:00",
+      "available_mib": 1713.5
+    },
+    {
+      "utc": "2026-09-30T09:31:49.918407+00:00",
+      "available_mib": 1717.7
+    },
+    {
+      "utc": "2026-09-30T09:31:50.992620+00:00",
+      "available_mib": 1672.9
+    },
+    {
+      "utc": "2026-09-30T09:31:52.053600+00:00",
+      "available_mib": 1632.4
+    },
+    {
+      "utc": "2026-09-30T09:31:53.075049+00:00",
+      "available_mib": 1656.4
+    },
+    {
+      "utc": "2026-09-30T09:31:54.105195+00:00",
+      "available_mib": 1658.3
+    },
+    {
+      "utc": "2026-09-30T09:31:55.133080+00:00",
+      "available_mib": 1651.7
+    },
+    {
+      "utc": "2026-09-30T09:31:56.151936+00:00",
+      "available_mib": 1630.2
+    },
+    {
+      "utc": "2026-09-30T09:31:57.178191+00:00",
+      "available_mib": 1599.0
+    },
+    {
+      "utc": "2026-09-30T09:31:58.206646+00:00",
+      "available_mib": 1612.2
+    },
+    {
+      "utc": "2026-09-30T09:31:59.231868+00:00",
+      "available_mib": 1621.2
+    },
+    {
+      "utc": "2026-09-30T09:32:00.276775+00:00",
+      "available_mib": 1615.6
+    },
+    {
+      "utc": "2026-09-30T09:32:01.293903+00:00",
+      "available_mib": 1612.9
+    },
+    {
+      "utc": "2026-09-30T09:32:02.319689+00:00",
+      "available_mib": 1597.5
+    },
+    {
+      "utc": "2026-09-30T09:32:03.339288+00:00",
+      "available_mib": 1589.3
+    },
+    {
+      "utc": "2026-09-30T09:32:04.361421+00:00",
+      "available_mib": 1557.8
+    },
+    {
+      "utc": "2026-09-30T09:32:05.383481+00:00",
+      "available_mib": 1500.3
+    },
+    {
+      "utc": "2026-09-30T09:32:06.411465+00:00",
+      "available_mib": 2284.7
+    }
+  ],
+  "min_available_mib": 1500.3,
+  "method": "One POST /api/v1/queries then one GET events stream; no retry, no second generation"
+}

@@ -1,0 +1,63 @@
+{
+  "instance_id": "2582e777cf4b468cae8ed69c4bf805c1",
+  "status": "stopped",
+  "profile_path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\restored-profile.yaml",
+  "profile_sha256": "52583435cbb71dbca420a1bf406d59fcc6693643b96c585e3c02945b9f4ec94c",
+  "data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348",
+  "supervisor": {
+    "pid": 11732,
+    "created_at": 1790743481.6964955,
+    "executable": "D:\\enhacements\\agentragpdf\\.runtime\\python\\cpython-3.12.14-windows-x86_64-none\\python.exe"
+  },
+  "services": {
+    "qdrant": {
+      "pid": 27168,
+      "created_at": 1790743484.0625727,
+      "executable": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\qdrant-1.19.1\\qdrant.exe",
+      "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\logs\\2582e777cf4b468cae8ed69c4bf805c1\\qdrant.log",
+      "exit_code": null
+    },
+    "ollama": {
+      "pid": 23964,
+      "created_at": 1790743486.6139157,
+      "executable": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\ollama-0.35.0\\ollama.exe",
+      "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\logs\\2582e777cf4b468cae8ed69c4bf805c1\\ollama.log",
+      "exit_code": null
+    },
+    "api": {
+      "pid": 19948,
+      "created_at": 1790743490.2411354,
+      "executable": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+      "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\logs\\2582e777cf4b468cae8ed69c4bf805c1\\api.log",
+      "exit_code": null
+    }
+  },
+  "shutdown_marker": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\control\\shutdown-2582e777cf4b468cae8ed69c4bf805c1",
+  "app_url": "http://127.0.0.1:8795",
+  "stop_results": [
+    {
+      "service": "api",
+      "mode": "cooperative_marker",
+      "exit_code": 0
+    },
+    {
+      "service": "ollama",
+      "mode": "console_sigint",
+      "exit_code": 0
+    },
+    {
+      "service": "qdrant",
+      "mode": "console_sigint",
+      "exit_code": 0
+    }
+  ],
+  "source_manifest_path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\logs\\2582e777cf4b468cae8ed69c4bf805c1\\source-manifest.json",
+  "source_fingerprint": "d3bafc3da7101db545acf7070a07f6ae6071c6beaa82ca11c40a59d5d50b75cc",
+  "source_identity_kind": "working_files_sha256_manifest",
+  "qdrant_config_sha256": "084e982c8fd8930873c4a0222c7f2a5f9128a6096307b27281b159194b58f947",
+  "qdrant_data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\q\\827d9394",
+  "http_health": {
+    "status": "alive",
+    "service": "rag-api"
+  }
+}

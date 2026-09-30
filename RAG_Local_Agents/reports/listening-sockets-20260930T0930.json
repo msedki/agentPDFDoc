@@ -1,0 +1,26 @@
+{
+  "utc": "2026-09-30T09:30:15.982891+00:00",
+  "listening_sockets_of_project_processes": [
+    {
+      "pid": 7140,
+      "name": "llama-server.exe",
+      "listen": "127.0.0.1:51887"
+    },
+    {
+      "pid": 11620,
+      "name": "python.exe",
+      "listen": "127.0.0.1:8795"
+    },
+    {
+      "pid": 20024,
+      "name": "ollama.exe",
+      "listen": "127.0.0.1:11445"
+    },
+    {
+      "pid": 26616,
+      "name": "qdrant.exe",
+      "listen": "127.0.0.1:6343"
+    }
+  ],
+  "method": "psutil net_connections des processus dont l'ex\u00e9cutable est sous D:\\enhacements\u0007gentragpdf"
+}
