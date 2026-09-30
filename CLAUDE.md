@@ -200,6 +200,15 @@ et permissions de l'environnement.
   messages d'erreur ou techniques, contenus métier) suivent les mêmes exigences :
   vocabulaire du domaine, précision, cohérence entre les vues, et indication de
   l'action possible pour l'utilisateur lorsqu'elle existe.
+- Référence de forme : `D:\enhacements\decodair` pour le shell applicatif (header,
+  topbar, sidebar pleine, réduite ou masquée, footer, en-têtes de page), la charte
+  (couleurs, typographie, icônes, densité, espacements), les composants (cartes,
+  tableaux, formulaires, filtres, actions, retours utilisateur, états), le responsive
+  et le format du README. En reprendre les principes de structure, de hiérarchie
+  visuelle, de navigation et de réutilisation, adaptés à ce projet ; ne copier ni
+  son contenu métier ni son branding lorsqu'ils ne s'appliquent pas. Les règles et
+  exigences de ce dépôt priment en cas d'écart ; toute évolution d'interface se fait
+  sans régression fonctionnelle (tests unitaires et E2E rejoués, rendu examiné).
 
 ## Traçabilité et livraison
 

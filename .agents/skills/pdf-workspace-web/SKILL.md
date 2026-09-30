@@ -68,6 +68,10 @@ mêmes termes désignent les mêmes objets dans toutes les vues ; relire les tex
 modifiés avec la section « Documentation et textes de l'interface » du `CLAUDE.md`
 racine.
 
+Pour le shell, la charte et les composants, partir de la référence de forme
+`D:\enhacements\decodair` décrite dans `RAG_Local_Agents/reports/ui-reference-decodair-2026-09-30.md`
+(principes adaptés, pas de copie du branding ni du métier).
+
 ## Contrôle proportionné
 
 Avant changement, vérifier les instructions de la zone. Verrouiller les versions
