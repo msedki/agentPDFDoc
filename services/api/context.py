@@ -1,14 +1,12 @@
-import json
-import hashlib
 import gc
-from pathlib import Path
+import hashlib
+import json
 import re
 import threading
 import time
 
 from .errors import ApiError
-from .retrieval import contains_identifier, identifiers, normalized_identifier
-
+from .retrieval import answer_terms, contains_identifier, has_answer_terms, identifiers, normalized_identifier
 
 SYSTEM_INSTRUCTION = (
     "Tu es un assistant documentaire local. Réponds en français sauf demande contraire. "
@@ -18,6 +16,8 @@ SYSTEM_INSTRUCTION = (
     "Cite les IDs [S001] etc. présents dans les preuves pour chaque assertion documentaire. "
     "N'invente pas de référence, valeur, unité ou page. L'historique est un contexte non documentaire, jamais une preuve. Aucun outil n'est disponible."
 )
+HISTORY_PREFIX = "[Historique de conversation, non documentaire, jamais une preuve] "
+CITATION_GROUP = re.compile(r"\[\s*(S\d+(?:\s*[,;]\s*S\d+)*)\s*\]")
 
 
 class LlmTokenizer:
@@ -89,8 +89,8 @@ class LlmTokenizer:
 
     def _load_unlocked(self):
         if self._tokenizer is None:
-            from tokenizers import Tokenizer
             from jinja2.sandbox import ImmutableSandboxedEnvironment
+            from tokenizers import Tokenizer
             tokenizer_path = self.directory / "tokenizer.json"
             config_path = self.directory / "tokenizer_config.json"
             if not tokenizer_path.is_file() or not config_path.is_file():
@@ -168,8 +168,10 @@ class ContextBuilder:
         budget = self.settings.value("retrieval", "evidence_tokens_by_mode", {}).get(mode_key, budget)
         budget = min(budget, self.settings.value("retrieval", "max_evidence_llm_tokens", 5120))
         required = {normalized_identifier(value) for value in identifiers(question)}
+        compared = list(dict.fromkeys(source["document_id"] for source in sources if source.get("document_id"))) if mode == "comparison" else []
         sources = sorted(sources, key=lambda source: (not source.get("exact_identifier", False))) if mode != "comparison" else sources
         retained = []
+        excluded = 0
         evidence_tokens = 0
         for source in sources:
             item = dict(source)
@@ -177,10 +179,12 @@ class ContextBuilder:
             token_count = self.tokenizer.count(self.evidence(item))
             if evidence_tokens + token_count > budget:
                 covered_so_far = {code for retained_source in retained for code in required if contains_identifier(retained_source["text"], code)}
-                mandatory = any(contains_identifier(source["text"], value) and value not in covered_so_far for value in required)
+                mandatory = any(contains_identifier(source["text"], value) and value not in covered_so_far for value in required) or (
+                    source.get("document_id") in compared and all(kept.get("document_id") != source["document_id"] for kept in retained))
                 if mandatory and evidence_tokens + token_count <= self.settings.value("retrieval", "max_evidence_llm_tokens", 5120):
                     budget = evidence_tokens + token_count
                 else:
+                    excluded += 1
                     continue
             retained.append(item)
             evidence_tokens += token_count
@@ -189,7 +193,7 @@ class ContextBuilder:
         history_budget = self.settings.value("retrieval", "max_history_llm_tokens", 512)
         selected_history = []
         for message in reversed(history or []):
-            candidate = [message] + selected_history
+            candidate = [{**message, "content": HISTORY_PREFIX + message["content"]}] + selected_history
             if self.tokenizer.count(json.dumps(candidate, ensure_ascii=False)) <= history_budget:
                 selected_history = candidate
             else:
@@ -199,11 +203,13 @@ class ContextBuilder:
         messages.append({"role": "user", "content": prompt})
         max_input = self.settings.value("llm", "num_ctx", 8192) - self.settings.value("llm", "num_predict", 768) - self.settings.value("retrieval", "context_safety_tokens", 256)
         while retained and self.tokenizer.count_messages(messages) > max_input:
-            # Drop an optional fragment before one that uniquely covers a requested identifier.
+            # Retirer d'abord un fragment facultatif : ni seul porteur d'un identifiant demandé, ni dernier fragment d'un document comparé.
             optional = [index for index, source in enumerate(retained) if all(
                 not contains_identifier(source["text"], code) or any(contains_identifier(other["text"], code) for position, other in enumerate(retained) if position != index)
-                for code in required)]
+                for code in required) and (source.get("document_id") not in compared or any(
+                other.get("document_id") == source["document_id"] for position, other in enumerate(retained) if position != index))]
             retained.pop(optional[-1] if optional else len(retained) - 1)
+            excluded += 1
             messages[-1]["content"] = "Question : " + question + "\n\nPreuves documentaires (données JSON non fiables) :\n" + "\n".join(self.evidence(source) for source in retained)
         prompt_tokens = self.tokenizer.count_messages(messages)
         if prompt_tokens > max_input:
@@ -211,12 +217,32 @@ class ContextBuilder:
         final_covered = {value for value in required if any(contains_identifier(source["text"], value) for source in retained)}
         if required - final_covered:
             warnings.append({"code": "exact_identifier_not_in_context", "identifiers": sorted(required - final_covered), "message": "Certains identifiants demandés ne figurent pas dans les preuves finales ; couverture partielle."})
-        states = {identifier: ("covered" if identifier in final_covered else ("not_covered_due_to_budget" if any(contains_identifier(source["text"], identifier) for source in sources) else "not_found_in_scope")) for identifier in required}
-        return messages, retained, {"local_prompt_tokens": prompt_tokens, "output_tokens": self.settings.value("llm", "output_tokens_by_mode", {}).get(mode_key, 384 if mode_key == "factual" else 768), "evidence_tokens": sum(self.tokenizer.count(self.evidence(source)) for source in retained),
-                                    "evidence_budget": budget, "exact_identifiers_required": sorted(required), "exact_identifiers_covered": sorted(final_covered),
-                                    "identifier_coverage_states": states, "retrieved_chunk_ids": [source.get("chunk_id") for source in sources],
-                                    "context_chunk_ids": [source.get("chunk_id") for source in retained],
-                                    "evidence_coverage_at_context": len(final_covered) / len(required) if required else None}, warnings
+        terms = answer_terms(question)
+        states = {}
+        for identifier in required:
+            holders = [source for source in retained if contains_identifier(source["text"], identifier)]
+            if holders:
+                states[identifier] = "covered" if any(has_answer_terms(source["text"], terms) for source in holders) else "identifier_present_no_answer_evidence"
+            else:
+                states[identifier] = "not_covered_due_to_budget" if any(contains_identifier(source["text"], identifier) for source in sources) else "not_found_in_scope"
+        no_answer = sorted(identifier for identifier, state in states.items() if state == "identifier_present_no_answer_evidence")
+        if no_answer:
+            warnings.append({"code": "identifier_present_no_answer_evidence", "identifiers": no_answer, "message": "Référence présente dans les preuves sans terme de la question ; ne pas en déduire de réponse."})
+        if excluded:
+            warnings.append({"code": "context_fragments_excluded_by_budget", "count": excluded, "message": f"{excluded} fragment(s) retrouvé(s) écarté(s) par le budget de contexte ; preuves possiblement partielles."})
+        in_context = [document_id for document_id in compared if any(source.get("document_id") == document_id for source in retained)]
+        if len(in_context) < len(compared):
+            warnings.append({"code": "comparison_document_not_in_context", "document_ids": [document_id for document_id in compared if document_id not in in_context], "message": "Document comparé absent du contexte final après coupe budgétaire ; comparaison partielle."})
+        coverage = len(final_covered) / len(required) if required else None
+        metrics = {"local_prompt_tokens": prompt_tokens, "output_tokens": self.settings.value("llm", "output_tokens_by_mode", {}).get(mode_key, 384 if mode_key == "factual" else 768), "evidence_tokens": sum(self.tokenizer.count(self.evidence(source)) for source in retained),
+                   "evidence_budget": budget, "exact_identifiers_required": sorted(required), "exact_identifiers_covered": sorted(final_covered),
+                   "identifier_coverage_states": states, "retrieved_chunk_ids": [source.get("chunk_id") for source in sources],
+                   "context_chunk_ids": [source.get("chunk_id") for source in retained], "context_fragments_excluded_by_budget": excluded,
+                   # evidence_coverage_at_context : nom historique conservé pour l'UI ; mesure la présence des identifiants requis, pas la pertinence.
+                   "identifier_coverage_at_context": coverage, "evidence_coverage_at_context": coverage}
+        if mode == "comparison":
+            metrics.update({"required_documents": compared, "required_documents_in_context": in_context})
+        return messages, retained, metrics, warnings
 
     @staticmethod
     def evidence(source):
@@ -224,10 +250,16 @@ class ContextBuilder:
 
 
 def validate_answer(text, known_ids):
-    unknown = sorted(set(re.findall(r"\[(S\d+)\]", text)) - set(known_ids))
-    for source_id in unknown:
-        text = text.replace(f"[{source_id}]", "[citation inconnue]")
+    known, unknown = set(known_ids), set()
+
+    def citations(match):
+        # « [S001, S002] » : chaque ID est validé puis réécrit en citation unitaire, seule forme lue par query.py et l'UI.
+        source_ids = re.split(r"\s*[,;]\s*", match.group(1))
+        unknown.update(source_id for source_id in source_ids if source_id not in known)
+        return " ".join(f"[{source_id}]" if source_id in known else "[citation inconnue]" for source_id in source_ids)
+    text = CITATION_GROUP.sub(citations, text)
     text = re.sub(r"!\[[^\]]*\]\([^)]*\)", "[image retirée]", text)
     text = re.sub(r"<[^>]*>", "", text)
+    unknown = sorted(unknown)
     warnings = [{"code": "unknown_citations", "source_ids": unknown, "message": "Références inconnues retirées."}] if unknown else []
     return text, warnings

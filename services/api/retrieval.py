@@ -1,4 +1,6 @@
 import asyncio
+import functools
+import hashlib
 import json
 import re
 import time
@@ -6,24 +8,80 @@ import unicodedata
 
 import httpx
 
-from .errors import ApiError
 from .embedding import EmbeddingService
+from .errors import ApiError
+
+# Tirets Unicode U+2010 à U+2015 et signe moins U+2212 : même séparateur que « - » (1 caractère pour 1, offsets conservés).
+DASHES = str.maketrans(dict.fromkeys(map(chr, [*range(0x2010, 0x2016), 0x2212]), "-"))
+IDENTIFIER_SOURCES = (
+    r"\b(?:[A-Z]{2,8}[/-])*(?:EN|UIC|ISO|IEC)\s+\d+(?:[-.]\d+)*\b",  # normes : préfixes en majuscules seulement (« en 2020 » exclu)
+    r"\b[A-Za-z][A-Za-z0-9]*(?:[-_/][A-Za-z0-9]+)+(?:\.\d+)*\b",
+    r"\b[A-Za-z]{1,12}\d+[A-Za-z0-9]*(?:\.\d+)*\b", r"\b\d+(?:\.\d+)+\b")
+# Extraction (rien après « mot- », « mot_ », « mot/ » : P01 n'est pas extrait de DA-P01), identifiant finissant avant un « / », identifiant commençant après.
+IDENTIFIER_PATTERNS = ([re.compile(r"(?<!\w[-_/])" + source) for source in IDENTIFIER_SOURCES],
+                       [re.compile(r"(?<!\w[-_/])(?:" + source + r")\Z") for source in IDENTIFIER_SOURCES], [re.compile(source) for source in IDENTIFIER_SOURCES])
+# Comparaison seulement : préfixe de norme aussi en minuscules (« en 50155 » contient EN 50155), sans masquer « 3.4.2 » dans « en 3.4.2 ».
+CASELESS_STANDARD = re.compile(r"(?<!\w[-_/])" + IDENTIFIER_SOURCES[0].replace("(?:EN|UIC|ISO|IEC)", "(?i:EN|UIC|ISO|IEC)"))
+STOPWORDS = frozenset("""a au aux avec ce ces cet cette comment dans de des donne donner donnee donnees du elle elles en entre est et etre
+    il ils indique indiquer information informations la le les leur leurs ma mes moins mon ne nos notre numero ou par pas plus pour pourquoi
+    precise preciser quand que quel quelle quelles quels qui quoi reference references sa sans selon ses son sont sous sur ta tes ton tous tout
+    toute toutes tres un une valeur valeurs vos votre combien about and are does for from how many much number of the these this those value
+    values what which with""".split())
 
 
 def normalized_identifier(value):
-    return re.sub(r"\s+", " ", unicodedata.normalize("NFKC", value).strip()).upper()
+    return re.sub(r"\s+", " ", unicodedata.normalize("NFKC", value).translate(DASHES).strip()).upper()
+
+
+@functools.lru_cache(maxsize=1024)
+def _identifiers_in(text):
+    # Mêmes frontières, listes et correspondances maximales que l'index : ce qui est extrait d'un texte y est « contenu ».
+    folded = re.sub(r"\s+", " ", unicodedata.normalize("NFKC", text)).translate(DASHES)
+    return frozenset(map(normalized_identifier, {folded[start:end] for start, end in identifier_spans(folded)}
+                         | {match.group() for match in CASELESS_STANDARD.finditer(folded)}))
 
 
 def contains_identifier(text, identifier):
-    pattern = r"(?<![\w])" + re.escape(normalized_identifier(identifier)) + r"(?!\w|[-_/]\w|\.\d)"
-    return re.search(pattern, normalized_identifier(text)) is not None
+    return normalized_identifier(identifier) in _identifiers_in(text)
+
+
+def identifier_spans(text):
+    """Correspondances maximales seulement : une étendue incluse dans une autre (P01 dans DA-P01) est écartée.
+    Un « / » entre deux identifiants complets sépare une liste (DA-P01/DA-P02, EN 50155/EN 50121-3-2) ; ailleurs il relie (X/P01, ISO/IEC 27001)."""
+    extract, ending, starting = IDENTIFIER_PATTERNS
+    folded = text.translate(DASHES)
+    for slash in [match.start() for match in re.finditer(r"(?<=\w)/(?=\w)", folded)]:
+        if any(pattern.search(folded, max(0, slash - 48), slash) for pattern in ending) and any(pattern.match(folded, slash + 1) for pattern in starting):
+            folded = folded[:slash] + "," + folded[slash + 1:]  # 1 caractère pour 1 : offsets conservés
+    spans, reached = [], -1
+    for start, end in sorted({match.span() for pattern in extract for match in pattern.finditer(folded)}, key=lambda span: (span[0], -span[1])):
+        if end > reached:
+            spans.append((start, end))
+            reached = end
+    return spans
 
 
 def identifiers(text):
-    patterns = [r"\b(?:EN|UIC|ISO|IEC)\s+\d+(?:[-.]\d+)*\b",
-                r"\b[A-Za-z][A-Za-z0-9]*(?:[-_/][A-Za-z0-9]+)+\b",
-                r"\b[A-Za-z]{1,12}\d+[A-Za-z0-9]*\b", r"\b\d+(?:\.\d+)+\b"]
-    return sorted({match.group(0) for pattern in patterns for match in re.finditer(pattern, text, re.IGNORECASE)})
+    return sorted({text[start:end] for start, end in identifier_spans(text)})
+
+
+def _term_keys(text):
+    folded = "".join(char for char in unicodedata.normalize("NFKD", text.casefold()) if not unicodedata.combining(char))
+    return {word[:5] for word in re.findall(r"[^\W_]+", folded) if len(word) >= 3 and word not in STOPWORDS}
+
+
+def answer_terms(question):
+    """Termes contextuels de la question : hors identifiants et mots-outils, réduits à 5 caractères (heuristique lexicale)."""
+    parts, cursor = [], 0
+    for start, end in identifier_spans(question):
+        parts.append(question[cursor:start])
+        cursor = max(cursor, end)
+    return _term_keys(" ".join(parts + [question[cursor:]]))
+
+
+def has_answer_terms(text, terms):
+    # Sans terme contextuel (« Quelle valeur pour DA-P01 ? »), l'occurrence de l'identifiant suffit.
+    return not terms or bool(terms & _term_keys(text))
 
 
 def match_expression(text):
@@ -127,13 +185,18 @@ class SearchService:
         limit = self.settings.value("retrieval", "lexical_top_k", 24)
         exact = []
         codes = sorted({normalized_identifier(value) for value in identifiers(question)})
-        if codes:
-            per_code = []
-            for code in codes:
-                sql = f"SELECT DISTINCT c.chunk_uuid FROM chunks c JOIN identifiers i ON i.chunk_uuid=c.chunk_uuid WHERE {clause} AND i.normalized=? ORDER BY c.chunk_uuid LIMIT ?"
-                per_code.append([row["chunk_uuid"] for row in self.db.rows(sql, parameters + [code, limit])])
-            exact = list(dict.fromkeys(chunk for position in range(limit) for matches in per_code for chunk in matches[position:position + 1]))[:limit]
         expression = match_expression(question)
+        if codes:
+            # Un seul passage FTS5 : BM25 de la question pour classer les occurrences exactes (NULL en dernier),
+            # puis revérification des frontières sur le texte (lignes d'identifiants d'un index antérieur).
+            sql = (f"SELECT DISTINCT i.normalized code,c.chunk_uuid,c.text,f.score FROM identifiers i JOIN chunks c ON c.chunk_uuid=i.chunk_uuid "
+                   f"LEFT JOIN (SELECT rowid id,bm25(chunks_fts,2.0,1.0) score FROM chunks_fts WHERE chunks_fts MATCH ?) f ON f.id=c.id "
+                   f"WHERE {clause} AND i.normalized IN ({','.join('?' for _ in codes)}) ORDER BY f.score IS NULL,f.score ASC,c.chunk_uuid ASC")
+            per_code = {code: [] for code in codes}
+            for row in self.db.rows(sql, [expression] + parameters + codes):
+                if len(per_code[row["code"]]) < limit and contains_identifier(row["text"], row["code"]):
+                    per_code[row["code"]].append(row["chunk_uuid"])
+            exact = list(dict.fromkeys(chunk for position in range(limit) for matches in per_code.values() for chunk in matches[position:position + 1]))[:limit]
         ranked = []
         if expression:
             sql = f"SELECT c.chunk_uuid,bm25(chunks_fts,2.0,1.0) score FROM chunks_fts JOIN chunks c ON c.id=chunks_fts.rowid WHERE {clause} AND chunks_fts MATCH ? ORDER BY score ASC,c.chunk_uuid ASC LIMIT ?"
@@ -204,28 +267,38 @@ class SearchService:
                            "page_number": page_index + 1, "label": page.get("label")})
         top10 = list(results[:10])
         required = {normalized_identifier(value) for value in identifiers(question)}
+        terms = answer_terms(question)
         mandatory = []
         covered = set()
-        for source in results:
-            newly_covered = {code for code in required - covered if contains_identifier(source["text"], code)}
-            if newly_covered:
-                source["required_identifiers"] = sorted(newly_covered)
-                mandatory.append(source)
-                covered.update(newly_covered)
+        mandatory_ids = set()
+        # Preuve réservée par identifiant : d'abord un passage portant aussi un terme de la question, sinon toute occurrence.
+        for answer_only in (True, False):
+            for source in results:
+                if id(source) in mandatory_ids or (answer_only and not has_answer_terms(source["text"], terms)):
+                    continue
+                newly_covered = {code for code in required - covered if contains_identifier(source["text"], code)}
+                if newly_covered:
+                    source["required_identifiers"] = sorted(newly_covered)
+                    mandatory.append(source)
+                    mandatory_ids.add(id(source))
+                    covered.update(newly_covered)
         for code in required - covered:
             warnings.append({"code": "identifier_not_found_in_scope", "identifier": code, "message": "Référence non retrouvée dans les passages de ce périmètre."})
-        mandatory_ids = {id(source) for source in mandatory}
         results = mandatory + [source for source in results if id(source) not in mandatory_ids]
         unique = []
         parents = set()
+        texts = set()
         retained_identifiers = set()
         maximum = self.settings.value("retrieval", "constrained_max_fragments", 8) if mode == "comparison" or len(required) > 1 else self.settings.value("retrieval", "final_max_fragments", 6)
         for source in results:
             key = (source["version_id"], source.get("parent_id") or source.get("chunk_id"))
+            # Texte identique (en-tête répété sur plusieurs pages) : un seul fragment, par document en comparaison.
+            text_key = (source.get("document_id") if mode == "comparison" else None, hashlib.sha256(source["text"].encode("utf-8")).hexdigest())
             newly_covered = {code for code in required - retained_identifiers if contains_identifier(source["text"], code)}
-            if key in parents and not newly_covered:
+            if (key in parents or text_key in texts) and not newly_covered:
                 continue
             parents.add(key)
+            texts.add(text_key)
             retained_identifiers.update(newly_covered)
             unique.append(source)
             if len(unique) >= maximum:

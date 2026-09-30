@@ -36,6 +36,7 @@ test-results/
 
 # Outils locaux
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 
 # Fichiers système
 Thumbs.db

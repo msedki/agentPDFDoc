@@ -1,12 +1,22 @@
 import asyncio
 
-from services.api.context import ContextBuilder, validate_answer
-from services.api.retrieval import SearchService, contains_identifier, identifiers, match_expression, normalized_identifier, rrf
-from services.api.scope import ScopeResolver
-from services.api.schemas import Scope
-from services.api.settings import Settings
+from test_api_storage import FakeEmbedding, import_fixture
+from test_api_storage import storage as storage
 
-from test_api_storage import FakeEmbedding, import_fixture, storage
+from services.api.context import ContextBuilder, validate_answer
+from services.api.db import json_dump, now, uid
+from services.api.query import QueryService
+from services.api.retrieval import (
+    SearchService,
+    contains_identifier,
+    identifiers,
+    match_expression,
+    normalized_identifier,
+    rrf,
+)
+from services.api.schemas import QueryRequest, Scope
+from services.api.scope import ScopeResolver
+from services.api.settings import Settings
 
 
 def test_retrieval_safe_fts_and_identifiers():
@@ -121,3 +131,168 @@ def test_retrieval_parent_expansion_clips_multiple_page_sources(storage):
     expanded = resolver.expand_parent(source, snapshot, CharTokenizer())
     assert expanded["page_indices"] == [0] and "999" not in expanded["text"]
     assert all(block["page_index"] == 0 for block in expanded["blocks"])
+
+
+def test_retrieval_identifiers_keep_maximal_matches_only():
+    # Cas réel observé : exact_identifiers_required=['DA-P01','P01'] pour une question sur DA-P01.
+    assert identifiers("Quelle valeur pour DA-P01 ?") == ["DA-P01"]
+    assert identifiers("CCU-21-A puis P01") == ["CCU-21-A", "P01"]
+    assert identifiers("ISO/IEC 27001 et NF EN 50155") == ["EN 50155", "ISO/IEC 27001"]
+    assert identifiers("section 3.4.2 et CCU-21.3") == ["3.4.2", "CCU-21.3"]
+
+
+def test_retrieval_identifier_boundaries_are_symmetric_and_dash_insensitive():
+    assert not contains_identifier("Voir DB-P01, DA_P01 et X/P01", "P01")
+    assert contains_identifier("Voir P01.", "P01") and contains_identifier("(P01, DA-P01)", "P01")
+    assert not contains_identifier("section 3.4.2", "4.2")
+    assert contains_identifier("DA‑P01 puis DA–P02", "DA-P01") and contains_identifier("DA-P02", "DA−P02")
+    assert identifiers("Tension DA‑P01 ?") == ["DA‑P01"] and normalized_identifier("DA‑P01") == "DA-P01"
+    assert identifiers("DA—P01") == ["DA—P01"] and normalized_identifier("da−p01") == "DA-P01"
+
+
+def test_retrieval_standard_prefixes_are_case_sensitive():
+    assert identifiers("en 2020 la tension est passée à 72 V") == []
+    assert identifiers("En 2020, selon EN 50155 et UIC 556") == ["EN 50155", "UIC 556"]
+
+
+def test_retrieval_slash_separates_lists_of_complete_identifiers_only():
+    assert identifiers("Modules DA-P01/DA-P02 : 72 V") == ["DA-P01", "DA-P02"]
+    assert identifiers("Conforme EN 50155/EN 50121-3-2/EN 50122") == ["EN 50121-3-2", "EN 50122", "EN 50155"]
+    assert identifiers("A1/B2/C3") == ["A1", "B2", "C3"]
+    assert all(contains_identifier("Modules DA-P01/DA-P02 : 72 V", code) for code in ["DA-P01", "DA-P02"])
+    assert all(contains_identifier("Conforme EN 50155/EN 50121-3-2", code) for code in ["EN 50155", "EN 50121-3-2"])
+    # « / » de liaison : X, 1, 22 et ISO ne sont pas des identifiants complets.
+    assert identifiers("X/P01, 1/P01, CCU-21/22 et ISO/IEC 27001") == ["CCU-21/22", "ISO/IEC 27001", "X/P01"]
+    assert not any(contains_identifier("X/P01, 1/P01 et CCU-21/22", code) for code in ["P01", "CCU-21"])
+    # Tiret de liaison (décision en attente) : « NF-EN 50155 » reste distinct de EN 50155, contrairement à « NF EN 50155 ».
+    assert identifiers("NF-EN 50155") == ["NF-EN 50155"] and not contains_identifier("NF-EN 50155", "EN 50155")
+    assert contains_identifier("NF EN 50155", "EN 50155")
+
+
+def test_retrieval_extracted_identifiers_are_contained_in_their_text():
+    # Extraction (index, question) et comparaison partagent les mêmes frontières.
+    for text in ["1.P01 : 72 V", "2.CCU-21 voir", "Modules DA-P01/DA-P02", "EN 50155/EN 50121-3-2", "NF-EN 50155", "ISO/IEC 27001",
+                 "section 3.4.2 et CCU-21.3", "DA‑P01/DA–P02", "X/P01/Q02"]:
+        assert identifiers(text) and all(contains_identifier(text, code) for code in identifiers(text)), text
+    # « en » minuscule : norme reconnue à la comparaison sans masquer le numéro de section.
+    assert contains_identifier("voir en 3.4.2", "3.4.2") and not contains_identifier("section 3.4.2", "4.2")
+
+
+def test_retrieval_slash_list_member_is_indexed_found_and_covered(storage):
+    # Constat de revue : DA-P02 de « DA-P01/DA-P02 » était déclaré not_found_in_scope alors que le passage était transmis au modèle.
+    blocks = [{"id": "list", "text": "Modules DA-P01/DA-P02 : tension nominale 72 V"}, {"id": "norms", "text": "Conforme EN 50155/EN 50121-3-2"},
+              {"id": "other", "text": "Tension de secours 24 V"}]
+    import_fixture(storage, pages=[{"page_index": 0, "width": 595, "height": 842, "blocks": blocks}])
+    search, snapshot, db = library_search(storage)
+    assert {"DA-P01", "DA-P02", "EN 50155", "EN 50121-3-2"} <= {row["normalized"] for row in db.rows("SELECT normalized FROM identifiers")}
+    builder = ContextBuilder(storage[0], CharTokenizer())
+    for question, code, parent in (("Quelle tension nominale pour DA-P02 ?", "DA-P02", "list"), ("Quelle conformité EN 50121-3-2 ?", "EN 50121-3-2", "norms")):
+        _, exact = search.lexical(question, snapshot)
+        assert parents(db, exact) == [parent]
+        result = asyncio.run(search.search(question, snapshot))
+        assert not any(warning["code"] == "identifier_not_found_in_scope" for warning in result["warnings"])
+        _, _, metrics, warnings = builder.build(question, result["results"])
+        assert metrics["identifier_coverage_states"] == {code: "covered"}
+        assert not any(warning["code"] == "exact_identifier_not_in_context" for warning in warnings)
+
+
+def test_retrieval_rrf_deterministic_ranks_and_spec_counterexample():
+    lexical = ["exact"] + [f"l{rank}" for rank in range(2, 10)] + ["both"]
+    dense = [f"d{rank}" for rank in range(1, 10)] + ["both", "both"]
+    ranked = rrf(lexical, dense, 60)
+    scores = dict(ranked)
+    assert scores["exact"] == 1 / 61 and scores["l2"] == 1 / 62 and scores["d9"] == 1 / 69
+    assert scores["both"] == 1 / 70 + 1 / 70 and 1 / 61 < 2 / 70
+    assert [chunk for chunk, _ in ranked[:3]] == ["both", "d1", "exact"]
+    assert rrf(["b", "a"], ["a", "b"], 60) == [("a", 1 / 62 + 1 / 61), ("b", 1 / 61 + 1 / 62)]
+
+
+def library_search(prepared):
+    settings, db, vectors, _ = prepared
+    resolver = ScopeResolver(db)
+    return SearchService(db, resolver, FakeEmbedding(), vectors, settings), resolver.resolve(Scope(kind="library")), db
+
+
+def parents(db, chunks):
+    return [db.one("SELECT parent_id FROM chunks WHERE chunk_uuid=?", (chunk,))["parent_id"] for chunk in chunks]
+
+
+def test_retrieval_bm25_ranks_denser_chunks_first_on_real_fts5(storage):
+    blocks = [{"id": f"d{count}", "text": " ".join(["frein"] * count + ["voiture"] * (8 - count))} for count in (1, 3, 6)]
+    blocks += [{"id": f"filler{i}", "text": "voiture roulante confort"} for i in range(5)]
+    import_fixture(storage, pages=[{"page_index": 0, "width": 595, "height": 842, "blocks": blocks}])
+    search, snapshot, db = library_search(storage)
+    lexical, exact = search.lexical("frein", snapshot)
+    assert exact == [] and parents(db, lexical) == ["d6", "d3", "d1"]
+    scores = [row["score"] for row in db.rows("SELECT bm25(chunks_fts,2.0,1.0) score FROM chunks_fts WHERE chunks_fts MATCH '\"frein\"' ORDER BY score")]
+    assert len(scores) == 3 and scores[0] < scores[1] < scores[2] < 0
+
+
+def test_retrieval_exact_matches_are_ranked_by_question_bm25(storage):
+    blocks = [{"id": f"e{count}", "text": " ".join(["CCU-21"] + ["frein"] * count + ["voiture"] * (6 - count))} for count in range(5)]
+    blocks += [{"id": f"filler{i}", "text": "voiture roulante confort"} for i in range(6)]
+    import_fixture(storage, pages=[{"page_index": 0, "width": 595, "height": 842, "blocks": blocks}])
+    search, snapshot, db = library_search(storage)
+    _, exact = search.lexical("CCU-21 frein", snapshot)
+    assert parents(db, exact) == ["e4", "e3", "e2", "e1", "e0"]
+
+
+def test_retrieval_exact_lane_rechecks_boundaries_of_stale_identifier_rows(storage):
+    blocks = [{"id": "neighbour", "text": "DA-P01 tension 72 V"}, {"id": "target", "text": "P01 tension 110 V"}]
+    import_fixture(storage, pages=[{"page_index": 0, "width": 595, "height": 842, "blocks": blocks}])
+    search, snapshot, db = library_search(storage)
+    neighbour = db.one("SELECT chunk_uuid FROM chunks WHERE parent_id='neighbour'")["chunk_uuid"]
+    assert db.one("SELECT 1 FROM identifiers WHERE chunk_uuid=? AND normalized='P01'", (neighbour,)) is None
+    # Ligne héritée d'un index construit avant la correction : reindexation nécessaire, sans effet sur la voie exacte.
+    db.execute("INSERT INTO identifiers VALUES(?,?,?)", (neighbour, "P01", "P01"))
+    _, exact = search.lexical("Quelle tension P01 ?", snapshot)
+    assert parents(db, exact) == ["target"]
+
+
+def test_retrieval_mandatory_identifier_prefers_fragment_with_question_terms(storage):
+    blocks = [{"id": "reference", "text": "Voir CCU-21 en annexe B."}, {"id": "answer", "text": "CCU-21 : tension nominale 72 V."}]
+    import_fixture(storage, pages=[{"page_index": 0, "width": 595, "height": 842, "blocks": blocks}])
+    search, snapshot, _ = library_search(storage)
+    original = search._candidates
+    async def reference_first(question, scope):
+        return sorted(await original(question, scope), key=lambda source: source["parent_id"] != "reference")
+    search._candidates = reference_first
+    result = asyncio.run(search.search("Quelle tension nominale pour CCU-21 ?", snapshot))
+    assert result["results"][0]["parent_id"] == "answer" and result["results"][0]["required_identifiers"] == ["CCU-21"]
+
+
+def test_retrieval_final_selection_drops_duplicate_texts(storage):
+    header = "Manuel CCU-21 : consignes de tension"
+    pages = [{"page_index": i, "width": 595, "height": 842, "blocks": [{"id": f"h{i}", "text": header}, {"id": f"b{i}", "text": f"tension page {i} valeur {70 + i} V"}]} for i in range(2)]
+    import_fixture(storage, pages=pages)
+    search, snapshot, _ = library_search(storage)
+    texts = [source["text"] for source in asyncio.run(search.search("tension CCU-21", snapshot))["results"]]
+    assert header in texts and len(texts) == len(set(texts)) == 3
+
+
+def test_retrieval_comparison_keeps_identical_text_of_each_document(storage):
+    def page():
+        return {"page_index": 0, "width": 595, "height": 842, "blocks": [{"id": "b0", "text": "Tension nominale 72 V"}]}
+    docs = [import_fixture(storage, path=f"doc{i}.pdf", text=f"doc{i}", pages=[page()])[0]["document_id"] for i in range(2)]
+    settings, db, vectors, _ = storage
+    resolver = ScopeResolver(db)
+    snapshot = resolver.resolve(Scope(kind="documents", documentIds=docs))
+    compared = asyncio.run(SearchService(db, resolver, FakeEmbedding(), vectors, settings).search("Comparer la tension", snapshot, "comparison"))
+    assert sorted(source["document_id"] for source in compared["results"]) == sorted(docs)
+
+
+def test_retrieval_followup_resolution_uses_maximal_identifiers(storage):
+    # Effet sur query.py (relances, l.84 et l.99) sans le modifier : DA-P01 n'engendre plus le référent parasite P01.
+    import_fixture(storage, text="DA-P01 tension 72 V et DB-P01 tension 110 V")
+    search, snapshot, db = library_search(storage)
+    settings = storage[0]
+    conversation = uid()
+    db.execute("INSERT INTO conversations VALUES(?,?)", (conversation, now()))
+    db.execute("INSERT INTO query_runs(id,conversation_id,question,scope_json,snapshot_json,state,created_at,updated_at) VALUES(?,?,?,?,?,'done',?,?)",
+               (uid(), conversation, "Quelle tension DA-P01 ?", "{}", json_dump(snapshot.as_dict()), now(), now()))
+    service = QueryService(db, search.resolver, search, ContextBuilder(settings, CharTokenizer()), None, settings)
+    question, resolution, choices = service.resolve_followup(QueryRequest(question="Et sa tolérance ?", scope=Scope(kind="library"), conversation_id=conversation), snapshot)
+    assert resolution["method"] == "unique_user_referent" and not choices and question.endswith(": DA-P01")
+    # « en 2020 » n'est plus une référence explicite : la relance pronominale reste résolue par le référent utilisateur.
+    _, resolution, _ = service.resolve_followup(QueryRequest(question="Et sa valeur en 2020 ?", scope=Scope(kind="library"), conversation_id=conversation), snapshot)
+    assert resolution["method"] == "unique_user_referent"
