@@ -159,21 +159,155 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     return report
 
 
+CITATION = re.compile(r"\[(S\d+)\]")
+# Tournures par lesquelles le modèle dit que les preuves ne contiennent pas l'information (indice, pas un jugement).
+ABSTENTION = re.compile(r"(?i)(ne (?:précis|mentionn|contien|donn|fourni|indiqu|permet|comport|trait|figur)\w*\b[^.]{0,80}?\bpas"
+                        r"|n'(?:est|sont|apparaît|apparaissent) pas (?:mentionn|indiqu|précis|donn|fourni|présent)\w*"
+                        r"|aucune (?:information|mention|donnée|indication|précision)|pas d'information|insuffisan|n'apparaît pas|introuvable)")
+
+
+def generation_sample(dataset: dict[str, Any], answerable: int, unanswerable: int) -> list[dict[str, Any]]:
+    """Échantillon déterministe pour la génération : périmètre du document, tour à tour par document, questions de suivi exclues."""
+    pools: dict[tuple[bool, str], list[dict[str, Any]]] = {}
+    for item in dataset["questions"]:
+        if item["variant"] == "reference" and item["category"] != "conversation_followup":
+            pools.setdefault((item["answerable"], item["document_id"]), []).append(item)
+    chosen = []
+    for kind, wanted in ((True, answerable), (False, unanswerable)):
+        queues = [sorted(pool, key=lambda item: item["source_id"]) for (flag, _), pool in sorted(pools.items(), key=lambda entry: entry[0][1]) if flag is kind]
+        taken: list[dict[str, Any]] = []
+        while len(taken) < wanted and any(queues):
+            for queue in queues:
+                if queue and len(taken) < wanted:
+                    # Pas fixe dans chaque document : couvre début, milieu et fin plutôt que les premières questions.
+                    taken.append(queue.pop(len(queue) // 2))
+        chosen += taken
+    return chosen
+
+
+def answer_record(question: dict[str, Any], outcome: dict[str, Any]) -> dict[str, Any]:
+    terminal = outcome["terminal"] or {"event": "timeout", "data": {}}
+    data = terminal.get("data") or {}
+    text = data.get("text") or ""
+    sources: list[dict[str, Any]] = next((event["data"].get("sources", []) for event in outcome["events"] if event["event"] == "sources"), [])
+    metrics = data.get("metrics") or {}
+    return {"id": question["id"], "source_id": question["source_id"], "document_id": question["document_id"], "answerable": question["answerable"],
+            "status": terminal["event"], "answer_text": text, "cited": list(dict.fromkeys(CITATION.findall(text))),
+            "sources": [{"source_id": source.get("source_id"), "document_id": source.get("document_id"), "page_index": source.get("page_index")} for source in sources],
+            "metrics": {key: metrics.get(key) for key in ("ttft_ms", "elapsed_ms", "prompt_eval_count", "eval_count", "evidence_tokens", "generation_admission_wait_ms")},
+            "at_utc": dt.datetime.now(dt.UTC).isoformat()}
+
+
+def grade_answer(record: dict[str, Any], question: dict[str, Any], annotated: dict[str, Any]) -> dict[str, Any]:
+    """Contrôles automatiques d'une réponse : valeurs, citations, page citée, tournure d'abstention (aucun texte conservé)."""
+    # Les scripts de qualification s'importent entre eux par leur nom (grade -> answers -> evidence_io).
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from grade import value_check
+
+    text = record["answer_text"] or ""
+    registry = {source["source_id"] for source in record["sources"]}
+    cited = [source for source in record["sources"] if source["source_id"] in set(record["cited"])]
+    row: dict[str, Any] = {"id": record["id"], "source_id": record["source_id"], "answerable": record["answerable"], "status": record["status"],
+                           "answered": record["status"] == "done" and bool(text.strip()), "citations_valid": set(record["cited"]) <= registry,
+                           "cites_expected_page": any(source["document_id"] == question["document_id"] and source["page_index"] in set(question["expected_pages"])
+                                                      for source in cited),
+                           "abstention_phrase": bool(ABSTENTION.search(text)), "metrics": record["metrics"]}
+    values = [item for item in annotated.get("important_values") or [] if str(item.get("value") or "").strip()]
+    checks = []
+    for item in values:
+        if item.get("unit") and re.fullmatch(r"[-+]?\d+(?:[.,]\d+)?", str(item["value"]).strip()):
+            checks.append(value_check(text, str(item["value"]).strip(), str(item["unit"]).strip())["status"] == "VALUE_AND_UNIT")
+        else:
+            checks.append(normalize(str(item["value"])) in normalize(text))
+    row["values_expected"], row["values_found"] = len(checks), sum(checks)
+    return row
+
+
+def grade_answers_command(args: argparse.Namespace) -> int:
+    dataset = json.loads(args.dataset.read_text(encoding="utf-8"))
+    questions = {item["id"]: item for item in dataset["questions"]}
+    annotated = {item["id"]: item for path in sorted(args.input.glob("*.json")) if not path.name.startswith("resolved")
+                 for item in json.loads(path.read_text(encoding="utf-8")).get("questions", [])}
+    records = {record["id"]: record for record in map(json.loads, args.answers.read_text(encoding="utf-8").splitlines()) if record}
+    rows = [grade_answer(record, questions[record["id"]], annotated[record["source_id"]]) for record in records.values()]
+    answerable = [row for row in rows if row["answerable"]]
+    unanswerable = [row for row in rows if not row["answerable"]]
+    with_values = [{"ok": row["values_found"] == row["values_expected"]} for row in answerable if row["values_expected"]]
+    summary: dict[str, Any] = {
+        "answerable": {**rate_table(answerable, ("answered", "citations_valid", "cites_expected_page", "abstention_phrase")),
+                       "all_values_found": rate_table(with_values, ("ok",))["ok"]},
+        "unanswerable": rate_table(unanswerable, ("answered", "citations_valid", "abstention_phrase")),
+        "ttft_ms": sorted(row["metrics"].get("ttft_ms") or 0 for row in rows), "elapsed_ms": sorted(row["metrics"].get("elapsed_ms") or 0 for row in rows)}
+    report = {"format": "annotated-answers-report-v1", "utc": dt.datetime.now(dt.UTC).isoformat(), "annotation_state": "ASSISTANT_READ_NOT_EXPERT_VALIDATED",
+              "answers_sha256": hashlib.sha256(args.answers.read_bytes()).hexdigest(), "summary": summary, "rows": rows,
+              "note": "Contrôles automatiques seulement ; le jugement de justesse de chaque réponse est consigné à part."}
+    target = args.report.resolve()
+    if target.exists():
+        raise SystemExit("Rapport existant : choisir un nouveau fichier")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+    print(json.dumps(summary, ensure_ascii=False))
+    return 0
+
+
+def answer_command(client: httpx.Client, args: argparse.Namespace, runtime: Path) -> int:
+    from tools.qualification.api_client import follow_query, submit_query
+
+    output = args.output.resolve()
+    if not output.is_relative_to(runtime):
+        raise SystemExit("Les réponses contiennent du texte du corpus : journal sous .runtime/ exigé")
+    dataset = json.loads(args.dataset.read_text(encoding="utf-8"))
+    done = {json.loads(line)["id"] for line in output.read_text(encoding="utf-8").splitlines() if line} if output.exists() else set()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    for question in generation_sample(dataset, args.answerable, args.unanswerable):
+        if question["id"] in done:
+            continue
+        body = {"question": question["question"], "scope": question["scope"], "mode": "question"}
+        try:
+            created, started, _ = submit_query(client, body)
+            outcome = follow_query(client, created, started=started, deadline_s=args.deadline)
+            record = answer_record(question, outcome)
+        except httpx.HTTPError as error:
+            # Refus d'admission ou coupure : rien n'est écrit, la question sera reprise au prochain lancement.
+            print(json.dumps({"id": question["id"], "error": type(error).__name__}), flush=True)
+            continue
+        with output.open("a", encoding="utf-8", newline="\n") as stream:
+            stream.write(json.dumps(record, ensure_ascii=False) + "\n")
+        print(json.dumps({"id": question["id"], "status": record["status"], "ttft_ms": record["metrics"]["ttft_ms"],
+                          "elapsed_ms": record["metrics"]["elapsed_ms"]}), flush=True)
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
+    answer = sub.add_parser("answer", help="Génération réelle sur un échantillon (réponses sous .runtime/, reprise possible)")
+    answer.add_argument("--dataset", type=Path, required=True)
+    answer.add_argument("--output", type=Path, required=True, help="Journal JSONL des réponses sous .runtime/ (texte des réponses)")
+    answer.add_argument("--answerable", type=int, default=16)
+    answer.add_argument("--unanswerable", type=int, default=6)
+    answer.add_argument("--deadline", type=float, default=900.0, help="Délai maximal par question, en secondes")
+    graded = sub.add_parser("grade-answers", help="Contrôles automatiques des réponses ; rapport sans texte")
+    graded.add_argument("--dataset", type=Path, required=True)
+    graded.add_argument("--answers", type=Path, required=True)
+    graded.add_argument("--input", type=Path, default=ROOT / ".runtime/evals/annotated-v1")
+    graded.add_argument("--report", type=Path, required=True)
     resolve = sub.add_parser("resolve")
     resolve.add_argument("--input", type=Path, default=ROOT / ".runtime/evals/annotated-v1")
     resolve.add_argument("--output", type=Path, required=True, help="Jeu exécutable sous .runtime/ (contient le texte des questions)")
     run = sub.add_parser("run")
     run.add_argument("--dataset", type=Path, required=True)
     run.add_argument("--report", type=Path, required=True, help="Rapport agrégé, sans texte du corpus ni des questions")
-    for command in (resolve, run):
+    for command in (resolve, run, answer):
         command.add_argument("--profile", type=Path, default=ROOT / "config/local16.yaml")
     args = parser.parse_args()
     runtime = (ROOT / ".runtime").resolve()
+    if args.command == "grade-answers":
+        return grade_answers_command(args)
     origin, verify, headers = instance(args.profile)
     with httpx.Client(base_url=origin, headers={"Origin": origin, **headers}, verify=verify, trust_env=False, timeout=httpx.Timeout(300, connect=10)) as client:
+        if args.command == "answer":
+            return answer_command(client, args, runtime)
         if args.command == "resolve":
             output = args.output.resolve()
             if not output.is_relative_to(runtime) or output.exists():

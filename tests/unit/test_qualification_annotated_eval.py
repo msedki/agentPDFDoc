@@ -1,5 +1,7 @@
 """Jeu de référence W014 : rattachement des extraits aux blocs et mesures par page et par bloc, sur des blocs synthétiques."""
 from tools.qualification.annotated_eval import (
+    generation_sample,
+    grade_answer,
     locate,
     resolve_dataset,
     resolve_unit,
@@ -67,3 +69,26 @@ def test_scores_count_page_and_block_evidence_in_top10_final_list_and_context():
     assert "success_at_10" not in unresolved
     report = summarize([row, unresolved])
     assert report["reference"]["page"]["page_at_10"]["denominator"] == 2 and report["reference"]["block"]["success_at_10"]["denominator"] == 1
+
+
+def test_generation_sample_takes_documents_in_turn_and_skips_followups():
+    questions = []
+    for document in ("doc-a", "doc-b"):
+        for index in range(4):
+            questions.append({"id": f"{document}-{index}", "source_id": f"{document}-{index}", "variant": "reference", "document_id": document,
+                              "category": "conversation_followup" if index == 3 else "factual_fr_en", "answerable": index < 3})
+    questions.append({"id": "lib", "source_id": "lib", "variant": "portee_bibliotheque", "document_id": "doc-a", "category": "factual_fr_en", "answerable": True})
+    chosen = generation_sample({"questions": questions}, answerable=4, unanswerable=0)
+    assert [item["id"] for item in chosen] == ["doc-a-1", "doc-b-1", "doc-a-2", "doc-b-2"]
+    assert generation_sample({"questions": questions}, answerable=4, unanswerable=0) == chosen
+
+
+def test_answer_grading_checks_values_citations_page_and_abstention():
+    record = {"id": "a1", "source_id": "X-01", "answerable": True, "status": "done", "answer_text": "La pression de service est de 3,1 bar [S002].",
+              "cited": ["S002"], "sources": [{"source_id": "S001", "document_id": "doc-a", "page_index": 4}, {"source_id": "S002", "document_id": "doc-a", "page_index": 0}],
+              "metrics": {"ttft_ms": 1.0}}
+    row = grade_answer(record, {"document_id": "doc-a", "expected_pages": [0]}, {"important_values": [{"key": "p", "value": "3.1", "unit": "bar"}]})
+    assert (row["answered"], row["citations_valid"], row["cites_expected_page"], row["values_found"], row["abstention_phrase"]) == (True, True, True, 1, False)
+    refusal = {**record, "answer_text": "Les preuves ne précisent pas le poids de l'appareil.", "cited": ["S009"]}
+    row = grade_answer(refusal, {"document_id": "doc-a", "expected_pages": [0]}, {"important_values": []})
+    assert (row["citations_valid"], row["abstention_phrase"], row["values_expected"]) == (False, True, 0)
