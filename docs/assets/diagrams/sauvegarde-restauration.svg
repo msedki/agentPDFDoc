@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Généré par tools/docs/diagrams.py : modifier le script puis régénérer. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="894" viewBox="0 0 880 894" role="img" aria-labelledby="sauvegarde-restauration-title sauvegarde-restauration-desc" font-family="'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif">
+<title id="sauvegarde-restauration-title">Sauvegarde et restauration dans une racine neuve</title>
+<desc id="sauvegarde-restauration-desc">Étapes de rag.ps1 backup et rag.ps1 restore, contenu du snapshot et démarrage du profil restauré.</desc>
+<defs><marker id="sauvegarde-restauration-head-172b33" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#172B33"/></marker></defs>
+<rect x="0" y="0" width="880" height="894" rx="10" fill="#F6F4EE" stroke="#D9D9D1"/>
+<text x="24" y="34" font-size="18" fill="#172B33" font-weight="600">Sauvegarde et restauration dans une racine neuve</text>
+<text x="24" y="54" font-size="12" fill="#4A5961">Sources : services/runtime/backup.py (create_backup, verify_backup, restore_backup), services/api/main.py (admin).</text>
+<text x="24" y="90" font-size="13" fill="#172B33" font-weight="600" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">rag.ps1 backup -Path &lt;neuf&gt;</text>
+<text x="592" y="90" font-size="13" fill="#172B33" font-weight="600" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">rag.ps1 restore -Path -Target</text>
+<rect x="24" y="104" width="260" height="68" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
+<text x="34" y="125" font-size="13" fill="#172B33" font-weight="600">Instance running</text>
+<text x="34" y="144" font-size="12" fill="#172B33">identités du superviseur et des</text>
+<text x="34" y="161" font-size="12" fill="#172B33">services revalidées</text>
+<rect x="24" y="182" width="260" height="68" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
+<text x="34" y="203" font-size="13" fill="#172B33" font-weight="600">Destination neuve</text>
+<text x="34" y="222" font-size="12" fill="#172B33">hors données actives ; 2 Gio</text>
+<text x="34" y="239" font-size="12" fill="#172B33">libres exigés</text>
+<polyline points="154,172 154,181" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<rect x="24" y="260" width="260" height="68" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
+<text x="34" y="281" font-size="13" fill="#172B33" font-weight="600">POST /admin/quiesce</text>
+<text x="34" y="300" font-size="12" fill="#172B33">jeton et clé Qdrant lus ; mutations</text>
+<text x="34" y="317" font-size="12" fill="#172B33">503, checkpoint, WAL reporté</text>
+<polyline points="154,250 154,259" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<rect x="24" y="338" width="260" height="68" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
+<text x="34" y="359" font-size="13" fill="#172B33" font-weight="600">SQLite : API backup</text>
+<text x="34" y="378" font-size="12" fill="#172B33">integrity_check, foreign_key_check</text>
+<text x="34" y="395" font-size="12" fill="#172B33">et comptes de 11 tables</text>
+<polyline points="154,328 154,337" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<rect x="24" y="416" width="260" height="68" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
+<text x="34" y="437" font-size="13" fill="#172B33" font-weight="600">Copie des fichiers</text>
+<text x="34" y="456" font-size="12" fill="#172B33">originals, extractions, manifestes,</text>
+<text x="34" y="473" font-size="12" fill="#172B33">profil, verrous, contrats</text>
+<polyline points="154,406 154,415" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<rect x="24" y="494" width="260" height="68" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
+<text x="34" y="515" font-size="13" fill="#172B33" font-weight="600">Snapshots Qdrant</text>
+<text x="34" y="534" font-size="12" fill="#172B33">par collection : création,</text>
+<text x="34" y="551" font-size="12" fill="#172B33">téléchargement, checksum</text>
+<polyline points="154,484 154,493" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<rect x="24" y="572" width="260" height="68" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
+<text x="34" y="593" font-size="13" fill="#172B33" font-weight="600">manifest.json complete</text>
+<text x="34" y="612" font-size="12" fill="#172B33">SHA-256 et taille par fichier,</text>
+<text x="34" y="629" font-size="12" fill="#172B33">puis verify_backup</text>
+<polyline points="154,562 154,571" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<rect x="24" y="650" width="260" height="68" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
+<text x="34" y="671" font-size="13" fill="#172B33" font-weight="600">POST /admin/resume</text>
+<text x="34" y="690" font-size="12" fill="#172B33">toujours envoyé, même en échec</text>
+<text x="34" y="707" font-size="12" fill="#172B33">(bloc finally)</text>
+<polyline points="154,640 154,649" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<rect x="592" y="104" width="264" height="68" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
+<text x="602" y="125" font-size="13" fill="#172B33" font-weight="600">verify_backup</text>
+<text x="602" y="144" font-size="12" fill="#172B33">hashes, fichiers en trop refusés,</text>
+<text x="602" y="161" font-size="12" fill="#172B33">comptes SQLite du manifeste</text>
+<rect x="592" y="182" width="264" height="68" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
+<text x="602" y="203" font-size="13" fill="#172B33" font-weight="600">Cible neuve</text>
+<text x="602" y="222" font-size="12" fill="#172B33">distincte du snapshot ; port 6343</text>
+<text x="602" y="239" font-size="12" fill="#172B33">libre ; snapshot Qdrant 1.19.1</text>
+<polyline points="724,172 724,181" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<rect x="592" y="260" width="264" height="68" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
+<text x="602" y="281" font-size="13" fill="#172B33" font-weight="600">Copie de data/</text>
+<text x="602" y="300" font-size="12" fill="#172B33">hash de chaque copie vérifié</text>
+<text x="602" y="317" font-size="12" fill="#172B33">avant réécriture des chemins</text>
+<polyline points="724,250 724,259" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<rect x="592" y="338" width="264" height="68" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
+<text x="602" y="359" font-size="13" fill="#172B33" font-weight="600">Chemins SQLite</text>
+<text x="602" y="378" font-size="12" fill="#172B33">réécrits vers la cible ;</text>
+<text x="602" y="395" font-size="12" fill="#172B33">intégrité et comptes identiques</text>
+<polyline points="724,328 724,337" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<rect x="592" y="416" width="264" height="68" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
+<text x="602" y="437" font-size="13" fill="#172B33" font-weight="600">Stockage Qdrant court</text>
+<text x="602" y="456" font-size="12" fill="#172B33">si …\qdrant\storage &gt; 57 car. :</text>
+<text x="602" y="473" font-size="12" fill="#172B33">.runtime\q\&lt;id8&gt;, neuf</text>
+<polyline points="724,406 724,415" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<rect x="592" y="494" width="264" height="68" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
+<text x="602" y="515" font-size="13" fill="#172B33" font-weight="600">Qdrant temporaire 6343</text>
+<text x="602" y="534" font-size="12" fill="#172B33">clé propre ; envoi des snapshots</text>
+<text x="602" y="551" font-size="12" fill="#172B33">(2 reprises E/S), comptes, arrêt</text>
+<polyline points="724,484 724,493" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<rect x="592" y="572" width="264" height="68" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
+<text x="602" y="593" font-size="13" fill="#172B33" font-weight="600">restored-profile.yaml</text>
+<text x="602" y="612" font-size="12" fill="#172B33">API 8795, Qdrant 6343,</text>
+<text x="602" y="629" font-size="12" fill="#172B33">Ollama 11445</text>
+<polyline points="724,562 724,571" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<rect x="592" y="650" width="264" height="68" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
+<text x="602" y="671" font-size="13" fill="#172B33" font-weight="600">restore-report.json</text>
+<text x="602" y="690" font-size="12" fill="#172B33">restored_storage_verified ;</text>
+<text x="602" y="707" font-size="12" fill="#172B33">question et citation : NOT_RUN</text>
+<polyline points="724,640 724,649" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<rect x="314" y="104" width="240" height="348" rx="6" fill="#EFEDE6" stroke="#6B6456" stroke-width="1.4"/>
+<text x="324" y="125" font-size="13" fill="#172B33" font-weight="600">Snapshot sauvegardé</text>
+<text x="324" y="144" font-size="12" fill="#172B33">format rag-native-backup-v1</text>
+<text x="324" y="161" font-size="12" fill="#172B33">manifest.json : état et</text>
+<text x="324" y="178" font-size="12" fill="#172B33">SHA-256 de chaque fichier</text>
+<text x="324" y="195" font-size="12" fill="#172B33" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">data/app.sqlite3</text>
+<text x="324" y="212" font-size="12" fill="#172B33" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">data/originals/</text>
+<text x="324" y="229" font-size="12" fill="#172B33" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">data/extractions/</text>
+<text x="324" y="246" font-size="12" fill="#172B33" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">qdrant/&lt;uuid&gt;.snapshot</text>
+<text x="324" y="263" font-size="12" fill="#172B33" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">runtime-manifests/</text>
+<text x="324" y="280" font-size="12" fill="#172B33">config/ : profil, verrous,</text>
+<text x="324" y="297" font-size="12" fill="#172B33">contrats, manifeste des sources</text>
+<polyline points="285,606 344,606 344,454" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<polyline points="555,138 590,138" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<polyline points="724,718 724,742" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sauvegarde-restauration-head-172b33)"/>
+<rect x="24" y="744" width="832" height="84" rx="6" fill="#FFF6D9" stroke="#8A6D1F" stroke-width="1.4"/>
+<text x="34" y="765" font-size="14" fill="#172B33" font-weight="600">Ensuite, sur le profil restauré</text>
+<text x="34" y="784" font-size="12" fill="#172B33">rag.ps1 up -Profile &lt;cible&gt;\restored-profile.yaml, puis vérifier une recherche et une ancienne citation.</text>
+<text x="34" y="801" font-size="12" fill="#172B33">Ne jamais déplacer ni purger seul le stockage Qdrant court : relocaliser par backup puis restore.</text>
+<text x="24" y="854" font-size="12" fill="#4A5961">Ce schéma montre l'ordre des contrôles de la sauvegarde (vert) et de la restauration (bleu) et le contenu du snapshot.</text>
+<text x="24" y="872" font-size="12" fill="#4A5961">Tout échec laisse un manifeste ou un rapport à l'état failed ; aucune restauration n'écrit dans une racine existante.</text>
+</svg>

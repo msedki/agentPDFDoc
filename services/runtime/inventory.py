@@ -8,6 +8,7 @@ import shutil
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any, cast
 
 from .artifacts import ROOT, file_hash, write_json_atomic
 
@@ -18,10 +19,10 @@ def notice(path: Path) -> dict:
 
 
 def license_inventory(output: Path) -> dict:
-    result = {"created_at_utc": datetime.now(UTC).isoformat(),
-              "scope": "installed project dependencies and provisioned artefacts; metadata is not legal certification",
-              "python": [], "npm": [], "artifacts": [], "native_notices": [],
-              "runtime_prerequisites": [], "limits": []}
+    result: dict[str, Any] = {"created_at_utc": datetime.now(UTC).isoformat(),
+                              "scope": "installed project dependencies and provisioned artefacts; metadata is not legal certification",
+                              "python": [], "npm": [], "artifacts": [], "native_notices": [],
+                              "runtime_prerequisites": [], "limits": []}
     python_root = Path(sys.base_prefix)
     result["runtime_prerequisites"].append({"name": "CPython", "version": sys.version.split()[0],
         "path": str(python_root), "redistributed_in_project": python_root.resolve().is_relative_to(ROOT),
@@ -36,7 +37,8 @@ def license_inventory(output: Path) -> dict:
             "redistributed_in_project": False, "notices": [notice(path) for path in
                 [node_root / "LICENSE", node_root / "node_modules/corepack/LICENSE.md"] if path.is_file()]})
     for distribution in sorted(importlib.metadata.distributions(), key=lambda d: d.metadata.get("Name", "")):
-        files = [distribution.locate_file(file) for file in distribution.files or []]
+        # Distributions installées sur disque : locate_file rend un pathlib.Path (resolve() l'exige déjà).
+        files = [cast(Path, distribution.locate_file(file)) for file in distribution.files or []]
         notices = [notice(path) for path in files if path.is_file() and path.resolve().is_relative_to(ROOT)
                    and any(key in path.name.lower() for key in ("license", "copying", "notice"))]
         metadata = distribution.metadata

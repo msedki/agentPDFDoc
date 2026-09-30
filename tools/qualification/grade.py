@@ -18,6 +18,7 @@ from collections import Counter
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
+from typing import Any
 
 import yaml
 from answers import journal_state
@@ -173,8 +174,8 @@ def quantile(values: list[float], fraction: float) -> float:
 def bootstrap_ratio(pairs: list[tuple[int, int]], seed: int = SEED, iterations: int = ITERATIONS) -> dict:
     """Ratio d'agrégats avec intervalle bootstrap : les assertions d'une question restent groupées."""
     pairs = [pair for pair in pairs if pair[1]]
-    result = {"successes": sum(pair[0] for pair in pairs), "denominator": sum(pair[1] for pair in pairs), "questions": len(pairs), "seed": seed, "iterations": iterations,
-              "method": "bootstrap by question; percentile interval with linear interpolation"}
+    result: dict[str, Any] = {"successes": sum(pair[0] for pair in pairs), "denominator": sum(pair[1] for pair in pairs), "questions": len(pairs), "seed": seed, "iterations": iterations,
+                              "method": "bootstrap by question; percentile interval with linear interpolation"}
     if not pairs:
         return {**result, "rate": None, "interval_95": None}
     rng = random.Random(seed)

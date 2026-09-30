@@ -3,6 +3,7 @@
 import hashlib
 import math
 from contextlib import contextmanager
+from typing import Any
 
 
 @contextmanager
@@ -84,6 +85,7 @@ def subtract_native_regions(region, obstacles, limit=128):
 
 
 def _rule_positions(indices):
+    groups: list[list[int]]
     groups, previous = [], -2
     for index in indices:
         if index != previous + 1:
@@ -173,7 +175,7 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
                 contained = [region for region in rects if region.intersection_over_self(bitmap) >= .5]
                 if contained:
                     rects = [region for region in rects if region not in contained] + [bitmap]
-            isolated = []
+            isolated: list[BoundingBox] = []
             failures = []
             obstacles = [[box.l - 1, box.t - 1, box.r + 1, box.b + 1] for box in native_boxes]
             for region in rects:
@@ -205,7 +207,7 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
             from docling.models.stages.ocr.tesseract_ocr_cli_model import _parse_orientation
 
             region_index = len(self._current_orientations)
-            record = {"parser_bbox": self._current_rects[region_index].model_dump(mode="json"), "resolved": False}
+            record: dict[str, Any] = {"parser_bbox": self._current_rects[region_index].model_dump(mode="json"), "resolved": False}
             self._current_orientations.append(record)
             with Image.open(ifilename) as image:
                 source = image.convert("RGB")
@@ -252,7 +254,7 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
             patch, offset = bounded_cell_crop(image, bounds) if cell_border else (image.crop(tuple(bounds)), tuple(bounds[:2]))
             if patch is None:
                 # Only rule residue: nothing recognized, the printed cell stays unresolved.
-                self._last_cell_crop = {"policy": "ink_border_10", "raster_offset": None, "raster_size": None, "ink": "edge_residue_only"}
+                self._last_cell_crop: dict[str, Any] = {"policy": "ink_border_10", "raster_offset": None, "raster_size": None, "ink": "edge_residue_only"}
                 return None
             self._last_cell_crop = {"policy": "ink_border_10" if cell_border else "full_grid_cell", "raster_offset": list(offset), "raster_size": list(patch.size)}
             with temporary_raster(patch) as target:
@@ -342,7 +344,8 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
             super()._init_models()
             from .regional_tables import RegionalTableStage
 
-            self.table_model = RegionalTableStage(self.table_model, self.ocr_model)
+            # Adaptateur au même __call__(conv_res, page_batch) que l'étape table, sans en hériter.
+            self.table_model = RegionalTableStage(self.table_model, self.ocr_model)  # type: ignore[assignment]
 
         def _make_ocr_model(self, art_path):
             if not self.pipeline_options.do_ocr:

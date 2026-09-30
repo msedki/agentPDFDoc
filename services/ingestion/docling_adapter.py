@@ -8,6 +8,7 @@ import subprocess
 import threading
 import uuid
 from pathlib import Path
+from typing import Any
 
 from .config import OCR_RENDER_SCALE, IngestionConfig, project_path
 from .errors import IngestionError
@@ -36,10 +37,10 @@ class DoclingSession:
     """Reuse one compatible converter within a bounded extraction session."""
     def __init__(self, config: IngestionConfig):
         self.config = config
-        self._converter = None
+        self._converter: Any = None
         self._route = None
-        self.last_lifecycle = {}
-        self.page_metadata = {}
+        self.last_lifecycle: dict[str, Any] = {}
+        self.page_metadata: dict[int, Any] = {}
 
     def converter(self, route):
         if self._converter is not None and self._route == route:
@@ -71,12 +72,13 @@ class DoclingSession:
                 from docling.document_converter import NativePdfFormatOption
             except ImportError:
                 raise IngestionError("NATIVE_PIPELINE_UNAVAILABLE", "La voie Docling native n'est pas disponible dans la version installée.") from None
-            options = NativePdfPipelineOptions(parser_threads=self.config.parser_threads, generate_page_images=False, generate_picture_images=False)
-            format_option = NativePdfFormatOption(pipeline_options=options, backend=backend)
+            options: NativePdfPipelineOptions | PdfPipelineOptions = NativePdfPipelineOptions(parser_threads=self.config.parser_threads, generate_page_images=False, generate_picture_images=False)
+            format_option: PdfFormatOption = NativePdfFormatOption(pipeline_options=options, backend=backend)
         else:
             from docling.datamodel.backend_options import ThreadedDoclingParseBackendOptions
 
-            backend_options = ThreadedDoclingParseBackendOptions(parser_threads=self.config.parser_threads)
+            # Docling déclare ces défauts par Field(<valeur>, ...) positionnel, que le dataclass_transform de mypy ignore.
+            backend_options = ThreadedDoclingParseBackendOptions(parser_threads=self.config.parser_threads)  # type: ignore[call-arg]
             if not self.config.artifacts_path or not project_path(self.config.artifacts_path).is_dir():
                 raise IngestionError("DOCLING_ARTIFACTS_MISSING", "Les artefacts Docling locaux sont absents.")
             options = PdfPipelineOptions(
@@ -87,7 +89,8 @@ class DoclingSession:
                 generate_parsed_pages=True,
                 do_picture_description=False,
             )
-            options.table_structure_options.mode = TableFormerMode.ACCURATE
+            # Champ typé par sa base ; sa valeur par défaut est TableStructureOptions(), qui porte mode.
+            options.table_structure_options.mode = TableFormerMode.ACCURATE  # type: ignore[attr-defined]
             if route == "regional_ocr":
                 verify_tesseract(self.config)
                 keywords = {"lang": list(self.config.ocr_languages), "tesseract_cmd": self.config.resolved_tesseract_cmd, "scale": OCR_RENDER_SCALE}
@@ -155,10 +158,10 @@ class DoclingSession:
                 raise IngestionError("DOCLING_CONVERSION_FAILED", "Docling n'a pas produit une extraction utilisable.", {"page_start": first, "page_end": last, "parser_status": status})
             document = result.document.export_to_dict()
             observed_ocr = {}
-            preprocessing = {}
-            orientations = {}
-            table_corrections = {}
-            isolation_failures = {}
+            preprocessing: dict[int, Any] = {}
+            orientations: dict[int, Any] = {}
+            table_corrections: dict[int, Any] = {}
+            isolation_failures: dict[int, Any] = {}
             if route == "regional_ocr":
                 pipeline = converter._get_pipeline(result.input.format)
                 preprocessing = getattr(pipeline.ocr_model, "region_preprocessing_by_page", {})
@@ -194,7 +197,7 @@ def stable_id(version_id, revision_id, page_index, item_ref, text, bbox):
 def table_text(data):
     """Serialize an actual table grid with explicit cell coordinates/spans."""
     cells = data.get("table_cells", [])
-    rows = {}
+    rows: dict[int, list[tuple[int, str]]] = {}
     for cell in cells:
         row, column = int(cell.get("start_row_offset_idx", 0)), int(cell.get("start_col_offset_idx", 0))
         rows.setdefault(row, []).append((column, str(cell.get("text", ""))))
@@ -206,7 +209,7 @@ def canonical_cells(document, pages, observed_ocr, warnings):
     for index, page in pages.items():
         parser_page = document.get("pages", {}).get(str(index + 1), document.get("pages", {}).get(index + 1, {}))
         size = parser_page.get("size", {})
-        converted = []
+        converted: list[dict[str, Any]] = []
         if "width" not in size or "height" not in size:
             result[index] = converted
             continue
@@ -278,7 +281,7 @@ def table_coverage(data, bbox, parser_size, page):
 
 def document_to_pages(document, preflight_pages, version_id, revision_id, route, observed_ocr=None, minimum_confidence=None):
     pages = {page["page_index"]: dict(page, blocks=[], extraction_state="ocr" if route == "regional_ocr" else "native", ocr_used=False, coverage_regions=[], unresolved_regions=[]) for page in preflight_pages}
-    warnings = []
+    warnings: list[dict[str, Any]] = []
     for page in pages.values():
         warnings.extend({"code": code, "page_index": page["page_index"], "component": "preflight_text"} for code in page.get("text_mapping_warnings", []))
     cells_by_page = canonical_cells(document, pages, observed_ocr, warnings)

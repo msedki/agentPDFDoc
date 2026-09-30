@@ -85,7 +85,7 @@ export function configuredUploadLimit(target: LifecycleTarget) {
 
 export async function uploadFromUi(page: Page, input: ReturnType<typeof fixture>, info: TestInfo) {
   const chooser = page.waitForEvent("filechooser");
-  await page.getByRole("button", { name: "PDF", exact: true }).click();
+  await page.getByRole("button", { name: "Importer des PDF", exact: true }).click();
   const response = page.waitForResponse(item => item.request().method() === "POST" && item.url().endsWith("/api/v1/documents/import"));
   await (await chooser).setFiles(input.absolute_path);
   const received = await response;

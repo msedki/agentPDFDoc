@@ -7,11 +7,11 @@ import sqlite3
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response, StreamingResponse
 from starlette.staticfiles import StaticFiles
 
 from .context import ContextBuilder, LlmTokenizer
@@ -26,7 +26,11 @@ from .reconcile import Reconciler
 from .retrieval import QdrantStore, SearchService
 from .schemas import DocumentMove, EvaluationContextRequest, QueryRequest, RuntimeMode
 from .scope import ScopeResolver
+from .security import LINK_HELP, SecurityPolicy, SessionRegistry, cookie_attributes
 from .settings import Settings
+
+# Accessibles sans session : sondes de disponibilité et échange du lien d'ouverture ; la déconnexion contrôle elle-même son CSRF.
+PUBLIC_PATHS = frozenset({"/api/v1/health", "/api/v1/readiness", "/api/v1/session/open", "/api/v1/session/logout"})
 
 
 def create_app(profile_path=None, governor=None, ingestion_runner=None, *, settings=None, embedding=None, vectors=None, ollama=None, tokenizer=None, start_jobs=True):
@@ -36,7 +40,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     vectors = vectors or QdrantStore(settings)
     ollama = ollama or OllamaGateway(settings)
     tokenizer = tokenizer or LlmTokenizer(settings)
-    cache_release_state = {"last": None}
+    cache_release_state: dict[str, Any] = {"last": None}
     if governor is None:
         try:
             from services.runtime.resources import ResourceGovernor
@@ -72,6 +76,8 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     queries = QueryService(db, resolver, search, ContextBuilder(settings, tokenizer), ollama, settings, governor)
     jobs = JobSupervisor(db, indexer, settings, governor, ingestion_runner)
     reconciler = Reconciler(db, vectors)
+    policy = SecurityPolicy.from_settings(settings)
+    sessions = SessionRegistry(policy, settings.data_dir / "logs" / "security-audit.jsonl")
 
     @asynccontextmanager
     async def lifespan(application):
@@ -89,7 +95,10 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         await vectors.close()
         await ollama.close()
 
-    application = FastAPI(title="RAG PDF local", version="0.1.0", lifespan=lifespan, docs_url="/api/docs", redoc_url=None)
+    # Documentation interactive de l'API : diagnostic local en développement, absente en production.
+    application = FastAPI(title="RAG PDF local", version="0.1.0", lifespan=lifespan, redoc_url=None,
+                          docs_url=None if policy.production else "/api/docs",
+                          openapi_url=None if policy.production else "/openapi.json")
     application.state.db = db
     application.state.settings = settings
     application.state.embedding = embedding
@@ -99,6 +108,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     application.state.jobs = jobs
     application.state.search = search
     application.state.reconciler = reconciler
+    application.state.sessions = sessions
     application.state.mutations_paused = False
     # Pas de verrou global : les écritures sont bornées par leurs transactions SQLite. Seule la mise en
     # pause pour sauvegarde attend la fin des mutations déjà admises ; recherche et contrôles n'attendent rien.
@@ -108,8 +118,43 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     control_lock = asyncio.Lock()
     port = settings.value("app", "port", 8785)
     allowed_hosts = {f"127.0.0.1:{port}", f"localhost:{port}", f"[::1]:{port}"}
-    allowed_origins = {f"http://{host}" for host in allowed_hosts}
+    allowed_origins = {f"{policy.scheme}://{host}" for host in allowed_hosts}
     maximum_upload = settings.value("pdf", "max_file_mib", 200) * 1024 * 1024
+
+    def control_token_valid(request):
+        token = os.environ.get("RAG_CONTROL_TOKEN", "")
+        provided = request.headers.get("x-rag-control-token", "")
+        return bool(token and provided and secrets.compare_digest(token, provided))
+
+    def refused(request_id, status, code, message, reason):
+        response = JSONResponse({"code": code, "message": message, "details": {"reason": reason}, "request_id": request_id}, status_code=status)
+        if status == 401:
+            clear_session_cookies(response)
+        return response
+
+    def clear_session_cookies(response):
+        for name, http_only in ((policy.session_cookie, True), (policy.csrf_cookie, False)):
+            response.delete_cookie(name, path="/", secure=policy.production, httponly=http_only, samesite="strict")
+
+    def authenticate(request, path):
+        """Refus par défaut des routes /api/v1 : session du navigateur ou jeton de contrôle des outils locaux."""
+        if control_token_valid(request):
+            request.state.auth = "control_token"
+            return None
+        session, reason = sessions.check(request.cookies.get(policy.session_cookie))
+        if session is None:
+            sessions.audit("request_refused", reason=reason, method=request.method, path=path)
+            if reason == "session_required":
+                return refused(request.state.request_id, 401, "session_required", "Session requise. " + LINK_HELP, reason)
+            messages = {"session_unknown": "Session inconnue ou fermée. ", "session_idle_expired": "Session expirée après inactivité. ",
+                        "session_absolute_expired": "Session arrivée à sa durée maximale. "}
+            return refused(request.state.request_id, 401, "session_expired", messages[reason] + LINK_HELP, reason)
+        request.state.auth, request.state.session = "session", session
+        if request.method in {"POST", "PUT", "PATCH", "DELETE"} and not sessions.csrf_valid(session, request.headers.get("x-csrf-token")):
+            sessions.audit("csrf_rejected", method=request.method, path=path)
+            return refused(request.state.request_id, 403, "csrf_rejected",
+                           "Jeton anti-falsification absent ou invalide : recharger l'atelier.", "csrf_token_mismatch")
+        return None
 
     @application.middleware("http")
     async def local_boundary(request: Request, call_next):
@@ -122,6 +167,11 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
             return JSONResponse({"code": "invalid_origin", "message": "Origine non autorisée.", "details": {}, "request_id": request_id}, status_code=403)
         if request.headers.get("sec-fetch-site") == "cross-site":
             return JSONResponse({"code": "cross_site_request", "message": "Requête intersite refusée.", "details": {}, "request_id": request_id}, status_code=403)
+        path = request.url.path
+        if path.startswith("/api/v1/") and path not in PUBLIC_PATHS and not path.startswith("/api/v1/admin/"):
+            refusal = authenticate(request, path)
+            if refusal is not None:
+                return refusal
         if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
             length = request.headers.get("content-length")
             if length and (not length.isdigit() or int(length) > maximum_upload + 1024 * 1024):
@@ -141,6 +191,16 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+        response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+        if path.startswith("/api/"):
+            # Réponses d'API liées à la session : ni cache partagé ni réutilisation après déconnexion.
+            response.headers.setdefault("Cache-Control", "no-store")
+            vary = response.headers.get("vary")
+            response.headers["Vary"] = f"{vary}, Cookie" if vary else "Cookie"
+        if policy.production:
+            response.headers["Strict-Transport-Security"] = "max-age=31536000"
         return response
 
     @application.exception_handler(ApiError)
@@ -164,10 +224,50 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         return hashlib.sha256(json.dumps(hashes, sort_keys=True).encode()).hexdigest()
 
     def control_authorized(request):
-        token = os.environ.get("RAG_CONTROL_TOKEN", "")
-        provided = request.headers.get("x-rag-control-token", "")
-        if not token or not provided or not secrets.compare_digest(token, provided):
+        if not control_token_valid(request):
             raise ApiError("invalid_control_token", "Contrôle d'administration non autorisé.", 403)
+
+    @application.post(prefix + "/admin/session-links")
+    async def session_link(request: Request):
+        control_authorized(request)
+        return {"path": prefix + "/session/open?link=" + sessions.issue_link(), "expires_in_seconds": policy.link_seconds}
+
+    @application.post(prefix + "/admin/sessions/revoke")
+    async def revoke_sessions(request: Request):
+        control_authorized(request)
+        return {"revoked": sessions.revoke_all("admin")}
+
+    @application.get(prefix + "/session/open")
+    async def open_session(request: Request, link: str = ""):
+        try:
+            session_id, csrf = sessions.open(link, request.cookies.get(policy.session_cookie))
+        except ApiError:
+            # Navigation de l'utilisateur : l'atelier explique le refus au lieu d'un JSON brut.
+            response = RedirectResponse("/workspace/?session=lien-invalide", status_code=303)
+            clear_session_cookies(response)
+            return response
+        response = RedirectResponse("/workspace/", status_code=303)
+        response.set_cookie(policy.session_cookie, session_id, **cookie_attributes(policy, policy.absolute_seconds, http_only=True))
+        response.set_cookie(policy.csrf_cookie, csrf, **cookie_attributes(policy, policy.absolute_seconds, http_only=False))
+        return response
+
+    @application.get(prefix + "/session")
+    async def session_state(request: Request):
+        session = getattr(request.state, "session", None)
+        state = {"authenticated": True, "environment": policy.environment, "idle_timeout_minutes": policy.idle_seconds // 60}
+        if session is None:
+            return {**state, "method": "control_token"}
+        return {**state, "method": "session", **sessions.expires(session)}
+
+    @application.post(prefix + "/session/logout")
+    async def logout(request: Request):
+        # Cookies toujours effacés ; révocation serveur seulement avec le jeton CSRF de la session (pas de déconnexion forcée depuis un autre site).
+        cookie = request.cookies.get(policy.session_cookie)
+        session, _ = sessions.check(cookie)
+        revoked = bool(session and sessions.csrf_valid(session, request.headers.get("x-csrf-token")) and sessions.revoke(cookie, "logout"))
+        response = JSONResponse({"revoked": revoked})
+        clear_session_cookies(response)
+        return response
 
     @application.post(prefix + "/admin/quiesce")
     async def quiesce(request: Request):
@@ -531,6 +631,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         return {"python": platform.python_version(), "sqlite": sqlite3.sqlite_version, "platform": platform.system(),
                 "logical_cores": os.cpu_count(), "database_bytes": settings.db_path.stat().st_size if settings.db_path.exists() else 0,
                 "resources": governor.snapshot() if governor else {"status": "not_configured"},
+                "security": {"environment": policy.environment, "active_sessions": sessions.active_count()},
                 "runtime_network": "loopback_only", "active_queries": len(queries.tasks), "dense_identity": dense_identity, "qdrant_collection": collection,
                 "llm_tokenizer_identity": tokenizer_identity, "selector_sha256": selector_identity(),
                 "embedding_session": embedding.lifecycle() if hasattr(embedding, "lifecycle") else {"status": "explicit_test_substitute"},

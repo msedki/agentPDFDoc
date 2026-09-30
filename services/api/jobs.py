@@ -5,6 +5,7 @@ import sys
 import threading
 import time
 from pathlib import Path
+from typing import Any
 
 from .db import json_dump, now
 from .errors import ApiError
@@ -22,7 +23,7 @@ class JobSupervisor:
         self._process = None
         self._suspended = False
         self._telemetry_lock = threading.Lock()
-        self._telemetry = {"cache_checks": 0, "cache_hits": 0, "cache_misses": 0,
+        self._telemetry: dict[str, Any] = {"cache_checks": 0, "cache_hits": 0, "cache_misses": 0,
                            "extraction_reuses": 0, "native_worker_launches": 0,
                            "injected_runner_calls": 0, "last_extraction": None}
 
@@ -44,8 +45,10 @@ class JobSupervisor:
         self._task = asyncio.create_task(self.loop())
 
     def cancelled(self, job_id):
+        # Seule une demande explicite (ou un job disparu) annule ; la fermeture de l'API passe par
+        # checkpoint_requested() et laisse le job en pause, reprenable depuis ses fenêtres durables.
         row = self.db.one("SELECT cancel_requested FROM jobs WHERE id=?", (job_id,))
-        return self._closing or not row or bool(row["cancel_requested"])
+        return not row or bool(row["cancel_requested"])
 
     def checkpoint_requested(self):
         manual = self.db.one("SELECT pause_requested FROM jobs WHERE id=?", (self._active,)) if self._active else None
@@ -100,7 +103,7 @@ class JobSupervisor:
             request_path.write_text(json_dump(request), encoding="utf-8")
             environment = os.environ.copy()
             environment.update({"HF_HUB_OFFLINE": "1", "HF_HUB_DISABLE_TELEMETRY": "1", "TOKENIZERS_PARALLELISM": "false", "OMP_NUM_THREADS": "2", "MKL_NUM_THREADS": "2", "OPENBLAS_NUM_THREADS": "2"})
-            kwargs = {"cwd": str(self.settings.root), "env": environment, "stdout": asyncio.subprocess.DEVNULL, "stderr": asyncio.subprocess.DEVNULL}
+            kwargs: dict[str, Any] = {"cwd": str(self.settings.root), "env": environment, "stdout": asyncio.subprocess.DEVNULL, "stderr": asyncio.subprocess.DEVNULL}
             if os.name == "nt":
                 import subprocess
                 kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW

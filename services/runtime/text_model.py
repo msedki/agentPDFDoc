@@ -189,8 +189,8 @@ def derive_text_only(source: Path, target: Path, *, expected_source_sha256: str 
     header += struct.pack("<IQQ", layout.version, len(kept), layout.kv_count)
     header += layout.kv_bytes
     for tensor in kept:
-        name = tensor.name.encode("utf-8")
-        header += struct.pack("<Q", len(name)) + name
+        encoded_name = tensor.name.encode("utf-8")
+        header += struct.pack("<Q", len(encoded_name)) + encoded_name
         header += struct.pack("<I", len(tensor.dims)) + struct.pack(f"<{len(tensor.dims)}Q", *tensor.dims)
         header += struct.pack("<IQ", tensor.ggml_type, new_offsets[tensor.name])
     header += b"\0" * ((-len(header)) % layout.alignment)

@@ -8,6 +8,7 @@ import subprocess
 import time
 import uuid
 from pathlib import Path
+from typing import cast
 
 import psutil
 import win32api
@@ -32,7 +33,8 @@ class OwnedProcess:
             if time.monotonic() >= deadline:
                 raise TimeoutError(f"Processus {self.pid} encore actif")
             time.sleep(0.1)
-        return self.poll()
+        # Le code de sortie d'un processus terminé est définitif : ce second appel ne rend plus None.
+        return cast(int, self.poll())
 
     def identity(self) -> dict:
         return {"pid": self.pid, "created_at": self.created_at, "executable": self.executable,

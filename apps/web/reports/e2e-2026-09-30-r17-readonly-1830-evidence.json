@@ -1,0 +1,177 @@
+{
+  "run": "e2e readonly r17 1830",
+  "utc_start": "2026-09-30T18:30:22.904Z",
+  "target": "instance principale dce352e1…, http://127.0.0.1:8785, build 2026-09-30-r15-r17-integrated",
+  "environment": {
+    "RAG_E2E_READONLY_ALLOWED": "1",
+    "RAG_E2E_RESOURCE_PROBE_ALLOWED": "1"
+  },
+  "counts": {
+    "passed": 8,
+    "skipped": 19
+  },
+  "tests": [
+    {
+      "file": "a11y.spec.ts",
+      "title": "tab order, visible focus, separators, tabs and Ctrl+Enter work from the keyboard",
+      "status": "passed",
+      "duration_ms": 37914
+    },
+    {
+      "file": "canvas-budget.spec.ts",
+      "title": "scroll and zoom to 300 % stay within five canvases and 24 M pixels, then release detached canvases",
+      "status": "skipped",
+      "duration_ms": 709
+    },
+    {
+      "file": "geometry.spec.ts",
+      "title": "crop-rotate-90: viewer rotations 0/90/180/270 keep the CropBox and the native anchor inside its source box",
+      "status": "skipped",
+      "duration_ms": 8
+    },
+    {
+      "file": "geometry.spec.ts",
+      "title": "crop-rotate-180: viewer rotations 0/90/180/270 keep the CropBox and the native anchor inside its source box",
+      "status": "skipped",
+      "duration_ms": 9
+    },
+    {
+      "file": "geometry.spec.ts",
+      "title": "crop-rotate-270: viewer rotations 0/90/180/270 keep the CropBox and the native anchor inside its source box",
+      "status": "skipped",
+      "duration_ms": 10
+    },
+    {
+      "file": "geometry.spec.ts",
+      "title": "roman-labels: physical pages and logical folios stay distinct in captions and navigation",
+      "status": "skipped",
+      "duration_ms": 10
+    },
+    {
+      "file": "hostile-markup.spec.ts",
+      "title": "hostile markup stays literal text with no active element, no remote request and no scope change",
+      "status": "skipped",
+      "duration_ms": 706
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "immutable original supports real ETag and byte ranges",
+      "status": "skipped",
+      "duration_ms": 8
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "registered old citation retains its exact original and revision",
+      "status": "skipped",
+      "duration_ms": 10
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "version menu reads the old original while a different version is active",
+      "status": "skipped",
+      "duration_ms": 12
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "identical UI reimport retains exact document version job and publication",
+      "status": "skipped",
+      "duration_ms": 8
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "UI reindex publishes a new verified generation without creating a file version",
+      "status": "skipped",
+      "duration_ms": 9
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "updated PDF remains unpublished until ready and preserves its old original",
+      "status": "skipped",
+      "duration_ms": 8
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "UI import encrypted preserves an explicit real file failure",
+      "status": "skipped",
+      "duration_ms": 8
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "UI import corrupt preserves an explicit real file failure",
+      "status": "skipped",
+      "duration_ms": 7
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "blank PDF requires an explicit visible no-text state",
+      "status": "skipped",
+      "duration_ms": 10
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "isolated 64KiB limit rejects a genuinely oversized controlled PDF",
+      "status": "skipped",
+      "duration_ms": 14
+    },
+    {
+      "file": "negative-deeplink.spec.ts",
+      "title": "an unknown registered citation shows a visible alert and opens no document",
+      "status": "passed",
+      "duration_ms": 4883
+    },
+    {
+      "file": "negative-deeplink.spec.ts",
+      "title": "partial or malformed citation links are refused before any registry request",
+      "status": "passed",
+      "duration_ms": 5766
+    },
+    {
+      "file": "resource-probe.spec.ts",
+      "title": "read-only own browser memory probe with a real native PDF",
+      "status": "passed",
+      "duration_ms": 9708
+    },
+    {
+      "file": "session.spec.ts",
+      "title": "sans session › l'atelier affiche la commande d'ouverture au lieu de l'espace de travail",
+      "status": "passed",
+      "duration_ms": 2149
+    },
+    {
+      "file": "session.spec.ts",
+      "title": "sans session › un lien d'ouverture ne sert qu'une fois",
+      "status": "passed",
+      "duration_ms": 4941
+    },
+    {
+      "file": "session.spec.ts",
+      "title": "sans session › fermer la session efface l'accès de ce navigateur",
+      "status": "passed",
+      "duration_ms": 3672
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "three panels use a real API and no external requests at both desktop sizes",
+      "status": "passed",
+      "duration_ms": 8523
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "real import, reading, scoped search and source navigation",
+      "status": "skipped",
+      "duration_ms": 814
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "real page and immutable block selection scopes reach the API",
+      "status": "skipped",
+      "duration_ms": 704
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "real local model answers with registered citations and preserves scope",
+      "status": "skipped",
+      "duration_ms": 750
+    }
+  ]
+}

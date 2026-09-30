@@ -28,7 +28,7 @@ class ScopeSnapshot:
     def sql_filter(self, alias="c"):
         if not self.generations:
             return "0", []
-        parameters = list(self.generations)
+        parameters: list[object] = list(self.generations)
         clause = f"{alias}.generation_id IN ({','.join('?' for _ in self.generations)})"
         source_conditions = []
         if self.page_indices is not None:
@@ -77,7 +77,7 @@ class ScopeResolver:
         with self.db.connect() as connection:
             connection.execute("BEGIN")
             query = "SELECT g.id,g.version_id,v.document_id,g.extraction_revision_id,d.active_generation_id FROM index_generations g JOIN document_versions v ON v.id=g.version_id JOIN documents d ON d.id=v.document_id WHERE d.deleted_at IS NULL AND g.state IN ('ready','ready_partial') AND g.published_at IS NOT NULL"
-            parameters = []
+            parameters: list[object] = []
             pages = blocks = None
             spans = []
             if scope.kind in {"library", "folder", "documents"}:
@@ -105,6 +105,8 @@ class ScopeResolver:
                     parameters.append(next(iter(revisions)))
                 query += " ORDER BY g.published_at DESC LIMIT 1"
                 if scope.kind == "pages":
+                    # Bornes présentes et ordonnées : garanties par la validation de Scope.
+                    assert scope.pageStart is not None and scope.pageEnd is not None
                     if version["page_count"] is None or scope.pageEnd >= version["page_count"]:
                         raise ApiError("invalid_page_range", "Plage hors du document.")
                     pages = list(range(scope.pageStart, scope.pageEnd + 1))

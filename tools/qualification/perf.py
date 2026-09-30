@@ -10,6 +10,7 @@ import argparse
 import json
 import math
 import time
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -27,7 +28,7 @@ from evidence_io import EVALS, checked_output, file_sha256, write_json_exclusive
 NS_PER_MS = 1_000_000
 
 
-def distribution(values: list[float]) -> dict:
+def distribution(values: Sequence[float | None]) -> dict:
     values = sorted(value for value in values if isinstance(value, int | float))
     def quantile(fraction):
         position = (len(values) - 1) * fraction

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, FileText, List, RotateCw, Search, ZoomIn, ZoomOut } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, CircleAlert, FileText, List, RotateCw, Search, ZoomIn, ZoomOut } from "lucide-react";
 import type { PDFDocumentProxy, PDFPageProxy, RenderTask } from "pdfjs-dist";
 import { api } from "@/lib/api";
 import { useWorkspace } from "@/lib/store";
@@ -16,6 +16,7 @@ import { sourcePrecisionLabel, sourceRegionBoxes } from "@/lib/source-location";
 import type { Bbox, Source } from "@/lib/types";
 import { Button } from "./ui/button";
 import { DocumentTools } from "./document-tools";
+import { PanelEmpty, PanelError, PanelHeader, PanelLoading } from "./ui/panel";
 
 const GLOBAL_PIXEL_BUDGET = 24_000_000;
 const MAX_CANVASES = 5;
@@ -63,7 +64,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
       outputCanvas.width = raster.width;
       outputCanvas.height = raster.height;
       const context = outputCanvas.getContext("2d", { alpha: false });
-      if (!context) throw new Error("Le navigateur ne permet pas le rendu du PDF.");
+      if (!context) throw new Error("Ce navigateur ne fournit pas de contexte de dessin 2D : la page ne peut pas être affichée.");
       render = page.render({ canvas: outputCanvas, canvasContext: context, viewport: view, transform: resolution === 1 ? undefined : [resolution, 0, 0, resolution, 0, 0] });
       const renderText = async () => {
         const content = await page!.getTextContent();
@@ -106,12 +107,12 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
     if (!provenanceReady || binding.error || blocks.isError) { useWorkspace.getState().setSelection(null); setFailure(binding.error ?? (blocks.isError ? "La provenance de cette révision n'est pas disponible ; aucune extraction récente n'est substituée." : "La sélection annotée sera disponible après publication de l'extraction.")); return; }
     const spans = reconcileSelection(selected, blocks.data?.blocks ?? []);
     useWorkspace.getState().setSelection(spans ? { versionId, spans, text: selected } : null);
-    if (!spans) setFailure("Cette sélection ne correspond pas de façon unique aux blocs extraits. Utilisez l'analyse de page ou sélectionnez le texte extrait.");
+    if (!spans) setFailure("Cette sélection ne correspond pas de façon unique aux blocs extraits. Utilisez « Analyser cette page » ou choisissez un bloc dans « Texte extrait & provenance ».");
   };
   return <section className="pdf-page-slot" aria-label={`Page ${pageIndex + 1}`} data-page-index={pageIndex}>
-    <div className="page-caption"><span>Page {pageIndex + 1}{blocks.data?.page.label && blocks.data.page.label !== String(pageIndex + 1) ? ` · folio ${blocks.data.page.label}` : ""}</span><span>{blocks.data?.page.extraction_state === "blank" ? "Page blanche" : overlays.length ? nativeText ? "Natif + régions OCR" : "Texte OCR" : nativeText ? "Texte natif" : "Image"}</span></div>
+    <div className="page-caption"><span>Page {pageIndex + 1}{blocks.data?.page.label && blocks.data.page.label !== String(pageIndex + 1) ? ` · folio ${blocks.data.page.label}` : ""}</span><span>{blocks.data?.page.extraction_state === "blank" ? "Page blanche" : overlays.length ? nativeText ? "Texte natif et régions OCR" : "Texte OCR" : nativeText ? "Texte natif" : "Aucun texte extrait"}</span></div>
     <div className="pdf-paper" style={{ width: viewport?.width ?? width - 48, height: viewport?.height ?? (width - 48) * 1.414 }} onMouseUp={selectText} onKeyUp={selectText}>
-      <canvas ref={canvas} aria-label={`Original PDF, page ${pageIndex + 1}`} style={{ width: "100%", height: "100%" }} />
+      <canvas ref={canvas} aria-label={`Page ${pageIndex + 1} de l'original PDF`} style={{ width: "100%", height: "100%" }} />
       <div ref={textLayer} className="textLayer" style={{ "--total-scale-factor": viewport ? viewport.scale * viewport.userUnit : 1, "--scale-round-x": "1px", "--scale-round-y": "1px" } as React.CSSProperties} />
       {viewport && <div className="ocr-text-layer" aria-label="Texte OCR extrait sélectionnable">
         {overlays.map(overlay => <span key={overlay.key} data-block-id={overlay.blockId} data-precision={overlay.precision} className={search && overlay.text.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ? "local-match" : undefined} style={{ ...viewportRectangle(viewport, overlay.bbox), fontSize: Math.max(5, Math.min(18 * viewport.scale, viewportRectangle(viewport, overlay.bbox).height / Math.max(1, overlay.text.split("\n").length))) }}>{overlay.text}</span>)}
@@ -119,7 +120,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
       {viewport && sourceBoxes.map((bbox, index) => <div key={index} className="source-highlight" data-testid="source-highlight" style={viewportRectangle(viewport, bbox)} />)}
     </div>
     {failure && <p className="inline-warning" role="status">{failure}</p>}
-    {blocks.isError && <p className="inline-warning">Provenance indisponible : {errorMessage(blocks.error)}</p>}
+    {blocks.isError && <p className="inline-error" role="alert"><CircleAlert size={14} aria-hidden="true" />Provenance indisponible : {errorMessage(blocks.error)}</p>}
   </section>;
 }
 
@@ -213,44 +214,45 @@ export function PdfViewer() {
         // A mixed page can have a native paragraph and an OCR-only table.
         // Searching just the native layer would miss the table's values.
         if (provenanceReady) text += " " + (await api.blocks(opened.versionId, index, undefined, binding.revision)).blocks.map(block => block.raw_text ?? block.text).join(" ");
-        if (text.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())) { state.page(index); setSearchStatus(`Occurrence page ${index + 1}`); return; }
+        if (text.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())) { state.page(index); setSearchStatus(`Expression trouvée page ${index + 1}`); return; }
       }
-      setSearchStatus("Aucune occurrence dans le texte disponible. Le contenu graphique n'est pas interprété.");
+      setSearchStatus("Expression absente du texte disponible de ce document. Le contenu des images sans texte extrait n'est pas lu.");
     } catch (error) { setSearchStatus(errorMessage(error)); }
     finally { if (searchGeneration.current === generation) setSearching(false); }
   };
   const setPageScope = () => {
     if (opened && binding.actions.allowed) state.setScope({ kind: "pages", versionId: opened.versionId, pageStart: opened.pageIndex, pageEnd: opened.pageIndex }, `${metadata.data?.name ?? "Document"} · page ${opened.pageIndex + 1}`);
   };
-  if (!opened) return <section className="viewer-panel"><div className="panel-heading"><h2>Lecture</h2><span className="eyebrow">Original & provenance</span></div><div className="empty-state viewer-empty"><FileText size={48} strokeWidth={1} /><h3>Votre document, avec ses sources.</h3><p>Importez un PDF ou ouvrez un document de la bibliothèque.<br />Chaque réponse vous ramènera au passage utilisé.</p></div></section>;
+  if (!opened) return <section className="viewer-panel"><PanelHeader title="Lecteur"><span className="eyebrow">Original et provenance</span></PanelHeader><PanelEmpty reason="not-started" icon={<FileText size={40} strokeWidth={1} aria-hidden="true" />} title="Aucun document ouvert" description="Ouvrez un document depuis la bibliothèque ou importez un PDF. Une source citée dans une réponse s'ouvre ici, à la page et au passage utilisés." /></section>;
   const visible = visiblePageWindow(center, pageCount);
   const version = metadata.data?.versions.find(value => value.id === opened.versionId);
   return <section className="viewer-panel">
-    <div className="viewer-title"><div><p className="eyebrow">Lecture de l'original</p><h2 title={metadata.data?.name}>{metadata.data?.name ?? "Chargement du document…"}</h2></div>{metadata.data && <DocumentTools key={metadata.data.id} document={metadata.data} />}<Button variant="ghost" size="icon" onClick={state.back} disabled={!state.previous} title="Revenir au passage précédent" aria-label="Revenir au passage précédent"><ArrowLeft size={17} /></Button></div>
+    <div className="viewer-title"><div><p className="eyebrow">Lecture de l'original</p><h2 title={metadata.data?.name}>{metadata.data?.name ?? (metadata.isError ? "Document sans informations" : "Chargement du document…")}</h2></div>{metadata.data && <DocumentTools key={metadata.data.id} document={metadata.data} />}<Button variant="ghost" size="icon" onClick={state.back} disabled={!state.previous} title="Revenir au passage précédent" aria-label="Revenir au passage précédent"><ArrowLeft size={16} /></Button></div>
+    {metadata.isError && <PanelError title="Informations du document indisponibles" message={`${errorMessage(metadata.error)} Sans ces informations, les versions et l'état d'extraction de ce document ne sont pas vérifiés.`} onRetry={() => void metadata.refetch()} />}
     <div className="viewer-toolbar">
-      <Button variant="ghost" size="icon" onClick={() => setOutlineVisible(value => !value)} aria-label="Afficher le sommaire" aria-pressed={outlineVisible}><List size={17} /></Button>
-      <Button variant="ghost" size="icon" onClick={() => state.page(Math.max(0, opened.pageIndex - 1))} disabled={opened.pageIndex === 0} aria-label="Page précédente"><ChevronLeft size={17} /></Button>
+      <Button variant="ghost" size="icon" onClick={() => setOutlineVisible(value => !value)} aria-label="Afficher le sommaire" aria-pressed={outlineVisible}><List size={16} /></Button>
+      <Button variant="ghost" size="icon" onClick={() => state.page(Math.max(0, opened.pageIndex - 1))} disabled={opened.pageIndex === 0} aria-label="Page précédente"><ChevronLeft size={16} /></Button>
       <label className="page-input"><input aria-label="Numéro de page" type="number" min={1} max={pageCount || 1} value={opened.pageIndex + 1} onChange={event => { const value = Number(event.target.value); if (value >= 1 && value <= pageCount) state.page(value - 1); }} /><span>/ {pageCount || "…"}</span></label>
-      <Button variant="ghost" size="icon" onClick={() => state.page(Math.min(pageCount - 1, opened.pageIndex + 1))} disabled={!pageCount || opened.pageIndex >= pageCount - 1} aria-label="Page suivante"><ChevronRight size={17} /></Button>
+      <Button variant="ghost" size="icon" onClick={() => state.page(Math.min(pageCount - 1, opened.pageIndex + 1))} disabled={!pageCount || opened.pageIndex >= pageCount - 1} aria-label="Page suivante"><ChevronRight size={16} /></Button>
       <span className="toolbar-separator" />
-      <Button variant="ghost" size="icon" onClick={() => state.setZoom(state.zoom - 0.25)} disabled={state.zoom <= .5} aria-label="Réduire le zoom"><ZoomOut size={17} /></Button><span className="zoom-label">{Math.round(state.zoom * 100)} %</span><Button variant="ghost" size="icon" onClick={() => state.setZoom(state.zoom + .25)} disabled={state.zoom >= 3} aria-label="Augmenter le zoom"><ZoomIn size={17} /></Button>
-      <Button variant="ghost" size="icon" onClick={state.rotate} aria-label="Pivoter de 90 degrés" title={`Rotation ${state.rotation}°`}><RotateCw size={17} /></Button>
+      <Button variant="ghost" size="icon" onClick={() => state.setZoom(state.zoom - 0.25)} disabled={state.zoom <= .5} aria-label="Réduire le zoom"><ZoomOut size={16} /></Button><span className="zoom-label">{Math.round(state.zoom * 100)} %</span><Button variant="ghost" size="icon" onClick={() => state.setZoom(state.zoom + .25)} disabled={state.zoom >= 3} aria-label="Augmenter le zoom"><ZoomIn size={16} /></Button>
+      <Button variant="ghost" size="icon" onClick={state.rotate} aria-label="Pivoter de 90 degrés" title={`Rotation ${state.rotation}°`}><RotateCw size={16} /></Button>
       <Button variant="secondary" size="sm" onClick={setPageScope} disabled={!provenanceReady || !binding.actions.allowed} title={binding.actions.reason ?? undefined}>Analyser cette page</Button>
     </div>
-    <form className="viewer-search" onSubmit={event => { event.preventDefault(); void localSearch(); }}><Search size={15} /><input aria-label="Rechercher dans ce PDF" placeholder="Rechercher dans ce PDF" value={search} onChange={event => setSearch(event.target.value)} /><Button variant="ghost" size="sm" disabled={searching || !search.trim()} type="submit">{searching ? "Recherche…" : "Suivant"}</Button></form>
+    <form className="viewer-search" onSubmit={event => { event.preventDefault(); void localSearch(); }}><Search size={14} aria-hidden="true" /><input aria-label="Rechercher dans ce document" placeholder="Rechercher dans ce document" value={search} onChange={event => setSearch(event.target.value)} /><Button variant="ghost" size="sm" disabled={searching || !search.trim()} type="submit" title="Aller à la page suivante qui contient l'expression">{searching ? "Recherche…" : "Chercher plus loin"}</Button></form>
     {searchStatus && <p className="viewer-notice" role="status">{searchStatus}</p>}
-    {binding.error ? <p className="viewer-notice inline-warning" role="status">{binding.error}</p> : !provenanceReady && <p className="viewer-notice" role="status">Original consultable · extraction et publication en attente. Les passages annotés seront disponibles après indexation.</p>}
+    {binding.error ? <p className="viewer-notice inline-warning" role="status">{binding.error}</p> : !provenanceReady && <p className="viewer-notice" role="status">Original consultable ; son extraction n'est pas encore publiée. Les passages, le sommaire et l'analyse de page s'activeront à la fin de l'indexation, visible dans le Suivi.</p>}
     {binding.actions.reason && !binding.error && <p className="viewer-notice" role="status">{binding.actions.reason}</p>}
-    {state.source && <div className="source-navigation" role="status"><strong>{state.source.source_id ?? "Résultat de recherche"}</strong><span>{sourcePrecisionLabel(state.source)} · version {opened.versionId.slice(0, 8)}{binding.revision ? ` · révision ${binding.revision.slice(0, 8)}` : ""}</span></div>}
-    {outlineVisible && <nav className="outline" aria-label="Sommaire"><h3>Sommaire disponible</h3>{outline.isLoading ? <p>Chargement…</p> : outline.isError ? <p role="alert">{errorMessage(outline.error)}</p> : !outline.data?.sections.length ? <p>Aucune section extraite disponible.</p> : outline.data.sections.map(section => <div key={section.id}><button onClick={() => state.page(section.page_index)}>{section.title}<span>p. {section.page_index + 1}</span></button><Button variant="ghost" size="sm" disabled={!binding.actions.allowed} title={binding.actions.reason ?? undefined} onClick={() => { if (binding.actions.allowed) state.setScope({ kind: "section", versionId: opened.versionId, sectionId: section.id }, section.title); }}>Analyser</Button></div>)}</nav>}
+    {state.source && <div className="source-navigation" role="status"><strong>{state.source.source_id ?? "Passage retrouvé"}</strong><span>{sourcePrecisionLabel(state.source)} · version <span className="mono">{opened.versionId.slice(0, 8)}</span>{binding.revision ? <> · révision <span className="mono">{binding.revision.slice(0, 8)}</span></> : null}</span></div>}
+    {outlineVisible && <nav className="outline" aria-label="Sommaire"><h3>Sommaire</h3>{outline.isLoading ? <p role="status">Chargement du sommaire…</p> : outline.isError ? <p role="alert" className="inline-error">Sommaire indisponible : {errorMessage(outline.error)}</p> : !outline.data?.sections.length ? <p>{provenanceReady ? "Aucune section extraite pour cette version." : "Le sommaire sera disponible après publication de l'extraction."}</p> :outline.data.sections.map(section => <div key={section.id}><button onClick={() => state.page(section.page_index)}>{section.title}<span>p. {section.page_index + 1}</span></button><Button variant="ghost" size="sm" aria-label={`Analyser la section ${section.title}`} disabled={!binding.actions.allowed} title={binding.actions.reason ?? undefined} onClick={() => { if (binding.actions.allowed) state.setScope({ kind: "section", versionId: opened.versionId, sectionId: section.id }, section.title); }}>Analyser</Button></div>)}</nav>}
     <div className="pdf-scroll" ref={scroll} onScroll={onScroll} data-testid="pdf-scroll">
-      {loadError ? <div className="empty-state" role="alert"><h3>Lecture impossible</h3><p>{loadError}</p><Button variant="secondary" onClick={() => window.location.reload()}>Recharger</Button></div> : !document ? <div className="empty-state"><p>Chargement de l'original PDF…</p></div> : <>
+      {loadError ? <PanelError title="Lecture de l'original impossible" message={loadError} onRetry={() => window.location.reload()} retryLabel="Recharger la page" /> : !document ? <PanelLoading label="Chargement de l'original PDF…" /> : <>
         <div aria-hidden="true" style={{ height: offsets[visible[0] ?? 0] }} />
         {visible.map(index => <PdfPage key={`${opened.versionId}:${index}`} document={document} versionId={opened.versionId} pageIndex={index} width={width} zoom={state.zoom} rotation={state.rotation} source={state.source} search={search} provenanceReady={provenanceReady} onHeight={heightHandler.current} />)}
         <div aria-hidden="true" style={{ height: (offsets[pageCount] ?? 0) - (offsets[(visible.at(-1) ?? -1) + 1] ?? 0) }} />
       </>}
     </div>
-    <div className="reader-footer"><button onClick={() => setExtractedVisible(value => !value)} aria-expanded={extractedVisible}>Texte extrait & provenance <ChevronDown size={13} /></button><span title={version?.sha256}>Version {opened.versionId.slice(0, 8)}</span></div>
-    {extractedVisible && <div className="extracted-text"><p className="eyebrow">Page {opened.pageIndex + 1} · blocs réellement extraits</p>{currentBlocks.isLoading ? <p>Chargement…</p> : currentBlocks.isError ? <p role="alert">{errorMessage(currentBlocks.error)}</p> : !currentBlocks.data?.blocks.length ? <p>Aucun texte extrait pour cette page.</p> : currentBlocks.data.blocks.map(block => <div key={block.id}><p>{block.text}</p><Button variant="secondary" size="sm" disabled={!block.text.trim() || !wholeBlockSpan(block)} title={!wholeBlockSpan(block) ? "Révision et empreinte du bloc requises pour la sélection." : undefined} onClick={() => { const span = wholeBlockSpan(block); if (span) state.setScope({ kind: "selection", versionId: opened.versionId, spans: [span] }, `Bloc source · page ${opened.pageIndex + 1}`); }}>Analyser ce bloc</Button></div>)}{currentBlocks.data?.warnings.map((warning, index) => <p key={index} className="inline-warning">{warningText(warning)}</p>)}</div>}
+    <div className="reader-footer"><button onClick={() => setExtractedVisible(value => !value)} aria-expanded={extractedVisible}>Texte extrait & provenance <ChevronDown size={14} aria-hidden="true" /></button><span title={version?.sha256}>Version <span className="mono">{opened.versionId.slice(0, 8)}</span></span></div>
+    {extractedVisible && <div className="extracted-text"><p className="eyebrow">Page {opened.pageIndex + 1} · blocs extraits</p>{currentBlocks.isLoading ? <p role="status">Chargement des blocs extraits…</p> : currentBlocks.isError ? <p role="alert" className="inline-error">Blocs extraits indisponibles : {errorMessage(currentBlocks.error)}</p> : !currentBlocks.data?.blocks.length ? <p>{provenanceReady ? "Aucun texte extrait pour cette page." : "Les blocs extraits seront disponibles après publication de l'extraction."}</p> :currentBlocks.data.blocks.map(block => <div key={block.id}><p>{block.text}</p><Button variant="secondary" size="sm" disabled={!block.text.trim() || !wholeBlockSpan(block)} title={!wholeBlockSpan(block) ? "Ce bloc n'a pas de révision ou d'empreinte vérifiable : il ne peut pas servir de périmètre." : undefined} onClick={() => { const span = wholeBlockSpan(block); if (span) state.setScope({ kind: "selection", versionId: opened.versionId, spans: [span] }, `Bloc source · page ${opened.pageIndex + 1}`); }}>Analyser ce bloc</Button></div>)}{currentBlocks.data?.warnings.map((warning, index) => <p key={index} className="inline-warning">{warningText(warning)}</p>)}</div>}
   </section>;
 }

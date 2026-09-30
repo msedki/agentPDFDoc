@@ -10,7 +10,7 @@ import time
 from contextlib import asynccontextmanager, contextmanager, suppress
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import psutil
 
@@ -344,7 +344,8 @@ class ResourceGovernor:
                     await self._admit_generation(loaded, on_wait)
                     self._owner = "generation"
                     self._mode = "generation"
-                    owner_task = asyncio.current_task()
+                    # Ce corps s'exécute toujours dans la tâche asyncio de l'appelant : jamais None ici.
+                    owner_task = cast("asyncio.Task[Any]", asyncio.current_task())
                     violation = None
 
                     async def protect_reserve():

@@ -182,12 +182,13 @@ aussi les listes `[S001, S002]`, chaque ID étant validé individuellement, sans
 interprétation HTML/Markdown (`src/lib/citations.ts`). Les onglets d'analyse
 suivent le motif tablist (flèches, Home/End, tabIndex itinérant, `tabpanel`) ;
 la plage de pages est validée contre le nombre de pages de la version ouverte,
-pas de la version active. Le jeton `--subtle` est assombri et sert aussi aux
+pas de la version active. Le gris secondaire (jeton `--muted-foreground` de
+`src/app/theme.css` depuis R16) sert aussi aux
 placeholders, qui remplacent le gris semi-transparent du preflight Tailwind
 (environ 3,1:1) ; l'icône de périmètre de dossier perd son opacité réduite
-(2,5:1). `tests/unit/accessibility.test.ts` calcule depuis `globals.css` les
-paires texte/fond et placeholder/champ (au moins 4,5:1) et cette icône (au
-moins 3:1). Les tests unitaires prouvent les fonctions pures (`src/lib/`) et les
+(2,5:1). `tests/unit/accessibility.test.ts` calcule depuis `theme.css` et
+`globals.css` les paires texte/fond et placeholder/champ (au moins 4,5:1) et
+cette icône (au moins 3:1). Les tests unitaires prouvent les fonctions pures (`src/lib/`) et les
 règles CSS ; leur câblage dans les composants (attributs `tabpanel`/`aria-*`,
 tabIndex itinérant, appels de `versionPageCount` et `sourceRegionBoxes`) n'est
 vérifié que par typecheck et relecture, en attente des specs E2E et du rendu
@@ -211,3 +212,78 @@ et fichiers refusés sont préparés dans
 requièrent des bindings réels, une cible isolée vérifiée et un permis par cas.
 Ils ne soumettent aucune question au modèle. Les métriques disponibles ne
 permettent pas encore de certifier zéro calcul d'embedding redondant.
+
+## Charte, composants et gardes (lot R16, étape A)
+
+État au 30/09/2026 UTC : sources modifiées, tests unitaires et typecheck PASS ;
+build, E2E et examen du rendu non relancés par cette étape. Les principes
+viennent de la [référence de forme](../../RAG_Local_Agents/reports/ui-reference-decodair-2026-09-30.md).
+
+| Élément | Emplacement | Contrôle |
+|---|---|---|
+| Jetons de couleur en triplets HSL sur `:root`, exposés à Tailwind par `@theme inline` ; rayon de base 6 px et ses deux pas ; trois niveaux d'ombre ; piles de polices système (aucune police distante) ; thème clair seul (`color-scheme: light`) | `src/app/theme.css`, seul fichier autorisé à porter des couleurs ; les surlignages PDF y forment une liste blanche commentée | `tests/unit/ui-guards.test.ts`, `tests/unit/accessibility.test.ts` |
+| Échelle de texte 10 (sur-titres en capitales) / 11 / 12 / 14 / 16 / 18 px, espacements multiples de 4 px, mono pour `source_id`, empreintes, versions et révisions, chiffres tabulaires pour pages, zoom et compteurs, `prefers-reduced-motion` étendu aux transitions | `src/app/globals.css` | `ui-guards.test.ts` |
+| Libellés et tons des états de document, de traitement (état et étape), de réponse et des services ; un code inconnu reçoit un libellé et reste en info-bulle | `src/lib/status.ts` | `tests/unit/status.test.ts` |
+| États de panneau : service local indisponible, chargement, bibliothèque vide, filtre sans résultat, index incomplet du périmètre d'une recherche | `src/lib/panel-state.ts`, `src/components/ui/panel.tsx` | `tests/unit/panel-state.test.ts` |
+| `Badge` (variantes `cva` par ton), `StatusIndicator` (pastille toujours suivie de son libellé), `ActionButton` (libellé d'attente, erreur `role="alert"` sous l'action), `ConfirmDialog` (`<dialog>` natif ; remplace `window.confirm` du retrait de document et garde l'erreur dans le dialogue ; si le navigateur le ferme de lui-même pendant le retrait, Échap répété sans nouvelle activation, l'état React suit et un échec ultérieur rouvre le dialogue), `Button` (icônes 16 px, anneau sur `--ring`) | `src/components/ui/` | gardes, `shell.test.ts` et typecheck ; fermeture forcée : au rendu |
+| Carte de source : `source_id`, document, page, badge de précision (famille exacte, localisation à la page, source non localisée), extrait de trois lignes, action unique « Ouvrir le passage » ; dans le lecteur, bordure pour la source citée et fond pour la recherche locale | `SourceCard` (`analysis-panel.tsx`), `sourceLocalization` (`src/lib/source-location.ts`), `globals.css` | `tests/unit/source-location.test.ts` |
+
+Les gardes de `ui-guards.test.ts` lisent `src/` : taille de texte, espacement,
+boutons-icônes nommés, champs libellés, couleurs hors jetons et palette Tailwind
+brute, absence de variante `dark:`, contraste AA des badges et des boutons au
+repos et au survol, pastilles d'état, tailles d'icônes, échec de requête jamais
+rendu comme un vide, absence de `confirm`/`alert`. Chacune vérifie d'abord la
+taille de la population examinée. Une contre-épreuve, avec violations injectées
+temporairement puis fichiers restaurés à l'identique, a fait échouer chacune
+des onze gardes visées.
+
+Deux effets restent à vérifier au rendu après build : les réinitialisations
+d'éléments passent en `@layer base`, si bien que les tailles `text-xs` et
+`text-sm` du composant `Button` s'appliquent désormais (elles étaient écrasées
+par `font: inherit` hors couche) ; l'en-tête passe de 66 à 56 px. Les specs E2E
+qui cliquaient la carte de source visent désormais son bouton « Ouvrir le
+passage » (`geometry`, `hostile-markup`, `workspace`) et l'état vide du lecteur
+s'intitule « Aucun document ouvert » (`negative-deeplink`) ; ces specs restent
+à rejouer.
+
+## Coquille, navigation et textes (lot R16, étape B ; lot R15)
+
+État au 30/09/2026 UTC : sources modifiées, puis corrigées après une relecture
+indépendante (placement de la grille, fermeture forcée du dialogue de
+confirmation, textes) ; tests unitaires (116) et typecheck PASS ; build, E2E et
+examen du rendu non relancés par cette étape. La colonne
+« Contrôle » distingue ce qu'un test unitaire prouve de ce qui reste à vérifier
+dans le navigateur.
+
+| Élément | Emplacement | Contrôle |
+|---|---|---|
+| Barre supérieure de 56 px en trois zones : bascule de la bibliothèque et marque (SVG au trait, « Atelier documentaire ») ; périmètre au centre ; état des services, Suivi, Aide, bascule de l'analyse | `src/components/app-topbar.tsx`, `scope-control.tsx` | Structure : `tests/unit/shell.test.ts` ; disposition : au rendu |
+| État des services en quatre états écrits : service local injoignable (ou en erreur s'il répond mal), modèle ou worker non prêt, index en retard, services prêts ; détail en info-bulle | `serviceStatus` (`src/lib/status.ts`), `pendingIndexCount` (`panel-state.ts`), `serviceDetail` (`warnings.ts`) | `status.test.ts`, `panel-state.test.ts`, `warnings.test.ts` |
+| Suivi : compteur des traitements non terminés (en cours, en pause, mis en point de reprise, interrompus ou en extraction partielle), dits « à suivre » et non « actifs » ; plafonné à « 99+ », changement annoncé par une région `aria-live="polite"`, échec de lecture dit dans le nom accessible | `app-topbar.tsx`, `activeJobsBadge`, `activeJobsSentence` | `panel-state.test.ts`, `shell.test.ts` ; annonce : lecteur d'écran à vérifier |
+| Bandeau de contexte : puce de périmètre, documents interrogeables et exclus par motif (traitement, pause, erreur, état inconnu), un seul emplacement de message (erreur de l'espace de travail, sinon avis de préparation) ; rien sous 768 px de plus que l'état des services | `src/components/context-band.tsx`, `scopeCoverage`, `coverageSentence`, `readinessSentence` | `panel-state.test.ts`, `warnings.test.ts`, `shell.test.ts` |
+| Bibliothèque en trois états (étendue et redimensionnable, rail de 64 px avec Importer, Filtrer et Sélection (n), masquée) ; bouton cyclique dont le libellé annonce l'action suivante ; Ctrl+B ou ⌘+B, ignoré dans la zone de question ; analyse en deux états | `workspace.tsx`, `LibraryRail` (`library-panel.tsx`), `src/lib/panel-preferences.ts` | `panel-preferences.test.ts` (cycle, libellés, raccourci) ; effet clavier et rail : au rendu |
+| Grille des panneaux à cinq pistes fixes (bibliothèque, séparateur, lecteur, séparateur, analyse), chaque enfant placé sur la sienne : un enfant `[hidden]`, que le preflight Tailwind retire de la grille (`display: none !important`), ne décale plus le lecteur dans une piste de 0 px en mode rail, bibliothèque masquée ou sous 1 024 px | `panelGridColumns` (`panel-preferences.ts`), `workspace.tsx`, `src/app/globals.css` | `panel-preferences.test.ts` (cinq pistes, lecteur sur la troisième), `shell.test.ts` (piste explicite de chaque enfant) ; largeur réelle du lecteur : au rendu, dans chaque mode |
+| Préférences locales `rag-local-panels-v2`, lecture champ par champ, migration de `rag-local-panels-v1` (la clé v1 n'est ni modifiée ni effacée) | `panel-preferences.ts`, `src/lib/panel-storage.ts` | `panel-preferences.test.ts` |
+| Sous 1 024 px (`lg` de Tailwind) : bibliothèque et analyse en panneaux latéraux `<dialog>` modaux ouverts depuis la barre, avec Échap, fond inerte, retour du focus et bouton « Fermer » ; le Suivi devient un panneau latéral droit à toutes les largeurs. Chaque panneau est rendu une seule fois par portail et déplacé sans démontage : historique des questions, flux en cours et filtre survivent au franchissement de 1 024 px | `src/components/ui/sheet.tsx`, `workspace.tsx`, `jobs-panel.tsx` | `shell.test.ts` (structure) ; focus, Échap et conservation d'état : au rendu |
+| Points de rupture Tailwind (80, 64, 48 et 40 rem) à la place des seuils codés 1 100 et 760 px ; cibles de 44 px sous 1 024 px dans la barre et les en-têtes | `src/app/globals.css` | `shell.test.ts` ; rendu aux six largeurs de QA à faire |
+| Liens d'évitement « Aller au lecteur » et « Aller à la zone de question » (hors de `.workspace-shell`) ; zones `aside` Bibliothèque, `main` Lecteur, `aside` Analyse ; anneau de focus sur `--ring`, y compris sur le lecteur atteint par le lien | `workspace.tsx`, `library-panel.tsx`, `analysis-panel.tsx` | `shell.test.ts`, `accessibility.test.ts` |
+| Menu Aide : raccourcis en `<kbd>`, chacun relié à son câblage dans le code ; signature « version {package.json} · révision non tracée », la révision n'étant lue que si `NEXT_PUBLIC_BUILD_REVISION` est injectée au build (aucun script ne le fait aujourd'hui) | `src/components/help-menu.tsx`, `src/lib/build-info.ts` | `shell.test.ts` (raccourci annoncé = raccourci câblé), `build-info.test.ts` |
+| Textes : inventaire complet, réécritures et motifs ; vocabulaire document, version, page, bloc, périmètre, source, extraction, indexation ; aucun code brut affiché seul | [`reports/ui-text-inventory-2026-09-30.md`](reports/ui-text-inventory-2026-09-30.md) | `warnings.test.ts`, `status.test.ts` ; relecture au rendu |
+
+Une contre-épreuve a injecté sept violations (raccourci inventé dans l'Aide,
+seuil codé en pixels, compteur non annoncé, lien d'évitement retiré, second
+emplacement de message, focus non restitué, zone d'analyse non nommée) : chacune
+a fait échouer sa garde de `shell.test.ts`, puis les fichiers ont été restaurés
+à l'identique (SHA-256 comparé).
+
+Specs E2E alignés, à rejouer : le bouton d'import s'appelle « Importer des PDF »
+(`workspace.spec.ts`, `lifecycle-target.ts`) ; l'ordre de tabulation attendu par
+`a11y.spec.ts` suit la nouvelle barre (liens d'évitement, bascule de la
+bibliothèque, périmètre, Suivi, Aide, bascule de l'analyse, puis les panneaux).
+Restent à vérifier au rendu : la barre et le bandeau aux six largeurs de QA,
+la largeur du lecteur en mode rail, bibliothèque masquée, analyse masquée et
+sous 1 024 px (aucun E2E ne replie la bibliothèque ni ne descend sous 1 366 px),
+les panneaux latéraux (centrage, fond, retour du focus, Échap), le rail, le
+raccourci Ctrl+B sous Firefox (qui l'associe par défaut au panneau des
+marque-pages), l'annonce du compteur par un lecteur d'écran et l'apparition des
+panneaux après hydratation, puisqu'ils sont rendus par portail côté navigateur.

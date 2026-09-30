@@ -4,6 +4,7 @@ import json
 import math
 import struct
 import threading
+from typing import Any
 from uuid import UUID, uuid5
 
 from .context import LlmTokenizer
@@ -57,7 +58,7 @@ class Indexer:
         self.db, self.embedding, self.vectors, self.settings = db, embedding, vectors, settings
         self.llm_tokenizer = llm_tokenizer or LlmTokenizer(settings)
         self._telemetry_lock = threading.Lock()
-        self._telemetry = {"requests": 0, "cache_hits": 0, "cache_misses": 0,
+        self._telemetry: dict[str, Any] = {"requests": 0, "cache_hits": 0, "cache_misses": 0,
                            "embedding_requests": 0, "embedding_texts_submitted": 0,
                            "embedding_requests_completed": 0, "last_request": None}
 
@@ -146,7 +147,7 @@ class Indexer:
 
     def cached_embeddings(self, chunks):
         identity = self.embedding.identity()["fingerprint"] if hasattr(self.embedding, "identity") else "explicit-test-embedding"
-        vectors = [None] * len(chunks)
+        vectors: list[list[float] | None] = [None] * len(chunks)
         missing = []
         for position, chunk in enumerate(chunks):
             row = self.db.one("SELECT vector,dimensions FROM embedding_cache WHERE model_identity=? AND text_hash=?", (identity, chunk["hash"]))

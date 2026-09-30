@@ -11,6 +11,7 @@ import hashlib
 import json
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 from evidence_io import EVALS, ROOT, checked_output, write_json_exclusive
 
@@ -37,6 +38,8 @@ def check_binding(key: str, binding: dict, fixture_sha: str | None) -> None:
 
 def merge(inputs: list[tuple[Path, str]], manifest: dict, root: Path = ROOT) -> dict:
     fixtures = {entry["key"]: entry["sha256"] for entry in manifest["entries"]}
+    owners: dict[tuple[str, Any], str]
+    sources: list[dict[str, Any]]
     documents, owners, sources = {}, {}, []
     for path, expected in inputs:
         data = Path(path).read_bytes()

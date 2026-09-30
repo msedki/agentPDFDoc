@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Généré par tools/docs/diagrams.py : modifier le script puis régénérer. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="810" viewBox="0 0 880 810" role="img" aria-labelledby="ingestion-title ingestion-desc" font-family="'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif">
+<title id="ingestion-title">Chaîne d'ingestion : import, routage, révisions et publication</title>
+<desc id="ingestion-desc">Parcours d'un PDF depuis l'import HTTP jusqu'à la publication d'une génération d'index, avec le routage par page et les points de reprise.</desc>
+<defs><marker id="ingestion-head-172b33" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#172B33"/></marker></defs>
+<rect x="0" y="0" width="880" height="810" rx="10" fill="#F6F4EE" stroke="#D9D9D1"/>
+<text x="24" y="34" font-size="18" fill="#172B33" font-weight="600">Chaîne d'ingestion : import, routage, révisions et publication</text>
+<text x="24" y="54" font-size="12" fill="#4A5961">Sources : services/api/main.py, services/api/jobs.py, services/ingestion/pipeline.py, services/api/indexing.py.</text>
+<rect x="24" y="72" width="256" height="100" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
+<text x="34" y="93" font-size="14" fill="#172B33" font-weight="600">1 · Import HTTP</text>
+<text x="34" y="112" font-size="12" fill="#172B33">signature %PDF-, 200 Mio au plus</text>
+<text x="34" y="129" font-size="12" fill="#172B33">SHA-256 → originals\&lt;sha&gt;.pdf</text>
+<text x="34" y="146" font-size="12" fill="#172B33">version et travail en file (202)</text>
+<rect x="312" y="72" width="256" height="100" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
+<text x="322" y="93" font-size="14" fill="#172B33" font-weight="600">2 · File de travaux</text>
+<text x="322" y="112" font-size="12" fill="#172B33">un travail d'ingestion à la fois</text>
+<text x="322" y="129" font-size="12" fill="#172B33">attend si une question est active</text>
+<text x="322" y="146" font-size="12" fill="#172B33">ou si le verrou lourd est tenu</text>
+<rect x="600" y="72" width="256" height="100" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
+<text x="610" y="93" font-size="14" fill="#172B33" font-weight="600">3 · Admission mémoire</text>
+<text x="610" y="112" font-size="12" fill="#172B33">verrou lourd du poste</text>
+<text x="610" y="129" font-size="12" fill="#172B33">pic 2304 + réserve 1536 Mio</text>
+<text x="610" y="146" font-size="12" fill="#172B33">sinon travail en pause</text>
+<polyline points="281,122 310,122" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#ingestion-head-172b33)"/>
+<polyline points="569,122 598,122" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#ingestion-head-172b33)"/>
+<polyline points="728,172 728,188 152,188 152,206" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#ingestion-head-172b33)"/>
+<rect x="24" y="208" width="256" height="100" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
+<text x="34" y="229" font-size="14" fill="#172B33" font-weight="600">4 · Worker isolé</text>
+<text x="34" y="248" font-size="12" fill="#172B33">sous-processus Python sans fenêtre</text>
+<text x="34" y="265" font-size="12" fill="#172B33">préflight : pages, chiffrement,</text>
+<text x="34" y="282" font-size="12" fill="#172B33">classement natif, scan ou blanc</text>
+<rect x="312" y="208" width="256" height="100" rx="6" fill="#EFEDE6" stroke="#6B6456" stroke-width="1.4"/>
+<text x="322" y="229" font-size="14" fill="#172B33" font-weight="600">5 · Fenêtres de 4 pages</text>
+<text x="322" y="248" font-size="12" fill="#172B33">window-*.json écrit par fenêtre</text>
+<text x="322" y="265" font-size="12" fill="#172B33">reprise sans refaire les fenêtres</text>
+<text x="322" y="282" font-size="12" fill="#172B33">pause coopérative au checkpoint</text>
+<rect x="600" y="208" width="256" height="100" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
+<text x="610" y="229" font-size="14" fill="#172B33" font-weight="600">6 · Routage par page</text>
+<text x="610" y="248" font-size="12" fill="#172B33">blanc, natif, structuré ou OCR</text>
+<text x="610" y="265" font-size="12" fill="#172B33">régional ; natif insuffisant</text>
+<text x="610" y="282" font-size="12" fill="#172B33">→ reconverti en structuré</text>
+<polyline points="281,258 310,258" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#ingestion-head-172b33)"/>
+<polyline points="569,258 598,258" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#ingestion-head-172b33)"/>
+<polyline points="728,308 728,350" fill="none" stroke="#172B33" stroke-width="1.6"/>
+<polyline points="122,350 746,350" fill="none" stroke="#172B33" stroke-width="1.6"/>
+<polyline points="122,350 122,374" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#ingestion-head-172b33)"/>
+<polyline points="330,350 330,374" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#ingestion-head-172b33)"/>
+<polyline points="538,350 538,374" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#ingestion-head-172b33)"/>
+<polyline points="746,350 746,374" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#ingestion-head-172b33)"/>
+<text x="24" y="340" font-size="13" fill="#172B33" font-weight="600">Voies de routage par page (page_route, routing_reason)</text>
+<rect x="24" y="376" width="196" height="96" rx="6" fill="#ECE8F5" stroke="#5B4B8A" stroke-width="1.4"/>
+<text x="34" y="397" font-size="13" fill="#172B33" font-weight="600" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">blank</text>
+<text x="34" y="416" font-size="12" fill="#172B33">aucun contenu visible</text>
+<text x="34" y="433" font-size="12" fill="#172B33">page comptée, sans bloc</text>
+<rect x="232" y="376" width="196" height="96" rx="6" fill="#ECE8F5" stroke="#5B4B8A" stroke-width="1.4"/>
+<text x="242" y="397" font-size="13" fill="#172B33" font-weight="600" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">native</text>
+<text x="242" y="416" font-size="12" fill="#172B33">couche texte simple ;</text>
+<text x="242" y="433" font-size="12" fill="#172B33">95 % des caractères,</text>
+<text x="242" y="450" font-size="12" fill="#172B33">ordre vertical conservé</text>
+<rect x="440" y="376" width="196" height="96" rx="6" fill="#ECE8F5" stroke="#5B4B8A" stroke-width="1.4"/>
+<text x="450" y="397" font-size="13" fill="#172B33" font-weight="600" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">structured</text>
+<text x="450" y="416" font-size="12" fill="#172B33">tableaux, colonnes,</text>
+<text x="450" y="433" font-size="12" fill="#172B33">typographie variée ;</text>
+<text x="450" y="450" font-size="12" fill="#172B33">Heron et TableFormer</text>
+<rect x="648" y="376" width="196" height="96" rx="6" fill="#ECE8F5" stroke="#5B4B8A" stroke-width="1.4"/>
+<text x="658" y="397" font-size="13" fill="#172B33" font-weight="600" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">regional_ocr</text>
+<text x="658" y="416" font-size="12" fill="#172B33">image non couverte ou</text>
+<text x="658" y="433" font-size="12" fill="#172B33">couche texte dégradée ;</text>
+<text x="658" y="450" font-size="12" fill="#172B33">Tesseract fra + eng</text>
+<polyline points="122,472 122,490" fill="none" stroke="#172B33" stroke-width="1.6"/>
+<polyline points="330,472 330,490" fill="none" stroke="#172B33" stroke-width="1.6"/>
+<polyline points="538,472 538,490" fill="none" stroke="#172B33" stroke-width="1.6"/>
+<polyline points="746,472 746,490" fill="none" stroke="#172B33" stroke-width="1.6"/>
+<polyline points="122,490 746,490" fill="none" stroke="#172B33" stroke-width="1.6"/>
+<polyline points="152,490 152,506" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#ingestion-head-172b33)"/>
+<rect x="24" y="508" width="256" height="100" rx="6" fill="#EFEDE6" stroke="#6B6456" stroke-width="1.4"/>
+<text x="34" y="529" font-size="14" fill="#172B33" font-weight="600">7 · Assemblage</text>
+<text x="34" y="548" font-size="12" fill="#172B33">sections et tableaux raccordés</text>
+<text x="34" y="565" font-size="12" fill="#172B33">entre fenêtres ; extraction.json</text>
+<text x="34" y="582" font-size="12" fill="#172B33">ready, ready_partial, interrupted</text>
+<rect x="312" y="508" width="256" height="100" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
+<text x="322" y="529" font-size="14" fill="#172B33" font-weight="600">8 · Indexation</text>
+<text x="322" y="548" font-size="12" fill="#172B33">fragments d'environ 320 jetons E5</text>
+<text x="322" y="565" font-size="12" fill="#172B33">embeddings mis en cache par hash</text>
+<text x="322" y="582" font-size="12" fill="#172B33">Qdrant upsert vérifié, FTS5</text>
+<rect x="600" y="508" width="256" height="100" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
+<text x="610" y="529" font-size="14" fill="#172B33" font-weight="600">9 · Publication</text>
+<text x="610" y="548" font-size="12" fill="#172B33">génération active du document ;</text>
+<text x="610" y="565" font-size="12" fill="#172B33">ready_partial publiée seulement</text>
+<text x="610" y="582" font-size="12" fill="#172B33">sur action publish-partial</text>
+<polyline points="281,558 310,558" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#ingestion-head-172b33)"/>
+<polyline points="569,558 598,558" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#ingestion-head-172b33)"/>
+<rect x="24" y="636" width="832" height="110" rx="6" fill="#FFF6D9" stroke="#8A6D1F" stroke-width="1.4"/>
+<text x="34" y="657" font-size="14" fill="#172B33" font-weight="600">Révisions et reprise</text>
+<text x="34" y="676" font-size="12" fill="#172B33">Révision d'extraction = uuid5(version, SHA-256 du PDF, empreinte du pipeline) ; une citation garde sa révision.</text>
+<text x="34" y="693" font-size="12" fill="#172B33">Nouvelle génération invisible jusqu'à sa publication ; la précédente passe en nettoyage vectoriel (vector_cleanup).</text>
+<text x="34" y="710" font-size="12" fill="#172B33">Mot OCR sous 0,8 de confiance : région non résolue ; page en erreur : document ready_partial.</text>
+<text x="34" y="727" font-size="12" fill="#172B33">Backend PDF : pdf.pdf_backend (pypdfium2 dans le profil, W009 ; docling_parse sélectionnable).</text>
+<text x="24" y="770" font-size="12" fill="#4A5961">Ce schéma montre l'ordre des étapes d'un travail d'ingestion ; les cadres violets sont les voies de routage d'une page.</text>
+<text x="24" y="788" font-size="12" fill="#4A5961">Une question interactive demande une pause au prochain checkpoint ; la reprise d'un travail en pause est manuelle.</text>
+</svg>

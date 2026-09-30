@@ -2,7 +2,7 @@
 import asyncio
 import hashlib
 import json
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, contextmanager
 
 import pytest
 from fastapi.testclient import TestClient
@@ -59,10 +59,28 @@ class FakeGovernor:
         yield
 
 
+CONTROL = "test-only-nonce"
+
+
+@pytest.fixture(autouse=True)
+def control_token(monkeypatch):
+    monkeypatch.setenv("RAG_CONTROL_TOKEN", CONTROL)
+
+
+@contextmanager
+def browser_client(app):
+    """Client muni d'une session ouverte comme par le navigateur : lien à usage unique, cookie, jeton CSRF."""
+    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+        link = client.post("/api/v1/admin/session-links", headers={"X-RAG-Control-Token": CONTROL}).json()["path"]
+        opened = client.get(link, follow_redirects=False)
+        assert opened.status_code == 303 and opened.headers["location"] == "/workspace/"
+        client.headers["X-CSRF-Token"] = client.cookies["rag_csrf"]
+        yield client
+
 def test_api_blank_pdf_exposes_warning_and_preserves_original_http(tmp_path):
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         payload = b"%PDF-1.7\ncontrolled blank fixture"
         imported = client.post("/api/v1/documents/import", files={"files": ("blank.pdf", payload, "application/pdf")}).json()
         extraction = {"fingerprint": "blank-fixture", "sha256": hashlib.sha256(payload).hexdigest(), "page_count": 1, "status": "ready", "pages": [
@@ -106,7 +124,7 @@ def publish_two_extraction_revisions(client, app):
 def test_api_historical_extraction_revision_survives_same_version_reindex(tmp_path, route):
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         imported, old, latest = publish_two_extraction_revisions(client, app)
         from services.api.reconcile import Reconciler
         async def delete_generation(generation_id):
@@ -141,7 +159,7 @@ def test_api_historical_extraction_revision_survives_same_version_reindex(tmp_pa
 def test_api_pinned_revision_never_falls_back_when_invalid_or_unpublished(tmp_path):
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         imported, old, latest = publish_two_extraction_revisions(client, app)
         version = app.state.db.version(imported["version_id"])
         other = app.state.db.import_original("other.pdf", version["sha256"], version["blob_path"])
@@ -168,7 +186,7 @@ def test_api_pinned_revision_never_falls_back_when_invalid_or_unpublished(tmp_pa
 def test_api_search_returns_actual_document_and_page_metadata_without_citations(tmp_path, scope_kind):
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         payload = b"%PDF-1.7\ncontrolled metadata fixture"
         imported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", payload, "application/pdf")}, data={"relative_paths": '["engineering/manual.pdf"]'}).json()
         text = "CCU-21 tension 72 V"
@@ -229,7 +247,7 @@ def test_api_releases_e5_only_for_cold_insufficient_memory(tmp_path, loaded, res
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}, "resources": {"initial_llm_load_peak_estimate_mib": 4352, "host_available_min_mib": 1536}})
     embedding, governor, tokenizer = ControlledEmbedding(), ControlledGovernor(), ControlledTokenizer()
     app = create_app(settings=settings, embedding=embedding, vectors=FakeVectors(), tokenizer=tokenizer, ollama=ControlledRuntime(), governor=governor, start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         state = client.portal.call(governor.before_generation)
         assert state["loaded"] is loaded and bool(embedding.released) is expected_release
         assert ("embedding_release" in state) is expected_release
@@ -248,7 +266,7 @@ def test_api_admin_evaluation_runs_real_scope_and_context_without_generation(tmp
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     runtime = FakeOllama()
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=runtime, governor=NoGeneration(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         pdf = b"%PDF-1.7\ncontrolled diagnostic fixture\n"
         imported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", pdf, "application/pdf")}).json()
         extraction = {"fingerprint": "fixture-v1", "sha256": hashlib.sha256(pdf).hexdigest(), "page_count": 1, "status": "ready", "pages": [{"page_index": 0, "width": 595, "height": 842, "blocks": [{"id": "b0", "raw_text": "CCU-21 72 V. CCU-22 110 V.", "bbox": [10,10,200,30], "precision": "block"}]}]}
@@ -279,7 +297,7 @@ def test_api_import_range_scope_sse_reconnect_and_citation(tmp_path):
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     runtime = FakeOllama()
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=runtime, governor=FakeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         pdf = b"%PDF-1.7\ncontrolled fixture only\n"
         response = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", pdf, "application/pdf")}, data={"relative_paths": '["engineering/manual.pdf"]'})
         assert response.status_code == 202, response.text
@@ -315,7 +333,7 @@ def test_api_import_range_scope_sse_reconnect_and_citation(tmp_path):
 def test_api_partial_job_metadata_and_explicit_publication(tmp_path):
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         payload = b"%PDF-1.7\ncontrolled partial fixture"
         imported = client.post("/api/v1/documents/import", files={"files": ("partial.pdf", payload, "application/pdf")}).json()
         extraction = {"fingerprint": "partial-fixture", "sha256": hashlib.sha256(payload).hexdigest(), "page_count": 2, "status": "ready_partial", "coverage": {"total": 2, "processed": 1, "ocr": 0}, "warnings": [{"code": "fixture_missing_page"}], "pages": [{"page_index": 0, "width": 595, "height": 842, "blocks": [{"id": "b0", "text": "CCU-21 tension 72 V"}]}]}
@@ -335,7 +353,7 @@ def test_api_partial_job_metadata_and_explicit_publication(tmp_path):
 def test_api_rejects_host_origin_traversal_and_private_error_inputs(tmp_path):
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         assert client.get("/api/v1/health", headers={"Host": "evil.example"}).status_code == 400
         assert client.post("/api/v1/queries", headers={"Origin": "https://evil.example"}, json={}).status_code == 403
         rejected = client.post("/api/v1/documents/import", files={"files": ("../private.pdf", b"%PDF-1.7\n", "application/pdf")})
@@ -359,7 +377,7 @@ def test_api_quiesce_nonce_blocks_mutations_and_preserves_reads(tmp_path, monkey
     monkeypatch.setenv("RAG_CONTROL_TOKEN", "test-only-nonce")
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         assert client.post("/api/v1/admin/quiesce").status_code == 403
         header = {"X-RAG-Control-Token": "test-only-nonce"}
         quiesced = client.post("/api/v1/admin/quiesce", headers=header)
@@ -382,7 +400,7 @@ def test_api_no_evidence_abstains_without_generation_admission(tmp_path):
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     runtime = FakeOllama()
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=runtime, governor=DeniedGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         query = client.post("/api/v1/queries", json={"question": "Quelle tension ?", "scope": {"kind": "library"}}).json()
         events = client.get(query["events_url"]).text
         assert "event: done" in events and "event: error" not in events and runtime.calls == 0
@@ -401,7 +419,7 @@ def test_api_manual_pause_resume_and_runtime_mode(tmp_path):
             return {"heavy_owner": None, "mode": self.mode}
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=ModeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         imported = client.post("/api/v1/documents/import", files={"files": ("fixture.pdf", b"%PDF-1.7\nfixture", "application/pdf")}).json()
         job = imported["job_id"]
         paused = client.post(f"/api/v1/jobs/{job}/pause")
@@ -422,7 +440,7 @@ def test_api_direct_client_scope_change_excludes_previous_answer_history(tmp_pat
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     runtime = RecordingOllama()
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=runtime, governor=FakeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         imports = []
         for name, text in [("one.pdf", "CCU-21 private_old_scope_marker 999 V"), ("two.pdf", "CCU-22 authorized_new_scope 72 V")]:
             payload = b"%PDF-1.7\n" + text.encode()
@@ -460,7 +478,7 @@ def test_api_readiness_is_blocked_without_artifacts_and_never_loads_models(tmp_p
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     embedding = EmbeddingService(settings)
     app = create_app(settings=settings, embedding=embedding, vectors=AvailableVectors(), tokenizer=FakeTokenizer(), ollama=runtime, governor=FakeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         assert client.get("/api/v1/health").status_code == 200
         response = client.get("/api/v1/readiness")
         assert response.status_code == 503
@@ -474,7 +492,7 @@ def test_api_default_port_is_project_port(tmp_path):
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime"}})
     assert settings.origin == "http://127.0.0.1:8785"
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         assert client.get("/api/v1/health").status_code == 200
         assert client.get("/api/v1/health", headers={"Host": "127.0.0.1:8765"}).status_code == 400
 
@@ -495,7 +513,7 @@ def test_api_controls_do_not_wait_for_long_mutation_but_quiesce_does(tmp_path, m
     monkeypatch.setattr(UploadFile, "read", slow_upload_read)
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         query = client.post("/api/v1/queries", json={"question": "Quelle tension ?", "scope": {"kind": "library"}}).json()
         assert "event: done" in client.get(query["events_url"]).text
         results = {}
@@ -540,7 +558,7 @@ def test_api_resume_waits_for_running_quiesce_and_leaves_consistent_state(tmp_pa
         return await original_quiesce()
     jobs.quiesce = slow_quiesce
     header, results = {"X-RAG-Control-Token": "test-only-nonce"}, {}
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         def call(name, url):
             results[name] = client.post(url, headers=header)
         quiesce = threading.Thread(target=call, args=("quiesce", "/api/v1/admin/quiesce"))
@@ -569,7 +587,7 @@ def test_api_move_changes_tree_without_job_version_or_embedding(tmp_path):
     embedding, vectors = CountingEmbedding(), FakeVectors()
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     app = create_app(settings=settings, embedding=embedding, vectors=vectors, tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         payload = b"%PDF-1.7\ncontrolled move fixture"
         imported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", payload, "application/pdf")}, data={"relative_paths": '["archive/2025/manual.pdf"]'}).json()
         extraction = {"fingerprint": "move-fixture", "sha256": hashlib.sha256(payload).hexdigest(), "page_count": 1, "status": "ready", "pages": [
@@ -618,7 +636,7 @@ def test_api_historical_revision_and_document_scope_warnings(tmp_path):
     runtime = FakeOllama()
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=runtime, governor=FakeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         versions = []
         for text in ["CCU-21 tension 72 V", "CCU-21 tension 110 V"]:
             payload = b"%PDF-1.7\n" + text.encode()
@@ -679,7 +697,7 @@ def test_api_short_selection_never_triggers_dense_or_global_lexical_search(tmp_p
     embedding, vectors, runtime = SpyEmbedding(), SpyVectors(), FakeOllama()
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     app = create_app(settings=settings, embedding=embedding, vectors=vectors, tokenizer=FakeTokenizer(), ollama=runtime, governor=FakeGovernor(), start_jobs=False)
-    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+    with browser_client(app) as client:
         payload = b"%PDF-1.7\ncontrolled selection fixture"
         imported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", payload, "application/pdf")}).json()
         text = "CCU-21 tension 72 V ; CCU-22 tension 110 V"

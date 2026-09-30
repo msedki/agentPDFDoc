@@ -1,4 +1,5 @@
 import type { Bbox, Block, Precision, Source } from "./types.ts";
+import type { Tone } from "./status.ts";
 
 type Located = Pick<Source, "version_id" | "precision" | "blocks" | "bboxes" | "page_index" | "page_indices">;
 const labels: Record<Precision, string> = { page: "Localisation à la page", table: "Table source", span: "Passage source", block: "Bloc source" };
@@ -17,6 +18,18 @@ export function sourcePrecision(source: Located): Precision {
 }
 
 export function sourcePrecisionLabel(source: Located): string { return labels[sourcePrecision(source)]; }
+
+/**
+ * Badge de précision d'une carte de source : famille exacte (passage, bloc ou
+ * table avec géométrie), page seule, ou source sans page connue. Le libellé
+ * reprend celui du lecteur pour que les deux vues emploient les mêmes termes.
+ */
+export type SourceLocalization = { family: "exact" | "page" | "unlocated"; label: string; tone: Tone };
+export function sourceLocalization(source: Located): SourceLocalization {
+  if (source.page_index === undefined && !source.page_indices?.length) return { family: "unlocated", label: "Source non localisée", tone: "warning" };
+  const precision = sourcePrecision(source);
+  return precision === "page" ? { family: "page", label: labels.page, tone: "neutral" } : { family: "exact", label: labels[precision], tone: "success" };
+}
 
 /** Régions à surligner sur une page affichée ; aucune bbox fabriquée ni reportée d'une autre page. */
 export function sourceRegionBoxes(source: Located | null, versionId: string, pageIndex: number): Bbox[] {

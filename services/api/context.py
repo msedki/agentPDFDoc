@@ -4,6 +4,7 @@ import json
 import re
 import threading
 import time
+from typing import Any
 
 from .errors import ApiError
 from .retrieval import answer_terms, contains_identifier, has_answer_terms, identifiers, normalized_identifier
@@ -132,9 +133,11 @@ class LlmTokenizer:
         with self._lock:
             if self._template is None:
                 self.load()
-            return self._template.render(messages=messages, add_generation_prompt=True,
-                                         enable_thinking=False, tools=None, documents=None,
-                                         bos_token=self._config.get("bos_token", ""), eos_token=self._config.get("eos_token", ""))
+            template, config = self._template, self._config
+            assert template is not None and config is not None  # posés ensemble par load()
+            return template.render(messages=messages, add_generation_prompt=True,
+                                   enable_thinking=False, tools=None, documents=None,
+                                   bos_token=config.get("bos_token", ""), eos_token=config.get("eos_token", ""))
 
     def count_messages(self, messages):
         with self._lock:
@@ -170,7 +173,7 @@ class ContextBuilder:
         required = {normalized_identifier(value) for value in identifiers(question)}
         compared = list(dict.fromkeys(source["document_id"] for source in sources if source.get("document_id"))) if mode == "comparison" else []
         sources = sorted(sources, key=lambda source: (not source.get("exact_identifier", False))) if mode != "comparison" else sources
-        retained = []
+        retained: list[dict[str, Any]] = []
         excluded = 0
         evidence_tokens = 0
         for source in sources:
@@ -188,10 +191,10 @@ class ContextBuilder:
                     continue
             retained.append(item)
             evidence_tokens += token_count
-        warnings = []
+        warnings: list[dict[str, Any]] = []
         messages = [{"role": "system", "content": SYSTEM_INSTRUCTION}]
         history_budget = self.settings.value("retrieval", "max_history_llm_tokens", 512)
-        selected_history = []
+        selected_history: list[dict[str, Any]] = []
         for message in reversed(history or []):
             candidate = [{**message, "content": HISTORY_PREFIX + message["content"]}] + selected_history
             if self.tokenizer.count(json.dumps(candidate, ensure_ascii=False)) <= history_budget:
@@ -250,7 +253,8 @@ class ContextBuilder:
 
 
 def validate_answer(text, known_ids):
-    known, unknown = set(known_ids), set()
+    known = set(known_ids)
+    unknown: set[str] = set()
 
     def citations(match):
         # « [S001, S002] » : chaque ID est validé puis réécrit en citation unitaire, seule forme lue par query.py et l'UI.
@@ -260,6 +264,6 @@ def validate_answer(text, known_ids):
     text = CITATION_GROUP.sub(citations, text)
     text = re.sub(r"!\[[^\]]*\]\([^)]*\)", "[image retirée]", text)
     text = re.sub(r"<[^>]*>", "", text)
-    unknown = sorted(unknown)
-    warnings = [{"code": "unknown_citations", "source_ids": unknown, "message": "Références inconnues retirées."}] if unknown else []
+    unknown_ids = sorted(unknown)
+    warnings = [{"code": "unknown_citations", "source_ids": unknown_ids, "message": "Références inconnues retirées."}] if unknown_ids else []
     return text, warnings

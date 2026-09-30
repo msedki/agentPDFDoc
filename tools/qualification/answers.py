@@ -13,6 +13,7 @@ import time
 from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 import httpx
 from api_client import (
@@ -66,6 +67,7 @@ def compact(source: dict) -> dict:
 
 
 def journal_state(records: list[dict]) -> tuple[dict, dict]:
+    results: dict[str, dict]
     submitted, results = {}, {}
     for record in records:
         if record.get("record") == "submitted":
@@ -106,7 +108,7 @@ def result_record(question: dict, submitted: dict, outcome: dict, replayed: bool
     events = outcome["events"]
     metrics = data.get("metrics") or {}
     text = data.get("text") if terminal["event"] in {"done", "cancelled"} else None
-    sources = next((event["data"].get("sources", []) for event in events if event["event"] == "sources"), [])
+    sources: list[Any] = next((event["data"].get("sources", []) for event in events if event["event"] == "sources"), [])
     durations = {name: metrics.get(key) for name, key in METRIC_DURATIONS.items()}
     # Une relecture après reprise ne mesure pas la latence : les durées client sont alors nulles.
     durations.update(client_post=None if replayed else submitted.get("post_ms"), client_first_delta=None if replayed else outcome["client_first_delta_ms"],
@@ -163,6 +165,8 @@ def run(dataset_path: Path, source_path: Path, output: Path, base_url: str, spli
                     continue
                 if limit is not None and submissions >= limit:
                     break
+                # request_body ne rend un corps None qu'avec un motif de blocage, traité ci-dessus.
+                assert body is not None
                 try:
                     created, started, post_ms = submit_query(client, body)
                 except (httpx.HTTPError, ValueError, KeyError) as error:

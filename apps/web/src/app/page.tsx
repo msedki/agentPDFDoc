@@ -1,2 +1,2 @@
 import Link from "next/link";
-export default function Home() { return <main className="home"><p className="eyebrow">Poste local</p><h1>Atelier documentaire</h1><p>Lire, retrouver et vérifier les sources de vos documents.</p><Link href="/workspace/" className="home-link">Ouvrir l'espace de travail →</Link></main>; }
+export default function Home() { return <main className="home"><p className="eyebrow">Poste documentaire local</p><h1>Atelier documentaire</h1><p>Importez des PDF, retrouvez un passage et posez vos questions : chaque réponse renvoie à la page et au texte qu'elle cite.</p><Link href="/workspace/" className="home-link">Ouvrir l'espace de travail<span aria-hidden="true"> →</span></Link></main>; }

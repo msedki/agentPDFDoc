@@ -12,6 +12,7 @@ import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 from urllib.parse import urlsplit
 
 import psutil
@@ -19,6 +20,8 @@ import psutil
 from .artifacts import ROOT, file_hash, provision_artifacts, write_json_atomic
 from .resources import admission_requirement
 from .supervisor import (
+    app_origin,
+    control_headers,
     data_path,
     environment,
     load_profile,
@@ -189,9 +192,10 @@ def doctor(profile_path: Path) -> dict:
         else:
             result["node_tools"][name] = {"status": "absent_from_path"}
     result["services"] = {}
-    with httpx.Client(timeout=5, trust_env=False) as client:
-        for name, url in [("api_health", f"http://127.0.0.1:{profile['app']['port']}/api/v1/health"),
-                          ("api_ready", f"http://127.0.0.1:{profile['app']['port']}/api/v1/readiness"),
+    origin, verify = app_origin(profile)
+    with httpx.Client(timeout=5, trust_env=False, verify=verify) as client:
+        for name, url in [("api_health", origin + "/api/v1/health"),
+                          ("api_ready", origin + "/api/v1/readiness"),
                           ("qdrant", profile["qdrant"]["url"]), ("ollama", profile["llm"]["base_url"] + "/api/version")]:
             try:
                 response = client.get(url)
@@ -214,7 +218,7 @@ def doctor(profile_path: Path) -> dict:
         checks["index_consistency"] = {"status": "api_unavailable"}
         if result["services"]["api_health"].get("http_status") == 200:
             try:
-                response = client.get(f"http://127.0.0.1:{profile['app']['port']}/api/v1/diagnostics")
+                response = client.get(origin + "/api/v1/diagnostics", headers=control_headers(data_path(profile)))
                 response.raise_for_status()
                 diagnostics = response.json()
                 checks["index_consistency"] = diagnostics.get("index_consistency") or {
@@ -339,7 +343,7 @@ def pull_model(profile_path: Path, offline: bool = False) -> dict:
                            log_path=directory / "ollama-pull.log")
         wait_http(llm["base_url"] + "/api/version", child, "0.35.0")
         with httpx.Client(timeout=httpx.Timeout(300, connect=10), trust_env=False) as client:
-            notified = {}
+            notified: dict[str, int] = {}
             if not offline:
                 with client.stream("POST", llm["base_url"] + "/api/pull",
                                    json={"model": source_name, "stream": True}) as response:
@@ -356,10 +360,10 @@ def pull_model(profile_path: Path, offline: bool = False) -> dict:
                             print(f"Modèle : {event['status']} {completed / 1048576:.0f} Mio", flush=True)
                             notified[digest] = completed
             model, details = _model_record(client, llm["base_url"], source_name, llm["required_quantization"])
-            source = {"model": model, "model_info": details.get("model_info"), "details": details.get("details"),
-                      "template": details.get("template"), "parameters": details.get("parameters"),
-                      "license": details.get("license"), "provisioned_at_utc": datetime.now(UTC).isoformat(),
-                      "inference_validated": False, "source": f"https://ollama.com/library/{source_name}"}
+            source: dict[str, Any] = {"model": model, "model_info": details.get("model_info"), "details": details.get("details"),
+                                      "template": details.get("template"), "parameters": details.get("parameters"),
+                                      "license": details.get("license"), "provisioned_at_utc": datetime.now(UTC).isoformat(),
+                                      "inference_validated": False, "source": f"https://ollama.com/library/{source_name}"}
             source_manifest_path = ROOT / llm.get("source_model_manifest", SOURCE_MODEL_MANIFEST)
             if offline and source_manifest_path.is_file():
                 recorded = json.loads(source_manifest_path.read_text(encoding="utf-8"))
@@ -397,6 +401,8 @@ def provision(profile_path: Path, only: str | None = None, offline: bool = False
     if not only:
         from .provisioning import tesseract
         tesseract(load_profile(profile_path), offline=offline)
+        # Même condition que le premier bloc, qui lève FileNotFoundError si pnpm manque.
+        assert pnpm is not None
         subprocess.run([pnpm, "run", "build"], cwd=ROOT / "apps/web",
                        env={**node_env, "NODE_OPTIONS": "--max-old-space-size=2048"}, check=True)
     if not only and not skip_model:
@@ -413,9 +419,33 @@ def provision(profile_path: Path, only: str | None = None, offline: bool = False
     return {"artifacts": "verified", "model": "not_requested" if skip_model else "unchanged"}
 
 
+def open_workspace(profile_path: Path, *, launch: bool = True) -> dict[str, Any]:
+    """Demande à l'instance un lien d'ouverture à usage unique (W011) et l'ouvre dans le navigateur par défaut."""
+    import httpx
+
+    profile = load_profile(profile_path)
+    current = status(profile_path)
+    if current.get("status") != "running":
+        raise RuntimeError("Instance non démarrée : lancer d'abord .\\rag.ps1 up")
+    headers = control_headers(data_path(profile))
+    if not headers:
+        raise RuntimeError("Jeton de contrôle de l'instance absent : redémarrer avec .\\rag.ps1 down puis up")
+    origin, verify = app_origin(profile)
+    with httpx.Client(timeout=10, trust_env=False, verify=verify) as client:
+        response = client.post(origin + "/api/v1/admin/session-links", headers=headers)
+        response.raise_for_status()
+        link = response.json()
+    url = origin + link["path"]
+    if launch:
+        os.startfile(url)  # type: ignore[attr-defined]  # Windows seulement (W001) ; absent des stubs hors win32
+        # Le lien est un secret à usage unique : il n'est ni affiché ni écrit dans un rapport quand le navigateur l'a reçu.
+        return {"opened_in_browser": True, "expires_in_seconds": link["expires_in_seconds"], "single_use": True}
+    return {"opened_in_browser": False, "url": url, "expires_in_seconds": link["expires_in_seconds"], "single_use": True}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["provision", "doctor", "up", "status", "logs", "down", "_serve", "pull-model", "backup", "restore", "verify"])
+    parser.add_argument("command", choices=["provision", "doctor", "up", "status", "logs", "down", "_serve", "pull-model", "backup", "restore", "verify", "open"])
     parser.add_argument("--profile", type=Path, default=ROOT / "config/local16.yaml")
     parser.add_argument("--only")
     parser.add_argument("--offline", action="store_true")
@@ -423,6 +453,7 @@ def main() -> int:
     parser.add_argument("--report", type=Path)
     parser.add_argument("--path", type=Path, help="Destination backup ou snapshot source restore/verify")
     parser.add_argument("--target", type=Path, help="Racine neuve de restauration")
+    parser.add_argument("--no-browser", action="store_true", help="open : afficher le lien au lieu d'ouvrir le navigateur")
     args = parser.parse_args()
     try:
         if args.command == "_serve":
@@ -446,6 +477,8 @@ def main() -> int:
             if not args.path or not args.target:
                 raise ValueError("restore requiert --path et --target (racine neuve)")
             result = restore_backup(args.path, args.target)
+        elif args.command == "open":
+            result = open_workspace(args.profile, launch=not args.no_browser)
         elif args.command == "up":
             result = start(args.profile)
         elif args.command == "down":

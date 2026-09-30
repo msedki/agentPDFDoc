@@ -3,6 +3,7 @@
 import time
 import uuid
 from pathlib import Path
+from typing import Any
 
 from .checkpoint import CheckpointStore, atomic_json, extraction_lock
 from .config import IngestionConfig, sha256_file
@@ -30,7 +31,7 @@ def require_conversion(pages, warnings, converted):
     """Sans aucune conversion réussie, un échec du parseur ne se distingue pas d'une faute d'environnement."""
     failed = conversion_failures(pages)
     if failed and not converted:
-        cause = next((item for item in warnings if item["code"] == "DOCLING_CONVERSION_FAILED" and item.get("page_index") == failed[0]), {})
+        cause: dict[str, Any] = next((item for item in warnings if item["code"] == "DOCLING_CONVERSION_FAILED" and item.get("page_index") == failed[0]), {})
         raise IngestionError("DOCLING_CONVERSION_FAILED", "Aucune page n'a pu être convertie ; l'échec du parseur n'est attribuable à aucune page.",
                              {"failed_pages": failed, "parser_status": cause.get("parser_status")})
 
@@ -110,7 +111,7 @@ def _extract_window(path, version_id, first, last, settings, output_dir, preflig
         result["warnings"].append({"code": "PAUSE_REQUESTED"})
         return result
     pages = preflight["pages"][first:last + 1]
-    grouped = []
+    grouped: list[tuple[Any, list[Any], IngestionError | None]] = []
     for page in pages:
         route = page_route(page, settings)
         error = None

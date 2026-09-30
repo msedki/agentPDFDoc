@@ -243,6 +243,7 @@ def registry_check(root: Path = ROOT):
     """SKILLS.md recense chaque skill du pack et chaque fichier de .agents/skills avec son SHA-256 réel."""
     project=root.resolve().parent
     base=project/'.agents'/'skills'
+    kinds: dict[str, list[str]]
     entries,faults,kinds=skill_registry(root),[],{'pack':[],'projet':[],'tiers':[]}
     expected=[(p,{'pack'}) for p in sorted((root/'skills').glob('*/SKILL.md'))]
     expected+=[(p,{'tiers'}) for p in sorted(base.iterdir()) if p.is_file()]+[(p/'SKILL.md',{'projet','tiers'}) for p in sorted(base.iterdir()) if (p/'SKILL.md').is_file()]
@@ -277,7 +278,7 @@ def deterministic_examples():
     k=60
     lexical=['exact']+[f'near{i}' for i in range(1,7)]
     dense=[f'near{i}' for i in range(1,7)]
-    scores={}
+    scores: dict[str, float] = {}
     for order in [lexical,dense]:
         for rank,key in enumerate(order,1):
             scores[key]=scores.get(key,0)+1/(k+rank)

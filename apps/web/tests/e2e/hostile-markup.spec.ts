@@ -61,7 +61,7 @@ test("hostile markup stays literal text with no active element, no remote reques
   const card = page.getByTestId("source-card").filter({ hasText: literals[0] }).first();
   await expect(card).toBeVisible();
   await expect(card.locator("p")).toContainText(literals[0]);
-  await card.click();
+  await card.getByRole("button", { name: "Ouvrir le passage", exact: true }).click();
   await expect(page.getByTestId("scope-summary")).toContainText(scopeLabel);
   await page.getByRole("button", { name: "Texte extrait & provenance" }).click();
   for (const literal of literals) await expect(page.locator(".extracted-text")).toContainText(literal);

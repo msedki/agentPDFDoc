@@ -7,6 +7,7 @@ import threading
 import time
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 _TRACE_LOCK = threading.Lock()
 
@@ -59,11 +60,11 @@ def draining_backend_class():
         _sequence = itertools.count(1)
 
         def __init__(self, in_doc, path_or_stream, options=None):
-            self.lifecycle = {"page_range": list(in_doc.limits.page_range),
-                              "backend_name": "docling_parse", "iteration_mode": "threaded",
-                              "backend_sequence": next(self._sequence),
-                              "yielded_page_numbers": [], "drained_page_numbers": [],
-                              "iterator_exhausted": False, "unload_completed": False}
+            self.lifecycle: dict[str, Any] = {"page_range": list(in_doc.limits.page_range),
+                                              "backend_name": "docling_parse", "iteration_mode": "threaded",
+                                              "backend_sequence": next(self._sequence),
+                                              "yielded_page_numbers": [], "drained_page_numbers": [],
+                                              "iterator_exhausted": False, "unload_completed": False}
             super().__init__(in_doc, path_or_stream, options)
             self.lifecycle["backend_instance"] = id(self)
             self.lifecycle["parser_instance"] = id(self.parser)
@@ -174,11 +175,11 @@ def observed_pdfium_backend_class():
         _sequence = itertools.count(1)
 
         def __init__(self, in_doc, path_or_stream, options=None):
-            self.lifecycle = {"page_range": list(in_doc.limits.page_range),
-                              "backend_name": "pypdfium2", "iteration_mode": "random_access",
-                              "backend_sequence": next(self._sequence),
-                              "yielded_page_numbers": [], "drained_page_numbers": [],
-                              "unload_completed": False}
+            self.lifecycle: dict[str, Any] = {"page_range": list(in_doc.limits.page_range),
+                                              "backend_name": "pypdfium2", "iteration_mode": "random_access",
+                                              "backend_sequence": next(self._sequence),
+                                              "yielded_page_numbers": [], "drained_page_numbers": [],
+                                              "unload_completed": False}
             super().__init__(in_doc, path_or_stream, options)
             self.lifecycle["backend_instance"] = id(self)
             self._record("backend_created")

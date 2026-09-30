@@ -19,13 +19,13 @@ import httpx
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from services.runtime.supervisor import data_path, load_profile, read_state  # noqa: E402
+from services.runtime.supervisor import control_headers, data_path, load_profile, read_state  # noqa: E402
 from tools.qualification.evidence_io import checked_output, write_json_exclusive  # noqa: E402
 
 FOREIGN = "attaquant.example"
 
 
-def checks(profile: dict, qdrant_key: str | None) -> list[dict]:
+def checks(profile: dict, qdrant_key: str | None, control: dict[str, str] | None = None) -> list[dict]:
     api = f"127.0.0.1:{profile['app']['port']}"
     ollama = profile["llm"]["base_url"].removeprefix("http://").rstrip("/")
     qdrant = profile["qdrant"]["url"].removeprefix("http://").rstrip("/")
@@ -38,6 +38,10 @@ def checks(profile: dict, qdrant_key: str | None) -> list[dict]:
         ("api", "GET", api, "/api/v1/health", {"Sec-Fetch-Site": "cross-site"}, 403),
         ("api", "POST", api, "/api/v1/search", {"Origin": "http://" + FOREIGN}, 403),
         ("api", "POST", api, "/api/v1/search", {"Origin": "null"}, 403),
+        # Session locale (W011) : refus par défaut sans session, cookie forgé refusé, administration réservée au jeton.
+        ("api", "GET", api, "/api/v1/library/tree", {}, 401),
+        ("api", "GET", api, "/api/v1/library/tree", {"Cookie": "rag_session=forge"}, 401),
+        ("api", "POST", api, "/api/v1/admin/session-links", {}, 403),
         ("ollama", "GET", ollama, "/api/tags", {"Host": FOREIGN}, 403),
         ("ollama", "GET", ollama, "/api/tags", {"Origin": "http://" + FOREIGN}, 403),
         # Liste blanche Qdrant 1.19.1 : `/` (version) et les sondes restent lisibles sans clé.
@@ -48,6 +52,8 @@ def checks(profile: dict, qdrant_key: str | None) -> list[dict]:
     ]
     if qdrant_key:
         rows.append(("qdrant", "GET", qdrant, "/collections", {"api-key": qdrant_key}, 200))
+    if control:
+        rows.append(("api", "GET", api, "/api/v1/library/tree", control, 200))
     return [{"service": service, "method": method, "authority": authority, "path": path,
              "headers": headers, "expected_status": expected} for service, method, authority, path, headers, expected in rows]
 
@@ -58,9 +64,10 @@ def run(profile_path: Path) -> dict:
     state = read_state(directory)
     key_path = directory / "control/qdrant-api-key"
     key = key_path.read_text(encoding="ascii").strip() if key_path.exists() else None
+    control = control_headers(directory)
     results = []
     with httpx.Client(timeout=10, trust_env=False, follow_redirects=False) as client:
-        for row in checks(profile, key):
+        for row in checks(profile, key, control):
             body = {"question": "contrôle des gardes", "scope": {"kind": "library"}} if row["method"] == "POST" else None
             try:
                 response = client.request(row["method"], f"http://{row['authority']}{row['path']}",
@@ -71,7 +78,8 @@ def run(profile_path: Path) -> dict:
                     code = payload.get("code") if isinstance(payload, dict) else None
             except httpx.HTTPError as exc:
                 status, code = None, type(exc).__name__
-            shown = {name: ("<clé de l'instance>" if name == "api-key" else value) for name, value in row["headers"].items()}
+            secret_names = {"api-key", "x-rag-control-token"}
+            shown = {name: ("<secret de l'instance>" if name.lower() in secret_names else value) for name, value in row["headers"].items()}
             results.append({**row, "headers": shown, "status": status, "code": code,
                             "pass": status == row["expected_status"]})
     return {"utc": dt.datetime.now(dt.UTC).isoformat(), "profile": str(profile_path),
@@ -80,7 +88,8 @@ def run(profile_path: Path) -> dict:
             "method": "httpx loopback, en-têtes Host/Origin/Sec-Fetch-Site forgés ; aucune redirection suivie",
             "limit": "Contrôle applicatif ; ne prouve pas le blocage réseau du système (D08.1)",
             "results": results, "passed": sum(item["pass"] for item in results), "total": len(results),
-            "verdict": "PASS" if key is not None and all(item["pass"] for item in results) else "FAIL"}
+            "control_token_available": bool(control),
+            "verdict": "PASS" if key is not None and control and all(item["pass"] for item in results) else "FAIL"}
 
 
 def main() -> int:

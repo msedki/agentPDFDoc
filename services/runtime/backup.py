@@ -12,6 +12,7 @@ import uuid
 from contextlib import closing
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
+from typing import Any
 from urllib.parse import quote
 
 import httpx
@@ -20,6 +21,7 @@ import yaml
 from .artifacts import ROOT, file_hash, write_json_atomic
 from .supervisor import (
     acquire_qdrant_lock,
+    app_origin,
     check_ports,
     data_path,
     environment,
@@ -50,7 +52,7 @@ def upload_snapshot(client: httpx.Client, base: str, snapshot: Path, attempts: i
     Toute autre erreur, ou une collection partiellement créée, arrête la restauration.
     Renvoie les échecs repris, conservés dans le rapport.
     """
-    failures = []
+    failures: list[str] = []
     for attempt in range(1, attempts + 1):
         with snapshot.open("rb") as file:
             response = client.post(base + "/snapshots/upload", params={"wait": "true", "priority": "snapshot",
@@ -143,16 +145,17 @@ def create_backup(profile_path: Path, output: Path | None = None) -> dict:
     if shutil.disk_usage(output.parent if output.parent.exists() else ROOT).free < 2 * 1024**3:
         raise RuntimeError("Réserve disque de 2 Gio insuffisante avant sauvegarde")
     output.mkdir(parents=True)
-    api = f"http://127.0.0.1:{profile['app']['port']}/api/v1"
+    origin, verify = app_origin(profile)
+    api = origin + "/api/v1"
     headers = {"X-RAG-Control-Token": token}
-    manifest = {"format": "rag-native-backup-v1", "backup_id": identifier,
-                "created_at_utc": datetime.now(UTC).isoformat(), "state": "incomplete",
-                "source_data_dir": str(directory), "profile_sha256": file_hash(profile_path),
-                "qdrant_version": "1.19.1", "collections": [], "files": []}
+    manifest: dict[str, Any] = {"format": "rag-native-backup-v1", "backup_id": identifier,
+                                "created_at_utc": datetime.now(UTC).isoformat(), "state": "incomplete",
+                                "source_data_dir": str(directory), "profile_sha256": file_hash(profile_path),
+                                "qdrant_version": "1.19.1", "collections": [], "files": []}
     write_json_atomic(output / "manifest.json", manifest)
     quiesce_requested = False
     try:
-        with httpx.Client(timeout=600, trust_env=False) as client:
+        with httpx.Client(timeout=600, trust_env=False, verify=verify) as client:
             quiesce_requested = True
             response = client.post(api + "/admin/quiesce", headers=headers)
             response.raise_for_status()
@@ -219,7 +222,7 @@ def create_backup(profile_path: Path, output: Path | None = None) -> dict:
         raise
     finally:
         if quiesce_requested:
-            with httpx.Client(timeout=30, trust_env=False) as client:
+            with httpx.Client(timeout=30, trust_env=False, verify=verify) as client:
                 response = client.post(api + "/admin/resume", headers=headers)
                 response.raise_for_status()
 

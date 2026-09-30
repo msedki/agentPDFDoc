@@ -1,21 +1,41 @@
 import type { DocumentDetail, JobsResponse, LibraryTree, Outline, PageBlocks, QueryCreated, Readiness, Scope, SearchResponse, Source } from "./types";
 import { blocksPath, outlinePath, verifyPinnedBlocks, verifyPinnedOutline } from "./provenance-revision";
+import { httpFailureMessage } from "./warnings";
+import { announceSessionEnd, currentCsrfToken, isSessionFailure, type SessionState } from "./session";
 
 const prefix = "/api/v1";
 export class ApiError extends Error {
   constructor(public code: string, message: string, public requestId?: string) { super(message); this.name = "ApiError"; }
 }
 export function sameOriginPath(path: string): string {
-  if (!path.startsWith("/api/v1/") || path.startsWith("//") || /[\r\n]/.test(path)) throw new ApiError("INVALID_URL", "L'adresse de la ressource n'est pas autorisée.");
+  const refused = "Adresse refusée : seules les ressources de l'API locale (/api/v1) sont chargées.";
+  if (!path.startsWith("/api/v1/") || path.startsWith("//") || /[\r\n]/.test(path)) throw new ApiError("INVALID_URL", refused);
   const url = new URL(path, typeof window !== "undefined" ? window.location.origin : "http://127.0.0.1");
-  if (!url.pathname.startsWith("/api/v1/")) throw new ApiError("INVALID_URL", "Adresse de ressource invalide.");
+  if (!url.pathname.startsWith("/api/v1/")) throw new ApiError("INVALID_URL", refused);
   return url.pathname + url.search;
 }
+/** En-tête anti-falsification des requêtes qui modifient (W011) ; absent pour une lecture. */
+function csrfHeader(method: string | undefined): Record<string, string> {
+  const token = ["GET", "HEAD"].includes((method ?? "GET").toUpperCase()) ? null : currentCsrfToken();
+  return token ? { "X-CSRF-Token": token } : {};
+}
+function rejectedSession(code: string): void {
+  if (isSessionFailure(code)) announceSessionEnd(code);
+}
 async function request<T>(path: string, options: RequestInit = {}, acceptedStatuses: number[] = []): Promise<T> {
-  const response = await fetch(sameOriginPath(prefix + path), { ...options, credentials: "same-origin", cache: "no-store", headers: { Accept: "application/json", ...options.headers } });
+  let response: Response;
+  try {
+    response = await fetch(sameOriginPath(prefix + path), { ...options, credentials: "same-origin", cache: "no-store", headers: { Accept: "application/json", ...csrfHeader(options.method), ...options.headers } });
+  } catch (failure) {
+    // Une annulation (changement de page, requête remplacée) n'est pas une panne du service.
+    if ((failure as { name?: unknown })?.name === "AbortError" || failure instanceof ApiError) throw failure;
+    throw new ApiError("NETWORK_ERROR", "Le service local ne répond pas. Vérifiez qu'il est démarré (.\\rag.ps1 status), puis réessayez.");
+  }
   if (!response.ok && !acceptedStatuses.includes(response.status)) {
     const data = await response.json().catch(() => null);
-    throw new ApiError(data?.code ?? `HTTP_${response.status}`, data?.message ?? `Le service répond ${response.status}.`, data?.request_id);
+    const code = data?.code ?? `HTTP_${response.status}`;
+    rejectedSession(code);
+    throw new ApiError(code, data?.message ?? httpFailureMessage(response.status), data?.request_id);
   }
   if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
@@ -55,13 +75,18 @@ export const api = {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", prefix + "/documents/import");
     xhr.withCredentials = true;
+    for (const [name, value] of Object.entries(csrfHeader("POST"))) xhr.setRequestHeader(name, value);
     xhr.upload.onprogress = event => { if (event.lengthComputable) onProgress?.(event.loaded / event.total); };
-    xhr.onerror = () => reject(new ApiError("NETWORK_ERROR", "Import interrompu : connexion au service perdue."));
+    xhr.onerror = () => reject(new ApiError("NETWORK_ERROR", "Import interrompu : la connexion au service local a été perdue. Vérifiez qu'il est démarré, puis relancez l'import."));
     xhr.onload = () => {
       let data: Record<string, unknown> = {};
       try { data = JSON.parse(xhr.responseText); } catch { /* The HTTP status still conveys failure. */ }
       if (xhr.status >= 200 && xhr.status < 300) resolve(data);
-      else reject(new ApiError(String(data.code ?? `HTTP_${xhr.status}`), String(data.message ?? "Import refusé par le service.")));
+      else {
+        const code = String(data.code ?? `HTTP_${xhr.status}`);
+        rejectedSession(code);
+        reject(new ApiError(code, String(data.message ?? httpFailureMessage(xhr.status))));
+      }
     };
     xhr.send(form);
   }),
@@ -77,4 +102,6 @@ export const api = {
   remove: (id: string) => request(`/documents/${encodeURIComponent(id)}`, { method: "DELETE" }),
   citation: (queryId: string, sourceId: string) => request<Source>(`/citations/${encodeURIComponent(queryId)}/${encodeURIComponent(sourceId)}`),
   fileUrl: (versionId: string) => prefix + `/versions/${encodeURIComponent(versionId)}/file`,
+  session: (signal?: AbortSignal) => request<SessionState>("/session", { signal }),
+  logout: () => post<{ revoked: boolean }>("/session/logout", {}),
 };

@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowUpRight, Ban, BookOpen, Check, CircleAlert, Layers, MessageSquare, RefreshCw, Search, Send } from "lucide-react";
 import { api } from "@/lib/api";
 import { connectQueryStream } from "@/lib/stream";
@@ -10,39 +10,47 @@ import { errorMessage } from "@/lib/utils";
 import { warningText } from "@/lib/warnings";
 import { citationParts, citedSourceIds } from "@/lib/citations";
 import { tabKeyTarget } from "@/lib/keyboard";
-import { sourcePrecisionLabel } from "@/lib/source-location";
-import type { QueryState, Scope, SearchResponse, Source, StreamEvent } from "@/lib/types";
+import { sourceLocalization } from "@/lib/source-location";
+import { queryStatus } from "@/lib/status";
+import { unindexedInScope, unindexedSentence } from "@/lib/panel-state";
+import type { LibraryTree, QueryState, Scope, SearchResponse, Source, StreamEvent } from "@/lib/types";
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { PanelEmpty, PanelHeader } from "./ui/panel";
+import { StatusIndicator } from "./ui/status-indicator";
 
-const statusLabels: Record<string, string> = {
-  created: "Question enregistrée", queued: "En attente", searching: "Recherche des passages", retrieving: "Recherche des passages", context_ready: "Preuves prêtes", cancel_requested: "Annulation demandée", generating: "Rédaction en cours", running: "Travail en cours", done: "Réponse terminée", completed: "Réponse terminée", cancelled: "Réponse annulée", interrupted: "Réponse interrompue", error: "Échec", waiting_for_ingestion_checkpoint: "En attente de la pause de l'indexation", waiting_for_resources: "En attente de mémoire disponible", context: "Préparation des preuves", sources: "Sources retrouvées", length: "Réponse limitée par la longueur", length_limited: "Réponse limitée par la longueur", needs_clarification: "Précision nécessaire", insufficient_evidence: "Preuves insuffisantes",
-};
 function textValue(value: unknown, fallback = "") { return typeof value === "string" ? value : fallback; }
+function passagesFound(count: number) { return count === 0 ? "Aucun passage retrouvé" : count === 1 ? "1 passage retrouvé" : `${count} passages retrouvés`; }
 const analysisTabs = [{ id: "question", label: "Question", Icon: MessageSquare }, { id: "search", label: "Recherche", Icon: Search }, { id: "comparison", label: "Comparer", Icon: Layers }] as const;
 
 export function CitationText({ text, sources, onCitation }: { text: string; sources: Source[]; onCitation: (source: Source) => void }) {
   return <div className="answer-text">{citationParts(text, sources).map((part, index) => part.kind === "text" ? <span key={index}>{part.text}</span>
     : part.kind === "citation" ? <button className="inline-citation" key={index} onClick={() => onCitation(part.source)} title={`Ouvrir ${part.source.name ?? part.source.document_name}, page ${sourcePage(part.source) + 1}`}>{part.id}</button>
-    : <span className="invalid-citation" key={index} title="Identifiant absent du registre de sources">{part.text} · non validée</span>)}</div>;
+    : <span className="invalid-citation" key={index} title="Cette référence n'est pas enregistrée dans les sources de la réponse : elle n'ouvre aucun passage.">{part.text} (référence inconnue)</span>)}</div>;
 }
 
-export function SourceCard({ source, onClick }: { source: Source; onClick: () => void }) {
+/** Carte de source : identifiant, document, page, précision, extrait de trois lignes et une seule action. */
+export function SourceCard({ source, onOpen }: { source: Source; onOpen: () => void }) {
+  const titleId = useId();
   const page = sourcePage(source) + 1;
-  return <button className="source-card" onClick={onClick} data-testid="source-card">
-    <div><span className="source-id">{source.source_id ?? "Passage"}</span><span>p. {page}{source.label && source.label !== String(page) ? ` · folio ${source.label}` : ""}</span><ArrowUpRight size={15} /></div>
-    <strong>{source.name ?? source.document_name ?? "Document source"}</strong>
-    <p>{source.text}</p>
-    <small>{sourcePrecisionLabel(source)} · version {source.version_id.slice(0, 8)}</small>
-  </button>;
+  const location = sourceLocalization(source);
+  return <article className="source-card" data-testid="source-card" aria-labelledby={titleId}>
+    <div className="source-card-meta"><span className="source-id">{source.source_id ?? "Passage"}</span>{location.family !== "unlocated" && <span className="tabular">p. {page}{source.label && source.label !== String(page) ? ` · folio ${source.label}` : ""}</span>}<Badge tone={location.tone}>{location.label}</Badge></div>
+    <h3 className="source-card-title" id={titleId}>{source.name ?? source.document_name ?? "Document sans nom"}</h3>
+    <p className="source-card-excerpt">{source.text}</p>
+    <div className="source-card-footer"><span title={source.version_id}>version <span className="mono">{source.version_id.slice(0, 8)}</span></span><Button type="button" variant="secondary" size="sm" onClick={onOpen} aria-describedby={titleId}><ArrowUpRight size={16} />Ouvrir le passage</Button></div>
+  </article>;
 }
 
-export function AnalysisPanel({ onSource }: { onSource: (source: Source, queryId?: string) => Promise<void> }) {
+export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: Source, queryId?: string) => Promise<void>; headerAction?: ReactNode }) {
   const state = useWorkspace();
   const [tab, setTab] = useState<"question" | "search" | "comparison">("question");
   const [question, setQuestion] = useState("");
   const [queries, setQueries] = useState<QueryState[]>([]);
   const [search, setSearch] = useState<SearchResponse | null>(null);
-  const [searchScope, setSearchScope] = useState<{ scope: Scope; label: string } | null>(null);
+  // `unindexed` est figé au moment de la recherche : null si l'arborescence n'était pas lisible.
+  const [searchScope, setSearchScope] = useState<{ scope: Scope; label: string; unindexed: number | null } | null>(null);
+  const client = useQueryClient();
   const [error, setError] = useState("");
   const streams = useRef(new Map<string, () => void>());
   const queriesRef = useRef(queries);
@@ -97,7 +105,10 @@ export function AnalysisPanel({ onSource }: { onSource: (source: Source, queryId
     connect(created.query_id, created.events_url);
     return created;
   }, onError: failure => setError(errorMessage(failure)) });
-  const searchMutation = useMutation({ mutationFn: ({ text, scope }: { text: string; scope: Scope; scopeLabel: string }) => api.search(text, scope), onSuccess: (response, variables) => { setSearch(response); setSearchScope({ scope: variables.scope, label: variables.scopeLabel }); setError(""); }, onError: failure => setError(errorMessage(failure)) });
+  const searchMutation = useMutation({ mutationFn: ({ text, scope }: { text: string; scope: Scope; scopeLabel: string }) => api.search(text, scope), onSuccess: (response, variables) => {
+    const tree = client.getQueryData<LibraryTree>(["tree"]);
+    setSearch(response); setSearchScope({ scope: variables.scope, label: variables.scopeLabel, unindexed: tree ? unindexedInScope(variables.scope, tree) : null }); setError("");
+  }, onError: failure => setError(errorMessage(failure)) });
   const active = queries.findLast(query => query.connection !== "closed");
   const compareAllowed = state.scope.kind === "documents" && state.scope.documentIds.length >= 2 && state.scope.documentIds.length <= 4;
   const emptyScope = state.scope.kind === "documents" && !state.scope.documentIds.length;
@@ -121,35 +132,39 @@ export function AnalysisPanel({ onSource }: { onSource: (source: Source, queryId
     void onSource(source, queryId).catch(failure => setError(errorMessage(failure)));
   };
 
-  return <section className="analysis-panel">
-    <div className="panel-heading"><h2>Analyse</h2><span className="eyebrow">Réponses avec sources</span></div>
+  return <aside className="analysis-panel" aria-labelledby="analysis-heading">
+    <PanelHeader title="Analyse" id="analysis-heading"><div className="panel-heading-actions"><span className="eyebrow">Réponses avec sources</span>{headerAction}</div></PanelHeader>
     <div className="analysis-tabs" role="tablist" aria-label="Mode d'analyse" onKeyDown={event => {
       const current = tabButtons.current.indexOf(event.target as HTMLButtonElement);
       const target = current < 0 ? null : tabKeyTarget(event.key, current, analysisTabs.length);
       if (target === null) return;
       event.preventDefault(); setTab(analysisTabs[target].id); tabButtons.current[target]?.focus();
     }}>
-      {analysisTabs.map(({ id, label, Icon }, index) => <button key={id} ref={element => { tabButtons.current[index] = element; }} type="button" role="tab" id={`analysis-tab-${id}`} aria-selected={tab === id} aria-controls="analysis-tabpanel" tabIndex={tab === id ? 0 : -1} onClick={() => setTab(id)}><Icon size={15} />{label}</button>)}
+      {analysisTabs.map(({ id, label, Icon }, index) => <button key={id} ref={element => { tabButtons.current[index] = element; }} type="button" role="tab" id={`analysis-tab-${id}`} aria-selected={tab === id} aria-controls="analysis-tabpanel" tabIndex={tab === id ? 0 : -1} onClick={() => setTab(id)}><Icon size={14} aria-hidden="true" />{label}</button>)}
     </div>
-    <div className="scope-summary" data-testid="scope-summary"><span className="eyebrow">Périmètre actif</span><strong>{state.scopeLabel}</strong>{state.scope.kind === "selection" && <span>{state.scope.spans.length} passage(s) référencé(s)</span>}</div>
+    <div className="scope-summary" data-testid="scope-summary"><span className="eyebrow">Périmètre actif</span><strong>{state.scopeLabel}</strong>{state.scope.kind === "selection" && <span>{state.scope.spans.length === 1 ? "1 passage référencé" : `${state.scope.spans.length} passages référencés`}</span>}</div>
     <div className="analysis-history" ref={history} role="tabpanel" id="analysis-tabpanel" aria-labelledby={`analysis-tab-${tab}`} tabIndex={0}>
       {tab === "search" && search && searchScope && <p className="result-count">Périmètre de cette recherche : {searchScope.label}</p>}
-      {tab === "search" ? search ? <div className="search-results"><p className="result-count">{search.results.length} passages retrouvés · {Math.round(search.elapsed_ms)} ms</p>{search.warnings?.map((warning, index) => <p className="inline-warning" key={index}>{warningText(warning)}</p>)}{!search.results.length && <div className="empty-state"><Search size={32} strokeWidth={1} /><h3>Aucun passage retrouvé</h3><p>Cette recherche ne prouve pas l'absence de l'information dans le document.</p></div>}{search.results.map((result, index) => { const source = ("source" in result && result.source ? result.source : result) as Source; return source.version_id ? <SourceCard key={`${source.source_id}:${index}`} source={source} onClick={() => openSource(source, source.query_id)} /> : <p key={index} className="inline-warning">Le résultat reçu n'expose pas de source consultable.</p>; })}</div> : <div className="empty-state"><Search size={34} strokeWidth={1} /><h3>Retrouver un passage</h3><p>Recherchez un code, une expression ou une notion dans le périmètre choisi. La recherche fonctionne sans génération.</p></div> : !queries.length ? <div className="empty-state"><BookOpen size={34} strokeWidth={1} /><h3>{tab === "comparison" ? "Comparer des preuves" : "Une question, des passages vérifiables."}</h3><p>{tab === "comparison" ? "Sélectionnez deux à quatre PDF et définissez le périmètre. Les sources de chaque document restent visibles." : "Choisissez un périmètre, posez votre question, puis ouvrez les sources pour vérifier la réponse."}</p></div> : queries.map(query => <article className="query-turn" key={query.id} data-testid="query-turn">
+      {tab === "search" ? search ? <div className="search-results"><p className="result-count tabular">{passagesFound(search.results.length)} · {Math.round(search.elapsed_ms)} ms</p>{search.warnings?.map((warning, index) => <p className="inline-warning" key={index}>{warningText(warning)}</p>)}{!search.results.length && (searchScope?.unindexed
+        ? <PanelEmpty reason="index-incomplete" title="Index incomplet pour ce périmètre" description={`Aucun passage retrouvé dans les documents déjà indexés. ${unindexedSentence(searchScope.unindexed)} : relancez la recherche une fois leur traitement terminé dans le Suivi.`} />
+        : <PanelEmpty reason="no-match" title="Aucun passage retrouvé" description="Aucun passage indexé de ce périmètre ne contient ces termes. Une recherche sans résultat ne prouve pas l'absence de l'information : reformulez ou élargissez le périmètre." />)}{search.results.map((result, index) => { const source = ("source" in result && result.source ? result.source : result) as Source; return source.version_id ? <SourceCard key={`${source.source_id}:${index}`} source={source} onOpen={() => openSource(source, source.query_id)} /> : <p key={index} className="inline-warning">Ce résultat ne désigne aucune version de document : il ne peut pas être ouvert dans le lecteur.</p>; })}</div>
+        : <PanelEmpty reason="not-started" icon={<Search size={32} strokeWidth={1.5} aria-hidden="true" />} title="Retrouver un passage" description="Recherchez un code, une expression ou une notion dans le périmètre actif. La recherche lit l'index sans appeler le modèle de réponse." />
+        : !queries.length ? <PanelEmpty reason="not-started" icon={<BookOpen size={32} strokeWidth={1.5} aria-hidden="true" />} title={tab === "comparison" ? "Comparer des documents" : "Aucune question posée"} description={tab === "comparison" ? "Définissez un périmètre de deux à quatre documents, puis posez votre question de comparaison. Chaque source indique son document et sa page." : "Posez une question sur le périmètre actif. La réponse cite ses passages : ouvrez chaque source pour vérifier la page et le texte utilisés."} /> : queries.map(query => <article className="query-turn" key={query.id} data-testid="query-turn">
         <div className="question-message"><p>{query.question}</p><small>{query.scopeLabel}</small></div>
-        <div className="query-status" role="status"><span className={query.connection !== "closed" ? "activity-dot" : "status-dot"} />{statusLabels[query.status] ?? query.status}{query.connection === "reconnecting" && <Button variant="ghost" size="sm" onClick={() => connect(query.id, `/api/v1/queries/${encodeURIComponent(query.id)}/events`, query.lastEventId)}><RefreshCw size={13} />Reconnexion</Button>}</div>
+        <div className="query-status" role="status"><StatusIndicator status={queryStatus(query.status)} active={query.connection !== "closed"} />{query.connection === "reconnecting" && <Button variant="ghost" size="sm" onClick={() => connect(query.id, `/api/v1/queries/${encodeURIComponent(query.id)}/events`, query.lastEventId)}><RefreshCw size={16} />Reconnecter</Button>}</div>
         {query.text && <CitationText text={query.text} sources={query.sources} onCitation={source => openSource(source, query.id)} />}
-        {query.error && <p className="inline-warning" role="alert"><CircleAlert size={14} />{query.error}</p>}
+        {query.error && <p className="inline-error" role="alert"><CircleAlert size={14} aria-hidden="true" />{query.error}</p>}
         {query.finishReason === "length" && <p className="inline-warning">La réponse a atteint sa limite de longueur. Reformulez ou demandez explicitement une suite dans le même périmètre.</p>}
-        {["cancelled", "interrupted"].includes(query.status) && <p className="inline-warning">Cette réponse est incomplète.</p>}
+        {["cancelled", "interrupted"].includes(query.status) && <p className="inline-warning">Cette réponse est incomplète : elle a été annulée ou interrompue avant la fin.</p>}
         {query.warnings.map((warning, index) => <p className="inline-warning" key={index}>{warningText(warning)}</p>)}
-        {!!query.sources.length && <details className="sources-list" open><summary><Check size={14} />{query.sources.length} sources consultables</summary>{query.sources.map(source => <SourceCard key={source.source_id} source={source} onClick={() => openSource(source, query.id)} />)}</details>}
+        {!!query.sources.length && <details className="sources-list" open><summary><Check size={14} aria-hidden="true" />{query.sources.length === 1 ? "1 source consultable" : `${query.sources.length} sources consultables`}</summary>{query.sources.map(source => <SourceCard key={source.source_id} source={source} onOpen={() => openSource(source, query.id)} />)}</details>}
       </article>)}
     </div>
     <div className="composer-area">
-      {state.selection && <div className="selection-action"><span>{state.selection.text.slice(0, 95)}{state.selection.text.length > 95 ? "…" : ""}</span><Button size="sm" variant="secondary" onClick={() => state.setScope({ kind: "selection", versionId: state.selection!.versionId, spans: state.selection!.spans }, "Sélection de texte du document")}>Analyser la sélection</Button></div>}
-      {tab === "comparison" && !compareAllowed && <p className="inline-warning">Définissez un périmètre de deux à quatre PDF pour comparer.</p>}
-      {error && <p className="inline-warning" role="alert">{error}</p>}
-      <form onSubmit={event => { event.preventDefault(); submit(); }}><label className="sr-only" htmlFor="question-input">{tab === "search" ? "Votre recherche" : "Votre question"}</label><textarea id="question-input" value={question} onChange={event => setQuestion(event.target.value)} placeholder={tab === "search" ? "Expression ou référence à retrouver…" : tab === "comparison" ? "Quels points comparer entre ces documents ?" : "Posez une question sur ce périmètre…"} rows={3} maxLength={12000} onKeyDown={event => { if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) { event.preventDefault(); submit(); } }} /><div className="composer-footer"><span>Ctrl + Entrée</span>{active ? <Button variant="danger" size="sm" onClick={() => void cancel()} disabled={cancelBusy} type="button"><Ban size={14} />{cancelBusy ? "Annulation…" : "Annuler"}</Button> : <Button size="sm" type="submit" disabled={!question.trim() || emptyScope || submission.isPending || searchMutation.isPending || tab === "comparison" && !compareAllowed}>{tab === "search" ? <Search size={14} /> : <Send size={14} />}{submission.isPending || searchMutation.isPending ? "Envoi…" : tab === "search" ? "Rechercher" : "Envoyer"}</Button>}</div></form>
+      {state.selection && <div className="selection-action"><span>{state.selection.text.slice(0, 95)}{state.selection.text.length > 95 ? "…" : ""}</span><Button size="sm" variant="secondary" onClick={() => state.setScope({ kind: "selection", versionId: state.selection!.versionId, spans: state.selection!.spans }, "Texte sélectionné dans le document")}>Analyser la sélection</Button></div>}
+      {tab === "comparison" && !compareAllowed && <p className="inline-warning">Définissez un périmètre de deux à quatre documents pour comparer.</p>}
+      {error && <p className="inline-error" role="alert"><CircleAlert size={14} aria-hidden="true" />{error}</p>}
+      <form onSubmit={event => { event.preventDefault(); submit(); }}><label className="sr-only" htmlFor="question-input">{tab === "search" ? "Votre recherche" : "Votre question"}</label><textarea id="question-input" value={question} onChange={event => setQuestion(event.target.value)} placeholder={tab === "search" ? "Expression ou référence à retrouver…" : tab === "comparison" ? "Quels points comparer entre ces documents ?" : "Posez une question sur ce périmètre…"} rows={3} maxLength={12000} onKeyDown={event => { if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) { event.preventDefault(); submit(); } }} /><div className="composer-footer"><span><kbd>Ctrl</kbd> + <kbd>Entrée</kbd> {tab === "search" ? "pour rechercher" : "pour envoyer"}</span>{active ? <Button variant="danger" size="sm" onClick={() => void cancel()} disabled={cancelBusy} type="button"><Ban size={16} />{cancelBusy ? "Annulation…" : "Annuler"}</Button> : <Button size="sm" type="submit" disabled={!question.trim() || emptyScope || submission.isPending || searchMutation.isPending || tab === "comparison" && !compareAllowed}>{tab === "search" ? <Search size={16} /> : <Send size={16} />}{searchMutation.isPending ? "Recherche…" : submission.isPending ? "Envoi…" : tab === "search" ? "Rechercher" : "Envoyer"}</Button>}</div></form>
     </div>
-  </section>;
+  </aside>;
 }

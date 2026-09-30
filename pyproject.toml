@@ -60,3 +60,15 @@ ignore = ["E501"]
 python_version = "3.12"
 check_untyped_defs = true
 ignore_missing_imports = true
+files = ["services", "tools/qualification", "tools/corpus", "RAG_Local_Agents/tools"]
+# Lancer mypy depuis la racine : elle sert de base aux paquets (services.*, tools.corpus.*).
+# Les scripts de tools/qualification et RAG_Local_Agents/tools s'importent entre eux par
+# leur nom court (dossier du script dans sys.path) : ces dossiers sont donc des bases.
+explicit_package_bases = true
+mypy_path = ["$MYPY_CONFIG_FILE_DIR/tools/qualification", "$MYPY_CONFIG_FILE_DIR/RAG_Local_Agents/tools"]
+
+[[tool.mypy.overrides]]
+# http_guards.py importe evidence_io par son chemin de paquet ; le module est déjà vérifié
+# sous son nom court, et le suivre une seconde fois ferait voir le même fichier sous deux noms.
+module = ["tools.qualification.*"]
+follow_imports = "skip"

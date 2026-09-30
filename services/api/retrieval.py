@@ -5,6 +5,7 @@ import json
 import re
 import time
 import unicodedata
+from typing import Any
 
 import httpx
 
@@ -90,7 +91,7 @@ def match_expression(text):
 
 
 def rrf(lexical, dense, k=60):
-    scores = {}
+    scores: dict[str, float] = {}
     for ranking in (lexical, dense):
         for rank, chunk_id in enumerate(dict.fromkeys(ranking), 1):
             scores[chunk_id] = scores.get(chunk_id, 0.0) + 1.0 / (k + rank)
@@ -192,7 +193,7 @@ class SearchService:
             sql = (f"SELECT DISTINCT i.normalized code,c.chunk_uuid,c.text,f.score FROM identifiers i JOIN chunks c ON c.chunk_uuid=i.chunk_uuid "
                    f"LEFT JOIN (SELECT rowid id,bm25(chunks_fts,2.0,1.0) score FROM chunks_fts WHERE chunks_fts MATCH ?) f ON f.id=c.id "
                    f"WHERE {clause} AND i.normalized IN ({','.join('?' for _ in codes)}) ORDER BY f.score IS NULL,f.score ASC,c.chunk_uuid ASC")
-            per_code = {code: [] for code in codes}
+            per_code: dict[str, list[Any]] = {code: [] for code in codes}
             for row in self.db.rows(sql, [expression] + parameters + codes):
                 if len(per_code[row["code"]]) < limit and contains_identifier(row["text"], row["code"]):
                     per_code[row["code"]].append(row["chunk_uuid"])
@@ -269,7 +270,7 @@ class SearchService:
         required = {normalized_identifier(value) for value in identifiers(question)}
         terms = answer_terms(question)
         mandatory = []
-        covered = set()
+        covered: set[str] = set()
         mandatory_ids = set()
         # Preuve réservée par identifiant : d'abord un passage portant aussi un terme de la question, sinon toute occurrence.
         for answer_only in (True, False):
@@ -288,7 +289,7 @@ class SearchService:
         unique = []
         parents = set()
         texts = set()
-        retained_identifiers = set()
+        retained_identifiers: set[str] = set()
         maximum = self.settings.value("retrieval", "constrained_max_fragments", 8) if mode == "comparison" or len(required) > 1 else self.settings.value("retrieval", "final_max_fragments", 6)
         for source in results:
             key = (source["version_id"], source.get("parent_id") or source.get("chunk_id"))

@@ -42,7 +42,7 @@
 }
 .pdf-paper .textLayer .markedContent { display: contents; }
 .pdf-paper .textLayer span[role="img"] { user-select: none; cursor: default; }
-.pdf-paper .textLayer ::selection { background: #3990c966; color: transparent; }
+.pdf-paper .textLayer ::selection { background: hsl(var(--highlight-selection) / 0.4); color: transparent; }
 .pdf-paper .textLayer[data-main-rotation="90"] { transform: rotate(90deg) translateY(-100%); }
 .pdf-paper .textLayer[data-main-rotation="180"] { transform: rotate(180deg) translate(-100%, -100%); }
 .pdf-paper .textLayer[data-main-rotation="270"] { transform: rotate(270deg) translateX(-100%); }

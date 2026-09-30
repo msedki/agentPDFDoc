@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import time
 from collections import Counter
+from typing import Any
 from urllib.parse import urlparse
 
 import httpx
@@ -26,7 +28,12 @@ def loopback_origin(base_url: str) -> str:
 def api_client(base_url: str, *, transport: httpx.BaseTransport | None = None, read_timeout: float = 60.0) -> httpx.Client:
     # Le serveur émet un heartbeat SSE toutes les 10 s : 60 s sans octet signale une coupure réelle.
     origin = loopback_origin(base_url)
-    return httpx.Client(base_url=origin, headers={"Host": origin.removeprefix("http://"), "Origin": origin}, trust_env=False,
+    headers = {"Host": origin.removeprefix("http://"), "Origin": origin}
+    # Outil local de l'instance (W011) : jeton de contrôle transmis par l'environnement, jamais en argument ni dans l'URL.
+    token = os.environ.get("RAG_CONTROL_TOKEN")
+    if token:
+        headers["X-RAG-Control-Token"] = token
+    return httpx.Client(base_url=origin, headers=headers, trust_env=False,
                         follow_redirects=False, transport=transport, timeout=httpx.Timeout(30.0, read=read_timeout))
 
 
@@ -41,7 +48,7 @@ def diagnostics_identity(diagnostics: dict) -> dict:
 
 
 def http_error(error: Exception) -> dict:
-    result = {"error_class": type(error).__name__}
+    result: dict[str, Any] = {"error_class": type(error).__name__}
     if isinstance(error, httpx.HTTPStatusError):
         result["http_status"] = error.response.status_code
         try:
@@ -56,6 +63,7 @@ def read_events(client: httpx.Client, events_url: str, *, started: float, deadli
     """Lit le flux jusqu'à l'événement terminal ; conserve les octets reçus et l'instant client de chaque événement."""
     if not events_url.startswith("/api/v1/queries/"):
         raise ValueError("events_url inattendu : seule la route SSE locale de la question est suivie")
+    fields: dict[str, str]
     raw, buffer, events, fields = bytearray(), b"", [], {}
     terminal = None
     with client.stream("GET", events_url, headers={"Accept": "text/event-stream"}) as response:

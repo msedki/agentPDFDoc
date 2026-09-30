@@ -12,6 +12,7 @@ import sys
 import time
 import uuid
 from pathlib import Path
+from typing import Any
 
 import psutil
 import yaml
@@ -139,11 +140,29 @@ def environment(profile: dict, directory: Path, profile_path: Path) -> dict[str,
     return env
 
 
-def wait_http(url: str, child: OwnedProcess, expected_version: str | None = None, timeout: float = 90):
+def app_origin(profile: dict) -> tuple[str, str | bool]:
+    """Origine de l'API et vérification TLS : HTTP en développement ; HTTPS vérifié par le certificat du profil en production (W011)."""
+    security = profile.get("security") or {}
+    port = profile["app"]["port"]
+    if security.get("environment", "development") != "production":
+        return f"http://127.0.0.1:{port}", True
+    certificate = security.get("tls_cert_file")
+    if not certificate:
+        raise ValueError("Production : security.tls_cert_file requis")
+    return f"https://127.0.0.1:{port}", str((ROOT / certificate).resolve())
+
+
+def control_headers(directory: Path) -> dict[str, str]:
+    """Jeton de contrôle de l'instance pour les outils locaux ; vide si l'instance est arrêtée."""
+    path = directory / "control/admin-token"
+    return {"X-RAG-Control-Token": path.read_text(encoding="ascii").strip()} if path.is_file() else {}
+
+
+def wait_http(url: str, child: OwnedProcess, expected_version: str | None = None, timeout: float = 90, verify: str | bool = True):
     import httpx
 
     deadline = time.monotonic() + timeout
-    with httpx.Client(timeout=3, trust_env=False) as client:
+    with httpx.Client(timeout=3, trust_env=False, verify=verify) as client:
         last = ""
         while time.monotonic() < deadline:
             if child.poll() is not None:
@@ -151,7 +170,7 @@ def wait_http(url: str, child: OwnedProcess, expected_version: str | None = None
             try:
                 response = client.get(url)
                 if response.is_success:
-                    payload = response.json() if "json" in response.headers.get("content-type", "") else response.text
+                    payload: Any = response.json() if "json" in response.headers.get("content-type", "") else response.text
                     if expected_version and payload.get("version") != expected_version:
                         raise RuntimeError("Version du service différente de l'artefact verrouillé")
                     return payload
@@ -337,11 +356,11 @@ def supervise(profile_path: Path) -> int:
     secret_path.write_text(secrets.token_urlsafe(32), encoding="ascii")
     log_root = directory / "logs" / instance
     log_root.mkdir(parents=True, exist_ok=True)
-    state = {"instance_id": instance, "status": "starting", "profile_path": str(profile_path.resolve()),
-             "profile_sha256": file_hash(profile_path), "data_dir": str(directory),
-             "supervisor": {"pid": os.getpid(), "created_at": self_process.create_time(),
-                            "executable": self_process.exe()}, "services": {}, "shutdown_marker": str(stop_path),
-             "app_url": f"http://127.0.0.1:{profile['app']['port']}", "stop_results": []}
+    state: dict[str, Any] = {"instance_id": instance, "status": "starting", "profile_path": str(profile_path.resolve()),
+                             "profile_sha256": file_hash(profile_path), "data_dir": str(directory),
+                             "supervisor": {"pid": os.getpid(), "created_at": self_process.create_time(),
+                                            "executable": self_process.exe()}, "services": {}, "shutdown_marker": str(stop_path),
+                             "app_url": app_origin(profile)[0], "stop_results": []}
     state_path = control / "runtime.json"
     job = WindowsJob()
     qdrant_lock = None
@@ -382,7 +401,7 @@ def supervise(profile_path: Path) -> int:
                          log_path=log_root / "api.log")
         state["services"]["api"] = api.identity()
         write_json_atomic(state_path, state)
-        state["http_health"] = wait_http(state["app_url"] + "/api/v1/health", api, timeout=120)
+        state["http_health"] = wait_http(state["app_url"] + "/api/v1/health", api, timeout=120, verify=app_origin(profile)[1])
         state["status"] = "running"
         write_json_atomic(state_path, state)
         with RotatingJsonl(log_root / "resources.jsonl") as trace:

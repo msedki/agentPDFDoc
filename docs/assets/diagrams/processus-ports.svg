@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Généré par tools/docs/diagrams.py : modifier le script puis régénérer. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="800" viewBox="0 0 880 800" role="img" aria-labelledby="processus-ports-title processus-ports-desc" font-family="'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif">
+<title id="processus-ports-title">Processus, ports et stockage du poste</title>
+<desc id="processus-ports-desc">Navigateur, superviseur, API FastAPI, Qdrant, Ollama, worker PDF et dossier .runtime ; tous les services écoutent sur 127.0.0.1.</desc>
+<defs><marker id="processus-ports-head-1f5f8b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1F5F8B"/></marker><marker id="processus-ports-head-2d6950" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2D6950"/></marker><marker id="processus-ports-head-6b6456" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6B6456"/></marker></defs>
+<rect x="0" y="0" width="880" height="800" rx="10" fill="#F6F4EE" stroke="#D9D9D1"/>
+<text x="24" y="34" font-size="18" fill="#172B33" font-weight="600">Processus, ports et stockage du poste</text>
+<text x="24" y="54" font-size="12" fill="#4A5961">Profil config/local16.yaml ; lancement par services/runtime/supervisor.py, API par services/runtime/api_entry.py.</text>
+<rect x="24" y="72" width="400" height="90" rx="6" fill="#FFFEFA" stroke="#172B33" stroke-width="1.4"/>
+<text x="34" y="93" font-size="14" fill="#172B33" font-weight="600">Navigateur du poste</text>
+<text x="34" y="112" font-size="13" fill="#172B33" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">http://127.0.0.1:8785/workspace/</text>
+<text x="34" y="130" font-size="13" fill="#172B33">Interface statique Next.js + PDF.js,</text>
+<text x="34" y="148" font-size="13" fill="#172B33">servie par l'API (aucun serveur Next.js)</text>
+<rect x="456" y="72" width="400" height="90" rx="6" fill="#FFFEFA" stroke="#172B33" stroke-width="1.4"/>
+<text x="466" y="93" font-size="14" fill="#172B33" font-weight="600">Opérateur : PowerShell 5.1</text>
+<text x="466" y="112" font-size="13" fill="#172B33" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">.\rag.ps1 up | status | logs | down</text>
+<text x="466" y="130" font-size="13" fill="#172B33">provision · doctor · backup · verify · restore</text>
+<text x="466" y="148" font-size="13" fill="#172B33">entrée : services.runtime.cli</text>
+<rect x="456" y="184" width="400" height="60" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
+<text x="466" y="205" font-size="14" fill="#172B33" font-weight="600">Superviseur (cli _serve)</text>
+<text x="466" y="224" font-size="13" fill="#172B33">Job Object Windows, verrou control/runtime.lock</text>
+<polyline points="656,162 656,182" fill="none" stroke="#2D6950" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#processus-ports-head-2d6950)"/>
+<rect x="24" y="270" width="832" height="324" rx="6" fill="#FBFAF6" stroke="#2D6950" stroke-width="1.4" stroke-dasharray="7 5"/>
+<text x="40" y="292" font-size="13" fill="#2D6950" font-weight="600">Processus possédés par le superviseur : lancés sans fenêtre, arrêtés de façon ciblée</text>
+<polyline points="656,244 656,268" fill="none" stroke="#2D6950" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#processus-ports-head-2d6950)"/>
+<rect x="661" y="250" width="170.16" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="664" y="262" font-size="12" fill="#172B33">lance, surveille, arrête</text>
+<rect x="48" y="304" width="380" height="112" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
+<text x="58" y="325" font-size="14" fill="#172B33" font-weight="600">API FastAPI + interface statique</text>
+<text x="58" y="344" font-size="13" fill="#172B33">uvicorn, 1 worker · 127.0.0.1:8785</text>
+<text x="58" y="362" font-size="13" fill="#172B33">REST /api/v1 et SSE des questions</text>
+<text x="58" y="380" font-size="13" fill="#172B33">Host et Origin loopback exigés</text>
+<text x="58" y="398" font-size="13" fill="#172B33">SQLite : .runtime/data/app.sqlite3</text>
+<polyline points="224,162 224,302" fill="none" stroke="#1F5F8B" stroke-width="1.6" marker-end="url(#processus-ports-head-1f5f8b)"/>
+<rect x="229" y="200" width="163.32" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="232" y="212" font-size="12" fill="#172B33">HTTP 8785, même origine</text>
+<rect x="48" y="462" width="240" height="112" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
+<text x="58" y="483" font-size="14" fill="#172B33" font-weight="600">Qdrant 1.19.1</text>
+<text x="58" y="502" font-size="13" fill="#172B33">127.0.0.1:6333 (HTTP)</text>
+<text x="58" y="520" font-size="13" fill="#172B33">gRPC et télémétrie coupés</text>
+<text x="58" y="538" font-size="13" fill="#172B33">clé d'API par démarrage</text>
+<text x="58" y="556" font-size="13" fill="#172B33" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">pdf_chunks_e5small_v1</text>
+<rect x="312" y="462" width="250" height="112" rx="6" fill="#ECE8F5" stroke="#5B4B8A" stroke-width="1.4"/>
+<text x="322" y="483" font-size="14" fill="#172B33" font-weight="600">Ollama 0.35.0</text>
+<text x="322" y="502" font-size="13" fill="#172B33">127.0.0.1:11434</text>
+<text x="322" y="520" font-size="13" fill="#172B33">llama-server : port loopback</text>
+<text x="322" y="538" font-size="13" fill="#172B33">attribué par Ollama</text>
+<text x="322" y="556" font-size="13" fill="#172B33" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">qwen3.5:4b-text, CPU</text>
+<rect x="586" y="462" width="246" height="112" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
+<text x="596" y="483" font-size="14" fill="#172B33" font-weight="600">Worker Docling/Tesseract</text>
+<text x="596" y="502" font-size="13" fill="#172B33">processus Python à la demande</text>
+<text x="596" y="520" font-size="13" fill="#172B33">aucun port réseau</text>
+<text x="596" y="538" font-size="13" fill="#172B33">échanges par fichiers JSON</text>
+<text x="596" y="556" font-size="13" fill="#172B33">(requête, résultat, fenêtres)</text>
+<polyline points="168,416 168,460" fill="none" stroke="#1F5F8B" stroke-width="1.6" marker-end="url(#processus-ports-head-1f5f8b)"/>
+<rect x="173" y="431" width="67.56" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="176" y="443" font-size="12" fill="#172B33">HTTP REST</text>
+<polyline points="380,416 380,460" fill="none" stroke="#1F5F8B" stroke-width="1.6" marker-end="url(#processus-ports-head-1f5f8b)"/>
+<rect x="385" y="431" width="101.76" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="388" y="443" font-size="12" fill="#172B33">HTTP /api/chat</text>
+<polyline points="428,360 709,360 709,460" fill="none" stroke="#2D6950" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#processus-ports-head-2d6950)"/>
+<rect x="475" y="342" width="101.76" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="478" y="354" font-size="12" fill="#172B33">sous-processus</text>
+<rect x="24" y="626" width="832" height="92" rx="6" fill="#EFEDE6" stroke="#6B6456" stroke-width="1.4"/>
+<text x="34" y="647" font-size="14" fill="#172B33" font-weight="600">.runtime/ (non versionné)</text>
+<text x="34" y="666" font-size="13" fill="#172B33">data/ : app.sqlite3, originals/, extractions/, control/, logs/&lt;instance&gt;/, qdrant/</text>
+<text x="34" y="684" font-size="13" fill="#172B33">models/ : ollama, e5-small-int8, qwen3.5-4b-tokenizer, docling, tessdata</text>
+<text x="34" y="702" font-size="13" fill="#172B33">bin/ : qdrant-1.19.1, ollama-0.35.0, tesseract-5.4.0 · manifests/ : empreintes</text>
+<polyline points="168,574 168,624" fill="none" stroke="#6B6456" stroke-width="1.6" stroke-dasharray="2 4" stroke-linecap="round" marker-end="url(#processus-ports-head-6b6456)"/>
+<polyline points="437,574 437,624" fill="none" stroke="#6B6456" stroke-width="1.6" stroke-dasharray="2 4" stroke-linecap="round" marker-end="url(#processus-ports-head-6b6456)"/>
+<polyline points="709,574 709,624" fill="none" stroke="#6B6456" stroke-width="1.6" stroke-dasharray="2 4" stroke-linecap="round" marker-end="url(#processus-ports-head-6b6456)"/>
+<text x="24" y="742" font-size="12" fill="#4A5961">Trait plein : requête HTTP sur 127.0.0.1 · tirets : lancement et propriété de processus · pointillés : fichiers.</text>
+<text x="24" y="760" font-size="12" fill="#4A5961">Aucun service n'écoute hors loopback ; le navigateur ne joint ni Qdrant ni Ollama.</text>
+</svg>

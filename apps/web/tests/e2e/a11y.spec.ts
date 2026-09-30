@@ -54,11 +54,15 @@ test("tab order, visible focus, separators, tabs and Ctrl+Enter work from the ke
     expect(index, `${label} absent de l'ordre de tabulation`).toBeGreaterThanOrEqual(0);
     return index;
   };
+  // Barre supérieure en trois zones : bascule de la bibliothèque, périmètre au centre, puis Suivi, Aide et bascule de l'analyse.
   const order = [
-    position(stop => stop.tag === "button" && stop.name.startsWith("Suivi"), "Suivi"),
+    position(stop => stop.tag === "a" && stop.name === "Aller au lecteur", "lien d'évitement vers le lecteur"),
+    position(stop => stop.tag === "a" && stop.name === "Aller à la zone de question", "lien d'évitement vers la question"),
     position(stop => stop.name === "Replier la bibliothèque", "repli bibliothèque"),
-    position(stop => stop.name === "Replier l'analyse", "repli analyse"),
     position(stop => scopeTrigger(stop) && stop.name.startsWith("Périmètre"), "périmètre"),
+    position(stop => stop.tag === "button" && stop.name.startsWith("Suivi"), "Suivi"),
+    position(stop => stop.tag === "button" && stop.name === "Aide", "Aide"),
+    position(stop => stop.name === "Replier l'analyse", "repli analyse"),
     position(stop => stop.name === "Filtrer les fichiers", "filtre"),
     position(stop => stop.role === "separator" && stop.name === "Largeur de la bibliothèque", "séparateur bibliothèque"),
     position(stop => stop.role === "separator" && stop.name === "Largeur de l'analyse", "séparateur analyse"),

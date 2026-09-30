@@ -993,6 +993,7 @@ Depuis la racine du dépôt, PowerShell 5.1, Node 22.17.0 et pnpm 10.34.1 déjà
 |---|---|
 | `./rag.ps1 provision` | Résoudre puis verrouiller les versions, récupérer uniquement les artefacts autorisés, vérifier hashes/licences et préparer dépendances, modèles et build statique |
 | `./rag.ps1 doctor` | Contrôler chemins, versions, modèles, langues OCR, stores, ports, RAM et dérive de configuration sans effet destructif |
+| `./rag.ps1 open` | Demander à l'instance démarrée un lien d'ouverture à usage unique (5 min) et l'ouvrir dans le navigateur par défaut ; une session dure 12 h au plus et se ferme après 2 h sans activité ([W011](DECISIONS.md)) |
 | `./rag.ps1 up` | Verrouiller la racine, lancer Qdrant/Ollama/API, vérifier les versions et health ; retourner l'URL `http://127.0.0.1:8785/workspace/`. Aucun navigateur lancé automatiquement |
 | `./rag.ps1 status` | Distinguer arrêté, en démarrage, disponible, dégradé, erreur et mémoire insuffisante ; indiquer le motif réel |
 | `./rag.ps1 logs` | Retourner les chemins des journaux des processus possédés ; ouvrir le fichier utile localement |
@@ -1555,9 +1556,11 @@ Les sections précédentes restent l'historique. Entre 04:36 et 04:49, sans mise
 | R15 | Textes de l'interface et relecture éditoriale | R4 frontend, R5 | Inventaire de tous les textes UI, réécriture des libellés génériques/bruts, vocabulaire unifié ; réécriture des passages génériques de la documentation existante | Revue de l'inventaire, tests unitaires/E2E mis à jour, captures relues | NOT_STARTED |
 | R16 | Interface alignée sur la référence de forme decodair (demande utilisateur reçue vers 09:36 UTC) | Analyse decodair (lecture seule), R4 frontend, R15 | Principes retenus/adaptés/écartés documentés (reports/ui-reference-decodair-2026-09-30.md) ; shell (topbar, panneaux repliables/masquables, pied de page si utile, en-têtes), charte (tokens de couleur, typographie, icônes, densité, espacements), composants (cartes, listes, formulaires, filtres, actions, retours, états) et responsive harmonisés ; README racine au format de référence | Aucune régression : tests unitaires, typecheck, build, E2E existants rejoués ; captures 1366×768 et 1920×1080 examinées ; contraste et clavier contrôlés | IN_PROGRESS — analyse decodair lancée à 09:37 |
 | R17 | Sécurité applicative alignée sur decodair (demande utilisateur reçue vers 16:45 UTC) | R9, analyse decodair (lecture seule) | Mécanismes repris/adaptés/écartés avec preuves decodair, OWASP et sources officielles ; réglages par environnement (développement sans `Secure` ni TLS, production durcie et refus au démarrage si incohérent) | Décision consignée, tests de refus (Host/Origin, CSRF, session expirée ou révoquée), contrôle réel | IN_PROGRESS — règle ajoutée aux chartes ; cartographie decodair reçue 17:00 |
-| R18 | Contrôles au vert (demande utilisateur reçue vers 17:00 UTC : lint, typage, build et autres contrôles absolument verts) | — | `ruff check .`, `mypy services`, `tsc`, lint web, tests unitaires Python et web, build surveillé, E2E | Chaque contrôle PASS sur le même commit, sorties conservées | IN_PROGRESS — ruff PASS sur tout le dépôt ; mypy 141 erreurs dans 21 fichiers (base 17:05) |
+| R18 | Contrôles au vert (demande utilisateur reçue vers 17:00 UTC : lint, typage, build et autres contrôles absolument verts) | — | `ruff check .`, `mypy services`, `tsc`, lint web, tests unitaires Python et web, build surveillé, E2E | Chaque contrôle PASS sur le même commit, sorties conservées | IN_PROGRESS — ruff PASS sur tout le dépôt ; mypy 141 erreurs dans 21 fichiers (base 17:03) |
 | R19 | Corpus réel `PDF/` pour l'usage, les tests et l'évaluation (demande utilisateur reçue vers 16:55 et 17:00 UTC) | R6, R9 | Import des 65 PDF lisibles avec leur arborescence, extraction complète ou limites déclarées ; E2E et évaluation sur ce corpus sans qu'aucun contenu ne quitte le poste | Documents `ready`/`ready_partial` avec couverture ; rapports agrégés versionnés, jeux dérivés du corpus hors Git | IN_PROGRESS — import 17:01–17:10 : 65 acceptés, 1 refusé (signature PDF absente), 1 `.docx` non pris en charge ; extraction lancée 17:11 |
 | R20 | Recette visuelle et UX de l'interface (demande utilisateur reçue vers 17:05 UTC) | R15, R16, R19 | Captures 1366×768 et 1920×1080 sur le corpus réel, écarts relevés contre WCAG 2.2, WAI-ARIA APG, Fluent 2, GOV.UK Design System ; corrections | Captures relues avant/après, E2E et tests unitaires web PASS | NOT_STARTED — après intégration du workflow interface |
+| R21 | Méthode d'évaluation documentée et appliquée au corpus réel (demande utilisateur reçue vers 17:37 UTC) | R19 | Dossier de sources primaires (métriques de recherche, RRF, évaluation RAG, citations, abstention, questions synthétiques, statistiques) ; protocole adapté (CPU, corpus privé, sans expert) ; exécution, analyse critique et améliorations | Métriques avec dénominateurs et intervalles, analyse des échecs par cause, amélioration vérifiée sur un jeu tenu à l'écart | IN_PROGRESS — recherche de sources confiée à un agent (17:38) |
+| R22 | Distribution sur d'autres postes (demande utilisateur reçue vers 17:40 UTC) | R10, R17 | Analyse des voies (kit et scripts, installateur Windows, coquille Electron/Tauri, WinGet), licences de redistribution, parcours du poste vierge à « tout est vert » puis import des documents de l'utilisateur | Recommandation argumentée ; réalisation après arbitrage de l'utilisateur ; installation vérifiée sur une racine neuve | IN_PROGRESS — analyse confiée à un agent (17:41) ; réalisation autorisée par l'utilisateur (vers 17:43 UTC) après l'analyse, avec les tests prévus par `CLAUDE.md` et les skills ; contrainte utilisateur (vers 18:17 UTC) : aucune étape ne doit exiger de droits administrateur ou d'élévation |
 
 **Règles ajoutées le 30/09 (commits f8fbb1c 09:35 et d4924d9 09:37 UTC) :** référence de forme `D:\enhacements\decodair` (principes UI et format du README, sans métier ni branding) ; section « Documentation et textes de l'interface » dans `CLAUDE.md`/`AGENTS.md` racine, renvoi dans `RAG_Local_Agents/AGENTS.md`, section « Textes de l'interface » du skill `pdf-workspace-web`.
 
@@ -1589,7 +1592,7 @@ Deux questions réelles sur l'instance restaurée (nouveau code, modèle texte) 
 
 Prochaine action exécutable : intégrer les livrables du workflow (tests unitaires web, typecheck, build surveillé, E2E en lecture seule, captures), puis R7 (import DA-P02..07 et réindex DA-P01) sur l'instance principale. Génération toujours BLOCKED (décision utilisateur du point 14:10).
 
-## Point à 17:15 UTC — nouvelles demandes intégrées (R17–R20)
+## Point à 17:13 UTC — nouvelles demandes intégrées (R17–R20)
 
 - Demandes reçues entre 16:38 et 17:05 UTC : règles de documentation renouvelées (déjà en place, précisées) ; sécurité applicative sur le modèle de decodair (R17) ; lancement de la plateforme (fait à 16:43, instance `0c0cd4d9…`) ; utilisation du corpus réel `PDF/` pour l'usage, les tests et l'évaluation (R19) ; contrôles absolument verts (R18) ; recette UX avec captures (R20).
 - Contrainte retenue pour R19 : le corpus est privé ; aucun texte de document n'est affiché dans les sorties d'outils ni envoyé hors du poste. Les jeux d'évaluation dérivés du corpus restent sous `.runtime/` (hors Git) ; seuls les rapports agrégés sont versionnés. Les questions sans annotation d'un expert métier seront déclarées comme telles.
@@ -1597,6 +1600,19 @@ Prochaine action exécutable : intégrer les livrables du workflow (tests unitai
 - R18 : `ruff check .` PASS après correction des 79 constats (fixtures réexportées, instructions séparées, `Annotated` pour l'import, variable de boucle renommée) ; reproductibilité des fixtures PASS (37 fichiers identiques) ; 340 tests unitaires PASS (échec intermédiaire du registre des skills dû au hash périmé du skill modifié, corrigé puis rejoué 19/19).
 
 Prochaine action exécutable : typage mypy au vert (services puis outils), backend de R17, intégration du workflow interface puis R20 ; extraction du corpus surveillée en continu.
+
+## Point à 18:31 UTC — intégration R14–R18 vérifiée et déployée
+
+- R14 : espace documentaire livré par le workflow, revue indépendante OK (`docs/`, `README.md`, `CHANGELOG.md`, `tools/docs/`, 36 tests). Mise à jour pour W011 (session, commande `open`) à faire.
+- R15/R16 : charte, composants, coquille et textes livrés ; revue indépendante : 5 constats (dont le lecteur tombé dans une piste de 0 px), tous corrigés avec reproduction. Build surveillé PASS (269 s, mémoire disponible minimale 2 937 Mio), E2E lecture seule 8/8 sur le nouveau build. Recette visuelle avec captures (R20) à faire.
+- R17 : session W011 déployée (instance `dce352e1…`) : refus sans session 401, lien à usage unique, `rag.ps1 open` ouvre l'atelier de l'utilisateur, gardes réels [19/19](reports/http-guards-live-20260930T1829.json), HTTPS de production vérifié sur un vrai serveur TLS (certificat de test), E2E de session 3/3.
+- Défaut corrigé pendant le déploiement : un arrêt propre de l'API passait le job d'extraction actif à `cancelled` au lieu de le mettre en pause (`JobSupervisor.cancelled()` incluait la fermeture) ; reproduit par un test, corrigé, redéployé ; le job du corpus annulé à 18:25 a été relancé.
+- R18 : `ruff check .` PASS, `mypy` PASS (68 fichiers), 417 tests Python PASS (unitaires et intégration, dont TLS réel), 120 tests web PASS, `tsc` PASS, build PASS, E2E lecture seule 8/8. Restent hors de cette série : les E2E d'import, de cycle de vie et de génération, qui exigent une instance isolée.
+- R19 : 3 des 4 documents du corpus prêts (partiels), CPR-07A relancé ; anomalie OCR « essais MIGBT » pages 11–14 à reproduire.
+- R21 : dossier de sources de la méthode d'évaluation livré (`reports/evaluation-methodology-sources-2026-09-30.md`, 31 sources lues) ; protocole à consigner puis à exécuter.
+- R22 : analyse de distribution livrée (`reports/distribution-analysis-2026-09-30.md`) ; DIST-01 couvert par R17 ; contrainte sans droits administrateur inscrite dans les chartes.
+
+Prochaine action exécutable : commit et push de cette intégration ; mise à jour de la documentation stabilisée pour W011 ; recette visuelle R20 sur le corpus réel ; puis R21 et R22 (étapes DIST-02 et suivantes).
 
 ---
 
@@ -1757,6 +1773,20 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 **Preuves :** [contrôle réel des gardes](reports/http-guards-live-20260930T1636.json) 15/15 (`tools/qualification/http_guards.py`) : `/collections` sans clé 401, avec Host et Origin étrangers 401, `/telemetry` 401, avec clé 200 ; API et Ollama inchangés (400/403) ; readiness `qdrant: true` et recherche dense réelle `points/query` 200 via l'API. Test d'intégration sur le binaire verrouillé (`tests/integration/test_runtime_qdrant_auth.py`). Sauvegarde puis [restauration](reports/restore-qdrant-key-20260930T163652Z.json) avec clé : 11 points restaurés.
 
 **Conséquences :** `/`, `/healthz`, `/readyz` et `/livez` restent lisibles sans clé (liste blanche de Qdrant 1.19.1 : version et sondes, aucune donnée). Tout appel direct à Qdrant hors de l'API doit lire la clé de l'instance ; une instance démarrée avant ce changement n'a pas de clé et reste exposée jusqu'à son redémarrage. Ce contrôle applicatif ne remplace pas le blocage réseau du système (D08.1).
+
+## W011 Session locale du poste, ouverte par un lien à usage unique
+
+**Date :** 30 septembre 2026, 17:33 UTC. **Statut :** acquise ; implémentée (API, interface, lanceur `open`, outils, E2E) et déployée sur l'instance principale à 18:28 UTC (contrôles dans le journal du 30/09, 18:17–18:31).
+
+**Contexte :** demande utilisateur (vers 16:45 UTC) d'aligner sessions, cookies, expiration, révocation, déconnexion, autorisations et protections de l'API sur `D:\enhacements\decodair`, en retenant seulement ce qui convient à l'architecture ; en développement ni `Secure` ni TLS imposés, en production des réglages adaptés. Avant ce changement, toute route `/api/v1` répondait à une requête loopback portant un Host et une Origin légitimes, sans autre condition. Analyse détaillée : [security-reference-decodair-2026-09-30.md](reports/security-reference-decodair-2026-09-30.md).
+
+**Choix retenu :** refus par défaut des routes `/api/v1` hors sondes de disponibilité, échange du lien et déconnexion ; accès par session de navigateur ou par le jeton de contrôle de l'instance (outils locaux). La session s'ouvre par un lien à usage unique (256 bits, 5 min) que le lanceur obtient avec le jeton de contrôle ; cookies `HttpOnly` (session) et lisible (CSRF), `SameSite=Strict`, `Path=/`, `Max-Age` = durée absolue ; registre en mémoire du processus API, seules les empreintes SHA-256 conservées ; inactivité 120 min et durée absolue 12 h (profil `security`) ; rotation à l'ouverture ; jeton CSRF synchroniseur exigé sur les mutations de session ; déconnexion qui efface toujours les cookies et ne révoque qu'avec le CSRF ; révocation globale par l'administration locale ou au redémarrage ; journal `logs/security-audit.jsonl` sans secret. En-têtes ajoutés : `X-Frame-Options`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`, `Cache-Control: no-store` et `Vary: Cookie` sur l'API ; HSTS en production. `security.environment: production` exige certificat et clé TLS lisibles, préfixe `__Host-` et `Secure`, désactive `/api/docs`.
+
+**Écarté :** comptes et mots de passe (mono-utilisateur, D-01), rôles, limitation de débit par adresse (toujours 127.0.0.1), `X-XSS-Protection` (obsolète selon l'OWASP), identifiant de session stocké en clair.
+
+**Preuves :** `tests/integration/test_api_session.py` (9 tests : refus par défaut vérifié sur chaque route montée, cookies, usage unique, expiration du lien, inactivité et durée absolue, CSRF, déconnexion, fixation, révocation globale, en-têtes, audit sans secret, production) et `tests/integration/test_api_http.py` (28 tests rejoués avec une vraie session).
+
+**Conséquences :** l'atelier s'ouvre par `.\rag.ps1 open` ; un signet vers `/workspace/` affiche une invitation à rouvrir la session. Les outils locaux (sauvegarde, qualification, import) présentent le jeton de contrôle. Un redémarrage de l'API ferme toutes les sessions.
 
 ---
 
@@ -1934,6 +1964,8 @@ Les fichiers de preuve sous reports et les skills projet portent les exécutions
 | DOC01 | [Docling backend pypdfium2 v2.131 installé](https://github.com/docling-project/docling/blob/main/docling/backend/pypdfium2_backend.py) (`.venv/Lib/site-packages/docling/backend/pypdfium2_backend.py`, `_rect_to_display_frame`, `get_text_cells`, `get_size`) ; branche principale relue le 30/09 ≈ 14:30 UTC | Les rectangles PDFium sont tournés avec la taille de la CropBox sans retrait de son origine ; fonde la translation de W009. Code source, pas mesure ; revérifier à chaque mise à jour de Docling. |
 | QDR04 | [Qdrant v1.19.1 `src/settings.rs`](https://github.com/qdrant/qdrant/blob/v1.19.1/src/settings.rs), [`src/actix/mod.rs`](https://github.com/qdrant/qdrant/blob/v1.19.1/src/actix/mod.rs), [`src/actix/auth.rs`](https://github.com/qdrant/qdrant/blob/v1.19.1/src/actix/auth.rs), [`src/common/auth/mod.rs`](https://github.com/qdrant/qdrant/blob/v1.19.1/src/common/auth/mod.rs) ; fichiers bruts du tag téléchargés le 30/09 à 16:15 UTC dans `.runtime/references/qdrant-auth/` | Surcharge de configuration par variables `QDRANT__…` (séparateur `__`) ; liste blanche sans clé `/`, `/healthz`, `/readyz`, `/livez` (et l'interface web si son dossier existe, absent ici) ; clé lue dans `api-key` ou `Authorization: Bearer`, absence → 401. Vérifié en réel sur le binaire verrouillé (W010). |
 | WIN09 | [Microsoft SetConsoleCtrlHandler](https://learn.microsoft.com/en-us/windows/console/setconsolectrlhandler), page datée 12/07/2018, ouverte le 30/09 à 16:32 UTC | « This attribute of ignoring or processing CTRL+C is inherited by child processes. » Explique l'arrêt console inopérant des enfants d'un lanceur qui ignore CTRL+C ; correction et essais dans le journal du 30/09 (16:30–16:37). |
+| SEC01 | OWASP Cheat Sheet Series : [Session Management](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html), [CSRF Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html), [HTTP Headers](https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html), [REST Security](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html), [Authentication](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html) ; pages téléchargées le 30/09 à 16:48 UTC sous `.runtime/references/owasp/` | Entropie d'identifiant ≥ 64 bits, préfixe `__Host-` (Secure, Path=/, sans Domain), délais d'inactivité et absolu selon la criticité, renouvellement à l'ouverture, déconnexion visible ; jeton synchroniseur, en-têtes personnalisés, Fetch Metadata et SameSite en défense en profondeur. Appliqué par W011 ; recommandations génériques, les durées retenues sont un choix du projet. |
+| SEC02 | Dépôt de référence `D:\enhacements\decodair` (lecture seule le 30/09), fichiers cités dans [security-reference-decodair-2026-09-30.md](reports/security-reference-decodair-2026-09-30.md) | Mécanismes de session, CSRF, révocation et en-têtes d'une application multi-utilisateur ; transposés selon W011. Ce n'est pas une source officielle : chaque choix repris est vérifié contre SEC01. |
 
 ---
 
@@ -2339,6 +2371,14 @@ resources:
     watchdog_no_progress_seconds_initial: 300
     watchdog_window_seconds_initial: 900
     record_checkpoint_and_reload_costs: true
+security:
+  # W011 : development = HTTP loopback sans cookie Secure ; production = HTTPS, cookies Secure et __Host-, HSTS.
+  environment: development
+  session_idle_minutes: 120
+  session_absolute_hours: 12
+  launch_link_ttl_seconds: 300
+  tls_cert_file: null
+  tls_key_file: null
 ui:
   pdf_max_high_resolution_canvases: 5
   pdf_max_device_pixel_ratio: 2

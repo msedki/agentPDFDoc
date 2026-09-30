@@ -17,6 +17,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -89,11 +90,11 @@ def probe_cell(directory: Path, prefix: str, index: int, threshold: float, hashe
         raster = image.convert("RGB")
     # inset > 0 : hypothèse exploratoire (résidus de règles au bord), hors politique du pipeline.
     patch, offset = bounded_cell_crop(raster, [inset, inset, raster.width - inset, raster.height - inset], border=border)
-    record = {"input": name, "input_sha256": actual, "input_size": list(raster.size),
-              "crop": {"policy": f"ink_border_{border}", "inset": inset, "raster_offset": list(offset) if offset else None,
-                       "raster_size": list(patch.size) if patch else None,
-                       "patch_sha256": sha256_bytes(patch.tobytes()) if patch else None},
-              "baseline_full_cell_psm6": baseline(directory, prefix, index), "attempts": []}
+    record: dict[str, Any] = {"input": name, "input_sha256": actual, "input_size": list(raster.size),
+                              "crop": {"policy": f"ink_border_{border}", "inset": inset, "raster_offset": list(offset) if offset else None,
+                                       "raster_size": list(patch.size) if patch else None,
+                                       "patch_sha256": sha256_bytes(patch.tobytes()) if patch else None},
+                              "baseline_full_cell_psm6": baseline(directory, prefix, index), "attempts": []}
     if patch is None:
         record["selected"] = {"psm": None, "text": "", "minimum_word_confidence": None, "reason": "no_ink"}
         return record

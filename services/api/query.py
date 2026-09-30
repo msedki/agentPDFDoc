@@ -3,6 +3,7 @@ import json
 import re
 import time
 from contextlib import asynccontextmanager
+from typing import Any
 
 from .context import validate_answer
 from .db import json_dump, now, uid
@@ -49,9 +50,14 @@ class QueryService:
         self.cancel_events[query_id] = event
         task = asyncio.create_task(self.run(query_id, resolved_request, snapshot, event))
         self.tasks[query_id] = task
-        # Appelé aussi pour une tâche annulée avant son démarrage, dont le finally de run() ne s'exécute jamais.
-        task.add_done_callback(lambda finished: (self.tasks.pop(query_id, None), self.cancel_events.pop(query_id, None), self.started.discard(query_id)))
+        task.add_done_callback(lambda finished: self.forget(query_id))
         return {"query_id": query_id, "conversation_id": conversation_id, "events_url": f"/api/v1/queries/{query_id}/events"}
+
+    def forget(self, query_id):
+        # Appelé aussi pour une tâche annulée avant son démarrage, dont le finally de run() ne s'exécute jamais.
+        self.tasks.pop(query_id, None)
+        self.cancel_events.pop(query_id, None)
+        self.started.discard(query_id)
 
     def resolve_followup(self, request, snapshot, prior_user_questions=None):
         resolution = {"method": "explicit_question", "history_is_evidence": False}
@@ -93,7 +99,7 @@ class QueryService:
             rows = [row for row in rows if row["id"] == request.followup_of]
             if not rows:
                 raise ApiError("followup_not_found", "Question de suivi inconnue dans cette conversation.", 404)
-        choices = []
+        choices: list[dict[str, Any]] = []
         for row in rows:
             previous = json.loads(row["snapshot_json"])
             if not set(previous.get("generations", [])) & set(snapshot.generations):
@@ -160,7 +166,7 @@ class QueryService:
         first_token_at = None
         warnings = list(snapshot.warnings)
         answer = ""
-        metrics = {"model_called": False}
+        metrics: dict[str, Any] = {"model_called": False}
         sources = []
         finish_reason = "stop"
         try:

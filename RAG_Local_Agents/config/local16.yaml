@@ -161,6 +161,14 @@ resources:
     watchdog_no_progress_seconds_initial: 300
     watchdog_window_seconds_initial: 900
     record_checkpoint_and_reload_costs: true
+security:
+  # W011 : development = HTTP loopback sans cookie Secure ; production = HTTPS, cookies Secure et __Host-, HSTS.
+  environment: development
+  session_idle_minutes: 120
+  session_absolute_hours: 12
+  launch_link_ttl_seconds: 300
+  tls_cert_file: null
+  tls_key_file: null
 ui:
   pdf_max_high_resolution_canvases: 5
   pdf_max_device_pixel_ratio: 2

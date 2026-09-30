@@ -139,6 +139,12 @@ et permissions de l'environnement.
 - Ne pas affaiblir authentification, autorisation, TLS ou protections applicatives
   pour obtenir un résultat vert. Ne pas modifier le sandbox, les règles d'exécution,
   les contrôles d'approbation ou la configuration globale sans demande dédiée.
+- Aucun droit administrateur ni élévation de privilèges (demande utilisateur du
+  30/09/2026) : installation, mise à jour, désinstallation, exploitation, sauvegarde
+  et recette s'exécutent avec un compte utilisateur standard, dans des emplacements
+  propres à l'utilisateur, sans service Windows, pare-feu, registre machine ni PATH
+  global. Une solution qui exige une élévation est écartée ou documentée comme hors
+  périmètre, jamais contournée.
 - Référence de sécurité applicative : `D:\enhacements\decodair` pour la gestion
   des cookies et sessions, leur expiration, l'invalidation et la révocation côté
   serveur, la déconnexion, les autorisations et les protections de l'API. N'en

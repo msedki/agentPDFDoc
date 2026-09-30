@@ -18,25 +18,27 @@ import json
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 import httpx
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from services.runtime.supervisor import load_profile  # noqa: E402
+from services.runtime.supervisor import app_origin, control_headers, data_path, load_profile  # noqa: E402
 
 
-def import_folder(source: Path, base_url: str, *, pause_seconds: float = 0.2) -> dict:
+def import_folder(source: Path, base_url: str, *, headers: dict[str, str] | None = None, verify: str | bool = True,
+                  pause_seconds: float = 0.2) -> dict:
     files = sorted((path for path in source.rglob("*") if path.is_file()), key=lambda path: (path.stat().st_size, str(path)))
     pdfs = [path for path in files if path.suffix.lower() == ".pdf"]
-    report = {"started_utc": dt.datetime.now(dt.UTC).isoformat(), "source": str(source), "base_url": base_url,
-              "files_seen": len(files), "pdf_files": len(pdfs),
-              "skipped_not_pdf": [path.relative_to(source).as_posix() for path in files if path.suffix.lower() != ".pdf"],
-              "results": []}
+    report: dict[str, Any] = {"started_utc": dt.datetime.now(dt.UTC).isoformat(), "source": str(source), "base_url": base_url,
+                              "files_seen": len(files), "pdf_files": len(pdfs),
+                              "skipped_not_pdf": [path.relative_to(source).as_posix() for path in files if path.suffix.lower() != ".pdf"],
+                              "results": []}
     origin = base_url.rstrip("/")
-    with httpx.Client(base_url=origin, headers={"Origin": origin}, timeout=httpx.Timeout(600, connect=10),
-                      trust_env=False, follow_redirects=False) as client:
+    with httpx.Client(base_url=origin, headers={"Origin": origin, **(headers or {})}, timeout=httpx.Timeout(600, connect=10),
+                      trust_env=False, follow_redirects=False, verify=verify) as client:
         for path in pdfs:
             relative = path.relative_to(source).as_posix()
             started = time.perf_counter()
@@ -75,7 +77,11 @@ def main() -> int:
     if output.is_relative_to(ROOT) and not output.is_relative_to(ROOT / ".runtime"):
         raise SystemExit("Le rapport cite les chemins du corpus : l'écrire sous .runtime/ ou hors du dépôt")
     profile = load_profile(args.profile)
-    report = import_folder(args.source.resolve(), f"http://127.0.0.1:{profile['app']['port']}")
+    headers = control_headers(data_path(profile))
+    if not headers:
+        raise SystemExit("Jeton de contrôle absent : l'instance du profil doit être démarrée (.\\rag.ps1 up)")
+    origin, verify = app_origin(profile)
+    report = import_folder(args.source.resolve(), origin, headers=headers, verify=verify)
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("x", encoding="utf-8", newline="\n") as stream:
         stream.write(json.dumps(report, ensure_ascii=False, indent=2) + "\n")

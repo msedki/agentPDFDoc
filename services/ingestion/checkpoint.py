@@ -44,7 +44,8 @@ def extraction_lock(output_dir):
             lock, unlock = lambda: msvcrt.locking(stream.fileno(), msvcrt.LK_NBLCK, 1), lambda: msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
         else:
             import fcntl
-            lock, unlock = lambda: fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB), lambda: fcntl.flock(stream, fcntl.LOCK_UN)
+            # typeshed ne déclare flock et LOCK_* que hors win32 ; mypy ne lie pas cette branche à os.name.
+            lock, unlock = lambda: fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB), lambda: fcntl.flock(stream, fcntl.LOCK_UN)  # type: ignore[attr-defined]
         try:
             lock()
         except OSError:

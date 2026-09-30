@@ -21,7 +21,7 @@ test("an unknown registered citation shows a visible alert and opens no document
   const alert = page.locator(".workspace-error[role=alert]");
   await expect(alert).toBeVisible();
   await expect(alert).toContainText(String(body.message));
-  await expect(page.getByRole("heading", { name: "Votre document, avec ses sources." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Aucun document ouvert", exact: true })).toBeVisible();
   await expect(page.locator("canvas")).toHaveCount(0);
   await expect(page.locator(".source-navigation")).toHaveCount(0);
   expect(new URL(page.url()).searchParams.get("document")).toBeNull();

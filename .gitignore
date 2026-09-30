@@ -33,6 +33,8 @@ admin-token
 # Sorties brutes Playwright (les preuves retenues sont copiées sous apps/web/reports)
 playwright-report/
 test-results/
+# État de session E2E (cookies de l'instance, W011)
+apps/web/playwright/.auth/
 
 # Outils locaux
 .claude/settings.local.json

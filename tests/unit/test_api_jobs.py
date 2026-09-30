@@ -55,6 +55,41 @@ def test_api_job_pause_is_cooperative_and_resume_is_manual(storage):
     asyncio.run(scenario())
 
 
+
+def test_api_closing_checkpoints_the_active_job_instead_of_cancelling_it(storage):
+    """Arrêt propre de l'API pendant une extraction : pause au checkpoint, reprise possible, pas d'annulation."""
+    imported, extraction = import_fixture(storage)
+    settings, db, _, indexer = storage
+    job_id = uid()
+    db.execute("INSERT INTO jobs(id,document_id,version_id,state,stage,created_at,updated_at) VALUES(?,?,?,'queued','queued',?,?)", (job_id, imported["document_id"], imported["version_id"], now(), now()))
+    class Governor:
+        def should_checkpoint(self):
+            return False
+        def allow_ingestion(self):
+            return True
+        def resume_ingestion(self):
+            pass
+        @asynccontextmanager
+        async def ingestion(self):
+            yield
+    async def scenario():
+        started, release = asyncio.Event(), asyncio.Event()
+        async def runner(request):
+            started.set()
+            await release.wait()
+            return {**extraction, "status": "interrupted"}
+        supervisor = JobSupervisor(db, indexer, settings, Governor(), runner)
+        supervisor.start()
+        await asyncio.wait_for(started.wait(), 3)
+        closing = asyncio.create_task(supervisor.close())
+        await asyncio.sleep(0.05)
+        release.set()
+        await asyncio.wait_for(closing, 5)
+        row = db.one("SELECT state,error_code,cancel_requested FROM jobs WHERE id=?", (job_id,))
+        assert (row["state"], row["error_code"], row["cancel_requested"]) == ("paused", "checkpointed", 0)
+        assert supervisor.resume(job_id)["state"] == "queued"
+    asyncio.run(scenario())
+
 def test_api_extraction_cache_reuses_only_verified_revision(storage, monkeypatch):
     imported, extraction = import_fixture(storage)
     settings, db, _, indexer = storage

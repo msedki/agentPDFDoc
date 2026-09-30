@@ -1,5 +1,7 @@
 """Orient an OCR table crop for the same loaded TableFormer model."""
 
+from typing import Any
+
 
 def rotate_point(x, y, width, height, angle, inverse=False):
     if inverse:
@@ -36,7 +38,7 @@ class RegionalTableStage:
         from docling_core.types.doc.page import BoundingRectangle
 
         for page in page_batch:
-            corrections = []
+            corrections: list[dict[str, Any]] = []
             self.corrections_by_page[int(page.page_no)] = corrections
             clusters = page.predictions.layout.clusters
             rotations = {}

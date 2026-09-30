@@ -12,6 +12,7 @@ import json
 import tempfile
 from importlib.metadata import version
 from pathlib import Path
+from typing import Any
 
 import pypdfium2 as pdfium
 import reportlab
@@ -52,7 +53,7 @@ def long_document() -> bytes:
     return target.getvalue()
 
 
-FIXTURES = (
+FIXTURES: tuple[dict[str, Any], ...] = (
     {"key": "hostile-markup-injection", "path": "qualification-v2.1/hostile/markup-injection.pdf", "writer": markup_injection, "dod": ["D08.5", "D08.6"],
      "purpose": "Balisage HTML/Markdown actif, image distante, lien javascript et instruction d'élargissement du périmètre en texte natif non fiable",
      "expected_native_strings": [*MARKUP_LITERALS, INJECTION, "5.5 bar"],

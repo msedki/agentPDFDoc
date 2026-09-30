@@ -1,0 +1,41 @@
+﻿
+Running 27 tests using 1 worker
+
+node.exe : (node:29128) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+Au caractère Ligne:1 : 561
++ ... HH:mm:ss"); & D:\node\node-v22.17.0-win-x64\node.exe node_modules/@pl ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ((node:29128) Wa... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests\e2e\a11y.spec.ts:28:1 › tab order, visible focus, separators, tabs and Ctrl+Enter work from the keyboard (37.9s)
+  -   2 tests\e2e\canvas-budget.spec.ts:16:1 › scroll and zoom to 300 % stay within five canvases and 24 M pixels, then release detached canvases
+  -   3 tests\e2e\geometry.spec.ts:16:3 › crop-rotate-90: viewer rotations 0/90/180/270 keep the CropBox and the native anchor inside its source box
+  -   4 tests\e2e\geometry.spec.ts:16:3 › crop-rotate-180: viewer rotations 0/90/180/270 keep the CropBox and the native anchor inside its source box
+  -   5 tests\e2e\geometry.spec.ts:16:3 › crop-rotate-270: viewer rotations 0/90/180/270 keep the CropBox and the native anchor inside its source box
+  -   6 tests\e2e\geometry.spec.ts:80:1 › roman-labels: physical pages and logical folios stay distinct in captions and navigation
+  -   7 tests\e2e\hostile-markup.spec.ts:10:1 › hostile markup stays literal text with no active element, no remote request and no scope change
+  -   8 tests\e2e\lifecycle.spec.ts:11:1 › immutable original supports real ETag and byte ranges
+  -   9 tests\e2e\lifecycle.spec.ts:35:1 › registered old citation retains its exact original and revision
+  -  10 tests\e2e\lifecycle.spec.ts:109:1 › version menu reads the old original while a different version is active
+  -  11 tests\e2e\lifecycle.spec.ts:134:1 › identical UI reimport retains exact document version job and publication
+  -  12 tests\e2e\lifecycle.spec.ts:160:1 › UI reindex publishes a new verified generation without creating a file version
+  -  13 tests\e2e\lifecycle.spec.ts:191:1 › updated PDF remains unpublished until ready and preserves its old original
+  -  14 tests\e2e\lifecycle.spec.ts:242:3 › UI import encrypted preserves an explicit real file failure
+  -  15 tests\e2e\lifecycle.spec.ts:242:3 › UI import corrupt preserves an explicit real file failure
+  -  16 tests\e2e\lifecycle.spec.ts:266:1 › blank PDF requires an explicit visible no-text state
+  -  17 tests\e2e\lifecycle.spec.ts:292:1 › isolated 64KiB limit rejects a genuinely oversized controlled PDF
+  ✓  18 tests\e2e\negative-deeplink.spec.ts:11:1 › an unknown registered citation shows a visible alert and opens no document (4.9s)
+  ✓  19 tests\e2e\negative-deeplink.spec.ts:38:1 › partial or malformed citation links are refused before any registry request (5.8s)
+  ✓  20 tests\e2e\resource-probe.spec.ts:4:1 › read-only own browser memory probe with a real native PDF (9.7s)
+  ✓  21 tests\e2e\session.spec.ts:21:3 › sans session › l'atelier affiche la commande d'ouverture au lieu de l'espace de travail (2.1s)
+  ✓  22 tests\e2e\session.spec.ts:29:3 › sans session › un lien d'ouverture ne sert qu'une fois (4.9s)
+  ✓  23 tests\e2e\session.spec.ts:46:3 › sans session › fermer la session efface l'accès de ce navigateur (3.7s)
+  ✓  24 tests\e2e\workspace.spec.ts:19:1 › three panels use a real API and no external requests at both desktop sizes (8.5s)
+  -  25 tests\e2e\workspace.spec.ts:48:1 › real import, reading, scoped search and source navigation
+  -  26 tests\e2e\workspace.spec.ts:141:1 › real page and immutable block selection scopes reach the API
+  -  27 tests\e2e\workspace.spec.ts:177:1 › real local model answers with registered citations and preserves scope
+
+  19 skipped
+  8 passed (1.7m)

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { sourcePrecision, sourcePrecisionLabel, sourceRegionBoxes } from "../../src/lib/source-location.ts";
+import { sourceLocalization, sourcePrecision, sourcePrecisionLabel, sourceRegionBoxes } from "../../src/lib/source-location.ts";
 import type { Block, Source } from "../../src/lib/types.ts";
 
 const block = (id: string, page_index: number, precision: Block["precision"], bbox: Block["bbox"]): Block => ({ id, page_index, precision, bbox, text: id });
@@ -43,6 +43,15 @@ test("labels share the source card vocabulary, including search hits without a t
   assert.equal(sourcePrecisionLabel({ ...base, blocks: [block("a", 1, "block", [1, 2, 3, 4])] }), "Bloc source");
   assert.equal(sourcePrecisionLabel({ ...base, blocks: [block("a", 1, "page", null)] }), "Localisation à la page");
   assert.equal(sourcePrecisionLabel(base), "Localisation à la page");
+});
+
+test("source card badges separate exact families, page-only locations and unlocated sources", () => {
+  assert.deepEqual(sourceLocalization({ ...base, precision: "table", blocks: [block("a", 1, "table", [1, 2, 3, 4])] }), { family: "exact", label: "Table source", tone: "success" });
+  assert.deepEqual(sourceLocalization({ ...base, precision: "block", blocks: [block("a", 1, "block", null)] }), { family: "page", label: "Localisation à la page", tone: "neutral" });
+  assert.deepEqual(sourceLocalization({ ...base, page_index: undefined, page_indices: [2] }), { family: "page", label: "Localisation à la page", tone: "neutral" });
+  const unlocated: Source = { document_id: "document", version_id: "version", text: "Passage", precision: "span", bboxes: [[1, 2, 3, 4]] };
+  assert.deepEqual(sourceLocalization(unlocated), { family: "unlocated", label: "Source non localisée", tone: "warning" });
+  assert.deepEqual(sourceLocalization({ ...unlocated, page_indices: [] }).family, "unlocated");
 });
 
 test("legacy bboxes without blocks are drawn only for a single-page source", () => {

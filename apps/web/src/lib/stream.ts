@@ -21,7 +21,7 @@ export function connectQueryStream(url: string, after: string, onEvent: (event: 
       onEvent({ type, id: event.lastEventId, data });
       if (["done", "cancelled", "error", "needs_clarification"].includes(type)) stream.close();
     } catch {
-      onEvent({ type: "error", id: event.lastEventId, data: { message: "Le flux du service contient un événement invalide." } });
+      onEvent({ type: "error", id: event.lastEventId, data: { message: "Le flux de la réponse contient un événement illisible : la réponse est interrompue. Posez de nouveau la question pour relancer le traitement." } });
       stream.close();
     }
   });

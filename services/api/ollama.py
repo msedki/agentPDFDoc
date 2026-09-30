@@ -131,7 +131,7 @@ class OllamaGateway:
                 response.raise_for_status()
                 lines = response.aiter_lines().__aiter__()
                 while True:
-                    line_task = asyncio.create_task(anext(lines))
+                    line_task = asyncio.ensure_future(anext(lines))
                     cancel_task = asyncio.create_task(cancel_event.wait())
                     try:
                         done, pending = await asyncio.wait({line_task, cancel_task}, return_when=asyncio.FIRST_COMPLETED)

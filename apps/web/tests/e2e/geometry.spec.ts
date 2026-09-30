@@ -40,7 +40,7 @@ for (const key of ["crop-rotate-90", "crop-rotate-180", "crop-rotate-270"]) {
     expect((await searched).status()).toBe(200);
     const card = page.getByTestId("source-card").filter({ hasText: `ancre ${anchor}` }).first();
     await expect(card).toBeVisible();
-    await card.click();
+    await card.getByRole("button", { name: "Ouvrir le passage", exact: true }).click();
     await expect(page.locator(".source-navigation")).not.toContainText("Localisation à la page");
 
     const measure = () => slot.evaluate((section, anchorId) => {

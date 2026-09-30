@@ -1,0 +1,285 @@
+# Méthode d'évaluation du RAG : dossier de sources
+
+**Rôle :** dossier de sources de la méthode d'évaluation, documentation vivante. Il justifie et discute les métriques de [QUALIFICATION.md](../QUALIFICATION.md) §6-7 et du skill [rag-retrieval-evaluation](../skills/rag-retrieval-evaluation/SKILL.md) ; il ne les remplace pas. **Statut :** revue de sources terminée ; protocole de la section 3 au stade de **proposition**, ni décidé, ni exécuté. **Date :** 30 septembre 2026, 17:59 UTC (horloge du poste, `date -u`). **Base :** arbre de travail du dépôt au 30/09/2026 ; révision Git non relevée (commandes Git exclues de cette tâche).
+
+**Nature du document :** revue de sources, pas un résultat d'exécution. Aucun service n'a été démarré, aucune question n'a été soumise au système, aucune métrique du produit n'a été mesurée. Les seuls calculs locaux sont des calculs de planification sur des effectifs hypothétiques (intervalles de Wilson, seuils du test exact apparié, arithmétique RRF), faits avec le Python de `.venv` et affichés sur la sortie standard.
+
+**Méthode de consultation :** recherche web pour localiser la source primaire, puis ouverture de la page officielle. Lorsque l'outil de lecture ne décodait pas un PDF, la copie binaire qu'il avait téléchargée a été lue par extraction de texte locale (`pypdfium2` de `.venv`, sortie standard, aucun fichier écrit). Les requêtes ne contenaient que des termes génériques de méthodologie : aucune donnée du dépôt ni du corpus `PDF/` n'a été transmise. Consultations effectuées le 30/09/2026 entre 17:40 et 17:59 UTC.
+
+Niveaux de preuve employés ci-dessous, conformément à [RECHERCHE_ET_SKILLS.md](../RECHERCHE_ET_SKILLS.md) §3 : **fait documentaire** (passage lu), **interprétation** (déduction de ce dossier), **hypothèse** (à tester), **état constaté** (code ou fichier du dépôt lu). Aucun **résultat local observé** n'est présenté.
+
+## 1. Sources consultées
+
+Toutes les dates de consultation sont le 30/09/2026 (UTC). « Copie auteur » désigne la version déposée par les auteurs ou leur institution d'un article publié, lue lorsque la page de l'éditeur refusait l'accès (HTTP 403).
+
+### 1.1 Métriques de recherche et fusion
+
+| ID | Référence | URL ouverte | Passage lu | Ce que la source établit | Limites pour notre système |
+|---|---|---|---|---|---|
+| EVA01 | C. D. Manning, P. Raghavan, H. Schütze, *Introduction to Information Retrieval*, Cambridge University Press, 2008, édition en ligne, chap. 8 | [§8.3](https://nlp.stanford.edu/IR-book/html/htmledition/evaluation-of-unranked-retrieval-sets-1.html) ; [sommaire chap. 8](https://nlp.stanford.edu/IR-book/html/htmledition/evaluation-in-information-retrieval-1.html) | §8.3 « Evaluation of unranked retrieval sets » | $P = tp/(tp+fp)$, $R = tp/(tp+fn)$, $F_1 = 2PR/(P+R)$ ; l'exactitude (*accuracy*) est inadaptée car les collections sont très déséquilibrées ; le rappel ne décroît jamais quand on retourne plus de documents | Cadre ensembliste ; ne traite pas de la couverture d'un contexte borné en tokens |
+| EVA02 | idem | [§8.4](https://nlp.stanford.edu/IR-book/html/htmledition/evaluation-of-ranked-retrieval-results-1.html) | §8.4 « Evaluation of ranked retrieval results » | Définitions de P@k, R-précision, précision interpolée, MAP (éq. 43) et NDCG (éq. 44) avec gain $2^{R}-1$ et remise $\log_2(1+m)$, normalisée pour qu'un classement parfait vaille 1 ; la moyenne sur les besoins d'information pondère chaque besoin également | Suppose des jugements de pertinence complets ; aucun cas avec un seul bloc pertinent connu par construction |
+| EVA03 | idem | [§8.5](https://nlp.stanford.edu/IR-book/html/htmledition/assessing-relevance-1.html) | §8.5 « Assessing relevance » | Statistique kappa $\kappa = (P(A)-P(E))/(1-P(E))$ ; au-dessus de 0,8 accord bon, 0,67-0,8 accord passable, en dessous de 0,67 base d'évaluation douteuse ; le désaccord des juges change les scores absolus mais peu le classement relatif des systèmes | Seuils conventionnels, établis pour des jugements de pertinence documentaire et non pour des jugements de soutien de réponses |
+| EVA04 | NIST, `trec_eval`, outil d'évaluation officiel de TREC, dépôt `usnistgov/trec_eval`, branche `main` | [README](https://raw.githubusercontent.com/usnistgov/trec_eval/main/README) ; [m_recall.c](https://raw.githubusercontent.com/usnistgov/trec_eval/main/m_recall.c) ; [m_ndcg_cut.c](https://raw.githubusercontent.com/usnistgov/trec_eval/main/m_ndcg_cut.c) ; [m_recip_rank.c](https://raw.githubusercontent.com/usnistgov/trec_eval/main/m_recip_rank.c) ; [trec_eval.c](https://raw.githubusercontent.com/usnistgov/trec_eval/main/trec_eval.c) | Chaînes de documentation des mesures ; aide des options `-c`, `-q`, `-M` ; historique « queries with no relevance information are ignored » | `recall` : « fine single topic measure, but does not average well » ; au-delà des documents retournés, les rangs manquants comptent comme non pertinents ; `ndcg_cut` suit Järvelin et Kekäläinen (TOIS 2002) avec gain égal à la valeur de pertinence (linéaire) et remise $\log_2(i+2)$ en indice 0 ; `recip_rank` est « most useful » quand un seul document est pertinent ; `-c` moyenne sur toutes les requêtes jugées, y compris celles sans résultat ; les requêtes sans information de pertinence sont ignorées | Branche mobile : contrat lu, pas une version installée ; nous n'utilisons pas `trec_eval` |
+| EVA05 | I. Soboroff, H. Dang, G. Awad, « Overview of TREC 2024 », *TREC 2024 Proceedings*, NIST | [overview_33.pdf](https://trec.nist.gov/pubs/trec33/papers/overview_33.pdf) ; [index TREC 33](https://trec.nist.gov/pubs/trec33/index.html) | §2 « Information Retrieval » (mesures et évaluation générative) | Les scores sont des moyennes où chaque *topic* pèse également ; les maxima théoriques de P@k et R@k ne sont pas atteignables en moyenne lorsque le nombre de pertinents diffère du seuil ; pour le génératif : méthode des *nuggets*, citation exigée par phrase, seules les phrases pertinentes et soutenues sont alignées sur les nuggets ; limites déclarées : on ne vérifie pas si un autre document soutient la phrase, ni la qualité de présentation | Tâche web en anglais ; l'index des actes TREC 33 ne liste pas d'article de synthèse du track RAG (voir EVA14) |
+| EVA06 | P. B. Kantor, E. M. Voorhees, « Report on the TREC-5 Confusion Track », *TREC-5 Proceedings*, NIST | [index TREC-5](https://trec.nist.gov/pubs/trec5/t5_proceedings.html) ; [confusion_track.ps.gz](https://trec.nist.gov/pubs/trec5/papers/confusion_track.ps.gz) | §1-4 (tâche, mesures, résultats) | Recherche d'un document connu (*known-item*) sur trois versions du *Federal Register* 1994 : correcte, OCR à environ 5 % et environ 20 % d'erreurs de caractères ; les mots rares (noms propres, termes techniques) sont les plus affectés alors qu'ils servent à retrouver un document précis ; MRR avec réciproque 0 si la cible n'est pas trouvée dans les 1 000 premiers, 49 topics évalués | Anglais, 1996, OCR et méthodes anciennes ; établit le mécanisme, pas l'ampleur sur Tesseract en français. Texte lu par extraction des chaînes PostScript, figures et annexe chiffrée non lues |
+| EVA07 | S. Robertson, H. Zaragoza, « The Probabilistic Relevance Framework: BM25 and Beyond », *Foundations and Trends in Information Retrieval* 3(4):333-389, 2009, DOI 10.1561/1500000019 | [copie auteur](https://www.staff.city.ac.uk/~sbrp622/papers/foundations_bm25_review.pdf) (page éditeur : 403) | §3.4.2-3.4.5, §3.5, §3.5.1 | Formule BM25 (éq. 3.15) : saturation en $tf$ réglée par $k_1$, normalisation douce de longueur $B = (1-b) + b\,dl/avdl$ ; le modèle ne dit pas comment fixer $b$ et $k_1$ ; des valeurs comme $0{,}5<b<0{,}8$ et $1{,}2<k_1<2$ sont « reasonably good in many circumstances », mais les optimums dépendent du type de documents et de requêtes ; les versions publiées varient | Pas d'étude sur des fragments courts de documents techniques français ; les paramètres effectifs de FTS5 relèvent de S11 dans [SOURCES.md](../SOURCES.md), non reconsultée ici |
+| EVA08 | G. V. Cormack, C. L. A. Clarke, S. Büttcher, « Reciprocal Rank Fusion outperforms Condorcet and individual Rank Learning Methods », SIGIR'09, Boston, 2009 | [copie auteur](http://cormack.uwaterloo.ca/cormacksigir09-rrf.pdf) (page ACM : 403, DOI non vérifié) | Article complet (2 pages, tableaux 1-3) | $\mathrm{RRF}(d)=\sum_{r\in R} 1/(k+r(d))$ ; $k=60$ « fixed during a pilot investigation and not altered during subsequent validation » ; tableau 1 : MAP de 0,2072 ($k=0$) à 0,2147 ($k=80$), 0,2098 ($k=500$), choix « not critical » ; gain moyen de 4 à 5 % sur Condorcet, CombMNZ et le meilleur système (test du signe) ; RRF ignore les scores bruts | Fusion de 30 configurations ou de runs TREC ad hoc et LETOR 3, en anglais, évaluée en MAP ; aucune étude d'une fusion à deux listes lexicale et dense, ni de la préservation d'un identifiant exact |
+
+### 1.2 Évaluation RAG de bout en bout et juges LLM
+
+| ID | Référence | URL ouverte | Passage lu | Ce que la source établit | Limites pour notre système |
+|---|---|---|---|---|---|
+| EVA09 | S. Es, J. James, L. Espinosa-Anke, S. Schockaert, « RAGAS: Automated Evaluation of Retrieval Augmented Generation », *EACL 2024 System Demonstrations*, p. 150-158, DOI 10.18653/v1/2024.eacl-demo.16 | [ACL Anthology](https://aclanthology.org/2024.eacl-demo.16/) ; [PDF](https://aclanthology.org/2024.eacl-demo.16.pdf) | §3 (métriques), §4 (WikiEval), §5 et 5.1, §8 | Fidélité $F=\lvert V\rvert/\lvert S\rvert$ (assertions extraites puis vérifiées par LLM) ; pertinence de la réponse $AR=\frac1n\sum \mathrm{sim}(q,q_i)$ ; pertinence du contexte $CR$ = phrases extraites / phrases du contexte ; LLM juge `gpt-3.5-turbo-16k` ; WikiEval : 50 pages, 2 annotateurs ; accord avec les humains 0,95 / 0,78 / 0,70 ; la pertinence du contexte est la dimension la plus difficile ; sorties JSON pour la reproductibilité ; limite déclarée : dépendance forte au LLM évaluateur | Validé en anglais, en comparaisons par paires, avec un juge bien plus grand que notre 4B |
+| EVA10 | Documentation officielle Ragas (Exploding Gradients), version « stable » | [context_precision](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_precision/) ; [context_recall](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_recall/) ; [faithfulness](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/faithfulness/) | Formules des métriques | Context Precision@K $=\sum_k (\mathrm{P@}k\cdot v_k)/$pertinents dans le top K ; variantes sans LLM ; **ID-based context recall** = identifiants de référence retrouvés / identifiants de référence ; **ID-based context precision** = identifiants retrouvés présents dans la référence / identifiants retrouvés ; alternative de fidélité par classifieur (HHEM-2.1-Open, T5) | Documentation mobile : page `context_recall` datée du 9/12/2025, pas de numéro de version affiché, dépréciation d'API annoncée ; le logiciel n'est pas installé et n'a pas à l'être |
+| EVA11 | J. Saad-Falcon, O. Khattab, C. Potts, M. Zaharia, « ARES: An Automated Evaluation Framework for Retrieval-Augmented Generation Systems », *NAACL 2024*, p. 338-354, DOI 10.18653/v1/2024.naacl-long.20 | [ACL Anthology](https://aclanthology.org/2024.naacl-long.20/) ; [PDF](https://aclanthology.org/2024.naacl-long.20.pdf) | §3, fig. 1, Limitations | Trois entrées : passages du domaine, ensemble de validation humain d'environ 150 points (150 à 300), au moins 5 exemples ; requêtes synthétiques filtrées si elles ne retrouvent pas leur passage en tête ; juges DeBERTa-v3-Large affinés par critère ; intervalles de confiance par *prediction-powered inference* (PPI) | Annotateurs familiers du domaine requis (spécialisés en droit, médecine, finance) ; GPU d'environ 32 Go ; jeux anglais uniquement |
+| EVA12 | L. Zheng et al., « Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena », *NeurIPS 2023 Datasets and Benchmarks* | [résumé](https://proceedings.neurips.cc/paper_files/paper/2023/hash/91f18a1287b398d378ef22505bf41832-Abstract-Datasets_and_Benchmarks.html) ; [PDF](https://papers.nips.cc/paper_files/paper/2023/file/91f18a1287b398d378ef22505bf41832-Paper-Datasets_and_Benchmarks.pdf) | Résumé ; §3.3-3.4, tableaux 2-4 | Biais de position (cohérence après permutation : GPT-4 65,0 %, GPT-3.5 46,2 %, Claude-v1 23,8 %) ; biais de verbosité (attaque « liste répétée » : échec 91,3 % pour Claude-v1 et GPT-3.5, 8,7 % pour GPT-4) ; biais d'auto-préférence non tranché faute de données ; notation de questions de calcul : 14/20 échecs par défaut, 6/20 avec raisonnement, 3/20 avec réponse de référence ; accord de GPT-4 avec les humains supérieur à 80 % | Jugements de préférence sur du dialogue ouvert anglais ; les juges plus faibles sont nettement plus biaisés ; aucun juge de 4B paramètres étudié |
+| EVA13 | Track TREC RAG, site des organisateurs (University of Waterloo, Microsoft Research, Zipf AI, Databricks), pages 2024 | [trec24](https://trec-rag.github.io/trec24/) ; [évaluation 2024](https://trec-rag.github.io/annoucements/evaluation/) ; [accueil](https://trec-rag.github.io/) | Tâches, principe d'évaluation | Trois tâches (R, AG, RAG) sur MS MARCO Segment v2.1 ; soutien jugé par phrase sur 0-2 (aucun, partiel, total) ; nuggets « vital » ou « okay », attribués comme soutenus, partiellement ou non | Pages d'annonce, pas un article de synthèse ; web anglais |
+| EVA14 | R. Pradeep, N. Thakur, S. Upadhyay, D. Campos, N. Craswell, J. Lin, « Initial Nugget Evaluation Results for the TREC 2024 RAG Track with the AutoNuggetizer Framework », arXiv:2411.09607v1, 2024 | [arXiv](https://arxiv.org/abs/2411.09607) ; [HTML v1](https://arxiv.org/html/2411.09607v1) | Définitions des scores, résultats | Scores A, V, A strict, V strict (principal), W : soutien 1, partiel 0,5, absent 0 ; 21 topics jugés manuellement ; tau de Kendall 0,783 au niveau des runs, 0,518 en moyenne par topic ; ne tient pas compte du soutien par les documents, donc pas des hallucinations | Prépublication d'organisateurs, pas de venue indiquée ; rapport initial et partiel |
+| EVA15 | N. Thakur, R. Pradeep, S. Upadhyay, D. Campos, N. Craswell, J. Lin, « Support Evaluation for the TREC 2024 RAG Track: Comparing Human versus LLM Judges », arXiv:2504.15205 (la page arXiv indique SIGIR 2025, *short paper*) | [arXiv](https://arxiv.org/abs/2504.15205) ; [HTML v1](https://arxiv.org/html/2504.15205v1) | Définitions du soutien, métriques, résultats | Soutien total / partiel / nul par phrase et passage cité ; phrase sans citation = pas de soutien ; précision pondérée = somme des poids / passages cités, rappel pondéré = somme des poids / phrases (poids 1 ; 0,5 ; 0) ; seul le premier passage cité par phrase a été jugé ; 45 runs, 36 topics : accord parfait GPT-4o-humain 56 % sans pré-annotation, 72 % avec post-édition ; kappa de Cohen faibles (0,27 entre un juge humain indépendant et GPT-4o, 0,07 entre ce même juge et le juge NIST) | Version ACM non consultée ; même avec des juges humains, le jugement de soutien est bruité |
+
+### 1.3 Citations et abstention
+
+| ID | Référence | URL ouverte | Passage lu | Ce que la source établit | Limites pour notre système |
+|---|---|---|---|---|---|
+| EVA16 | T. Gao, H. Yen, J. Yu, D. Chen, « Enabling Large Language Models to Generate Text with Citations » (ALCE), *EMNLP 2023*, p. 6465-6488, DOI 10.18653/v1/2023.emnlp-main.398 | [ACL Anthology](https://aclanthology.org/2023.emnlp-main.398/) ; [PDF](https://aclanthology.org/2023.emnlp-main.398.pdf) | §3.3, fig. 3, §6, Limitations | Rappel de citation par énoncé : 1 si $C_i\neq\emptyset$ et $\phi(\mathrm{concat}(C_i), s_i)=1$ ; citation « non pertinente » si $\phi(c_{i,j},s_i)=0$ et $\phi(C_i\setminus\{c_{i,j}\},s_i)=1$ ; précision = 1 si l'énoncé a un rappel de 1 et la citation n'est pas non pertinente ; $\phi$ = NLI TRUE (T5-11B) ; kappa humain-ALCE 0,698 (rappel) et 0,525 (précision) ; limite : l'NLI ne détecte pas le soutien partiel | Anglais ; un NLI de 11 milliards de paramètres est hors budget CPU |
+| EVA17 | N. F. Liu, T. Zhang, P. Liang, « Evaluating Verifiability in Generative Search Engines », *Findings of EMNLP 2023*, p. 7001-7025, DOI 10.18653/v1/2023.findings-emnlp.467 | [ACL Anthology](https://aclanthology.org/2023.findings-emnlp.467/) ; [PDF](https://aclanthology.org/2023.findings-emnlp.467.pdf) | §2.1-2.5, fig. 2 | Énoncé = phrase ; rappel de citation = énoncés à vérifier entièrement soutenus / énoncés à vérifier ; précision = $(T_{fs}+T_{ps})/N$ ; F1 de citation ; portée ambiguë d'une citation placée après deux énoncés ; résultats sur 4 moteurs : 51,5 % des phrases entièrement soutenues, 74,5 % des citations soutenantes | Annotation humaine du soutien, non automatisée ; moteurs commerciaux anglais |
+| EVA18 | P. Rajpurkar, R. Jia, P. Liang, « Know What You Don't Know: Unanswerable Questions for SQuAD », *ACL 2018*, p. 784-789, DOI 10.18653/v1/P18-2124 | [ACL Anthology](https://aclanthology.org/P18-2124/) ; [PDF](https://aclanthology.org/P18-2124.pdf) | Résumé, §1-3, §5, note 3 | 53 775 questions sans réponse écrites de façon adverse ; deux exigences : **pertinence** pour le paragraphe et **réponse plausible** du bon type présente, sinon un recouvrement de mots ou un typage suffit à les détecter ; pour une question sans réponse, s'abstenir vaut 1, toute autre sortie 0 (EM et F1) ; s'abstenir toujours donne 48,9 F1 en test ; seuil d'abstention réglé sur le développement | QA extractive sur un paragraphe, anglais ; pas de recherche documentaire |
+| EVA19 | A. Kamath, R. Jia, P. Liang, « Selective Question Answering under Domain Shift », *ACL 2020*, p. 5684-5696, DOI 10.18653/v1/2020.acl-main.503 | [ACL Anthology](https://aclanthology.org/2020.acl-main.503/) ; [PDF](https://aclanthology.org/2020.acl-main.503.pdf) | Résumé, §3.1-3.3 | Prédiction sélective : couverture = part des questions traitées, risque = erreur sur cette part ; courbe risque-couverture, aire sous la courbe et couverture maximale à risque donné ; modèles surconfiants hors domaine | Suppose un score de confiance continu, que le code lu n'expose pas (section 2.5) |
+| EVA20 | J. Chen, H. Lin, X. Han, L. Sun, « Benchmarking Large Language Models in Retrieval-Augmented Generation » (RGB), *AAAI 2024* 38(16):17754-17762, DOI 10.1609/aaai.v38i16.29728 | [AAAI](https://ojs.aaai.org/index.php/AAAI/article/view/29728) ; [PDF](https://ojs.aaai.org/index.php/AAAI/article/view/29728/31250) | Définitions, « Evaluation Metrics », résultats *Negative Rejection* | *Negative rejection* : refuser quand aucun document retrouvé ne contient la connaissance ; taux de refus par correspondance exacte d'une phrase imposée, complété par un contrôle ChatGPT ; meilleurs taux 45 % (anglais) et 43,33 % (chinois) ; les LLM suivent mal la consigne, ce qui rend leur sortie peu fiable comme signal d'état ; exactitude par inclusion exacte de la réponse | Modèles de 2023, actualités anglaises et chinoises |
+
+### 1.4 Questions synthétiques et biais de jeux d'évaluation
+
+| ID | Référence | URL ouverte | Passage lu | Ce que la source établit | Limites pour notre système |
+|---|---|---|---|---|---|
+| EVA21 | Z. Dai et al., « Promptagator: Few-shot Dense Retrieval From 8 Examples », ICLR 2023 (acceptation non vérifiée par lecture : OpenReview bloqué) | [arXiv:2209.11755](https://arxiv.org/pdf/2209.11755) (copie auteur) ; OpenReview [forum](https://openreview.net/forum?id=gmL46YMpu2J) inaccessible | §1, §2, §3.1-3.2, §4.3 | Les distributions de requêtes diffèrent fortement d'une tâche à l'autre ; filtrage aller-retour : garder $q$ seulement si son passage source figure dans le top-K d'un retriever entraîné sur les données synthétiques ; gain sur 8 jeux sur 11 (+2,5 nDCG@10 en moyenne), perte sur les deux plus petits ; les paires retirées sont surtout trop générales ou hallucinées, mais **des paires de bonne qualité sont aussi retirées** parce que le retriever initial classe d'autres documents plus haut | Usage en entraînement de retriever, pas en jeu d'évaluation ; LLM de 137 milliards de paramètres |
+| EVA22 | L. Bonifacio, H. Abonizio, M. Fadaee, R. Nogueira, InPars, SIGIR 2022 selon le référencement ACM (DOI 10.1145/3477495.3531863, page ACM non ouverte, 403) | [arXiv:2202.05144](https://arxiv.org/pdf/2202.05144) (copie auteur, titre « InPars: Data Augmentation for Information Retrieval using Large Language Models ») | §3, §6.1-6.3 | Génération à partir de 3 exemples ; conservation des $K$ meilleures paires selon la log-probabilité moyenne de la question (10 000 sur 100 000) ; sans filtrage, −4 points de MRR@10 sur MS MARCO ; l'invite « Vanilla » produit des questions génériques auxquelles répondent de nombreux documents, « GBQ » des questions plus spécifiques | Données d'entraînement, pas d'évaluation ; version SIGIR non comparée à la copie arXiv |
+| EVA23 | N. Thakur, N. Reimers, A. Rücklé, A. Srivastava, I. Gurevych, « BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models », *NeurIPS 2021 Datasets and Benchmarks* | [résumé](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/65b9eea6e1cc6bb9f0cd2a47751a186f-Abstract-round2.html) ; [PDF](https://datasets-benchmarks-proceedings.neurips.cc/paper_files/paper/2021/file/65b9eea6e1cc6bb9f0cd2a47751a186f-Paper-round2.pdf) | §1, §3 (métrique), §6, §8 | Biais lexical des jeux annotés à partir de pools issus de BM25 ou TF-IDF : les résultats non jugés sont réputés non pertinents ; Hole@10 de 6,4 % pour BM25 contre 14,4 % (ANCE) et 31,8 % (TAS-B) sur TREC-COVID ; après annotation des trous, ANCE passe de 0,654 à 0,735 en nDCG@10 ; nDCG@10 retenu pour les jugements binaires et gradués | Jeux anglais uniquement (limite déclarée) ; documents de quelques centaines de mots |
+| EVA24 | S. Sugawara, K. Inui, S. Sekine, A. Aizawa, « What Makes Reading Comprehension Questions Easier? », *EMNLP 2018*, p. 4208-4219, DOI 10.18653/v1/D18-1453 | [ACL Anthology](https://aclanthology.org/D18-1453/) ; [PDF](https://aclanthology.org/D18-1453.pdf) | Résumé, §1 | Partition facile/difficile par heuristiques simples, dont « la réponse figure dans la phrase la plus similaire à la question » ; performances nettement plus basses sur les sous-ensembles difficiles ; risque de surestimer les progrès ; tenir compte de ces heuristiques lors de la constitution des questions | Compréhension de lecture, pas recherche ; 12 jeux anglais |
+
+### 1.5 Statistiques pour petits échantillons
+
+| ID | Référence | URL ouverte | Passage lu | Ce que la source établit | Limites pour notre système |
+|---|---|---|---|---|---|
+| EVA25 | NIST/SEMATECH, *e-Handbook of Statistical Methods*, §7.2.4.1 « Confidence intervals » | [prc241](https://www.itl.nist.gov/div898/handbook/prc/section2/prc241.htm) | Formules de Wilson, commentaire | Méthode de Wilson « introduced by Wilson (1927), recommended by Brown, Cai and DasGupta (2001) and Agresti and Coull (1998) » ; formules des bornes ; la borne inférieure ne peut pas être négative, contrairement à l'approximation normale | Suppose des essais indépendants de même probabilité |
+| EVA26 | L. D. Brown, T. T. Cai, A. DasGupta, « Interval Estimation for a Binomial Proportion », *Statistical Science* 16(2):101-133, 2001, DOI 10.1214/ss/1009213286 | [Project Euclid](https://projecteuclid.org/journals/statistical-science/volume-16/issue-2/Interval-Estimation-for-a-Binomial-Proportion/10.1214/ss/1009213286.full) | Résumé seulement | Couverture erratique de l'intervalle de Wald ; recommandation de Wilson ou de Jeffreys pour les petits $n$ | Seul le résumé a été lu |
+| EVA27 | M. D. Smucker, J. Allan, B. Carterette, « A Comparison of Statistical Significance Tests for Information Retrieval Evaluation », *CIKM'07*, Lisbonne | [copie auteur (UMass CIIR)](https://maroo.cs.umass.edu/getpdf.php?id=744) (page ACM : 403) | Résumé, §2.1-2.5, §7 | Test de randomisation apparié (permutation des étiquettes par topic, 100 000 tirages), bootstrap par décalage (tirage des paires avec remise), t apparié : p-valeurs comparables ; Wilcoxon et test du signe à abandonner pour une différence de moyennes ; recommandation : randomisation avec la statistique qui mesure la différence | Runs TREC ad hoc, 50 topics, MAP ; ne traite pas des issues binaires par question |
+| EVA28 | T. Sakai, « Statistical Reform in Information Retrieval? », *ACM SIGIR Forum* 48(1), juin 2014 | [sigir.org](https://sigir.org/files/forum/2014J/2014J_sigirforum_Article_TetsuyaSakai.pdf) | §1, §3.1.1-3.1.3, début §3.2 | Une p-valeur mêle taille d'échantillon et taille d'effet ; effet apparié $ES=\lvert\bar d\rvert/\sqrt V$ ; IC de la différence $\bar d \pm t(n-1;\alpha)\sqrt{V/n}$ ; taux d'erreur de famille $1-(1-\alpha)^{m(m-1)/2}$ pour des comparaisons multiples | Article d'opinion et de méthode, hypothèse de normalité des différences |
+| EVA29 | NTCIR (NII), outil BOOTS | [boots-en](https://research.nii.ac.jp/ntcir/tools/boots-en.html) | Page de l'outil | Outil de tests bootstrap par paires et de pouvoir discriminant, fondé sur Sakai, SIGIR 2006, p. 525-532 ; le toolkit Discpower (Tukey HSD randomisé) est jugé plus approprié pour comparer tous les couples simultanément | Page d'outil ; l'article SIGIR 2006 lui-même n'a pas été lu |
+
+### 1.6 OCR, tableaux et recherche
+
+| ID | Référence | URL ouverte | Passage lu | Ce que la source établit | Limites pour notre système |
+|---|---|---|---|---|---|
+| EVA30 | J. Zhang et al., « OCR Hinders RAG: Evaluating the Cascading Impact of OCR on Retrieval-Augmented Generation » (OHRBench), ICCV 2025 selon la page arXiv | [arXiv:2412.02592](https://arxiv.org/abs/2412.02592) ; [HTML](https://arxiv.org/html/2412.02592) (PDF CVF : 403) | Résumé, définitions, analyse | Bruit sémantique (erreurs de reconnaissance qui changent le sens) et bruit de formatage (commandes de style, représentations hétérogènes des structures) ; passer d'un bruit sémantique léger à sévère fait perdre près de 50 % à la plupart des retrievers et des LLM, BM25 comme BGE-M3 ; les questions sur tableaux, formules et graphiques se dégradent davantage que le texte ; recherche mesurée par plus longue sous-séquence commune | Perturbations synthétiques, documents anglais et chinois ; pas Tesseract, pas le français |
+| EVA31 | L. Sun et al., « When Good OCR Is Not Enough: Benchmarking OCR Robustness for Retrieval-Augmented Generation », *ACL 2026 Industry Track*, p. 884-894, DOI 10.18653/v1/2026.acl-industry.60 | [ACL Anthology](https://aclanthology.org/2026.acl-industry.60/) ; [PDF](https://aclanthology.org/2026.acl-industry.60.pdf) | Résumé, §1 | Un faible CER/WER ne garantit pas la réussite du RAG : tableaux fragmentés entre pages, ordre de lecture en colonnes et marques visuelles perdues provoquent des échecs de recherche malgré une reconnaissance de caractères presque parfaite ; RAGAS et ARES supposent un texte d'entrée propre | Seuls le résumé et l'introduction ont été lus ; catégories industrielles non ferroviaires |
+
+## 2. Métriques par dimension
+
+### 2.1 Notations et unités
+
+Pour une question $q$ répondable : $G_q$ ensemble des **unités de preuve requises** (blocs sources versionnés, chacune pouvant admettre des alternatives annotées) ; $L_q^{\text{lex}}$ et $L_q^{\text{dense}}$ listes de candidats (24 chacune) ; $F_q$ liste fusionnée par RRF ; $C_q$ contexte final réellement envoyé (6 fragments, 8 en comparaison). Une unité est **couverte** par une liste si l'un de ses blocs, ou une alternative admise, appartient à un fragment de la liste ; la règle de correspondance fragment → bloc (identifiant contenu, recouvrement de spans) doit être écrite avant la première mesure. $Q_A$ désigne les questions répondables, $Q_U$ les questions sans réponse dans le périmètre.
+
+Sur le modèle de `trec_eval` (EVA04), les questions sans vérité terrain (ici $Q_U$) n'entrent pas dans les métriques de recherche, et une question répondable pour laquelle le système ne renvoie rien compte pour 0 au lieu d'être retirée (équivalent de l'option `-c`). Chaque question pèse également (EVA05).
+
+### 2.2 Recherche (candidats et fusion)
+
+| Métrique | Définition | Justification | Pièges |
+|---|---|---|---|
+| Recall@k | $\mathrm{R@}k(q)=\lvert G_q \cap_{\text{couv}} F_q^{\le k}\rvert/\lvert G_q\rvert$ ; macro = moyenne sur $Q_A$ ; agrégat = $\sum_q \lvert G_q\cap F_q^{\le k}\rvert / \sum_q \lvert G_q\rvert$ | EVA01, EVA02 ; forme retenue par [QUALIFICATION.md](../QUALIFICATION.md) §7 | « Does not average well » (EVA04) : publier la distribution et l'agrégat, préciser lequel est comparé au seuil |
+| Success@k et AllRequired@k | $\mathbb 1[G_q\cap F_q^{\le k}\neq\emptyset]$ ; $\mathbb 1[G_q\subseteq F_q^{\le k}]$ | Interprétation : avec un seul bloc requis, Recall@k = Success@k ; AllRequired révèle les échecs multi-preuves | Proportions binaires par question : intervalle de Wilson applicable (2.8) |
+| MRR | $\frac{1}{\lvert Q_A\rvert}\sum_q 1/\mathrm{rang}_q$, réciproque 0 si absent de la liste | EVA06 (convention de TREC-5), EVA04 (« most useful » avec un seul pertinent) | Insensible à la différence entre rangs 7 et 20, qui compte pourtant pour un contexte de 6 fragments |
+| nDCG@k | $\mathrm{DCG@}k=\sum_{m=1}^{k} g_m/\log_2(1+m)$, normalisé par le DCG idéal | EVA02 (gain $2^R-1$) ; EVA04 (gain $R$ linéaire) | Les deux gains coïncident pour une pertinence binaire ($2^1-1=1$) ; ils divergent si l'on introduit des alternatives graduées : déclarer le gain utilisé |
+| Precision@k | $\lvert G_q\cap F_q^{\le k}\rvert/k$ | EVA01, EVA05 | Avec 1 ou 2 blocs requis, P@k est bornée par $\lvert G_q\rvert/k$ (EVA05) : à ne pas utiliser comme objectif, seulement pour comparer deux configurations au même $k$ |
+
+**Niveaux de mesure.** Mesurer séparément $L^{\text{lex}}$@24, $L^{\text{dense}}$@24, $F$@{6, 10, 24} et $C$ pour localiser la perte, comme l'exige le traçage candidats → fusion → contraintes → contexte de [QUALIFICATION.md](../QUALIFICATION.md) §4.
+
+**BM25 (EVA07).** Les paramètres $k_1$ et $b$ n'ont pas de valeur prescrite par le modèle et leurs optimums dépendent du type de documents et de requêtes. Avec des fragments courts, la normalisation de longueur porte sur le fragment. Aucun réglage n'est proposé ici ; si un réglage était envisagé, il ne pourrait être choisi que sur le jeu de développement.
+
+**RRF à deux listes (EVA08 et interprétation).** Avec $k=60$ et deux listes tronquées à 24, un fragment présent dans les deux listes, même aux rangs 24 et 24, obtient $2/84\approx0{,}0238$, alors qu'un fragment premier d'une seule liste obtient $1/61\approx0{,}0164$. Tout fragment présent dans les deux listes précède donc tout fragment présent dans une seule (il faudrait des rangs supérieurs à 61 pour inverser l'ordre). Ce calcul explique le contre-exemple RRF de [QUALIFICATION.md](../QUALIFICATION.md) §4 et la contrainte de couverture des identifiants (D-07) : une occurrence exacte trouvée par le seul BM25 est structurellement défavorisée. Le $k=60$ de Cormack et al. a été fixé sur la fusion de 30 systèmes ; la source ne dit rien d'une fusion à deux branches.
+
+**Biais d'annotation (EVA23).** Une vérité terrain « bloc d'origine » est un pool réduit à un seul bloc : tout autre bloc qui contient la même information est compté comme non pertinent (« trou »). Le phénomène pénalise davantage la recherche dense, dont les résultats recouvrent moins lexicalement la question. Mesure proposée : Hole@k sur un échantillon, par examen manuel des fragments non annotés du top-k.
+
+### 2.3 Contexte final
+
+| Métrique | Définition | Justification |
+|---|---|---|
+| EvidenceCoverage@Context | Recall calculé sur $C_q$ au lieu de $F_q$ ; identique à l'*ID-based context recall* de Ragas | EVA10 ; [QUALIFICATION.md](../QUALIFICATION.md) §7 (seuil observé initial ≥ 0,90) |
+| AllRequiredEvidence@Context | $\mathbb 1[G_q\subseteq C_q]$ | [QUALIFICATION.md](../QUALIFICATION.md) §7 ; nécessaire pour les questions multi-passages |
+| Précision du contexte par identifiants | fragments de $C_q$ contenant une unité requise / $\lvert C_q\rvert$ ; *ID-based context precision* de Ragas | EVA10 ; borne inférieure à cause des trous (EVA23), bornée par $\lvert G_q\rvert/6$ |
+| Fuite de périmètre | fragments de $C_q$ hors du périmètre demandé | Contrat de scope du projet ; doit valoir 0, compté en nombre absolu |
+
+La pertinence du contexte de RAGAS (EVA09) n'est pas retenue : c'est la dimension où l'accord avec les humains était le plus faible (0,70) avec un juge bien plus grand que le nôtre.
+
+### 2.4 Réponse
+
+| Métrique | Définition | Justification | Pièges |
+|---|---|---|---|
+| Exactitude stricte | $\mathbb 1[$la valeur attendue normalisée figure dans la réponse$]$, sur $Q_A$ ; une abstention compte comme échec | Correspondance par inclusion (EVA20) ; exactitude sur $Q_A$ de [QUALIFICATION.md](../QUALIFICATION.md) §7 | Normalisation française à écrire et tester : virgule décimale, espaces insécables et fines, unités, casse ; identifiants comparés sans altération hormis les espaces |
+| Complétude multi-éléments | éléments attendus présents / éléments attendus ; variante stricte = tous présents | Analogue des scores V et V strict des nuggets (EVA14) | Les éléments attendus sont les valeurs issues de chaque bloc requis ; ne pas compter une réponse partielle comme réussite |
+| EM et F1 lexical | selon SQuAD (EVA18) | Métrique secondaire pour réponses courtes | Peu informatif pour des réponses rédigées en phrases |
+
+La pertinence de réponse de RAGAS (EVA09) n'est pas retenue : elle dépend d'un LLM générateur de questions et d'un modèle d'embedding, pour un accord humain de 0,78 avec GPT-3.5.
+
+### 2.5 Citations
+
+Les définitions de référence (EVA16, EVA17, EVA15) supposent un **jugement de soutien** de chaque phrase par ses passages cités, humain ou par NLI. Quand la vérité terrain est le bloc d'origine, on peut calculer sans juge des bornes et des cas particuliers :
+
+| Métrique | Définition | Nature |
+|---|---|---|
+| Intégrité des identifiants | citations `[Sxxx]` absentes du contexte / citations émises | Contrôle déterministe ; le code valide déjà les identifiants (`validate_answer`, [query.py](../../services/api/query.py) l. 248, état constaté) |
+| Couverture de citation | phrases à vérifier portant au moins une citation / phrases à vérifier | Borne supérieure du rappel de citation : condition nécessaire d'EVA16, EVA17 ; une phrase sans citation vaut « pas de soutien » (EVA15) |
+| Ancrage sur la preuve attendue | $\mathbb 1[\bigcup_i C_i\cap(G_q\cup A_q)\neq\emptyset]$, sur les questions répondables non abstenues | Déterministe ; ne dit pas que la bonne phrase cite le bon bloc |
+| Précision de citation par référence | citations vers $G_q\cup A_q$ / citations émises | Borne inférieure de la précision d'EVA16, EVA17 : une citation vers un bloc non annoté peut être soutenante (trous, EVA23) |
+| Soutien de la valeur clé | $\mathbb 1[v$ figure dans la réponse **et** dans le texte normalisé d'au moins un bloc cité$]$ | Cas particulier déterministe de $\phi$ (EVA16) limité à l'assertion principale des questions à valeur exacte ; ne couvre pas les autres assertions |
+| Localisation | page, puis boîte englobante du bloc cité comparée au bloc requis | Dénominateurs séparés selon [QUALIFICATION.md](../QUALIFICATION.md) §7 |
+
+Le rappel et la précision de citation complets au sens d'ALCE ou de Liu et al. demandent un jugement de soutien. Faute de NLI de taille suffisante sur CPU, ils se mesurent par revue manuelle sur un échantillon, en jugeant, comme au TREC 2024, le premier passage cité de chaque phrase (EVA15), et en rapportant le nombre de phrases jugées. Les dénominateurs portent sur les réponses non abstenues ; le nombre d'abstentions est publié à côté pour qu'un système qui s'abstient davantage n'améliore pas mécaniquement ses citations.
+
+### 2.6 Abstention
+
+| Métrique | Définition | Justification |
+|---|---|---|
+| Abstention correcte | abstentions sur $Q_U$ / $\lvert Q_U\rvert$ | EVA18 (abstention = 1 sur une question sans réponse) ; [QUALIFICATION.md](../QUALIFICATION.md) §7, seuil observé ≥ 0,90 |
+| Faux refus | abstentions sur $Q_A$ / $\lvert Q_A\rvert$ | [QUALIFICATION.md](../QUALIFICATION.md) §7 |
+| Réponse non fondée | réponses produites sur $Q_U$ / $\lvert Q_U\rvert$ | Complément de la première ; équivalent de l'échec de *negative rejection* (EVA20) |
+| Lignes de base | score global des politiques « toujours s'abstenir » et « jamais s'abstenir » sur le même jeu | EVA18 : s'abstenir toujours donnait 48,9 F1 ; une moyenne globale sans ces repères masque le comportement |
+| Risque-couverture | si un score de confiance existe : risque en fonction de la couverture, couverture maximale à risque donné | EVA19 ; **hypothèse** : le code lu n'expose pas de score de confiance de réponse |
+
+**Deux voies d'abstention (état constaté).** Dans [query.py](../../services/api/query.py) l. 208-211, lorsqu'aucune source n'est retenue, l'API renvoie un message fixe (« Les preuves disponibles dans ce périmètre ne suffisent pas pour répondre à cette question. ») avec `model_called = False`. Sinon, une éventuelle abstention est formulée librement par le modèle ; aucun indicateur structuré n'a été relevé dans cette fonction. Les deux voies doivent être comptées séparément. La seconde se détecte dans le texte ; RGB (EVA20) montre qu'une phrase de refus imposée par consigne n'est pas reproduite de façon fiable par les LLM. Le classement « abstention / réponse » de la voie modèle doit donc être vérifié à la main sur tout le jeu tenu à l'écart ou, au minimum, sur un échantillon dont on publie la taille.
+
+**Construction des questions sans réponse (EVA18).** Elles doivent rester pertinentes pour le périmètre et admettre une réponse plausible du bon type dans les documents, sinon un recouvrement de mots suffit à les distinguer. Procédés compatibles avec notre corpus : substitution d'un identifiant par un code voisin inexistant, d'une valeur ou d'une date, négation, paramètre non documenté d'un équipement documenté. L'absence de réponse n'est pas prouvée par construction : elle se vérifie par recherche lexicale sur tout le corpus puis contrôle manuel. [QUALIFICATION.md](../QUALIFICATION.md) §7 interdit déjà de confondre « non trouvé par la recherche » et « annoté sans réponse ».
+
+### 2.7 Questions générées : biais et mesures
+
+| Biais | Mécanisme | Source | Mesure ou atténuation proposée |
+|---|---|---|---|
+| Fuite lexicale | La question reprend les mots du bloc ; la réponse est dans la phrase la plus similaire | EVA24, EVA18 | Calculer pour chaque question le taux de mots de contenu présents dans le bloc requis (après la normalisation de l'index lexical) ; publier les résultats par tercile de recouvrement et par branche (lexicale, dense, hybride) ; reformuler une partie des questions en interdisant de recopier des suites de 3 mots du bloc, hors identifiants et valeurs |
+| Filtrage qui favorise le retriever | Garder une question seulement si le retriever retrouve son passage exclut les cas difficiles et supprime aussi de bonnes paires | EVA21 (bonnes paires retirées), EVA11 (filtre top-1) | Ne jamais filtrer avec le retriever évalué ; si un filtre est appliqué, publier le taux de rejet et conserver une strate non filtrée |
+| Questions génériques | Une question vague a de nombreux blocs pertinents ; la vérité terrain unique devient fausse | EVA22, EVA21 | Chercher la valeur ou l'identifiant attendu dans les autres blocs du corpus ; les ajouter comme alternatives admises ou écarter la question |
+| Trous de la vérité terrain | Blocs pertinents non annotés comptés comme erreurs | EVA23 | Hole@k sur échantillon ; jugement des trous sans savoir quelle configuration les a retrouvés |
+| Écart avec les vraies requêtes | Les intentions et formes de requêtes varient selon la tâche ; des annotateurs du domaine sont nécessaires | EVA21, EVA11, EVA23 | Non levé sans questions d'utilisateurs réels (section 4) ; diversifier les formes : question courte, identifiant seul, phrase complète, relance |
+| Même modèle pour générer et répondre | Proximité de style et de vocabulaire entre questions et réponses du modèle | EVA12 (auto-préférence observée mais non tranchée) | **Hypothèse** à contrôler : produire une partie des questions par gabarits et comparer les résultats des deux strates |
+| Vérité terrain issue de l'OCR | La question hérite d'une coquille d'OCR qui se retrouve alors à l'identique dans l'index | EVA06, EVA30 | Pour les pages numérisées, rédiger une strate de questions en lisant l'image de la page, pas le texte extrait |
+
+### 2.8 Statistiques
+
+**Taux binaires par question.** Intervalle de Wilson à 95 % (EVA25, EVA26), avec $\hat p$ la proportion observée, $n$ l'effectif et $z=1{,}96$ :
+
+$$\frac{\hat p + \frac{z^2}{2n} \pm z\sqrt{\frac{\hat p(1-\hat p)}{n}+\frac{z^2}{4n^2}}}{1+\frac{z^2}{n}}$$
+
+L'intervalle suppose des questions indépendantes. Plusieurs questions tirées d'un même bloc ou d'un même document sont corrélées ; proposition : au plus une question par bloc, un plafond par document, et un bootstrap par document pour les métriques agrégées ([QUALIFICATION.md](../QUALIFICATION.md) §7 demande déjà un bootstrap par question ou par famille, avec méthode et graine publiées). La méthode par percentiles n'est pas établie par les sources lues ici ; Smucker et al. (EVA27) décrivent le bootstrap comme test (méthode par décalage, 100 000 tirages), pas comme intervalle.
+
+**Comparaison appariée de deux configurations sur les mêmes questions.** Pour une issue binaire, noter $b$ les questions réussies par A seul et $c$ par B seul. Le test de randomisation d'EVA27 appliqué à la différence des moyennes $(b-c)/n$ ne permute que les paires discordantes ; sa loi nulle exacte est binomiale $\mathcal B(b+c, 1/2)$ et
+
+$$p = \min\Big(1,\ 2\sum_{i=0}^{\min(b,c)}\binom{b+c}{i}2^{-(b+c)}\Big).$$
+
+C'est une **interprétation** dérivée de la définition d'EVA27 ; elle coïncide avec ce que la littérature statistique nomme test de McNemar exact, dont la source primaire n'a pas été consultée ici. La recommandation d'EVA27 d'abandonner le test du signe vise des différences continues, dont le signe perd l'amplitude ; pour des issues binaires, il n'y a pas d'amplitude à perdre. Pour des métriques continues par question (nDCG, MRR, complétude), publier la différence moyenne $\bar d$, l'effet $\lvert\bar d\rvert/\sqrt V$ et l'intervalle $\bar d\pm t(n-1;0{,}025)\sqrt{V/n}$ (EVA28), avec la p-valeur du test de randomisation apparié (EVA27). Limiter le nombre de comparaisons : avec $m$ configurations comparées deux à deux, le risque d'au moins une fausse différence croît selon $1-(1-\alpha)^{m(m-1)/2}$ (EVA28), ce qui rejoint la règle d'une seule alternative par hypothèse de [DECISIONS.md](../DECISIONS.md).
+
+### 2.9 OCR et tableaux
+
+Les sources établissent trois mécanismes : l'OCR abîme surtout les mots rares et techniques qui servent à retrouver un document précis (EVA06) ; les questions sur tableaux et formules se dégradent davantage que le texte courant (EVA30) ; un taux d'erreur de caractères faible ne garantit pas la recherche lorsque la structure (tableau fragmenté entre pages, ordre de lecture) est perdue (EVA31). Aucune de ces études ne porte sur Tesseract en français ni sur des documents ferroviaires. Conséquence proposée : publier toutes les métriques par voie d'extraction (natif, OCR, tableau natif, tableau OCR) et par catégorie de question, sans agrégat qui mélange ces strates sans les montrer.
+
+## 3. Protocole proposé
+
+Cette section est une **proposition**. Elle ne modifie ni les seuils ni la répartition de [QUALIFICATION.md](../QUALIFICATION.md) §6-7, qui restent la référence ; son adoption relève d'une décision à consigner dans [DECISIONS.md](../DECISIONS.md).
+
+### 3.1 Principes
+
+1. Découpler la recherche et la génération. Les métriques de recherche et de contexte n'appellent pas le LLM et peuvent porter sur plusieurs centaines de questions par gabarits ; les métriques de réponse, de citation et d'abstention exigent une génération par question et restent limitées à quelques dizaines ou une centaine. L'API comporte déjà un mode de qualification sans génération, qui déclare les métriques de génération `NOT_RUN` ([qualification.py](../../services/api/qualification.py) l. 154 et 177, état constaté).
+2. Priorité aux métriques sans juge : identifiants de blocs, valeurs normalisées, présence des valeurs dans les blocs cités.
+3. Vérité terrain écrite et gelée avant la mesure : question, périmètre, révision des documents, unités requises et alternatives, valeur attendue ou absence de réponse.
+4. Une seule configuration comparée à la référence par série, sur les mêmes questions.
+
+### 3.2 Types de questions
+
+| Type | Construction | Vérité terrain | Métriques principales | Point de vigilance |
+|---|---|---|---|---|
+| Factuelle à valeur exacte | Gabarit ou LLM local à partir d'un bloc texte contenant une valeur avec unité | Bloc + valeur normalisée | Recall@k, EvidenceCoverage, exactitude stricte, soutien de la valeur clé | Fuite lexicale ; valeur répétée dans d'autres blocs |
+| Identifiant | Gabarit sur un code ou une référence exacte, avec codes voisins réels dans le corpus | Bloc(s) où l'identifiant est défini ou utilisé de façon pertinente | Success@k par branche, couverture après contraintes | Occurrence arbitraire de l'identifiant ≠ preuve ([QUALIFICATION.md](../QUALIFICATION.md) §4) |
+| Tableau | Gabarit en-tête de ligne × en-tête de colonne → cellule | Bloc tableau + valeur et unité | Idem factuelle, stratifiée par voie d'extraction | Tableau multipage, OCR de cellules (EVA30, EVA31) |
+| Multi-passages | Deux blocs de pages ou de documents distincts (comparaison, texte + tableau) | Deux unités requises | AllRequired@Context, complétude stricte | Budget de 8 fragments ; intégration d'information (EVA20) |
+| Relance | Paire question puis relance pronominale ou changement de périmètre | Unités de la relance | Mêmes métriques, plus l'absence de preuve de l'ancienne réponse comme source | Historique pris en compte ; ancienne réponse jamais utilisée comme preuve (skill) |
+| Sans réponse dans le corpus | Substitution adverse (EVA18) | Absence vérifiée | Abstention correcte, réponse non fondée | Pertinence et réponse plausible obligatoires ; absence vérifiée à la main |
+| Hors périmètre | Réponse présente dans la bibliothèque mais hors du périmètre sélectionné | Abstention attendue | Abstention correcte, fuite de périmètre = 0 | Distinguer abstention de recherche et abstention du modèle (2.6) |
+
+Répartition proposée pour une série de 100 questions, alignée sur la colonne « Test final » de [QUALIFICATION.md](../QUALIFICATION.md) §6 : 35 factuelles, 15 identifiants, 12 tableaux, 10 multi-passages, 8 relances, 20 sans réponse (par exemple 12 absentes du corpus et 8 hors périmètre). La paraphrase à faible recouvrement est une étiquette transversale, pas une catégorie.
+
+### 3.3 Contrôle de qualité des questions sans expert
+
+- Automatique : la valeur attendue figure dans le bloc requis ; la question ne contient pas la réponse ; taux de recouvrement lexical calculé ; recherche de la valeur ou de l'identifiant dans tout le corpus pour déclarer les alternatives ou écarter les questions ambiguës.
+- Manuel, par le développeur, sur toutes les questions du jeu tenu à l'écart (volume compatible avec 100 questions) : répondable à partir du seul bloc, sans ambiguïté, formulée en français naturel ; annotation de validité à la manière d'EVA24, avec auteur et date. Si deux relecteurs sont disponibles, publier le kappa sur un échantillon commun (EVA03) ; sinon, indiquer qu'un seul relecteur a jugé.
+- Les questions écartées et leur motif sont conservés, pour mesurer le taux de déchet de chaque méthode de génération.
+
+### 3.4 Séparation développement / tenu à l'écart
+
+Séparer par document ou par famille de documents ([QUALIFICATION.md](../QUALIFICATION.md) §6) ; aucune paraphrase d'une même question de part et d'autre ; aucun exemple du jeu tenu à l'écart dans les invites de génération ; tout réglage (paramètres de recherche, invite, normalisation, invite de juge) se fait sur le développement. Le jeu tenu à l'écart est gelé par empreinte avant sa première exécution ; les outils de qualification comportent déjà un mécanisme de gel (`final.freeze.json`, [README des outils](../../tools/qualification/README.md), état constaté, non audité ici). Une question utilisée pour diagnostiquer un échec quitte le jeu tenu à l'écart.
+
+### 3.5 Tailles d'échantillon et intervalles attendus
+
+Intervalles de Wilson à 95 % calculés localement pour des effectifs hypothétiques (calcul de planification, pas une mesure) :
+
+| n | 50 % observé | 80 % observé | 90 % observé | 95 % observé | 100 % observé |
+|---:|---|---|---|---|---|
+| 20 | [0,299 ; 0,701] | [0,584 ; 0,919] | [0,699 ; 0,972] | [0,764 ; 0,991] | [0,839 ; 1] |
+| 30 | [0,332 ; 0,668] | [0,627 ; 0,905] | [0,744 ; 0,965] | [0,787 ; 0,982] | [0,886 ; 1] |
+| 50 | [0,366 ; 0,634] | [0,670 ; 0,888] | [0,786 ; 0,957] | [0,865 ; 0,989] | [0,929 ; 1] |
+| 80 | [0,393 ; 0,607] | [0,700 ; 0,873] | [0,815 ; 0,948] | [0,878 ; 0,980] | [0,954 ; 1] |
+| 100 | [0,404 ; 0,596] | [0,711 ; 0,867] | [0,826 ; 0,945] | [0,888 ; 0,978] | [0,963 ; 1] |
+
+Lectures utiles : 18/20 abstentions correctes (seuil de [QUALIFICATION.md](../QUALIFICATION.md) §7) laissent un intervalle [0,699 ; 0,972] ; 27/30 ne permettent pas d'affirmer un taux supérieur à 0,75. Pour une demi-largeur d'environ 0,10, il faut de l'ordre de 37 questions autour de 90 % et de 93 questions autour de 50 %.
+
+Test exact apparié (2.8), p bilatérale : 5 discordances toutes favorables à B donnent p = 0,0625 ; 6 donnent p = 0,031. Avec des discordances partagées : 15 contre 5, p = 0,041 ; 12 contre 4, p = 0,077 ; 8 contre 2, p = 0,109. Sur 100 questions, une amélioration nette de quelques questions n'est donc pas démontrable ; publier $b$, $c$ et l'intervalle de la différence plutôt qu'un seul verdict.
+
+### 3.6 Coût CPU (arithmétique à partir de la donnée de la demande)
+
+La demande indique environ 8 tokens/s en préfill ; ce chiffre n'a pas été mesuré ici. Il implique environ 125 s par millier de tokens d'entrée, soit environ 6 min 15 s de préfill pour 3 000 tokens, hors génération, et de l'ordre de 10 h 25 min de préfill pour 100 questions de cette taille. Un juge qui relit le même contexte coûte le même ordre de grandeur par appel. D'où l'ordre proposé : recherche et contexte sur tout le jeu (sans LLM), génération sur le jeu de réponse, juge seulement sur un échantillon ; aucune de ces charges en concurrence avec une autre mesure lourde ([QUALIFICATION.md](../QUALIFICATION.md) §1).
+
+### 3.7 Juge LLM local : usages admissibles et précautions
+
+| Usage | Admissible ? | Motif |
+|---|---|---|
+| Métriques de recherche et de contexte | Non nécessaire | Identifiants de blocs : calcul déterministe (EVA10) |
+| Exactitude d'une valeur ou d'un identifiant | Non nécessaire | Normalisation et comparaison déterministes |
+| Détection de l'abstention dans le texte libre | Oui, comme classifieur à valider | Tâche simple, mais la sortie des LLM suit mal les consignes (EVA20) ; accord à mesurer contre un étiquetage manuel |
+| Soutien d'assertions libres (fidélité à la RAGAS) | Seulement en tri, pour signaler les réponses à relire | RAGAS validé avec GPT-3.5 (EVA09), ALCE avec un NLI de 11 milliards de paramètres (EVA16), ARES avec des juges affinés et 150 à 300 étiquettes humaines (EVA11) ; aucun juge de 4B étudié dans ces sources |
+| Décision A/B fondée sur le seul score du juge | Non | Biais de position, de verbosité et d'auto-préférence plus forts chez les juges faibles (EVA12) |
+
+Précautions si un juge local est employé : même modèle Qwen que le générateur, donc jamais d'auto-évaluation sans référence ; jugement guidé par la valeur ou le bloc de référence (EVA12 : 14/20 échecs sans référence contre 3/20 avec) ; température nulle, sortie JSON (EVA09 §5.1) ; invite versionnée et gelée sur le développement ; accord avec un étiquetage manuel publié (kappa, seuils d'EVA03) avant de citer un chiffre issu du juge ; la PPI d'ARES (EVA11) n'est envisageable qu'avec un ensemble d'étiquettes humaines du domaine, aujourd'hui absent.
+
+### 3.8 Contenu d'un rapport de série
+
+Identité du jeu (empreinte, date, méthode de génération, taux de déchet), révision du dépôt et des modèles, configuration (k, RRF, taille de contexte), puis pour chaque métrique : numérateur, dénominateur, intervalle, graine et méthode de rééchantillonnage ; ventilation par catégorie, par voie d'extraction et par tercile de recouvrement lexical ; lignes de base d'abstention ; liste des questions en échec. Statuts `NOT_RUN`, `PASS`, `FAIL`, `BLOCKED` selon [QUALIFICATION.md](../QUALIFICATION.md) §9.
+
+## 4. Limites que ce protocole ne lève pas
+
+1. **Validité externe.** Sans questions d'utilisateurs ni expert ferroviaire, les métriques mesurent la capacité à retrouver le bloc d'où une question a été tirée, pas l'utilité pour un agent. Les sources montrent que les intentions et formes de requêtes varient selon les tâches (EVA21) et qu'un jugement de domaine demande des annotateurs spécialisés (EVA11).
+2. **Biais des questions synthétiques.** Reformulation, gabarits et strates atténuent la fuite lexicale et l'effet de filtrage sans les supprimer ; un écart entre strates signale le biais, il ne le corrige pas.
+3. **Vérité terrain incomplète.** Un seul bloc d'origine laisse des trous ; Hole@k sur échantillon et alternatives déclarées réduisent la sous-estimation sans l'annuler (EVA23).
+4. **Circularité de l'extraction.** Des questions tirées du texte extrait ne voient pas les erreurs d'extraction qu'elles reproduisent ; seule une strate rédigée à partir de l'image des pages les expose (EVA06, EVA30, EVA31).
+5. **Absence de réponse.** Elle n'est jamais prouvée par construction ; la vérification manuelle reste faillible.
+6. **Petits effectifs.** Avec 100 questions, la demi-largeur des intervalles reste d'environ ±0,06 autour de 90 % et ±0,10 autour de 50 %, et une différence de quelques questions entre configurations n'est pas démontrable.
+7. **Juge local.** Aucune source lue ne valide un juge de 4B en français pour le soutien de réponses ; même entre humains, le jugement de soutien est bruité (EVA15).
+8. **Langue et domaine des sources.** Toutes les études lues portent sur l'anglais (et le chinois pour RGB et OHRBench) ; aucune source consultée n'évalue un RAG en français ni sur des documents ferroviaires.
+9. **Méthodes mouvantes.** La documentation Ragas et la méthodologie du track TREC RAG évoluent ; les définitions retenues ici sont datées du 30/09/2026.
+
+## 5. Sources non ouvertes ou partiellement lues
+
+| Source | Tentative | Conséquence |
+|---|---|---|
+| E. B. Wilson, *JASA*, 1927 (Taylor & Francis, DOI 10.1080/01621459.1927.10502953) | Page éditeur : 403 | Formule reprise du NIST e-Handbook (EVA25), qui attribue la méthode à Wilson (1927) |
+| T. Sakai, « Evaluating evaluation metrics based on the bootstrap », SIGIR 2006 (ACM, DOI 10.1145/1148170.1148261) | Page ACM : 403 ; aucune copie auteur trouvée | Non utilisé comme preuve ; seules la page NTCIR BOOTS (EVA29) et la référence dans EVA28 ont été lues |
+| Pages ACM de Cormack et al. 2009, Smucker et al. 2007, InPars 2022 | 403 | Copies auteur lues (EVA08, EVA27, EVA22) ; DOI de l'article RRF non vérifié |
+| Page éditeur now publishers de Robertson et Zaragoza | 403 | Copie auteur lue (EVA07) |
+| OpenReview, Promptagator | Page de vérification du navigateur | Copie arXiv lue (EVA21) ; acceptation ICLR 2023 non vérifiée par lecture |
+| PDF CVF d'OHRBench (ICCV 2025) ; PDF arXiv | 403 ; taille limite dépassée | Version HTML arXiv lue (EVA30) |
+| Article de synthèse officiel du track TREC 2024 RAG | Absent de l'index des actes TREC 33 consulté | Remplacé par la synthèse générale NIST (EVA05), les pages des organisateurs (EVA13) et deux rapports des organisateurs (EVA14, EVA15) |
+| Brown, Cai et DasGupta 2001, texte intégral | Non lu | Seul le résumé est utilisé (EVA26) |
+| Järvelin et Kekäläinen, ACM TOIS 2002 ; Agresti et Coull 1998 ; source primaire du test de McNemar | Non tentés | Cités seulement à travers EVA04, EVA25 ou signalés comme non consultés |
+| BEIR sur `neurips.cc` | 404 | Même article lu sur `datasets-benchmarks-proceedings.neurips.cc` (EVA23) |
+| ACL 2026 Industry (EVA31), sections expérimentales | Non lues | Seuls le résumé et l'introduction sont utilisés |
+
+## 6. Suites proposées, non réalisées
+
+- Enregistrer les références EVA01-EVA31 retenues dans [SOURCES.md](../SOURCES.md), qui reste le registre unique, en renvoyant à ce dossier plutôt qu'en le recopiant.
+- Soumettre à décision dans [DECISIONS.md](../DECISIONS.md) : métriques de citation déterministes (2.5), comptage séparé des deux voies d'abstention (2.6), strates contre les biais des questions synthétiques (2.7), usage restreint du juge local (3.7).
+- Écrire et tester la règle de correspondance fragment → bloc et la normalisation française des valeurs avant la première série.

@@ -64,7 +64,7 @@ test("real import, reading, scoped search and source navigation", async ({ page,
     await info.attach("reused-controlled-document", { body: Buffer.from(JSON.stringify(detail, null, 2)), contentType: "application/json" });
   } else {
     const chooser = page.waitForEvent("filechooser");
-    await page.getByRole("button", { name: "PDF", exact: true }).click();
+    await page.getByRole("button", { name: "Importer des PDF", exact: true }).click();
     await (await chooser).setFiles(nativeDevPath);
   }
   const documentButton = page.getByRole("navigation", { name: "Arborescence documentaire" }).getByRole("button", { name: new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) }).first();
@@ -110,7 +110,7 @@ test("real import, reading, scoped search and source navigation", async ({ page,
   await expect(pressureSource).toBeVisible();
   await expect(pressureSource).toContainText(name);
   await expect(pressureSource.locator(".source-id")).toHaveText("Passage");
-  await pressureSource.click();
+  await pressureSource.getByRole("button", { name: "Ouvrir le passage", exact: true }).click();
   await expect(page.getByTestId("scope-summary")).toContainText(name);
   await expect(page.getByTestId("source-highlight").first()).toBeVisible();
   await expect(page.locator('.pdf-page-slot[data-page-index="0"] .textLayer span').filter({ hasText: /pression nominale.*3[.,]1/ }).first()).toBeAttached();
