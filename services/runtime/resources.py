@@ -316,8 +316,24 @@ class ResourceGovernor:
                     self._owner = None
                     self._mode = "interactive"
 
+    async def _admit_generation(self, loaded: dict[str, Any] | None, on_wait) -> None:
+        """Admission bornée : la mémoire hôte fluctue avec la charge étrangère ; la réserve reste intacte."""
+        deadline = time.monotonic() + float(self.settings.get("generation_admission_wait_seconds", 0))
+        announced = False
+        while True:
+            try:
+                self._admit("generation", loaded)
+                return
+            except ResourceAdmissionError as refused:
+                if time.monotonic() >= deadline:
+                    raise
+                if on_wait is not None and not announced:
+                    announced = True
+                    on_wait(refused.snapshot)
+            await asyncio.sleep(2)
+
     @asynccontextmanager
-    async def generation(self):
+    async def generation(self, on_wait=None):
         self._generation_requests += 1
         if self._owner == "ingestion":
             self._request_checkpoint()
@@ -325,7 +341,7 @@ class ResourceGovernor:
             async with self._heavy:
                 with self._host_heavy("generation"):
                     loaded = await self.before_generation() if self.before_generation else None
-                    self._admit("generation", loaded)
+                    await self._admit_generation(loaded, on_wait)
                     self._owner = "generation"
                     self._mode = "generation"
                     owner_task = asyncio.current_task()

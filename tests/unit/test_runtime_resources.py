@@ -157,3 +157,43 @@ def test_admission_requirement_matches_governor_refusal(tmp_path, monkeypatch):
         item._admit("generation")
     assert caught.value.code == "resource_admission_denied"
     assert caught.value.snapshot["admission"]["required_available_mib"] == 4992
+
+
+def _admission_governor(tmp_path, wait_seconds, monkeypatch, sleeps):
+    item = ResourceGovernor({"app": {"data_dir": str(tmp_path)}, "resources": {
+        "host_available_min_mib": 1536, "admit_heavy_min_available_mib": 3072,
+        "initial_llm_load_peak_estimate_mib": 3456, "generation_admission_wait_seconds": wait_seconds,
+    }}, host_lock_path=tmp_path / "host-heavy.lock")
+    samples = iter(sleeps)
+
+    def snapshot():
+        return {"available_mib": next(samples, sleeps[-1]), "heavy_owner": None}
+
+    monkeypatch.setattr(item, "snapshot", snapshot)
+    return item
+
+
+@pytest.mark.asyncio
+async def test_generation_admission_waits_for_memory_then_admits(tmp_path, monkeypatch):
+    item = _admission_governor(tmp_path, 30, monkeypatch, [4723, 4800, 5100])
+    waits = []
+    monkeypatch.setattr("services.runtime.resources.asyncio.sleep", _instant_sleep)
+    async with item.generation(on_wait=waits.append):
+        pass
+    # Un seul état d'attente annoncé, avec le besoin réel ; la réserve n'est pas abaissée.
+    assert len(waits) == 1 and waits[0]["admission"]["required_available_mib"] == 3456 + 1536
+
+
+@pytest.mark.asyncio
+async def test_generation_admission_without_wait_refuses_immediately(tmp_path, monkeypatch):
+    item = _admission_governor(tmp_path, 0, monkeypatch, [4723])
+    waits = []
+    with pytest.raises(ResourceAdmissionError) as refused:
+        async with item.generation(on_wait=waits.append):
+            pass
+    assert refused.value.code == "resource_admission_denied" and waits == []
+    assert item._generation_requests == 0
+
+
+async def _instant_sleep(_seconds):
+    return None

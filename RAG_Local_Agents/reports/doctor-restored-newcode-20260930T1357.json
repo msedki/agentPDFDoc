@@ -1,0 +1,279 @@
+{
+  "utc": "2026-09-30T13:58:13.600334+00:00",
+  "platform": "Windows native, no WSL/Docker",
+  "python": {
+    "version": "3.12.14",
+    "executable": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe"
+  },
+  "resources": {
+    "available_mib": 5050.45703125,
+    "disk_free_mib": 25109.33984375
+  },
+  "profile_sha256": "084f1ea9b3c190f535893a33e0d0773d244af6df020728d662c8d5437e921ee4",
+  "data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348",
+  "checks": {
+    "qdrant_storage": {
+      "status": "valid",
+      "path": "D:\\enhacements\\agentragpdf\\.runtime\\q\\827d9394",
+      "native_storage_path_limit": 57
+    },
+    "profile_application": {
+      "status": "applied",
+      "declared_profile_sha256": "084f1ea9b3c190f535893a33e0d0773d244af6df020728d662c8d5437e921ee4",
+      "runtime_profile_sha256": "084f1ea9b3c190f535893a33e0d0773d244af6df020728d662c8d5437e921ee4",
+      "limit": "Compares supervisor-recorded profile identity; health/readiness still determine actual service availability."
+    },
+    "ports": {
+      "app": {
+        "port": 8795,
+        "state": "owned",
+        "listener_pids": [
+          21460
+        ]
+      },
+      "qdrant": {
+        "port": 6343,
+        "state": "owned",
+        "listener_pids": [
+          8628
+        ]
+      },
+      "ollama": {
+        "port": 11445,
+        "state": "owned",
+        "listener_pids": [
+          17076
+        ]
+      }
+    },
+    "cold_admission": {
+      "generation": {
+        "owner": "generation",
+        "resident_model": false,
+        "additional_peak_estimate_mib": 3456,
+        "host_reserve_mib": 1536,
+        "required_available_mib": 4992,
+        "available_mib": 5050.46,
+        "margin_mib": 58.46,
+        "admissible_now": true
+      },
+      "ingestion": {
+        "owner": "ingestion",
+        "resident_model": false,
+        "additional_peak_estimate_mib": 2304,
+        "host_reserve_mib": 1536,
+        "required_available_mib": 3840,
+        "available_mib": 5050.46,
+        "margin_mib": 1210.46,
+        "admissible_now": true
+      },
+      "limit": "Snapshot: required = max(admit minimum, cold peak estimate + host reserve); a resident model only needs its additional peak."
+    },
+    "model_lock": {
+      "status": "conform",
+      "lock": "D:\\enhacements\\agentragpdf\\config\\models.lock.json",
+      "lock_sha256": "00e1114da56e7f8e60485754d262a4436d643af3fd511587308defa21513d038",
+      "hash_limit_bytes": 1048576,
+      "models": {
+        "qwen3.5:4b": {
+          "status": "conform",
+          "issues": []
+        },
+        "qwen3.5:4b-text": {
+          "status": "conform",
+          "issues": []
+        }
+      },
+      "profile_models_locked": true
+    },
+    "llm_model_files": {
+      "status": "present",
+      "manifest": "D:\\enhacements\\agentragpdf\\.runtime\\models\\ollama\\manifests\\registry.ollama.ai\\library\\qwen3.5\\4b-text",
+      "manifest_sha256": "de8024dbfde0f6e136e9f120ab7c656ca0e304b24360de18a4a287039aa12199",
+      "blobs": 4,
+      "issues": [],
+      "limit": "Blob sizes only; see model_lock for digests."
+    },
+    "python312": true,
+    "dependencies_locked": true,
+    "static_export": true,
+    "native_binaries": {
+      "qdrant": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\qdrant-1.19.1\\qdrant.exe",
+      "ollama": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\ollama-0.35.0\\ollama.exe"
+    },
+    "embedding_files": true,
+    "llm_tokenizer": true,
+    "ocr_languages": {
+      "osd": true,
+      "eng": true,
+      "fra": true
+    },
+    "ocr_tsv_config": true,
+    "tesseract_binary": true,
+    "llm_model": {
+      "name": "qwen3.5:4b-text",
+      "model": "qwen3.5:4b-text",
+      "modified_at": "2026-09-30T09:08:06.7158957Z",
+      "size": 2722273901,
+      "digest": "de8024dbfde0f6e136e9f120ab7c656ca0e304b24360de18a4a287039aa12199",
+      "details": {
+        "parent_model": "model.gguf",
+        "format": "gguf",
+        "family": "qwen35",
+        "families": [
+          "qwen35"
+        ],
+        "parameter_size": "4.3B",
+        "quantization_level": "Q4_K_M",
+        "context_length": 262144,
+        "embedding_length": 2560
+      },
+      "capabilities": [
+        "completion",
+        "vision",
+        "tools",
+        "thinking"
+      ]
+    },
+    "index_consistency": {
+      "status": "not_exposed",
+      "reason": "GET /api/v1/diagnostics does not expose active-generation Qdrant points vs SQLite chunks",
+      "diagnostics_keys": [
+        "active_queries",
+        "cold_cache_release",
+        "database_bytes",
+        "dense_identity",
+        "embedding_session",
+        "indexing_cache",
+        "ingestion_cache",
+        "llm_tokenizer_cache",
+        "llm_tokenizer_identity",
+        "logical_cores",
+        "platform",
+        "profile_sha256",
+        "python",
+        "qdrant_collection",
+        "reconciliation",
+        "resources",
+        "runtime_network",
+        "selector_sha256",
+        "sqlite"
+      ]
+    },
+    "llm_model_diagnosis": {
+      "status": "available",
+      "files": "present",
+      "service": "listed"
+    }
+  },
+  "runtime": {
+    "instance_id": "58a18e1d53ba45afbcd35acee1cf0139",
+    "status": "running",
+    "profile_path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\restored-profile.yaml",
+    "profile_sha256": "084f1ea9b3c190f535893a33e0d0773d244af6df020728d662c8d5437e921ee4",
+    "data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348",
+    "supervisor": {
+      "pid": 30192,
+      "created_at": 1790776658.3982513,
+      "executable": "D:\\enhacements\\agentragpdf\\.runtime\\python\\cpython-3.12.14-windows-x86_64-none\\python.exe"
+    },
+    "services": {
+      "qdrant": {
+        "pid": 8628,
+        "created_at": 1790776664.7829788,
+        "executable": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\qdrant-1.19.1\\qdrant.exe",
+        "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\logs\\58a18e1d53ba45afbcd35acee1cf0139\\qdrant.log",
+        "exit_code": null,
+        "identity_valid": true
+      },
+      "ollama": {
+        "pid": 17076,
+        "created_at": 1790776668.1905599,
+        "executable": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\ollama-0.35.0\\ollama.exe",
+        "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\logs\\58a18e1d53ba45afbcd35acee1cf0139\\ollama.log",
+        "exit_code": null,
+        "identity_valid": true
+      },
+      "api": {
+        "pid": 13812,
+        "created_at": 1790776684.9261696,
+        "executable": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+        "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\logs\\58a18e1d53ba45afbcd35acee1cf0139\\api.log",
+        "exit_code": null,
+        "identity_valid": true
+      }
+    },
+    "shutdown_marker": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\control\\shutdown-58a18e1d53ba45afbcd35acee1cf0139",
+    "app_url": "http://127.0.0.1:8795",
+    "stop_results": [],
+    "source_manifest_path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348\\logs\\58a18e1d53ba45afbcd35acee1cf0139\\source-manifest.json",
+    "source_fingerprint": "fc721d16cb5174a868187be30ef8659727b70676b5a1542801193bdc45b4ba16",
+    "source_identity_kind": "working_files_sha256_manifest",
+    "qdrant_config_sha256": "084e982c8fd8930873c4a0222c7f2a5f9128a6096307b27281b159194b58f947",
+    "qdrant_data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\q\\827d9394",
+    "http_health": {
+      "status": "alive",
+      "service": "rag-api"
+    },
+    "supervisor_identity_valid": true,
+    "profile_matches_current": true
+  },
+  "packages": {
+    "fastapi": "0.142.1",
+    "docling": "2.131.0",
+    "onnxruntime": "1.30.0",
+    "psutil": "7.2.2"
+  },
+  "node_tools": {
+    "node": {
+      "path": "D:\\node\\node-v22.17.0-win-x64\\node.exe",
+      "version": "v22.17.0",
+      "exit_code": 0
+    },
+    "pnpm": {
+      "path": "D:\\node\\node-v22.17.0-win-x64\\pnpm.cmd",
+      "version": "10.34.1",
+      "exit_code": 0
+    }
+  },
+  "services": {
+    "api_health": {
+      "http_status": 200,
+      "body": {
+        "status": "alive",
+        "service": "rag-api"
+      }
+    },
+    "api_ready": {
+      "http_status": 200,
+      "body": {
+        "status": "ready",
+        "checks": {
+          "sqlite": true,
+          "embedding": true,
+          "llm_tokenizer": true,
+          "qdrant": true,
+          "ollama": true,
+          "governor": true
+        },
+        "blockers": []
+      }
+    },
+    "qdrant": {
+      "http_status": 200,
+      "body": {
+        "title": "qdrant - vector search engine",
+        "version": "1.19.1",
+        "commit": "6ab21cac18ebb6f4ae29102c7f8f5cc11affd5de"
+      }
+    },
+    "ollama": {
+      "http_status": 200,
+      "body": {
+        "version": "0.35.0"
+      }
+    }
+  },
+  "loaded_models": [],
+  "qualification": "NOT_RUN: doctor does not prove an end-to-end answer"
+}

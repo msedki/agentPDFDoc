@@ -55,7 +55,7 @@ class FakeGovernor:
     def snapshot(self):
         return {"heavy_owner": None}
     @asynccontextmanager
-    async def generation(self):
+    async def generation(self, on_wait=None):
         yield
 
 
@@ -242,7 +242,7 @@ def test_api_admin_evaluation_runs_real_scope_and_context_without_generation(tmp
     monkeypatch.setenv("RAG_CONTROL_TOKEN", "test-only-nonce")
     class NoGeneration(FakeGovernor):
         @asynccontextmanager
-        async def generation(self):
+        async def generation(self, on_wait=None):
             raise AssertionError("Diagnostic context must never acquire generation admission")
             yield
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
@@ -376,7 +376,7 @@ def test_api_quiesce_nonce_blocks_mutations_and_preserves_reads(tmp_path, monkey
 def test_api_no_evidence_abstains_without_generation_admission(tmp_path):
     class DeniedGovernor(FakeGovernor):
         @asynccontextmanager
-        async def generation(self):
+        async def generation(self, on_wait=None):
             raise AssertionError("Language-model admission must not be requested without evidence")
             yield
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})

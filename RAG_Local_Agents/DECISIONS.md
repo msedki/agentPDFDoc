@@ -115,3 +115,13 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 **Optimisation testée et rejetée :** `use_mmap: true` explicite, respecté par Ollama 0.35.0 ([server/sched.go](https://github.com/ollama/ollama/blob/v0.35.0/server/sched.go), `disableMmapDefaultReason`), est neutralisé pour ce GGUF par le correctif de compatibilité (« compat patch disabled mmap for transformed text tensors » ; tampon modèle `CPU` 812,70 Mio, non `CPU_Mapped`) : aucun gain, profil inchangé.
 
 **Conséquences :** admission froide possible à partir de 4992 Mio disponibles (contre 5888). Sur ce poste partagé, la mémoire disponible observée varie entre ≈ 4,9 et 6,1 Gio selon la charge étrangère : une question peut encore être refusée ou attendre, ce qui est le comportement voulu. Le préfill (≈ 8,6 tokens/s, sans réutilisation de préfixe pour un contenu nouveau) reste la phase dominante des latences D07.
+
+## W008 Attente bornée à l'admission de génération
+
+**Date :** 30 septembre 2026, 14:05 UTC. **Statut :** implémenté, tests unitaires PASS ; effet réel mesuré au prochain essai.
+
+**Contexte :** avec le modèle texte (W007), l'admission froide exige 4992 Mio disponibles. Sur ce poste partagé, la mémoire disponible fluctue entre environ 4,4 et 6,1 Gio selon des processus étrangers (navigateur, antivirus, autres outils) que le projet n'arrête pas. Question du 13:58 UTC sur l'instance restaurée : 5050 Mio avant la question, 4413 après chargement d'E5 pour la recherche, 4722 après libération des caches (+308 Mio), refus immédiat à 4723 < 4992 ([preuve](reports/backend/2026-09-30-restored-question-newcode-20260930T1358.json)). L'interface prévoyait déjà l'état « En attente de mémoire disponible » (`waiting_for_resources`) sans que l'API l'émette.
+
+**Choix retenu :** `resources.generation_admission_wait_seconds: 120`. Le gouverneur remesure toutes les 2 s jusqu'à cette limite ; la première insuffisance émet un événement SSE `waiting_for_resources` (mémoire disponible et requise), puis la question est admise dès que le seuil est atteint ou refusée à l'échéance. La réserve de 1536 Mio, les estimations et la surveillance pendant la génération sont inchangées ; l'annulation reste possible pendant l'attente. 0 rétablit le refus immédiat.
+
+**Conséquences :** une fluctuation de courte durée ne fait plus échouer une question ; une pénurie durable reste refusée avec son motif. Pendant l'attente, le verrou lourd du poste est tenu : aucun import ne démarre.

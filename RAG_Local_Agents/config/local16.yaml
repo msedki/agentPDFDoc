@@ -147,6 +147,7 @@ resources:
   initial_llm_load_peak_estimate_mib: 3456
   warm_llm_additional_peak_estimate_mib: 512
   embedding_load_peak_estimate_mib: 512
+  generation_admission_wait_seconds: 120
   initial_parser_peak_estimate_mib: 2304
   scheduling:
     initial_mode: interactive

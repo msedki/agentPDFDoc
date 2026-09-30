@@ -1,13 +1,13 @@
 import asyncio
-from contextlib import asynccontextmanager
 import json
 import re
 import time
+from contextlib import asynccontextmanager
 
 from .context import validate_answer
 from .db import json_dump, now, uid
 from .errors import ApiError
-from .retrieval import identifiers, contains_identifier
+from .retrieval import identifiers
 
 
 @asynccontextmanager
@@ -206,7 +206,12 @@ class QueryService:
                     else:
                         if self.governor and self.governor.snapshot().get("heavy_owner") == "ingestion":
                             self.db.add_event(query_id, "status", {"state": "waiting_for_ingestion_checkpoint"})
-                        generation_lease = self.governor.generation() if self.governor else empty_lease()
+                        def waiting(sample):
+                            admission = sample.get("admission") or {}
+                            self.db.add_event(query_id, "status", {"state": "waiting_for_resources",
+                                                                   "available_mib": sample.get("available_mib"),
+                                                                   "required_mib": admission.get("required_available_mib")})
+                        generation_lease = self.governor.generation(on_wait=waiting) if self.governor else empty_lease()
                         admission_started = time.perf_counter()
                         async with generation_lease:
                             metrics["generation_admission_wait_ms"] = round((time.perf_counter() - admission_started) * 1000, 2)
