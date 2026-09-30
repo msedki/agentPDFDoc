@@ -5,13 +5,14 @@ import { ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, FileText, List, Rota
 import type { PDFDocumentProxy, PDFPageProxy, RenderTask } from "pdfjs-dist";
 import { api } from "@/lib/api";
 import { useWorkspace } from "@/lib/store";
-import { boundedCanvasSize, reconcileSelection, sourcePage, visiblePageWindow, wholeBlockSpan } from "@/lib/selection";
+import { boundedCanvasSize, reconcileSelection, visiblePageWindow, wholeBlockSpan } from "@/lib/selection";
 import { errorMessage } from "@/lib/utils";
 import { ocrOverlays } from "@/lib/ocr-overlay";
 import { hasPublishedExtraction } from "@/lib/publication";
 import { warningText } from "@/lib/warnings";
 import { blocksKey, citedRevision } from "@/lib/provenance-revision";
 import { useCitationRevision } from "@/lib/use-citation-revision";
+import { sourcePrecisionLabel, sourceRegionBoxes } from "@/lib/source-location";
 import type { Bbox, Source } from "@/lib/types";
 import { Button } from "./ui/button";
 import { DocumentTools } from "./document-tools";
@@ -96,10 +97,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
     }
   }, [search, viewport, nativeText]);
 
-  const sourceBlockBoxes = source?.blocks?.filter(block => block.page_index === pageIndex && block.bbox).map(block => block.bbox!) ?? [];
-  const sourceBoxes = source?.version_id === versionId
-    ? sourceBlockBoxes.length ? sourceBlockBoxes : sourcePage(source) === pageIndex ? source.bboxes ?? [] : []
-    : [];
+  const sourceBoxes = sourceRegionBoxes(source, versionId, pageIndex);
   const overlays = ocrOverlays(blocks.data?.blocks ?? []);
 
   const selectText = () => {
@@ -243,7 +241,7 @@ export function PdfViewer() {
     {searchStatus && <p className="viewer-notice" role="status">{searchStatus}</p>}
     {binding.error ? <p className="viewer-notice inline-warning" role="status">{binding.error}</p> : !provenanceReady && <p className="viewer-notice" role="status">Original consultable · extraction et publication en attente. Les passages annotés seront disponibles après indexation.</p>}
     {binding.actions.reason && !binding.error && <p className="viewer-notice" role="status">{binding.actions.reason}</p>}
-    {state.source && <div className="source-navigation" role="status"><strong>{state.source.source_id ?? "Résultat de recherche"}</strong><span>{state.source.precision === "page" || !state.source.bboxes?.length && !state.source.blocks?.some(block => block.bbox) ? "Localisation à la page" : "Passage source"} · version {opened.versionId.slice(0, 8)}{binding.revision ? ` · révision ${binding.revision.slice(0, 8)}` : ""}</span></div>}
+    {state.source && <div className="source-navigation" role="status"><strong>{state.source.source_id ?? "Résultat de recherche"}</strong><span>{sourcePrecisionLabel(state.source)} · version {opened.versionId.slice(0, 8)}{binding.revision ? ` · révision ${binding.revision.slice(0, 8)}` : ""}</span></div>}
     {outlineVisible && <nav className="outline" aria-label="Sommaire"><h3>Sommaire disponible</h3>{outline.isLoading ? <p>Chargement…</p> : outline.isError ? <p role="alert">{errorMessage(outline.error)}</p> : !outline.data?.sections.length ? <p>Aucune section extraite disponible.</p> : outline.data.sections.map(section => <div key={section.id}><button onClick={() => state.page(section.page_index)}>{section.title}<span>p. {section.page_index + 1}</span></button><Button variant="ghost" size="sm" disabled={!binding.actions.allowed} title={binding.actions.reason ?? undefined} onClick={() => { if (binding.actions.allowed) state.setScope({ kind: "section", versionId: opened.versionId, sectionId: section.id }, section.title); }}>Analyser</Button></div>)}</nav>}
     <div className="pdf-scroll" ref={scroll} onScroll={onScroll} data-testid="pdf-scroll">
       {loadError ? <div className="empty-state" role="alert"><h3>Lecture impossible</h3><p>{loadError}</p><Button variant="secondary" onClick={() => window.location.reload()}>Recharger</Button></div> : !document ? <div className="empty-state"><p>Chargement de l'original PDF…</p></div> : <>

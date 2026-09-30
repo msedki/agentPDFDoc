@@ -174,6 +174,37 @@ mode runtime. Une exécution distincte ne remplace pas les mesures historiques.
 Les résultats, traces complètes et captures sont conservés dans
 `test-results/` ; aucun résultat E2E n'est déduit d'un build ou d'un healthcheck.
 
+Lot R4 (30/09/2026, sources modifiées, build non relancé) : une précision `page`
+ne dessine plus aucune boîte de région et le lecteur reprend le libellé des
+cartes source ; une région déclarée sans géométrie valide s'affiche comme
+localisation à la page (`src/lib/source-location.ts`). Les réponses reconnaissent
+aussi les listes `[S001, S002]`, chaque ID étant validé individuellement, sans
+interprétation HTML/Markdown (`src/lib/citations.ts`). Les onglets d'analyse
+suivent le motif tablist (flèches, Home/End, tabIndex itinérant, `tabpanel`) ;
+la plage de pages est validée contre le nombre de pages de la version ouverte,
+pas de la version active. Le jeton `--subtle` est assombri et sert aussi aux
+placeholders, qui remplacent le gris semi-transparent du preflight Tailwind
+(environ 3,1:1) ; l'icône de périmètre de dossier perd son opacité réduite
+(2,5:1). `tests/unit/accessibility.test.ts` calcule depuis `globals.css` les
+paires texte/fond et placeholder/champ (au moins 4,5:1) et cette icône (au
+moins 3:1). Les tests unitaires prouvent les fonctions pures (`src/lib/`) et les
+règles CSS ; leur câblage dans les composants (attributs `tabpanel`/`aria-*`,
+tabIndex itinérant, appels de `versionPageCount` et `sourceRegionBoxes`) n'est
+vérifié que par typecheck et relecture, en attente des specs E2E et du rendu
+navigateur après build.
+
+Nouveaux specs Playwright écrits, NOT_RUN : `a11y.spec.ts` et
+`negative-deeplink.spec.ts` (GET seul, `RAG_E2E_READONLY_ALLOWED=1`, écritures
+API bloquées dans le navigateur ; Ctrl+Entrée y est vérifié sur une recherche
+interceptée, donc en test UI isolé), `geometry.spec.ts` (rotations 0/90/180/270,
+CropBox et folios), `hostile-markup.spec.ts` et `canvas-budget.spec.ts` (import
+sous `RAG_E2E_IMPORT_ALLOWED=1`, recherche sans génération). Les deux derniers
+lisent `hostile/markup-injection.pdf` et `layouts/long-document-14p.pdf` via
+leur sidecar généré (hors manifeste, SHA-256 et taille vérifiés) et sont
+ignorés si la fixture est absente. Le compte de cinq canvases exclut seulement
+le canvas caché de mesure que le TextLayer de pdf.js attache à `body` jusqu'à la
+destruction du document ; ses pixels restent dans le budget de 24 M.
+
 Les cycles versions anciennes, ETag/ranges, réimport, réindex, nouvelle version
 et fichiers refusés sont préparés dans
 [la recette lifecycle](tests/e2e/LIFECYCLE_RECETTE.md). Ils restent NOT_RUN et

@@ -9,6 +9,7 @@ import { errorMessage } from "@/lib/utils";
 import { readinessBlockerText, warningText } from "@/lib/warnings";
 import { useCitationRevision } from "@/lib/use-citation-revision";
 import { citationLinkIds, registeredCitationLocation } from "@/lib/citation-link";
+import { pageRangeError, versionPageCount } from "@/lib/page-range";
 import type { Scope, Source } from "@/lib/types";
 import { AnalysisPanel } from "./analysis-panel";
 import { LibraryPanel, documentStateLabels } from "./library-panel";
@@ -28,6 +29,7 @@ function ScopeControl() {
   const tree = useQuery({ queryKey: ["tree"], queryFn: ({ signal }) => api.tree(signal), staleTime: 3000 });
   const outline = useQuery({ queryKey: ["outline", state.opened?.versionId, binding.revision], queryFn: ({ signal }) => api.outline(state.opened!.versionId, signal, binding.revision), enabled: Boolean(state.opened) && !binding.error, staleTime: 30000 });
   const metadata = useQuery({ queryKey: ["document", state.opened?.documentId], queryFn: ({ signal }) => api.document(state.opened!.documentId, signal), enabled: Boolean(state.opened), staleTime: 30000 });
+  const pageCount = versionPageCount(metadata.data, state.opened?.versionId);
   const apply = () => {
     if ((kind === "pages" || kind === "section") && !binding.actions.allowed) { setFailure(binding.actions.reason ?? "La révision doit être vérifiée."); return; }
     const name = metadata.data?.name ?? "Document ouvert";
@@ -43,7 +45,8 @@ function ScopeControl() {
       if (!state.selection) { setFailure("Sélectionnez un texte rattaché aux blocs extraits du document."); return; }
       state.setScope({ kind, versionId: state.selection.versionId, spans: state.selection.spans }, "Sélection de texte du document");
     } else if (state.opened && kind === "pages") {
-      if (pageStart < 1 || pageEnd < pageStart || pageEnd > (metadata.data?.page_count ?? 0)) { setFailure("La plage doit correspondre aux pages du document ouvert."); return; }
+      const rangeError = pageRangeError(pageStart, pageEnd, pageCount);
+      if (rangeError) { setFailure(rangeError); return; }
       state.setScope({ kind, versionId: state.opened.versionId, pageStart: pageStart - 1, pageEnd: pageEnd - 1 }, `${name} · pages ${pageStart}–${pageEnd}`);
     } else if (state.opened && kind === "section") {
       const section = outline.data?.sections.find(value => value.id === sectionId);
@@ -58,7 +61,7 @@ function ScopeControl() {
     {binding.actions.reason && <p role="status" className="inline-warning">{binding.actions.reason}</p>}
     {kind === "documents" && <p>{state.selectedIds.length} document(s) coché(s) dans la bibliothèque.</p>}
     {kind === "folder" && <label>Dossier<select value={folderId} onChange={event => setFolderId(event.target.value)}><option value="">Choisir un dossier…</option>{tree.data?.folders.map(folder => <option value={folder.id} key={folder.id}>{folder.path}</option>)}</select></label>}
-    {kind === "pages" && <div className="page-range"><label>De la page<input type="number" min={1} max={metadata.data?.page_count || 1} value={pageStart} onChange={event => setPageStart(Number(event.target.value))} /></label><label>À la page<input type="number" min={pageStart} max={metadata.data?.page_count || 1} value={pageEnd} onChange={event => setPageEnd(Number(event.target.value))} /></label></div>}
+    {kind === "pages" && <div className="page-range"><label>De la page<input type="number" min={1} max={pageCount ?? 1} value={pageStart} onChange={event => setPageStart(Number(event.target.value))} /></label><label>À la page<input type="number" min={pageStart} max={pageCount ?? 1} value={pageEnd} onChange={event => setPageEnd(Number(event.target.value))} /></label></div>}
     {kind === "section" && <label>Section<select value={sectionId} onChange={event => setSectionId(event.target.value)}><option value="">Choisir une section…</option>{outline.data?.sections.map(section => <option value={section.id} key={section.id}>{section.title}</option>)}</select></label>}
     {kind === "selection" && <p>{state.selection ? `« ${state.selection.text.slice(0, 100)} »` : "Aucune sélection réconciliée avec les blocs source."}</p>}
     {failure && <p role="alert" className="inline-warning">{failure}</p>}

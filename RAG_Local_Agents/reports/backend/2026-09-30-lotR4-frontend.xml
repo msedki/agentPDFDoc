@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+	<testcase name="the WCAG relative luminance formula matches its reference values" time="0.005557" classname="test"/>
+	<testcase name="essential text token pairs from globals.css reach WCAG AA 4.5:1" time="0.005031" classname="test"/>
+	<testcase name="current text rules keep WCAG AA 4.5:1 on their declared backgrounds" time="0.004912" classname="test"/>
+	<testcase name="essential controls keep a visible focus indicator" time="0.001260" classname="test"/>
+	<testcase name="analysis tabs follow arrow, Home and End keys with wrap-around" time="0.000881" classname="test"/>
+	<testcase name="citation deep links require both safe IDs and never treat partial links as document navigation" time="0.012000" classname="test"/>
+	<testcase name="registered citation location rejects wrong registry identity, missing revision and unknown page" time="0.002211" classname="test"/>
+	<testcase name="single and list references resolve each registered ID individually" time="0.018468" classname="test"/>
+	<testcase name="an unknown ID inside a list stays non-validated while registered IDs stay clickable" time="0.002024" classname="test"/>
+	<testcase name="cited IDs include list members so an unregistered reference is reported" time="0.002203" classname="test"/>
+	<testcase name="malformed references remain plain text" time="0.002713" classname="test"/>
+	<testcase name="HTML and Markdown markup stays literal text and is never turned into another part" time="0.002597" classname="test"/>
+	<testcase name="components render no raw HTML sink or dynamic code" time="0.046066" classname="test"/>
+	<testcase name="return between citations retains their respective extraction revisions and the explicit scope" time="0.010186" classname="test"/>
+	<testcase name="ordinary navigation can return to an archived citation and retains its own unpinned state" time="0.001690" classname="test"/>
+	<testcase name="native and globally routed unknown blocks do not become OCR overlays" time="0.009979" classname="test"/>
+	<testcase name="whole OCR block uses its exact text and authoritative geometry" time="0.001904" classname="test"/>
+	<testcase name="mixed block overlays only exact OCR spans with Unicode codepoint offsets" time="0.002191" classname="test"/>
+	<testcase name="nested storage metadata is read but missing or inverted geometry is refused" time="0.001575" classname="test"/>
+	<testcase name="an older opened version is validated against its own page count, not the active document count" time="0.005075" classname="test"/>
+	<testcase name="an unknown version page count refuses the range instead of borrowing another count" time="0.001056" classname="test"/>
+	<testcase name="inverted, zero and fractional ranges are refused" time="0.001282" classname="test"/>
+	<testcase name="registered old citation pins a distinct blocks cache while ordinary navigation remains current" time="0.005554" classname="test"/>
+	<testcase name="a registered citation without its extraction revision blocks substitution" time="0.001236" classname="test"/>
+	<testcase name="pinned endpoint paths encode exact revision and preserve the unpinned routes" time="0.001109" classname="test"/>
+	<testcase name="old raw provenance is accepted and a newer revision or mixed block revision is rejected" time="0.002561" classname="test"/>
+	<testcase name="the outline must also belong to the registered citation revision" time="0.000832" classname="test"/>
+	<testcase name="page and section actions remain enabled for current citations and require verified latest identity" time="0.000924" classname="test"/>
+	<testcase name="an imported original and verified unpublished partial have no published extraction" time="0.008146" classname="test"/>
+	<testcase name="a different active version does not publish the newly opened original" time="0.001016" classname="test"/>
+	<testcase name="active and archived published generations are both consultable" time="0.000964" classname="test"/>
+	<testcase name="non-BMP text returns codepoint offsets while retaining revision and exact hash" time="0.020938" classname="test"/>
+	<testcase name="ligatures and combining accents preserve the exact source representation" time="0.001843" classname="test"/>
+	<testcase name="whitespace map reconciles line breaks but does not invent a dehyphenation" time="0.005384" classname="test"/>
+	<testcase name="cross-block selection resolves each immutable source and refuses ambiguity" time="0.003299" classname="test"/>
+	<testcase name="selection is unavailable without an authoritative revision and source hash" time="0.002435" classname="test"/>
+	<testcase name="selection offsets use raw_text when a presentation field differs" time="0.002228" classname="test"/>
+	<testcase name="virtual page window never allocates more than five pages and stays in bounds" time="0.003993" classname="test"/>
+	<testcase name="five canvases remain under the pixel cap at extreme zoom and DPR" time="0.001673" classname="test"/>
+	<testcase name="a page-precision source draws no region box even when the API supplies bboxes" time="0.008611" classname="test"/>
+	<testcase name="region sources draw only their own page geometry, in the opened version, without page-level blocks" time="0.002604" classname="test"/>
+	<testcase name="blocks without geometry on the displayed page never borrow a box from another page" time="0.001969" classname="test"/>
+	<testcase name="a declared region without valid geometry is shown as a page location, like its source card" time="0.001305" classname="test"/>
+	<testcase name="labels share the source card vocabulary, including search hits without a top-level precision" time="0.002360" classname="test"/>
+	<testcase name="legacy bboxes without blocks are drawn only for a single-page source" time="0.001580" classname="test"/>
+	<testcase name="structured retrieval warnings display the actual message without passing an object to React" time="0.004258" classname="test"/>
+	<testcase name="unknown warning fields are not displayed as arbitrary object content" time="0.000869" classname="test"/>
+	<testcase name="readiness blockers are shown with readable labels and unknown codes stay visible" time="0.000809" classname="test"/>
+	<!-- tests 48 -->
+	<!-- suites 0 -->
+	<!-- pass 48 -->
+	<!-- fail 0 -->
+	<!-- cancelled 0 -->
+	<!-- skipped 0 -->
+	<!-- todo 0 -->
+	<!-- duration_ms 4226.6632 -->
+</testsuites>

@@ -8,6 +8,9 @@ import { sourcePage } from "@/lib/selection";
 import { useWorkspace } from "@/lib/store";
 import { errorMessage } from "@/lib/utils";
 import { warningText } from "@/lib/warnings";
+import { citationParts, citedSourceIds } from "@/lib/citations";
+import { tabKeyTarget } from "@/lib/keyboard";
+import { sourcePrecisionLabel } from "@/lib/source-location";
 import type { QueryState, Scope, SearchResponse, Source, StreamEvent } from "@/lib/types";
 import { Button } from "./ui/button";
 
@@ -15,25 +18,21 @@ const statusLabels: Record<string, string> = {
   created: "Question enregistrée", queued: "En attente", searching: "Recherche des passages", retrieving: "Recherche des passages", context_ready: "Preuves prêtes", cancel_requested: "Annulation demandée", generating: "Rédaction en cours", running: "Travail en cours", done: "Réponse terminée", completed: "Réponse terminée", cancelled: "Réponse annulée", interrupted: "Réponse interrompue", error: "Échec", waiting_for_ingestion_checkpoint: "En attente de la pause de l'indexation", waiting_for_resources: "En attente de mémoire disponible", context: "Préparation des preuves", sources: "Sources retrouvées", length: "Réponse limitée par la longueur", length_limited: "Réponse limitée par la longueur", needs_clarification: "Précision nécessaire", insufficient_evidence: "Preuves insuffisantes",
 };
 function textValue(value: unknown, fallback = "") { return typeof value === "string" ? value : fallback; }
+const analysisTabs = [{ id: "question", label: "Question", Icon: MessageSquare }, { id: "search", label: "Recherche", Icon: Search }, { id: "comparison", label: "Comparer", Icon: Layers }] as const;
 
 export function CitationText({ text, sources, onCitation }: { text: string; sources: Source[]; onCitation: (source: Source) => void }) {
-  const parts = text.split(/(\[S\d{3,}\])/g);
-  return <div className="answer-text">{parts.map((part, index) => {
-    const match = /^\[(S\d{3,})\]$/.exec(part);
-    if (!match) return <span key={index}>{part}</span>;
-    const source = sources.find(value => value.source_id === match[1]);
-    return source ? <button className="inline-citation" key={index} onClick={() => onCitation(source)} title={`Ouvrir ${source.name ?? source.document_name}, page ${sourcePage(source) + 1}`}>{match[1]}</button> : <span className="invalid-citation" key={index} title="Identifiant absent du registre de sources">{part} · non validée</span>;
-  })}</div>;
+  return <div className="answer-text">{citationParts(text, sources).map((part, index) => part.kind === "text" ? <span key={index}>{part.text}</span>
+    : part.kind === "citation" ? <button className="inline-citation" key={index} onClick={() => onCitation(part.source)} title={`Ouvrir ${part.source.name ?? part.source.document_name}, page ${sourcePage(part.source) + 1}`}>{part.id}</button>
+    : <span className="invalid-citation" key={index} title="Identifiant absent du registre de sources">{part.text} · non validée</span>)}</div>;
 }
 
 export function SourceCard({ source, onClick }: { source: Source; onClick: () => void }) {
   const page = sourcePage(source) + 1;
-  const precision = source.precision ?? source.blocks?.[0]?.precision ?? "page";
   return <button className="source-card" onClick={onClick} data-testid="source-card">
     <div><span className="source-id">{source.source_id ?? "Passage"}</span><span>p. {page}{source.label && source.label !== String(page) ? ` · folio ${source.label}` : ""}</span><ArrowUpRight size={15} /></div>
     <strong>{source.name ?? source.document_name ?? "Document source"}</strong>
     <p>{source.text}</p>
-    <small>{precision === "page" ? "Localisation à la page" : precision === "table" ? "Table source" : precision === "span" ? "Passage source" : "Bloc source"} · version {source.version_id.slice(0, 8)}</small>
+    <small>{sourcePrecisionLabel(source)} · version {source.version_id.slice(0, 8)}</small>
   </button>;
 }
 
@@ -53,6 +52,7 @@ export function AnalysisPanel({ onSource }: { onSource: (source: Source, queryId
   const focus = useRef<{ query_id: string; source_id: string } | undefined>(undefined);
   const scopeFingerprint = JSON.stringify(state.scope);
   const history = useRef<HTMLDivElement>(null);
+  const tabButtons = useRef<(HTMLButtonElement | null)[]>([]);
   const [cancelBusy, setCancelBusy] = useState(false);
 
   const update = (id: string, updater: (query: QueryState) => QueryState) => setQueries(current => current.map(query => query.id === id ? updater(query) : query));
@@ -68,7 +68,7 @@ export function AnalysisPanel({ onSource }: { onSource: (source: Source, queryId
         next.status = textValue(event.data.status, "done"); next.connection = "closed";
         next.finishReason = textValue(event.data.finish_reason, "stop");
         if (Array.isArray(event.data.warnings)) next.warnings = [...query.warnings, ...event.data.warnings.map(warningText)];
-        const mentioned = Array.from(next.text.matchAll(/\[(S\d{3,})\]/g), match => match[1]);
+        const mentioned = citedSourceIds(next.text);
         if (mentioned.some(sourceId => !next.sources.some(source => source.source_id === sourceId))) next.warnings.push("Une référence non enregistrée dans les sources a été signalée et reste non cliquable.");
         break;
       }
@@ -123,13 +123,16 @@ export function AnalysisPanel({ onSource }: { onSource: (source: Source, queryId
 
   return <section className="analysis-panel">
     <div className="panel-heading"><h2>Analyse</h2><span className="eyebrow">Réponses avec sources</span></div>
-    <div className="analysis-tabs" role="tablist" aria-label="Mode d'analyse">
-      <button role="tab" aria-selected={tab === "question"} onClick={() => setTab("question")}><MessageSquare size={15} />Question</button>
-      <button role="tab" aria-selected={tab === "search"} onClick={() => setTab("search")}><Search size={15} />Recherche</button>
-      <button role="tab" aria-selected={tab === "comparison"} onClick={() => setTab("comparison")}><Layers size={15} />Comparer</button>
+    <div className="analysis-tabs" role="tablist" aria-label="Mode d'analyse" onKeyDown={event => {
+      const current = tabButtons.current.indexOf(event.target as HTMLButtonElement);
+      const target = current < 0 ? null : tabKeyTarget(event.key, current, analysisTabs.length);
+      if (target === null) return;
+      event.preventDefault(); setTab(analysisTabs[target].id); tabButtons.current[target]?.focus();
+    }}>
+      {analysisTabs.map(({ id, label, Icon }, index) => <button key={id} ref={element => { tabButtons.current[index] = element; }} type="button" role="tab" id={`analysis-tab-${id}`} aria-selected={tab === id} aria-controls="analysis-tabpanel" tabIndex={tab === id ? 0 : -1} onClick={() => setTab(id)}><Icon size={15} />{label}</button>)}
     </div>
     <div className="scope-summary" data-testid="scope-summary"><span className="eyebrow">Périmètre actif</span><strong>{state.scopeLabel}</strong>{state.scope.kind === "selection" && <span>{state.scope.spans.length} passage(s) référencé(s)</span>}</div>
-    <div className="analysis-history" ref={history}>
+    <div className="analysis-history" ref={history} role="tabpanel" id="analysis-tabpanel" aria-labelledby={`analysis-tab-${tab}`} tabIndex={0}>
       {tab === "search" && search && searchScope && <p className="result-count">Périmètre de cette recherche : {searchScope.label}</p>}
       {tab === "search" ? search ? <div className="search-results"><p className="result-count">{search.results.length} passages retrouvés · {Math.round(search.elapsed_ms)} ms</p>{search.warnings?.map((warning, index) => <p className="inline-warning" key={index}>{warningText(warning)}</p>)}{!search.results.length && <div className="empty-state"><Search size={32} strokeWidth={1} /><h3>Aucun passage retrouvé</h3><p>Cette recherche ne prouve pas l'absence de l'information dans le document.</p></div>}{search.results.map((result, index) => { const source = ("source" in result && result.source ? result.source : result) as Source; return source.version_id ? <SourceCard key={`${source.source_id}:${index}`} source={source} onClick={() => openSource(source, source.query_id)} /> : <p key={index} className="inline-warning">Le résultat reçu n'expose pas de source consultable.</p>; })}</div> : <div className="empty-state"><Search size={34} strokeWidth={1} /><h3>Retrouver un passage</h3><p>Recherchez un code, une expression ou une notion dans le périmètre choisi. La recherche fonctionne sans génération.</p></div> : !queries.length ? <div className="empty-state"><BookOpen size={34} strokeWidth={1} /><h3>{tab === "comparison" ? "Comparer des preuves" : "Une question, des passages vérifiables."}</h3><p>{tab === "comparison" ? "Sélectionnez deux à quatre PDF et définissez le périmètre. Les sources de chaque document restent visibles." : "Choisissez un périmètre, posez votre question, puis ouvrez les sources pour vérifier la réponse."}</p></div> : queries.map(query => <article className="query-turn" key={query.id} data-testid="query-turn">
         <div className="question-message"><p>{query.question}</p><small>{query.scopeLabel}</small></div>
