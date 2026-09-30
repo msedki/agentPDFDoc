@@ -104,9 +104,71 @@ def draining_backend_class():
 
 
 @lru_cache(maxsize=1)
+def crop_translation(crop_left, crop_bottom, rotation):
+    """Translation (dx, dy haut-gauche) du repère PDFium vers la CropBox d'origine zéro.
+
+    Docling 2.131 (backend pypdfium2) tourne les rectangles PDFium, exprimés dans
+    l'espace utilisateur de la page, avec la taille de la CropBox mais sans retirer
+    son origine ; le rendu, le layout et l'OCR utilisent eux la CropBox d'origine
+    zéro, comme docling_parse. La correction est une translation par rotation.
+    """
+    dx, dy_bottom = {0: (-crop_left, -crop_bottom), 90: (-crop_bottom, crop_left),
+                     180: (crop_left, crop_bottom), 270: (crop_bottom, -crop_left)}[int(rotation) % 360]
+    return dx, -dy_bottom
+
+
+def crop_consistent_pdfium_page_class():
+    """Page PDFium officielle dont les coordonnées partagent le repère du rendu."""
+    from docling.backend.pypdfium2_backend import PyPdfiumPageBackend, pypdfium2_lock
+    from docling_core.types.doc import BoundingBox, CoordOrigin
+
+    class CropConsistentPdfiumPage(PyPdfiumPageBackend):
+        _shift = None
+
+        def _translation(self):
+            if self._shift is None:
+                with pypdfium2_lock:
+                    page = self._require_page()
+                    left, bottom = page.get_cropbox()[:2]
+                    rotation = page.get_rotation()
+                self._shift = crop_translation(left, bottom, rotation)
+            return self._shift
+
+        def _compute_text_cells(self):
+            dx, dy = self._translation()
+            cells = super()._compute_text_cells()
+            if dx or dy:
+                for cell in cells:
+                    rect = cell.rect
+                    cell.rect = rect.model_copy(update={
+                        **{f"r_x{i}": getattr(rect, f"r_x{i}") + dx for i in range(4)},
+                        **{f"r_y{i}": getattr(rect, f"r_y{i}") + dy for i in range(4)}})
+            return cells
+
+        def _get_object_bucket(self, obj_type):
+            dx, dy = self._translation()
+            bucket = super()._get_object_bucket(obj_type)
+            if not (dx or dy):
+                return bucket
+            return [(BoundingBox(l=box.l + dx, t=box.t + dy, r=box.r + dx, b=box.b + dy, coord_origin=box.coord_origin),
+                     invisible) for box, invisible in bucket]
+
+        def get_text_in_rect(self, bbox):
+            dx, dy = self._translation()
+            # dy est exprimé en haut-gauche ; en bas-gauche le décalage vertical s'inverse.
+            vertical = dy if bbox.coord_origin == CoordOrigin.TOPLEFT else -dy
+            original = BoundingBox(l=bbox.l - dx, t=bbox.t - vertical, r=bbox.r - dx, b=bbox.b - vertical,
+                                   coord_origin=bbox.coord_origin)
+            return super().get_text_in_rect(original)
+
+    return CropConsistentPdfiumPage
+
+
 def observed_pdfium_backend_class():
     """Observe the official Docling PDFium backend without changing its parser."""
-    from docling.backend.pypdfium2_backend import PyPdfiumDocumentBackend
+    from docling.backend.pypdfium2_backend import PyPdfiumDocumentBackend, pypdfium2_lock
+
+    page_class = crop_consistent_pdfium_page_class()
 
     class ObservedPdfiumBackend(PyPdfiumDocumentBackend):
         _sequence = itertools.count(1)
@@ -127,7 +189,8 @@ def observed_pdfium_backend_class():
                             page_range=self.lifecycle["page_range"], backend_name="pypdfium2", **fields)
 
         def load_page(self, page_no):
-            page = super().load_page(page_no)
+            with pypdfium2_lock:
+                page = page_class(self._pdoc, self.document_hash, page_no)
             self.lifecycle["yielded_page_numbers"].append(page_no + 1)
             self._record("page_load", page_number=page_no + 1)
             return page

@@ -1539,7 +1539,7 @@ Les sections précédentes restent l'historique. Entre 04:36 et 04:49, sans mise
 | R3 | D09.3 après restauration | R1 | Ancienne citation + question sur la restauration | E2E lifecycle PASS + réponse réelle | Citation VERIFIED ([preuve](../apps/web/reports/e2e-2026-09-30-restored-source-rerun-0910-evidence.json)) ; question IN_PROGRESS |
 | R4 | Code (7 zones : retrieval, API, runtime, ingestion, outils qualification, outillage docs, frontend) | R0 | Corrections des défauts prouvés, tests, revue adversariale | Tests unitaires/in-process PASS, junit sous reports/backend/…-lotR4-*, revue sans constat bloquant | VERIFIED (niveau unitaire et in-process) — commits c3f9a72, 61e5d78, 4c87775, bc1494f, 0fabf03, 72a10e5, b4c940b ; 7 revues indépendantes, 4 constats majeurs corrigés avec tests de reproduction ; suite complète 355 tests ([junit](reports/backend/2026-09-30-lotR4-full-unit.xml)). Parcours réels, build et E2E relèvent de R2/R3/R5/R6. |
 | R5 | Build UI + E2E de non-régression | R4 frontend | Export rebuild, specs a11y/deeplink/géométrie/markup/canvas | Build surveillé PASS, E2E réels PASS sur cible isolée | NOT_STARTED |
-| R6 | Ingestion OCR (W-PDF01) | R4 ingestion (E1) | Voie scan fiable ou limite déclarée | scan90/scan0/mixte/5 pages exacts ou ready_partial honnête | NOT_STARTED |
+| R6 | Ingestion OCR (W-PDF01) | R4 ingestion (E1) | Voie scan fiable ou limite déclarée | scan90/scan0/mixte/5 pages exacts ou ready_partial honnête | VERIFIED sur fixtures synthétiques (W009) : 4/4 OCR sur le profil nominal, voie native 8/8 ; corpus métier et réindex des fixtures DEV restent à faire (R7) |
 | R7 | Évaluation DEV (retrieval, contexte, génération) | R4, R6 | Import DA-P02..07, bindings fusionnés, rapports DEV | 100/100 résolues ; métriques avec dénominateurs | NOT_STARTED |
 | R8 | D07 performance | R2, R7 | Stress 25k nommé, 30 questions, scénario 30 min | p95 mesurés, FAIL conservés avec phase dominante | NOT_STARTED |
 | R9 | D08 sécurité / hors ligne | R4 | Host/Origin sur serveur réel, clé d'API Qdrant, fixture hostile, observation sockets | Rapports ; blocage OS BLOCKED sauf décision utilisateur | PARTIAL — API Host/Origin PASS sur serveur réel, sockets loopback, Ollama sans socket externe ; Qdrant accepte un Host étranger (défaut, `service.api_key` à intégrer) |
@@ -1564,6 +1564,12 @@ Prochaine action : lire le résultat de la question restaurée, puis intégrer R
 R4 VERIFIED au niveau unitaire et in-process (voir le tableau). Aucun parcours réel n'est déduit de ces tests. Conséquences à traiter : réindexation nécessaire pour les nouvelles règles d'identifiants (table `identifiers`), empreinte d'extraction modifiée par les changements d'ingestion (le prochain réindex relancera le worker), nouvelle fixture hostile et document de 14 pages disponibles pour R5/R9.
 
 Prochaine action exécutable : arrêter l'instance restaurée (ancien code), build surveillé de l'interface (R5), relancer l'instance restaurée sur le nouveau code pour la question D09.3 (R3), puis instance principale, réindex de DA-P01 et E2E réels (R2/R5). Un seul traitement lourd à la fois.
+
+## Point à 14:10 UTC — génération bloquée par la mémoire hôte
+
+Deux questions réelles sur l'instance restaurée (nouveau code, modèle texte) : 13:58 refus immédiat à 4723 < 4992 Mio ; 14:05 avec W008, état `waiting_for_resources` émis (4932 Mio), refus après 120 s à 4709 Mio ([preuve](reports/backend/2026-09-30-restored-question-w008-20260930T1405.json)). Nos services occupent ≈ 115 Mio après libération des caches ; la pression vient de processus étrangers (navigateur ≈ 1,5 Gio, antivirus, sessions Claude). Admettre la génération sans cette marge ferait tomber l'hôte sous la réserve de 1536 Mio (baisse mesurée 3327 Mio) : aucun seuil n'est abaissé.
+
+**BLOCKED — décision utilisateur :** libérer ≈ 0,5 Gio pendant les créneaux de génération (fermer le navigateur Edge hors de la recette ou d'autres applications), ou laisser D05/D07 génération et la question D09.3 bloquées sur ce poste. Travaux indépendants poursuivis : E2E sans génération (R5), OCR réel (R6), interface decodair (R16), documentation (R14).
 
 ---
 
@@ -1686,6 +1692,30 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 **Optimisation testée et rejetée :** `use_mmap: true` explicite, respecté par Ollama 0.35.0 ([server/sched.go](https://github.com/ollama/ollama/blob/v0.35.0/server/sched.go), `disableMmapDefaultReason`), est neutralisé pour ce GGUF par le correctif de compatibilité (« compat patch disabled mmap for transformed text tensors » ; tampon modèle `CPU` 812,70 Mio, non `CPU_Mapped`) : aucun gain, profil inchangé.
 
 **Conséquences :** admission froide possible à partir de 4992 Mio disponibles (contre 5888). Sur ce poste partagé, la mémoire disponible observée varie entre ≈ 4,9 et 6,1 Gio selon la charge étrangère : une question peut encore être refusée ou attendre, ce qui est le comportement voulu. Le préfill (≈ 8,6 tokens/s, sans réutilisation de préfixe pour un contenu nouveau) reste la phase dominante des latences D07.
+
+## W008 Attente bornée à l'admission de génération
+
+**Date :** 30 septembre 2026, 14:05 UTC. **Statut :** implémenté, tests unitaires PASS ; effet réel mesuré au prochain essai.
+
+**Contexte :** avec le modèle texte (W007), l'admission froide exige 4992 Mio disponibles. Sur ce poste partagé, la mémoire disponible fluctue entre environ 4,4 et 6,1 Gio selon des processus étrangers (navigateur, antivirus, autres outils) que le projet n'arrête pas. Question du 13:58 UTC sur l'instance restaurée : 5050 Mio avant la question, 4413 après chargement d'E5 pour la recherche, 4722 après libération des caches (+308 Mio), refus immédiat à 4723 < 4992 ([preuve](reports/backend/2026-09-30-restored-question-newcode-20260930T1358.json)). L'interface prévoyait déjà l'état « En attente de mémoire disponible » (`waiting_for_resources`) sans que l'API l'émette.
+
+**Choix retenu :** `resources.generation_admission_wait_seconds: 120`. Le gouverneur remesure toutes les 2 s jusqu'à cette limite ; la première insuffisance émet un événement SSE `waiting_for_resources` (mémoire disponible et requise), puis la question est admise dès que le seuil est atteint ou refusée à l'échéance. La réserve de 1536 Mio, les estimations et la surveillance pendant la génération sont inchangées ; l'annulation reste possible pendant l'attente. 0 rétablit le refus immédiat.
+
+**Conséquences :** une fluctuation de courte durée ne fait plus échouer une question ; une pénurie durable reste refusée avec son motif. Pendant l'attente, le verrou lourd du poste est tenu : aucun import ne démarre.
+
+## W009 Backend PDF nominal pypdfium2 avec repère CropBox corrigé
+
+**Date :** 30 septembre 2026, 16:15 UTC. **Statut :** acquise ; validée sur les fixtures synthétiques, corpus métier non traité.
+
+**Contexte :** avec `docling_parse` (défaut de Docling 2.131), le rendu des pages scannées déclenchait une violation d'accès native intermittente quand Torch est chargé (W-PDF01, `pdf_parsers.cp312-win_amd64.pyd+0x7e4a57`), et le garde-fou mettait l'extraction en quarantaine. Le backend officiel `PyPdfiumDocumentBackend` ne produisait aucune faute mais échouait en fidélité (orientation, unités de tableau) avant les corrections du lot R4 (aspect intrinsèque, recadrage des cellules sur l'encre, seuil de confiance 0,8).
+
+**Mesures :** avec `pypdfium2` et ces options, les quatre essais OCR réels passent (scan 90°, scan 0°, page mixte, cinq pages en fenêtres 4+1 ; tableau 4×3 et unités V/°C/A exacts, géométrie des cellules à 3 pt) : [essais E2](reports/ingestion/e2-pdfium-20260930/), journaux de faute vides. La voie native sous `pypdfium2` a révélé un défaut de repère : Docling 2.131 (et sa branche principale à la date de consultation) tourne les rectangles de texte PDFium dans l'espace utilisateur sans retirer l'origine de la CropBox, alors que le rendu, le layout et l'OCR utilisent la CropBox d'origine zéro ; sur une CropBox décalée, les boîtes étaient décalées de son origine ([échec conservé](reports/ingestion/w009-pdfium-20260930/native-pdfium-nominal-20260930T142447Z/), 4/8).
+
+**Choix retenu :** profil `pdf.pdf_backend: pypdfium2`, `ocr_intrinsic_aspect: true`, `ocr_cell_ink_crop: true`, `ocr_min_word_confidence: 0.8`. La page PDFium utilisée par notre backend (`services/ingestion/lifecycle.py`, `crop_consistent_pdfium_page_class`) translate cellules de texte et boîtes d'objets vers la CropBox d'origine zéro selon la rotation, et applique l'inverse aux requêtes texte-dans-rectangle ; le parseur officiel n'est pas modifié. `docling_parse` reste sélectionnable par profil.
+
+**Preuves :** test unitaire sur vrai PDFium (`tests/unit/test_ingestion_pdfium_crop.py`, 5/5, échoue 4/4 sur la page Docling non corrigée) ; voie native `pypdfium2` 8/8 ([rapport](reports/ingestion/w009-pdfium-20260930/native-pdfium-cropfix-20260930T155705Z/)) ; quatre essais OCR sur le profil nominal sans variable de test 4/4 en 602 s, pic privé 1556 Mio, minimum disponible 3695 Mio ([rapport](reports/ingestion/w009-pdfium-20260930/ocr-nominal-w009-cropfix-20260930T155843Z/)).
+
+**Conséquences :** empreinte d'extraction modifiée : le prochain réindex relance le worker. La correction du repère est à revérifier à chaque mise à jour de Docling (le défaut amont peut être corrigé, la translation deviendrait alors double). Aucune validation sur les PDF métier à ce stade.
 
 ---
 
@@ -1860,6 +1890,7 @@ Les fichiers de preuve sous reports et les skills projet portent les exécutions
 | QDR03 | [Qdrant config v1.19.1, section service](https://github.com/qdrant/qdrant/blob/v1.19.1/config/config.yaml) et [src/actix/auth.rs](https://github.com/qdrant/qdrant/blob/v1.19.1/src/actix/auth.rs) | `service.api_key` : toute requête doit porter l'en-tête `api-key` ; liste blanche de chemins sans authentification définie dans `auth.rs`. Réponse au défaut D08.3 (Host étranger accepté, reports/host-origin-live-20260930T0930.json) ; intégration et test à faire. |
 | GIT01 | [Git — gitattributes](https://git-scm.com/docs/gitattributes), ouverte 30/09 ≈ 09:45 UTC | « Unsetting the text attribute on a path tells Git not to attempt any end-of-line conversion upon checkin or checkout » : `* -text` fonde W005 (octets hashés préservés malgré `core.autocrlf=true`). |
 | UI01 | Référence de forme locale `D:\enhacements\decodair` (dépôt de l'utilisateur, commit `afbf8e305` observé 30/09) | Principes de shell, charte, composants et format du README ; ni métier ni branding repris. Analyse en cours (R16). |
+| DOC01 | [Docling backend pypdfium2 v2.131 installé](https://github.com/docling-project/docling/blob/main/docling/backend/pypdfium2_backend.py) (`.venv/Lib/site-packages/docling/backend/pypdfium2_backend.py`, `_rect_to_display_frame`, `get_text_cells`, `get_size`) ; branche principale relue le 30/09 ≈ 14:30 UTC | Les rectangles PDFium sont tournés avec la taille de la CropBox sans retrait de son origine ; fonde la translation de W009. Code source, pas mesure ; revérifier à chaque mise à jour de Docling. |
 
 ---
 
@@ -2197,6 +2228,10 @@ pdf:
   artifacts_path: .runtime/models/docling
   tesseract_cmd: .runtime/bin/tesseract-5.4.0/tesseract.exe
   tessdata_dir: .runtime/models/tessdata
+  pdf_backend: pypdfium2
+  ocr_intrinsic_aspect: true
+  ocr_cell_ink_crop: true
+  ocr_min_word_confidence: 0.8
 chunking:
   tokenizer: embedding
   target_tokens: 320

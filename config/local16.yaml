@@ -93,6 +93,10 @@ pdf:
   artifacts_path: .runtime/models/docling
   tesseract_cmd: .runtime/bin/tesseract-5.4.0/tesseract.exe
   tessdata_dir: .runtime/models/tessdata
+  pdf_backend: pypdfium2
+  ocr_intrinsic_aspect: true
+  ocr_cell_ink_crop: true
+  ocr_min_word_confidence: 0.8
 chunking:
   tokenizer: embedding
   target_tokens: 320

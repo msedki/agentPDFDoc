@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="8" time="56.318" timestamp="2026-09-30T14:24:51.566901+00:00" hostname="P35P47599"><testcase classname="tests.integration.test_ingestion_native" name="test_real_native_provenance_with_rotation_and_crop[0]" time="50.350"><failure message="assert 71.07799911499023 &lt;= 60">tmp_path = WindowsPath('D:/enhacements/agentragpdf/.runtime/qa/ingestion-synthetic/native-pdfium-nominal-20260930T142447Z/pytest/test_real_native_provenance_wi0')
+rotation = 0
+
+    @pytest.mark.parametrize("rotation", [0, 90, 180, 270])
+    def test_real_native_provenance_with_rotation_and_crop(tmp_path, rotation):
+        original = write_native_pdf(tmp_path / "Procédure française.pdf", rotation=rotation, crop=[20, 30, 580, 770])
+        before = hashlib.sha256(original.read_bytes()).hexdigest()
+        result = extract_pdf(original, tmp_path / "extraction", native_config(), "native-version")
+        assert result["status"] == "ready"
+        assert result["sha256"] == before == hashlib.sha256(original.read_bytes()).hexdigest()
+        page = result["pages"][0]
+        assert page["rotation"] == rotation
+        assert page["crop_box"] == [20, 30, 580, 770]
+        matching = [block for block in page["blocks"] if "CCU-21" in block["raw_text"]]
+        assert matching
+        block = matching[0]
+        assert block["bbox"] is not None, result["warnings"]
+        # All physical rotations refer to the same original line near (50,650).
+&gt;       assert 40 &lt;= block["bbox"][0] &lt;= 60
+E       assert 71.07799911499023 &lt;= 60
+
+tests\integration\test_ingestion_native.py:73: AssertionError</failure></testcase><testcase classname="tests.integration.test_ingestion_native" name="test_real_native_provenance_with_rotation_and_crop[90]" time="0.563"><failure message="assert 71.07799911499023 &lt;= 60">tmp_path = WindowsPath('D:/enhacements/agentragpdf/.runtime/qa/ingestion-synthetic/native-pdfium-nominal-20260930T142447Z/pytest/test_real_native_provenance_wi1')
+rotation = 90
+
+    @pytest.mark.parametrize("rotation", [0, 90, 180, 270])
+    def test_real_native_provenance_with_rotation_and_crop(tmp_path, rotation):
+        original = write_native_pdf(tmp_path / "Procédure française.pdf", rotation=rotation, crop=[20, 30, 580, 770])
+        before = hashlib.sha256(original.read_bytes()).hexdigest()
+        result = extract_pdf(original, tmp_path / "extraction", native_config(), "native-version")
+        assert result["status"] == "ready"
+        assert result["sha256"] == before == hashlib.sha256(original.read_bytes()).hexdigest()
+        page = result["pages"][0]
+        assert page["rotation"] == rotation
+        assert page["crop_box"] == [20, 30, 580, 770]
+        matching = [block for block in page["blocks"] if "CCU-21" in block["raw_text"]]
+        assert matching
+        block = matching[0]
+        assert block["bbox"] is not None, result["warnings"]
+        # All physical rotations refer to the same original line near (50,650).
+&gt;       assert 40 &lt;= block["bbox"][0] &lt;= 60
+E       assert 71.07799911499023 &lt;= 60
+
+tests\integration\test_ingestion_native.py:73: AssertionError</failure></testcase><testcase classname="tests.integration.test_ingestion_native" name="test_real_native_provenance_with_rotation_and_crop[180]" time="0.538"><failure message="assert 71.07799911499023 &lt;= 60">tmp_path = WindowsPath('D:/enhacements/agentragpdf/.runtime/qa/ingestion-synthetic/native-pdfium-nominal-20260930T142447Z/pytest/test_real_native_provenance_wi2')
+rotation = 180
+
+    @pytest.mark.parametrize("rotation", [0, 90, 180, 270])
+    def test_real_native_provenance_with_rotation_and_crop(tmp_path, rotation):
+        original = write_native_pdf(tmp_path / "Procédure française.pdf", rotation=rotation, crop=[20, 30, 580, 770])
+        before = hashlib.sha256(original.read_bytes()).hexdigest()
+        result = extract_pdf(original, tmp_path / "extraction", native_config(), "native-version")
+        assert result["status"] == "ready"
+        assert result["sha256"] == before == hashlib.sha256(original.read_bytes()).hexdigest()
+        page = result["pages"][0]
+        assert page["rotation"] == rotation
+        assert page["crop_box"] == [20, 30, 580, 770]
+        matching = [block for block in page["blocks"] if "CCU-21" in block["raw_text"]]
+        assert matching
+        block = matching[0]
+        assert block["bbox"] is not None, result["warnings"]
+        # All physical rotations refer to the same original line near (50,650).
+&gt;       assert 40 &lt;= block["bbox"][0] &lt;= 60
+E       assert 71.07799911499023 &lt;= 60
+
+tests\integration\test_ingestion_native.py:73: AssertionError</failure></testcase><testcase classname="tests.integration.test_ingestion_native" name="test_real_native_provenance_with_rotation_and_crop[270]" time="0.562"><failure message="assert 71.07799911499023 &lt;= 60">tmp_path = WindowsPath('D:/enhacements/agentragpdf/.runtime/qa/ingestion-synthetic/native-pdfium-nominal-20260930T142447Z/pytest/test_real_native_provenance_wi3')
+rotation = 270
+
+    @pytest.mark.parametrize("rotation", [0, 90, 180, 270])
+    def test_real_native_provenance_with_rotation_and_crop(tmp_path, rotation):
+        original = write_native_pdf(tmp_path / "Procédure française.pdf", rotation=rotation, crop=[20, 30, 580, 770])
+        before = hashlib.sha256(original.read_bytes()).hexdigest()
+        result = extract_pdf(original, tmp_path / "extraction", native_config(), "native-version")
+        assert result["status"] == "ready"
+        assert result["sha256"] == before == hashlib.sha256(original.read_bytes()).hexdigest()
+        page = result["pages"][0]
+        assert page["rotation"] == rotation
+        assert page["crop_box"] == [20, 30, 580, 770]
+        matching = [block for block in page["blocks"] if "CCU-21" in block["raw_text"]]
+        assert matching
+        block = matching[0]
+        assert block["bbox"] is not None, result["warnings"]
+        # All physical rotations refer to the same original line near (50,650).
+&gt;       assert 40 &lt;= block["bbox"][0] &lt;= 60
+E       assert 71.07799911499023 &lt;= 60
+
+tests\integration\test_ingestion_native.py:73: AssertionError</failure></testcase><testcase classname="tests.integration.test_ingestion_native" name="test_real_absolute_page_range_and_checkpoint_reuse" time="1.361" /><testcase classname="tests.integration.test_ingestion_native" name="test_real_inherited_boxes_never_fabricate_ansi_page" time="0.606" /><testcase classname="tests.integration.test_ingestion_native" name="test_real_preflight_refusal_and_pause_resume" time="0.851" /><testcase classname="tests.integration.test_ingestion_native" name="test_fresh_worker_reports_safe_failure" time="1.187" /></testsuite></testsuites>

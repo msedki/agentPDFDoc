@@ -1,0 +1,77 @@
+[
+  {
+    "path": "junit.xml",
+    "size_bytes": 389,
+    "sha256": "1c001020468952d479226c1acb2bd04b7b7f5a70f44ce3c2e1f431e215808b76"
+  },
+  {
+    "path": "metrics.json",
+    "size_bytes": 1794,
+    "sha256": "26abe41b6b6c54188ddb07f707a67d29de6a6d281fc74b450863e07e250d48da"
+  },
+  {
+    "path": "pytest\\test_real_mixed_native_and_sca0\\extraction\\.ingestion.lock",
+    "size_bytes": 1,
+    "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+  },
+  {
+    "path": "pytest\\test_real_mixed_native_and_sca0\\extraction\\docling-000000-000000-regional_ocr.json",
+    "size_bytes": 11165,
+    "sha256": "8a086c3e901aa11c8c7e7de4bc0ee20eb1421614e9b8f143966d1452b3260942"
+  },
+  {
+    "path": "pytest\\test_real_mixed_native_and_sca0\\extraction\\extraction.json",
+    "size_bytes": 38994,
+    "sha256": "af7e385cbaa0c597378bb2edfeb418810c596312c36564c07097292660992bd2"
+  },
+  {
+    "path": "pytest\\test_real_mixed_native_and_sca0\\extraction\\preflight.json",
+    "size_bytes": 1002,
+    "sha256": "6034c364432027212f76fbc0fa55d27a3d67d90bc0819e1e24a910c148159e5a"
+  },
+  {
+    "path": "pytest\\test_real_mixed_native_and_sca0\\extraction\\window-000000-000000.json",
+    "size_bytes": 31264,
+    "sha256": "254ae271945c0ec10301a02beb6ae5edfc873d4986c01c3558d45fcf42f7e49c"
+  },
+  {
+    "path": "pytest\\test_real_mixed_native_and_sca0\\extraction\\worker-lifecycle.jsonl",
+    "size_bytes": 1699,
+    "sha256": "9fd9d170ef9e99483d0afa499caa69a4bbc0d28c3b008170105af3f8ed5f6cea"
+  },
+  {
+    "path": "pytest\\test_real_mixed_native_and_sca0\\extraction\\worker-native-fault.log",
+    "size_bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "pytest\\test_real_mixed_native_and_sca0\\fixture-proof.json",
+    "size_bytes": 217,
+    "sha256": "c177a16760ad33ef49dc2919a99849eebdb5fc63e197503d670ac875892f373b"
+  },
+  {
+    "path": "pytest\\test_real_mixed_native_and_sca0\\mixed.pdf",
+    "size_bytes": 28242,
+    "sha256": "48a81ca6063c9432f9f0c064a5bd3912bc990d05420b308935b9045a51571c07"
+  },
+  {
+    "path": "pytest\\test_real_mixed_native_and_sca0\\worker-request.json",
+    "size_bytes": 6148,
+    "sha256": "ec5c66f4e862d58d579c0ea92c5c701a54328b12250adae9d6856dfb64aa68a7"
+  },
+  {
+    "path": "pytest\\test_real_mixed_native_and_sca0\\worker-result.json",
+    "size_bytes": 39015,
+    "sha256": "22e4765bc11c47c55faacdee444ba26731fa5ac87c7436257788eddb2578043d"
+  },
+  {
+    "path": "pytest.log",
+    "size_bytes": 112,
+    "sha256": "68da1653c70adade90f1b57bc7ec3c88b11c68cb666d05c3f6e327e95cb061fb"
+  },
+  {
+    "path": "samples.jsonl",
+    "size_bytes": 67583,
+    "sha256": "d2e793f24120ed7d4e056f9c0364a2069a5db6ed15f2a524a7a7a405e57e148e"
+  }
+]

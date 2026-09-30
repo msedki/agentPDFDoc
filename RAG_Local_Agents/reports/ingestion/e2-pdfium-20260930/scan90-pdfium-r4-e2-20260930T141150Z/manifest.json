@@ -1,0 +1,72 @@
+[
+  {
+    "path": "junit.xml",
+    "size_bytes": 379,
+    "sha256": "e97440665cecd671d885f88edbe7067517df9c3514e8ddee453cef5a397d3e1f"
+  },
+  {
+    "path": "metrics.json",
+    "size_bytes": 1783,
+    "sha256": "6ef7040d9255bd2203061bbd3a2b4c8c6728726b65593c6da76d35425b048b87"
+  },
+  {
+    "path": "pytest\\test_real_french_scan_and_regi0\\extraction\\.ingestion.lock",
+    "size_bytes": 1,
+    "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+  },
+  {
+    "path": "pytest\\test_real_french_scan_and_regi0\\extraction\\docling-000000-000000-regional_ocr.json",
+    "size_bytes": 9629,
+    "sha256": "755ae64f8aee0806c8fe4b25d10c25c1ffbe42dcf1f09528611502659eefb825"
+  },
+  {
+    "path": "pytest\\test_real_french_scan_and_regi0\\extraction\\extraction.json",
+    "size_bytes": 34356,
+    "sha256": "4133d089fbf9720307f179d264b9aa8844750975d4d7b796862e35cd54c078a0"
+  },
+  {
+    "path": "pytest\\test_real_french_scan_and_regi0\\extraction\\preflight.json",
+    "size_bytes": 863,
+    "sha256": "988d43d8fb41036c60eabf34c5c7fc8cb5c766d11e2aa4f387407cfe61d47258"
+  },
+  {
+    "path": "pytest\\test_real_french_scan_and_regi0\\extraction\\window-000000-000000.json",
+    "size_bytes": 27078,
+    "sha256": "6a5179c3562603d8cf121b76042d55c6c883b150176e6e326d8eafb961c276ab"
+  },
+  {
+    "path": "pytest\\test_real_french_scan_and_regi0\\extraction\\worker-lifecycle.jsonl",
+    "size_bytes": 1691,
+    "sha256": "a69eb21111fed5869a79c7b8d057ecbeb75a1b0742520eaf44aaf34fb5388696"
+  },
+  {
+    "path": "pytest\\test_real_french_scan_and_regi0\\extraction\\worker-native-fault.log",
+    "size_bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "pytest\\test_real_french_scan_and_regi0\\scan.pdf",
+    "size_bytes": 40404,
+    "sha256": "400abc4ddabac82ebccc12616efae988a41948ebcc6a4d5a311c1ecebddd8f3b"
+  },
+  {
+    "path": "pytest\\test_real_french_scan_and_regi0\\worker-request.json",
+    "size_bytes": 6152,
+    "sha256": "476c3597d3a680b941096fe489026d980c7d55b42edc41c99b460e33206ef142"
+  },
+  {
+    "path": "pytest\\test_real_french_scan_and_regi0\\worker-result.json",
+    "size_bytes": 34377,
+    "sha256": "6e987a42650a5423f01e8302a10c602b940f37a3f72dce041f7e5f77e0e80d98"
+  },
+  {
+    "path": "pytest.log",
+    "size_bytes": 112,
+    "sha256": "3fd11b4ff788dc0b92488888e1b09f49c06c4e57410da4c0d5f6a7c8b160f07e"
+  },
+  {
+    "path": "samples.jsonl",
+    "size_bytes": 83225,
+    "sha256": "d3d982dedbaa540783ca447e231f9b759479059b04e734d7b5195c3b78ff7006"
+  }
+]

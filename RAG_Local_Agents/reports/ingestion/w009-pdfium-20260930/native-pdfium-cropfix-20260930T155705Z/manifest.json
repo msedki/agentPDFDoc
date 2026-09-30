@@ -1,0 +1,282 @@
+[
+  {
+    "path": "junit.xml",
+    "size_bytes": 1327,
+    "sha256": "739696c44acfee478b33694de125a7ceb5513cba48a9a4ace9fc23673fe86fbe"
+  },
+  {
+    "path": "metrics.json",
+    "size_bytes": 1737,
+    "sha256": "85934831e4644c05f85a7f80f3f400452ff73d58e5a0ee7bf4a302bd0e3cc151"
+  },
+  {
+    "path": "pytest\\test_fresh_worker_reports_safe0\\extraction\\.ingestion.lock",
+    "size_bytes": 1,
+    "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+  },
+  {
+    "path": "pytest\\test_fresh_worker_reports_safe0\\extraction\\worker-native-fault.log",
+    "size_bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "pytest\\test_fresh_worker_reports_safe0\\invalid.pdf",
+    "size_bytes": 35,
+    "sha256": "a1c81b978fc2e99a21a57d8c2dd26dec8b4ff90fe47578359e7addbd017b739c"
+  },
+  {
+    "path": "pytest\\test_fresh_worker_reports_safe0\\request.json",
+    "size_bytes": 376,
+    "sha256": "66f5baaad6365e33d41dc019ff9fe514ca1a57f66e462ea0e1b89dafe45ad1af"
+  },
+  {
+    "path": "pytest\\test_fresh_worker_reports_safe0\\result.json",
+    "size_bytes": 119,
+    "sha256": "6b75c215763a546919ea7f83759daaa00682b112e5f4560396b0c9cb8ed0d28d"
+  },
+  {
+    "path": "pytest\\test_real_absolute_page_range_0\\all\\.ingestion.lock",
+    "size_bytes": 2,
+    "sha256": "f1534392279bddbf9d43dde8701cb5be14b82f76ec6607bf8d6ad557f60f304e"
+  },
+  {
+    "path": "pytest\\test_real_absolute_page_range_0\\all\\docling-000000-000003-native.json",
+    "size_bytes": 2445,
+    "sha256": "ae13cf26ca475cfef58078bd960797d875fc1f931633449199352201c584abb9"
+  },
+  {
+    "path": "pytest\\test_real_absolute_page_range_0\\all\\docling-000004-000004-native.json",
+    "size_bytes": 975,
+    "sha256": "1cae539fe646f0e6896a99783ba0b68eec4d976a936a276b1e8db87c13b35174"
+  },
+  {
+    "path": "pytest\\test_real_absolute_page_range_0\\all\\extraction.json",
+    "size_bytes": 12634,
+    "sha256": "cb3bb99566187b3b4ba8553ab8d5ceecc20c2730164dc3e6639c8d4865aba61c"
+  },
+  {
+    "path": "pytest\\test_real_absolute_page_range_0\\all\\preflight.json",
+    "size_bytes": 3470,
+    "sha256": "5d3051e6881cbe3ff654895bc338ce88d147097a9bf5cb1ab89f3a2ed0ac9467"
+  },
+  {
+    "path": "pytest\\test_real_absolute_page_range_0\\all\\window-000000-000003.json",
+    "size_bytes": 11022,
+    "sha256": "cfefa421860ac6638ebe0ddda662c18be7e239bbebff4c60222b18291df7d5aa"
+  },
+  {
+    "path": "pytest\\test_real_absolute_page_range_0\\all\\window-000004-000004.json",
+    "size_bytes": 3820,
+    "sha256": "e41270584617fc64fd382d18bea5a0db7dd75d9d12b03d15e695c01ccfa928a3"
+  },
+  {
+    "path": "pytest\\test_real_absolute_page_range_0\\one-window\\.ingestion.lock",
+    "size_bytes": 1,
+    "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+  },
+  {
+    "path": "pytest\\test_real_absolute_page_range_0\\one-window\\docling-000003-000004-native.json",
+    "size_bytes": 1465,
+    "sha256": "f5f683a2b0ec2180ade4f1afeb71b5798704094f25fd230dbfb1903b0091594a"
+  },
+  {
+    "path": "pytest\\test_real_absolute_page_range_0\\version.pdf",
+    "size_bytes": 2286,
+    "sha256": "fd2021d6d6f7b231f48c01bb5ace7bbc1c4606a6a1ad3e0d504ff043ef0bc0a1"
+  },
+  {
+    "path": "pytest\\test_real_inherited_boxes_neve0\\extraction\\.ingestion.lock",
+    "size_bytes": 1,
+    "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+  },
+  {
+    "path": "pytest\\test_real_inherited_boxes_neve0\\extraction\\docling-000000-000000-native.json",
+    "size_bytes": 979,
+    "sha256": "70875823abc80c4310ff4beb86821812fb32c038d0a7dd7eee0d0f535a82b4cd"
+  },
+  {
+    "path": "pytest\\test_real_inherited_boxes_neve0\\extraction\\extraction.json",
+    "size_bytes": 2991,
+    "sha256": "bb3936309f10189ee9c9ba015de481a7283c4900c00bed50f31e5b7dbcdf93dd"
+  },
+  {
+    "path": "pytest\\test_real_inherited_boxes_neve0\\extraction\\preflight.json",
+    "size_bytes": 795,
+    "sha256": "cb29f2cd001deb340017f2ebcf0d30bb46be50f4dac5fe1f72b88e417eee73bc"
+  },
+  {
+    "path": "pytest\\test_real_inherited_boxes_neve0\\extraction\\window-000000-000000.json",
+    "size_bytes": 3834,
+    "sha256": "9db8c0fe5b4e2bb27d746668f38fc14bac1336db65ca382e5d6c442eeb510ca7"
+  },
+  {
+    "path": "pytest\\test_real_inherited_boxes_neve0\\inherited.pdf",
+    "size_bytes": 739,
+    "sha256": "88c13d188972046001c05026f49c29fdce6fa26f80f43679215715d6ebd8095f"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi0\\extraction\\.ingestion.lock",
+    "size_bytes": 1,
+    "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi0\\extraction\\docling-000000-000000-native.json",
+    "size_bytes": 1004,
+    "sha256": "12160524750b682b11c08a02d47835ffdb5487bf55912f150136be9a0fa01c64"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi0\\extraction\\extraction.json",
+    "size_bytes": 2977,
+    "sha256": "9e49c1f995b1cc4e0484bc0cfb7b0213f6b83ef7b5aaf22a03d26662f12032d1"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi0\\extraction\\preflight.json",
+    "size_bytes": 787,
+    "sha256": "0454b2b69f9ac0503a66dee1258447cd300c062c73c99cd16618afece3263a16"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi0\\extraction\\window-000000-000000.json",
+    "size_bytes": 3816,
+    "sha256": "f9909b60c8ff996c96dd826ebbcd2572350a664b9bb6dd571fe1d5bbca259ef1"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi0\\Procédure française.pdf",
+    "size_bytes": 764,
+    "sha256": "205fba9a07a2c34a02bd3c7e959210d8dff4c1369a182770cdfb27027d9d2ef5"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi1\\extraction\\.ingestion.lock",
+    "size_bytes": 1,
+    "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi1\\extraction\\docling-000000-000000-native.json",
+    "size_bytes": 1003,
+    "sha256": "3d30a824fcd6ee318acc549d73ad2faf67fc55e34cf75ca5683df94bb339fa57"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi1\\extraction\\extraction.json",
+    "size_bytes": 2977,
+    "sha256": "e2395b3f560da24daf76c8238b4d26278ff33e2ee02acb5b93f7d8ddb8234285"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi1\\extraction\\preflight.json",
+    "size_bytes": 788,
+    "sha256": "4d045ee902bd7147e131d388c01b3afc06f88a083b417fb356d3f0793629c33d"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi1\\extraction\\window-000000-000000.json",
+    "size_bytes": 3817,
+    "sha256": "7b242f8d8445a03726b3c1a048bf51846fe5fcfd7c7ab687faaafe526bf0ff14"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi1\\Procédure française.pdf",
+    "size_bytes": 765,
+    "sha256": "8f91c6fd8c09f4752c2a42702353be6f0c9579b2dac9618a983c032858bd711c"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi2\\extraction\\.ingestion.lock",
+    "size_bytes": 1,
+    "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi2\\extraction\\docling-000000-000000-native.json",
+    "size_bytes": 1002,
+    "sha256": "cbec514d1855032195340af80059f8d0e2e100ab15fa00a92ee4f43928387ff8"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi2\\extraction\\extraction.json",
+    "size_bytes": 2978,
+    "sha256": "dad4bee8df8639c564b4c74f826f9e7b5c2b571a3f7d05dc70c3a9468575b65f"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi2\\extraction\\preflight.json",
+    "size_bytes": 789,
+    "sha256": "47b9ce797fad033ceb7cab1c368aec9cd4213f49b62502bb232fcf2ec0f578f7"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi2\\extraction\\window-000000-000000.json",
+    "size_bytes": 3818,
+    "sha256": "24485e9af5446d89bba672fa502bf0f58710081edddae9fe3e5f8f01c7b1b982"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi2\\Procédure française.pdf",
+    "size_bytes": 766,
+    "sha256": "9d0134a627242a862477add245b9da05776a91bc4bc7f1b144e5b6d7c9cefb3d"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi3\\extraction\\.ingestion.lock",
+    "size_bytes": 1,
+    "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi3\\extraction\\docling-000000-000000-native.json",
+    "size_bytes": 1003,
+    "sha256": "a68b47e35fdce002ba3dfdd94f48e978ff38f7295b9f04501d6fd7e0bc1184b6"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi3\\extraction\\extraction.json",
+    "size_bytes": 2979,
+    "sha256": "89145270faa99a04ecadb3824cf2862af4d912c1e4546e77f3820a705e12bc53"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi3\\extraction\\preflight.json",
+    "size_bytes": 789,
+    "sha256": "0875f37cfdf2dbb4606aebe708bc14c97488ac2449e4baa4573ac9dc7540f292"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi3\\extraction\\window-000000-000000.json",
+    "size_bytes": 3819,
+    "sha256": "5ca9dd205ecd8763f7e5b12a782e607147efaeafa6850ff89bc421b4f54b7f7a"
+  },
+  {
+    "path": "pytest\\test_real_native_provenance_wi3\\Procédure française.pdf",
+    "size_bytes": 766,
+    "sha256": "20a247cf1f32f7353282e0e254a96e40547fddefb13f2edb5dc3c332c09916ec"
+  },
+  {
+    "path": "pytest\\test_real_preflight_refusal_an0\\extraction\\.ingestion.lock",
+    "size_bytes": 2,
+    "sha256": "f1534392279bddbf9d43dde8701cb5be14b82f76ec6607bf8d6ad557f60f304e"
+  },
+  {
+    "path": "pytest\\test_real_preflight_refusal_an0\\extraction\\docling-000000-000000-native.json",
+    "size_bytes": 971,
+    "sha256": "01bda2bd6f816670d65c55db7c40c438da30e33ffbb62ad8e5ec8e6cd4920aa0"
+  },
+  {
+    "path": "pytest\\test_real_preflight_refusal_an0\\extraction\\extraction.json",
+    "size_bytes": 2977,
+    "sha256": "cfb9d49ce0dee4878079210b4a97fad9c4a44536a401f506e20375a02606a956"
+  },
+  {
+    "path": "pytest\\test_real_preflight_refusal_an0\\extraction\\preflight.json",
+    "size_bytes": 789,
+    "sha256": "74675219eb1c09b18ccd5952e24d38e567264a5551d0617c56c99ae5812a19da"
+  },
+  {
+    "path": "pytest\\test_real_preflight_refusal_an0\\extraction\\window-000000-000000.json",
+    "size_bytes": 3817,
+    "sha256": "e748c906353322272afbee0ff6354166300e6fdc17fea1f642cd0e1438eb6c3a"
+  },
+  {
+    "path": "pytest\\test_real_preflight_refusal_an0\\malformed.pdf",
+    "size_bytes": 27,
+    "sha256": "63c7249c6019e2cca900f0f8c1a58edcc77fe39f6decc2bfaf2a7813e5206d61"
+  },
+  {
+    "path": "pytest\\test_real_preflight_refusal_an0\\valid.pdf",
+    "size_bytes": 739,
+    "sha256": "30bd3c8122e55f87192ea94ab44357d4a8481835bfb472656be2db365f180a95"
+  },
+  {
+    "path": "pytest.log",
+    "size_bytes": 111,
+    "sha256": "ab81acc7c44128c6b9bd7fe519b3b915aaba8abb2994efcae470b719528c77f8"
+  },
+  {
+    "path": "samples.jsonl",
+    "size_bytes": 41072,
+    "sha256": "4446ff46a28df88fd3585baef522652b0c559c0465b9382b8fc8a63b373e500b"
+  }
+]

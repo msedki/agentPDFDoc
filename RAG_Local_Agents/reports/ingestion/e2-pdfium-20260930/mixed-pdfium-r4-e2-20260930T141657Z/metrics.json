@@ -1,0 +1,29 @@
+{
+  "run": ".runtime\\qa\\ingestion-synthetic\\mixed-pdfium-r4-e2-20260930T141657Z",
+  "target": "tests/integration/test_ingestion_ocr.py::test_real_mixed_native_and_scanned_table_without_duplicate",
+  "exit_code": 0,
+  "elapsed_seconds": 121.48499999998603,
+  "tree_peak_rss_mib": 1064.94140625,
+  "tree_peak_private_mib": 1149.4921875,
+  "host_min_available_mib": 3536.21484375,
+  "drive_min_free_mib": 25005.3984375,
+  "sampled_tree_cpu_seconds": 81.703125,
+  "pause_requested": false,
+  "sample_interval_seconds": 0.25,
+  "finished_utc": "2026-09-30T14:18:58.568231+00:00",
+  "adapter_source_hashes": {
+    "__init__.py": "0fda437cf4d6d2b96026d6919ceae5564e98f6be1a3e876948106179d4f536af",
+    "checkpoint.py": "757d0c6e166cb17ce0a84106f5744581b0093eae90abf4017f2435f56a26d9a8",
+    "config.py": "b3e0c53d4126b69d88aae112abf127f33a38946c0ad55306ce2b62f8604464c7",
+    "docling_adapter.py": "c37f507bd185c0c1d1e82a288a8415b1335c23dfd7a2242bbc848e890def5547",
+    "errors.py": "0a88fda87c3b1e1a8a4c929179b0b7898666e10356885a9f0ad4083a6852ad6e",
+    "geometry.py": "0a273cece3840313ff057c6c412edde186622de1994b3cab32aacd97fedccba3",
+    "lifecycle.py": "95654b5e4a19a2b2b6569e6a8bd975dc2466a89465f0a89340be0d3d47a28714",
+    "pipeline.py": "85d7f6c5a3c17b1ebd20f42fbe7de6d6f201fce58888e968c678bb1ccb6d706b",
+    "preflight.py": "0fd91771ccba6fe29fc96c2b4f28ce9cc31edf96edc1473ec81129019a8861d7",
+    "regional_aspect.py": "dbce34736773642a83623cead4dffda438a9709d7db30cf647dc4d70eb1e02e5",
+    "regional_grid.py": "d63cd85146f73a86ad0ec81224d17767b4da12e11fefa28ece8e8c84f2b5f76e",
+    "regional_tables.py": "44281a928f505cb65d123e615b8c8ab0f94ce2ef0797d9c48a8e96c8e2948d3d",
+    "worker.py": "de941aba4c38580d87a1c55ed6e5cc29f3b3a71094730df71cf56685da585775"
+  }
+}
