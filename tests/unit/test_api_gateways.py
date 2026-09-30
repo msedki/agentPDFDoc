@@ -68,6 +68,29 @@ def test_api_qdrant_server_filter_identity_and_verified_upsert(tmp_path):
     assert any(method == "PUT" and path.endswith("/index") for method, path, _, _ in requests)
 
 
+def test_api_qdrant_store_sends_instance_api_key_from_supervisor_or_control_file(tmp_path, monkeypatch):
+    monkeypatch.delenv("RAG_DATA_DIR", raising=False)
+    monkeypatch.delenv("RAG_QDRANT_API_KEY", raising=False)
+    settings = Settings(tmp_path)
+    assert settings.qdrant_headers == {}
+    control = tmp_path / ".runtime/control"
+    control.mkdir(parents=True)
+    (control / "qdrant-api-key").write_text("cle-du-fichier", encoding="ascii")
+    assert settings.qdrant_headers == {"api-key": "cle-du-fichier"}
+    monkeypatch.setenv("RAG_QDRANT_API_KEY", "cle-du-superviseur")
+    seen = []
+    real_client = httpx.AsyncClient
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **options: real_client(
+        transport=httpx.MockTransport(lambda request: seen.append((request.url.path, request.headers.get("api-key")))
+                                      or httpx.Response(200, json={"status": "ok", "result": {"collections": []}})), **options))
+    store = QdrantStore(settings)
+    async def scenario():
+        await store.request("GET", "/collections")
+        await store.client.get("/collections/absente")
+        await store.close()
+    asyncio.run(scenario())
+    assert seen == [("/collections", "cle-du-superviseur"), ("/collections/absente", "cle-du-superviseur")]
+
 def test_api_ollama_real_ndjson_contract_cpu_and_length_limit(tmp_path):
     gateway = OllamaGateway(Settings(tmp_path))
     requests = []

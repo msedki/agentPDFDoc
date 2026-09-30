@@ -171,7 +171,9 @@ et permissions de l'environnement.
   documentation vivante (plan, journal, décisions, évolutions, états
   d'implémentation, rapports de preuve) de la documentation stabilisée
   (architecture technique détaillée, spécifications, interfaces, dossiers
-  d'exploitation et de déploiement, procédures, référentiels, README).
+  d'exploitation et de déploiement, procédures, référentiels, README). Une
+  arborescence explicite rend cette séparation visible : dossiers distincts et
+  index qui situe chaque document.
 - Donner à chaque document un rôle, un propriétaire logique et un statut explicites
   en tête (statut, date, commit ou version de référence). Une information n'a
   qu'une source de vérité : les autres documents y renvoient sans la recopier.
@@ -186,19 +188,23 @@ et permissions de l'environnement.
   retour arrière ou reprise, supervision et diagnostic.
 - Le README racine sert de point d'entrée vers toute la documentation et décrit
   l'état réel du projet, sans anticipation.
-- Adapter la forme au contenu : tableaux, matrices, schémas, séquences, workflows,
-  exemples, liens internes et sources officielles lorsqu'ils servent la
-  compréhension, la traçabilité ou l'exploitation, jamais comme décor. Schémas
+- Adapter la forme au contenu : tableaux, matrices, schémas, graphes, diagrammes,
+  séquences, workflows, exemples, commentaires, notes d'architecture, liens
+  internes, références croisées et liens vers les sources officielles ou documents
+  de référence, lorsqu'ils servent la compréhension, la traçabilité ou
+  l'exploitation, jamais comme décor. Schémas
   vectoriels en couleur (SVG versionnés, générés par script si possible), lisibles
   en thème clair et sombre ; pas d'art ASCII, les blocs de code restent réservés
   aux commandes, extraits et journaux.
-- Rédiger dans un registre humain, précis et contextualisé, technique,
-  scientifique ou métier selon le contenu. Proscrire les formulations génériques,
-  creuses ou artificielles (emphase, promesses vagues, remplissage, tournures
-  stéréotypées) et réécrire tout texte existant qui en contient.
-- Les textes du frontend (titres, libellés, aides, info-bulles, états vides,
-  messages d'erreur ou techniques, contenus métier) suivent les mêmes exigences :
-  vocabulaire du domaine, précision, cohérence entre les vues, et indication de
+- Rédiger dans un registre humain et professionnel, technique, scientifique ou
+  métier selon le contenu : clair, précis, contextualisé, utile et directement
+  exploitable par un lecteur humain. Proscrire les formulations génériques, creuses,
+  artificielles ou d'apparence générée automatiquement (emphase, promesses vagues,
+  remplissage, tournures stéréotypées) et réécrire tout texte existant qui en contient.
+- Les textes du frontend (titres, libellés, descriptions, aides, info-bulles, états
+  vides, messages d'erreur ou techniques, contenus métier) suivent les mêmes
+  exigences : ton naturel, vocabulaire du domaine, précision, cohérence entre les
+  vues, et indication de
   l'action possible pour l'utilisateur lorsqu'elle existe.
 - Référence de forme : `D:\enhacements\decodair` pour le shell applicatif (header,
   topbar, sidebar pleine, réduite ou masquée, footer, en-têtes de page), la charte

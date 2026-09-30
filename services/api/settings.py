@@ -48,6 +48,15 @@ class Settings:
         return self.path(override) if override else self.data_dir / "app.sqlite3"
 
     @property
+    def qdrant_headers(self):
+        """En-tête `api-key` de l'instance : variable du superviseur, sinon fichier de contrôle de la racine."""
+        key = os.environ.get("RAG_QDRANT_API_KEY")
+        if not key:
+            path = self.data_dir / "control" / "qdrant-api-key"
+            key = path.read_text(encoding="ascii").strip() if path.exists() else ""
+        return {"api-key": key} if key else {}
+
+    @property
     def origin(self):
         return f"http://127.0.0.1:{self.value('app', 'port', 8785)}"
 

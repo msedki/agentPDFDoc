@@ -209,6 +209,23 @@ def acquire_qdrant_lock(directory: Path):
     return handle
 
 
+def issue_qdrant_key(control: Path) -> str:
+    """Clé `service.api_key` propre à une vie de Qdrant, lisible par les outils locaux de l'instance.
+
+    Hors liste blanche (`/`, `/healthz`, `/readyz`, `/livez` en 1.19.1), toute requête sans en-tête
+    `api-key` est refusée : une page web servie par un domaine étranger ne peut plus lire la collection.
+    """
+    key = secrets.token_urlsafe(32)
+    (control / "qdrant-api-key").write_text(key, encoding="ascii")
+    return key
+
+
+def qdrant_environment(env: dict[str, str], key: str) -> dict[str, str]:
+    # Variable de surcharge officielle (préfixe QDRANT, séparateur __) : la clé n'est écrite ni dans
+    # qdrant.yaml ni dans runtime.json, et seul l'enfant Qdrant la reçoit sous ce nom.
+    return {**env, "QDRANT__SERVICE__API_KEY": key}
+
+
 def write_qdrant_config(profile: dict, directory: Path, control: Path) -> Path:
     from urllib.parse import urlsplit
 
@@ -345,9 +362,11 @@ def supervise(profile_path: Path) -> int:
         qconfig = write_qdrant_config(profile, directory, control)
         state["qdrant_config_sha256"] = file_hash(qconfig)
         state["qdrant_data_dir"] = str(qdrant_data_path(profile, directory))
+        qdrant_key = issue_qdrant_key(control)
+        state["qdrant_auth"] = "api_key"
         write_json_atomic(state_path, state)
         qdrant = job.launch([str(binaries["qdrant"]), "--config-path", str(qconfig), "--disable-telemetry"],
-                            cwd=ROOT, env=env, log_path=log_root / "qdrant.log")
+                            cwd=ROOT, env=qdrant_environment(env, qdrant_key), log_path=log_root / "qdrant.log")
         state["services"]["qdrant"] = qdrant.identity()
         write_json_atomic(state_path, state)
         wait_http(profile["qdrant"]["url"] + "/healthz", qdrant)
@@ -358,6 +377,7 @@ def supervise(profile_path: Path) -> int:
         wait_http(profile["llm"]["base_url"] + "/api/version", ollama, "0.35.0")
         env["RAG_SHUTDOWN_MARKER"] = str(api_stop)
         env["RAG_CONTROL_TOKEN"] = secret_path.read_text(encoding="ascii")
+        env["RAG_QDRANT_API_KEY"] = qdrant_key
         api = job.launch([sys.executable, "-m", "services.runtime.api_entry"], cwd=ROOT, env=env,
                          log_path=log_root / "api.log")
         state["services"]["api"] = api.identity()
@@ -400,6 +420,7 @@ def supervise(profile_path: Path) -> int:
             qdrant_lock.close()
         write_json_atomic(state_path, state)
         secret_path.unlink(missing_ok=True)
+        (control / "qdrant-api-key").unlink(missing_ok=True)
         lock.seek(0)
         msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
         lock.close()

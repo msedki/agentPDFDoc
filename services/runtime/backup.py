@@ -7,6 +7,7 @@ import json
 import os
 import shutil
 import sqlite3
+import time
 import uuid
 from contextlib import closing
 from datetime import UTC, datetime
@@ -22,9 +23,11 @@ from .supervisor import (
     check_ports,
     data_path,
     environment,
+    issue_qdrant_key,
     load_profile,
     native_paths,
     qdrant_data_path,
+    qdrant_environment,
     send_owned_console_interrupt,
     status,
     wait_http,
@@ -35,6 +38,32 @@ from .windows_process import WindowsJob
 TABLES = ("documents", "document_versions", "extraction_revisions", "index_generations",
           "pages", "blocks", "chunks", "jobs", "query_runs", "citations", "embedding_cache")
 
+
+# Codes Win32 relevés par Qdrant 1.19.1 quand un analyseur tient encore un fichier extrait :
+# accès refusé (5), violation de partage (32), répertoire non vide (145).
+TRANSIENT_WINDOWS_IO = ("(os error 5)", "(os error 32)", "(os error 145)")
+
+
+def upload_snapshot(client: httpx.Client, base: str, snapshot: Path, attempts: int = 3) -> list[str]:
+    """Charge un snapshot ; reprise bornée d'une erreur d'E/S Windows transitoire, collection absente.
+
+    Toute autre erreur, ou une collection partiellement créée, arrête la restauration.
+    Renvoie les échecs repris, conservés dans le rapport.
+    """
+    failures = []
+    for attempt in range(1, attempts + 1):
+        with snapshot.open("rb") as file:
+            response = client.post(base + "/snapshots/upload", params={"wait": "true", "priority": "snapshot",
+                "checksum": file_hash(snapshot)}, files={"snapshot": (snapshot.name, file, "application/octet-stream")})
+        if response.is_success:
+            return failures
+        transient = response.status_code == 500 and any(code in response.text for code in TRANSIENT_WINDOWS_IO)
+        if not transient or attempt == attempts or client.get(base).status_code != 404:
+            break
+        failures.append(response.text[:400])
+        time.sleep(attempt)
+    response.raise_for_status()
+    return failures
 
 def database_summary(path: Path) -> dict:
     # Réservé aux bases figées/backup/checkpointées. immutable évite de créer
@@ -104,6 +133,8 @@ def create_backup(profile_path: Path, output: Path | None = None) -> dict:
     if not all(item.get("identity_valid") for item in current["services"].values()):
         raise RuntimeError("Identité des services invalide")
     token = (directory / "control/admin-token").read_text(encoding="ascii")
+    key_path = directory / "control/qdrant-api-key"
+    qdrant_headers = {"api-key": key_path.read_text(encoding="ascii")} if key_path.exists() else {}
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     identifier = f"{stamp}-{uuid.uuid4().hex[:8]}"
     output = (output or ROOT / "backups" / identifier).resolve()
@@ -148,23 +179,23 @@ def create_backup(profile_path: Path, output: Path | None = None) -> dict:
                 shutil.copy2(ROOT / source_name, config / saved_name)
             from .source_manifest import capture
             write_json_atomic(config / "source-manifest.json", capture())
-            response = client.get(profile["qdrant"]["url"] + "/collections")
+            response = client.get(profile["qdrant"]["url"] + "/collections", headers=qdrant_headers)
             response.raise_for_status()
             for collection in response.json()["result"]["collections"]:
                 name = collection["name"]
                 escaped = quote(name, safe="")
                 base = profile["qdrant"]["url"] + "/collections/" + escaped
-                info = client.get(base)
+                info = client.get(base, headers=qdrant_headers)
                 info.raise_for_status()
-                before = client.post(base + "/points/count", json={"exact": True})
+                before = client.post(base + "/points/count", json={"exact": True}, headers=qdrant_headers)
                 before.raise_for_status()
-                response = client.post(base + "/snapshots", params={"wait": "true"})
+                response = client.post(base + "/snapshots", params={"wait": "true"}, headers=qdrant_headers)
                 response.raise_for_status()
                 snapshot = response.json()["result"]
                 relative = "qdrant/" + uuid.uuid4().hex + ".snapshot"
                 destination = inside(output, relative)
                 destination.parent.mkdir(exist_ok=True)
-                with client.stream("GET", base + "/snapshots/" + quote(snapshot["name"], safe="")) as stream:
+                with client.stream("GET", base + "/snapshots/" + quote(snapshot["name"], safe=""), headers=qdrant_headers) as stream:
                     stream.raise_for_status()
                     with destination.open("xb") as file:
                         for chunk in stream.iter_bytes():
@@ -268,32 +299,38 @@ def restore_backup(folder: Path, target: Path, *, qdrant_port: int = 6343) -> di
         control = target / "control"
         control.mkdir()
         config = write_qdrant_config(profile, target, control)
-        with closing(acquire_qdrant_lock(qdrant_directory)), WindowsJob() as job:
-            child = job.launch([str(native_paths()["qdrant"]), "--config-path", str(config), "--disable-telemetry"],
-                               cwd=ROOT, env=environment(profile, target, ROOT / "config/local16.yaml"),
-                               log_path=target / "restore-qdrant.log")
-            wait_http(profile["qdrant"]["url"] + "/healthz", child)
-            with httpx.Client(base_url=profile["qdrant"]["url"], timeout=600, trust_env=False) as client:
-                if client.get("/collections").json()["result"]["collections"]:
-                    raise ValueError("Le serveur de restauration n'est pas vide")
-                for item in manifest["collections"]:
-                    base = "/collections/" + quote(item["name"], safe="")
-                    snapshot = inside(folder, item["snapshot"])
-                    with snapshot.open("rb") as file:
-                        response = client.post(base + "/snapshots/upload", params={"wait": "true", "priority": "snapshot",
-                            "checksum": file_hash(snapshot)}, files={"snapshot": (snapshot.name, file, "application/octet-stream")})
-                    response.raise_for_status()
-                    response = client.post(base + "/points/count", json={"exact": True})
-                    response.raise_for_status()
-                    count = response.json()["result"]["count"]
-                    if count != item["points_count"]:
-                        raise ValueError("Compte des points Qdrant différent après restauration")
-                    report["collections"].append({"name": item["name"], "points_count": count})
-            send_owned_console_interrupt(child)
-            try:
-                report["qdrant_stop_exit_code"] = child.wait(30)
-            except TimeoutError:
-                report["qdrant_stop"] = "forced_owned_job_close"
+        # Le serveur de restauration exige lui aussi une clé, propre à cette restauration.
+        restore_key = issue_qdrant_key(control)
+        try:
+            with closing(acquire_qdrant_lock(qdrant_directory)), WindowsJob() as job:
+                child = job.launch([str(native_paths()["qdrant"]), "--config-path", str(config), "--disable-telemetry"],
+                                   cwd=ROOT, env=qdrant_environment(environment(profile, target, ROOT / "config/local16.yaml"), restore_key),
+                                   log_path=target / "restore-qdrant.log")
+                wait_http(profile["qdrant"]["url"] + "/healthz", child)
+                with httpx.Client(base_url=profile["qdrant"]["url"], headers={"api-key": restore_key},
+                                  timeout=600, trust_env=False) as client:
+                    listing = client.get("/collections")
+                    listing.raise_for_status()
+                    if listing.json()["result"]["collections"]:
+                        raise ValueError("Le serveur de restauration n'est pas vide")
+                    for item in manifest["collections"]:
+                        base = "/collections/" + quote(item["name"], safe="")
+                        retried = upload_snapshot(client, base, inside(folder, item["snapshot"]))
+                        response = client.post(base + "/points/count", json={"exact": True})
+                        response.raise_for_status()
+                        count = response.json()["result"]["count"]
+                        if count != item["points_count"]:
+                            raise ValueError("Compte des points Qdrant différent après restauration")
+                        report["collections"].append({"name": item["name"], "points_count": count,
+                                                      "upload_attempts": len(retried) + 1, "retried_failures": retried})
+                send_owned_console_interrupt(child)
+                try:
+                    report["qdrant_stop_exit_code"] = child.wait(30)
+                except TimeoutError:
+                    report["qdrant_stop"] = "forced_owned_job_close"
+        finally:
+            # La clé ne sert qu'au serveur temporaire, arrêté ici en succès comme en échec.
+            (control / "qdrant-api-key").unlink(missing_ok=True)
         # Profil prêt pour un démarrage distinct ; le port API est explicite et libre.
         profile["app"]["port"] = 8795
         profile["qdrant"]["url"] = "http://127.0.0.1:6343" if qdrant_port == 6343 else f"http://127.0.0.1:{qdrant_port}"

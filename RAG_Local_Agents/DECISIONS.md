@@ -139,3 +139,17 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 **Preuves :** test unitaire sur vrai PDFium (`tests/unit/test_ingestion_pdfium_crop.py`, 5/5, échoue 4/4 sur la page Docling non corrigée) ; voie native `pypdfium2` 8/8 ([rapport](reports/ingestion/w009-pdfium-20260930/native-pdfium-cropfix-20260930T155705Z/)) ; quatre essais OCR sur le profil nominal sans variable de test 4/4 en 602 s, pic privé 1556 Mio, minimum disponible 3695 Mio ([rapport](reports/ingestion/w009-pdfium-20260930/ocr-nominal-w009-cropfix-20260930T155843Z/)).
 
 **Conséquences :** empreinte d'extraction modifiée : le prochain réindex relance le worker. La correction du repère est à revérifier à chaque mise à jour de Docling (le défaut amont peut être corrigé, la translation deviendrait alors double). Aucune validation sur les PDF métier à ce stade.
+
+## W010 Clé d'API Qdrant propre à chaque vie du serveur
+
+**Date :** 30 septembre 2026, 16:40 UTC. **Statut :** acquise ; implémentée et vérifiée sur le binaire officiel et sur l'instance principale.
+
+**Contexte :** défaut D08.3 observé le 30/09 à 09:30 UTC : Qdrant 1.19.1 acceptait `GET /collections` avec un Host étranger ([preuve](reports/host-origin-live-20260930T0930.json)). Qdrant n'écoute que sur 127.0.0.1, mais une page web servie par un domaine étranger peut atteindre ce port après rebinding DNS et lire ou modifier la collection, puisque ce serveur ne vérifie ni Host ni Origin. L'API et Ollama refusaient déjà ces requêtes.
+
+**Choix retenu :** le superviseur tire une clé aléatoire de 43 caractères (`secrets.token_urlsafe(32)`) à chaque démarrage et la transmet au seul enfant Qdrant par la variable de surcharge officielle `QDRANT__SERVICE__API_KEY` ([QDR04](SOURCES.md)) : elle n'est écrite ni dans `qdrant.yaml` ni dans `runtime.json` (qui ne porte que `qdrant_auth: api_key`). L'API la reçoit par `RAG_QDRANT_API_KEY` et l'envoie dans l'en-tête `api-key`. Les outils locaux de l'instance (sauvegarde, comparatif, contrôles) la lisent dans `control/qdrant-api-key`, supprimé à l'arrêt comme `admin-token`. La restauration donne sa propre clé au serveur Qdrant temporaire. TLS n'est pas activé : la clé circule uniquement sur loopback.
+
+**Écarté :** clé fixe dans le profil (versionnée, partagée entre instances) ; clé écrite dans `qdrant.yaml` (persistante après l'arrêt) ; vérification de Host par un proxy supplémentaire (composant de plus, sans source officielle pour ce montage).
+
+**Preuves :** [contrôle réel des gardes](reports/http-guards-live-20260930T1636.json) 15/15 (`tools/qualification/http_guards.py`) : `/collections` sans clé 401, avec Host et Origin étrangers 401, `/telemetry` 401, avec clé 200 ; API et Ollama inchangés (400/403) ; readiness `qdrant: true` et recherche dense réelle `points/query` 200 via l'API. Test d'intégration sur le binaire verrouillé (`tests/integration/test_runtime_qdrant_auth.py`). Sauvegarde puis [restauration](reports/restore-qdrant-key-20260930T163652Z.json) avec clé : 11 points restaurés.
+
+**Conséquences :** `/`, `/healthz`, `/readyz` et `/livez` restent lisibles sans clé (liste blanche de Qdrant 1.19.1 : version et sondes, aucune donnée). Tout appel direct à Qdrant hors de l'API doit lire la clé de l'instance ; une instance démarrée avant ce changement n'a pas de clé et reste exposée jusqu'à son redémarrage. Ce contrôle applicatif ne remplace pas le blocage réseau du système (D08.1).

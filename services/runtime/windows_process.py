@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ctypes
 import os
 import subprocess
 import time
@@ -51,6 +52,17 @@ class OwnedProcess:
         self.handle.Close()
 
 
+def enable_ctrl_c_inheritance() -> None:
+    """Rétablit le traitement de CTRL+C du lanceur avant de créer un enfant.
+
+    L'attribut « ignorer CTRL+C » est hérité par les processus enfants (Microsoft,
+    SetConsoleCtrlHandler). Un lanceur qui l'a reçu de son terminal le transmettrait
+    à Qdrant et Ollama, dont l'arrêt console échouerait jusqu'à la fermeture du Job.
+    """
+    if not ctypes.WinDLL("kernel32", use_last_error=True).SetConsoleCtrlHandler(None, False):
+        raise ctypes.WinError(ctypes.get_last_error())
+
+
 class WindowsJob:
     def __init__(self):
         if os.name != "nt":
@@ -71,6 +83,7 @@ class WindowsJob:
             input_handle = msvcrt.get_osfhandle(null.fileno())
             win32api.SetHandleInformation(output, win32con.HANDLE_FLAG_INHERIT, win32con.HANDLE_FLAG_INHERIT)
             win32api.SetHandleInformation(input_handle, win32con.HANDLE_FLAG_INHERIT, win32con.HANDLE_FLAG_INHERIT)
+            enable_ctrl_c_inheritance()
             startup = win32process.STARTUPINFO()
             startup.dwFlags = win32con.STARTF_USESTDHANDLES | win32con.STARTF_USESHOWWINDOW
             startup.wShowWindow = win32con.SW_HIDE

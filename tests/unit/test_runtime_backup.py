@@ -3,11 +3,12 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 
+import httpx
 import pytest
 
 from services.api.db import Database
 from services.runtime.artifacts import file_hash, write_json_atomic
-from services.runtime.backup import database_summary, inside, rebase_database, verify_backup
+from services.runtime.backup import database_summary, inside, rebase_database, upload_snapshot, verify_backup
 
 
 def populated_database(path, original_root):
@@ -65,3 +66,46 @@ def test_verified_snapshot_rejects_corruption_and_unlisted_file(tmp_path):
 def test_snapshot_cannot_escape_root(tmp_path, relative):
     with pytest.raises(ValueError, match="invalide"):
         inside(tmp_path, relative)
+
+
+def _upload_client(responses, collection_status=404):
+    calls = []
+
+    def handler(request):
+        calls.append((request.method, request.url.path))
+        if request.method == "GET":
+            return httpx.Response(collection_status)
+        return responses.pop(0)
+    return httpx.Client(base_url="http://127.0.0.1:6343", transport=httpx.MockTransport(handler)), calls
+
+
+TRANSIENT_145 = {"status": {"error": "Service internal error: IO Error: failed to remove directory `x`: "
+                                     "Le répertoire n'est pas vide. (os error 145)"}}
+
+
+def test_snapshot_upload_retries_transient_windows_io_only_when_collection_absent(tmp_path, monkeypatch):
+    monkeypatch.setattr("services.runtime.backup.time.sleep", lambda seconds: None)
+    snapshot = tmp_path / "c.snapshot"
+    snapshot.write_bytes(b"snapshot")
+    client, calls = _upload_client([httpx.Response(500, json=TRANSIENT_145), httpx.Response(200, json={"result": True})])
+    with client:
+        retried = upload_snapshot(client, "/collections/c", snapshot)
+    assert len(retried) == 1 and "os error 145" in retried[0]
+    assert calls == [("POST", "/collections/c/snapshots/upload"), ("GET", "/collections/c"),
+                     ("POST", "/collections/c/snapshots/upload")]
+
+
+@pytest.mark.parametrize(("responses", "collection_status"), [
+    ([httpx.Response(500, json={"status": {"error": "Wrong input: checksum mismatch"}})], 404),
+    ([httpx.Response(500, json=TRANSIENT_145)], 200),
+    ([httpx.Response(500, json=TRANSIENT_145)] * 3, 404),
+])
+def test_snapshot_upload_stops_on_permanent_error_partial_collection_or_exhausted_attempts(
+        tmp_path, monkeypatch, responses, collection_status):
+    monkeypatch.setattr("services.runtime.backup.time.sleep", lambda seconds: None)
+    snapshot = tmp_path / "c.snapshot"
+    snapshot.write_bytes(b"snapshot")
+    client, calls = _upload_client(list(responses), collection_status)
+    with client, pytest.raises(httpx.HTTPStatusError):
+        upload_snapshot(client, "/collections/c", snapshot)
+    assert sum(method == "POST" for method, _ in calls) == len(responses)

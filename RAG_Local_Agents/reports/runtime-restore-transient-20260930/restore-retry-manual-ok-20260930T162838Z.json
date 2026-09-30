@@ -1,0 +1,76 @@
+{
+  "state": "restored_storage_verified",
+  "backup_id": "20260930T162730Z-7eaaa5b3",
+  "data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\rt-qkey-20260930T162838Z",
+  "qdrant_data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\q\\fe3e2cbe",
+  "qdrant_storage_relocated_for_windows_path_limit": true,
+  "source_verification": {
+    "state": "verified",
+    "backup_id": "20260930T162730Z-7eaaa5b3",
+    "files": 23,
+    "sqlite": {
+      "integrity": "ok",
+      "foreign_key_errors": 0,
+      "counts": {
+        "documents": 1,
+        "document_versions": 1,
+        "extraction_revisions": 1,
+        "index_generations": 1,
+        "pages": 2,
+        "blocks": 11,
+        "chunks": 11,
+        "jobs": 1,
+        "query_runs": 2,
+        "citations": 16,
+        "embedding_cache": 10
+      },
+      "schema": [
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  "collections": [
+    {
+      "name": "pdf_chunks_e5small_v1_53cac40518d0dec0",
+      "points_count": 11
+    }
+  ],
+  "copied_data_hashes_verified_before_rebase": [
+    "app.sqlite3",
+    "extractions/11debf6d-6e3c-4874-9ea4-395c1ad6661c/8294f3ef-100a-475e-8378-983360f88b69/.ingestion.lock",
+    "extractions/11debf6d-6e3c-4874-9ea4-395c1ad6661c/8294f3ef-100a-475e-8378-983360f88b69/docling-000000-000001-structured.json",
+    "extractions/11debf6d-6e3c-4874-9ea4-395c1ad6661c/8294f3ef-100a-475e-8378-983360f88b69/extraction.json",
+    "extractions/11debf6d-6e3c-4874-9ea4-395c1ad6661c/8294f3ef-100a-475e-8378-983360f88b69/preflight.json",
+    "extractions/11debf6d-6e3c-4874-9ea4-395c1ad6661c/8294f3ef-100a-475e-8378-983360f88b69/window-000000-000001.json",
+    "extractions/11debf6d-6e3c-4874-9ea4-395c1ad6661c/8294f3ef-100a-475e-8378-983360f88b69/worker-native-fault.log",
+    "extractions/11debf6d-6e3c-4874-9ea4-395c1ad6661c/8294f3ef-100a-475e-8378-983360f88b69/worker-request.json",
+    "extractions/11debf6d-6e3c-4874-9ea4-395c1ad6661c/8294f3ef-100a-475e-8378-983360f88b69/worker-result.json",
+    "originals/791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5.pdf"
+  ],
+  "sqlite": {
+    "integrity": "ok",
+    "foreign_key_errors": 0,
+    "counts": {
+      "documents": 1,
+      "document_versions": 1,
+      "extraction_revisions": 1,
+      "index_generations": 1,
+      "pages": 2,
+      "blocks": 11,
+      "chunks": 11,
+      "jobs": 1,
+      "query_runs": 2,
+      "citations": 16,
+      "embedding_cache": 10
+    },
+    "schema": [
+      1,
+      2,
+      3
+    ]
+  },
+  "qdrant_stop": "forced_owned_job_close",
+  "application_query_and_old_citation": "NOT_RUN"
+}

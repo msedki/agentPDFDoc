@@ -105,7 +105,7 @@ class QdrantStore:
         self._identity = None
         if not re.fullmatch(r"[a-zA-Z0-9_-]+", self.collection_prefix):
             raise ApiError("invalid_profile", "Nom de collection invalide.")
-        self.client = httpx.AsyncClient(base_url=self.base_url, timeout=60, trust_env=False)
+        self.client = httpx.AsyncClient(base_url=self.base_url, headers=settings.qdrant_headers, timeout=60, trust_env=False)
 
     @property
     def identity(self):

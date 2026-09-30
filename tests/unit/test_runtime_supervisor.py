@@ -7,7 +7,16 @@ import pytest
 import yaml
 
 from services.runtime.artifacts import ROOT, write_json_atomic
-from services.runtime.supervisor import RotatingJsonl, port_states, status, supervisor_sample
+from services.runtime.supervisor import (
+    RotatingJsonl,
+    environment,
+    issue_qdrant_key,
+    port_states,
+    qdrant_environment,
+    status,
+    supervisor_sample,
+    write_qdrant_config,
+)
 
 
 def test_resource_trace_rotation_bounds_size_and_keeps_whole_lines(tmp_path):
@@ -104,3 +113,20 @@ def test_port_states_distinguish_free_owned_and_foreign():
     assert ours["app"]["state"] == "owned" and ours["app"]["listener_pids"] == [os.getpid()]
     assert ours["spare"]["state"] == "free"
     assert theirs["app"]["state"] == "foreign"
+
+
+def test_qdrant_key_is_long_reserved_to_the_qdrant_child_and_never_written_in_config(tmp_path, monkeypatch):
+    monkeypatch.setenv("QDRANT__SERVICE__API_KEY", "variable-heritee-du-poste")
+    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    profile["qdrant"]["storage_dir"] = ".runtime/q/absent00"
+    control = tmp_path / "control"
+    control.mkdir()
+    key = issue_qdrant_key(control)
+    assert len(key.encode("ascii")) >= 32 and (control / "qdrant-api-key").read_text(encoding="ascii") == key
+    base = environment(profile, tmp_path, ROOT / "config/local16.yaml")
+    # Ni la variable héritée ni la clé ne parviennent à Ollama ou à l'API sous le nom Qdrant.
+    assert not any(name.upper().startswith("QDRANT") for name in base)
+    child = qdrant_environment(base, key)
+    assert child["QDRANT__SERVICE__API_KEY"] == key and "QDRANT__SERVICE__API_KEY" not in base
+    assert key not in write_qdrant_config(profile, tmp_path, control).read_text(encoding="utf-8")
+    assert issue_qdrant_key(control) != key
