@@ -2,7 +2,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Position=0)]
-    [ValidateSet('provision','doctor','up','open','status','logs','down','pull-model','backup','restore','verify')]
+    [ValidateSet('provision','doctor','up','open','status','logs','down','pull-model','backup','restore','verify','init-profile')]
     [string]$Command = 'doctor',
     [string]$Profile = 'config/local16.yaml',
     [string]$Only,
@@ -10,7 +10,9 @@ param(
     [switch]$SkipModel,
     [string]$Path,
     [string]$Target,
-    [string]$Report
+    [string]$Report,
+    [string]$QdrantStorage,
+    [string]$Ports
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = $PSScriptRoot
@@ -30,6 +32,8 @@ if ($SkipModel) { $arguments += '--skip-model' }
 if ($Path) { $arguments += @('--path',$Path) }
 if ($Target) { $arguments += @('--target',$Target) }
 if ($Report) { $arguments += @('--report',$Report) }
+if ($QdrantStorage) { $arguments += @('--qdrant-storage',$QdrantStorage) }
+if ($Ports) { $arguments += @('--ports',$Ports) }
 $env:PYTHONUTF8 = '1'
 Push-Location -LiteralPath $projectRoot
 try {

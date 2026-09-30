@@ -445,7 +445,7 @@ def open_workspace(profile_path: Path, *, launch: bool = True) -> dict[str, Any]
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["provision", "doctor", "up", "status", "logs", "down", "_serve", "pull-model", "backup", "restore", "verify", "open"])
+    parser.add_argument("command", choices=["provision", "doctor", "up", "status", "logs", "down", "_serve", "pull-model", "backup", "restore", "verify", "open", "init-profile"])
     parser.add_argument("--profile", type=Path, default=ROOT / "config/local16.yaml")
     parser.add_argument("--only")
     parser.add_argument("--offline", action="store_true")
@@ -454,6 +454,8 @@ def main() -> int:
     parser.add_argument("--path", type=Path, help="Destination backup ou snapshot source restore/verify")
     parser.add_argument("--target", type=Path, help="Racine neuve de restauration")
     parser.add_argument("--no-browser", action="store_true", help="open : afficher le lien au lieu d'ouvrir le navigateur")
+    parser.add_argument("--qdrant-storage", type=Path, help="init-profile : dossier court du stockage Qdrant")
+    parser.add_argument("--ports", help="init-profile : ports API,Qdrant,Ollama séparés par des virgules")
     args = parser.parse_args()
     try:
         if args.command == "_serve":
@@ -477,6 +479,12 @@ def main() -> int:
             if not args.path or not args.target:
                 raise ValueError("restore requiert --path et --target (racine neuve)")
             result = restore_backup(args.path, args.target)
+        elif args.command == "init-profile":
+            from .profile_setup import write_user_profile
+            if not args.target:
+                raise ValueError("init-profile requiert --target (racine des données de l'utilisateur)")
+            ports = dict(zip(("app", "qdrant", "ollama"), map(int, args.ports.split(",")), strict=True)) if args.ports else None
+            result = write_user_profile(args.profile, args.target, qdrant_storage=args.qdrant_storage, ports=ports)
         elif args.command == "open":
             result = open_workspace(args.profile, launch=not args.no_browser)
         elif args.command == "up":
