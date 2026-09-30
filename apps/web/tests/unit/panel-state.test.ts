@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { activeJobsBadge, activeJobsSentence, coverageSentence, isQueryableDocumentState, isServiceUnavailable, libraryView, pendingIndexCount, scopeCoverage, scopeDocuments, scopeKindLabel, selectedDocumentsSentence, unindexedInScope, unindexedSentence } from "../../src/lib/panel-state.ts";
+import { activeJobsBadge, activeJobsSentence, coverageSentence, isQueryableDocument, isQueryableDocumentState, isServiceUnavailable, libraryView, pendingIndexCount, scopeCoverage, scopeDocuments, scopeKindLabel, selectedDocumentsSentence, unindexedInScope, unindexedSentence } from "../../src/lib/panel-state.ts";
 import { isActiveJobState } from "../../src/lib/status.ts";
 import type { DocumentRecord, LibraryTree } from "../../src/lib/types.ts";
 
@@ -22,7 +22,8 @@ test("an empty library and a filter without match are distinct states", () => {
   assert.equal(view({ visible: 1, filtering: true }), "content");
 });
 
-const documentRecord = (id: string, state: DocumentRecord["state"], folder: string | null, version = `v-${id}`): DocumentRecord => ({ id, folder_id: folder, name: `${id}.pdf`, relative_path: `${id}.pdf`, state, active_version_id: version, page_count: 1 });
+// Comme l'API : une génération publiée pour les documents prêts ou partiels publiés, null sinon.
+const documentRecord = (id: string, state: DocumentRecord["state"], folder: string | null, version = `v-${id}`, generation: string | null = ["ready", "ready_partial"].includes(String(state)) ? `g-${id}` : null): DocumentRecord => ({ id, folder_id: folder, name: `${id}.pdf`, relative_path: `${id}.pdf`, state, active_version_id: version, active_generation_id: generation, page_count: 1 });
 const tree: LibraryTree = {
   folders: [{ id: "root", parent_id: null, name: "root", path: "root" }, { id: "child", parent_id: "root", name: "child", path: "root/child" }, { id: "loop-a", parent_id: "loop-b", name: "a", path: "a" }, { id: "loop-b", parent_id: "loop-a", name: "b", path: "b" }, { id: "other", parent_id: null, name: "other", path: "other" }],
   documents: [documentRecord("ready", "ready", "root"), documentRecord("partial", "ready_partial", "child"), documentRecord("indexing", "indexing", "child"), documentRecord("removed", "deleted", "root"), documentRecord("loose", "queued", null), documentRecord("looped", "ocr", "loop-a"), documentRecord("elsewhere", "error", "other")],
@@ -101,4 +102,14 @@ test("the Suivi counter is capped at 99+ and its sentence agrees in number", () 
   // Le compte inclut des traitements arrêtés en attente de reprise ou de publication : ils ne sont pas « actifs ».
   for (const state of ["paused", "checkpointed", "interrupted", "ready_partial"]) assert.equal(isActiveJobState(state), true, state);
   for (const count of [0, 1, 120]) assert.doesNotMatch(activeJobsSentence(count), /actif/);
+});
+
+test("an unpublished partial extraction is not queryable and is counted apart", () => {
+  const pending = documentRecord("half", "ready_partial", null, "v-half", null);
+  assert.equal(isQueryableDocument(pending), false);
+  assert.equal(isQueryableDocument(documentRecord("published", "ready_partial", null)), true);
+  const partialTree: LibraryTree = { folders: [], documents: [pending, documentRecord("done", "ready", null), documentRecord("stopped", "cancelled" as DocumentRecord["state"], null)] };
+  assert.deepEqual(scopeCoverage({ kind: "library" }, partialTree), { queryable: 1, excluded: [{ reason: "unpublished", count: 1 }, { reason: "cancelled", count: 1 }] });
+  assert.equal(coverageSentence(scopeCoverage({ kind: "library" }, partialTree)), "1 document interrogeable · 2 exclus : 1 extraction partielle à publier, 1 traitement annulé");
+  assert.equal(unindexedInScope({ kind: "library" }, partialTree), 2);
 });

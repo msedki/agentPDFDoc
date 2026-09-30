@@ -83,7 +83,7 @@ function SessionEnded({ reason, onRetry }: { reason: SessionEndReason; onRetry: 
       <Button type="button" variant="secondary" size="sm" onClick={() => void copy()}><Copy size={14} aria-hidden="true" />{copied ? "Commande copiée" : "Copier la commande"}</Button>
     </div>
     <p className="session-hint">Si la session a été ouverte dans un autre onglet de ce navigateur, vérifiez de nouveau.</p>
-    <Button type="button" variant="ghost" size="sm" onClick={onRetry}>Vérifier de nouveau</Button>
+    <Button type="button" variant="secondary" size="sm" onClick={onRetry}>Vérifier de nouveau</Button>
     <span className="sr-only" aria-live="polite">{copied ? "Commande copiée dans le presse-papiers." : ""}</span>
   </>;
 }

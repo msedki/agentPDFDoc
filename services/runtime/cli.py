@@ -489,7 +489,8 @@ def main() -> int:
             current = status(args.profile)
             result = {name: identity.get("log_path") for name, identity in current.get("services", {}).items()}
         if args.report:
-            write_json_atomic(args.report, result)
+            # Le lien d'ouverture est un secret à usage unique : il n'est jamais écrit dans un rapport.
+            write_json_atomic(args.report, {key: value for key, value in result.items() if key != "url"} if args.command == "open" else result)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
     except Exception as exc:

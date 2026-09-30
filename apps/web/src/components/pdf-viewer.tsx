@@ -9,7 +9,7 @@ import { boundedCanvasSize, reconcileSelection, visiblePageWindow, wholeBlockSpa
 import { errorMessage } from "@/lib/utils";
 import { ocrOverlays } from "@/lib/ocr-overlay";
 import { hasPublishedExtraction } from "@/lib/publication";
-import { warningText } from "@/lib/warnings";
+import { groupedWarningTexts } from "@/lib/warnings";
 import { blocksKey, citedRevision } from "@/lib/provenance-revision";
 import { useCitationRevision } from "@/lib/use-citation-revision";
 import { sourcePrecisionLabel, sourceRegionBoxes } from "@/lib/source-location";
@@ -128,7 +128,7 @@ export function PdfViewer() {
   const state = useWorkspace();
   const opened = state.opened;
   const binding = useCitationRevision();
-  const metadata = useQuery({ queryKey: ["document", opened?.documentId], queryFn: ({ signal }) => api.document(opened!.documentId, signal), enabled: Boolean(opened), staleTime: 30000, refetchInterval: query => hasPublishedExtraction(query.state.data, opened?.versionId) ? false : 3000 });
+  const metadata = useQuery({ queryKey: ["document", opened?.documentId], queryFn: ({ signal }) => api.document(opened!.documentId, signal, true), enabled: Boolean(opened), staleTime: 30000, refetchInterval: query => hasPublishedExtraction(query.state.data, opened?.versionId) ? false : 3000 });
   const provenanceReady = !binding.error && hasPublishedExtraction(metadata.data, opened?.versionId);
   const outline = useQuery({ queryKey: ["outline", opened?.versionId, binding.revision], queryFn: ({ signal }) => api.outline(opened!.versionId, signal, binding.revision), enabled: Boolean(opened) && provenanceReady, staleTime: 30000 });
   const [document, setDocument] = useState<PDFDocumentProxy | null>(null);
@@ -223,7 +223,7 @@ export function PdfViewer() {
   const setPageScope = () => {
     if (opened && binding.actions.allowed) state.setScope({ kind: "pages", versionId: opened.versionId, pageStart: opened.pageIndex, pageEnd: opened.pageIndex }, `${metadata.data?.name ?? "Document"} · page ${opened.pageIndex + 1}`);
   };
-  if (!opened) return <section className="viewer-panel"><PanelHeader title="Lecteur"><span className="eyebrow">Original et provenance</span></PanelHeader><PanelEmpty reason="not-started" icon={<FileText size={40} strokeWidth={1} aria-hidden="true" />} title="Aucun document ouvert" description="Ouvrez un document depuis la bibliothèque ou importez un PDF. Une source citée dans une réponse s'ouvre ici, à la page et au passage utilisés." /></section>;
+  if (!opened) return <section className="viewer-panel"><PanelHeader title="Lecteur" /><PanelEmpty reason="not-started" icon={<FileText size={40} strokeWidth={1} aria-hidden="true" />} title="Aucun document ouvert" description="Ouvrez un document depuis la bibliothèque ou importez un PDF. Une source citée dans une réponse s'ouvre ici, à la page et au passage utilisés." /></section>;
   const visible = visiblePageWindow(center, pageCount);
   const version = metadata.data?.versions.find(value => value.id === opened.versionId);
   return <section className="viewer-panel">
@@ -253,6 +253,6 @@ export function PdfViewer() {
       </>}
     </div>
     <div className="reader-footer"><button onClick={() => setExtractedVisible(value => !value)} aria-expanded={extractedVisible}>Texte extrait & provenance <ChevronDown size={14} aria-hidden="true" /></button><span title={version?.sha256}>Version <span className="mono">{opened.versionId.slice(0, 8)}</span></span></div>
-    {extractedVisible && <div className="extracted-text"><p className="eyebrow">Page {opened.pageIndex + 1} · blocs extraits</p>{currentBlocks.isLoading ? <p role="status">Chargement des blocs extraits…</p> : currentBlocks.isError ? <p role="alert" className="inline-error">Blocs extraits indisponibles : {errorMessage(currentBlocks.error)}</p> : !currentBlocks.data?.blocks.length ? <p>{provenanceReady ? "Aucun texte extrait pour cette page." : "Les blocs extraits seront disponibles après publication de l'extraction."}</p> :currentBlocks.data.blocks.map(block => <div key={block.id}><p>{block.text}</p><Button variant="secondary" size="sm" disabled={!block.text.trim() || !wholeBlockSpan(block)} title={!wholeBlockSpan(block) ? "Ce bloc n'a pas de révision ou d'empreinte vérifiable : il ne peut pas servir de périmètre." : undefined} onClick={() => { const span = wholeBlockSpan(block); if (span) state.setScope({ kind: "selection", versionId: opened.versionId, spans: [span] }, `Bloc source · page ${opened.pageIndex + 1}`); }}>Analyser ce bloc</Button></div>)}{currentBlocks.data?.warnings.map((warning, index) => <p key={index} className="inline-warning">{warningText(warning)}</p>)}</div>}
+    {extractedVisible && <div className="extracted-text"><p className="eyebrow">Page {opened.pageIndex + 1} · blocs extraits</p>{currentBlocks.isLoading ? <p role="status">Chargement des blocs extraits…</p> : currentBlocks.isError ? <p role="alert" className="inline-error">Blocs extraits indisponibles : {errorMessage(currentBlocks.error)}</p> : !currentBlocks.data?.blocks.length ? <p>{provenanceReady ? "Aucun texte extrait pour cette page." : "Les blocs extraits seront disponibles après publication de l'extraction."}</p> :currentBlocks.data.blocks.map(block => <div key={block.id}><p>{block.text}</p><Button variant="secondary" size="sm" disabled={!block.text.trim() || !wholeBlockSpan(block)} title={!wholeBlockSpan(block) ? "Ce bloc n'a pas de révision ou d'empreinte vérifiable : il ne peut pas servir de périmètre." : undefined} onClick={() => { const span = wholeBlockSpan(block); if (span) state.setScope({ kind: "selection", versionId: opened.versionId, spans: [span] }, `Bloc source · page ${opened.pageIndex + 1}`); }}>Analyser ce bloc</Button></div>)}{groupedWarningTexts(currentBlocks.data?.warnings).map(text => <p key={text} className="inline-warning">{text}</p>)}</div>}
   </section>;
 }

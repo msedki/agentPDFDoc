@@ -155,7 +155,10 @@ class DoclingSession:
                 raise IngestionError("DOCLING_THREADS_STILL_ACTIVE", "Les threads du parseur ne sont pas tous libérés ; la conversion ne peut pas être publiée.", {"stage_threads": remaining})
             status = str(result.status.value)
             if status not in {"success", "partial_success"}:
-                raise IngestionError("DOCLING_CONVERSION_FAILED", "Docling n'a pas produit une extraction utilisable.", {"page_start": first, "page_end": last, "parser_status": status})
+                # Cause conservée pour le diagnostic : composant, module et début du message Docling, jamais le texte du document.
+                errors = [{"component": str(getattr(item, "component_type", "")), "module": str(getattr(item, "module_name", "")),
+                           "message": str(getattr(item, "error_message", ""))[:240]} for item in list(getattr(result, "errors", None) or [])[:5]]
+                raise IngestionError("DOCLING_CONVERSION_FAILED", "Docling n'a pas produit une extraction utilisable.", {"page_start": first, "page_end": last, "parser_status": status, "errors": errors})
             document = result.document.export_to_dict()
             observed_ocr = {}
             preprocessing: dict[int, Any] = {}

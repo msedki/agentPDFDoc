@@ -218,6 +218,7 @@ class JobSupervisor:
             raise ApiError("job_not_found", "Travail inconnu.", 404)
         state = row["state"] if row["state"] in {"ready", "ready_partial", "cancelled", "error"} else ("cancelling" if job_id == self._active else "cancelled")
         self.db.execute("UPDATE jobs SET cancel_requested=1,state=?,updated_at=? WHERE id=?", (state, now(), job_id))
+        self.db.align_document(row["document_id"])
         return {"job_id": job_id, "state": state}
 
     def resume(self, job_id):
@@ -236,7 +237,21 @@ class JobSupervisor:
                 raise ApiError("interaction_active", "Attendre la fin de la question avant de reprendre l'indexation.", 409) from error
         self._suspended = False
         self.db.execute("UPDATE jobs SET state='queued',stage='resume',cancel_requested=0,pause_requested=0,error_code=NULL,error_message=NULL,updated_at=? WHERE id=?", (now(), job_id))
+        self.db.align_document(row["document_id"])
         return {"job_id": job_id, "state": "queued"}
+
+    def resume_paused(self):
+        """Relance en une fois tous les traitements en pause (checkpoint, interruption, pause demandée), dans leur ordre d'import."""
+        rows = self.db.rows("SELECT id FROM jobs WHERE state='paused' ORDER BY created_at")
+        # Tout ou rien : une question active refuse la reprise avant qu'un seul traitement ne soit relancé.
+        if rows and self.governor:
+            try:
+                self.governor.resume_ingestion()
+            except RuntimeError as error:
+                raise ApiError("interaction_active", "Attendre la fin de la question avant de reprendre l'indexation.", 409) from error
+        for row in rows:
+            self.resume(row["id"])
+        return {"resumed": len(rows)}
 
     def pause(self, job_id):
         row = self.db.one("SELECT * FROM jobs WHERE id=?", (job_id,))
@@ -246,6 +261,7 @@ class JobSupervisor:
             raise ApiError("job_not_pauseable", "Ce travail est déjà terminal.", 409)
         state = "pausing" if self._active == job_id else "paused"
         self.db.execute("UPDATE jobs SET pause_requested=1,state=?,stage=?,updated_at=? WHERE id=?", (state, state, now(), job_id))
+        self.db.align_document(row["document_id"])
         return {"job_id": job_id, "state": state, "pause_policy": "cooperative_checkpoint"}
 
     def request_pause_all(self):

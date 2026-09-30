@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { documentStatus, isActiveJobState, jobStageLabel, jobStatus, queryStatus, serviceStatus } from "../../src/lib/status.ts";
+import { documentRecordStatus, documentStatus, isActiveJobState, jobStageLabel, jobStatus, queryStatus, serviceStatus } from "../../src/lib/status.ts";
 
 test("every document state of the API contract has a label and a tone", () => {
   // Liste de packages/contracts/contracts.json (document.state), plus la pause du suivi.
@@ -56,7 +56,7 @@ test("service availability names its four states in text: unreachable, not ready
   assert.deepEqual(view({ loading: false, failed: true, unreachable: false }), ["Service local en erreur", "destructive", "error"], "une réponse en erreur n'est pas une coupure");
   assert.deepEqual(view({ loading: false, failed: false, ready: false }), ["Modèle ou worker non prêt", "warning", "not_ready"]);
   assert.deepEqual(view({ loading: false, failed: false }), ["Modèle ou worker non prêt", "warning", "not_ready"], "sans confirmation, le service n'est pas présenté comme prêt");
-  assert.deepEqual(view({ loading: false, failed: false, ready: true, pendingDocuments: 2 }), ["Index en retard", "warning", "index_lagging"]);
+  assert.deepEqual(view({ loading: false, failed: false, ready: true, pendingDocuments: 2 }), ["Index incomplet", "warning", "index_lagging"]);
   assert.deepEqual(view({ loading: false, failed: false, ready: true, pendingDocuments: 0 }), ["Services prêts", "success", "ready"]);
   // Un service non prêt reste signalé comme tel, même si des documents attendent aussi leur indexation.
   assert.equal(serviceStatus({ loading: false, failed: false, ready: false, pendingDocuments: 3 }).code, "not_ready");
@@ -65,4 +65,11 @@ test("service availability names its four states in text: unreachable, not ready
     const status = serviceStatus(probe);
     assert.notEqual(status.label, status.code);
   }
+});
+
+test("a partial extraction awaiting publication and a cancelled treatment have their own labels", () => {
+  assert.equal(documentRecordStatus({ state: "ready_partial", active_generation_id: null }).label, "Extraction partielle à publier");
+  assert.equal(documentRecordStatus({ state: "ready_partial", active_generation_id: "g" }).label, "Extraction partielle");
+  assert.equal(documentRecordStatus({ state: "cancelled", active_generation_id: null }).label, "Traitement annulé");
+  assert.equal(documentRecordStatus({ state: "cancelled", active_generation_id: null }).known, true);
 });

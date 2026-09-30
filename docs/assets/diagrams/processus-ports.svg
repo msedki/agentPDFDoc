@@ -14,7 +14,7 @@
 <text x="34" y="148" font-size="13" fill="#172B33">servie par l'API (aucun serveur Next.js)</text>
 <rect x="456" y="72" width="400" height="90" rx="6" fill="#FFFEFA" stroke="#172B33" stroke-width="1.4"/>
 <text x="466" y="93" font-size="14" fill="#172B33" font-weight="600">Opérateur : PowerShell 5.1</text>
-<text x="466" y="112" font-size="13" fill="#172B33" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">.\rag.ps1 up | status | logs | down</text>
+<text x="466" y="112" font-size="13" fill="#172B33" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">.\rag.ps1 up | open | status | logs | down</text>
 <text x="466" y="130" font-size="13" fill="#172B33">provision · doctor · backup · verify · restore</text>
 <text x="466" y="148" font-size="13" fill="#172B33">entrée : services.runtime.cli</text>
 <rect x="456" y="184" width="400" height="60" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
@@ -30,7 +30,7 @@
 <text x="58" y="325" font-size="14" fill="#172B33" font-weight="600">API FastAPI + interface statique</text>
 <text x="58" y="344" font-size="13" fill="#172B33">uvicorn, 1 worker · 127.0.0.1:8785</text>
 <text x="58" y="362" font-size="13" fill="#172B33">REST /api/v1 et SSE des questions</text>
-<text x="58" y="380" font-size="13" fill="#172B33">Host et Origin loopback exigés</text>
+<text x="58" y="380" font-size="13" fill="#172B33">Host/Origin loopback, session ou jeton exigés</text>
 <text x="58" y="398" font-size="13" fill="#172B33">SQLite : .runtime/data/app.sqlite3</text>
 <polyline points="224,162 224,302" fill="none" stroke="#1F5F8B" stroke-width="1.6" marker-end="url(#processus-ports-head-1f5f8b)"/>
 <rect x="229" y="200" width="163.32" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
@@ -72,4 +72,5 @@
 <polyline points="709,574 709,624" fill="none" stroke="#6B6456" stroke-width="1.6" stroke-dasharray="2 4" stroke-linecap="round" marker-end="url(#processus-ports-head-6b6456)"/>
 <text x="24" y="742" font-size="12" fill="#4A5961">Trait plein : requête HTTP sur 127.0.0.1 · tirets : lancement et propriété de processus · pointillés : fichiers.</text>
 <text x="24" y="760" font-size="12" fill="#4A5961">Aucun service n'écoute hors loopback ; le navigateur ne joint ni Qdrant ni Ollama.</text>
+<text x="24" y="778" font-size="12" fill="#4A5961">Hors santé et disponibilité, /api/v1 exige la session ouverte par rag.ps1 open ou le jeton de contrôle (W011).</text>
 </svg>

@@ -146,9 +146,9 @@ def app_origin(profile: dict) -> tuple[str, str | bool]:
     port = profile["app"]["port"]
     if security.get("environment", "development") != "production":
         return f"http://127.0.0.1:{port}", True
-    certificate = security.get("tls_cert_file")
-    if not certificate:
-        raise ValueError("Production : security.tls_cert_file requis")
+    certificate, key = security.get("tls_cert_file"), security.get("tls_key_file")
+    if not certificate or not key or not (ROOT / certificate).is_file() or not (ROOT / key).is_file():
+        raise ValueError("Production : security.tls_cert_file et security.tls_key_file requis et lisibles")
     return f"https://127.0.0.1:{port}", str((ROOT / certificate).resolve())
 
 
@@ -352,6 +352,14 @@ def supervise(profile_path: Path) -> int:
     instance = uuid.uuid4().hex
     stop_path = control / f"shutdown-{instance}"
     api_stop = control / f"api-shutdown-{instance}"
+    # Origine validée avant d'écrire le jeton : un profil production incomplet ne laisse aucun secret derrière lui.
+    try:
+        origin = app_origin(profile)[0]
+    except ValueError:
+        lock.seek(0)
+        msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+        lock.close()
+        raise
     secret_path = control / "admin-token"
     secret_path.write_text(secrets.token_urlsafe(32), encoding="ascii")
     log_root = directory / "logs" / instance
@@ -360,7 +368,7 @@ def supervise(profile_path: Path) -> int:
                              "profile_sha256": file_hash(profile_path), "data_dir": str(directory),
                              "supervisor": {"pid": os.getpid(), "created_at": self_process.create_time(),
                                             "executable": self_process.exe()}, "services": {}, "shutdown_marker": str(stop_path),
-                             "app_url": app_origin(profile)[0], "stop_results": []}
+                             "app_url": origin, "stop_results": []}
     state_path = control / "runtime.json"
     job = WindowsJob()
     qdrant_lock = None
@@ -447,6 +455,7 @@ def supervise(profile_path: Path) -> int:
 
 def start(profile_path: Path) -> dict:
     profile = load_profile(profile_path)
+    app_origin(profile)  # profil production sans certificat : refus avant tout lancement
     directory = data_path(profile)
     qdrant_data_path(profile, directory)
     previous = read_state(directory)

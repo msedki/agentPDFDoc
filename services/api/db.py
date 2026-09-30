@@ -117,6 +117,7 @@ class Database:
         with self.transaction() as connection:
             timestamp = now()
             connection.execute("UPDATE jobs SET state='paused',stage='interrupted',error_code='interrupted',error_message='Traitement interrompu ; reprise manuelle au dernier checkpoint.',lease_pid=NULL,updated_at=? WHERE state IN ('extracting','indexing','running','pausing','cancelling')", (timestamp,))
+            self.align_document_states(connection)
             for row in connection.execute("SELECT id,last_event_id FROM query_runs WHERE state IN ('queued','running')").fetchall():
                 event_id = row["last_event_id"] + 1
                 connection.execute("UPDATE query_runs SET state='interrupted',last_event_id=?,updated_at=? WHERE id=?", (event_id, timestamp, row["id"]))
@@ -153,6 +154,38 @@ class Database:
                 connection.execute("INSERT INTO folders VALUES(?,?,?,?)", (folder_id, parent_id, name, folder_path))
                 parent_id = folder_id
         return parent_id
+
+    # État affiché d'un document sans génération publiée : celui de son dernier traitement.
+    JOB_TO_DOCUMENT_STATE = {"queued": "queued", "extracting": "extracting", "indexing": "indexing", "pausing": "paused",
+                             "paused": "paused", "cancelling": "cancelled", "cancelled": "cancelled", "error": "error",
+                             "ready_partial": "ready_partial"}
+
+    @classmethod
+    def align_document_states(cls, connection, document_ids=None):
+        """Réaligne documents.state sur le dernier job pour les documents sans génération publiée.
+
+        Un document publié garde l'état de sa génération active ; les autres affichent la pause,
+        l'annulation, l'erreur ou l'extraction partielle en attente de publication de leur job.
+        """
+        where, parameters = "", []
+        if document_ids is not None:
+            document_ids = list(document_ids)
+            if not document_ids:
+                return 0
+            where, parameters = f" AND d.id IN ({','.join('?' for _ in document_ids)})", document_ids
+        rows = connection.execute("SELECT d.id,d.state,(SELECT j.state FROM jobs j WHERE j.document_id=d.id ORDER BY j.created_at DESC,j.rowid DESC LIMIT 1) AS job_state "
+                                  "FROM documents d WHERE d.active_generation_id IS NULL AND d.deleted_at IS NULL" + where, parameters).fetchall()
+        changed = 0
+        for row in rows:
+            state = cls.JOB_TO_DOCUMENT_STATE.get(row["job_state"])
+            if state and state != row["state"]:
+                connection.execute("UPDATE documents SET state=?,updated_at=? WHERE id=?", (state, now(), row["id"]))
+                changed += 1
+        return changed
+
+    def align_document(self, document_id):
+        with self.transaction() as connection:
+            return self.align_document_states(connection, [document_id])
 
     def import_original(self, relative_path, sha256, blob_path):
         relative_path = relative_pdf_path(relative_path)

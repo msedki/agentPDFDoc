@@ -199,3 +199,32 @@ def test_production_requires_tls_files_and_hardens_cookies(tmp_path):
         assert opened.headers["Strict-Transport-Security"] == "max-age=31536000"
         assert client.get("/api/docs").status_code == 404 and client.get("/openapi.json").status_code == 404
         assert client.get("/api/v1/health", headers={"Origin": "http://127.0.0.1:8785"}).status_code == 403
+
+
+def test_refusals_carry_the_security_headers_and_are_not_cached(tmp_path):
+    app, _ = build(tmp_path)
+    with TestClient(app, base_url=ORIGIN) as client:
+        for response in (client.get("/api/v1/library/tree"), client.get("/api/v1/health", headers={"Host": "attaquant.example"}),
+                         client.get("/api/v1/health", headers={"Origin": "http://attaquant.example"})):
+            assert response.status_code in {400, 401, 403}
+            assert response.headers["Cache-Control"] == "no-store" and response.headers["X-Frame-Options"] == "DENY"
+            assert response.headers["X-Content-Type-Options"] == "nosniff" and "frame-ancestors 'none'" in response.headers["Content-Security-Policy"]
+
+
+def test_background_polling_does_not_extend_inactivity_and_purged_sessions_keep_their_reason(tmp_path):
+    app, clock = build(tmp_path, {"session_idle_minutes": 30, "session_absolute_hours": 12})
+    with TestClient(app, base_url=ORIGIN) as client:
+        open_session(client)
+        first = client.cookies["rag_session"]
+        clock.now += 25 * 60
+        assert client.get("/api/v1/jobs", headers={"X-RAG-Background": "1"}).status_code == 200
+        clock.now += 10 * 60
+        # 35 min sans activité de l'utilisateur : la relecture automatique n'a rien prolongé.
+        refused = client.get("/api/v1/jobs", headers={"X-RAG-Background": "1"})
+        assert refused.status_code == 401 and refused.json()["details"]["reason"] == "session_idle_expired"
+        open_session(client)
+        clock.now += 31 * 60
+        open_session(client)  # la purge de cette ouverture retire la session précédente, expirée
+        client.cookies.set("rag_session", first)
+        assert client.get("/api/v1/library/tree").json()["details"]["reason"] == "session_idle_expired"
+

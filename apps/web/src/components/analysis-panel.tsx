@@ -133,7 +133,7 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
   };
 
   return <aside className="analysis-panel" aria-labelledby="analysis-heading">
-    <PanelHeader title="Analyse" id="analysis-heading"><div className="panel-heading-actions"><span className="eyebrow">Réponses avec sources</span>{headerAction}</div></PanelHeader>
+    <PanelHeader title="Analyse" id="analysis-heading"><div className="panel-heading-actions">{headerAction}</div></PanelHeader>
     <div className="analysis-tabs" role="tablist" aria-label="Mode d'analyse" onKeyDown={event => {
       const current = tabButtons.current.indexOf(event.target as HTMLButtonElement);
       const target = current < 0 ? null : tabKeyTarget(event.key, current, analysisTabs.length);

@@ -26,7 +26,8 @@ export function ContextBand({ scope, tree, treeFailed, blockers, error, onDismis
   const scoped = Boolean(coverage) || treeFailed;
   return <div className={cn("context-band", !scoped && !message && "context-band-service-only")}>
     <StatusIndicator className="context-service" status={service.status} title={service.detail} />
-    {scoped && <p className="context-scope"><Badge tone="neutral">{scopeKindLabel(scope.kind)}</Badge><span>{coverage ? coverageSentence(coverage) : "Couverture inconnue : la bibliothèque n'a pas pu être lue"}</span></p>}
+    {/* La nature du périmètre ne s'affiche que si elle précise le libellé de la barre supérieure (pas pour toute la bibliothèque). */}
+    {scoped && <p className="context-scope">{scope.kind !== "library" && <Badge tone="neutral">{scopeKindLabel(scope.kind)}</Badge>}<span>{coverage ? coverageSentence(coverage) : "Couverture inconnue : la bibliothèque n'a pas pu être lue"}</span></p>}
     {message === "error" && <div className="context-message workspace-error" role="alert"><CircleAlert size={14} aria-hidden="true" /><span>{error}</span><button type="button" onClick={onDismissError} aria-label="Fermer le message"><X size={16} /></button></div>}
     {message === "readiness" && <p className="context-message readiness-notice" role="status" title={`Contrôles non satisfaits : ${blockers.join(", ")}`}>{readinessSentence(blockers)}</p>}
   </div>;

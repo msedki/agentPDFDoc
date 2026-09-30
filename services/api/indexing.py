@@ -53,6 +53,31 @@ def split_text(text, embedding, target=320, overlap=48):
         offset = max(offset + 1, next_offset)
 
 
+# W012 : une zone graphique non interprétée est une limite déclarée, pas une perte de texte ;
+# une page sans rien à lire (préflight « graphique incertain » ou « blanche », aucun caractère) non plus.
+LOSS_FREE_REGION_REASONS = frozenset({"GRAPHIC_INTERPRETATION_UNAVAILABLE"})
+NO_TEXT_CLASSIFICATIONS = frozenset({"graphic_uncertain", "blank"})
+
+
+def text_loss(extraction):
+    """Vrai si du texte manque : la publication reste alors une décision explicite (extraction partielle)."""
+    pages = extraction.get("pages", [])
+    if len(pages) < extraction.get("page_count", 0):
+        return True
+    if extraction.get("status") != "ready_partial":
+        return False
+    # Extraction antérieure sans l'indicateur du parseur : prudence, elle reste partielle.
+    if extraction.get("parser_complete") is not True:
+        return True
+    for page in pages:
+        if any(region.get("reason") not in LOSS_FREE_REGION_REASONS for region in page.get("unresolved_regions", [])):
+            return True
+        nothing_to_read = (page.get("classification") in NO_TEXT_CLASSIFICATIONS and not page.get("blocks")
+                           and not page.get("alphanumeric_count"))
+        if page.get("extraction_state") == "error" and not nothing_to_read:
+            return True
+    return False
+
 class Indexer:
     def __init__(self, db, embedding, vectors, settings, llm_tokenizer=None):
         self.db, self.embedding, self.vectors, self.settings = db, embedding, vectors, settings
@@ -191,8 +216,7 @@ class Indexer:
             await self.vectors.upsert(points)
             await self.vectors.verify({chunk["id"]: chunk["hash"] for chunk in batch})
             self.db.execute("UPDATE jobs SET progress=?,heartbeat_at=?,stage='vectors',updated_at=? WHERE id=?", (0.65 + 0.3 * (offset + len(batch)) / max(1, len(chunks)), now(), now(), job_id))
-        partial = extraction.get("status") == "ready_partial" or len(extraction.get("pages", [])) < extraction.get("page_count", 0)
-        self.publish(job_id, generation_id, len(chunks), partial=partial)
+        self.publish(job_id, generation_id, len(chunks), partial=text_loss(extraction))
         return generation_id
 
     def publish(self, job_id, generation_id, count, partial=False, allow_partial=False):
@@ -215,3 +239,5 @@ class Indexer:
                 if previous and previous != generation_id:
                     connection.execute("INSERT OR IGNORE INTO vector_cleanup VALUES(?,?,'pending',NULL,?,?)", (previous, "superseded", now(), now()))
             connection.execute("UPDATE jobs SET state=?,stage='complete',progress=1,lease_pid=NULL,updated_at=? WHERE id=?", (state, now(), job_id))
+            # Partiel non publié : le document annonce une extraction partielle à publier, pas une indexation en cours.
+            self.db.align_document_states(connection, [job["document_id"]])

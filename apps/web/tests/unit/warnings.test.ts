@@ -9,10 +9,10 @@ test("structured retrieval warnings display the actual message without passing a
 });
 test("unknown warning fields are not displayed as arbitrary object content, and a bare code is never shown alone", () => {
   const text = warningText({ code: "partial_extraction", internal_details: "not a user message" });
-  assert.equal(text, "Le service signale une limite sans la décrire (code partial_extraction).");
+  assert.equal(text, "Limite signalée par le service, sans description (code partial_extraction).");
   assert.doesNotMatch(text, /not a user message/);
   assert.notEqual(text, "partial_extraction");
-  assert.equal(warningText(null), "Le service signale une limite sans la décrire.");
+  assert.equal(warningText(null), "Limite signalée par le service, sans description.");
 });
 test("readiness blockers are shown with readable labels and unknown codes stay visible for diagnosis", () => {
   assert.equal(readinessBlockerText("qdrant_not_ready"), "Index vectoriel indisponible");

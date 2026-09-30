@@ -7,9 +7,68 @@ export function warningText(value: unknown): string {
   if (value && typeof value === "object") {
     const warning = value as { message?: unknown; code?: unknown };
     if (typeof warning.message === "string") return warning.message;
-    if (typeof warning.code === "string") return `Le service signale une limite sans la décrire (code ${warning.code}).`;
+    if (typeof warning.code === "string") return `Limite signalée par le service, sans description (code ${warning.code}).`;
   }
-  return "Le service signale une limite sans la décrire.";
+  return "Limite signalée par le service, sans description.";
+}
+
+/**
+ * Limites d'extraction (codes de `services/ingestion`) : intitulé et conséquence pour
+ * l'utilisateur. Un même code répété par zone est regroupé avec ses pages.
+ */
+const ingestionWarnings: Record<string, { title: string; consequence: string }> = {
+  GRAPHIC_INTERPRETATION_UNAVAILABLE: { title: "Schémas ou images non interprétés", consequence: "leur contenu n'est ni recherché ni cité ; le texte de ces pages l'est. Consultez la figure dans le lecteur." },
+  PAGE_WITHOUT_EXTRACTED_TEXT: { title: "Pages sans texte extrait", consequence: "aucun texte n'y a été trouvé (page blanche, logo seul ou image non lue)." },
+  DOCUMENT_WITHOUT_TEXT: { title: "Document sans texte extrait", consequence: "aucune page n'apporte de texte recherchable." },
+  DOCLING_CONVERSION_FAILED: { title: "Pages non converties", consequence: "leur texte n'a pas pu être extrait ; réindexez le document ou consultez le diagnostic du poste." },
+  PAGE_GROUP_RETRIED_BY_PAGE: { title: "Pages retraitées une à une", consequence: "un groupe de pages a échoué et a été repris page par page." },
+  NATIVE_QUALITY_FAILED: { title: "Couche texte native peu fiable", consequence: "le texte intégré au PDF ne passait pas le contrôle de qualité." },
+  NATIVE_ESCALATED_TO_STRUCTURED: { title: "Pages relues par l'analyse de mise en page", consequence: "leur couche texte native ne passait pas le contrôle de qualité." },
+  OCR_WORD_LOW_CONFIDENCE: { title: "Mots lus par OCR avec une faible confiance", consequence: "vérifiez les valeurs dans le lecteur avant de les utiliser." },
+  OCR_CELL_LOW_CONFIDENCE: { title: "Cellules de tableau lues par OCR avec une faible confiance", consequence: "vérifiez les valeurs dans le lecteur avant de les utiliser." },
+  OCR_PRINTED_CELL_UNRESOLVED: { title: "Cellules de tableau non lues", consequence: "leur contenu manque dans l'index ; consultez le tableau dans le lecteur." },
+  OCR_NO_RECOGNIZED_CELLS: { title: "Aucun texte reconnu par l'OCR", consequence: "la zone numérisée n'apporte pas de texte recherchable." },
+  OCR_ORIENTATION_UNRESOLVED: { title: "Orientation de page non déterminée", consequence: "l'OCR n'a pas pu redresser la page ; son texte peut manquer." },
+  OCR_REGION_ISOLATION_LIMIT: { title: "Zones numérisées non isolées", consequence: "une partie de la page n'a pas été soumise à l'OCR." },
+  ITEM_WITHOUT_PROVENANCE: { title: "Éléments sans position dans la page", consequence: "leur texte est indexé sans surlignage précis." },
+  INVALID_SOURCE_CHARSPAN: { title: "Positions de texte incohérentes", consequence: "certains passages s'ouvrent à la page, sans surlignage." },
+  INGESTION_NATIVE_FAULT: { title: "Arrêt du composant d'extraction", consequence: "le traitement a été interrompu ; reprenez-le ou réindexez le document." },
+};
+
+function pagesPhrase(pages: number[]): string {
+  if (!pages.length) return "";
+  const shown = pages.slice(0, 8).join(", ") + (pages.length > 8 ? ` et ${pages.length - 8} autres` : "");
+  return pages.length === 1 ? `page ${shown}` : `pages ${shown}`;
+}
+
+/**
+ * Avertissements d'un traitement regroupés par code : un seul message par type de limite,
+ * avec le nombre de zones et les pages (numérotées à partir de 1). Les messages fournis
+ * par le service sont conservés tels quels ; un code inconnu reste cité pour le diagnostic.
+ */
+export function groupedWarningTexts(warnings: unknown[] | undefined): string[] {
+  const groups = new Map<string, { count: number; pages: Set<number> }>();
+  const texts: string[] = [];
+  for (const value of warnings ?? []) {
+    const warning = value && typeof value === "object" ? value as { code?: unknown; message?: unknown; page_index?: unknown } : null;
+    const code = typeof warning?.code === "string" ? warning.code : null;
+    if (!code || !Object.hasOwn(ingestionWarnings, code) || typeof warning?.message === "string") {
+      const text = warningText(value);
+      if (!texts.includes(text)) texts.push(text);
+      continue;
+    }
+    const group = groups.get(code) ?? { count: 0, pages: new Set<number>() };
+    group.count++;
+    if (typeof warning?.page_index === "number") group.pages.add(warning.page_index + 1);
+    groups.set(code, group);
+  }
+  const grouped = [...groups].map(([code, group]) => {
+    const { title, consequence } = ingestionWarnings[code];
+    const pages = pagesPhrase([...group.pages].sort((left, right) => left - right));
+    const zones = group.count > 1 && group.count !== group.pages.size ? ` (${group.count} zones)` : "";
+    return `${title}${pages ? `, ${pages}` : ""}${zones} : ${consequence}`;
+  });
+  return [...grouped, ...texts];
 }
 
 const readinessLabels: Record<string, string> = {

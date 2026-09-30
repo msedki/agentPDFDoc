@@ -40,10 +40,12 @@ async function request<T>(path: string, options: RequestInit = {}, acceptedStatu
   if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
 }
+/** Relectures périodiques (disponibilité, bibliothèque, suivi) : elles ne prolongent pas l'inactivité de la session (W011). */
+const BACKGROUND = { "X-RAG-Background": "1" };
 const post = <T>(path: string, data: unknown) => request<T>(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
 export const api = {
   async readiness(signal?: AbortSignal): Promise<Readiness> {
-    const value = await request<Readiness>("/readiness", { signal }, [503]);
+    const value = await request<Readiness>("/readiness", { signal, headers: BACKGROUND }, [503]);
     return { ...value, ready: value.ready ?? value.status === "ready" };
   },
   async tree(signal?: AbortSignal): Promise<LibraryTree> {
@@ -53,7 +55,7 @@ export const api = {
     let offset = 0;
     let total = 0;
     do {
-      const page: LibraryTree = await request<LibraryTree>(`/library/tree?limit=100&offset=${offset}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`, { signal });
+      const page: LibraryTree = await request<LibraryTree>(`/library/tree?limit=100&offset=${offset}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`, { signal, headers: BACKGROUND });
       for (const folder of page.folders) folders.set(folder.id, folder);
       documents.push(...page.documents);
       total = page.total_documents ?? page.total ?? documents.length;
@@ -64,10 +66,10 @@ export const api = {
     } while (cursor && documents.length < 10000);
     return { folders: [...folders.values()], documents, total_documents: total };
   },
-  document: (id: string, signal?: AbortSignal) => request<DocumentDetail>(`/documents/${encodeURIComponent(id)}`, { signal }),
+  document: (id: string, signal?: AbortSignal, background = false) => request<DocumentDetail>(`/documents/${encodeURIComponent(id)}`, { signal, headers: background ? BACKGROUND : {} }),
   outline: (versionId: string, signal?: AbortSignal, revision?: string | null) => request<Outline>(outlinePath(versionId, revision), { signal }).then(result => verifyPinnedOutline(result, versionId, revision)),
   blocks: (versionId: string, page: number, signal?: AbortSignal, revision?: string | null) => request<PageBlocks>(blocksPath(versionId, page, revision), { signal }).then(result => verifyPinnedBlocks(result, versionId, page, revision)),
-  jobs: (signal?: AbortSignal) => request<JobsResponse>("/jobs", { signal }),
+  jobs: (signal?: AbortSignal) => request<JobsResponse>("/jobs", { signal, headers: BACKGROUND }),
   import: (files: File[], onProgress?: (progress: number) => void) => new Promise<unknown>((resolve, reject) => {
     const form = new FormData();
     for (const file of files) form.append("files", file, file.name);
@@ -96,6 +98,7 @@ export const api = {
   cancelJob: (id: string) => post(`/jobs/${encodeURIComponent(id)}/cancel`, {}),
   pauseJob: (id: string) => post(`/jobs/${encodeURIComponent(id)}/pause`, {}),
   resumeJob: (id: string) => post(`/jobs/${encodeURIComponent(id)}/resume`, {}),
+  resumePaused: () => post<{ resumed: number }>("/jobs/resume-paused", {}),
   publishPartial: (id: string) => post(`/jobs/${encodeURIComponent(id)}/publish-partial`, {}),
   runtimeMode: (mode: "interactive" | "ingestion") => post("/runtime/mode", { mode }),
   reindex: (id: string) => post(`/documents/${encodeURIComponent(id)}/reindex`, {}),

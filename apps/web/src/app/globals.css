@@ -291,6 +291,9 @@ progress { display: block; width: 100%; height: 4px; margin-top: 8px; accent-col
 /* Suivi des traitements */
 .jobs-panel { display: flex; flex-direction: column; overflow: auto; padding-bottom: 12px; }
 .job-mode-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; }
+.jobs-summary { margin: 0; padding: 0 16px 8px; font-size: 12px; color: hsl(var(--muted-foreground)); }
+.job-bulk-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 16px 12px; border-bottom: 1px solid hsl(var(--border)); }
+.job-bulk-actions .action-error { flex-basis: 100%; }
 .jobs-panel article { padding: 16px; border-bottom: 1px solid hsl(var(--border)); font-size: 12px; }
 .job-heading { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
 .job-heading strong { font-weight: 500; }
@@ -341,7 +344,7 @@ progress { display: block; width: 100%; height: 4px; margin-top: 8px; accent-col
   .workspace-layout { grid-template-columns: 0px 0px minmax(0, 1fr) 0px 0px !important; }
   .library-column, .analysis-wrapper { visibility: hidden !important; }
   .panel-resizer { display: none !important; }
-  .app-topbar button, .panel-heading button, .import-actions button, .job-actions button, .job-mode-actions button { min-height: 44px; }
+  .app-topbar button, .panel-heading button, .import-actions button, .job-actions button, .job-mode-actions button, .job-bulk-actions button { min-height: 44px; }
   .app-topbar button, .panel-heading button { min-width: 44px; }
   .scope-trigger { height: 44px; }
   .scope-popover { top: 48px; }

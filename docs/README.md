@@ -1,6 +1,6 @@
 # Documentation du poste documentaire local
 
-**Rôle :** index de la documentation stabilisée, règle de séparation entre documents vivants et stabilisés, en-tête obligatoire · **Statut :** Stabilisé · **Référence :** commit `e0be4ac` · **Mis à jour :** 2026-09-30 (UTC) · **Source de vérité :** ce fichier pour l'organisation de `docs/` ; chaque document pour son sujet · **Remplace :** aucun document
+**Rôle :** index de la documentation stabilisée, règle de séparation entre documents vivants et stabilisés, en-tête obligatoire · **Statut :** Stabilisé · **Référence :** commit `10b5dd9` + modifications de l'intégrateur du 30/09 19:47 UTC · **Mis à jour :** 2026-09-30 19:59 (UTC) · **Source de vérité :** ce fichier pour l'organisation de `docs/` ; chaque document pour son sujet · **Remplace :** aucun document
 
 `docs/` décrit le système tel qu'il est livré à la référence citée en tête de chaque document. Le suivi du chantier (plan, journal, décisions, sources, rapports de preuve) et le référentiel d'exigences V2.1 restent dans [`RAG_Local_Agents/`](../RAG_Local_Agents/), dossier vivant qui n'est pas déplacé : ses outils `build_brief.py` et `verify_pack.py` dépendent de son emplacement. Le point d'entrée général est le [README racine](../README.md).
 
@@ -8,11 +8,11 @@
 
 | Document | Rôle | Statut | Source de vérité |
 |---|---|---|---|
-| [Architecture technique](architecture/ARCHITECTURE.md) | Composants, processus et ports, flux, ingestion, recherche et génération, interfaces internes, données et identités, sécurité, déploiement, observabilité ; écarts avec l'exigence V2.1 | Stabilisé | Code de `services/`, `apps/web/`, `rag.ps1`, profil `config/local16.yaml` |
-| [Interface HTTP et SSE](interfaces/API.md) | Routes `/api/v1` déclarées, erreurs, flux SSE des questions, en-têtes exigés, corps de requête | Stabilisé | `services/api/main.py`, `services/api/schemas.py`, `packages/contracts/contracts.json` |
-| [Exploitation](exploitation/EXPLOITATION.md) | Préparer, démarrer, superviser, arrêter, reprendre ; portée de `doctor` et `status` | Stabilisé | `rag.ps1`, `services/runtime/` ; contrat W001 dans `RAG_Local_Agents/EXPLOITATION_WINDOWS.md` |
+| [Architecture technique](architecture/ARCHITECTURE.md) | Composants, processus et ports, flux (démarrage, ouverture de l'atelier, arrêt), ingestion, recherche et génération, interfaces internes, données et identités, sécurité et session locale, déploiement, observabilité ; écarts avec l'exigence V2.1 | Stabilisé | Code de `services/`, `apps/web/`, `rag.ps1`, profil `config/local16.yaml` |
+| [Interface HTTP et SSE](interfaces/API.md) | Routes `/api/v1` déclarées, session locale, cookies, CSRF et jeton de contrôle, erreurs, flux SSE des questions, en-têtes, corps de requête | Stabilisé | `services/api/main.py`, `services/api/security.py`, `services/api/schemas.py`, `packages/contracts/contracts.json` |
+| [Exploitation](exploitation/EXPLOITATION.md) | Préparer, démarrer, ouvrir l'atelier (`open`), gérer et révoquer les sessions, superviser, importer un dossier, arrêter, reprendre ; portée de `doctor` et `status` | Stabilisé | `rag.ps1`, `services/runtime/`, `services/api/security.py`, `tools/corpus/import_folder.py` ; contrat W001 dans `RAG_Local_Agents/EXPLOITATION_WINDOWS.md` |
 | [Sauvegarde et restauration](exploitation/SAUVEGARDE-RESTAURATION.md) | Snapshot cohérent, vérification, restauration dans une racine neuve, retour arrière, preuves | Stabilisé | `services/runtime/backup.py` |
-| [Dépannage](exploitation/DEPANNAGE.md) | Symptôme, cause et commande, avec le message exact du code | Stabilisé | Messages de `rag.ps1`, `bootstrap.ps1` et `services/` |
+| [Dépannage](exploitation/DEPANNAGE.md) | Symptôme, cause et commande, avec le message exact du code ou de l'écran de session | Stabilisé | Messages de `rag.ps1`, `bootstrap.ps1`, `services/`, `tools/` et de `apps/web/src/lib/session.ts` |
 
 ## Schémas
 
@@ -20,10 +20,10 @@ Les schémas sont des SVG en couleur produits par [`tools/docs/diagrams.py`](../
 
 | Schéma | Ce qu'il montre | Statut | Source de vérité |
 |---|---|---|---|
-| [Processus et ports](assets/diagrams/processus-ports.svg) | Navigateur, superviseur, API et interface (8785), Qdrant (6333), Ollama (11434), worker PDF à la demande, dossiers de `.runtime/` | Généré | `tools/docs/diagrams.py`, fonction `processes` |
-| [Séquence de rag.ps1 up](assets/diagrams/sequence-up.svg) | Ordre des contrôles au démarrage et message de chaque refus bloquant | Généré | `tools/docs/diagrams.py`, fonction `startup` |
-| [Chaîne d'ingestion](assets/diagrams/ingestion.svg) | Import, file, admission, worker, fenêtres, routage par page, assemblage, indexation, publication, révisions | Généré | `tools/docs/diagrams.py`, fonction `ingestion` |
-| [Séquence d'une question](assets/diagrams/sequence-question.svg) | Recherche hybride, sélection, contexte, admission mémoire, génération, validation et ouverture d'une citation | Généré | `tools/docs/diagrams.py`, fonction `question` |
+| [Processus et ports](assets/diagrams/processus-ports.svg) | Navigateur, superviseur, API et interface (8785) avec session ou jeton exigés, Qdrant (6333), Ollama (11434), worker PDF à la demande, dossiers de `.runtime/` | Généré | `tools/docs/diagrams.py`, fonction `processes` |
+| [Séquence de rag.ps1 up puis open](assets/diagrams/sequence-up.svg) | Ordre des contrôles au démarrage, demande du lien d'ouverture de session et message de chaque refus bloquant | Généré | `tools/docs/diagrams.py`, fonction `startup` |
+| [Chaîne d'ingestion](assets/diagrams/ingestion.svg) | Import, file, admission, worker, fenêtres, routage par page, assemblage, indexation, publication d'office ou explicite (W012), révisions | Généré | `tools/docs/diagrams.py`, fonction `ingestion` |
+| [Séquence d'une question](assets/diagrams/sequence-question.svg) | Requête avec cookie de session et jeton CSRF, recherche hybride, sélection, contexte, admission mémoire, génération, validation et ouverture d'une citation | Généré | `tools/docs/diagrams.py`, fonction `question` |
 | [Sauvegarde et restauration](assets/diagrams/sauvegarde-restauration.svg) | Étapes de `backup` et de `restore`, contenu du snapshot, démarrage du profil restauré | Généré | `tools/docs/diagrams.py`, fonction `backup` |
 
 ## Documents vivants et exigences (hors de docs/)
@@ -58,17 +58,21 @@ Une information n'a qu'une source de vérité : un autre document y renvoie sans
 Chaque document de `docs/` commence par un titre de niveau 1 suivi d'une ligne d'en-tête dont les champs sont séparés par « · » :
 
 ```text
-**Rôle :** … · **Statut :** Stabilisé | Vivant | Historique | Généré · **Référence :** commit court ou baseline · **Mis à jour :** AAAA-MM-JJ (UTC) · **Source de vérité :** … · **Remplace :** … (ou **Remplacé par :** …)
+**Rôle :** … · **Statut :** Stabilisé | Vivant | Historique | Généré · **Référence :** commit court ou baseline · **Mis à jour :** AAAA-MM-JJ HH:MM (UTC) · **Source de vérité :** … · **Remplace :** … (ou **Remplacé par :** …)
 ```
 
-Le statut porté par l'en-tête doit être celui de la ligne du document dans l'index ci-dessus.
+Le statut porté par l'en-tête doit être celui de la ligne du document dans l'index ci-dessus. L'heure de « Mis à jour » est lue sur l'horloge du poste au moment de l'écriture, pas estimée ; les renvois `fichier:ligne` sont recalculés sur la référence citée : un commit, ou un commit suivi de modifications non commitées datées, auquel cas ils valent pour les fichiers du disque à cette date.
 
 ## Contrôles
 
 ```powershell
 .\.venv\Scripts\python.exe tools/docs/check_docs.py
 .\.venv\Scripts\python.exe tools/docs/diagrams.py --check
-.\.venv\Scripts\python.exe -m pytest tests/unit/test_docs_space.py -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m pytest tests/unit/test_docs_space.py tests/unit/test_docs_tooling.py -q -p no:cacheprovider
+.\.venv\Scripts\ruff.exe check tools/docs tests/unit/test_docs_space.py
+.\.venv\Scripts\python.exe RAG_Local_Agents/tools/verify_pack.py --report .runtime\qa\verify-pack-<horodatage>.json
 ```
+
+Sans `--report`, `verify_pack.py` réécrit `RAG_Local_Agents/CONTROLES_DOSSIER.json`, fichier suivi par Git : lui donner un fichier neuf sous `.runtime\qa\` pour un simple contrôle.
 
 `check_docs.py` vérifie, sans réseau : la résolution des liens relatifs et des ancres depuis `README.md`, `CHANGELOG.md` et `docs/`, l'absence de lien vers `.runtime/`, `.git/` ou un chemin ignoré par Git, l'en-tête et le statut de chaque document de `docs/` et sa présence dans l'index, l'absence de dessin en caractères de boîte ou de bloc Mermaid, la validité des SVG référencés (XML, fond, titre, taille de texte, aucune ressource externe) et l'égalité des versions de `pyproject.toml` et `apps/web/package.json`. Il ne vérifie pas l'exactitude du contenu : chaque affirmation se contrôle contre le code ou la preuve qu'elle cite.

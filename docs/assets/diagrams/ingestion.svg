@@ -86,16 +86,16 @@
 <text x="322" y="582" font-size="12" fill="#172B33">Qdrant upsert vérifié, FTS5</text>
 <rect x="600" y="508" width="256" height="100" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
 <text x="610" y="529" font-size="14" fill="#172B33" font-weight="600">9 · Publication</text>
-<text x="610" y="548" font-size="12" fill="#172B33">génération active du document ;</text>
-<text x="610" y="565" font-size="12" fill="#172B33">ready_partial publiée seulement</text>
-<text x="610" y="582" font-size="12" fill="#172B33">sur action publish-partial</text>
+<text x="610" y="548" font-size="12" fill="#172B33">d'office si aucun texte ne manque</text>
+<text x="610" y="565" font-size="12" fill="#172B33">(figures seules tolérées, W012) ;</text>
+<text x="610" y="582" font-size="12" fill="#172B33">sinon publish-partial explicite</text>
 <polyline points="281,558 310,558" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#ingestion-head-172b33)"/>
 <polyline points="569,558 598,558" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#ingestion-head-172b33)"/>
 <rect x="24" y="636" width="832" height="110" rx="6" fill="#FFF6D9" stroke="#8A6D1F" stroke-width="1.4"/>
 <text x="34" y="657" font-size="14" fill="#172B33" font-weight="600">Révisions et reprise</text>
 <text x="34" y="676" font-size="12" fill="#172B33">Révision d'extraction = uuid5(version, SHA-256 du PDF, empreinte du pipeline) ; une citation garde sa révision.</text>
 <text x="34" y="693" font-size="12" fill="#172B33">Nouvelle génération invisible jusqu'à sa publication ; la précédente passe en nettoyage vectoriel (vector_cleanup).</text>
-<text x="34" y="710" font-size="12" fill="#172B33">Mot OCR sous 0,8 de confiance : région non résolue ; page en erreur : document ready_partial.</text>
+<text x="34" y="710" font-size="12" fill="#172B33">Mot OCR sous 0,8 : région non résolue ; texte manquant : ready_partial, publication explicite (W012).</text>
 <text x="34" y="727" font-size="12" fill="#172B33">Backend PDF : pdf.pdf_backend (pypdfium2 dans le profil, W009 ; docling_parse sélectionnable).</text>
 <text x="24" y="770" font-size="12" fill="#4A5961">Ce schéma montre l'ordre des étapes d'un travail d'ingestion ; les cadres violets sont les voies de routage d'une page.</text>
 <text x="24" y="788" font-size="12" fill="#4A5961">Une question interactive demande une pause au prochain checkpoint ; la reprise d'un travail en pause est manuelle.</text>

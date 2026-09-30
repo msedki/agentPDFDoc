@@ -219,7 +219,7 @@ def processes() -> Diagram:
           ["http://127.0.0.1:8785/workspace/", "Interface statique Next.js + PDF.js,",
            "servie par l'API (aucun serveur Next.js)"], mono=(0,))
     d.box(456, 72, 400, 90, "client", "Opérateur : PowerShell 5.1",
-          [".\\rag.ps1 up | status | logs | down", "provision · doctor · backup · verify · restore",
+          [".\\rag.ps1 up | open | status | logs | down", "provision · doctor · backup · verify · restore",
            "entrée : services.runtime.cli"], mono=(0,))
     d.box(456, 184, 400, 60, "process", "Superviseur (cli _serve)",
           ["Job Object Windows, verrou control/runtime.lock"])
@@ -231,7 +231,7 @@ def processes() -> Diagram:
     d.label(664, 262, "lance, surveille, arrête")
     d.box(48, 304, 380, 112, "service", "API FastAPI + interface statique",
           ["uvicorn, 1 worker · 127.0.0.1:8785", "REST /api/v1 et SSE des questions",
-           "Host et Origin loopback exigés", "SQLite : .runtime/data/app.sqlite3"])
+           "Host/Origin loopback, session ou jeton exigés", "SQLite : .runtime/data/app.sqlite3"])
     d.line([(224, 162), (224, 302)], NETWORK)
     d.label(232, 212, "HTTP 8785, même origine", limit=440)
     d.box(48, 462, 240, 112, "service", "Qdrant 1.19.1",
@@ -258,20 +258,22 @@ def processes() -> Diagram:
     d.line([(709, 574), (709, 624)], FILES, "dotted")
     d.legend(742, ["Trait plein : requête HTTP sur 127.0.0.1 · tirets : lancement et propriété de processus "
                    "· pointillés : fichiers.",
-                   "Aucun service n'écoute hors loopback ; le navigateur ne joint ni Qdrant ni Ollama."])
+                   "Aucun service n'écoute hors loopback ; le navigateur ne joint ni Qdrant ni Ollama.",
+                   "Hors santé et disponibilité, /api/v1 exige la session ouverte par rag.ps1 open ou le jeton "
+                   "de contrôle (W011)."])
     return d
 
 
 # -- (b) séquence rag.ps1 up -----------------------------------------------------------------
 
 def startup() -> Diagram:
-    d = Sequence("sequence-up", 860, "rag.ps1 up : séquence de démarrage et refus bloquants",
+    d = Sequence("sequence-up", 860, "rag.ps1 up puis open : démarrage, ouverture de l'atelier et refus",
                  "Contrôles exécutés par rag.ps1 up dans l'ordre du code, lancement de Qdrant, Ollama et de l'API, "
-                 "et message renvoyé par chaque refus.")
-    d.heading("Sources : rag.ps1, services/runtime/cli.py, services/runtime/supervisor.py "
-              "(load_profile, start, supervise).")
+                 "puis demande du lien d'ouverture par rag.ps1 open, et message renvoyé par chaque refus.")
+    d.heading("Sources : rag.ps1, services/runtime/cli.py (open_workspace), "
+              "services/runtime/supervisor.py (start, supervise).")
     right = 524
-    d.participants([("user", "rag.ps1 · CLI", "start()", 80, 112),
+    d.participants([("user", "rag.ps1 · CLI", "start · open", 80, 112),
                     ("sup", "Superviseur", "cli _serve", 196, 100),
                     ("qdrant", "Qdrant", "6333", 296, 76),
                     ("ollama", "Ollama", "11434", 384, 76),
@@ -306,6 +308,12 @@ def startup() -> Diagram:
          ["Version du service différente de l'artefact", "verrouillé"]),
         ("msg", ("sup", "api"), "lance l'API, attend /api/v1/health (120 s)", "note"),
         ("back", ("sup", "user"), "runtime.json : running ; la CLI imprime l'état JSON", None),
+        ("self", "user", "open : instance running, jeton de contrôle lu",
+         ["Instance non démarrée : lancer d'abord", ".\\rag.ps1 up", "Jeton de contrôle de l'instance absent :",
+          "redémarrer avec .\\rag.ps1 down puis up"]),
+        ("msg", ("user", "api"), "POST /api/v1/admin/session-links (X-RAG-Control-Token)", None),
+        ("back", ("api", "user"), "lien /api/v1/session/open?link=… (5 min, usage unique)", None),
+        ("self", "user", "lien ouvert dans le navigateur par défaut, non affiché", None),
     ]
     y = 150
     column = WIDTH - 24 - right
@@ -333,8 +341,10 @@ def startup() -> Diagram:
     d.lifelines(y - 20)
     d.legend(y + 8, ["Trait plein : lancement ou requête · tirets : réponse. Un second up (même racine, "
                      "même profil) renvoie l'instance.",
+                     "open est une commande distincte, lancée après up ; le navigateur échange le lien contre "
+                     "les cookies de session.",
                      "Les messages tronqués (…) sont complets dans docs/exploitation/DEPANNAGE.md."])
-    d.height = int(y + 44)
+    d.height = int(y + 62)
     return d
 
 
@@ -393,14 +403,14 @@ def ingestion() -> Diagram:
                                   "ready, ready_partial, interrupted"], "storage"),
               ("8 · Indexation", ["fragments d'environ 320 jetons E5", "embeddings mis en cache par hash",
                                   "Qdrant upsert vérifié, FTS5"], "service"),
-              ("9 · Publication", ["génération active du document ;", "ready_partial publiée seulement",
-                                   "sur action publish-partial"], "service")])
+              ("9 · Publication", ["d'office si aucun texte ne manque", "(figures seules tolérées, W012) ;",
+                                   "sinon publish-partial explicite"], "service")])
     d.box(24, 636, 832, 110, "note", "Révisions et reprise",
           ["Révision d'extraction = uuid5(version, SHA-256 du PDF, empreinte du pipeline) ; "
            "une citation garde sa révision.",
            "Nouvelle génération invisible jusqu'à sa publication ; la précédente passe en nettoyage "
            "vectoriel (vector_cleanup).",
-           "Mot OCR sous 0,8 de confiance : région non résolue ; page en erreur : document ready_partial.",
+           "Mot OCR sous 0,8 : région non résolue ; texte manquant : ready_partial, publication explicite (W012).",
            "Backend PDF : pdf.pdf_backend (pypdfium2 dans le profil, W009 ; docling_parse sélectionnable)."], size=12)
     d.legend(770, ["Ce schéma montre l'ordre des étapes d'un travail d'ingestion ; les cadres violets "
                    "sont les voies de routage d'une page.",
@@ -425,7 +435,7 @@ def question() -> Diagram:
                     ("gov", "Gouverneur", "ResourceGovernor", 624, 128),
                     ("llm", "Ollama", "qwen3.5:4b-text", 774, 124)])
     steps = [
-        ("msg", "user", "api", "POST /api/v1/queries : question, périmètre, mode", "solid"),
+        ("msg", "user", "api", "POST /api/v1/queries + X-CSRF-Token : question, périmètre, mode", "solid"),
         ("msg", "api", "user", "202 : query_id, events_url", "dashed"),
         ("msg", "user", "api", "GET …/events (SSE ; reprise par Last-Event-ID)", "solid"),
         ("msg", "api", "user", "status queued puis searching", "dashed"),
@@ -453,11 +463,13 @@ def question() -> Diagram:
         y += 36
     d.lifelines(y - 14)
     d.legend(y + 16, ["Trait plein : requête · tirets : réponse ou événement SSE.",
+                      "Chaque requête du navigateur porte le cookie de session (W011) ; sans session valide, "
+                      "401 avant toute recherche.",
                       "Refus d'admission à l'échéance : événement error resource_admission_denied, "
                       "modèle non appelé.",
                       "Une réponse ne cite que des IDs du registre de la question ; le clic relit le registre "
                       "avant d'ouvrir le document."])
-    d.height = int(y + 78)
+    d.height = int(y + 96)
     return d
 
 

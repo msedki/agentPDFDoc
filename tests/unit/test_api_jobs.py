@@ -90,6 +90,99 @@ def test_api_closing_checkpoints_the_active_job_instead_of_cancelling_it(storage
         assert supervisor.resume(job_id)["state"] == "queued"
     asyncio.run(scenario())
 
+
+def document_state(db, document_id):
+    return db.one("SELECT state FROM documents WHERE id=?", (document_id,))["state"]
+
+
+def test_api_document_state_follows_pause_resume_cancel_of_an_unpublished_document(storage):
+    settings, db, _, indexer = storage
+    pending = db.import_original("folder/pending.pdf", "1" * 64, "pending.pdf")
+    supervisor = JobSupervisor(db, indexer, settings)
+    assert document_state(db, pending["document_id"]) == "queued"
+    supervisor.pause(pending["job_id"])
+    assert document_state(db, pending["document_id"]) == "paused"
+    supervisor.resume(pending["job_id"])
+    assert document_state(db, pending["document_id"]) == "queued"
+    supervisor.cancel(pending["job_id"])
+    assert document_state(db, pending["document_id"]) == "cancelled"
+
+
+def test_api_published_document_keeps_its_generation_state_when_a_new_job_pauses(storage):
+    imported, _ = import_fixture(storage)
+    settings, db, _, indexer = storage
+    job_id = uid()
+    db.execute("INSERT INTO jobs(id,document_id,version_id,state,stage,created_at,updated_at) VALUES(?,?,?,'queued','queued',?,?)", (job_id, imported["document_id"], imported["version_id"], now(), now()))
+    JobSupervisor(db, indexer, settings).pause(job_id)
+    assert document_state(db, imported["document_id"]) == "ready"
+
+
+def test_api_startup_realigns_documents_left_behind_their_last_job(storage):
+    settings, db, _, _ = storage
+    paused = db.import_original("folder/paused.pdf", "2" * 64, "paused.pdf")
+    partial = db.import_original("folder/partial.pdf", "3" * 64, "partial.pdf")
+    db.execute("UPDATE jobs SET state='paused' WHERE id=?", (paused["job_id"],))
+    db.execute("UPDATE jobs SET state='ready_partial' WHERE id=?", (partial["job_id"],))
+    db.execute("UPDATE documents SET state='indexing' WHERE id=?", (partial["document_id"],))
+    db.initialize()
+    assert document_state(db, paused["document_id"]) == "paused"
+    assert document_state(db, partial["document_id"]) == "ready_partial"
+
+
+def test_api_unpublished_partial_extraction_marks_the_document_partial_not_indexing(storage):
+    settings, db, _, indexer = storage
+    imported = db.import_original("folder/partial.pdf", "4" * 64, "partial.pdf")
+    extraction = {"sha256": "4" * 64, "fingerprint": "fixture-native-v1", "page_count": 2, "status": "ready_partial",
+                  "pages": [{"page_index": 0, "width": 595, "height": 842, "blocks": [{"id": "b0", "type": "text", "text": "CCU-21 72 V", "raw_text": "CCU-21 72 V", "bbox": [10, 10, 100, 30], "precision": "block"}]}]}
+    asyncio.run(indexer.index(imported["job_id"], extraction))
+    row = db.one("SELECT state,active_generation_id FROM documents WHERE id=?", (imported["document_id"],))
+    assert (row["state"], row["active_generation_id"]) == ("ready_partial", None)
+
+
+def test_api_resume_paused_relaunches_every_paused_job_and_realigns_documents(storage):
+    settings, db, _, indexer = storage
+    supervisor = JobSupervisor(db, indexer, settings)
+    first = db.import_original("folder/first.pdf", "5" * 64, "first.pdf")
+    second = db.import_original("folder/second.pdf", "6" * 64, "second.pdf")
+    kept = db.import_original("folder/kept.pdf", "7" * 64, "kept.pdf")
+    for item in (first, second):
+        supervisor.pause(item["job_id"])
+    supervisor.cancel(kept["job_id"])
+    assert supervisor.resume_paused() == {"resumed": 2}
+    assert [document_state(db, item["document_id"]) for item in (first, second, kept)] == ["queued", "queued", "cancelled"]
+    assert supervisor.resume_paused() == {"resumed": 0}
+
+
+def test_api_graphic_only_partial_extraction_is_published_automatically(storage):
+    settings, db, _, indexer = storage
+    imported = db.import_original("folder/figures.pdf", "8" * 64, "figures.pdf")
+    block = {"id": "b0", "type": "text", "text": "CCU-21 72 V", "raw_text": "CCU-21 72 V", "bbox": [10, 10, 100, 30], "precision": "block"}
+    extraction = {"sha256": "8" * 64, "fingerprint": "fixture-native-v1", "page_count": 2, "status": "ready_partial", "parser_complete": True,
+                  "pages": [{"page_index": 0, "width": 595, "height": 842, "extraction_state": "native", "classification": "native", "blocks": [block],
+                             "unresolved_regions": [{"reason": "GRAPHIC_INTERPRETATION_UNAVAILABLE", "precision": "block"}]},
+                            {"page_index": 1, "width": 595, "height": 842, "extraction_state": "error", "classification": "graphic_uncertain",
+                             "alphanumeric_count": 0, "blocks": [], "unresolved_regions": []}]}
+    asyncio.run(indexer.index(imported["job_id"], extraction))
+    row = db.one("SELECT state,active_generation_id FROM documents WHERE id=?", (imported["document_id"],))
+    assert row["state"] == "ready" and row["active_generation_id"] is not None
+    assert db.one("SELECT state FROM jobs WHERE id=?", (imported["job_id"],))["state"] == "ready"
+
+
+def test_api_resume_paused_is_refused_as_a_whole_while_a_question_is_active(storage):
+    settings, db, _, indexer = storage
+    class BusyGovernor:
+        def resume_ingestion(self):
+            raise RuntimeError("Une interaction est encore active ; reprise différée.")
+    first = db.import_original("folder/busy-1.pdf", "9" * 64, "busy-1.pdf")
+    second = db.import_original("folder/busy-2.pdf", "a" * 64, "busy-2.pdf")
+    idle = JobSupervisor(db, indexer, settings)
+    idle.pause(first["job_id"])
+    idle.pause(second["job_id"])
+    with pytest.raises(ApiError) as refused:
+        JobSupervisor(db, indexer, settings, BusyGovernor()).resume_paused()
+    assert refused.value.code == "interaction_active"
+    assert [db.one("SELECT state FROM jobs WHERE id=?", (item["job_id"],))["state"] for item in (first, second)] == ["paused", "paused"]
+
 def test_api_extraction_cache_reuses_only_verified_revision(storage, monkeypatch):
     imported, extraction = import_fixture(storage)
     settings, db, _, indexer = storage

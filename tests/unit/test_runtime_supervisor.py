@@ -130,3 +130,19 @@ def test_qdrant_key_is_long_reserved_to_the_qdrant_child_and_never_written_in_co
     assert child["QDRANT__SERVICE__API_KEY"] == key and "QDRANT__SERVICE__API_KEY" not in base
     assert key not in write_qdrant_config(profile, tmp_path, control).read_text(encoding="utf-8")
     assert issue_qdrant_key(control) != key
+
+
+def test_production_origin_requires_readable_certificate_and_key(tmp_path):
+    from services.runtime.supervisor import app_origin
+
+    profile = {"app": {"port": 8785}, "security": {"environment": "production", "tls_cert_file": str(tmp_path / "cert.pem")}}
+    with pytest.raises(ValueError, match="tls_key_file"):
+        app_origin(profile)
+    (tmp_path / "cert.pem").write_text("certificat", encoding="ascii")
+    profile["security"]["tls_key_file"] = str(tmp_path / "key.pem")
+    with pytest.raises(ValueError):
+        app_origin(profile)
+    (tmp_path / "key.pem").write_text("clé", encoding="utf-8")
+    assert app_origin(profile) == ("https://127.0.0.1:8785", str((tmp_path / "cert.pem").resolve()))
+    assert app_origin({"app": {"port": 8785}}) == ("http://127.0.0.1:8785", True)
+

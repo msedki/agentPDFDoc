@@ -49,7 +49,7 @@ export interface SearchResult { source?: Source; source_id?: string; score?: num
 export interface SearchResponse { results: (Source | SearchResult)[]; warnings: ApiWarning[]; scope_snapshot: unknown; elapsed_ms: number }
 export interface QueryCreated { query_id: string; events_url: string; conversation_id?: string }
 export interface Job { id: string; document_id?: string; version_id?: string; generation_id?: string; state?: string; status?: string; stage?: string; progress?: number; coverage?: { total: number; processed: number; ocr?: number }; published?: boolean; published_at?: string | null; active?: boolean; warnings?: ApiWarning[]; error?: string; error_message?: string; message?: string }
-export interface JobsResponse { jobs: Job[] }
+export interface JobsResponse { jobs: Job[]; total?: number; runtime_mode?: "interactive" | "ingestion" | null }
 export interface Readiness { ready?: boolean; status?: string; blockers?: string[]; [key: string]: unknown }
 export type StreamEvent = { id: string; type: string; data: Record<string, unknown> };
 export type QueryState = {

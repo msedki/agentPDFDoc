@@ -89,10 +89,21 @@ class SessionRegistry:
         self._audit_lock = threading.Lock()
         self._sessions: dict[str, Session] = {}
         self._links: dict[str, float] = {}
+        # Motif d'expiration des sessions purgées, pour ne pas les présenter comme inconnues (borné).
+        self._expired: dict[str, str] = {}
 
     def _purge(self, now: float) -> None:
         self._links = {key: expiry for key, expiry in self._links.items() if expiry > now}
-        self._sessions = {key: session for key, session in self._sessions.items() if self._expiry_reason(session, now) is None}
+        kept: dict[str, Session] = {}
+        for key, session in self._sessions.items():
+            reason = self._expiry_reason(session, now)
+            if reason is None:
+                kept[key] = session
+            else:
+                self._expired[key] = reason
+        self._sessions = kept
+        while len(self._expired) > 256:
+            self._expired.pop(next(iter(self._expired)))
 
     def _expiry_reason(self, session: Session, now: float) -> str | None:
         if now - session.created >= self.policy.absolute_seconds:
@@ -127,8 +138,12 @@ class SessionRegistry:
         self.audit("session_opened", session=digest(session_id)[:12], replaced_previous=replaced)
         return session_id, csrf
 
-    def check(self, cookie: str | None) -> tuple[Session | None, str]:
-        """Session valide (inactivité remise à zéro) ou motif de refus, sans lever d'exception."""
+    def check(self, cookie: str | None, *, activity: bool = True) -> tuple[Session | None, str]:
+        """Session valide ou motif de refus, sans lever d'exception.
+
+        Seule une activité de l'utilisateur remet l'inactivité à zéro : les relectures
+        périodiques de l'atelier (``activity=False``) vérifient la session sans la prolonger.
+        """
         if not cookie:
             return None, "session_required"
         now = self.clock()
@@ -136,12 +151,14 @@ class SessionRegistry:
         with self._lock:
             session = self._sessions.get(key)
             if session is None:
-                return None, "session_unknown"
+                return None, self._expired.get(key, "session_unknown")
             reason = self._expiry_reason(session, now)
             if reason:
                 del self._sessions[key]
+                self._expired[key] = reason
                 return None, reason
-            session.last_seen = now
+            if activity:
+                session.last_seen = now
             return session, "ok"
 
     def expires(self, session: Session) -> dict[str, str]:

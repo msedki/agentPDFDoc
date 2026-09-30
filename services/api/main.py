@@ -141,7 +141,9 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         if control_token_valid(request):
             request.state.auth = "control_token"
             return None
-        session, reason = sessions.check(request.cookies.get(policy.session_cookie))
+        # En-tête posé par l'atelier sur ses relectures périodiques : elles ne comptent pas comme une activité.
+        background = request.headers.get("x-rag-background") == "1"
+        session, reason = sessions.check(request.cookies.get(policy.session_cookie), activity=not background)
         if session is None:
             sessions.audit("request_refused", reason=reason, method=request.method, path=path)
             if reason == "session_required":
@@ -156,37 +158,8 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
                            "Jeton anti-falsification absent ou invalide : recharger l'atelier.", "csrf_token_mismatch")
         return None
 
-    @application.middleware("http")
-    async def local_boundary(request: Request, call_next):
-        request_id = uid()
-        request.state.request_id = request_id
-        if request.headers.get("host", "").lower() not in allowed_hosts:
-            return JSONResponse({"code": "invalid_host", "message": "Host non autorisé.", "details": {}, "request_id": request_id}, status_code=400)
-        origin = request.headers.get("origin")
-        if origin is not None and origin not in allowed_origins:
-            return JSONResponse({"code": "invalid_origin", "message": "Origine non autorisée.", "details": {}, "request_id": request_id}, status_code=403)
-        if request.headers.get("sec-fetch-site") == "cross-site":
-            return JSONResponse({"code": "cross_site_request", "message": "Requête intersite refusée.", "details": {}, "request_id": request_id}, status_code=403)
-        path = request.url.path
-        if path.startswith("/api/v1/") and path not in PUBLIC_PATHS and not path.startswith("/api/v1/admin/"):
-            refusal = authenticate(request, path)
-            if refusal is not None:
-                return refusal
-        if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
-            length = request.headers.get("content-length")
-            if length and (not length.isdigit() or int(length) > maximum_upload + 1024 * 1024):
-                return JSONResponse({"code": "request_too_large", "message": "Requête trop volumineuse.", "details": {}, "request_id": request_id}, status_code=413)
-            administrative = request.url.path.startswith("/api/v1/admin/")
-            if application.state.mutations_paused and not administrative:
-                return JSONResponse({"code": "mutations_paused", "message": "Sauvegarde en cours ; mutations suspendues.", "details": {}, "request_id": request_id}, status_code=503)
-            counted = not administrative and request.url.path != "/api/v1/search"
-            application.state.mutations_in_flight += counted
-            try:
-                response = await call_next(request)
-            finally:
-                application.state.mutations_in_flight -= counted
-        else:
-            response = await call_next(request)
+    def protected(response, path, request_id):
+        """En-têtes de sécurité posés sur toute réponse, refus du middleware compris."""
         response.headers["X-Request-ID"] = request_id
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
@@ -202,6 +175,40 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         if policy.production:
             response.headers["Strict-Transport-Security"] = "max-age=31536000"
         return response
+
+    async def admitted(request, call_next, request_id):
+        if request.headers.get("host", "").lower() not in allowed_hosts:
+            return JSONResponse({"code": "invalid_host", "message": "Host non autorisé.", "details": {}, "request_id": request_id}, status_code=400)
+        origin = request.headers.get("origin")
+        if origin is not None and origin not in allowed_origins:
+            return JSONResponse({"code": "invalid_origin", "message": "Origine non autorisée.", "details": {}, "request_id": request_id}, status_code=403)
+        if request.headers.get("sec-fetch-site") == "cross-site":
+            return JSONResponse({"code": "cross_site_request", "message": "Requête intersite refusée.", "details": {}, "request_id": request_id}, status_code=403)
+        path = request.url.path
+        if path.startswith("/api/v1/") and path not in PUBLIC_PATHS and not path.startswith("/api/v1/admin/"):
+            refusal = authenticate(request, path)
+            if refusal is not None:
+                return refusal
+        if request.method not in {"POST", "PUT", "PATCH", "DELETE"}:
+            return await call_next(request)
+        length = request.headers.get("content-length")
+        if length and (not length.isdigit() or int(length) > maximum_upload + 1024 * 1024):
+            return JSONResponse({"code": "request_too_large", "message": "Requête trop volumineuse.", "details": {}, "request_id": request_id}, status_code=413)
+        administrative = path.startswith("/api/v1/admin/")
+        if application.state.mutations_paused and not administrative:
+            return JSONResponse({"code": "mutations_paused", "message": "Sauvegarde en cours ; mutations suspendues.", "details": {}, "request_id": request_id}, status_code=503)
+        counted = not administrative and path != "/api/v1/search"
+        application.state.mutations_in_flight += counted
+        try:
+            return await call_next(request)
+        finally:
+            application.state.mutations_in_flight -= counted
+
+    @application.middleware("http")
+    async def local_boundary(request: Request, call_next):
+        request_id = uid()
+        request.state.request_id = request_id
+        return protected(await admitted(request, call_next, request_id), request.url.path, request_id)
 
     @application.exception_handler(ApiError)
     async def controlled_error(request, error):
@@ -573,7 +580,15 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         if not 1 <= limit <= 200:
             raise ApiError("invalid_pagination", "Pagination invalide.")
         rows = job_rows(limit=limit)
-        return {"jobs": rows, "total": db.one("SELECT count(*) AS n FROM jobs")["n"]}
+        # Priorité choisie, affichée par le Suivi : imports suspendus (« interactive ») ou autorisés (« ingestion »).
+        # Le mode instantané du gouverneur repasse à « interactive » entre deux traitements : il ne la reflète pas.
+        snapshot = governor.snapshot() if governor and hasattr(governor, "snapshot") else None
+        mode = ("interactive" if snapshot.get("pause_requested") else "ingestion") if snapshot else None
+        return {"jobs": rows, "total": db.one("SELECT count(*) AS n FROM jobs")["n"], "runtime_mode": mode}
+
+    @application.post(prefix + "/jobs/resume-paused")
+    async def resume_paused_jobs():
+        return jobs.resume_paused()
 
     @application.post(prefix + "/jobs/{job_id}/cancel")
     async def cancel_job(job_id: str):

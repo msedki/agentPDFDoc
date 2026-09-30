@@ -25,14 +25,24 @@ export const documentStates = {
   indexing: ["Indexation en cours", "info"],
   ready: ["Prêt", "success"],
   ready_partial: ["Extraction partielle", "warning"],
+  ready_partial_unpublished: ["Extraction partielle à publier", "warning"],
   error: ["Erreur", "destructive"],
   deleted: ["Retiré", "neutral"],
   paused: ["En pause", "warning"],
+  cancelled: ["Traitement annulé", "neutral"],
   waiting_for_ingestion_checkpoint: ["Mise en pause en cours", "warning"],
 } as const satisfies Record<string, Entry>;
 
 export function documentStatus(state: string | null | undefined): StatusView {
   return view(documentStates, state, "État de document non reconnu");
+}
+
+/**
+ * État affiché d'un document de la bibliothèque : une extraction partielle sans
+ * génération publiée attend une décision (publication explicite, IMPLEMENTATION §2).
+ */
+export function documentRecordStatus(document: { state?: string | null; active_generation_id?: string | null }): StatusView {
+  return documentStatus(document.state === "ready_partial" && document.active_generation_id === null ? "ready_partial_unpublished" : document.state);
 }
 
 /** États des traitements (`/jobs`), y compris ceux que le service écrit pendant pause et annulation. */
@@ -127,6 +137,6 @@ export function serviceStatus({ loading, failed, unreachable = true, ready, pend
     ? { label: "Service local injoignable", tone: "destructive", code: "unreachable", known: true }
     : { label: "Service local en erreur", tone: "destructive", code: "error", known: true };
   if (ready !== true) return { label: "Modèle ou worker non prêt", tone: "warning", code: "not_ready", known: true };
-  if (pendingDocuments > 0) return { label: "Index en retard", tone: "warning", code: "index_lagging", known: true };
+  if (pendingDocuments > 0) return { label: "Index incomplet", tone: "warning", code: "index_lagging", known: true };
   return { label: "Services prêts", tone: "success", code: "ready", known: true };
 }

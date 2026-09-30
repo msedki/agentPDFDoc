@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Généré par tools/docs/diagrams.py : modifier le script puis régénérer. -->
-<svg xmlns="http://www.w3.org/2000/svg" width="880" height="920" viewBox="0 0 880 920" role="img" aria-labelledby="sequence-up-title sequence-up-desc" font-family="'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif">
-<title id="sequence-up-title">rag.ps1 up : séquence de démarrage et refus bloquants</title>
-<desc id="sequence-up-desc">Contrôles exécutés par rag.ps1 up dans l'ordre du code, lancement de Qdrant, Ollama et de l'API, et message renvoyé par chaque refus.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="1142" viewBox="0 0 880 1142" role="img" aria-labelledby="sequence-up-title sequence-up-desc" font-family="'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif">
+<title id="sequence-up-title">rag.ps1 up puis open : démarrage, ouverture de l'atelier et refus</title>
+<desc id="sequence-up-desc">Contrôles exécutés par rag.ps1 up dans l'ordre du code, lancement de Qdrant, Ollama et de l'API, puis demande du lien d'ouverture par rag.ps1 open, et message renvoyé par chaque refus.</desc>
 <defs><marker id="sequence-up-head-172b33" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#172B33"/></marker></defs>
-<rect x="0" y="0" width="880" height="920" rx="10" fill="#F6F4EE" stroke="#D9D9D1"/>
-<line x1="470" y1="116" x2="470" y2="856" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
-<line x1="384" y1="116" x2="384" y2="856" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
-<line x1="296" y1="116" x2="296" y2="856" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
-<line x1="196" y1="116" x2="196" y2="856" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
-<line x1="80" y1="116" x2="80" y2="856" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
-<text x="24" y="34" font-size="18" fill="#172B33" font-weight="600">rag.ps1 up : séquence de démarrage et refus bloquants</text>
-<text x="24" y="54" font-size="12" fill="#4A5961">Sources : rag.ps1, services/runtime/cli.py, services/runtime/supervisor.py (load_profile, start, supervise).</text>
+<rect x="0" y="0" width="880" height="1142" rx="10" fill="#F6F4EE" stroke="#D9D9D1"/>
+<line x1="470" y1="116" x2="470" y2="1060" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="384" y1="116" x2="384" y2="1060" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="296" y1="116" x2="296" y2="1060" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="196" y1="116" x2="196" y2="1060" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="80" y1="116" x2="80" y2="1060" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
+<text x="24" y="34" font-size="18" fill="#172B33" font-weight="600">rag.ps1 up puis open : démarrage, ouverture de l'atelier et refus</text>
+<text x="24" y="54" font-size="12" fill="#4A5961">Sources : rag.ps1, services/runtime/cli.py (open_workspace), services/runtime/supervisor.py (start, supervise).</text>
 <rect x="24" y="70" width="112" height="46" rx="6" fill="#FFFEFA" stroke="#172B33" stroke-width="1.4"/>
 <text x="80" y="89" font-size="13" fill="#172B33" font-weight="600" text-anchor="middle">rag.ps1 · CLI</text>
-<text x="80" y="107" font-size="12" fill="#4A5961" text-anchor="middle">start()</text>
+<text x="80" y="107" font-size="12" fill="#4A5961" text-anchor="middle">start · open</text>
 <rect x="146" y="70" width="100" height="46" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
 <text x="196" y="89" font-size="13" fill="#172B33" font-weight="600" text-anchor="middle">Superviseur</text>
 <text x="196" y="107" font-size="12" fill="#4A5961" text-anchor="middle">cli _serve</text>
@@ -118,6 +118,25 @@
 <polyline points="190,836 86,836" fill="none" stroke="#172B33" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#sequence-up-head-172b33)"/>
 <rect x="87" y="818" width="354.84" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
 <text x="90" y="830" font-size="12" fill="#172B33">runtime.json : running ; la CLI imprime l'état JSON</text>
-<text x="24" y="884" font-size="12" fill="#4A5961">Trait plein : lancement ou requête · tirets : réponse. Un second up (même racine, même profil) renvoie l'instance.</text>
-<text x="24" y="902" font-size="12" fill="#4A5961">Les messages tronqués (…) sont complets dans docs/exploitation/DEPANNAGE.md.</text>
+<rect x="75" y="865" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
+<rect x="89" y="865" width="313.8" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="92" y="877" font-size="12" fill="#172B33">open : instance running, jeton de contrôle lu</text>
+<polyline points="405.8,872 522,872" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
+<rect x="524" y="860" width="332" height="74" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
+<text x="534" y="874" font-size="12" fill="#172B33">Instance non démarrée : lancer d'abord</text>
+<text x="534" y="890" font-size="12" fill="#172B33">.\rag.ps1 up</text>
+<text x="534" y="906" font-size="12" fill="#172B33">Jeton de contrôle de l'instance absent :</text>
+<text x="534" y="922" font-size="12" fill="#172B33">redémarrer avec .\rag.ps1 down puis up</text>
+<polyline points="86,960 464,960" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sequence-up-head-172b33)"/>
+<rect x="87" y="942" width="375.36" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="90" y="954" font-size="12" fill="#172B33">POST /api/v1/admin/session-links (X-RAG-Control-Token)</text>
+<polyline points="464,1000 86,1000" fill="none" stroke="#172B33" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#sequence-up-head-172b33)"/>
+<rect x="87" y="982" width="375.36" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="90" y="994" font-size="12" fill="#172B33">lien /api/v1/session/open?link=… (5 min, usage unique)</text>
+<rect x="75" y="1029" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
+<rect x="89" y="1029" width="375.36" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="92" y="1041" font-size="12" fill="#172B33">lien ouvert dans le navigateur par défaut, non affiché</text>
+<text x="24" y="1088" font-size="12" fill="#4A5961">Trait plein : lancement ou requête · tirets : réponse. Un second up (même racine, même profil) renvoie l'instance.</text>
+<text x="24" y="1106" font-size="12" fill="#4A5961">open est une commande distincte, lancée après up ; le navigateur échange le lien contre les cookies de session.</text>
+<text x="24" y="1124" font-size="12" fill="#4A5961">Les messages tronqués (…) sont complets dans docs/exploitation/DEPANNAGE.md.</text>
 </svg>

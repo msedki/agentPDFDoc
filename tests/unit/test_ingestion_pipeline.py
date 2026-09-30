@@ -216,3 +216,29 @@ def test_profile_threshold_is_applied_and_zero_disables_it_explicitly(tmp_path, 
     disabled = isolated_extract(tmp_path / "zero", monkeypatch, [preflight_page(0, "regional_ocr")], SessionDouble(ocr_cells=ocr_cells()),
                                 {"pdf": {"ocr_min_word_confidence": 0}})
     assert disabled["status"] == "ready" and disabled["pages"][0]["unresolved_regions"] == []
+
+
+class PartialParserSession(SessionDouble):
+    """Docling « partial_success » : le document est rendu mais le parseur ne se déclare pas complet."""
+
+    def convert(self, path, first, last, route):
+        document, _, observed = super().convert(path, first, last, route)
+        return document, False, observed
+
+
+def test_parser_completeness_is_recorded_per_window_and_for_the_document(tmp_path, monkeypatch):
+    pages = [preflight_page(index) for index in range(3)]
+    healthy = isolated_extract(tmp_path / "sain", monkeypatch, pages, SessionDouble())
+    assert healthy["parser_complete"] is True and healthy["windows"][0]["parser_complete"] is True
+    partial = isolated_extract(tmp_path / "partiel", monkeypatch, pages, PartialParserSession())
+    assert partial["parser_complete"] is False and partial["windows"][0]["parser_complete"] is False
+    assert partial["status"] == "ready_partial"
+
+
+def test_conversion_failure_keeps_the_docling_error_summary_in_its_warning(tmp_path):
+    errors = [{"component": "model", "module": "docling.models.tesseract", "message": "Tesseract failed"}]
+    result = window(tmp_path, [preflight_page(index) for index in range(3)],
+                    SessionDouble(failing={1}, details={"parser_status": "failure", "errors": errors}))
+    warning = next(item for item in result["warnings"] if item["code"] == "DOCLING_CONVERSION_FAILED")
+    assert warning["errors"] == errors and warning["page_index"] == 1
+

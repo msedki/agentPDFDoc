@@ -1,8 +1,13 @@
 import type { DocumentRecord, LibraryTree, Scope } from "./types.ts";
 
-/** Un document est interrogeable lorsqu'une extraction complète ou partielle est publiée. */
+/** État d'un document dont une extraction complète ou partielle peut être publiée. */
 export function isQueryableDocumentState(state: string | null | undefined): boolean {
   return state === "ready" || state === "ready_partial";
+}
+
+/** Un document est interrogeable lorsqu'une génération est publiée : un partiel non publié ne l'est pas. */
+export function isQueryableDocument(document: Pick<DocumentRecord, "state" | "active_generation_id">): boolean {
+  return isQueryableDocumentState(document.state) && document.active_generation_id !== null;
 }
 
 /**
@@ -48,7 +53,7 @@ export function scopeDocuments(scope: Scope, tree: LibraryTree): DocumentRecord[
 
 /** Nombre de documents du périmètre qui ne sont pas encore interrogeables (index incomplet). */
 export function unindexedInScope(scope: Scope, tree: LibraryTree): number {
-  return scopeDocuments(scope, tree).filter(document => !isQueryableDocumentState(document.state)).length;
+  return scopeDocuments(scope, tree).filter(document => !isQueryableDocument(document)).length;
 }
 
 /**
@@ -87,13 +92,15 @@ export function scopeKindLabel(kind: Scope["kind"]): string {
 }
 
 /** Motif d'exclusion d'un document du périmètre, déduit de son état. */
-export type ExclusionReason = "processing" | "paused" | "error" | "unknown";
+export type ExclusionReason = "processing" | "paused" | "unpublished" | "cancelled" | "error" | "unknown";
 const processingStates = new Set(["imported", "queued", "extracting", "ocr", "indexing"]);
 const pausedStates = new Set(["paused", "waiting_for_ingestion_checkpoint"]);
 
 function exclusionReason(state: string): ExclusionReason {
   if (processingStates.has(state)) return "processing";
   if (pausedStates.has(state)) return "paused";
+  if (isQueryableDocumentState(state)) return "unpublished";
+  if (state === "cancelled") return "cancelled";
   if (state === "error") return "error";
   return "unknown";
 }
@@ -108,19 +115,21 @@ export function scopeCoverage(scope: Scope, tree: LibraryTree): ScopeCoverage {
   const counts = new Map<ExclusionReason, number>();
   let queryable = 0;
   for (const document of scopeDocuments(scope, tree)) {
-    if (isQueryableDocumentState(document.state)) { queryable++; continue; }
+    if (isQueryableDocument(document)) { queryable++; continue; }
     const reason = exclusionReason(String(document.state ?? ""));
     counts.set(reason, (counts.get(reason) ?? 0) + 1);
   }
-  const order: ExclusionReason[] = ["processing", "paused", "error", "unknown"];
+  const order: ExclusionReason[] = ["processing", "paused", "unpublished", "cancelled", "error", "unknown"];
   return { queryable, excluded: order.filter(reason => counts.has(reason)).map(reason => ({ reason, count: counts.get(reason)! })) };
 }
 
-const reasonLabels: Record<ExclusionReason, string> = {
-  processing: "en cours de traitement",
-  paused: "indexation en pause",
-  error: "en erreur",
-  unknown: "état non reconnu",
+const reasonLabels: Record<ExclusionReason, [singular: string, plural: string]> = {
+  processing: ["en cours de traitement", "en cours de traitement"],
+  paused: ["indexation en pause", "indexations en pause"],
+  unpublished: ["extraction partielle à publier", "extractions partielles à publier"],
+  cancelled: ["traitement annulé", "traitements annulés"],
+  error: ["en erreur", "en erreur"],
+  unknown: ["état non reconnu", "états non reconnus"],
 };
 
 /** « 3 documents interrogeables · 2 exclus : 1 en cours de traitement, 1 en erreur ». */
@@ -129,13 +138,13 @@ export function coverageSentence(coverage: ScopeCoverage): string {
   if (coverage.queryable === 0 && excluded === 0) return "Aucun document dans ce périmètre";
   const queryable = coverage.queryable === 0 ? "Aucun document interrogeable" : coverage.queryable === 1 ? "1 document interrogeable" : `${coverage.queryable} documents interrogeables`;
   if (!excluded) return queryable;
-  const reasons = coverage.excluded.map(item => `${item.count} ${reasonLabels[item.reason]}`).join(", ");
+  const reasons = coverage.excluded.map(item => `${item.count} ${reasonLabels[item.reason][item.count === 1 ? 0 : 1]}`).join(", ");
   return `${queryable} · ${excluded} ${excluded === 1 ? "exclu" : "exclus"} : ${reasons}`;
 }
 
 /**
  * Documents importés dont l'index n'est pas encore à jour : en attente,
- * en cours de traitement ou en pause. Sert l'état « Index en retard ».
+ * en cours de traitement ou en pause. Sert l'état « Index incomplet ».
  */
 export function pendingIndexCount(tree: LibraryTree): number {
   return tree.documents.filter(document => processingStates.has(document.state) || pausedStates.has(String(document.state))).length;

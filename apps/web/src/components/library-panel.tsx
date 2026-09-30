@@ -5,7 +5,7 @@ import { Check, ChevronDown, ChevronRight, CircleAlert, Crosshair, FileText, Fol
 import { api } from "@/lib/api";
 import { useWorkspace } from "@/lib/store";
 import { errorMessage } from "@/lib/utils";
-import { documentStatus } from "@/lib/status";
+import { documentRecordStatus } from "@/lib/status";
 import { isServiceUnavailable, libraryView, selectedDocumentsSentence } from "@/lib/panel-state";
 import type { DocumentRecord, Folder, LibraryTree } from "@/lib/types";
 import { Button } from "./ui/button";
@@ -103,7 +103,7 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
   };
   const renderDocument = (document: DocumentRecord, depth: number) => <div className={`tree-document ${state.opened?.documentId === document.id ? "is-open" : ""}`} key={document.id} style={{ paddingLeft: depth * 16 + 12 }}>
     <input type="checkbox" aria-label={`Sélectionner ${document.name}`} checked={state.selectedIds.includes(document.id)} onChange={() => state.toggleDocument(document.id)} />
-    <button onClick={() => void openDocument(document)} title={document.relative_path}><FileText size={16} /><span><strong>{document.name}</strong><small><StatusIndicator status={documentStatus(document.state)} />{typeof document.page_count === "number" && document.page_count > 0 && <span className="tabular"> · {document.page_count} p.</span>}{document.coverage && document.coverage.total > 0 && document.coverage.processed < document.coverage.total && <span className="tabular"> · {document.coverage.processed}/{document.coverage.total} p. traitées</span>}</small></span></button>
+    <button onClick={() => void openDocument(document)} title={document.relative_path}><FileText size={16} /><span><strong>{document.name}</strong><small><StatusIndicator status={documentRecordStatus(document)} />{typeof document.page_count === "number" && document.page_count > 0 && <span className="tabular"> · {document.page_count} p.</span>}{document.coverage && document.coverage.total > 0 && document.coverage.processed < document.coverage.total && <span className="tabular"> · {document.coverage.processed}/{document.coverage.total} p. traitées</span>}</small></span></button>
   </div>;
   const renderFolder = (folder: Folder, depth: number, ancestors: string[] = []): React.ReactNode => {
     if (ancestors.includes(folder.id) || filter && !folderHasMatch(folder.id)) return null;

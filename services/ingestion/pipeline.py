@@ -276,7 +276,9 @@ def extract_pdf(path, output_dir, config, version_id, cancel_path=None):
             converted = converted or bool(window.get("route_metrics"))
             pages += window["pages"]
             warnings += window["warnings"]
-            windows.append({"page_start": first, "page_end": last, "reused": reused, "complete": window["complete"]})
+            # Parseur complet : toutes ses conversions de la fenêtre ont réussi sans « partial_success » (W012).
+            windows.append({"page_start": first, "page_end": last, "reused": reused, "complete": window["complete"],
+                            "parser_complete": all(metric.get("parser_complete") is True for metric in window.get("route_metrics", []))})
         if sha256_file(source) != preflight["sha256"]:
             raise IngestionError("ORIGINAL_CHANGED", "Les octets du PDF ont changé pendant l'extraction.")
         if not interrupted:
@@ -294,6 +296,6 @@ def extract_pdf(path, output_dir, config, version_id, cancel_path=None):
                   "coverage": {"total": preflight["page_count"], "processed": len(pages), "ocr": sum(page.get("ocr_used", False) for page in pages),
                                "unresolved": sum(page["extraction_state"] == "error" or bool(page.get("unresolved_regions")) for page in pages),
                                "unresolved_regions": sum(len(page.get("unresolved_regions", [])) for page in pages)},
-                  "windows": windows}
+                  "windows": windows, "parser_complete": all(window["parser_complete"] for window in windows)}
         atomic_json(target / "extraction.json", result)
         return result

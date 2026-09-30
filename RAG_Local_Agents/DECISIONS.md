@@ -168,3 +168,15 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 
 **Conséquences :** l'atelier s'ouvre par `.\rag.ps1 open` ; un signet vers `/workspace/` affiche une invitation à rouvrir la session. Les outils locaux (sauvegarde, qualification, import) présentent le jeton de contrôle. Un redémarrage de l'API ferme toutes les sessions.
 
+## W012 Figures non interprétées : limite déclarée, publication automatique
+
+**Date :** 30 septembre 2026, 19:47 UTC. **Statut :** acquise (arbitrage de l'utilisateur reçu avant 19:40 UTC, heure exacte non relevée) ; implémentée et testée, appliquée aux extractions produites après ce changement.
+
+**Contexte :** sur le corpus réel, les 4 documents extraits sont tous « extraction partielle » et restent non interrogeables jusqu'à une publication manuelle. Une partie de cette classification vient de zones graphiques (`GRAPHIC_INTERPRETATION_UNAVAILABLE`, pas de voie vision par conception) et de pages sans rien à lire (logo seul, préflight `graphic_uncertain`), qui ne perdent aucun texte. La spécification se contredit : `SPEC_ARCHITECTURE.md` range le contenu graphique dans `unresolved` (tableau des états) mais demande des métriques distinctes « non résolue » et « graphique ». Question posée à l'utilisateur : publier automatiquement ces documents (recommandé) ou garder la publication manuelle ; réponse : publier automatiquement.
+
+**Choix retenu :** la publication reste explicite seulement en cas de perte de texte réelle ou non prouvée. `services/api/indexing.py`, `text_loss()` : partiel si des pages manquent, si une zone non résolue a un autre motif qu'une figure non interprétée, si une page en erreur avait du texte à lire, ou si l'extraction ne déclare pas un parseur complet (`parser_complete`, ajouté par `services/ingestion/pipeline.py` ; une extraction antérieure sans cet indicateur reste partielle par prudence). Les avertissements restent attachés à la génération et s'affichent regroupés (« Schémas ou images non interprétés, pages … »). Une conversion Docling en échec conserve désormais un résumé de ses erreurs (composant, module, début du message) pour le diagnostic.
+
+**Preuves :** `tests/unit/test_api_publication_policy.py` (règle, 9 cas), `tests/unit/test_api_jobs.py::test_api_graphic_only_partial_extraction_is_published_automatically`, `tests/unit/test_ingestion_pipeline.py` (indicateur du parseur, erreurs Docling conservées).
+
+**Conséquences :** sur les 4 documents actuels, seul « Evaluation module4 » remplit la règle (figures et une page réduite à un logo) ; il doit être réextrait pour porter l'indicateur. Les trois autres gardent une perte de texte réelle (pages non converties, orientation OCR non déterminée) et restent à publier explicitement ou à corriger. L'empreinte d'extraction change (sources d'ingestion modifiées).
+
