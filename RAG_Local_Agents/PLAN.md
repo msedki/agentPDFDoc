@@ -185,7 +185,7 @@ Les sections précédentes restent l'historique. Entre 04:36 et 04:49, sans mise
 | R1 | Mémoire / génération (W-M01) | R0 | Modèle texte seul, estimations mesurées | Admission possible sous réserve 1536 ; pilotes conservés | VERIFIED pilotes — W006, W007 ; reports/cpu-pilot-text-900-* |
 | R2 | V — première réponse réelle | R1 | Question → sources → réponse Qwen → citation cliquable | SSE brut, model_called, IDs de citation dans le registre, clic UI | IN_PROGRESS — 09:27 admise, `model_called=true`, réponse partielle correcte « 3,1 bar [S001] » puis annulée par le gouverneur (réserve 1500 < 1536 sous charge) ; à rejouer hors charge concurrente ([preuve](reports/backend/2026-09-30-restored-question-20260930T0927.json)) |
 | R3 | D09.3 après restauration | R1 | Ancienne citation + question sur la restauration | E2E lifecycle PASS + réponse réelle | Citation VERIFIED ([preuve](../apps/web/reports/e2e-2026-09-30-restored-source-rerun-0910-evidence.json)) ; question IN_PROGRESS |
-| R4 | Code (7 zones : retrieval, API, runtime, ingestion, outils qualification, outillage docs, frontend) | R0 | Corrections des défauts prouvés, tests, revue adversariale | Tests unitaires/in-process PASS, junit sous reports/backend/…-lotR4-*, revue sans constat bloquant | IN_PROGRESS — workflow lancé 09:27 |
+| R4 | Code (7 zones : retrieval, API, runtime, ingestion, outils qualification, outillage docs, frontend) | R0 | Corrections des défauts prouvés, tests, revue adversariale | Tests unitaires/in-process PASS, junit sous reports/backend/…-lotR4-*, revue sans constat bloquant | VERIFIED (niveau unitaire et in-process) — commits c3f9a72, 61e5d78, 4c87775, bc1494f, 0fabf03, 72a10e5, b4c940b ; 7 revues indépendantes, 4 constats majeurs corrigés avec tests de reproduction ; suite complète 355 tests ([junit](reports/backend/2026-09-30-lotR4-full-unit.xml)). Parcours réels, build et E2E relèvent de R2/R3/R5/R6. |
 | R5 | Build UI + E2E de non-régression | R4 frontend | Export rebuild, specs a11y/deeplink/géométrie/markup/canvas | Build surveillé PASS, E2E réels PASS sur cible isolée | NOT_STARTED |
 | R6 | Ingestion OCR (W-PDF01) | R4 ingestion (E1) | Voie scan fiable ou limite déclarée | scan90/scan0/mixte/5 pages exacts ou ready_partial honnête | NOT_STARTED |
 | R7 | Évaluation DEV (retrieval, contexte, génération) | R4, R6 | Import DA-P02..07, bindings fusionnés, rapports DEV | 100/100 résolues ; métriques avec dénominateurs | NOT_STARTED |
@@ -206,3 +206,9 @@ Les sections précédentes restent l'historique. Entre 04:36 et 04:49, sans mise
 **Ressources 09:27 UTC :** 5690 Mio disponibles, D: ≈ 24,8 Gio libres ; un seul moteur lourd à la fois ; les agents du lot R4 n'exécutent que des tests légers après contrôle mémoire.
 
 Prochaine action : lire le résultat de la question restaurée, puis intégrer R4 (revue, tests, commit), rebuild UI et E2E question/citation sur l'instance principale.
+
+## Point à 13:55 UTC — lot R4 intégré
+
+R4 VERIFIED au niveau unitaire et in-process (voir le tableau). Aucun parcours réel n'est déduit de ces tests. Conséquences à traiter : réindexation nécessaire pour les nouvelles règles d'identifiants (table `identifiers`), empreinte d'extraction modifiée par les changements d'ingestion (le prochain réindex relancera le worker), nouvelle fixture hostile et document de 14 pages disponibles pour R5/R9.
+
+Prochaine action exécutable : arrêter l'instance restaurée (ancien code), build surveillé de l'interface (R5), relancer l'instance restaurée sur le nouveau code pour la question D09.3 (R3), puis instance principale, réindex de DA-P01 et E2E réels (R2/R5). Un seul traitement lourd à la fois.
