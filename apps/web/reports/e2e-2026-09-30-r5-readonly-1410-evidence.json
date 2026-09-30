@@ -1,4 +1,841 @@
 {
   "run": "2026-09-30-r5-readonly-1410",
-  "tests": []
+  "stats": {
+    "startTime": "2026-09-30T14:08:52.087Z",
+    "duration": 44161.723000000005,
+    "expected": 5,
+    "skipped": 3,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "tests": [
+    {
+      "file": "a11y.spec.ts",
+      "title": "tab order, visible focus, separators, tabs and Ctrl+Enter work from the keyboard",
+      "status": "passed",
+      "duration_ms": 11588,
+      "start": "2026-09-30T14:08:55.305Z",
+      "attachments": {
+        "resources-a11y-start": {
+          "phase": "a11y-start",
+          "timestamp_utc": "2026-09-30T14:09:00.256455+00:00",
+          "available_gib": 4.386,
+          "host_cpu_percent": 8.6,
+          "worker": {
+            "id": 22452,
+            "parent_id": 17772,
+            "name": "node.exe",
+            "working_set_mib": 142,
+            "private_mib": 147.3,
+            "unique_set_mib": 104.2
+          },
+          "chromium": [
+            {
+              "id": 12644,
+              "parent_id": 22452,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 46.2,
+              "private_mib": 17.3,
+              "unique_set_mib": 11.5
+            },
+            {
+              "id": 33816,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 44.7,
+              "private_mib": 26.8,
+              "unique_set_mib": 20.7
+            },
+            {
+              "id": 10244,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 28.5,
+              "private_mib": 12.4,
+              "unique_set_mib": 7
+            },
+            {
+              "id": 20152,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 49.8,
+              "private_mib": 19.6,
+              "unique_set_mib": 11.7
+            }
+          ],
+          "errors": [],
+          "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+        },
+        "keyboard-tab-order": [
+          {
+            "tag": "button",
+            "role": "",
+            "id": "",
+            "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-700 hover:bg-[var(--muted)] h-8 px-2 text-xs",
+            "name": "Suivi",
+            "focusVisible": true,
+            "indicator": true
+          },
+          {
+            "tag": "button",
+            "role": "",
+            "id": "",
+            "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-700 hover:bg-[var(--muted)] h-8 w-8",
+            "name": "Replier la bibliothèque",
+            "focusVisible": true,
+            "indicator": true
+          },
+          {
+            "tag": "button",
+            "role": "",
+            "id": "",
+            "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-700 hover:bg-[var(--muted)] h-8 w-8",
+            "name": "Replier l'analyse",
+            "focusVisible": true,
+            "indicator": true
+          },
+          {
+            "tag": "button",
+            "role": "",
+            "id": "",
+            "className": "scope-trigger",
+            "name": "PérimètreToute la bibliothèque",
+            "focusVisible": true,
+            "indicator": true
+          },
+          {
+            "tag": "button",
+            "role": "",
+            "id": "",
+            "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-700 bg-[var(--surface)] border border-[var(--line)] hover:bg-[var(--muted)] h-8 px-2 text-xs",
+            "name": "PDF",
+            "focusVisible": true,
+            "indicator": true
+          },
+          {
+            "tag": "button",
+            "role": "",
+            "id": "",
+            "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-700 bg-[var(--surface)] border border-[var(--line)] hover:bg-[var(--muted)] h-8 px-2 text-xs",
+            "name": "Dossier",
+            "focusVisible": true,
+            "indicator": true
+          },
+          {
+            "tag": "button",
+            "role": "",
+            "id": "",
+            "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-700 hover:bg-[var(--muted)] h-8 w-8",
+            "name": "Actualiser la bibliothèque",
+            "focusVisible": true,
+            "indicator": true
+          },
+          {
+            "tag": "input",
+            "role": "",
+            "id": "",
+            "className": "",
+            "name": "Filtrer les fichiers",
+            "focusVisible": true,
+            "indicator": true
+          },
+          {
+            "tag": "button",
+            "role": "",
+            "id": "",
+            "className": "library-all is-active",
+            "name": "Toute la bibliothèque",
+            "focusVisible": true,
+            "indicator": true
+          },
+          {
+            "tag": "input",
+            "role": "",
+            "id": "",
+            "className": "",
+            "name": "Sélectionner Atelier 1 - Banc pneumatique DA-P01.pdf",
+            "focusVisible": true,
+            "indicator": true
+          },
+          {
+            "tag": "button",
+            "role": "",
+            "id": "",
+            "className": "",
+            "name": "Atelier 1 - Banc pneumatique DA-P01.pdfPrêt · 2 p.",
+            "focusVisible": true,
+            "indicator": true
+          },
+          {
+            "tag": "div",
+            "role": "separator",
+            "id": "",
+            "className": "panel-resizer",
+            "name": "Largeur de la bibliothèque",
+            "focusVisible": true,
+            "indicator": true
+          },
+          {
+            "tag": "div",
+            "role": "separator",
+            "id": "",
+            "className": "panel-resizer",
+            "name": "Largeur de l'analyse",
+            "focusVisible": true,
+            "indicator": true
+          },
+          {
+            "tag": "button",
+            "role": "tab",
+            "id": "analysis-tab-question",
+            "className": "",
+            "name": "Question",
+            "focusVisible": true,
+            "indicator": true
+          },
+          {
+            "tag": "div",
+            "role": "tabpanel",
+            "id": "analysis-tabpanel",
+            "className": "analysis-history",
+            "name": "Une question, des passages vérifiables.Choisissez un périmètre, posez votre ques",
+            "focusVisible": true,
+            "indicator": true
+          },
+          {
+            "tag": "textarea",
+            "role": "",
+            "id": "question-input",
+            "className": "",
+            "name": "",
+            "focusVisible": true,
+            "indicator": true
+          }
+        ],
+        "keyboard-scenario-limits": {
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "blocked_before_service": [
+            "POST /api/v1/search"
+          ],
+          "mutations_seen_by_browser": [
+            "POST /api/v1/search"
+          ],
+          "interpretation": "Ctrl+Entrée prouve la soumission clavier ; la requête interceptée n'est ni une recherche réelle ni une réponse."
+        },
+        "resources-a11y-end": {
+          "phase": "a11y-end",
+          "timestamp_utc": "2026-09-30T14:09:09.056874+00:00",
+          "available_gib": 4.309,
+          "host_cpu_percent": 12.3,
+          "worker": {
+            "id": 22452,
+            "parent_id": 17772,
+            "name": "node.exe",
+            "working_set_mib": 165.6,
+            "private_mib": 170.3,
+            "unique_set_mib": 127.8
+          },
+          "chromium": [
+            {
+              "id": 12644,
+              "parent_id": 22452,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 50.9,
+              "private_mib": 18.8,
+              "unique_set_mib": 12.9
+            },
+            {
+              "id": 33816,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 57.9,
+              "private_mib": 27.3,
+              "unique_set_mib": 21.1
+            },
+            {
+              "id": 10244,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 32.5,
+              "private_mib": 14,
+              "unique_set_mib": 8.5
+            },
+            {
+              "id": 20152,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 117.4,
+              "private_mib": 54.4,
+              "unique_set_mib": 44.5
+            }
+          ],
+          "errors": [],
+          "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+        }
+      }
+    },
+    {
+      "file": "negative-deeplink.spec.ts",
+      "title": "an unknown registered citation shows a visible alert and opens no document",
+      "status": "passed",
+      "duration_ms": 3481,
+      "start": "2026-09-30T14:09:11.127Z",
+      "attachments": {
+        "resources-negative-deeplink-start": {
+          "phase": "negative-deeplink-start",
+          "timestamp_utc": "2026-09-30T14:09:12.337595+00:00",
+          "available_gib": 4.323,
+          "host_cpu_percent": 10.7,
+          "worker": {
+            "id": 22452,
+            "parent_id": 17772,
+            "name": "node.exe",
+            "working_set_mib": 174.4,
+            "private_mib": 178.6,
+            "unique_set_mib": 136.4
+          },
+          "chromium": [
+            {
+              "id": 12644,
+              "parent_id": 22452,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 52,
+              "private_mib": 18.8,
+              "unique_set_mib": 12.9
+            },
+            {
+              "id": 33816,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 42.1,
+              "private_mib": 23.1,
+              "unique_set_mib": 16.9
+            },
+            {
+              "id": 10244,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 32.4,
+              "private_mib": 13,
+              "unique_set_mib": 7.6
+            },
+            {
+              "id": 16720,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 62.2,
+              "private_mib": 19.6,
+              "unique_set_mib": 11.7
+            }
+          ],
+          "errors": [],
+          "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+        },
+        "unknown-citation-registry-response": {
+          "status": 404,
+          "body": {
+            "code": "citation_not_found",
+            "message": "Citation inconnue.",
+            "details": {},
+            "request_id": "5c34d03f-9036-4975-acc3-7fd01b76735f"
+          },
+          "requests": [
+            {
+              "method": "GET",
+              "path": "/workspace/?citation_query=inconnu&citation_source=S999"
+            },
+            {
+              "method": "GET",
+              "path": "/_next/static/css/b9555b1d45461977.css"
+            },
+            {
+              "method": "GET",
+              "path": "/_next/static/css/c2abee0d6fe88840.css"
+            },
+            {
+              "method": "GET",
+              "path": "/_next/static/chunks/webpack-b2cbe30decf517ba.js"
+            },
+            {
+              "method": "GET",
+              "path": "/_next/static/chunks/95198bae-8a5382f70e1889b6.js"
+            },
+            {
+              "method": "GET",
+              "path": "/_next/static/chunks/436-e378a1f8203f2af6.js"
+            },
+            {
+              "method": "GET",
+              "path": "/_next/static/chunks/main-app-add3a686993de639.js"
+            },
+            {
+              "method": "GET",
+              "path": "/_next/static/chunks/426-28f5be367b571a72.js"
+            },
+            {
+              "method": "GET",
+              "path": "/_next/static/chunks/app/workspace/page-76826a471cc7da35.js"
+            },
+            {
+              "method": "GET",
+              "path": "/api/v1/library/tree?limit=100&offset=0"
+            },
+            {
+              "method": "GET",
+              "path": "/api/v1/readiness"
+            },
+            {
+              "method": "GET",
+              "path": "/api/v1/jobs"
+            },
+            {
+              "method": "GET",
+              "path": "/api/v1/citations/inconnu/S999"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "file": "negative-deeplink.spec.ts",
+      "title": "partial or malformed citation links are refused before any registry request",
+      "status": "passed",
+      "duration_ms": 3564,
+      "start": "2026-09-30T14:09:14.879Z",
+      "attachments": {}
+    },
+    {
+      "file": "resource-probe.spec.ts",
+      "title": "read-only own browser memory probe with a real native PDF",
+      "status": "passed",
+      "duration_ms": 7076,
+      "start": "2026-09-30T14:09:18.796Z",
+      "attachments": {
+        "resources-own-headless-start": {
+          "phase": "own-headless-start",
+          "timestamp_utc": "2026-09-30T14:09:20.006236+00:00",
+          "available_gib": 4.202,
+          "host_cpu_percent": 11,
+          "worker": {
+            "id": 22452,
+            "parent_id": 17772,
+            "name": "node.exe",
+            "working_set_mib": 182.2,
+            "private_mib": 187.8,
+            "unique_set_mib": 144.2
+          },
+          "chromium": [
+            {
+              "id": 12644,
+              "parent_id": 22452,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 52.7,
+              "private_mib": 19.3,
+              "unique_set_mib": 13.4
+            },
+            {
+              "id": 33816,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 42.3,
+              "private_mib": 23.2,
+              "unique_set_mib": 17
+            },
+            {
+              "id": 10244,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 32.6,
+              "private_mib": 13.1,
+              "unique_set_mib": 7.7
+            },
+            {
+              "id": 16972,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 62.2,
+              "private_mib": 19.6,
+              "unique_set_mib": 11.7
+            }
+          ],
+          "errors": [],
+          "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+        },
+        "resources-own-question-form-not-submitted": {
+          "phase": "own-question-form-not-submitted",
+          "timestamp_utc": "2026-09-30T14:09:22.286334+00:00",
+          "available_gib": 4.139,
+          "host_cpu_percent": 9.3,
+          "worker": {
+            "id": 22452,
+            "parent_id": 17772,
+            "name": "node.exe",
+            "working_set_mib": 183.3,
+            "private_mib": 187.3,
+            "unique_set_mib": 145.3
+          },
+          "chromium": [
+            {
+              "id": 12644,
+              "parent_id": 22452,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 53.9,
+              "private_mib": 20.5,
+              "unique_set_mib": 14.6
+            },
+            {
+              "id": 33816,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 56.9,
+              "private_mib": 27.4,
+              "unique_set_mib": 21.2
+            },
+            {
+              "id": 10244,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 34.3,
+              "private_mib": 14.8,
+              "unique_set_mib": 9.3
+            },
+            {
+              "id": 16972,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 109.2,
+              "private_mib": 42,
+              "unique_set_mib": 31.5
+            }
+          ],
+          "errors": [],
+          "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+        },
+        "resources-own-native-pdf-rendered": {
+          "phase": "own-native-pdf-rendered",
+          "timestamp_utc": "2026-09-30T14:09:24.849638+00:00",
+          "available_gib": 4.06,
+          "host_cpu_percent": 16.2,
+          "worker": {
+            "id": 22452,
+            "parent_id": 17772,
+            "name": "node.exe",
+            "working_set_mib": 186.8,
+            "private_mib": 190.9,
+            "unique_set_mib": 148.7
+          },
+          "chromium": [
+            {
+              "id": 12644,
+              "parent_id": 22452,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 53.4,
+              "private_mib": 19.7,
+              "unique_set_mib": 13.8
+            },
+            {
+              "id": 33816,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 65.2,
+              "private_mib": 27.5,
+              "unique_set_mib": 21.3
+            },
+            {
+              "id": 10244,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 36.3,
+              "private_mib": 16.9,
+              "unique_set_mib": 11.2
+            },
+            {
+              "id": 16972,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 172.8,
+              "private_mib": 82.2,
+              "unique_set_mib": 67.7
+            }
+          ],
+          "errors": [],
+          "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+        },
+        "browser-probe-configuration": {
+          "worker_id": 22452,
+          "browser_version": "153.0.8010.12",
+          "contexts": 1,
+          "pages": [
+            1
+          ],
+          "headless": true,
+          "custom_launch_args": [],
+          "mutations": [],
+          "page_errors": [],
+          "interpretation": "Snapshots from a separate GET-only run; do not replace the failed question attempt's historical memory samples."
+        }
+      }
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "three panels use a real API and no external requests at both desktop sizes",
+      "status": "passed",
+      "duration_ms": 5755,
+      "start": "2026-09-30T14:09:26.486Z",
+      "attachments": {
+        "resources-start": {
+          "phase": "start",
+          "timestamp_utc": "2026-09-30T14:09:27.724564+00:00",
+          "available_gib": 4.149,
+          "host_cpu_percent": 13.1,
+          "worker": {
+            "id": 22452,
+            "parent_id": 17772,
+            "name": "node.exe",
+            "working_set_mib": 188.7,
+            "private_mib": 193.8,
+            "unique_set_mib": 150.6
+          },
+          "chromium": [
+            {
+              "id": 12644,
+              "parent_id": 22452,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 53.1,
+              "private_mib": 19.5,
+              "unique_set_mib": 13.5
+            },
+            {
+              "id": 33816,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 42.5,
+              "private_mib": 23.3,
+              "unique_set_mib": 17.2
+            },
+            {
+              "id": 10244,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 33.1,
+              "private_mib": 13.5,
+              "unique_set_mib": 8.1
+            },
+            {
+              "id": 11572,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 62.5,
+              "private_mib": 19.6,
+              "unique_set_mib": 11.7
+            }
+          ],
+          "errors": [],
+          "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+        },
+        "resources-viewport-1366": {
+          "phase": "viewport-1366",
+          "timestamp_utc": "2026-09-30T14:09:29.932023+00:00",
+          "available_gib": 4.07,
+          "host_cpu_percent": 12,
+          "worker": {
+            "id": 22452,
+            "parent_id": 17772,
+            "name": "node.exe",
+            "working_set_mib": 192,
+            "private_mib": 196.5,
+            "unique_set_mib": 153.8
+          },
+          "chromium": [
+            {
+              "id": 12644,
+              "parent_id": 22452,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 54.4,
+              "private_mib": 20.7,
+              "unique_set_mib": 14.7
+            },
+            {
+              "id": 33816,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 57.2,
+              "private_mib": 27.6,
+              "unique_set_mib": 21.4
+            },
+            {
+              "id": 10244,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 34.4,
+              "private_mib": 14.8,
+              "unique_set_mib": 9.3
+            },
+            {
+              "id": 11572,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 105.8,
+              "private_mib": 40.7,
+              "unique_set_mib": 29.8
+            }
+          ],
+          "errors": [],
+          "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+        },
+        "resources-viewport-1920": {
+          "phase": "viewport-1920",
+          "timestamp_utc": "2026-09-30T14:09:31.482376+00:00",
+          "available_gib": 4.052,
+          "host_cpu_percent": 13.3,
+          "worker": {
+            "id": 22452,
+            "parent_id": 17772,
+            "name": "node.exe",
+            "working_set_mib": 190,
+            "private_mib": 193.6,
+            "unique_set_mib": 151.8
+          },
+          "chromium": [
+            {
+              "id": 12644,
+              "parent_id": 22452,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 54.2,
+              "private_mib": 20.5,
+              "unique_set_mib": 14.6
+            },
+            {
+              "id": 33816,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 73,
+              "private_mib": 39.3,
+              "unique_set_mib": 33
+            },
+            {
+              "id": 10244,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 34.4,
+              "private_mib": 14.8,
+              "unique_set_mib": 9.3
+            },
+            {
+              "id": 11572,
+              "parent_id": 12644,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 110.5,
+              "private_mib": 42.5,
+              "unique_set_mib": 31.6
+            }
+          ],
+          "errors": [],
+          "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+        },
+        "console": [],
+        "network": [
+          {
+            "method": "GET",
+            "hostname": "127.0.0.1",
+            "path": "/workspace/",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "hostname": "127.0.0.1",
+            "path": "/_next/static/css/b9555b1d45461977.css",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "hostname": "127.0.0.1",
+            "path": "/_next/static/css/c2abee0d6fe88840.css",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "hostname": "127.0.0.1",
+            "path": "/_next/static/chunks/main-app-add3a686993de639.js",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "hostname": "127.0.0.1",
+            "path": "/_next/static/chunks/webpack-b2cbe30decf517ba.js",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "hostname": "127.0.0.1",
+            "path": "/_next/static/chunks/95198bae-8a5382f70e1889b6.js",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "hostname": "127.0.0.1",
+            "path": "/_next/static/chunks/426-28f5be367b571a72.js",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "hostname": "127.0.0.1",
+            "path": "/_next/static/chunks/436-e378a1f8203f2af6.js",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "hostname": "127.0.0.1",
+            "path": "/_next/static/chunks/app/workspace/page-76826a471cc7da35.js",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "hostname": "127.0.0.1",
+            "path": "/api/v1/library/tree",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "hostname": "127.0.0.1",
+            "path": "/api/v1/jobs",
+            "status": 200
+          },
+          {
+            "method": "GET",
+            "hostname": "127.0.0.1",
+            "path": "/api/v1/readiness",
+            "status": 200
+          }
+        ]
+      }
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "real import, reading, scoped search and source navigation",
+      "status": "skipped",
+      "duration_ms": 1149,
+      "start": "2026-09-30T14:09:33.108Z",
+      "attachments": {}
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "real page and immutable block selection scopes reach the API",
+      "status": "skipped",
+      "duration_ms": 573,
+      "start": "2026-09-30T14:09:34.424Z",
+      "attachments": {}
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "real local model answers with registered citations and preserves scope",
+      "status": "skipped",
+      "duration_ms": 597,
+      "start": "2026-09-30T14:09:35.134Z",
+      "attachments": {}
+    }
+  ]
 }

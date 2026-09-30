@@ -1,4 +1,360 @@
 {
   "run": "2026-09-30-restored-source-newcode-1412",
-  "tests": []
+  "stats": {
+    "startTime": "2026-09-30T14:10:12.857Z",
+    "duration": 11480.448,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "tests": [
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "registered old citation retains its exact original and revision",
+      "status": "passed",
+      "duration_ms": 6781,
+      "start": "2026-09-30T14:10:15.825Z",
+      "attachments": {
+        "lifecycle-target-identity": {
+          "origin": "http://127.0.0.1:8795",
+          "data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - stockage raccourci 20260930T0348",
+          "instance_id": "03658ab8d89849f7a96fae6aee2559c5",
+          "runtime_profile_file_sha256": "ae85167a1628e0a63988a349a45e8e6cb19ebf88328a18bfb16425dc98ccba4e",
+          "api_profile_sha256": "b005e2e123f0dc55498d32d70cdd1664c43cc868672f7705879c05c42feb10af",
+          "permits": [
+            "read_old_citation"
+          ],
+          "telemetry_limit": "embedding_session tracks loads/releases, not embedding calculation count"
+        },
+        "actual-old-registered-source": {
+          "chunk_id": "0b2e78e6-4073-5ff6-982b-6ff0f244b8f1",
+          "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+          "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+          "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+          "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+          "text": "DA-P01 - banc pneumatique synthétique Atelier 1. La pression nominale de DA-P01 est de 3.1 bar. La tolérance de pression de DA-P01 est de ± 2.0 %. Le contrôle périodique de DA-P01 intervient toutes les 1020 h. Le couple de serrage prescrit pour DA-P01 est de 12 N·m. L'alimentation d'essai de DA-P01 est de 22 V.",
+          "blocks": [
+            {
+              "id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+              "block_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+              "page_index": 0,
+              "text": "DA-P01 - banc pneumatique synthétique Atelier 1. La pression nominale de DA-P01 est de 3.1 bar. La tolérance de pression de DA-P01 est de ± 2.0 %. Le contrôle périodique de DA-P01 intervient toutes les 1020 h. Le couple de serrage prescrit pour DA-P01 est de 12 N·m. L'alimentation d'essai de DA-P01 est de 22 V.",
+              "start_offset": 0,
+              "end_offset": 312,
+              "bbox": [
+                48,
+                502.1472216,
+                392.75976590000005,
+                702.6472216
+              ],
+              "precision": "block",
+              "type": "text",
+              "page": {
+                "alphanumeric_count": 404,
+                "classification": "native",
+                "coverage_regions": [
+                  {
+                    "bbox": [
+                      48,
+                      742.5679247999999,
+                      279.65624960000014,
+                      750.5679247999999
+                    ],
+                    "block_id": "10d82f07-3c23-592d-9808-efb352c9652d",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48,
+                      776.0460496000001,
+                      412.57812320000005,
+                      792.0460496000001
+                    ],
+                    "block_id": "81b57457-83ed-5f11-9b49-9fabfcaff157",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "heading"
+                  },
+                  {
+                    "bbox": [
+                      48,
+                      502.1472216,
+                      392.75976590000005,
+                      702.6472216
+                    ],
+                    "block_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48,
+                      445.5472216,
+                      541.3027407,
+                      475.2472216
+                    ],
+                    "block_id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48,
+                      29.837890399999992,
+                      93.25927829999999,
+                      38.83789039999999
+                    ],
+                    "block_id": "9397fcff-878b-5660-9cef-426fc6eece42",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  }
+                ],
+                "crop_box": null,
+                "crop_box_source": "unavailable_inherited_or_absent",
+                "display_height": 841.8897705078125,
+                "display_width": 595.2755737304688,
+                "effective_box": [
+                  0,
+                  0,
+                  595.2755737304688,
+                  841.8897705078125
+                ],
+                "extraction_route": "structured",
+                "extraction_state": "native",
+                "height": 841.8897705078125,
+                "image_regions": [],
+                "label": null,
+                "media_box": [
+                  0,
+                  0,
+                  595.2755737304688,
+                  841.8897705078125
+                ],
+                "media_box_source": "declared",
+                "native_text_regions": [
+                  [
+                    49.34400177001953,
+                    776.4497680664062,
+                    411.1519775390625,
+                    792.6897583007812
+                  ],
+                  [
+                    48.784000396728516,
+                    742.8338012695312,
+                    278.8719482421875,
+                    751.9058227539062
+                  ],
+                  [
+                    48.88199996948242,
+                    30.137001037597656,
+                    92.30699920654297,
+                    38.678001403808594
+                  ],
+                  [
+                    49.077999114990234,
+                    692.0128173828125,
+                    330.9529724121094,
+                    703.0897827148438
+                  ],
+                  [
+                    49.077999114990234,
+                    654.11279296875,
+                    309.00799560546875,
+                    664.749755859375
+                  ],
+                  [
+                    49.077999114990234,
+                    616.2128295898438,
+                    332.0639953613281,
+                    627.289794921875
+                  ],
+                  [
+                    49.077999114990234,
+                    578.3128051757812,
+                    391.2110595703125,
+                    589.3897705078125
+                  ],
+                  [
+                    49.077999114990234,
+                    540.412841796875,
+                    364.9319763183594,
+                    551.0498046875
+                  ],
+                  [
+                    49.077999114990234,
+                    504.64678955078125,
+                    297.5570068359375,
+                    513.1497802734375
+                  ],
+                  [
+                    49.077999114990234,
+                    464.61279296875,
+                    540.2281494140625,
+                    475.6897888183594
+                  ],
+                  [
+                    48.60499954223633,
+                    448.0467834472656,
+                    142.98500061035156,
+                    456.5497741699219
+                  ]
+                ],
+                "native_text_sparse": false,
+                "needs_ocr": false,
+                "ocr_cell_count": 0,
+                "ocr_orientations": [],
+                "ocr_parser_regions": [],
+                "ocr_preprocessing": [],
+                "ocr_regions": [],
+                "ocr_used": false,
+                "orientation_correction": 0,
+                "orientation_source": "native_page_frame",
+                "page_index": 0,
+                "page_number": 1,
+                "replacement_ratio": 0,
+                "rotation": 0,
+                "routing_reason": "typography_requires_structure",
+                "table_orientation_corrections": [],
+                "text_character_count": 529,
+                "text_font_sizes": [
+                  8,
+                  9,
+                  11,
+                  16
+                ],
+                "text_mapping_warnings": [],
+                "unresolved_regions": [],
+                "vector_path_count": 1,
+                "width": 595.2755737304688
+              },
+              "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+              "source_text_hash": "587198c96b5f174c0bb1afdd36049cf514316a7001b02bbbe5b8edaa460f9737"
+            }
+          ],
+          "page_indices": [
+            0
+          ],
+          "parent_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+          "score": 0.03278688524590164,
+          "exact_identifier": true,
+          "coverage": {
+            "ocr": 0,
+            "processed": 2,
+            "total": 2,
+            "unresolved": 0,
+            "unresolved_regions": 0
+          },
+          "extraction_state": "ready",
+          "extraction_warnings": [],
+          "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "page_index": 0,
+          "page_number": 1,
+          "label": null,
+          "required_identifiers": [
+            "DA-P01",
+            "P01"
+          ],
+          "parent_expanded": false,
+          "source_id": "S001",
+          "query_id": "2f36429b-2ac6-4c5f-83c3-d72271f1adf9",
+          "block_ids": [
+            "aabbf7be-8ddc-5458-bf8c-896487ae9c1c"
+          ],
+          "bboxes": [
+            [
+              48,
+              502.1472216,
+              392.75976590000005,
+              702.6472216
+            ]
+          ],
+          "precision": "block",
+          "citation_url": "/api/v1/citations/2f36429b-2ac6-4c5f-83c3-d72271f1adf9/S001"
+        },
+        "actual-pinned-viewer-requests": [
+          {
+            "path": "/api/v1/versions/11debf6d-6e3c-4874-9ea4-395c1ad6661c/outline",
+            "revision": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+            "status": 200
+          },
+          {
+            "path": "/api/v1/versions/11debf6d-6e3c-4874-9ea4-395c1ad6661c/pages/0/blocks",
+            "revision": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+            "status": 200
+          },
+          {
+            "path": "/api/v1/versions/11debf6d-6e3c-4874-9ea4-395c1ad6661c/pages/1/blocks",
+            "revision": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+            "status": 200
+          }
+        ],
+        "actual-revision-action-guard": {
+          "cited_revision": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+          "latest_published_revision": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+          "archived": false,
+          "selected_block_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+          "selected_block_hash": "587198c96b5f174c0bb1afdd36049cf514316a7001b02bbbe5b8edaa460f9737",
+          "explicit_scope_retained_after_return": "PÉRIMÈTRE\nBloc source · page 1"
+        },
+        "resources-registered-old-version-deeplink": {
+          "phase": "registered-old-version-deeplink",
+          "timestamp_utc": "2026-09-30T14:10:22.099123+00:00",
+          "available_gib": 4.426,
+          "host_cpu_percent": 18.1,
+          "worker": {
+            "id": 23364,
+            "parent_id": 30292,
+            "name": "node.exe",
+            "working_set_mib": 166.7,
+            "private_mib": 172.3,
+            "unique_set_mib": 129.1
+          },
+          "chromium": [
+            {
+              "id": 28760,
+              "parent_id": 23364,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 50.4,
+              "private_mib": 18.9,
+              "unique_set_mib": 13
+            },
+            {
+              "id": 26840,
+              "parent_id": 28760,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 65.6,
+              "private_mib": 27.5,
+              "unique_set_mib": 21.3
+            },
+            {
+              "id": 11408,
+              "parent_id": 28760,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 33.8,
+              "private_mib": 16.8,
+              "unique_set_mib": 11
+            },
+            {
+              "id": 21908,
+              "parent_id": 28760,
+              "name": "chrome-headless-shell.exe",
+              "working_set_mib": 175.5,
+              "private_mib": 91.4,
+              "unique_set_mib": 76.4
+            }
+          ],
+          "errors": [],
+          "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+        }
+      }
+    }
+  ]
 }
