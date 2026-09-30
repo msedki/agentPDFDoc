@@ -1,0 +1,710 @@
+{
+  "dataset_sha256": "7f17470b8699db919ffb24a3c339af789c99471b7b065973806ce279acf97eae",
+  "image_sha256": "a3ba6a688fd39404f10bbd4481a5e3d7f17eb8e7507503ca2b8c7a7e90cd73df",
+  "baseline": {
+    "answerable": {
+      "success_at_10": {
+        "numerator": 157,
+        "denominator": 160,
+        "rate": 0.981,
+        "wilson95": [
+          0.946,
+          0.994
+        ]
+      },
+      "in_final": {
+        "numerator": 151,
+        "denominator": 160,
+        "rate": 0.944,
+        "wilson95": [
+          0.897,
+          0.97
+        ]
+      },
+      "in_context": {
+        "numerator": 150,
+        "denominator": 160,
+        "rate": 0.938,
+        "wilson95": [
+          0.889,
+          0.966
+        ]
+      },
+      "mrr_at_10": 0.8315
+    },
+    "unanswerable": {
+      "search_abstention": {
+        "numerator": 20,
+        "denominator": 20,
+        "rate": 1.0,
+        "wilson95": [
+          0.839,
+          1.0
+        ]
+      },
+      "scope_leakage_total": 0
+    },
+    "by_category": {
+      "identifiant": {
+        "success_at_10": {
+          "numerator": 40,
+          "denominator": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.912,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 40,
+          "denominator": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.912,
+            1.0
+          ]
+        }
+      },
+      "valeur": {
+        "success_at_10": {
+          "numerator": 117,
+          "denominator": 120,
+          "rate": 0.975,
+          "wilson95": [
+            0.929,
+            0.991
+          ]
+        },
+        "in_context": {
+          "numerator": 110,
+          "denominator": 120,
+          "rate": 0.917,
+          "wilson95": [
+            0.853,
+            0.954
+          ]
+        }
+      }
+    },
+    "by_split": {
+      "development": {
+        "success_at_10": {
+          "numerator": 104,
+          "denominator": 106,
+          "rate": 0.981,
+          "wilson95": [
+            0.934,
+            0.995
+          ]
+        },
+        "in_context": {
+          "numerator": 101,
+          "denominator": 106,
+          "rate": 0.953,
+          "wilson95": [
+            0.894,
+            0.98
+          ]
+        }
+      },
+      "holdout": {
+        "success_at_10": {
+          "numerator": 53,
+          "denominator": 54,
+          "rate": 0.981,
+          "wilson95": [
+            0.902,
+            0.997
+          ]
+        },
+        "in_context": {
+          "numerator": 49,
+          "denominator": 54,
+          "rate": 0.907,
+          "wilson95": [
+            0.801,
+            0.96
+          ]
+        }
+      }
+    },
+    "by_overlap_band": {
+      "faible": {
+        "success_at_10": {
+          "numerator": 4,
+          "denominator": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.51,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 4,
+          "denominator": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.51,
+            1.0
+          ]
+        }
+      },
+      "partiel": {
+        "success_at_10": {
+          "numerator": 28,
+          "denominator": 28,
+          "rate": 1.0,
+          "wilson95": [
+            0.879,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 28,
+          "denominator": 28,
+          "rate": 1.0,
+          "wilson95": [
+            0.879,
+            1.0
+          ]
+        }
+      },
+      "complet": {
+        "success_at_10": {
+          "numerator": 125,
+          "denominator": 128,
+          "rate": 0.977,
+          "wilson95": [
+            0.933,
+            0.992
+          ]
+        },
+        "in_context": {
+          "numerator": 118,
+          "denominator": 128,
+          "rate": 0.922,
+          "wilson95": [
+            0.862,
+            0.957
+          ]
+        }
+      }
+    },
+    "by_route": {
+      "regional_ocr": {
+        "success_at_10": {
+          "numerator": 10,
+          "denominator": 10,
+          "rate": 1.0,
+          "wilson95": [
+            0.722,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 10,
+          "denominator": 10,
+          "rate": 1.0,
+          "wilson95": [
+            0.722,
+            1.0
+          ]
+        }
+      },
+      "structured": {
+        "success_at_10": {
+          "numerator": 147,
+          "denominator": 150,
+          "rate": 0.98,
+          "wilson95": [
+            0.943,
+            0.993
+          ]
+        },
+        "in_context": {
+          "numerator": 140,
+          "denominator": 150,
+          "rate": 0.933,
+          "wilson95": [
+            0.882,
+            0.963
+          ]
+        }
+      }
+    },
+    "by_variant": {
+      "indices_reduits": {
+        "success_at_10": {
+          "numerator": 37,
+          "denominator": 40,
+          "rate": 0.925,
+          "wilson95": [
+            0.801,
+            0.974
+          ]
+        },
+        "in_context": {
+          "numerator": 32,
+          "denominator": 40,
+          "rate": 0.8,
+          "wilson95": [
+            0.652,
+            0.895
+          ]
+        }
+      },
+      "portee_bibliotheque": {
+        "success_at_10": {
+          "numerator": 60,
+          "denominator": 60,
+          "rate": 1.0,
+          "wilson95": [
+            0.94,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 59,
+          "denominator": 60,
+          "rate": 0.983,
+          "wilson95": [
+            0.911,
+            0.997
+          ]
+        }
+      },
+      "reference": {
+        "success_at_10": {
+          "numerator": 60,
+          "denominator": 60,
+          "rate": 1.0,
+          "wilson95": [
+            0.94,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 59,
+          "denominator": 60,
+          "rate": 0.983,
+          "wilson95": [
+            0.911,
+            0.997
+          ]
+        }
+      }
+    },
+    "overlap_bands": {
+      "faible": [
+        0.0,
+        0.5
+      ],
+      "partiel": [
+        0.5,
+        1.0
+      ],
+      "complet": [
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "candidate": {
+    "answerable": {
+      "success_at_10": {
+        "numerator": 158,
+        "denominator": 160,
+        "rate": 0.988,
+        "wilson95": [
+          0.956,
+          0.997
+        ]
+      },
+      "in_final": {
+        "numerator": 156,
+        "denominator": 160,
+        "rate": 0.975,
+        "wilson95": [
+          0.937,
+          0.99
+        ]
+      },
+      "in_context": {
+        "numerator": 155,
+        "denominator": 160,
+        "rate": 0.969,
+        "wilson95": [
+          0.929,
+          0.987
+        ]
+      },
+      "mrr_at_10": 0.8633
+    },
+    "unanswerable": {
+      "search_abstention": {
+        "numerator": 20,
+        "denominator": 20,
+        "rate": 1.0,
+        "wilson95": [
+          0.839,
+          1.0
+        ]
+      },
+      "scope_leakage_total": 0
+    },
+    "by_category": {
+      "identifiant": {
+        "success_at_10": {
+          "numerator": 40,
+          "denominator": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.912,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 40,
+          "denominator": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.912,
+            1.0
+          ]
+        }
+      },
+      "valeur": {
+        "success_at_10": {
+          "numerator": 118,
+          "denominator": 120,
+          "rate": 0.983,
+          "wilson95": [
+            0.941,
+            0.995
+          ]
+        },
+        "in_context": {
+          "numerator": 115,
+          "denominator": 120,
+          "rate": 0.958,
+          "wilson95": [
+            0.906,
+            0.982
+          ]
+        }
+      }
+    },
+    "by_split": {
+      "development": {
+        "success_at_10": {
+          "numerator": 105,
+          "denominator": 106,
+          "rate": 0.991,
+          "wilson95": [
+            0.948,
+            0.998
+          ]
+        },
+        "in_context": {
+          "numerator": 104,
+          "denominator": 106,
+          "rate": 0.981,
+          "wilson95": [
+            0.934,
+            0.995
+          ]
+        }
+      },
+      "holdout": {
+        "success_at_10": {
+          "numerator": 53,
+          "denominator": 54,
+          "rate": 0.981,
+          "wilson95": [
+            0.902,
+            0.997
+          ]
+        },
+        "in_context": {
+          "numerator": 51,
+          "denominator": 54,
+          "rate": 0.944,
+          "wilson95": [
+            0.849,
+            0.981
+          ]
+        }
+      }
+    },
+    "by_overlap_band": {
+      "faible": {
+        "success_at_10": {
+          "numerator": 4,
+          "denominator": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.51,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 4,
+          "denominator": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.51,
+            1.0
+          ]
+        }
+      },
+      "partiel": {
+        "success_at_10": {
+          "numerator": 28,
+          "denominator": 28,
+          "rate": 1.0,
+          "wilson95": [
+            0.879,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 28,
+          "denominator": 28,
+          "rate": 1.0,
+          "wilson95": [
+            0.879,
+            1.0
+          ]
+        }
+      },
+      "complet": {
+        "success_at_10": {
+          "numerator": 126,
+          "denominator": 128,
+          "rate": 0.984,
+          "wilson95": [
+            0.945,
+            0.996
+          ]
+        },
+        "in_context": {
+          "numerator": 123,
+          "denominator": 128,
+          "rate": 0.961,
+          "wilson95": [
+            0.912,
+            0.983
+          ]
+        }
+      }
+    },
+    "by_route": {
+      "regional_ocr": {
+        "success_at_10": {
+          "numerator": 10,
+          "denominator": 10,
+          "rate": 1.0,
+          "wilson95": [
+            0.722,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 10,
+          "denominator": 10,
+          "rate": 1.0,
+          "wilson95": [
+            0.722,
+            1.0
+          ]
+        }
+      },
+      "structured": {
+        "success_at_10": {
+          "numerator": 148,
+          "denominator": 150,
+          "rate": 0.987,
+          "wilson95": [
+            0.953,
+            0.996
+          ]
+        },
+        "in_context": {
+          "numerator": 145,
+          "denominator": 150,
+          "rate": 0.967,
+          "wilson95": [
+            0.924,
+            0.986
+          ]
+        }
+      }
+    },
+    "by_variant": {
+      "indices_reduits": {
+        "success_at_10": {
+          "numerator": 38,
+          "denominator": 40,
+          "rate": 0.95,
+          "wilson95": [
+            0.835,
+            0.986
+          ]
+        },
+        "in_context": {
+          "numerator": 37,
+          "denominator": 40,
+          "rate": 0.925,
+          "wilson95": [
+            0.801,
+            0.974
+          ]
+        }
+      },
+      "portee_bibliotheque": {
+        "success_at_10": {
+          "numerator": 60,
+          "denominator": 60,
+          "rate": 1.0,
+          "wilson95": [
+            0.94,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 59,
+          "denominator": 60,
+          "rate": 0.983,
+          "wilson95": [
+            0.911,
+            0.997
+          ]
+        }
+      },
+      "reference": {
+        "success_at_10": {
+          "numerator": 60,
+          "denominator": 60,
+          "rate": 1.0,
+          "wilson95": [
+            0.94,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 59,
+          "denominator": 60,
+          "rate": 0.983,
+          "wilson95": [
+            0.911,
+            0.997
+          ]
+        }
+      }
+    },
+    "overlap_bands": {
+      "faible": [
+        0.0,
+        0.5
+      ],
+      "partiel": [
+        0.5,
+        1.0
+      ],
+      "complet": [
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "paired": {
+    "success_at_10": {
+      "gained": 1,
+      "lost": 0,
+      "mcnemar_exact_p": 1.0
+    },
+    "in_context": {
+      "gained": 5,
+      "lost": 0,
+      "mcnemar_exact_p": 0.0625
+    }
+  },
+  "in_context_by_split": {
+    "development:reference": "101/106",
+    "development:sans_mots_outils": "104/106",
+    "holdout:reference": "49/54",
+    "holdout:sans_mots_outils": "51/54"
+  },
+  "changed_rows": [
+    {
+      "id": "q096",
+      "variant": "indices_reduits",
+      "before": [
+        true,
+        false,
+        0.125
+      ],
+      "after": [
+        true,
+        true,
+        0.5
+      ]
+    },
+    {
+      "id": "q104",
+      "variant": "indices_reduits",
+      "before": [
+        true,
+        false,
+        0.1
+      ],
+      "after": [
+        true,
+        true,
+        1.0
+      ]
+    },
+    {
+      "id": "q116",
+      "variant": "indices_reduits",
+      "before": [
+        false,
+        false,
+        0.0
+      ],
+      "after": [
+        true,
+        true,
+        0.1667
+      ]
+    },
+    {
+      "id": "q124",
+      "variant": "indices_reduits",
+      "before": [
+        true,
+        false,
+        0.1429
+      ],
+      "after": [
+        true,
+        true,
+        0.1667
+      ]
+    },
+    {
+      "id": "q158",
+      "variant": "indices_reduits",
+      "before": [
+        true,
+        false,
+        0.1429
+      ],
+      "after": [
+        true,
+        true,
+        0.1667
+      ]
+    }
+  ]
+}

@@ -121,9 +121,15 @@ def mutate_identifier(code: str, known: set[str], rng: random.Random) -> str | N
     return None
 
 
-def build_dataset(blocks: list[dict[str, Any]], *, seed: int = 20260930, max_per_category: dict[str, int] | None = None) -> dict[str, Any]:
-    """Jeu déterministe à partir de blocs publiés : chaque bloc porte document_id, version_id, page_index, id, text, route."""
+def build_dataset(blocks: list[dict[str, Any]], *, seed: int = 20260930, max_per_category: dict[str, int] | None = None,
+                  exclude: dict[str, set[str]] | None = None) -> dict[str, Any]:
+    """Jeu déterministe à partir de blocs publiés : chaque bloc porte document_id, version_id, page_index, id, text, route.
+
+    `exclude` écarte les blocs attendus (`block_ids`) et les identifiants (`identifiers`) d'une série précédente,
+    pour qu'une série de confirmation ne réutilise aucune question déjà analysée."""
     limits = {"valeur": 40, "identifiant": 20, "hors_perimetre": 10, "sans_reponse": 10, **(max_per_category or {})}
+    excluded_blocks = set((exclude or {}).get("block_ids", set()))
+    excluded_codes = set((exclude or {}).get("identifiers", set()))
     rng = random.Random(seed)
     by_identifier: dict[str, list[dict[str, Any]]] = {}
     for block in blocks:
@@ -133,6 +139,8 @@ def build_dataset(blocks: list[dict[str, Any]], *, seed: int = 20260930, max_per
     documents = sorted({block["document_id"] for block in blocks})
     candidates: dict[str, list[dict[str, Any]]] = {name: [] for name in limits}
     for block in blocks:
+        if block["id"] in excluded_blocks:
+            continue
         for item in value_questions(block):
             same_value = [other["id"] for other in blocks if other["id"] != block["id"] and item["expected_value"].split()[0] in (other.get("text") or "").replace(",", ".")]
             candidates["valeur"].append({**item, "scope": {"kind": "documents", "documentIds": [block["document_id"]]},
@@ -141,6 +149,8 @@ def build_dataset(blocks: list[dict[str, Any]], *, seed: int = 20260930, max_per
         # Identifiant discriminant : défini dans un ou deux blocs, un seul document ; codes courts ou numériques purs écartés.
         code = holders[0]["code"]
         if len(holders) > 2 or len({holder["document_id"] for holder in holders}) != 1 or len(code) < 4 or not re.search(r"[A-Za-z]", code):
+            continue
+        if normalized_identifier(code) in excluded_codes or any(holder["id"] in excluded_blocks for holder in holders):
             continue
         source = holders[0]
         candidates["identifiant"].append({"category": "identifiant", "question": rng.choice(IDENTIFIER_TEMPLATES).format(code=code),
@@ -306,6 +316,9 @@ def main() -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     build = sub.add_parser("build")
     build.add_argument("--output", type=Path, required=True, help="Jeu à écrire sous .runtime/ (contient du texte du corpus)")
+    build.add_argument("--seed", type=int, default=20260930)
+    build.add_argument("--exclude-dataset", type=Path, action="append", default=[],
+                       help="Jeu précédent dont les blocs attendus et les identifiants sont écartés (série de confirmation)")
     run = sub.add_parser("run")
     run.add_argument("--dataset", type=Path, required=True)
     run.add_argument("--report", type=Path, required=True, help="Rapport agrégé, sans texte du corpus")
@@ -324,7 +337,14 @@ def main() -> int:
             output = args.output.resolve()
             if not output.is_relative_to((ROOT / ".runtime").resolve()) or output.exists():
                 raise SystemExit("Le jeu contient du texte du corpus : nouveau fichier sous .runtime/ exigé")
-            dataset = build_dataset(fetch_blocks(client, fixture_hashes()))
+            exclude: dict[str, set[str]] = {"block_ids": set(), "identifiers": set()}
+            for previous in args.exclude_dataset:
+                for item in json.loads(previous.read_text(encoding="utf-8"))["questions"]:
+                    exclude["block_ids"].update(item.get("expected_block_ids") or [])
+                    if item.get("identifier"):
+                        exclude["identifiers"].add(normalized_identifier(item["identifier"]))
+            dataset = build_dataset(fetch_blocks(client, fixture_hashes()), seed=args.seed, exclude=exclude)
+            dataset["excluded_datasets_sha256"] = [hashlib.sha256(previous.read_bytes()).hexdigest() for previous in args.exclude_dataset]
             dataset["created_utc"] = dt.datetime.now(dt.UTC).isoformat()
             output.parent.mkdir(parents=True, exist_ok=True)
             output.write_text(json.dumps(dataset, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")

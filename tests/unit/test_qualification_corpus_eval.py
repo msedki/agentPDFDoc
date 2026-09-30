@@ -131,3 +131,12 @@ def test_series_two_variants_widen_the_scope_and_reduce_the_cues():
     # Le recouvrement ignore les mots du gabarit : une question qui ne reprend aucun mot porteur vaut 0.
     assert lexical_overlap("Quelle valeur est indiquée pour « » ?", "valeur indiquée") == 0.0
 
+
+
+def test_confirmation_series_excludes_blocks_and_identifiers_already_used():
+    first = build_dataset(BLOCKS)["questions"]
+    used_blocks = {block for item in first for block in item["expected_block_ids"]}
+    used_codes = {item["identifier"] for item in first if item.get("identifier")}
+    second = build_dataset(BLOCKS, seed=20261001, exclude={"block_ids": used_blocks, "identifiers": used_codes})["questions"]
+    assert not {block for item in second for block in item["expected_block_ids"]} & used_blocks
+    assert not {item["identifier"] for item in second if item.get("identifier")} & used_codes

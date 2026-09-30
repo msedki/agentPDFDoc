@@ -1,0 +1,614 @@
+{
+  "dataset_sha256": "8999907c53681399a645a0a96224fcabc74e3adaad2764448eb25c763b529c1e",
+  "image_sha256": "a3ba6a688fd39404f10bbd4481a5e3d7f17eb8e7507503ca2b8c7a7e90cd73df",
+  "baseline": {
+    "answerable": {
+      "success_at_10": {
+        "numerator": 52,
+        "denominator": 52,
+        "rate": 1.0,
+        "wilson95": [
+          0.931,
+          1.0
+        ]
+      },
+      "in_final": {
+        "numerator": 52,
+        "denominator": 52,
+        "rate": 1.0,
+        "wilson95": [
+          0.931,
+          1.0
+        ]
+      },
+      "in_context": {
+        "numerator": 52,
+        "denominator": 52,
+        "rate": 1.0,
+        "wilson95": [
+          0.931,
+          1.0
+        ]
+      },
+      "mrr_at_10": 0.9189
+    },
+    "unanswerable": {
+      "search_abstention": {
+        "numerator": 20,
+        "denominator": 20,
+        "rate": 1.0,
+        "wilson95": [
+          0.839,
+          1.0
+        ]
+      },
+      "scope_leakage_total": 0
+    },
+    "by_category": {
+      "identifiant": {
+        "success_at_10": {
+          "numerator": 40,
+          "denominator": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.912,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 40,
+          "denominator": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.912,
+            1.0
+          ]
+        }
+      },
+      "valeur": {
+        "success_at_10": {
+          "numerator": 12,
+          "denominator": 12,
+          "rate": 1.0,
+          "wilson95": [
+            0.758,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 12,
+          "denominator": 12,
+          "rate": 1.0,
+          "wilson95": [
+            0.758,
+            1.0
+          ]
+        }
+      }
+    },
+    "by_split": {
+      "development": {
+        "success_at_10": {
+          "numerator": 14,
+          "denominator": 14,
+          "rate": 1.0,
+          "wilson95": [
+            0.785,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 14,
+          "denominator": 14,
+          "rate": 1.0,
+          "wilson95": [
+            0.785,
+            1.0
+          ]
+        }
+      },
+      "holdout": {
+        "success_at_10": {
+          "numerator": 38,
+          "denominator": 38,
+          "rate": 1.0,
+          "wilson95": [
+            0.908,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 38,
+          "denominator": 38,
+          "rate": 1.0,
+          "wilson95": [
+            0.908,
+            1.0
+          ]
+        }
+      }
+    },
+    "by_overlap_band": {
+      "faible": {
+        "success_at_10": {
+          "numerator": 2,
+          "denominator": 2,
+          "rate": 1.0,
+          "wilson95": [
+            0.342,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 2,
+          "denominator": 2,
+          "rate": 1.0,
+          "wilson95": [
+            0.342,
+            1.0
+          ]
+        }
+      },
+      "partiel": {
+        "success_at_10": {
+          "numerator": 14,
+          "denominator": 14,
+          "rate": 1.0,
+          "wilson95": [
+            0.785,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 14,
+          "denominator": 14,
+          "rate": 1.0,
+          "wilson95": [
+            0.785,
+            1.0
+          ]
+        }
+      },
+      "complet": {
+        "success_at_10": {
+          "numerator": 36,
+          "denominator": 36,
+          "rate": 1.0,
+          "wilson95": [
+            0.904,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 36,
+          "denominator": 36,
+          "rate": 1.0,
+          "wilson95": [
+            0.904,
+            1.0
+          ]
+        }
+      }
+    },
+    "by_route": {
+      "structured": {
+        "success_at_10": {
+          "numerator": 52,
+          "denominator": 52,
+          "rate": 1.0,
+          "wilson95": [
+            0.931,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 52,
+          "denominator": 52,
+          "rate": 1.0,
+          "wilson95": [
+            0.931,
+            1.0
+          ]
+        }
+      }
+    },
+    "by_variant": {
+      "indices_reduits": {
+        "success_at_10": {
+          "numerator": 4,
+          "denominator": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.51,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 4,
+          "denominator": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.51,
+            1.0
+          ]
+        }
+      },
+      "portee_bibliotheque": {
+        "success_at_10": {
+          "numerator": 24,
+          "denominator": 24,
+          "rate": 1.0,
+          "wilson95": [
+            0.862,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 24,
+          "denominator": 24,
+          "rate": 1.0,
+          "wilson95": [
+            0.862,
+            1.0
+          ]
+        }
+      },
+      "reference": {
+        "success_at_10": {
+          "numerator": 24,
+          "denominator": 24,
+          "rate": 1.0,
+          "wilson95": [
+            0.862,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 24,
+          "denominator": 24,
+          "rate": 1.0,
+          "wilson95": [
+            0.862,
+            1.0
+          ]
+        }
+      }
+    },
+    "overlap_bands": {
+      "faible": [
+        0.0,
+        0.5
+      ],
+      "partiel": [
+        0.5,
+        1.0
+      ],
+      "complet": [
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "candidate": {
+    "answerable": {
+      "success_at_10": {
+        "numerator": 52,
+        "denominator": 52,
+        "rate": 1.0,
+        "wilson95": [
+          0.931,
+          1.0
+        ]
+      },
+      "in_final": {
+        "numerator": 51,
+        "denominator": 52,
+        "rate": 0.981,
+        "wilson95": [
+          0.899,
+          0.997
+        ]
+      },
+      "in_context": {
+        "numerator": 51,
+        "denominator": 52,
+        "rate": 0.981,
+        "wilson95": [
+          0.899,
+          0.997
+        ]
+      },
+      "mrr_at_10": 0.9367
+    },
+    "unanswerable": {
+      "search_abstention": {
+        "numerator": 20,
+        "denominator": 20,
+        "rate": 1.0,
+        "wilson95": [
+          0.839,
+          1.0
+        ]
+      },
+      "scope_leakage_total": 0
+    },
+    "by_category": {
+      "identifiant": {
+        "success_at_10": {
+          "numerator": 40,
+          "denominator": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.912,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 40,
+          "denominator": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.912,
+            1.0
+          ]
+        }
+      },
+      "valeur": {
+        "success_at_10": {
+          "numerator": 12,
+          "denominator": 12,
+          "rate": 1.0,
+          "wilson95": [
+            0.758,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 11,
+          "denominator": 12,
+          "rate": 0.917,
+          "wilson95": [
+            0.646,
+            0.985
+          ]
+        }
+      }
+    },
+    "by_split": {
+      "development": {
+        "success_at_10": {
+          "numerator": 14,
+          "denominator": 14,
+          "rate": 1.0,
+          "wilson95": [
+            0.785,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 14,
+          "denominator": 14,
+          "rate": 1.0,
+          "wilson95": [
+            0.785,
+            1.0
+          ]
+        }
+      },
+      "holdout": {
+        "success_at_10": {
+          "numerator": 38,
+          "denominator": 38,
+          "rate": 1.0,
+          "wilson95": [
+            0.908,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 37,
+          "denominator": 38,
+          "rate": 0.974,
+          "wilson95": [
+            0.865,
+            0.995
+          ]
+        }
+      }
+    },
+    "by_overlap_band": {
+      "faible": {
+        "success_at_10": {
+          "numerator": 2,
+          "denominator": 2,
+          "rate": 1.0,
+          "wilson95": [
+            0.342,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 2,
+          "denominator": 2,
+          "rate": 1.0,
+          "wilson95": [
+            0.342,
+            1.0
+          ]
+        }
+      },
+      "partiel": {
+        "success_at_10": {
+          "numerator": 14,
+          "denominator": 14,
+          "rate": 1.0,
+          "wilson95": [
+            0.785,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 14,
+          "denominator": 14,
+          "rate": 1.0,
+          "wilson95": [
+            0.785,
+            1.0
+          ]
+        }
+      },
+      "complet": {
+        "success_at_10": {
+          "numerator": 36,
+          "denominator": 36,
+          "rate": 1.0,
+          "wilson95": [
+            0.904,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 35,
+          "denominator": 36,
+          "rate": 0.972,
+          "wilson95": [
+            0.858,
+            0.995
+          ]
+        }
+      }
+    },
+    "by_route": {
+      "structured": {
+        "success_at_10": {
+          "numerator": 52,
+          "denominator": 52,
+          "rate": 1.0,
+          "wilson95": [
+            0.931,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 51,
+          "denominator": 52,
+          "rate": 0.981,
+          "wilson95": [
+            0.899,
+            0.997
+          ]
+        }
+      }
+    },
+    "by_variant": {
+      "indices_reduits": {
+        "success_at_10": {
+          "numerator": 4,
+          "denominator": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.51,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 4,
+          "denominator": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.51,
+            1.0
+          ]
+        }
+      },
+      "portee_bibliotheque": {
+        "success_at_10": {
+          "numerator": 24,
+          "denominator": 24,
+          "rate": 1.0,
+          "wilson95": [
+            0.862,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 24,
+          "denominator": 24,
+          "rate": 1.0,
+          "wilson95": [
+            0.862,
+            1.0
+          ]
+        }
+      },
+      "reference": {
+        "success_at_10": {
+          "numerator": 24,
+          "denominator": 24,
+          "rate": 1.0,
+          "wilson95": [
+            0.862,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 23,
+          "denominator": 24,
+          "rate": 0.958,
+          "wilson95": [
+            0.798,
+            0.993
+          ]
+        }
+      }
+    },
+    "overlap_bands": {
+      "faible": [
+        0.0,
+        0.5
+      ],
+      "partiel": [
+        0.5,
+        1.0
+      ],
+      "complet": [
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "paired": {
+    "success_at_10": {
+      "gained": 0,
+      "lost": 0,
+      "mcnemar_exact_p": 1.0
+    },
+    "in_context": {
+      "gained": 0,
+      "lost": 1,
+      "mcnemar_exact_p": 1.0
+    }
+  },
+  "in_context_by_split": {
+    "development:reference": "14/14",
+    "development:sans_mots_outils": "14/14",
+    "holdout:reference": "38/38",
+    "holdout:sans_mots_outils": "37/38"
+  },
+  "changed_rows": [
+    {
+      "id": "q001",
+      "variant": "reference",
+      "before": [
+        true,
+        true,
+        0.1667
+      ],
+      "after": [
+        true,
+        false,
+        0.125
+      ]
+    }
+  ]
+}
