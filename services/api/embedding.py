@@ -164,7 +164,7 @@ class EmbeddingService:
                 import psutil
                 available_mib = psutil.virtual_memory().available / (1024 * 1024)
                 reserve_mib = self.settings.value("resources", "host_available_min_mib", 1536)
-                load_estimate_mib = self.settings.value("embedding", "initial_load_peak_estimate_mib", 768)
+                load_estimate_mib = self.settings.value("resources", "embedding_load_peak_estimate_mib", 768)
                 if available_mib < reserve_mib + load_estimate_mib:
                     raise ApiError("embedding_admission_denied", "Réserve hôte insuffisante avant chargement E5 CPU.", 503,
                                    {"available_mib": round(available_mib, 2), "reserve_mib": reserve_mib, "load_estimate_mib": load_estimate_mib})

@@ -98,3 +98,94 @@ def test_api_staging_rejects_removed_document_before_writing(storage):
         indexer.stage(imported["job_id"], extraction)
     assert caught.value.code == "source_removed"
     assert db.one("SELECT state FROM jobs WHERE id=?", (imported["job_id"],))["state"] == before
+
+
+def new_job(db, imported):
+    job_id = uid()
+    db.execute("INSERT INTO jobs(id,document_id,version_id,state,stage,created_at,updated_at) VALUES(?,?,?,'queued','queued',?,?)", (job_id, imported["document_id"], imported["version_id"], now(), now()))
+    return job_id
+
+
+def cache_partial_extraction(context, monkeypatch):
+    """Indexe une extraction ready_partial (page 2 en échec Docling) avec l'embedding courant, puis l'expose au cache vérifié."""
+    from services.api.indexing import extraction_content_hash
+    imported, extraction = import_fixture(context)
+    settings, db, _, indexer = context
+    block = {**extraction["pages"][0]["blocks"][0], "text": "CCU-21 : 72 V (page 1 seule).", "raw_text": "CCU-21 : 72 V (page 1 seule)."}
+    partial = {**extraction, "status": "ready_partial", "page_count": 2, "coverage": {"total": 2, "processed": 1, "ocr": 1},
+               "warnings": [{"code": "DOCLING_CONVERSION_FAILED", "page_index": 1, "route": "structured"}],
+               "pages": [{**extraction["pages"][0], "blocks": [block]}]}
+    asyncio.run(indexer.index(new_job(db, imported), partial))
+    revision = db.one("SELECT * FROM extraction_revisions WHERE source_hash=?", (extraction_content_hash(partial),))
+    cached = {**partial, "pipeline_fingerprint": "fixture-native-v1", "extraction_revision_id": revision["id"]}
+    path = settings.data_dir / "extractions" / imported["version_id"] / "partial-run" / "extraction.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(cached, ensure_ascii=False), encoding="utf-8")
+    db.execute("UPDATE extraction_revisions SET path=? WHERE id=?", (str(path), revision["id"]))
+    monkeypatch.setattr("services.ingestion.extraction_fingerprint", lambda config: "fixture-native-v1")
+    return imported, extraction, partial, revision, cached, path
+
+
+def test_api_embedding_change_reuses_verified_partial_extraction(storage, monkeypatch):
+    from test_api_storage import FakeEmbedding
+
+    imported, extraction, partial, revision, cached, path = cache_partial_extraction(storage, monkeypatch)
+    settings, db, _, indexer = storage
+    active = db.one("SELECT active_generation_id FROM documents WHERE id=?", (imported["document_id"],))["active_generation_id"]
+    async def forbidden(*args, **kwargs):
+        raise AssertionError("Changer l'embedding ne doit pas relancer l'extraction/OCR")
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", forbidden)
+    class OtherEmbedding(FakeEmbedding):
+        calls = 0
+        def identity(self):
+            return {"fingerprint": "controlled-embedding-b"}
+        def embed(self, texts, passage=True):
+            self.calls += 1
+            return super().embed(texts, passage)
+    indexer.embedding = OtherEmbedding()
+    job_id = new_job(db, imported)
+    supervisor = JobSupervisor(db, indexer, settings)
+    asyncio.run(supervisor.run(db.one("SELECT * FROM jobs WHERE id=?", (job_id,))))
+    observed = supervisor.diagnostics()
+    assert observed["extraction_reuses"] == observed["cache_hits"] == 1 and observed["native_worker_launches"] == 0
+    assert observed["last_extraction"]["extraction_revision_id"] == revision["id"] and indexer.embedding.calls == 1
+    job = db.one("SELECT state,generation_id FROM jobs WHERE id=?", (job_id,))
+    generation = db.one("SELECT * FROM index_generations WHERE id=?", (job["generation_id"],))
+    assert job["state"] == generation["state"] == "ready_partial" and generation["published_at"] is None
+    assert generation["extraction_revision_id"] == revision["id"]
+    assert json.loads(generation["warnings_json"]) == partial["warnings"] and json.loads(generation["coverage_json"]) == partial["coverage"]
+    assert db.one("SELECT active_generation_id FROM documents WHERE id=?", (imported["document_id"],))["active_generation_id"] == active
+    # L'identité dense est désormais celle de la dernière génération : un nouveau réindex retente l'extraction.
+    assert supervisor.cached_extraction(db.version(imported["version_id"])) is None
+    indexer.embedding = FakeEmbedding()
+    assert supervisor.cached_extraction(db.version(imported["version_id"]))[1] == path.resolve()
+    path.write_text(json.dumps({**cached, "status": "interrupted"}, ensure_ascii=False), encoding="utf-8")
+    assert supervisor.cached_extraction(db.version(imported["version_id"])) is None
+
+
+def test_api_same_embedding_reindex_retries_partial_extraction(storage, monkeypatch):
+    from pathlib import Path
+
+    imported, extraction, partial, revision, cached, path = cache_partial_extraction(storage, monkeypatch)
+    settings, db, _, indexer = storage
+    launches = []
+    class FinishedWorker:
+        # Double explicite du worker natif : aucun processus n'est lancé, le résultat simule une reprise réussie.
+        returncode, pid = 0, 4242
+        async def wait(self):
+            return 0
+    async def fake_worker(*args, **kwargs):
+        launches.append(args)
+        Path(args[args.index("--result") + 1]).write_text(json.dumps({"ok": True, "result": {**extraction, "pipeline_fingerprint": "fixture-native-v1"}}), encoding="utf-8")
+        return FinishedWorker()
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", fake_worker)
+    job_id = new_job(db, imported)
+    supervisor = JobSupervisor(db, indexer, settings)
+    asyncio.run(supervisor.run(db.one("SELECT * FROM jobs WHERE id=?", (job_id,))))
+    observed = supervisor.diagnostics()
+    assert observed["cache_hits"] == observed["extraction_reuses"] == 0 and observed["cache_misses"] == 1
+    assert observed["native_worker_launches"] == 1 and len(launches) == 1 and "services.ingestion.worker" in launches[0]
+    job = db.one("SELECT state,generation_id FROM jobs WHERE id=?", (job_id,))
+    generation = db.one("SELECT * FROM index_generations WHERE id=?", (job["generation_id"],))
+    assert job["state"] == generation["state"] == "ready" and generation["extraction_revision_id"] != revision["id"]
+    assert db.one("SELECT active_generation_id FROM documents WHERE id=?", (imported["document_id"],))["active_generation_id"] == job["generation_id"]

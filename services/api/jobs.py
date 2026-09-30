@@ -29,7 +29,7 @@ class JobSupervisor:
     def diagnostics(self):
         with self._telemetry_lock:
             return {**self._telemetry, "scope": "current_process",
-                    "reuse_definition": "Verified ready extraction revision used without launching a worker",
+                    "reuse_definition": "Verified ready extraction revision, or ready_partial one when the index identity changed, used without launching a worker; partial state and warnings are kept",
                     "worker_definition": "Successful create_subprocess_exec of the native ingestion worker; OCR work is reported by extraction provenance"}
 
     def record_extraction(self, job, method, result=None):
@@ -170,7 +170,8 @@ class JobSupervisor:
             try:
                 extraction = json.loads(path.read_text(encoding="utf-8"))
                 if (extraction.get("sha256") == version["sha256"] and extraction.get("pipeline_fingerprint") == fingerprint
-                        and extraction.get("status") == "ready" and extraction.get("extraction_revision_id") == revision["id"]
+                        and (extraction.get("status") == "ready" or (extraction.get("status") == "ready_partial" and self.dense_identity_changed(revision["id"], fingerprint)))
+                        and extraction.get("extraction_revision_id") == revision["id"]
                         and extraction_content_hash(extraction) == revision["source_hash"]):
                     with self._telemetry_lock:
                         self._telemetry["cache_hits"] += 1
@@ -180,6 +181,14 @@ class JobSupervisor:
         with self._telemetry_lock:
             self._telemetry["cache_misses"] += 1
         return None
+
+    def dense_identity_changed(self, revision_id, extraction_fingerprint):
+        # Une extraction partielle n'est reprise que si l'identité d'index (embedding, découpage) diffère de la
+        # dernière génération de cette révision ; à identité égale, le réindex relance le worker pour retenter
+        # les pages en échec (erreurs page-locales éventuellement transitoires).
+        latest = self.db.one("SELECT fingerprint FROM index_generations WHERE extraction_revision_id=? ORDER BY created_at DESC, rowid DESC LIMIT 1", (revision_id,))
+        current = self.indexer.generation_fingerprint(extraction_fingerprint) if hasattr(self.indexer, "generation_fingerprint") else None
+        return bool(latest and current) and latest["fingerprint"] != current
 
     @staticmethod
     def terminate_worker_children(pid):

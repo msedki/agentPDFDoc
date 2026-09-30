@@ -468,3 +468,244 @@ def test_api_readiness_is_blocked_without_artifacts_and_never_loads_models(tmp_p
         assert {"embedding_not_ready", "llm_tokenizer_not_ready"} <= set(response.json()["blockers"])
         assert embedding._session is None and embedding._tokenizer is None and runtime.calls == 0
         assert not settings.embedding_dir.exists() and not settings.llm_tokenizer_dir.exists()
+
+
+def test_api_default_port_is_project_port(tmp_path):
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime"}})
+    assert settings.origin == "http://127.0.0.1:8785"
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+        assert client.get("/api/v1/health").status_code == 200
+        assert client.get("/api/v1/health", headers={"Host": "127.0.0.1:8765"}).status_code == 400
+
+
+def test_api_controls_do_not_wait_for_long_mutation_but_quiesce_does(tmp_path, monkeypatch):
+    import threading
+
+    from starlette.datastructures import UploadFile
+    monkeypatch.setenv("RAG_CONTROL_TOKEN", "test-only-nonce")
+    entered, release = threading.Event(), threading.Event()
+    original_read = UploadFile.read
+    async def slow_upload_read(self, size=-1):
+        # Simule un upload de 200 Mio encore en cours : la mutation reste admise sans bloquer la boucle.
+        if not entered.is_set():
+            entered.set()
+            await asyncio.to_thread(release.wait, 10)
+        return await original_read(self, size)
+    monkeypatch.setattr(UploadFile, "read", slow_upload_read)
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+        query = client.post("/api/v1/queries", json={"question": "Quelle tension ?", "scope": {"kind": "library"}}).json()
+        assert "event: done" in client.get(query["events_url"]).text
+        results = {}
+        def call(name, url, **kwargs):
+            results[name] = client.post(url, **kwargs)
+        upload = threading.Thread(target=call, args=("import", "/api/v1/documents/import"), kwargs={"files": {"files": ("slow.pdf", b"%PDF-1.7\nslow upload", "application/pdf")}})
+        upload.start()
+        try:
+            assert entered.wait(5)
+            for name, url, body in [("cancel", f"/api/v1/queries/{query['query_id']}/cancel", None), ("mode", "/api/v1/runtime/mode", {"mode": "interactive"}),
+                                    ("search", "/api/v1/search", {"question": "Quelle tension ?", "scope": {"kind": "library"}})]:
+                worker = threading.Thread(target=call, args=(name, url), kwargs={"json": body} if body else {})
+                worker.start()
+                worker.join(5)
+                assert not worker.is_alive() and results[name].status_code == 200, name
+            assert "import" not in results and app.state.mutations_in_flight == 1
+            quiesce = threading.Thread(target=call, args=("quiesce", "/api/v1/admin/quiesce"), kwargs={"headers": {"X-RAG-Control-Token": "test-only-nonce"}})
+            quiesce.start()
+            quiesce.join(0.5)
+            assert quiesce.is_alive() and "import" not in results
+        finally:
+            release.set()
+            upload.join(10)
+        quiesce.join(10)
+        assert results["import"].status_code == 202 and results["quiesce"].json()["state"] == "quiesced"
+        assert app.state.mutations_in_flight == 0
+        assert client.post("/api/v1/documents/import", files={"files": ("late.pdf", b"%PDF-1.7\nlate", "application/pdf")}).status_code == 503
+
+
+def test_api_resume_waits_for_running_quiesce_and_leaves_consistent_state(tmp_path, monkeypatch):
+    import threading
+
+    monkeypatch.setenv("RAG_CONTROL_TOKEN", "test-only-nonce")
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+    jobs, entered, release = app.state.jobs, threading.Event(), threading.Event()
+    original_quiesce = jobs.quiesce
+    async def slow_quiesce():
+        # Simule un checkpoint d'ingestion long : `rag backup` peut abandonner sur timeout et appeler resume.
+        entered.set()
+        await asyncio.to_thread(release.wait, 10)
+        return await original_quiesce()
+    jobs.quiesce = slow_quiesce
+    header, results = {"X-RAG-Control-Token": "test-only-nonce"}, {}
+    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+        def call(name, url):
+            results[name] = client.post(url, headers=header)
+        quiesce = threading.Thread(target=call, args=("quiesce", "/api/v1/admin/quiesce"))
+        quiesce.start()
+        try:
+            assert entered.wait(5)
+            resume = threading.Thread(target=call, args=("resume", "/api/v1/admin/resume"))
+            resume.start()
+            resume.join(0.5)
+            assert resume.is_alive() and "resume" not in results
+        finally:
+            release.set()
+            quiesce.join(10)
+        resume.join(10)
+        assert results["quiesce"].json()["state"] == "quiesced" and results["resume"].json()["state"] == "running"
+        assert app.state.mutations_paused is False and jobs._suspended is False and app.state.reconciler.suspended is False
+        assert client.get("/api/v1/admin/status", headers=header).json()["mutations_paused"] is False
+
+
+def test_api_move_changes_tree_without_job_version_or_embedding(tmp_path):
+    class CountingEmbedding(FakeEmbedding):
+        calls = 0
+        def embed(self, texts, passage=True):
+            self.calls += 1
+            return super().embed(texts, passage)
+    embedding, vectors = CountingEmbedding(), FakeVectors()
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    app = create_app(settings=settings, embedding=embedding, vectors=vectors, tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+        payload = b"%PDF-1.7\ncontrolled move fixture"
+        imported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", payload, "application/pdf")}, data={"relative_paths": '["archive/2025/manual.pdf"]'}).json()
+        extraction = {"fingerprint": "move-fixture", "sha256": hashlib.sha256(payload).hexdigest(), "page_count": 1, "status": "ready", "pages": [
+            {"page_index": 0, "width": 595, "height": 842, "blocks": [{"id": "b0", "raw_text": "CCU-21 tension 72 V"}]}]}
+        client.portal.call(app.state.indexer.index, imported["job_id"], extraction)
+        other = client.post("/api/v1/documents/import", files={"files": ("other.pdf", b"%PDF-1.7\nother", "application/pdf")}, data={"relative_paths": '["engineering/other.pdf"]'}).json()
+        document_url = "/api/v1/documents/" + imported["document_id"]
+        before = client.get(document_url).json()
+        jobs_before = app.state.db.rows("SELECT id,state,generation_id FROM jobs ORDER BY id")
+        points_before, calls_before, indexing_before = dict(vectors.points), embedding.calls, app.state.indexer.diagnostics()
+        moved = client.post(document_url + "/move", json={"relative_path": "engineering/current/manual.pdf"})
+        assert moved.status_code == 200, moved.text
+        assert moved.json()["moved"] is True and moved.json()["previous_relative_path"] == "archive/2025/manual.pdf"
+        after = client.get(document_url).json()
+        assert after["relative_path"] == "engineering/current/manual.pdf" and after["name"] == "manual.pdf"
+        assert after["version_id"] == before["version_id"] and after["active_generation_id"] == before["active_generation_id"]
+        assert after["versions"] == before["versions"] and after["extraction_revision_id"] == before["extraction_revision_id"]
+        assert app.state.db.rows("SELECT id,state,generation_id FROM jobs ORDER BY id") == jobs_before
+        assert vectors.points == points_before and embedding.calls == calls_before and app.state.indexer.diagnostics() == indexing_before
+        assert app.state.db.one("SELECT count(*) AS n FROM index_generations")["n"] == 1
+        folders = {folder["path"]: folder["id"] for folder in client.get("/api/v1/library/tree").json()["folders"]}
+        def folder_scope(path):
+            response = client.post("/api/v1/search", json={"question": "Quelle tension CCU-21 ?", "scope": {"kind": "folder", "folderId": folders[path], "recursive": True}})
+            assert response.status_code == 200, response.text
+            return response.json()
+        engineering = folder_scope("engineering")
+        assert engineering["scope_snapshot"]["generations"] == [before["active_generation_id"]]
+        assert engineering["results"][0]["relative_path"] == "engineering/current/manual.pdf"
+        archive = folder_scope("archive")
+        assert archive["scope_snapshot"]["generations"] == [] and archive["results"] == []
+        for unsafe in ["../escape.pdf", "C:/escape.pdf", "%2e%2e/escape.pdf", "/abs.pdf", "engineering/escape.txt", "a\\..\\b.pdf"]:
+            rejected = client.post(document_url + "/move", json={"relative_path": unsafe})
+            assert rejected.status_code == 400 and rejected.json()["code"] == "invalid_path", unsafe
+        conflict = client.post(document_url + "/move", json={"relative_path": "engineering/other.pdf"})
+        assert conflict.status_code == 409 and conflict.json()["code"] == "path_conflict"
+        assert client.post("/api/v1/documents/unknown/move", json={"relative_path": "x.pdf"}).status_code == 404
+        assert client.post(document_url + "/move", json={"relative_path": "x.pdf", "folder": "y"}).status_code == 422
+        assert client.post(document_url + "/move", json={"relative_path": "engineering/current/manual.pdf"}).json()["moved"] is False
+        client.delete("/api/v1/documents/" + other["document_id"])
+        assert client.post(document_url + "/move", json={"relative_path": "engineering/other.pdf"}).status_code == 409
+        assert client.get(document_url).json()["relative_path"] == "engineering/current/manual.pdf"
+
+
+def test_api_historical_revision_and_document_scope_warnings(tmp_path):
+    from services.api.reconcile import Reconciler
+    runtime = FakeOllama()
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=runtime, governor=FakeGovernor(), start_jobs=False)
+    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+        versions = []
+        for text in ["CCU-21 tension 72 V", "CCU-21 tension 110 V"]:
+            payload = b"%PDF-1.7\n" + text.encode()
+            imported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", payload, "application/pdf")}).json()
+            extraction = {"fingerprint": "history-fixture", "sha256": hashlib.sha256(payload).hexdigest(), "page_count": 1, "status": "ready",
+                          "pages": [{"page_index": 0, "width": 595, "height": 842, "blocks": [{"id": "b0", "raw_text": text, "section_id": "s0"}]}],
+                          "sections": [{"id": "s0", "title": "Tension", "page_index": 0, "block_ids": ["b0"]}]}
+            client.portal.call(app.state.indexer.index, imported["job_id"], extraction)
+            versions.append(imported)
+        old, current = versions
+        assert old["document_id"] == current["document_id"] and old["version_id"] != current["version_id"]
+        old_generation = app.state.db.one("SELECT id FROM index_generations WHERE version_id=?", (old["version_id"],))["id"]
+        def warned(scope):
+            response = client.post("/api/v1/search", json={"question": "Quelle tension ?", "scope": scope})
+            assert response.status_code == 200, response.text
+            return response.json(), [warning for warning in response.json()["warnings"] if warning["code"] == "dense_unavailable_for_historical_revision"]
+        pages = {"kind": "pages", "versionId": old["version_id"], "pageStart": 0, "pageEnd": 0}
+        assert warned(pages)[1] == []
+        async def delete_generation(generation_id):
+            app.state.vectors.points = {key: point for key, point in app.state.vectors.points.items() if point["payload"]["generation_id"] != generation_id}
+        app.state.vectors.delete_generation = delete_generation
+        assert client.portal.call(Reconciler(app.state.db, app.state.vectors).run_once)["completed"] == [old_generation]
+        for scope in [pages, {"kind": "section", "versionId": old["version_id"], "sectionId": "s0"}]:
+            result, warnings = warned(scope)
+            assert len(warnings) == 1 and warnings[0]["generation_id"] == old_generation and warnings[0]["version_id"] == old["version_id"], scope["kind"]
+            assert result["results"][0]["generation_id"] == old_generation and "72 V" in result["results"][0]["text"]
+        assert warned({**pages, "versionId": current["version_id"]})[1] == []
+        query = client.post("/api/v1/queries", json={"question": "Quelle tension ?", "scope": pages}).json()
+        events = client.get(query["events_url"]).text
+        assert "event: warning" in events and "dense_unavailable_for_historical_revision" in events and "event: done" in events
+        documents = {"kind": "documents", "documentIds": [current["document_id"], "unknown-document"]}
+        compared = client.post("/api/v1/search", json={"question": "Quelle tension ?", "scope": documents, "mode": "comparison"})
+        assert compared.status_code == 200, compared.text
+        codes = [warning["code"] for warning in compared.json()["warnings"]]
+        assert "document_not_in_scope" in codes and "comparison_incomplete" in codes
+        empty = client.post("/api/v1/queries", json={"question": "Quelle tension ?", "scope": {"kind": "documents", "documentIds": ["unknown-document"]}})
+        assert empty.status_code == 409 and empty.json()["code"] == "no_document_in_scope"
+
+
+def test_api_short_selection_never_triggers_dense_or_global_lexical_search(tmp_path):
+    calls = []
+    class SpyEmbedding(FakeEmbedding):
+        armed = strict = False
+        def embed(self, texts, passage=True):
+            if self.armed:
+                calls.append("embedding.embed")
+                if self.strict:
+                    raise AssertionError("Une sélection courte ne doit pas calculer d'embedding")
+            return super().embed(texts, passage)
+    class SpyVectors(FakeVectors):
+        armed = strict = False
+        async def query(self, vector, snapshot, limit=24):
+            if self.armed:
+                calls.append("vectors.query")
+                if self.strict:
+                    raise AssertionError("Une sélection courte ne doit pas interroger Qdrant")
+            return await super().query(vector, snapshot, limit)
+    embedding, vectors, runtime = SpyEmbedding(), SpyVectors(), FakeOllama()
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    app = create_app(settings=settings, embedding=embedding, vectors=vectors, tokenizer=FakeTokenizer(), ollama=runtime, governor=FakeGovernor(), start_jobs=False)
+    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+        payload = b"%PDF-1.7\ncontrolled selection fixture"
+        imported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", payload, "application/pdf")}).json()
+        text = "CCU-21 tension 72 V ; CCU-22 tension 110 V"
+        extraction = {"fingerprint": "selection-fixture", "sha256": hashlib.sha256(payload).hexdigest(), "page_count": 1, "status": "ready",
+                      "pages": [{"page_index": 0, "width": 595, "height": 842, "blocks": [{"id": "b0", "raw_text": text, "bbox": [10, 10, 200, 30], "precision": "block"}]}]}
+        client.portal.call(app.state.indexer.index, imported["job_id"], extraction)
+        block = client.get(f"/api/v1/versions/{imported['version_id']}/pages/0/blocks").json()["blocks"][0]
+        lexical = app.state.search.lexical
+        def lexical_spy(question, snapshot):
+            calls.append("search.lexical")
+            if embedding.strict:
+                raise AssertionError("Une sélection courte ne doit pas lancer de recherche FTS5")
+            return lexical(question, snapshot)
+        app.state.search.lexical = lexical_spy
+        embedding.armed = vectors.armed = embedding.strict = vectors.strict = True
+        span = {"extractionRevisionId": block["extraction_revision_id"], "blockId": "b0", "blockTextSha256": block["source_text_hash"],
+                "offsetUnit": "unicode_code_point", "startOffset": 0, "endOffset": 19}
+        scope = {"kind": "selection", "versionId": imported["version_id"], "spans": [span]}
+        searched = client.post("/api/v1/search", json={"question": "Que dit ce passage sur CCU-21 ?", "scope": scope})
+        assert searched.status_code == 200, searched.text
+        assert [result["text"] for result in searched.json()["results"]] == ["CCU-21 tension 72 V"]
+        query = client.post("/api/v1/queries", json={"question": "Que dit ce passage ?", "scope": scope, "mode": "selection"}).json()
+        events = client.get(query["events_url"]).text
+        assert "event: done" in events and "event: error" not in events and runtime.calls == 1
+        assert "CCU-22" not in app.state.db.one("SELECT source_json FROM citations WHERE query_id=?", (query["query_id"],))["source_json"]
+        assert calls == []
+        embedding.strict = vectors.strict = False
+        control = client.post("/api/v1/search", json={"question": "Quelle tension ?", "scope": {"kind": "documents", "documentIds": [imported["document_id"]]}})
+        assert control.status_code == 200 and {"embedding.embed", "vectors.query", "search.lexical"} <= set(calls)

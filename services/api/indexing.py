@@ -67,6 +67,12 @@ class Indexer:
                     "hit_definition": "A cached vector with matching full model identity/text hash, dimension, finite values and L2 norm was used",
                     "embedding_request_definition": "A call to embedding.embed; actual session.run batches are reported separately"}
 
+    def generation_fingerprint(self, extraction_fingerprint):
+        identity = self.embedding.identity() if hasattr(self.embedding, "identity") else {"fingerprint": "explicit-test-embedding"}
+        return hashlib.sha256(json_dump({"extraction": extraction_fingerprint, "embedding": identity,
+            "llm_tokenizer": self.llm_tokenizer.identity() if hasattr(self.llm_tokenizer, "identity") else "explicit-test-tokenizer",
+            "chunking": self.settings.profile.get("chunking", {}), "chunker_revision": "codepoint-block-v1"}).encode()).hexdigest()
+
     def stage(self, job_id, extraction, extraction_path=None):
         job = self.db.one("SELECT * FROM jobs WHERE id=?", (job_id,))
         if not job:
@@ -78,10 +84,7 @@ class Indexer:
         extraction_fingerprint = extraction.get("pipeline_fingerprint", extraction.get("fingerprint", ""))
         if not extraction_fingerprint:
             raise ApiError("missing_fingerprint", "Empreinte de pipeline absente.")
-        identity = self.embedding.identity() if hasattr(self.embedding, "identity") else {"fingerprint": "explicit-test-embedding"}
-        fingerprint = hashlib.sha256(json_dump({"extraction": extraction_fingerprint, "embedding": identity,
-            "llm_tokenizer": self.llm_tokenizer.identity() if hasattr(self.llm_tokenizer, "identity") else "explicit-test-tokenizer",
-            "chunking": self.settings.profile.get("chunking", {}), "chunker_revision": "codepoint-block-v1"}).encode()).hexdigest()
+        fingerprint = self.generation_fingerprint(extraction_fingerprint)
         extraction_hash = extraction_content_hash(extraction)
         extraction_revision_id = extraction.get("extraction_revision_id") or str(uuid5(UUID(version["id"]), extraction_fingerprint + ":" + extraction_hash))
         page_count = extraction.get("page_count", len(extraction.get("pages", [])))

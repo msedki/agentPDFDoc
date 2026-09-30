@@ -1,11 +1,13 @@
 """Real SQLite/FTS5 invariants with explicitly fake embedding/vector boundaries."""
 import asyncio
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, closing
 import hashlib
+import re
+import sqlite3
 
 import pytest
 
-from services.api.db import Database, relative_pdf_path
+from services.api.db import MIGRATIONS, Database, now, relative_pdf_path
 from services.api.errors import ApiError
 from services.api.indexing import Indexer
 from services.api.scope import ScopeResolver
@@ -230,3 +232,95 @@ def test_api_gc_waits_for_active_indexing_writer(storage):
     assert asyncio.run(reconciler.run_once())["pinned"] == [generation] and not calls
     db.execute("UPDATE jobs SET state='cancelled' WHERE id=?", (imported["job_id"],))
     assert asyncio.run(reconciler.run_once())["completed"] == [generation] and calls == [generation]
+
+
+@pytest.mark.parametrize("state", ["paused", "pausing", "cancelling"])
+def test_api_reimport_during_suspended_job_returns_existing_job(storage, state):
+    settings, db, _, _ = storage
+    payload = b"%PDF-1.7\ncontrolled suspended fixture"
+    digest = hashlib.sha256(payload).hexdigest()
+    blob = settings.data_dir / "originals" / (digest + ".pdf")
+    blob.parent.mkdir(parents=True, exist_ok=True)
+    blob.write_bytes(payload)
+    first = db.import_original("folder/suspended.pdf", digest, blob)
+    db.execute("UPDATE jobs SET state=?,pause_requested=1 WHERE id=?", (state, first["job_id"]))
+    again = db.import_original("folder/suspended.pdf", digest, blob)
+    assert again == {**first, "reused": True, "job_state": state, "resume_required": True}
+    assert db.one("SELECT count(*) AS n FROM jobs WHERE version_id=?", (first["version_id"],))["n"] == 1
+    assert db.one("SELECT count(*) AS n FROM document_versions")["n"] == 1
+    db.execute("UPDATE jobs SET state='cancelled' WHERE id=?", (first["job_id"],))
+    retried = db.import_original("folder/suspended.pdf", digest, blob)
+    assert retried["reused"] is False and retried["version_id"] == first["version_id"] and retried["job_id"] != first["job_id"]
+
+
+def legacy_v2_database(path, patched=False):
+    """Base v2 réelle : sans les deux colonnes, ou déjà patchée à chaud par l'ancien initialize()."""
+    script = (MIGRATIONS / "001_initial.sql").read_text(encoding="utf-8")
+    if not patched:
+        script = re.sub(r" (?:pause_requested|resolution_json) [^\n]*\n", "", script)
+        assert "pause_requested" not in script and "resolution_json" not in script
+    with closing(sqlite3.connect(path)) as connection:
+        connection.executescript(script + (MIGRATIONS / "002_cache_and_gc.sql").read_text(encoding="utf-8"))
+        connection.execute("INSERT INTO query_runs(id,question,scope_json,snapshot_json,state,created_at,updated_at) VALUES('legacy','fixture','{}','{}','done','t','t')")
+        connection.execute("INSERT INTO documents(id,name,relative_path,created_at,updated_at) VALUES('d','a.pdf','a.pdf','t','t')")
+        connection.execute("INSERT INTO document_versions(id,document_id,sha256,blob_path,created_at) VALUES('v','d','0','a','t')")
+        connection.execute("INSERT INTO jobs(id,document_id,version_id,state,stage,created_at,updated_at) VALUES('j','d','v','ready','complete','t','t')")
+        connection.commit()
+        assert [row[0] for row in connection.execute("SELECT version FROM schema_version ORDER BY version")] == [1, 2]
+
+
+@pytest.mark.parametrize("patched", [False, True])
+def test_api_migration_003_upgrades_existing_v2_idempotently(tmp_path, patched):
+    path = tmp_path / "legacy.sqlite"
+    legacy_v2_database(path, patched)
+    db = Database(path)
+    db.initialize()
+    db.initialize()
+    assert [row["version"] for row in db.rows("SELECT version FROM schema_version ORDER BY version")] == [1, 2, 3]
+    assert db.one("SELECT resolution_json FROM query_runs WHERE id='legacy'")["resolution_json"] == "{}"
+    assert db.one("SELECT pause_requested FROM jobs WHERE id='j'")["pause_requested"] == 0
+    assert [row["name"] for row in db.rows("PRAGMA table_info(jobs)")].count("pause_requested") == 1
+
+
+def test_api_migration_fresh_database_reaches_v3(tmp_path):
+    db = Database(tmp_path / "fresh.sqlite")
+    db.initialize()
+    assert [row["version"] for row in db.rows("SELECT version FROM schema_version ORDER BY version")] == [1, 2, 3]
+    assert {"resolution_json"} <= {row["name"] for row in db.rows("PRAGMA table_info(query_runs)")}
+    assert {"chunks_ai", "chunks_ad", "chunks_au"} == {row["name"] for row in db.rows("SELECT name FROM sqlite_master WHERE type='trigger'")}
+
+
+def test_api_refuses_database_newer_than_code_without_touching_it(tmp_path):
+    from services.api.db import uid
+    db = Database(tmp_path / "newer.sqlite")
+    db.initialize()
+    query_id = uid()
+    db.execute("INSERT INTO query_runs(id,question,scope_json,snapshot_json,state,created_at,updated_at) VALUES(?,?,?,?,'running',?,?)", (query_id, "fixture", "{}", "{}", now(), now()))
+    db.execute("INSERT INTO schema_version VALUES(4)")
+    with pytest.raises(ApiError) as caught:
+        db.initialize()
+    assert caught.value.code == "database_schema_too_new" and caught.value.details == {"database_version": 4, "supported_version": 3}
+    assert db.one("SELECT state FROM query_runs WHERE id=?", (query_id,))["state"] == "running"
+
+
+def test_api_documents_scope_reports_ignored_documents(storage):
+    indexed, _ = import_fixture(storage)
+    removed, _ = import_fixture(storage, path="folder/removed.pdf", text="CCU-22 : tension nominale 110 V.")
+    _, db, _, _ = storage
+    pending = db.import_original("folder/pending.pdf", "0" * 64, "pending.pdf")
+    db.execute("UPDATE documents SET deleted_at=? WHERE id=?", (now(), removed["document_id"]))
+    resolver = ScopeResolver(db)
+    requested = [indexed["document_id"], pending["document_id"], removed["document_id"], "unknown-document"]
+    snapshot = resolver.resolve(Scope(kind="documents", documentIds=requested), "comparison")
+    assert set(snapshot.documents.values()) == {indexed["document_id"]}
+    ignored = {warning["document_id"]: warning["reason"] for warning in snapshot.warnings if warning["code"] == "document_not_in_scope"}
+    assert ignored == {pending["document_id"]: "not_indexed", removed["document_id"]: "deleted", "unknown-document": "unknown"}
+    reduced = [warning for warning in snapshot.warnings if warning["code"] == "comparison_incomplete"]
+    assert reduced and reduced[0]["requested_documents"] == 4 and reduced[0]["compared_documents"] == 1
+    assert "warnings" not in snapshot.as_dict()
+    assert not [warning for warning in resolver.resolve(Scope(kind="documents", documentIds=requested)).warnings if warning["code"] == "comparison_incomplete"]
+    assert resolver.resolve(Scope(kind="documents", documentIds=[indexed["document_id"]])).warnings == []
+    with pytest.raises(ApiError) as caught:
+        resolver.resolve(Scope(kind="documents", documentIds=[pending["document_id"], removed["document_id"], "unknown-document"]))
+    assert caught.value.code == "no_document_in_scope" and caught.value.status == 409
+    assert {item["reason"] for item in caught.value.details["documents"]} == {"not_indexed", "deleted", "unknown"}

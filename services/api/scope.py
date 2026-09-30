@@ -14,9 +14,11 @@ class ScopeSnapshot:
     page_indices: list[int] | None = None
     block_ids: list[str] | None = None
     spans: list[dict] = field(default_factory=list)
+    warnings: list[dict] = field(default_factory=list)
 
     def as_dict(self):
-        return self.__dict__.copy()
+        # Les avertissements accompagnent la réponse ; le snapshot persisté reste le seul périmètre autoritaire.
+        return {key: value for key, value in self.__dict__.items() if key != "warnings"}
 
     def narrowed(self, document_id):
         generations = [g for g in self.generations if self.documents[g] == document_id]
@@ -56,10 +58,25 @@ class ScopeResolver:
     def __init__(self, db):
         self.db = db
 
-    def resolve(self, scope: Scope):
+    @staticmethod
+    def document_warnings(connection, requested, rows, mode):
+        """Un document demandé mais absent du snapshot est signalé ; aucun document restant est une erreur."""
+        available = {row["document_id"] for row in rows}
+        missing = [document_id for document_id in requested if document_id not in available]
+        known = {row["id"]: row["deleted_at"] for row in connection.execute(f"SELECT id,deleted_at FROM documents WHERE id IN ({','.join('?' for _ in missing)})", missing)} if missing else {}
+        details = [{"document_id": document_id, "reason": "unknown" if document_id not in known else "deleted" if known[document_id] else "not_indexed"} for document_id in missing]
+        if not available:
+            raise ApiError("no_document_in_scope", "Aucun document demandé n'est indexé et autorisé.", 409, {"documents": details})
+        warnings = [{"code": "document_not_in_scope", **detail, "message": "Document demandé ignoré : inconnu, retiré ou non indexé."} for detail in details]
+        if mode == "comparison" and len(available) < len(requested):
+            warnings.append({"code": "comparison_incomplete", "requested_documents": len(requested), "compared_documents": len(available),
+                             "message": "Comparaison limitée aux documents disponibles dans le périmètre."})
+        return warnings
+
+    def resolve(self, scope: Scope, mode=None):
         with self.db.connect() as connection:
             connection.execute("BEGIN")
-            query = "SELECT g.id,g.version_id,v.document_id FROM index_generations g JOIN document_versions v ON v.id=g.version_id JOIN documents d ON d.id=v.document_id WHERE d.deleted_at IS NULL AND g.state IN ('ready','ready_partial') AND g.published_at IS NOT NULL"
+            query = "SELECT g.id,g.version_id,v.document_id,g.extraction_revision_id,d.active_generation_id FROM index_generations g JOIN document_versions v ON v.id=g.version_id JOIN documents d ON d.id=v.document_id WHERE d.deleted_at IS NULL AND g.state IN ('ready','ready_partial') AND g.published_at IS NOT NULL"
             parameters = []
             pages = blocks = None
             spans = []
@@ -94,6 +111,13 @@ class ScopeResolver:
             rows = connection.execute(query, parameters).fetchall()
             if scope.kind == "selection" and not rows:
                 raise ApiError("extraction_revision_not_found", "Révision absente ou non publiée pour cette version.", 404)
+            warnings = self.document_warnings(connection, document_ids, rows, mode) if scope.kind == "documents" else []
+            # Une génération remplacée reste citable mais ses vecteurs sont retirés : la branche dense ne peut rien rendre.
+            if scope.kind in {"pages", "section"} and rows and rows[0]["id"] != rows[0]["active_generation_id"] \
+                    and connection.execute("SELECT 1 FROM vector_cleanup WHERE generation_id=? AND state='complete'", (rows[0]["id"],)).fetchone():
+                warnings.append({"code": "dense_unavailable_for_historical_revision", "generation_id": rows[0]["id"], "version_id": rows[0]["version_id"],
+                                 "extraction_revision_id": rows[0]["extraction_revision_id"],
+                                 "message": "Révision historique : vecteurs retirés, recherche lexicale seule sur ce périmètre."})
             generations = [row["id"] for row in rows]
             if scope.kind == "section" and generations:
                 section = connection.execute("SELECT 1 FROM sections WHERE generation_id=? AND id=?", (generations[0], scope.sectionId)).fetchone()
@@ -110,7 +134,7 @@ class ScopeResolver:
                     spans.append(span.model_dump())
             return ScopeSnapshot(scope.model_dump(exclude_none=True), generations,
                                  {row["id"]: row["version_id"] for row in rows},
-                                 {row["id"]: row["document_id"] for row in rows}, pages, blocks, spans)
+                                 {row["id"]: row["document_id"] for row in rows}, pages, blocks, spans, warnings)
 
     def source_for_chunk(self, chunk, snapshot):
         generation_id = chunk["generation_id"]

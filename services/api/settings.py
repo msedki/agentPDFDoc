@@ -49,7 +49,7 @@ class Settings:
 
     @property
     def origin(self):
-        return f"http://127.0.0.1:{self.value('app', 'port', 8765)}"
+        return f"http://127.0.0.1:{self.value('app', 'port', 8785)}"
 
     @property
     def embedding_dir(self):

@@ -24,7 +24,7 @@ from .ollama import OllamaGateway
 from .query import QueryService
 from .reconcile import Reconciler
 from .retrieval import QdrantStore, SearchService
-from .schemas import EvaluationContextRequest, QueryRequest, RuntimeMode
+from .schemas import DocumentMove, EvaluationContextRequest, QueryRequest, RuntimeMode
 from .scope import ScopeResolver
 from .settings import Settings
 
@@ -100,8 +100,13 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     application.state.search = search
     application.state.reconciler = reconciler
     application.state.mutations_paused = False
-    mutation_lock = asyncio.Lock()
-    port = settings.value("app", "port", 8765)
+    # Pas de verrou global : les écritures sont bornées par leurs transactions SQLite. Seule la mise en
+    # pause pour sauvegarde attend la fin des mutations déjà admises ; recherche et contrôles n'attendent rien.
+    application.state.mutations_in_flight = 0
+    # Quiesce et resume restent sérialisés : un resume reçu pendant un quiesce long (timeout de `rag backup`)
+    # ne doit pas être suivi d'une re-suspension des jobs et du nettoyage vectoriel.
+    control_lock = asyncio.Lock()
+    port = settings.value("app", "port", 8785)
     allowed_hosts = {f"127.0.0.1:{port}", f"localhost:{port}", f"[::1]:{port}"}
     allowed_origins = {f"http://{host}" for host in allowed_hosts}
     maximum_upload = settings.value("pdf", "max_file_mib", 200) * 1024 * 1024
@@ -121,10 +126,15 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
             length = request.headers.get("content-length")
             if length and (not length.isdigit() or int(length) > maximum_upload + 1024 * 1024):
                 return JSONResponse({"code": "request_too_large", "message": "Requête trop volumineuse.", "details": {}, "request_id": request_id}, status_code=413)
-            async with mutation_lock:
-                if application.state.mutations_paused and not request.url.path.startswith("/api/v1/admin/"):
-                    return JSONResponse({"code": "mutations_paused", "message": "Sauvegarde en cours ; mutations suspendues.", "details": {}, "request_id": request_id}, status_code=503)
+            administrative = request.url.path.startswith("/api/v1/admin/")
+            if application.state.mutations_paused and not administrative:
+                return JSONResponse({"code": "mutations_paused", "message": "Sauvegarde en cours ; mutations suspendues.", "details": {}, "request_id": request_id}, status_code=503)
+            counted = not administrative and request.url.path != "/api/v1/search"
+            application.state.mutations_in_flight += counted
+            try:
                 response = await call_next(request)
+            finally:
+                application.state.mutations_in_flight -= counted
         else:
             response = await call_next(request)
         response.headers["X-Request-ID"] = request_id
@@ -162,20 +172,24 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     @application.post(prefix + "/admin/quiesce")
     async def quiesce(request: Request):
         control_authorized(request)
-        application.state.mutations_paused = True
-        await queries.close()
-        job_state = await jobs.quiesce()
-        await reconciler.quiesce()
-        with db.connect() as connection:
-            checkpoint = list(connection.execute("PRAGMA wal_checkpoint(FULL)").fetchone())
+        async with control_lock:
+            application.state.mutations_paused = True
+            while application.state.mutations_in_flight:
+                await asyncio.sleep(0.05)
+            await queries.close()
+            job_state = await jobs.quiesce()
+            await reconciler.quiesce()
+            with db.connect() as connection:
+                checkpoint = list(connection.execute("PRAGMA wal_checkpoint(FULL)").fetchone())
         return {"state": "quiesced", "active_queries": len(queries.tasks), "jobs": job_state, "sqlite_checkpoint": checkpoint}
 
     @application.post(prefix + "/admin/resume")
     async def resume_mutations(request: Request):
         control_authorized(request)
-        jobs.resume_after_backup()
-        reconciler.suspended = False
-        application.state.mutations_paused = False
+        async with control_lock:
+            jobs.resume_after_backup()
+            reconciler.suspended = False
+            application.state.mutations_paused = False
         return {"state": "running", "mutations_paused": False, "ingestion_auto_resume": False}
 
     @application.get(prefix + "/admin/status")
@@ -192,7 +206,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
             raise ApiError("ingestion_active", "Attendre le checkpoint avant une évaluation reproductible.", 409)
         if queries.tasks:
             raise ApiError("query_active", "Attendre la fin des questions avant une évaluation reproductible.", 409)
-        snapshot = resolver.resolve(body.scope)
+        snapshot = resolver.resolve(body.scope, body.mode)
         prior = [{"id": "evaluation_prior_user", "question": body.prior_user_question, "snapshot_json": json_dump(snapshot.as_dict())}] if body.prior_user_question else None
         question, resolution, choices = queries.resolve_followup(body, snapshot, prior)
         profile_sha = hashlib.sha256(json.dumps(settings.profile, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
@@ -205,7 +219,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
             messages, sources, metrics, warnings = await asyncio.to_thread(queries.context.build, question, expanded, body.mode, [])
             return {"state": "context_ready", "effective_question": question, "resolution": resolution,
                     "scope_snapshot": snapshot.as_dict(), "retrieval_top10": retrieved["top10"], "retrieval_final": retrieved["results"],
-                    "context_sources": sources, "metrics": metrics, "warnings": retrieved["warnings"] + warnings,
+                    "context_sources": sources, "metrics": metrics, "warnings": snapshot.warnings + retrieved["warnings"] + warnings,
                     "retrieval_ms": retrieved["elapsed_ms"], "model_called": False, "profile_sha256": profile_sha,
                     "selector_sha256": selector_identity(), "messages_sha256": hashlib.sha256(json_dump(messages).encode()).hexdigest(),
                     "serialized_context_sha256": hashlib.sha256(tokenizer.serialized(messages).encode()).hexdigest() if hasattr(tokenizer, "serialized") else None,
@@ -351,6 +365,10 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
             connection.execute("INSERT OR REPLACE INTO vector_cleanup SELECT g.id,'deleted','pending',NULL,?,? FROM index_generations g JOIN document_versions v ON v.id=g.version_id WHERE v.document_id=?", (now(), now(), document_id))
         return {"document_id": document_id, "state": "deleted"}
 
+    @application.post(prefix + "/documents/{document_id}/move")
+    async def move_document(document_id: str, body: DocumentMove):
+        return db.move_document(document_id, body.relative_path)
+
     @application.post(prefix + "/documents/{document_id}/reindex", status_code=202)
     async def reindex_document(document_id: str):
         version = db.one("SELECT v.id FROM document_versions v JOIN documents d ON d.id=v.document_id WHERE d.id=? AND d.deleted_at IS NULL ORDER BY v.created_at DESC LIMIT 1", (document_id,))
@@ -400,8 +418,10 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
 
     @application.post(prefix + "/search")
     async def search_request(body: QueryRequest):
-        snapshot = resolver.resolve(body.scope)
-        return await search.search(body.question, snapshot, body.mode)
+        snapshot = resolver.resolve(body.scope, body.mode)
+        result = await search.search(body.question, snapshot, body.mode)
+        result["warnings"] = snapshot.warnings + result["warnings"]
+        return result
 
     @application.post(prefix + "/queries", status_code=202)
     async def create_query(body: QueryRequest):

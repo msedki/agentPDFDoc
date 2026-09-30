@@ -7,6 +7,11 @@ class RuntimeMode(BaseModel):
     mode: Literal["interactive", "ingestion"]
 
 
+class DocumentMove(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    relative_path: str = Field(min_length=1, max_length=1024)
+
+
 class SelectedSpan(BaseModel):
     model_config = ConfigDict(extra="forbid")
     extractionRevisionId: str = Field(min_length=1, max_length=128)

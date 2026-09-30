@@ -42,6 +42,13 @@ def relative_pdf_path(value: str):
     return "/".join(parts)
 
 
+MIGRATIONS = Path(__file__).parent / "migrations"
+
+
+def migrations():
+    return sorted((int(path.name[:3]), path) for path in MIGRATIONS.glob("[0-9][0-9][0-9]_*.sql"))
+
+
 class Database:
     def __init__(self, path: Path):
         self.path = Path(path)
@@ -69,18 +76,42 @@ class Database:
                 connection.rollback()
                 raise
 
+    @staticmethod
+    def schema_version(connection):
+        if not connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='schema_version'").fetchone():
+            return 0
+        return connection.execute("SELECT max(version) FROM schema_version").fetchone()[0] or 0
+
+    @staticmethod
+    def migrate(connection, script):
+        """Applique un script versionné dans une transaction ; un ADD COLUMN déjà présent (base patchée à chaud) est ignoré."""
+        statement = ""
+        connection.execute("BEGIN IMMEDIATE")
+        try:
+            for line in script.splitlines(keepends=True):
+                statement += line
+                if not sqlite3.complete_statement(statement):
+                    continue
+                added = re.match(r"\s*ALTER\s+TABLE\s+(\w+)\s+ADD\s+COLUMN\s+(\w+)", re.sub(r"(?m)^\s*--.*$", "", statement), re.IGNORECASE)
+                if not added or added[2] not in {row["name"] for row in connection.execute(f"PRAGMA table_info({added[1]})")}:
+                    connection.execute(statement)
+                statement = ""
+            connection.execute("COMMIT")
+        except BaseException:
+            connection.execute("ROLLBACK")
+            raise
+
     def initialize(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        scripts = migrations()
         with self.connect() as connection:
+            current, supported = self.schema_version(connection), scripts[-1][0]
+            if current > supported:
+                raise ApiError("database_schema_too_new", f"Base au schéma v{current}, plus récent que le code (v{supported}) ; aucune migration descendante.", 503,
+                               {"database_version": current, "supported_version": supported})
             connection.execute("PRAGMA journal_mode=WAL")
-            connection.executescript((Path(__file__).parent / "migrations/001_initial.sql").read_text(encoding="utf-8"))
-            connection.executescript((Path(__file__).parent / "migrations/002_cache_and_gc.sql").read_text(encoding="utf-8"))
-            columns = {row["name"] for row in connection.execute("PRAGMA table_info(query_runs)")}
-            if "resolution_json" not in columns:
-                connection.execute("ALTER TABLE query_runs ADD COLUMN resolution_json TEXT NOT NULL DEFAULT '{}'")
-            job_columns = {row["name"] for row in connection.execute("PRAGMA table_info(jobs)")}
-            if "pause_requested" not in job_columns:
-                connection.execute("ALTER TABLE jobs ADD COLUMN pause_requested INTEGER NOT NULL DEFAULT 0")
+            for _, path in scripts:
+                self.migrate(connection, path.read_text(encoding="utf-8"))
             connection.execute("CREATE VIRTUAL TABLE temp.fts_probe USING fts5(text)")
             connection.execute("INSERT INTO temp.fts_probe VALUES('contrôle')")
             assert connection.execute("SELECT count(*) FROM temp.fts_probe WHERE fts_probe MATCH 'controle'").fetchone()[0] == 1
@@ -110,21 +141,26 @@ class Database:
             raise ApiError("source_removed", "Source absente ou supprimée.", 404)
         return row
 
+    @staticmethod
+    def ensure_folders(connection, components):
+        parent_id = None
+        for count, name in enumerate(components[:-1], 1):
+            folder_path = "/".join(components[:count])
+            row = connection.execute("SELECT id FROM folders WHERE path=?", (folder_path,)).fetchone()
+            if row:
+                parent_id = row[0]
+            else:
+                folder_id = uid()
+                connection.execute("INSERT INTO folders VALUES(?,?,?,?)", (folder_id, parent_id, name, folder_path))
+                parent_id = folder_id
+        return parent_id
+
     def import_original(self, relative_path, sha256, blob_path):
         relative_path = relative_pdf_path(relative_path)
         timestamp = now()
         with self.transaction() as connection:
-            parent_id = None
             components = relative_path.split("/")
-            for count, name in enumerate(components[:-1], 1):
-                folder_path = "/".join(components[:count])
-                row = connection.execute("SELECT id FROM folders WHERE path=?", (folder_path,)).fetchone()
-                if row:
-                    parent_id = row[0]
-                else:
-                    folder_id = uid()
-                    connection.execute("INSERT INTO folders VALUES(?,?,?,?)", (folder_id, parent_id, name, folder_path))
-                    parent_id = folder_id
+            parent_id = self.ensure_folders(connection, components)
             document = connection.execute("SELECT * FROM documents WHERE relative_path=?", (relative_path,)).fetchone()
             if document and document["deleted_at"]:
                 raise ApiError("document_removed", "Ce chemin appartient à un document supprimé ; utiliser un nouveau chemin.", 409)
@@ -137,6 +173,10 @@ class Database:
                 job = connection.execute("SELECT id,state FROM jobs WHERE version_id=? ORDER BY created_at DESC LIMIT 1", (version_id,)).fetchone()
                 if job and job["state"] in {"queued", "extracting", "indexing", "ready", "ready_partial"}:
                     return {"document_id": document_id, "version_id": version_id, "job_id": job["id"], "reused": True}
+                if job and job["state"] in {"paused", "pausing", "cancelling"}:
+                    # Un second job concurrent sur la même version doublerait extraction et génération.
+                    return {"document_id": document_id, "version_id": version_id, "job_id": job["id"], "reused": True,
+                            "job_state": job["state"], "resume_required": True}
             else:
                 version_id = uid()
                 connection.execute("INSERT INTO document_versions(id,document_id,sha256,blob_path,created_at) VALUES(?,?,?,?,?)", (version_id, document_id, sha256, str(blob_path), timestamp))
@@ -145,6 +185,23 @@ class Database:
             if not document or not document["active_generation_id"]:
                 connection.execute("UPDATE documents SET state='queued',updated_at=? WHERE id=?", (timestamp, document_id))
         return {"document_id": document_id, "version_id": version_id, "job_id": job_id, "reused": False}
+
+    def move_document(self, document_id, relative_path):
+        """Déplace ou renomme dans l'arborescence : ni job, ni version, ni génération, ni embedding."""
+        relative_path = relative_pdf_path(relative_path)
+        with self.transaction() as connection:
+            document = connection.execute("SELECT relative_path,folder_id,name,deleted_at FROM documents WHERE id=?", (document_id,)).fetchone()
+            if not document or document["deleted_at"]:
+                raise ApiError("document_not_found", "Document inconnu.", 404)
+            folder_id, name = document["folder_id"], document["name"]
+            if relative_path != document["relative_path"]:
+                if connection.execute("SELECT 1 FROM documents WHERE relative_path=? AND id<>?", (relative_path, document_id)).fetchone():
+                    raise ApiError("path_conflict", "Ce chemin appartient déjà à un autre document, actif ou supprimé.", 409)
+                components = relative_path.split("/")
+                folder_id, name = self.ensure_folders(connection, components), components[-1]
+                connection.execute("UPDATE documents SET relative_path=?,folder_id=?,name=?,updated_at=? WHERE id=?", (relative_path, folder_id, name, now(), document_id))
+        return {"document_id": document_id, "relative_path": relative_path, "previous_relative_path": document["relative_path"],
+                "folder_id": folder_id, "name": name, "moved": relative_path != document["relative_path"]}
 
     def generation_for_version(self, version_id, extraction_revision_id=None):
         self.version(version_id)

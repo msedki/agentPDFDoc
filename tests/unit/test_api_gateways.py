@@ -266,3 +266,38 @@ def test_api_ollama_missing_manifest_refuses_before_network_or_context(tmp_path)
         assert failure.value.code == "llm_identity_unverified"
         await gateway.close()
     asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("profile,available_mib,estimate,admitted", [
+    ({"resources": {"embedding_load_peak_estimate_mib": 512}}, 1536 + 600, 512, True),
+    ({}, 1536 + 600, 768, False),
+    ({"resources": {"embedding_load_peak_estimate_mib": 512}}, 1536 + 400, 512, False)])
+def test_api_embedding_admission_reads_profile_load_estimate(tmp_path, monkeypatch, profile, available_mib, estimate, admitted):
+    import sys
+    from types import SimpleNamespace
+
+    import psutil
+
+    from services.api.embedding import EmbeddingService
+    from services.api.errors import ApiError
+    embedding = EmbeddingService(Settings(tmp_path, profile))
+    embedding._identity = {"fingerprint": "controlled-identity"}
+    loads = []
+    class Options:
+        def add_session_config_entry(self, *args):
+            pass
+    class Session:
+        def __init__(self, *args, **kwargs):
+            loads.append(kwargs["providers"])
+        def get_providers(self):
+            return ["CPUExecutionProvider"]
+    monkeypatch.setitem(sys.modules, "onnxruntime", SimpleNamespace(SessionOptions=Options, InferenceSession=Session))
+    monkeypatch.setattr(psutil, "virtual_memory", lambda: SimpleNamespace(available=available_mib * 1048576))
+    monkeypatch.setattr(embedding, "model_path", lambda: tmp_path / "controlled-model.onnx")
+    if admitted:
+        embedding.session()
+        assert loads == [["CPUExecutionProvider"]]
+    else:
+        with pytest.raises(ApiError) as caught:
+            embedding.session()
+        assert caught.value.code == "embedding_admission_denied" and caught.value.details["load_estimate_mib"] == estimate and not loads

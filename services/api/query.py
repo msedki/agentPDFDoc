@@ -21,13 +21,14 @@ class QueryService:
         self.governor = governor
         self.tasks = {}
         self.cancel_events = {}
+        self.started = set()
         self.generation_lock = asyncio.Lock()
 
     def create(self, request):
         pending = self.db.one("SELECT count(*) AS n FROM query_runs WHERE state IN ('queued','running')")["n"]
         if pending >= 1 + self.settings.value("llm", "max_pending_generations", 2):
             raise ApiError("query_queue_full", "La file de questions est pleine.", 429)
-        snapshot = self.resolver.resolve(request.scope)
+        snapshot = self.resolver.resolve(request.scope, request.mode)
         effective_question, resolution, choices = self.resolve_followup(request, snapshot)
         query_id = uid()
         conversation_id = request.conversation_id
@@ -48,7 +49,8 @@ class QueryService:
         self.cancel_events[query_id] = event
         task = asyncio.create_task(self.run(query_id, resolved_request, snapshot, event))
         self.tasks[query_id] = task
-        task.add_done_callback(lambda finished: self.tasks.pop(query_id, None))
+        # Appelé aussi pour une tâche annulée avant son démarrage, dont le finally de run() ne s'exécute jamais.
+        task.add_done_callback(lambda finished: (self.tasks.pop(query_id, None), self.cancel_events.pop(query_id, None), self.started.discard(query_id)))
         return {"query_id": query_id, "conversation_id": conversation_id, "events_url": f"/api/v1/queries/{query_id}/events"}
 
     def resolve_followup(self, request, snapshot, prior_user_questions=None):
@@ -140,10 +142,23 @@ class QueryService:
         authorized.reverse()
         return authorized
 
+    def mark_cancelled(self, query_id, answer="", metrics=None):
+        """Un seul état terminal et un seul événement `cancelled`, quel que soit le chemin d'annulation."""
+        metrics = metrics if metrics is not None else {"model_called": False}
+        with self.db.transaction() as connection:
+            row = connection.execute("SELECT state,last_event_id FROM query_runs WHERE id=?", (query_id,)).fetchone()
+            if not row or row["state"] not in {"queued", "running"}:
+                return False
+            event_id = row["last_event_id"] + 1
+            connection.execute("UPDATE query_runs SET state='cancelled',answer=?,metrics_json=?,last_event_id=?,updated_at=? WHERE id=?", (answer, json_dump(metrics), event_id, now(), query_id))
+            connection.execute("INSERT INTO events VALUES(?,?,?,?,?)", (query_id, event_id, "cancelled", json_dump({"state": "cancelled", "status": "cancelled", "text": answer, "metrics": metrics}), now()))
+        return True
+
     async def run(self, query_id, request, snapshot, cancelled):
+        self.started.add(query_id)
         started = time.perf_counter()
         first_token_at = None
-        warnings = []
+        warnings = list(snapshot.warnings)
         answer = ""
         metrics = {"model_called": False}
         sources = []
@@ -235,8 +250,7 @@ class QueryService:
                     self.db.add_event(query_id, "done", {"message": answer, "text": answer, "status": state, "citations": citations, "finish_reason": finish_reason, "metrics": metrics, "warnings": warnings})
         except asyncio.CancelledError:
             metrics["elapsed_ms"] = round((time.perf_counter() - started) * 1000, 2)
-            self.db.execute("UPDATE query_runs SET state='cancelled',answer=?,metrics_json=?,updated_at=? WHERE id=?", (answer, json_dump(metrics), now(), query_id))
-            self.db.add_event(query_id, "cancelled", {"status": "cancelled", "text": answer, "metrics": metrics})
+            self.mark_cancelled(query_id, answer, metrics)
         except Exception as error:
             admission_failure = error.__class__.__name__ == "ResourceAdmissionError"
             code = error.code if isinstance(error, ApiError) else ("resource_admission_denied" if admission_failure else "query_failed")
@@ -260,9 +274,9 @@ class QueryService:
         task = self.tasks.get(query_id)
         if task:
             task.cancel()
-            if query["state"] == "queued":
-                self.db.execute("UPDATE query_runs SET state='cancelled',updated_at=? WHERE id=?", (now(), query_id))
-                self.db.add_event(query_id, "cancelled", {"state": "cancelled"})
+            # Une tâche démarrée écrit elle-même l'état terminal dans run() ; sinon run() ne s'exécutera jamais.
+            if query_id not in self.started:
+                self.mark_cancelled(query_id)
         return {"query_id": query_id, "state": "cancel_requested" if task else query["state"]}
 
     async def close(self):
