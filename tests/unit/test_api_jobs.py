@@ -318,3 +318,30 @@ def test_api_same_embedding_reindex_retries_partial_extraction(storage, monkeypa
     generation = db.one("SELECT * FROM index_generations WHERE id=?", (job["generation_id"],))
     assert job["state"] == generation["state"] == "ready" and generation["extraction_revision_id"] != revision["id"]
     assert db.one("SELECT active_generation_id FROM documents WHERE id=?", (imported["document_id"],))["active_generation_id"] == job["generation_id"]
+
+
+def test_api_a_worker_that_leaves_no_result_is_not_mistaken_for_a_previous_run(storage, monkeypatch):
+    """Reprise d'un job : le résultat de l'exécution précédente ne doit jamais être relu comme le nouveau."""
+    from pathlib import Path
+
+    imported, extraction = import_fixture(storage)
+    settings, db, _, indexer = storage
+    job_id = new_job(db, imported)
+    stale = settings.data_dir / "extractions" / imported["version_id"] / job_id / "worker-result.json"
+    stale.parent.mkdir(parents=True, exist_ok=True)
+    stale.write_text(json.dumps({"ok": True, "result": {**extraction, "pipeline_fingerprint": "exécution précédente"}}), encoding="utf-8")
+    class SilentWorker:
+        # Double explicite : le worker se termine en erreur sans écrire de résultat.
+        returncode, pid = 3, 4343
+        async def wait(self):
+            return 3
+    async def fake_worker(*args, **kwargs):
+        assert not Path(args[args.index("--result") + 1]).exists(), "le résultat précédent doit être retiré avant le lancement"
+        return SilentWorker()
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", fake_worker)
+    monkeypatch.setattr(JobSupervisor, "cached_extraction", lambda self, version: None)
+    supervisor = JobSupervisor(db, indexer, settings)
+    with pytest.raises(ApiError) as failed:
+        asyncio.run(supervisor.run(db.one("SELECT * FROM jobs WHERE id=?", (job_id,))))
+    assert failed.value.code == "worker_failed" and "code 3" in failed.value.message
+

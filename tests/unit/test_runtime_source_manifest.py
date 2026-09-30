@@ -44,6 +44,8 @@ def test_capture_without_git_or_outside_repository_root(tmp_path, monkeypatch):
     root = tmp_path / "livraison"
     _tree(root)
     if shutil.which("git"):
+        # Dépôt propre au test : le résultat ne dépend pas de l'emplacement du basetemp (dans ce dépôt ou sous %TEMP%).
+        _git(root, "init", "-q")
         assert source_manifest.git_identity(root / "services")["git_status"] == "not_repository_root"
         outside = tmp_path / "hors-depot"
         outside.mkdir()

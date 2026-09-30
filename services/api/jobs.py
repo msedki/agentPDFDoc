@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import os
 import sys
 import threading
@@ -11,6 +12,8 @@ from .db import json_dump, now
 from .errors import ApiError
 from .indexing import extraction_content_hash
 from .query import empty_lease
+
+logger = logging.getLogger("rag.jobs")
 
 
 class JobSupervisor:
@@ -68,6 +71,9 @@ class JobSupervisor:
             except asyncio.CancelledError:
                 break
             except Exception as error:
+                if not isinstance(error, ApiError):
+                    # Cause technique conservée dans le journal de l'API (type et pile, aucun texte de document).
+                    logger.exception("Traitement %s interrompu par une erreur inattendue (%s)", job["id"], type(error).__name__)
                 admission_failure = error.__class__.__name__ == "ResourceAdmissionError"
                 code = error.code if isinstance(error, ApiError) else ("resource_admission_denied" if admission_failure else "ingestion_failed")
                 message = error.message if isinstance(error, ApiError) else (str(error) if admission_failure else "Traitement interrompu ; consulter les diagnostics locaux.")
@@ -89,6 +95,8 @@ class JobSupervisor:
         cancel_path = directory / "checkpoint-request"
         if cancel_path.exists():
             cancel_path.unlink()
+        # Le résultat d'une exécution précédente (reprise après pause) ne doit jamais être relu comme le nouveau.
+        result_path.unlink(missing_ok=True)
         request = {"path": version["blob_path"], "output_dir": str(directory), "config": self.settings.profile,
                    "version_id": version["id"], "cancel_path": str(cancel_path)}
         self.db.execute("UPDATE jobs SET state='extracting',stage='extracting',attempts=attempts+1,progress=0.05,heartbeat_at=?,updated_at=? WHERE id=?", (now(), now(), job["id"]))
@@ -140,7 +148,8 @@ class JobSupervisor:
             if watchdog_error:
                 raise ApiError("interrupted", "Worker arrêté par watchdog sans progrès ; reprise manuelle depuis les fenêtres durables.", 503)
             if not result_path.is_file():
-                raise ApiError("worker_failed", "Le worker n'a pas produit son résultat.", 503)
+                raise ApiError("worker_failed", f"Le worker d'extraction s'est arrêté sans résultat (code {process.returncode}) ; reprendre le traitement ou consulter les diagnostics.", 503,
+                               {"worker_exit_code": process.returncode})
             envelope = json.loads(result_path.read_text(encoding="utf-8"))
             if not envelope.get("ok"):
                 error = envelope.get("error", {})

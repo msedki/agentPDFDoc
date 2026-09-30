@@ -153,7 +153,7 @@ Le rappel et la précision de citation complets au sens d'ALCE ou de Liu et al. 
 
 | Biais | Mécanisme | Source | Mesure ou atténuation proposée |
 |---|---|---|---|
-| Fuite lexicale | La question reprend les mots du bloc ; la réponse est dans la phrase la plus similaire | EVA24, EVA18 | Calculer pour chaque question le taux de mots de contenu présents dans le bloc requis (après la normalisation de l'index lexical) ; publier les résultats par tercile de recouvrement et par branche (lexicale, dense, hybride) ; reformuler une partie des questions en interdisant de recopier des suites de 3 mots du bloc, hors identifiants et valeurs |
+| Fuite lexicale | La question reprend les mots du bloc ; la réponse est dans la phrase la plus similaire | EVA24, EVA18 | Calculer pour chaque question le taux de mots de contenu présents dans le bloc requis (après la normalisation de l'index lexical) ; publier les résultats par tranche de recouvrement (tranches fixes : les terciles se confondent quand la plupart des questions reprennent tous leurs mots, constat du [rapport du 30/09](evaluation/corpus-reel-2026-09-30.md)) et par branche (lexicale, dense, hybride) ; reformuler une partie des questions en interdisant de recopier des suites de 3 mots du bloc, hors identifiants et valeurs |
 | Filtrage qui favorise le retriever | Garder une question seulement si le retriever retrouve son passage exclut les cas difficiles et supprime aussi de bonnes paires | EVA21 (bonnes paires retirées), EVA11 (filtre top-1) | Ne jamais filtrer avec le retriever évalué ; si un filtre est appliqué, publier le taux de rejet et conserver une strate non filtrée |
 | Questions génériques | Une question vague a de nombreux blocs pertinents ; la vérité terrain unique devient fausse | EVA22, EVA21 | Chercher la valeur ou l'identifiant attendu dans les autres blocs du corpus ; les ajouter comme alternatives admises ou écarter la question |
 | Trous de la vérité terrain | Blocs pertinents non annotés comptés comme erreurs | EVA23 | Hole@k sur échantillon ; jugement des trous sans savoir quelle configuration les a retrouvés |
@@ -248,7 +248,7 @@ Précautions si un juge local est employé : même modèle Qwen que le générat
 
 ### 3.8 Contenu d'un rapport de série
 
-Identité du jeu (empreinte, date, méthode de génération, taux de déchet), révision du dépôt et des modèles, configuration (k, RRF, taille de contexte), puis pour chaque métrique : numérateur, dénominateur, intervalle, graine et méthode de rééchantillonnage ; ventilation par catégorie, par voie d'extraction et par tercile de recouvrement lexical ; lignes de base d'abstention ; liste des questions en échec. Statuts `NOT_RUN`, `PASS`, `FAIL`, `BLOCKED` selon [QUALIFICATION.md](../QUALIFICATION.md) §9.
+Identité du jeu (empreinte, date, méthode de génération, taux de déchet), révision du dépôt et des modèles, configuration (k, RRF, taille de contexte), puis pour chaque métrique : numérateur, dénominateur, intervalle, graine et méthode de rééchantillonnage ; ventilation par catégorie, par voie d'extraction et par tranche de recouvrement lexical ; lignes de base d'abstention ; liste des questions en échec. Statuts `NOT_RUN`, `PASS`, `FAIL`, `BLOCKED` selon [QUALIFICATION.md](../QUALIFICATION.md) §9.
 
 ## 4. Limites que ce protocole ne lève pas
 

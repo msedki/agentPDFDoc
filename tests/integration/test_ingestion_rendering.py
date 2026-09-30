@@ -74,11 +74,19 @@ def install_seh_capture(directory):
     return kernel, handle, observe
 
 
-@pytest.mark.parametrize("threads,concurrent,load_torch", [(2, False, False), (2, True, False), (1, True, False), (2, True, True)])
+# Défaut tiers connu (W-PDF01) : avec Torch chargé, le rendu concurrent de docling_parse provoque par intermittence
+# une violation d'accès native ; la voie nominale n'utilise plus ce rendu (DECISIONS.md, W009). Le diagnostic
+# reste exécuté : un passage est signalé XPASS et montrerait que le défaut a disparu.
+KNOWN_TORCH_RENDER_FAULT = pytest.mark.xfail(reason="W-PDF01 : faute native de docling_parse avec Torch chargé ; voie nominale pypdfium2 (W009)", strict=False)
+
+
+@pytest.mark.parametrize("threads,concurrent,load_torch", [(2, False, False), (2, True, False), (1, True, False),
+                                                           pytest.param(2, True, True, marks=KNOWN_TORCH_RENDER_FAULT)])
 def test_real_docling_parser_render_lifecycle(tmp_path, threads, concurrent, load_torch):
     assert_render_diagnostic(tmp_path, threads, concurrent, load_torch)
 
 
+@KNOWN_TORCH_RENDER_FAULT
 def test_real_docling_parser_render_stress_with_torch(tmp_path):
     assert_render_diagnostic(tmp_path, 2, True, True, iterations=16)
 

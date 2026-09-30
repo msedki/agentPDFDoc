@@ -1,0 +1,2620 @@
+{
+  "format": "corpus-eval-report-v1",
+  "utc": "2026-09-30T21:27:40.306655+00:00",
+  "dataset_sha256": "7f17470b8699db919ffb24a3c339af789c99471b7b065973806ce279acf97eae",
+  "questions": 180,
+  "scored": 180,
+  "request_failures": {},
+  "method": "POST /api/v1/admin/evaluation/context (aucun appel au modèle)",
+  "metrics": {
+    "answerable": {
+      "success_at_10": {
+        "numerator": 157,
+        "denominator": 160,
+        "rate": 0.981,
+        "wilson95": [
+          0.946,
+          0.994
+        ]
+      },
+      "in_final": {
+        "numerator": 151,
+        "denominator": 160,
+        "rate": 0.944,
+        "wilson95": [
+          0.897,
+          0.97
+        ]
+      },
+      "in_context": {
+        "numerator": 150,
+        "denominator": 160,
+        "rate": 0.938,
+        "wilson95": [
+          0.889,
+          0.966
+        ]
+      },
+      "mrr_at_10": 0.8315
+    },
+    "unanswerable": {
+      "search_abstention": {
+        "numerator": 20,
+        "denominator": 20,
+        "rate": 1.0,
+        "wilson95": [
+          0.839,
+          1.0
+        ]
+      },
+      "scope_leakage_total": 0
+    },
+    "by_category": {
+      "identifiant": {
+        "success_at_10": {
+          "numerator": 40,
+          "denominator": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.912,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 40,
+          "denominator": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.912,
+            1.0
+          ]
+        }
+      },
+      "valeur": {
+        "success_at_10": {
+          "numerator": 117,
+          "denominator": 120,
+          "rate": 0.975,
+          "wilson95": [
+            0.929,
+            0.991
+          ]
+        },
+        "in_context": {
+          "numerator": 110,
+          "denominator": 120,
+          "rate": 0.917,
+          "wilson95": [
+            0.853,
+            0.954
+          ]
+        }
+      }
+    },
+    "by_split": {
+      "development": {
+        "success_at_10": {
+          "numerator": 104,
+          "denominator": 106,
+          "rate": 0.981,
+          "wilson95": [
+            0.934,
+            0.995
+          ]
+        },
+        "in_context": {
+          "numerator": 101,
+          "denominator": 106,
+          "rate": 0.953,
+          "wilson95": [
+            0.894,
+            0.98
+          ]
+        }
+      },
+      "holdout": {
+        "success_at_10": {
+          "numerator": 53,
+          "denominator": 54,
+          "rate": 0.981,
+          "wilson95": [
+            0.902,
+            0.997
+          ]
+        },
+        "in_context": {
+          "numerator": 49,
+          "denominator": 54,
+          "rate": 0.907,
+          "wilson95": [
+            0.801,
+            0.96
+          ]
+        }
+      }
+    },
+    "by_overlap_band": {
+      "faible": {
+        "success_at_10": {
+          "numerator": 4,
+          "denominator": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.51,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 4,
+          "denominator": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.51,
+            1.0
+          ]
+        }
+      },
+      "partiel": {
+        "success_at_10": {
+          "numerator": 28,
+          "denominator": 28,
+          "rate": 1.0,
+          "wilson95": [
+            0.879,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 28,
+          "denominator": 28,
+          "rate": 1.0,
+          "wilson95": [
+            0.879,
+            1.0
+          ]
+        }
+      },
+      "complet": {
+        "success_at_10": {
+          "numerator": 125,
+          "denominator": 128,
+          "rate": 0.977,
+          "wilson95": [
+            0.933,
+            0.992
+          ]
+        },
+        "in_context": {
+          "numerator": 118,
+          "denominator": 128,
+          "rate": 0.922,
+          "wilson95": [
+            0.862,
+            0.957
+          ]
+        }
+      }
+    },
+    "by_route": {
+      "regional_ocr": {
+        "success_at_10": {
+          "numerator": 10,
+          "denominator": 10,
+          "rate": 1.0,
+          "wilson95": [
+            0.722,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 10,
+          "denominator": 10,
+          "rate": 1.0,
+          "wilson95": [
+            0.722,
+            1.0
+          ]
+        }
+      },
+      "structured": {
+        "success_at_10": {
+          "numerator": 147,
+          "denominator": 150,
+          "rate": 0.98,
+          "wilson95": [
+            0.943,
+            0.993
+          ]
+        },
+        "in_context": {
+          "numerator": 140,
+          "denominator": 150,
+          "rate": 0.933,
+          "wilson95": [
+            0.882,
+            0.963
+          ]
+        }
+      }
+    },
+    "by_variant": {
+      "indices_reduits": {
+        "success_at_10": {
+          "numerator": 37,
+          "denominator": 40,
+          "rate": 0.925,
+          "wilson95": [
+            0.801,
+            0.974
+          ]
+        },
+        "in_context": {
+          "numerator": 32,
+          "denominator": 40,
+          "rate": 0.8,
+          "wilson95": [
+            0.652,
+            0.895
+          ]
+        }
+      },
+      "portee_bibliotheque": {
+        "success_at_10": {
+          "numerator": 60,
+          "denominator": 60,
+          "rate": 1.0,
+          "wilson95": [
+            0.94,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 59,
+          "denominator": 60,
+          "rate": 0.983,
+          "wilson95": [
+            0.911,
+            0.997
+          ]
+        }
+      },
+      "reference": {
+        "success_at_10": {
+          "numerator": 60,
+          "denominator": 60,
+          "rate": 1.0,
+          "wilson95": [
+            0.94,
+            1.0
+          ]
+        },
+        "in_context": {
+          "numerator": 59,
+          "denominator": 60,
+          "rate": 0.983,
+          "wilson95": [
+            0.911,
+            0.997
+          ]
+        }
+      }
+    },
+    "overlap_bands": {
+      "faible": [
+        0.0,
+        0.5
+      ],
+      "partiel": [
+        0.5,
+        1.0
+      ],
+      "complet": [
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "rows": [
+    {
+      "id": "q001",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.667,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.3333,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q002",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q003",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q004",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q005",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.5,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q006",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q007",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.5,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q008",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q009",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q010",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q011",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q012",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q013",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q014",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q015",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.667,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q016",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.667,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.2,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q017",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q018",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.5,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q019",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q020",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q021",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q022",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.5,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q023",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q024",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.667,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.5,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q025",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.1,
+      "in_final": false,
+      "in_context": false
+    },
+    {
+      "id": "q026",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.75,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q027",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.5,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q028",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q029",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q030",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q031",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q032",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.75,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q033",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.8,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q034",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q035",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q036",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q037",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q038",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q039",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q040",
+      "category": "valeur",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.667,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q041",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "regional_ocr",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q042",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "regional_ocr",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q043",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "regional_ocr",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q044",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "regional_ocr",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q045",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "regional_ocr",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q046",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.5,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q047",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q048",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.5,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q049",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q050",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.5,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q051",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q052",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q053",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q054",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q055",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q056",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q057",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q058",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q059",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.5,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q060",
+      "category": "identifiant",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q061",
+      "category": "hors_perimetre",
+      "variant": "reference",
+      "split": "development",
+      "route": "regional_ocr",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q062",
+      "category": "hors_perimetre",
+      "variant": "reference",
+      "split": "development",
+      "route": "regional_ocr",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q063",
+      "category": "hors_perimetre",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q064",
+      "category": "hors_perimetre",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q065",
+      "category": "hors_perimetre",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q066",
+      "category": "hors_perimetre",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q067",
+      "category": "hors_perimetre",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q068",
+      "category": "hors_perimetre",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q069",
+      "category": "hors_perimetre",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q070",
+      "category": "hors_perimetre",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q071",
+      "category": "sans_reponse",
+      "variant": "reference",
+      "split": "development",
+      "route": "regional_ocr",
+      "lexical_overlap": 0.0,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q072",
+      "category": "sans_reponse",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "regional_ocr",
+      "lexical_overlap": 0.5,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q073",
+      "category": "sans_reponse",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.5,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q074",
+      "category": "sans_reponse",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.333,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q075",
+      "category": "sans_reponse",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.0,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q076",
+      "category": "sans_reponse",
+      "variant": "reference",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.333,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q077",
+      "category": "sans_reponse",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.0,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q078",
+      "category": "sans_reponse",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.5,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q079",
+      "category": "sans_reponse",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.0,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q080",
+      "category": "sans_reponse",
+      "variant": "reference",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.0,
+      "state": "context_ready",
+      "search_abstention": true,
+      "scope_leakage": 0
+    },
+    {
+      "id": "q081",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.667,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.3333,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q082",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.667,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.3333,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q083",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q084",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q085",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q086",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q087",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q088",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q089",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.25,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q090",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.3333,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q091",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q092",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q093",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.1667,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q094",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": false,
+      "reciprocal_rank": 0.0,
+      "in_final": false,
+      "in_context": false
+    },
+    {
+      "id": "q095",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.5,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q096",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.125,
+      "in_final": false,
+      "in_context": false
+    },
+    {
+      "id": "q097",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q098",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q099",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q100",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q101",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q102",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q103",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.25,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q104",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.1,
+      "in_final": false,
+      "in_context": false
+    },
+    {
+      "id": "q105",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q106",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q107",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q108",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q109",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.667,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q110",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.667,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.25,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q111",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.667,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.2,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q112",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.667,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q113",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q114",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q115",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.1667,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q116",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": false,
+      "reciprocal_rank": 0.0,
+      "in_final": false,
+      "in_context": false
+    },
+    {
+      "id": "q117",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q118",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q119",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q120",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q121",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q122",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.5,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q123",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.5,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q124",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.1429,
+      "in_final": false,
+      "in_context": false
+    },
+    {
+      "id": "q125",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q126",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.3333,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q127",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.667,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.5,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q128",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.667,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.5,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q129",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.1111,
+      "in_final": false,
+      "in_context": false
+    },
+    {
+      "id": "q130",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": false,
+      "reciprocal_rank": 0.0,
+      "in_final": false,
+      "in_context": false
+    },
+    {
+      "id": "q131",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.75,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q132",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.1667,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q133",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.5,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q134",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.3333,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q135",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q136",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q137",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q138",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.5,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q139",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q140",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q141",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q142",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q143",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.75,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q144",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q145",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.8,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q146",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q147",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q148",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q149",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q150",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q151",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q152",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.3333,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q153",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q154",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q155",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q156",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.5,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q157",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q158",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.1429,
+      "in_final": false,
+      "in_context": false
+    },
+    {
+      "id": "q159",
+      "category": "valeur",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.667,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q160",
+      "category": "valeur",
+      "variant": "indices_reduits",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 0.3333,
+      "in_final": true,
+      "in_context": false
+    },
+    {
+      "id": "q161",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "regional_ocr",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q162",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "regional_ocr",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q163",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "regional_ocr",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q164",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "regional_ocr",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q165",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "regional_ocr",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q166",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.5,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q167",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q168",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.5,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q169",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q170",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 0.5,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q171",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q172",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q173",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q174",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q175",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q176",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q177",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q178",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q179",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "development",
+      "route": "structured",
+      "lexical_overlap": 0.5,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    },
+    {
+      "id": "q180",
+      "category": "identifiant",
+      "variant": "portee_bibliotheque",
+      "split": "holdout",
+      "route": "structured",
+      "lexical_overlap": 1.0,
+      "state": "context_ready",
+      "success_at_10": true,
+      "reciprocal_rank": 1.0,
+      "in_final": true,
+      "in_context": true
+    }
+  ],
+  "metrics_recomputed_utc": "2026-09-30T21:32:41.345005+00:00"
+}

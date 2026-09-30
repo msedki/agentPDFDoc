@@ -2,6 +2,8 @@
 
 from typing import Any
 
+from .regional_grid import clamp_to_page
+
 
 def rotate_point(x, y, width, height, angle, inverse=False):
     if inverse:
@@ -59,7 +61,9 @@ class RegionalTableStage:
                 if cluster.id not in rotations:
                     continue
                 angle = rotations[cluster.id]
-                bbox = cluster.bbox
+                bbox = clamp_to_page(cluster.bbox, page.size.width, page.size.height)
+                if bbox is None:
+                    continue
                 width, height = bbox.r - bbox.l, bbox.b - bbox.t
                 image = page._backend.get_page_image(scale=self.model.scale, cropbox=bbox)
                 upright = image.rotate(-angle, expand=True)

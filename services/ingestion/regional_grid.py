@@ -5,6 +5,26 @@ import math
 from contextlib import contextmanager
 from typing import Any
 
+# PDFium refuse une découpe qui dépasse la page (« Crop exceeds page dimensions ») : une zone OCR ou un
+# tableau dont la boîte déborde (image partiellement hors page) est ramené dans la page, avec une marge d'arrondi.
+PAGE_EDGE_MARGIN = 0.01
+
+
+def clamp_box_values(left, top, right, bottom, width, height):
+    """Boîte haut-gauche ramenée dans [0, largeur] × [0, hauteur] ; None si moins d'un point de côté."""
+    left, top = max(float(left), 0.0), max(float(top), 0.0)
+    right, bottom = min(float(right), width - PAGE_EDGE_MARGIN), min(float(bottom), height - PAGE_EDGE_MARGIN)
+    if right - left < 1 or bottom - top < 1:
+        return None
+    return left, top, right, bottom
+
+
+def clamp_to_page(box, width, height):
+    from docling_core.types.doc import BoundingBox
+
+    values = clamp_box_values(box.l, box.t, box.r, box.b, width, height)
+    return None if values is None else BoundingBox(l=values[0], t=values[1], r=values[2], b=values[3], coord_origin=box.coord_origin)
+
 
 @contextmanager
 def temporary_raster(image):
@@ -183,7 +203,7 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
                 if failed:
                     failures.append({"code": "OCR_REGION_ISOLATION_LIMIT", "parser_bbox": region.model_dump(mode="json")})
                 isolated.extend(BoundingBox(l=box[0], t=box[1], r=box[2], b=box[3], coord_origin=CoordOrigin.TOPLEFT) for box in fragments)
-            rects = isolated
+            rects = [clamped for clamped in (clamp_to_page(region, page.size.width, page.size.height) for region in isolated) if clamped is not None]
             self.isolation_failures_by_page[int(page.page_no)] = failures
             for region in rects:
                 pixels = rendered_pixels(region.r - region.l, region.b - region.t, self.scale * render_oversample)
