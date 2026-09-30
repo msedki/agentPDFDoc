@@ -10,7 +10,7 @@ def governor(tmp_path):
     item = ResourceGovernor({"app": {"data_dir": str(tmp_path)}, "resources": {
         "host_available_min_mib": 1536, "admit_heavy_min_available_mib": 3072,
         "initial_llm_load_peak_estimate_mib": 1, "initial_parser_peak_estimate_mib": 1,
-    }})
+    }}, host_lock_path=tmp_path / "host-heavy.lock")
     item._admit = lambda *args: None
     return item
 
@@ -93,7 +93,7 @@ def test_resident_model_counts_only_additional_peak_without_removing_reserve(tmp
 
 @pytest.mark.asyncio
 async def test_residency_probe_runs_under_exclusive_heavy_lease(tmp_path, monkeypatch):
-    item = ResourceGovernor({"app": {"data_dir": str(tmp_path)}})
+    item = ResourceGovernor({"app": {"data_dir": str(tmp_path)}}, host_lock_path=tmp_path / "host-heavy.lock")
     monkeypatch.setattr(item, "snapshot", lambda: {"available_mib": 2300})
 
     async def probe():
@@ -110,7 +110,7 @@ async def test_residency_probe_runs_under_exclusive_heavy_lease(tmp_path, monkey
 async def test_memory_drop_cancels_only_own_generation_and_releases_lease(tmp_path, monkeypatch):
     item = ResourceGovernor({"app": {"data_dir": str(tmp_path)}, "resources": {
         "host_available_min_mib": 1536, "initial_llm_load_peak_estimate_mib": 1,
-    }})
+    }}, host_lock_path=tmp_path / "host-heavy.lock")
     available = 8000
     monkeypatch.setattr(item, "snapshot", lambda: {"available_mib": available})
     with pytest.raises(ResourceAdmissionError, match="pendant la génération"):
@@ -120,3 +120,40 @@ async def test_memory_drop_cancels_only_own_generation_and_releases_lease(tmp_pa
     assert not item._heavy.locked()
     assert item._owner is None
     assert item._generation_requests == 0
+
+
+@pytest.mark.parametrize("value", [True, "true", 1])
+def test_auto_resume_ingestion_enabled_in_profile_is_refused(tmp_path, value):
+    with pytest.raises(ValueError, match="anti-ping-pong"):
+        ResourceGovernor({"app": {"data_dir": str(tmp_path)},
+                          "resources": {"scheduling": {"auto_resume_ingestion": value}}})
+
+
+def test_auto_resume_ingestion_is_read_from_delivered_profile(tmp_path):
+    import yaml
+
+    from services.runtime.artifacts import ROOT
+
+    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    assert profile["resources"]["scheduling"]["auto_resume_ingestion"] is False
+    item = ResourceGovernor({**profile, "app": {**profile["app"], "data_dir": str(tmp_path)}},
+                            host_lock_path=tmp_path / "host-heavy.lock")
+    snapshot = item.snapshot()
+    assert snapshot["auto_resume_ingestion"] is False and snapshot["host_heavy_lock_held"] is False
+    assert ResourceGovernor({"app": {"data_dir": str(tmp_path)}}).auto_resume_ingestion is False
+
+
+def test_admission_requirement_matches_governor_refusal(tmp_path, monkeypatch):
+    from services.runtime.resources import admission_requirement
+
+    settings = {"host_available_min_mib": 1536, "admit_heavy_min_available_mib": 3072,
+                "initial_llm_load_peak_estimate_mib": 3456, "initial_parser_peak_estimate_mib": 2304}
+    assert admission_requirement(settings, "generation")["required_available_mib"] == 4992
+    assert admission_requirement(settings, "ingestion")["required_available_mib"] == 3840
+    assert admission_requirement(settings, "generation", {"loaded": True, "additional_peak_mib": 512})["required_available_mib"] == 2048
+    item = ResourceGovernor({"app": {"data_dir": str(tmp_path)}, "resources": settings})
+    monkeypatch.setattr(item, "snapshot", lambda: {"available_mib": 4991})
+    with pytest.raises(ResourceAdmissionError) as caught:
+        item._admit("generation")
+    assert caught.value.code == "resource_admission_denied"
+    assert caught.value.snapshot["admission"]["required_available_mib"] == 4992

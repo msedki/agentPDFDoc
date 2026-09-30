@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "consulted_at_utc": "2026-09-30",
+  "scope": "Identité locale du stockage Ollama du profil local16 : modèle source tiré du registre et dérivé texte seul. Contrôlé hors ligne par doctor ; ne prouve ni l'inférence ni une provenance au-delà des digests Ollama.",
+  "runtime": {"name": "ollama", "version": "0.35.0"},
+  "store": ".runtime/models/ollama",
+  "models": {
+    "qwen3.5:4b": {
+      "role": "source",
+      "source": "https://ollama.com/library/qwen3.5:4b",
+      "manifest_path": "manifests/registry.ollama.ai/library/qwen3.5/4b",
+      "manifest_sha256": "2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd",
+      "config": {"mediaType": "application/vnd.docker.container.image.v1+json", "digest": "sha256:de9fed2251b37295b763727a59ca35cf5cfe5c7379bc3e2104b2ce3c145aa887", "size": 475},
+      "layers": [
+        {"mediaType": "application/vnd.ollama.image.model", "digest": "sha256:81fb60c7daa80fc1123380b98970b320ae233409f0f71a72ed7b9b0d62f40490", "size": 3389971840},
+        {"mediaType": "application/vnd.ollama.image.license", "digest": "sha256:7339fa418c9ad3e8e12e74ad0fd26a9cc4be8703f9c110728a992b193be85cb2", "size": 11355},
+        {"mediaType": "application/vnd.ollama.image.params", "digest": "sha256:9371364b27a52acac9d87f88bd93c9db1174d8d6ec57f6888925cdc1788871ff", "size": 65}
+      ],
+      "license_layer_header": "Apache License, Version 2.0, January 2004",
+      "quantization": "Q4_K_M"
+    },
+    "qwen3.5:4b-text": {
+      "role": "derived_local",
+      "derived_from": "qwen3.5:4b",
+      "manifest_path": "manifests/registry.ollama.ai/library/qwen3.5/4b-text",
+      "manifest_sha256": "de8024dbfde0f6e136e9f120ab7c656ca0e304b24360de18a4a287039aa12199",
+      "config": {"mediaType": "application/vnd.docker.container.image.v1+json", "digest": "sha256:17f7124c1ec54d64e1ba0d1269be1000b7d9c8d3cce11542b9fadc7c6df904fe", "size": 177},
+      "layers": [
+        {"mediaType": "application/vnd.ollama.image.model", "digest": "sha256:79b59ad997b93e55387f7773ffd38a636487a9c79250d876976e9498cb502051", "size": 2722262304},
+        {"mediaType": "application/vnd.ollama.image.license", "digest": "sha256:7339fa418c9ad3e8e12e74ad0fd26a9cc4be8703f9c110728a992b193be85cb2", "size": 11355},
+        {"mediaType": "application/vnd.ollama.image.params", "digest": "sha256:9371364b27a52acac9d87f88bd93c9db1174d8d6ec57f6888925cdc1788871ff", "size": 65}
+      ],
+      "quantization": "Q4_K_M",
+      "transformation": {
+        "name": "remove_gguf_tensors_with_prefixes",
+        "removed_prefixes": ["v.", "mm."],
+        "source_model_layer_digest": "sha256:81fb60c7daa80fc1123380b98970b320ae233409f0f71a72ed7b9b0d62f40490",
+        "source_tensor_count": 834,
+        "removed_tensor_count": 393,
+        "removed_bytes": 667686912,
+        "kept_tensor_count": 441,
+        "reason": "Ollama 0.35.0 active d'office --mmproj sur les tenseurs v.* du GGUF ; le RAG n'envoie jamais d'image.",
+        "official_source": "https://github.com/ollama/ollama/blob/v0.35.0/llm/llama_server.go"
+      }
+    }
+  },
+  "verification": {
+    "utc": "2026-09-30T09:37:40Z",
+    "method": "SHA-256 des deux fichiers manifestes et des six blobs sur disque (sha256sum), tailles comparées ; aucune requête réseau.",
+    "limit": "Relevé du stockage local à cette date ; doctor rehache les blobs de moins de 1 Mio et contrôle la taille des couches modèle."
+  }
+}

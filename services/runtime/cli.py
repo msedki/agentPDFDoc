@@ -12,17 +12,20 @@ import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import psutil
 
 from .artifacts import ROOT, file_hash, provision_artifacts, write_json_atomic
+from .resources import admission_requirement
 from .supervisor import (
     data_path,
     environment,
     load_profile,
     native_paths,
+    owned_pids,
+    port_states,
     qdrant_data_path,
-    read_state,
     send_owned_console_interrupt,
     start,
     status,
@@ -32,18 +35,101 @@ from .supervisor import (
 )
 from .windows_process import WindowsJob
 
+MODELS_LOCK = ROOT / "config/models.lock.json"
+
+
+def ollama_store_files(name: str, store: Path | None = None) -> dict:
+    """Présence locale d'un tag Ollama (manifeste, blobs et tailles), service arrêté ou non."""
+    store = store or OLLAMA_MODELS_DIR
+    path = _manifest_path(name, store)
+    if not path.is_file():
+        return {"status": "absent", "manifest": str(path)}
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        entries = [manifest["config"], *manifest["layers"]]
+        if not all(isinstance(entry, dict) for entry in entries):
+            raise TypeError("entrée de manifeste non objet")
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        return {"status": "invalid_manifest", "manifest": str(path), "reason": type(exc).__name__}
+    issues = []
+    for entry in entries:
+        algorithm, _, value = str(entry.get("digest", "")).partition(":")
+        blob = store / "blobs" / f"sha256-{value}"  # chemin testé seulement si le digest est valide
+        if algorithm != "sha256" or len(value) != 64:
+            issues.append({"digest": entry.get("digest"), "issue": "invalid_digest"})
+        elif not blob.is_file():
+            issues.append({"digest": entry["digest"], "issue": "blob_missing"})
+        elif blob.stat().st_size != entry.get("size"):
+            issues.append({"digest": entry["digest"], "issue": "size_mismatch",
+                           "expected": entry.get("size"), "observed": blob.stat().st_size})
+    return {"status": "incomplete" if issues else "present", "manifest": str(path),
+            "manifest_sha256": file_hash(path), "blobs": len(entries), "issues": issues,
+            "entries": [{key: entry.get(key) for key in ("mediaType", "digest", "size")} for entry in entries]}
+
+
+def model_lock_conformity(lock_path: Path | None = None, store: Path | None = None,
+                          hash_limit_bytes: int | None = 1048576) -> dict:
+    """Conformité hors ligne du stockage Ollama au verrou versionné.
+
+    Les blobs jusqu'à hash_limit_bytes sont rehachés (None : tous) ; au-delà, la taille est comparée.
+    """
+    lock_path = lock_path or MODELS_LOCK
+    store = store or OLLAMA_MODELS_DIR
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    result: dict = {"status": "conform", "lock": str(lock_path), "lock_sha256": file_hash(lock_path),
+              "hash_limit_bytes": hash_limit_bytes, "models": {}}
+    for name, expected in lock["models"].items():
+        files = ollama_store_files(name, store)
+        issues = [*files.get("issues", [])]
+        if files["status"] in {"absent", "invalid_manifest"}:
+            issues.append({"issue": files["status"]})
+        else:
+            if files["manifest_sha256"] != expected["manifest_sha256"]:
+                issues.append({"issue": "manifest_digest_mismatch", "expected": expected["manifest_sha256"],
+                               "observed": files["manifest_sha256"]})
+            locked = [{key: entry.get(key) for key in ("mediaType", "digest", "size")}
+                      for entry in [expected["config"], *expected["layers"]]]
+            if files["entries"] != locked:
+                issues.append({"issue": "layers_differ_from_lock"})
+            for entry in files["entries"]:
+                blob = store / "blobs" / ("sha256-" + str(entry["digest"]).partition(":")[2])
+                if (blob.is_file() and (hash_limit_bytes is None or blob.stat().st_size <= hash_limit_bytes)
+                        and "sha256:" + file_hash(blob) != entry["digest"]):
+                    issues.append({"digest": entry["digest"], "issue": "blob_hash_mismatch"})
+        state = "absent" if files["status"] == "absent" else ("nonconform" if issues else "conform")
+        result["models"][name] = {"status": state, "issues": issues}
+        if state != "conform":
+            result["status"] = "nonconform"
+    return result
+
+
+def llm_model_diagnosis(files: dict, service: dict) -> dict:
+    """Sépare modèle absent du stockage et service Ollama indisponible."""
+    if files["status"] == "absent":
+        state = "model_absent"
+    elif files["status"] != "present":
+        state = "model_files_" + files["status"]
+    elif service.get("status") == "service_unavailable":
+        state = "service_unavailable_model_files_present"
+    elif service.get("status") == "absent":
+        state = "service_does_not_list_local_model"
+    else:
+        state = "available"
+    return {"status": state, "files": files["status"], "service": service.get("status", "listed")}
+
 
 def doctor(profile_path: Path) -> dict:
     import httpx
 
     profile = load_profile(profile_path)
     directory = data_path(profile)
-    result = {"utc": datetime.now(UTC).isoformat(), "platform": "Windows native, no WSL/Docker",
+    available = psutil.virtual_memory().available / 1048576
+    result: dict = {"utc": datetime.now(UTC).isoformat(), "platform": "Windows native, no WSL/Docker",
               "python": {"version": sys.version.split()[0], "executable": sys.executable},
-              "resources": {"available_mib": psutil.virtual_memory().available / 1048576,
+              "resources": {"available_mib": available,
                             "disk_free_mib": shutil.disk_usage(ROOT).free / 1048576},
               "profile_sha256": file_hash(profile_path), "data_dir": str(directory), "checks": {},
-              "runtime": read_state(directory)}
+              "runtime": status(profile_path)}
     checks = result["checks"]
     try:
         checks["qdrant_storage"] = {"status": "valid", "path": str(qdrant_data_path(profile, directory)),
@@ -52,11 +138,33 @@ def doctor(profile_path: Path) -> dict:
         checks["qdrant_storage"] = {"status": "invalid", "reason": str(exc)}
     runtime = result["runtime"]
     checks["profile_application"] = {"status": "not_running"}
+    if runtime.get("status") == "stale":
+        checks["profile_application"] = {"status": "stale_runtime_state", "recorded_status": runtime.get("recorded_status"),
+                                         "limit": "Supervisor identity invalid; recorded state is not a running instance."}
     if runtime.get("status") in {"running", "starting"}:
         applied = runtime.get("profile_sha256") == result["profile_sha256"] and runtime.get("data_dir") == str(directory)
         checks["profile_application"] = {"status": "applied" if applied else "restart_required",
             "declared_profile_sha256": result["profile_sha256"], "runtime_profile_sha256": runtime.get("profile_sha256"),
             "limit": "Compares supervisor-recorded profile identity; health/readiness still determine actual service availability."}
+    checks["ports"] = port_states({"app": profile["app"]["port"], "qdrant": urlsplit(profile["qdrant"]["url"]).port,
+                                   "ollama": urlsplit(profile["llm"]["base_url"]).port}, owned_pids(runtime))
+    checks["cold_admission"] = {}
+    for owner in ("generation", "ingestion"):
+        requirement = admission_requirement(profile.get("resources", {}), owner)
+        margin = available - requirement["required_available_mib"]
+        checks["cold_admission"][owner] = {**requirement, "available_mib": round(available, 2),
+                                           "margin_mib": round(margin, 2), "admissible_now": margin >= 0}
+    checks["cold_admission"]["limit"] = ("Snapshot: required = max(admit minimum, cold peak estimate + host reserve); "
+                                         "a resident model only needs its additional peak.")
+    try:
+        checks["model_lock"] = model_lock_conformity()
+        checks["model_lock"]["profile_models_locked"] = all(
+            name in checks["model_lock"]["models"] for name in {profile["llm"]["model"], profile["llm"].get("source_model", profile["llm"]["model"])})
+    except (OSError, ValueError, KeyError) as exc:
+        checks["model_lock"] = {"status": "invalid_lock", "reason": f"{type(exc).__name__}: {exc}"}
+    model_files = ollama_store_files(profile["llm"]["model"])
+    model_files.pop("entries", None)
+    checks["llm_model_files"] = {**model_files, "limit": "Blob sizes only; see model_lock for digests."}
     checks["python312"] = sys.version_info[:2] == (3, 12)
     checks["dependencies_locked"] = (ROOT / "uv.lock").is_file() and (ROOT / "apps/web/pnpm-lock.yaml").is_file()
     checks["static_export"] = (ROOT / "apps/web/out/workspace.html").is_file() or (ROOT / "apps/web/out/workspace/index.html").is_file()
@@ -103,6 +211,19 @@ def doctor(profile_path: Path) -> dict:
                                        for item in response.json()["models"]]
         except (httpx.HTTPError, ValueError, KeyError) as exc:
             checks["llm_model"] = {"status": "service_unavailable", "reason": type(exc).__name__}
+        checks["index_consistency"] = {"status": "api_unavailable"}
+        if result["services"]["api_health"].get("http_status") == 200:
+            try:
+                response = client.get(f"http://127.0.0.1:{profile['app']['port']}/api/v1/diagnostics")
+                response.raise_for_status()
+                diagnostics = response.json()
+                checks["index_consistency"] = diagnostics.get("index_consistency") or {
+                    "status": "not_exposed",
+                    "reason": "GET /api/v1/diagnostics does not expose active-generation Qdrant points vs SQLite chunks",
+                    "diagnostics_keys": sorted(diagnostics)}
+            except (httpx.HTTPError, ValueError, AttributeError) as exc:
+                checks["index_consistency"] = {"status": "diagnostics_unavailable", "reason": type(exc).__name__}
+    checks["llm_model_diagnosis"] = llm_model_diagnosis(checks["llm_model_files"], checks["llm_model"])
     # Ces diagnostics distinguent présence des fichiers, disponibilité et recette.
     result["qualification"] = "NOT_RUN: doctor does not prove an end-to-end answer"
     return result
@@ -112,17 +233,20 @@ OLLAMA_MODELS_DIR = ROOT / ".runtime/models/ollama"
 SOURCE_MODEL_MANIFEST = ".runtime/manifests/ollama-model.json"
 
 
-def _ollama_manifest(name: str) -> dict:
+def _manifest_path(name: str, store: Path | None = None) -> Path:
     model, _, tag = name.partition(":")
-    path = OLLAMA_MODELS_DIR / "manifests/registry.ollama.ai/library" / model / (tag or "latest")
-    return json.loads(path.read_text(encoding="utf-8"))
+    return (store or OLLAMA_MODELS_DIR) / "manifests/registry.ollama.ai/library" / model / (tag or "latest")
 
 
-def _blob(digest: str) -> Path:
+def _ollama_manifest(name: str) -> dict:
+    return json.loads(_manifest_path(name).read_text(encoding="utf-8"))
+
+
+def _blob(digest: str, store: Path | None = None) -> Path:
     algorithm, _, value = digest.partition(":")
     if algorithm != "sha256" or len(value) != 64:
         raise ValueError(f"Digest de blob inattendu : {digest}")
-    return OLLAMA_MODELS_DIR / "blobs" / f"sha256-{value}"
+    return (store or OLLAMA_MODELS_DIR) / "blobs" / f"sha256-{value}"
 
 
 def _model_record(client, base_url: str, name: str, quantization: str) -> tuple[dict, dict]:

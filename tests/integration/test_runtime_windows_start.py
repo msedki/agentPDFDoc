@@ -1,4 +1,5 @@
 import json
+import shutil
 import socket
 import sys
 import time
@@ -10,15 +11,32 @@ import yaml
 from services.runtime.artifacts import ROOT
 from services.runtime.supervisor import acquire_qdrant_lock, process_identity_valid, read_state, start
 
-pytestmark = pytest.mark.skipif(sys.platform != "win32", reason="Windows native supervisor")
+pytestmark = [pytest.mark.integration,
+              pytest.mark.skipif(sys.platform != "win32", reason="Windows native supervisor")]
 
 
-def test_port_collision_fails_without_touching_existing_listener(tmp_path, monkeypatch):
+@pytest.fixture
+def owned_qdrant_dir():
+    # Chemin Qdrant court imposé hors tmp_path : seul le dossier créé par ce test est retiré.
+    path = ROOT / ".runtime/q" / uuid.uuid4().hex[:8]
+    assert not path.exists()
+    yield path
+    deadline = time.monotonic() + 10
+    while path.exists():
+        try:
+            shutil.rmtree(path)
+        except PermissionError:
+            if time.monotonic() >= deadline:
+                raise
+            time.sleep(0.1)
+
+
+def test_port_collision_fails_without_touching_existing_listener(tmp_path, monkeypatch, owned_qdrant_dir):
     monkeypatch.delenv("RAG_DATA_DIR", raising=False)
     profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
     data = tmp_path / "Données arrêtées"
     profile["app"]["data_dir"] = str(data)
-    profile["qdrant"]["storage_dir"] = str(ROOT / ".runtime/q" / uuid.uuid4().hex[:8])
+    profile["qdrant"]["storage_dir"] = str(owned_qdrant_dir)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
         listener.bind(("127.0.0.1", 0))
         listener.listen()
@@ -45,12 +63,11 @@ def test_port_collision_fails_without_touching_existing_listener(tmp_path, monke
         "state": state}, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def test_distinct_data_roots_cannot_share_locked_qdrant(tmp_path, monkeypatch):
+def test_distinct_data_roots_cannot_share_locked_qdrant(tmp_path, monkeypatch, owned_qdrant_dir):
     monkeypatch.delenv("RAG_DATA_DIR", raising=False)
     profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
     data = tmp_path / "Autre racine sans service"
-    qdrant = ROOT / ".runtime/q" / uuid.uuid4().hex[:8]
-    assert not qdrant.exists()
+    qdrant = owned_qdrant_dir
     profile["app"]["data_dir"] = str(data)
     profile["qdrant"]["storage_dir"] = str(qdrant)
     for service, key in (("app", "port"), ("qdrant", "url"), ("llm", "base_url")):
@@ -68,5 +85,8 @@ def test_distinct_data_roots_cannot_share_locked_qdrant(tmp_path, monkeypatch):
         assert state["services"] == {}
     with acquire_qdrant_lock(qdrant):
         pass
+    deadline = time.monotonic() + 5
+    while process_identity_valid(state["supervisor"]) and time.monotonic() < deadline:
+        time.sleep(0.02)
     (tmp_path / "shared-storage-proof.json").write_text(json.dumps({"state": state,
         "qdrant_lock_reacquired_after_close": True}, ensure_ascii=False, indent=2), encoding="utf-8")

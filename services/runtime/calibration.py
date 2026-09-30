@@ -13,6 +13,7 @@ import httpx
 import psutil
 
 from .artifacts import ROOT, file_hash, write_json_atomic
+from .resources import acquire_host_heavy_lock
 from .supervisor import environment, load_profile, native_paths, send_owned_console_interrupt, wait_http
 from .windows_process import WindowsJob
 
@@ -63,7 +64,8 @@ def calibrate(profile_path: Path, output: Path, *, input_target: int = 2950,
     write_json_atomic(output, report)
     service_profile = {**profile, "llm": {**profile["llm"], "base_url": "http://127.0.0.1:11444"}}
     base_url = service_profile["llm"]["base_url"]
-    with WindowsJob() as job:
+    # Même verrou que les générations et imports de toutes les instances : un seul modèle chargé par poste.
+    with acquire_host_heavy_lock("calibration"), WindowsJob() as job:
         child = job.launch([str(native_paths()["ollama"]), "serve"], cwd=ROOT,
                            env=environment(service_profile, ROOT / ".runtime/cpu-pilot", profile_path),
                            log_path=output.with_suffix(".service.log"))

@@ -17,7 +17,7 @@ import psutil
 import yaml
 
 from .artifacts import ROOT, file_hash, read_json_atomic, write_json_atomic
-from .resources import ResourceGovernor
+from .resources import host_sample
 from .windows_process import OwnedProcess, WindowsJob
 
 
@@ -66,6 +66,51 @@ def check_ports(ports: list[int]) -> None:
                 sock.bind(("127.0.0.1", port))
             except OSError as exc:
                 raise RuntimeError(f"Port {port} occupé ; aucun service existant ne sera arrêté.") from exc
+
+
+def owned_pids(state: dict) -> set[int]:
+    """PID du superviseur à l'identité revalidée et de ses descendants."""
+    identity = state.get("supervisor", {})
+    if not process_identity_valid(identity):
+        return set()
+    try:
+        supervisor = psutil.Process(identity["pid"])
+        return {supervisor.pid, *(child.pid for child in supervisor.children(recursive=True))}
+    except psutil.Error:
+        return set()
+
+
+def port_states(ports: dict[str, int], owned: set[int]) -> dict[str, dict]:
+    """Libre, pris par nos PID ou par un tiers ; observation seule, rien n'est arrêté."""
+    listeners: dict[int, set] = {}
+    listing_error: str | None = None
+    try:
+        for connection in psutil.net_connections(kind="tcp"):
+            if connection.status == psutil.CONN_LISTEN and connection.laddr:
+                listeners.setdefault(connection.laddr.port, set()).add(connection.pid)
+    except psutil.Error as exc:
+        listeners, listing_error = {}, type(exc).__name__
+    result = {}
+    for name, port in ports.items():
+        pids = listeners.get(port, set())
+        known = {pid for pid in pids if pid}
+        if not pids:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                try:
+                    sock.bind(("127.0.0.1", port))
+                    state = "free"
+                except OSError:
+                    state = "occupied_unknown_owner"
+        elif known and known == pids and known <= owned:
+            state = "owned"
+        elif known - owned:
+            state = "foreign"
+        else:
+            state = "occupied_unknown_owner"
+        result[name] = {"port": port, "state": state, "listener_pids": sorted(known)}
+        if listing_error:
+            result[name]["listing_error"] = listing_error
+    return result
 
 
 def environment(profile: dict, directory: Path, profile_path: Path) -> dict[str, str]:
@@ -179,6 +224,67 @@ def write_qdrant_config(profile: dict, directory: Path, control: Path) -> Path:
     return path
 
 
+class RotatingJsonl:
+    """Trace JSONL bornée : fichier courant plus archives .1..N, lignes jamais coupées."""
+
+    def __init__(self, path: Path, max_bytes: int = 5 * 1048576, archives: int = 2,
+                 busy_timeout_seconds: float = 1.0, retry_after_seconds: float = 30.0):
+        self.path, self.max_bytes, self.archives = path, max_bytes, archives
+        self.busy_timeout_seconds, self.retry_after_seconds = busy_timeout_seconds, retry_after_seconds
+        self._retry_at = 0.0
+        self._stream = path.open("ab")
+
+    def _rotate(self) -> None:
+        self._stream.close()
+        deadline = time.monotonic() + self.busy_timeout_seconds
+        try:
+            for index in range(self.archives, 0, -1):
+                source = self.path if index == 1 else self.path.with_name(f"{self.path.name}.{index - 1}")
+                while source.exists():
+                    try:
+                        source.replace(self.path.with_name(f"{self.path.name}.{index}"))
+                    except PermissionError:
+                        # Analyse antivirus ou lecteur sans FILE_SHARE_DELETE : reprise bornée.
+                        if time.monotonic() >= deadline:
+                            raise
+                        time.sleep(0.02)
+        except PermissionError:
+            # Refus persistant : aucune ligne perdue, rotation reportée (borne dépassée d'autant).
+            self._retry_at = time.monotonic() + self.retry_after_seconds
+        finally:
+            self._stream = self.path.open("ab")
+
+    def write(self, record: dict) -> None:
+        line = (json.dumps(record, ensure_ascii=False) + "\n").encode("utf-8")
+        if (self._stream.tell() and self._stream.tell() + len(line) > self.max_bytes
+                and time.monotonic() >= self._retry_at):
+            self._rotate()
+        self._stream.write(line)
+        self._stream.flush()
+
+    def close(self) -> None:
+        self._stream.close()
+
+    def __enter__(self) -> RotatingJsonl:
+        return self
+
+    def __exit__(self, *exc) -> None:
+        self.close()
+
+
+def supervisor_sample(supervisor: psutil.Process, disk_root: Path) -> dict:
+    # Mesures seulement : le lease lourd appartient au processus API (/api/v1/diagnostics).
+    sample = {**host_sample(disk_root, supervisor), "source": "supervisor", "owned_processes": []}
+    for child in supervisor.children(recursive=True):
+        try:
+            memory = child.memory_info()
+            sample["owned_processes"].append({"pid": child.pid, "working_set_mib": round(memory.rss / 1048576, 2),
+                                              "private_mib": round(getattr(memory, "private", memory.rss) / 1048576, 2)})
+        except psutil.Error:
+            continue
+    return sample
+
+
 def send_owned_console_interrupt(child: OwnedProcess) -> bool:
     if not child.still_owned():
         return child.poll() is not None
@@ -259,23 +365,12 @@ def supervise(profile_path: Path) -> int:
         state["http_health"] = wait_http(state["app_url"] + "/api/v1/health", api, timeout=120)
         state["status"] = "running"
         write_json_atomic(state_path, state)
-        governor = ResourceGovernor({**profile, "app": {**profile["app"], "data_dir": str(directory)}})
-        with (log_root / "resources.jsonl").open("a", encoding="utf-8") as trace:
+        with RotatingJsonl(log_root / "resources.jsonl") as trace:
             while not stop_path.exists():
                 dead = [name for name, identity in state["services"].items() if not process_identity_valid(identity)]
                 if dead:
                     raise RuntimeError("Service arrêté : " + ", ".join(dead))
-                sample = governor.snapshot()
-                sample["owned_processes"] = []
-                for child in self_process.children(recursive=True):
-                    try:
-                        memory = child.memory_info()
-                        sample["owned_processes"].append({"pid": child.pid, "working_set_mib": memory.rss / 1048576,
-                                                          "private_mib": getattr(memory, "private", memory.rss) / 1048576})
-                    except psutil.Error:
-                        continue
-                trace.write(json.dumps(sample) + "\n")
-                trace.flush()
+                trace.write(supervisor_sample(self_process, directory))
                 time.sleep(1)
         state["status"] = "stopping"
         write_json_atomic(state_path, state)
@@ -367,6 +462,10 @@ def stop(profile_path: Path) -> dict:
 def status(profile_path: Path) -> dict:
     state = read_state(data_path(load_profile(profile_path)))
     state["supervisor_identity_valid"] = process_identity_valid(state.get("supervisor", {}))
+    if state.get("status") in {"starting", "running", "stopping"} and not state["supervisor_identity_valid"]:
+        # Superviseur disparu sans écrire son état final : ne pas annoncer un service vivant.
+        state["recorded_status"] = state["status"]
+        state["status"] = "stale"
     state["profile_matches_current"] = state.get("profile_sha256") == file_hash(profile_path)
     for identity in state.get("services", {}).values():
         identity["identity_valid"] = process_identity_valid(identity)

@@ -7,7 +7,8 @@ import pytest
 
 from services.runtime.artifacts import read_json_atomic, write_json_atomic
 
-pytestmark = pytest.mark.skipif(__import__("sys").platform != "win32", reason="NTFS/Win32 integration")
+pytestmark = [pytest.mark.integration,
+              pytest.mark.skipif(__import__("sys").platform != "win32", reason="NTFS/Win32 integration")]
 
 
 def test_real_windows_reader_sharing_conflict_is_retried(tmp_path):
