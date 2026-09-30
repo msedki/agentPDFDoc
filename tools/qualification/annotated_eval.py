@@ -83,10 +83,11 @@ def resolve_unit(unit: dict[str, Any], document_blocks: list[dict[str, Any]]) ->
     for excerpt in unit.get("required_texts") or []:
         ids, status, coverage = locate(excerpt, on_page)
         if not ids:
-            # Page annoncée erronée ou preuve à cheval : même recherche sur tout le document.
-            ids, status, coverage = locate(excerpt, document_blocks)
-            if ids:
-                status = "PAGE_CORRECTED_" + status
+            # Page annoncée erronée : seule une correspondance exacte ailleurs est retenue. Une correspondance approchée
+            # sur une autre page tombe sur des textes répétés (cartouches, en-têtes) et désignerait un faux bloc.
+            elsewhere, found_status, _ = locate(excerpt, document_blocks)
+            if elsewhere and found_status in {"EXACT", "EXACT_SPAN"}:
+                ids, status, coverage = elsewhere, "PAGE_CORRECTED_" + found_status, 1.0
                 corrected_pages |= {block["page_index"] for block in document_blocks if block["id"] in ids}
         statuses.append({"status": status, "coverage": coverage})
         found += [identifier for identifier in ids if identifier not in found]

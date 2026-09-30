@@ -22,7 +22,8 @@ def preflight_page(index, route="structured", width=600, height=800):
     page = {"page_index": index, "page_number": index + 1, "label": None, "effective_box": [0, 0, width, height],
             "crop_box": [0, 0, width, height], "rotation": 0, "display_width": width, "display_height": height,
             "native_text_regions": [], "text_font_sizes": [10], "image_regions": [], "text_mapping_warnings": [],
-            "alphanumeric_count": 20, "native_text_sparse": False}
+            # Couche texte identique au texte rendu par SessionDouble (« Page N : tension 24 V », 15 caractères alphanumériques).
+            "alphanumeric_count": 15, "native_text_sparse": False}
     if route == "structured":
         page.update(classification="native", needs_ocr=False, vector_path_count=8)
     elif route == "regional_ocr":
@@ -242,3 +243,46 @@ def test_conversion_failure_keeps_the_docling_error_summary_in_its_warning(tmp_p
     warning = next(item for item in result["warnings"] if item["code"] == "DOCLING_CONVERSION_FAILED")
     assert warning["errors"] == errors and warning["page_index"] == 1
 
+
+
+class LossySession(SessionDouble):
+    """La voie structured ne rend que le titre de la page ; la voie native rend le texte complet, ou rien si native_loses."""
+
+    def __init__(self, native_loses=False):
+        super().__init__()
+        self.native_loses = native_loses
+
+    def convert(self, path, first, last, route):
+        document, complete, observed = super().convert(path, first, last, route)
+        if route == "structured" or self.native_loses:
+            for item in document["texts"]:
+                item["text"] = item["orig"] = "Page"
+                item["prov"][0]["charspan"] = [0, 4]
+        return document, complete, observed
+
+
+def test_structured_text_loss_falls_back_to_the_native_route_for_that_page(tmp_path):
+    session = LossySession()
+    result = window(tmp_path, [preflight_page(0)], session)
+    assert session.calls == [(0, 0, "structured"), (0, 0, "native")]
+    page = result["pages"][0]
+    assert page["extraction_route"] == "native" and page["routing_reason"] == "structured_text_loss_fallback"
+    assert page["blocks"][0]["raw_text"] == "Page 0 : tension 24 V" and page["structured_text_layer_coverage"] == 0.267
+    codes = [item["code"] for item in result["warnings"]]
+    assert "STRUCTURED_TEXT_LOSS" in codes and "STRUCTURED_FELL_BACK_TO_NATIVE" in codes
+    assert not page.get("unresolved_regions") and result["complete"] is True
+
+
+def test_structured_text_loss_is_declared_when_the_native_route_loses_it_too(tmp_path):
+    result = window(tmp_path, [preflight_page(0)], LossySession(native_loses=True))
+    page = result["pages"][0]
+    assert page["extraction_route"] == "structured" and page["blocks"][0]["raw_text"] == "Page"
+    assert page["unresolved_regions"] == [{"bbox": None, "reason": "STRUCTURED_TEXT_LOSS", "precision": "page", "text_layer_coverage": 0.267}]
+    assert result["complete"] is False
+
+
+def test_text_layer_is_not_a_reference_for_scans_or_sparse_pages():
+    blocks = {"blocks": [{"raw_text": "abc"}]}
+    assert pipeline.text_layer_coverage(blocks, {"classification": "native", "alphanumeric_count": 3, "native_text_sparse": False}) == 1.0
+    assert pipeline.text_layer_coverage(blocks, {"classification": "scan_candidate", "alphanumeric_count": 3}) is None
+    assert pipeline.text_layer_coverage(blocks, {"classification": "native", "alphanumeric_count": 3, "native_text_sparse": True}) is None

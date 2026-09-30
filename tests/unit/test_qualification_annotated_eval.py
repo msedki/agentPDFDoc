@@ -32,6 +32,9 @@ def test_a_wrong_page_number_is_corrected_from_the_whole_document():
     unit = resolve_unit({"page_number": 1, "required_texts": ["couple de serrage 12 N·m pour les vis M8"]}, BLOCKS)
     assert unit["resolved"] and unit["block_ids"] == ["b4"] and unit["page_indices"] == [0, 1]
     assert unit["excerpts"][0]["status"] == "PAGE_CORRECTED_EXACT"
+    # Correspondance seulement approchée sur une autre page : refusée (textes répétés d'une page à l'autre).
+    approximate = resolve_unit({"page_number": 1, "required_texts": ["couple de serrage 12 N·m vis M8 tableau"]}, BLOCKS)
+    assert not approximate["resolved"] and approximate["page_indices"] == [0] and approximate["excerpts"][0]["status"] == "NOT_RESOLVED"
 
 
 def test_dataset_has_document_and_library_variants_and_keeps_unanswerable_questions():

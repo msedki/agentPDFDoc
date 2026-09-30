@@ -66,6 +66,21 @@ Essai apparié ([série 2](ev1-mots-outils-serie2-20260930T2225.json), [série 3
 
 Décision : changement non adopté. L'effet va dans le bon sens sur les questions courtes mais n'est pas établi, et la série de confirmation, faute de questions de valeur neuves (4 seulement après exclusion), manque de puissance. À remesurer sur le corpus complet, et après la correction du découpage, qui agit sur la même cause de classement.
 
+## Jeu de référence établi par lecture intégrale (W014) — mesure A
+
+85 questions rédigées après lecture complète des 4 documents (CPR-07A 30, MR2_30A 30, essais MIGBT 19, en italien, Evaluation module4 6), au schéma V2.1, dont 72 avec réponse et 13 sans réponse vérifiée ; jeu sous `.runtime/evals/annotated-v1/`, non validé par un expert. Rattachement automatique des 139 extraits exacts (`tools/qualification/annotated_eval.py resolve`) : 93 exacts, 8 à cheval sur deux blocs, 21 approchés sur la page annoncée, 17 non rattachés ; 64 questions sur 72 rattachées au bloc, les 8 autres mesurées à la page. Mesure du 30/09 à 23:09 UTC, extraction et découpage en service à cette heure ([rapport](annotated-v1-reference-20260930T2310.json)) :
+
+| Périmètre | Page au top 10 | Page dans le contexte | Bloc dans le contexte |
+|---|---|---|---|
+| Document de la question | 61/72 [0,747 ; 0,912] | 59/72 [0,715 ; 0,891] | 47/64 [0,615 ; 0,827] |
+| Toute la bibliothèque | 50/72 [0,580 ; 0,789] | 47/72 [0,538 ; 0,752] | 37/64 [0,456 ; 0,691] |
+
+Par difficulté (document, page dans le contexte) : directes 22/24, paraphrases 16/17, sur plusieurs pages 4/5, tableaux 17/24, pages images 0/2. Sur toute la bibliothèque, les tableaux tombent à 10/24. Les séries générées (150/160) surestimaient donc nettement la recherche réelle : elles reprenaient les mots du bloc.
+
+Causes établies pendant le rattachement, en lecture seule sur la base :
+- **Pages sans texte extrait** : MR2_30A pages 18, 19 et 27 en erreur dans l'extraction active, antérieure au correctif des découpes ; 3 questions ne peuvent pas trouver leur preuve avant réextraction.
+- **Perte silencieuse de la voie `structured`** : la couche texte du PDF compte 1 066 et 239 caractères alphanumériques sur MR2_30A pages 7 et 8, 1 162 et 1 125 sur CPR-07A pages 8 et 9 ; les blocs extraits en gardent 8, 13, 73 et 43. Le contrôle de couverture à 95 % ne s'applique qu'à la voie `native` (`services/ingestion/pipeline.py:82-91,162-166`), si bien que ces pages ne déclarent aucune limite et que le document ne signale pas cette perte. Couverture de la couche texte sur l'ensemble : CPR-07A 0,887, MR2_30A 0,917, MIGBT et Evaluation module4 1,0.
+
 ## Améliorations proposées, par ordre de preuve attendue
 
 | Id | Hypothèse | Expérience appariée | Coût à surveiller |

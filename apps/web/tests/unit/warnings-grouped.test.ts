@@ -31,3 +31,14 @@ test("une longue liste de pages est abrégée", () => {
   assert.match(texts[0], /pages 1, 2, 3, 4, 5, 6, 7, 8 et 4 autres :/);
   assert.deepEqual(groupedWarningTexts(undefined), []);
 });
+
+test("la perte de texte de l'analyse de mise en page et sa reprise sont décrites sans code", () => {
+  const texts = groupedWarningTexts([
+    { code: "STRUCTURED_TEXT_LOSS", page_index: 6, text_layer_coverage: 0.008 },
+    { code: "STRUCTURED_FELL_BACK_TO_NATIVE", page_index: 6, monotonic_vertical_order: false },
+  ]);
+  assert.equal(texts.length, 2);
+  assert.match(texts[0], /^Texte écarté par l'analyse de mise en page, page 7 : /);
+  assert.match(texts[1], /^Pages reprises depuis le texte intégré au PDF, page 7 : .*ordre de lecture/);
+  for (const text of texts) assert.doesNotMatch(text, /STRUCTURED_/);
+});

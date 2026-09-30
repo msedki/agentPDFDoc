@@ -79,6 +79,10 @@ def routing_reason(page, route, settings):
     return "simple_native_signals"
 
 
+# Part minimale des caractères alphanumériques de la couche texte PDF à retrouver dans les blocs d'une page.
+TEXT_COVERAGE_MIN = 0.95
+
+
 def native_quality(page):
     blocks = [block for block in page["blocks"] if block["type"] in {"text", "heading", "caption"}]
     count = sum(sum(character.isalnum() for character in block["raw_text"]) for block in blocks)
@@ -87,8 +91,16 @@ def native_quality(page):
     boxes = [block["bbox"] for block in blocks]
     localized = bool(boxes) and all(box is not None for box in boxes)
     ordered = localized and all(second[3] <= first[3] + 3 for first, second in zip(boxes, boxes[1:], strict=False))
-    return {"passed": coverage >= 0.95 and localized and ordered,
+    return {"passed": coverage >= TEXT_COVERAGE_MIN and localized and ordered,
             "alphanumeric_coverage_ratio": coverage, "localized": localized, "monotonic_vertical_order": ordered}
+
+
+def text_layer_coverage(page, source):
+    """Part de la couche texte PDF retrouvée dans les blocs d'une page ; None si cette couche n'est pas une référence fiable."""
+    if source.get("classification") not in {"native", "mixed"} or source.get("native_text_sparse") or not source.get("alphanumeric_count"):
+        return None
+    found = sum(sum(character.isalnum() for character in block.get("raw_text") or "") for block in page.get("blocks", []))
+    return found / source["alphanumeric_count"]
 
 
 def failed_page(page, route, settings, error):
@@ -180,6 +192,38 @@ def _extract_window(path, version_id, first, last, settings, output_dir, preflig
                             parser_complete = parser_complete and repaired_complete
                         except IngestionError as exc:
                             warnings.append({"code": exc.code, "page_index": index, "component": "native_quality_escalation"})
+            elif route == "structured":
+                # La mise en page peut écarter presque tout le texte d'une page (listes, tableaux mal détectés) sans erreur :
+                # la couche texte fiable du PDF sert de référence, puis la voie native est tentée pour cette page seule.
+                index = page["page_index"]
+                coverage = text_layer_coverage(page, preflight["pages"][index])
+                if coverage is not None and coverage < TEXT_COVERAGE_MIN:
+                    warnings.append({"code": "STRUCTURED_TEXT_LOSS", "page_index": index, "text_layer_coverage": round(coverage, 3)})
+                    fallback = None
+                    if not should_cancel(cancel_event):
+                        try:
+                            check_render_budget(preflight["pages"][index], "native", settings)
+                            native_document, native_complete, native_ocr = session.convert(path, index, index, "native")
+                            atomic_json(Path(output_dir) / f"docling-{index:06d}-{index:06d}-native.json", native_document)
+                            candidates, native_warnings = document_to_pages(native_document, [preflight["pages"][index]], version_id, revision, "native", native_ocr, settings.ocr_min_word_confidence)
+                            quality = native_quality(candidates[0])
+                            # L'ordre vertical n'est pas exigé : colonnes et tableaux le rompent, et le texte complet localisé vaut mieux qu'une perte.
+                            if quality["alphanumeric_coverage_ratio"] >= TEXT_COVERAGE_MIN and quality["localized"]:
+                                fallback = (candidates[0], quality, native_warnings, native_complete)
+                        except IngestionError as exc:
+                            warnings.append({"code": exc.code, "page_index": index, "component": "structured_text_loss_fallback"})
+                    if fallback:
+                        candidate, quality, native_warnings, native_complete = fallback
+                        page.clear()
+                        page.update(candidate, extraction_route="native", routing_reason="structured_text_loss_fallback", native_quality=quality,
+                                    structured_text_layer_coverage=round(coverage, 3))
+                        warnings.extend(native_warnings)
+                        warnings.append({"code": "STRUCTURED_FELL_BACK_TO_NATIVE", "page_index": index,
+                                         "monotonic_vertical_order": quality["monotonic_vertical_order"]})
+                        parser_complete = parser_complete and native_complete
+                    else:
+                        page.setdefault("unresolved_regions", []).append({"bbox": None, "reason": "STRUCTURED_TEXT_LOSS", "precision": "page",
+                                                                           "text_layer_coverage": round(coverage, 3)})
         result["pages"] += converted
         result["warnings"] += warnings
         result.setdefault("route_metrics", []).append({"route": route, "page_start": selected[0]["page_index"], "page_end": selected[-1]["page_index"], "elapsed_seconds": time.monotonic() - started, "parser_complete": parser_complete, "artifact": docling_path.name, "lifecycle": session.last_lifecycle})

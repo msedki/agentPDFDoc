@@ -1637,6 +1637,14 @@ Prochaine action exécutable : commit et push ; documentation stabilisée (worke
 - Outil : `corpus_eval.py build --seed --exclude-dataset` pour des séries de confirmation indépendantes (test unitaire ajouté).
 
 Prochaine action exécutable : commit et push ; puis EV-1 (regroupement des blocs par section) après lecture des contrats de citation et de périmètre concernés ; en parallèle possible : rapport de recette R20, R22 DIST-02.
+## Point à 23:35 UTC — jeu de référence W014 et perte silencieuse de la voie structured
+
+- W014 (demande utilisateur vers 22:44) : 85 questions établies par lecture intégrale des 4 documents (72 avec réponse), sous `.runtime/evals/annotated-v1/`, non validées par un expert ; outil `annotated_eval.py`. Mesure A (23:09) : page dans le contexte 59/72 sur le document, 47/72 sur toute la bibliothèque ; tableaux et pages images faibles ([rapport](reports/evaluation/corpus-reel-2026-09-30.md)).
+- Bug prouvé (R19) : la voie `structured` perdait jusqu'à 99 % du texte de certaines pages sans rien déclarer (6 pages sur 79 dans CPR-07A et MR2_30A) ; corrigé : contrôle de couverture de la couche texte, reprise de la page en voie `native`, sinon perte déclarée ; tests unitaires, 12 tests d'intégration réels de l'ingestion PASS ([junit](reports/backend/2026-09-30-structured-fallback-ingestion.xml)). Réindexation des documents à faire pour l'effet réel.
+- R20 : rapport de recette livré ; DIST-02 : première étape livrée (`050f2c2`).
+- EV-1 (`section-pack-v1`) : implémenté et testé, non commité ; mesure prévue en deux temps pour séparer les effets : B = réextraction avec les correctifs d'extraction et l'ancien découpage (sans redémarrer l'API), puis C = nouveau découpage après redémarrage, sur le jeu W014 et les séries 2 et 3.
+
+Prochaine action exécutable : build de l'interface (libellés des nouveaux codes), réindexation des 4 documents (B), mesure, puis redémarrage avec `section-pack-v1`, réindexation (C) et mesure.
 
 ---
 

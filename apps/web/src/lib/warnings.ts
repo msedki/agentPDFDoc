@@ -24,6 +24,8 @@ const ingestionWarnings: Record<string, { title: string; consequence: string }> 
   PAGE_GROUP_RETRIED_BY_PAGE: { title: "Pages retraitées une à une", consequence: "un groupe de pages a échoué et a été repris page par page." },
   NATIVE_QUALITY_FAILED: { title: "Couche texte native peu fiable", consequence: "le texte intégré au PDF ne passait pas le contrôle de qualité." },
   NATIVE_ESCALATED_TO_STRUCTURED: { title: "Pages relues par l'analyse de mise en page", consequence: "leur couche texte native ne passait pas le contrôle de qualité." },
+  STRUCTURED_TEXT_LOSS: { title: "Texte écarté par l'analyse de mise en page", consequence: "une partie du texte intégré au PDF manquait après l'analyse ; si la relecture directe n'a pas pu le reprendre, ce texte n'est ni recherché ni cité." },
+  STRUCTURED_FELL_BACK_TO_NATIVE: { title: "Pages reprises depuis le texte intégré au PDF", consequence: "l'analyse de mise en page perdait leur texte ; il a été repris en entier, mais l'ordre de lecture des colonnes ou des tableaux peut différer de la page." },
   OCR_WORD_LOW_CONFIDENCE: { title: "Mots lus par OCR avec une faible confiance", consequence: "vérifiez les valeurs dans le lecteur avant de les utiliser." },
   OCR_CELL_LOW_CONFIDENCE: { title: "Cellules de tableau lues par OCR avec une faible confiance", consequence: "vérifiez les valeurs dans le lecteur avant de les utiliser." },
   OCR_PRINTED_CELL_UNRESOLVED: { title: "Cellules de tableau non lues", consequence: "leur contenu manque dans l'index ; consultez le tableau dans le lecteur." },
