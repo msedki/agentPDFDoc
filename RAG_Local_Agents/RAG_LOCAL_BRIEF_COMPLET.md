@@ -1,10 +1,8 @@
 # RAG PDF local — brief complet V2.1 pour agents
 
-Baseline documentaire : 29 septembre 2026.
+Ce fichier est généré dans le dépôt par `RAG_Local_Agents/tools/build_brief.py` à partir des documents canoniques, des skills du pack et des configurations documentaires présents dans `RAG_Local_Agents/`. Il ne porte pas de date propre : son contenu est celui de ces sources dans la révision Git qui le contient, et `build_brief.py --check` contrôle sa synchronisation. Modifier les sources séparées puis le régénérer, jamais maintenir deux versions à la main. Lire ce brief OU les fichiers canoniques pertinents, pas leurs deux copies.
 
-Ce fichier regroupe les documents corrigés, les consignes de recherche officielle, les skills projet et les configurations. Il est généré : modifier les sources séparées puis le régénérer, jamais maintenir deux versions à la main. Lire ce brief OU les fichiers canoniques pertinents, pas leurs deux copies.
-
-Les sections « Fichier » identifient leur chemin dans le ZIP. Aucune application, performance cible ou installation native de skill n’est déclarée validée par ce dossier documentaire.
+Les sections « Fichier » donnent le chemin relatif à `RAG_Local_Agents/` ; les liens relatifs sont résolus depuis ce dossier. `config/local16.yaml` y est la copie documentaire du profil runtime canonique `../config/local16.yaml`, dont `tools/verify_pack.py` contrôle l’identité. Aucune application, performance cible ou installation native de skill n’est déclarée validée par ce dossier documentaire.
 
 ---
 
@@ -209,6 +207,10 @@ Avant « terminé », relier le résultat aux critères de la DoD et aux preuves
 
 Mettre à jour `PLAN.md` après un changement substantiel. Modifier les `.md` canoniques, pas `RAG_LOCAL_BRIEF_COMPLET.md` à la main ; régénérer et vérifier ce fichier dérivé. Les scripts du dossier documentaire ne prouvent pas le fonctionnement de l'application.
 
+## Documentation et textes d'interface
+
+Appliquer la section « Documentation et textes de l'interface » des `CLAUDE.md`/`AGENTS.md` racine : espace documentaire séparant documentation vivante et stabilisée, une source de vérité par information, statut explicite en tête de chaque document, schémas vectoriels (SVG) plutôt qu'art ASCII, registre humain et précis sans formulation générique. Les textes affichés par l'interface relèvent des mêmes exigences et du vocabulaire du travail documentaire et de maintenance technique de l'utilisateur.
+
 ---
 
 ## Fichier : `CLAUDE.md`
@@ -315,11 +317,13 @@ Le **travail des agents** peut consulter Internet selon l'autorisation de l'util
 
 # Registre et usage des skills — RAG-LOCAL-16 V2.1
 
+**Statut :** registre vivant des skills présents dans le dépôt. **Date :** 30/09/2026 (UTC). **Référence :** empreintes SHA-256 des fichiers de la révision Git qui contient ce registre, recontrôlées à chaque exécution de `tools/verify_pack.py`.
+
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md).
 
 ## Point d'entrée
 
-Les cinq dossiers ci-dessous contiennent de **vrais `SKILL.md` rédigés pour ce projet**. Ils organisent le travail des agents de développement ; ils ne sont pas des plugins installés ni des compétences certifiées par OpenAI, Anthropic ou un éditeur de la stack.
+Deux familles de **vrais `SKILL.md` rédigés pour ce projet** coexistent : les cinq skills du pack sous `RAG_Local_Agents/skills/` (premier tableau) et six skills projet sous `.agents/skills/` à la racine du dépôt (second tableau). Ils organisent le travail des agents de développement ; ils ne sont pas des plugins installés ni des compétences certifiées par OpenAI, Anthropic ou un éditeur de la stack. Des fichiers tiers sont aussi posés sous `.agents/skills/` ; le [registre](#registre-des-fichiers-présents) les recense sans les compter parmi les skills du projet.
 
 Lire les noms/descriptions, choisir le skill utile, puis ouvrir son fichier. Si l'environnement fournit déjà un skill plus adapté, en contrôler les instructions et la compatibilité avant de le réutiliser ; ne pas charger les deux intégralement par réflexe. Les décisions externes restent soumises à [RECHERCHE_ET_SKILLS.md](RECHERCHE_ET_SKILLS.md).
 
@@ -331,13 +335,24 @@ Lire les noms/descriptions, choisir le skill utile, puis ouvrir son fichier. Si 
 | Qualifier RAM, CPU, chargements, offline et mises à jour | [local-cpu-qualification](skills/local-cpu-qualification/SKILL.md) | Mesures séparées, non-régression et décision de configuration |
 | Développer ou tester arborescence/PDF/chat et E2E | [pdf-workspace-e2e](skills/pdf-workspace-e2e/SKILL.md) | Parcours réel, sélections, sources et budget de rendu |
 
+| Tâche | Skill projet `.agents` et chemin exact | Sortie attendue ou limite déclarée |
+|---|---|---|
+| Backend RAG : scopes, recherche hybride, indexation cohérente, streaming, citations versionnées | [hybrid-rag-api](../.agents/skills/hybrid-rag-api/SKILL.md) | Contrats `IMPLEMENTATION.md` appliqués ; SQLite autoritaire, publication Qdrant vérifiée |
+| Ingestion PDF Windows : Docling, Tesseract CLI sélectif, pypdfium2, reprise par fenêtres | [pdf-ingestion-windows](../.agents/skills/pdf-ingestion-windows/SKILL.md) | Extractions réellement exécutées ; ni substitution de moteur ni accès étendu au corpus privé |
+| Poste documentaire `apps/web` : Next.js/PDF.js, périmètres, citations, textes d'interface | [pdf-workspace-web](../.agents/skills/pdf-workspace-web/SKILL.md) | Export statique, E2E D06 sur l'API réelle ; hors extraction et provisionnement des modèles |
+| PDF synthétiques et annotations de qualification, séparation développement/final | [rag-qualification-fixtures](../.agents/skills/rag-qualification-fixtures/SKILL.md) | Fixtures hashées ; ni benchmark métier ni import/indexation |
+| Provisionnement, supervision et arrêt ciblé des processus natifs Windows | [windows-rag-runtime](../.agents/skills/windows-rag-runtime/SKILL.md) | Versions verrouillées, Job Object, aucun WSL/Docker ni mutation système |
+| Comparatif d'embedding E5-small INT8 / Granite 97M R2 ONNX CPU | [embedding-comparison-windows](../.agents/skills/embedding-comparison-windows/SKILL.md) | Collections séparées, décision tracée ; modèle actif inchangé sans décision |
+
 ## Découverte et compatibilité avec les agents
 
 Le chemin `skills/` est un rangement portable du projet, **pas une promesse d'auto-découverte universelle**. Le prompt et `AGENTS.md` demandent de lire ces chemins explicitement ; cela permet leur usage même si le client ne les installe pas comme skills natifs. La lecture du fichier et son installation par le client sont deux opérations différentes.
 
 Avant une intégration native Codex, Claude Code ou autre : identifier la version du client ; consulter sa documentation actuelle ; utiliser son format de manifeste, son emplacement et sa procédure de validation réels ; tester la découverte et l'invocation. Ne pas inventer une commande, un champ YAML, un outil `skill-installer` disponible ni un chemin global. Aucun identifiant de modèle « Astra » n'est fixé par un Markdown.
 
-Ces skills pointent vers les documents canoniques situés deux niveaux plus haut. Conserver le dossier complet. Une copie dans un autre emplacement doit adapter les références ou embarquer les fichiers nécessaires, puis contrôler les liens et l'absence de divergence ; ne pas déplacer un `SKILL.md` seul en prétendant qu'il reste autonome.
+**Constat Claude Code (30/09/2026) :** le dépôt ne contient aucun dossier `.claude/skills/`, et les sessions Claude Code de ce chantier ne découvrent nativement ni les skills du pack ni ceux de `.agents/skills/` : aucun n'apparaît parmi leurs skills disponibles. Ils sont lus explicitement par leur chemin, comme le consigne [skills-usage-2026-09-30.json](reports/skills-usage-2026-09-30.json). Une découverte native exigerait l'emplacement et le format documentés du client, puis un essai de sélection ; ni l'un ni l'autre n'est réalisé.
+
+Les skills du pack pointent vers les documents canoniques situés deux niveaux plus haut ; ceux de `.agents/skills/` citent leurs documents par chemin relatif à la racine du dépôt. Conserver le dossier complet. Une copie dans un autre emplacement doit adapter les références ou embarquer les fichiers nécessaires, puis contrôler les liens et l'absence de divergence ; ne pas déplacer un `SKILL.md` seul en prétendant qu'il reste autonome.
 
 **Sources actuelles vérifiées pour ce cadrage :** la spécification Agent Skills documente le format ; OpenAI propose un catalogue d'exemples `openai/plugins` et une documentation Build skills ; Anthropic publie ses pratiques d'écriture et des exemples. Le README actuel de `openai/skills` le marque déprécié : ne pas le traiter comme catalogue actuel sans suivre la redirection officielle. Les liens et limites d'accès sont enregistrés dans [SOURCES.md](SOURCES.md), S17–S23.
 
@@ -349,13 +364,55 @@ Ne pas importer un skill de déploiement cloud, un connecteur documentaire exter
 
 En cas d'absence, utiliser la documentation officielle et le workflow projet. Créer une nouvelle compétence uniquement si une répétition réelle justifie son coût ; ne pas générer un skill par fonction, route ou fichier.
 
+## Registre des fichiers présents
+
+Chaque ligne donne le fichier, son origine telle qu'elle se constate dans le dépôt, son SHA-256 calculé sur les octets versionnés, le résultat du contrôle de format de `tools/verify_pack.py` et le statut comportemental. Catégories : `pack` pour `RAG_Local_Agents/skills/`, `projet` pour les skills rédigés dans ce dépôt sous `.agents/skills/`, `tiers` pour les fichiers venus d'ailleurs. Une origine « non vérifiée » signifie qu'aucune source ni licence n'accompagne le fichier : ne pas l'attribuer à un éditeur. Le contrôle `skills_registry` échoue dès qu'un fichier présent manque ici ou que son empreinte a changé ; mettre à jour la ligne dans le même changement que le skill.
+
+| Nom | Catégorie | Fichier | Origine constatée | SHA-256 | Format | Comportement |
+|---|---|---|---|---|---|---|
+| local-cpu-qualification | pack | [`skills/local-cpu-qualification/SKILL.md`](skills/local-cpu-qualification/SKILL.md) | Pack V2.1 : `metadata.origin: project-authored`, version 2.1 | `df784ae4926e77983eec1eae08d6ef8cc8dc59c0f11b2f04fbe2d164b64442c3` | PASS `skill_format` | NOT_RUN |
+| official-source-review | pack | [`skills/official-source-review/SKILL.md`](skills/official-source-review/SKILL.md) | Pack V2.1 : `metadata.origin: project-authored`, version 2.1 | `b8070dcee287af22b166cd3039439c0d6a4cf15ec540facfbd68e9ed7475910d` | PASS `skill_format` | NOT_RUN |
+| pdf-workspace-e2e | pack | [`skills/pdf-workspace-e2e/SKILL.md`](skills/pdf-workspace-e2e/SKILL.md) | Pack V2.1 : `metadata.origin: project-authored`, version 2.1 | `4a7c30a629025cecae1c1274d901659bbc42c6450cc9780d930dcd0ab6464ec5` | PASS `skill_format` | NOT_RUN |
+| rag-pdf-provenance | pack | [`skills/rag-pdf-provenance/SKILL.md`](skills/rag-pdf-provenance/SKILL.md) | Pack V2.1 : `metadata.origin: project-authored`, version 2.1 | `e4eea5f4412fe1a88723f8b752d4f240a7142d04d53c8204fdf47956a6cdf4cc` | PASS `skill_format` | NOT_RUN |
+| rag-retrieval-evaluation | pack | [`skills/rag-retrieval-evaluation/SKILL.md`](skills/rag-retrieval-evaluation/SKILL.md) | Pack V2.1 : `metadata.origin: project-authored`, version 2.1 | `bab9084f6e77174b8581e059df1b0950d459ef878c138490c5128795191ede07` | PASS `skill_format` | NOT_RUN |
+| hybrid-rag-api | projet | [`.agents/skills/hybrid-rag-api/SKILL.md`](../.agents/skills/hybrid-rag-api/SKILL.md) | Rédigé pour ce dépôt (renvoie à `RAG_Local_Agents/`) ; aucun champ d'origine ; création non tracée dans `PLAN.md` ni le journal | `6cf719c98714e8254f8314eefe6b377b61e04f3788a38f750921a00a5cc3d249` | PASS `agents_skill_format` | NOT_RUN |
+| pdf-ingestion-windows | projet | [`.agents/skills/pdf-ingestion-windows/SKILL.md`](../.agents/skills/pdf-ingestion-windows/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot B de `PLAN.md` | `3410656c843e9bb9505728e7f4aae5984b1158f32cfedd5dd50f320cb508690d` | PASS `agents_skill_format` | NOT_RUN |
+| pdf-workspace-web | projet | [`.agents/skills/pdf-workspace-web/SKILL.md`](../.agents/skills/pdf-workspace-web/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot D de `PLAN.md` ; textes d'interface et référence de forme ajoutés par les commits `f8fbb1c` et `d4924d9` | `a96ca71a8b7a622ed1276ef95147dc422c43f54f9a64b3e777d5e3a4cf4e6b3a` | PASS `agents_skill_format` | NOT_RUN |
+| rag-qualification-fixtures | projet | [`.agents/skills/rag-qualification-fixtures/SKILL.md`](../.agents/skills/rag-qualification-fixtures/SKILL.md) | Rédigé pour ce dépôt (renvoie à `RAG_Local_Agents/`) ; création non tracée dans `PLAN.md` ni le journal | `04dd992863315562c3910ab05fac6e353843fc70e11ce199b19df759fb8f2e7f` | PASS `agents_skill_format` | NOT_RUN |
+| windows-rag-runtime | projet | [`.agents/skills/windows-rag-runtime/SKILL.md`](../.agents/skills/windows-rag-runtime/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot E de `PLAN.md` ; lecture consignée dans `reports/skills-usage-2026-09-30.json` | `fb0b076d820cb4da0448eee37eeda7840343cc3b7bc56ef93c9149b3e283f451` | PASS `agents_skill_format` | NOT_RUN |
+| embedding-comparison-windows | projet | [`.agents/skills/embedding-comparison-windows/SKILL.md`](../.agents/skills/embedding-comparison-windows/SKILL.md) | Rédigé pour ce dépôt ; création consignée au journal du 30/09/2026 | `b2f18df54759dff6273605215188d22f9d1462f302e1ccd4e2292058020fa49f` | PASS `agents_skill_format` | NOT_RUN |
+| backend-patterns | tiers | [`.agents/skills/backend-patterns/SKILL.md`](../.agents/skills/backend-patterns/SKILL.md) | Autre projet : décrit le backend Decodair (PostgreSQL, SQLAlchemy 2) et renvoie au skill `postgresql-data-pipelines`, absent ici | `15bcac61e48183586d8b3ecd8cebabda3ad9c9ae782a3f4beb5dab7adecc986f` | PASS `agents_skill_format` | NOT_RUN |
+| agent-introspection-debugging | tiers | [`.agents/skills/agent-introspection-debugging/SKILL.md`](../.agents/skills/agent-introspection-debugging/SKILL.md) | Champ `origin: ECC` et section « Integration with ECC » ; source non vérifiée | `84f817fd626369280affe13883acb490c3856c0b108f9bb2ff78a59c7ce78aff` | PASS `agents_skill_format` | NOT_RUN |
+| frontend-design | tiers | [`.agents/skills/frontend-design/SKILL.md`](../.agents/skills/frontend-design/SKILL.md) | Aucune origine déclarée ; contenu générique sans référence à ce dépôt ; source non vérifiée | `50aff55b89e8d2699940dfa7308db236aed7749c7efebf92451ba00b0ca5b95e` | PASS `agents_skill_format` | NOT_RUN |
+| frontend-skill | tiers | [`.agents/skills/frontend-skill/SKILL.md`](../.agents/skills/frontend-skill/SKILL.md) | Aucune origine déclarée ; contenu générique sans référence à ce dépôt ; source non vérifiée | `9fbd63b038f660c4e9ef60e692935fab4a26f6eedb8c2478f8923e2dd3bf0504` | PASS `agents_skill_format` | NOT_RUN |
+| security-best-practices | tiers | [`.agents/skills/SKILL.md`](../.agents/skills/SKILL.md) | `name: security-best-practices`, aucune origine déclarée ; attend ses références dans un dossier `references/` absent ; source non vérifiée | `7b3dae1ffc5434d890f3c65c8f552af52d0307fab3b35dec13013c9ca3844c4f` | AVERTISSEMENT : `SKILL.md` hors dossier de skill, non découvrable | NOT_RUN |
+| security-best-practices | tiers | [`.agents/skills/openai.yaml`](../.agents/skills/openai.yaml) | Métadonnées d'affichage (`interface.display_name: Security Best Practices`) du skill précédent | `6e9c6f2edce448eb2b589f81ad6e3f722665021785513bcbfd0bf7b86b529171` | AVERTISSEMENT : mal rangé à la racine | NOT_RUN |
+| security-best-practices | tiers | [`.agents/skills/golang-general-backend-security.md`](../.agents/skills/golang-general-backend-security.md) | Référence du skill security-best-practices | `a73c47c34497b120672d48411fe51dc90d426a571801a0b3f649e2ce4ec658b4` | AVERTISSEMENT : hors `references/` | NOT_RUN |
+| security-best-practices | tiers | [`.agents/skills/javascript-express-web-server-security.md`](../.agents/skills/javascript-express-web-server-security.md) | Référence du skill security-best-practices | `427835cbb5be7ba96172ea6ca9af80ddd4419c833e9ebf870996740c80d8406c` | AVERTISSEMENT : hors `references/` | NOT_RUN |
+| security-best-practices | tiers | [`.agents/skills/javascript-general-web-frontend-security.md`](../.agents/skills/javascript-general-web-frontend-security.md) | Référence du skill security-best-practices | `3a7bc7b3f6e7ff043db9dbaa8933894d7a19d987d0607e4ddae5d70184a63d63` | AVERTISSEMENT : hors `references/` | NOT_RUN |
+| security-best-practices | tiers | [`.agents/skills/javascript-jquery-web-frontend-security.md`](../.agents/skills/javascript-jquery-web-frontend-security.md) | Référence du skill security-best-practices | `bcbad2fa6c2a02709e47e889e70102c76886bf36bc798624d27db570eccf40da` | AVERTISSEMENT : hors `references/` | NOT_RUN |
+| security-best-practices | tiers | [`.agents/skills/javascript-typescript-nextjs-web-server-security.md`](../.agents/skills/javascript-typescript-nextjs-web-server-security.md) | Référence du skill security-best-practices | `71c773f7a97ce60c853adfa100b3d88b3b7bc4c6b8acaef1432ffabd923ee182` | AVERTISSEMENT : hors `references/` | NOT_RUN |
+| security-best-practices | tiers | [`.agents/skills/javascript-typescript-react-web-frontend-security.md`](../.agents/skills/javascript-typescript-react-web-frontend-security.md) | Référence du skill security-best-practices | `d3030c0f24bddb56b9bbb91bbec1ee49eb7778bce4d3e0297b2641b2fc6b0d9c` | AVERTISSEMENT : hors `references/` | NOT_RUN |
+| security-best-practices | tiers | [`.agents/skills/javascript-typescript-vue-web-frontend-security.md`](../.agents/skills/javascript-typescript-vue-web-frontend-security.md) | Référence du skill security-best-practices | `77c6a747f9f17e3df03aad0fcb20d99ac7898001b81aef8b80908e45ac14a688` | AVERTISSEMENT : hors `references/` | NOT_RUN |
+| security-best-practices | tiers | [`.agents/skills/python-django-web-server-security.md`](../.agents/skills/python-django-web-server-security.md) | Référence du skill security-best-practices | `4fb69b5d45f10e588d1a8c35cdc5f59e18910f6b46a93e2d342d90f286f8dfd2` | AVERTISSEMENT : hors `references/` | NOT_RUN |
+| security-best-practices | tiers | [`.agents/skills/python-fastapi-web-server-security.md`](../.agents/skills/python-fastapi-web-server-security.md) | Référence du skill security-best-practices | `7383c7f4fc271190b05e562ada7e825982a2c76b6c79a9f95a1da7687b65a616` | AVERTISSEMENT : hors `references/` | NOT_RUN |
+| security-best-practices | tiers | [`.agents/skills/python-flask-web-server-security.md`](../.agents/skills/python-flask-web-server-security.md) | Référence du skill security-best-practices | `9606d69190c04c167fdeac57e61297547a57b0542fd89dede36f355970446929` | AVERTISSEMENT : hors `references/` | NOT_RUN |
+
+Le rangement ou le retrait des fichiers tiers (security-best-practices éclaté à la racine, backend-patterns d'un autre projet) reste une décision utilisateur ; tant qu'elle n'est pas prise, ils restent présents, recensés et signalés en avertissement.
+
 ## Contrôle de format et contrôle de comportement
 
-Les fichiers livrés utilisent `name`, `description`, `compatibility` et `metadata` dans le front matter ; aucun `allowed-tools` n'accorde des pouvoirs supposés. Le nom correspond au dossier, en minuscules avec tirets. Les instructions restent courtes et renvoient aux fichiers utiles. S17/S18 établissent les principes de format et de chargement progressif ; le seuil interne de 150 lignes par skill est un choix de ce projet.
+Les skills du pack utilisent `name`, `description`, `compatibility` et `metadata` dans le front matter ; aucun `allowed-tools` n'accorde des pouvoirs supposés. Le nom correspond au dossier, en minuscules avec tirets. Les instructions restent courtes et renvoient aux fichiers utiles. S17/S18 établissent les principes de format et de chargement progressif ; le seuil interne de 150 lignes par skill est un choix de ce projet.
 
-`python tools/verify_pack.py` contrôle leur structure et leurs liens, pas leur activation dans un client. La recette agent doit ajouter une tâche de bon déclenchement, une de non-déclenchement et un résultat vérifiable. Enregistrer nom/chemin, origine, hash/version réellement calculés et preuve, ou `NOT_RUN`.
+`python tools/verify_pack.py` contrôle la structure et les liens, pas l'activation dans un client :
 
-Au moment de livraison de ce dossier : **cinq skills projet disponibles comme fichiers ; aucune installation de skill externe ni activation native d'un client ne sont déclarées réalisées.**
+- `skill_format` : les cinq skills du pack, avec les règles propres au projet (origine, métadonnées, 150 lignes, renvoi à `RECHERCHE_ET_SKILLS.md`) ;
+- `agents_skill_format` : chaque `.agents/skills/<nom>/SKILL.md` (front matter YAML valide, `name` égal au dossier, description de 1 à 1024 caractères, `compatibility` d'au plus 500, liens relatifs présents) ; les fichiers posés à la racine de `.agents/skills/` sont des avertissements du rapport ;
+- `skills_registry` : présence de chaque fichier dans le registre ci-dessus, catégorie admise et SHA-256 identique aux octets présents.
+
+La recette agent doit ajouter une tâche de bon déclenchement, une de non-déclenchement et un résultat vérifiable. Enregistrer nom/chemin, origine, hash/version réellement calculés et preuve, ou `NOT_RUN`.
+
+État au 30/09/2026 : **cinq skills du pack et six skills projet disponibles comme fichiers, format contrôlé ; aucun essai comportemental, aucune installation de skill externe ni activation native d'un client ne sont déclarés réalisés.**
 
 ---
 
@@ -910,6 +967,81 @@ Les recherches des agents ne sont pas une option réseau du profil `local16`. Au
 
 ---
 
+## Fichier : `EXPLOITATION_WINDOWS.md`
+
+# Exploitation native sur Windows
+
+La cible active est Windows 11 x86-64, selon [W001](DECISIONS.md#w001-plateforme-windows-native). Le lanceur `rag.ps1` et les processus natifs sont implémentés. Premier démarrage et second `up` idempotent exécutés le 30 septembre 2026 UTC : [preuve de démarrage](reports/runtime-first-up.json), [second appel](reports/runtime-first-duplicate-up.json). La chaîne RAG et la recette complète restent en cours ; `running` signifie processus possédés et API vivante.
+
+## Processus et stockage
+
+FastAPI sert le frontend statique et supervise les jobs. Ollama et Qdrant sont des binaires Windows natifs, lancés avec la configuration explicite du projet. Le worker Docling/Tesseract est un processus Python isolé créé à la demande. Le frontend est construit avec Node/pnpm au provisionnement ou à une modification autorisée ; son usage nominal ne nécessite pas un serveur Next.js supplémentaire.
+
+Les binaires, modèles et données sont conservés dans des chemins gérés et configurables, résolus en absolu sous Windows. L'arborescence initialement proposée reprend `.runtime/` pour les binaires vérifiés, les modèles, les caches, SQLite et Qdrant, avec journaux et état de supervision séparés. L'arrêt ne supprime aucune donnée. Les originaux métier restent immuables et les importations utilisent une copie gérée, même lorsque la source est déjà sur NTFS.
+
+Python cible reste 3.12 dans un environnement dédié, sans écraser le Python 3.13 utilisateur. Le lanceur doit pouvoir utiliser PowerShell 5.1 présent sur cette machine. Il ne modifie ni PATH global, ni politique d'exécution, ni services système, ni configuration utilisateur existante pour faciliter un lancement.
+
+## Commandes et prérequis
+
+Depuis la racine du dépôt, PowerShell 5.1, Node 22.17.0 et pnpm 10.34.1 déjà présents sur le poste. `./bootstrap.ps1` prépare uv 0.12.21 et Python 3.12.14 dans le projet ; `-Offline` utilise les caches existants. `./rag.ps1 provision` synchronise les locks, vérifie les artefacts, prépare le build et le modèle. Tesseract 5.4.0 Windows est un prérequis local copié dans le projet avec ses DLL et hashes : sa provenance d'installateur reste non authentifiée indépendamment. Aucun installateur tiers ni paramètre système n'est appliqué automatiquement.
+
+| Entrée | Comportement implémenté et limite |
+|---|---|
+| `./rag.ps1 provision` | Résoudre puis verrouiller les versions, récupérer uniquement les artefacts autorisés, vérifier hashes/licences et préparer dépendances, modèles et build statique |
+| `./rag.ps1 doctor` | Contrôler chemins, versions, modèles, langues OCR, stores, ports, RAM et dérive de configuration sans effet destructif |
+| `./rag.ps1 up` | Verrouiller la racine, lancer Qdrant/Ollama/API, vérifier les versions et health ; retourner l'URL `http://127.0.0.1:8785/workspace/`. Aucun navigateur lancé automatiquement |
+| `./rag.ps1 status` | Distinguer arrêté, en démarrage, disponible, dégradé, erreur et mémoire insuffisante ; indiquer le motif réel |
+| `./rag.ps1 logs` | Retourner les chemins des journaux des processus possédés ; ouvrir le fichier utile localement |
+| `./rag.ps1 down` | Interdire de nouveaux jobs, checkpoint, arrêter uniquement les processus possédés et conserver stockage/caches/modèles |
+| `./rag.ps1 verify -Path <snapshot>` | Vérifier les hashes, fichiers, intégrité et comptes SQLite d'une sauvegarde ; ce n'est pas une recette produit |
+| `./rag.ps1 backup -Path <dossier-neuf>` | Suspendre mutations/jobs/requêtes, sauvegarder SQLite par API, créer et télécharger les snapshots Qdrant, copier originaux/extractions/manifests puis reprendre le service |
+| `./rag.ps1 restore -Path <snapshot> -Target <racine-neuve>` | Vérifier le pack puis restaurer SQLite et snapshots via un serveur Qdrant temporaire possédé, port 6343 ; refuser toute racine existante |
+
+`-Report <fichier.json>` conserve le résultat réel de chaque commande. Une restauration fournit `restored-profile.yaml`, avec API 8795, Qdrant 6343 et Ollama 11445. Démarrer ce profil distinct avec `./rag.ps1 up -Profile <chemin-du-profil>`, puis vérifier une recherche et une ancienne citation. Le test initial [sur base vide](reports/restore-empty-first.json) ne valide pas ces deux parcours.
+
+La restauration [peuplée dans une destination Unicode longue](reports/restore-first-published-long-root-short-store-rerun.json) vérifie les hashes des copies avant rebasing, SQLite et11 points Qdrant. Le parcours applicatif restauré reste à exécuter. Qdrant1.19.1 Windows a échoué sur des chemins longs, y compris l'essai étendu `\\?\` ; sa récupération temporaire est plus profonde que ses fichiers finaux. `qdrant.storage_dir` permet un dossier physique court explicite. Pour une destination longue, restore choisit un dossier neuf sous `.runtime/q/<identifiant8>` et le consigne dans son rapport/profil ; SQLite/originaux/extractions restent à `-Target`. Conserver les deux emplacements. Relocaliser par backup/restore, sans déplacer un stockage actif. Aucun changement du registre ou du binaire officiel.
+
+Le chemin absolu Qdrant `storage` est borné à57 caractères pour le schéma verrouillé, afin de tenir compte des suffixes temporaires observés. Si le dossier du projet est lui-même trop long, définir `qdrant.storage_dir` vers une cible courte dédiée ; le lanceur refuse le profil avant lancement plutôt que masquer le défaut. Le stockage choisi possède son propre verrou, en plus de celui de SQLite.
+
+`up` ne télécharge rien et ne migre pas implicitement de manière destructive. Le démarrage des services ne doit pas charger Qwen et Docling ensemble. La présence des poids sur disque est vérifiée sans inférence lourde ; le chargement et l'admission mémoire ont lieu selon les tâches demandées.
+
+## Garanties de lancement et d'arrêt
+
+- Un verrou protège chaque racine de données ; un second lancement retrouve son instance ou échoue explicitement. Aucun partage accidentel d'un stockage SQLite/Qdrant entre deux instances.
+- Un port occupé est refusé. Aucun arrêt ou remplacement d'un autre service. Le port API livré est 8785 ; le Python utilisateur sur 8765 reste intact.
+- Les variables sont injectées dans chaque processus enfant. Le répertoire de travail et les chemins binaires/configuration sont explicites ; les chemins avec espaces et Unicode doivent être testés.
+- Les processus en arrière-plan ne créent pas de fenêtre interactive inutile. La supervision conserve PID/date/exécutable. Un Job Object Windows possède les descendants dès leur création suspendue ; le contrôle réel enfant/descendant passe après correction du binding pywin32 initial.
+- Les probes ont des délais bornés et une attente avec temporisation. Un échec démarre un diagnostic ; pas de boucle infinie de restart ou de téléchargement de remplacement.
+- Si une phase de démarrage échoue, les enfants créés par cette invocation sont arrêtés, les logs conservés et les données laissées intactes. Les processus étrangers sont préservés.
+- Un arrêt gracieux laisse terminer/checkpointer les mutations ; une terminaison de dernier recours concerne exclusivement les enfants identifiés. La fenêtre d'ingestion non validée reste reprenable.
+
+## Disponibilité et sécurité
+
+La liveness ne prouve pas la disponibilité. `/api/v1/health` reste léger et `/api/v1/readiness` détaille stores/artefacts. Sur la première base vide, readiness renvoie 503 car la collection n'existe pas encore, alors que les services sont vivants ; [doctor](reports/doctor-first-running.json) le rapporte. La collection complète liée à l'identité d'embedding est créée à la première indexation.
+
+L'interface et l'API partagent une origine loopback ; Qdrant et Ollama sont accessibles au seul backend. Ne pas ouvrir un accès LAN, un CORS wildcard ou un endpoint distant pour contourner un défaut local. Le provisionnement réseau est distinct de l'exploitation hors ligne ; cette dernière exige aussi un contrôle effectif des flux, et pas seulement des drapeaux offline.
+
+Le budget est celui du poste Windows entier, y compris navigateur et autres processus : objectif application de 10 Gio, réserve hôte de 1,5 Gio et admission selon le pic additionnel estimé ou mesuré. L'ingestion lourde et la génération restent mutuellement exclusives. La pagination disque ne doit pas masquer une configuration qui exige un swap soutenu.
+
+## Voies natives documentées et limites
+
+| Composant | Preuve officielle consultée le 30 septembre 2026 | Limite actuelle |
+|---|---|---|
+| Ollama | [Documentation Windows](https://docs.ollama.com/windows) | 0.35.0 provisionné/exécuté ; Qwen Q4_K_M présent. Premier pilote froid échoue sur timeout300s avant premier token : [échec](reports/cpu-pilot-first-failure.json) |
+| Qdrant serveur | [Artefacts officiels v1.19.1](https://github.com/qdrant/qdrant/releases/expanded_assets/v1.19.1) | 1.19.1 provisionné/exécuté ; snapshots vides puis peuplés restaurés, stockage court requis et testé pour destination longue. Recherche/réponse restaurées restent ouvertes. Warning natif filesystem Windows conservé |
+| Docling | [Installation](https://github.com/docling-project/docling/blob/main/docs/getting_started/installation.md) | 2.131.0 avec Heron/TableFormer locaux ; tests natifs partiels acquis, recette scans/tableaux en cours |
+| Tesseract CLI | Copie locale 5.4.0 ; [moteurs Docling](https://github.com/docling-project/docling/blob/main/docs/concepts/OCR.md) | fra/eng/osd et configuration TSV officiels provisionnés ; provenance de l'installateur Windows à qualifier |
+
+Le Qdrant natif est un **serveur**, pas `QdrantClient(path=...)`. Le client embarqué ne remplace pas silencieusement le contrat serveur, ses snapshots ou sa recette. Aucune obligation technique de WSL/Docker n'est établie par les sources consultées.
+
+## Critères de livraison sur ce poste
+
+D01 doit prouver préparation et redémarrage hors ligne depuis les lanceurs Windows, sans intervention manuelle ni changement global caché. D07 doit mesurer mémoire de Windows, processus natifs, navigateur, CPU et pagination sur la machine réellement visée. D09 doit restaurer dans un autre dossier et vérifier l'état documentaire et les anciennes citations. Ajouter aux scénarios de démarrage : espace/Unicode dans les chemins, port occupé, second `up`, interruption du superviseur, arrêt propre et reprise de job.
+
+Le résultat attendu demeure une chaîne réelle import → OCR/extraction → deux index → réponse Ollama → citation → page/zone correcte. Une collection créée, un processus lancé ou une page de health ne suffisent pas à annoncer l'application fonctionnelle. Les états détaillés et les critères non clos restent dans le [PLAN](PLAN.md).
+
+---
+
 ## Fichier : `QUALIFICATION.md`
 
 # Qualification ciblée — RAG-LOCAL-16 V2.1
@@ -1222,7 +1354,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée.
 
-**Périmètre daté :** inspection des 29/30 septembre 2026 puis réalisation autorisée le 30 septembre, UTC. Brief actif RAG-LOCAL-16 V2.1 (archive vérifiée) et décision utilisateur W001 : **Windows natif, sans WSL ni Docker**, orchestration locale comparable à Docker Compose. Sources, configuration et corpus identifiés par empreintes ; aucun dépôt Git détecté. Provisionnement isolé, téléchargements officiels, services locaux, OCR, builds et tests du chantier sont désormais autorisés. Exclusions conservées : modification globale de configuration système, destruction des originaux ou données étrangères, arrêt de services étrangers et déploiement externe. Depuis 08:50 UTC (W005), Git est initialisé et commit/push sont autorisés uniquement vers le remote privé `origin` https://github.com/msedki/agentPDFDoc.git, après chaque travail substantiel vérifié ; corpus, runtimes, modèles, données et secrets restent exclus du dépôt. Résultat attendu : application réelle, preuves de recette et documentation fidèle.
+**Périmètre daté :** inspection des 29/30 septembre 2026 puis réalisation autorisée le 30 septembre, UTC. Brief actif RAG-LOCAL-16 V2.1 (archive vérifiée) et décision utilisateur W001 : **Windows natif, sans WSL ni Docker**, orchestration locale comparable à Docker Compose. Sources, configuration et corpus identifiés par empreintes ; aucun dépôt Git lors de l'inspection (dépôt créé à 08:50, W005). Provisionnement isolé, téléchargements officiels, services locaux, OCR, builds et tests du chantier sont désormais autorisés. Exclusions conservées : modification globale de configuration système, destruction des originaux ou données étrangères, arrêt de services étrangers et déploiement externe. Depuis 08:50 UTC (W005), Git est initialisé et commit/push sont autorisés uniquement vers le remote privé `origin` https://github.com/msedki/agentPDFDoc.git, après chaque travail substantiel vérifié ; corpus, runtimes, modèles, données et secrets restent exclus du dépôt. Résultat attendu : application réelle, preuves de recette et documentation fidèle.
 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
@@ -1391,6 +1523,42 @@ D10 : dix artefacts Granite provisionnés et hashes réels vérifiés, sans inf�
 
 Prochaine action exécutable : mesurer la question Qwen sur cette révision, puis qualifier API/source sur la restauration Unicode longue ; réserver ensuite le créneau lourd à l'OCR discriminant. D08 prépare un aperçu de règles Windows, sans modification du pare-feu ; contrôle réseau OS toujours non exécuté.
 
+## Reprise du 30/09 à 08:43 UTC — état consolidé et lots R
+
+Les sections précédentes restent l'historique. Entre 04:36 et 04:49, sans mise à jour du suivi : seconde question Qwen refusée avant modèle (5222 < 5888 Mio), arrêt de l'instance principale `cc0b7e97…` (04:44), démarrage de l'instance restaurée (API 8795), E2E ancienne citation en échec. État des lieux de 08:46 par six cartographies en lecture seule relues par l'intégrateur (rapports de sous-agents non versionnés ; constats repris ci-dessous avec leurs preuves).
+
+**Statut par critère à 09:30 UTC** (seules les puces avec preuve sont PASS) : D04.1, D06.1, D07.6, D09.1, D09.2 PASS ; D09.3 citation PASS après restauration, question en cours ; D02.3, D02.6, D02.10, D04.4 (identifiants parasites), D03.2 (déplacement absent), D10.4, D11.8 FAIL ; D08.1 BLOCKED (pas de droits administrateur : blocage réseau OS impossible sans décision utilisateur) ; tous les autres critères PARTIAL ou NOT_RUN. Aucune recette globale close.
+
+**Contrôles précoces (D10.1)** : Q-CPU PARTIAL — pilotes texte 900 tokens PASS_PILOT_ONLY, préfill ≈ 8,6 tokens/s sans réutilisation de préfixe pour un contenu nouveau, TTFT ≈ 106 s à 919 tokens ; la cible D07 (45 s à ≈ 3000 tokens) est très probablement hors d'atteinte sur ce CPU (projection ≈ 350 s, à mesurer). Q-PDF FAIL (W-PDF01). Q-SEARCH PARTIAL (tests unitaires, une requête réelle).
+
+| ID | Lot / couche | Dépendances | Livrable | Validation | Statut / preuve |
+|---|---|---|---|---|---|
+| R0 | Git / publication | — | Dépôt, exclusions, remote privé, identité unique | Push sans corpus/runtime/secret ; auteur MOHAMED SEDKI sans trailer | VERIFIED — `2d735f2`, `e877c6a` ; W005 |
+| R1 | Mémoire / génération (W-M01) | R0 | Modèle texte seul, estimations mesurées | Admission possible sous réserve 1536 ; pilotes conservés | VERIFIED pilotes — W006, W007 ; reports/cpu-pilot-text-900-* |
+| R2 | V — première réponse réelle | R1 | Question → sources → réponse Qwen → citation cliquable | SSE brut, model_called, IDs de citation dans le registre, clic UI | IN_PROGRESS — 09:27 admise, `model_called=true`, réponse partielle correcte « 3,1 bar [S001] » puis annulée par le gouverneur (réserve 1500 < 1536 sous charge) ; à rejouer hors charge concurrente ([preuve](reports/backend/2026-09-30-restored-question-20260930T0927.json)) |
+| R3 | D09.3 après restauration | R1 | Ancienne citation + question sur la restauration | E2E lifecycle PASS + réponse réelle | Citation VERIFIED ([preuve](../apps/web/reports/e2e-2026-09-30-restored-source-rerun-0910-evidence.json)) ; question IN_PROGRESS |
+| R4 | Code (7 zones : retrieval, API, runtime, ingestion, outils qualification, outillage docs, frontend) | R0 | Corrections des défauts prouvés, tests, revue adversariale | Tests unitaires/in-process PASS, junit sous reports/backend/…-lotR4-*, revue sans constat bloquant | IN_PROGRESS — workflow lancé 09:27 |
+| R5 | Build UI + E2E de non-régression | R4 frontend | Export rebuild, specs a11y/deeplink/géométrie/markup/canvas | Build surveillé PASS, E2E réels PASS sur cible isolée | NOT_STARTED |
+| R6 | Ingestion OCR (W-PDF01) | R4 ingestion (E1) | Voie scan fiable ou limite déclarée | scan90/scan0/mixte/5 pages exacts ou ready_partial honnête | NOT_STARTED |
+| R7 | Évaluation DEV (retrieval, contexte, génération) | R4, R6 | Import DA-P02..07, bindings fusionnés, rapports DEV | 100/100 résolues ; métriques avec dénominateurs | NOT_STARTED |
+| R8 | D07 performance | R2, R7 | Stress 25k nommé, 30 questions, scénario 30 min | p95 mesurés, FAIL conservés avec phase dominante | NOT_STARTED |
+| R9 | D08 sécurité / hors ligne | R4 | Host/Origin sur serveur réel, clé d'API Qdrant, fixture hostile, observation sockets | Rapports ; blocage OS BLOCKED sauf décision utilisateur | PARTIAL — API Host/Origin PASS sur serveur réel, sockets loopback, Ollama sans socket externe ; Qdrant accepte un Host étranger (défaut, `service.api_key` à intégrer) |
+| R10 | D01 provisionnement neuf | R4 runtime | Racine neuve provisionnée sans édition, redémarrage hors ligne | Rapport provision/doctor | NOT_STARTED |
+| R11 | D09.4/D09.5 migration, licences | R4 API | Migration 003 + retour arrière, inventaire livré | Test migration sur sauvegarde, inventaire rejoué | NOT_STARTED |
+| R12 | D10/D11 documentation | R4 docs, résultats | Documents canoniques synchronisés, brief, verify_pack PASS, registre skills | verify_pack --report PASS | IN_PROGRESS (outillage dans R4) |
+| R13 | Recette finale | R2–R12 | Final exécuté une fois, rapport D01–D11 | Rapport final honnête | NOT_STARTED |
+| R14 | Espace documentaire (demande utilisateur reçue vers 09:34 UTC) | R4 docs-tooling, R12 | `docs/` : index documentaire, documentation stabilisée du système livré (architecture technique détaillée avec schémas SVG, spécifications, interfaces HTTP/SSE, dossiers d'exploitation et de déploiement, procédures, référentiels) ; `RAG_Local_Agents/` conservé comme dossier de chantier vivant (plan, journal, décisions, sources, preuves) et référentiel d'exigences V2.1 ; README racine point d'entrée | Chaque document : rôle, statut, date/commit en tête ; aucune information dupliquée entre documents ; liens vérifiés par l'outil documentaire ; procédures rejouées sur le poste | NOT_STARTED — décision d'arborescence W008 à consigner à l'exécution |
+| R15 | Textes de l'interface et relecture éditoriale | R4 frontend, R5 | Inventaire de tous les textes UI, réécriture des libellés génériques/bruts, vocabulaire unifié ; réécriture des passages génériques de la documentation existante | Revue de l'inventaire, tests unitaires/E2E mis à jour, captures relues | NOT_STARTED |
+| R16 | Interface alignée sur la référence de forme decodair (demande utilisateur reçue vers 09:36 UTC) | Analyse decodair (lecture seule), R4 frontend, R15 | Principes retenus/adaptés/écartés documentés (reports/ui-reference-decodair-2026-09-30.md) ; shell (topbar, panneaux repliables/masquables, pied de page si utile, en-têtes), charte (tokens de couleur, typographie, icônes, densité, espacements), composants (cartes, listes, formulaires, filtres, actions, retours, états) et responsive harmonisés ; README racine au format de référence | Aucune régression : tests unitaires, typecheck, build, E2E existants rejoués ; captures 1366×768 et 1920×1080 examinées ; contraste et clavier contrôlés | IN_PROGRESS — analyse decodair lancée à 09:37 |
+
+**Règles ajoutées le 30/09 (commits f8fbb1c 09:35 et d4924d9 09:37 UTC) :** référence de forme `D:\enhacements\decodair` (principes UI et format du README, sans métier ni branding) ; section « Documentation et textes de l'interface » dans `CLAUDE.md`/`AGENTS.md` racine, renvoi dans `RAG_Local_Agents/AGENTS.md`, section « Textes de l'interface » du skill `pdf-workspace-web`.
+
+**Points à trancher (décisions utilisateur, non déductibles) :** (1) D08.1 — accepter une coupure réseau physique pendant la recette (mode avion/câble) ou obtenir une règle pare-feu de l'administrateur ; sinon D08.1 reste BLOCKED. (2) Corpus métier : jeu de questions métier annotées sur les PDF autorisés (expert métier) — sinon qualification métier BLOCKED. (3) D07 — si les seuils de latence échouent comme projeté, ils restent FAIL (aucune baisse de seuil sans décision explicite).
+
+**Ressources 09:27 UTC :** 5690 Mio disponibles, D: ≈ 24,8 Gio libres ; un seul moteur lourd à la fois ; les agents du lot R4 n'exécutent que des tests légers après contrôle mémoire.
+
+Prochaine action : lire le résultat de la question restaurée, puis intégrer R4 (revue, tests, commit), rebuild UI et E2E question/citation sur l'instance principale.
+
 ---
 
 ## Fichier : `DECISIONS.md`
@@ -1485,7 +1653,33 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 
 **Choix retenu :** dépôt à la racine du projet, branche `main`, remote `origin`. `.gitignore` exclut `.runtime/` (binaires, modèles, données, QA, jetons d'administration), `.venv/`, `node_modules/`, builds, caches, corpus `PDF/`, bases SQLite, snapshots, secrets et sorties brutes Playwright ; les assets PDF.js régénérés au build sont exclus. `.gitattributes` désactive toute conversion de fin de ligne (`* -text`) pour que les manifestes SHA-256 restent vérifiables après clone, `core.autocrlf=true` étant configuré sur ce poste. `.dockerignore` protège un éventuel contexte de build, sans faire de Docker une cible (W001). Règle ajoutée à `CLAUDE.md` et `AGENTS.md` racine.
 
-**Conséquences :** l'identité de révision des preuves ultérieures est le commit Git ; les preuves antérieures restent liées aux manifestes de fichiers observés (`source_identity_kind: working_files_sha256_manifest`). Les rapports versionnés contiennent le nom d'hôte, le nom d'utilisateur Windows et les chemins/hashes des documents du corpus, jamais leur texte ni les originaux. Pas de force-push, de réécriture d'historique ni d'autre remote sans nouvelle demande.
+**Conséquences :** l'identité de révision des preuves ultérieures est le commit Git ; les preuves antérieures restent liées aux manifestes de fichiers observés (`source_identity_kind: working_files_sha256_manifest`). Les rapports versionnés contiennent le nom d'hôte, le nom d'utilisateur Windows et les chemins/hashes des documents du corpus, jamais leur texte ni les originaux. Pas de force-push, de réécriture d'historique ni d'autre remote sans nouvelle demande. **Complément 09:20 UTC :** identité unique `MOHAMED SEDKI <mohamed.sedki@live.fr>` en configuration locale, aucun trailer `Co-Authored-By` ni préfixe ; sur demande explicite, le seul commit publié `d349fa2` a été réécrit (arbre identique) et poussé avec `--force-with-lease` : `2d735f2`.
+
+## W006 Modèle Qwen texte seul dérivé localement (sans encodeur vision)
+
+**Date :** 30 septembre 2026, 09:20 UTC. **Statut :** implémenté et vérifié (dérivation, import, chargement, pilote mémoire) ; qualification applicative en cours.
+
+**Contexte :** deux questions réelles refusées avant modèle par l'admission (5095 puis 5222 Mio disponibles contre 5888 requis). Le journal natif du pilote (reports/cpu-pilot-short-4threads.service.log) montre que llama-server charge le GGUF Qwen3.5 une seconde fois comme projecteur multimodal (`handle_qwen35_like_clip`, « estimated worst-case memory usage of mmproj is 961.74 MiB », tampon CLIP 223,30 Mio). Le code officiel d'Ollama v0.35.0 ([llm/llama_server.go](https://github.com/ollama/ollama/blob/v0.35.0/llm/llama_server.go), NewLlamaServerRunner, l. 867-895, consulté le 30/09/2026) active `--mmproj` dès que le GGUF d'architecture `qwen35` contient des tenseurs `v.*` ; aucune option ne le désactive. Le RAG n'envoie jamais d'image. Le blob verrouillé contient 393 tenseurs `v.*` (667 686 912 octets).
+
+**Choix retenu :** `services/runtime/text_model.py` dérive un GGUF texte seul en retirant uniquement les tenseurs `v.*`/`mm.*` ; métadonnées KV et 441 tenseurs texte (dont la tête MTP, conservée pour garder le décodage spéculatif d'Ollama) sont recopiés octet pour octet et vérifiés tenseur par tenseur (SHA-256) avant publication. L'import passe par la voie officielle `ollama create` avec un Modelfile reprenant `RENDERER`/`PARSER`/`REQUIRES`, paramètres et licence de la source ([parser/parser.go](https://github.com/ollama/ollama/blob/v0.35.0/parser/parser.go)). Profil : `llm.model: qwen3.5:4b-text`, `llm.source_model: qwen3.5:4b`, manifeste d'identité séparé `.runtime/manifests/ollama-model-text.json`. `rag.ps1 pull-model [-Offline]` rejoue source puis dérivation, de façon idempotente.
+
+**Preuves :** dérivation [text-model-derivation-20260930T0906.json](reports/text-model-derivation-20260930T0906.json) et manifeste complet [text-model-manifest-20260930T0906.json](reports/text-model-manifest-20260930T0906.json) : couche modèle `sha256:79b59ad9…` identique sur deux dérivations successives (déterminisme), licence `sha256:7339fa41…` et paramètres identiques à la source, manifeste `de8024db…`. Premier import conservé : licence altérée en CRLF par l'écriture Windows du Modelfile ([rapport](reports/text-model-derivation-first-crlf-license-20260930T0902.json)), corrigé (écriture LF + contrôle des couches licence/params) puis réimporté. Pilote [cpu-pilot-text-900-4threads-20260930T0911.json](reports/cpu-pilot-text-900-4threads-20260930T0911.json) : aucun projecteur chargé, 919 tokens, chute maximale de mémoire disponible 3327 Mio (contre ≈ 3810 avec vision au pilote de 279 tokens), RSS max 3329 Mio, privé max 4196 Mio.
+
+**Conséquences :** même modèle texte (poids identiques), capacité image retirée ; `ollama show` liste encore `vision` car les clés KV sont conservées volontairement (aucune métadonnée modifiée). L'estimation d'admission doit être recalibrée sur ce modèle (décision suivante). Coût disque : +2,72 Go ; la source reste conservée pour la reproductibilité hors ligne.
+
+## W007 Estimations d'admission recalibrées sur le modèle texte
+
+**Date :** 30 septembre 2026, 09:25 UTC. **Statut :** acquise pour le profil `local16` ; réserve et seuils de recette inchangés.
+
+**Contexte :** W003 fixait `initial_llm_load_peak_estimate_mib: 4352` (pic RSS 3883 Mio au pilote de 279 tokens avec projecteur vision + ≈ 469 Mio de marge non mesurée). W006 retire le projecteur. L'admission compare la mémoire disponible de l'hôte à « estimation + réserve 1536 Mio » ; la grandeur à prévoir est donc la baisse de mémoire disponible provoquée par le chargement et la génération.
+
+**Mesures (modèle `qwen3.5:4b-text`, contexte 8192, 4 threads, CPU seul) :** [pilote 900 tokens](reports/cpu-pilot-text-900-4threads-20260930T0911.json) : baisse max 3327 Mio (minimum disponible 1954 Mio ; froid 3155, même préfixe 3193, contenu nouveau 3327) ; [pilote use_mmap](reports/cpu-pilot-text-900-4threads-mmap-20260930T0918.json) : baisse max 3298 Mio (départ 4945 Mio, minimum 1647 Mio). Chargements E5 relevés à l'E2E de 04:40 : tokenizer −266 Mio, session −146 Mio (≈ 412 Mio).
+
+**Choix retenu :** `initial_llm_load_peak_estimate_mib: 3456` (baisse max mesurée 3327 + 129 Mio, ≈ 3,9 %) ; `embedding_load_peak_estimate_mib: 512` (412 mesurés + ≈ 24 %) lu par l'API au lieu du défaut codé 768 ; `warm_llm_additional_peak_estimate_mib` reste 512 (surcoût chaud observé ≈ 150 Mio, marge conservée faute de série). La marge réduite s'appuie sur la surveillance active du gouverneur, qui annule la requête possédée si la réserve est menacée ; la réserve `host_available_min_mib: 1536` n'est pas modifiée.
+
+**Optimisation testée et rejetée :** `use_mmap: true` explicite, respecté par Ollama 0.35.0 ([server/sched.go](https://github.com/ollama/ollama/blob/v0.35.0/server/sched.go), `disableMmapDefaultReason`), est neutralisé pour ce GGUF par le correctif de compatibilité (« compat patch disabled mmap for transformed text tensors » ; tampon modèle `CPU` 812,70 Mio, non `CPU_Mapped`) : aucun gain, profil inchangé.
+
+**Conséquences :** admission froide possible à partir de 4992 Mio disponibles (contre 5888). Sur ce poste partagé, la mémoire disponible observée varie entre ≈ 4,9 et 6,1 Gio selon la charge étrangère : une question peut encore être refusée ou attendre, ce qui est le comportement voulu. Le préfill (≈ 8,6 tokens/s, sans réutilisation de préfixe pour un contenu nouveau) reste la phase dominante des latences D07.
 
 ---
 
@@ -1648,6 +1842,18 @@ Les lignes précédentes décrivent l'état à 01:07 UTC. Depuis : services nati
 | MOD05 | [Ollama ps](https://docs.ollama.com/api/ps), [tags](https://docs.ollama.com/api/tags), ouvertes30/09 par l'agent API | Digest réel vérifié avant /api/chat, CPU/context et quantification contrôlés ;19 tests gateway isolés PASS, pas une génération réelle |
 
 Les fichiers de preuve sous reports et les skills projet portent les exécutions et limites. Les sources actuelles ne remplacent pas le contrat d'une version verrouillée ; les téléchargements du candidat IBM et son inférence sont des étapes distinctes.
+
+## Compléments examinés entre 08:50 et 09:45 UTC
+
+| ID | Source officielle/version | Contrat et limite |
+|---|---|---|
+| OLL01 | [Ollama llm/llama_server.go v0.35.0](https://github.com/ollama/ollama/blob/v0.35.0/llm/llama_server.go), raw téléchargé 30/09 ≈ 08:57 UTC | `NewLlamaServerRunner` (l. 867-895) passe `--mmproj` sur le GGUF lui-même pour les architectures listées (dont `qwen35`) dès que des tenseurs `v.*` existent ; aucune option ne le désactive. `hasMTPDraft` active le décodage spéculatif si des tenseurs `mtp.` existent. Fonde W006 ; code source, pas mesure. |
+| OLL02 | [Ollama server/sched.go v0.35.0](https://github.com/ollama/ollama/blob/v0.35.0/server/sched.go) | `disableMmapDefaultReason` : mmap désactivé par défaut sur CPU ; une option `use_mmap` explicite est respectée. Mesure W007 : sans effet sur le GGUF dérivé (correctif de compatibilité). |
+| OLL03 | [Ollama parser/parser.go v0.35.0](https://github.com/ollama/ollama/blob/v0.35.0/parser/parser.go) | Commandes Modelfile acceptées : `FROM`, `PARAMETER`, `LICENSE`, `RENDERER`, `PARSER`, `REQUIRES`, `DRAFT`… ; base de l'import `ollama create` du modèle texte. |
+| OLL04 | [Ollama server/model_recommendations.go v0.35.0](https://github.com/ollama/ollama/blob/v0.35.0/server/model_recommendations.go) et [envconfig/config.go](https://github.com/ollama/ollama/blob/v0.35.0/envconfig/config.go) | `refresh` retourne avant toute requête HTTP vers `ollama.com/api/experimental/model-recommendations` si `OLLAMA_NO_CLOUD` est actif ; observation des sockets conforme (reports/ollama-recommendations-netwatch-20260930T0909.json). |
+| QDR03 | [Qdrant config v1.19.1, section service](https://github.com/qdrant/qdrant/blob/v1.19.1/config/config.yaml) et [src/actix/auth.rs](https://github.com/qdrant/qdrant/blob/v1.19.1/src/actix/auth.rs) | `service.api_key` : toute requête doit porter l'en-tête `api-key` ; liste blanche de chemins sans authentification définie dans `auth.rs`. Réponse au défaut D08.3 (Host étranger accepté, reports/host-origin-live-20260930T0930.json) ; intégration et test à faire. |
+| GIT01 | [Git — gitattributes](https://git-scm.com/docs/gitattributes), ouverte 30/09 ≈ 09:45 UTC | « Unsetting the text attribute on a path tells Git not to attempt any end-of-line conversion upon checkin or checkout » : `* -text` fonde W005 (octets hashés préservés malgré `core.autocrlf=true`). |
+| UI01 | Référence de forme locale `D:\enhacements\decodair` (dépôt de l'utilisateur, commit `afbf8e305` observé 30/09) | Principes de shell, charte, composants et format du README ; ni métier ni branding repris. Analyse en cours (R16). |
 
 ---
 
@@ -1903,7 +2109,10 @@ app:
 llm:
   provider: ollama
   base_url: http://127.0.0.1:11434
-  model: qwen3.5:4b
+  model: qwen3.5:4b-text
+  source_model: qwen3.5:4b
+  model_manifest: .runtime/manifests/ollama-model-text.json
+  source_model_manifest: .runtime/manifests/ollama-model.json
   required_quantization: Q4_K_M
   num_ctx: 8192
   num_predict: 768
@@ -2033,8 +2242,9 @@ resources:
   admit_heavy_min_available_mib: 3072
   sampling_interval_seconds: 1
   unload_llm_before_ingestion: true
-  initial_llm_load_peak_estimate_mib: 4352
+  initial_llm_load_peak_estimate_mib: 3456
   warm_llm_additional_peak_estimate_mib: 512
+  embedding_load_peak_estimate_mib: 512
   initial_parser_peak_estimate_mib: 2304
   scheduling:
     initial_mode: interactive
@@ -2176,6 +2386,6 @@ service:
 
 ---
 
-# Outils inclus dans le ZIP
+# Outils du dossier documentaire
 
-`tools/build_brief.py` régénère ou contrôle cette copie. `tools/verify_pack.py` contrôle les fichiers et des exemples déterministes, sans valider le produit ni ses performances. `CONTROLES_DOSSIER.json` enregistre le résultat de cette vérification.
+`tools/build_brief.py` régénère ou contrôle (`--check`) cette copie. `tools/verify_pack.py` contrôle les liens, configurations, skills, le registre `SKILLS.md` et des exemples déterministes, sans valider le produit ni ses performances. Son rapport JSON est écrit dans `CONTROLES_DOSSIER.json`, ou uniquement dans le chemin donné par `--report`.

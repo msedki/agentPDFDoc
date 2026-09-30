@@ -3,11 +3,13 @@
 from __future__ import annotations
 import argparse
 import ast
+import hashlib
 import importlib.metadata
 import json
 import math
 import re
 import sqlite3
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -49,21 +51,62 @@ def outside_code(text: str) -> str:
     require(active is None,'Bloc de code Markdown non fermé')
     return '\n'.join(lines)
 
-def markdown_check():
-    count=0
-    for p in ROOT.rglob('*.md'):
-        text=outside_code(p.read_text(encoding='utf-8'))
-        for target in re.findall(r'\[[^\]]+\]\(([^)\s]+)\)',text):
-            if urlsplit(target).scheme or target.startswith('#'):
-                continue
-            rel=unquote(target.split('#',1)[0])
-            if not rel:
-                continue
-            dest=(p.parent/rel).resolve()
-            require(dest.is_relative_to(ROOT),'Lien hors dossier : '+target)
-            require(dest.exists(),f'Lien absent : {p.relative_to(ROOT)} → {target}')
-            count+=1
-    return {'local_links_checked':count,'external_urls_fetched':False}
+def local_links(p: Path, text: str):
+    """Liens relatifs d'un Markdown hors blocs de code, URL et ancres, résolus depuis son dossier."""
+    for target in re.findall(r'\[[^\]]+\]\(([^)\s]+)\)',outside_code(text)):
+        if urlsplit(target).scheme or target.startswith('#'):
+            continue
+        rel=unquote(target.split('#',1)[0])
+        if rel:
+            yield target,(p.parent/rel).resolve()
+
+def git_ignored(project: Path, rels: list[str]):
+    """Chemins (relatifs au projet) ignorés par Git, fichiers suivis exclus ; (None, motif) si Git est inutilisable."""
+    if not rels:
+        return set(),None
+    try:
+        proc=subprocess.run(['git','-C',str(project),'check-ignore','-z','--stdin'],input='\0'.join(rels)+'\0',capture_output=True,text=True,encoding='utf-8',timeout=60)
+    except (OSError,subprocess.TimeoutExpired) as exc:
+        return None,f'git indisponible ({type(exc).__name__})'
+    if proc.returncode not in (0,1):
+        return None,f'git check-ignore code {proc.returncode} : {proc.stderr.strip()[:200]}'
+    return set(filter(None,proc.stdout.split('\0'))),None
+
+def link_fault(dest: Path, project: Path) -> str | None:
+    if not dest.is_relative_to(project):
+        return 'Lien hors projet'
+    if dest.is_relative_to(project/'.runtime'):
+        return 'Lien vers .runtime'
+    if dest.is_relative_to(project/'.git'):
+        return 'Lien vers .git'
+    return None if dest.exists() else 'Lien absent'
+
+def markdown_check(root: Path = ROOT):
+    """Cibles admises : fichiers existants du projet (parent du pack), hors .runtime/ et chemins ignorés par Git."""
+    root=root.resolve()
+    project=root.parent
+    faults,found=[],[]
+    for p in sorted(root.rglob('*.md')):
+        name=p.relative_to(root).as_posix()
+        try:
+            links=list(local_links(p,p.read_text(encoding='utf-8')))
+        except AssertionError as exc:
+            faults.append(f'{name} : {exc}')
+            continue
+        for target,dest in links:
+            where=f'{name} → {target}'
+            fault=link_fault(dest,project)
+            if fault:
+                faults.append(f'{fault} : {where}')
+            else:
+                found.append((dest.relative_to(project).as_posix(),dest.is_relative_to(root),where))
+    ignored,reason=git_ignored(project,sorted({rel for rel,_,_ in found}))
+    faults+=['Lien vers un chemin ignoré par Git : '+where for rel,_,where in found if ignored and rel in ignored]
+    require(not faults,f'{len(faults)} lien(s) fautif(s) : '+' | '.join(faults))
+    result={'local_links_checked':len(found),'links_to_project_outside_pack':sum(not inside for _,inside,_ in found),'git_ignore_check':'PASS' if reason is None else 'NOT_RUN: '+reason,'external_urls_fetched':False}
+    if reason is not None:
+        result['warnings']=['Contrôle git check-ignore NOT_RUN : '+reason]
+    return result
 
 def syntax_check():
     files=[]
@@ -97,6 +140,18 @@ def config_check():
     require(e['development_questions']+e['heldout_questions']==e['qualification_questions']==200,'Dataset counts')
     return {'embedding_dimensions':384,'max_declared_tokens_with_output':sum([r['max_evidence_llm_tokens'],r['max_history_llm_tokens'],r['max_instructions_question_llm_tokens'],r['context_safety_tokens'],llm['num_predict']]),'parameters_are_unqualified_design_targets':True}
 
+def config_identity_check(root: Path = ROOT):
+    """La copie documentaire du profil runtime canonique doit rester identique octet pour octet."""
+    runtime,copy=root.parent/'config/local16.yaml',root/'config/local16.yaml'
+    require(runtime.is_file(),'Profil runtime canonique absent : config/local16.yaml')
+    a,b=runtime.read_bytes(),copy.read_bytes()
+    if a!=b:
+        la,lb=a.decode('utf-8').splitlines(),b.decode('utf-8').splitlines()
+        line=next((i for i,(x,y) in enumerate(zip(la,lb,strict=False),1) if x!=y),min(len(la),len(lb))+1)
+        where='fins de ligne seules' if la==lb else f'première ligne différente : {line}'
+        raise AssertionError(f'Copie documentaire divergente du profil runtime ({where}) : recopier config/local16.yaml octet pour octet')
+    return {'runtime_profile':'config/local16.yaml','documentary_copy':'RAG_Local_Agents/config/local16.yaml','sha256':hashlib.sha256(a).hexdigest(),'byte_identical':True}
+
 def sql_check():
     conn=sqlite3.connect(':memory:')
     try:
@@ -115,19 +170,30 @@ def sql_check():
     finally:
         conn.close()
 
-def skills_check():
-    files=sorted((ROOT/'skills').glob('*/SKILL.md'))
+def skill_meta(p: Path) -> dict:
+    """Front matter Agent Skills (S17) : YAML valide, nom = dossier, description et compatibility bornées, liens présents."""
+    text=p.read_text(encoding='utf-8')
+    require(text.startswith('---\n'),'Front matter absent')
+    end=text.find('\n---\n',3)
+    require(end>0,'YAML delimiter')
+    meta=yaml.safe_load(text[4:end])
+    require(isinstance(meta,dict),'Front matter non mapping')
+    name,desc=meta.get('name',''),meta.get('description','')
+    require(isinstance(name,str) and re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',name) is not None and len(name)<=64,'Nom invalide')
+    require(name==p.parent.name,f'Nom != dossier ({name} / {p.parent.name})')
+    require(isinstance(desc,str) and 1<=len(desc)<=1024,'Description invalide')
+    require(len(meta.get('compatibility',''))<=500,'Compatibility trop longue')
+    missing=[target for target,dest in local_links(p,text) if not dest.exists()]
+    require(not missing,'Lien absent : '+', '.join(missing))
+    return meta
+
+def skills_check(root: Path = ROOT):
+    files=sorted((root/'skills').glob('*/SKILL.md'))
     require(len(files)==5,'Cinq skills projet attendus')
     names=[]
     for p in files:
-        text=p.read_text(encoding='utf-8')
-        require(text.startswith('---\n'),'Front matter absent')
-        parts=text.split('---',2); require(len(parts)==3,'YAML delimiter')
-        meta=yaml.safe_load(parts[1]); name=meta.get('name',''); desc=meta.get('description','')
-        require(re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',name) is not None and len(name)<=64,'Nom invalide')
-        require(name==p.parent.name,'Nom != dossier')
-        require(isinstance(desc,str) and 1<=len(desc)<=1024,'Description invalide')
-        require(len(meta.get('compatibility',''))<=500,'Compatibility trop longue')
+        text,meta=p.read_text(encoding='utf-8'),skill_meta(p)
+        name=meta['name']
         require(meta['metadata']['origin']=='project-authored','Origine ambiguë')
         require(all(isinstance(k,str) and isinstance(v,str) for k,v in meta['metadata'].items()),'Metadata non string')
         require(len(text.splitlines())<=150,'Skill trop long selon règle projet')
@@ -135,6 +201,61 @@ def skills_check():
         require('RECHERCHE_ET_SKILLS.md' in text,'Règle officielle absente')
         names.append(name)
     return {'skills':names,'syntax_and_links_only':True,'native_client_discovery_tested':False}
+
+def agents_skills_check(root: Path = ROOT):
+    """Skills du dépôt sous .agents/skills/<nom>/SKILL.md ; les fichiers posés à la racine sont des avertissements."""
+    project=root.resolve().parent
+    base=project/'.agents'/'skills'
+    require(base.is_dir(),'Dossier .agents/skills absent')
+    names,errors,warnings=[],[],[]
+    for p in sorted(base.iterdir()):
+        rel=p.relative_to(project).as_posix()
+        if p.is_file():
+            warnings.append('Fichier tiers mal rangé : '+rel+(' (SKILL.md hors dossier de skill, non découvrable)' if p.name=='SKILL.md' else ''))
+        elif not (p/'SKILL.md').is_file():
+            warnings.append('Dossier sans SKILL.md : '+rel)
+        else:
+            try:
+                skill_meta(p/'SKILL.md')
+                names.append(p.name)
+            except Exception as exc:
+                errors.append(f'{rel}/SKILL.md : {type(exc).__name__}: {exc}')
+    require(not errors,f'{len(errors)} skill(s) invalide(s) : '+' | '.join(errors))
+    return {'skills':names,'warnings':warnings,'syntax_and_links_only':True,'native_client_discovery_tested':False}
+
+def skill_registry(root: Path = ROOT) -> dict:
+    """Lignes de tableau de SKILLS.md portant un lien et un SHA-256 : {chemin relatif au projet: (catégorie, sha256)}."""
+    source,project,entries=root/'SKILLS.md',root.resolve().parent,{}
+    for line in outside_code(source.read_text(encoding='utf-8')).splitlines():
+        sha=re.search(r'`([0-9a-f]{64})`',line)
+        links=list(local_links(source,line)) if line.startswith('|') else []
+        if sha and links:
+            cells={c.strip().strip('`') for c in line.strip().strip('|').split('|')}
+            entries[links[0][1].relative_to(project).as_posix()]=(next(iter(cells&{'projet','pack','tiers'}),''),sha.group(1))
+    return entries
+
+def registry_check(root: Path = ROOT):
+    """SKILLS.md recense chaque skill du pack et chaque fichier de .agents/skills avec son SHA-256 réel."""
+    project=root.resolve().parent
+    base=project/'.agents'/'skills'
+    entries,faults,kinds=skill_registry(root),[],{'pack':[],'projet':[],'tiers':[]}
+    expected=[(p,{'pack'}) for p in sorted((root/'skills').glob('*/SKILL.md'))]
+    expected+=[(p,{'tiers'}) for p in sorted(base.iterdir()) if p.is_file()]+[(p/'SKILL.md',{'projet','tiers'}) for p in sorted(base.iterdir()) if (p/'SKILL.md').is_file()]
+    for p,allowed in expected:
+        rel=p.resolve().relative_to(project).as_posix()
+        category,sha=entries.pop(rel,('',None))
+        if sha is None:
+            faults.append('Non enregistré : '+rel)
+            continue
+        if sha!=hashlib.sha256(p.read_bytes()).hexdigest():
+            faults.append('SHA-256 périmé : '+rel)
+        if category in allowed:
+            kinds[category].append(p.parent.name if p.name=='SKILL.md' and p.parent!=base else p.name)
+        else:
+            faults.append(f'Catégorie {category or "absente"} invalide : {rel}')
+    faults+=['Entrée hors périmètre du registre : '+rel for rel in entries]
+    require(not faults,f'{len(faults)} écart(s) de registre SKILLS.md : '+' | '.join(faults))
+    return {'pack':kinds['pack'],'project':kinds['projet'],'third_party':kinds['tiers'],'sha256_checked':len(expected),'behavior_tested':False}
 
 def policy_check():
     for name in ['AGENTS.md','PROMPT_IMPLEMENTATION.md','CLAUDE.md','SPEC_ARCHITECTURE.md','IMPLEMENTATION.md','CONFIGURATION.md','QUALIFICATION.md','PLAN.md','DECISIONS.md']:
@@ -183,10 +304,12 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--report',default=str(ROOT/'CONTROLES_DOSSIER.json'))
     args=parser.parse_args()
-    for name,action in [('markdown_links',markdown_check),('syntax',syntax_check),('configuration_consistency',config_check),('sqlite_fts5_reference',sql_check),('skill_format',skills_check),('policy_propagation',policy_check),('deterministic_examples',deterministic_examples),('consolidated_brief',brief_check)]:
+    RESULTS.clear()
+    for name,action in [('markdown_links',markdown_check),('syntax',syntax_check),('configuration_consistency',config_check),('runtime_profile_copy',config_identity_check),('sqlite_fts5_reference',sql_check),('skill_format',skills_check),('agents_skill_format',agents_skills_check),('skills_registry',registry_check),('policy_propagation',policy_check),('deterministic_examples',deterministic_examples),('consolidated_brief',brief_check)]:
         check(name,action)
     passed=all(r['status']=='PASS' for r in RESULTS)
-    report={'pack':'RAG-LOCAL-16-v2.1','checked_at_utc':datetime.now(timezone.utc).isoformat(),'overall_status':'PASS' if passed else 'FAIL','scope':'Documentation, configuration syntax, SQLite reference and deterministic examples ONLY','python_version':sys.version.split()[0],'pyyaml_version':importlib.metadata.version('PyYAML'),'results':RESULTS,'not_executed':['LLM inference','Docling or OCR','Qdrant server/API','Frontend or browser E2E','16 GB target qualification','Native skill installation/discovery/invocation','External source link accessibility in this offline script']}
+    warnings=[w for r in RESULTS if isinstance(r['detail'],dict) for w in r['detail'].get('warnings',[])]
+    report={'pack':'RAG-LOCAL-16-v2.1','checked_at_utc':datetime.now(timezone.utc).isoformat(),'overall_status':'PASS' if passed else 'FAIL','scope':'Documentation, configuration syntax, runtime profile copy, skill format/registry, SQLite reference and deterministic examples ONLY','python_version':sys.version.split()[0],'pyyaml_version':importlib.metadata.version('PyYAML'),'results':RESULTS,'warnings':warnings,'not_executed':['LLM inference','Docling or OCR','Qdrant server/API','Frontend or browser E2E','16 GB target qualification','Native skill installation/discovery/invocation','External source link accessibility in this offline script']}
     path=Path(args.report); path.parent.mkdir(parents=True,exist_ok=True)
     path.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(report,ensure_ascii=False,indent=2))

@@ -2,6 +2,7 @@
 """Generate the single Markdown brief from canonical files, without network access."""
 from __future__ import annotations
 import argparse
+import os
 import re
 from pathlib import Path
 
@@ -10,7 +11,7 @@ OUTPUT = 'RAG_LOCAL_BRIEF_COMPLET.md'
 ORDER = [
     '00_LIRE_AVANT.md', 'PROMPT_IMPLEMENTATION.md', 'AGENTS.md', 'CLAUDE.md',
     'RECHERCHE_ET_SKILLS.md', 'SKILLS.md', 'SPEC_ARCHITECTURE.md',
-    'IMPLEMENTATION.md', 'CONFIGURATION.md', 'QUALIFICATION.md',
+    'IMPLEMENTATION.md', 'CONFIGURATION.md', 'EXPLOITATION_WINDOWS.md', 'QUALIFICATION.md',
     'DEFINITION_OF_DONE.md', 'PLAN.md', 'DECISIONS.md', 'CHANGELOG.md', 'SOURCES.md',
 ]
 
@@ -25,7 +26,7 @@ def rewrite_links(text: str, source: Path, root: Path) -> str:
         path, sep, anchor = target.partition('#')
         resolved = (source.parent / path).resolve()
         try:
-            relative = resolved.relative_to(root).as_posix()
+            relative = Path(os.path.relpath(resolved, root.resolve())).as_posix()
         except ValueError:
             return match.group(0)
         return f'[{label}]({relative}{sep}{anchor})'
@@ -34,12 +35,15 @@ def rewrite_links(text: str, source: Path, root: Path) -> str:
 def render(root: Path = ROOT) -> str:
     parts = [
         '# RAG PDF local — brief complet V2.1 pour agents\n\n'
-        'Baseline documentaire : 29 septembre 2026.\n\n'
-        'Ce fichier regroupe les documents corrigés, les consignes de recherche officielle, '
-        'les skills projet et les configurations. Il est généré : modifier les sources séparées '
-        'puis le régénérer, jamais maintenir deux versions à la main. '
+        'Ce fichier est généré dans le dépôt par `RAG_Local_Agents/tools/build_brief.py` à partir des '
+        'documents canoniques, des skills du pack et des configurations documentaires présents dans '
+        '`RAG_Local_Agents/`. Il ne porte pas de date propre : son contenu est celui de ces sources '
+        'dans la révision Git qui le contient, et `build_brief.py --check` contrôle sa synchronisation. '
+        'Modifier les sources séparées puis le régénérer, jamais maintenir deux versions à la main. '
         'Lire ce brief OU les fichiers canoniques pertinents, pas leurs deux copies.\n\n'
-        'Les sections « Fichier » identifient leur chemin dans le ZIP. '
+        'Les sections « Fichier » donnent le chemin relatif à `RAG_Local_Agents/` ; les liens relatifs '
+        'sont résolus depuis ce dossier. `config/local16.yaml` y est la copie documentaire du profil '
+        'runtime canonique `../config/local16.yaml`, dont `tools/verify_pack.py` contrôle l’identité. '
         'Aucune application, performance cible ou installation native de skill '
         'n’est déclarée validée par ce dossier documentaire.\n'
     ]
@@ -56,11 +60,12 @@ def render(root: Path = ROOT) -> str:
             name = path.relative_to(root).as_posix()
             text = path.read_text(encoding='utf-8').rstrip()
             parts.append(f'\n## Fichier : `{name}`\n\n```{language}\n{text}\n```\n')
-    parts.append('\n---\n\n# Outils inclus dans le ZIP\n\n'
-                 '`tools/build_brief.py` régénère ou contrôle cette copie. '
-                 '`tools/verify_pack.py` contrôle les fichiers et des exemples déterministes, '
-                 'sans valider le produit ni ses performances. '
-                 '`CONTROLES_DOSSIER.json` enregistre le résultat de cette vérification.\n')
+    parts.append('\n---\n\n# Outils du dossier documentaire\n\n'
+                 '`tools/build_brief.py` régénère ou contrôle (`--check`) cette copie. '
+                 '`tools/verify_pack.py` contrôle les liens, configurations, skills, le registre `SKILLS.md` '
+                 'et des exemples déterministes, sans valider le produit ni ses performances. '
+                 'Son rapport JSON est écrit dans `CONTROLES_DOSSIER.json`, ou uniquement dans le chemin '
+                 'donné par `--report`.\n')
     return ''.join(parts)
 
 def main() -> int:
