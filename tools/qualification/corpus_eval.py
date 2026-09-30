@@ -239,12 +239,17 @@ def score(question: dict[str, Any], result: dict[str, Any]) -> dict[str, Any]:
     return row
 
 
-def aggregate(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    def rate(items: list[dict[str, Any]], key: str) -> dict[str, Any]:
-        values = [item[key] for item in items if key in item]
-        hits = sum(bool(value) for value in values)
-        return {"numerator": hits, "denominator": len(values), "rate": round(hits / len(values), 3) if values else None, "wilson95": wilson(hits, len(values))}
+def rate(items: list[dict[str, Any]], key: str) -> dict[str, Any]:
+    values = [item[key] for item in items if key in item]
+    hits = sum(bool(value) for value in values)
+    return {"numerator": hits, "denominator": len(values), "rate": round(hits / len(values), 3) if values else None, "wilson95": wilson(hits, len(values))}
 
+
+def rate_table(items: list[dict[str, Any]], keys: tuple[str, ...]) -> dict[str, Any]:
+    return {key: rate(items, key) for key in keys}
+
+
+def aggregate(rows: list[dict[str, Any]]) -> dict[str, Any]:
     answerable = [row for row in rows if "success_at_10" in row]
     unanswerable = [row for row in rows if "search_abstention" in row]
     report: dict[str, Any] = {
