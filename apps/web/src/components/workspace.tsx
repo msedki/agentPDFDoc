@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Activity, ChevronDown, FileText, Folder, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, X } from "lucide-react";
+import { Activity, ChevronDown, CircleAlert, FileText, Folder, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { useWorkspace, restorePanelPreferences, savePanelPreferences } from "@/lib/store";
 import { sourcePage } from "@/lib/selection";
 import { errorMessage } from "@/lib/utils";
-import { warningText } from "@/lib/warnings";
+import { readinessBlockerText, warningText } from "@/lib/warnings";
 import { useCitationRevision } from "@/lib/use-citation-revision";
 import { citationLinkIds, registeredCitationLocation } from "@/lib/citation-link";
 import type { Scope, Source } from "@/lib/types";
@@ -136,9 +136,10 @@ function WorkspaceBody() {
   const gridTemplateColumns = `${state.libraryHidden ? "0px 0px" : `${state.panelWidths[0]}% 5px`} minmax(0, 1fr) ${state.analysisHidden ? "0px 0px" : `5px ${state.panelWidths[1]}%`}`;
   const comparisonDocuments = state.scope.kind === "documents" && state.scope.documentIds.length >= 2 && state.scope.documentIds.length <= 4 ? tree.data?.documents.filter(document => state.scope.kind === "documents" && state.scope.documentIds.includes(document.id)) ?? [] : [];
   return <main className="workspace-shell">
-    <header className="app-header"><div className="app-title"><span className="app-mark"><FileText size={21} strokeWidth={1.5} /></span><div><p className="eyebrow">Poste documentaire local</p><h1>Atelier documentaire</h1></div></div><div className="app-actions"><span className={`readiness-badge ${readiness.isError || readiness.data?.ready === false ? "has-warning" : ""}`} title={readiness.isError ? errorMessage(readiness.error) : readiness.data?.blockers?.join(" · ")}><i />{readiness.isLoading ? "Connexion…" : readiness.isError ? "Service indisponible" : readiness.data?.ready === true ? "Services prêts" : "Préparation requise"}</span><Button variant="ghost" size="sm" onClick={() => setJobsVisible(value => !value)} aria-expanded={jobsVisible}><Activity size={16} />Suivi{activeJobs.length > 0 && <span className="count-pill">{activeJobs.length}</span>}</Button><Button variant="ghost" size="icon" onClick={() => state.setPanels({ libraryHidden: !state.libraryHidden })} aria-label={state.libraryHidden ? "Afficher la bibliothèque" : "Replier la bibliothèque"}>{state.libraryHidden ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}</Button><Button variant="ghost" size="icon" onClick={() => state.setPanels({ analysisHidden: !state.analysisHidden })} aria-label={state.analysisHidden ? "Afficher l'analyse" : "Replier l'analyse"}>{state.analysisHidden ? <PanelRightOpen size={18} /> : <PanelRightClose size={18} />}</Button></div></header>
+    <header className="app-header"><div className="app-title"><span className="app-mark"><FileText size={21} strokeWidth={1.5} /></span><div><p className="eyebrow">Poste documentaire local</p><h1>Atelier documentaire</h1></div></div><div className="app-actions"><span className={`readiness-badge ${readiness.isError || readiness.data?.ready === false ? "has-warning" : ""}`} title={readiness.isError ? errorMessage(readiness.error) : readiness.data?.blockers?.map(readinessBlockerText).join(" · ")}><i />{readiness.isLoading ? "Connexion…" : readiness.isError ? "Service indisponible" : readiness.data?.ready === true ? "Services prêts" : "Préparation requise"}</span><Button variant="ghost" size="sm" onClick={() => setJobsVisible(value => !value)} aria-expanded={jobsVisible}><Activity size={16} />Suivi{activeJobs.length > 0 && <span className="count-pill">{activeJobs.length}</span>}</Button><Button variant="ghost" size="icon" onClick={() => state.setPanels({ libraryHidden: !state.libraryHidden })} aria-label={state.libraryHidden ? "Afficher la bibliothèque" : "Replier la bibliothèque"}>{state.libraryHidden ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}</Button><Button variant="ghost" size="icon" onClick={() => state.setPanels({ analysisHidden: !state.analysisHidden })} aria-label={state.analysisHidden ? "Afficher l'analyse" : "Replier l'analyse"}>{state.analysisHidden ? <PanelRightOpen size={18} /> : <PanelRightClose size={18} />}</Button></div></header>
     <div className="workspace-scope-bar"><ScopeControl /><p>Les réponses gardent leur périmètre et leurs versions.</p></div>
-    {readiness.data?.blockers?.length ? <div className="readiness-notice" role="status">{readiness.data.blockers.join(" · ")}</div> : null}
+    {readiness.data?.blockers?.length ? <div className="readiness-notice" role="status">{readiness.data.blockers.map(readinessBlockerText).join(" · ")}</div> : null}
+    {error && <div className="readiness-notice workspace-error" role="alert"><CircleAlert size={13} /><span>{error}</span><button type="button" onClick={() => setError("")} aria-label="Fermer le message"><X size={13} /></button></div>}
     {comparisonDocuments.length > 0 && <nav className="comparison-documents" aria-label="Documents comparés"><span>Comparer {comparisonDocuments.length} PDF</span>{comparisonDocuments.map(document => <button key={document.id} className={state.opened?.documentId === document.id ? "is-active" : ""} disabled={!document.active_version_id && !document.version_id} onClick={() => state.open({ documentId: document.id, versionId: document.active_version_id ?? document.version_id!, pageIndex: 0 })}><FileText size={13} />{document.name}</button>)}</nav>}
     <div className="workspace-layout" ref={layout} style={{ gridTemplateColumns }}>
       <div className="panel-wrapper library-wrapper" hidden={state.libraryHidden}><LibraryPanel /></div>
@@ -168,7 +169,6 @@ function WorkspaceBody() {
           {!["done", "completed", "ready", "ready_partial", "cancelled", "error", "failed"].includes(jobState) && <Button variant="danger" size="sm" disabled={Boolean(pendingJob)} onClick={() => void jobAction(job.id, () => api.cancelJob(job.id))}>Annuler ce traitement</Button>}
         </article>;
       })}
-      {error && <p className="inline-warning" role="alert">{error}</p>}
     </section>}
   </main>;
 }

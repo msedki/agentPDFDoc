@@ -108,11 +108,103 @@ def doctor(profile_path: Path) -> dict:
     return result
 
 
-def pull_model(profile_path: Path) -> dict:
+OLLAMA_MODELS_DIR = ROOT / ".runtime/models/ollama"
+SOURCE_MODEL_MANIFEST = ".runtime/manifests/ollama-model.json"
+
+
+def _ollama_manifest(name: str) -> dict:
+    model, _, tag = name.partition(":")
+    path = OLLAMA_MODELS_DIR / "manifests/registry.ollama.ai/library" / model / (tag or "latest")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _blob(digest: str) -> Path:
+    algorithm, _, value = digest.partition(":")
+    if algorithm != "sha256" or len(value) != 64:
+        raise ValueError(f"Digest de blob inattendu : {digest}")
+    return OLLAMA_MODELS_DIR / "blobs" / f"sha256-{value}"
+
+
+def _model_record(client, base_url: str, name: str, quantization: str) -> tuple[dict, dict]:
+    tags = client.get(base_url + "/api/tags").json()["models"]
+    model = next((item for item in tags if item["name"] == name), None)
+    if model is None:
+        raise FileNotFoundError(f"Modèle {name} absent du stockage Ollama local")
+    observed = model.get("details", {}).get("quantization_level")
+    if observed != quantization:
+        raise RuntimeError(f"Quantification {observed} différente du contrat")
+    payload = client.post(base_url + "/api/show", json={"model": name})
+    payload.raise_for_status()
+    return model, payload.json()
+
+
+def _derive_text_model(client, base_url: str, profile: dict, env: dict, directory: Path,
+                       source: dict) -> dict:
+    """Dérivation texte seul reproductible ; idempotente si source et cible sont inchangées."""
+    from .text_model import create_ollama_model, derive_text_only, modelfile_text, write_modelfile
+
+    llm = profile["llm"]
+    target_manifest_path = ROOT / llm["model_manifest"]
+    source_manifest = _ollama_manifest(llm["source_model"])
+    layers = {layer["mediaType"].rsplit(".", 1)[-1]: layer for layer in source_manifest["layers"]}
+    source_digest = layers["model"]["digest"]
+    if target_manifest_path.is_file():
+        previous = json.loads(target_manifest_path.read_text(encoding="utf-8"))
+        try:
+            current, _ = _model_record(client, base_url, llm["model"], llm["required_quantization"])
+        except FileNotFoundError:
+            current = None
+        if (current and previous.get("derivation", {}).get("source_model_layer_digest") == source_digest
+                and previous.get("model", {}).get("digest") == current.get("digest")):
+            return previous
+    config = json.loads(_blob(source_manifest["config"]["digest"]).read_text(encoding="utf-8"))
+    parameters = json.loads(_blob(layers["params"]["digest"]).read_text(encoding="utf-8")) if "params" in layers else {}
+    license_text = _blob(layers["license"]["digest"]).read_text(encoding="utf-8") if "license" in layers else ""
+    work = directory / "text-model"
+    work.mkdir(parents=True, exist_ok=True)
+    gguf = work / "model.gguf"
+    gguf.unlink(missing_ok=True)
+    if shutil.disk_usage(work).free < 2 * int(layers["model"]["size"]) + 2 * 1024**3:
+        raise RuntimeError("Espace disque insuffisant pour dériver puis importer le modèle texte (réserve 2 Gio)")
+    print(f"Dérivation texte seul depuis {llm['source_model']} ({source_digest})", flush=True)
+    report = derive_text_only(_blob(source_digest), gguf, expected_source_sha256=source_digest.split(":", 1)[1])
+    modelfile = work / "Modelfile"
+    write_modelfile(modelfile, modelfile_text(gguf.name, config, parameters, license_text))
+    try:
+        create_ollama_model(native_paths()["ollama"], base_url.removeprefix("http://"), llm["model"], modelfile,
+                            env, directory / "ollama-create.log")
+    finally:
+        gguf.unlink(missing_ok=True)
+    model, details = _model_record(client, base_url, llm["model"], llm["required_quantization"])
+    created = _ollama_manifest(llm["model"])
+    created_layers = {layer["mediaType"].rsplit(".", 1)[-1]: layer for layer in created["layers"]}
+    if created_layers["model"]["digest"] != "sha256:" + report["derived_sha256"]:
+        raise RuntimeError("Couche modèle importée différente du GGUF dérivé vérifié")
+    for kind in ("license", "params"):
+        if kind in layers and created_layers.get(kind, {}).get("digest") != layers[kind]["digest"]:
+            raise RuntimeError(f"Couche {kind} importée différente de celle du modèle source")
+    manifest = {"model": model, "model_info": details.get("model_info"), "details": details.get("details"),
+                "template": details.get("template"), "parameters": details.get("parameters"),
+                "license": details.get("license"), "provisioned_at_utc": datetime.now(UTC).isoformat(),
+                "inference_validated": False,
+                "source": f"derived locally from {source['model']['name']} ({source['source']})",
+                "source_model": {"name": source["model"]["name"], "digest": source["model"]["digest"]},
+                "derivation": {**report, "source_model_layer_digest": source_digest,
+                               "derived_model_layer_digest": created_layers["model"]["digest"],
+                               "ollama_config": {key: config.get(key) for key in ("renderer", "parser", "requires")},
+                               "reason": "Ollama 0.35.0 auto-enables --mmproj on inline v.* tensors; the RAG never sends images",
+                               "official_source": "https://github.com/ollama/ollama/blob/v0.35.0/llm/llama_server.go"}}
+    write_json_atomic(target_manifest_path, manifest)
+    return manifest
+
+
+def pull_model(profile_path: Path, offline: bool = False) -> dict:
     import httpx
 
     profile = load_profile(profile_path)
     profile = {**profile, "llm": {**profile["llm"], "base_url": "http://127.0.0.1:11444"}}
+    llm = profile["llm"]
+    source_name = llm.get("source_model", llm["model"])
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
         probe.bind(("127.0.0.1", 11444))
     paths = native_paths()
@@ -121,42 +213,46 @@ def pull_model(profile_path: Path) -> dict:
     with WindowsJob() as job:
         child = job.launch([str(paths["ollama"]), "serve"], cwd=ROOT, env=env,
                            log_path=directory / "ollama-pull.log")
-        wait_http(profile["llm"]["base_url"] + "/api/version", child, "0.35.0")
+        wait_http(llm["base_url"] + "/api/version", child, "0.35.0")
         with httpx.Client(timeout=httpx.Timeout(300, connect=10), trust_env=False) as client:
             notified = {}
-            with client.stream("POST", profile["llm"]["base_url"] + "/api/pull",
-                               json={"model": profile["llm"]["model"], "stream": True}) as response:
-                response.raise_for_status()
-                for line in response.iter_lines():
-                    if not line:
-                        continue
-                    event = json.loads(line)
-                    if "error" in event:
-                        raise RuntimeError(event["error"])
-                    digest = event.get("digest", "status")
-                    completed = event.get("completed", 0)
-                    if completed - notified.get(digest, -67108864) >= 67108864 or event.get("status") == "success":
-                        print(f"Modèle : {event['status']} {completed / 1048576:.0f} Mio", flush=True)
-                        notified[digest] = completed
-            tags = client.get(profile["llm"]["base_url"] + "/api/tags").json()["models"]
-            model = next(item for item in tags if item["name"] == profile["llm"]["model"])
-            quantization = model.get("details", {}).get("quantization_level")
-            if quantization != profile["llm"]["required_quantization"]:
-                raise RuntimeError(f"Quantification {quantization} différente du contrat")
-            payload = client.post(profile["llm"]["base_url"] + "/api/show", json={"model": profile["llm"]["model"]})
-            payload.raise_for_status()
-            details = payload.json()
-            manifest = {"model": model, "model_info": details.get("model_info"), "details": details.get("details"),
-                        "template": details.get("template"), "parameters": details.get("parameters"),
-                        "license": details.get("license"), "provisioned_at_utc": datetime.now(UTC).isoformat(),
-                        "inference_validated": False, "source": "https://ollama.com/library/qwen3.5:4b"}
-            write_json_atomic(ROOT / ".runtime/manifests/ollama-model.json", manifest)
+            if not offline:
+                with client.stream("POST", llm["base_url"] + "/api/pull",
+                                   json={"model": source_name, "stream": True}) as response:
+                    response.raise_for_status()
+                    for line in response.iter_lines():
+                        if not line:
+                            continue
+                        event = json.loads(line)
+                        if "error" in event:
+                            raise RuntimeError(event["error"])
+                        digest = event.get("digest", "status")
+                        completed = event.get("completed", 0)
+                        if completed - notified.get(digest, -67108864) >= 67108864 or event.get("status") == "success":
+                            print(f"Modèle : {event['status']} {completed / 1048576:.0f} Mio", flush=True)
+                            notified[digest] = completed
+            model, details = _model_record(client, llm["base_url"], source_name, llm["required_quantization"])
+            source = {"model": model, "model_info": details.get("model_info"), "details": details.get("details"),
+                      "template": details.get("template"), "parameters": details.get("parameters"),
+                      "license": details.get("license"), "provisioned_at_utc": datetime.now(UTC).isoformat(),
+                      "inference_validated": False, "source": f"https://ollama.com/library/{source_name}"}
+            source_manifest_path = ROOT / llm.get("source_model_manifest", SOURCE_MODEL_MANIFEST)
+            if offline and source_manifest_path.is_file():
+                recorded = json.loads(source_manifest_path.read_text(encoding="utf-8"))
+                if recorded.get("model", {}).get("digest") != model.get("digest"):
+                    raise RuntimeError("Modèle source local différent du manifeste provisionné")
+                source = recorded
+            else:
+                write_json_atomic(source_manifest_path, source)
+            result = source
+            if llm["model"] != source_name:
+                result = _derive_text_model(client, llm["base_url"], profile, env, directory, source)
         send_owned_console_interrupt(child)
         try:
             child.wait(30)
         except TimeoutError:
             print("Service de provisionnement : arrêt forcé ciblé du Job, aucune inférence active.", flush=True)
-    return model
+    return result["model"]
 
 
 def provision(profile_path: Path, only: str | None = None, offline: bool = False, skip_model: bool = False):
@@ -181,9 +277,13 @@ def provision(profile_path: Path, only: str | None = None, offline: bool = False
                        env={**node_env, "NODE_OPTIONS": "--max-old-space-size=2048"}, check=True)
     if not only and not skip_model:
         if offline:
-            path = ROOT / ".runtime/manifests/ollama-model.json"
-            if not path.is_file():
+            llm = load_profile(profile_path)["llm"]
+            source = ROOT / llm.get("source_model_manifest", SOURCE_MODEL_MANIFEST)
+            if not source.is_file():
                 raise FileNotFoundError("Modèle Ollama non provisionné pour installation offline")
+            if not (ROOT / llm.get("model_manifest", SOURCE_MODEL_MANIFEST)).is_file():
+                # La dérivation texte seul est locale : elle reste permise hors ligne.
+                return pull_model(profile_path, offline=True)
         else:
             return pull_model(profile_path)
     return {"artifacts": "verified", "model": "not_requested" if skip_model else "unchanged"}
@@ -206,7 +306,7 @@ def main() -> int:
         if args.command == "provision":
             result = provision(args.profile, args.only, args.offline, args.skip_model)
         elif args.command == "pull-model":
-            result = pull_model(args.profile)
+            result = pull_model(args.profile, args.offline)
         elif args.command == "doctor":
             result = doctor(args.profile)
         elif args.command == "backup":

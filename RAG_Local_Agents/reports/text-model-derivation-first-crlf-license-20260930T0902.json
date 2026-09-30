@@ -1,0 +1,25 @@
+{
+  "name": "qwen3.5:4b-text",
+  "model": "qwen3.5:4b-text",
+  "modified_at": "2026-09-30T09:04:10.4462618Z",
+  "size": 2722274101,
+  "digest": "44894309254e31e0bd0f695903132050fbd480e826c85371866c950cdf7e4b21",
+  "details": {
+    "parent_model": "model.gguf",
+    "format": "gguf",
+    "family": "qwen35",
+    "families": [
+      "qwen35"
+    ],
+    "parameter_size": "4.3B",
+    "quantization_level": "Q4_K_M",
+    "context_length": 262144,
+    "embedding_length": 2560
+  },
+  "capabilities": [
+    "completion",
+    "vision",
+    "tools",
+    "thinking"
+  ]
+}

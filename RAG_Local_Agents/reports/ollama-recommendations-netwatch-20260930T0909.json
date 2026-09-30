@@ -1,0 +1,16 @@
+{
+  "pid": 23964,
+  "exe": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\ollama-0.35.0\\ollama.exe",
+  "create_time": 1790743486.6139157,
+  "started_utc": "2026-09-30T09:09:25.355018+00:00",
+  "until_utc": "2026-09-30T09:24:30+00:00",
+  "interval_s": 0.25,
+  "samples": 3555,
+  "non_loopback": [],
+  "listening": [
+    "127.0.0.1:11445"
+  ],
+  "method": "psutil.Process.net_connections(kind='inet') polled; observes sockets, not DNS or blocked attempts",
+  "ended_utc": "2026-09-30T09:24:30.235384+00:00",
+  "result": "no non-loopback socket observed"
+}

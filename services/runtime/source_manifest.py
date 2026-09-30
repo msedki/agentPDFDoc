@@ -24,7 +24,8 @@ def capture() -> dict:
                  "config/local16.yaml", "config/artifacts.lock.json", "config/embedding-comparison.lock.json",
                  "apps/web/package.json", "apps/web/pnpm-lock.yaml", "apps/web/next.config.ts",
                  "apps/web/tsconfig.json", "apps/web/playwright.config.ts",
-                 ".runtime/manifests/ollama-model.json", ".runtime/manifests/artifacts.json",
+                 ".runtime/manifests/ollama-model.json", ".runtime/manifests/ollama-model-text.json",
+                 ".runtime/manifests/artifacts.json",
                  ".runtime/manifests/embedding-comparison.json"):
         path = ROOT / name
         if path.is_file():

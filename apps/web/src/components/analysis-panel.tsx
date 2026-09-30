@@ -12,7 +12,7 @@ import type { QueryState, Scope, SearchResponse, Source, StreamEvent } from "@/l
 import { Button } from "./ui/button";
 
 const statusLabels: Record<string, string> = {
-  created: "Question enregistrée", queued: "En attente", retrieving: "Recherche des passages", generating: "Rédaction en cours", running: "Travail en cours", done: "Réponse terminée", completed: "Réponse terminée", cancelled: "Réponse annulée", interrupted: "Réponse interrompue", error: "Échec", waiting_for_ingestion_checkpoint: "En attente de la pause de l'indexation", waiting_for_resources: "En attente de mémoire disponible", context: "Préparation des preuves", sources: "Sources retrouvées", length: "Réponse limitée par la longueur", length_limited: "Réponse limitée par la longueur", needs_clarification: "Précision nécessaire", insufficient_evidence: "Preuves insuffisantes",
+  created: "Question enregistrée", queued: "En attente", searching: "Recherche des passages", retrieving: "Recherche des passages", context_ready: "Preuves prêtes", cancel_requested: "Annulation demandée", generating: "Rédaction en cours", running: "Travail en cours", done: "Réponse terminée", completed: "Réponse terminée", cancelled: "Réponse annulée", interrupted: "Réponse interrompue", error: "Échec", waiting_for_ingestion_checkpoint: "En attente de la pause de l'indexation", waiting_for_resources: "En attente de mémoire disponible", context: "Préparation des preuves", sources: "Sources retrouvées", length: "Réponse limitée par la longueur", length_limited: "Réponse limitée par la longueur", needs_clarification: "Précision nécessaire", insufficient_evidence: "Preuves insuffisantes",
 };
 function textValue(value: unknown, fallback = "") { return typeof value === "string" ? value : fallback; }
 

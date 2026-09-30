@@ -91,11 +91,12 @@ def license_inventory(output: Path) -> dict:
                 if (ROOT / entry["target"]).is_file() else None} for entry in entries],
             "limit": "Presence and metadata inventory; does not prove inference or an IBM-bundled NOTICE.",
         }
-    manifest = ROOT / ".runtime/manifests/ollama-model.json"
-    if manifest.is_file():
-        data = json.loads(manifest.read_text(encoding="utf-8"))
-        result["ollama_model"] = {"model": data["model"], "license_notice": data.get("license"),
-                                  "manifest_sha256": file_hash(manifest)}
+    for key, name in (("ollama_model", "ollama-model.json"), ("ollama_text_model", "ollama-model-text.json")):
+        manifest = ROOT / ".runtime/manifests" / name
+        if manifest.is_file():
+            data = json.loads(manifest.read_text(encoding="utf-8"))
+            result[key] = {"model": data["model"], "license_notice": data.get("license"),
+                           "derived_from": data.get("source_model"), "manifest_sha256": file_hash(manifest)}
     result["limits"] = [
         "Tesseract Windows installed copy has verified local hashes, but installer provenance not independently authenticated",
         "License declarations and bundled notice paths are recorded; no compatibility or redistribution opinion is inferred",

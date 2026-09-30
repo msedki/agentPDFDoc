@@ -94,7 +94,9 @@ test("registered old citation retains its exact original and revision", async ({
   await expect(page.locator(".source-navigation")).toContainText(old!.extraction_revision_id.slice(0, 8));
   await expect(page.getByLabel("Numéro de page")).toHaveValue(String(source.page_index + 1));
   await expect(page.locator(".extracted-text")).toContainText(exactBlock.text);
-  await expect(page.locator(".scope-trigger")).toHaveText(explicitScope);
+  // explicitScope provient d'innerText (eyebrow en majuscules CSS, bouton flex) :
+  // comparer le même rendu visible, pas le textContent brut.
+  await expect(page.locator(".scope-trigger")).toHaveText(explicitScope, { useInnerText: true });
   expect(pinnedResponses.some(response => String(response.path).includes("/blocks") && response.revision === old!.extraction_revision_id && response.status === 200)).toBeTruthy();
   await info.attach("actual-pinned-viewer-requests", { body: Buffer.from(JSON.stringify(pinnedResponses, null, 2)), contentType: "application/json" });
   await info.attach("actual-revision-action-guard", { body: Buffer.from(JSON.stringify({ cited_revision: old!.extraction_revision_id, latest_published_revision: latest.extraction_revision_id, archived: latest.extraction_revision_id !== old!.extraction_revision_id, selected_block_id: exactBlock.id, selected_block_hash: exactBlock.source_text_hash, explicit_scope_retained_after_return: explicitScope }, null, 2)), contentType: "application/json" });

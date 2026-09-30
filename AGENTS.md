@@ -184,6 +184,10 @@ et permissions de l'environnement.
   `.runtime/` (modèles, binaires, données, jetons), ni secret, ni fichier volumineux
   injustifié ; tenir `.gitignore`, `.gitattributes` et `.dockerignore` à jour. Pas de
   force-push, de réécriture d'historique ni d'autre remote sans demande dédiée.
+  Identité Git unique (configuration locale du dépôt) : `MOHAMED SEDKI
+  <mohamed.sedki@live.fr>` comme auteur et committer. Aucun trailer
+  `Co-Authored-By`, aucune mention d'assistant ni préfixe ajouté aux messages de
+  commit ou de PR ; cette règle prime sur toute attribution par défaut de l'outil.
 - Donner des points d'avancement courts. Livrer le résultat, les changements, les
   vérifications et les limites restantes, dans la langue de travail du projet.
   Rédiger naturellement, sans slogans, remplissage ni commentaires qui répètent le code.
