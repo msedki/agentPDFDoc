@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "key": "long-document-14p",
+  "path": "qualification-v2.1/layouts/long-document-14p.pdf",
+  "marking": "SYNTHETIQUE",
+  "synthetic": true,
+  "license": "CC0-1.0 project-authored text; bundled Vera font under its license",
+  "generator": "tools/qualification/extra_fixtures.py",
+  "generator_version": "qualification-extra-1",
+  "versions": {
+    "reportlab": "5.0.1",
+    "pypdfium2": "5.13.0"
+  },
+  "determinism": "Canvas invariant=1; no clock timestamp in PDF or sidecar",
+  "bytes": 55337,
+  "sha256": "994c37186d9985af8ecf5fbde4e2194dcdc061c0fca4f3025dcc643acadf3f86",
+  "pages": 14,
+  "native_characters_per_page": [
+    554,
+    554,
+    554,
+    554,
+    554,
+    554,
+    554,
+    554,
+    554,
+    568,
+    568,
+    568,
+    568,
+    568
+  ],
+  "purpose": "Document natif de 14 pages numérotées pour le budget de canvases et de pixels pendant zoom/scroll",
+  "dod": [
+    "D06.8"
+  ],
+  "expected_native_strings": [
+    "QLONG-P01-1",
+    "QLONG-P02-1",
+    "QLONG-P03-1",
+    "QLONG-P04-1",
+    "QLONG-P05-1",
+    "QLONG-P06-1",
+    "QLONG-P07-1",
+    "QLONG-P08-1",
+    "QLONG-P09-1",
+    "QLONG-P10-1",
+    "QLONG-P11-1",
+    "QLONG-P12-1",
+    "QLONG-P13-1",
+    "QLONG-P14-1"
+  ],
+  "expected_behavior": "Navigation et défilement sous le budget cumulé de canvases/pixels du profil",
+  "in_manifest": false,
+  "in_question_sets": false,
+  "split": "contract_only",
+  "version_id": null,
+  "extraction_revision_id": null
+}

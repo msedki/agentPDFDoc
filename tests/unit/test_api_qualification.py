@@ -100,3 +100,19 @@ def test_api_qualification_micro_aggregate_and_per_question_mean_have_distinct_d
     assert metrics["per_question_means"]["recall_at_10"]["mean"] == .875
     assert metrics["per_question_means"]["evidence_coverage_at_context"]["mean"] == .75
     assert metrics["mrr_at_10"]["mean"] == .75 and metrics["mrr_at_10"]["denominator_questions"] == 2
+
+
+def test_api_qualification_summary_reports_by_language_with_own_denominators():
+    span, source = evidence()
+    question = {"id": "dev-en", "answerable": True, "category": "factual_fr_en", "language": "en", "scope_resolved": {"kind": "documents", "documentIds": ["d1"]},
+                "expected_units": [{"resolved_spans": [span]}]}
+    row = evaluate_question(question, {"state": "context_ready", "scope_snapshot": {"generations": ["g1"], "versions": {"g1": "v1"}, "documents": {"g1": "d1"}},
+                                       "retrieval_top10": [source], "context_sources": [source]})
+    assert row["language"] == "en"
+    rows = [row, {"status": "UNRESOLVED", "category": "factual_fr_en", "language": "fr"}, {"status": "ERROR", "category": "tables", "language": "fr"}]
+    metrics = summary(rows)
+    assert sorted(metrics["by_language"]) == ["en", "fr"]
+    assert metrics["by_language"]["en"]["recall_at_10"]["rate"] == 1 and metrics["by_language"]["en"]["evaluated_questions"] == 1
+    assert metrics["by_language"]["fr"]["requested_questions"] == 2 and metrics["by_language"]["fr"]["evaluated_questions"] == 0
+    assert metrics["by_language"]["fr"]["recall_at_10"]["rate"] is None and "by_language" not in metrics["by_language"]["fr"]
+    assert "by_language" in summary([row]) and summary([{"status": "UNRESOLVED", "category": "x"}])["by_language"] == {}

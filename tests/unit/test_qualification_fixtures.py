@@ -12,6 +12,8 @@ from pathlib import Path
 import pypdfium2 as pdfium
 
 ROOT = Path(__file__).resolve().parents[2]
+# Empreinte canonique documentée du jeu final gelé (final.freeze.json) : toute régénération doit la conserver.
+FINAL_FREEZE_SHA256 = "673e437138ae66a4baee730d3181012c6bf66e1d96e91c4af7a08e2a8ee546d4"
 sys.path.insert(0, str(ROOT / "tools" / "qualification"))
 from corpus_data import CATEGORY_QUOTAS, frozen_digest  # noqa: E402
 from resolve import resolve_dataset, resolve_unit  # noqa: E402
@@ -127,7 +129,9 @@ class CorpusStructure(unittest.TestCase):
         folder = ROOT / "evals" / "qualification-v2.1"
         final = json.loads((folder / "final.json").read_text(encoding="utf-8"))
         freeze = json.loads((folder / "final.freeze.json").read_text(encoding="utf-8"))
-        self.assertEqual(frozen_digest(final), freeze["canonical_sha256"])
+        self.assertEqual(freeze["canonical_sha256"], FINAL_FREEZE_SHA256)
+        self.assertEqual(frozen_digest(final), FINAL_FREEZE_SHA256)
+        self.assertEqual((freeze["questions"], freeze["answerable"], freeze["unanswerable"]), (100, 80, 20))
         for question in self.data["questions"]:
             if question["category"] == "comparison":
                 self.assertEqual(len({unit["document_key"] for unit in question["expected_units"]}), 2)

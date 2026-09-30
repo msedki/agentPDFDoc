@@ -7,6 +7,7 @@ import io
 import json
 import shutil
 import sys
+import tempfile
 from importlib.metadata import version
 from pathlib import Path
 
@@ -26,6 +27,7 @@ ROOT = Path(__file__).resolve().parents[2]
 PAGE_W, PAGE_H = A4
 FONT_DIR = Path(reportlab.__file__).parent / "fonts"
 GENERATOR_VERSION = "qualification-pdf-1"
+EVAL_FILES = ("questions.json", "development.json", "final.json", "manifest.json", "final.freeze.json")
 
 
 def register_fonts() -> None:
@@ -316,21 +318,24 @@ def inspect_pdf(path: Path, entry: dict) -> dict:
         doc.close()
 
 
-def generate() -> dict:
+def generate(root: Path) -> dict:
+    """Écrit les fixtures et jeux sous `root` ; le dépôt n'est modifié que par `publish`."""
+    if root.resolve() == ROOT.resolve():
+        raise ValueError("Écriture directe dans le dépôt refusée : utiliser publish() et son contrôle du gel")
     register_fonts()
-    base = ROOT / "fixtures" / "qualification-v2.1"
+    base = root / "fixtures" / "qualification-v2.1"
     entries = []
     for split in ("development", "final"):
         for record in records(split):
             entry = document_descriptor(record)
-            target = ROOT / "fixtures" / entry["path"]
+            target = root / "fixtures" / entry["path"]
             target.parent.mkdir(parents=True, exist_ok=True)
             core_document(record, target)
             entry["purpose"] = "Controlled source for annotated questions; facts, near technical identifier and units"
             entries.append(entry)
     entries.extend(add_specials(base))
     for entry in entries:
-        path = ROOT / "fixtures" / entry["path"]
+        path = root / "fixtures" / entry["path"]
         entry.update({"bytes": path.stat().st_size, "sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "generation_id": None, "inspection": inspect_pdf(path, entry)})
     data = dataset()
     by_key = {entry["key"]: entry for entry in entries}
@@ -342,7 +347,7 @@ def generate() -> dict:
     dev = {**data, "questions": [question for question in data["questions"] if question["split"] == "development"]}
     final_hash = frozen_digest(final)
     manifest = {"schema_version": 1, "dataset_version": DATASET_VERSION, "generator_version": GENERATOR_VERSION, "generator_sources": ["tools/qualification/generate.py", "tools/qualification/corpus_data.py"], "versions": {"python": sys.version.split()[0], "reportlab": reportlab.Version, "pypdfium2": version("pypdfium2")}, "determinism": "Canvas invariant=1; no clock timestamp in files or manifests; sequential rasterization", "status": "GENERATED_AND_LOCAL_NATIVE_STRUCTURE_INSPECTED_NOT_INGESTED", "limitations": ["Native inspection is not OCR validation or RAG qualification", "No production-sized >200 MiB file; size refusal requires declared isolated 65536-byte import limit", "Encrypted file inspection uses public fixture password; actual import must omit it", "Type3 Unicode fixture independent of OS fonts; low-level CMap extraction verified locally"], "final_dataset_canonical_sha256": final_hash, "entries": entries}
-    output = ROOT / "evals" / "qualification-v2.1"
+    output = root / "evals" / "qualification-v2.1"
     output.mkdir(parents=True, exist_ok=True)
     for name, obj in (("questions.json", data), ("development.json", dev), ("final.json", final), ("manifest.json", manifest)):
         (output / name).write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -352,7 +357,46 @@ def generate() -> dict:
     return {"pdf_files": len(entries), "bytes": sum(entry["bytes"] for entry in entries), "questions": len(data["questions"]), "development": len(dev["questions"]), "final": len(final["questions"]), "final_canonical_sha256": final_hash, "manifest": str(output / "manifest.json")}
 
 
+def generated_paths(staged: Path) -> list[Path]:
+    """Chemins relatifs réellement produits : fixtures du manifeste, licence et jeux."""
+    manifest = json.loads((staged / "evals/qualification-v2.1/manifest.json").read_text(encoding="utf-8"))
+    return ([Path("fixtures") / entry["path"] for entry in manifest["entries"]] + [Path("fixtures/qualification-v2.1/licenses/bitstream-vera-license.txt")]
+            + [Path("evals/qualification-v2.1") / name for name in EVAL_FILES])
+
+
+def frozen_final_state(folder: Path) -> str | None:
+    """Empreinte du gel existant ; refuse un final.json qui ne correspond plus à son gel."""
+    final, freeze = folder / "final.json", folder / "final.freeze.json"
+    if not final.exists() and not freeze.exists():
+        return None
+    if not (final.exists() and freeze.exists()):
+        raise ValueError("final.json et final.freeze.json doivent exister ensemble ; écrasement refusé")
+    frozen = json.loads(freeze.read_text(encoding="utf-8"))["canonical_sha256"]
+    if frozen_digest(json.loads(final.read_text(encoding="utf-8"))) != frozen:
+        raise ValueError("final.json diffère de son gel : écrasement refusé sans --regenerate-final")
+    return frozen
+
+
+def publish(root: Path = ROOT, *, regenerate_final: bool = False) -> dict:
+    """Génère dans un dossier temporaire puis copie ; un final différent du gel n'est jamais écrit implicitement."""
+    folder = root / "evals" / "qualification-v2.1"
+    frozen = None if regenerate_final else frozen_final_state(folder)
+    with tempfile.TemporaryDirectory(prefix="qualification-staging-") as directory:
+        staged = Path(directory)
+        result = generate(staged)
+        if frozen and result["final_canonical_sha256"] != frozen:
+            raise ValueError("Le final régénéré diffère du gel existant ; aucun fichier modifié (option explicite --regenerate-final)")
+        for relative in generated_paths(staged):
+            (root / relative).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(staged / relative, root / relative)
+    return {**result, "manifest": str(folder / "manifest.json"), "final_regenerated_explicitly": regenerate_final}
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.parse_args()
-    print(json.dumps(generate(), ensure_ascii=False))
+    parser.add_argument("--regenerate-final", action="store_true", help="Remplacer explicitement final.json et son gel")
+    args = parser.parse_args()
+    try:
+        print(json.dumps(publish(regenerate_final=args.regenerate_final), ensure_ascii=False))
+    except ValueError as error:
+        parser.error(str(error))

@@ -147,7 +147,7 @@ def evaluate_question(question, response):
         elif expected_version and any(expected_version.get(key) and source.get(key) != expected_version[key] for key in ("version_id", "generation_id", "extraction_revision_id")):
             leaks.append({"chunk_id": source.get("chunk_id"), "reason": "outside_frozen_version_revision_generation"})
     return {"question_id": question["id"], "status": "EVALUATED", "answerable": question["answerable"], "category": question["category"],
-            "expected_unit_count": len(expected), "top5_covered_units": len(covered_top5), "top10_covered_units": len(covered_top10), "context_covered_units": len(covered_context),
+            "language": question.get("language"), "expected_unit_count": len(expected), "top5_covered_units": len(covered_top5), "top10_covered_units": len(covered_top10), "context_covered_units": len(covered_context),
             "top5_covered_unit_indices": covered_top5, "top10_covered_unit_indices": covered_top10, "context_covered_unit_indices": covered_context,
             "first_evidence_rank": first_evidence_rank, "reciprocal_rank": 1 / first_evidence_rank if first_evidence_rank else 0,
             "scope_leakage_count": len(leaks), "scope_leaks": leaks, "state": response["state"],
@@ -178,6 +178,8 @@ def summary(rows, include_categories=True):
     if include_categories:
         result["by_category"] = {category: summary([row for row in rows if row.get("category") == category], False)
                                  for category in sorted({row["category"] for row in rows if row.get("category")})}
+        result["by_language"] = {language: summary([row for row in rows if row.get("language") == language], False)
+                                 for language in sorted({row["language"] for row in rows if row.get("language")})}
     return result
 
 
@@ -223,7 +225,7 @@ def run(dataset_path, source_path, output_path, base_url, split, freeze_path=Non
                 json.dump({"identity_sha256": identity_sha, "source_sha256": canonical_sha(source), "identity": identity}, receipt_file, ensure_ascii=False, indent=2)
         for question in questions:
             if question.get("annotation_state") != "RESOLVED" or not question.get("scope_resolved") or any(not unit.get("resolved_spans") for unit in question.get("expected_units", [])):
-                rows.append({"question_id": question["id"], "category": question["category"], "status": "UNRESOLVED", "reason": "Independent real extraction annotations are not resolved"})
+                rows.append({"question_id": question["id"], "category": question["category"], "language": question.get("language"), "status": "UNRESOLVED", "reason": "Independent real extraction annotations are not resolved"})
                 continue
             body = {"question": question["question"], "scope": question["scope_resolved"], "mode": question.get("mode", "question")}
             if question.get("prior_user_question"):
@@ -237,7 +239,7 @@ def run(dataset_path, source_path, output_path, base_url, split, freeze_path=Non
                     raise ValueError("Evaluation runtime drift or unexpected generation")
                 rows.append(evaluate_question(question, payload))
             except (httpx.HTTPError, ValueError, KeyError) as error:
-                rows.append({"question_id": question["id"], "category": question["category"], "status": "ERROR", "error_class": type(error).__name__})
+                rows.append({"question_id": question["id"], "category": question["category"], "language": question.get("language"), "status": "ERROR", "error_class": type(error).__name__})
     metrics = summary(rows)
     complete = len(rows) == 100 and metrics["evaluated_questions"] == 100
     target = metrics["recall_at_10"]["rate"] is not None and metrics["recall_at_10"]["rate"] >= .9 and metrics["evidence_coverage_at_context"]["rate"] >= .9 and metrics["scope_leakage_count"] == 0
