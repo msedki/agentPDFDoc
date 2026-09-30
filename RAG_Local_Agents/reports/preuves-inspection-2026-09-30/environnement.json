@@ -1,0 +1,85 @@
+{
+  "observed_at_utc": "2026-09-30T00:04:31.292205+00:00",
+  "scope": "Interpreteur Windows global identifie dans le registre ; pas un environnement isole du projet et pas un inventaire de toutes les venv de la machine",
+  "python": {
+    "executable": "C:\\Users\\P47599\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "version": "3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]",
+    "architecture": "64bit",
+    "prefix": "C:\\Users\\P47599\\AppData\\Local\\Programs\\Python\\Python313",
+    "base_prefix": "C:\\Users\\P47599\\AppData\\Local\\Programs\\Python\\Python313",
+    "sqlite_version": "3.49.1",
+    "packages": {
+      "pip": "25.0.1",
+      "fastapi": "0.141.1",
+      "uvicorn": "0.52.3",
+      "pydantic": "2.13.4",
+      "docling": null,
+      "docling-core": null,
+      "qdrant-client": null,
+      "onnxruntime": null,
+      "sentence-transformers": null,
+      "transformers": null,
+      "torch": null,
+      "numpy": "2.5.2",
+      "Pillow": "12.3.0",
+      "PyMuPDF": "1.28.2",
+      "pypdfium2": null,
+      "PyYAML": "6.0.3",
+      "pytest": "9.1.1",
+      "ruff": "0.16.3",
+      "mypy": "2.3.1",
+      "httpx": "0.28.1",
+      "huggingface-hub": null,
+      "optimum": null,
+      "uv": null
+    }
+  },
+  "commands_verified_during_session": {
+    "node --version": "v22.17.0",
+    "npm.cmd --version": "11.18.0",
+    "pnpm.CMD --version, COREPACK_ENABLE_NETWORK=0": "10.34.1",
+    "git --version": "2.50.1.windows.1",
+    "tesseract --version": "5.4.0.20240606",
+    "tesseract --list-langs": [
+      "eng",
+      "osd"
+    ],
+    "PowerShell": "5.1.22621.4391",
+    "corepack package.json": "0.33.0"
+  },
+  "observed_limitations": {
+    "python_in_PATH": false,
+    "py_in_PATH": false,
+    "pip_in_PATH": false,
+    "uv_in_PATH": false,
+    "ollama_in_PATH": false,
+    "docker_in_PATH": false,
+    "qdrant_service_detected": false,
+    "yarn_corepack_shim_present": true,
+    "yarn_version_probe": "Echec volontairement sans reseau : Network access disabled by the environment; cannot reach npm repository",
+    "wsl_cli_present": true,
+    "wsl_status_list_version_probes": "Non operationnels ; aide installation retournee, aucune distribution detectee",
+    "ocr_french_language_present": false,
+    "local_project_venv_found": false,
+    "ollama_standard_model_manifests_found": false,
+    "ollama_standard_model_blobs_found": false
+  },
+  "sqlite_fts5_probe_already_executed": {
+    "target": ":memory:",
+    "created_virtual_table": true,
+    "inserted_rows": 1,
+    "matching_documentation_rows": 1,
+    "persistent_database_used": false
+  },
+  "npm_global_packages_observed": {
+    "@anthropic-ai/claude-code": "2.1.280",
+    "@github/copilot": "1.0.60",
+    "@google/gemini-cli": "0.1.9",
+    "@openai/codex": "0.159.0",
+    "agent-browser": "0.35.2",
+    "n8n": "2.22.6",
+    "nodemon": "3.1.10",
+    "npm": "11.18.0",
+    "prisma": "6.13.0"
+  }
+}

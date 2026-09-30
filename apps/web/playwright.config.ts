@@ -1,0 +1,21 @@
+import { defineConfig } from "@playwright/test";
+const outputDir = process.env.RAG_E2E_OUTPUT_DIR ?? "test-results/default";
+export default defineConfig({
+  testDir: "./tests/e2e",
+  timeout: 240000,
+  expect: { timeout: 30000 },
+  fullyParallel: false,
+  workers: 1,
+  retries: 0,
+  outputDir,
+  reporter: [["list"], ["json", { outputFile: `${outputDir}/results.json` }]],
+  use: {
+    baseURL: process.env.RAG_E2E_BASE_URL ?? "http://127.0.0.1:8785",
+    browserName: "chromium",
+    viewport: { width: 1366, height: 768 },
+    headless: true,
+    trace: "on",
+    screenshot: "only-on-failure",
+    video: "off",
+  },
+});

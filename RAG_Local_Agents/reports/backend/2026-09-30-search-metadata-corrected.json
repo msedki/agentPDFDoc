@@ -1,0 +1,41 @@
+{
+  "status": "PASS_TARGETED",
+  "interpreter": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+  "python": "3.12.14",
+  "command": ".venv/Scripts/python.exe -m pytest tests/integration/test_api_http.py -k \"search_returns_actual_document or import_range_scope_sse_reconnect_and_citation or admin_evaluation_runs_real_scope\" -q --junitxml=RAG_Local_Agents/reports/backend/2026-09-30-search-metadata-corrected.xml",
+  "initial": {
+    "failed": 3,
+    "reason": "KeyError name",
+    "log": "2026-09-30-search-metadata-first-failure.log",
+    "junit": "2026-09-30-search-metadata-first-failure.xml"
+  },
+  "corrected": {
+    "passed": 5,
+    "deselected": 12,
+    "warnings": 1,
+    "seconds": 8.75,
+    "log": "2026-09-30-search-metadata-corrected.log",
+    "junit": "2026-09-30-search-metadata-corrected.xml"
+  },
+  "warning": "StarletteDeprecationWarning: Using httpx with starlette.testclient is deprecated; install httpx2 instead.",
+  "isolation": "SQLite under pytest tmp_path; E5, Qdrant, Ollama, tokenizer and governor explicitly substituted; no production API calls or engines.",
+  "assertions": [
+    "actual document name and relative path",
+    "first authorized page index/physical number/extracted label",
+    "documents/pages/selection scopes",
+    "source IDs, hashes, geometry, precision and offsets preserved",
+    "no source_id/query_id/citation_url or query/citation registration for search",
+    "existing SSE versioned citation and administrative context behavior preserved"
+  ],
+  "modified_runtime_files": [
+    "services/api/retrieval.py"
+  ],
+  "source_sha256": {
+    "services/api/retrieval.py": "f7dae7b61dcf93570004dc859e91fafb53c3056a6f324ebd7ab519274e2f07c9",
+    "tests/integration/test_api_http.py": "f13c88a97ec4ff63dc0d5b2351477fd4afb1fcb2e31d86180ddbdc939c300fa4"
+  },
+  "limits": [
+    "Requires API restart to load corrected code.",
+    "Actual browser/readback and actual retrieval quality not exercised by this test."
+  ]
+}

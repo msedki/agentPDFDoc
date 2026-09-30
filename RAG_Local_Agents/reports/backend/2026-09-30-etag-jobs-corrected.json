@@ -1,0 +1,32 @@
+{
+  "date_utc": "2026-09-30",
+  "changes": [
+    "If-None-Match returns an empty Response for HTTP 304.",
+    "Job metadata carries actual coverage/warnings/published_at plus published and active separately.",
+    "Backend history enforces identical scope and still-authorized generations/documents."
+  ],
+  "tests": [
+    {
+      "command": "./.venv/Scripts/python.exe -m pytest tests/integration/test_api_http.py -q --junitxml=RAG_Local_Agents/reports/backend/2026-09-30-etag-jobs-corrected.xml",
+      "passed": 8,
+      "warnings": 1,
+      "duration_seconds": 9.89
+    },
+    {
+      "command": "./.venv/Scripts/python.exe -m pytest tests/integration/test_api_http.py::test_api_readiness_is_blocked_without_artifacts_and_never_loads_models -q --junitxml=RAG_Local_Agents/reports/backend/2026-09-30-readiness.xml",
+      "passed": 1,
+      "warnings": 1,
+      "duration_seconds": 3.84
+    }
+  ],
+  "source_sha256": {
+    "services/api/main.py": "219c02208dc9b171197d9c8fc655bc552e22c2bf1b304c3fc5acabbd9224a918",
+    "services/api/query.py": "bd6b9b55de68fa798b16372b6fb088e0d6f51c7bf5c6faefc29186967a14ed1c"
+  },
+  "first_failure_preserved": "2026-09-30-etag-304-first-failure.json",
+  "limits": [
+    "No server/model was started for these controls.",
+    "HTTP model/vector boundaries in these tests are explicit test substitutes; real integration is a separate qualification.",
+    "Readiness is store/artifact availability, not proof of inference performance."
+  ]
+}

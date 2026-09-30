@@ -1,0 +1,21 @@
+{
+  "status": "FAIL_READ_TIMEOUT",
+  "date_utc": "2026-09-30",
+  "scope": "Premier pilote froid, pas une recette complète de performance",
+  "source": "cpu-pilot-first.service.log et sortie native de la commande calibration (session 65750)",
+  "error": "httpx.ReadTimeout",
+  "read_timeout_seconds": 300,
+  "input_tokens_runner": 2970,
+  "model_start_seconds_reported_by_ollama": 23.64,
+  "prompt_progress_from_native_log": [
+    {"tokens": 1024, "seconds": 118.23, "tokens_per_second": 8.66},
+    {"tokens": 1946, "seconds": 229.99, "tokens_per_second": 8.46}
+  ],
+  "first_content_token_observed": false,
+  "warm_trial": "NOT_RUN",
+  "requested_num_gpu": 0,
+  "requested_threads": 4,
+  "resource_proof_limit": "Les échantillons du pilote n'ont pas été écrits avant l'exception : défaut du runner corrigé pour les prochains essais. Les observations externes ponctuelles ont montré environ 2,31 Gio disponibles ; aucun minimum continu n'est reconstitué.",
+  "stop": "Fermeture du Job Object du pilote isolé ; aucun import actif ni processus étranger arrêté",
+  "thresholds_modified": false
+}

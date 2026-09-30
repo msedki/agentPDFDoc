@@ -1,0 +1,131 @@
+{
+  "pack": "RAG-LOCAL-16-v2.1",
+  "checked_at_utc": "2026-09-30T00:37:34.745649+00:00",
+  "overall_status": "PASS",
+  "scope": "Documentation, configuration syntax, SQLite reference and deterministic examples ONLY",
+  "python_version": "3.12.14",
+  "pyyaml_version": "6.0.3",
+  "results": [
+    {
+      "id": "markdown_links",
+      "status": "PASS",
+      "detail": {
+        "local_links_checked": 202,
+        "external_urls_fetched": false
+      }
+    },
+    {
+      "id": "syntax",
+      "status": "PASS",
+      "detail": {
+        "configuration_files": [
+          "app.env",
+          "lexical.sql",
+          "local16.yaml",
+          "next.config.mjs",
+          "ollama.chat.smoke.json",
+          "ollama.env",
+          "qdrant.collection.json",
+          "qdrant.yaml"
+        ],
+        "native_runtime_schema_tested": false
+      }
+    },
+    {
+      "id": "configuration_consistency",
+      "status": "PASS",
+      "detail": {
+        "embedding_dimensions": 384,
+        "max_declared_tokens_with_output": 7680,
+        "parameters_are_unqualified_design_targets": true
+      }
+    },
+    {
+      "id": "sqlite_fts5_reference",
+      "status": "PASS",
+      "detail": {
+        "sqlite_version": "3.53.1",
+        "checked": [
+          "create",
+          "insert",
+          "scope-filter",
+          "update",
+          "delete"
+        ],
+        "full_app_schema_tested": false
+      }
+    },
+    {
+      "id": "skill_format",
+      "status": "PASS",
+      "detail": {
+        "skills": [
+          "local-cpu-qualification",
+          "official-source-review",
+          "pdf-workspace-e2e",
+          "rag-pdf-provenance",
+          "rag-retrieval-evaluation"
+        ],
+        "syntax_and_links_only": true,
+        "native_client_discovery_tested": false
+      }
+    },
+    {
+      "id": "policy_propagation",
+      "status": "PASS",
+      "detail": {
+        "policy_in_primary_instructions": true,
+        "source_and_skill_acceptance": "D11"
+      }
+    },
+    {
+      "id": "deterministic_examples",
+      "status": "PASS",
+      "detail": {
+        "rrf_counterexample": {
+          "exact_score": 0.01639344262295082,
+          "top6_without_exact": [
+            "near1",
+            "near2",
+            "near3",
+            "near4",
+            "near5",
+            "near6"
+          ],
+          "illustrative_selection": [
+            "exact",
+            "near1",
+            "near2",
+            "near3",
+            "near4",
+            "near5"
+          ]
+        },
+        "unicode_roundtrip": true,
+        "dense_25000x384_float32_bytes": 38400000,
+        "wilson_27_of_30_95pct": [
+          0.7437891742081593,
+          0.9654001112526658
+        ],
+        "not_a_test_of_future_application": true
+      }
+    },
+    {
+      "id": "consolidated_brief",
+      "status": "PASS",
+      "detail": {
+        "output": "RAG_LOCAL_BRIEF_COMPLET.md",
+        "canonical_docs_and_configs_included": true
+      }
+    }
+  ],
+  "not_executed": [
+    "LLM inference",
+    "Docling or OCR",
+    "Qdrant server/API",
+    "Frontend or browser E2E",
+    "16 GB target qualification",
+    "Native skill installation/discovery/invocation",
+    "External source link accessibility in this offline script"
+  ]
+}

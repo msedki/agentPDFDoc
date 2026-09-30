@@ -1,0 +1,19 @@
+{
+  "instance_id": "a040d1bd443a491b87f357a0b81020fb",
+  "status": "starting",
+  "profile_path": "D:\\enhacements\\agentragpdf\\config\\local16.yaml",
+  "profile_sha256": "38fb19bd4c767533f4ffca781a8c6f6377357c3ede05647c4523123e2fa4fcca",
+  "data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\data",
+  "supervisor": {
+    "pid": 17432,
+    "created_at": 1790734548.6496708,
+    "executable": "D:\\enhacements\\agentragpdf\\.runtime\\python\\cpython-3.12.14-windows-x86_64-none\\python.exe"
+  },
+  "services": {},
+  "shutdown_marker": "D:\\enhacements\\agentragpdf\\.runtime\\data\\control\\shutdown-a040d1bd443a491b87f357a0b81020fb",
+  "app_url": "http://127.0.0.1:8785",
+  "stop_results": [],
+  "qdrant_config_sha256": "8a9e4ecd3029938cefa14b1ff761a94bbee3b4359136c2ecab9ddf89c75ed05a",
+  "supervisor_identity_valid": false,
+  "profile_matches_current": false
+}

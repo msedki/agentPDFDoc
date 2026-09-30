@@ -1,0 +1,218 @@
+{
+  "v1_checks_historical": {
+    "checks": [
+      20,
+      18,
+      21
+    ],
+    "execution": "inspection initiale avant éditions ; anciennes archives actuellement absentes"
+  },
+  "v21_zip_sha256": "464c7cf4d17f19a6c34fe619aaba5607b6befbafa7d31778198641b8f0e96e47",
+  "v21_internal_checks": [
+    {
+      "file": "00_LIRE_AVANT.md",
+      "expected": "4d63a5cc725d6a7dfd6b7c7550cd35aea440f1cf6673fc5d37216378572d5603",
+      "actual": "4d63a5cc725d6a7dfd6b7c7550cd35aea440f1cf6673fc5d37216378572d5603",
+      "pass": true
+    },
+    {
+      "file": "AGENTS.md",
+      "expected": "07b8b18972b3b9c8e085b378dc203874c9c65234ffb771fc1b9e3584af1d620e",
+      "actual": "07b8b18972b3b9c8e085b378dc203874c9c65234ffb771fc1b9e3584af1d620e",
+      "pass": true
+    },
+    {
+      "file": "CHANGELOG.md",
+      "expected": "807f7c059963bf20c18d72d45cc75b0949a53af57803dd50730dc469c2bd6746",
+      "actual": "807f7c059963bf20c18d72d45cc75b0949a53af57803dd50730dc469c2bd6746",
+      "pass": true
+    },
+    {
+      "file": "CLAUDE.md",
+      "expected": "6a0ce2673bc4ac461eb1da8e56ae2c699c1eaae55b910f0f3f179eada3fdcbd1",
+      "actual": "6a0ce2673bc4ac461eb1da8e56ae2c699c1eaae55b910f0f3f179eada3fdcbd1",
+      "pass": true
+    },
+    {
+      "file": "CONFIGURATION.md",
+      "expected": "665512b5a85d8ae4e92600f1ced0617b12dd50829c71b9493cd638a7633cad5d",
+      "actual": "665512b5a85d8ae4e92600f1ced0617b12dd50829c71b9493cd638a7633cad5d",
+      "pass": true
+    },
+    {
+      "file": "CONTROLES_DOSSIER.json",
+      "expected": "13cb00db9c350303425a1db3b7d0c947558ca5c45eb7112c03433ffa2bc985e4",
+      "actual": "13cb00db9c350303425a1db3b7d0c947558ca5c45eb7112c03433ffa2bc985e4",
+      "pass": true
+    },
+    {
+      "file": "DECISIONS.md",
+      "expected": "61b7f0aa6f273e7fe7031058121c8b0c3bf77f71722bcdcbb1530d83b7744e95",
+      "actual": "61b7f0aa6f273e7fe7031058121c8b0c3bf77f71722bcdcbb1530d83b7744e95",
+      "pass": true
+    },
+    {
+      "file": "DEFINITION_OF_DONE.md",
+      "expected": "be61987e400c20e632340b0d1d59a194d855457f26e5e21fe62b1522635a440a",
+      "actual": "be61987e400c20e632340b0d1d59a194d855457f26e5e21fe62b1522635a440a",
+      "pass": true
+    },
+    {
+      "file": "IMPLEMENTATION.md",
+      "expected": "b0f4b12cc147b8e510b5ab0202b05f6af3b3922732d9c39640bdb007563c563b",
+      "actual": "b0f4b12cc147b8e510b5ab0202b05f6af3b3922732d9c39640bdb007563c563b",
+      "pass": true
+    },
+    {
+      "file": "MANIFEST.json",
+      "expected": "28a049929269f99767aa4a6f49da8b3d2b1bb02f95e56c857c93345f9c089ad1",
+      "actual": "28a049929269f99767aa4a6f49da8b3d2b1bb02f95e56c857c93345f9c089ad1",
+      "pass": true
+    },
+    {
+      "file": "PLAN.md",
+      "expected": "87419e78e15a9aac13d5629763465936ebeeb87473c25ad3acc558d7b4cefc2e",
+      "actual": "87419e78e15a9aac13d5629763465936ebeeb87473c25ad3acc558d7b4cefc2e",
+      "pass": true
+    },
+    {
+      "file": "PROMPT_IMPLEMENTATION.md",
+      "expected": "4121df9d1680227364d4f5999a4a7843ae9f35b3eebf785e0ec2089cf0029692",
+      "actual": "4121df9d1680227364d4f5999a4a7843ae9f35b3eebf785e0ec2089cf0029692",
+      "pass": true
+    },
+    {
+      "file": "QUALIFICATION.md",
+      "expected": "81e27728d07180d42f66b2928bbf754ac09c6a893b867d4579b9c9f960bdf7ff",
+      "actual": "81e27728d07180d42f66b2928bbf754ac09c6a893b867d4579b9c9f960bdf7ff",
+      "pass": true
+    },
+    {
+      "file": "RAG_LOCAL_BRIEF_COMPLET.md",
+      "expected": "9465372e6bb5529a934b010e24d5d4b5061b307ff8294805570f8f29c958885c",
+      "actual": "9465372e6bb5529a934b010e24d5d4b5061b307ff8294805570f8f29c958885c",
+      "pass": true
+    },
+    {
+      "file": "RECHERCHE_ET_SKILLS.md",
+      "expected": "b6f1903bb2ebd7c2d68eb15f0acf1f6f40d5b8238bfde593a996b34c723369ab",
+      "actual": "b6f1903bb2ebd7c2d68eb15f0acf1f6f40d5b8238bfde593a996b34c723369ab",
+      "pass": true
+    },
+    {
+      "file": "SKILLS.md",
+      "expected": "4c185441681cb23bc236e9e0d9d7533bf1db2fb09680010fce4c7d171fda2761",
+      "actual": "4c185441681cb23bc236e9e0d9d7533bf1db2fb09680010fce4c7d171fda2761",
+      "pass": true
+    },
+    {
+      "file": "SOURCES.md",
+      "expected": "36f1474ba4e642f981737456af6a96e8c5286102a4710801b77dd4e11071fb2a",
+      "actual": "36f1474ba4e642f981737456af6a96e8c5286102a4710801b77dd4e11071fb2a",
+      "pass": true
+    },
+    {
+      "file": "SPEC_ARCHITECTURE.md",
+      "expected": "9ab6e8439062f7bee2759e52077ccc110e5678466e350efe07112f035362a16b",
+      "actual": "9ab6e8439062f7bee2759e52077ccc110e5678466e350efe07112f035362a16b",
+      "pass": true
+    },
+    {
+      "file": "config/app.env",
+      "expected": "388037e28b0bb972aa43a9ec0d1adfa805861cb2f2c2d74a70596cbd45eca6fd",
+      "actual": "388037e28b0bb972aa43a9ec0d1adfa805861cb2f2c2d74a70596cbd45eca6fd",
+      "pass": true
+    },
+    {
+      "file": "config/lexical.sql",
+      "expected": "e0c2199026fd06fda010aa73af6c7343b9d49d72fe5cdf4ba9b7565320566dd6",
+      "actual": "e0c2199026fd06fda010aa73af6c7343b9d49d72fe5cdf4ba9b7565320566dd6",
+      "pass": true
+    },
+    {
+      "file": "config/local16.yaml",
+      "expected": "9187fb8d611f1d178f6c0e7f023f80192985ab38fdb7f26555dcd215f8ad641b",
+      "actual": "9187fb8d611f1d178f6c0e7f023f80192985ab38fdb7f26555dcd215f8ad641b",
+      "pass": true
+    },
+    {
+      "file": "config/next.config.mjs",
+      "expected": "8110bad09ef1033ffb9d40435330fc9dbde24427e6ff28b8a4953b3ec6f9752d",
+      "actual": "8110bad09ef1033ffb9d40435330fc9dbde24427e6ff28b8a4953b3ec6f9752d",
+      "pass": true
+    },
+    {
+      "file": "config/ollama.chat.smoke.json",
+      "expected": "5eb56221f4dfba018347a824e3e66e2cb41b6f4a325dd375af7459c5633d80b4",
+      "actual": "5eb56221f4dfba018347a824e3e66e2cb41b6f4a325dd375af7459c5633d80b4",
+      "pass": true
+    },
+    {
+      "file": "config/ollama.env",
+      "expected": "cacc7c8de4f00b960b263c225e6cc7198d9990c8fc00d9f0abc3991a06c06e45",
+      "actual": "cacc7c8de4f00b960b263c225e6cc7198d9990c8fc00d9f0abc3991a06c06e45",
+      "pass": true
+    },
+    {
+      "file": "config/qdrant.collection.json",
+      "expected": "0bce989db543f07df0a4057a9c10319fe80d7ff8693983f9adfe1a7c5aef64ef",
+      "actual": "0bce989db543f07df0a4057a9c10319fe80d7ff8693983f9adfe1a7c5aef64ef",
+      "pass": true
+    },
+    {
+      "file": "config/qdrant.yaml",
+      "expected": "175a15202ce2d0924e56776eb4626c83072b2f945c277d0ccc7e642c8aa7ee1b",
+      "actual": "175a15202ce2d0924e56776eb4626c83072b2f945c277d0ccc7e642c8aa7ee1b",
+      "pass": true
+    },
+    {
+      "file": "skills/local-cpu-qualification/SKILL.md",
+      "expected": "9e4a32b8886ad076f13f3317e8d102e6898672da649f7af6d8fcd7769d0fb1c8",
+      "actual": "9e4a32b8886ad076f13f3317e8d102e6898672da649f7af6d8fcd7769d0fb1c8",
+      "pass": true
+    },
+    {
+      "file": "skills/official-source-review/SKILL.md",
+      "expected": "e2a8bbe86be12eb07f732339084405cdd4c1d5431c7a57b9b233baf17da9d98a",
+      "actual": "e2a8bbe86be12eb07f732339084405cdd4c1d5431c7a57b9b233baf17da9d98a",
+      "pass": true
+    },
+    {
+      "file": "skills/pdf-workspace-e2e/SKILL.md",
+      "expected": "c54bc242bbd9f06c3343bc0d3f5422516132ac672c8508a34ced74e61190cd63",
+      "actual": "c54bc242bbd9f06c3343bc0d3f5422516132ac672c8508a34ced74e61190cd63",
+      "pass": true
+    },
+    {
+      "file": "skills/rag-pdf-provenance/SKILL.md",
+      "expected": "6982c071a5d9634780c8f987cbcdbda45d74ca0b6245bd6acfaa51360b243827",
+      "actual": "6982c071a5d9634780c8f987cbcdbda45d74ca0b6245bd6acfaa51360b243827",
+      "pass": true
+    },
+    {
+      "file": "skills/rag-retrieval-evaluation/SKILL.md",
+      "expected": "e405210bdf61bde74e9da96f83dee3bc8ca55fd75c4e34d69a6aa8b7ffb43f4c",
+      "actual": "e405210bdf61bde74e9da96f83dee3bc8ca55fd75c4e34d69a6aa8b7ffb43f4c",
+      "pass": true
+    },
+    {
+      "file": "tools/build_brief.py",
+      "expected": "764ebd74ab529569fee146f63b6efeb6b8c5d525c442e892cdc04fe6b2c81010",
+      "actual": "764ebd74ab529569fee146f63b6efeb6b8c5d525c442e892cdc04fe6b2c81010",
+      "pass": true
+    },
+    {
+      "file": "tools/requirements.txt",
+      "expected": "0969da99a0bc2a1b71ed50584560f4588a37567ac63af3ddbaf3c4617ca5621a",
+      "actual": "0969da99a0bc2a1b71ed50584560f4588a37567ac63af3ddbaf3c4617ca5621a",
+      "pass": true
+    },
+    {
+      "file": "tools/verify_pack.py",
+      "expected": "1fc071f2170242771c010ad55279242630c27f9e737efba4b19406bf4b0b156f",
+      "actual": "1fc071f2170242771c010ad55279242630c27f9e737efba4b19406bf4b0b156f",
+      "pass": true
+    }
+  ],
+  "active_documents": "adaptés Windows W001, plan/journal conservés ; ne sont pas identiques au pack source"
+}

@@ -1,0 +1,191 @@
+{
+  "schema_version": 2,
+  "api_prefix": "/api/v1",
+  "coordinate_system": "Unrotated PDF user-space points; retain MediaBox/CropBox/page rotation; page_index is zero-based and UI page_number is index+1",
+  "scope": {
+    "kind": "library|folder|documents|section|pages|selection",
+    "folderId": "uuid optional",
+    "recursive": true,
+    "documentIds": [
+      "uuid"
+    ],
+    "versionId": "uuid optional",
+    "sectionId": "string optional",
+    "pageStart": "zero-based inclusive optional",
+    "pageEnd": "zero-based inclusive optional",
+    "spans": [
+      {
+        "blockId": "string",
+        "versionId": "uuid",
+        "extractionRevisionId": "uuid",
+        "sourceTextHash": "sha256",
+        "startOffset": 0,
+        "endOffset": 1
+      }
+    ]
+  },
+  "document": {
+    "id": "uuid",
+    "folder_id": "uuid|null",
+    "name": "string",
+    "relative_path": "string",
+    "state": "imported|queued|extracting|ocr|indexing|ready|ready_partial|error|deleted",
+    "active_version_id": "uuid|null",
+    "active_generation_id": "uuid|null",
+    "page_count": 0,
+    "coverage": {
+      "total": 0,
+      "processed": 0,
+      "ocr": 0
+    }
+  },
+  "library_tree_response": {
+    "folders": [
+      {
+        "id": "uuid",
+        "parent_id": "uuid|null",
+        "name": "string",
+        "path": "string"
+      }
+    ],
+    "documents": [],
+    "total_documents": 0,
+    "next_cursor": "string|null"
+  },
+  "page": {
+    "page_index": 0,
+    "page_number": 1,
+    "label": "string|null",
+    "width": 595.0,
+    "height": 842.0,
+    "media_box": "[x0,y0,x1,y1] or null when inherited box unavailable",
+    "crop_box": "[x0,y0,x1,y1] or null",
+    "rotation": 0,
+    "orientation_correction": 0,
+    "extraction_state": "native|ocr|blank|error",
+    "blocks": [],
+    "effective_box": [
+      0,
+      0,
+      595,
+      842
+    ]
+  },
+  "block": {
+    "id": "version-unique stable string",
+    "version_id": "uuid",
+    "page_index": 0,
+    "type": "text|heading|table|figure|caption",
+    "text": "string",
+    "raw_text": "string",
+    "bbox": [
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "precision": "span|block|table|page",
+    "section_id": "string|null",
+    "parser_provenance": {},
+    "spans": [],
+    "extraction_revision_id": "uuid",
+    "source_text_hash": "sha256",
+    "offset_unit": "unicode_code_point"
+  },
+  "window_extraction": {
+    "version_id": "uuid",
+    "page_start": 0,
+    "page_end": 3,
+    "pages": [],
+    "sections": [],
+    "warnings": [],
+    "pipeline_fingerprint": "sha256",
+    "complete": true
+  },
+  "chunk": {
+    "id": "uuid",
+    "generation_id": "uuid",
+    "version_id": "uuid",
+    "document_id": "uuid",
+    "text": "string",
+    "section_title": "string",
+    "page_indices": [
+      0
+    ],
+    "sources": [
+      {
+        "block_id": "string",
+        "page_index": 0,
+        "start_offset": 0,
+        "end_offset": 1
+      }
+    ],
+    "e5_tokens": 0,
+    "content_hash": "sha256"
+  },
+  "query_request": {
+    "question": "string",
+    "scope": {},
+    "mode": "question|selection|section|comparison",
+    "conversation_id": "uuid|null"
+  },
+  "query_created_response": {
+    "query_id": "uuid",
+    "events_url": "/api/v1/queries/uuid/events"
+  },
+  "search_response": {
+    "results": [],
+    "scope_snapshot": {},
+    "warnings": [],
+    "elapsed_ms": 0
+  },
+  "source": {
+    "source_id": "S001",
+    "query_id": "uuid",
+    "document_id": "uuid",
+    "version_id": "uuid",
+    "name": "string",
+    "page_index": 0,
+    "page_number": 1,
+    "label": "string|null",
+    "block_ids": [],
+    "text": "string",
+    "bboxes": [],
+    "precision": "span|block|table|page",
+    "extraction_revision_id": "uuid"
+  },
+  "query_events": {
+    "types": [
+      "status",
+      "sources",
+      "delta",
+      "warning",
+      "done",
+      "error",
+      "cancelled"
+    ],
+    "event_id": "per-query monotonic integer",
+    "sources_data": {
+      "sources": []
+    },
+    "delta_data": {
+      "text": "string"
+    },
+    "done_data": {
+      "message": "string",
+      "citations": [],
+      "finish_reason": "stop|length",
+      "metrics": {}
+    }
+  },
+  "error": {
+    "code": "string",
+    "message": "string",
+    "details": {},
+    "request_id": "uuid"
+  },
+  "ingestion_boundary": "services.ingestion exposes preflight_pdf(path, config) and extract_window(path, version_id, page_start, page_end, config, output_dir, cancel_event=None). Return serializable window_extraction. Backend owns chunking with true E5 tokenizer and SQLite publication; ingestion never imports backend stores or Qdrant handles.",
+  "governor_boundary": "services.runtime.resources.ResourceGovernor(settings) exposes snapshot(), async generation() context manager, begin_interactive(), allow_ingestion(), should_checkpoint() and finish_interactive(). Generation and ingestion leases are mutually exclusive; heavy admission is enforced, failures are explicit. Root supplies implementation; backend injects it into create_app.",
+  "integration_entry": "services.api.main.create_app(profile_path=None, governor=None, ingestion_runner=None) and module app use RAG_PROFILE env or root config/local16.yaml; RAG_DATA_DIR overrides with an explicit absolute isolated target. Root launches via python -m uvicorn services.api.main:app with --workers 1.",
+  "offset_unit": "Unicode code points in immutable block source_text; client UTF16 offsets must be converted and source_text_hash verified"
+}

@@ -1,0 +1,10 @@
+{
+  "date_utc": "2026-09-30",
+  "interpreter": ".venv/Scripts/python.exe (Python 3.12.14)",
+  "command": ".venv/Scripts/python.exe -m pytest tests/unit/test_api_jobs.py::test_api_job_resume_rejects_removed_document_before_global_resume tests/unit/test_api_jobs.py::test_api_staging_rejects_removed_document_before_writing -q --junitxml=RAG_Local_Agents/reports/backend/2026-09-30-removed-source-first-failure.xml",
+  "result": {"exit_code": 1, "failed": 3, "passed": 1, "duration_seconds": 4.77},
+  "observed_defect": "Resume accepts paused/error/cancelled jobs whose document is logically deleted and calls global resume before changing their state to queued.",
+  "verified_boundary": "Database.version already refuses deleted documents with source_removed; staging guard passed without changes. Extraction/upsert after a removed-source resume was not proven and is not claimed.",
+  "isolation": "Temporary SQLite and explicitly substituted tokenizer, embedding and vector store; no real model or PDF parser executed.",
+  "correction_state": "Prepared test; executable changes frozen while the first real development import indexes."
+}

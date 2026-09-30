@@ -1,0 +1,66 @@
+{
+  "status": "STATIC_INITIAL_DEFECT_NOT_BROWSER_REPRODUCTION",
+  "case": "Registered citation carries an old extraction revision, while viewer page/provenance and local OCR search fetch latest published blocks by version only; caches do not distinguish revision. Parent C owns isolated HTTP reproduction.",
+  "files": [
+    {
+      "path": "apps\\web\\src\\components\\pdf-viewer.tsx",
+      "sha256_before_change": "c3007e1561585a72e9a8923790d2247e1de730dbec79159de751df48977862a7",
+      "relevant_lines": [
+        {
+          "line": 29,
+          "code": "  source: Source | null; search: string; provenanceReady: boolean; onHeight: (index: number, height: number) => void;"
+        },
+        {
+          "line": 36,
+          "code": "  const blocks = useQuery({ queryKey: [\"blocks\", versionId, pageIndex], queryFn: ({ signal }) => api.blocks(versionId, pageIndex, signal), enabled: provenanceReady, staleTime: 30000 });"
+        },
+        {
+          "line": 145,
+          "code": "  const currentBlocks = useQuery({ queryKey: [\"blocks\", opened?.versionId, opened?.pageIndex], queryFn: ({ signal }) => api.blocks(opened!.versionId, opened!.pageIndex, signal), enabled: Boolean(opened) && provenanceReady, staleTime: 30000 });"
+        },
+        {
+          "line": 213,
+          "code": "        if (provenanceReady) text += \" \" + (await api.blocks(opened.versionId, index)).blocks.map(block => block.raw_text ?? block.text).join(\" \");"
+        }
+      ]
+    },
+    {
+      "path": "apps\\web\\src\\lib\\api.ts",
+      "sha256_before_change": "55a53de87fb533a4c41d9a079a5ce77a4a74b0d9504ff75630138cf6cfc0817c",
+      "relevant_lines": [
+        {
+          "line": 47,
+          "code": "  outline: (versionId: string, signal?: AbortSignal) => request<Outline>(`/versions/${encodeURIComponent(versionId)}/outline`, { signal }),"
+        },
+        {
+          "line": 48,
+          "code": "  blocks: (versionId: string, page: number, signal?: AbortSignal) => request<PageBlocks>(`/versions/${encodeURIComponent(versionId)}/pages/${page}/blocks`, { signal }),"
+        }
+      ]
+    },
+    {
+      "path": "apps\\web\\src\\lib\\types.ts",
+      "sha256_before_change": "5fb918744571f6a91876ad921464d546a0c79fd4bbeee63bdf5215785951720d",
+      "relevant_lines": [
+        {
+          "line": 37,
+          "code": "export interface PageBlocks { version_id: string; page: PageRecord; blocks: Block[]; warnings: ApiWarning[] }"
+        },
+        {
+          "line": 40,
+          "code": "export interface Source {"
+        }
+      ]
+    },
+    {
+      "path": "apps\\web\\src\\lib\\store.ts",
+      "sha256_before_change": "56cd8d209781a9a1a27205168112effc8204831957002a05144fcab8ec80185a",
+      "relevant_lines": [
+        {
+          "line": 8,
+          "code": "  previous: Location | null; source: Source | null; zoom: number; rotation: number;"
+        }
+      ]
+    }
+  ]
+}

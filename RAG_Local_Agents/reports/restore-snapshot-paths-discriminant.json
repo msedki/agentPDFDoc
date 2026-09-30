@@ -1,0 +1,83 @@
+{
+  "snapshot": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\backup-first-published-20260930T0311\\qdrant\\95f4727b5dad4af79a5d38e6981ec92c.snapshot",
+  "longest_members": [
+    "0/segments/221a4526-1e72-4e8e-8176-1af73467fa68.tar",
+    "0/segments/0dcc651a-1f53-485b-963b-f08ddde74018.tar",
+    "shard_key_mapping.json",
+    "0/newest_clocks.json",
+    "0/replica_state.json",
+    "0/shard_config.json",
+    "payload_index.json",
+    "0/wal/first-index",
+    "0/wal/open-1",
+    "0/wal/open-2"
+  ],
+  "targets": [
+    {
+      "root": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\rp1",
+      "root_length": 42,
+      "longest_existing_paths": [
+        {
+          "path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\rp1\\qdrant\\storage\\collections\\pdf_chunks_e5small_v1_53cac40518d0dec0\\0\\segments\\0dcc651a-1f53-485b-963b-f08ddde74018\\payload_index\\5a76b4slfoo2d0uc2u69ieei-document-null\\has_values\\flags_a.dat",
+          "length": 232
+        },
+        {
+          "path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\rp1\\qdrant\\storage\\collections\\pdf_chunks_e5small_v1_53cac40518d0dec0\\0\\segments\\0dcc651a-1f53-485b-963b-f08ddde74018\\payload_index\\5e00dgsuqnqpjfir0l5sg6un-page_ind-null\\has_values\\flags_a.dat",
+          "length": 232
+        },
+        {
+          "path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\rp1\\qdrant\\storage\\collections\\pdf_chunks_e5small_v1_53cac40518d0dec0\\0\\segments\\0dcc651a-1f53-485b-963b-f08ddde74018\\payload_index\\5pj028g4tf5fqgmm1qqfi4k9-generati-null\\has_values\\flags_a.dat",
+          "length": 232
+        },
+        {
+          "path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\rp1\\qdrant\\storage\\collections\\pdf_chunks_e5small_v1_53cac40518d0dec0\\0\\segments\\0dcc651a-1f53-485b-963b-f08ddde74018\\payload_index\\ab1ii8bhqeu2atfnrlgrv84l-block_id-null\\has_values\\flags_a.dat",
+          "length": 232
+        },
+        {
+          "path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\rp1\\qdrant\\storage\\collections\\pdf_chunks_e5small_v1_53cac40518d0dec0\\0\\segments\\0dcc651a-1f53-485b-963b-f08ddde74018\\payload_index\\tuqg1b444qk18c3rdoe6e7i8-version_-null\\has_values\\flags_a.dat",
+          "length": 232
+        }
+      ],
+      "estimated_recovery_path_lengths": [
+        172,
+        172,
+        143,
+        141,
+        141
+      ]
+    },
+    {
+      "root": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - vérification 20260930T0314",
+      "root_length": 88,
+      "longest_existing_paths": [
+        {
+          "path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - vérification 20260930T0314\\qdrant\\storage\\collections\\pdf_chunks_e5small_v1_53cac40518d0dec0\\0\\segments\\13097ba9-654b-48bd-a3d6-3017fe550ca0\\vector_storage-dense\\vectors\\status.dat",
+          "length": 242
+        },
+        {
+          "path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - vérification 20260930T0314\\qdrant\\storage\\collections\\pdf_chunks_e5small_v1_53cac40518d0dec0\\0\\segments\\bf1837f0-5050-4ad3-ab84-bac1915807bb\\vector_storage-dense\\vectors\\status.dat",
+          "length": 242
+        },
+        {
+          "path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - vérification 20260930T0314\\qdrant\\storage\\collections\\pdf_chunks_e5small_v1_53cac40518d0dec0\\0\\segments\\13097ba9-654b-48bd-a3d6-3017fe550ca0\\vector_storage-dense\\vectors",
+          "length": 231
+        },
+        {
+          "path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - vérification 20260930T0314\\qdrant\\storage\\collections\\pdf_chunks_e5small_v1_53cac40518d0dec0\\0\\segments\\bf1837f0-5050-4ad3-ab84-bac1915807bb\\vector_storage-dense\\vectors",
+          "length": 231
+        },
+        {
+          "path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\Restauration publiée - vérification 20260930T0314\\qdrant\\storage\\collections\\pdf_chunks_e5small_v1_53cac40518d0dec0\\0\\segments\\13097ba9-654b-48bd-a3d6-3017fe550ca0\\payload_storage\\bitmask.dat",
+          "length": 230
+        }
+      ],
+      "estimated_recovery_path_lengths": [
+        218,
+        218,
+        189,
+        187,
+        187
+      ]
+    }
+  ]
+}

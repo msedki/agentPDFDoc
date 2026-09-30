@@ -1,0 +1,3438 @@
+{
+  "status": "INDEPENDENT_NATIVE_SOURCE_INSPECTION_NOT_RUNTIME_ANNOTATION_OR_RAG_SCORE",
+  "method": "pypdfium2 5.13.0 get_text_bounded; only whitespace normalized for matching, exact codepoint offsets retained",
+  "limitations": [
+    "Offsets and hashes belong to this independent preflight parser, not API blocks",
+    "Runtime versions, revisions and block IDs remain null",
+    "OCR required regions not processed",
+    "No retrieval/question/model call occurred"
+  ],
+  "expected_units_inspected": 180,
+  "counts": {
+    "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT": 150,
+    "REQUIRES_OCR_PREFLIGHT": 26,
+    "SCANNED_REGION_REQUIRES_OCR_PREFLIGHT": 4
+  },
+  "observations": [
+    {
+      "question_id": "DEV-001",
+      "unit_index": 0,
+      "document_key": "development-DA-P01",
+      "page_index": 0,
+      "pdf_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "native_page_text_sha256": "30b89b4df14851c642ff7cb09a1966bb38778af77ced47f2757db58532c180a5",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 155,
+          "end_codepoint": 201,
+          "source_text": "La pression nominale de DA-P01 est de 3.1 bar."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-002",
+      "unit_index": 0,
+      "document_key": "development-DA-P01",
+      "page_index": 0,
+      "pdf_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "native_page_text_sha256": "30b89b4df14851c642ff7cb09a1966bb38778af77ced47f2757db58532c180a5",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P01 est de ± 2.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-003",
+      "unit_index": 0,
+      "document_key": "development-DA-P01",
+      "page_index": 0,
+      "pdf_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "native_page_text_sha256": "30b89b4df14851c642ff7cb09a1966bb38778af77ced47f2757db58532c180a5",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 255,
+          "end_codepoint": 317,
+          "source_text": "Le contrôle périodique de DA-P01 intervient toutes les 1020 h."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-004",
+      "unit_index": 0,
+      "document_key": "development-DA-P01",
+      "page_index": 0,
+      "pdf_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "native_page_text_sha256": "30b89b4df14851c642ff7cb09a1966bb38778af77ced47f2757db58532c180a5",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 319,
+          "end_codepoint": 375,
+          "source_text": "Le couple de serrage prescrit pour DA-P01 est de 12 N·m."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-005",
+      "unit_index": 0,
+      "document_key": "development-DA-P01",
+      "page_index": 0,
+      "pdf_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "native_page_text_sha256": "30b89b4df14851c642ff7cb09a1966bb38778af77ced47f2757db58532c180a5",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 422,
+          "source_text": "L'alimentation d'essai de DA-P01 est de 22 V."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-006",
+      "unit_index": 0,
+      "document_key": "development-DA-P02",
+      "page_index": 0,
+      "pdf_sha256": "1a4891c1d1e11565b31acb333f639951ce5430f64d52071dd261fbb4eeb11e14",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-007",
+      "unit_index": 0,
+      "document_key": "development-DA-P02",
+      "page_index": 0,
+      "pdf_sha256": "1a4891c1d1e11565b31acb333f639951ce5430f64d52071dd261fbb4eeb11e14",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-008",
+      "unit_index": 0,
+      "document_key": "development-DA-P02",
+      "page_index": 0,
+      "pdf_sha256": "1a4891c1d1e11565b31acb333f639951ce5430f64d52071dd261fbb4eeb11e14",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-009",
+      "unit_index": 0,
+      "document_key": "development-DA-P02",
+      "page_index": 0,
+      "pdf_sha256": "1a4891c1d1e11565b31acb333f639951ce5430f64d52071dd261fbb4eeb11e14",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-010",
+      "unit_index": 0,
+      "document_key": "development-DA-P02",
+      "page_index": 0,
+      "pdf_sha256": "1a4891c1d1e11565b31acb333f639951ce5430f64d52071dd261fbb4eeb11e14",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-011",
+      "unit_index": 0,
+      "document_key": "development-DA-P03",
+      "page_index": 0,
+      "pdf_sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+      "native_page_text_sha256": "41888fa519466b7276ddde211e49afaf92d3d7193ae18b77459b851f55d9de13",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 155,
+          "end_codepoint": 201,
+          "source_text": "La pression nominale de DA-P03 est de 3.3 bar."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-012",
+      "unit_index": 0,
+      "document_key": "development-DA-P03",
+      "page_index": 0,
+      "pdf_sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+      "native_page_text_sha256": "41888fa519466b7276ddde211e49afaf92d3d7193ae18b77459b851f55d9de13",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P03 est de ± 4.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-013",
+      "unit_index": 0,
+      "document_key": "development-DA-P03",
+      "page_index": 0,
+      "pdf_sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+      "native_page_text_sha256": "41888fa519466b7276ddde211e49afaf92d3d7193ae18b77459b851f55d9de13",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 255,
+          "end_codepoint": 317,
+          "source_text": "Le contrôle périodique de DA-P03 intervient toutes les 1260 h."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-014",
+      "unit_index": 0,
+      "document_key": "development-DA-P03",
+      "page_index": 0,
+      "pdf_sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+      "native_page_text_sha256": "41888fa519466b7276ddde211e49afaf92d3d7193ae18b77459b851f55d9de13",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 319,
+          "end_codepoint": 375,
+          "source_text": "Le couple de serrage prescrit pour DA-P03 est de 16 N·m."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-015",
+      "unit_index": 0,
+      "document_key": "development-DA-P03",
+      "page_index": 0,
+      "pdf_sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+      "native_page_text_sha256": "41888fa519466b7276ddde211e49afaf92d3d7193ae18b77459b851f55d9de13",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 422,
+          "source_text": "L'alimentation d'essai de DA-P03 est de 26 V."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-016",
+      "unit_index": 0,
+      "document_key": "development-DA-P04",
+      "page_index": 0,
+      "pdf_sha256": "cc02552b9fe0536a0538fead7284a6e17cf285d131e84dce4f730137ede7487a",
+      "native_page_text_sha256": "5b665152d0e8f8257228235d9e1c99a76cd29950403a751c6ad3e851b2de79ee",
+      "native_characters": 535,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 156,
+          "end_codepoint": 203,
+          "source_text": "La pression nominale de DA-P04 est de 3.4\r\nbar."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-017",
+      "unit_index": 0,
+      "document_key": "development-DA-P04",
+      "page_index": 0,
+      "pdf_sha256": "cc02552b9fe0536a0538fead7284a6e17cf285d131e84dce4f730137ede7487a",
+      "native_page_text_sha256": "5b665152d0e8f8257228235d9e1c99a76cd29950403a751c6ad3e851b2de79ee",
+      "native_characters": 535,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 205,
+          "end_codepoint": 256,
+          "source_text": "La tolérance de pression de DA-P04 est de ±\r\n5.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-018",
+      "unit_index": 0,
+      "document_key": "development-DA-P04",
+      "page_index": 0,
+      "pdf_sha256": "cc02552b9fe0536a0538fead7284a6e17cf285d131e84dce4f730137ede7487a",
+      "native_page_text_sha256": "5b665152d0e8f8257228235d9e1c99a76cd29950403a751c6ad3e851b2de79ee",
+      "native_characters": 535,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 258,
+          "end_codepoint": 321,
+          "source_text": "Le contrôle périodique de DA-P04 intervient\r\ntoutes les 1380 h."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-019",
+      "unit_index": 0,
+      "document_key": "development-DA-P04",
+      "page_index": 0,
+      "pdf_sha256": "cc02552b9fe0536a0538fead7284a6e17cf285d131e84dce4f730137ede7487a",
+      "native_page_text_sha256": "5b665152d0e8f8257228235d9e1c99a76cd29950403a751c6ad3e851b2de79ee",
+      "native_characters": 535,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 323,
+          "end_codepoint": 380,
+          "source_text": "Le couple de serrage prescrit pour DA-P04 est\r\nde 18 N·m."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-020",
+      "unit_index": 0,
+      "document_key": "development-DA-P04",
+      "page_index": 0,
+      "pdf_sha256": "cc02552b9fe0536a0538fead7284a6e17cf285d131e84dce4f730137ede7487a",
+      "native_page_text_sha256": "5b665152d0e8f8257228235d9e1c99a76cd29950403a751c6ad3e851b2de79ee",
+      "native_characters": 535,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 382,
+          "end_codepoint": 427,
+          "source_text": "L'alimentation d'essai de DA-P04 est de 28 V."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-021",
+      "unit_index": 0,
+      "document_key": "development-DA-P05",
+      "page_index": 0,
+      "pdf_sha256": "a595fd3c5a88d43f56d5383039768fbc319c40ed466cf53a9757ad76e41f7fa1",
+      "native_page_text_sha256": "23dc23aa2d4cdbd1811ed74b970d0ad87acdbd54ab1a14dc44a05e0fdb5d2c68",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 155,
+          "end_codepoint": 201,
+          "source_text": "La pression nominale de DA-P05 est de 3.5 bar."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-022",
+      "unit_index": 0,
+      "document_key": "development-DA-P05",
+      "page_index": 0,
+      "pdf_sha256": "a595fd3c5a88d43f56d5383039768fbc319c40ed466cf53a9757ad76e41f7fa1",
+      "native_page_text_sha256": "23dc23aa2d4cdbd1811ed74b970d0ad87acdbd54ab1a14dc44a05e0fdb5d2c68",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P05 est de ± 6.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-023",
+      "unit_index": 0,
+      "document_key": "development-DA-P05",
+      "page_index": 0,
+      "pdf_sha256": "a595fd3c5a88d43f56d5383039768fbc319c40ed466cf53a9757ad76e41f7fa1",
+      "native_page_text_sha256": "23dc23aa2d4cdbd1811ed74b970d0ad87acdbd54ab1a14dc44a05e0fdb5d2c68",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 255,
+          "end_codepoint": 317,
+          "source_text": "Le contrôle périodique de DA-P05 intervient toutes les 1500 h."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-024",
+      "unit_index": 0,
+      "document_key": "development-DA-P05",
+      "page_index": 0,
+      "pdf_sha256": "a595fd3c5a88d43f56d5383039768fbc319c40ed466cf53a9757ad76e41f7fa1",
+      "native_page_text_sha256": "23dc23aa2d4cdbd1811ed74b970d0ad87acdbd54ab1a14dc44a05e0fdb5d2c68",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 319,
+          "end_codepoint": 375,
+          "source_text": "Le couple de serrage prescrit pour DA-P05 est de 20 N·m."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-025",
+      "unit_index": 0,
+      "document_key": "development-DA-P05",
+      "page_index": 0,
+      "pdf_sha256": "a595fd3c5a88d43f56d5383039768fbc319c40ed466cf53a9757ad76e41f7fa1",
+      "native_page_text_sha256": "23dc23aa2d4cdbd1811ed74b970d0ad87acdbd54ab1a14dc44a05e0fdb5d2c68",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 422,
+          "source_text": "L'alimentation d'essai de DA-P05 est de 30 V."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-026",
+      "unit_index": 0,
+      "document_key": "development-DA-P06",
+      "page_index": 0,
+      "pdf_sha256": "072500f7a3b60b6fd6a4b48e82006a7785cea0d748f894c544d4b5c1451d5761",
+      "native_page_text_sha256": "dba050ba9bee95e6065a2efaae636d64dcc6e50cbe6ac53fab9b0b52a3e085aa",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 155,
+          "end_codepoint": 201,
+          "source_text": "La pression nominale de DA-P06 est de 3.6 bar."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-027",
+      "unit_index": 0,
+      "document_key": "development-DA-P06",
+      "page_index": 0,
+      "pdf_sha256": "072500f7a3b60b6fd6a4b48e82006a7785cea0d748f894c544d4b5c1451d5761",
+      "native_page_text_sha256": "dba050ba9bee95e6065a2efaae636d64dcc6e50cbe6ac53fab9b0b52a3e085aa",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P06 est de ± 7.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-028",
+      "unit_index": 0,
+      "document_key": "development-DA-P06",
+      "page_index": 0,
+      "pdf_sha256": "072500f7a3b60b6fd6a4b48e82006a7785cea0d748f894c544d4b5c1451d5761",
+      "native_page_text_sha256": "dba050ba9bee95e6065a2efaae636d64dcc6e50cbe6ac53fab9b0b52a3e085aa",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 255,
+          "end_codepoint": 317,
+          "source_text": "Le contrôle périodique de DA-P06 intervient toutes les 1620 h."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-029",
+      "unit_index": 0,
+      "document_key": "development-DA-P06",
+      "page_index": 0,
+      "pdf_sha256": "072500f7a3b60b6fd6a4b48e82006a7785cea0d748f894c544d4b5c1451d5761",
+      "native_page_text_sha256": "dba050ba9bee95e6065a2efaae636d64dcc6e50cbe6ac53fab9b0b52a3e085aa",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 319,
+          "end_codepoint": 375,
+          "source_text": "Le couple de serrage prescrit pour DA-P06 est de 22 N·m."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-030",
+      "unit_index": 0,
+      "document_key": "development-DA-P06",
+      "page_index": 0,
+      "pdf_sha256": "072500f7a3b60b6fd6a4b48e82006a7785cea0d748f894c544d4b5c1451d5761",
+      "native_page_text_sha256": "dba050ba9bee95e6065a2efaae636d64dcc6e50cbe6ac53fab9b0b52a3e085aa",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 422,
+          "source_text": "L'alimentation d'essai de DA-P06 est de 32 V."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-031",
+      "unit_index": 0,
+      "document_key": "development-DA-P07",
+      "page_index": 0,
+      "pdf_sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+      "native_page_text_sha256": "8af42a77c547ad94309f9d024c54f8004d643b36a92eda2acbd5bd51353ca650",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 155,
+          "end_codepoint": 201,
+          "source_text": "La pression nominale de DA-P07 est de 3.7 bar."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-032",
+      "unit_index": 0,
+      "document_key": "development-DA-P07",
+      "page_index": 0,
+      "pdf_sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+      "native_page_text_sha256": "8af42a77c547ad94309f9d024c54f8004d643b36a92eda2acbd5bd51353ca650",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P07 est de ± 8.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-033",
+      "unit_index": 0,
+      "document_key": "development-DA-P07",
+      "page_index": 0,
+      "pdf_sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+      "native_page_text_sha256": "8af42a77c547ad94309f9d024c54f8004d643b36a92eda2acbd5bd51353ca650",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 255,
+          "end_codepoint": 317,
+          "source_text": "Le contrôle périodique de DA-P07 intervient toutes les 1740 h."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-034",
+      "unit_index": 0,
+      "document_key": "development-DA-P07",
+      "page_index": 0,
+      "pdf_sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+      "native_page_text_sha256": "8af42a77c547ad94309f9d024c54f8004d643b36a92eda2acbd5bd51353ca650",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 319,
+          "end_codepoint": 375,
+          "source_text": "Le couple de serrage prescrit pour DA-P07 est de 24 N·m."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-035",
+      "unit_index": 0,
+      "document_key": "development-DA-P07",
+      "page_index": 0,
+      "pdf_sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+      "native_page_text_sha256": "8af42a77c547ad94309f9d024c54f8004d643b36a92eda2acbd5bd51353ca650",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 422,
+          "source_text": "L'alimentation d'essai de DA-P07 est de 34 V."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-036",
+      "unit_index": 0,
+      "document_key": "development-DA-P01",
+      "page_index": 0,
+      "pdf_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "native_page_text_sha256": "30b89b4df14851c642ff7cb09a1966bb38778af77ced47f2757db58532c180a5",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 155,
+          "end_codepoint": 201,
+          "source_text": "La pression nominale de DA-P01 est de 3.1 bar."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-037",
+      "unit_index": 0,
+      "document_key": "development-DA-P02",
+      "page_index": 0,
+      "pdf_sha256": "1a4891c1d1e11565b31acb333f639951ce5430f64d52071dd261fbb4eeb11e14",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-038",
+      "unit_index": 0,
+      "document_key": "development-DA-P03",
+      "page_index": 0,
+      "pdf_sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+      "native_page_text_sha256": "41888fa519466b7276ddde211e49afaf92d3d7193ae18b77459b851f55d9de13",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 155,
+          "end_codepoint": 201,
+          "source_text": "La pression nominale de DA-P03 est de 3.3 bar."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-039",
+      "unit_index": 0,
+      "document_key": "development-DA-P04",
+      "page_index": 0,
+      "pdf_sha256": "cc02552b9fe0536a0538fead7284a6e17cf285d131e84dce4f730137ede7487a",
+      "native_page_text_sha256": "5b665152d0e8f8257228235d9e1c99a76cd29950403a751c6ad3e851b2de79ee",
+      "native_characters": 535,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 156,
+          "end_codepoint": 203,
+          "source_text": "La pression nominale de DA-P04 est de 3.4\r\nbar."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-040",
+      "unit_index": 0,
+      "document_key": "development-DA-P05",
+      "page_index": 0,
+      "pdf_sha256": "a595fd3c5a88d43f56d5383039768fbc319c40ed466cf53a9757ad76e41f7fa1",
+      "native_page_text_sha256": "23dc23aa2d4cdbd1811ed74b970d0ad87acdbd54ab1a14dc44a05e0fdb5d2c68",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 155,
+          "end_codepoint": 201,
+          "source_text": "La pression nominale de DA-P05 est de 3.5 bar."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-041",
+      "unit_index": 0,
+      "document_key": "development-DA-P06",
+      "page_index": 0,
+      "pdf_sha256": "072500f7a3b60b6fd6a4b48e82006a7785cea0d748f894c544d4b5c1451d5761",
+      "native_page_text_sha256": "dba050ba9bee95e6065a2efaae636d64dcc6e50cbe6ac53fab9b0b52a3e085aa",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 155,
+          "end_codepoint": 201,
+          "source_text": "La pression nominale de DA-P06 est de 3.6 bar."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-042",
+      "unit_index": 0,
+      "document_key": "development-DA-P07",
+      "page_index": 0,
+      "pdf_sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+      "native_page_text_sha256": "8af42a77c547ad94309f9d024c54f8004d643b36a92eda2acbd5bd51353ca650",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 155,
+          "end_codepoint": 201,
+          "source_text": "La pression nominale de DA-P07 est de 3.7 bar."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-043",
+      "unit_index": 0,
+      "document_key": "development-DA-P01",
+      "page_index": 0,
+      "pdf_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "native_page_text_sha256": "30b89b4df14851c642ff7cb09a1966bb38778af77ced47f2757db58532c180a5",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P01 est de ± 2.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-044",
+      "unit_index": 0,
+      "document_key": "development-DA-P02",
+      "page_index": 0,
+      "pdf_sha256": "1a4891c1d1e11565b31acb333f639951ce5430f64d52071dd261fbb4eeb11e14",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-045",
+      "unit_index": 0,
+      "document_key": "development-DA-P03",
+      "page_index": 0,
+      "pdf_sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+      "native_page_text_sha256": "41888fa519466b7276ddde211e49afaf92d3d7193ae18b77459b851f55d9de13",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P03 est de ± 4.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-046",
+      "unit_index": 0,
+      "document_key": "development-DA-P04",
+      "page_index": 0,
+      "pdf_sha256": "cc02552b9fe0536a0538fead7284a6e17cf285d131e84dce4f730137ede7487a",
+      "native_page_text_sha256": "5b665152d0e8f8257228235d9e1c99a76cd29950403a751c6ad3e851b2de79ee",
+      "native_characters": 535,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 205,
+          "end_codepoint": 256,
+          "source_text": "La tolérance de pression de DA-P04 est de ±\r\n5.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-047",
+      "unit_index": 0,
+      "document_key": "development-DA-P05",
+      "page_index": 0,
+      "pdf_sha256": "a595fd3c5a88d43f56d5383039768fbc319c40ed466cf53a9757ad76e41f7fa1",
+      "native_page_text_sha256": "23dc23aa2d4cdbd1811ed74b970d0ad87acdbd54ab1a14dc44a05e0fdb5d2c68",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P05 est de ± 6.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-048",
+      "unit_index": 0,
+      "document_key": "development-DA-P06",
+      "page_index": 0,
+      "pdf_sha256": "072500f7a3b60b6fd6a4b48e82006a7785cea0d748f894c544d4b5c1451d5761",
+      "native_page_text_sha256": "dba050ba9bee95e6065a2efaae636d64dcc6e50cbe6ac53fab9b0b52a3e085aa",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P06 est de ± 7.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-049",
+      "unit_index": 0,
+      "document_key": "development-DA-P07",
+      "page_index": 0,
+      "pdf_sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+      "native_page_text_sha256": "8af42a77c547ad94309f9d024c54f8004d643b36a92eda2acbd5bd51353ca650",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P07 est de ± 8.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-050",
+      "unit_index": 0,
+      "document_key": "development-DA-P01",
+      "page_index": 0,
+      "pdf_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "native_page_text_sha256": "30b89b4df14851c642ff7cb09a1966bb38778af77ced47f2757db58532c180a5",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 255,
+          "end_codepoint": 317,
+          "source_text": "Le contrôle périodique de DA-P01 intervient toutes les 1020 h."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-051",
+      "unit_index": 0,
+      "document_key": "development-DA-P01",
+      "page_index": 1,
+      "pdf_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "native_page_text_sha256": "39db16689cef3d96d8269e648872f3474a2ca6b728892ba0d13d4fb8f86b6f6d",
+      "native_characters": 252,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 197,
+          "end_codepoint": 212,
+          "source_text": "DA-P01-IN 13 mm"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-052",
+      "unit_index": 0,
+      "document_key": "development-DA-P02",
+      "page_index": 1,
+      "pdf_sha256": "1a4891c1d1e11565b31acb333f639951ce5430f64d52071dd261fbb4eeb11e14",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-053",
+      "unit_index": 0,
+      "document_key": "development-DA-P03",
+      "page_index": 1,
+      "pdf_sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+      "native_page_text_sha256": "6d38c1a0b548799e4c30bfbeea21665772be3d99cac9bfe6f60c52adaf3cf7fb",
+      "native_characters": 150,
+      "status": "SCANNED_REGION_REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-054",
+      "unit_index": 0,
+      "document_key": "development-DA-P04",
+      "page_index": 1,
+      "pdf_sha256": "cc02552b9fe0536a0538fead7284a6e17cf285d131e84dce4f730137ede7487a",
+      "native_page_text_sha256": "fc7d0092565284e97b8601f5f66176963b612e04cee92765bd8d9fb8b7abfc9f",
+      "native_characters": 253,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 197,
+          "end_codepoint": 212,
+          "source_text": "DA-P04-IN 16 mm"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-055",
+      "unit_index": 0,
+      "document_key": "development-DA-P05",
+      "page_index": 1,
+      "pdf_sha256": "a595fd3c5a88d43f56d5383039768fbc319c40ed466cf53a9757ad76e41f7fa1",
+      "native_page_text_sha256": "4dc62598597188afeda0b99bc15875b8766cd3f3c14708d018e770b49c7e0635",
+      "native_characters": 253,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 214,
+          "end_codepoint": 230,
+          "source_text": "DA-P05-OUT 13 mm"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-056",
+      "unit_index": 0,
+      "document_key": "development-DA-P06",
+      "page_index": 1,
+      "pdf_sha256": "072500f7a3b60b6fd6a4b48e82006a7785cea0d748f894c544d4b5c1451d5761",
+      "native_page_text_sha256": "e5f55c50056d3f94c63b358909e3b76b83f88d6600362468885c7379577b10ce",
+      "native_characters": 253,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 232,
+          "end_codepoint": 253,
+          "source_text": "DA-P06-LEAK 0.6 L/min"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-057",
+      "unit_index": 0,
+      "document_key": "development-DA-P07",
+      "page_index": 1,
+      "pdf_sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+      "native_page_text_sha256": "bd8526816e8280ef682290f251727e5ab280eb55ebfcc183a94f9d1b7011a480",
+      "native_characters": 253,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 197,
+          "end_codepoint": 212,
+          "source_text": "DA-P07-IN 19 mm"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-058",
+      "unit_index": 0,
+      "document_key": "development-DA-P01",
+      "page_index": 1,
+      "pdf_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "native_page_text_sha256": "39db16689cef3d96d8269e648872f3474a2ca6b728892ba0d13d4fb8f86b6f6d",
+      "native_characters": 252,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 214,
+          "end_codepoint": 229,
+          "source_text": "DA-P01-OUT 9 mm"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-059",
+      "unit_index": 0,
+      "document_key": "development-DA-P02",
+      "page_index": 1,
+      "pdf_sha256": "1a4891c1d1e11565b31acb333f639951ce5430f64d52071dd261fbb4eeb11e14",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-060",
+      "unit_index": 0,
+      "document_key": "development-DA-P03",
+      "page_index": 1,
+      "pdf_sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+      "native_page_text_sha256": "6d38c1a0b548799e4c30bfbeea21665772be3d99cac9bfe6f60c52adaf3cf7fb",
+      "native_characters": 150,
+      "status": "SCANNED_REGION_REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-061",
+      "unit_index": 0,
+      "document_key": "development-DA-P04",
+      "page_index": 1,
+      "pdf_sha256": "cc02552b9fe0536a0538fead7284a6e17cf285d131e84dce4f730137ede7487a",
+      "native_page_text_sha256": "fc7d0092565284e97b8601f5f66176963b612e04cee92765bd8d9fb8b7abfc9f",
+      "native_characters": 253,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 214,
+          "end_codepoint": 230,
+          "source_text": "DA-P04-OUT 12 mm"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-062",
+      "unit_index": 0,
+      "document_key": "development-DA-P05",
+      "page_index": 1,
+      "pdf_sha256": "a595fd3c5a88d43f56d5383039768fbc319c40ed466cf53a9757ad76e41f7fa1",
+      "native_page_text_sha256": "4dc62598597188afeda0b99bc15875b8766cd3f3c14708d018e770b49c7e0635",
+      "native_characters": 253,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 232,
+          "end_codepoint": 253,
+          "source_text": "DA-P05-LEAK 0.5 L/min"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-063",
+      "unit_index": 0,
+      "document_key": "development-DA-P01",
+      "page_index": 0,
+      "pdf_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "native_page_text_sha256": "30b89b4df14851c642ff7cb09a1966bb38778af77ced47f2757db58532c180a5",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 155,
+          "end_codepoint": 201,
+          "source_text": "La pression nominale de DA-P01 est de 3.1 bar."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-063",
+      "unit_index": 1,
+      "document_key": "development-DA-P02",
+      "page_index": 0,
+      "pdf_sha256": "1a4891c1d1e11565b31acb333f639951ce5430f64d52071dd261fbb4eeb11e14",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-064",
+      "unit_index": 0,
+      "document_key": "development-DA-P02",
+      "page_index": 0,
+      "pdf_sha256": "1a4891c1d1e11565b31acb333f639951ce5430f64d52071dd261fbb4eeb11e14",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-064",
+      "unit_index": 1,
+      "document_key": "development-DA-P04",
+      "page_index": 0,
+      "pdf_sha256": "cc02552b9fe0536a0538fead7284a6e17cf285d131e84dce4f730137ede7487a",
+      "native_page_text_sha256": "5b665152d0e8f8257228235d9e1c99a76cd29950403a751c6ad3e851b2de79ee",
+      "native_characters": 535,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 205,
+          "end_codepoint": 256,
+          "source_text": "La tolérance de pression de DA-P04 est de ±\r\n5.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-065",
+      "unit_index": 0,
+      "document_key": "development-DA-P03",
+      "page_index": 0,
+      "pdf_sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+      "native_page_text_sha256": "41888fa519466b7276ddde211e49afaf92d3d7193ae18b77459b851f55d9de13",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 255,
+          "end_codepoint": 317,
+          "source_text": "Le contrôle périodique de DA-P03 intervient toutes les 1260 h."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-065",
+      "unit_index": 1,
+      "document_key": "development-DA-P07",
+      "page_index": 0,
+      "pdf_sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+      "native_page_text_sha256": "8af42a77c547ad94309f9d024c54f8004d643b36a92eda2acbd5bd51353ca650",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 255,
+          "end_codepoint": 317,
+          "source_text": "Le contrôle périodique de DA-P07 intervient toutes les 1740 h."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-066",
+      "unit_index": 0,
+      "document_key": "development-DA-P04",
+      "page_index": 0,
+      "pdf_sha256": "cc02552b9fe0536a0538fead7284a6e17cf285d131e84dce4f730137ede7487a",
+      "native_page_text_sha256": "5b665152d0e8f8257228235d9e1c99a76cd29950403a751c6ad3e851b2de79ee",
+      "native_characters": 535,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 323,
+          "end_codepoint": 380,
+          "source_text": "Le couple de serrage prescrit pour DA-P04 est\r\nde 18 N·m."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-066",
+      "unit_index": 1,
+      "document_key": "development-DA-P05",
+      "page_index": 0,
+      "pdf_sha256": "a595fd3c5a88d43f56d5383039768fbc319c40ed466cf53a9757ad76e41f7fa1",
+      "native_page_text_sha256": "23dc23aa2d4cdbd1811ed74b970d0ad87acdbd54ab1a14dc44a05e0fdb5d2c68",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 319,
+          "end_codepoint": 375,
+          "source_text": "Le couple de serrage prescrit pour DA-P05 est de 20 N·m."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-067",
+      "unit_index": 0,
+      "document_key": "development-DA-P05",
+      "page_index": 0,
+      "pdf_sha256": "a595fd3c5a88d43f56d5383039768fbc319c40ed466cf53a9757ad76e41f7fa1",
+      "native_page_text_sha256": "23dc23aa2d4cdbd1811ed74b970d0ad87acdbd54ab1a14dc44a05e0fdb5d2c68",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 422,
+          "source_text": "L'alimentation d'essai de DA-P05 est de 30 V."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-067",
+      "unit_index": 1,
+      "document_key": "development-DA-P07",
+      "page_index": 0,
+      "pdf_sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+      "native_page_text_sha256": "8af42a77c547ad94309f9d024c54f8004d643b36a92eda2acbd5bd51353ca650",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 422,
+          "source_text": "L'alimentation d'essai de DA-P07 est de 34 V."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-068",
+      "unit_index": 0,
+      "document_key": "development-DA-P01",
+      "page_index": 0,
+      "pdf_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "native_page_text_sha256": "30b89b4df14851c642ff7cb09a1966bb38778af77ced47f2757db58532c180a5",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 155,
+          "end_codepoint": 201,
+          "source_text": "La pression nominale de DA-P01 est de 3.1 bar."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-068",
+      "unit_index": 1,
+      "document_key": "development-DA-P06",
+      "page_index": 0,
+      "pdf_sha256": "072500f7a3b60b6fd6a4b48e82006a7785cea0d748f894c544d4b5c1451d5761",
+      "native_page_text_sha256": "dba050ba9bee95e6065a2efaae636d64dcc6e50cbe6ac53fab9b0b52a3e085aa",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 155,
+          "end_codepoint": 201,
+          "source_text": "La pression nominale de DA-P06 est de 3.6 bar."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-069",
+      "unit_index": 0,
+      "document_key": "development-DA-P03",
+      "page_index": 0,
+      "pdf_sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+      "native_page_text_sha256": "41888fa519466b7276ddde211e49afaf92d3d7193ae18b77459b851f55d9de13",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P03 est de ± 4.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-069",
+      "unit_index": 1,
+      "document_key": "development-DA-P05",
+      "page_index": 0,
+      "pdf_sha256": "a595fd3c5a88d43f56d5383039768fbc319c40ed466cf53a9757ad76e41f7fa1",
+      "native_page_text_sha256": "23dc23aa2d4cdbd1811ed74b970d0ad87acdbd54ab1a14dc44a05e0fdb5d2c68",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P05 est de ± 6.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-070",
+      "unit_index": 0,
+      "document_key": "development-DA-P02",
+      "page_index": 0,
+      "pdf_sha256": "1a4891c1d1e11565b31acb333f639951ce5430f64d52071dd261fbb4eeb11e14",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-070",
+      "unit_index": 1,
+      "document_key": "development-DA-P06",
+      "page_index": 0,
+      "pdf_sha256": "072500f7a3b60b6fd6a4b48e82006a7785cea0d748f894c544d4b5c1451d5761",
+      "native_page_text_sha256": "dba050ba9bee95e6065a2efaae636d64dcc6e50cbe6ac53fab9b0b52a3e085aa",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 255,
+          "end_codepoint": 317,
+          "source_text": "Le contrôle périodique de DA-P06 intervient toutes les 1620 h."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-071",
+      "unit_index": 0,
+      "document_key": "development-DA-P01",
+      "page_index": 0,
+      "pdf_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "native_page_text_sha256": "30b89b4df14851c642ff7cb09a1966bb38778af77ced47f2757db58532c180a5",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 319,
+          "end_codepoint": 375,
+          "source_text": "Le couple de serrage prescrit pour DA-P01 est de 12 N·m."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-071",
+      "unit_index": 1,
+      "document_key": "development-DA-P07",
+      "page_index": 0,
+      "pdf_sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+      "native_page_text_sha256": "8af42a77c547ad94309f9d024c54f8004d643b36a92eda2acbd5bd51353ca650",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 319,
+          "end_codepoint": 375,
+          "source_text": "Le couple de serrage prescrit pour DA-P07 est de 24 N·m."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-072",
+      "unit_index": 0,
+      "document_key": "development-DA-P04",
+      "page_index": 0,
+      "pdf_sha256": "cc02552b9fe0536a0538fead7284a6e17cf285d131e84dce4f730137ede7487a",
+      "native_page_text_sha256": "5b665152d0e8f8257228235d9e1c99a76cd29950403a751c6ad3e851b2de79ee",
+      "native_characters": 535,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 382,
+          "end_codepoint": 427,
+          "source_text": "L'alimentation d'essai de DA-P04 est de 28 V."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-072",
+      "unit_index": 1,
+      "document_key": "development-DA-P06",
+      "page_index": 0,
+      "pdf_sha256": "072500f7a3b60b6fd6a4b48e82006a7785cea0d748f894c544d4b5c1451d5761",
+      "native_page_text_sha256": "dba050ba9bee95e6065a2efaae636d64dcc6e50cbe6ac53fab9b0b52a3e085aa",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 422,
+          "source_text": "L'alimentation d'essai de DA-P06 est de 32 V."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-073",
+      "unit_index": 0,
+      "document_key": "development-DA-P01",
+      "page_index": 0,
+      "pdf_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "native_page_text_sha256": "30b89b4df14851c642ff7cb09a1966bb38778af77ced47f2757db58532c180a5",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P01 est de ± 2.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-074",
+      "unit_index": 0,
+      "document_key": "development-DA-P02",
+      "page_index": 0,
+      "pdf_sha256": "1a4891c1d1e11565b31acb333f639951ce5430f64d52071dd261fbb4eeb11e14",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-075",
+      "unit_index": 0,
+      "document_key": "development-DA-P03",
+      "page_index": 0,
+      "pdf_sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+      "native_page_text_sha256": "41888fa519466b7276ddde211e49afaf92d3d7193ae18b77459b851f55d9de13",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P03 est de ± 4.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-076",
+      "unit_index": 0,
+      "document_key": "development-DA-P04",
+      "page_index": 0,
+      "pdf_sha256": "cc02552b9fe0536a0538fead7284a6e17cf285d131e84dce4f730137ede7487a",
+      "native_page_text_sha256": "5b665152d0e8f8257228235d9e1c99a76cd29950403a751c6ad3e851b2de79ee",
+      "native_characters": 535,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 205,
+          "end_codepoint": 256,
+          "source_text": "La tolérance de pression de DA-P04 est de ±\r\n5.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-077",
+      "unit_index": 0,
+      "document_key": "development-DA-P05",
+      "page_index": 0,
+      "pdf_sha256": "a595fd3c5a88d43f56d5383039768fbc319c40ed466cf53a9757ad76e41f7fa1",
+      "native_page_text_sha256": "23dc23aa2d4cdbd1811ed74b970d0ad87acdbd54ab1a14dc44a05e0fdb5d2c68",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P05 est de ± 6.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-078",
+      "unit_index": 0,
+      "document_key": "development-DA-P06",
+      "page_index": 0,
+      "pdf_sha256": "072500f7a3b60b6fd6a4b48e82006a7785cea0d748f894c544d4b5c1451d5761",
+      "native_page_text_sha256": "dba050ba9bee95e6065a2efaae636d64dcc6e50cbe6ac53fab9b0b52a3e085aa",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P06 est de ± 7.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-079",
+      "unit_index": 0,
+      "document_key": "development-DA-P07",
+      "page_index": 0,
+      "pdf_sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+      "native_page_text_sha256": "8af42a77c547ad94309f9d024c54f8004d643b36a92eda2acbd5bd51353ca650",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 203,
+          "end_codepoint": 253,
+          "source_text": "La tolérance de pression de DA-P07 est de ± 8.0 %."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "DEV-080",
+      "unit_index": 0,
+      "document_key": "development-DA-P01",
+      "page_index": 0,
+      "pdf_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "native_page_text_sha256": "30b89b4df14851c642ff7cb09a1966bb38778af77ced47f2757db58532c180a5",
+      "native_characters": 529,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 422,
+          "source_text": "L'alimentation d'essai de DA-P01 est de 22 V."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-001",
+      "unit_index": 0,
+      "document_key": "final-FT-C01",
+      "page_index": 0,
+      "pdf_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "native_page_text_sha256": "a630557a18c4eaba2026fd54e0518e42396e05999238e103656d6f413e8850ca",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 171,
+          "end_codepoint": 221,
+          "source_text": "La température de consigne de FT-C01 est de 65 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-002",
+      "unit_index": 0,
+      "document_key": "final-FT-C01",
+      "page_index": 0,
+      "pdf_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "native_page_text_sha256": "a630557a18c4eaba2026fd54e0518e42396e05999238e103656d6f413e8850ca",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C01 est de ± 0.5 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-003",
+      "unit_index": 0,
+      "document_key": "final-FT-C01",
+      "page_index": 0,
+      "pdf_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "native_page_text_sha256": "a630557a18c4eaba2026fd54e0518e42396e05999238e103656d6f413e8850ca",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 274,
+          "end_codepoint": 324,
+          "source_text": "Le débit de circulation de FT-C01 est de 21 L/min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-004",
+      "unit_index": 0,
+      "document_key": "final-FT-C01",
+      "page_index": 0,
+      "pdf_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "native_page_text_sha256": "a630557a18c4eaba2026fd54e0518e42396e05999238e103656d6f413e8850ca",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 326,
+          "end_codepoint": 375,
+          "source_text": "La résistance du capteur de FT-C01 est de 44 ohm."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-005",
+      "unit_index": 0,
+      "document_key": "final-FT-C01",
+      "page_index": 0,
+      "pdf_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "native_page_text_sha256": "a630557a18c4eaba2026fd54e0518e42396e05999238e103656d6f413e8850ca",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 426,
+          "source_text": "Le palier de stabilisation de FT-C01 dure 20 min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-006",
+      "unit_index": 0,
+      "document_key": "final-FT-C02",
+      "page_index": 0,
+      "pdf_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-007",
+      "unit_index": 0,
+      "document_key": "final-FT-C02",
+      "page_index": 0,
+      "pdf_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-008",
+      "unit_index": 0,
+      "document_key": "final-FT-C02",
+      "page_index": 0,
+      "pdf_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-009",
+      "unit_index": 0,
+      "document_key": "final-FT-C02",
+      "page_index": 0,
+      "pdf_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-010",
+      "unit_index": 0,
+      "document_key": "final-FT-C02",
+      "page_index": 0,
+      "pdf_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-011",
+      "unit_index": 0,
+      "document_key": "final-FT-C03",
+      "page_index": 0,
+      "pdf_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+      "native_page_text_sha256": "61f2848c20c3a5cd93f8d473e0f43c0f3076f3cc21cc4c8ae666c9e54df61115",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 171,
+          "end_codepoint": 221,
+          "source_text": "La température de consigne de FT-C03 est de 71 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-012",
+      "unit_index": 0,
+      "document_key": "final-FT-C03",
+      "page_index": 0,
+      "pdf_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+      "native_page_text_sha256": "61f2848c20c3a5cd93f8d473e0f43c0f3076f3cc21cc4c8ae666c9e54df61115",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C03 est de ± 0.7 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-013",
+      "unit_index": 0,
+      "document_key": "final-FT-C03",
+      "page_index": 0,
+      "pdf_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+      "native_page_text_sha256": "61f2848c20c3a5cd93f8d473e0f43c0f3076f3cc21cc4c8ae666c9e54df61115",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 274,
+          "end_codepoint": 324,
+          "source_text": "Le débit de circulation de FT-C03 est de 27 L/min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-014",
+      "unit_index": 0,
+      "document_key": "final-FT-C03",
+      "page_index": 0,
+      "pdf_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+      "native_page_text_sha256": "61f2848c20c3a5cd93f8d473e0f43c0f3076f3cc21cc4c8ae666c9e54df61115",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 326,
+          "end_codepoint": 375,
+          "source_text": "La résistance du capteur de FT-C03 est de 52 ohm."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-015",
+      "unit_index": 0,
+      "document_key": "final-FT-C03",
+      "page_index": 0,
+      "pdf_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+      "native_page_text_sha256": "61f2848c20c3a5cd93f8d473e0f43c0f3076f3cc21cc4c8ae666c9e54df61115",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 426,
+          "source_text": "Le palier de stabilisation de FT-C03 dure 30 min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-016",
+      "unit_index": 0,
+      "document_key": "final-FT-C04",
+      "page_index": 0,
+      "pdf_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+      "native_page_text_sha256": "47af99518458722e0d0dadb723570c77de1e39fb1635c855ab8f96a21bc04dd1",
+      "native_characters": 540,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 172,
+          "end_codepoint": 223,
+          "source_text": "La température de consigne de FT-C04 est de\r\n74 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-017",
+      "unit_index": 0,
+      "document_key": "final-FT-C04",
+      "page_index": 0,
+      "pdf_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+      "native_page_text_sha256": "47af99518458722e0d0dadb723570c77de1e39fb1635c855ab8f96a21bc04dd1",
+      "native_characters": 540,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 225,
+          "end_codepoint": 275,
+          "source_text": "La tolérance thermique de FT-C04 est de ±\r\n0.8 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-018",
+      "unit_index": 0,
+      "document_key": "final-FT-C04",
+      "page_index": 0,
+      "pdf_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+      "native_page_text_sha256": "47af99518458722e0d0dadb723570c77de1e39fb1635c855ab8f96a21bc04dd1",
+      "native_characters": 540,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 277,
+          "end_codepoint": 328,
+          "source_text": "Le débit de circulation de FT-C04 est de 30\r\nL/min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-019",
+      "unit_index": 0,
+      "document_key": "final-FT-C04",
+      "page_index": 0,
+      "pdf_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+      "native_page_text_sha256": "47af99518458722e0d0dadb723570c77de1e39fb1635c855ab8f96a21bc04dd1",
+      "native_characters": 540,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 330,
+          "end_codepoint": 380,
+          "source_text": "La résistance du capteur de FT-C04 est de 56\r\nohm."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-020",
+      "unit_index": 0,
+      "document_key": "final-FT-C04",
+      "page_index": 0,
+      "pdf_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+      "native_page_text_sha256": "47af99518458722e0d0dadb723570c77de1e39fb1635c855ab8f96a21bc04dd1",
+      "native_characters": 540,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 382,
+          "end_codepoint": 432,
+          "source_text": "Le palier de stabilisation de FT-C04 dure 35\r\nmin."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-021",
+      "unit_index": 0,
+      "document_key": "final-FT-C05",
+      "page_index": 0,
+      "pdf_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+      "native_page_text_sha256": "5b8852a5d8db7848aa39694718187aa8338cde873998472998e32fad247a8c8b",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 171,
+          "end_codepoint": 221,
+          "source_text": "La température de consigne de FT-C05 est de 77 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-022",
+      "unit_index": 0,
+      "document_key": "final-FT-C05",
+      "page_index": 0,
+      "pdf_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+      "native_page_text_sha256": "5b8852a5d8db7848aa39694718187aa8338cde873998472998e32fad247a8c8b",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C05 est de ± 0.9 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-023",
+      "unit_index": 0,
+      "document_key": "final-FT-C05",
+      "page_index": 0,
+      "pdf_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+      "native_page_text_sha256": "5b8852a5d8db7848aa39694718187aa8338cde873998472998e32fad247a8c8b",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 274,
+          "end_codepoint": 324,
+          "source_text": "Le débit de circulation de FT-C05 est de 33 L/min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-024",
+      "unit_index": 0,
+      "document_key": "final-FT-C05",
+      "page_index": 0,
+      "pdf_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+      "native_page_text_sha256": "5b8852a5d8db7848aa39694718187aa8338cde873998472998e32fad247a8c8b",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 326,
+          "end_codepoint": 375,
+          "source_text": "La résistance du capteur de FT-C05 est de 60 ohm."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-025",
+      "unit_index": 0,
+      "document_key": "final-FT-C05",
+      "page_index": 0,
+      "pdf_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+      "native_page_text_sha256": "5b8852a5d8db7848aa39694718187aa8338cde873998472998e32fad247a8c8b",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 426,
+          "source_text": "Le palier de stabilisation de FT-C05 dure 40 min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-026",
+      "unit_index": 0,
+      "document_key": "final-FT-C06",
+      "page_index": 0,
+      "pdf_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+      "native_page_text_sha256": "d85e541b107c66b34e68a063ad4a8968da9dc3b75a182300f4103fb17da9cbda",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 171,
+          "end_codepoint": 221,
+          "source_text": "La température de consigne de FT-C06 est de 80 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-027",
+      "unit_index": 0,
+      "document_key": "final-FT-C06",
+      "page_index": 0,
+      "pdf_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+      "native_page_text_sha256": "d85e541b107c66b34e68a063ad4a8968da9dc3b75a182300f4103fb17da9cbda",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C06 est de ± 1.0 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-028",
+      "unit_index": 0,
+      "document_key": "final-FT-C06",
+      "page_index": 0,
+      "pdf_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+      "native_page_text_sha256": "d85e541b107c66b34e68a063ad4a8968da9dc3b75a182300f4103fb17da9cbda",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 274,
+          "end_codepoint": 324,
+          "source_text": "Le débit de circulation de FT-C06 est de 36 L/min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-029",
+      "unit_index": 0,
+      "document_key": "final-FT-C06",
+      "page_index": 0,
+      "pdf_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+      "native_page_text_sha256": "d85e541b107c66b34e68a063ad4a8968da9dc3b75a182300f4103fb17da9cbda",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 326,
+          "end_codepoint": 375,
+          "source_text": "La résistance du capteur de FT-C06 est de 64 ohm."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-030",
+      "unit_index": 0,
+      "document_key": "final-FT-C06",
+      "page_index": 0,
+      "pdf_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+      "native_page_text_sha256": "d85e541b107c66b34e68a063ad4a8968da9dc3b75a182300f4103fb17da9cbda",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 426,
+          "source_text": "Le palier de stabilisation de FT-C06 dure 45 min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-031",
+      "unit_index": 0,
+      "document_key": "final-FT-C07",
+      "page_index": 0,
+      "pdf_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+      "native_page_text_sha256": "9af4bb1e34062a461fcff9ef58dadc4694f2c9bbabb72cc717f91114037efc63",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 171,
+          "end_codepoint": 221,
+          "source_text": "La température de consigne de FT-C07 est de 83 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-032",
+      "unit_index": 0,
+      "document_key": "final-FT-C07",
+      "page_index": 0,
+      "pdf_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+      "native_page_text_sha256": "9af4bb1e34062a461fcff9ef58dadc4694f2c9bbabb72cc717f91114037efc63",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C07 est de ± 1.1 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-033",
+      "unit_index": 0,
+      "document_key": "final-FT-C07",
+      "page_index": 0,
+      "pdf_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+      "native_page_text_sha256": "9af4bb1e34062a461fcff9ef58dadc4694f2c9bbabb72cc717f91114037efc63",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 274,
+          "end_codepoint": 324,
+          "source_text": "Le débit de circulation de FT-C07 est de 39 L/min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-034",
+      "unit_index": 0,
+      "document_key": "final-FT-C07",
+      "page_index": 0,
+      "pdf_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+      "native_page_text_sha256": "9af4bb1e34062a461fcff9ef58dadc4694f2c9bbabb72cc717f91114037efc63",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 326,
+          "end_codepoint": 375,
+          "source_text": "La résistance du capteur de FT-C07 est de 68 ohm."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-035",
+      "unit_index": 0,
+      "document_key": "final-FT-C07",
+      "page_index": 0,
+      "pdf_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+      "native_page_text_sha256": "9af4bb1e34062a461fcff9ef58dadc4694f2c9bbabb72cc717f91114037efc63",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 426,
+          "source_text": "Le palier de stabilisation de FT-C07 dure 50 min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-036",
+      "unit_index": 0,
+      "document_key": "final-FT-C01",
+      "page_index": 0,
+      "pdf_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "native_page_text_sha256": "a630557a18c4eaba2026fd54e0518e42396e05999238e103656d6f413e8850ca",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 171,
+          "end_codepoint": 221,
+          "source_text": "La température de consigne de FT-C01 est de 65 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-037",
+      "unit_index": 0,
+      "document_key": "final-FT-C02",
+      "page_index": 0,
+      "pdf_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-038",
+      "unit_index": 0,
+      "document_key": "final-FT-C03",
+      "page_index": 0,
+      "pdf_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+      "native_page_text_sha256": "61f2848c20c3a5cd93f8d473e0f43c0f3076f3cc21cc4c8ae666c9e54df61115",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 171,
+          "end_codepoint": 221,
+          "source_text": "La température de consigne de FT-C03 est de 71 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-039",
+      "unit_index": 0,
+      "document_key": "final-FT-C04",
+      "page_index": 0,
+      "pdf_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+      "native_page_text_sha256": "47af99518458722e0d0dadb723570c77de1e39fb1635c855ab8f96a21bc04dd1",
+      "native_characters": 540,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 172,
+          "end_codepoint": 223,
+          "source_text": "La température de consigne de FT-C04 est de\r\n74 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-040",
+      "unit_index": 0,
+      "document_key": "final-FT-C05",
+      "page_index": 0,
+      "pdf_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+      "native_page_text_sha256": "5b8852a5d8db7848aa39694718187aa8338cde873998472998e32fad247a8c8b",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 171,
+          "end_codepoint": 221,
+          "source_text": "La température de consigne de FT-C05 est de 77 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-041",
+      "unit_index": 0,
+      "document_key": "final-FT-C06",
+      "page_index": 0,
+      "pdf_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+      "native_page_text_sha256": "d85e541b107c66b34e68a063ad4a8968da9dc3b75a182300f4103fb17da9cbda",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 171,
+          "end_codepoint": 221,
+          "source_text": "La température de consigne de FT-C06 est de 80 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-042",
+      "unit_index": 0,
+      "document_key": "final-FT-C07",
+      "page_index": 0,
+      "pdf_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+      "native_page_text_sha256": "9af4bb1e34062a461fcff9ef58dadc4694f2c9bbabb72cc717f91114037efc63",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 171,
+          "end_codepoint": 221,
+          "source_text": "La température de consigne de FT-C07 est de 83 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-043",
+      "unit_index": 0,
+      "document_key": "final-FT-C01",
+      "page_index": 0,
+      "pdf_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "native_page_text_sha256": "a630557a18c4eaba2026fd54e0518e42396e05999238e103656d6f413e8850ca",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C01 est de ± 0.5 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-044",
+      "unit_index": 0,
+      "document_key": "final-FT-C02",
+      "page_index": 0,
+      "pdf_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-045",
+      "unit_index": 0,
+      "document_key": "final-FT-C03",
+      "page_index": 0,
+      "pdf_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+      "native_page_text_sha256": "61f2848c20c3a5cd93f8d473e0f43c0f3076f3cc21cc4c8ae666c9e54df61115",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C03 est de ± 0.7 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-046",
+      "unit_index": 0,
+      "document_key": "final-FT-C04",
+      "page_index": 0,
+      "pdf_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+      "native_page_text_sha256": "47af99518458722e0d0dadb723570c77de1e39fb1635c855ab8f96a21bc04dd1",
+      "native_characters": 540,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 225,
+          "end_codepoint": 275,
+          "source_text": "La tolérance thermique de FT-C04 est de ±\r\n0.8 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-047",
+      "unit_index": 0,
+      "document_key": "final-FT-C05",
+      "page_index": 0,
+      "pdf_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+      "native_page_text_sha256": "5b8852a5d8db7848aa39694718187aa8338cde873998472998e32fad247a8c8b",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C05 est de ± 0.9 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-048",
+      "unit_index": 0,
+      "document_key": "final-FT-C06",
+      "page_index": 0,
+      "pdf_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+      "native_page_text_sha256": "d85e541b107c66b34e68a063ad4a8968da9dc3b75a182300f4103fb17da9cbda",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C06 est de ± 1.0 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-049",
+      "unit_index": 0,
+      "document_key": "final-FT-C07",
+      "page_index": 0,
+      "pdf_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+      "native_page_text_sha256": "9af4bb1e34062a461fcff9ef58dadc4694f2c9bbabb72cc717f91114037efc63",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C07 est de ± 1.1 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-050",
+      "unit_index": 0,
+      "document_key": "final-FT-C01",
+      "page_index": 0,
+      "pdf_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "native_page_text_sha256": "a630557a18c4eaba2026fd54e0518e42396e05999238e103656d6f413e8850ca",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 274,
+          "end_codepoint": 324,
+          "source_text": "Le débit de circulation de FT-C01 est de 21 L/min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-051",
+      "unit_index": 0,
+      "document_key": "final-FT-C01",
+      "page_index": 1,
+      "pdf_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "native_page_text_sha256": "2f53fbf90123e3d9d01f1f85d3ccc2d1f4cd33632541b8d18e296c662f82460b",
+      "native_characters": 253,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 197,
+          "end_codepoint": 213,
+          "source_text": "FT-C01-HOT 10 mm"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-052",
+      "unit_index": 0,
+      "document_key": "final-FT-C02",
+      "page_index": 1,
+      "pdf_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-053",
+      "unit_index": 0,
+      "document_key": "final-FT-C03",
+      "page_index": 1,
+      "pdf_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+      "native_page_text_sha256": "fc06a3f5a4e28c7454c4ab4e9d36e0d236282a46dd76b363189b4866c9b108d5",
+      "native_characters": 150,
+      "status": "SCANNED_REGION_REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-054",
+      "unit_index": 0,
+      "document_key": "final-FT-C04",
+      "page_index": 1,
+      "pdf_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+      "native_page_text_sha256": "0785eb7ff4486b2bd7468a0374d54cd8ecf5221c0783561a8ba52cbe85429ee3",
+      "native_characters": 253,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 197,
+          "end_codepoint": 213,
+          "source_text": "FT-C04-HOT 13 mm"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-055",
+      "unit_index": 0,
+      "document_key": "final-FT-C05",
+      "page_index": 1,
+      "pdf_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+      "native_page_text_sha256": "719283ca0ecd48c6f70098457ec921ec7cc164096a4e66379a50fa962adf0e2f",
+      "native_characters": 253,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 215,
+          "end_codepoint": 232,
+          "source_text": "FT-C05-COLD 19 mm"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-056",
+      "unit_index": 0,
+      "document_key": "final-FT-C06",
+      "page_index": 1,
+      "pdf_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+      "native_page_text_sha256": "becb9321144ee27bff93f66ea84c97a78ce21881986238e81c67ed3edc829881",
+      "native_characters": 253,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 234,
+          "end_codepoint": 253,
+          "source_text": "FT-C06-LOSS 1.8 kPa"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-057",
+      "unit_index": 0,
+      "document_key": "final-FT-C07",
+      "page_index": 1,
+      "pdf_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+      "native_page_text_sha256": "1929ff51798d7df459b4f3d757010d75f688437411d3efd20d491f5770503ace",
+      "native_characters": 253,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 197,
+          "end_codepoint": 213,
+          "source_text": "FT-C07-HOT 16 mm"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-058",
+      "unit_index": 0,
+      "document_key": "final-FT-C01",
+      "page_index": 1,
+      "pdf_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "native_page_text_sha256": "2f53fbf90123e3d9d01f1f85d3ccc2d1f4cd33632541b8d18e296c662f82460b",
+      "native_characters": 253,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 215,
+          "end_codepoint": 232,
+          "source_text": "FT-C01-COLD 15 mm"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-059",
+      "unit_index": 0,
+      "document_key": "final-FT-C02",
+      "page_index": 1,
+      "pdf_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-060",
+      "unit_index": 0,
+      "document_key": "final-FT-C03",
+      "page_index": 1,
+      "pdf_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+      "native_page_text_sha256": "fc06a3f5a4e28c7454c4ab4e9d36e0d236282a46dd76b363189b4866c9b108d5",
+      "native_characters": 150,
+      "status": "SCANNED_REGION_REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-061",
+      "unit_index": 0,
+      "document_key": "final-FT-C04",
+      "page_index": 1,
+      "pdf_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+      "native_page_text_sha256": "0785eb7ff4486b2bd7468a0374d54cd8ecf5221c0783561a8ba52cbe85429ee3",
+      "native_characters": 253,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 215,
+          "end_codepoint": 232,
+          "source_text": "FT-C04-COLD 18 mm"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-062",
+      "unit_index": 0,
+      "document_key": "final-FT-C05",
+      "page_index": 1,
+      "pdf_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+      "native_page_text_sha256": "719283ca0ecd48c6f70098457ec921ec7cc164096a4e66379a50fa962adf0e2f",
+      "native_characters": 253,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 234,
+          "end_codepoint": 253,
+          "source_text": "FT-C05-LOSS 1.7 kPa"
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-063",
+      "unit_index": 0,
+      "document_key": "final-FT-C01",
+      "page_index": 0,
+      "pdf_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "native_page_text_sha256": "a630557a18c4eaba2026fd54e0518e42396e05999238e103656d6f413e8850ca",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 171,
+          "end_codepoint": 221,
+          "source_text": "La température de consigne de FT-C01 est de 65 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-063",
+      "unit_index": 1,
+      "document_key": "final-FT-C02",
+      "page_index": 0,
+      "pdf_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-064",
+      "unit_index": 0,
+      "document_key": "final-FT-C02",
+      "page_index": 0,
+      "pdf_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-064",
+      "unit_index": 1,
+      "document_key": "final-FT-C04",
+      "page_index": 0,
+      "pdf_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+      "native_page_text_sha256": "47af99518458722e0d0dadb723570c77de1e39fb1635c855ab8f96a21bc04dd1",
+      "native_characters": 540,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 225,
+          "end_codepoint": 275,
+          "source_text": "La tolérance thermique de FT-C04 est de ±\r\n0.8 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-065",
+      "unit_index": 0,
+      "document_key": "final-FT-C03",
+      "page_index": 0,
+      "pdf_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+      "native_page_text_sha256": "61f2848c20c3a5cd93f8d473e0f43c0f3076f3cc21cc4c8ae666c9e54df61115",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 274,
+          "end_codepoint": 324,
+          "source_text": "Le débit de circulation de FT-C03 est de 27 L/min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-065",
+      "unit_index": 1,
+      "document_key": "final-FT-C07",
+      "page_index": 0,
+      "pdf_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+      "native_page_text_sha256": "9af4bb1e34062a461fcff9ef58dadc4694f2c9bbabb72cc717f91114037efc63",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 274,
+          "end_codepoint": 324,
+          "source_text": "Le débit de circulation de FT-C07 est de 39 L/min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-066",
+      "unit_index": 0,
+      "document_key": "final-FT-C04",
+      "page_index": 0,
+      "pdf_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+      "native_page_text_sha256": "47af99518458722e0d0dadb723570c77de1e39fb1635c855ab8f96a21bc04dd1",
+      "native_characters": 540,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 330,
+          "end_codepoint": 380,
+          "source_text": "La résistance du capteur de FT-C04 est de 56\r\nohm."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-066",
+      "unit_index": 1,
+      "document_key": "final-FT-C05",
+      "page_index": 0,
+      "pdf_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+      "native_page_text_sha256": "5b8852a5d8db7848aa39694718187aa8338cde873998472998e32fad247a8c8b",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 326,
+          "end_codepoint": 375,
+          "source_text": "La résistance du capteur de FT-C05 est de 60 ohm."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-067",
+      "unit_index": 0,
+      "document_key": "final-FT-C05",
+      "page_index": 0,
+      "pdf_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+      "native_page_text_sha256": "5b8852a5d8db7848aa39694718187aa8338cde873998472998e32fad247a8c8b",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 426,
+          "source_text": "Le palier de stabilisation de FT-C05 dure 40 min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-067",
+      "unit_index": 1,
+      "document_key": "final-FT-C07",
+      "page_index": 0,
+      "pdf_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+      "native_page_text_sha256": "9af4bb1e34062a461fcff9ef58dadc4694f2c9bbabb72cc717f91114037efc63",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 426,
+          "source_text": "Le palier de stabilisation de FT-C07 dure 50 min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-068",
+      "unit_index": 0,
+      "document_key": "final-FT-C01",
+      "page_index": 0,
+      "pdf_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "native_page_text_sha256": "a630557a18c4eaba2026fd54e0518e42396e05999238e103656d6f413e8850ca",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 171,
+          "end_codepoint": 221,
+          "source_text": "La température de consigne de FT-C01 est de 65 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-068",
+      "unit_index": 1,
+      "document_key": "final-FT-C06",
+      "page_index": 0,
+      "pdf_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+      "native_page_text_sha256": "d85e541b107c66b34e68a063ad4a8968da9dc3b75a182300f4103fb17da9cbda",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 171,
+          "end_codepoint": 221,
+          "source_text": "La température de consigne de FT-C06 est de 80 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-069",
+      "unit_index": 0,
+      "document_key": "final-FT-C03",
+      "page_index": 0,
+      "pdf_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+      "native_page_text_sha256": "61f2848c20c3a5cd93f8d473e0f43c0f3076f3cc21cc4c8ae666c9e54df61115",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C03 est de ± 0.7 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-069",
+      "unit_index": 1,
+      "document_key": "final-FT-C05",
+      "page_index": 0,
+      "pdf_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+      "native_page_text_sha256": "5b8852a5d8db7848aa39694718187aa8338cde873998472998e32fad247a8c8b",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C05 est de ± 0.9 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-070",
+      "unit_index": 0,
+      "document_key": "final-FT-C02",
+      "page_index": 0,
+      "pdf_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-070",
+      "unit_index": 1,
+      "document_key": "final-FT-C06",
+      "page_index": 0,
+      "pdf_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+      "native_page_text_sha256": "d85e541b107c66b34e68a063ad4a8968da9dc3b75a182300f4103fb17da9cbda",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 274,
+          "end_codepoint": 324,
+          "source_text": "Le débit de circulation de FT-C06 est de 36 L/min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-071",
+      "unit_index": 0,
+      "document_key": "final-FT-C01",
+      "page_index": 0,
+      "pdf_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "native_page_text_sha256": "a630557a18c4eaba2026fd54e0518e42396e05999238e103656d6f413e8850ca",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 326,
+          "end_codepoint": 375,
+          "source_text": "La résistance du capteur de FT-C01 est de 44 ohm."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-071",
+      "unit_index": 1,
+      "document_key": "final-FT-C07",
+      "page_index": 0,
+      "pdf_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+      "native_page_text_sha256": "9af4bb1e34062a461fcff9ef58dadc4694f2c9bbabb72cc717f91114037efc63",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 326,
+          "end_codepoint": 375,
+          "source_text": "La résistance du capteur de FT-C07 est de 68 ohm."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-072",
+      "unit_index": 0,
+      "document_key": "final-FT-C04",
+      "page_index": 0,
+      "pdf_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+      "native_page_text_sha256": "47af99518458722e0d0dadb723570c77de1e39fb1635c855ab8f96a21bc04dd1",
+      "native_characters": 540,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 382,
+          "end_codepoint": 432,
+          "source_text": "Le palier de stabilisation de FT-C04 dure 35\r\nmin."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-072",
+      "unit_index": 1,
+      "document_key": "final-FT-C06",
+      "page_index": 0,
+      "pdf_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+      "native_page_text_sha256": "d85e541b107c66b34e68a063ad4a8968da9dc3b75a182300f4103fb17da9cbda",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 426,
+          "source_text": "Le palier de stabilisation de FT-C06 dure 45 min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-073",
+      "unit_index": 0,
+      "document_key": "final-FT-C01",
+      "page_index": 0,
+      "pdf_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "native_page_text_sha256": "a630557a18c4eaba2026fd54e0518e42396e05999238e103656d6f413e8850ca",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C01 est de ± 0.5 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-074",
+      "unit_index": 0,
+      "document_key": "final-FT-C02",
+      "page_index": 0,
+      "pdf_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+      "native_page_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_characters": 0,
+      "status": "REQUIRES_OCR_PREFLIGHT",
+      "native_preflight_spans": [],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-075",
+      "unit_index": 0,
+      "document_key": "final-FT-C03",
+      "page_index": 0,
+      "pdf_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+      "native_page_text_sha256": "61f2848c20c3a5cd93f8d473e0f43c0f3076f3cc21cc4c8ae666c9e54df61115",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C03 est de ± 0.7 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-076",
+      "unit_index": 0,
+      "document_key": "final-FT-C04",
+      "page_index": 0,
+      "pdf_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+      "native_page_text_sha256": "47af99518458722e0d0dadb723570c77de1e39fb1635c855ab8f96a21bc04dd1",
+      "native_characters": 540,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 225,
+          "end_codepoint": 275,
+          "source_text": "La tolérance thermique de FT-C04 est de ±\r\n0.8 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-077",
+      "unit_index": 0,
+      "document_key": "final-FT-C05",
+      "page_index": 0,
+      "pdf_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+      "native_page_text_sha256": "5b8852a5d8db7848aa39694718187aa8338cde873998472998e32fad247a8c8b",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C05 est de ± 0.9 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-078",
+      "unit_index": 0,
+      "document_key": "final-FT-C06",
+      "page_index": 0,
+      "pdf_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+      "native_page_text_sha256": "d85e541b107c66b34e68a063ad4a8968da9dc3b75a182300f4103fb17da9cbda",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C06 est de ± 1.0 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-079",
+      "unit_index": 0,
+      "document_key": "final-FT-C07",
+      "page_index": 0,
+      "pdf_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+      "native_page_text_sha256": "9af4bb1e34062a461fcff9ef58dadc4694f2c9bbabb72cc717f91114037efc63",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 223,
+          "end_codepoint": 272,
+          "source_text": "La tolérance thermique de FT-C07 est de ± 1.1 °C."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    },
+    {
+      "question_id": "FINAL-080",
+      "unit_index": 0,
+      "document_key": "final-FT-C01",
+      "page_index": 0,
+      "pdf_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "native_page_text_sha256": "a630557a18c4eaba2026fd54e0518e42396e05999238e103656d6f413e8850ca",
+      "native_characters": 533,
+      "status": "EXPECTED_TEXT_PRESENT_NATIVE_PREFLIGHT",
+      "native_preflight_spans": [
+        {
+          "start_codepoint": 377,
+          "end_codepoint": 426,
+          "source_text": "Le palier de stabilisation de FT-C01 dure 20 min."
+        }
+      ],
+      "version_id": null,
+      "extraction_revision_id": null,
+      "block_id": null
+    }
+  ]
+}

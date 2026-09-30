@@ -1,0 +1,49 @@
+{
+  "date_utc": "2026-09-30",
+  "interpreter": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+  "python": "3.12.14",
+  "command": ".venv/Scripts/python.exe -m pytest tests/unit/test_api_storage.py tests/unit/test_api_queries.py tests/unit/test_api_jobs.py tests/unit/test_api_gateways.py tests/unit/test_api_qualification.py tests/unit/test_retrieval.py tests/integration/test_api_http.py -q --junitxml=RAG_Local_Agents/reports/backend/2026-09-30-backend-integrated.xml",
+  "result": {
+    "exit_code": 0,
+    "tests": 59,
+    "failures": 0,
+    "errors": 0,
+    "duration_seconds": 28.86,
+    "warnings": 1
+  },
+  "warning": "StarletteDeprecationWarning: Using httpx with starlette.testclient is deprecated; install httpx2 instead.",
+  "versions": {
+    "fastapi": "0.142.1",
+    "starlette": "1.7.0",
+    "httpx": "0.28.1",
+    "pydantic": "2.13.5",
+    "pytest": "9.1.1",
+    "onnxruntime": "1.30.0",
+    "tokenizers": "0.23.2",
+    "numpy": "2.5.3",
+    "psutil": "7.2.2"
+  },
+  "source_sha256": {
+    "services/api/__init__.py": "6e1626978265dd2ee6c3798b50e440e67667d52b97456feda09180feb494f668",
+    "services/api/context.py": "3116ac3914410cfa6b6748eaee2efda4762712f46303fa16528e2ad6af71f27c",
+    "services/api/db.py": "b2666c54d1e0791d72fd43492caab93fe194afe1ffb1bc35f3541f41964781ee",
+    "services/api/embedding.py": "87c2151091d556646f16df751933ddd2dba2e435566761b65c7211b0ac8f8fc3",
+    "services/api/errors.py": "46a7c379ffa86343ff49218e5c2a416d46d656b6f529bf81018d665030d6be5c",
+    "services/api/indexing.py": "017ef28a2d66c71f8fafff2782bd9f668e6661b593a56ab12418aed1158b7860",
+    "services/api/jobs.py": "3aa6415d2fa5eb1252de7f9d4f5197324e2e517f0be2fc654bce293af4dddbc5",
+    "services/api/main.py": "3976f4d1e4577d91f1688b2191e9734af9f27ad68935b97db45082942bd581d0",
+    "services/api/ollama.py": "496047ce056ea0e0d12e0d9e10fb73a91afedab4be135df0ef28059ecbc7d873",
+    "services/api/qualification.py": "71206c2b961877a8d54921aa7b97c957a26ba2381e885d9db479cc5a5cc591b5",
+    "services/api/query.py": "d7f4e36165055165c21cf122493bb898eab85372197b254f1335742d4734c27f",
+    "services/api/reconcile.py": "52d1ed734eae353d3cd2ec55c4e5f73fadcdb60d45a0490a2c2dac013b8707d2",
+    "services/api/retrieval.py": "b004222cd4e893e26499347a585ec6d792be4e4c444cfd7ce8e4ef3320d0f569",
+    "services/api/schemas.py": "81b3649b16ece1cb86771ed5bc5c1004ede3523ba728a94a9499dd7035542ef1",
+    "services/api/scope.py": "9b76dfe5196dd510fdf21c888febc9744bcec7cc42fdbd8a739f54c675d357f3",
+    "services/api/settings.py": "1e521ae91b9db184c47a7b52645d13653315428300f503d900d9768b57f689b9"
+  },
+  "limits": [
+    "Isolated SQLite and explicitly injected model/vector boundaries; not a real end-to-end model or PDF extraction qualification.",
+    "No evaluation against the 100 development or 100 held-out final questions has run.",
+    "Warm additional RAM estimate 512 MiB remains provisional; E5 session remains persistent pending real-chain measurements."
+  ]
+}

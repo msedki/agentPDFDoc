@@ -1,0 +1,59 @@
+{
+  "instance_id": "0e8fdf0f13cd41ad9ac405c946e5387e",
+  "status": "stopped",
+  "profile_path": "D:\\enhacements\\agentragpdf\\config\\local16.yaml",
+  "profile_sha256": "e7f3d1fdce650e1592c5e1942dc417659b6309423f3071194619b98fd4a780f7",
+  "data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\data",
+  "supervisor": {
+    "pid": 21580,
+    "created_at": 1790734054.9459798,
+    "executable": "D:\\enhacements\\agentragpdf\\.runtime\\python\\cpython-3.12.14-windows-x86_64-none\\python.exe"
+  },
+  "services": {
+    "qdrant": {
+      "pid": 6684,
+      "created_at": 1790734056.5581179,
+      "executable": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\qdrant-1.19.1\\qdrant.exe",
+      "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\data\\logs\\0e8fdf0f13cd41ad9ac405c946e5387e\\qdrant.log",
+      "exit_code": null
+    },
+    "ollama": {
+      "pid": 4608,
+      "created_at": 1790734057.6768188,
+      "executable": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\ollama-0.35.0\\ollama.exe",
+      "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\data\\logs\\0e8fdf0f13cd41ad9ac405c946e5387e\\ollama.log",
+      "exit_code": null
+    },
+    "api": {
+      "pid": 20420,
+      "created_at": 1790734063.340518,
+      "executable": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+      "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\data\\logs\\0e8fdf0f13cd41ad9ac405c946e5387e\\api.log",
+      "exit_code": null
+    }
+  },
+  "shutdown_marker": "D:\\enhacements\\agentragpdf\\.runtime\\data\\control\\shutdown-0e8fdf0f13cd41ad9ac405c946e5387e",
+  "app_url": "http://127.0.0.1:8785",
+  "stop_results": [
+    {
+      "service": "api",
+      "mode": "cooperative_marker",
+      "exit_code": 0
+    },
+    {
+      "service": "ollama",
+      "mode": "console_sigint",
+      "exit_code": 0
+    },
+    {
+      "service": "qdrant",
+      "mode": "console_sigint",
+      "exit_code": 0
+    }
+  ],
+  "qdrant_config_sha256": "8a9e4ecd3029938cefa14b1ff761a94bbee3b4359136c2ecab9ddf89c75ed05a",
+  "http_health": {
+    "status": "alive",
+    "service": "rag-api"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "date_utc": "2026-09-30",
+  "python": "3.12.14",
+  "interpreter": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+  "command": ".venv/Scripts/python.exe -m pytest tests/unit/test_api_jobs.py -q --junitxml=RAG_Local_Agents/reports/backend/2026-09-30-removed-source-corrected.xml",
+  "result": {
+    "exit_code": 0,
+    "passed": 6,
+    "duration_seconds": 6.49
+  },
+  "source_sha256": {
+    "services/api/jobs.py": "b70881920d62f1511bad2aca4d7f2b294ccbebedfdac450e5e743bca867cf889"
+  },
+  "change": "Resume validates the immutable source version via existing Database.version before any global resume or job state mutation. Staging already used the same guard.",
+  "previous_failure": "2026-09-30-removed-source-first-failure.xml retains3FAIL and1PASS before correction.",
+  "limits": [
+    "Isolated SQLite and explicit parser/model substitutes. No real model or publication was run by this correction."
+  ]
+}

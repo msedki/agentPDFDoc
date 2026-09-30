@@ -1,0 +1,183 @@
+﻿{
+    "timestamp_utc":  "2026-09-30T02:25:47.5772234Z",
+    "status":  "passed",
+    "duration_ms":  11914,
+    "scope":  "Real shell/GET API only; import/retrieval/generation not qualified",
+    "resources_method":  "Point samples, no continuous peak measurement",
+    "attachments":  {
+                        "resources-start":  {
+                                                "phase":  "start",
+                                                "timestamp_utc":  "2026-09-30T02:10:55.2589847Z",
+                                                "available_gib":  5.598,
+                                                "chromium":  [
+                                                                 {
+                                                                     "id":  23612,
+                                                                     "working_set_mib":  45.6
+                                                                 },
+                                                                 {
+                                                                     "id":  32824,
+                                                                     "working_set_mib":  44.8
+                                                                 },
+                                                                 {
+                                                                     "id":  9476,
+                                                                     "working_set_mib":  26.9
+                                                                 },
+                                                                 {
+                                                                     "id":  2680,
+                                                                     "working_set_mib":  50.9
+                                                                 }
+                                                             ],
+                                                "method":  "Host FreePhysicalMemory and individual working sets of Chrome descendants of this test worker; no summed shared-memory claim."
+                                            },
+                        "resources-viewport-1366":  {
+                                                        "phase":  "viewport-1366",
+                                                        "timestamp_utc":  "2026-09-30T02:10:59.7650595Z",
+                                                        "available_gib":  5.535,
+                                                        "chromium":  [
+                                                                         {
+                                                                             "id":  23612,
+                                                                             "working_set_mib":  49.8
+                                                                         },
+                                                                         {
+                                                                             "id":  32824,
+                                                                             "working_set_mib":  56.2
+                                                                         },
+                                                                         {
+                                                                             "id":  9476,
+                                                                             "working_set_mib":  31.6
+                                                                         },
+                                                                         {
+                                                                             "id":  2680,
+                                                                             "working_set_mib":  95.7
+                                                                         }
+                                                                     ],
+                                                        "method":  "Host FreePhysicalMemory and individual working sets of Chrome descendants of this test worker; no summed shared-memory claim."
+                                                    },
+                        "resources-viewport-1920":  {
+                                                        "phase":  "viewport-1920",
+                                                        "timestamp_utc":  "2026-09-30T02:11:02.6918732Z",
+                                                        "available_gib":  5.518,
+                                                        "chromium":  [
+                                                                         {
+                                                                             "id":  23612,
+                                                                             "working_set_mib":  50.7
+                                                                         },
+                                                                         {
+                                                                             "id":  32824,
+                                                                             "working_set_mib":  70.5
+                                                                         },
+                                                                         {
+                                                                             "id":  9476,
+                                                                             "working_set_mib":  31.6
+                                                                         },
+                                                                         {
+                                                                             "id":  2680,
+                                                                             "working_set_mib":  100.7
+                                                                         }
+                                                                     ],
+                                                        "method":  "Host FreePhysicalMemory and individual working sets of Chrome descendants of this test worker; no summed shared-memory claim."
+                                                    },
+                        "console":  {
+                                        "value":  [
+                                                      {
+                                                          "type":  "error",
+                                                          "text":  "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+                                                      },
+                                                      {
+                                                          "type":  "error",
+                                                          "text":  "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+                                                      }
+                                                  ],
+                                        "Count":  2
+                                    },
+                        "network":  {
+                                        "value":  [
+                                                      {
+                                                          "method":  "GET",
+                                                          "hostname":  "127.0.0.1",
+                                                          "path":  "/workspace/",
+                                                          "status":  200
+                                                      },
+                                                      {
+                                                          "method":  "GET",
+                                                          "hostname":  "127.0.0.1",
+                                                          "path":  "/_next/static/css/16e2066c3c4b1b71.css",
+                                                          "status":  200
+                                                      },
+                                                      {
+                                                          "method":  "GET",
+                                                          "hostname":  "127.0.0.1",
+                                                          "path":  "/_next/static/chunks/webpack-81a7148d55f845cb.js",
+                                                          "status":  200
+                                                      },
+                                                      {
+                                                          "method":  "GET",
+                                                          "hostname":  "127.0.0.1",
+                                                          "path":  "/_next/static/chunks/main-app-add3a686993de639.js",
+                                                          "status":  200
+                                                      },
+                                                      {
+                                                          "method":  "GET",
+                                                          "hostname":  "127.0.0.1",
+                                                          "path":  "/_next/static/chunks/426-28f5be367b571a72.js",
+                                                          "status":  200
+                                                      },
+                                                      {
+                                                          "method":  "GET",
+                                                          "hostname":  "127.0.0.1",
+                                                          "path":  "/_next/static/chunks/95198bae-8a5382f70e1889b6.js",
+                                                          "status":  200
+                                                      },
+                                                      {
+                                                          "method":  "GET",
+                                                          "hostname":  "127.0.0.1",
+                                                          "path":  "/_next/static/chunks/app/workspace/page-bcc640d347526985.js",
+                                                          "status":  200
+                                                      },
+                                                      {
+                                                          "method":  "GET",
+                                                          "hostname":  "127.0.0.1",
+                                                          "path":  "/_next/static/chunks/436-e378a1f8203f2af6.js",
+                                                          "status":  200
+                                                      },
+                                                      {
+                                                          "method":  "GET",
+                                                          "hostname":  "127.0.0.1",
+                                                          "path":  "/api/v1/library/tree",
+                                                          "status":  200
+                                                      },
+                                                      {
+                                                          "method":  "GET",
+                                                          "hostname":  "127.0.0.1",
+                                                          "path":  "/api/v1/jobs",
+                                                          "status":  200
+                                                      },
+                                                      {
+                                                          "method":  "GET",
+                                                          "hostname":  "127.0.0.1",
+                                                          "path":  "/api/v1/readiness",
+                                                          "status":  503
+                                                      },
+                                                      {
+                                                          "method":  "GET",
+                                                          "hostname":  "127.0.0.1",
+                                                          "path":  "/api/v1/readiness",
+                                                          "status":  503
+                                                      },
+                                                      {
+                                                          "method":  "GET",
+                                                          "hostname":  "127.0.0.1",
+                                                          "path":  "/api/v1/library/tree",
+                                                          "status":  200
+                                                      },
+                                                      {
+                                                          "method":  "GET",
+                                                          "hostname":  "127.0.0.1",
+                                                          "path":  "/api/v1/jobs",
+                                                          "status":  200
+                                                      }
+                                                  ],
+                                        "Count":  14
+                                    }
+                    }
+}

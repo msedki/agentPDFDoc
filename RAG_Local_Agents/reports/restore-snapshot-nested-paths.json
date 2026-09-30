@@ -1,0 +1,69 @@
+{
+  "longest_segment_members": [
+    {
+      "archive": "0/segments/221a4526-1e72-4e8e-8176-1af73467fa68.tar",
+      "path": "snapshot/files/payload_index/5pj028g4tf5fqgmm1qqfi4k9-generati-null/has_values/flags_a.dat",
+      "length": 90
+    },
+    {
+      "archive": "0/segments/221a4526-1e72-4e8e-8176-1af73467fa68.tar",
+      "path": "snapshot/files/payload_index/tuqg1b444qk18c3rdoe6e7i8-version_-null/has_values/flags_a.dat",
+      "length": 90
+    },
+    {
+      "archive": "0/segments/221a4526-1e72-4e8e-8176-1af73467fa68.tar",
+      "path": "snapshot/files/payload_index/5e00dgsuqnqpjfir0l5sg6un-page_ind-null/has_values/flags_a.dat",
+      "length": 90
+    },
+    {
+      "archive": "0/segments/221a4526-1e72-4e8e-8176-1af73467fa68.tar",
+      "path": "snapshot/files/payload_index/5a76b4slfoo2d0uc2u69ieei-document-null/has_values/flags_a.dat",
+      "length": 90
+    },
+    {
+      "archive": "0/segments/221a4526-1e72-4e8e-8176-1af73467fa68.tar",
+      "path": "snapshot/files/payload_index/ab1ii8bhqeu2atfnrlgrv84l-block_id-null/has_values/flags_a.dat",
+      "length": 90
+    },
+    {
+      "archive": "0/segments/0dcc651a-1f53-485b-963b-f08ddde74018.tar",
+      "path": "snapshot/files/payload_index/5pj028g4tf5fqgmm1qqfi4k9-generati-null/has_values/flags_a.dat",
+      "length": 90
+    },
+    {
+      "archive": "0/segments/0dcc651a-1f53-485b-963b-f08ddde74018.tar",
+      "path": "snapshot/files/payload_index/5e00dgsuqnqpjfir0l5sg6un-page_ind-null/has_values/flags_a.dat",
+      "length": 90
+    },
+    {
+      "archive": "0/segments/0dcc651a-1f53-485b-963b-f08ddde74018.tar",
+      "path": "snapshot/files/payload_index/5a76b4slfoo2d0uc2u69ieei-document-null/has_values/flags_a.dat",
+      "length": 90
+    }
+  ],
+  "remaining": [
+    {
+      "root": "D:\\enhacements\\agentragpdf\\.runtime\\qstores\\43cc259481e7",
+      "longest_files": [
+        {
+          "path": "\\\\?\\D:\\enhacements\\agentragpdf\\.runtime\\qstores\\43cc259481e7\\snapshots\\pdf_chunks_e5small_v1_53cac40518d0dec0\\95f4727b5dad4af79a5d38e6981ec92c.snapshot",
+          "length": 147,
+          "bytes": 248032768,
+          "attributes": 288
+        },
+        {
+          "path": "\\\\?\\D:\\enhacements\\agentragpdf\\.runtime\\qstores\\43cc259481e7\\storage\\aliases\\data.json",
+          "length": 82,
+          "bytes": 2,
+          "attributes": 32
+        },
+        {
+          "path": "\\\\?\\D:\\enhacements\\agentragpdf\\.runtime\\qstores\\43cc259481e7\\storage\\raft_state.json",
+          "length": 80,
+          "bytes": 355,
+          "attributes": 32
+        }
+      ]
+    }
+  ]
+}

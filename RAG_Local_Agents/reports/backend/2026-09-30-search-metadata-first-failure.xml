@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="7.170" timestamp="2026-09-30T02:54:50.710999+00:00" hostname="P35P47599"><testcase classname="tests.integration.test_api_http" name="test_api_search_returns_actual_document_and_page_metadata_without_citations[documents]" time="1.123"><failure message="KeyError: 'name'">tmp_path = WindowsPath('C:/Users/P47599/AppData/Local/Temp/pytest-of-P47599/pytest-34/test_api_search_returns_actual0')
+scope_kind = 'documents'
+
+    @pytest.mark.parametrize("scope_kind", ["documents", "pages", "selection"])
+    def test_api_search_returns_actual_document_and_page_metadata_without_citations(tmp_path, scope_kind):
+        settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+        app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+        with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+            payload = b"%PDF-1.7\ncontrolled metadata fixture"
+            imported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", payload, "application/pdf")}, data={"relative_paths": '["engineering/manual.pdf"]'}).json()
+            text = "CCU-21 tension 72 V"
+            extraction = {"fingerprint": "metadata-fixture", "sha256": hashlib.sha256(payload).hexdigest(), "page_count": 2, "status": "ready", "pages": [
+                {"page_index": 0, "label": "i", "width": 595, "height": 842, "blocks": [{"id": "cover", "raw_text": "Cover page"}]},
+                {"page_index": 1, "label": "A-2", "width": 595, "height": 842, "blocks": [{"id": "b1", "raw_text": text, "bbox": [10, 20, 200, 40], "precision": "block"}]},
+            ]}
+            client.portal.call(app.state.indexer.index, imported["job_id"], extraction)
+            page = client.get(f"/api/v1/versions/{imported['version_id']}/pages/1/blocks").json()
+            block = page["blocks"][0]
+            scope = {"kind": "documents", "documentIds": [imported["document_id"]]}
+            if scope_kind == "pages":
+                scope = {"kind": "pages", "versionId": imported["version_id"], "pageStart": 1, "pageEnd": 1}
+            elif scope_kind == "selection":
+                scope = {"kind": "selection", "versionId": imported["version_id"], "spans": [{"extractionRevisionId": block["extraction_revision_id"], "blockId": block["id"], "blockTextSha256": block["source_text_hash"], "offsetUnit": "unicode_code_point", "startOffset": 0, "endOffset": len(text)}]}
+            response = client.post("/api/v1/search", json={"question": "Quelle tension CCU-21 ?", "scope": scope})
+            assert response.status_code == 200, response.text
+            result = response.json()
+            for hit in [result["results"][0], result["top10"][0]]:
+&gt;               assert hit["name"] == hit["document_name"] == "manual.pdf"
+                       ^^^^^^^^^^^
+E               KeyError: 'name'
+
+tests\integration\test_api_http.py:86: KeyError</failure></testcase><testcase classname="tests.integration.test_api_http" name="test_api_search_returns_actual_document_and_page_metadata_without_citations[pages]" time="0.810"><failure message="KeyError: 'name'">tmp_path = WindowsPath('C:/Users/P47599/AppData/Local/Temp/pytest-of-P47599/pytest-34/test_api_search_returns_actual1')
+scope_kind = 'pages'
+
+    @pytest.mark.parametrize("scope_kind", ["documents", "pages", "selection"])
+    def test_api_search_returns_actual_document_and_page_metadata_without_citations(tmp_path, scope_kind):
+        settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+        app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+        with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+            payload = b"%PDF-1.7\ncontrolled metadata fixture"
+            imported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", payload, "application/pdf")}, data={"relative_paths": '["engineering/manual.pdf"]'}).json()
+            text = "CCU-21 tension 72 V"
+            extraction = {"fingerprint": "metadata-fixture", "sha256": hashlib.sha256(payload).hexdigest(), "page_count": 2, "status": "ready", "pages": [
+                {"page_index": 0, "label": "i", "width": 595, "height": 842, "blocks": [{"id": "cover", "raw_text": "Cover page"}]},
+                {"page_index": 1, "label": "A-2", "width": 595, "height": 842, "blocks": [{"id": "b1", "raw_text": text, "bbox": [10, 20, 200, 40], "precision": "block"}]},
+            ]}
+            client.portal.call(app.state.indexer.index, imported["job_id"], extraction)
+            page = client.get(f"/api/v1/versions/{imported['version_id']}/pages/1/blocks").json()
+            block = page["blocks"][0]
+            scope = {"kind": "documents", "documentIds": [imported["document_id"]]}
+            if scope_kind == "pages":
+                scope = {"kind": "pages", "versionId": imported["version_id"], "pageStart": 1, "pageEnd": 1}
+            elif scope_kind == "selection":
+                scope = {"kind": "selection", "versionId": imported["version_id"], "spans": [{"extractionRevisionId": block["extraction_revision_id"], "blockId": block["id"], "blockTextSha256": block["source_text_hash"], "offsetUnit": "unicode_code_point", "startOffset": 0, "endOffset": len(text)}]}
+            response = client.post("/api/v1/search", json={"question": "Quelle tension CCU-21 ?", "scope": scope})
+            assert response.status_code == 200, response.text
+            result = response.json()
+            for hit in [result["results"][0], result["top10"][0]]:
+&gt;               assert hit["name"] == hit["document_name"] == "manual.pdf"
+                       ^^^^^^^^^^^
+E               KeyError: 'name'
+
+tests\integration\test_api_http.py:86: KeyError</failure></testcase><testcase classname="tests.integration.test_api_http" name="test_api_search_returns_actual_document_and_page_metadata_without_citations[selection]" time="0.650"><failure message="KeyError: 'name'">tmp_path = WindowsPath('C:/Users/P47599/AppData/Local/Temp/pytest-of-P47599/pytest-34/test_api_search_returns_actual2')
+scope_kind = 'selection'
+
+    @pytest.mark.parametrize("scope_kind", ["documents", "pages", "selection"])
+    def test_api_search_returns_actual_document_and_page_metadata_without_citations(tmp_path, scope_kind):
+        settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+        app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+        with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+            payload = b"%PDF-1.7\ncontrolled metadata fixture"
+            imported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", payload, "application/pdf")}, data={"relative_paths": '["engineering/manual.pdf"]'}).json()
+            text = "CCU-21 tension 72 V"
+            extraction = {"fingerprint": "metadata-fixture", "sha256": hashlib.sha256(payload).hexdigest(), "page_count": 2, "status": "ready", "pages": [
+                {"page_index": 0, "label": "i", "width": 595, "height": 842, "blocks": [{"id": "cover", "raw_text": "Cover page"}]},
+                {"page_index": 1, "label": "A-2", "width": 595, "height": 842, "blocks": [{"id": "b1", "raw_text": text, "bbox": [10, 20, 200, 40], "precision": "block"}]},
+            ]}
+            client.portal.call(app.state.indexer.index, imported["job_id"], extraction)
+            page = client.get(f"/api/v1/versions/{imported['version_id']}/pages/1/blocks").json()
+            block = page["blocks"][0]
+            scope = {"kind": "documents", "documentIds": [imported["document_id"]]}
+            if scope_kind == "pages":
+                scope = {"kind": "pages", "versionId": imported["version_id"], "pageStart": 1, "pageEnd": 1}
+            elif scope_kind == "selection":
+                scope = {"kind": "selection", "versionId": imported["version_id"], "spans": [{"extractionRevisionId": block["extraction_revision_id"], "blockId": block["id"], "blockTextSha256": block["source_text_hash"], "offsetUnit": "unicode_code_point", "startOffset": 0, "endOffset": len(text)}]}
+            response = client.post("/api/v1/search", json={"question": "Quelle tension CCU-21 ?", "scope": scope})
+            assert response.status_code == 200, response.text
+            result = response.json()
+            for hit in [result["results"][0], result["top10"][0]]:
+&gt;               assert hit["name"] == hit["document_name"] == "manual.pdf"
+                       ^^^^^^^^^^^
+E               KeyError: 'name'
+
+tests\integration\test_api_http.py:86: KeyError</failure></testcase></testsuite></testsuites>

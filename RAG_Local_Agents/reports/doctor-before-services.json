@@ -1,0 +1,61 @@
+{
+  "utc": "2026-09-30T01:01:09.975352+00:00",
+  "platform": "Windows native, no WSL/Docker",
+  "python": {
+    "version": "3.12.14",
+    "executable": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe"
+  },
+  "resources": {
+    "available_mib": 6048.69921875,
+    "disk_free_mib": 33501.4921875
+  },
+  "profile_sha256": "30fc2654df6875e35e77d686441089c1dd63cf1b00bccb92237034b054368aff",
+  "data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\data",
+  "checks": {
+    "python312": true,
+    "dependencies_locked": true,
+    "static_export": true,
+    "native_binaries": {
+      "qdrant": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\qdrant-1.19.1\\qdrant.exe",
+      "ollama": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\ollama-0.35.0\\ollama.exe"
+    },
+    "embedding_files": true,
+    "llm_tokenizer": true,
+    "ocr_languages": {
+      "fra": true,
+      "eng": true
+    },
+    "llm_model": {
+      "status": "service_unavailable",
+      "reason": "ConnectError"
+    }
+  },
+  "runtime": {
+    "status": "stopped"
+  },
+  "packages": {
+    "fastapi": "0.142.1",
+    "docling": "2.131.0",
+    "onnxruntime": "1.30.0",
+    "psutil": "7.2.2"
+  },
+  "services": {
+    "api_health": {
+      "status": "unavailable",
+      "reason": "ConnectError"
+    },
+    "api_ready": {
+      "status": "unavailable",
+      "reason": "ConnectError"
+    },
+    "qdrant": {
+      "status": "unavailable",
+      "reason": "ConnectError"
+    },
+    "ollama": {
+      "status": "unavailable",
+      "reason": "ConnectError"
+    }
+  },
+  "qualification": "NOT_RUN: doctor does not prove an end-to-end answer"
+}

@@ -1,0 +1,180 @@
+schema_version: 2
+profile: local16
+app:
+  host: 127.0.0.1
+  port: 8785
+  asgi_workers: 1
+  data_dir: .runtime/data
+  offline: true
+  telemetry: false
+  log_document_text: false
+llm:
+  provider: ollama
+  base_url: http://127.0.0.1:11434
+  model: qwen3.5:4b
+  required_quantization: Q4_K_M
+  num_ctx: 8192
+  num_predict: 768
+  temperature: 0.2
+  top_p: 0.9
+  think: false
+  num_gpu: 0
+  threads_max: 4
+  keep_alive: 10m
+  prompt_cache_mib: 256
+  context_checkpoints_max: 2
+  connect_timeout_seconds: 5
+  idle_read_timeout_seconds: 300
+  max_active_generations: 1
+  max_pending_generations: 2
+  output_tokens_by_mode:
+    factual: 384
+    ordinary: 768
+    analysis: 768
+    compare: 768
+  tokenizer_dir: .runtime/models/qwen3.5-4b-tokenizer
+embedding:
+  model_id: intfloat/multilingual-e5-small
+  local_dir: .runtime/models/e5-small-int8
+  backend: onnxruntime
+  provider: CPUExecutionProvider
+  weights_precision: int8
+  dimensions: 384
+  query_prefix: 'query: '
+  passage_prefix: 'passage: '
+  max_model_tokens: 512
+  normalize_l2: true
+  batch_size: 8
+  intra_op_threads: 2
+  inter_op_threads: 1
+  allow_spinning: false
+  qualification:
+    baseline_required: true
+    candidate_model_id: ibm-granite/granite-embedding-97m-multilingual-r2
+    max_candidates: 1
+    verify_official_artifact_before_use: true
+    if_candidate_unverifiable: retain_baseline_and_report
+    simultaneous_models: false
+  onnx_file: model.onnx
+pdf:
+  parser: docling_router
+  device: cpu
+  worker_processes: 1
+  threads_max: 2
+  table_mode: accurate_when_structured
+  ocr_engine: tesseract_cli
+  ocr_languages:
+  - fra
+  - eng
+  ocr_policy: selective_regions
+  enable_remote_services: false
+  generate_page_images: false
+  picture_description: false
+  max_file_mib: 200
+  max_document_pages: 2000
+  max_page_render_pixels: 8000000
+  max_ocr_region_pixels: 8000000
+  suspect_text_min_alnum_chars: 40
+  suspect_text_max_replacement_ratio: 0.02
+  routes:
+  - native
+  - structured
+  - regional_ocr
+  native_parser_threads: 2
+  model_inference_threads: 2
+  checkpoint_window_pages_initial: 4
+  coverage_unit: region
+  native_route_requires_quality_gate: true
+  ocr_mode_requested: pdf_aware_layout_regions
+  parser_api_contract_check_required: true
+  artifacts_path: .runtime/models/docling
+  tesseract_cmd: .runtime/bin/tesseract-5.4.0/tesseract.exe
+  tessdata_dir: .runtime/models/tessdata
+chunking:
+  tokenizer: embedding
+  target_tokens: 320
+  max_prefixed_tokens: 448
+  overlap_max_tokens: 48
+  respect_section_boundaries: true
+  parent_expand_max_llm_tokens: 900
+retrieval:
+  dense_top_k: 24
+  lexical_top_k: 24
+  rrf_k: 60
+  final_max_fragments: 6
+  hnsw_ef: 64
+  reranker: false
+  max_evidence_llm_tokens: 5120
+  max_history_llm_tokens: 512
+  max_instructions_question_llm_tokens: 1024
+  context_safety_tokens: 256
+  constrained_max_fragments: 8
+  exact_identifier_final_coverage_required: true
+  context_coverage_check_required: true
+  evidence_tokens_by_mode:
+    factual: 1536
+    ordinary: 2560
+    analysis: 5120
+    compare: 5120
+  history_is_evidence: false
+qdrant:
+  url: http://127.0.0.1:6333
+  collection: pdf_chunks_e5small_v1
+  distance: Cosine
+  vector_dimensions: 384
+  upsert_batch_size: 64
+  wait_for_upserts: true
+  vector_storage_initial: mapped
+  hnsw_storage_initial: ram_or_cached
+  collection_api_contract_check_required: true
+  model_identity_in_collection_name_required: true
+sqlite:
+  path: .runtime/data/app.sqlite3
+  journal_mode: WAL
+  foreign_keys: true
+  busy_timeout_ms: 5000
+  cache_size_kib: 32768
+  fts_tokenizer: unicode61 remove_diacritics 2
+resources:
+  application_target_max_mib: 10240
+  host_available_min_mib: 1536
+  admit_heavy_min_available_mib: 3072
+  sampling_interval_seconds: 1
+  unload_llm_before_ingestion: true
+  initial_llm_load_peak_estimate_mib: 4352
+  warm_llm_additional_peak_estimate_mib: 512
+  initial_parser_peak_estimate_mib: 2304
+  scheduling:
+    initial_mode: interactive
+    pause_policy: cooperative_checkpoint
+    kill_on_interactive_request: false
+    auto_resume_ingestion: false
+    watchdog_no_progress_seconds_initial: 300
+    watchdog_window_seconds_initial: 900
+    record_checkpoint_and_reload_costs: true
+ui:
+  pdf_max_high_resolution_canvases: 5
+  pdf_max_device_pixel_ratio: 2
+  default_scope: document_if_open_else_library
+  citation_navigation_preserves_scope: true
+  assets_local_only: true
+  pdf_max_total_raster_pixels: 24000000
+  include_thumbnails_in_raster_budget: true
+  selection_offset_unit: unicode_code_point
+  selection_requires_text_hash: true
+evaluation_targets:
+  retrieval_p95_seconds: 3
+  warm_ttft_p95_seconds: 45
+  warm_answer_400_tokens_p95_seconds: 180
+  recall_at_10_min: 0.9
+  supported_claim_ratio_min: 0.95
+  no_answer_correct_ratio_min: 0.9
+  citation_integrity_ratio: 1.0
+  scope_leakage_count: 0
+  evidence_coverage_at_context_min: 0.9
+  answer_correctness_on_answerable_min: 0.85
+  qualification_questions: 200
+  development_questions: 100
+  heldout_questions: 100
+  heldout_unanswerable_questions: 20
+baseline: RAG-LOCAL-16-v2.1

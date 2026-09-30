@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="4" time="4.367" timestamp="2026-09-30T02:10:24.166672+00:00" hostname="P35P47599"><testcase classname="tests.unit.test_api_jobs" name="test_api_job_resume_rejects_removed_document_before_global_resume[paused]" time="0.839"><failure message="Failed: DID NOT RAISE ApiError">storage = (Settings(root=WindowsPath('C:/Users/P47599/AppData/Local/Temp/pytest-of-P47599/pytest-32/test_api_job_resume_rejects_...st_api_storage.FakeVectors object at 0x0000026E96545D30&gt;, &lt;services.api.indexing.Indexer object at 0x0000026E96545C70&gt;)
+state = 'paused'
+
+    @pytest.mark.parametrize("state", ["paused", "error", "cancelled"])
+    def test_api_job_resume_rejects_removed_document_before_global_resume(storage, state):
+        imported, _ = import_fixture(storage)
+        settings, db, _, indexer = storage
+        db.execute("UPDATE jobs SET state=? WHERE id=?", (state, imported["job_id"]))
+        db.execute("UPDATE documents SET deleted_at=? WHERE id=?", (now(), imported["document_id"]))
+        class Governor:
+            called = False
+            def resume_ingestion(self):
+                self.called = True
+        governor = Governor()
+        supervisor = JobSupervisor(db, indexer, settings, governor)
+&gt;       with pytest.raises(ApiError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ApiError
+
+tests\unit\test_api_jobs.py:84: Failed</failure></testcase><testcase classname="tests.unit.test_api_jobs" name="test_api_job_resume_rejects_removed_document_before_global_resume[error]" time="0.553"><failure message="Failed: DID NOT RAISE ApiError">storage = (Settings(root=WindowsPath('C:/Users/P47599/AppData/Local/Temp/pytest-of-P47599/pytest-32/test_api_job_resume_rejects_...st_api_storage.FakeVectors object at 0x0000026E965C0470&gt;, &lt;services.api.indexing.Indexer object at 0x0000026E965C3650&gt;)
+state = 'error'
+
+    @pytest.mark.parametrize("state", ["paused", "error", "cancelled"])
+    def test_api_job_resume_rejects_removed_document_before_global_resume(storage, state):
+        imported, _ = import_fixture(storage)
+        settings, db, _, indexer = storage
+        db.execute("UPDATE jobs SET state=? WHERE id=?", (state, imported["job_id"]))
+        db.execute("UPDATE documents SET deleted_at=? WHERE id=?", (now(), imported["document_id"]))
+        class Governor:
+            called = False
+            def resume_ingestion(self):
+                self.called = True
+        governor = Governor()
+        supervisor = JobSupervisor(db, indexer, settings, governor)
+&gt;       with pytest.raises(ApiError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ApiError
+
+tests\unit\test_api_jobs.py:84: Failed</failure></testcase><testcase classname="tests.unit.test_api_jobs" name="test_api_job_resume_rejects_removed_document_before_global_resume[cancelled]" time="0.470"><failure message="Failed: DID NOT RAISE ApiError">storage = (Settings(root=WindowsPath('C:/Users/P47599/AppData/Local/Temp/pytest-of-P47599/pytest-32/test_api_job_resume_rejects_...st_api_storage.FakeVectors object at 0x0000026E965C0D10&gt;, &lt;services.api.indexing.Indexer object at 0x0000026E965C0350&gt;)
+state = 'cancelled'
+
+    @pytest.mark.parametrize("state", ["paused", "error", "cancelled"])
+    def test_api_job_resume_rejects_removed_document_before_global_resume(storage, state):
+        imported, _ = import_fixture(storage)
+        settings, db, _, indexer = storage
+        db.execute("UPDATE jobs SET state=? WHERE id=?", (state, imported["job_id"]))
+        db.execute("UPDATE documents SET deleted_at=? WHERE id=?", (now(), imported["document_id"]))
+        class Governor:
+            called = False
+            def resume_ingestion(self):
+                self.called = True
+        governor = Governor()
+        supervisor = JobSupervisor(db, indexer, settings, governor)
+&gt;       with pytest.raises(ApiError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ApiError
+
+tests\unit\test_api_jobs.py:84: Failed</failure></testcase><testcase classname="tests.unit.test_api_jobs" name="test_api_staging_rejects_removed_document_before_writing" time="0.476" /></testsuite></testsuites>

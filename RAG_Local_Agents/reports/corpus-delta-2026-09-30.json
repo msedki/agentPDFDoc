@@ -1,0 +1,370 @@
+{
+  "utc": "2026-09-30T01:14:39.382462+00:00",
+  "scope": "delta corpus inventory only, no OCR or bulk import",
+  "files": [
+    {
+      "path": "PDF\\Z2M Manuel\\CPR 09 rev00.pdf",
+      "size": 3038761,
+      "modified_utc": "2026-08-20T17:17:36.608115+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\CPR-01A.pdf",
+      "size": 9160506,
+      "modified_utc": "2026-08-20T17:17:37.295307+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\CPR-01B.pdf",
+      "size": 3053468,
+      "modified_utc": "2026-08-20T17:17:37.773098+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\CPR-02A.pdf",
+      "size": 5109627,
+      "modified_utc": "2026-08-20T17:17:38.409744+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\CPR-04A-FR.pdf",
+      "size": 10246523,
+      "modified_utc": "2026-08-20T17:17:39.039341+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\CPR-04B_FR.pdf",
+      "size": 5098706,
+      "modified_utc": "2026-08-20T17:17:39.472566+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\CPR-05A 2.pdf",
+      "size": 2578616,
+      "modified_utc": "2026-08-20T17:17:39.753062+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\CPR-05A.pdf",
+      "size": 3186461,
+      "modified_utc": "2026-08-20T17:17:40.086524+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\CPR-06A.pdf",
+      "size": 10466998,
+      "modified_utc": "2026-08-20T17:17:40.687216+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\CPR-07A_FR.pdf",
+      "size": 1043341,
+      "modified_utc": "2026-08-20T17:17:40.911637+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\CPR-09A_09B.pdf",
+      "size": 3038761,
+      "modified_utc": "2026-08-20T17:17:41.573180+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\CPR-10A_FR.pdf",
+      "size": 2503160,
+      "modified_utc": "2026-08-20T17:17:41.852428+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\CPR-11A.pdf",
+      "size": 4540814,
+      "modified_utc": "2026-08-20T17:17:42.278722+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\CPR-11B.pdf",
+      "size": 4014827,
+      "modified_utc": "2026-08-20T17:17:42.640780+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\DES_03.pdf",
+      "size": 1332995,
+      "modified_utc": "2026-08-20T17:17:42.863185+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\essais MIGBT.pdf",
+      "size": 201618,
+      "modified_utc": "2026-08-20T17:17:43.032534+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\Evaluation module4- Communication et gestion_LPEMSA.pdf",
+      "size": 184839,
+      "modified_utc": "2026-08-20T17:17:43.192972+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\manuel de pose du GPTA1.pdf",
+      "size": 4052171,
+      "modified_utc": "2026-08-20T17:17:43.510881+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1-09A_rev02.pdf",
+      "size": 17835537,
+      "modified_utc": "2026-08-20T17:17:44.445889+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1-09A_rev02clim.pdf",
+      "size": 17835537,
+      "modified_utc": "2026-08-20T17:17:45.343361+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1-09B_re3v02.pdf",
+      "size": 12265750,
+      "modified_utc": "2026-08-20T17:17:46.048654+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1-09B_re3v02clim.pdf",
+      "size": 12265750,
+      "modified_utc": "2026-08-20T17:17:46.705280+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_02A fra rev02 bogie porteur et moteur.pdf",
+      "size": 4948356,
+      "modified_utc": "2026-08-20T17:17:47.144800+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_04A - Copie.pdf",
+      "size": 17616846,
+      "modified_utc": "2026-08-20T17:17:48.086778+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_04A EQUIPEMENT ELECTRIQUE.pdf",
+      "size": 17616846,
+      "modified_utc": "2026-08-20T17:17:49.034420+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_04A.pdf",
+      "size": 17616846,
+      "modified_utc": "2026-08-20T17:17:49.957162+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_04B ECLAIRAGE.pdf",
+      "size": 2502595,
+      "modified_utc": "2026-08-20T17:17:50.235809+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_05A CCU.pdf",
+      "size": 8975154,
+      "modified_utc": "2026-08-20T17:17:50.780946+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_05A.pdf",
+      "size": 8975154,
+      "modified_utc": "2026-08-20T17:17:51.345851+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_05B rev01 - Copie.pdf",
+      "size": 4598066,
+      "modified_utc": "2026-08-20T17:17:51.723072+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_05B rev01 Telécomande.pdf",
+      "size": 4598066,
+      "modified_utc": "2026-08-20T17:17:52.209367+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_05B rev01.pdf",
+      "size": 4598066,
+      "modified_utc": "2026-08-20T17:17:52.597585+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_06A - Copie.pdf",
+      "size": 15988831,
+      "modified_utc": "2026-08-20T17:17:53.485913+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_06A COMANDE DE TRACTION.pdf",
+      "size": 16806946,
+      "modified_utc": "2026-08-20T17:17:54.420492+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_06A.pdf",
+      "size": 15988831,
+      "modified_utc": "2026-08-20T17:17:55.304428+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_07A rev01 MOTEUR TRACTIN.pdf",
+      "size": 2922054,
+      "modified_utc": "2026-08-20T17:17:55.607617+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_07A rev01.pdf",
+      "size": 2922054,
+      "modified_utc": "2026-08-20T17:17:55.886527+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_08A rev02 fra.pdf",
+      "size": 6659950,
+      "modified_utc": "2026-08-20T17:17:56.387876+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR1_11A.pdf",
+      "size": 40304640,
+      "modified_utc": "2026-08-20T17:17:58.142089+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_01A.pdf",
+      "size": 6224841,
+      "modified_utc": "2026-08-20T17:17:58.584061+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_02A - Copie.pdf",
+      "size": 20707232,
+      "modified_utc": "2026-08-20T17:17:59.660479+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_02A rev02.pdf",
+      "size": 20707232,
+      "modified_utc": "2026-08-20T17:18:00.717952+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_02A.pdf",
+      "size": 20707232,
+      "modified_utc": "2026-08-20T17:18:01.849308+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_03A.pdf",
+      "size": 10309075,
+      "modified_utc": "2026-08-20T17:18:02.467337+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_03B.pdf",
+      "size": 1796257,
+      "modified_utc": "2026-08-20T17:18:02.737860+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_03C.pdf",
+      "size": 1364301,
+      "modified_utc": "2026-08-20T17:18:02.988817+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_04A.pdf",
+      "size": 25638789,
+      "modified_utc": "2026-08-20T17:18:04.276011+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_04Brev01.pdf",
+      "size": 23577091,
+      "modified_utc": "2026-08-20T17:18:05.604536+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_05B rev02.pdf",
+      "size": 2790226,
+      "modified_utc": "2026-08-20T17:18:05.915541+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_06A rev01.pdf",
+      "size": 19098680,
+      "modified_utc": "2026-08-20T17:18:07.004779+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_06A.pdf",
+      "size": 20751588,
+      "modified_utc": "2026-08-20T17:18:08.102414+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_07A rev01.pdf",
+      "size": 4427856,
+      "modified_utc": "2026-08-20T17:18:08.517973+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_08A rev01.pdf",
+      "size": 5290453,
+      "modified_utc": "2026-08-20T17:18:08.893076+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_09A.pdf",
+      "size": 7918400,
+      "modified_utc": "2026-08-20T17:18:09.436889+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_09B francese.pdf",
+      "size": 8094777,
+      "modified_utc": "2026-08-20T17:18:09.928920+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_10Arev01.pdf",
+      "size": 1154486,
+      "modified_utc": "2026-08-20T17:18:10.231469+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_11A rev02.pdf",
+      "size": 47870470,
+      "modified_utc": "2026-08-20T17:18:12.418996+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_11B rev01.pdf",
+      "size": 2325304,
+      "modified_utc": "2026-08-20T17:18:12.694435+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_13A.pdf",
+      "size": 4060540,
+      "modified_utc": "2026-08-20T17:18:13.328635+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_15A_fra3 (2).pdf",
+      "size": 12756455,
+      "modified_utc": "2026-08-20T17:18:14.062624+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_30A rev01.pdf",
+      "size": 287231,
+      "modified_utc": "2026-08-20T17:18:14.235145+00:00"
+    },
+    {
+      "path": "PDF\\Z2M Manuel\\MR2_5ACCU.pdf",
+      "size": 9795962,
+      "modified_utc": "2026-08-20T17:18:14.799073+00:00"
+    },
+    {
+      "path": "PDF\\Z2m\\Plan de maintenance\\Revisions\\1 livrets des operations\\Livret de revision Distributeur SW4 Partie1.pdf",
+      "size": 13190895,
+      "modified_utc": "2026-07-21T11:51:10+00:00"
+    },
+    {
+      "path": "PDF\\Z2m\\Plan de maintenance\\Revisions\\1 livrets des operations\\Livret de revision Distributeur SW4 Partie2.pdf",
+      "size": 9907595,
+      "modified_utc": "2026-07-21T11:51:12+00:00"
+    },
+    {
+      "path": "PDF\\Z2m\\Plan de maintenance\\Revisions\\1 livrets des operations\\Livret de revision Robinet de mecanicien Z2M A-8-E3.pdf",
+      "size": 19837813,
+      "modified_utc": "2026-07-21T11:51:14+00:00"
+    },
+    {
+      "path": "PDF\\Z2m\\Plan de maintenance\\Revisions\\1 livrets des operations\\Livret de révision cylindre de frein PBECP(2C) Z2M.pdf",
+      "size": 15605538,
+      "modified_utc": "2026-07-21T11:51:10+00:00"
+    },
+    {
+      "path": "PDF\\Z2m\\Plan de maintenance\\Revisions\\1 livrets des operations\\Mode opération de soudure des pins de connecteur Z2M.docx",
+      "size": 2030615,
+      "modified_utc": "2026-07-21T11:51:16+00:00"
+    }
+  ],
+  "count": 67,
+  "bytes": 664921001,
+  "original_hash_checks": [
+    {
+      "name": "Livret de revision Distributeur SW4 Partie1.pdf",
+      "sha256": "c47a0bf41cc407d598bdd210cef72b05d975d9e0f8d7cf9adb47a1dd93ec8190",
+      "matches_initial": true
+    },
+    {
+      "name": "Livret de revision Distributeur SW4 Partie2.pdf",
+      "sha256": "93f8292a7d802867b37298658f6fc0c09f318fc52d67a5f2a43b1cf61fcd9703",
+      "matches_initial": true
+    },
+    {
+      "name": "Livret de revision Robinet de mecanicien Z2M A-8-E3.pdf",
+      "sha256": "9e322f54dcc79a7da89e69e3f7fe6f1a307eba92e21fd0dfc4591d2a2e55fa14",
+      "matches_initial": true
+    },
+    {
+      "name": "Livret de révision cylindre de frein PBECP(2C) Z2M.pdf",
+      "sha256": "48c4f35bec45658cea7efe73f16da5794fe7b2d42ea9235c15ded49dc45b26f1",
+      "matches_initial": true
+    },
+    {
+      "name": "Mode opération de soudure des pins de connecteur Z2M.docx",
+      "sha256": "a4362b38c14774819f80e4fc7084cfcbadc62968afb8ad654df72617abfc9a24",
+      "matches_initial": true
+    }
+  ]
+}

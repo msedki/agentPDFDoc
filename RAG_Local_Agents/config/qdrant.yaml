@@ -1,0 +1,17 @@
+# Overlay serveur : vérifier le schéma du binaire verrouillé ; voir CONFIGURATION.md.
+log_level: INFO
+telemetry_disabled: true
+storage:
+  storage_path: ./.runtime/qdrant/storage
+  snapshots_path: ./.runtime/qdrant/snapshots
+  performance:
+    max_search_threads: 2
+    optimizer_cpu_budget: 1
+  payload:
+    memory: cold
+service:
+  host: 127.0.0.1
+  http_port: 6333
+  grpc_port: null
+  enable_cors: false
+  max_workers: 1

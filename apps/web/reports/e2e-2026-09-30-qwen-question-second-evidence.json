@@ -1,0 +1,355 @@
+{
+  "source": "apps/web/test-results/2026-09-30-qwen-question-second/results.json",
+  "attachments": [
+    {
+      "name": "resources-before-question",
+      "content_type": "application/json",
+      "path": null,
+      "data": {
+        "phase": "before-question",
+        "timestamp_utc": "2026-09-30T04:40:48.170350+00:00",
+        "available_gib": 5.159,
+        "host_cpu_percent": 7.1,
+        "worker": {
+          "id": 33484,
+          "parent_id": 15604,
+          "name": "node.exe",
+          "working_set_mib": 156.8,
+          "private_mib": 155.7,
+          "unique_set_mib": 114.4
+        },
+        "chromium": [
+          {
+            "id": 16484,
+            "parent_id": 33484,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 49.8,
+            "private_mib": 18.5,
+            "unique_set_mib": 12.6
+          },
+          {
+            "id": 18476,
+            "parent_id": 16484,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 57.6,
+            "private_mib": 27.1,
+            "unique_set_mib": 20.9
+          },
+          {
+            "id": 27220,
+            "parent_id": 16484,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 32.9,
+            "private_mib": 14.6,
+            "unique_set_mib": 9
+          },
+          {
+            "id": 9576,
+            "parent_id": 16484,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 106.4,
+            "private_mib": 46.9,
+            "unique_set_mib": 33.7
+          }
+        ],
+        "errors": [],
+        "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+      }
+    },
+    {
+      "name": "cache-diagnostics-before-question",
+      "content_type": "application/json",
+      "path": null,
+      "data": {
+        "phase": "before-question",
+        "profile_sha256": "f0230c27707406b94ad9770eff298570482ffb9c7a325c21771b3e721170f96f",
+        "active_queries": 0,
+        "embedding_session": {
+          "session_loaded": false,
+          "load_count": 0,
+          "last_load": null,
+          "last_release": null,
+          "tokenizer_loaded": false,
+          "tokenizer_load_count": 0,
+          "last_tokenizer_load": null,
+          "last_tokenizer_release": null,
+          "last_token_count": null,
+          "inference": {
+            "run_calls": 0,
+            "run_completed": 0,
+            "run_failed": 0,
+            "inputs_submitted": 0,
+            "inputs_completed": 0,
+            "passage_inputs_completed": 0,
+            "query_inputs_completed": 0,
+            "scope": "current_process",
+            "batch_definition": "One session.run invocation"
+          },
+          "measurement_limit": "Point samples of host available RAM and API RSS; no peak or isolated allocation attribution."
+        },
+        "llm_tokenizer_cache": {
+          "tokenizer_loaded": false,
+          "load_count": 0,
+          "last_load": null,
+          "last_release": null,
+          "last_message_count": null,
+          "measurement_limit": "Point samples of host available RAM and API RSS; no peak or isolated allocation attribution."
+        },
+        "method": "Real read-only lifecycle telemetry; loads/releases/reloads do not count inference calls."
+      }
+    },
+    {
+      "name": "query-created",
+      "content_type": "application/json",
+      "path": null,
+      "data": {
+        "status": 202,
+        "request": {
+          "question": "Quelle est la pression nominale de DA-P01 ? Citez sa source.",
+          "scope": {
+            "kind": "documents",
+            "documentIds": [
+              "e01b0666-ae93-40e5-9403-35decf00ae84"
+            ]
+          },
+          "mode": "question",
+          "conversation_id": null
+        },
+        "response": {
+          "query_id": "3d5d61bf-50bf-48ce-aa1e-fc575dbb5de4",
+          "conversation_id": "96f36585-af94-4c65-8aa2-492e93280f3c",
+          "events_url": "/api/v1/queries/3d5d61bf-50bf-48ce-aa1e-fc575dbb5de4/events"
+        }
+      }
+    },
+    {
+      "name": "resources-question-terminal",
+      "content_type": "application/json",
+      "path": null,
+      "data": {
+        "phase": "question-terminal",
+        "timestamp_utc": "2026-09-30T04:41:00.819994+00:00",
+        "available_gib": 5.068,
+        "host_cpu_percent": 7.5,
+        "worker": {
+          "id": 33484,
+          "parent_id": 15604,
+          "name": "node.exe",
+          "working_set_mib": 172.8,
+          "private_mib": 172.5,
+          "unique_set_mib": 130.4
+        },
+        "chromium": [
+          {
+            "id": 16484,
+            "parent_id": 33484,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 50.1,
+            "private_mib": 18.7,
+            "unique_set_mib": 12.8
+          },
+          {
+            "id": 18476,
+            "parent_id": 16484,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 56.2,
+            "private_mib": 27.2,
+            "unique_set_mib": 21
+          },
+          {
+            "id": 27220,
+            "parent_id": 16484,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 32.9,
+            "private_mib": 14.6,
+            "unique_set_mib": 9
+          },
+          {
+            "id": 9576,
+            "parent_id": 16484,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 113,
+            "private_mib": 50.3,
+            "unique_set_mib": 37.1
+          }
+        ],
+        "errors": [],
+        "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+      }
+    },
+    {
+      "name": "cache-diagnostics-question-terminal",
+      "content_type": "application/json",
+      "path": null,
+      "data": {
+        "phase": "question-terminal",
+        "profile_sha256": "f0230c27707406b94ad9770eff298570482ffb9c7a325c21771b3e721170f96f",
+        "active_queries": 0,
+        "embedding_session": {
+          "session_loaded": false,
+          "load_count": 1,
+          "last_load": {
+            "elapsed_ms": 1828.47,
+            "before": {
+              "available_mib": 5012.03,
+              "process_rss_mib": 341.86
+            },
+            "after": {
+              "available_mib": 4865.86,
+              "process_rss_mib": 476.08
+            },
+            "providers": [
+              "CPUExecutionProvider"
+            ],
+            "reload_after_release": false
+          },
+          "last_release": {
+            "state": "released",
+            "before": {
+              "available_mib": 4801.92,
+              "process_rss_mib": 543.83
+            },
+            "after": {
+              "available_mib": 4913.32,
+              "process_rss_mib": 418.76
+            },
+            "rss_decrease_mib": 125.07,
+            "available_increase_mib": 111.4,
+            "elapsed_ms": 159.04,
+            "next_reload_measurement": "pending"
+          },
+          "tokenizer_loaded": false,
+          "tokenizer_load_count": 1,
+          "last_tokenizer_load": {
+            "elapsed_ms": 2585.4,
+            "before": {
+              "available_mib": 5288.95,
+              "process_rss_mib": 75.82
+            },
+            "after": {
+              "available_mib": 5022.54,
+              "process_rss_mib": 326.09
+            },
+            "reload_after_release": false
+          },
+          "last_tokenizer_release": {
+            "state": "released",
+            "before": {
+              "available_mib": 4914.93,
+              "process_rss_mib": 418.83
+            },
+            "after": {
+              "available_mib": 5169.84,
+              "process_rss_mib": 164.35
+            },
+            "rss_decrease_mib": 254.48,
+            "available_increase_mib": 254.91,
+            "elapsed_ms": 687.19,
+            "next_reload_measurement": "pending",
+            "count_parity": {
+              "state": "pending_same_prefixed_input",
+              "reference": {
+                "prefixed_input_sha256": "5f713f13c7b08babaeef53a7891c90d7225ef595c460b8b1b88c0f2931eab6f5",
+                "tokens": 22
+              }
+            }
+          },
+          "last_token_count": {
+            "prefixed_input_sha256": "5f713f13c7b08babaeef53a7891c90d7225ef595c460b8b1b88c0f2931eab6f5",
+            "tokens": 22
+          },
+          "inference": {
+            "run_calls": 1,
+            "run_completed": 1,
+            "run_failed": 0,
+            "inputs_submitted": 1,
+            "inputs_completed": 1,
+            "passage_inputs_completed": 0,
+            "query_inputs_completed": 1,
+            "scope": "current_process",
+            "batch_definition": "One session.run invocation"
+          },
+          "measurement_limit": "Point samples of host available RAM and API RSS; no peak or isolated allocation attribution."
+        },
+        "llm_tokenizer_cache": {
+          "tokenizer_loaded": false,
+          "load_count": 1,
+          "last_load": {
+            "elapsed_ms": 2512.53,
+            "before": {
+              "available_mib": 4843.86,
+              "process_rss_mib": 478.55
+            },
+            "after": {
+              "available_mib": 4804.41,
+              "process_rss_mib": 543.31
+            },
+            "reload_after_release": false
+          },
+          "last_release": {
+            "state": "released",
+            "before": {
+              "available_mib": 5168.03,
+              "process_rss_mib": 164.51
+            },
+            "after": {
+              "available_mib": 5225.16,
+              "process_rss_mib": 108.74
+            },
+            "rss_decrease_mib": 55.77,
+            "available_increase_mib": 57.13,
+            "elapsed_ms": 247.78,
+            "next_reload_measurement": "pending",
+            "message_count_parity": {
+              "state": "pending_same_serialized_input",
+              "reference": {
+                "serialized_sha256": "774e14ff09149311b9eaec4475c548c18c440e4c2244530fdf655720f069796b",
+                "tokens": 892
+              }
+            }
+          },
+          "last_message_count": {
+            "serialized_sha256": "774e14ff09149311b9eaec4475c548c18c440e4c2244530fdf655720f069796b",
+            "tokens": 892
+          },
+          "measurement_limit": "Point samples of host available RAM and API RSS; no peak or isolated allocation attribution."
+        },
+        "method": "Real read-only lifecycle telemetry; loads/releases/reloads do not count inference calls."
+      }
+    },
+    {
+      "name": "actual-sse-replay",
+      "content_type": "text/event-stream; charset=utf-8",
+      "path": null,
+      "data": null
+    },
+    {
+      "name": "ui-observed-latency",
+      "content_type": "application/json",
+      "path": null,
+      "data": {
+        "timings": {
+          "started_at_ms": 1790743249221,
+          "first_answer_text_at_ms": null
+        },
+        "completed_at_ms": 1790743261270,
+        "method": "DOM observation of first displayed answer text; server TTFT remains separate in actual SSE metrics."
+      }
+    },
+    {
+      "name": "screenshot",
+      "content_type": "image/png",
+      "path": "D:\\enhacements\\agentragpdf\\apps\\web\\test-results\\2026-09-30-qwen-question-second\\workspace-real-local-model-c9f33-tations-and-preserves-scope\\test-failed-1.png"
+    },
+    {
+      "name": "error-context",
+      "content_type": "text/markdown",
+      "path": "D:\\enhacements\\agentragpdf\\apps\\web\\test-results\\2026-09-30-qwen-question-second\\workspace-real-local-model-c9f33-tations-and-preserves-scope\\error-context.md"
+    },
+    {
+      "name": "trace",
+      "content_type": "application/zip",
+      "path": "D:\\enhacements\\agentragpdf\\apps\\web\\test-results\\2026-09-30-qwen-question-second\\workspace-real-local-model-c9f33-tations-and-preserves-scope\\trace.zip"
+    }
+  ]
+}

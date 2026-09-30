@@ -1,0 +1,179 @@
+{
+    "ObservedAtUTC":  "2026-09-30T00:02:31.3219330Z",
+    "Method":  "Lecture CIM et registre Windows ; photographie instantanee, sans benchmark",
+    "OS":  {
+               "Caption":  "Microsoft Windows 11 Entreprise",
+               "Version":  "10.0.22631",
+               "BuildNumber":  "22631",
+               "OSArchitecture":  "64 bits"
+           },
+    "Computer":  {
+                     "Manufacturer":  "Dell Inc.",
+                     "Model":  "Latitude 5330",
+                     "TotalPhysicalMemory":  16849256448,
+                     "HypervisorPresent":  true
+                 },
+    "CPU":  {
+                "Name":  "12th Gen Intel(R) Core(TM) i5-1235U",
+                "NumberOfCores":  10,
+                "NumberOfLogicalProcessors":  12,
+                "MaxClockSpeed":  1300,
+                "CurrentClockSpeed":  975,
+                "VirtualizationFirmwareEnabled":  false,
+                "VMMonitorModeExtensions":  false,
+                "SecondLevelAddressTranslationExtensions":  false
+            },
+    "RAMModules":  [
+                       {
+                           "Capacity":  8589934592,
+                           "Speed":  3200,
+                           "ConfiguredClockSpeed":  3200,
+                           "DeviceLocator":  "Motherboard"
+                       },
+                       {
+                           "Capacity":  8589934592,
+                           "Speed":  3200,
+                           "ConfiguredClockSpeed":  3200,
+                           "DeviceLocator":  "Motherboard"
+                       }
+                   ],
+    "VisibleMemoryGiB":  15.692,
+    "AvailableMemoryGiB":  3.784,
+    "GPU":  [
+                {
+                    "Name":  "Intel(R) Iris(R) Xe Graphics",
+                    "AdapterRAM":  1073741824,
+                    "DriverVersion":  "31.0.101.4953"
+                }
+            ],
+    "Volumes":  [
+                    {
+                        "Drive":  "C:",
+                        "FileSystem":  "NTFS",
+                        "TotalBytes":  209176227840,
+                        "FreeBytes":  36653035520,
+                        "TotalGiB":  194.81,
+                        "FreeGiB":  34.14
+                    },
+                    {
+                        "Drive":  "D:",
+                        "FileSystem":  "NTFS",
+                        "TotalBytes":  301989883904,
+                        "FreeBytes":  42144690176,
+                        "TotalGiB":  281.25,
+                        "FreeGiB":  39.25
+                    }
+                ],
+    "PhysicalDisks":  [
+                          {
+                              "FriendlyName":  "2550 Micron 512GB",
+                              "MediaType":  "SSD",
+                              "BusType":  "NVMe",
+                              "Size":  512110190592,
+                              "HealthStatus":  "Healthy"
+                          }
+                      ],
+    "Pagefiles":  [
+                      {
+                          "Name":  "C:\\pagefile.sys",
+                          "AllocatedBaseSize":  16068,
+                          "CurrentUsage":  893,
+                          "PeakUsage":  3284
+                      }
+                  ],
+    "OptionalFeatures":  [
+                             {
+                                 "Name":  "VirtualMachinePlatform",
+                                 "InstallState":  2
+                             },
+                             {
+                                 "Name":  "Microsoft-Windows-Subsystem-Linux",
+                                 "InstallState":  2
+                             },
+                             {
+                                 "Name":  "Microsoft-Hyper-V-All",
+                                 "InstallState":  2
+                             }
+                         ],
+    "WslDistros":  [
+
+                   ],
+    "WslAppxPackages":  [
+
+                        ],
+    "WslConfigExists":  false,
+    "ListeningPorts":  [
+                           {
+                               "LocalAddress":  "127.0.0.1",
+                               "LocalPort":  8765,
+                               "OwningProcess":  10020
+                           },
+                           {
+                               "LocalAddress":  "127.0.0.1",
+                               "LocalPort":  3000,
+                               "OwningProcess":  9424
+                           }
+                       ],
+    "RelevantProcesses":  [
+                              {
+                                  "ProcessName":  "node",
+                                  "Id":  9424,
+                                  "WorkingSetMiB":  306.1
+                              },
+                              {
+                                  "ProcessName":  "node",
+                                  "Id":  11956,
+                                  "WorkingSetMiB":  86.8
+                              },
+                              {
+                                  "ProcessName":  "node",
+                                  "Id":  15656,
+                                  "WorkingSetMiB":  28.9
+                              },
+                              {
+                                  "ProcessName":  "node",
+                                  "Id":  18664,
+                                  "WorkingSetMiB":  38.4
+                              },
+                              {
+                                  "ProcessName":  "node",
+                                  "Id":  21912,
+                                  "WorkingSetMiB":  61.1
+                              },
+                              {
+                                  "ProcessName":  "node",
+                                  "Id":  22708,
+                                  "WorkingSetMiB":  42.2
+                              },
+                              {
+                                  "ProcessName":  "node",
+                                  "Id":  25060,
+                                  "WorkingSetMiB":  29.3
+                              },
+                              {
+                                  "ProcessName":  "node",
+                                  "Id":  31076,
+                                  "WorkingSetMiB":  44.1
+                              },
+                              {
+                                  "ProcessName":  "python",
+                                  "Id":  10020,
+                                  "WorkingSetMiB":  45.9
+                              },
+                              {
+                                  "ProcessName":  "python",
+                                  "Id":  19540,
+                                  "WorkingSetMiB":  43.1
+                              },
+                              {
+                                  "ProcessName":  "python",
+                                  "Id":  25620,
+                                  "WorkingSetMiB":  14.2
+                              },
+                              {
+                                  "ProcessName":  "python",
+                                  "Id":  28980,
+                                  "WorkingSetMiB":  3.7
+                              }
+                          ]
+}

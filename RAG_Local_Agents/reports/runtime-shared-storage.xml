@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="1.271" timestamp="2026-09-30T03:52:10.796275+00:00" hostname="P35P47599"><testcase classname="tests.integration.test_runtime_windows_start" name="test_port_collision_fails_without_touching_existing_listener" time="0.417"><failure message="ValueError: Chemin Qdrant trop long pour le binaire Windows verrouillé : définir qdrant.storage_dir vers un dossier court distinct">tmp_path = WindowsPath('D:/enhacements/agentragpdf/.runtime/qa/runtime-shared-storage-20260930T0353/test_port_collision_fails_with0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001A0A007FA70&gt;
+
+    def test_port_collision_fails_without_touching_existing_listener(tmp_path, monkeypatch):
+        monkeypatch.delenv("RAG_DATA_DIR", raising=False)
+        profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+        data = tmp_path / "Données arrêtées"
+        profile["app"]["data_dir"] = str(data)
+        profile["qdrant"]["storage_dir"] = str(ROOT / ".runtime/qtest" / uuid.uuid4().hex[:8])
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+            listener.bind(("127.0.0.1", 0))
+            listener.listen()
+            profile["app"]["port"] = listener.getsockname()[1]
+            path = tmp_path / "profil test.yaml"
+            path.write_text(yaml.safe_dump(profile), encoding="utf-8")
+            before = time.monotonic()
+            with pytest.raises(RuntimeError, match="Port .* occupé"):
+&gt;               start(path)
+
+tests\integration\test_runtime_windows_start.py:30: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+services\runtime\supervisor.py:309: in start
+    qdrant_data_path(profile, directory)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+profile = {'app': {'asgi_workers': 1, 'data_dir': 'D:\\enhacements\\agentragpdf\\.runtime\\qa\\runtime-shared-storage-20260930T0..., ...}, 'embedding': {'allow_spinning': False, 'backend': 'onnxruntime', 'batch_size': 8, 'dimensions': 384, ...}, ...}
+directory = WindowsPath('D:/enhacements/agentragpdf/.runtime/qa/runtime-shared-storage-20260930T0353/test_port_collision_fails_with0/Données arrêtées')
+
+    def qdrant_data_path(profile: dict, directory: Path) -&gt; Path:
+        configured = profile.get("qdrant", {}).get("storage_dir")
+        path = (ROOT / configured).resolve() if configured else directory / "qdrant"
+        # Snapshot recovery adds 202 characters for the locked collection schema,
+        # more than the final payload index (175). Bound native paths, not Windows.
+        if os.name == "nt" and len(str(path / "storage")) &gt; 57:
+&gt;           raise ValueError("Chemin Qdrant trop long pour le binaire Windows verrouillé : définir qdrant.storage_dir vers un dossier court distinct")
+E           ValueError: Chemin Qdrant trop long pour le binaire Windows verrouillé : définir qdrant.storage_dir vers un dossier court distinct
+
+services\runtime\supervisor.py:148: ValueError</failure></testcase><testcase classname="tests.integration.test_runtime_windows_start" name="test_distinct_data_roots_cannot_share_locked_qdrant" time="0.142"><failure message="ValueError: Chemin Qdrant trop long pour le binaire Windows verrouillé : définir qdrant.storage_dir vers un dossier court distinct">tmp_path = WindowsPath('D:/enhacements/agentragpdf/.runtime/qa/runtime-shared-storage-20260930T0353/test_distinct_data_roots_canno0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001A0A00EEDE0&gt;
+
+    def test_distinct_data_roots_cannot_share_locked_qdrant(tmp_path, monkeypatch):
+        monkeypatch.delenv("RAG_DATA_DIR", raising=False)
+        profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+        data = tmp_path / "Autre racine sans service"
+        qdrant = ROOT / ".runtime/qtest" / uuid.uuid4().hex[:8]
+        profile["app"]["data_dir"] = str(data)
+        profile["qdrant"]["storage_dir"] = str(qdrant)
+        listeners = []
+        try:
+            for service, key in (("app", "port"), ("qdrant", "url"), ("llm", "base_url")):
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+                    probe.bind(("127.0.0.1", 0))
+                    port = probe.getsockname()[1]
+                profile[service][key] = port if service == "app" else f"http://127.0.0.1:{port}"
+            path = tmp_path / "profil stockage partagé.yaml"
+            path.write_text(yaml.safe_dump(profile), encoding="utf-8")
+            with acquire_qdrant_lock(qdrant):
+                with pytest.raises(RuntimeError, match="possède déjà ce stockage Qdrant"):
+&gt;                   start(path)
+
+tests\integration\test_runtime_windows_start.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+services\runtime\supervisor.py:309: in start
+    qdrant_data_path(profile, directory)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+profile = {'app': {'asgi_workers': 1, 'data_dir': 'D:\\enhacements\\agentragpdf\\.runtime\\qa\\runtime-shared-storage-20260930T0..., ...}, 'embedding': {'allow_spinning': False, 'backend': 'onnxruntime', 'batch_size': 8, 'dimensions': 384, ...}, ...}
+directory = WindowsPath('D:/enhacements/agentragpdf/.runtime/qa/runtime-shared-storage-20260930T0353/test_distinct_data_roots_canno0/Autre racine sans service')
+
+    def qdrant_data_path(profile: dict, directory: Path) -&gt; Path:
+        configured = profile.get("qdrant", {}).get("storage_dir")
+        path = (ROOT / configured).resolve() if configured else directory / "qdrant"
+        # Snapshot recovery adds 202 characters for the locked collection schema,
+        # more than the final payload index (175). Bound native paths, not Windows.
+        if os.name == "nt" and len(str(path / "storage")) &gt; 57:
+&gt;           raise ValueError("Chemin Qdrant trop long pour le binaire Windows verrouillé : définir qdrant.storage_dir vers un dossier court distinct")
+E           ValueError: Chemin Qdrant trop long pour le binaire Windows verrouillé : définir qdrant.storage_dir vers un dossier court distinct
+
+services\runtime\supervisor.py:148: ValueError</failure></testcase></testsuite></testsuites>

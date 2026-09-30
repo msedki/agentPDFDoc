@@ -1,0 +1,77 @@
+{
+  "date_utc": "2026-09-30T02:40:55.049475+00:00",
+  "phase": "read_only_segment_placement",
+  "server": {
+    "title": "qdrant - vector search engine",
+    "version": "1.19.1",
+    "commit": "6ab21cac18ebb6f4ae29102c7f8f5cc11affd5de"
+  },
+  "segments": [
+    {
+      "path": ".runtime/data/qdrant/storage/collections/pdf_chunks_e5small_v1_53cac40518d0dec0/0/segments/0dcc651a-1f53-485b-963b-f08ddde74018/segment.json",
+      "metadata": {
+        "initial_version": null,
+        "version": 11,
+        "config": {
+          "vector_data": {
+            "dense": {
+              "size": 384,
+              "distance": "Cosine",
+              "storage_type": "ChunkedMmap",
+              "index": {
+                "type": "plain",
+                "options": {}
+              },
+              "quantization_config": null
+            }
+          },
+          "payload_storage_type": {
+            "type": "mmap"
+          }
+        }
+      }
+    },
+    {
+      "path": ".runtime/data/qdrant/storage/collections/pdf_chunks_e5small_v1_53cac40518d0dec0/0/segments/221a4526-1e72-4e8e-8176-1af73467fa68/segment.json",
+      "metadata": {
+        "initial_version": null,
+        "version": 10,
+        "config": {
+          "vector_data": {
+            "dense": {
+              "size": 384,
+              "distance": "Cosine",
+              "storage_type": "ChunkedMmap",
+              "index": {
+                "type": "plain",
+                "options": {}
+              },
+              "quantization_config": null
+            }
+          },
+          "payload_storage_type": {
+            "type": "mmap"
+          }
+        }
+      }
+    }
+  ],
+  "mmap_files": [
+    {
+      "path": ".runtime/data/qdrant/storage/collections/pdf_chunks_e5small_v1_53cac40518d0dec0/0/segments/0dcc651a-1f53-485b-963b-f08ddde74018/vector_storage-dense/vectors/chunk_0.mmap",
+      "bytes": 33553920
+    }
+  ],
+  "source": {
+    "url": "https://qdrant.tech/documentation/ops-configuration/memory-tiers/",
+    "consulted_utc": "2026-09-30",
+    "version_scope": "memory tiers introduced1.19; legacy flags remain supported but deprecated",
+    "dense_on_disk_true": "cold memory-mapped storage",
+    "hnsw_on_disk_false": "cached memory-mapped storage, OS evictable; not heap pinned"
+  },
+  "limits": [
+    "Existing segment metadata says ChunkedMmap and dense384Cosine; physical mmap file presence verified without opening binary buffers.",
+    "Segments currently plain and indexed_vectors_count0; no HNSW graph residency has yet been exercised.",
+    "No storage mutation, optimizer forcing, embedding or LLM call."
+  ]
+}

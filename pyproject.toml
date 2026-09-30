@@ -1,0 +1,62 @@
+[project]
+name = "agentragpdf"
+version = "0.1.0"
+description = "Poste documentaire PDF local sur Windows natif"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi==0.142.1",
+  "uvicorn==0.54.0",
+  "pydantic==2.13.5",
+  "httpx==0.28.1",
+  "python-multipart==0.0.32",
+  "PyYAML==6.0.3",
+  "psutil==7.2.2",
+  "pywin32==312",
+  "numpy>=2.0,<3",
+  "onnxruntime==1.30.0",
+  "tokenizers==0.23.2",
+  "docling==2.131.0",
+  "pypdfium2==5.13.0",
+  "Pillow>=12.0,<13",
+  "huggingface-hub>=0.36,<3",
+  "transformers>=4.56,<6",
+  "onnx==1.23.1",
+]
+
+[dependency-groups]
+dev = ["pytest==9.1.1", "pytest-asyncio>=1.0,<2", "ruff==0.16.9", "mypy==2.3.1", "reportlab==5.0.1"]
+
+[tool.uv]
+package = false
+environments = ["sys_platform == 'win32' and platform_machine == 'AMD64'"]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+  "integration: services natifs réels et racines isolées",
+  "acceptance: recette réelle, modèles provisionnés et mesures sur le poste cible",
+  "slow: travail lourd nécessitant un créneau de ressources",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+check_untyped_defs = true
+ignore_missing_imports = true

@@ -1,0 +1,60 @@
+{
+  "query_id": "2f36429b-2ac6-4c5f-83c3-d72271f1adf9",
+  "method": "Read-only GET replay of already terminal query; raw UTF-8 bytes preserved; no POST or generation",
+  "headers": {
+    "status": 200,
+    "content_type": "text/event-stream; charset=utf-8"
+  },
+  "bytes": 40751,
+  "sha256": "ded24177d854dcefa693a34fa7aa30489793c7b4887c40c9801a3109a8fa1c84",
+  "terminal_events": [
+    {
+      "code": "resource_admission_denied",
+      "message": "Admission generation refusée : 5095 Mio disponibles, 5888 Mio requis (pic prévu 4352 + réserve 1536).",
+      "metrics": {
+        "model_called": false,
+        "queue_wait_ms": 59.72,
+        "retrieval_ms": 545.13,
+        "local_prompt_tokens": 892,
+        "output_tokens": 384,
+        "evidence_tokens": 715,
+        "evidence_budget": 1536,
+        "exact_identifiers_required": [
+          "DA-P01",
+          "P01"
+        ],
+        "exact_identifiers_covered": [
+          "DA-P01",
+          "P01"
+        ],
+        "identifier_coverage_states": {
+          "P01": "covered",
+          "DA-P01": "covered"
+        },
+        "retrieved_chunk_ids": [
+          "0b2e78e6-4073-5ff6-982b-6ff0f244b8f1",
+          "43f9176e-ff42-509c-8c1a-5da67ec445b7",
+          "6de81372-f4b5-5429-9466-52dfcb1f760f",
+          "f367b483-7fe5-511e-8684-b20ed8c2b1c0",
+          "9319db49-7f5b-5e18-afe0-c7dbda98e1ec",
+          "eb54e0ca-ca0c-5fa2-a02e-6813e088b83d",
+          "f8bf0a69-a6cf-55f7-b999-0cbf9adaf794",
+          "90abbef8-443e-52c9-9ff8-c49705ad885d"
+        ],
+        "context_chunk_ids": [
+          "0b2e78e6-4073-5ff6-982b-6ff0f244b8f1",
+          "43f9176e-ff42-509c-8c1a-5da67ec445b7",
+          "6de81372-f4b5-5429-9466-52dfcb1f760f",
+          "f367b483-7fe5-511e-8684-b20ed8c2b1c0",
+          "9319db49-7f5b-5e18-afe0-c7dbda98e1ec",
+          "eb54e0ca-ca0c-5fa2-a02e-6813e088b83d",
+          "f8bf0a69-a6cf-55f7-b999-0cbf9adaf794",
+          "90abbef8-443e-52c9-9ff8-c49705ad885d"
+        ],
+        "evidence_coverage_at_context": 1.0,
+        "context_ms": 39.52,
+        "elapsed_ms": 4166.58
+      }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "date_utc": "2026-09-30",
+  "python": "3.12.14",
+  "interpreter": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+  "command": ".venv/Scripts/python.exe -m pytest tests/unit/test_api_gateways.py::test_api_embedding_release_preserves_tokenizer_and_measures_next_reload tests/integration/test_api_http.py::test_api_releases_e5_only_for_cold_insufficient_memory -q --junitxml=RAG_Local_Agents/reports/backend/2026-09-30-e5-conditional-release.xml",
+  "result": {
+    "exit_code": 0,
+    "passed": 5,
+    "warnings": 1,
+    "duration_seconds": 5.01
+  },
+  "condition": "Resident false confirmed by Ollama api/ps AND host available below profile cold peak estimate plus preserved host reserve, after context and under generation lease. No LLM unload/reload automatic alternation.",
+  "measurements": "Actual release and next ORT load point samples implemented in diagnostics; runtime observation pending authorized real chain.",
+  "source_sha256": {
+    "services/api/embedding.py": "f1c7c273544949b16258e6dc53d2058cca2669e182ab192b6abbc5345dbbd990",
+    "services/api/main.py": "e5528ecd41af5db4d55428238edf8e0c4ce1a8fcb91d38792e5f54bb8fcf98dd",
+    "services/api/ollama.py": "496047ce056ea0e0d12e0d9e10fb73a91afedab4be135df0ef28059ecbc7d873"
+  },
+  "limits": [
+    "ORT constructor and memory samples explicitly substituted in this lifecycle test; this does not measure real memory released or real reload latency.",
+    "Integrated prior snapshot passed59/59; final conditional lifecycle change separately passed5/5.",
+    "Starlette TestClient httpx deprecation warning retained."
+  ]
+}

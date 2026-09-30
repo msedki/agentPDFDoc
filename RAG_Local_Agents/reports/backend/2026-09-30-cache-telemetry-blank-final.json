@@ -1,0 +1,34 @@
+{
+  "recorded_utc": "2026-09-30T03:52:33.307531+00:00",
+  "status": "PASS_TARGETED_TESTS_ONLY",
+  "interpreter": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+  "python": "3.12.14",
+  "command": ".venv/Scripts/python.exe -m pytest tests/unit/test_api_telemetry.py tests/integration/test_api_http.py::test_api_blank_pdf_exposes_warning_and_preserves_original_http tests/unit/test_api_jobs.py tests/unit/test_api_storage.py::test_api_embedding_cache_separates_full_model_identity -q --junitxml=RAG_Local_Agents\\reports\\backend\\2026-09-30-cache-telemetry-blank-final.xml",
+  "tests": 14,
+  "failures": 0,
+  "errors": 0,
+  "elapsed_seconds": "13.392",
+  "warning": "Starlette TestClient httpx deprecation (1); kept as emitted",
+  "isolation": "pytest tmp_path SQLite/originals; FakeEmbedding/FakeVectors/FakeTokenizer and controlled session/subprocess substitutes; no native worker/ORT/LLM started",
+  "semantics": {
+    "inference": "Count at actual session.run invocation, completed/failed separately; tests explicitly substitute session",
+    "cache": "Only identity/hash/dimension/finite/L2 validated vectors used count as hits",
+    "extraction": "Verified revision reuse, native subprocess successful creation, injected runners counted separately",
+    "blank": "Ready zero-text pages publish zero chunks and a typed warning, original unchanged"
+  },
+  "limits": [
+    "Real D03 cache/reimport/reindex browser cycle remains pending",
+    "Counters reset when API process restarts; compare within one runtime instance",
+    "Successful subprocess launch is not proof of OCR/extraction completion",
+    "No admission threshold or active model changes"
+  ],
+  "source_sha256": {
+    "services/api/embedding.py": "e80c519a2d989bffc358973ac0782c39b1310aeb6e3be43dc647cf2b0ada2664",
+    "services/api/indexing.py": "b59a2d0317b85d1c0c4ab7a17007c30c4a5492ff4d460dcbfb4b9c487f379794",
+    "services/api/jobs.py": "e439e2479346c4c34f07bc59b41d0bbfa0c59e48a385de3f45310800719fb323",
+    "services/api/main.py": "bca3dbed3b2162819b95495961815563b25ffb07ae35109c7f99937b2422433c",
+    "tests/unit/test_api_telemetry.py": "fa12f32bc2ea1ac939ea8785a2fc76aa56346ab7bef36176474a8f0277c2a286",
+    "tests/unit/test_api_jobs.py": "d7dad4d463d846b30d80a51a60015e2f45506f96203c6901fc08103665ef7d3b",
+    "tests/integration/test_api_http.py": "e9ba028164b61807bc58d023b688497e71332e7577054288daef38c0fb9e99e9"
+  }
+}

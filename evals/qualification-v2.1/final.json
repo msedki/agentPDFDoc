@@ -1,0 +1,5644 @@
+{
+  "schema_version": 1,
+  "dataset_version": "qualification-v2.1-synthetic-1",
+  "status": "GENERATED_SOURCE_TEMPLATES_NOT_RUNTIME_QUALIFIED",
+  "purpose": "Engineering qualification on project-authored synthetic documents; not industrial quality.",
+  "license": "CC0-1.0",
+  "split_policy": "Disjoint documentary families: pneumatic workshops for development; thermal circuits for final. Final questions must not be used for tuning.",
+  "final_expected_denominators": {
+    "answerable_questions": 80,
+    "unanswerable_questions": 20
+  },
+  "category_quotas_per_split": {
+    "factual_fr_en": 35,
+    "technical_identifiers": 15,
+    "tables_units": 12,
+    "comparison": 10,
+    "conversation_followup": 8,
+    "unanswerable_in_scope": 20
+  },
+  "questions": [
+    {
+      "id": "FINAL-001",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C01, report its temperature setpoint and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La température de consigne de FT-C01 est de 65 °C.",
+      "important_values": [
+        {
+          "key": "temperature",
+          "value": "65",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C01 est de 65 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-002",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 1, quelle tolérance thermique appliquer au circuit FT-C01 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C01 est de ± 0.5 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "0.5",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C01 est de ± 0.5 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-003",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C01, report its circulation flow rate and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le débit de circulation de FT-C01 est de 21 L/min.",
+      "important_values": [
+        {
+          "key": "flow",
+          "value": "21",
+          "unit": "L/min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le débit de circulation de FT-C01 est de 21 L/min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-004",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 1, quelle résistance du capteur appliquer au circuit FT-C01 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La résistance du capteur de FT-C01 est de 44 ohm.",
+      "important_values": [
+        {
+          "key": "resistance",
+          "value": "44",
+          "unit": "ohm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La résistance du capteur de FT-C01 est de 44 ohm."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-005",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C01, report its stabilization hold duration and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le palier de stabilisation de FT-C01 dure 20 min.",
+      "important_values": [
+        {
+          "key": "hold",
+          "value": "20",
+          "unit": "min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le palier de stabilisation de FT-C01 dure 20 min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-006",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 2, quelle température de consigne appliquer au circuit FT-C02 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C02"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La température de consigne de FT-C02 est de 68 °C.",
+      "important_values": [
+        {
+          "key": "temperature",
+          "value": "68",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C02 est de 68 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-007",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C02, report its allowed tolerance and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C02"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C02 est de ± 0.6 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "0.6",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C02 est de ± 0.6 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-008",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 2, quelle débit de circulation appliquer au circuit FT-C02 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C02"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le débit de circulation de FT-C02 est de 24 L/min.",
+      "important_values": [
+        {
+          "key": "flow",
+          "value": "24",
+          "unit": "L/min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le débit de circulation de FT-C02 est de 24 L/min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-009",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C02, report its sensor resistance and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C02"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La résistance du capteur de FT-C02 est de 48 ohm.",
+      "important_values": [
+        {
+          "key": "resistance",
+          "value": "48",
+          "unit": "ohm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La résistance du capteur de FT-C02 est de 48 ohm."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-010",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 2, quelle durée du palier appliquer au circuit FT-C02 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C02"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le palier de stabilisation de FT-C02 dure 25 min.",
+      "important_values": [
+        {
+          "key": "hold",
+          "value": "25",
+          "unit": "min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le palier de stabilisation de FT-C02 dure 25 min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-011",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C03, report its temperature setpoint and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C03"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La température de consigne de FT-C03 est de 71 °C.",
+      "important_values": [
+        {
+          "key": "temperature",
+          "value": "71",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C03 est de 71 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-012",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 3, quelle tolérance thermique appliquer au circuit FT-C03 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C03"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C03 est de ± 0.7 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "0.7",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C03 est de ± 0.7 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-013",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C03, report its circulation flow rate and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C03"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le débit de circulation de FT-C03 est de 27 L/min.",
+      "important_values": [
+        {
+          "key": "flow",
+          "value": "27",
+          "unit": "L/min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le débit de circulation de FT-C03 est de 27 L/min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-014",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 3, quelle résistance du capteur appliquer au circuit FT-C03 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C03"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La résistance du capteur de FT-C03 est de 52 ohm.",
+      "important_values": [
+        {
+          "key": "resistance",
+          "value": "52",
+          "unit": "ohm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La résistance du capteur de FT-C03 est de 52 ohm."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-015",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C03, report its stabilization hold duration and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C03"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le palier de stabilisation de FT-C03 dure 30 min.",
+      "important_values": [
+        {
+          "key": "hold",
+          "value": "30",
+          "unit": "min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le palier de stabilisation de FT-C03 dure 30 min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-016",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 4, quelle température de consigne appliquer au circuit FT-C04 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C04"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La température de consigne de FT-C04 est de 74 °C.",
+      "important_values": [
+        {
+          "key": "temperature",
+          "value": "74",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C04 est de 74 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-017",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C04, report its allowed tolerance and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C04"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C04 est de ± 0.8 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "0.8",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C04 est de ± 0.8 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-018",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 4, quelle débit de circulation appliquer au circuit FT-C04 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C04"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le débit de circulation de FT-C04 est de 30 L/min.",
+      "important_values": [
+        {
+          "key": "flow",
+          "value": "30",
+          "unit": "L/min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le débit de circulation de FT-C04 est de 30 L/min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-019",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C04, report its sensor resistance and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C04"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La résistance du capteur de FT-C04 est de 56 ohm.",
+      "important_values": [
+        {
+          "key": "resistance",
+          "value": "56",
+          "unit": "ohm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La résistance du capteur de FT-C04 est de 56 ohm."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-020",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 4, quelle durée du palier appliquer au circuit FT-C04 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C04"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le palier de stabilisation de FT-C04 dure 35 min.",
+      "important_values": [
+        {
+          "key": "hold",
+          "value": "35",
+          "unit": "min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le palier de stabilisation de FT-C04 dure 35 min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-021",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C05, report its temperature setpoint and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C05"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La température de consigne de FT-C05 est de 77 °C.",
+      "important_values": [
+        {
+          "key": "temperature",
+          "value": "77",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C05 est de 77 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-022",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 5, quelle tolérance thermique appliquer au circuit FT-C05 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C05"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C05 est de ± 0.9 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "0.9",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C05 est de ± 0.9 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-023",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C05, report its circulation flow rate and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C05"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le débit de circulation de FT-C05 est de 33 L/min.",
+      "important_values": [
+        {
+          "key": "flow",
+          "value": "33",
+          "unit": "L/min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le débit de circulation de FT-C05 est de 33 L/min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-024",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 5, quelle résistance du capteur appliquer au circuit FT-C05 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C05"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La résistance du capteur de FT-C05 est de 60 ohm.",
+      "important_values": [
+        {
+          "key": "resistance",
+          "value": "60",
+          "unit": "ohm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La résistance du capteur de FT-C05 est de 60 ohm."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-025",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C05, report its stabilization hold duration and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C05"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le palier de stabilisation de FT-C05 dure 40 min.",
+      "important_values": [
+        {
+          "key": "hold",
+          "value": "40",
+          "unit": "min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le palier de stabilisation de FT-C05 dure 40 min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-026",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 6, quelle température de consigne appliquer au circuit FT-C06 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C06"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La température de consigne de FT-C06 est de 80 °C.",
+      "important_values": [
+        {
+          "key": "temperature",
+          "value": "80",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C06 est de 80 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-027",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C06, report its allowed tolerance and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C06"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C06 est de ± 1.0 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "1.0",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C06 est de ± 1.0 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-028",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 6, quelle débit de circulation appliquer au circuit FT-C06 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C06"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le débit de circulation de FT-C06 est de 36 L/min.",
+      "important_values": [
+        {
+          "key": "flow",
+          "value": "36",
+          "unit": "L/min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le débit de circulation de FT-C06 est de 36 L/min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-029",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C06, report its sensor resistance and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C06"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La résistance du capteur de FT-C06 est de 64 ohm.",
+      "important_values": [
+        {
+          "key": "resistance",
+          "value": "64",
+          "unit": "ohm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La résistance du capteur de FT-C06 est de 64 ohm."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-030",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 6, quelle durée du palier appliquer au circuit FT-C06 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C06"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le palier de stabilisation de FT-C06 dure 45 min.",
+      "important_values": [
+        {
+          "key": "hold",
+          "value": "45",
+          "unit": "min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le palier de stabilisation de FT-C06 dure 45 min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-031",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C07, report its temperature setpoint and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C07"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La température de consigne de FT-C07 est de 83 °C.",
+      "important_values": [
+        {
+          "key": "temperature",
+          "value": "83",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C07 est de 83 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-032",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 7, quelle tolérance thermique appliquer au circuit FT-C07 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C07"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C07 est de ± 1.1 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "1.1",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C07 est de ± 1.1 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-033",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C07, report its circulation flow rate and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C07"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le débit de circulation de FT-C07 est de 39 L/min.",
+      "important_values": [
+        {
+          "key": "flow",
+          "value": "39",
+          "unit": "L/min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le débit de circulation de FT-C07 est de 39 L/min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-034",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "fr",
+      "question": "À la station Boréal 7, quelle résistance du capteur appliquer au circuit FT-C07 ?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C07"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La résistance du capteur de FT-C07 est de 68 ohm.",
+      "important_values": [
+        {
+          "key": "resistance",
+          "value": "68",
+          "unit": "ohm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La résistance du capteur de FT-C07 est de 68 ohm."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-035",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "factual_fr_en",
+      "language": "en",
+      "question": "For the Boréal thermal circuit FT-C07, report its stabilization hold duration and measurement unit.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C07"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le palier de stabilisation de FT-C07 dure 50 min.",
+      "important_values": [
+        {
+          "key": "hold",
+          "value": "50",
+          "unit": "min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le palier de stabilisation de FT-C07 dure 50 min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "document_sources": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-036",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "technical_identifiers",
+      "language": "fr",
+      "question": "Le code de circuit demandé est FT-C01 ; vérifiez ce code puis restituez température de consigne, sans reprendre une valeur d'un code voisin.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La température de consigne de FT-C01 est de 65 °C.",
+      "important_values": [
+        {
+          "key": "temperature",
+          "value": "65",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C01 est de 65 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "required_identifiers": [
+        "FT-C01"
+      ],
+      "forbidden_identifiers": [
+        "FT-C010"
+      ],
+      "tags": [
+        "near_identifier",
+        "identifier_in_final_context"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-037",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "technical_identifiers",
+      "language": "fr",
+      "question": "Le code de circuit demandé est FT-C02 ; vérifiez ce code puis restituez température de consigne, sans reprendre une valeur d'un code voisin.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C02"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La température de consigne de FT-C02 est de 68 °C.",
+      "important_values": [
+        {
+          "key": "temperature",
+          "value": "68",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C02 est de 68 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "required_identifiers": [
+        "FT-C02"
+      ],
+      "forbidden_identifiers": [
+        "FT-C020"
+      ],
+      "tags": [
+        "near_identifier",
+        "identifier_in_final_context"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-038",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "technical_identifiers",
+      "language": "fr",
+      "question": "Le code de circuit demandé est FT-C03 ; vérifiez ce code puis restituez température de consigne, sans reprendre une valeur d'un code voisin.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C03"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La température de consigne de FT-C03 est de 71 °C.",
+      "important_values": [
+        {
+          "key": "temperature",
+          "value": "71",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C03 est de 71 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "required_identifiers": [
+        "FT-C03"
+      ],
+      "forbidden_identifiers": [
+        "FT-C030"
+      ],
+      "tags": [
+        "near_identifier",
+        "identifier_in_final_context"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-039",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "technical_identifiers",
+      "language": "fr",
+      "question": "Le code de circuit demandé est FT-C04 ; vérifiez ce code puis restituez température de consigne, sans reprendre une valeur d'un code voisin.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C04"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La température de consigne de FT-C04 est de 74 °C.",
+      "important_values": [
+        {
+          "key": "temperature",
+          "value": "74",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C04 est de 74 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "required_identifiers": [
+        "FT-C04"
+      ],
+      "forbidden_identifiers": [
+        "FT-C040"
+      ],
+      "tags": [
+        "near_identifier",
+        "identifier_in_final_context"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-040",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "technical_identifiers",
+      "language": "fr",
+      "question": "Le code de circuit demandé est FT-C05 ; vérifiez ce code puis restituez température de consigne, sans reprendre une valeur d'un code voisin.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C05"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La température de consigne de FT-C05 est de 77 °C.",
+      "important_values": [
+        {
+          "key": "temperature",
+          "value": "77",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C05 est de 77 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "required_identifiers": [
+        "FT-C05"
+      ],
+      "forbidden_identifiers": [
+        "FT-C050"
+      ],
+      "tags": [
+        "near_identifier",
+        "identifier_in_final_context"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-041",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "technical_identifiers",
+      "language": "fr",
+      "question": "Le code de circuit demandé est FT-C06 ; vérifiez ce code puis restituez température de consigne, sans reprendre une valeur d'un code voisin.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C06"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La température de consigne de FT-C06 est de 80 °C.",
+      "important_values": [
+        {
+          "key": "temperature",
+          "value": "80",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C06 est de 80 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "required_identifiers": [
+        "FT-C06"
+      ],
+      "forbidden_identifiers": [
+        "FT-C060"
+      ],
+      "tags": [
+        "near_identifier",
+        "identifier_in_final_context"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-042",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "technical_identifiers",
+      "language": "fr",
+      "question": "Le code de circuit demandé est FT-C07 ; vérifiez ce code puis restituez température de consigne, sans reprendre une valeur d'un code voisin.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C07"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La température de consigne de FT-C07 est de 83 °C.",
+      "important_values": [
+        {
+          "key": "temperature",
+          "value": "83",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C07 est de 83 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "required_identifiers": [
+        "FT-C07"
+      ],
+      "forbidden_identifiers": [
+        "FT-C070"
+      ],
+      "tags": [
+        "near_identifier",
+        "identifier_in_final_context"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-043",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "technical_identifiers",
+      "language": "fr",
+      "question": "Le code de circuit demandé est FT-C01 ; vérifiez ce code puis restituez tolérance thermique, sans reprendre une valeur d'un code voisin.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C01 est de ± 0.5 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "0.5",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C01 est de ± 0.5 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "required_identifiers": [
+        "FT-C01"
+      ],
+      "forbidden_identifiers": [
+        "FT-C010"
+      ],
+      "tags": [
+        "near_identifier",
+        "identifier_in_final_context"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-044",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "technical_identifiers",
+      "language": "fr",
+      "question": "Le code de circuit demandé est FT-C02 ; vérifiez ce code puis restituez tolérance thermique, sans reprendre une valeur d'un code voisin.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C02"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C02 est de ± 0.6 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "0.6",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C02 est de ± 0.6 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "required_identifiers": [
+        "FT-C02"
+      ],
+      "forbidden_identifiers": [
+        "FT-C020"
+      ],
+      "tags": [
+        "near_identifier",
+        "identifier_in_final_context"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-045",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "technical_identifiers",
+      "language": "fr",
+      "question": "Le code de circuit demandé est FT-C03 ; vérifiez ce code puis restituez tolérance thermique, sans reprendre une valeur d'un code voisin.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C03"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C03 est de ± 0.7 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "0.7",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C03 est de ± 0.7 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "required_identifiers": [
+        "FT-C03"
+      ],
+      "forbidden_identifiers": [
+        "FT-C030"
+      ],
+      "tags": [
+        "near_identifier",
+        "identifier_in_final_context"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-046",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "technical_identifiers",
+      "language": "fr",
+      "question": "Le code de circuit demandé est FT-C04 ; vérifiez ce code puis restituez tolérance thermique, sans reprendre une valeur d'un code voisin.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C04"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C04 est de ± 0.8 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "0.8",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C04 est de ± 0.8 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "required_identifiers": [
+        "FT-C04"
+      ],
+      "forbidden_identifiers": [
+        "FT-C040"
+      ],
+      "tags": [
+        "near_identifier",
+        "identifier_in_final_context"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-047",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "technical_identifiers",
+      "language": "fr",
+      "question": "Le code de circuit demandé est FT-C05 ; vérifiez ce code puis restituez tolérance thermique, sans reprendre une valeur d'un code voisin.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C05"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C05 est de ± 0.9 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "0.9",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C05 est de ± 0.9 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "required_identifiers": [
+        "FT-C05"
+      ],
+      "forbidden_identifiers": [
+        "FT-C050"
+      ],
+      "tags": [
+        "near_identifier",
+        "identifier_in_final_context"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-048",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "technical_identifiers",
+      "language": "fr",
+      "question": "Le code de circuit demandé est FT-C06 ; vérifiez ce code puis restituez tolérance thermique, sans reprendre une valeur d'un code voisin.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C06"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C06 est de ± 1.0 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "1.0",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C06 est de ± 1.0 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "required_identifiers": [
+        "FT-C06"
+      ],
+      "forbidden_identifiers": [
+        "FT-C060"
+      ],
+      "tags": [
+        "near_identifier",
+        "identifier_in_final_context"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-049",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "technical_identifiers",
+      "language": "fr",
+      "question": "Le code de circuit demandé est FT-C07 ; vérifiez ce code puis restituez tolérance thermique, sans reprendre une valeur d'un code voisin.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C07"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C07 est de ± 1.1 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "1.1",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C07 est de ± 1.1 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "required_identifiers": [
+        "FT-C07"
+      ],
+      "forbidden_identifiers": [
+        "FT-C070"
+      ],
+      "tags": [
+        "near_identifier",
+        "identifier_in_final_context"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-050",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "technical_identifiers",
+      "language": "fr",
+      "question": "Le code de circuit demandé est FT-C01 ; vérifiez ce code puis restituez débit de circulation, sans reprendre une valeur d'un code voisin.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le débit de circulation de FT-C01 est de 21 L/min.",
+      "important_values": [
+        {
+          "key": "flow",
+          "value": "21",
+          "unit": "L/min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le débit de circulation de FT-C01 est de 21 L/min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "required_identifiers": [
+        "FT-C01"
+      ],
+      "forbidden_identifiers": [
+        "FT-C010"
+      ],
+      "tags": [
+        "near_identifier",
+        "identifier_in_final_context"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-051",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "tables_units",
+      "language": "fr",
+      "question": "Relevez la mesure de la ligne FT-C01-HOT du tableau du circuit FT-C01, en conservant l'unité de cette ligne.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C01-HOT : 10 mm",
+      "important_values": [
+        {
+          "key": "FT-C01-HOT",
+          "value": "10",
+          "unit": "mm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 1,
+          "required_texts": [
+            "FT-C01-HOT",
+            "10",
+            "mm"
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED",
+          "required_row": {
+            "identifier": "FT-C01-HOT",
+            "value": "10",
+            "unit": "mm",
+            "headers": [
+              "Référence",
+              "Valeur",
+              "Unité"
+            ]
+          }
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "tags": [
+        "table_header",
+        "unit_required"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-052",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "tables_units",
+      "language": "fr",
+      "question": "Relevez la mesure de la ligne FT-C02-COLD du tableau du circuit FT-C02, en conservant l'unité de cette ligne.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C02"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C02-COLD : 16 mm",
+      "important_values": [
+        {
+          "key": "FT-C02-COLD",
+          "value": "16",
+          "unit": "mm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 1,
+          "required_texts": [
+            "FT-C02-COLD",
+            "16",
+            "mm"
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED",
+          "required_row": {
+            "identifier": "FT-C02-COLD",
+            "value": "16",
+            "unit": "mm",
+            "headers": [
+              "Référence",
+              "Valeur",
+              "Unité"
+            ]
+          }
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "tags": [
+        "table_header",
+        "unit_required"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-053",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "tables_units",
+      "language": "fr",
+      "question": "Relevez la mesure de la ligne FT-C03-LOSS du tableau du circuit FT-C03, en conservant l'unité de cette ligne.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C03"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C03-LOSS : 1.5 kPa",
+      "important_values": [
+        {
+          "key": "FT-C03-LOSS",
+          "value": "1.5",
+          "unit": "kPa"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 1,
+          "required_texts": [
+            "FT-C03-LOSS",
+            "1.5",
+            "kPa"
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED",
+          "required_row": {
+            "identifier": "FT-C03-LOSS",
+            "value": "1.5",
+            "unit": "kPa",
+            "headers": [
+              "Référence",
+              "Valeur",
+              "Unité"
+            ]
+          }
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "tags": [
+        "table_header",
+        "unit_required"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-054",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "tables_units",
+      "language": "fr",
+      "question": "Relevez la mesure de la ligne FT-C04-HOT du tableau du circuit FT-C04, en conservant l'unité de cette ligne.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C04"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C04-HOT : 13 mm",
+      "important_values": [
+        {
+          "key": "FT-C04-HOT",
+          "value": "13",
+          "unit": "mm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 1,
+          "required_texts": [
+            "FT-C04-HOT",
+            "13",
+            "mm"
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED",
+          "required_row": {
+            "identifier": "FT-C04-HOT",
+            "value": "13",
+            "unit": "mm",
+            "headers": [
+              "Référence",
+              "Valeur",
+              "Unité"
+            ]
+          }
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "tags": [
+        "table_header",
+        "unit_required"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-055",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "tables_units",
+      "language": "fr",
+      "question": "Relevez la mesure de la ligne FT-C05-COLD du tableau du circuit FT-C05, en conservant l'unité de cette ligne.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C05"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C05-COLD : 19 mm",
+      "important_values": [
+        {
+          "key": "FT-C05-COLD",
+          "value": "19",
+          "unit": "mm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 1,
+          "required_texts": [
+            "FT-C05-COLD",
+            "19",
+            "mm"
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED",
+          "required_row": {
+            "identifier": "FT-C05-COLD",
+            "value": "19",
+            "unit": "mm",
+            "headers": [
+              "Référence",
+              "Valeur",
+              "Unité"
+            ]
+          }
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "tags": [
+        "table_header",
+        "unit_required"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-056",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "tables_units",
+      "language": "fr",
+      "question": "Relevez la mesure de la ligne FT-C06-LOSS du tableau du circuit FT-C06, en conservant l'unité de cette ligne.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C06"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C06-LOSS : 1.8 kPa",
+      "important_values": [
+        {
+          "key": "FT-C06-LOSS",
+          "value": "1.8",
+          "unit": "kPa"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 1,
+          "required_texts": [
+            "FT-C06-LOSS",
+            "1.8",
+            "kPa"
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED",
+          "required_row": {
+            "identifier": "FT-C06-LOSS",
+            "value": "1.8",
+            "unit": "kPa",
+            "headers": [
+              "Référence",
+              "Valeur",
+              "Unité"
+            ]
+          }
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "tags": [
+        "table_header",
+        "unit_required"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-057",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "tables_units",
+      "language": "fr",
+      "question": "Relevez la mesure de la ligne FT-C07-HOT du tableau du circuit FT-C07, en conservant l'unité de cette ligne.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C07"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C07-HOT : 16 mm",
+      "important_values": [
+        {
+          "key": "FT-C07-HOT",
+          "value": "16",
+          "unit": "mm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 1,
+          "required_texts": [
+            "FT-C07-HOT",
+            "16",
+            "mm"
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED",
+          "required_row": {
+            "identifier": "FT-C07-HOT",
+            "value": "16",
+            "unit": "mm",
+            "headers": [
+              "Référence",
+              "Valeur",
+              "Unité"
+            ]
+          }
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "tags": [
+        "table_header",
+        "unit_required"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-058",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "tables_units",
+      "language": "fr",
+      "question": "Relevez la mesure de la ligne FT-C01-COLD du tableau du circuit FT-C01, en conservant l'unité de cette ligne.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C01-COLD : 15 mm",
+      "important_values": [
+        {
+          "key": "FT-C01-COLD",
+          "value": "15",
+          "unit": "mm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 1,
+          "required_texts": [
+            "FT-C01-COLD",
+            "15",
+            "mm"
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED",
+          "required_row": {
+            "identifier": "FT-C01-COLD",
+            "value": "15",
+            "unit": "mm",
+            "headers": [
+              "Référence",
+              "Valeur",
+              "Unité"
+            ]
+          }
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "tags": [
+        "table_header",
+        "unit_required"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-059",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "tables_units",
+      "language": "fr",
+      "question": "Relevez la mesure de la ligne FT-C02-LOSS du tableau du circuit FT-C02, en conservant l'unité de cette ligne.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C02"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C02-LOSS : 1.4 kPa",
+      "important_values": [
+        {
+          "key": "FT-C02-LOSS",
+          "value": "1.4",
+          "unit": "kPa"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 1,
+          "required_texts": [
+            "FT-C02-LOSS",
+            "1.4",
+            "kPa"
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED",
+          "required_row": {
+            "identifier": "FT-C02-LOSS",
+            "value": "1.4",
+            "unit": "kPa",
+            "headers": [
+              "Référence",
+              "Valeur",
+              "Unité"
+            ]
+          }
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "tags": [
+        "table_header",
+        "unit_required"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-060",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "tables_units",
+      "language": "fr",
+      "question": "Relevez la mesure de la ligne FT-C03-HOT du tableau du circuit FT-C03, en conservant l'unité de cette ligne.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C03"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C03-HOT : 12 mm",
+      "important_values": [
+        {
+          "key": "FT-C03-HOT",
+          "value": "12",
+          "unit": "mm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 1,
+          "required_texts": [
+            "FT-C03-HOT",
+            "12",
+            "mm"
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED",
+          "required_row": {
+            "identifier": "FT-C03-HOT",
+            "value": "12",
+            "unit": "mm",
+            "headers": [
+              "Référence",
+              "Valeur",
+              "Unité"
+            ]
+          }
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "tags": [
+        "table_header",
+        "unit_required"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-061",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "tables_units",
+      "language": "fr",
+      "question": "Relevez la mesure de la ligne FT-C04-COLD du tableau du circuit FT-C04, en conservant l'unité de cette ligne.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C04"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C04-COLD : 18 mm",
+      "important_values": [
+        {
+          "key": "FT-C04-COLD",
+          "value": "18",
+          "unit": "mm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 1,
+          "required_texts": [
+            "FT-C04-COLD",
+            "18",
+            "mm"
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED",
+          "required_row": {
+            "identifier": "FT-C04-COLD",
+            "value": "18",
+            "unit": "mm",
+            "headers": [
+              "Référence",
+              "Valeur",
+              "Unité"
+            ]
+          }
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "tags": [
+        "table_header",
+        "unit_required"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-062",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "tables_units",
+      "language": "fr",
+      "question": "Relevez la mesure de la ligne FT-C05-LOSS du tableau du circuit FT-C05, en conservant l'unité de cette ligne.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C05"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C05-LOSS : 1.7 kPa",
+      "important_values": [
+        {
+          "key": "FT-C05-LOSS",
+          "value": "1.7",
+          "unit": "kPa"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 1,
+          "required_texts": [
+            "FT-C05-LOSS",
+            "1.7",
+            "kPa"
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED",
+          "required_row": {
+            "identifier": "FT-C05-LOSS",
+            "value": "1.7",
+            "unit": "kPa",
+            "headers": [
+              "Référence",
+              "Valeur",
+              "Unité"
+            ]
+          }
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "tags": [
+        "table_header",
+        "unit_required"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-063",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "comparison",
+      "language": "fr",
+      "question": "Quels réglages de température de consigne distinguent les circuits thermiques FT-C01 et FT-C02 ? Appuyez chaque valeur sur son document.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01",
+          "final-FT-C02"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C01: 65 °C; FT-C02: 68 °C.",
+      "important_values": [
+        {
+          "key": "FT-C01",
+          "value": "65",
+          "unit": "°C"
+        },
+        {
+          "key": "FT-C02",
+          "value": "68",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C01 est de 65 °C."
+          ],
+          "role": "first_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        },
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C02 est de 68 °C."
+          ],
+          "role": "second_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "mode": "comparison",
+      "tags": [
+        "balanced_documents",
+        "multi_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        },
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-064",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "comparison",
+      "language": "fr",
+      "question": "Quels réglages de tolérance thermique distinguent les circuits thermiques FT-C02 et FT-C04 ? Appuyez chaque valeur sur son document.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C02",
+          "final-FT-C04"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C02: 0.6 °C; FT-C04: 0.8 °C.",
+      "important_values": [
+        {
+          "key": "FT-C02",
+          "value": "0.6",
+          "unit": "°C"
+        },
+        {
+          "key": "FT-C04",
+          "value": "0.8",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C02 est de ± 0.6 °C."
+          ],
+          "role": "first_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        },
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C04 est de ± 0.8 °C."
+          ],
+          "role": "second_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "mode": "comparison",
+      "tags": [
+        "balanced_documents",
+        "multi_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        },
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-065",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "comparison",
+      "language": "fr",
+      "question": "Quels réglages de débit de circulation distinguent les circuits thermiques FT-C03 et FT-C07 ? Appuyez chaque valeur sur son document.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C03",
+          "final-FT-C07"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C03: 27 L/min; FT-C07: 39 L/min.",
+      "important_values": [
+        {
+          "key": "FT-C03",
+          "value": "27",
+          "unit": "L/min"
+        },
+        {
+          "key": "FT-C07",
+          "value": "39",
+          "unit": "L/min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le débit de circulation de FT-C03 est de 27 L/min."
+          ],
+          "role": "first_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        },
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le débit de circulation de FT-C07 est de 39 L/min."
+          ],
+          "role": "second_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "mode": "comparison",
+      "tags": [
+        "balanced_documents",
+        "multi_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        },
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-066",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "comparison",
+      "language": "fr",
+      "question": "Quels réglages de résistance du capteur distinguent les circuits thermiques FT-C04 et FT-C05 ? Appuyez chaque valeur sur son document.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C04",
+          "final-FT-C05"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C04: 56 ohm; FT-C05: 60 ohm.",
+      "important_values": [
+        {
+          "key": "FT-C04",
+          "value": "56",
+          "unit": "ohm"
+        },
+        {
+          "key": "FT-C05",
+          "value": "60",
+          "unit": "ohm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La résistance du capteur de FT-C04 est de 56 ohm."
+          ],
+          "role": "first_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        },
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La résistance du capteur de FT-C05 est de 60 ohm."
+          ],
+          "role": "second_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "mode": "comparison",
+      "tags": [
+        "balanced_documents",
+        "multi_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        },
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-067",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "comparison",
+      "language": "fr",
+      "question": "Quels réglages de durée du palier distinguent les circuits thermiques FT-C05 et FT-C07 ? Appuyez chaque valeur sur son document.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C05",
+          "final-FT-C07"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C05: 40 min; FT-C07: 50 min.",
+      "important_values": [
+        {
+          "key": "FT-C05",
+          "value": "40",
+          "unit": "min"
+        },
+        {
+          "key": "FT-C07",
+          "value": "50",
+          "unit": "min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le palier de stabilisation de FT-C05 dure 40 min."
+          ],
+          "role": "first_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        },
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le palier de stabilisation de FT-C07 dure 50 min."
+          ],
+          "role": "second_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "mode": "comparison",
+      "tags": [
+        "balanced_documents",
+        "multi_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        },
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-068",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "comparison",
+      "language": "fr",
+      "question": "Quels réglages de température de consigne distinguent les circuits thermiques FT-C01 et FT-C06 ? Appuyez chaque valeur sur son document.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01",
+          "final-FT-C06"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C01: 65 °C; FT-C06: 80 °C.",
+      "important_values": [
+        {
+          "key": "FT-C01",
+          "value": "65",
+          "unit": "°C"
+        },
+        {
+          "key": "FT-C06",
+          "value": "80",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C01 est de 65 °C."
+          ],
+          "role": "first_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        },
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La température de consigne de FT-C06 est de 80 °C."
+          ],
+          "role": "second_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "mode": "comparison",
+      "tags": [
+        "balanced_documents",
+        "multi_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        },
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-069",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "comparison",
+      "language": "fr",
+      "question": "Quels réglages de tolérance thermique distinguent les circuits thermiques FT-C03 et FT-C05 ? Appuyez chaque valeur sur son document.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C03",
+          "final-FT-C05"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C03: 0.7 °C; FT-C05: 0.9 °C.",
+      "important_values": [
+        {
+          "key": "FT-C03",
+          "value": "0.7",
+          "unit": "°C"
+        },
+        {
+          "key": "FT-C05",
+          "value": "0.9",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C03 est de ± 0.7 °C."
+          ],
+          "role": "first_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        },
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C05 est de ± 0.9 °C."
+          ],
+          "role": "second_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "mode": "comparison",
+      "tags": [
+        "balanced_documents",
+        "multi_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        },
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-070",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "comparison",
+      "language": "fr",
+      "question": "Quels réglages de débit de circulation distinguent les circuits thermiques FT-C02 et FT-C06 ? Appuyez chaque valeur sur son document.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C02",
+          "final-FT-C06"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C02: 24 L/min; FT-C06: 36 L/min.",
+      "important_values": [
+        {
+          "key": "FT-C02",
+          "value": "24",
+          "unit": "L/min"
+        },
+        {
+          "key": "FT-C06",
+          "value": "36",
+          "unit": "L/min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le débit de circulation de FT-C02 est de 24 L/min."
+          ],
+          "role": "first_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        },
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le débit de circulation de FT-C06 est de 36 L/min."
+          ],
+          "role": "second_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "mode": "comparison",
+      "tags": [
+        "balanced_documents",
+        "multi_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        },
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-071",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "comparison",
+      "language": "fr",
+      "question": "Quels réglages de résistance du capteur distinguent les circuits thermiques FT-C01 et FT-C07 ? Appuyez chaque valeur sur son document.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01",
+          "final-FT-C07"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C01: 44 ohm; FT-C07: 68 ohm.",
+      "important_values": [
+        {
+          "key": "FT-C01",
+          "value": "44",
+          "unit": "ohm"
+        },
+        {
+          "key": "FT-C07",
+          "value": "68",
+          "unit": "ohm"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La résistance du capteur de FT-C01 est de 44 ohm."
+          ],
+          "role": "first_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        },
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La résistance du capteur de FT-C07 est de 68 ohm."
+          ],
+          "role": "second_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "mode": "comparison",
+      "tags": [
+        "balanced_documents",
+        "multi_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        },
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-072",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "comparison",
+      "language": "fr",
+      "question": "Quels réglages de durée du palier distinguent les circuits thermiques FT-C04 et FT-C06 ? Appuyez chaque valeur sur son document.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C04",
+          "final-FT-C06"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "FT-C04: 35 min; FT-C06: 45 min.",
+      "important_values": [
+        {
+          "key": "FT-C04",
+          "value": "35",
+          "unit": "min"
+        },
+        {
+          "key": "FT-C06",
+          "value": "45",
+          "unit": "min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le palier de stabilisation de FT-C04 dure 35 min."
+          ],
+          "role": "first_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        },
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le palier de stabilisation de FT-C06 dure 45 min."
+          ],
+          "role": "second_document",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "mode": "comparison",
+      "tags": [
+        "balanced_documents",
+        "multi_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        },
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-073",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "conversation_followup",
+      "language": "en",
+      "question": "What tolerance applies to that thermal circuit?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C01 est de ± 0.5 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "0.5",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C01 est de ± 0.5 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "followup_of_question_id": "FINAL-001",
+      "prior_user_question": "For the Boréal thermal circuit FT-C01, report its temperature setpoint and measurement unit.",
+      "referent": {
+        "kind": "identifier",
+        "identifier": "FT-C01"
+      },
+      "tags": [
+        "user_referent",
+        "no_model_answer_as_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-074",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "conversation_followup",
+      "language": "en",
+      "question": "What tolerance applies to that thermal circuit?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C02"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C02 est de ± 0.6 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "0.6",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C02 est de ± 0.6 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "followup_of_question_id": "FINAL-006",
+      "prior_user_question": "À la station Boréal 2, quelle température de consigne appliquer au circuit FT-C02 ?",
+      "referent": {
+        "kind": "identifier",
+        "identifier": "FT-C02"
+      },
+      "tags": [
+        "user_referent",
+        "no_model_answer_as_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-075",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "conversation_followup",
+      "language": "en",
+      "question": "What tolerance applies to that thermal circuit?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C03"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C03 est de ± 0.7 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "0.7",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C03 est de ± 0.7 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "followup_of_question_id": "FINAL-011",
+      "prior_user_question": "For the Boréal thermal circuit FT-C03, report its temperature setpoint and measurement unit.",
+      "referent": {
+        "kind": "identifier",
+        "identifier": "FT-C03"
+      },
+      "tags": [
+        "user_referent",
+        "no_model_answer_as_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-076",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "conversation_followup",
+      "language": "en",
+      "question": "What tolerance applies to that thermal circuit?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C04"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C04 est de ± 0.8 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "0.8",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C04 est de ± 0.8 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "followup_of_question_id": "FINAL-016",
+      "prior_user_question": "À la station Boréal 4, quelle température de consigne appliquer au circuit FT-C04 ?",
+      "referent": {
+        "kind": "identifier",
+        "identifier": "FT-C04"
+      },
+      "tags": [
+        "user_referent",
+        "no_model_answer_as_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-077",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "conversation_followup",
+      "language": "en",
+      "question": "What tolerance applies to that thermal circuit?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C05"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C05 est de ± 0.9 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "0.9",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C05 est de ± 0.9 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "followup_of_question_id": "FINAL-021",
+      "prior_user_question": "For the Boréal thermal circuit FT-C05, report its temperature setpoint and measurement unit.",
+      "referent": {
+        "kind": "identifier",
+        "identifier": "FT-C05"
+      },
+      "tags": [
+        "user_referent",
+        "no_model_answer_as_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-078",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "conversation_followup",
+      "language": "en",
+      "question": "What tolerance applies to that thermal circuit?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C06"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C06 est de ± 1.0 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "1.0",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C06 est de ± 1.0 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "followup_of_question_id": "FINAL-026",
+      "prior_user_question": "À la station Boréal 6, quelle température de consigne appliquer au circuit FT-C06 ?",
+      "referent": {
+        "kind": "identifier",
+        "identifier": "FT-C06"
+      },
+      "tags": [
+        "user_referent",
+        "no_model_answer_as_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-079",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "conversation_followup",
+      "language": "en",
+      "question": "What tolerance applies to that thermal circuit?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C07"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "La tolérance thermique de FT-C07 est de ± 1.1 °C.",
+      "important_values": [
+        {
+          "key": "tolerance",
+          "value": "1.1",
+          "unit": "°C"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "La tolérance thermique de FT-C07 est de ± 1.1 °C."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "followup_of_question_id": "FINAL-031",
+      "prior_user_question": "For the Boréal thermal circuit FT-C07, report its temperature setpoint and measurement unit.",
+      "referent": {
+        "kind": "identifier",
+        "identifier": "FT-C07"
+      },
+      "tags": [
+        "user_referent",
+        "no_model_answer_as_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-080",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "conversation_followup",
+      "language": "en",
+      "question": "For that same circuit, how long must the stabilization hold last?",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": true,
+      "expected_answer": "Le palier de stabilisation de FT-C01 dure 20 min.",
+      "important_values": [
+        {
+          "key": "hold",
+          "value": "20",
+          "unit": "min"
+        }
+      ],
+      "expected_units": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "page_index": 0,
+          "required_texts": [
+            "Le palier de stabilisation de FT-C01 dure 20 min."
+          ],
+          "role": "answer",
+          "alternatives": [],
+          "resolved_spans": null,
+          "resolution_status": "NOT_RESOLVED"
+        }
+      ],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "followup_of_question_id": "FINAL-003",
+      "prior_user_question": "For the Boréal thermal circuit FT-C01, report its circulation flow rate and measurement unit.",
+      "referent": {
+        "kind": "identifier",
+        "identifier": "FT-C01"
+      },
+      "tags": [
+        "user_referent",
+        "no_model_answer_as_evidence"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-081",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C01 procedure specify its coolant brand? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no coolant brand; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-082",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C02 procedure specify its factory location? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C02"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no factory location; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-083",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C03 procedure specify its installation year? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C03"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no installation year; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-084",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C04 procedure specify its calibration certificate number? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C04"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no calibration certificate number; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-085",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C05 procedure specify its assembly mass? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C05"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no assembly mass; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-086",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C06 procedure specify its rated electrical power? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C06"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no rated electrical power; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-087",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C07 procedure specify its sensor supplier? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C07"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no sensor supplier; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-088",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C01 procedure specify its last maintenance date? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no last maintenance date; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-089",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C02 procedure specify its responsible technician name? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C02"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no responsible technician name; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-090",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C03 procedure specify its connector pin assignment? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C03"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no connector pin assignment; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-091",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C04 procedure specify its controller firmware release? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C04"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no controller firmware release; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-092",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C05 procedure specify its coolant chemical composition? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C05"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no coolant chemical composition; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-093",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C06 procedure specify its pipe length? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C06"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no pipe length; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-094",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C07 procedure specify its thermal insulation material? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C07"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no thermal insulation material; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C07",
+          "file_sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-095",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C01 procedure specify its pumping station serial number? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C01"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no pumping station serial number; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C01",
+          "file_sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-096",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C02 procedure specify its shipping instructions? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C02"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no shipping instructions; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C02",
+          "file_sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-097",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C03 procedure specify its purchase contract amount? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C03"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no purchase contract amount; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C03",
+          "file_sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-098",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C04 procedure specify its warehouse stock? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C04"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no warehouse stock; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C04",
+          "file_sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-099",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C05 procedure specify its alarm history? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C05"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no alarm history; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C05",
+          "file_sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    },
+    {
+      "id": "FINAL-100",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "category": "unanswerable_in_scope",
+      "language": "en",
+      "question": "Does the selected FT-C06 procedure specify its warranty expiry date? If it does not, say the supplied evidence is insufficient.",
+      "scope_template": {
+        "kind": "documents",
+        "document_keys": [
+          "final-FT-C06"
+        ]
+      },
+      "scope_resolved": null,
+      "answerable": false,
+      "expected_answer": null,
+      "important_values": [],
+      "expected_units": [],
+      "completeness": "All expected units and important values with their units must be present; no fact from outside scope.",
+      "annotation_state": "SOURCE_TEMPLATE_NOT_RESOLVED",
+      "synthetic": true,
+      "absence_reason": "The controlled source contains no warranty expiry date; absence reviewed against all generated source text for this document.",
+      "tags": [
+        "expected_abstention",
+        "scope_documents"
+      ],
+      "document_sources": [
+        {
+          "document_key": "final-FT-C06",
+          "file_sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+          "version_id": null,
+          "extraction_revision_id": null,
+          "generation_id": null
+        }
+      ]
+    }
+  ]
+}

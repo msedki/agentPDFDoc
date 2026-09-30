@@ -1,0 +1,42 @@
+{
+  "date_utc": "2026-09-30T03:21:52.275894+00:00",
+  "status": "PASS_TARGETED_NOT_REAL_MEMORY",
+  "interpreter": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+  "python": "3.12.14",
+  "command": ".venv/Scripts/python.exe -m pytest tests/unit/test_api_cache_lifecycle.py tests/unit/test_api_gateways.py tests/integration/test_api_http.py -k \"cache_release or releases_e5_only or embedding_release_preserves or search_returns_actual_document or import_range_scope_sse_reconnect_and_citation or admin_evaluation_runs_real_scope\" -q --junitxml=RAG_Local_Agents/reports/backend/2026-09-30-cold-cache-release-final.xml",
+  "result": {
+    "passed": 14,
+    "deselected": 19,
+    "warnings": 1,
+    "seconds": 10.63,
+    "log": "2026-09-30-cold-cache-release-final.log",
+    "junit": "2026-09-30-cold-cache-release-final.xml"
+  },
+  "earlier_runs": [
+    "2026-09-30-cold-cache-release.log",
+    "2026-09-30-cold-cache-session-preservation.log"
+  ],
+  "source_sha256": {
+    "services/api/embedding.py": "dc5ae5b3de2f9937e5551503491373146ccd52b1d835ad195fd9d0c26fe510dd",
+    "services/api/context.py": "3310928964c4b823467d249abbc68d5a319a53f2859bb2275bf13057e10ab065",
+    "services/api/main.py": "83af98559c3bff77ffb3332a8d8ae0ffc6050afe06e6b5a6735cbfc6ae66ce28",
+    "tests/unit/test_api_cache_lifecycle.py": "617b3ff7ce6f3d490bcebf77f71ceb9e6180d67f7373f15e771e2f3937101638",
+    "tests/integration/test_api_http.py": "e7ecf048a681ff78fd2f3b1f343686ad6b0f077ebb3d726f227ca7ea4083765f"
+  },
+  "behavior": [
+    "Only cold resident=False and insufficient host available memory triggers cache release after final context counting.",
+    "E5 ORT release remains separate; E5 and Qwen Rust tokenizer tables may also release under encoding RLocks.",
+    "Artifact identities, compiled Qwen template, config, retained source records and already computed context counts remain.",
+    "Per-cache lifecycle and combined before/after snapshots persist in diagnostics.",
+    "Reload counts, elapsed milliseconds and host/RSS point samples are explicit; identical input hash required for count parity.",
+    "Qwen rendering alone reuses compiled template without reloading Rust tokenizer."
+  ],
+  "limits": [
+    "Explicit fake tokenizers/ORT/Ollama/Qdrant/governor, isolated SQLite only.",
+    "No real Rust/ORT cache byte reduction or admission improvement proven by this suite.",
+    "No graph, Docling or LLM engine executed; actual reload parity and host reserve measurement pending root slot.",
+    "Cache RAM measurements are point samples, not peaks nor isolated allocator attribution.",
+    "Concurrent encoding/release is serialized; a new independent search can subsequently reload E5 and admission must still recheck memory."
+  ],
+  "warning": "Starlette TestClient/httpx deprecation warning preserved."
+}

@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "scope": "optional development-only; excluded from nominal provision",
+  "model_id": "ibm-granite/granite-embedding-97m-multilingual-r2",
+  "revision": "835ad14087e140460703cf0fae09f97d469d65c2",
+  "license_notice": {
+    "publisher": "Apache Software Foundation",
+    "version": "Apache License 2.0, January 2004",
+    "license": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+    "target": ".runtime/models/granite-97m-int8/APACHE-2.0-LICENSE.txt",
+    "size": 11358,
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "limit": "Generic official license text; model declaration is in IBM's versioned model card, not an IBM-bundled NOTICE."
+  },
+  "files": [
+    {
+      "publisher": "IBM Granite",
+      "revision": "835ad14087e140460703cf0fae09f97d469d65c2",
+      "license": "Apache-2.0 (declared in model card)",
+      "url": "https://huggingface.co/ibm-granite/granite-embedding-97m-multilingual-r2/resolve/835ad14087e140460703cf0fae09f97d469d65c2/README.md",
+      "target": ".runtime/models/granite-97m-int8/README.md",
+      "size": 20684,
+      "git_blob_sha1": "ee9e323ec8ac4ec76d46916ea43e96da8558b969"
+    },
+    {
+      "publisher": "IBM Granite",
+      "revision": "835ad14087e140460703cf0fae09f97d469d65c2",
+      "license": "Apache-2.0 (declared in model card)",
+      "url": "https://huggingface.co/ibm-granite/granite-embedding-97m-multilingual-r2/resolve/835ad14087e140460703cf0fae09f97d469d65c2/1_Pooling/config.json",
+      "target": ".runtime/models/granite-97m-int8/1_Pooling/config.json",
+      "size": 313,
+      "git_blob_sha1": "95356aec72a5451eb362f23b30543efa547221e2"
+    },
+    {
+      "publisher": "IBM Granite",
+      "revision": "835ad14087e140460703cf0fae09f97d469d65c2",
+      "license": "Apache-2.0 (declared in model card)",
+      "url": "https://huggingface.co/ibm-granite/granite-embedding-97m-multilingual-r2/resolve/835ad14087e140460703cf0fae09f97d469d65c2/config.json",
+      "target": ".runtime/models/granite-97m-int8/config.json",
+      "size": 1216,
+      "git_blob_sha1": "774645fd28bb27f79c33a67f7051256ed2fa9a09"
+    },
+    {
+      "publisher": "IBM Granite",
+      "revision": "835ad14087e140460703cf0fae09f97d469d65c2",
+      "license": "Apache-2.0 (declared in model card)",
+      "url": "https://huggingface.co/ibm-granite/granite-embedding-97m-multilingual-r2/resolve/835ad14087e140460703cf0fae09f97d469d65c2/config_sentence_transformers.json",
+      "target": ".runtime/models/granite-97m-int8/config_sentence_transformers.json",
+      "size": 283,
+      "git_blob_sha1": "3ab1bc63caa3ea50028214685fad2b278d49ca2b"
+    },
+    {
+      "publisher": "IBM Granite",
+      "revision": "835ad14087e140460703cf0fae09f97d469d65c2",
+      "license": "Apache-2.0 (declared in model card)",
+      "url": "https://huggingface.co/ibm-granite/granite-embedding-97m-multilingual-r2/resolve/835ad14087e140460703cf0fae09f97d469d65c2/modules.json",
+      "target": ".runtime/models/granite-97m-int8/modules.json",
+      "size": 349,
+      "git_blob_sha1": "952a9b81c0bfd99800fabf352f69c7ccd46c5e43"
+    },
+    {
+      "publisher": "IBM Granite",
+      "revision": "835ad14087e140460703cf0fae09f97d469d65c2",
+      "license": "Apache-2.0 (declared in model card)",
+      "url": "https://huggingface.co/ibm-granite/granite-embedding-97m-multilingual-r2/resolve/835ad14087e140460703cf0fae09f97d469d65c2/sentence_bert_config.json",
+      "target": ".runtime/models/granite-97m-int8/sentence_bert_config.json",
+      "size": 60,
+      "git_blob_sha1": "4cf43a4f6f3e8493efb2bba6fbea420216221110"
+    },
+    {
+      "publisher": "IBM Granite",
+      "revision": "835ad14087e140460703cf0fae09f97d469d65c2",
+      "license": "Apache-2.0 (declared in model card)",
+      "url": "https://huggingface.co/ibm-granite/granite-embedding-97m-multilingual-r2/resolve/835ad14087e140460703cf0fae09f97d469d65c2/tokenizer_config.json",
+      "target": ".runtime/models/granite-97m-int8/tokenizer_config.json",
+      "size": 12860,
+      "git_blob_sha1": "6a228fd8b96ac3833a7878c92653c9dc4f85ac5d"
+    },
+    {
+      "publisher": "IBM Granite",
+      "revision": "835ad14087e140460703cf0fae09f97d469d65c2",
+      "license": "Apache-2.0 (declared in model card)",
+      "url": "https://huggingface.co/ibm-granite/granite-embedding-97m-multilingual-r2/resolve/835ad14087e140460703cf0fae09f97d469d65c2/special_tokens_map.json",
+      "target": ".runtime/models/granite-97m-int8/special_tokens_map.json",
+      "size": 871,
+      "git_blob_sha1": "d1a49f7ece7a2cf8ba21f77d97b2413e142ab73b"
+    },
+    {
+      "publisher": "IBM Granite",
+      "revision": "835ad14087e140460703cf0fae09f97d469d65c2",
+      "license": "Apache-2.0 (declared in model card)",
+      "url": "https://huggingface.co/ibm-granite/granite-embedding-97m-multilingual-r2/resolve/835ad14087e140460703cf0fae09f97d469d65c2/tokenizer.json",
+      "target": ".runtime/models/granite-97m-int8/tokenizer.json",
+      "size": 25301672,
+      "sha256": "4f2842d568e2724370aec203652a42ac783c7937f8347a1a2cc7506d71f1582f"
+    },
+    {
+      "publisher": "IBM Granite",
+      "revision": "835ad14087e140460703cf0fae09f97d469d65c2",
+      "license": "Apache-2.0 (declared in model card)",
+      "url": "https://huggingface.co/ibm-granite/granite-embedding-97m-multilingual-r2/resolve/835ad14087e140460703cf0fae09f97d469d65c2/onnx/model_quint8_avx2.onnx",
+      "target": ".runtime/models/granite-97m-int8/onnx/model_quint8_avx2.onnx",
+      "size": 98247878,
+      "sha256": "a6022dd8220ea6f6595562a1328ee216f4a94faa55362f2f4747c80f1e78772e"
+    }
+  ]
+}

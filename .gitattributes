@@ -1,0 +1,17 @@
+# Octets conservés tels quels : les manifestes SHA-256 du dossier et des fixtures
+# doivent rester vérifiables après un clone, quel que soit core.autocrlf.
+* -text
+
+*.pdf binary
+*.zip binary
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.pfb binary
+*.bcmap binary
+*.wasm binary
+*.icc binary
+*.onnx binary

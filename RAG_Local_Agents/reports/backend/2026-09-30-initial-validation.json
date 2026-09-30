@@ -1,0 +1,15 @@
+{
+  "date_utc": "2026-09-30",
+  "scope": "API isolated SQLite/FTS5 and HTTP contracts; injected model and vector substitutes",
+  "command": "C:/Users/P47599/AppData/Local/Programs/Python/Python313/python.exe -m pytest tests/unit/test_api_storage.py tests/unit/test_retrieval.py tests/integration/test_api_http.py -q",
+  "interpreter": "CPython 3.13.3 global",
+  "result": {"exit_code": 0, "passed": 22, "warnings": 2, "duration_seconds": 11.33},
+  "warnings": [
+    "pytest: unknown config option asyncio_mode; global interpreter lacks pytest-asyncio",
+    "Starlette 1.6.0: legacy httpx TestClient integration deprecated in favour of httpx2"
+  ],
+  "limits": [
+    "This run preceded later follow-up resolution, administration quiesce and final identifier constraint changes.",
+    "This global Python 3.13 run is not target-environment qualification or an end-to-end real-model test."
+  ]
+}

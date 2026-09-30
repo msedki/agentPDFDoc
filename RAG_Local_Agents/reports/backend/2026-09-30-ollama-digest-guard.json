@@ -1,0 +1,41 @@
+{
+  "date_utc": "2026-09-30T03:32:53.921887+00:00",
+  "status": "PASS_MOCK_CONTRACTS",
+  "interpreter": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+  "python": "3.12.14",
+  "command": ".venv/Scripts/python.exe -m pytest tests/unit/test_api_gateways.py -q --junitxml=RAG_Local_Agents/reports/backend/2026-09-30-ollama-digest-guard.xml",
+  "result": {
+    "passed": 19,
+    "seconds": 3.88,
+    "warnings": 0,
+    "log": "2026-09-30-ollama-digest-guard.log",
+    "junit": "2026-09-30-ollama-digest-guard.xml"
+  },
+  "source_sha256": {
+    "services/api/ollama.py": "8c362618d18b2ce5810de4ee2bc08df2ba10460cd14cf3f03b8906b5db62fd41",
+    "tests/unit/test_api_gateways.py": "c1aa06e49cc1249153bf11c97fc5853bf2ba5387281d74d7bfa12e81446199ce"
+  },
+  "official_sources": [
+    {
+      "url": "https://docs.ollama.com/api/ps",
+      "claim": "Running model digest and residency fields",
+      "opened": "2026-09-30"
+    },
+    {
+      "url": "https://docs.ollama.com/api/tags",
+      "claim": "Local available model digest",
+      "opened": "2026-09-30"
+    }
+  ],
+  "behavior": [
+    "Expected digest/name/quantization loaded from provisioned model manifest.",
+    "Before stream, warm digest is checked against ps; cold digest is checked against tags after ps shows no resident target.",
+    "Missing/unknown/different digest refuses before api/chat and before context transmission.",
+    "Warm admission also refuses wrong digest; generation metrics carry verified digest and manifest hash."
+  ],
+  "limits": [
+    "Explicit MockTransport and controlled manifest fixture; no real server or model called.",
+    "Verification is immediately before api/chat; model tag changes by an external writer are outside the supervisor-controlled qualification.",
+    "No modifications to main.py after memory-ready snapshot."
+  ]
+}

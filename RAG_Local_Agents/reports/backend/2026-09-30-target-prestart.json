@@ -1,0 +1,52 @@
+{
+  "date_utc": "2026-09-30",
+  "target_python": "3.12.14 (main, Sep 29 2026, 15:00:58) [MSC v.1944 64 bit (AMD64)]",
+  "command": "./.venv/Scripts/python.exe -m pytest tests/unit/test_api_storage.py tests/unit/test_api_queries.py tests/unit/test_api_jobs.py tests/unit/test_api_gateways.py tests/unit/test_retrieval.py tests/integration/test_api_http.py -q --junitxml=RAG_Local_Agents/reports/backend/2026-09-30-target-prestart.xml",
+  "result": {
+    "exit_code": 0,
+    "passed": 42,
+    "warnings": 1,
+    "duration_seconds": 21.34
+  },
+  "warning": "StarletteDeprecationWarning: Using httpx with starlette.testclient is deprecated; install httpx2 instead.",
+  "versions": {
+    "fastapi": "0.142.1",
+    "starlette": "1.7.0",
+    "httpx": "0.28.1",
+    "pydantic": "2.13.5",
+    "pytest": "9.1.1",
+    "onnxruntime": "1.30.0",
+    "tokenizers": "0.23.2",
+    "numpy": "2.5.3",
+    "psutil": "7.2.2"
+  },
+  "source_sha256": {
+    "services/api/__init__.py": "6e1626978265dd2ee6c3798b50e440e67667d52b97456feda09180feb494f668",
+    "services/api/context.py": "3daf499f20caa57cea0aca2ac3355bc7ecc98118458c8b54c221057461917fec",
+    "services/api/db.py": "b2666c54d1e0791d72fd43492caab93fe194afe1ffb1bc35f3541f41964781ee",
+    "services/api/embedding.py": "87c2151091d556646f16df751933ddd2dba2e435566761b65c7211b0ac8f8fc3",
+    "services/api/errors.py": "46a7c379ffa86343ff49218e5c2a416d46d656b6f529bf81018d665030d6be5c",
+    "services/api/indexing.py": "acde57f9281b85917369e867b92b017fb9ade2707cee2cf11ff32b47d62d74cf",
+    "services/api/jobs.py": "3aa6415d2fa5eb1252de7f9d4f5197324e2e517f0be2fc654bce293af4dddbc5",
+    "services/api/main.py": "999bd24ec28af58b182b435a36f589754889a64eae8dbf15a1f50daf4a7b5159",
+    "services/api/ollama.py": "7e4f931469e130ffab44edc8447535f4fe9d97d523f79035b15b70161d6f6564",
+    "services/api/query.py": "682079c6e9e66472b811656a373a29cad3c53b130db5673a7d66eaf611b6136a",
+    "services/api/reconcile.py": "265c7a779443321d3be2d52b8424e42e0dbf424777a505807105d493f23cce75",
+    "services/api/retrieval.py": "20a18b4ab73eb807d901691ae05998e4307e043635f781530f245d2a6e4d5c1b",
+    "services/api/schemas.py": "a7bfe666ff31fb4d7f841c91984a6d8639aebecf691f8e34296612a17a98e6e7",
+    "services/api/scope.py": "9b76dfe5196dd510fdf21c888febc9744bcec7cc42fdbd8a739f54c675d357f3",
+    "services/api/settings.py": "1e521ae91b9db184c47a7b52645d13653315428300f503d900d9768b57f689b9",
+    "services/api/migrations/001_initial.sql": "f03e0a73b77d2f52ab706f7ecde523b522333b8904878b0b855fedd9e1b22e6f",
+    "services/api/migrations/002_cache_and_gc.sql": "cfae128d4b5fdbb647d64c428c29228a9d169bd97545b701cf4d037797731c79"
+  },
+  "evidence": [
+    "2026-09-30-target-prestart.log",
+    "2026-09-30-target-prestart.xml"
+  ],
+  "limits": [
+    "SQLite/FTS5 is executed against isolated test databases.",
+    "HTTP routes and scope/context selection are executed; model/vector HTTP boundaries use explicitly injected test substitutes.",
+    "This suite is not proof of real PDF/OCR/Qdrant/Ollama end-to-end integration, accuracy, or 30-minute resource qualification.",
+    "Model hashes and true CPU ONNX smoke are recorded separately in 2026-09-30-ort-tokenizer-smoke.json."
+  ]
+}

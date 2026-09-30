@@ -1,0 +1,9 @@
+{
+  "algorithm": "SHA-256 of UTF-8 canonical JSON with sorted keys and compact separators",
+  "dataset_version": "qualification-v2.1-synthetic-1",
+  "canonical_sha256": "673e437138ae66a4baee730d3181012c6bf66e1d96e91c4af7a08e2a8ee546d4",
+  "questions": 100,
+  "answerable": 80,
+  "unanswerable": 20,
+  "policy": "Do not tune ranking or generation against final; resolve source IDs without changing question/expected facts"
+}

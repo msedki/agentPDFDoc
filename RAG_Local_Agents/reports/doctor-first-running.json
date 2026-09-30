@@ -1,0 +1,145 @@
+{
+  "utc": "2026-09-30T01:38:07.937429+00:00",
+  "platform": "Windows native, no WSL/Docker",
+  "python": {
+    "version": "3.12.14",
+    "executable": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe"
+  },
+  "resources": {
+    "available_mib": 6077.3125,
+    "disk_free_mib": 31104.5078125
+  },
+  "profile_sha256": "30fc2654df6875e35e77d686441089c1dd63cf1b00bccb92237034b054368aff",
+  "data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\data",
+  "checks": {
+    "python312": true,
+    "dependencies_locked": true,
+    "static_export": true,
+    "native_binaries": {
+      "qdrant": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\qdrant-1.19.1\\qdrant.exe",
+      "ollama": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\ollama-0.35.0\\ollama.exe"
+    },
+    "embedding_files": true,
+    "llm_tokenizer": true,
+    "ocr_languages": {
+      "fra": true,
+      "eng": true
+    },
+    "llm_model": {
+      "name": "qwen3.5:4b",
+      "model": "qwen3.5:4b",
+      "modified_at": "2026-09-30T01:08:03.0969621Z",
+      "size": 3389983735,
+      "digest": "2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen35",
+        "families": [
+          "qwen35"
+        ],
+        "parameter_size": "4.7B",
+        "quantization_level": "Q4_K_M",
+        "context_length": 262144,
+        "embedding_length": 2560
+      },
+      "capabilities": [
+        "completion",
+        "vision",
+        "tools",
+        "thinking"
+      ]
+    }
+  },
+  "runtime": {
+    "instance_id": "4d257cb07243447cb6a4a6a10eb10fa1",
+    "status": "running",
+    "profile_path": "D:\\enhacements\\agentragpdf\\config\\local16.yaml",
+    "profile_sha256": "30fc2654df6875e35e77d686441089c1dd63cf1b00bccb92237034b054368aff",
+    "data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\data",
+    "supervisor": {
+      "pid": 22572,
+      "created_at": 1790732229.5158262,
+      "executable": "D:\\enhacements\\agentragpdf\\.runtime\\python\\cpython-3.12.14-windows-x86_64-none\\python.exe"
+    },
+    "services": {
+      "qdrant": {
+        "pid": 6172,
+        "created_at": 1790732234.1525261,
+        "executable": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\qdrant-1.19.1\\qdrant.exe",
+        "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\data\\logs\\4d257cb07243447cb6a4a6a10eb10fa1\\qdrant.log",
+        "exit_code": null
+      },
+      "ollama": {
+        "pid": 32740,
+        "created_at": 1790732235.8469012,
+        "executable": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\ollama-0.35.0\\ollama.exe",
+        "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\data\\logs\\4d257cb07243447cb6a4a6a10eb10fa1\\ollama.log",
+        "exit_code": null
+      },
+      "api": {
+        "pid": 24416,
+        "created_at": 1790732241.872808,
+        "executable": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+        "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\data\\logs\\4d257cb07243447cb6a4a6a10eb10fa1\\api.log",
+        "exit_code": null
+      }
+    },
+    "shutdown_marker": "D:\\enhacements\\agentragpdf\\.runtime\\data\\control\\shutdown-4d257cb07243447cb6a4a6a10eb10fa1",
+    "app_url": "http://127.0.0.1:8785",
+    "stop_results": [],
+    "qdrant_config_sha256": "8a9e4ecd3029938cefa14b1ff761a94bbee3b4359136c2ecab9ddf89c75ed05a",
+    "http_health": {
+      "status": "alive",
+      "service": "rag-api"
+    }
+  },
+  "packages": {
+    "fastapi": "0.142.1",
+    "docling": "2.131.0",
+    "onnxruntime": "1.30.0",
+    "psutil": "7.2.2"
+  },
+  "services": {
+    "api_health": {
+      "http_status": 200,
+      "body": {
+        "status": "alive",
+        "service": "rag-api"
+      }
+    },
+    "api_ready": {
+      "http_status": 503,
+      "body": {
+        "status": "blocked",
+        "checks": {
+          "sqlite": true,
+          "embedding": true,
+          "llm_tokenizer": true,
+          "qdrant": false,
+          "ollama": true,
+          "governor": true
+        },
+        "blockers": [
+          "qdrant_not_ready"
+        ]
+      }
+    },
+    "qdrant": {
+      "http_status": 200,
+      "body": {
+        "title": "qdrant - vector search engine",
+        "version": "1.19.1",
+        "commit": "6ab21cac18ebb6f4ae29102c7f8f5cc11affd5de"
+      }
+    },
+    "ollama": {
+      "http_status": 200,
+      "body": {
+        "version": "0.35.0"
+      }
+    }
+  },
+  "loaded_models": [],
+  "qualification": "NOT_RUN: doctor does not prove an end-to-end answer"
+}

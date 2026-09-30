@@ -1,0 +1,22 @@
+{
+  "date_utc": "2026-09-30",
+  "python": "3.12.14",
+  "command": ".venv/Scripts/python.exe -m pytest tests/unit/test_api_qualification.py -q --junitxml=RAG_Local_Agents/reports/backend/2026-09-30-qualification-metrics.xml",
+  "result": {
+    "exit_code": 0,
+    "passed": 6,
+    "duration_seconds": 1.18
+  },
+  "source_sha256": {
+    "services/api/qualification.py": "0ccd29fbb8e8f75d5188f3593482027e21c1533bdb632c8db2133fc066fe998c"
+  },
+  "definitions": {
+    "recall5_and10": "Micro coverage of independently annotated evidence units in top5/top10, plus mean per question. All spans or an admitted alternative must be covered.",
+    "mrr_at10": "Mean reciprocal rank of first individual top10 candidate fully covering any required unit, zero when absent.",
+    "by_category": "Requested/evaluated/unresolved/errors, rates, denominators and grouped bootstrap estimates visible separately."
+  },
+  "limits": [
+    "Pure synthetic metric tests; no runtime API, embedding, LLM or final dataset called.",
+    "One fully covered unit does not validate an incomplete multi-unit question; all-required-evidence metric remains zero."
+  ]
+}

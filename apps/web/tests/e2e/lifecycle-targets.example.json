@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "status": "TEMPLATE_NOT_AUTHORIZED_NOT_RUNTIME_BOUND",
+  "origin": "http://127.0.0.1:8785",
+  "data_dir": null,
+  "runtime_instance_id": null,
+  "runtime_profile_file_sha256": null,
+  "api_profile_sha256": null,
+  "permits": [],
+  "document": {
+    "id": null,
+    "relative_path": "Procédure QV-01.pdf",
+    "fixture_key": "version-1",
+    "version_id": null,
+    "generation_id": null,
+    "extraction_revision_id": null,
+    "pipeline_fingerprint": null
+  },
+  "old_version": {
+    "version_id": null,
+    "fixture_key": "version-1",
+    "expected_text": "2.7"
+  },
+  "old_citation": {
+    "query_id": null,
+    "source_id": null,
+    "version_id": null,
+    "generation_id": null,
+    "extraction_revision_id": null,
+    "page_index": null,
+    "block_hashes": null
+  },
+  "upload_limit_bytes": null
+}

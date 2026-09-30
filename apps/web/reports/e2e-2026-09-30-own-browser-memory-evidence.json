@@ -1,0 +1,198 @@
+{
+  "source": "apps\\web\\test-results\\2026-09-30-own-browser-memory\\results.json",
+  "attachments": [
+    {
+      "name": "resources-own-headless-start",
+      "content_type": "application/json",
+      "path": null,
+      "data": {
+        "phase": "own-headless-start",
+        "timestamp_utc": "2026-09-30T03:19:08.979014+00:00",
+        "available_gib": 4.915,
+        "worker": {
+          "id": 29844,
+          "parent_id": 14712,
+          "name": "node.exe",
+          "working_set_mib": 148.4,
+          "private_mib": 148.8,
+          "unique_set_mib": 106.1
+        },
+        "chromium": [
+          {
+            "id": 2448,
+            "parent_id": 29844,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 45.9,
+            "private_mib": 17.1,
+            "unique_set_mib": 11.3
+          },
+          {
+            "id": 6588,
+            "parent_id": 2448,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 40.5,
+            "private_mib": 22.7,
+            "unique_set_mib": 16.5
+          },
+          {
+            "id": 32392,
+            "parent_id": 2448,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 28.2,
+            "private_mib": 12.2,
+            "unique_set_mib": 6.8
+          },
+          {
+            "id": 3360,
+            "parent_id": 2448,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 51,
+            "private_mib": 19.6,
+            "unique_set_mib": 11.7
+          }
+        ],
+        "errors": [],
+        "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+      }
+    },
+    {
+      "name": "resources-own-question-form-not-submitted",
+      "content_type": "application/json",
+      "path": null,
+      "data": {
+        "phase": "own-question-form-not-submitted",
+        "timestamp_utc": "2026-09-30T03:19:11.414903+00:00",
+        "available_gib": 4.832,
+        "worker": {
+          "id": 29844,
+          "parent_id": 14712,
+          "name": "node.exe",
+          "working_set_mib": 151.9,
+          "private_mib": 151.6,
+          "unique_set_mib": 109.6
+        },
+        "chromium": [
+          {
+            "id": 2448,
+            "parent_id": 29844,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 49.6,
+            "private_mib": 18.5,
+            "unique_set_mib": 12.6
+          },
+          {
+            "id": 6588,
+            "parent_id": 2448,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 56.1,
+            "private_mib": 27.1,
+            "unique_set_mib": 20.9
+          },
+          {
+            "id": 32392,
+            "parent_id": 2448,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 32.7,
+            "private_mib": 14.5,
+            "unique_set_mib": 8.9
+          },
+          {
+            "id": 3360,
+            "parent_id": 2448,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 99.2,
+            "private_mib": 41.6,
+            "unique_set_mib": 30.8
+          }
+        ],
+        "errors": [],
+        "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+      }
+    },
+    {
+      "name": "resources-own-native-pdf-rendered",
+      "content_type": "application/json",
+      "path": null,
+      "data": {
+        "phase": "own-native-pdf-rendered",
+        "timestamp_utc": "2026-09-30T03:19:14.176814+00:00",
+        "available_gib": 4.733,
+        "worker": {
+          "id": 29844,
+          "parent_id": 14712,
+          "name": "node.exe",
+          "working_set_mib": 164.8,
+          "private_mib": 164.8,
+          "unique_set_mib": 122.4
+        },
+        "chromium": [
+          {
+            "id": 2448,
+            "parent_id": 29844,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 50.4,
+            "private_mib": 18.8,
+            "unique_set_mib": 12.9
+          },
+          {
+            "id": 6588,
+            "parent_id": 2448,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 64.9,
+            "private_mib": 27.3,
+            "unique_set_mib": 21.1
+          },
+          {
+            "id": 32392,
+            "parent_id": 2448,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 34.7,
+            "private_mib": 16.6,
+            "unique_set_mib": 10.9
+          },
+          {
+            "id": 3360,
+            "parent_id": 2448,
+            "name": "chrome-headless-shell.exe",
+            "working_set_mib": 161.8,
+            "private_mib": 77.9,
+            "unique_set_mib": 64.9
+          }
+        ],
+        "errors": [],
+        "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+      }
+    },
+    {
+      "name": "browser-probe-configuration",
+      "content_type": "application/json",
+      "path": null,
+      "data": {
+        "worker_id": 29844,
+        "browser_version": "153.0.8010.12",
+        "contexts": 1,
+        "pages": [
+          1
+        ],
+        "headless": true,
+        "custom_launch_args": [],
+        "mutations": [],
+        "page_errors": [],
+        "interpretation": "Snapshots from a separate GET-only run; do not replace the failed question attempt's historical memory samples."
+      }
+    },
+    {
+      "name": "trace",
+      "content_type": "application/zip",
+      "path": "D:\\enhacements\\agentragpdf\\apps\\web\\test-results\\2026-09-30-own-browser-memory\\resource-probe-read-only-o-a44b3-robe-with-a-real-native-PDF\\trace.zip"
+    }
+  ],
+  "execution_status": {
+    "startTime": "2026-09-30T03:19:03.681Z",
+    "duration": 12477.916,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

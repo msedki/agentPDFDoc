@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="10" time="2.415" timestamp="2026-09-30T01:40:02.360378+00:00" hostname="P35P47599"><testcase classname="tests.unit.test_runtime_backup" name="test_rebase_preserves_counts_and_original_database" time="0.685" /><testcase classname="tests.unit.test_runtime_backup" name="test_verified_snapshot_rejects_corruption_and_unlisted_file" time="0.261"><failure message="ValueError: Fichiers supplémentaires dans le snapshot">tmp_path = WindowsPath('D:/enhacements/agentragpdf/.runtime/qa/runtime-backup-tests-20260930T0139/test_verified_snapshot_rejects0')
+
+    def test_verified_snapshot_rejects_corruption_and_unlisted_file(tmp_path):
+        saved_db = tmp_path / "data/app.sqlite3"
+        populated_database(saved_db, tmp_path / "active")
+        manifest = {"format": "rag-native-backup-v1", "state": "complete", "backup_id": "controlled",
+                    "sqlite": database_summary(saved_db), "files": [{"path": "data/app.sqlite3",
+                    "bytes": saved_db.stat().st_size, "sha256": file_hash(saved_db)}]}
+        write_json_atomic(tmp_path / "manifest.json", manifest)
+&gt;       assert verify_backup(tmp_path)["sqlite"]["counts"]["documents"] == 1
+               ^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\test_runtime_backup.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+folder = WindowsPath('D:/enhacements/agentragpdf/.runtime/qa/runtime-backup-tests-20260930T0139/test_verified_snapshot_rejects0')
+
+    def verify_backup(folder: Path) -&gt; dict:
+        folder = folder.resolve()
+        manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
+        if manifest.get("format") != "rag-native-backup-v1" or manifest.get("state") != "complete":
+            raise ValueError("Snapshot incomplet ou format non reconnu")
+        seen = set()
+        for item in manifest["files"]:
+            if item["path"] in seen:
+                raise ValueError("Chemin dupliqué dans le manifeste")
+            seen.add(item["path"])
+            path = inside(folder, item["path"])
+            if not path.is_file() or path.stat().st_size != item["bytes"] or file_hash(path) != item["sha256"]:
+                raise ValueError(f"Hash/taille du snapshot non conforme : {item['path']}")
+        if {p.relative_to(folder).as_posix() for p in folder.rglob("*") if p.is_file()} != seen | {"manifest.json"}:
+&gt;           raise ValueError("Fichiers supplémentaires dans le snapshot")
+E           ValueError: Fichiers supplémentaires dans le snapshot
+
+services\runtime\backup.py:70: ValueError</failure></testcase><testcase classname="tests.unit.test_runtime_backup" name="test_snapshot_cannot_escape_root[../escape]" time="0.006" /><testcase classname="tests.unit.test_runtime_backup" name="test_snapshot_cannot_escape_root[C:/escape]" time="0.008" /><testcase classname="tests.unit.test_runtime_backup" name="test_snapshot_cannot_escape_root[/escape]" time="0.006" /><testcase classname="tests.unit.test_runtime_backup" name="test_snapshot_cannot_escape_root[data\\escape]" time="0.006" /><testcase classname="tests.unit.test_runtime_backup" name="test_snapshot_cannot_escape_root[data/../../escape]" time="0.006" /><testcase classname="tests.unit.test_runtime_resources" name="test_generation_waits_for_durable_ingestion_checkpoint" time="0.045" /><testcase classname="tests.unit.test_runtime_resources" name="test_cancelling_waiter_does_not_release_other_heavy_owner" time="0.053" /><testcase classname="tests.unit.test_runtime_resources" name="test_admission_preserves_host_reserve_and_reports_current_sample" time="0.007" /></testsuite></testsuites>

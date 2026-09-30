@@ -1,0 +1,33 @@
+{
+  "recorded_utc": "2026-09-30T03:59:17.277427+00:00",
+  "status": "PASS_TARGETED_TESTS_ONLY",
+  "interpreter": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+  "python": "3.12.14",
+  "tests": 10,
+  "failures": 0,
+  "errors": 0,
+  "elapsed_seconds": "15.052",
+  "command": ".venv/Scripts/python.exe -m pytest tests/integration/test_api_http.py::test_api_historical_extraction_revision_survives_same_version_reindex tests/integration/test_api_http.py::test_api_pinned_revision_never_falls_back_when_invalid_or_unpublished tests/integration/test_api_http.py::test_api_search_returns_actual_document_and_page_metadata_without_citations tests/unit/test_api_storage.py::test_api_unicode_selection_hash_and_revision tests/unit/test_api_storage.py::test_api_partial_never_replaces_complete_without_explicit_publication tests/unit/test_api_storage.py::test_api_reconciler_preserves_query_leases_and_originals -q --junitxml=RAG_Local_Agents\\reports\\backend\\2026-09-30-historical-revision-corrected.xml",
+  "warning": "Starlette TestClient httpx deprecation (1); preserved",
+  "initial_failure": "2026-09-30-historical-revision-first-failure.log and .xml: three failures, latest text/geometry, latest outline, old selection rejected400",
+  "isolation": "Real isolated SQLite and HTTP TestClient; distinct generations, extraction revisions, UTF8 hashes, geometry and sections; FakeEmbedding/FakeVectors/FakeTokenizer, no real OCR/ORT/LLM",
+  "behavior": "extraction_revision_id optional for blocks/outline, same version + published revision required. No parameter keeps latest. Selection fixes its single revision and checks hash/codepoint offsets. Unknown/wrong-version/unpublished 404, mixed selection 400. No fallback.",
+  "retention_proof": "Actual Reconciler.run_once deletes superseded fake vector points, retains published SQLite generation/pages/blocks; old exact blocks/outline/selection remain readable",
+  "runtime_changed": [
+    "services/api/db.py",
+    "services/api/main.py",
+    "services/api/scope.py"
+  ],
+  "limits": [
+    "Real browser reindex and original old citation click remain pending",
+    "Page/section scope contracts do not carry extraction revision; UI must avoid presenting latest-scope actions as pinned citation actions",
+    "No model/threshold/active collection changes"
+  ],
+  "source_sha256": {
+    "services/api/db.py": "7343540a7c5ae151b920916e879d40e8f912efe6e330cb2a42791da5747821e1",
+    "services/api/scope.py": "e186e239a02b401ee7376b5fe2ef1ae5a4bdb8089d3d16594ee07e5603233c45",
+    "services/api/main.py": "4c74408bd2679fd26d4d4feb8110f595815aa63639c9ecc068cec6d00eac505c",
+    "services/api/reconcile.py": "52d1ed734eae353d3cd2ec55c4e5f73fadcdb60d45a0490a2c2dac013b8707d2",
+    "tests/integration/test_api_http.py": "c745f9e86726755f3d9dd786cc323f9dfa376a82e6c913a125f09c1a02f88c8e"
+  }
+}

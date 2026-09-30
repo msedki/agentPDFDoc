@@ -1,0 +1,43 @@
+{
+  "instance_id": "a0b20f3477944f73b22ad7328ebb4c31",
+  "status": "running",
+  "profile_path": "D:\\enhacements\\agentragpdf\\config\\local16.yaml",
+  "profile_sha256": "2dd0270fa354a029f1b457b2fb72bca2bb72ba0c7c92878f5df471a861ccc071",
+  "data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\data",
+  "supervisor": {
+    "pid": 10372,
+    "created_at": 1790735340.3316493,
+    "executable": "D:\\enhacements\\agentragpdf\\.runtime\\python\\cpython-3.12.14-windows-x86_64-none\\python.exe"
+  },
+  "services": {
+    "qdrant": {
+      "pid": 33028,
+      "created_at": 1790735342.054953,
+      "executable": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\qdrant-1.19.1\\qdrant.exe",
+      "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\data\\logs\\a0b20f3477944f73b22ad7328ebb4c31\\qdrant.log",
+      "exit_code": null
+    },
+    "ollama": {
+      "pid": 22248,
+      "created_at": 1790735343.0664034,
+      "executable": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\ollama-0.35.0\\ollama.exe",
+      "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\data\\logs\\a0b20f3477944f73b22ad7328ebb4c31\\ollama.log",
+      "exit_code": null
+    },
+    "api": {
+      "pid": 22020,
+      "created_at": 1790735346.672361,
+      "executable": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+      "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\data\\logs\\a0b20f3477944f73b22ad7328ebb4c31\\api.log",
+      "exit_code": null
+    }
+  },
+  "shutdown_marker": "D:\\enhacements\\agentragpdf\\.runtime\\data\\control\\shutdown-a0b20f3477944f73b22ad7328ebb4c31",
+  "app_url": "http://127.0.0.1:8785",
+  "stop_results": [],
+  "qdrant_config_sha256": "8a9e4ecd3029938cefa14b1ff761a94bbee3b4359136c2ecab9ddf89c75ed05a",
+  "http_health": {
+    "status": "alive",
+    "service": "rag-api"
+  }
+}

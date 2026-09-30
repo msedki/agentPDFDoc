@@ -1,0 +1,11 @@
+{
+  "date_utc": "2026-09-30",
+  "classification": "bug reproduced at HTTP protocol boundary",
+  "target": "services/api/main.py version_file If-None-Match branch: JSONResponse({}, status_code=304)",
+  "interpreter": "D:/enhacements/agentragpdf/.venv/Scripts/python.exe",
+  "command": "python -c \"import h11; c=h11.Connection(h11.SERVER); c.receive_data(b'GET / HTTP/1.1\\r\\nHost: localhost\\r\\n\\r\\n'); c.next_event(); c.next_event(); c.send(h11.Response(status_code=304,headers=[])); print(c.send(h11.Data(data=b'{}')))\"",
+  "exit_code": 1,
+  "exception": "h11._util.LocalProtocolError: Too much data for declared Content-Length",
+  "implication": "A 304 response must have an empty body. TestClient contract tests had not exercised conditional ETag delivery.",
+  "state_at_recording": "Correction awaiting coordinated code freeze release; failure preserved separately."
+}

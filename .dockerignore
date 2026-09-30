@@ -1,0 +1,29 @@
+# La cible d'exploitation est Windows natif sans Docker (décision W001).
+# Ce fichier protège seulement un contexte de build éventuel contre l'envoi
+# du corpus privé, des modèles, des données et des secrets locaux.
+.git/
+.runtime/
+.venv/
+**/node_modules/
+.qdrant-initialized
+apps/web/.next/
+apps/web/out/
+**/__pycache__/
+**/*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+PDF/
+backups/
+**/*.sqlite3*
+**/*.snapshot
+.env
+**/*.env.local
+**/*.pem
+**/*.key
+**/*.pfx
+**/admin-token
+**/playwright-report/
+**/test-results/
+.claude/
+apps/web/public/pdfjs/

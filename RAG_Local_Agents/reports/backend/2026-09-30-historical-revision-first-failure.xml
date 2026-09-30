@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="7.298" timestamp="2026-09-30T03:54:54.456926+00:00" hostname="P35P47599"><testcase classname="tests.integration.test_api_http" name="test_api_historical_extraction_revision_survives_same_version_reindex[blocks]" time="1.176"><failure message="AssertionError: assert {'version_id'... 1, ...}, ...} == {'version_id'... 1, ...}, ...}&#10;  &#10;  Omitting 2 identical items, use -vv to show&#10;  Differing items:&#10;  {'generation_id': 'bbda1997-00c1-4cb6-854d-6532712ec9f6'} != {'generation_id': 'f1f4c6a8-3d9b-4503-a80e-9853f6ab4a11'}&#10;  {'page': {'page_index': 0, 'width': 595, 'height': 842, 'page_number': 1, ...}} != {'page': {'page_index': 0, 'width': 595, 'height': 842, 'page_number': 1, ...}}&#10;  {'blocks': [{'generation_id': 'bbda1997-00c1-4cb6-854d-6532712ec9f6', 'id': 'b0', 'page_index': 0, 'text': 'Nouvelle extraction 110 V', ...}]} != {'blocks': [{'generation_id': 'f1f4c6a8-3d9b-4503-a80e-9853f6ab4a11', 'id': 'b0', 'page_ind...&#10;  &#10;  ...Full output truncated (3 lines hidden), use '-vv' to show">tmp_path = WindowsPath('C:/Users/P47599/AppData/Local/Temp/pytest-of-P47599/pytest-45/test_api_historical_extraction0')
+route = 'blocks'
+
+    @pytest.mark.parametrize("route", ["blocks", "outline", "selection"])
+    def test_api_historical_extraction_revision_survives_same_version_reindex(tmp_path, route):
+        settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+        app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+        with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+            imported, old, latest = publish_two_extraction_revisions(client, app)
+            revision = old["extraction_revision_id"]
+            if route == "blocks":
+                response = client.get(f"/api/v1/versions/{imported['version_id']}/pages/0/blocks", params={"extraction_revision_id": revision})
+                assert response.status_code == 200, response.text
+&gt;               assert response.json() == old
+E               AssertionError: assert {'version_id'... 1, ...}, ...} == {'version_id'... 1, ...}, ...}
+E                 
+E                 Omitting 2 identical items, use -vv to show
+E                 Differing items:
+E                 {'generation_id': 'bbda1997-00c1-4cb6-854d-6532712ec9f6'} != {'generation_id': 'f1f4c6a8-3d9b-4503-a80e-9853f6ab4a11'}
+E                 {'page': {'page_index': 0, 'width': 595, 'height': 842, 'page_number': 1, ...}} != {'page': {'page_index': 0, 'width': 595, 'height': 842, 'page_number': 1, ...}}
+E                 {'blocks': [{'generation_id': 'bbda1997-00c1-4cb6-854d-6532712ec9f6', 'id': 'b0', 'page_index': 0, 'text': 'Nouvelle extraction 110 V', ...}]} != {'blocks': [{'generation_id': 'f1f4c6a8-3d9b-4503-a80e-9853f6ab4a11', 'id': 'b0', 'page_ind...
+E                 
+E                 ...Full output truncated (3 lines hidden), use '-vv' to show
+
+tests\integration\test_api_http.py:115: AssertionError</failure></testcase><testcase classname="tests.integration.test_api_http" name="test_api_historical_extraction_revision_survives_same_version_reindex[outline]" time="0.915"><failure message="AssertionError: assert 'Nouveau sommaire' == 'Ancien sommaire'&#10;  &#10;  - Ancien sommaire&#10;  + Nouveau sommaire">tmp_path = WindowsPath('C:/Users/P47599/AppData/Local/Temp/pytest-of-P47599/pytest-45/test_api_historical_extraction1')
+route = 'outline'
+
+    @pytest.mark.parametrize("route", ["blocks", "outline", "selection"])
+    def test_api_historical_extraction_revision_survives_same_version_reindex(tmp_path, route):
+        settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+        app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+        with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+            imported, old, latest = publish_two_extraction_revisions(client, app)
+            revision = old["extraction_revision_id"]
+            if route == "blocks":
+                response = client.get(f"/api/v1/versions/{imported['version_id']}/pages/0/blocks", params={"extraction_revision_id": revision})
+                assert response.status_code == 200, response.text
+                assert response.json() == old
+            elif route == "outline":
+                response = client.get(f"/api/v1/versions/{imported['version_id']}/outline", params={"extraction_revision_id": revision})
+                assert response.status_code == 200, response.text
+&gt;               assert response.json()["sections"][0]["title"] == "Ancien sommaire"
+E               AssertionError: assert 'Nouveau sommaire' == 'Ancien sommaire'
+E                 
+E                 - Ancien sommaire
+E                 + Nouveau sommaire
+
+tests\integration\test_api_http.py:119: AssertionError</failure></testcase><testcase classname="tests.integration.test_api_http" name="test_api_historical_extraction_revision_survives_same_version_reindex[selection]" time="0.878"><failure message="AssertionError: {&quot;code&quot;:&quot;invalid_selection&quot;,&quot;message&quot;:&quot;Bloc ou offsets de sélection invalides.&quot;,&quot;details&quot;:{},&quot;request_id&quot;:&quot;926b45f6-f8c6-40a7-8fd3-81043c14114f&quot;}&#10;assert 400 == 200&#10; +  where 400 = &lt;Response [400 Bad Request]&gt;.status_code">tmp_path = WindowsPath('C:/Users/P47599/AppData/Local/Temp/pytest-of-P47599/pytest-45/test_api_historical_extraction2')
+route = 'selection'
+
+    @pytest.mark.parametrize("route", ["blocks", "outline", "selection"])
+    def test_api_historical_extraction_revision_survives_same_version_reindex(tmp_path, route):
+        settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+        app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+        with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+            imported, old, latest = publish_two_extraction_revisions(client, app)
+            revision = old["extraction_revision_id"]
+            if route == "blocks":
+                response = client.get(f"/api/v1/versions/{imported['version_id']}/pages/0/blocks", params={"extraction_revision_id": revision})
+                assert response.status_code == 200, response.text
+                assert response.json() == old
+            elif route == "outline":
+                response = client.get(f"/api/v1/versions/{imported['version_id']}/outline", params={"extraction_revision_id": revision})
+                assert response.status_code == 200, response.text
+                assert response.json()["sections"][0]["title"] == "Ancien sommaire"
+                assert response.json()["extraction_revision_id"] == revision and response.json()["generation_id"] == old["generation_id"]
+            else:
+                block = old["blocks"][0]
+                span = {"extractionRevisionId": revision, "blockId": block["id"], "blockTextSha256": block["source_text_hash"], "offsetUnit": "unicode_code_point", "startOffset": 0, "endOffset": len(block["raw_text"])}
+                response = client.post("/api/v1/search", json={"question": "Quelle tension ?", "scope": {"kind": "selection", "versionId": imported["version_id"], "spans": [span]}})
+&gt;               assert response.status_code == 200, response.text
+E               AssertionError: {"code":"invalid_selection","message":"Bloc ou offsets de sélection invalides.","details":{},"request_id":"926b45f6-f8c6-40a7-8fd3-81043c14114f"}
+E               assert 400 == 200
+E                +  where 400 = &lt;Response [400 Bad Request]&gt;.status_code
+
+tests\integration\test_api_http.py:125: AssertionError</failure></testcase></testsuite></testsuites>

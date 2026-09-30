@@ -1,0 +1,5 @@
+{
+  "status": "failed",
+  "error": "TimeoutError",
+  "message": "Le superviseur n'a pas atteint son état running ; conserver le log de démarrage"
+}

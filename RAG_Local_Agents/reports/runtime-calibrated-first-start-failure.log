@@ -1,0 +1,2 @@
+PermissionError: [WinError 5] Accès refusé: 'D:\\enhacements\\agentragpdf\\.runtime\\data\\control\\runtime.json.tmp' -> 'D:\\enhacements\\agentragpdf\\.runtime\\data\\control\\runtime.json'
+{"status": "failed", "error": "PermissionError", "message": "[WinError 5] Accès refusé: 'D:\\\\enhacements\\\\agentragpdf\\\\.runtime\\\\data\\\\control\\\\runtime.json.tmp' -> 'D:\\\\enhacements\\\\agentragpdf\\\\.runtime\\\\data\\\\control\\\\runtime.json'"}

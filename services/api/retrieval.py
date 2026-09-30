@@ -1,0 +1,236 @@
+import asyncio
+import json
+import re
+import time
+import unicodedata
+
+import httpx
+
+from .errors import ApiError
+from .embedding import EmbeddingService
+
+
+def normalized_identifier(value):
+    return re.sub(r"\s+", " ", unicodedata.normalize("NFKC", value).strip()).upper()
+
+
+def contains_identifier(text, identifier):
+    pattern = r"(?<![\w])" + re.escape(normalized_identifier(identifier)) + r"(?!\w|[-_/]\w|\.\d)"
+    return re.search(pattern, normalized_identifier(text)) is not None
+
+
+def identifiers(text):
+    patterns = [r"\b(?:EN|UIC|ISO|IEC)\s+\d+(?:[-.]\d+)*\b",
+                r"\b[A-Za-z][A-Za-z0-9]*(?:[-_/][A-Za-z0-9]+)+\b",
+                r"\b[A-Za-z]{1,12}\d+[A-Za-z0-9]*\b", r"\b\d+(?:\.\d+)+\b"]
+    return sorted({match.group(0) for pattern in patterns for match in re.finditer(pattern, text, re.IGNORECASE)})
+
+
+def match_expression(text):
+    terms = re.findall(r"[^\W_]+", text, flags=re.UNICODE)[:64]
+    return " OR ".join('"' + term.replace('"', '""') + '"' for term in terms)
+
+
+def rrf(lexical, dense, k=60):
+    scores = {}
+    for ranking in (lexical, dense):
+        for rank, chunk_id in enumerate(dict.fromkeys(ranking), 1):
+            scores[chunk_id] = scores.get(chunk_id, 0.0) + 1.0 / (k + rank)
+    return sorted(scores.items(), key=lambda pair: (-pair[1], pair[0]))
+
+
+class QdrantStore:
+    def __init__(self, settings):
+        self.settings = settings
+        self.base_url = settings.value("qdrant", "url", "http://127.0.0.1:6333").rstrip("/")
+        self.collection_prefix = settings.value("qdrant", "collection", "pdf_chunks_e5small_v1")
+        self._identity = None
+        if not re.fullmatch(r"[a-zA-Z0-9_-]+", self.collection_prefix):
+            raise ApiError("invalid_profile", "Nom de collection invalide.")
+        self.client = httpx.AsyncClient(base_url=self.base_url, timeout=60, trust_env=False)
+
+    @property
+    def identity(self):
+        if self._identity is None:
+            self._identity = EmbeddingService(self.settings).identity()
+        return dict(self._identity)
+
+    @property
+    def collection(self):
+        return self.collection_prefix + "_" + self.identity["fingerprint"][:16]
+
+    async def close(self):
+        await self.client.aclose()
+
+    async def request(self, method, path, **kwargs):
+        try:
+            response = await self.client.request(method, path, **kwargs)
+            response.raise_for_status()
+            result = response.json()
+            if result.get("status") not in {"ok", None}:
+                raise ApiError("qdrant_failure", "Qdrant n'a pas confirmé l'opération.", 503)
+            return result.get("result", result)
+        except (httpx.HTTPError, ValueError) as error:
+            raise ApiError("qdrant_unavailable", "Serveur Qdrant local indisponible.", 503) from error
+
+    async def ensure_collection(self):
+        response = await self.client.get(f"/collections/{self.collection}")
+        if response.status_code == 404:
+            config_path = self.settings.root / "config/qdrant.collection.json"
+            if not config_path.exists():
+                config_path = self.settings.root / "RAG_Local_Agents/config/qdrant.collection.json"
+            config = json.loads(config_path.read_text(encoding="utf-8"))
+            await self.request("PUT", f"/collections/{self.collection}", json=config)
+        actual = await self.request("GET", f"/collections/{self.collection}")
+        effective = actual["config"]
+        params = effective["params"]
+        dense = params["vectors"].get("dense", {})
+        if (dense.get("size") != 384 or dense.get("distance", "").lower() != "cosine" or dense.get("on_disk") is not True
+                or params.get("on_disk_payload") is not True or params.get("replication_factor") != 1
+                or effective.get("hnsw_config", {}).get("on_disk") is not False
+                or effective.get("optimizer_config", effective.get("optimizers_config", {})).get("max_optimization_threads") != 1):
+            raise ApiError("incompatible_collection", "Paramètres effectifs Qdrant incompatibles avec le profil CPU et l'identité dense.", 503)
+        for name, field_type in (("generation_id", "keyword"), ("version_id", "keyword"), ("document_id", "keyword"), ("page_indices", "integer"), ("block_ids", "keyword")):
+            await self.request("PUT", f"/collections/{self.collection}/index", params={"wait": "true"}, json={"field_name": name, "field_schema": field_type})
+
+    async def query(self, vector, snapshot, limit=24):
+        if not snapshot.generations:
+            return []
+        body = {"query": vector, "using": "dense", "filter": snapshot.vector_filter(),
+                "params": {"hnsw_ef": self.settings.value("retrieval", "hnsw_ef", 64)},
+                "limit": limit, "with_payload": True, "with_vector": False}
+        result = await self.request("POST", f"/collections/{self.collection}/points/query", json=body)
+        points = result.get("points", []) if isinstance(result, dict) else result
+        return [str(point["id"]) for point in points]
+
+    async def upsert(self, points):
+        await self.request("PUT", f"/collections/{self.collection}/points", params={"wait": "true"}, json={"points": points})
+
+    async def verify(self, expected):
+        if not expected:
+            return
+        points = await self.request("POST", f"/collections/{self.collection}/points", json={"ids": list(expected), "with_payload": True, "with_vector": False})
+        actual = {str(point["id"]): point["payload"].get("text_hash") for point in points}
+        if actual != expected:
+            raise ApiError("vector_integrity_failure", "Les vecteurs attendus ne sont pas tous confirmés.", 503)
+
+    async def delete_generation(self, generation_id):
+        await self.request("POST", f"/collections/{self.collection}/points/delete", params={"wait": "true"}, json={"filter": {"must": [{"key": "generation_id", "match": {"value": generation_id}}]}})
+
+
+class SearchService:
+    def __init__(self, db, resolver, embedding, vectors, settings):
+        self.db, self.resolver, self.embedding, self.vectors, self.settings = db, resolver, embedding, vectors, settings
+
+    def lexical(self, question, snapshot):
+        clause, parameters = snapshot.sql_filter()
+        limit = self.settings.value("retrieval", "lexical_top_k", 24)
+        exact = []
+        codes = sorted({normalized_identifier(value) for value in identifiers(question)})
+        if codes:
+            per_code = []
+            for code in codes:
+                sql = f"SELECT DISTINCT c.chunk_uuid FROM chunks c JOIN identifiers i ON i.chunk_uuid=c.chunk_uuid WHERE {clause} AND i.normalized=? ORDER BY c.chunk_uuid LIMIT ?"
+                per_code.append([row["chunk_uuid"] for row in self.db.rows(sql, parameters + [code, limit])])
+            exact = list(dict.fromkeys(chunk for position in range(limit) for matches in per_code for chunk in matches[position:position + 1]))[:limit]
+        expression = match_expression(question)
+        ranked = []
+        if expression:
+            sql = f"SELECT c.chunk_uuid,bm25(chunks_fts,2.0,1.0) score FROM chunks_fts JOIN chunks c ON c.id=chunks_fts.rowid WHERE {clause} AND chunks_fts MATCH ? ORDER BY score ASC,c.chunk_uuid ASC LIMIT ?"
+            ranked = [row["chunk_uuid"] for row in self.db.rows(sql, parameters + [expression, limit])]
+        return list(dict.fromkeys(exact + ranked))[:limit], exact
+
+    async def _candidates(self, question, snapshot):
+        lexical_task = asyncio.create_task(asyncio.to_thread(self.lexical, question, snapshot))
+        try:
+            vector = (await asyncio.to_thread(self.embedding.embed, [question], False))[0]
+            dense = await self.vectors.query(vector, snapshot, self.settings.value("retrieval", "dense_top_k", 24))
+            lexical, exact = await lexical_task
+        except BaseException:
+            lexical_task.cancel()
+            await asyncio.gather(lexical_task, return_exceptions=True)
+            raise
+        scores = rrf(lexical, dense, self.settings.value("retrieval", "rrf_k", 60))
+        # Exact identifiers are deliberately retained before the rank fusion pool.
+        exact_set = set(exact)
+        scores.sort(key=lambda pair: (pair[0] not in exact_set, -pair[1], pair[0]))
+        candidates = []
+        for chunk_id, score in scores:
+            chunk = self.db.one("SELECT * FROM chunks WHERE chunk_uuid=?", (chunk_id,))
+            if not chunk:
+                continue
+            source = self.resolver.source_for_chunk(chunk, snapshot)
+            if source:
+                source.update({"score": score, "exact_identifier": chunk_id in exact_set})
+                generation = self.db.one("SELECT state,coverage_json,warnings_json FROM index_generations WHERE id=?", (chunk["generation_id"],))
+                source.update({"coverage": json.loads(generation["coverage_json"]), "extraction_state": generation["state"], "extraction_warnings": json.loads(generation["warnings_json"])})
+                candidates.append(source)
+        return candidates
+
+    async def search(self, question, snapshot, mode="question"):
+        start = time.perf_counter()
+        warnings = []
+        if snapshot.scope["kind"] == "selection":
+            results = self.resolver.selected_sources(snapshot)
+        elif not snapshot.generations:
+            results = []
+        elif mode == "comparison":
+            per_document = []
+            for document_id in dict.fromkeys(snapshot.documents.values()):
+                candidates = await self._candidates(question, snapshot.narrowed(document_id))
+                if not candidates:
+                    warnings.append({"code": "comparison_gap", "document_id": document_id, "message": "Aucun passage retrouvé pour ce document."})
+                per_document.append(candidates)
+            results = []
+            for position in range(24):
+                for candidates in per_document:
+                    if position < len(candidates):
+                        results.append(candidates[position])
+        else:
+            results = await self._candidates(question, snapshot)
+        documents = {}
+        for source in results:
+            document_id = source["document_id"]
+            if document_id not in documents:
+                document = self.db.one("SELECT name,relative_path,deleted_at FROM documents WHERE id=?", (document_id,))
+                if not document or document["deleted_at"]:
+                    raise ApiError("source_removed", "Source absente ou supprimée.", 404)
+                documents[document_id] = document
+            document = documents[document_id]
+            page_index = source["page_indices"][0]
+            page = next(block["page"] for block in source["blocks"] if block["page_index"] == page_index)
+            source.update({"name": document["name"], "document_name": document["name"],
+                           "relative_path": document["relative_path"], "page_index": page_index,
+                           "page_number": page_index + 1, "label": page.get("label")})
+        top10 = list(results[:10])
+        required = {normalized_identifier(value) for value in identifiers(question)}
+        mandatory = []
+        covered = set()
+        for source in results:
+            newly_covered = {code for code in required - covered if contains_identifier(source["text"], code)}
+            if newly_covered:
+                source["required_identifiers"] = sorted(newly_covered)
+                mandatory.append(source)
+                covered.update(newly_covered)
+        for code in required - covered:
+            warnings.append({"code": "identifier_not_found_in_scope", "identifier": code, "message": "Référence non retrouvée dans les passages de ce périmètre."})
+        mandatory_ids = {id(source) for source in mandatory}
+        results = mandatory + [source for source in results if id(source) not in mandatory_ids]
+        unique = []
+        parents = set()
+        retained_identifiers = set()
+        maximum = self.settings.value("retrieval", "constrained_max_fragments", 8) if mode == "comparison" or len(required) > 1 else self.settings.value("retrieval", "final_max_fragments", 6)
+        for source in results:
+            key = (source["version_id"], source.get("parent_id") or source.get("chunk_id"))
+            newly_covered = {code for code in required - retained_identifiers if contains_identifier(source["text"], code)}
+            if key in parents and not newly_covered:
+                continue
+            parents.add(key)
+            retained_identifiers.update(newly_covered)
+            unique.append(source)
+            if len(unique) >= maximum:
+                break
+        for document_id in {source["document_id"] for source in unique if source.get("extraction_state") == "ready_partial"}:
+            warnings.append({"code": "partial_extraction", "document_id": document_id, "message": "Extraction partielle ; les régions ou pages non extraites ne constituent pas des preuves."})
+        return {"results": unique, "top10": top10, "scope_snapshot": snapshot.as_dict(), "warnings": warnings,
+                "elapsed_ms": round((time.perf_counter() - start) * 1000, 2)}

@@ -1,0 +1,36 @@
+{
+  "date_utc": "2026-09-30",
+  "python": "3.12.14",
+  "interpreter": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+  "command": ".venv/Scripts/python.exe -m pytest tests/integration/test_api_http.py::test_api_releases_e5_only_for_cold_insufficient_memory -q --junitxml=RAG_Local_Agents/reports/backend/2026-09-30-reserve-violation-hook.xml",
+  "result": {
+    "exit_code": 0,
+    "passed": 4,
+    "warnings": 1,
+    "duration_seconds": 4.85
+  },
+  "source_sha256": {
+    "services/api/__init__.py": "6e1626978265dd2ee6c3798b50e440e67667d52b97456feda09180feb494f668",
+    "services/api/context.py": "3116ac3914410cfa6b6748eaee2efda4762712f46303fa16528e2ad6af71f27c",
+    "services/api/db.py": "b2666c54d1e0791d72fd43492caab93fe194afe1ffb1bc35f3541f41964781ee",
+    "services/api/embedding.py": "f1c7c273544949b16258e6dc53d2058cca2669e182ab192b6abbc5345dbbd990",
+    "services/api/errors.py": "46a7c379ffa86343ff49218e5c2a416d46d656b6f529bf81018d665030d6be5c",
+    "services/api/indexing.py": "017ef28a2d66c71f8fafff2782bd9f668e6661b593a56ab12418aed1158b7860",
+    "services/api/jobs.py": "3aa6415d2fa5eb1252de7f9d4f5197324e2e517f0be2fc654bce293af4dddbc5",
+    "services/api/main.py": "c62503a98fb618594a9c1f3edb68d13c255866fbea8623f387617becd697ac8c",
+    "services/api/ollama.py": "496047ce056ea0e0d12e0d9e10fb73a91afedab4be135df0ef28059ecbc7d873",
+    "services/api/qualification.py": "71206c2b961877a8d54921aa7b97c957a26ba2381e885d9db479cc5a5cc591b5",
+    "services/api/query.py": "d7f4e36165055165c21cf122493bb898eab85372197b254f1335742d4734c27f",
+    "services/api/reconcile.py": "52d1ed734eae353d3cd2ec55c4e5f73fadcdb60d45a0490a2c2dac013b8707d2",
+    "services/api/retrieval.py": "b004222cd4e893e26499347a585ec6d792be4e4c444cfd7ce8e4ef3320d0f569",
+    "services/api/schemas.py": "81b3649b16ece1cb86771ed5bc5c1004ede3523ba728a94a9499dd7035542ef1",
+    "services/api/scope.py": "9b76dfe5196dd510fdf21c888febc9744bcec7cc42fdbd8a739f54c675d357f3",
+    "services/api/settings.py": "1e521ae91b9db184c47a7b52645d13653315428300f503d900d9768b57f689b9"
+  },
+  "limits": [
+    "This tests installation of the unload callback plus conditional release branches with explicit injected runtime and memory boundaries.",
+    "The ResourceGovernor independently owns timing and invocation of after_resource_violation; normal user cancellation is unchanged.",
+    "Real full-chain memory release and reload measurement pending.",
+    "Starlette TestClient httpx deprecation warning retained."
+  ]
+}

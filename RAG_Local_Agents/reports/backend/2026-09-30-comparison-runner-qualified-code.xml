@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="17" time="6.864" timestamp="2026-09-30T04:24:15.383619+00:00" hostname="P35P47599"><testcase classname="tests.unit.test_retrieval_comparison" name="test_retrieval_granite_contract_rejects_e5_pooling_prefixes_and_missing_normalize" time="0.249" /><testcase classname="tests.unit.test_retrieval_comparison" name="test_retrieval_granite_pools_first_cls_token_and_rejects_implicit_pooled_graph" time="0.004" /><testcase classname="tests.unit.test_retrieval_comparison" name="test_retrieval_granite_uses_empty_prefixes_actual_signature_and_pinned_padding" time="0.026" /><testcase classname="tests.unit.test_retrieval_comparison" name="test_retrieval_granite_rejects_long_immutable_passage_before_session" time="0.010" /><testcase classname="tests.unit.test_retrieval_comparison" name="test_retrieval_comparison_snapshot_fts_is_readonly_without_sidecars" time="0.105"><failure message="assert (b&quot;SQLite form...01version\x04&quot; == b&quot;SQLite form...01version\x04&quot;&#10;  &#10;  Use -v to get more diff and {WindowsPath(...zen.sqlite3')} == {WindowsPath(...TE3-SHM.tmp')}&#10;  &#10;  Extra items in the right set:&#10;  WindowsPath('C:/Users/P47599/AppData/Local/Temp/pytest-of-P47599/pytest-50/test_retrieval_comparison_snap0/FROZEN.SQLITE3-SHM.tmp')&#10;  Use -v to get more diff)">tmp_path = WindowsPath('C:/Users/P47599/AppData/Local/Temp/pytest-of-P47599/pytest-50/test_retrieval_comparison_snap0')
+
+    def test_retrieval_comparison_snapshot_fts_is_readonly_without_sidecars(tmp_path):
+        path = tmp_path / "frozen.sqlite3"
+        with sqlite3.connect(path) as writable:
+            writable.execute("PRAGMA journal_mode=WAL")
+            writable.execute("CREATE TABLE documents(id TEXT PRIMARY KEY,name TEXT)")
+            writable.execute("INSERT INTO documents VALUES('d1','immutable')")
+            writable.execute("CREATE VIRTUAL TABLE chunks_fts USING fts5(text)")
+            writable.execute("INSERT INTO chunks_fts VALUES('CCU-21 nominal voltage')")
+            writable.commit()
+            writable.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+        writable.close()
+        original = path.read_bytes()
+        before_files = set(tmp_path.iterdir())
+        db = FrozenDatabase(path, hashlib.sha256(original).hexdigest())
+        assert db.one("SELECT name FROM documents WHERE id=?", ("d1",))["name"] == "immutable"
+        assert db.one("SELECT count(*) n FROM chunks_fts WHERE chunks_fts MATCH ?", ('"CCU"',))["n"] == 1
+        with db.connect() as connection:
+            connection.execute("BEGIN")
+            assert connection.execute("SELECT count(*) FROM documents").fetchone()[0] == 1
+            for sql in ["DELETE FROM documents", "PRAGMA journal_mode=WAL", "ATTACH DATABASE 'forbidden.sqlite3' AS forbidden"]:
+                with pytest.raises(sqlite3.DatabaseError):
+                    connection.execute(sql)
+        for write in [db.initialize, lambda: db.execute("DELETE FROM documents")]:
+            with pytest.raises(ApiError, match="image comparative"):
+                write()
+        db.verify_image()
+&gt;       assert path.read_bytes() == original and set(tmp_path.iterdir()) == before_files
+E       assert (b"SQLite form...01version\x04" == b"SQLite form...01version\x04"
+E         
+E         Use -v to get more diff and {WindowsPath(...zen.sqlite3')} == {WindowsPath(...TE3-SHM.tmp')}
+E         
+E         Extra items in the right set:
+E         WindowsPath('C:/Users/P47599/AppData/Local/Temp/pytest-of-P47599/pytest-50/test_retrieval_comparison_snap0/FROZEN.SQLITE3-SHM.tmp')
+E         Use -v to get more diff)
+
+tests\unit\test_retrieval_comparison.py:124: AssertionError</failure></testcase><testcase classname="tests.unit.test_retrieval_comparison" name="test_retrieval_comparison_snapshot_refuses_wal_and_wrong_hash" time="0.040" /><testcase classname="tests.unit.test_retrieval_comparison" name="test_retrieval_granite_wrong_publisher_revision_fails_without_engine" time="0.019" /><testcase classname="tests.unit.test_retrieval_comparison_runner" name="test_retrieval_comparison_uses_frozen_store_actual_selector_and_never_marks_partial_pass" time="0.986" /><testcase classname="tests.unit.test_retrieval_comparison_runner" name="test_retrieval_comparison_preserves_identity_failure_before_any_engine" time="0.915" /><testcase classname="tests.unit.test_retrieval_comparison_runner" name="test_retrieval_comparison_refuses_changed_gold_source_before_model" time="0.946" /><testcase classname="tests.unit.test_retrieval_comparison_runner" name="test_retrieval_comparison_does_not_ignore_reserve_violation_at_final_sample" time="0.837" /><testcase classname="tests.unit.test_retrieval_comparison_runner" name="test_retrieval_comparison_collection_names_are_dedicated_and_bounded" time="0.454" /><testcase classname="tests.unit.test_retrieval_comparison_runner" name="test_retrieval_comparison_checks_stopped_api_and_unloaded_llm_without_mutation[True-False]" time="0.020" /><testcase classname="tests.unit.test_retrieval_comparison_runner" name="test_retrieval_comparison_checks_stopped_api_and_unloaded_llm_without_mutation[False-True]" time="0.018" /><testcase classname="tests.unit.test_retrieval_comparison_runner" name="test_retrieval_comparison_checks_stopped_api_and_unloaded_llm_without_mutation[False-False]" time="0.020" /><testcase classname="tests.unit.test_retrieval_comparison_runner" name="test_retrieval_comparison_percentiles_and_storage_use_actual_files" time="0.033" /><testcase classname="tests.unit.test_retrieval_comparison_runner" name="test_retrieval_comparison_cli_keeps_failed_preflight_as_new_report" time="0.078" /></testsuite></testsuites>

@@ -1,0 +1,5 @@
+{
+  "status": "failed",
+  "error": "HTTPStatusError",
+  "message": "Server error '500 Internal Server Error' for url 'http://127.0.0.1:6343/collections/pdf_chunks_e5small_v1_53cac40518d0dec0/snapshots/upload?wait=true&priority=snapshot&checksum=4a6ee822a7df94997110ef189199a1f719559cc1d88c1c4d7951cb866a2f647e'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500"
+}

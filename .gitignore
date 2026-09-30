@@ -1,0 +1,46 @@
+# Runtimes, modèles, données applicatives et essais QA locaux (provisionnés, jamais versionnés)
+.runtime/
+.venv/
+node_modules/
+.qdrant-initialized
+
+# Builds et caches
+apps/web/.next/
+apps/web/out/
+*.tsbuildinfo
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Corpus privé, sauvegardes et exports de données
+PDF/
+backups/
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+*.snapshot
+
+# Secrets et configuration locale
+.env
+*.env.local
+*.pem
+*.key
+*.pfx
+admin-token
+
+# Sorties brutes Playwright (les preuves retenues sont copiées sous apps/web/reports)
+playwright-report/
+test-results/
+
+# Outils locaux
+.claude/settings.local.json
+
+# Fichiers système
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Assets PDF.js recopiés depuis pdfjs-dist par scripts/prepare-assets.mjs au build
+apps/web/public/pdfjs/

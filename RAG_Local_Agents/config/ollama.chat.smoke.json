@@ -1,0 +1,24 @@
+{
+  "model": "qwen3.5:4b",
+  "messages": [
+    {
+      "role": "system",
+      "content": "Réponds en français. Ce message est un test technique de connectivité, sans document à analyser."
+    },
+    {
+      "role": "user",
+      "content": "Écris seulement : SERVICE LOCAL PRÊT"
+    }
+  ],
+  "stream": true,
+  "think": false,
+  "keep_alive": "10m",
+  "options": {
+    "num_ctx": 8192,
+    "num_predict": 768,
+    "temperature": 0.2,
+    "top_p": 0.9,
+    "num_gpu": 0,
+    "num_thread": 4
+  }
+}

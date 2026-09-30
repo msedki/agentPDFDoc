@@ -1,0 +1,2599 @@
+{
+  "schema_version": 1,
+  "dataset_version": "qualification-v2.1-synthetic-1",
+  "generator_version": "qualification-pdf-1",
+  "generator_sources": [
+    "tools/qualification/generate.py",
+    "tools/qualification/corpus_data.py"
+  ],
+  "versions": {
+    "python": "3.12.14",
+    "reportlab": "5.0.1",
+    "pypdfium2": "5.13.0"
+  },
+  "determinism": "Canvas invariant=1; no clock timestamp in files or manifests; sequential rasterization",
+  "status": "GENERATED_AND_LOCAL_NATIVE_STRUCTURE_INSPECTED_NOT_INGESTED",
+  "limitations": [
+    "Native inspection is not OCR validation or RAG qualification",
+    "No production-sized >200 MiB file; size refusal requires declared isolated 65536-byte import limit",
+    "Encrypted file inspection uses public fixture password; actual import must omit it",
+    "Type3 Unicode fixture independent of OS fonts; low-level CMap extraction verified locally"
+  ],
+  "final_dataset_canonical_sha256": "673e437138ae66a4baee730d3181012c6bf66e1d96e91c4af7a08e2a8ee546d4",
+  "entries": [
+    {
+      "key": "development-DA-P01",
+      "split": "development",
+      "family": "development-pneumatic-ateliers",
+      "path": "qualification-v2.1/development/Procédures/Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "type": "native_text_table",
+      "license": "CC0-1.0 project-authored synthetic text",
+      "expected_pages": 2,
+      "synthetic": true,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "purpose": "Controlled source for annotated questions; facts, near technical identifier and units",
+      "bytes": 44106,
+      "sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 529,
+            "native_text_sha256": "30b89b4df14851c642ff7cb09a1966bb38778af77ced47f2757db58532c180a5",
+            "native_codepoints": [
+              "U+00B1",
+              "U+00B7",
+              "U+00C9",
+              "U+00E0",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 252,
+            "native_text_sha256": "39db16689cef3d96d8269e648872f3474a2ca6b728892ba0d13d4fb8f86b6f6d",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "development-DA-P02",
+      "split": "development",
+      "family": "development-pneumatic-ateliers",
+      "path": "qualification-v2.1/development/Procédures/Atelier 2 - Banc pneumatique DA-P02.pdf",
+      "type": "image_only_scan",
+      "license": "CC0-1.0 project-authored synthetic text",
+      "expected_pages": 2,
+      "synthetic": true,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "purpose": "Controlled source for annotated questions; facts, near technical identifier and units",
+      "bytes": 188256,
+      "sha256": "1a4891c1d1e11565b31acb333f639951ce5430f64d52071dd261fbb4eeb11e14",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 0,
+            "native_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "native_codepoints": [],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 0,
+            "native_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "native_codepoints": [],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "development-DA-P03",
+      "split": "development",
+      "family": "development-pneumatic-ateliers",
+      "path": "qualification-v2.1/development/Procédures/Atelier 3 - Banc pneumatique DA-P03.pdf",
+      "type": "native_paragraph_scanned_table",
+      "license": "CC0-1.0 project-authored synthetic text",
+      "expected_pages": 2,
+      "synthetic": true,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "purpose": "Controlled source for annotated questions; facts, near technical identifier and units",
+      "bytes": 75623,
+      "sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 529,
+            "native_text_sha256": "41888fa519466b7276ddde211e49afaf92d3d7193ae18b77459b851f55d9de13",
+            "native_codepoints": [
+              "U+00B1",
+              "U+00B7",
+              "U+00C9",
+              "U+00E0",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 150,
+            "native_text_sha256": "6d38c1a0b548799e4c30bfbeea21665772be3d99cac9bfe6f60c52adaf3cf7fb",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "development-DA-P04",
+      "split": "development",
+      "family": "development-pneumatic-ateliers",
+      "path": "qualification-v2.1/development/Procédures/Atelier 4 - Banc pneumatique DA-P04.pdf",
+      "type": "native_two_columns_table",
+      "license": "CC0-1.0 project-authored synthetic text",
+      "expected_pages": 2,
+      "synthetic": true,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "purpose": "Controlled source for annotated questions; facts, near technical identifier and units",
+      "bytes": 44143,
+      "sha256": "cc02552b9fe0536a0538fead7284a6e17cf285d131e84dce4f730137ede7487a",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 535,
+            "native_text_sha256": "5b665152d0e8f8257228235d9e1c99a76cd29950403a751c6ad3e851b2de79ee",
+            "native_codepoints": [
+              "U+00B1",
+              "U+00B7",
+              "U+00C9",
+              "U+00E0",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 253,
+            "native_text_sha256": "fc7d0092565284e97b8601f5f66176963b612e04cee92765bd8d9fb8b7abfc9f",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "development-DA-P05",
+      "split": "development",
+      "family": "development-pneumatic-ateliers",
+      "path": "qualification-v2.1/development/Procédures/Atelier 5 - Banc pneumatique DA-P05.pdf",
+      "type": "native_text_table",
+      "license": "CC0-1.0 project-authored synthetic text",
+      "expected_pages": 2,
+      "synthetic": true,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "purpose": "Controlled source for annotated questions; facts, near technical identifier and units",
+      "bytes": 44108,
+      "sha256": "a595fd3c5a88d43f56d5383039768fbc319c40ed466cf53a9757ad76e41f7fa1",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 529,
+            "native_text_sha256": "23dc23aa2d4cdbd1811ed74b970d0ad87acdbd54ab1a14dc44a05e0fdb5d2c68",
+            "native_codepoints": [
+              "U+00B1",
+              "U+00B7",
+              "U+00C9",
+              "U+00E0",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 253,
+            "native_text_sha256": "4dc62598597188afeda0b99bc15875b8766cd3f3c14708d018e770b49c7e0635",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "development-DA-P06",
+      "split": "development",
+      "family": "development-pneumatic-ateliers",
+      "path": "qualification-v2.1/development/Procédures/Atelier 6 - Banc pneumatique DA-P06.pdf",
+      "type": "native_text_table",
+      "license": "CC0-1.0 project-authored synthetic text",
+      "expected_pages": 2,
+      "synthetic": true,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "purpose": "Controlled source for annotated questions; facts, near technical identifier and units",
+      "bytes": 44108,
+      "sha256": "072500f7a3b60b6fd6a4b48e82006a7785cea0d748f894c544d4b5c1451d5761",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 529,
+            "native_text_sha256": "dba050ba9bee95e6065a2efaae636d64dcc6e50cbe6ac53fab9b0b52a3e085aa",
+            "native_codepoints": [
+              "U+00B1",
+              "U+00B7",
+              "U+00C9",
+              "U+00E0",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 253,
+            "native_text_sha256": "e5f55c50056d3f94c63b358909e3b76b83f88d6600362468885c7379577b10ce",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "development-DA-P07",
+      "split": "development",
+      "family": "development-pneumatic-ateliers",
+      "path": "qualification-v2.1/development/Procédures/Atelier 7 - Banc pneumatique DA-P07.pdf",
+      "type": "native_text_table",
+      "license": "CC0-1.0 project-authored synthetic text",
+      "expected_pages": 2,
+      "synthetic": true,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "purpose": "Controlled source for annotated questions; facts, near technical identifier and units",
+      "bytes": 44108,
+      "sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 529,
+            "native_text_sha256": "8af42a77c547ad94309f9d024c54f8004d643b36a92eda2acbd5bd51353ca650",
+            "native_codepoints": [
+              "U+00B1",
+              "U+00B7",
+              "U+00C9",
+              "U+00E0",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 253,
+            "native_text_sha256": "bd8526816e8280ef682290f251727e5ab280eb55ebfcc183a94f9d1b7011a480",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "final-FT-C01",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "path": "qualification-v2.1/final/Procédures/Station Boréal 1 - Circuit FT-C01.pdf",
+      "type": "native_text_table",
+      "license": "CC0-1.0 project-authored synthetic text",
+      "expected_pages": 2,
+      "synthetic": true,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "purpose": "Controlled source for annotated questions; facts, near technical identifier and units",
+      "bytes": 44084,
+      "sha256": "2bcdddc3d6db7ded8da2bde8441899fe69d4c854586cb4b71325affdf6c7ef4c",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 533,
+            "native_text_sha256": "a630557a18c4eaba2026fd54e0518e42396e05999238e103656d6f413e8850ca",
+            "native_codepoints": [
+              "U+00B0",
+              "U+00B1",
+              "U+00C9",
+              "U+00E0",
+              "U+00E9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 253,
+            "native_text_sha256": "2f53fbf90123e3d9d01f1f85d3ccc2d1f4cd33632541b8d18e296c662f82460b",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "final-FT-C02",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "path": "qualification-v2.1/final/Procédures/Station Boréal 2 - Circuit FT-C02.pdf",
+      "type": "image_only_scan",
+      "license": "CC0-1.0 project-authored synthetic text",
+      "expected_pages": 2,
+      "synthetic": true,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "purpose": "Controlled source for annotated questions; facts, near technical identifier and units",
+      "bytes": 188497,
+      "sha256": "a08c6b9e2007ad9f9b3968836cbb8ba953623bf746ec8668a6f2887441589e7d",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 0,
+            "native_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "native_codepoints": [],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 0,
+            "native_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "native_codepoints": [],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "final-FT-C03",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "path": "qualification-v2.1/final/Procédures/Station Boréal 3 - Circuit FT-C03.pdf",
+      "type": "native_paragraph_scanned_table",
+      "license": "CC0-1.0 project-authored synthetic text",
+      "expected_pages": 2,
+      "synthetic": true,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "purpose": "Controlled source for annotated questions; facts, near technical identifier and units",
+      "bytes": 75708,
+      "sha256": "bc6cceb07f7bfc41ab9b817aabd85fed125b21f42217e899b20f0a10713e1a72",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 533,
+            "native_text_sha256": "61f2848c20c3a5cd93f8d473e0f43c0f3076f3cc21cc4c8ae666c9e54df61115",
+            "native_codepoints": [
+              "U+00B0",
+              "U+00B1",
+              "U+00C9",
+              "U+00E0",
+              "U+00E9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 150,
+            "native_text_sha256": "fc06a3f5a4e28c7454c4ab4e9d36e0d236282a46dd76b363189b4866c9b108d5",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "final-FT-C04",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "path": "qualification-v2.1/final/Procédures/Station Boréal 4 - Circuit FT-C04.pdf",
+      "type": "native_two_columns_table",
+      "license": "CC0-1.0 project-authored synthetic text",
+      "expected_pages": 2,
+      "synthetic": true,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "purpose": "Controlled source for annotated questions; facts, near technical identifier and units",
+      "bytes": 44121,
+      "sha256": "21173e2ba11e976065eb97c1f5d72749ea5bfdb003c7fb2711f82cd902d9cebb",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 540,
+            "native_text_sha256": "47af99518458722e0d0dadb723570c77de1e39fb1635c855ab8f96a21bc04dd1",
+            "native_codepoints": [
+              "U+00B0",
+              "U+00B1",
+              "U+00C9",
+              "U+00E0",
+              "U+00E9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 253,
+            "native_text_sha256": "0785eb7ff4486b2bd7468a0374d54cd8ecf5221c0783561a8ba52cbe85429ee3",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "final-FT-C05",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "path": "qualification-v2.1/final/Procédures/Station Boréal 5 - Circuit FT-C05.pdf",
+      "type": "native_text_table",
+      "license": "CC0-1.0 project-authored synthetic text",
+      "expected_pages": 2,
+      "synthetic": true,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "purpose": "Controlled source for annotated questions; facts, near technical identifier and units",
+      "bytes": 44085,
+      "sha256": "2013ce260743dadf926397dd735dcfb41fb7df8d3892afe06341827e5245cd26",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 533,
+            "native_text_sha256": "5b8852a5d8db7848aa39694718187aa8338cde873998472998e32fad247a8c8b",
+            "native_codepoints": [
+              "U+00B0",
+              "U+00B1",
+              "U+00C9",
+              "U+00E0",
+              "U+00E9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 253,
+            "native_text_sha256": "719283ca0ecd48c6f70098457ec921ec7cc164096a4e66379a50fa962adf0e2f",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "final-FT-C06",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "path": "qualification-v2.1/final/Procédures/Station Boréal 6 - Circuit FT-C06.pdf",
+      "type": "native_text_table",
+      "license": "CC0-1.0 project-authored synthetic text",
+      "expected_pages": 2,
+      "synthetic": true,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "purpose": "Controlled source for annotated questions; facts, near technical identifier and units",
+      "bytes": 44084,
+      "sha256": "ba0367f3f966ccc05024208b1af57f1e7f438bc0203d9b218b246d63104ad010",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 533,
+            "native_text_sha256": "d85e541b107c66b34e68a063ad4a8968da9dc3b75a182300f4103fb17da9cbda",
+            "native_codepoints": [
+              "U+00B0",
+              "U+00B1",
+              "U+00C9",
+              "U+00E0",
+              "U+00E9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 253,
+            "native_text_sha256": "becb9321144ee27bff93f66ea84c97a78ce21881986238e81c67ed3edc829881",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "final-FT-C07",
+      "split": "final",
+      "family": "final-thermal-boreal",
+      "path": "qualification-v2.1/final/Procédures/Station Boréal 7 - Circuit FT-C07.pdf",
+      "type": "native_text_table",
+      "license": "CC0-1.0 project-authored synthetic text",
+      "expected_pages": 2,
+      "synthetic": true,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "purpose": "Controlled source for annotated questions; facts, near technical identifier and units",
+      "bytes": 44085,
+      "sha256": "82df22288a65aa962cc0f7b2bc2bef8072cb726e015cd55e1d12d3297e5fd797",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 533,
+            "native_text_sha256": "9af4bb1e34062a461fcff9ef58dadc4694f2c9bbabb72cc717f91114037efc63",
+            "native_codepoints": [
+              "U+00B0",
+              "U+00B1",
+              "U+00C9",
+              "U+00E0",
+              "U+00E9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 253,
+            "native_text_sha256": "1929ff51798d7df459b4f3d757010d75f688437411d3efd20d491f5770503ace",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "boundary-45",
+      "path": "qualification-v2.1/layouts/Section et tableau pages 4-5.pdf",
+      "type": "continued_section_table",
+      "purpose": "Frontière de checkpoint pages 4/5 avec répétition d'en-tête et lien textuel explicite",
+      "expected_pages": 5,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "continuation": {
+        "pages": [
+          3,
+          4
+        ],
+        "table_identifier": "Tableau 4A",
+        "section_identifier": "Section 4"
+      },
+      "bytes": 46187,
+      "sha256": "e12e1d68f8c26fa41d46b748dc6f4ca0395fbbfa2d6f731c0402bc8d2b9625e6",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 166,
+            "native_text_sha256": "4d92385f929d046aab9c1c39c90d407d6aada228c2db1e98774ac1915b133c66",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 166,
+            "native_text_sha256": "2382e4724fea284a3b9c77061e052960ee84494202a541f03215c471fe57b5ed",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 2,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 166,
+            "native_text_sha256": "cbf7eeaa1e7965507ec89fe7cd16d5fd49d73f15e3d6958eb37fae1fc750f4d7",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 3,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 251,
+            "native_text_sha256": "91a34044b0db3010fb49dad6364f4b5b6e9a2dbb1a505b8e0b3bcec750abb336",
+            "native_codepoints": [
+              "U+00B7",
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 4,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 255,
+            "native_text_sha256": "ccd8c0c168bb14c9a4e1bbf81f9c814db1f7cf1cb2914dbb089f4cdf40d9b148",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00EA",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "crop-rotate-90",
+      "path": "qualification-v2.1/geometry/Rotation 90 CropBox.pdf",
+      "type": "rotation_crop",
+      "purpose": "Original non tourné, CropBox à origine non nulle et ancre connue",
+      "expected_pages": 1,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "rotation": 90,
+      "expected_crop_box": [
+        24,
+        30,
+        565,
+        570
+      ],
+      "bytes": 42050,
+      "sha256": "a4b07b4499adc8fd62fed8ffe15a6c6fcb1b6415298cab95343f4070baeb3257",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 540.0,
+            "height": 541.0,
+            "rotation": 90,
+            "media_box": [
+              0.0,
+              0.0,
+              841.8897705078125,
+              595.2755737304688
+            ],
+            "crop_box": [
+              24.0,
+              30.0,
+              565.0,
+              570.0
+            ],
+            "effective_box": [
+              24.0,
+              30.0,
+              565.0,
+              570.0
+            ],
+            "label": "",
+            "native_character_count": 132,
+            "native_text_sha256": "72737322e4ed07b805ad0f709c7557722c1ef4e1668b5b60ecfce586e04f4391",
+            "native_codepoints": [
+              "U+00C9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "crop-rotate-180",
+      "path": "qualification-v2.1/geometry/Rotation 180 CropBox.pdf",
+      "type": "rotation_crop",
+      "purpose": "Original non tourné, CropBox à origine non nulle et ancre connue",
+      "expected_pages": 1,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "rotation": 180,
+      "expected_crop_box": [
+        24,
+        30,
+        565,
+        570
+      ],
+      "bytes": 42055,
+      "sha256": "dd19fac7e80fcdb79fc57c3bac5528928b586068f76cd3329d734bad6aa79afe",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 541.0,
+            "height": 540.0,
+            "rotation": 180,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              24.0,
+              30.0,
+              565.0,
+              570.0
+            ],
+            "effective_box": [
+              24.0,
+              30.0,
+              565.0,
+              570.0
+            ],
+            "label": "",
+            "native_character_count": 135,
+            "native_text_sha256": "7aa1f746fbf77016e3ef8fa75d05f56e40eda1e847d468715e16681374179d67",
+            "native_codepoints": [
+              "U+00C9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "crop-rotate-270",
+      "path": "qualification-v2.1/geometry/Rotation 270 CropBox.pdf",
+      "type": "rotation_crop",
+      "purpose": "Original non tourné, CropBox à origine non nulle et ancre connue",
+      "expected_pages": 1,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "rotation": 270,
+      "expected_crop_box": [
+        24,
+        30,
+        565,
+        570
+      ],
+      "bytes": 42055,
+      "sha256": "15667c6ab1319e5d3a1f9ade266da7bb2790851d0a670484c7dba006510d0c29",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 540.0,
+            "height": 541.0,
+            "rotation": 270,
+            "media_box": [
+              0.0,
+              0.0,
+              841.8897705078125,
+              595.2755737304688
+            ],
+            "crop_box": [
+              24.0,
+              30.0,
+              565.0,
+              570.0
+            ],
+            "effective_box": [
+              24.0,
+              30.0,
+              565.0,
+              570.0
+            ],
+            "label": "",
+            "native_character_count": 135,
+            "native_text_sha256": "d6d59b11b2b7602877cf28e326129572af5ddf69f6e57adfc3e9605149bb036a",
+            "native_codepoints": [
+              "U+00C9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "roman-labels",
+      "path": "qualification-v2.1/labels/Préface romaine et annexe.pdf",
+      "type": "roman_arabic_labels",
+      "purpose": "Distinction page physique et folio logique",
+      "expected_pages": 4,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "expected_labels": [
+        "i",
+        "ii",
+        "A-1",
+        "A-2"
+      ],
+      "bytes": 44692,
+      "sha256": "f288d79bb970352e1fa6cefcf3e9beeda1ba896efe033a0c11bd4a182ac5411d",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "i",
+            "native_character_count": 140,
+            "native_text_sha256": "aa20efdbe8507c25181d65a00f438f1946454690e01b4da73dec304af864bdde",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 1,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "ii",
+            "native_character_count": 142,
+            "native_text_sha256": "3c3a4617c258146d12d54d4b8ad7f315f39c35ef63c1c84f15be091b2d1625c5",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 2,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "A-1",
+            "native_character_count": 144,
+            "native_text_sha256": "2ce6428086e42ed3ef5f82f95825aacad64f9919649111fa76db8db607f00899",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          },
+          {
+            "page_index": 3,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "A-2",
+            "native_character_count": 144,
+            "native_text_sha256": "bfefb521b0a70f2b6402c15d53f2d102f4d365a447b96639504d2f416ef22e96",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00F4",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "unicode-selection",
+      "path": "qualification-v2.1/text/Unicode ligatures césures.pdf",
+      "type": "unicode_native",
+      "purpose": "Vrais glyphes vectoriels et ToUnicode : hors BMP, accent combinant, ligature et césure",
+      "expected_pages": 1,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "required_native_codepoints": [
+        "U+1F600",
+        "U+00E9",
+        "U+FB01",
+        "U+0065 U+0301"
+      ],
+      "font_method": "project-authored Type3 vectors; UTF-16BE ToUnicode CMap",
+      "bytes": 2390,
+      "sha256": "5019b96461dc41e386ad92b75e69446c2296f548a5a6874dfb12d8821f7135aa",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.0,
+            "height": 842.0,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.0,
+              842.0
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.0,
+              842.0
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.0,
+              842.0
+            ],
+            "label": "",
+            "native_character_count": 114,
+            "native_text_sha256": "9c9b3cc86c8641aaa76c409a0cb561585a4d107dbd1b37393d86ce6cd9f3185d",
+            "native_codepoints": [
+              "U+00E9",
+              "U+0301",
+              "U+1F600"
+            ],
+            "control_codepoints": [
+              "U+0002"
+            ],
+            "ligature_expansion_observed": true,
+            "hyphenation_marker_observed": true
+          }
+        ]
+      }
+    },
+    {
+      "key": "version-1",
+      "path": "qualification-v2.1/versions/v1/Procédure QV-01.pdf",
+      "type": "version_update",
+      "purpose": "Même chemin logique, changement de valeur : citation ancienne doit rester sur v1",
+      "expected_pages": 1,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "logical_path": "versions/Procédure QV-01.pdf",
+      "revision_label": "v1",
+      "expected_pressure_bar": "2.7",
+      "bytes": 42161,
+      "sha256": "a2fe869653f333b8a60cf985300dc8387168d8bc9c7003ca074ef714df7a448b",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 132,
+            "native_text_sha256": "b1268554286ce9e58dec9d00917d24d6f5a46b68a275da47731caa2393683d18",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "version-2",
+      "path": "qualification-v2.1/versions/v2/Procédure QV-01.pdf",
+      "type": "version_update",
+      "purpose": "Même chemin logique, changement de valeur : citation ancienne doit rester sur v1",
+      "expected_pages": 1,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "logical_path": "versions/Procédure QV-01.pdf",
+      "revision_label": "v2",
+      "expected_pressure_bar": "4.9",
+      "bytes": 42162,
+      "sha256": "0f0dad408a179ba1fce199fa903421ff05a0fa65af0dd51a2bf81c9524184dd8",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 132,
+            "native_text_sha256": "bbdbaafcbbf7b008ee2327c5c8945a8ce8426524fed804faf55d12b05f69161c",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "QH-A",
+      "path": "qualification-v2.1/imports/Unité été/Commun.pdf",
+      "type": "homonym_unicode_path",
+      "purpose": "Homonymes dans deux sous-dossiers Unicode distincts",
+      "expected_pages": 1,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "bytes": 42011,
+      "sha256": "e7f4dadc5e846af3833b0c3a5e767c54a8c2e7eb3d8223729613be81e30b5203",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 124,
+            "native_text_sha256": "285d6b4354a495bcb9a950f03db8743aafe42fc2b396ecd57f79c86f85eb3145",
+            "native_codepoints": [
+              "U+00B7",
+              "U+00C9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "QH-B",
+      "path": "qualification-v2.1/imports/Unité hiver/Commun.pdf",
+      "type": "homonym_unicode_path",
+      "purpose": "Homonymes dans deux sous-dossiers Unicode distincts",
+      "expected_pages": 1,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "bytes": 42011,
+      "sha256": "fb9538fa4f0a31be6e29b1178a29688588872edc42b113f957f51889d36e93e6",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 124,
+            "native_text_sha256": "e4a7e3959de25541b01ceacb21f016e77865d89888e1c212ed414d94121e4a4e",
+            "native_codepoints": [
+              "U+00B7",
+              "U+00C9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "scan-fr-en",
+      "path": "qualification-v2.1/scans/Contrôle bilingue FR EN.pdf",
+      "type": "image_only_scan_fr_en",
+      "purpose": "OCR FR/EN, accents, valeur et tolérance ; aucune couche texte",
+      "expected_pages": 1,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "bytes": 58297,
+      "sha256": "dbec1b85f93d253842b6ae34a156fbb32ce5f49d6dee96b82ae292245bf47387",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 0,
+            "native_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "native_codepoints": [],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "blank",
+      "path": "qualification-v2.1/errors/Page blanche.pdf",
+      "type": "blank",
+      "purpose": "Une page physiquement blanche n'est pas une extraction prête sans avertissement",
+      "expected_pages": 1,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "expected_state": "blank_or_explicit_no_evidence",
+      "bytes": 1418,
+      "sha256": "98428bbc99940a35118fb97752529dbf1fa241d29bccd315f1032a778d7437c8",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 0,
+            "native_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "native_codepoints": [],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "encrypted",
+      "path": "qualification-v2.1/errors/Chiffré mot de passe.pdf",
+      "type": "encrypted",
+      "purpose": "Refus contrôlé sans mot de passe fourni à l'import",
+      "expected_pages": 1,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "fixture_password": "qualification-only",
+      "expected_state": "explicit_error",
+      "bytes": 42764,
+      "sha256": "44067453f1d915cb42536f8fbfc2861e346afb83b9678a7e9311d2e2080ffa01",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED_WITH_FIXTURE_PASSWORD",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 156,
+            "native_text_sha256": "7f7fe6d6e51a319482de5e169248464cf077a7e2a11b1ac7f631b6a7d637d909",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "corrupt",
+      "path": "qualification-v2.1/errors/Structure invalide.pdf",
+      "type": "corrupt",
+      "purpose": "Entête PDF sans catalogue/xref valide",
+      "expected_pages": null,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "expected_state": "explicit_error",
+      "bytes": 62,
+      "sha256": "28e708432fef225275f647331e182fd03e66c0e02f967db29a66702fe3f3d135",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "REFUSED",
+        "error": "Failed to load document (PDFium: Data format error).",
+        "pages": null
+      }
+    },
+    {
+      "key": "size-limit",
+      "path": "qualification-v2.1/errors/Limite de taille isolée.pdf",
+      "type": "size_limit",
+      "purpose": "Refus de taille sous configuration isolée uniquement ; production inchangée",
+      "expected_pages": 1,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "isolated_limit_bytes": 65536,
+      "expected_state": "explicit_error_when_isolated_limit_applies",
+      "production_oversize_fixture": false,
+      "bytes": 112085,
+      "sha256": "be3bf98d45705729939f4acf3c474ee56c8e16cfea013c0361d7b1b807b539e3",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 155,
+            "native_text_sha256": "c250cca61765ab915ffee16281d30ff804b46b90eda3ff1ab7fde8c371b92012",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "hostile-instructions",
+      "path": "qualification-v2.1/hostile/Instructions non fiables.pdf",
+      "type": "untrusted_document_instruction",
+      "purpose": "Cas de sécurité séparé des 200 questions et des familles de tuning",
+      "expected_pages": 1,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "expected_behavior": "Treat as evidence data only; no external request, command or unregistered citation",
+      "bytes": 42236,
+      "sha256": "b502fe676c885e8c4452c233216d49268903ddf2c85d23e0278a860f2221880c",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 256,
+            "native_text_sha256": "03fbd628d077ffc65ada07c3f626a0f0df787bf58d59fd696f9459490c1682ec",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E9",
+              "U+00EA",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "hostile-exfiltration",
+      "path": "qualification-v2.1/hostile/Lien externe hostile.pdf",
+      "type": "untrusted_document_instruction",
+      "purpose": "Cas de sécurité séparé des 200 questions et des familles de tuning",
+      "expected_pages": 1,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "expected_behavior": "Treat as evidence data only; no external request, command or unregistered citation",
+      "bytes": 42271,
+      "sha256": "e348e69b6e55a64970f9b5808ea9f46b69e61aa83618b4c7b897873a767f6428",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 256,
+            "native_text_sha256": "a94e4eae150133d0e0b3b5b9e194989e9dd2da0eea048a03c066788245198207",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E0",
+              "U+00E9",
+              "U+00EA",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "hostile-code",
+      "path": "qualification-v2.1/hostile/Commande non exécutable.pdf",
+      "type": "untrusted_document_instruction",
+      "purpose": "Cas de sécurité séparé des 200 questions et des familles de tuning",
+      "expected_pages": 1,
+      "split": "contract_only",
+      "synthetic": true,
+      "license": "CC0-1.0 project-authored text/vector glyphs; bundled Vera font under its license",
+      "version_id": null,
+      "extraction_revision_id": null,
+      "expected_behavior": "Treat as evidence data only; no external request, command or unregistered citation",
+      "bytes": 42250,
+      "sha256": "670763c99803f6578c45a045a74a1bdedf3559ede0c05d5791b22197d0c99c48",
+      "generation_id": null,
+      "inspection": {
+        "open_status": "OPENED",
+        "pages": [
+          {
+            "page_index": 0,
+            "width": 595.2755737304688,
+            "height": 841.8897705078125,
+            "rotation": 0,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "crop_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "label": "",
+            "native_character_count": 249,
+            "native_text_sha256": "648d67a7aff4b2ffa6850abd767dd6c99bb82b675ecbd84b367f00264b26a249",
+            "native_codepoints": [
+              "U+00C9",
+              "U+00E8",
+              "U+00E9",
+              "U+2014"
+            ],
+            "control_codepoints": [],
+            "ligature_expansion_observed": false,
+            "hyphenation_marker_observed": false
+          }
+        ]
+      }
+    }
+  ]
+}

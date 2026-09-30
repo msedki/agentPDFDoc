@@ -1,0 +1,29 @@
+{
+  "date_utc": "2026-09-30",
+  "interpreter": "D:/enhacements/agentragpdf/.venv/Scripts/python.exe",
+  "python_version": "3.12.14",
+  "invocation": "python -c: Settings.load, EmbeddingService.embed on two short FR/EN queries, LlmTokenizer.count_messages on system/question messages; no torch and no LLM call",
+  "invocation_limit": "The full inline script was not retained in the initial output. These are the captured observations, not a reconstructed execution.",
+  "providers": ["CPUExecutionProvider"],
+  "input_names_and_types": {"input_ids": "tensor(int64)", "attention_mask": "tensor(int64)", "token_type_ids": "tensor(int64)"},
+  "output_name": "last_hidden_state",
+  "embedding_shape": [2, 384],
+  "finite": true,
+  "l2_norms": [1.0000000030694507, 0.9999999996195817],
+  "qwen_official_template_prompt_tokens": 144,
+  "elapsed_seconds": 7.259,
+  "process_rss_mib": {"before": 30.95, "after": 503.90},
+  "host_available_mib": {"before": 5677.09, "after": 5216.12},
+  "descendants_sampling": "not recorded; EmbeddingService and tokenizer use no subprocess",
+  "llm_called": false,
+  "process_exit_code": 0,
+  "model_session_released": true,
+  "artifacts_rechecked_sha256": {
+    ".runtime/models/e5-small-int8/model.onnx": "dd476dd0c2514e9b9be83aeb3853fac0763e0bdf4a71645407587d77c48a2d88",
+    ".runtime/models/e5-small-int8/tokenizer.json": "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39",
+    ".runtime/models/qwen3.5-4b-tokenizer/tokenizer.json": "5f9e4d4901a92b997e463c1f46055088b6cca5ca61a6522d1b9f64c4bb81cb42",
+    ".runtime/models/qwen3.5-4b-tokenizer/tokenizer_config.json": "316230d6a809701f4db5ea8f8fc862bc3a6f3229c937c174e674ff3ca0a64ac8"
+  },
+  "versions_rechecked": {"fastapi": "0.142.1", "starlette": "1.7.0", "onnxruntime": "1.30.0", "tokenizers": "0.23.2", "psutil": "7.2.2"},
+  "limits": ["Not PDF ingestion qualification, retrieval quality evaluation or Ollama generation qualification.", "The publisher AVX512 export filename does not imply AVX512 on the host; the CPUExecutionProvider execution above is the compatibility observation."]
+}

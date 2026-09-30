@@ -1,0 +1,58 @@
+{
+  "date_utc": "2026-09-30T02:31:33.802014+00:00",
+  "phase": "read_only_prepublication",
+  "database_jobs": [
+    {
+      "id": "8294f3ef-100a-475e-8378-983360f88b69",
+      "state": "paused",
+      "stage": "paused",
+      "error_code": "resource_admission_denied",
+      "progress": 0.0,
+      "attempts": 0
+    }
+  ],
+  "generations": [],
+  "api_diagnostics_status": 200,
+  "diagnostics": {
+    "profile_sha256": "f0230c27707406b94ad9770eff298570482ffb9c7a325c21771b3e721170f96f",
+    "selector_sha256": "021add08321b5851ff8427069cf71196b2371cd69fd3045014999d0ffe88cb9c",
+    "dense_identity": {
+      "graph_sha256": "dd476dd0c2514e9b9be83aeb3853fac0763e0bdf4a71645407587d77c48a2d88",
+      "tokenizer_sha256": "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39",
+      "model_id": "intfloat/multilingual-e5-small",
+      "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+      "query_prefix": "query: ",
+      "passage_prefix": "passage: ",
+      "pooling": "attention_mask_mean",
+      "normalize_l2": true,
+      "dimensions": 384,
+      "precision": "int8",
+      "provider": "CPUExecutionProvider",
+      "fingerprint": "53cac40518d0dec0d2d3661f9d07f0a99a67029b8e90af30674d4aff853f9979"
+    },
+    "qdrant_collection": "pdf_chunks_e5small_v1_53cac40518d0dec0",
+    "embedding_session": {
+      "session_loaded": false,
+      "load_count": 0,
+      "last_load": null,
+      "last_release": null,
+      "measurement_limit": "Point samples of host available RAM and API RSS; no peak or isolated allocation attribution."
+    }
+  },
+  "qdrant_collections_status": 200,
+  "qdrant_collections": {
+    "result": {
+      "collections": []
+    },
+    "status": "ok",
+    "time": 4.13e-05
+  },
+  "effective_collection_status": 404,
+  "effective_collection": {
+    "status": {
+      "error": "Not found: Collection `pdf_chunks_e5small_v1_53cac40518d0dec0` doesn't exist!"
+    },
+    "time": 8.77e-05
+  },
+  "limit": "GET/SQLite read-only only; no engine, scope search, mutation or publication run. Configuration flags are distinct from inspection of segment mmap files."
+}

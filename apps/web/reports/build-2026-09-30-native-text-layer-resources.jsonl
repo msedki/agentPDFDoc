@@ -1,0 +1,3 @@
+﻿{"timestamp_utc":"2026-09-30T02:29:59.2394520Z","phase":"before","available_gib":5.974,"d_free_gib":30.342}
+{"timestamp_utc":"2026-09-30T02:31:38.4246552Z","phase":"after","exit_code":0,"available_gib":5.9,"d_free_gib":30.341}
+{"timestamp_utc":"2026-09-30T02:31:49.1033741Z","phase":"during","available_gib":5.925,"cpu_load":[2],"d_free_gib":30.341}

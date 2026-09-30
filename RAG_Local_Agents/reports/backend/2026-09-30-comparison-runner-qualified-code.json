@@ -1,0 +1,48 @@
+{
+  "date_utc": "2026-09-30T04:26:18.950629+00:00",
+  "status": "FAIL_ISOLATION_FIXTURE",
+  "interpreter": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+  "python": "3.12.14",
+  "command": ".venv/Scripts/python.exe -m pytest tests/unit/test_retrieval_comparison.py tests/unit/test_retrieval_comparison_runner.py -q --junitxml=RAG_Local_Agents\\reports\\backend\\2026-09-30-comparison-runner-qualified-code.xml",
+  "tests": 17,
+  "failures": 1,
+  "errors": 0,
+  "seconds": "6.864",
+  "ruff": "All checks passed! 2026-09-30-comparison-runner-ruff-final.log",
+  "preserved_prior_runs": [
+    "2026-09-30-comparison-contracts",
+    "2026-09-30-comparison-runner-first",
+    "2026-09-30-comparison-runner-final",
+    "2026-09-30-comparison-runner-ruff.log (initial11)"
+  ],
+  "actual_static_identity": "2026-09-30-granite-identity-static.json: all ten real provisioned hashes and CLS/empty prefixes/L2 official JSON contract checked, no engines imported",
+  "isolation": "SQLite backup in pytest tmp_path, FrozenDatabase mode=ro&immutable=1 authorizer/no sidecars; actual SearchService/ScopeResolver/ContextBuilder; fake model/tokenizer/Qdrant boundaries explicitly injected; quiet-check HTTP MockTransport GET only",
+  "scope": [
+    "New comparison modules only, never imported by running API",
+    "Single development arm in one standalone process, same frozen passage UUID/text/hash/revisions and independent gold spans",
+    "Active E5 collection has no ensure/create/upsert path; separate Granite collection bounded<=35 characters",
+    "Actual ORM session.run counters inherited/used per candidate batch, actual call durations/firstload distinctions, ownRSS/private/hostavailable/disk sample points",
+    "Pairing rejects source/chunks/profile/selector/tokenizer/runner/Qdrantconfig/question-order drift, no automatic winner",
+    "Incomplete annotation sets, unavailable identity, structural graph failures and reserve violations never yield PASS",
+    "Output exclusive creation, preserved FAIL JSON, CLI exit1FAIL/exit2INCOMPLETE/exit0PASS"
+  ],
+  "limits": [
+    "No real candidate graph/provider/inference signature exercised",
+    "No development100/final100 or real A/B metrics measured",
+    "No heavy runtime or Qdrant collection mutation during these tests",
+    "Collection storage requires explicitly verified Qdrant collections dir",
+    "Root owns service stop/unload/admission and engine slots; no comparison permitted during OCR/generation",
+    "API runtime files remain frozen since earlier READY"
+  ],
+  "source_sha256": {
+    "services/api/comparison.py": "ba04049c6d622991a3438cbc56e7d5b84b0d10f6e6304379790d620873d86922",
+    "services/api/embedding_comparison.py": "4a8b319b381a4d613797079c67326991e4c9d7bfa53f7a023396e488e716b788",
+    "tests/unit/test_retrieval_comparison.py": "65bf5fb2bedaafb3072b6634a5ecb89fd8cb87d55c8e6d5513cbfa29053a460c",
+    "tests/unit/test_retrieval_comparison_runner.py": "5c67945e09587e16b10bbee96bbc8f0b80b239ffd60f83cb826db83123fe19b1"
+  },
+  "status_correction": {
+    "initial_label": "PASS_PURE_AND_ISOLATED_TESTS_ONLY",
+    "reason": "The report generator used a fixed PASS label without checking the recorded failures1; original preserved in 2026-09-30-comparison-runner-qualified-code-initial-status-error.json",
+    "corrected_run": "pending"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "instance_id": "cc0b7e974ab14645af67f0f7c27bc8dc",
+  "status": "running",
+  "profile_path": "D:\\enhacements\\agentragpdf\\config\\local16.yaml",
+  "profile_sha256": "2dd0270fa354a029f1b457b2fb72bca2bb72ba0c7c92878f5df471a861ccc071",
+  "data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\data",
+  "supervisor": {
+    "pid": 13308,
+    "created_at": 1790742960.8047757,
+    "executable": "D:\\enhacements\\agentragpdf\\.runtime\\python\\cpython-3.12.14-windows-x86_64-none\\python.exe"
+  },
+  "services": {
+    "qdrant": {
+      "pid": 10880,
+      "created_at": 1790742963.0997827,
+      "executable": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\qdrant-1.19.1\\qdrant.exe",
+      "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\data\\logs\\cc0b7e974ab14645af67f0f7c27bc8dc\\qdrant.log",
+      "exit_code": null
+    },
+    "ollama": {
+      "pid": 8212,
+      "created_at": 1790742965.1689453,
+      "executable": "D:\\enhacements\\agentragpdf\\.runtime\\bin\\ollama-0.35.0\\ollama.exe",
+      "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\data\\logs\\cc0b7e974ab14645af67f0f7c27bc8dc\\ollama.log",
+      "exit_code": null
+    },
+    "api": {
+      "pid": 13884,
+      "created_at": 1790742968.76332,
+      "executable": "D:\\enhacements\\agentragpdf\\.venv\\Scripts\\python.exe",
+      "log_path": "D:\\enhacements\\agentragpdf\\.runtime\\data\\logs\\cc0b7e974ab14645af67f0f7c27bc8dc\\api.log",
+      "exit_code": null
+    }
+  },
+  "shutdown_marker": "D:\\enhacements\\agentragpdf\\.runtime\\data\\control\\shutdown-cc0b7e974ab14645af67f0f7c27bc8dc",
+  "app_url": "http://127.0.0.1:8785",
+  "stop_results": [],
+  "source_manifest_path": "D:\\enhacements\\agentragpdf\\.runtime\\data\\logs\\cc0b7e974ab14645af67f0f7c27bc8dc\\source-manifest.json",
+  "source_fingerprint": "4b23a6a7af8db2ad3f24c347a02041d4eb1105ecde055095f5a1f2651867877d",
+  "source_identity_kind": "working_files_sha256_manifest",
+  "qdrant_config_sha256": "8a9e4ecd3029938cefa14b1ff761a94bbee3b4359136c2ecab9ddf89c75ed05a",
+  "qdrant_data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\data\\qdrant",
+  "http_health": {
+    "status": "alive",
+    "service": "rag-api"
+  }
+}

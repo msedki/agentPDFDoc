@@ -1,0 +1,28 @@
+{
+  "state": "verified",
+  "backup_id": "20260930T031052Z-920d8a2a",
+  "files": 21,
+  "sqlite": {
+    "integrity": "ok",
+    "foreign_key_errors": 0,
+    "counts": {
+      "documents": 1,
+      "document_versions": 1,
+      "extraction_revisions": 1,
+      "index_generations": 1,
+      "pages": 2,
+      "blocks": 11,
+      "chunks": 11,
+      "jobs": 1,
+      "query_runs": 1,
+      "citations": 8,
+      "embedding_cache": 10
+    },
+    "schema": [
+      1,
+      2
+    ]
+  },
+  "path": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\backup-first-published-20260930T0311",
+  "collections": 1
+}

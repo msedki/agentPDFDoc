@@ -1,0 +1,55 @@
+{
+  "state": "restored_storage_verified",
+  "backup_id": "20260930T013812Z-3eef9b75",
+  "data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\restore-empty-first",
+  "source_verification": {
+    "state": "verified",
+    "backup_id": "20260930T013812Z-3eef9b75",
+    "files": 8,
+    "sqlite": {
+      "integrity": "ok",
+      "foreign_key_errors": 0,
+      "counts": {
+        "documents": 0,
+        "document_versions": 0,
+        "extraction_revisions": 0,
+        "index_generations": 0,
+        "pages": 0,
+        "blocks": 0,
+        "chunks": 0,
+        "jobs": 0,
+        "query_runs": 0,
+        "citations": 0,
+        "embedding_cache": 0
+      },
+      "schema": [
+        1,
+        2
+      ]
+    }
+  },
+  "collections": [],
+  "sqlite": {
+    "integrity": "ok",
+    "foreign_key_errors": 0,
+    "counts": {
+      "documents": 0,
+      "document_versions": 0,
+      "extraction_revisions": 0,
+      "index_generations": 0,
+      "pages": 0,
+      "blocks": 0,
+      "chunks": 0,
+      "jobs": 0,
+      "query_runs": 0,
+      "citations": 0,
+      "embedding_cache": 0
+    },
+    "schema": [
+      1,
+      2
+    ]
+  },
+  "qdrant_stop_exit_code": 0,
+  "application_query_and_old_citation": "NOT_RUN"
+}

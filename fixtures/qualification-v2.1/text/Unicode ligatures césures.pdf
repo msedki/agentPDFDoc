@@ -1,0 +1,67 @@
+%PDF-1.7
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type3 /FontBBox [0 0 1000 1000] /FontMatrix [.001 0 0 .001 0 0] /CharProcs << /smile 7 0 R /acute 8 0 R /ligature 9 0 R /combined 8 0 R >> /Encoding << /Type /Encoding /Differences [1 /smile /acute /ligature /combined] >> /FirstChar 1 /LastChar 4 /Widths [1000 700 1000 700] /Resources << >> /ToUnicode 10 0 R >>
+endobj
+6 0 obj
+<< /Length 350 >>
+stream
+BT /F1 14 Tf 48 780 Td (Synthetic Unicode selection fixture) Tj ET
+BT /F1 12 Tf 48 720 Td (Selection A ) Tj /F3 18 Tf <01> Tj /F1 12 Tf ( ) Tj /F3 18 Tf <02> Tj /F1 12 Tf ( ) Tj /F3 18 Tf <03> Tj /F1 12 Tf ( ) Tj /F3 18 Tf <04> Tj /F1 12 Tf ( end.) Tj ET
+BT /F1 12 Tf 48 660 Td (Cesure con-) Tj 0 -20 Td (trole; preserve the source line break.) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Length 199 >>
+stream
+1000 0 d0 45 w 500 50 m 750 50 950 250 950 500 c 950 750 750 950 500 950 c 250 950 50 750 50 500 c 50 250 250 50 500 50 c S 300 650 55 55 re f 650 650 55 55 re f 250 400 m 350 180 650 180 750 400 c S
+endstream
+endobj
+8 0 obj
+<< /Length 131 >>
+stream
+700 0 d0 65 w 610 240 m 510 40 170 30 100 250 c 40 540 300 680 560 500 c 620 420 610 350 610 340 c 90 340 l S 310 720 m 490 900 l S
+endstream
+endobj
+9 0 obj
+<< /Length 123 >>
+stream
+1000 0 d0 65 w 280 20 m 280 650 l 280 850 480 900 620 850 c S 100 600 m 570 600 l S 740 20 m 740 620 l S 730 780 70 70 re f
+endstream
+endobj
+10 0 obj
+<< /Length 365 >>
+stream
+/CIDInit /ProcSet findresource begin 12 dict begin begincmap /CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def /CMapName /QUnicode def /CMapType 2 def 1 begincodespacerange <00> <FF> endcodespacerange 4 beginbfchar <01> <D83DDE00> <02> <00E9> <03> <FB01> <04> <00650301> endbfchar endcmap CMapName currentdict /CMap defineresource pop end end
+endstream
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000257 00000 n 
+0000000327 00000 n 
+0000000680 00000 n 
+0000001081 00000 n 
+0000001331 00000 n 
+0000001513 00000 n 
+0000001687 00000 n 
+trailer
+<< /Size 11 /Root 1 0 R >>
+startxref
+2104
+%%EOF
