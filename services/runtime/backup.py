@@ -18,7 +18,7 @@ from urllib.parse import quote
 import httpx
 import yaml
 
-from .artifacts import ROOT, file_hash, write_json_atomic
+from .artifacts import ROOT, file_hash, runtime_location, write_json_atomic
 from .supervisor import (
     acquire_qdrant_lock,
     app_origin,
@@ -139,7 +139,7 @@ def create_backup(profile_path: Path, output: Path | None = None) -> dict:
     qdrant_headers = {"api-key": key_path.read_text(encoding="ascii")} if key_path.exists() else {}
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     identifier = f"{stamp}-{uuid.uuid4().hex[:8]}"
-    output = (output or ROOT / "backups" / identifier).resolve()
+    output = (output or runtime_location(profile, "backups_dir") / identifier).resolve()
     if output.exists() or output.is_relative_to(directory):
         raise ValueError("La sauvegarde exige un chemin neuf hors données actives")
     if shutil.disk_usage(output.parent if output.parent.exists() else ROOT).free < 2 * 1024**3:
@@ -268,9 +268,10 @@ def restore_backup(folder: Path, target: Path, *, qdrant_port: int = 6343) -> di
     profile["qdrant"].pop("storage_dir", None)
     if os.name == "nt" and len(str(target / "qdrant/storage")) > 57:
         identifier = hashlib.sha256(str(target).encode()).hexdigest()[:8]
-        short_store = (ROOT / ".runtime/q" / identifier).resolve()
-        if not short_store.is_relative_to(ROOT.resolve()) or short_store.exists():
-            raise ValueError("Restauration : stockage Qdrant court neuf dans le projet exigé")
+        stores = runtime_location(profile, "restore_storage_dir")
+        short_store = (stores / identifier).resolve()
+        if not short_store.is_relative_to(stores) or short_store.exists():
+            raise ValueError("Restauration : stockage Qdrant court neuf exigé sous runtime.restore_storage_dir")
         profile["qdrant"]["storage_dir"] = str(short_store)
     qdrant_directory = qdrant_data_path(profile, target)
     target.mkdir(parents=True)

@@ -16,6 +16,18 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 ARTIFACT_LOCK = ROOT / "config" / "artifacts.lock.json"
+# Écritures d'exécution que le profil peut sortir du dossier programme (installation par utilisateur, DIST-02) ;
+# sans valeur, l'emplacement historique sous le dépôt est gardé.
+RUNTIME_LOCATIONS = {"host_lock_path": ".runtime/control/host-heavy.lock", "backups_dir": "backups",
+                     "restore_storage_dir": ".runtime/q", "huggingface_cache_dir": ".runtime/cache/huggingface"}
+
+
+def runtime_location(profile: dict | None, key: str) -> Path:
+    """Emplacement d'exécution de la section `runtime` du profil ; un chemin relatif part de la racine du programme."""
+    value = ((profile or {}).get("runtime") or {}).get(key)
+    if value is not None and (not isinstance(value, str) or not value.strip()):
+        raise ValueError(f"runtime.{key} : chemin non vide attendu")
+    return (ROOT / (value or RUNTIME_LOCATIONS[key])).resolve()
 
 
 def file_hash(path: Path) -> str:

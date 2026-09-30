@@ -43,9 +43,10 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     cache_release_state: dict[str, Any] = {"last": None}
     if governor is None:
         try:
+            from services.runtime.artifacts import runtime_location
             from services.runtime.resources import ResourceGovernor
             governor_profile = {**settings.profile, "app": {**settings.profile.get("app", {}), "data_dir": str(settings.data_dir)}}
-            governor = ResourceGovernor(governor_profile)
+            governor = ResourceGovernor(governor_profile, host_lock_path=runtime_location(settings.profile, "host_lock_path"))
         except ImportError:
             # Startup is blocked until the real governor exists; test injections are explicit.
             governor = None

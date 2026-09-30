@@ -146,3 +146,23 @@ def test_production_origin_requires_readable_certificate_and_key(tmp_path):
     assert app_origin(profile) == ("https://127.0.0.1:8785", str((tmp_path / "cert.pem").resolve()))
     assert app_origin({"app": {"port": 8785}}) == ("http://127.0.0.1:8785", True)
 
+
+
+def test_runtime_locations_default_under_the_program_and_follow_the_profile(tmp_path):
+    from services.runtime.artifacts import runtime_location
+
+    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    # Profil du dépôt : emplacements historiques inchangés.
+    assert runtime_location(profile, "host_lock_path") == (ROOT / ".runtime/control/host-heavy.lock").resolve()
+    assert runtime_location(profile, "backups_dir") == (ROOT / "backups").resolve()
+    assert environment(profile, tmp_path, ROOT / "config/local16.yaml")["HF_HOME"] == str((ROOT / ".runtime/cache/huggingface").resolve())
+    # Profil d'installation par utilisateur : écritures hors du dossier programme.
+    user = tmp_path / "donnees-utilisateur"
+    profile["runtime"] = {"host_lock_path": str(user / "control/host-heavy.lock"), "backups_dir": str(user / "sauvegardes"),
+                          "restore_storage_dir": str(user / "q"), "huggingface_cache_dir": str(user / "cache/hf")}
+    assert runtime_location(profile, "backups_dir") == (user / "sauvegardes").resolve()
+    assert runtime_location(profile, "restore_storage_dir") == (user / "q").resolve()
+    assert environment(profile, tmp_path, ROOT / "config/local16.yaml")["HF_HOME"] == str((user / "cache/hf").resolve())
+    profile["runtime"]["backups_dir"] = ""
+    with pytest.raises(ValueError, match="runtime.backups_dir"):
+        runtime_location(profile, "backups_dir")

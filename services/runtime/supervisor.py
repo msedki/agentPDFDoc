@@ -17,7 +17,7 @@ from typing import Any
 import psutil
 import yaml
 
-from .artifacts import ROOT, file_hash, read_json_atomic, write_json_atomic
+from .artifacts import ROOT, file_hash, read_json_atomic, runtime_location, write_json_atomic
 from .resources import host_sample
 from .windows_process import OwnedProcess, WindowsJob
 
@@ -125,7 +125,7 @@ def environment(profile: dict, directory: Path, profile_path: Path) -> dict[str,
     env.update({
         "PYTHONUTF8": "1", "PYTHONUNBUFFERED": "1", "RAG_PROFILE": str(profile_path.resolve()),
         "RAG_DATA_DIR": str(directory), "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1",
-        "HF_HUB_DISABLE_TELEMETRY": "1", "HF_HOME": str(ROOT / ".runtime/cache/huggingface"),
+        "HF_HUB_DISABLE_TELEMETRY": "1", "HF_HOME": str(runtime_location(profile, "huggingface_cache_dir")),
         "DOCLING_ARTIFACTS_PATH": str(ROOT / profile["pdf"]["artifacts_path"]),
         "TESSDATA_PREFIX": str(ROOT / profile["pdf"]["tessdata_dir"]),
         "TOKENIZERS_PARALLELISM": "false", "OMP_NUM_THREADS": "2", "MKL_NUM_THREADS": "2",
