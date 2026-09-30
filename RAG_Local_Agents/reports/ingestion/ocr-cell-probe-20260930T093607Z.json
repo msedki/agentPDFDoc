@@ -1,0 +1,710 @@
+{
+  "experiment": "E1-ocr-cell-ink-crop",
+  "status": "FAIL",
+  "criterion": "Cellules 5/8/11 exactement « V », « °C », « A » avec confiance minimale de mot >= seuil ; témoins 0-4 : texte identique à la sortie psm 6 conservée et confiance >= seuil. PASS exige psm 6 seul (politique du pipeline) ; le repli psm 7/8/10 est déclenché par une sortie vide ou sous le seuil, jamais par la valeur attendue.",
+  "started_utc": "2026-09-30T09:36:07.281697+00:00",
+  "finished_utc": "2026-09-30T09:36:41.240037+00:00",
+  "available_memory_mib_before": 5106,
+  "scope": "Tesseract CLI seul ; aucun Docling, Torch ni modèle de layout ; entrées en lecture seule.",
+  "inputs": {
+    "diagnostic": ".runtime/qa/ingestion-synthetic/tesseract-aspect-diagnostic-20260930T040453Z",
+    "prefix": "0-render",
+    "hashes_verified_against": "proof-status.json"
+  },
+  "parameters": {
+    "threshold": 0.8,
+    "border": 10,
+    "languages": [
+      "fra",
+      "eng"
+    ],
+    "nominal_psm": 6,
+    "fallback_psm": [
+      7,
+      8,
+      10
+    ]
+  },
+  "tesseract": {
+    "executable": ".runtime/bin/tesseract-5.4.0/tesseract.exe",
+    "sha256": "babb405f4366b480d02cd8ff2bac8d497170f6c1711ce6f3d5d8bf0fb7fa6ed9",
+    "version": "tesseract v5.4.0.20240606",
+    "tessdata": ".runtime/models/tessdata",
+    "tessdata_sha256": {
+      "fra.traineddata": "ced037562e8c80c13122dece28dd477d399af80911a28791a66a63ac1e3445ca",
+      "eng.traineddata": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+      "configs/tsv": "59d079bb75d8b3d7c839a3564580cb559e362c93a9d70f234e421c0c3e767e04"
+    }
+  },
+  "summary": {
+    "psm6_all_pass": false,
+    "with_fallback_all_pass": false,
+    "cells": {
+      "0": {
+        "role": "witness",
+        "expected": "Équipement",
+        "psm6": {
+          "text": "Équipement",
+          "minimum_word_confidence": 0.9578112799999999
+        },
+        "selected": {
+          "psm": 6,
+          "text": "Équipement",
+          "minimum_word_confidence": 0.9578112799999999
+        },
+        "psm6_pass": true,
+        "with_fallback_pass": true
+      },
+      "1": {
+        "role": "witness",
+        "expected": "Valeur",
+        "psm6": {
+          "text": "Valeur",
+          "minimum_word_confidence": 0.96100449
+        },
+        "selected": {
+          "psm": 6,
+          "text": "Valeur",
+          "minimum_word_confidence": 0.96100449
+        },
+        "psm6_pass": true,
+        "with_fallback_pass": true
+      },
+      "2": {
+        "role": "witness",
+        "expected": "Unité",
+        "psm6": {
+          "text": "Unité",
+          "minimum_word_confidence": 0.96293053
+        },
+        "selected": {
+          "psm": 6,
+          "text": "Unité",
+          "minimum_word_confidence": 0.96293053
+        },
+        "psm6_pass": true,
+        "with_fallback_pass": true
+      },
+      "3": {
+        "role": "witness",
+        "expected": "CCU-21",
+        "psm6": {
+          "text": "CCU-21",
+          "minimum_word_confidence": 0.9084862499999999
+        },
+        "selected": {
+          "psm": 6,
+          "text": "CCU-21",
+          "minimum_word_confidence": 0.9084862499999999
+        },
+        "psm6_pass": true,
+        "with_fallback_pass": true
+      },
+      "4": {
+        "role": "witness",
+        "expected": "24",
+        "psm6": {
+          "text": "24",
+          "minimum_word_confidence": 0.96727333
+        },
+        "selected": {
+          "psm": 6,
+          "text": "24",
+          "minimum_word_confidence": 0.96727333
+        },
+        "psm6_pass": true,
+        "with_fallback_pass": true
+      },
+      "5": {
+        "role": "target",
+        "expected": "V",
+        "psm6": {
+          "text": "‘",
+          "minimum_word_confidence": 0.0
+        },
+        "selected": {
+          "psm": 6,
+          "text": "‘",
+          "minimum_word_confidence": 0.0
+        },
+        "psm6_pass": false,
+        "with_fallback_pass": false
+      },
+      "8": {
+        "role": "target",
+        "expected": "°C",
+        "psm6": {
+          "text": "co",
+          "minimum_word_confidence": 0.53947811
+        },
+        "selected": {
+          "psm": 6,
+          "text": "co",
+          "minimum_word_confidence": 0.53947811
+        },
+        "psm6_pass": false,
+        "with_fallback_pass": false
+      },
+      "11": {
+        "role": "target",
+        "expected": "A",
+        "psm6": {
+          "text": "à",
+          "minimum_word_confidence": 0.20635544
+        },
+        "selected": {
+          "psm": 6,
+          "text": "à",
+          "minimum_word_confidence": 0.20635544
+        },
+        "psm6_pass": false,
+        "with_fallback_pass": false
+      }
+    }
+  },
+  "cells": [
+    {
+      "input": "0-render-cell0.png",
+      "input_sha256": "95cffdfaeb9f618fd82e5e4a70b6da933a6b3c967fb8b6a7cff1928bcc0a8af4",
+      "input_size": [
+        670,
+        140
+      ],
+      "crop": {
+        "policy": "ink_border_10",
+        "raster_offset": [
+          13,
+          28
+        ],
+        "raster_size": [
+          249,
+          73
+        ],
+        "patch_sha256": "ac6acbd0968e186490226fb746877a9d7d325f2c33678401c4f8fa7f9cfbf9a1"
+      },
+      "baseline_full_cell_psm6": {
+        "available": true,
+        "tsv_sha256": "58dc1348eaca87e09341ec57c8aedfd22c5842c2e1103172d7b17c1ecea37475",
+        "words": [
+          {
+            "text": "Équipement",
+            "confidence": 0.9595488
+          }
+        ],
+        "text": "Équipement",
+        "minimum_word_confidence": 0.9595488
+      },
+      "attempts": [
+        {
+          "psm": 6,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "Équipement",
+              "confidence": 0.9578112799999999
+            }
+          ],
+          "text": "Équipement",
+          "minimum_word_confidence": 0.9578112799999999
+        }
+      ],
+      "selected": {
+        "psm": 6,
+        "text": "Équipement",
+        "minimum_word_confidence": 0.9578112799999999
+      },
+      "role": "witness",
+      "expected_text": "Équipement",
+      "psm6_pass": true,
+      "with_fallback_pass": true
+    },
+    {
+      "input": "0-render-cell1.png",
+      "input_sha256": "9139d8223a322c50edb3788863d01e8b0e9d5f18e4968bdda9a7c08ccfbd9be1",
+      "input_size": [
+        326,
+        140
+      ],
+      "crop": {
+        "policy": "ink_border_10",
+        "raster_offset": [
+          11,
+          38
+        ],
+        "raster_size": [
+          142,
+          53
+        ],
+        "patch_sha256": "0e59fd1f0a1ef9c98b6350967ad061a465f1bb51977aedbe3567aa26fd2cce0c"
+      },
+      "baseline_full_cell_psm6": {
+        "available": true,
+        "tsv_sha256": "aa0c12f23aeb7ade602e1f2339be068bc5148d462c82a46e4026c5fbb604ce9b",
+        "words": [
+          {
+            "text": "Valeur",
+            "confidence": 0.96379547
+          }
+        ],
+        "text": "Valeur",
+        "minimum_word_confidence": 0.96379547
+      },
+      "attempts": [
+        {
+          "psm": 6,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "Valeur",
+              "confidence": 0.96100449
+            }
+          ],
+          "text": "Valeur",
+          "minimum_word_confidence": 0.96100449
+        }
+      ],
+      "selected": {
+        "psm": 6,
+        "text": "Valeur",
+        "minimum_word_confidence": 0.96100449
+      },
+      "role": "witness",
+      "expected_text": "Valeur",
+      "psm6_pass": true,
+      "with_fallback_pass": true
+    },
+    {
+      "input": "0-render-cell2.png",
+      "input_sha256": "0d4261f340ddd862210060c45807af0e5201faeb3936aae6cdabc54a33a5f173",
+      "input_size": [
+        402,
+        140
+      ],
+      "crop": {
+        "policy": "ink_border_10",
+        "raster_offset": [
+          14,
+          -9
+        ],
+        "raster_size": [
+          398,
+          159
+        ],
+        "patch_sha256": "ad4589e4b0e5a4223b0b50971f65a7a218f140527ea42eca220d4a5eff57ed5b"
+      },
+      "baseline_full_cell_psm6": {
+        "available": true,
+        "tsv_sha256": "0d14337849f4d6ad4564d4ac928836442a5f55fc955fa30a106cdb7fd17d869c",
+        "words": [
+          {
+            "text": "Unité",
+            "confidence": 0.9622577699999999
+          }
+        ],
+        "text": "Unité",
+        "minimum_word_confidence": 0.9622577699999999
+      },
+      "attempts": [
+        {
+          "psm": 6,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "Unité",
+              "confidence": 0.96293053
+            }
+          ],
+          "text": "Unité",
+          "minimum_word_confidence": 0.96293053
+        }
+      ],
+      "selected": {
+        "psm": 6,
+        "text": "Unité",
+        "minimum_word_confidence": 0.96293053
+      },
+      "role": "witness",
+      "expected_text": "Unité",
+      "psm6_pass": true,
+      "with_fallback_pass": true
+    },
+    {
+      "input": "0-render-cell3.png",
+      "input_sha256": "86d233ddb0ed189a87bbd69e3527a5533789bf06621dca49433734f8ebf0f817",
+      "input_size": [
+        670,
+        140
+      ],
+      "crop": {
+        "policy": "ink_border_10",
+        "raster_offset": [
+          12,
+          38
+        ],
+        "raster_size": [
+          167,
+          53
+        ],
+        "patch_sha256": "fc1f30904c3dbac4bbc603bc8021e0a9e242447c7606955b927398c011ddf2f1"
+      },
+      "baseline_full_cell_psm6": {
+        "available": true,
+        "tsv_sha256": "888336f95e251e7faed3b112e19d596fd30d4085100f2d23951a0054934ff1a3",
+        "words": [
+          {
+            "text": "CCU-21",
+            "confidence": 0.89361244
+          }
+        ],
+        "text": "CCU-21",
+        "minimum_word_confidence": 0.89361244
+      },
+      "attempts": [
+        {
+          "psm": 6,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "CCU-21",
+              "confidence": 0.9084862499999999
+            }
+          ],
+          "text": "CCU-21",
+          "minimum_word_confidence": 0.9084862499999999
+        }
+      ],
+      "selected": {
+        "psm": 6,
+        "text": "CCU-21",
+        "minimum_word_confidence": 0.9084862499999999
+      },
+      "role": "witness",
+      "expected_text": "CCU-21",
+      "psm6_pass": true,
+      "with_fallback_pass": true
+    },
+    {
+      "input": "0-render-cell4.png",
+      "input_sha256": "cede7caf6a4d0973dbdfcb104c74220299311ce3e6592611269ccb5184ec02d4",
+      "input_size": [
+        326,
+        140
+      ],
+      "crop": {
+        "policy": "ink_border_10",
+        "raster_offset": [
+          12,
+          38
+        ],
+        "raster_size": [
+          65,
+          53
+        ],
+        "patch_sha256": "10ea6a3d53dadbba2eaa4083c550be7e1240738816b1148cb49cb0cc35eb425b"
+      },
+      "baseline_full_cell_psm6": {
+        "available": true,
+        "tsv_sha256": "c529816aec61c5add5e76dea1659bbb0f32a13fc034181fe3b687b446ff1a7dd",
+        "words": [
+          {
+            "text": "24",
+            "confidence": 0.9699607100000001
+          }
+        ],
+        "text": "24",
+        "minimum_word_confidence": 0.9699607100000001
+      },
+      "attempts": [
+        {
+          "psm": 6,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "24",
+              "confidence": 0.96727333
+            }
+          ],
+          "text": "24",
+          "minimum_word_confidence": 0.96727333
+        }
+      ],
+      "selected": {
+        "psm": 6,
+        "text": "24",
+        "minimum_word_confidence": 0.96727333
+      },
+      "role": "witness",
+      "expected_text": "24",
+      "psm6_pass": true,
+      "with_fallback_pass": true
+    },
+    {
+      "input": "0-render-cell5.png",
+      "input_sha256": "6aa58b883f53ef50d07059651ddfba4b53f1a85df27980390631e82d3e66c04c",
+      "input_size": [
+        402,
+        140
+      ],
+      "crop": {
+        "policy": "ink_border_10",
+        "raster_offset": [
+          11,
+          -9
+        ],
+        "raster_size": [
+          401,
+          159
+        ],
+        "patch_sha256": "4ce86aca88d059391058d5a5e5d093cca6c35ab319ef5120bd0127cfa1e4d777"
+      },
+      "baseline_full_cell_psm6": {
+        "available": true,
+        "tsv_sha256": "6b16851e2dd06f9200546b314da242dc0b621c36d1b485f58bf7cc52c0807ec7",
+        "words": [
+          {
+            "text": "v",
+            "confidence": 0.60509453
+          }
+        ],
+        "text": "v",
+        "minimum_word_confidence": 0.60509453
+      },
+      "attempts": [
+        {
+          "psm": 6,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "‘",
+              "confidence": 0.0
+            }
+          ],
+          "text": "‘",
+          "minimum_word_confidence": 0.0
+        },
+        {
+          "psm": 7,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "‘",
+              "confidence": 0.0
+            }
+          ],
+          "text": "‘",
+          "minimum_word_confidence": 0.0
+        },
+        {
+          "psm": 8,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "V",
+              "confidence": 0.0
+            }
+          ],
+          "text": "V",
+          "minimum_word_confidence": 0.0
+        },
+        {
+          "psm": 10,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "‘",
+              "confidence": 0.0
+            }
+          ],
+          "text": "‘",
+          "minimum_word_confidence": 0.0
+        }
+      ],
+      "selected": {
+        "psm": 6,
+        "text": "‘",
+        "minimum_word_confidence": 0.0
+      },
+      "role": "target",
+      "expected_text": "V",
+      "psm6_pass": false,
+      "with_fallback_pass": false
+    },
+    {
+      "input": "0-render-cell8.png",
+      "input_sha256": "d00e532cad05f3d6c383766461590ecfa3bf032e4b3fb335dc8a0b598c720f29",
+      "input_size": [
+        402,
+        140
+      ],
+      "crop": {
+        "policy": "ink_border_10",
+        "raster_offset": [
+          13,
+          -9
+        ],
+        "raster_size": [
+          399,
+          159
+        ],
+        "patch_sha256": "121f53cb1cdfb47054fdc4a795aaba16ae15385045e723805b2f93945f82a48b"
+      },
+      "baseline_full_cell_psm6": {
+        "available": true,
+        "tsv_sha256": "5c40ad5ac6053c0130f9f102d47e64c055ee9af743b176f950923180ee7dd25e",
+        "words": [],
+        "text": "",
+        "minimum_word_confidence": null
+      },
+      "attempts": [
+        {
+          "psm": 6,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "co",
+              "confidence": 0.53947811
+            }
+          ],
+          "text": "co",
+          "minimum_word_confidence": 0.53947811
+        },
+        {
+          "psm": 7,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "co",
+              "confidence": 0.53947811
+            }
+          ],
+          "text": "co",
+          "minimum_word_confidence": 0.53947811
+        },
+        {
+          "psm": 8,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "ce",
+              "confidence": 0.1974707
+            }
+          ],
+          "text": "ce",
+          "minimum_word_confidence": 0.1974707
+        },
+        {
+          "psm": 10,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "co",
+              "confidence": 0.53947811
+            }
+          ],
+          "text": "co",
+          "minimum_word_confidence": 0.53947811
+        }
+      ],
+      "selected": {
+        "psm": 6,
+        "text": "co",
+        "minimum_word_confidence": 0.53947811
+      },
+      "role": "target",
+      "expected_text": "°C",
+      "psm6_pass": false,
+      "with_fallback_pass": false
+    },
+    {
+      "input": "0-render-cell11.png",
+      "input_sha256": "65212aab7daba28323654ee5dcc3ee38261fc547912944fd023da0286202bfc7",
+      "input_size": [
+        402,
+        140
+      ],
+      "crop": {
+        "policy": "ink_border_10",
+        "raster_offset": [
+          11,
+          -9
+        ],
+        "raster_size": [
+          401,
+          159
+        ],
+        "patch_sha256": "c4c3a5160e8c51dd4c0e05b0892d0e4c62ba6cf28277d15a3aedb3e55cb8fc41"
+      },
+      "baseline_full_cell_psm6": {
+        "available": true,
+        "tsv_sha256": "1569f8d18052d7d719d4efdc1104220c32e7aacda0c8e382088dd554a78a00df",
+        "words": [
+          {
+            "text": "d",
+            "confidence": 0.0
+          }
+        ],
+        "text": "d",
+        "minimum_word_confidence": 0.0
+      },
+      "attempts": [
+        {
+          "psm": 6,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "à",
+              "confidence": 0.20635544
+            }
+          ],
+          "text": "à",
+          "minimum_word_confidence": 0.20635544
+        },
+        {
+          "psm": 7,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "à",
+              "confidence": 0.20635544
+            }
+          ],
+          "text": "à",
+          "minimum_word_confidence": 0.20635544
+        },
+        {
+          "psm": 8,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "a",
+              "confidence": 0.26814697
+            }
+          ],
+          "text": "a",
+          "minimum_word_confidence": 0.26814697
+        },
+        {
+          "psm": 10,
+          "returncode": 0,
+          "words": [
+            {
+              "text": "à",
+              "confidence": 0.20635544
+            }
+          ],
+          "text": "à",
+          "minimum_word_confidence": 0.20635544
+        }
+      ],
+      "selected": {
+        "psm": 6,
+        "text": "à",
+        "minimum_word_confidence": 0.20635544
+      },
+      "role": "target",
+      "expected_text": "A",
+      "psm6_pass": false,
+      "with_fallback_pass": false
+    }
+  ]
+}

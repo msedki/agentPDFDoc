@@ -10,6 +10,30 @@ from .docling_adapter import DoclingSession, document_to_pages
 from .errors import IngestionError
 from .preflight import check_render_budget, preflight_pdf
 
+# Page-local failures: the page stays visible in error, the others are published.
+# Environment, lifecycle and native faults keep failing the whole extraction.
+PAGE_LOCAL_ERRORS = frozenset({"PDF_RENDER_LIMIT", "OCR_RENDER_LIMIT", "INVALID_GEOMETRY",
+                               "DOCLING_CONVERSION_FAILED", "OCR_RASTER_FRAME_MISMATCH"})
+
+
+def page_local(error):
+    # Une exception levée hors du statut Docling (initialisation du pipeline,
+    # entrée refusée) n'est attribuable à aucune page.
+    return error.code in PAGE_LOCAL_ERRORS and not (error.code == "DOCLING_CONVERSION_FAILED" and "exception_type" in error.details)
+
+
+def conversion_failures(pages):
+    return [page["page_index"] for page in pages if any(region.get("reason") == "DOCLING_CONVERSION_FAILED" for region in page.get("unresolved_regions", []))]
+
+
+def require_conversion(pages, warnings, converted):
+    """Sans aucune conversion réussie, un échec du parseur ne se distingue pas d'une faute d'environnement."""
+    failed = conversion_failures(pages)
+    if failed and not converted:
+        cause = next((item for item in warnings if item["code"] == "DOCLING_CONVERSION_FAILED" and item.get("page_index") == failed[0]), {})
+        raise IngestionError("DOCLING_CONVERSION_FAILED", "Aucune page n'a pu être convertie ; l'échec du parseur n'est attribuable à aucune page.",
+                             {"failed_pages": failed, "parser_status": cause.get("parser_status")})
+
 
 def should_cancel(event):
     if event is None:
@@ -66,6 +90,13 @@ def native_quality(page):
             "alphanumeric_coverage_ratio": coverage, "localized": localized, "monotonic_vertical_order": ordered}
 
 
+def failed_page(page, route, settings, error):
+    warning = {"code": error.code, **error.details, "page_index": page["page_index"], "route": route}
+    return dict(page, extraction_state="error", extraction_route=route, routing_reason=routing_reason(page, route, settings),
+                ocr_used=False, ocr_cell_count=0, blocks=[], coverage_regions=[],
+                unresolved_regions=[{"bbox": None, "reason": error.code, "precision": "page"}]), warning
+
+
 def _extract_window(path, version_id, first, last, settings, output_dir, preflight, session, cancel_event, fingerprint=None, revision_id=None):
     if not 0 <= first <= last < preflight["page_count"]:
         raise IngestionError("INVALID_PAGE_RANGE", "La plage de pages demandée est invalide.")
@@ -82,22 +113,48 @@ def _extract_window(path, version_id, first, last, settings, output_dir, preflig
     grouped = []
     for page in pages:
         route = page_route(page, settings)
-        check_render_budget(page, route, settings)
-        if grouped and grouped[-1][0] == route:
+        error = None
+        try:
+            check_render_budget(page, route, settings)
+        except IngestionError as exc:
+            if not page_local(exc):
+                raise
+            error = exc
+        # A failed page also breaks adjacency: a group range never spans it.
+        if error is None and grouped and grouped[-1][0] == route and grouped[-1][2] is None:
             grouped[-1][1].append(page)
         else:
-            grouped.append((route, [page]))
+            grouped.append((route, [page], error))
     complete = True
-    for route, selected in grouped:
-        if route == "blank":
+    while grouped:
+        route, selected, error = grouped.pop(0)
+        if route == "blank" and error is None:
             result["pages"] += [dict(page, extraction_state="blank", ocr_used=False, ocr_cell_count=0, blocks=[], coverage_regions=[]) for page in selected]
             continue
         started = time.monotonic()
-        session.page_metadata.update({page["page_index"]: page for page in selected})
-        document, parser_complete, observed_ocr = session.convert(path, selected[0]["page_index"], selected[-1]["page_index"], route)
+        if error is None:
+            session.page_metadata.update({page["page_index"]: page for page in selected})
+            try:
+                document, parser_complete, observed_ocr = session.convert(path, selected[0]["page_index"], selected[-1]["page_index"], route)
+            except IngestionError as exc:
+                if not page_local(exc):
+                    raise
+                if len(selected) > 1:
+                    # The failing page is unknown: convert each page alone.
+                    result["warnings"].append({"code": "PAGE_GROUP_RETRIED_BY_PAGE", "cause": exc.code, "route": route,
+                                               "page_start": selected[0]["page_index"], "page_end": selected[-1]["page_index"]})
+                    grouped[:0] = [(route, [page], None) for page in selected]
+                    continue
+                error = exc
+        if error is not None:
+            page, warning = failed_page(selected[0], route, settings, error)
+            result["pages"].append(page)
+            result["warnings"].append(warning)
+            complete = False
+            continue
         docling_path = Path(output_dir) / f"docling-{selected[0]['page_index']:06d}-{selected[-1]['page_index']:06d}-{route}.json"
         atomic_json(docling_path, document)
-        converted, warnings = document_to_pages(document, selected, version_id, revision, route, observed_ocr)
+        converted, warnings = document_to_pages(document, selected, version_id, revision, route, observed_ocr, settings.ocr_min_word_confidence)
         for page in converted:
             page["extraction_route"] = route
             page["routing_reason"] = routing_reason(page, route, settings)
@@ -113,7 +170,7 @@ def _extract_window(path, version_id, first, last, settings, output_dir, preflig
                             repaired_document, repaired_complete, repaired_ocr = session.convert(path, index, index, "structured")
                             repair_path = Path(output_dir) / f"docling-{index:06d}-{index:06d}-structured.json"
                             atomic_json(repair_path, repaired_document)
-                            repaired, repair_warnings = document_to_pages(repaired_document, [preflight["pages"][index]], version_id, revision, "structured", repaired_ocr)
+                            repaired, repair_warnings = document_to_pages(repaired_document, [preflight["pages"][index]], version_id, revision, "structured", repaired_ocr, settings.ocr_min_word_confidence)
                             prior_quality = page["native_quality"]
                             page.clear()
                             page.update(repaired[0], extraction_route="structured", routing_reason="native_quality_escalation", native_quality_before_escalation=prior_quality)
@@ -142,6 +199,7 @@ def extract_window(path, version_id, page_start, page_end, config, output_dir, c
         result = _extract_window(source, version_id, page_start, page_end, settings, target, preflight, DoclingSession(settings), cancel_event)
         if sha256_file(source) != preflight["sha256"]:
             raise IngestionError("ORIGINAL_CHANGED", "Les octets du PDF ont changé pendant l'extraction.")
+        require_conversion(result["pages"], result["warnings"], bool(result.get("route_metrics")))
         return result
 
 
@@ -196,13 +254,17 @@ def extract_pdf(path, output_dir, config, version_id, cancel_path=None):
         store = CheckpointStore(target, identity)
         session = DoclingSession(settings)
         pages, warnings, windows = [], [], []
-        interrupted = False
+        interrupted = converted = False
         for first in range(0, preflight["page_count"], settings.page_window_size):
             if should_cancel(cancel_path):
                 interrupted = True
                 break
             last = min(preflight["page_count"] - 1, first + settings.page_window_size - 1)
             window = store.read(first, last)
+            # Un échec de conversion peut être transitoire (mémoire, faute du parseur) :
+            # sa fenêtre reste écrite (progression, preuve) mais une reprise la reconvertit.
+            if window is not None and conversion_failures(window["pages"]):
+                window = None
             reused = window is not None
             if window is None:
                 window = _extract_window(source, version_id, first, last, settings, target, preflight, session, cancel_path, fingerprint, revision)
@@ -210,12 +272,19 @@ def extract_pdf(path, output_dir, config, version_id, cancel_path=None):
                     interrupted = True
                     break
                 store.write(window)
+            converted = converted or bool(window.get("route_metrics"))
             pages += window["pages"]
             warnings += window["warnings"]
             windows.append({"page_start": first, "page_end": last, "reused": reused, "complete": window["complete"]})
         if sha256_file(source) != preflight["sha256"]:
             raise IngestionError("ORIGINAL_CHANGED", "Les octets du PDF ont changé pendant l'extraction.")
+        if not interrupted:
+            require_conversion(pages, warnings, converted)
         sections, tables = stitch_structure(pages)
+        if not interrupted and not any(block["text"].strip() for page in pages for block in page["blocks"]):
+            warnings.append({"code": "DOCUMENT_WITHOUT_TEXT", "page_count": preflight["page_count"],
+                             "blank_pages": sum(page["extraction_state"] == "blank" for page in pages),
+                             "error_pages": sum(page["extraction_state"] == "error" for page in pages)})
         partial = len(pages) != preflight["page_count"] or any(page["extraction_state"] == "error" for page in pages) or any(not window["complete"] for window in windows)
         result = {"version_id": version_id, "extraction_revision_id": revision, "sha256": preflight["sha256"],
                   "fingerprint": fingerprint, "pipeline_fingerprint": fingerprint, "page_count": preflight["page_count"],

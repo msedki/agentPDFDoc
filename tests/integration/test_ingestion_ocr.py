@@ -12,7 +12,7 @@ import pytest
 
 from services.ingestion import preflight_pdf
 
-pytestmark = pytest.mark.integration
+pytestmark = [pytest.mark.integration, pytest.mark.slow]
 
 
 def extract_in_fresh_worker(source, output_dir, config, version_id):

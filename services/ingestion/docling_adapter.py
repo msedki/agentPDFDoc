@@ -170,7 +170,9 @@ class DoclingSession:
                 known_pages = {int(key) for key in document.get("pages", {})}
                 if page_no not in known_pages and page_no + 1 in known_pages:
                     page_no += 1
-                cells = [{"text": cell.text, "from_ocr": bool(getattr(cell, "from_ocr", False)), "bbox": cell.rect.to_bounding_box().model_dump(mode="json")} for cell in parsed_page.cells]
+                cells = [{"text": cell.text, "from_ocr": bool(getattr(cell, "from_ocr", False)), "bbox": cell.rect.to_bounding_box().model_dump(mode="json"),
+                          "confidence": float(cell.confidence) if getattr(cell, "from_ocr", False) and getattr(cell, "confidence", None) is not None else None}
+                         for cell in parsed_page.cells]
                 ocr_cells = [cell for cell in cells if cell["from_ocr"]]
                 observed_ocr[page_no - 1] = {"cell_count": len(ocr_cells), "regions": [cell["bbox"] for cell in ocr_cells], "cells": cells,
                                           "preprocessing": preprocessing.get(int(parsed_page.page_no), [])}
@@ -214,7 +216,7 @@ def canonical_cells(document, pages, observed_ocr, warnings):
             except IngestionError as exc:
                 warnings.append({"code": exc.code, "page_index": index, "component": "parser_cell"})
                 continue
-            converted.append({"text": cell.get("text", ""), "bbox": bbox, "from_ocr": bool(cell.get("from_ocr"))})
+            converted.append({"text": cell.get("text", ""), "bbox": bbox, "from_ocr": bool(cell.get("from_ocr")), "confidence": cell.get("confidence")})
         result[index] = converted
     return result
 
@@ -274,7 +276,7 @@ def table_coverage(data, bbox, parser_size, page):
     return canonical, warnings
 
 
-def document_to_pages(document, preflight_pages, version_id, revision_id, route, observed_ocr=None):
+def document_to_pages(document, preflight_pages, version_id, revision_id, route, observed_ocr=None, minimum_confidence=None):
     pages = {page["page_index"]: dict(page, blocks=[], extraction_state="ocr" if route == "regional_ocr" else "native", ocr_used=False, coverage_regions=[], unresolved_regions=[]) for page in preflight_pages}
     warnings = []
     for page in pages.values():
@@ -398,6 +400,17 @@ def document_to_pages(document, preflight_pages, version_id, revision_id, route,
             except (KeyError, IngestionError):
                 pass
             page["unresolved_regions"].append({"bbox": region, "reason": warning["code"], "precision": "block" if region else "page"})
+        if minimum_confidence is not None:
+            # A recognized word under the threshold is not textual evidence; a
+            # cell already reported by the grid OCR is not counted twice.
+            reported = [region["bbox"] for region in page["unresolved_regions"] if region.get("bbox")]
+            uncertain = [cell for cell in cells_by_page[page["page_index"]] if cell["from_ocr"] and cell.get("confidence") is not None
+                         and cell["confidence"] < minimum_confidence and not any(cell_belongs_to_block(cell, box) for box in reported)]
+            page["unresolved_regions"].extend({"bbox": cell["bbox"], "reason": "OCR_WORD_LOW_CONFIDENCE", "precision": "block",
+                                               "confidence": cell["confidence"]} for cell in uncertain)
+            if uncertain:
+                warnings.append({"code": "OCR_WORD_LOW_CONFIDENCE", "page_index": page["page_index"], "count": len(uncertain),
+                                 "minimum_confidence_required": minimum_confidence})
         page["ocr_regions"] = [cell["bbox"] for cell in cells_by_page[page["page_index"]] if cell["from_ocr"]]
         if page.get("source_provenance_incomplete"):
             page["extraction_state"] = "error"

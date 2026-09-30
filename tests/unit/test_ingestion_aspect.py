@@ -84,8 +84,22 @@ def test_normal_aspect_and_unknown_intrinsic_geometry_keep_original_size():
 
 def test_experimental_derivatives_are_explicit_boolean_config_and_fingerprinted():
     normal = IngestionConfig.from_mapping({})
-    experimental = IngestionConfig.from_mapping({"ocr_intrinsic_aspect": True, "ocr_cell_border": True})
-    assert normal.ocr_intrinsic_aspect is normal.ocr_cell_border is False
+    experimental = IngestionConfig.from_mapping({"ocr_intrinsic_aspect": True, "ocr_cell_border": False})
+    assert normal.ocr_intrinsic_aspect is False
+    assert normal.ocr_cell_border is True
     assert normal.fingerprint() != experimental.fingerprint()
     with pytest.raises(IngestionError):
         IngestionConfig.from_mapping({"ocr_intrinsic_aspect": "false"})
+    with pytest.raises(IngestionError):
+        IngestionConfig.from_mapping({"pdf": {"ocr_cell_ink_crop": "false"}})
+
+
+def test_cell_ink_crop_and_confidence_threshold_are_read_from_profile():
+    profile = IngestionConfig.from_mapping({"pdf": {"ocr_cell_ink_crop": False, "ocr_min_word_confidence": 0.9}})
+    assert profile.ocr_cell_border is False and profile.ocr_min_word_confidence == 0.9
+    assert IngestionConfig().ocr_min_word_confidence == IngestionConfig.from_mapping({}).ocr_min_word_confidence == 0.8
+    assert IngestionConfig.from_mapping({}).fingerprint() != IngestionConfig.from_mapping({"pdf": {"ocr_min_word_confidence": 0.9}}).fingerprint()
+    for invalid in (None, True, "0.8", 1.5, -0.1, float("nan")):
+        with pytest.raises(IngestionError) as caught:
+            IngestionConfig.from_mapping({"pdf": {"ocr_min_word_confidence": invalid}})
+        assert caught.value.code == "INVALID_CONFIG"

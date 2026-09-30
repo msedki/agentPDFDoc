@@ -34,14 +34,30 @@ def read_tesseract_tsv(data):
     return frame[frame["text"].str.strip() != ""].copy()
 
 
-def bounded_cell_crop(image, bounds, border=10):
-    """Remove oversized blank margins and retain an explicit raster offset."""
+def bounded_cell_crop(image, bounds, border=10, edge=4):
+    """Remove oversized blank margins and retain an explicit raster offset.
+
+    Ink components lying entirely within `edge` pixels of the cell frame are
+    residues of removed rules: counted as ink, they widen the crop back to the
+    whole cell (E1, cells V/°C/A). A glyph reaching that band is kept whole.
+    """
+    import numpy as np
     from PIL import ImageOps
+    from scipy.ndimage import label
 
     crop = image.crop(tuple(bounds)).convert("RGB")
-    ink = crop.convert("L").point(lambda value: 255 if value < 128 else 0).getbbox()
-    if ink is None:
+    dark = np.asarray(crop.convert("L")) < 128
+    height, width = dark.shape
+    edge = max(0, min(edge, (min(height, width) - 1) // 2))
+    labels, count = label(dark, structure=np.ones((3, 3), dtype=bool))
+    interior = np.zeros_like(dark)
+    interior[edge:height - edge, edge:width - edge] = True
+    content = np.flatnonzero(np.bincount(labels[interior], minlength=count + 1)[1:]) + 1
+    kept = np.isin(labels, content)
+    rows, columns = np.flatnonzero(kept.any(axis=1)), np.flatnonzero(kept.any(axis=0))
+    if not rows.size:
         return None, None
+    ink = (int(columns[0]), int(rows[0]), int(columns[-1]) + 1, int(rows[-1]) + 1)
     patch = ImageOps.expand(crop.crop(ink), border=border, fill="white")
     offset = (bounds[0] + ink[0] - border, bounds[1] + ink[1] - border)
     return patch, offset
@@ -234,6 +250,10 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
 
         def _cell_ocr(self, image, bounds):
             patch, offset = bounded_cell_crop(image, bounds) if cell_border else (image.crop(tuple(bounds)), tuple(bounds[:2]))
+            if patch is None:
+                # Only rule residue: nothing recognized, the printed cell stays unresolved.
+                self._last_cell_crop = {"policy": "ink_border_10", "raster_offset": None, "raster_size": None, "ink": "edge_residue_only"}
+                return None
             self._last_cell_crop = {"policy": "ink_border_10" if cell_border else "full_grid_cell", "raster_offset": list(offset), "raster_size": list(patch.size)}
             with temporary_raster(patch) as target:
                 frame = self._run_literal_tsv(target, psm=6)
@@ -282,7 +302,8 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
                 metadata["cell_ocr"] = []
                 for bounds in cells:
                     printed = int((np.asarray(derived.crop(tuple(bounds)).convert("L")) < 128).sum()) >= 3
-                    cell_frame = self._cell_ocr(derived, bounds) if printed else frame.iloc[0:0]
+                    cell_frame = self._cell_ocr(derived, bounds) if printed else None
+                    cell_frame = frame.iloc[0:0] if cell_frame is None else cell_frame
                     frames.append(cell_frame)
                     evidence = {"raster_bbox": bounds, "printed": printed, "recognized_words": len(cell_frame)}
                     if printed:

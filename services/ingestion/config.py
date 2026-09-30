@@ -36,8 +36,10 @@ class IngestionConfig:
     pipeline_route: str = "auto"
     pdf_backend: str = "docling_parse"
     ocr_intrinsic_aspect: bool = False
-    ocr_cell_border: bool = False
-    ocr_min_word_confidence: float | None = None
+    # Recadrage borné sur l'encre des cellules de grille (profil : pdf.ocr_cell_ink_crop), nominal après E1.
+    ocr_cell_border: bool = True
+    # Mot ou cellule OCR sous ce seuil : région non résolue ; 0 désactive explicitement le contrôle.
+    ocr_min_word_confidence: float = 0.8
     extraction_revision_id: str | None = None
     artifacts_lock_path: str | None = "config/artifacts.lock.json"
     max_page_render_pixels: int = 8_000_000
@@ -52,7 +54,7 @@ class IngestionConfig:
         supplied = config or {}
         pdf = supplied.get("pdf", supplied)
         values = {key: pdf[key] for key in cls.__dataclass_fields__ if key in pdf}
-        for alias, canonical in {"tessdata_dir": "tessdata_path", "native_parser_threads": "parser_threads", "model_inference_threads": "threads_max", "checkpoint_window_pages_initial": "page_window_size"}.items():
+        for alias, canonical in {"tessdata_dir": "tessdata_path", "native_parser_threads": "parser_threads", "model_inference_threads": "threads_max", "checkpoint_window_pages_initial": "page_window_size", "ocr_cell_ink_crop": "ocr_cell_border"}.items():
             if alias in pdf:
                 values[canonical] = pdf[alias]
         for key in ("artifacts_path", "tesseract_cmd", "tessdata_path", "extraction_revision_id"):
@@ -75,8 +77,9 @@ class IngestionConfig:
             raise IngestionError("INVALID_CONFIG", "Le backend PDF demandé est inconnu.")
         if not isinstance(result.ocr_intrinsic_aspect, bool) or not isinstance(result.ocr_cell_border, bool):
             raise IngestionError("INVALID_CONFIG", "Les options de dérivé OCR doivent être booléennes.")
-        if result.ocr_min_word_confidence is not None and (not math.isfinite(result.ocr_min_word_confidence) or not 0 <= result.ocr_min_word_confidence <= 1):
-            raise IngestionError("INVALID_CONFIG", "Le seuil de confiance OCR doit appartenir à [0,1].")
+        threshold = result.ocr_min_word_confidence
+        if isinstance(threshold, bool) or not isinstance(threshold, int | float) or not math.isfinite(threshold) or not 0 <= threshold <= 1:
+            raise IngestionError("INVALID_CONFIG", "Le seuil de confiance OCR doit être un nombre de [0,1].")
         if not result.ocr_languages or any(not isinstance(x, str) or not x for x in result.ocr_languages):
             raise IngestionError("INVALID_CONFIG", "Les langues OCR doivent être explicites.")
         return result

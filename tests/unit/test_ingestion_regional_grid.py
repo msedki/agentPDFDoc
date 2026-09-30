@@ -64,6 +64,31 @@ def test_cell_border_has_exact_inverse_offset_and_preserves_original_pixels():
     assert bounded_cell_crop(source, [200, 0, 400, 80]) == (None, None)
 
 
+def test_cell_crop_ignores_rule_residue_at_the_cell_frame():
+    # Reproduit E1 : quelques pixels de règle retirée au bord ramenaient le crop à la cellule entière.
+    source = Image.new("RGB", (402, 140), "white")
+    draw = ImageDraw.Draw(source)
+    draw.rectangle((21, 48, 58, 90), fill="black")
+    for x, y in ((401, 60), (401, 61), (401, 62), (200, 1), (300, 139)):
+        source.putpixel((x, y), (89, 89, 89))
+    patch, offset = bounded_cell_crop(source, [0, 0, 402, 140])
+    assert offset == (11, 38)
+    assert patch.size == (58, 63)
+    assert bounded_cell_crop(source, [0, 0, 402, 140], edge=0)[0].size == (401, 159)
+    residue_only = Image.new("RGB", (402, 140), "white")
+    residue_only.putpixel((401, 60), (0, 0, 0))
+    assert bounded_cell_crop(residue_only, [0, 0, 402, 140]) == (None, None)
+
+
+def test_cell_crop_keeps_a_glyph_touching_the_frame_whole():
+    source = Image.new("RGB", (300, 120), "white")
+    ImageDraw.Draw(source).rectangle((0, 30, 25, 80), fill="black")
+    patch, offset = bounded_cell_crop(source, [0, 0, 300, 120])
+    assert offset == (-10, 20)
+    assert patch.size == (46, 71)
+    assert patch.getpixel((10, 10)) == (0, 0, 0)
+
+
 def test_private_raster_is_removed_when_png_encoder_fails(tmp_path, monkeypatch):
     import tempfile
 

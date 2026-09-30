@@ -1,0 +1,880 @@
+{
+  "analysis": "routing-preflight",
+  "started_utc": "2026-09-30T09:43:33.898795+00:00",
+  "finished_utc": "2026-09-30T09:43:36.315388+00:00",
+  "scope": "preflight_pdf + page_route + check_render_budget (pypdfium2) ; aucun Docling, OCR ni modèle ; split final exclu.",
+  "profile": "config/local16.yaml",
+  "pipeline_route": "auto",
+  "splits": [
+    "development",
+    "contract_only"
+  ],
+  "fixtures_total": 25,
+  "route_page_counts": {
+    "structured": 32,
+    "regional_ocr": 4,
+    "blank": 1
+  },
+  "auto_native_reached": false,
+  "auto_native_pages": [],
+  "typography_rule_pages": 25,
+  "rule_trace_mismatches": [],
+  "hypothesis_pipeline_35_37": "CONFIRMEE : aucune page n'atteint la voie auto->native",
+  "generator": {
+    "script_sha256": "5aacd6082b8c383744aff8f65c50e1947abe8c73e03e7e898b50ebfbafbb08b6",
+    "script_source": "\"\"\"Analyse de routage légère : preflight_pdf + page_route (pypdfium2 seul, sans Docling).\n\nFixtures des splits development et contract_only du manifeste V2.1 ; jamais final.\n\"\"\"\n\nimport datetime as dt\nimport hashlib\nimport json\nimport sys\nfrom pathlib import Path\n\nROOT = Path(r\"D:\\enhacements\\agentragpdf\")\nsys.path.insert(0, str(ROOT))\n\nimport yaml  # noqa: E402\n\nfrom services.ingestion.config import IngestionConfig  # noqa: E402\nfrom services.ingestion.errors import IngestionError  # noqa: E402\nfrom services.ingestion.pipeline import page_route, routing_reason  # noqa: E402\nfrom services.ingestion.preflight import check_render_budget, preflight_pdf  # noqa: E402\n\nSPLITS = (\"development\", \"contract_only\")\n\n\ndef deciding_rule(page, settings):\n    \"\"\"Première règle de page_route satisfaite, vérifiée contre page_route.\"\"\"\n    if page[\"classification\"] == \"blank\":\n        return \"blank\", \"blank\"\n    if settings.pipeline_route != \"auto\":\n        return settings.pipeline_route, \"explicit_profile_route\"\n    if page[\"needs_ocr\"]:\n        return \"regional_ocr\", \"needs_ocr\"\n    regions = page.get(\"native_text_regions\", [])\n    midpoint = (page[\"effective_box\"][0] + page[\"effective_box\"][2]) / 2\n    left = [box for box in regions if box[2] < midpoint - 15]\n    right = [box for box in regions if box[0] > midpoint + 15]\n    if page[\"vector_path_count\"] >= 8:\n        return \"structured\", \"vector_paths>=8\"\n    if len(left) >= 3 and len(right) >= 3:\n        return \"structured\", \"two_columns\"\n    if page[\"vector_path_count\"] > 0 and page.get(\"native_text_sparse\", False):\n        return \"structured\", \"vector_paths_and_sparse_text\"\n    sizes = page.get(\"text_font_sizes\", [])\n    if sizes and max(sizes) >= min(sizes) * 1.3 and max(sizes) - min(sizes) >= 2:\n        return \"structured\", \"typography_font_size_spread (pipeline.py:35-37)\"\n    if page[\"classification\"] == \"native\":\n        return \"native\", \"simple_native_signals\"\n    return \"structured\", f\"classification_{page['classification']}\"\n\n\ndef main():\n    started = dt.datetime.now(dt.UTC)\n    profile = yaml.safe_load((ROOT / \"config/local16.yaml\").read_text(encoding=\"utf-8-sig\"))\n    settings = IngestionConfig.from_mapping(profile)\n    manifest = json.loads((ROOT / \"evals/qualification-v2.1/manifest.json\").read_text(encoding=\"utf-8\"))\n    fixtures, counts, native_pages, mismatches = [], {}, [], []\n    for entry in manifest[\"entries\"]:\n        if entry[\"split\"] not in SPLITS:\n            continue\n        path = ROOT / \"fixtures\" / entry[\"path\"]\n        record = {\"key\": entry[\"key\"], \"split\": entry[\"split\"], \"type\": entry.get(\"type\"), \"path\": entry[\"path\"],\n                  \"manifest_sha256\": entry[\"sha256\"]}\n        actual = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None\n        record[\"sha256_verified\"] = actual == entry[\"sha256\"]\n        if not record[\"sha256_verified\"]:\n            record[\"status\"] = \"SKIPPED_HASH_MISMATCH\"\n            fixtures.append(record)\n            continue\n        try:\n            preflight = preflight_pdf(path, settings)\n        except IngestionError as exc:\n            record.update(status=\"PREFLIGHT_REFUSED\", error_code=exc.code)\n            fixtures.append(record)\n            continue\n        record.update(status=\"ANALYZED\", page_count=preflight[\"page_count\"], pages=[])\n        for page in preflight[\"pages\"]:\n            route = page_route(page, settings)\n            rule_route, rule = deciding_rule(page, settings)\n            if rule_route != route:\n                mismatches.append({\"key\": entry[\"key\"], \"page_index\": page[\"page_index\"], \"page_route\": route, \"rule_route\": rule_route})\n            try:\n                check_render_budget(page, route, settings)\n                budget = \"OK\"\n            except IngestionError as exc:\n                budget = exc.code\n            sizes = page.get(\"text_font_sizes\", [])\n            record[\"pages\"].append({\"page_index\": page[\"page_index\"], \"classification\": page[\"classification\"],\n                                    \"needs_ocr\": page[\"needs_ocr\"], \"vector_path_count\": page[\"vector_path_count\"],\n                                    \"native_text_sparse\": page[\"native_text_sparse\"],\n                                    \"font_size_min\": min(sizes) if sizes else None, \"font_size_max\": max(sizes) if sizes else None,\n                                    \"image_regions\": len(page[\"image_regions\"]), \"rotation\": page[\"rotation\"],\n                                    \"route\": route, \"routing_reason\": routing_reason(page, route, settings),\n                                    \"deciding_rule\": rule, \"render_budget\": budget})\n            counts[route] = counts.get(route, 0) + 1\n            if route == \"native\":\n                native_pages.append({\"key\": entry[\"key\"], \"page_index\": page[\"page_index\"]})\n        fixtures.append(record)\n    typography = sum(page[\"deciding_rule\"].startswith(\"typography\") for fixture in fixtures for page in fixture.get(\"pages\", []))\n    source = Path(__file__).read_bytes()\n    report = {\"analysis\": \"routing-preflight\", \"started_utc\": started.isoformat(), \"finished_utc\": dt.datetime.now(dt.UTC).isoformat(),\n              \"scope\": \"preflight_pdf + page_route + check_render_budget (pypdfium2) ; aucun Docling, OCR ni modèle ; split final exclu.\",\n              \"profile\": \"config/local16.yaml\", \"pipeline_route\": settings.pipeline_route,\n              \"splits\": list(SPLITS), \"fixtures_total\": len(fixtures),\n              \"route_page_counts\": counts, \"auto_native_reached\": bool(native_pages), \"auto_native_pages\": native_pages,\n              \"typography_rule_pages\": typography, \"rule_trace_mismatches\": mismatches,\n              \"hypothesis_pipeline_35_37\": (\"CONFIRMEE : aucune page n'atteint la voie auto->native\" if not native_pages\n                                            else \"INFIRMEE : au moins une page atteint la voie auto->native\"),\n              \"generator\": {\"script_sha256\": hashlib.sha256(source).hexdigest(), \"script_source\": source.decode(\"utf-8\")},\n              \"fixtures\": fixtures}\n    target_dir = ROOT / \"RAG_Local_Agents/reports/ingestion\"\n    target_dir.mkdir(parents=True, exist_ok=True)\n    target = target_dir / f\"routing-preflight-{started.strftime('%Y%m%dT%H%M%SZ')}.json\"\n    with target.open(\"x\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n        stream.write(json.dumps(report, ensure_ascii=False, indent=2) + \"\\n\")\n    print(json.dumps({\"report\": target.relative_to(ROOT).as_posix(), \"route_page_counts\": counts,\n                      \"auto_native_reached\": bool(native_pages), \"typography_rule_pages\": typography,\n                      \"mismatches\": len(mismatches)}, ensure_ascii=False))\n\n\nif __name__ == \"__main__\":\n    main()\n"
+  },
+  "fixtures": [
+    {
+      "key": "development-DA-P01",
+      "split": "development",
+      "type": "native_text_table",
+      "path": "qualification-v2.1/development/Procédures/Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "manifest_sha256": "791b95354f28858d3ab8670481a10f1d3c9d6e547297adf5ac765a88d6663fd5",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 2,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        },
+        {
+          "page_index": 1,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 6,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "two_columns",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "development-DA-P02",
+      "split": "development",
+      "type": "image_only_scan",
+      "path": "qualification-v2.1/development/Procédures/Atelier 2 - Banc pneumatique DA-P02.pdf",
+      "manifest_sha256": "1a4891c1d1e11565b31acb333f639951ce5430f64d52071dd261fbb4eeb11e14",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 2,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "scan_candidate",
+          "needs_ocr": true,
+          "vector_path_count": 0,
+          "native_text_sparse": true,
+          "font_size_min": null,
+          "font_size_max": null,
+          "image_regions": 1,
+          "rotation": 0,
+          "route": "regional_ocr",
+          "routing_reason": "uncovered_image_regions",
+          "deciding_rule": "needs_ocr",
+          "render_budget": "OK"
+        },
+        {
+          "page_index": 1,
+          "classification": "scan_candidate",
+          "needs_ocr": true,
+          "vector_path_count": 0,
+          "native_text_sparse": true,
+          "font_size_min": null,
+          "font_size_max": null,
+          "image_regions": 1,
+          "rotation": 0,
+          "route": "regional_ocr",
+          "routing_reason": "uncovered_image_regions",
+          "deciding_rule": "needs_ocr",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "development-DA-P03",
+      "split": "development",
+      "type": "native_paragraph_scanned_table",
+      "path": "qualification-v2.1/development/Procédures/Atelier 3 - Banc pneumatique DA-P03.pdf",
+      "manifest_sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 2,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        },
+        {
+          "page_index": 1,
+          "classification": "mixed",
+          "needs_ocr": true,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 1,
+          "rotation": 0,
+          "route": "regional_ocr",
+          "routing_reason": "uncovered_image_regions",
+          "deciding_rule": "needs_ocr",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "development-DA-P04",
+      "split": "development",
+      "type": "native_two_columns_table",
+      "path": "qualification-v2.1/development/Procédures/Atelier 4 - Banc pneumatique DA-P04.pdf",
+      "manifest_sha256": "cc02552b9fe0536a0538fead7284a6e17cf285d131e84dce4f730137ede7487a",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 2,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        },
+        {
+          "page_index": 1,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 6,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "two_columns",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "development-DA-P05",
+      "split": "development",
+      "type": "native_text_table",
+      "path": "qualification-v2.1/development/Procédures/Atelier 5 - Banc pneumatique DA-P05.pdf",
+      "manifest_sha256": "a595fd3c5a88d43f56d5383039768fbc319c40ed466cf53a9757ad76e41f7fa1",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 2,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        },
+        {
+          "page_index": 1,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 6,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "two_columns",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "development-DA-P06",
+      "split": "development",
+      "type": "native_text_table",
+      "path": "qualification-v2.1/development/Procédures/Atelier 6 - Banc pneumatique DA-P06.pdf",
+      "manifest_sha256": "072500f7a3b60b6fd6a4b48e82006a7785cea0d748f894c544d4b5c1451d5761",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 2,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        },
+        {
+          "page_index": 1,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 6,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "two_columns",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "development-DA-P07",
+      "split": "development",
+      "type": "native_text_table",
+      "path": "qualification-v2.1/development/Procédures/Atelier 7 - Banc pneumatique DA-P07.pdf",
+      "manifest_sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 2,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        },
+        {
+          "page_index": 1,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 6,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "two_columns",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "boundary-45",
+      "split": "contract_only",
+      "type": "continued_section_table",
+      "path": "qualification-v2.1/layouts/Section et tableau pages 4-5.pdf",
+      "manifest_sha256": "e12e1d68f8c26fa41d46b748dc6f4ca0395fbbfa2d6f731c0402bc8d2b9625e6",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 5,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        },
+        {
+          "page_index": 1,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        },
+        {
+          "page_index": 2,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        },
+        {
+          "page_index": 3,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 5,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "two_columns",
+          "render_budget": "OK"
+        },
+        {
+          "page_index": 4,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 5,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "two_columns",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "crop-rotate-90",
+      "split": "contract_only",
+      "type": "rotation_crop",
+      "path": "qualification-v2.1/geometry/Rotation 90 CropBox.pdf",
+      "manifest_sha256": "a4b07b4499adc8fd62fed8ffe15a6c6fcb1b6415298cab95343f4070baeb3257",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 1,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 90,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "crop-rotate-180",
+      "split": "contract_only",
+      "type": "rotation_crop",
+      "path": "qualification-v2.1/geometry/Rotation 180 CropBox.pdf",
+      "manifest_sha256": "dd19fac7e80fcdb79fc57c3bac5528928b586068f76cd3329d734bad6aa79afe",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 1,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 180,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "crop-rotate-270",
+      "split": "contract_only",
+      "type": "rotation_crop",
+      "path": "qualification-v2.1/geometry/Rotation 270 CropBox.pdf",
+      "manifest_sha256": "15667c6ab1319e5d3a1f9ade266da7bb2790851d0a670484c7dba006510d0c29",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 1,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 270,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "roman-labels",
+      "split": "contract_only",
+      "type": "roman_arabic_labels",
+      "path": "qualification-v2.1/labels/Préface romaine et annexe.pdf",
+      "manifest_sha256": "f288d79bb970352e1fa6cefcf3e9beeda1ba896efe033a0c11bd4a182ac5411d",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 4,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        },
+        {
+          "page_index": 1,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        },
+        {
+          "page_index": 2,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        },
+        {
+          "page_index": 3,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "unicode-selection",
+      "split": "contract_only",
+      "type": "unicode_native",
+      "path": "qualification-v2.1/text/Unicode ligatures césures.pdf",
+      "manifest_sha256": "5019b96461dc41e386ad92b75e69446c2296f548a5a6874dfb12d8821f7135aa",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 1,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 0,
+          "native_text_sparse": false,
+          "font_size_min": 12.0,
+          "font_size_max": 18.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "version-1",
+      "split": "contract_only",
+      "type": "version_update",
+      "path": "qualification-v2.1/versions/v1/Procédure QV-01.pdf",
+      "manifest_sha256": "a2fe869653f333b8a60cf985300dc8387168d8bc9c7003ca074ef714df7a448b",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 1,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "version-2",
+      "split": "contract_only",
+      "type": "version_update",
+      "path": "qualification-v2.1/versions/v2/Procédure QV-01.pdf",
+      "manifest_sha256": "0f0dad408a179ba1fce199fa903421ff05a0fa65af0dd51a2bf81c9524184dd8",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 1,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "QH-A",
+      "split": "contract_only",
+      "type": "homonym_unicode_path",
+      "path": "qualification-v2.1/imports/Unité été/Commun.pdf",
+      "manifest_sha256": "e7f4dadc5e846af3833b0c3a5e767c54a8c2e7eb3d8223729613be81e30b5203",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 1,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "QH-B",
+      "split": "contract_only",
+      "type": "homonym_unicode_path",
+      "path": "qualification-v2.1/imports/Unité hiver/Commun.pdf",
+      "manifest_sha256": "fb9538fa4f0a31be6e29b1178a29688588872edc42b113f957f51889d36e93e6",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 1,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "scan-fr-en",
+      "split": "contract_only",
+      "type": "image_only_scan_fr_en",
+      "path": "qualification-v2.1/scans/Contrôle bilingue FR EN.pdf",
+      "manifest_sha256": "dbec1b85f93d253842b6ae34a156fbb32ce5f49d6dee96b82ae292245bf47387",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 1,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "scan_candidate",
+          "needs_ocr": true,
+          "vector_path_count": 0,
+          "native_text_sparse": true,
+          "font_size_min": null,
+          "font_size_max": null,
+          "image_regions": 1,
+          "rotation": 0,
+          "route": "regional_ocr",
+          "routing_reason": "uncovered_image_regions",
+          "deciding_rule": "needs_ocr",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "blank",
+      "split": "contract_only",
+      "type": "blank",
+      "path": "qualification-v2.1/errors/Page blanche.pdf",
+      "manifest_sha256": "98428bbc99940a35118fb97752529dbf1fa241d29bccd315f1032a778d7437c8",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 1,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "blank",
+          "needs_ocr": false,
+          "vector_path_count": 0,
+          "native_text_sparse": true,
+          "font_size_min": null,
+          "font_size_max": null,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "blank",
+          "routing_reason": "no_visible_content",
+          "deciding_rule": "blank",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "encrypted",
+      "split": "contract_only",
+      "type": "encrypted",
+      "path": "qualification-v2.1/errors/Chiffré mot de passe.pdf",
+      "manifest_sha256": "44067453f1d915cb42536f8fbfc2861e346afb83b9678a7e9311d2e2080ffa01",
+      "sha256_verified": true,
+      "status": "PREFLIGHT_REFUSED",
+      "error_code": "PDF_ENCRYPTED"
+    },
+    {
+      "key": "corrupt",
+      "split": "contract_only",
+      "type": "corrupt",
+      "path": "qualification-v2.1/errors/Structure invalide.pdf",
+      "manifest_sha256": "28e708432fef225275f647331e182fd03e66c0e02f967db29a66702fe3f3d135",
+      "sha256_verified": true,
+      "status": "PREFLIGHT_REFUSED",
+      "error_code": "PDF_INVALID"
+    },
+    {
+      "key": "size-limit",
+      "split": "contract_only",
+      "type": "size_limit",
+      "path": "qualification-v2.1/errors/Limite de taille isolée.pdf",
+      "manifest_sha256": "be3bf98d45705729939f4acf3c474ee56c8e16cfea013c0361d7b1b807b539e3",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 1,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "hostile-instructions",
+      "split": "contract_only",
+      "type": "untrusted_document_instruction",
+      "path": "qualification-v2.1/hostile/Instructions non fiables.pdf",
+      "manifest_sha256": "b502fe676c885e8c4452c233216d49268903ddf2c85d23e0278a860f2221880c",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 1,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "hostile-exfiltration",
+      "split": "contract_only",
+      "type": "untrusted_document_instruction",
+      "path": "qualification-v2.1/hostile/Lien externe hostile.pdf",
+      "manifest_sha256": "e348e69b6e55a64970f9b5808ea9f46b69e61aa83618b4c7b897873a767f6428",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 1,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        }
+      ]
+    },
+    {
+      "key": "hostile-code",
+      "split": "contract_only",
+      "type": "untrusted_document_instruction",
+      "path": "qualification-v2.1/hostile/Commande non exécutable.pdf",
+      "manifest_sha256": "670763c99803f6578c45a045a74a1bdedf3559ede0c05d5791b22197d0c99c48",
+      "sha256_verified": true,
+      "status": "ANALYZED",
+      "page_count": 1,
+      "pages": [
+        {
+          "page_index": 0,
+          "classification": "native",
+          "needs_ocr": false,
+          "vector_path_count": 1,
+          "native_text_sparse": false,
+          "font_size_min": 8.0,
+          "font_size_max": 16.0,
+          "image_regions": 0,
+          "rotation": 0,
+          "route": "structured",
+          "routing_reason": "typography_requires_structure",
+          "deciding_rule": "typography_font_size_spread (pipeline.py:35-37)",
+          "render_budget": "OK"
+        }
+      ]
+    }
+  ]
+}

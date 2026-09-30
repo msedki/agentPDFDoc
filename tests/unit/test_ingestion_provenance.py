@@ -26,6 +26,23 @@ def test_low_confidence_cell_remains_visible_and_explicitly_unresolved():
     assert pages[0]["ocr_preprocessing"][0]["cell_ocr"][0]["minimum_word_confidence"] == .6
 
 
+def test_low_confidence_word_is_unresolved_once_even_inside_a_reported_cell():
+    cell_region = {"l": 60, "t": 20, "r": 100, "b": 50, "coord_origin": "TOPLEFT"}
+    document = {"pages": {"1": {"size": {"width": 100, "height": 200}}}}
+    page = {"page_index": 0, "crop_box": [0, 0, 100, 200], "rotation": 0, "classification": "scan_candidate"}
+    cells = [{"text": "24", "from_ocr": True, "confidence": .97, "bbox": {"l": 10, "t": 25, "r": 40, "b": 45, "coord_origin": "TOPLEFT"}},
+             {"text": "v", "from_ocr": True, "confidence": .605, "bbox": {"l": 65, "t": 25, "r": 80, "b": 45, "coord_origin": "TOPLEFT"}},
+             {"text": "d", "from_ocr": True, "confidence": 0.0, "bbox": {"l": 10, "t": 100, "r": 20, "b": 120, "coord_origin": "TOPLEFT"}},
+             {"text": "natif", "from_ocr": False, "confidence": None, "bbox": {"l": 10, "t": 150, "r": 40, "b": 160, "coord_origin": "TOPLEFT"}}]
+    observed = {0: {"cell_count": 3, "cells": cells, "preprocessing": [{"cell_ocr": [{"uncertain_parser_bbox": cell_region, "minimum_word_confidence": .605}]}]}}
+    pages, warnings = document_to_pages(document, [page], "version", "revision", "regional_ocr", observed, minimum_confidence=.8)
+    regions = [(region["reason"], region["bbox"]) for region in pages[0]["unresolved_regions"]]
+    assert regions == [("OCR_CELL_LOW_CONFIDENCE", [60, 150, 100, 180]), ("OCR_WORD_LOW_CONFIDENCE", [10, 80, 20, 100])]
+    assert {"code": "OCR_WORD_LOW_CONFIDENCE", "page_index": 0, "count": 1, "minimum_confidence_required": .8} in warnings
+    unchecked, _ = document_to_pages(document, [page], "version", "revision", "regional_ocr", observed)
+    assert [region["reason"] for region in unchecked[0]["unresolved_regions"]] == ["OCR_CELL_LOW_CONFIDENCE"]
+
+
 def test_immutable_unicode_text_and_actual_ocr_counter():
     text = "A😀é ﬁ e\u0301"
     item = {"self_ref": "#/texts/0", "label": "text", "text": text,
