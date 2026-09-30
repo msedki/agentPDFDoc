@@ -193,7 +193,7 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 **Conséquences :** la première série mesure la capacité à retrouver le bloc d'origine d'une question tirée du texte extrait, pas l'utilité métier (limites §4 du dossier : validité externe, circularité de l'extraction, petits effectifs). Les extractions partielles de CPR-07A et MR2_30A ont été publiées explicitement par l'intégrateur à 20:35 UTC, celle d'« essais MIGBT » à 21:16 UTC, pour que l'évaluation porte sur plus d'un document ; action réversible par réindexation, visible dans le Suivi.
 ## W014 Jeu de questions de référence établi par lecture intégrale des documents
 
-**Date :** 30 septembre 2026, 22:50 UTC. **Statut :** acquise (demande utilisateur de 22:45 UTC) ; lecture en cours, jeu non encore exécuté.
+**Date :** 30 septembre 2026, vers 22:48 UTC. **Statut :** acquise (demande utilisateur reçue vers 22:44 UTC) ; lecture en cours, jeu non encore exécuté.
 
 **Contexte :** la qualification métier était bloquée faute de questions annotées par un expert (point à trancher n° 2). L'utilisateur demande que l'assistant produise lui-même ce jeu « en lisant profondément les documents ». La règle du dossier interdisait jusqu'ici d'envoyer le texte du corpus à un service externe et W013 réservait la lecture d'extraits à une autorisation explicite.
 

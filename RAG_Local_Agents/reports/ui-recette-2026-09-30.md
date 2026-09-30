@@ -1,6 +1,6 @@
 # Recette visuelle et ergonomique de l'atelier — 30 septembre 2026
 
-**Rôle :** rapport de recette du lot R20 (documentation vivante) : défauts relevés sur captures du corpus réel, principe enfreint, source officielle, correction et preuve. **Statut :** premier passage clos ; points ouverts en fin de document. **Date :** 30 septembre 2026, 23:00 UTC. **Base :** captures avant `apps/web/reports/visual-qa-20260930T1849/` (build du commit `10b5dd9`), après `apps/web/reports/visual-qa-20260930T2015/` (contenu du commit `6935e13`) ; E2E [lecture seule et recette visuelle 12/12](../../apps/web/reports/e2e-2026-09-30-r20-final-2015-evidence.json).
+**Rôle :** rapport de recette du lot R20 (documentation vivante) : défauts relevés sur captures du corpus réel, principe enfreint, source officielle, correction et preuve. **Statut :** premier passage clos ; points ouverts en fin de document. **Date :** 30 septembre 2026, 22:53 UTC. **Base :** captures avant `apps/web/reports/visual-qa-20260930T1849/` (build du commit `10b5dd9`), après `apps/web/reports/visual-qa-20260930T2015/` (contenu du commit `6935e13`) ; E2E [lecture seule et recette visuelle 12/12](../../apps/web/reports/e2e-2026-09-30-r20-final-2015-evidence.json).
 
 ## Méthode
 
