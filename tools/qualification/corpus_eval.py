@@ -85,7 +85,8 @@ def context_value_questions(block: dict[str, Any]) -> list[dict[str, Any]]:
     text = block.get("text") or ""
     for match in VALUE_WITH_UNIT.finditer(text):
         clause = re.split(r"[.;:!?\n()|]", text[:match.start()])[-1]
-        words = [word for word in re.findall(r"[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'’-]+", clause)]
+        # Lettres Unicode (« manœuvre » reste un mot), chiffres exclus ; apostrophes et traits d'union internes gardés.
+        words = re.findall(r"[^\W\d_](?:[^\W\d_]|['’-])+", clause)
         carriers = [word for word in words if fold(word) not in STOP_CONTEXT]
         if len(carriers) < 3:
             continue

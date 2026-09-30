@@ -140,3 +140,9 @@ def test_confirmation_series_excludes_blocks_and_identifiers_already_used():
     second = build_dataset(BLOCKS, seed=20261001, exclude={"block_ids": used_blocks, "identifiers": used_codes})["questions"]
     assert not {block for item in second for block in item["expected_block_ids"]} & used_blocks
     assert not {item["identifier"] for item in second if item.get("identifier")} & used_codes
+
+
+def test_context_template_keeps_words_with_letters_outside_latin_1():
+    questions = value_questions(block("b11", "doc-e", "Effectuer la manœuvre du sectionneur principal sous 400 V."))
+    assert questions and "manœuvre du sectionneur principal sous" in questions[0]["question"]
+    assert questions[0]["reduced_cue"] == "Effectuer manœuvre sectionneur"
