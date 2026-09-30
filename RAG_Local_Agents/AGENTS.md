@@ -55,3 +55,7 @@ Ne pas envoyer de PDF privés à des services externes ; utiliser les sources pr
 Avant « terminé », relier le résultat aux critères de la DoD et aux preuves exécutées. Distinguer implémenté, testé ici, testé sur cible, métier qualifié et non vérifié. Un manque de corpus privé est un blocage de qualification métier, pas une permission d'inventer des tests.
 
 Mettre à jour `PLAN.md` après un changement substantiel. Modifier les `.md` canoniques, pas `RAG_LOCAL_BRIEF_COMPLET.md` à la main ; régénérer et vérifier ce fichier dérivé. Les scripts du dossier documentaire ne prouvent pas le fonctionnement de l'application.
+
+## Documentation et textes d'interface
+
+Appliquer la section « Documentation et textes de l'interface » des `CLAUDE.md`/`AGENTS.md` racine : espace documentaire séparant documentation vivante et stabilisée, une source de vérité par information, statut explicite en tête de chaque document, schémas vectoriels (SVG) plutôt qu'art ASCII, registre humain et précis sans formulation générique. Les textes affichés par l'interface relèvent des mêmes exigences et du vocabulaire du travail documentaire et de maintenance technique de l'utilisateur.

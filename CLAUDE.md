@@ -164,6 +164,43 @@ et permissions de l'environnement.
   droits d'écriture, dépendances et preuve attendue. Éviter les écritures concurrentes
   sur les mêmes fichiers ; relire et vérifier les résultats avant intégration.
 
+## Documentation et textes de l'interface
+
+- Traiter la documentation comme un livrable d'ingénierie, tenu au même niveau
+  d'exigence que le code, dans un espace documentaire dédié qui sépare la
+  documentation vivante (plan, journal, décisions, évolutions, états
+  d'implémentation, rapports de preuve) de la documentation stabilisée
+  (architecture technique détaillée, spécifications, interfaces, dossiers
+  d'exploitation et de déploiement, procédures, référentiels, README).
+- Donner à chaque document un rôle, un propriétaire logique et un statut explicites
+  en tête (statut, date, commit ou version de référence). Une information n'a
+  qu'une source de vérité : les autres documents y renvoient sans la recopier.
+- Faire évoluer la documentation vivante avec l'implémentation. Ne modifier la
+  documentation stabilisée qu'après un changement réel et validé du système, avec
+  sa preuve et sa trace dans les décisions.
+- Architecture technique : composants, responsabilités, flux, interfaces,
+  dépendances, protocoles, données, sécurité, déploiement, exploitation et points
+  d'observabilité. Spécifications : exigences, règles métier, comportements
+  attendus, cas limites et critères d'acceptation, distingués. Exploitation et
+  déploiement : procédures exécutables avec prérequis, commandes, vérifications,
+  retour arrière ou reprise, supervision et diagnostic.
+- Le README racine sert de point d'entrée vers toute la documentation et décrit
+  l'état réel du projet, sans anticipation.
+- Adapter la forme au contenu : tableaux, matrices, schémas, séquences, workflows,
+  exemples, liens internes et sources officielles lorsqu'ils servent la
+  compréhension, la traçabilité ou l'exploitation, jamais comme décor. Schémas
+  vectoriels en couleur (SVG versionnés, générés par script si possible), lisibles
+  en thème clair et sombre ; pas d'art ASCII, les blocs de code restent réservés
+  aux commandes, extraits et journaux.
+- Rédiger dans un registre humain, précis et contextualisé, technique,
+  scientifique ou métier selon le contenu. Proscrire les formulations génériques,
+  creuses ou artificielles (emphase, promesses vagues, remplissage, tournures
+  stéréotypées) et réécrire tout texte existant qui en contient.
+- Les textes du frontend (titres, libellés, aides, info-bulles, états vides,
+  messages d'erreur ou techniques, contenus métier) suivent les mêmes exigences :
+  vocabulaire du domaine, précision, cohérence entre les vues, et indication de
+  l'action possible pour l'utilisateur lorsqu'elle existe.
+
 ## Traçabilité et livraison
 
 - Actualiser les documents de référence, procédures et exemples affectés,

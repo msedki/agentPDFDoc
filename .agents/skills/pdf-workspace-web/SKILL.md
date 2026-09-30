@@ -57,6 +57,17 @@ le produit ; les références officielles ci-dessous définissent les APIs exter
 - Trois panneaux lisibles, repliables et redimensionnables, focus clavier visible,
   états vides/erreurs exploitables. Les contrôles désactivés indiquent pourquoi.
 
+## Textes de l'interface
+
+Chaque libellé, aide, info-bulle, état vide et message d'erreur dit ce qui se passe
+et ce que l'utilisateur peut faire, avec le vocabulaire du poste documentaire
+(document, version, page, bloc, périmètre, source, extraction, indexation). Pas de
+formule générique ni de texte d'ambiance ; un code technique brut n'est jamais
+affiché seul (le traduire, garder le code en info-bulle ou en diagnostic). Les
+mêmes termes désignent les mêmes objets dans toutes les vues ; relire les textes
+modifiés avec la section « Documentation et textes de l'interface » du `CLAUDE.md`
+racine.
+
 ## Contrôle proportionné
 
 Avant changement, vérifier les instructions de la zone. Verrouiller les versions
