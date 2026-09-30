@@ -1,0 +1,14 @@
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests\e2e\a11y.spec.ts:28:1 › tab order, visible focus, separators, tabs and Ctrl+Enter work from the keyboard (11.6s)
+  ✓  2 tests\e2e\negative-deeplink.spec.ts:11:1 › an unknown registered citation shows a visible alert and opens no document (3.5s)
+  ✓  3 tests\e2e\negative-deeplink.spec.ts:38:1 › partial or malformed citation links are refused before any registry request (3.6s)
+  ✓  4 tests\e2e\resource-probe.spec.ts:4:1 › read-only own browser memory probe with a real native PDF (7.1s)
+  ✓  5 tests\e2e\workspace.spec.ts:19:1 › three panels use a real API and no external requests at both desktop sizes (5.8s)
+  -  6 tests\e2e\workspace.spec.ts:48:1 › real import, reading, scoped search and source navigation
+  -  7 tests\e2e\workspace.spec.ts:141:1 › real page and immutable block selection scopes reach the API
+  -  8 tests\e2e\workspace.spec.ts:177:1 › real local model answers with registered citations and preserves scope
+
+  3 skipped
+  5 passed (44.2s)
