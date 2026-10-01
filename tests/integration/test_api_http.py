@@ -727,3 +727,28 @@ def test_api_short_selection_never_triggers_dense_or_global_lexical_search(tmp_p
         embedding.strict = vectors.strict = False
         control = client.post("/api/v1/search", json={"question": "Quelle tension ?", "scope": {"kind": "documents", "documentIds": [imported["document_id"]]}})
         assert control.status_code == 200 and {"embedding.embed", "vectors.query", "search.lexical"} <= set(calls)
+
+
+def test_api_readiness_accepts_a_missing_collection_only_while_the_library_is_empty(tmp_path):
+    from services.api.embedding import EmbeddingService
+    from services.api.errors import ApiError
+
+    class EmptyServer(FakeVectors):
+        collection = "explicit-test-collection"
+
+        async def request(self, method, path):
+            if path == "/collections":
+                return {"collections": []}
+            raise ApiError("qdrant_unavailable", "Collection absente (404 simulé).", 503)
+
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    app = create_app(settings=settings, embedding=EmbeddingService(settings), vectors=EmptyServer(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+    with browser_client(app) as client:
+        body = client.get("/api/v1/readiness").json()
+        assert body["checks"]["qdrant"] is True and body["qdrant_collection"] == "absent_empty_library"
+        blob = tmp_path / "original.pdf"
+        blob.write_bytes(b"%PDF-1.7\n")
+        version = app.state.db.import_original("manuel.pdf", "0" * 64, blob)["version_id"]
+        app.state.db.execute("INSERT INTO index_generations(id,version_id,fingerprint,expected_chunks,created_at,published_at) VALUES('g',?,'f',0,'t','t')", (version,))
+        body = client.get("/api/v1/readiness").json()
+        assert body["checks"]["qdrant"] is False and body["qdrant_collection"] == "absent_with_published_generations"

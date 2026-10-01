@@ -355,11 +355,19 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         except ApiError:
             checks["embedding"] = False
         checks["llm_tokenizer"] = (settings.llm_tokenizer_dir / "tokenizer.json").exists() and (settings.llm_tokenizer_dir / "tokenizer_config.json").exists()
+        collection_state = "unreachable"
         try:
             await vectors.request("GET", f"/collections/{vectors.collection}")
-            checks["qdrant"] = True
+            checks["qdrant"], collection_state = True, "present"
         except (ApiError, AttributeError):
-            pass
+            # Base neuve : la collection naît à la première indexation ; seul un serveur muet ou une collection perdue bloque.
+            try:
+                await vectors.request("GET", "/collections")
+                published = db.one("SELECT 1 AS present FROM index_generations WHERE published_at IS NOT NULL LIMIT 1")
+                collection_state = "absent_with_published_generations" if published else "absent_empty_library"
+                checks["qdrant"] = not published
+            except (ApiError, AttributeError):
+                pass
         try:
             response = await ollama.client.get("/api/tags")
             response.raise_for_status()
@@ -367,7 +375,8 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         except Exception:
             pass
         blockers.extend(key + "_not_ready" for key, ready in checks.items() if not ready)
-        return JSONResponse({"status": "ready" if all(checks.values()) else "blocked", "checks": checks, "blockers": blockers}, status_code=200 if all(checks.values()) else 503)
+        return JSONResponse({"status": "ready" if all(checks.values()) else "blocked", "checks": checks, "blockers": blockers, "qdrant_collection": collection_state},
+                            status_code=200 if all(checks.values()) else 503)
 
     def document_rows(where="d.deleted_at IS NULL", parameters=(), limit=100, offset=0):
         rows = db.rows("SELECT d.*,g.version_id AS active_version_id,g.extraction_revision_id,v.sha256,v.page_count,g.coverage_json FROM documents d LEFT JOIN index_generations g ON g.id=d.active_generation_id LEFT JOIN document_versions v ON v.id=g.version_id WHERE " + where + " ORDER BY d.relative_path LIMIT ? OFFSET ?", tuple(parameters) + (limit, offset))
