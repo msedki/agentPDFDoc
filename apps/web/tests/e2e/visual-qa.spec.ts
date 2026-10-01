@@ -31,7 +31,8 @@ for (const viewport of [{ width: 1366, height: 768 }, { width: 1920, height: 108
 
     await page.getByRole("button", { name: new RegExp(fixtureName.replace(/[.()]/g, "\\$&")) }).first().click();
     await expect(page.getByRole("heading", { name: fixtureName })).toBeVisible();
-    await page.waitForTimeout(1500);
+    // Capture après lecture de la couche texte : une attente fixe a déjà saisi une page encore blanche.
+    await expect(page.locator('[data-page-index="0"] .page-caption')).toContainText(/Texte natif|Texte OCR|Page blanche|Aucun texte extrait/);
     await capture(page, "02-document-ouvert");
 
     await page.getByRole("button", { name: /Périmètre/ }).first().click();

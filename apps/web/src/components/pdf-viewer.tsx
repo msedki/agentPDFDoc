@@ -7,7 +7,7 @@ import { api } from "@/lib/api";
 import { useWorkspace } from "@/lib/store";
 import { boundedCanvasSize, reconcileSelection, visiblePageWindow, wholeBlockSpan } from "@/lib/selection";
 import { errorMessage } from "@/lib/utils";
-import { ocrOverlays } from "@/lib/ocr-overlay";
+import { ocrOverlays, pageTextCaption } from "@/lib/ocr-overlay";
 import { hasPublishedExtraction } from "@/lib/publication";
 import { groupedWarningTexts } from "@/lib/warnings";
 import { blocksKey, citedRevision } from "@/lib/provenance-revision";
@@ -36,7 +36,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
   const textLayer = useRef<HTMLDivElement>(null);
   const [viewport, setViewport] = useState<Viewport | null>(null);
   const [failure, setFailure] = useState("");
-  const [nativeText, setNativeText] = useState(false);
+  const [nativeText, setNativeText] = useState<boolean | null>(null);
   const binding = citedRevision(versionId, source);
   const blocks = useQuery({ queryKey: blocksKey(versionId, pageIndex, binding.revision), queryFn: ({ signal }) => api.blocks(versionId, pageIndex, signal, binding.revision), enabled: provenanceReady && !binding.error, staleTime: 30000 });
   const correction = blocks.data?.page.orientation_correction ?? 0;
@@ -49,6 +49,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
     const outputCanvas = canvas.current;
     const layerContainer = textLayer.current;
     setFailure("");
+    setNativeText(null);
     const renderPage = async () => {
       const pdfjs = await import("pdfjs-dist");
       page = await document.getPage(pageIndex + 1);
@@ -110,7 +111,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
     if (!spans) setFailure("Cette sélection ne correspond pas de façon unique aux blocs extraits. Utilisez « Analyser cette page » ou choisissez un bloc dans « Texte extrait & provenance ».");
   };
   return <section className="pdf-page-slot" aria-label={`Page ${pageIndex + 1}`} data-page-index={pageIndex}>
-    <div className="page-caption"><span>Page {pageIndex + 1}{blocks.data?.page.label && blocks.data.page.label !== String(pageIndex + 1) ? ` · folio ${blocks.data.page.label}` : ""}</span><span>{blocks.data?.page.extraction_state === "blank" ? "Page blanche" : overlays.length ? nativeText ? "Texte natif et régions OCR" : "Texte OCR" : nativeText ? "Texte natif" : "Aucun texte extrait"}</span></div>
+    <div className="page-caption"><span>Page {pageIndex + 1}{blocks.data?.page.label && blocks.data.page.label !== String(pageIndex + 1) ? ` · folio ${blocks.data.page.label}` : ""}</span><span>{pageTextCaption({ extractionState: blocks.data?.page.extraction_state, nativeText, blocksLoading: blocks.isLoading, ocrRegions: overlays.length })}</span></div>
     <div className="pdf-paper" style={{ width: viewport?.width ?? width - 48, height: viewport?.height ?? (width - 48) * 1.414 }} onMouseUp={selectText} onKeyUp={selectText}>
       <canvas ref={canvas} aria-label={`Page ${pageIndex + 1} de l'original PDF`} style={{ width: "100%", height: "100%" }} />
       <div ref={textLayer} className="textLayer" style={{ "--total-scale-factor": viewport ? viewport.scale * viewport.userUnit : 1, "--scale-round-x": "1px", "--scale-round-y": "1px" } as React.CSSProperties} />

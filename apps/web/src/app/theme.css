@@ -41,7 +41,7 @@
   --info-foreground: 0 0% 100%;
   --info-muted: 196 34.9% 91.6%;          /* #E2EDF1 */
   --border: 60 9.5% 83.5%;                /* filet #D9D9D1 */
-  --input: 120 5.9% 80%;                  /* #C9CFC9 */
+  --input: 120 5.9% 50%;                  /* bordure des champs #788778, 3:1 au moins (WCAG 1.4.11) */
   --ring: 14 64.9% 40.2%;                 /* rouille */
   --reader: 60 14.3% 89%;                 /* fond du lecteur #E7E7DF */
   --sidebar: 51.4 36.8% 96.3%;            /* bibliothèque #F9F8F2 */

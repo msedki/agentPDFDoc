@@ -83,6 +83,22 @@ test("the icon-only folder scope button keeps 3:1 non-text contrast", () => {
   assert.ok(ratio >= 3, `.folder-scope sur .library-panel : ${ratio.toFixed(2)}`);
 });
 
+test("field borders keep 3:1 non-text contrast against the field and its container", () => {
+  // WCAG 2.2, 1.4.11 : la bordure qui signale un champ de saisie atteint 3:1 contre les couleurs adjacentes.
+  // La recherche du lecteur, sans bordure, est signalée par son icône et son texte (mesurés ailleurs).
+  const fields: [string, string][] = [[".composer-area form", ".composer-area"], [".scope-popover input", ".scope-popover"], [".scope-popover select", ".scope-popover"], [".document-tools-menu select", ".document-tools-menu"], [".library-filter", ".library-panel"], [".page-input input", ".viewer-toolbar"]];
+  for (const [field, container] of fields) {
+    const border = /hsl\(var\(--[\w-]+\)(?:\s*\/\s*[\d.]+)?\)/.exec(rules.get(field)?.get("border") ?? "")?.[0];
+    assert.ok(border, `${field} sans bordure tirée d'un jeton`);
+    const outside = resolve(declaration(container, "background"), page);
+    const inside = resolve(declaration(field, "background"), outside);
+    for (const [side, surface] of [["champ", inside], ["conteneur", outside]] as const) {
+      const ratio = contrast(resolve(border, surface), surface);
+      assert.ok(ratio >= 3, `${field} : bordure contre le ${side} ${ratio.toFixed(2)}`);
+    }
+  }
+});
+
 test("essential controls keep a visible focus indicator on the ring token", () => {
   for (const selector of ["button:focus-visible", "input:focus-visible", "select:focus-visible", "textarea:focus-visible", "summary:focus-visible", "a:focus-visible", ".panel-resizer:focus-visible", ".analysis-history:focus-visible", ".library-filter:focus-within", ".reader-slot:focus-visible"]) {
     assert.match(rules.get(selector)?.get("outline") ?? "", /^2px solid hsl\(var\(--ring\)\)$/, selector);

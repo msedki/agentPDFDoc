@@ -18,6 +18,14 @@ function extractionMetadata(block: Block): Record<string, unknown> {
   return combined;
 }
 
+/** Nature du texte annoncée sous une page : rien n'est affirmé tant que la couche texte de PDF.js ou les blocs extraits sont en lecture. */
+export function pageTextCaption(page: { extractionState?: string; nativeText: boolean | null; blocksLoading: boolean; ocrRegions: number }): string {
+  if (page.extractionState === "blank") return "Page blanche";
+  if (page.nativeText === null || page.blocksLoading) return "Lecture de la page…";
+  if (page.ocrRegions) return page.nativeText ? "Texte natif et régions OCR" : "Texte OCR";
+  return page.nativeText ? "Texte natif" : "Aucun texte extrait";
+}
+
 /** Only block or span provenance establishes OCR. A global parser route does not. */
 export function ocrOverlays(blocks: Block[]): OcrOverlay[] {
   const output: OcrOverlay[] = [];

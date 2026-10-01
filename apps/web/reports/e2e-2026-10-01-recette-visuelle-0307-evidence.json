@@ -1,0 +1,35 @@
+{
+  "run": "recette visuelle seule après remplacement de l'attente fixe par l'attente de la légende finale",
+  "utc_start": "2026-10-01T03:07:22.285Z",
+  "duration_ms": 35023,
+  "target": "instance principale 6346e31c…, http://127.0.0.1:8785",
+  "environment": {
+    "RAG_E2E_VISUAL_QA": "1"
+  },
+  "captures": "apps/web/reports/visual-qa-20261001T0307/",
+  "counts": {
+    "passed": 4
+  },
+  "tests": [
+    {
+      "file": "visual-qa.spec.ts",
+      "title": "états principaux de l'atelier à 1366×768",
+      "status": "passed"
+    },
+    {
+      "file": "visual-qa.spec.ts",
+      "title": "états principaux de l'atelier à 1920×1080",
+      "status": "passed"
+    },
+    {
+      "file": "visual-qa.spec.ts",
+      "title": "largeur réduite : panneaux en feuilles latérales",
+      "status": "passed"
+    },
+    {
+      "file": "visual-qa.spec.ts",
+      "title": "sans session › écran d'ouverture",
+      "status": "passed"
+    }
+  ]
+}

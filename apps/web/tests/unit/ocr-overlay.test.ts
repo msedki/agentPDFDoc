@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ocrOverlays } from "../../src/lib/ocr-overlay.ts";
+import { ocrOverlays, pageTextCaption } from "../../src/lib/ocr-overlay.ts";
 import type { Block } from "../../src/lib/types.ts";
 
 function block(id: string, method?: string): Block {
@@ -30,4 +30,15 @@ test("nested storage metadata is read but missing or inverted geometry is refuse
   assert.equal(ocrOverlays([source]).length, 1);
   source.bbox = [100, 30, 20, 50];
   assert.deepEqual(ocrOverlays([source]), []);
+});
+
+test("the page caption states no text only once the text layer and the blocks are read", () => {
+  // Constat de la recette du 01/10 : pendant le rendu, la légende annonçait « Aucun texte extrait » sur une page à texte natif.
+  assert.equal(pageTextCaption({ nativeText: null, blocksLoading: false, ocrRegions: 0 }), "Lecture de la page…");
+  assert.equal(pageTextCaption({ nativeText: false, blocksLoading: true, ocrRegions: 0 }), "Lecture de la page…");
+  assert.equal(pageTextCaption({ extractionState: "blank", nativeText: null, blocksLoading: false, ocrRegions: 0 }), "Page blanche");
+  assert.equal(pageTextCaption({ nativeText: true, blocksLoading: false, ocrRegions: 0 }), "Texte natif");
+  assert.equal(pageTextCaption({ nativeText: true, blocksLoading: false, ocrRegions: 2 }), "Texte natif et régions OCR");
+  assert.equal(pageTextCaption({ nativeText: false, blocksLoading: false, ocrRegions: 2 }), "Texte OCR");
+  assert.equal(pageTextCaption({ nativeText: false, blocksLoading: false, ocrRegions: 0 }), "Aucun texte extrait");
 });
