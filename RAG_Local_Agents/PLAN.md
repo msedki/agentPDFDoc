@@ -302,7 +302,7 @@ Prochaine action exécutable : EV-3, génération réelle sur 22 questions du je
 - Blocage (décision utilisateur, déjà au point de 14:10) : la génération exige environ 5 Gio libres pendant toute la série ; avec le navigateur, trois sessions Claude et deux antivirus actifs, ce poste ne les garde pas. EV-3 n'est relancé qu'à la demande de l'utilisateur, après libération de mémoire.
 
 Prochaine action exécutable sans génération : fabrication d'un kit réel et installation dans une racine d'essai (DIST-03 à DIST-05), à lancer quand la mémoire libre le permet (copies lourdes, pas de modèle chargé).
-## Point de reprise à 02:35 UTC (1er octobre) — travaux lourds suspendus faute de mémoire
+## Point de reprise à 02:34 UTC (1er octobre) — travaux lourds suspendus faute de mémoire
 
 État réel : instance principale `6346e31c…` disponible sur le code `dad60f5` pour l'interface et le runtime (découpage `section-pack-v1`, reprise de la voie `structured`, disponibilité sur base neuve) ; 4 documents publiés, 61 en pause. Derniers contrôles : 428 tests unitaires Python, 12 tests d'intégration réels de l'ingestion, `test_api_http` 29/29, 131 tests web, `tsc`, `ruff`, `mypy`, `check_docs`, `verify_pack` PASS.
 
