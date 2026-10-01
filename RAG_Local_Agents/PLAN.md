@@ -302,3 +302,13 @@ Prochaine action exécutable : EV-3, génération réelle sur 22 questions du je
 - Blocage (décision utilisateur, déjà au point de 14:10) : la génération exige environ 5 Gio libres pendant toute la série ; avec le navigateur, trois sessions Claude et deux antivirus actifs, ce poste ne les garde pas. EV-3 n'est relancé qu'à la demande de l'utilisateur, après libération de mémoire.
 
 Prochaine action exécutable sans génération : fabrication d'un kit réel et installation dans une racine d'essai (DIST-03 à DIST-05), à lancer quand la mémoire libre le permet (copies lourdes, pas de modèle chargé).
+## Point de reprise à 02:35 UTC (1er octobre) — travaux lourds suspendus faute de mémoire
+
+État réel : instance principale `6346e31c…` disponible sur le code `dad60f5` pour l'interface et le runtime (découpage `section-pack-v1`, reprise de la voie `structured`, disponibilité sur base neuve) ; 4 documents publiés, 61 en pause. Derniers contrôles : 428 tests unitaires Python, 12 tests d'intégration réels de l'ingestion, `test_api_http` 29/29, 131 tests web, `tsc`, `ruff`, `mypy`, `check_docs`, `verify_pack` PASS.
+
+Suspendus par l'arrêt automatique de Claude Code (mémoire critique, dont 2,2 Gio pris par un autre projet du poste), à relancer seulement à la demande de l'utilisateur :
+1. EV-3 : `annotated_eval.py answer` sur le jeu `.runtime/evals/annotated-v1/runs/20261001T004923Z/dataset.json` (reprise automatique des questions en erreur), avec au moins 5 Gio libres pendant toute la série.
+2. Kit : `tools/dist/build_kit.py build --output <dossier neuf>` (environ 30 min sous antivirus) ; supprimer d'abord le kit partiel `%TEMP%\apdfk2`.
+3. Installation d'essai : `tools\dist\install.ps1 -Destination %TEMP%\apdfp -DataRoot %TEMP%\apdft -Ports 18785,16333,21434 -NoStart`, puis inventaire du dossier programme (`program_inventory.py snapshot`), cycle `up` → import → recherche → `backup` → `down`, second inventaire et comparaison (validation DIST-02).
+
+Décisions attendues de l'utilisateur : P1 à P10 de l'analyse de distribution (notamment P2 modèle source, P3 bibliothèques GPU, P5 noms des dossiers), D08.1 (coupure réseau pendant la recette), seuils D07, feu vert pour les 61 documents en pause, validation du jeu W014 par un expert.
