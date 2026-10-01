@@ -1,0 +1,174 @@
+{
+  "run": "E2E lecture seule, recette visuelle et question réelle après la mise en forme des réponses (build du 01/10 à 04:57)",
+  "utc_start": "2026-10-01T04:57:27.577Z",
+  "duration_ms": 163099,
+  "target": "instance principale 6346e31c…, http://127.0.0.1:8785",
+  "environment": {
+    "RAG_E2E_READONLY_ALLOWED": "1",
+    "RAG_E2E_VISUAL_QA": "1",
+    "RAG_E2E_GENERATION_ALLOWED": "1",
+    "RAG_E2E_IMPORT_ALLOWED": "0"
+  },
+  "captures": "apps/web/reports/visual-qa-20261001T0457/ ; réponse : 12-reponse-citee-1366x768.png",
+  "counts": {
+    "passed": 12,
+    "skipped": 19
+  },
+  "tests": [
+    {
+      "file": "a11y.spec.ts",
+      "title": "tab order, visible focus, separators, tabs and Ctrl+Enter work from the keyboard",
+      "status": "passed"
+    },
+    {
+      "file": "canvas-budget.spec.ts",
+      "title": "scroll and zoom to 300 % stay within five canvases and 24 M pixels, then release detached canvases",
+      "status": "skipped"
+    },
+    {
+      "file": "geometry.spec.ts",
+      "title": "crop-rotate-90: viewer rotations 0/90/180/270 keep the CropBox and the native anchor inside its source box",
+      "status": "skipped"
+    },
+    {
+      "file": "geometry.spec.ts",
+      "title": "crop-rotate-180: viewer rotations 0/90/180/270 keep the CropBox and the native anchor inside its source box",
+      "status": "skipped"
+    },
+    {
+      "file": "geometry.spec.ts",
+      "title": "crop-rotate-270: viewer rotations 0/90/180/270 keep the CropBox and the native anchor inside its source box",
+      "status": "skipped"
+    },
+    {
+      "file": "geometry.spec.ts",
+      "title": "roman-labels: physical pages and logical folios stay distinct in captions and navigation",
+      "status": "skipped"
+    },
+    {
+      "file": "hostile-markup.spec.ts",
+      "title": "hostile markup stays literal text with no active element, no remote request and no scope change",
+      "status": "skipped"
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "immutable original supports real ETag and byte ranges",
+      "status": "skipped"
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "registered old citation retains its exact original and revision",
+      "status": "skipped"
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "version menu reads the old original while a different version is active",
+      "status": "skipped"
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "identical UI reimport retains exact document version job and publication",
+      "status": "skipped"
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "UI reindex publishes a new verified generation without creating a file version",
+      "status": "skipped"
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "updated PDF remains unpublished until ready and preserves its old original",
+      "status": "skipped"
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "UI import encrypted preserves an explicit real file failure",
+      "status": "skipped"
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "UI import corrupt preserves an explicit real file failure",
+      "status": "skipped"
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "blank PDF requires an explicit visible no-text state",
+      "status": "skipped"
+    },
+    {
+      "file": "lifecycle.spec.ts",
+      "title": "isolated 64KiB limit rejects a genuinely oversized controlled PDF",
+      "status": "skipped"
+    },
+    {
+      "file": "negative-deeplink.spec.ts",
+      "title": "an unknown registered citation shows a visible alert and opens no document",
+      "status": "passed"
+    },
+    {
+      "file": "negative-deeplink.spec.ts",
+      "title": "partial or malformed citation links are refused before any registry request",
+      "status": "passed"
+    },
+    {
+      "file": "resource-probe.spec.ts",
+      "title": "read-only own browser memory probe with a real native PDF",
+      "status": "skipped"
+    },
+    {
+      "file": "session.spec.ts",
+      "title": "sans session › l'atelier affiche la commande d'ouverture au lieu de l'espace de travail",
+      "status": "passed"
+    },
+    {
+      "file": "session.spec.ts",
+      "title": "sans session › un lien d'ouverture ne sert qu'une fois",
+      "status": "passed"
+    },
+    {
+      "file": "session.spec.ts",
+      "title": "sans session › fermer la session efface l'accès de ce navigateur",
+      "status": "passed"
+    },
+    {
+      "file": "visual-qa.spec.ts",
+      "title": "états principaux de l'atelier à 1366×768",
+      "status": "passed"
+    },
+    {
+      "file": "visual-qa.spec.ts",
+      "title": "états principaux de l'atelier à 1920×1080",
+      "status": "passed"
+    },
+    {
+      "file": "visual-qa.spec.ts",
+      "title": "largeur réduite : panneaux en feuilles latérales",
+      "status": "passed"
+    },
+    {
+      "file": "visual-qa.spec.ts",
+      "title": "sans session › écran d'ouverture",
+      "status": "passed"
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "three panels use a real API and no external requests at both desktop sizes",
+      "status": "passed"
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "real import, reading, scoped search and source navigation",
+      "status": "skipped"
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "real page and immutable block selection scopes reach the API",
+      "status": "skipped"
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "real local model answers with registered citations and preserves scope",
+      "status": "passed"
+    }
+  ]
+}

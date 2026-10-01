@@ -1,0 +1,31 @@
+
+> @rag-local/web@0.1.0 build D:\enhacements\agentragpdf\apps\web
+> node scripts/prepare-assets.mjs && next build --webpack
+
+PDF.js 6.3.289: 202 local assets prepared
+▲ Next.js 16.3.7 (webpack)
+✓ Running next.config.mjs took 185ms
+- Experiments (use with caution):
+  · cpus: 1
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 58s
+  Running TypeScript ...
+  Finished TypeScript in 11.9s ...
+  Collecting page data using 1 worker ...
+  Generating static pages using 1 worker (0/4) ...
+  Generating static pages using 1 worker (1/4) 
+  Generating static pages using 1 worker (2/4) 
+  Generating static pages using 1 worker (3/4) 
+✓ Generating static pages using 1 worker (4/4) in 1326ms
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+└ ○ /workspace
+
+
+○  (Static)  prerendered as static content
+

@@ -247,6 +247,10 @@ progress { display: block; width: 100%; height: 4px; margin-top: 8px; accent-col
 .question-message small { font-size: 11px; color: hsl(var(--muted-foreground)); }
 .query-status { display: flex; align-items: center; gap: 8px; min-height: 16px; margin-bottom: 8px; font-size: 12px; color: hsl(var(--muted-foreground)); }
 .answer-text { font-size: 14px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+.answer-text p, .answer-text ul { margin: 0 0 8px; }
+.answer-text ul { padding-left: 20px; list-style: disc; }
+.answer-text li + li { margin-top: 4px; }
+.answer-text strong { font-weight: 600; }
 .inline-citation { display: inline; margin: 0 2px; padding: 0 4px; border: 1px solid hsl(var(--primary) / 0.35); border-radius: var(--radius-small); background: hsl(var(--accent)); color: hsl(var(--accent-foreground)); font-family: var(--font-family-mono); font-size: 11px; font-weight: 600; line-height: 1.1; vertical-align: baseline; }
 .invalid-citation { color: hsl(var(--destructive)); font-size: 12px; }
 .sources-list { margin-top: 16px; }

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowUpRight, Ban, BookOpen, Check, CircleAlert, Layers, MessageSquare, RefreshCw, Search, Send } from "lucide-react";
 import { api } from "@/lib/api";
@@ -8,6 +8,7 @@ import { sourcePage } from "@/lib/selection";
 import { useWorkspace } from "@/lib/store";
 import { errorMessage } from "@/lib/utils";
 import { warningText } from "@/lib/warnings";
+import { answerBlocks, type Inline } from "@/lib/answer-format";
 import { citationParts, citedSourceIds } from "@/lib/citations";
 import { tabKeyTarget } from "@/lib/keyboard";
 import { sourceLocalization } from "@/lib/source-location";
@@ -23,10 +24,20 @@ function textValue(value: unknown, fallback = "") { return typeof value === "str
 function passagesFound(count: number) { return count === 0 ? "Aucun passage retrouvé" : count === 1 ? "1 passage retrouvé" : `${count} passages retrouvés`; }
 const analysisTabs = [{ id: "question", label: "Question", Icon: MessageSquare }, { id: "search", label: "Recherche", Icon: Search }, { id: "comparison", label: "Comparer", Icon: Layers }] as const;
 
-export function CitationText({ text, sources, onCitation }: { text: string; sources: Source[]; onCitation: (source: Source) => void }) {
-  return <div className="answer-text">{citationParts(text, sources).map((part, index) => part.kind === "text" ? <span key={index}>{part.text}</span>
+function CitedSegment({ text, sources, onCitation }: { text: string; sources: Source[]; onCitation: (source: Source) => void }) {
+  return citationParts(text, sources).map((part, index) => part.kind === "text" ? <span key={index}>{part.text}</span>
     : part.kind === "citation" ? <button className="inline-citation" key={index} onClick={() => onCitation(part.source)} title={`Ouvrir ${part.source.name ?? part.source.document_name}, page ${sourcePage(part.source) + 1}`}>{part.id}</button>
-    : <span className="invalid-citation" key={index} title="Cette référence n'est pas enregistrée dans les sources de la réponse : elle n'ouvre aucun passage.">{part.text} (référence inconnue)</span>)}</div>;
+    : <span className="invalid-citation" key={index} title="Cette référence n'est pas enregistrée dans les sources de la réponse : elle n'ouvre aucun passage.">{part.text} (référence inconnue)</span>);
+}
+
+/** Paragraphes, listes et gras de la réponse, rendus en éléments React : aucune balise de la réponse n'est interprétée. */
+export function CitationText({ text, sources, onCitation }: { text: string; sources: Source[]; onCitation: (source: Source) => void }) {
+  const line = (segments: Inline[]) => segments.map((segment, index) => segment.strong
+    ? <strong key={index}><CitedSegment text={segment.text} sources={sources} onCitation={onCitation} /></strong>
+    : <CitedSegment key={index} text={segment.text} sources={sources} onCitation={onCitation} />);
+  return <div className="answer-text">{answerBlocks(text).map((block, index) => block.kind === "list"
+    ? <ul key={index}>{block.items.map((item, position) => <li key={position}>{line(item)}</li>)}</ul>
+    : <p key={index}>{block.lines.map((segments, position) => <Fragment key={position}>{position > 0 && <br />}{line(segments)}</Fragment>)}</p>)}</div>;
 }
 
 /** Carte de source : identifiant, document, page, précision, extrait de trois lignes et une seule action. */
