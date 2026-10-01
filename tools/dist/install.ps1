@@ -9,12 +9,16 @@ param(
     [string]$Ports,
     # Dossier des raccourcis : menu Démarrer de l'utilisateur ; une installation d'essai en indique un autre.
     [string]$Menu = (Join-Path ([Environment]::GetFolderPath('Programs')) 'Atelier documentaire'),
+    # Mise à jour (DIST-08) : données déjà présentes ; -Previous désigne la version en place si ses raccourcis manquent.
+    [switch]$Update,
+    [string]$Previous,
     [switch]$NoStart
 )
 $ErrorActionPreference = 'Stop'
 $kit = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $report = [ordered]@{ format = 'atelier-install-v1'; started_utc = (Get-Date).ToUniversalTime().ToString('o'); kit = $kit; steps = @() }
 $reportPath = $null
+$switched = $false
 
 function Write-Step([string]$Name, [string]$Status, [string]$Detail) {
     $script:report.steps += [ordered]@{ step = $Name; status = $Status; detail = $Detail; at_utc = (Get-Date).ToUniversalTime().ToString('o') }
@@ -58,6 +62,37 @@ try {
     if ($free -lt $needed) { throw ("Espace insuffisant sur {0} : {1:N1} Gio libres, {2:N1} Gio nécessaires." -f $drive, ($free / 1GB), ($needed / 1GB)) }
     Write-Step 'prerequis' 'ok' ("Windows build {0}, {1} Gio de mémoire, {2:N1} Gio libres" -f $os.BuildNumber, $memoryGib, ($free / 1GB))
 
+    # 1 bis. Données déjà présentes : la nouvelle version s'installe à côté de l'actuelle, après une sauvegarde vérifiée.
+    $existingProfile = Join-Path $DataRoot 'profile.yaml'
+    if (Test-Path -LiteralPath $existingProfile) {
+        if (-not $Update) {
+            throw "Un atelier est déjà installé avec ces données ($existingProfile). Pour installer la version $($manifest.version) à côté, relancez avec -Update : sauvegarde vérifiée, puis bascule des raccourcis. Rien n'a été installé."
+        }
+        if (-not $Previous) {
+            $link = Join-Path $Menu 'Atelier documentaire.lnk'
+            if (Test-Path -LiteralPath $link) {
+                $arguments = (New-Object -ComObject WScript.Shell).CreateShortcut($link).Arguments
+                if ($arguments -match '-File "(.+)\\tools\\dist\\raccourci\.ps1"') { $Previous = $Matches[1] }
+            }
+        }
+        if (-not $Previous -or -not (Test-Path -LiteralPath (Join-Path $Previous 'rag.ps1') -PathType Leaf)) {
+            throw "Version installée introuvable : indiquez son dossier avec -Previous. Rien n'a été installé."
+        }
+        $previousRag = Join-Path $Previous 'rag.ps1'
+        # La sauvegarde exige une instance démarrée ; up retrouve celle qui tourne déjà.
+        $started = & $previousRag up -Profile $existingProfile | Out-String | ConvertFrom-Json
+        if ($started.status -ne 'running') { throw "La version en place ne démarre pas ($($started.message)) ; sauvegarde impossible, rien n'a été installé." }
+        $backup = & $previousRag backup -Profile $existingProfile | Out-String | ConvertFrom-Json
+        if (-not $backup.path) { throw "Sauvegarde refusée : $($backup.message) Rien n'a été installé." }
+        $verified = & $previousRag verify -Profile $existingProfile -Path $backup.path | Out-String | ConvertFrom-Json
+        if ($verified.state -ne 'verified') { throw "Sauvegarde $($backup.path) non vérifiée : $($verified.message) Rien n'a été installé." }
+        $stopped = & $previousRag down -Profile $existingProfile | Out-String | ConvertFrom-Json
+        if ($stopped.status -notin @('stopped', 'failed')) { throw "Arrêt de la version en place non confirmé (état $($stopped.status)) ; rien n'a été installé." }
+        $report.previous = $Previous
+        $report.backup = $backup.path
+        Write-Step 'sauvegarde' 'ok' "$($backup.path) vérifiée ; version en place ($Previous) arrêtée"
+    }
+
     # 2. Copie vérifiée en un seul passage : chaque fichier est haché pendant sa copie (l'analyse antivirus du poste
     #    rend chaque lecture coûteuse) ; un écart retire la copie partielle. Le rapport va dans la racine des données.
     New-Item -ItemType Directory -Path $DataRoot -Force | Out-Null
@@ -79,13 +114,19 @@ try {
     Write-Step 'python' 'ok' (& $python --version)
 
     # 4. Profil de l'utilisateur : données, stockage Qdrant court, ports libres.
-    $profileArguments = @('init-profile', '-Target', $DataRoot)
-    if ($QdrantStorage) { $profileArguments += @('-QdrantStorage', $QdrantStorage) }
-    if ($Ports) { $profileArguments += @('-Ports', $Ports) }
-    $created = & (Join-Path $target 'rag.ps1') @profileArguments | Out-String | ConvertFrom-Json
-    if ($created.status -ne 'created') { throw "Profil non créé : $($created.message)" }
-    $profilePath = $created.profile
-    Write-Step 'profil' 'ok' $profilePath
+    if ($report.previous) {
+        # Le profil ne désigne que des données et des ports : il vaut pour la nouvelle version sans modification.
+        $profilePath = $existingProfile
+        Write-Step 'profil' 'ok' "$profilePath repris"
+    } else {
+        $profileArguments = @('init-profile', '-Target', $DataRoot)
+        if ($QdrantStorage) { $profileArguments += @('-QdrantStorage', $QdrantStorage) }
+        if ($Ports) { $profileArguments += @('-Ports', $Ports) }
+        $created = & (Join-Path $target 'rag.ps1') @profileArguments | Out-String | ConvertFrom-Json
+        if ($created.status -ne 'created') { throw "Profil non créé : $($created.message)" }
+        $profilePath = $created.profile
+        Write-Step 'profil' 'ok' $profilePath
+    }
 
     # 5. Vérification, démarrage et ouverture.
     # Verdict par rubrique (vert, orange, rouge) : avant le démarrage, seule une rubrique rouge arrête l'installation.
@@ -96,6 +137,7 @@ try {
     Write-Step 'doctor' 'ok' $doctor.verdict.summary
     $shortcuts = & (Join-Path $target 'tools\dist\shortcuts.ps1') -Program $target -Profile $profilePath -Menu $Menu | Out-String | ConvertFrom-Json
     $report.shortcuts = $shortcuts.shortcuts
+    $switched = $true
     Write-Step 'raccourcis' 'ok' "$(@($shortcuts.shortcuts).Count) raccourcis dans $($shortcuts.menu)"
     if (-not $NoStart) {
         $up = & (Join-Path $target 'rag.ps1') up -Profile $profilePath | Out-String | ConvertFrom-Json
@@ -116,6 +158,11 @@ try {
     $report.status = 'failed'
     $report.error = $_.Exception.Message
     Write-Output "Installation arrêtée : $($_.Exception.Message)"
+    if ($report.previous -and -not $switched) {
+        Write-Output "La version précédente ($($report.previous)) reste installée avec ses raccourcis ; relancez-la par « Atelier documentaire ». Sauvegarde conservée : $($report.backup)."
+    } elseif ($report.previous) {
+        Write-Output "Retour à la version précédente : & '$($report.previous)\tools\dist\shortcuts.ps1' -Program '$($report.previous)' -Profile '$existingProfile', puis, si la nouvelle version a déjà démarré sur ces données, restauration de $($report.backup) dans une racine neuve (.\rag.ps1 restore)."
+    }
     Complete-Install 1
 }
 Complete-Install 0
