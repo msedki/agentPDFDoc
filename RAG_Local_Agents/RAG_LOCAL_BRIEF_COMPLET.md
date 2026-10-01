@@ -1225,7 +1225,7 @@ Preuve01/10/2026, API réelle d'une instance isolée (`tools/qualification/libra
 - [x] Un réimport identique n'ajoute pas de version inutile ni de calcul d'embedding redondant.
 - [x] Le déplacement d'un PDF dans l'arborescence ne recalcule pas ses embeddings.
 - [x] Une nouvelle version reste invisible en recherche jusqu'à publication de sa génération complète.
-- [ ] Un retrait est immédiatement exclu des scopes ; les deux index actifs sont nettoyés/réconciliés.
+- [x] Un retrait est immédiatement exclu des scopes ; les deux index actifs sont nettoyés/réconciliés.
 - [ ] Arrêt forcé pendant parsing, embedding, upsert et publication : reprise sans doubles chunks ni génération fantôme.
 - [ ] Une panne Qdrant au milieu d'un import ne fait pas apparaître le document comme complètement prêt.
 - [ ] Les anciennes citations ouvrent l’ancienne version et révision d’extraction ; une purge indique source supprimée sans substitution.
@@ -1234,7 +1234,7 @@ Preuve01/10/2026, API réelle d'une instance isolée (`tools/qualification/libra
 
 **Preuves :** compteurs avant/après, scénarios de fault injection, journal des transitions et recherche sur versions différentes.
 
-Preuve01/10/2026, même instance isolée et même [rapport](reports/library-2026-10-01.json) : réimport identique : même document, `reused`, aucun traitement ni version ajoutés, compteurs `embedding_requests`, `embedding_texts_submitted` et `native_worker_launches` inchangés (D03.1) ; déplacement vers `Archives/Commun été.pdf` : aucun traitement, compteurs inchangés, document retrouvé par la recherche à son nouveau chemin (D03.2) ; seconde version de `Procédure QV-01.pdf` au même chemin : 52 recherches pendant sa file d'attente et son extraction ne rendent que la valeur de la première (2.7 bar), la version active reste la première, puis la seconde (4.9 bar) seule après publication (D03.3 ; l'étape d'indexation, brève, n'a pas été saisie par le sondage). Retrait (D03.4, laissé ouvert) : document exclu des recherches aussitôt, ses 2 points Qdrant supprimés par la réconciliation, index restant cohérent ; le nettoyage de l'index plein texte SQLite n'a pas été contrôlé directement.
+Preuve01/10/2026, même instance isolée et même [rapport](reports/library-2026-10-01.json) : réimport identique : même document, `reused`, aucun traitement ni version ajoutés, compteurs `embedding_requests`, `embedding_texts_submitted` et `native_worker_launches` inchangés (D03.1) ; déplacement vers `Archives/Commun été.pdf` : aucun traitement, compteurs inchangés, document retrouvé par la recherche à son nouveau chemin (D03.2) ; seconde version de `Procédure QV-01.pdf` au même chemin : 52 recherches pendant sa file d'attente et son extraction ne rendent que la valeur de la première (2.7 bar), la version active reste la première, puis la seconde (4.9 bar) seule après publication (D03.3 ; l'étape d'indexation, brève, n'a pas été saisie par le sondage). Retrait (D03.4) : document exclu des recherches aussitôt, ses 2 points Qdrant supprimés par la réconciliation, aucun fragment SQLite restant pour sa génération, index plein texte aligné sur les fragments (2 lignes pour 2 fragments), index restant cohérent ([rapport du second essai](reports/library-2026-10-01-retrait.json)).
 
 ## D04 — Recherche et périmètre
 
