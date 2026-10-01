@@ -447,7 +447,7 @@ def open_workspace(profile_path: Path, *, launch: bool = True) -> dict[str, Any]
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["provision", "doctor", "up", "status", "logs", "down", "_serve", "pull-model", "backup", "restore", "verify", "open", "init-profile"])
+    parser.add_argument("command", choices=["provision", "doctor", "up", "status", "logs", "down", "_serve", "pull-model", "backup", "restore", "verify", "open", "init-profile", "selftest"])
     parser.add_argument("--profile", type=Path, default=ROOT / "config/local16.yaml")
     parser.add_argument("--only")
     parser.add_argument("--offline", action="store_true")
@@ -487,6 +487,9 @@ def main() -> int:
                 raise ValueError("init-profile requiert --target (racine des données de l'utilisateur)")
             ports = dict(zip(("app", "qdrant", "ollama"), map(int, args.ports.split(",")), strict=True)) if args.ports else None
             result = write_user_profile(args.profile, args.target, qdrant_storage=args.qdrant_storage, ports=ports)
+        elif args.command == "selftest":
+            from .selftest import selftest
+            result = selftest(args.profile)
         elif args.command == "open":
             result = open_workspace(args.profile, launch=not args.no_browser)
         elif args.command == "up":

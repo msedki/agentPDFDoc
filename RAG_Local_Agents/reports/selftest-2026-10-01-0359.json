@@ -1,0 +1,58 @@
+{
+  "utc": "2026-10-01T03:59:56.676870+00:00",
+  "profile": "D:\\enhacements\\agentragpdf\\config\\local16.yaml",
+  "steps": [
+    {
+      "step": "préparation",
+      "status": "PASS",
+      "seconds": 0.2,
+      "detail": "racine %TEMP%\\apstf6e8, ports 65458 et suivants"
+    },
+    {
+      "step": "démarrage",
+      "status": "PASS",
+      "seconds": 30.8,
+      "detail": "instance d37ef0db2a144bec9f96b8c7c6df380b démarrée"
+    },
+    {
+      "step": "import",
+      "status": "PASS",
+      "seconds": 0.1,
+      "detail": "document 5fad1d43-7da2-4b20-ac8d-1bb416b28446, traitement a9440f1e-d195-4929-82be-1ebbe68c65f0"
+    },
+    {
+      "step": "extraction",
+      "status": "PASS",
+      "seconds": 59.2,
+      "detail": "extraction native publiée"
+    },
+    {
+      "step": "recherche",
+      "status": "PASS",
+      "seconds": 0.3,
+      "detail": "passage retrouvé page 1"
+    },
+    {
+      "step": "provenance",
+      "status": "PASS",
+      "seconds": 0.1,
+      "detail": "1 bloc(s) localisé(s) sur la page 1"
+    },
+    {
+      "step": "réponse",
+      "status": "SKIPPED",
+      "seconds": 0.0,
+      "detail": "génération non admise maintenant : 4 712 Mio disponibles  4 992 requis"
+    },
+    {
+      "step": "arrêt",
+      "status": "PASS",
+      "seconds": 4.5,
+      "detail": "instance de contrôle stopped"
+    }
+  ],
+  "root": "%TEMP%\\apstf6e8",
+  "root_removed": false,
+  "level": "orange",
+  "summary": "Contrôle réel réussi : import, extraction, recherche et provenance ; génération non admise maintenant : 4 712 Mio disponibles  4 992 requis."
+}

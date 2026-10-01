@@ -1,0 +1,58 @@
+{
+  "utc": "2026-10-01T04:02:35.216753+00:00",
+  "profile": "D:\\enhacements\\agentragpdf\\config\\local16.yaml",
+  "steps": [
+    {
+      "step": "préparation",
+      "status": "PASS",
+      "seconds": 0.2,
+      "detail": "racine %TEMP%\\apste6fd, ports 55663 et suivants"
+    },
+    {
+      "step": "démarrage",
+      "status": "PASS",
+      "seconds": 13.7,
+      "detail": "instance d4810345d74c4c0297bf0f21845f6705 démarrée"
+    },
+    {
+      "step": "import",
+      "status": "PASS",
+      "seconds": 0.1,
+      "detail": "document 1881c21d-35a1-42e7-bae6-fbab45704630, traitement 280a04a1-4c2e-4853-bafa-baab21214a9e"
+    },
+    {
+      "step": "extraction",
+      "status": "PASS",
+      "seconds": 49.6,
+      "detail": "extraction native publiée"
+    },
+    {
+      "step": "recherche",
+      "status": "PASS",
+      "seconds": 0.2,
+      "detail": "passage retrouvé page 1"
+    },
+    {
+      "step": "provenance",
+      "status": "PASS",
+      "seconds": 0.1,
+      "detail": "1 bloc(s) localisé(s) sur la page 1"
+    },
+    {
+      "step": "réponse",
+      "status": "SKIPPED",
+      "seconds": 0.0,
+      "detail": "génération non admise maintenant : 4 821 Mio disponibles, 4 992 Mio requis"
+    },
+    {
+      "step": "arrêt",
+      "status": "PASS",
+      "seconds": 4.5,
+      "detail": "instance de contrôle stopped"
+    }
+  ],
+  "root": "%TEMP%\\apste6fd",
+  "root_removed": true,
+  "level": "orange",
+  "summary": "Contrôle réel réussi : import, extraction, recherche et provenance ; génération non admise maintenant : 4 821 Mio disponibles, 4 992 Mio requis."
+}

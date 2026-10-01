@@ -147,6 +147,12 @@ try {
         $report.verdict = $doctor.verdict
         foreach ($item in $doctor.verdict.rubrics) { Write-Output ("  [{0}] {1} : {2}" -f $item.level, $item.rubric, $item.message) }
         Write-Step 'verdict' $doctor.verdict.level $doctor.verdict.summary
+        # Contrôle réel dans une racine et des ports temporaires : import, extraction, recherche, provenance, réponse si admise.
+        $control = & (Join-Path $target 'rag.ps1') selftest -Profile $profilePath | Out-String | ConvertFrom-Json
+        $report.selftest = $control
+        foreach ($item in $control.steps) { Write-Output ("  [{0}] {1} : {2}" -f $item.status, $item.step, $item.detail) }
+        if ($control.level -eq 'rouge') { throw "$($control.summary) Le programme est installé ; « Diagnostic de l'atelier » et le rapport d'installation détaillent l'échec." }
+        Write-Step 'controle' $control.level $control.summary
         & (Join-Path $target 'rag.ps1') open -Profile $profilePath | Out-Null
         Write-Step 'ouverture' 'ok' "atelier ouvert dans le navigateur par défaut"
     }

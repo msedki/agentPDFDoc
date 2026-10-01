@@ -2,7 +2,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Position=0)]
-    [ValidateSet('provision','doctor','up','open','status','logs','down','pull-model','backup','restore','verify','init-profile')]
+    [ValidateSet('provision','doctor','up','open','status','logs','down','pull-model','backup','restore','verify','init-profile','selftest')]
     [string]$Command = 'doctor',
     [string]$Profile = 'config/local16.yaml',
     [string]$Only,
