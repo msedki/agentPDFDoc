@@ -100,6 +100,22 @@ def wait_done(instance: Isolated, job_id: str, timeout: float = 600) -> dict[str
     raise TimeoutError("traitement non terminé")
 
 
+def wait_admitted(instance: Isolated, job_ids: dict[str, str], attempts: int = 10) -> tuple[dict[str, dict[str, Any]], int]:
+    """Attend chaque traitement ; un import refusé par l'admission mémoire est repris explicitement, comme le ferait
+    l'utilisateur (la mémoire de l'hôte est partagée avec d'autres programmes). Rend les traitements et le nombre de reprises."""
+    jobs = {name: wait_done(instance, job_id) for name, job_id in job_ids.items()}
+    retries = 0
+    while retries < attempts and any(job.get("error_code") == "resource_admission_denied" for job in jobs.values()):
+        retries += 1
+        time.sleep(30)
+        with instance.client() as client:
+            for job in jobs.values():
+                if job.get("error_code") == "resource_admission_denied":
+                    client.post(f"/api/v1/jobs/{job['id']}/resume").raise_for_status()
+        jobs = {name: wait_done(instance, job_id) for name, job_id in job_ids.items()}
+    return jobs, retries
+
+
 def consistency(instance: Isolated, version_id: str) -> dict[str, Any]:
     with instance.client() as client:
         deadline = time.monotonic() + 60

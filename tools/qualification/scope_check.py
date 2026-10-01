@@ -22,7 +22,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-import time
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -32,7 +31,7 @@ import httpx
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from fault_check import Isolated, import_fixture, wait_done  # noqa: E402
+from fault_check import Isolated, import_fixture, wait_admitted  # noqa: E402
 
 from services.api.embedding import EmbeddingService  # noqa: E402
 from services.api.retrieval import match_expression  # noqa: E402
@@ -101,17 +100,7 @@ def main() -> int:
     target_pdf.write_bytes(text_pdf(target_pages(), ["Confort des sièges", "Éclairage intérieur", "Accès des voyageurs"]))
     imported = {"noise": import_fixture(instance, noise_pdf, "hors-champ/bruit-freinage.pdf"),
                 "target": import_fixture(instance, target_pdf, "confort/sous-dossier/cible-confort.pdf")}
-    jobs = {name: wait_done(instance, item["job_id"]) for name, item in imported.items()}
-    admission_retries = 0
-    # Mémoire de l'hôte partagée : un import refusé par l'admission est repris explicitement, comme le ferait l'utilisateur.
-    while admission_retries < 10 and any(job.get("error_code") == "resource_admission_denied" for job in jobs.values()):
-        admission_retries += 1
-        time.sleep(30)
-        with instance.client() as client:
-            for job in jobs.values():
-                if job.get("error_code") == "resource_admission_denied":
-                    client.post(f"/api/v1/jobs/{job['id']}/resume").raise_for_status()
-        jobs = {name: wait_done(instance, item["job_id"]) for name, item in imported.items()}
+    jobs, admission_retries = wait_admitted(instance, {name: item["job_id"] for name, item in imported.items()})
     checks: dict[str, bool] = {"imports_ready": all(job["state"] == "ready" for job in jobs.values())}
     if not checks["imports_ready"]:
         failed: dict[str, Any] = {"criteria": ["D04.2", "D04.8"], "started_utc": started.isoformat(), "result": "FAIL", "checks": checks,

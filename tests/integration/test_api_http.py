@@ -367,6 +367,12 @@ def test_api_partial_job_metadata_and_explicit_publication(tmp_path):
         assert active["published"] is True and active["active"] is True and active["published_at"]
         document_job = client.get(f"/api/v1/documents/{imported['document_id']}").json()["jobs"][0]
         assert document_job["published"] is True and document_job["coverage"] == pending["coverage"]
+        # La réponse porte l'avertissement d'extraction partielle avant toute génération, puis dans son état final.
+        query = client.post("/api/v1/queries", json={"question": "Quelle tension CCU-21 ?", "scope": {"kind": "documents", "documentIds": [imported["document_id"]]}}).json()
+        events = client.get(query["events_url"]).text
+        assert events.index("partial_extraction") < events.index("event: done") and "event: error" not in events
+        done = json.loads(app.state.db.one("SELECT warnings_json FROM query_runs WHERE id=?", (query["query_id"],))["warnings_json"])
+        assert any(warning["code"] == "partial_extraction" and warning["document_id"] == imported["document_id"] for warning in done)
 
 
 def test_api_rejects_host_origin_traversal_and_private_error_inputs(tmp_path):

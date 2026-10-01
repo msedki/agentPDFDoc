@@ -365,3 +365,10 @@ Réalisé : `tools/qualification/fault_check.py` (`f9c48da`) ; arrêts forcés p
 Réalisé : D04.2 à D04.6 et D04.8 cochés avec leurs preuves (`DEFINITION_OF_DONE.md`). Test unitaire des filtres avant la coupe top-k sur quatre périmètres, essai réel `tools/qualification/scope_check.py` sur instance isolée (Qdrant et E5 réels, sélection courte mesurée par le compteur natif de Qdrant), contre-exemple RRF suivi jusqu'au contexte ; deux tests rendus discriminants après vérification par mutation. Deux erreurs `mypy` déjà committées (`fault_check.py`, `migration_check.py`) corrigées. Contrôles : suite Python complète 538 réussis et 2 `xfail` connus (W-PDF01), 906 s ; `ruff` et `mypy` au vert.
 
 Restent pour D04 : D04.7 (réponses générées, R7 puis R13) et les objectifs de qualité sur le jeu final (R13). Prochaine action exécutable sans accord supplémentaire : critères D05, D06 et D08 démontrables par instances isolées, la génération DEV (R7) demandant l'arrêt de l'instance principale.
+## Point à 09:25 UTC (1er octobre) — extraction D02 : essai interrompu
+
+Réalisé : `tools/qualification/extraction_check.py` écrit (vérité terrain du générateur pour les sept documents DEV, le scan bilingue et la frontière pages 4/5 ; schéma raster sans texte produit sur place ; jeu final ni importé ni lu) ; reprise bornée d'un import refusé par l'admission mémoire mise en commun (`wait_admitted`, `fault_check.py`) ; test d'intégration de la publication partielle prolongé jusqu'aux événements d'une question (avertissement `partial_extraction` émis avant la fin de la réponse), PASS.
+
+Blocage : premier essai lancé à 09:18 sur instance isolée, arrêté vers 09:21 par Claude Code faute de mémoire sur le poste (campagne Playwright d'un autre projet en cours, laissée intacte) ; aucun résultat. Instance isolée arrêtée à 09:22, racine supprimée, aucun processus survivant, instance principale intacte. L'essai n'est pas relancé sans l'accord de l'utilisateur. D02.3 à D02.7, D02.9 et D02.10 restent ouverts.
+
+Prochaine action : sur accord, rejouer `extraction_check.py` sur instance isolée quand la mémoire libre le permet ; sinon, poursuivre les travaux sans traitement lourd.
