@@ -48,15 +48,19 @@ try {
     New-Item -ItemType Directory -Path $DataRoot -Force | Out-Null
     $reportPath = Join-Path $DataRoot ("install-{0}.json" -f (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ'))
     $kitPython = Join-Path $kit '.runtime\python\cpython-3.12.14-windows-x86_64-none\python.exe'
-    $copy = & $kitPython (Join-Path $kit 'tools\dist\build_kit.py') install-copy --kit $kit --target $target | Out-String | ConvertFrom-Json
+    # -B : le Python du kit n'écrit aucun bytecode dans le kit qu'il vérifie.
+    $copy = & $kitPython -B (Join-Path $kit 'tools\dist\build_kit.py') install-copy --kit $kit --target $target | Out-String | ConvertFrom-Json
     if ($copy.status -ne 'copied') { throw "$($copy.message) Recopiez le kit ; rien n'a été installé." }
     Write-Step 'copie' 'ok' "$($copy.files) fichiers conformes à SHA256SUMS copiés dans $target"
 
     # 3. Environnement Python sans outils de développement, depuis le cache du kit.
     & (Join-Path $target 'bootstrap.ps1') -Offline -NoDev | Out-Null
     $python = Join-Path $target '.venv\Scripts\python.exe'
-    # Précompilation : le programme n'écrira plus de bytecode pendant l'exploitation.
-    & $python -m compileall -q (Join-Path $target 'services') (Join-Path $target 'tools') | Out-Null
+    # Précompilation de tout ce qu'importera l'exploitation (bibliothèque standard, paquets de .venv, code du projet) :
+    # le dossier programme ne reçoit plus de bytecode ensuite. Quelques fichiers d'exemple des paquets ne compilent pas
+    # (syntaxe d'un autre Python) : le code de sortie de compileall n'est donc pas bloquant.
+    $standardLibrary = Join-Path $target '.runtime\python\cpython-3.12.14-windows-x86_64-none\Lib'
+    & $python -m compileall -q -j 0 $standardLibrary (Join-Path $target '.venv\Lib\site-packages') (Join-Path $target 'services') (Join-Path $target 'tools') | Out-Null
     Write-Step 'python' 'ok' (& $python --version)
 
     # 4. Profil de l'utilisateur : données, stockage Qdrant court, ports libres.
