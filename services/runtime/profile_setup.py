@@ -48,9 +48,19 @@ def user_profile(base: dict[str, Any], data_root: Path, *, qdrant_storage: Path 
     profile["app"] = {**base["app"], "data_dir": str(data_root / "data"), "port": chosen["app"]}
     profile["qdrant"] = {**base["qdrant"], "url": f"http://127.0.0.1:{chosen['qdrant']}", "storage_dir": str(storage)}
     profile["llm"] = {**base["llm"], "base_url": f"http://127.0.0.1:{chosen['ollama']}"}
+    # Les stockages de restauration (« <dossier>\<id8>\storage », W004) sont placés à côté du stockage court, pas sous la racine.
     profile["runtime"] = {"host_lock_path": str(data_root / "control" / "host-heavy.lock"), "backups_dir": str(data_root / "backups"),
-                          "restore_storage_dir": str(data_root / "r"), "huggingface_cache_dir": str(data_root / "cache" / "huggingface")}
+                          "restore_storage_dir": str(restore_dir(storage)), "huggingface_cache_dir": str(data_root / "cache" / "huggingface")}
     return profile
+
+
+def restore_dir(storage: Path) -> Path:
+    return storage.with_name(storage.name + "r")
+
+
+def restore_store_length(directory: Path) -> int:
+    """Longueur du chemin qu'une restauration crée sous `directory` : identifiant de huit caractères puis `storage`."""
+    return len(str(directory / ("0" * 8) / "storage"))
 
 
 def write_user_profile(base_path: Path, data_root: Path, *, qdrant_storage: Path | None = None, ports: dict[str, int] | None = None,
@@ -60,6 +70,12 @@ def write_user_profile(base_path: Path, data_root: Path, *, qdrant_storage: Path
         raise ValueError(f"Profil déjà présent, jamais remplacé : {target}")
     base = yaml.safe_load(base_path.read_text(encoding="utf-8"))
     profile = user_profile(base, data_root, qdrant_storage=qdrant_storage, ports=ports, program_root=program_root, storage_max=storage_max)
+    restores = Path(profile["runtime"]["restore_storage_dir"])
+    if os.name == "nt" and restore_store_length(restores) > storage_max:
+        # Refus dès la création : sinon une restauration ultérieure échouerait sur la même borne du binaire Qdrant.
+        example = Path(os.environ.get("USERPROFILE") or Path.home()) / "apdfq"
+        raise ValueError(f"Stockages de restauration trop longs ({restore_store_length(restores)} caractères pour {storage_max}) sous {restores} : "
+                         f"choisir un stockage Qdrant plus court avec --qdrant-storage, par exemple {example}")
     target.parent.mkdir(parents=True, exist_ok=True)
     with target.open("x", encoding="utf-8", newline="\n") as stream:
         stream.write("# Profil généré par rag.ps1 init-profile depuis " + base_path.name + " ; données et écritures d'exécution hors du programme.\n")

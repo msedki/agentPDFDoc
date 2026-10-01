@@ -78,11 +78,11 @@ def control_profile(profile_path: Path, root: Path) -> Path:
     return target
 
 
-def short_root() -> Path:
+def short_root(prefix: str = "apst") -> Path:
     """Racine courte sous %TEMP% : le stockage Qdrant y tient sous la borne de 57 caractères du binaire Windows."""
     temp = Path(os.environ.get("TEMP") or os.environ.get("TMP") or Path.home())
     for _ in range(16):
-        candidate = temp / f"apst{secrets.token_hex(2)}"
+        candidate = temp / f"{prefix}{secrets.token_hex(2)}"
         try:
             candidate.mkdir()
             return candidate

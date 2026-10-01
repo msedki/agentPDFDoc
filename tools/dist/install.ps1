@@ -60,6 +60,12 @@ try {
     $free = (Get-PSDrive -Name $drive.Substring(0, 1)).Free
     $needed = [long]$manifest.bytes + 3GB
     if ($free -lt $needed) { throw ("Espace insuffisant sur {0} : {1:N1} Gio libres, {2:N1} Gio nécessaires." -f $drive, ($free / 1GB), ($needed / 1GB)) }
+    # Borne du binaire Qdrant (W004) : stockage de l'index et stockages de restauration (« <stockage>r\<id8>\storage »).
+    $storage = [IO.Path]::GetFullPath($(if ($QdrantStorage) { $QdrantStorage } else { Join-Path $DataRoot 'q' })).TrimEnd('\')
+    $longest = [Math]::Max("$storage\storage".Length, "$($storage)r\00000000\storage".Length)
+    if ($longest -gt 57) {
+        throw "Chemin du stockage de l'index trop long ($longest caractères pour 57, restaurations comprises) : relancez avec -QdrantStorage et un dossier court, par exemple $env:USERPROFILE\apdfq. Aucun fichier copié."
+    }
     Write-Step 'prerequis' 'ok' ("Windows build {0}, {1} Gio de mémoire, {2:N1} Gio libres" -f $os.BuildNumber, $memoryGib, ($free / 1GB))
 
     # 1 bis. Données déjà présentes : la nouvelle version s'installe à côté de l'actuelle, après une sauvegarde vérifiée.

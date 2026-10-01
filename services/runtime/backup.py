@@ -272,6 +272,9 @@ def restore_backup(folder: Path, target: Path, *, qdrant_port: int = 6343) -> di
         short_store = (stores / identifier).resolve()
         if not short_store.is_relative_to(stores) or short_store.exists():
             raise ValueError("Restauration : stockage Qdrant court neuf exigé sous runtime.restore_storage_dir")
+        if len(str(short_store / "storage")) > 57:
+            raise ValueError(f"Restauration : la cible {target} impose un stockage Qdrant court, mais runtime.restore_storage_dir ({stores}) "
+                             f"donne {len(str(short_store / 'storage'))} caractères pour 57 ; choisir une cible de {57 - len(chr(92) + 'qdrant' + chr(92) + 'storage')} caractères au plus")
         profile["qdrant"]["storage_dir"] = str(short_store)
     qdrant_directory = qdrant_data_path(profile, target)
     target.mkdir(parents=True)

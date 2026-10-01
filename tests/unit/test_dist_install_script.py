@@ -51,10 +51,21 @@ def kit(tmp_path):
     os.rmdir(folder / KIT_PYTHON)  # retire la jonction seule, jamais le CPython du dépôt
 
 
-def install(kit, *arguments, env=None):
-    run = subprocess.run(["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(kit / "tools/dist/install.ps1"), *map(str, arguments)],
+def install(kit, *arguments, env=None, short_storage=True):
+    # Les racines temporaires de pytest dépassent la borne de Qdrant : un stockage court est indiqué, jamais créé
+    # puisque chaque essai s'arrête avant la création du profil.
+    storage = ["-QdrantStorage", str(Path(os.environ.get("SystemDrive", "C:") + "\\") / "apdfq-essai")] if short_storage else []
+    run = subprocess.run(["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(kit / "tools/dist/install.ps1"), *map(str, arguments), *storage],
                          capture_output=True, timeout=120, env={**{k: v for k, v in os.environ.items() if k != "PYTHONUTF8"}, **(env or {})})
     return run.returncode, run.stdout.decode("utf-8")
+
+
+def test_index_storage_too_long_for_qdrant_is_refused_before_any_copy(kit, tmp_path):
+    data = tmp_path / "donnees"
+    code, output = install(kit, "-Destination", tmp_path / "programmes", "-DataRoot", data, "-Menu", tmp_path / "menu", "-NoStart", short_storage=False)
+    assert code == 1
+    assert "Chemin du stockage de l'index trop long (" in output and "restaurations comprises) : relancez avec -QdrantStorage" in output
+    assert "Aucun fichier copié." in output and not (tmp_path / "programmes").exists()
 
 
 def test_altered_kit_file_stops_the_installation_with_an_intact_french_message(kit, tmp_path):

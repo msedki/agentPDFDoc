@@ -46,6 +46,21 @@ def test_generated_profile_places_data_and_runtime_writes_under_the_user_root(tm
         write_user_profile(BASE, root, ports=chosen, program_root=program, storage_max=1000)
 
 
+def test_restore_stores_sit_beside_the_short_storage_and_init_refuses_them_when_too_long(tmp_path, monkeypatch):
+    # Essai du 01/10 : sous une racine de données de 43 caractères, « <racine>\r\<id8>\storage » dépassait la borne de 57.
+    base = yaml.safe_load(BASE.read_text(encoding="utf-8"))
+    root = tmp_path / "utilisateur"
+    profile = user_profile(base, root, qdrant_storage=tmp_path / "court" / "q", ports=ports(), program_root=tmp_path / "programme", storage_max=1000)
+    assert profile["runtime"]["restore_storage_dir"] == str((tmp_path / "court" / "qr").resolve())
+    monkeypatch.setattr("services.runtime.profile_setup.os.name", "nt")
+    storage = (root / "q").resolve()
+    main, restores = len(str(storage / "storage")), len(str(storage.with_name("qr") / ("0" * 8) / "storage"))
+    assert restores > main
+    with pytest.raises(ValueError, match=r"Stockages de restauration trop longs .* --qdrant-storage, par exemple .*apdfq"):
+        write_user_profile(BASE, root, ports=ports(), program_root=tmp_path / "programme", storage_max=main)
+    assert not (root / "profile.yaml").exists()
+
+
 def test_profile_refuses_a_root_inside_the_program_a_long_qdrant_path_and_busy_or_equal_ports(tmp_path, monkeypatch):
     base = yaml.safe_load(BASE.read_text(encoding="utf-8"))
     with pytest.raises(ValueError, match="hors du dossier du programme"):
