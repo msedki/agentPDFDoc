@@ -1,0 +1,283 @@
+{
+  "format": "annotated-answers-report-v1",
+  "utc": "2026-10-01T01:27:32.616407+00:00",
+  "annotation_state": "ASSISTANT_READ_NOT_EXPERT_VALIDATED",
+  "answers_sha256": "92461ea01dff060d4703435381df2decfacf597b36d82b82541ff3ceb15b1470",
+  "summary": {
+    "answerable": {
+      "answered": {
+        "numerator": 2,
+        "denominator": 8,
+        "rate": 0.25,
+        "wilson95": [
+          0.071,
+          0.591
+        ]
+      },
+      "truncated": {
+        "numerator": 0,
+        "denominator": 8,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.324
+        ]
+      },
+      "citations_valid": {
+        "numerator": 8,
+        "denominator": 8,
+        "rate": 1.0,
+        "wilson95": [
+          0.676,
+          1.0
+        ]
+      },
+      "cites_expected_page": {
+        "numerator": 2,
+        "denominator": 8,
+        "rate": 0.25,
+        "wilson95": [
+          0.071,
+          0.591
+        ]
+      },
+      "abstention_phrase": {
+        "numerator": 2,
+        "denominator": 8,
+        "rate": 0.25,
+        "wilson95": [
+          0.071,
+          0.591
+        ]
+      },
+      "all_values_found": {
+        "numerator": 0,
+        "denominator": 7,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.354
+        ]
+      }
+    },
+    "unanswerable": {
+      "answered": {
+        "numerator": 0,
+        "denominator": 0,
+        "rate": null,
+        "wilson95": null
+      },
+      "citations_valid": {
+        "numerator": 0,
+        "denominator": 0,
+        "rate": null,
+        "wilson95": null
+      },
+      "abstention_phrase": {
+        "numerator": 0,
+        "denominator": 0,
+        "rate": null,
+        "wilson95": null
+      }
+    },
+    "ttft_ms": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      146840.04,
+      214637.76
+    ],
+    "elapsed_ms": [
+      101329.61,
+      128973.34,
+      129760.83,
+      130974.99,
+      198023.77,
+      223344.23,
+      285488.76,
+      368619.13
+    ]
+  },
+  "rows": [
+    {
+      "id": "a025",
+      "source_id": "CPR-13",
+      "answerable": true,
+      "status": "done",
+      "answered": true,
+      "truncated": false,
+      "error_code": null,
+      "citations_valid": true,
+      "cites_expected_page": true,
+      "abstention_phrase": true,
+      "metrics": {
+        "ttft_ms": 146840.04,
+        "elapsed_ms": 285488.76,
+        "prompt_eval_count": 1056,
+        "eval_count": 384,
+        "evidence_tokens": 874,
+        "generation_admission_wait_ms": 98.01
+      },
+      "values_expected": 3,
+      "values_found": 1
+    },
+    {
+      "id": "a103",
+      "source_id": "EVA-03",
+      "answerable": true,
+      "status": "error",
+      "answered": false,
+      "truncated": false,
+      "error_code": null,
+      "citations_valid": true,
+      "cites_expected_page": false,
+      "abstention_phrase": false,
+      "metrics": {
+        "ttft_ms": null,
+        "elapsed_ms": 198023.77,
+        "prompt_eval_count": null,
+        "eval_count": null,
+        "evidence_tokens": 773,
+        "generation_admission_wait_ms": 4172.51
+      },
+      "values_expected": 2,
+      "values_found": 0
+    },
+    {
+      "id": "a135",
+      "source_id": "MR2-13",
+      "answerable": true,
+      "status": "done",
+      "answered": true,
+      "truncated": false,
+      "error_code": null,
+      "citations_valid": true,
+      "cites_expected_page": true,
+      "abstention_phrase": true,
+      "metrics": {
+        "ttft_ms": 214637.76,
+        "elapsed_ms": 368619.13,
+        "prompt_eval_count": 1604,
+        "eval_count": 384,
+        "evidence_tokens": 1417,
+        "generation_admission_wait_ms": 1420.99
+      },
+      "values_expected": 1,
+      "values_found": 0
+    },
+    {
+      "id": "a075",
+      "source_id": "MIG-08",
+      "answerable": true,
+      "status": "error",
+      "answered": false,
+      "truncated": false,
+      "error_code": null,
+      "citations_valid": true,
+      "cites_expected_page": false,
+      "abstention_phrase": false,
+      "metrics": {
+        "ttft_ms": null,
+        "elapsed_ms": 223344.23,
+        "prompt_eval_count": null,
+        "eval_count": null,
+        "evidence_tokens": 542,
+        "generation_admission_wait_ms": 120.89
+      },
+      "values_expected": 0,
+      "values_found": 0
+    },
+    {
+      "id": "a023",
+      "source_id": "CPR-12",
+      "answerable": true,
+      "status": "error",
+      "answered": false,
+      "truncated": false,
+      "error_code": null,
+      "citations_valid": true,
+      "cites_expected_page": false,
+      "abstention_phrase": false,
+      "metrics": {
+        "ttft_ms": null,
+        "elapsed_ms": 101329.61,
+        "prompt_eval_count": null,
+        "eval_count": null,
+        "evidence_tokens": 1325,
+        "generation_admission_wait_ms": 5429.63
+      },
+      "values_expected": 3,
+      "values_found": 0
+    },
+    {
+      "id": "a101",
+      "source_id": "EVA-02",
+      "answerable": true,
+      "status": "error",
+      "answered": false,
+      "truncated": false,
+      "error_code": null,
+      "citations_valid": true,
+      "cites_expected_page": false,
+      "abstention_phrase": false,
+      "metrics": {
+        "ttft_ms": null,
+        "elapsed_ms": 128973.34,
+        "prompt_eval_count": null,
+        "eval_count": null,
+        "evidence_tokens": 773,
+        "generation_admission_wait_ms": null
+      },
+      "values_expected": 4,
+      "values_found": 0
+    },
+    {
+      "id": "a133",
+      "source_id": "MR2-12",
+      "answerable": true,
+      "status": "error",
+      "answered": false,
+      "truncated": false,
+      "error_code": null,
+      "citations_valid": true,
+      "cites_expected_page": false,
+      "abstention_phrase": false,
+      "metrics": {
+        "ttft_ms": null,
+        "elapsed_ms": 129760.83,
+        "prompt_eval_count": null,
+        "eval_count": null,
+        "evidence_tokens": 1558,
+        "generation_admission_wait_ms": null
+      },
+      "values_expected": 2,
+      "values_found": 0
+    },
+    {
+      "id": "a077",
+      "source_id": "MIG-09",
+      "answerable": true,
+      "status": "error",
+      "answered": false,
+      "truncated": false,
+      "error_code": null,
+      "citations_valid": true,
+      "cites_expected_page": false,
+      "abstention_phrase": false,
+      "metrics": {
+        "ttft_ms": null,
+        "elapsed_ms": 130974.99,
+        "prompt_eval_count": null,
+        "eval_count": null,
+        "evidence_tokens": 1334,
+        "generation_admission_wait_ms": null
+      },
+      "values_expected": 2,
+      "values_found": 0
+    }
+  ],
+  "note": "Contrôles automatiques seulement ; le jugement de justesse de chaque réponse est consigné à part."
+}

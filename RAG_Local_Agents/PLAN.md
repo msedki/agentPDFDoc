@@ -295,3 +295,10 @@ Prochaine action exécutable : build de l'interface (libellés des nouveaux code
 - Le nouveau code de l'API est déployé (disponibilité sur base neuve, emplacements `runtime`, découpage) : instance `6346e31c…`, disponibilité `ready`, collection `present`.
 
 Prochaine action exécutable : EV-3, génération réelle sur 22 questions du jeu W014 (16 avec réponse, 6 sans) dans le créneau de nuit, contrôles automatiques puis relecture de chaque réponse ; documentation stabilisée du découpage ; R22 suite (DIST-03).
+## Point à 01:29 UTC (1er octobre) — EV-3 interrompu faute de mémoire
+
+- EV-3 lancé à 00:58 sur 22 questions du jeu W014 : 2 réponses obtenues sur 9 tentatives, 3 générations annulées par le gouverneur (réserve hôte), 3 admissions refusées, puis arrêt du lanceur par Claude Code (mémoire du poste critique) à 01:24. Relecture : une réponse juste et complète, une abstention injustifiée ; les deux tronquées par la limite de sortie ([rapport](reports/evaluation/corpus-reel-2026-09-30.md)).
+- Proposition EV-5 (non appliquée) : consigne système orientée « réponse d'abord, limites en une phrase », à mesurer sur le même échantillon.
+- Blocage (décision utilisateur, déjà au point de 14:10) : la génération exige environ 5 Gio libres pendant toute la série ; avec le navigateur, trois sessions Claude et deux antivirus actifs, ce poste ne les garde pas. EV-3 n'est relancé qu'à la demande de l'utilisateur, après libération de mémoire.
+
+Prochaine action exécutable sans génération : fabrication d'un kit réel et installation dans une racine d'essai (DIST-03 à DIST-05), à lancer quand la mémoire libre le permet (copies lourdes, pas de modèle chargé).

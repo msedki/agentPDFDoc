@@ -93,13 +93,30 @@ Les séries générées 2 et 3 ne sont plus rejouables après réextraction : l'
 
 A → B : les 3 questions dont la preuve est sur les pages de MR2_30A naguère non converties (18 et 27) sont retrouvées ; la reprise de la voie `structured` a joué sur CPR-07A p. 5, 8, 9 et MR2_30A p. 7, 8, 9 ; le reste varie de quelques rangs sans tendance (bibliothèque : +5 / −1, p = 0,22). B → C : décision [W015](../../DECISIONS.md) ; gain au bloc dans les deux périmètres, perte à la page sur toute la bibliothèque concentrée sur le document italien (MIGBT, 9 → 4 sur 16). Rapports : [A](annotated-v1-reference-20260930T2310.json), [B](annotated-v1-B-20261001T004156Z.json), [C](annotated-v1-C-20261001T004923Z.json).
 
+## EV-3, génération réelle sur le jeu W014 (1er octobre, interrompue)
+
+Série lancée à 00:58 sur 22 questions (16 avec réponse, 6 sans), découpage `section-pack-v1`, instance `6346e31c…`. Elle s'est arrêtée à 01:24 : Claude Code a stoppé le lanceur en arrière-plan, le poste manquant de mémoire ; la question encore active côté API a été annulée à 01:27. Neuf tentatives ([contrôles automatiques sans texte](annotated-v1-generation-EV3-20261001T0058.json)) :
+
+| Issue | Nombre | Détail |
+|---|---:|---|
+| Réponse complète du modèle | 2 | toutes deux arrêtées par la limite de sortie (`length_limited`, 384 jetons) ; premier jeton à 147 et 215 s, réponse en 285 et 369 s |
+| Génération annulée en cours, réserve hôte menacée | 3 | 01:06, 01:16, 01:18 ; la deuxième pendant des tests et mypy lancés en parallèle |
+| Admission refusée avant le modèle | 3 | 4 537 à 4 921 Mio disponibles pour 4 992 requis |
+| Interrompue avec le lanceur | 1 | annulée côté API |
+
+Relecture des deux réponses (lecture autorisée, W014) : MR2-13 est juste et complète (durée et quatre signalisations, citées), mais tronquée dans une section de réserves ; CPR-13 est une abstention injustifiée : la preuve était dans le contexte et citée, le modèle refuse de conclure puis épuise la limite de sortie en réserves. Le contrôle automatique des valeurs sous-estime MR2-13 (« environ 5 » contre « **5 secondes** ») ; le journal de ces tentatives, écrit avant `c043bf9`, ne porte pas le statut `length_limited`, relu dans la base.
+
+Ce que la série établit : sur ce poste, avec le navigateur, trois sessions Claude et deux antivirus actifs, la génération ne tient pas une série continue ; le gouverneur protège la réserve comme prévu (W007, W008). Ce qu'elle ne permet pas : aucune mesure d'exactitude ni d'abstention à cet effectif.
+
 ## Améliorations proposées, par ordre de preuve attendue
 
 | Id | Hypothèse | Expérience appariée | Coût à surveiller |
 |---|---|---|---|
 | EV-1 | Regrouper les blocs courts d'une même section jusqu'à la cible de 320 tokens, comme le demande la spécification, rend la branche lexicale comparable entre blocs et fait entrer les blocs attendus dans les 6 fragments | Découpage révisé (nouvelle révision de chunker, réindexation des 4 documents), séries 2 et 3 rejouées, test exact apparié sur « contexte » ; contrôle des citations au bloc et du filtrage par page | Réindexation complète ; les sources d'un chunk deviennent multiples (table `chunk_sources` déjà prévue pour) ; découpe au périmètre avant contexte pour une sélection partielle. Écartés : 8 fragments au lieu de 6 (la spécification fixe « au plus six fragments par défaut », [SPEC_ARCHITECTURE.md](../../SPEC_ARCHITECTURE.md), recherche) et reranker neuronal (hors périmètre sans preuve de valeur ni requalification CPU/RAM, même document, exclusions) |
 | EV-2 | Des questions en langage courant sans réponse mesurent l'abstention réelle | Gabarits sans identifiant sur des notions absentes du corpus, vérifiées par recherche plein texte | Vérification manuelle de l'absence |
-| EV-3 | Une série de génération sur 20 questions de développement mesure exactitude et citations | `tools/qualification/answers.py` sur un créneau réservé | Environ 40 min de CPU, mémoire (W007) |
+| EV-3 | Une série de génération sur 20 questions du jeu W014 mesure exactitude, citations et abstention (tentée le 01/10, interrompue faute de mémoire) | `tools/qualification/answers.py` sur un créneau réservé | Environ 40 min de CPU, mémoire (W007) |
 | EV-4 | Le corpus complet change la difficulté de la recherche à l'échelle de la bibliothèque | Même protocole après extraction des 61 documents en pause | Durée d'extraction (≈ 22 000 pages) |
+
+| EV-5 | La consigne système (« distingue faits et déductions, signale les contradictions et l'insuffisance des preuves ») pousse le modèle de 4 milliards de paramètres à des réserves qui tronquent la réponse ou l'empêchent de conclure ; une consigne qui demande la réponse d'abord, puis les limites en une phrase, réduirait troncatures et abstentions injustifiées | Même échantillon EV-3, consigne seule changée, réponses relues ; à mener dans un créneau où la mémoire libre dépasse durablement 5 Gio | Changement de prompt : vérifier qu'aucune affirmation non citée n'apparaît |
 
 Chaque expérience compare une seule configuration à la référence sur les mêmes questions (protocole §3.1) ; aucune n'est lancée sans créneau libre sur le poste.
