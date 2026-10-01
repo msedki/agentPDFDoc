@@ -51,11 +51,11 @@
       "name": "pdf-workspace-web",
       "path": ".agents/skills/pdf-workspace-web/SKILL.md",
       "origin": "projet",
-      "task": "D06.10 : gardes statiques ; constat : contrôles désactivés sans raison visible (invariant du skill)",
+      "task": "D06.10 : gardes statiques ; invariant « les contrôles désactivés indiquent pourquoi » vérifié : état ou raison visibles à côté de chaque contrôle",
       "sha256": "a96ca71a8b7a622ed1276ef95147dc422c43f54f9a64b3e777d5e3a4cf4e6b3a",
       "read_utc": "2026-10-01T09:57Z",
       "behavioral_validation": "NOT_RUN (lecture explicite par chemin, pas de découverte native par ce client)"
     }
   ],
-  "note": "Lecture des SKILL.md après une partie des travaux du jour (reprise après compaction) ; travaux relus contre leurs invariants : écart trouvé côté interface (constat C-UI-01), aucun écart côté recherche, fixtures et ingestion."
+  "note": "Lecture des SKILL.md après une partie des travaux du jour (reprise après compaction) ; travaux relus contre leurs invariants : aucun écart. Un constat d'interface (C-UI-01) a d'abord été consigné puis infirmé à 09:59 après relecture complète du composant (raison du refus déjà affichée) ; voir PLAN.md, point de 10:00."
 }
