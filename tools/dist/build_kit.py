@@ -36,6 +36,7 @@ GPU_DIRECTORIES = ("cuda_v12", "cuda_v13", "vulkan")  # P3 : sous lib/ollama, in
 TEXT_SUFFIXES = {".json", ".yaml", ".yml", ".md", ".py", ".ps1", ".txt", ".toml", ".lock", ".cfg"}
 TEXT_SCAN_LIMIT = 32 * 1024 * 1024
 LAUNCHER = "Installer l'atelier.cmd"
+NOTICES = "THIRD_PARTY_NOTICES.md"
 LAUNCHER_CONTENT = (b"@echo off\r\n"
                     b"powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"%~dp0tools\\dist\\install.ps1\" %*\r\n"
                     b"pause\r\n")
@@ -67,24 +68,29 @@ def excluded(relative: str, *, without_gpu: bool) -> bool:
     return without_gpu and relative.startswith(".runtime/bin/ollama-") and any(f"/lib/ollama/{name}/" in relative for name in GPU_DIRECTORIES)
 
 
-def through_link(item: Path, root: Path) -> bool:
-    """Vrai si le chemin traverse une jonction ou un lien (uv recrée sa jonction de version mineure à l'installation)."""
-    current = item
-    while current != root and current != current.parent:
-        if current.is_symlink() or current.is_junction():
-            return True
-        current = current.parent
-    return False
+def walk_files(folder: Path):
+    """Fichiers d'un dossier sans traverser jonction ni lien : uv recrée sa jonction de version mineure à l'installation,
+    et l'écarter dès le dossier évite d'interroger chaque fichier (chaque accès disque passe par l'antivirus du poste)."""
+    pending = [folder]
+    while pending:
+        with os.scandir(pending.pop()) as entries:
+            for entry in entries:
+                if entry.is_symlink() or entry.is_junction():
+                    continue
+                if entry.is_dir(follow_symlinks=False):
+                    pending.append(Path(entry.path))
+                elif entry.is_file(follow_symlinks=False):
+                    yield Path(entry.path)
 
 
 def selected_files(root: Path, *, without_gpu: bool = False) -> list[str]:
     files: set[str] = set()
     for entry in INCLUDED:
         path = root / entry
-        candidates = [path] if path.is_file() else (sorted(item for item in path.rglob("*") if item.is_file()) if path.is_dir() else [])
+        candidates = [path] if path.is_file() else (sorted(walk_files(path)) if path.is_dir() and not (path.is_symlink() or path.is_junction()) else [])
         for item in candidates:
             relative = item.relative_to(root).as_posix()
-            if not excluded(relative, without_gpu=without_gpu) and not through_link(item, root):
+            if not excluded(relative, without_gpu=without_gpu):
                 files.add(relative)
     leaked = sorted(name for name in files if name.startswith(FORBIDDEN_PREFIXES))
     if leaked:
@@ -133,6 +139,12 @@ def build_kit(output: Path, *, root: Path = ROOT, version: str, without_gpu: boo
         sums.append(f"{digest}  {relative}")
         group = relative.split("/")[1] if relative.startswith(".runtime/") else relative.split("/")[0]
         sizes[group] = sizes.get(group, 0) + size
+    # Avis de tiers (DIST-07) : composants, licences déclarées, textes présents et manques connus.
+    from tools.dist.notices import third_party_notices
+
+    notices = third_party_notices(root, files, version).encode("utf-8")
+    (output / NOTICES).write_bytes(notices)
+    sums.append(f"{hashlib.sha256(notices).hexdigest()}  {NOTICES}")
     # Lanceur à double-cliquer : Bypass ne vaut que pour cette session et ne touche pas la politique du poste.
     launcher = output / LAUNCHER
     launcher.write_bytes(LAUNCHER_CONTENT)

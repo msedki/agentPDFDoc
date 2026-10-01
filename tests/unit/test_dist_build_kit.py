@@ -23,6 +23,8 @@ def repository(tmp_path):
     for relative in ("services/api/__pycache__/main.cpython-312.pyc", ".runtime/models/granite-97m-int8/model.onnx", ".runtime/data/app.sqlite3",
                      "PDF/manuel.pdf", "tests/unit/test_x.py", "RAG_Local_Agents/PLAN.md", ".runtime/evals/jeu.json"):
         write(root, relative)
+    write(root, "config/artifacts.lock.json", json.dumps({"groups": {"qdrant": [{"version": "1.19.1", "publisher": "Qdrant", "license": "Apache-2.0", "url": "https://github.com/qdrant/qdrant/releases", "extract_to": ".runtime/bin/qdrant-1.19.1"}]}}))
+    write(root, ".runtime/bin/qdrant-1.19.1/LICENSE", "Apache")
     write(root, ".runtime/manifests/tesseract-installed-copy.json", json.dumps({"source": str(root / "Tesseract-OCR"), "files": []}))
     return root
 
@@ -86,3 +88,23 @@ def test_install_copy_hashes_while_copying_and_removes_a_partial_copy(repository
     with pytest.raises(ValueError, match="altéré : rag.ps1"):
         install_copy(kit, tmp_path / "autre")
     assert not (tmp_path / "autre").exists()
+
+
+def test_kit_carries_third_party_notices_from_the_artifact_lock(repository, tmp_path):
+    kit = tmp_path / "kit"
+    build_kit(kit, root=repository, version="0.1.0")
+    notices = (kit / "THIRD_PARTY_NOTICES.md").read_text(encoding="utf-8")
+    assert "| qdrant | 1.19.1 | Qdrant | Apache-2.0 |" in notices and "`.runtime/bin/qdrant-1.19.1/LICENSE`" in notices
+    assert "section 4 b" in notices and "## Manques connus" in notices
+    assert verify_kit(kit)["status"] == "verified"
+
+
+def test_notices_cover_every_locked_artifact_of_the_repository():
+    from tools.dist.build_kit import ROOT
+    from tools.dist.notices import third_party_notices
+
+    lock = json.loads((ROOT / "config/artifacts.lock.json").read_text(encoding="utf-8"))
+    notices = third_party_notices(ROOT, selected_files(ROOT), "0.1.0")
+    for group, entries in lock["groups"].items():
+        for entry in entries:
+            assert f"| {entry.get('model_id') or group} |" in notices
