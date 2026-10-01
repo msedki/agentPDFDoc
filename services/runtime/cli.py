@@ -230,7 +230,9 @@ def doctor(profile_path: Path) -> dict:
     checks["llm_model_diagnosis"] = llm_model_diagnosis(checks["llm_model_files"], checks["llm_model"])
     # Ces diagnostics distinguent présence des fichiers, disponibilité et recette.
     result["qualification"] = "NOT_RUN: doctor does not prove an end-to-end answer"
-    return result
+    from .verdict import doctor_verdict
+
+    return {"verdict": doctor_verdict(result), **result}
 
 
 OLLAMA_MODELS_DIR = ROOT / ".runtime/models/ollama"

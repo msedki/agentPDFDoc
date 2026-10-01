@@ -81,6 +81,13 @@ def owned_pids(state: dict) -> set[int]:
         return set()
 
 
+def process_name(pid: int) -> str:
+    try:
+        return psutil.Process(pid).name()
+    except psutil.Error:
+        return "processus inaccessible"
+
+
 def port_states(ports: dict[str, int], owned: set[int]) -> dict[str, dict]:
     """Libre, pris par nos PID ou par un tiers ; observation seule, rien n'est arrêté."""
     listeners: dict[int, set] = {}
@@ -108,7 +115,7 @@ def port_states(ports: dict[str, int], owned: set[int]) -> dict[str, dict]:
             state = "foreign"
         else:
             state = "occupied_unknown_owner"
-        result[name] = {"port": port, "state": state, "listener_pids": sorted(known)}
+        result[name] = {"port": port, "state": state, "listener_pids": sorted(known), "listener_names": [process_name(pid) for pid in sorted(known)]}
         if listing_error:
             result[name]["listing_error"] = listing_error
     return result

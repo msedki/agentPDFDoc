@@ -26,6 +26,19 @@ function Save-Report {
     }
 }
 
+function Complete-Install([int]$Code) {
+    Save-Report
+    [Console]::OutputEncoding = $script:consoleEncoding
+    exit $Code
+}
+
+# Tout Python lancé ici écrit en UTF-8 (PYTHONUTF8, variable du seul processus d'installation, comme dans rag.ps1) et
+# PowerShell 5.1 le lit en UTF-8 : sous la page OEM d'une console française, « é » arriverait sinon en « ├® ». La console
+# retrouve son encodage d'origine en fin d'installation.
+$env:PYTHONUTF8 = '1'
+$consoleEncoding = [Console]::OutputEncoding
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+
 try {
     # 1. Prérequis, sans rien modifier.
     $manifest = Get-Content -LiteralPath (Join-Path $kit 'kit-manifest.json') -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -73,13 +86,20 @@ try {
     Write-Step 'profil' 'ok' $profilePath
 
     # 5. Vérification, démarrage et ouverture.
+    # Verdict par rubrique (vert, orange, rouge) : avant le démarrage, seule une rubrique rouge arrête l'installation.
     $doctor = & (Join-Path $target 'rag.ps1') doctor -Profile $profilePath | Out-String | ConvertFrom-Json
-    $report.doctor_api_ready = $doctor.services.api_ready
-    Write-Step 'doctor' 'ok' 'rapport joint'
+    $report.verdict_before_start = $doctor.verdict
+    $red = @($doctor.verdict.rubrics | Where-Object { $_.level -eq 'rouge' })
+    if ($red.Count) { throw ("Vérification refusée : " + (($red | ForEach-Object { "$($_.message) $($_.action)" }) -join ' ')) }
+    Write-Step 'doctor' 'ok' $doctor.verdict.summary
     if (-not $NoStart) {
         $up = & (Join-Path $target 'rag.ps1') up -Profile $profilePath | Out-String | ConvertFrom-Json
         if ($up.status -ne 'running') { throw "Démarrage refusé : $($up.message)" }
         Write-Step 'demarrage' 'ok' $up.instance_id
+        $doctor = & (Join-Path $target 'rag.ps1') doctor -Profile $profilePath | Out-String | ConvertFrom-Json
+        $report.verdict = $doctor.verdict
+        foreach ($item in $doctor.verdict.rubrics) { Write-Output ("  [{0}] {1} : {2}" -f $item.level, $item.rubric, $item.message) }
+        Write-Step 'verdict' $doctor.verdict.level $doctor.verdict.summary
         & (Join-Path $target 'rag.ps1') open -Profile $profilePath | Out-Null
         Write-Step 'ouverture' 'ok' "atelier ouvert dans le navigateur par défaut"
     }
@@ -91,8 +111,6 @@ try {
     $report.status = 'failed'
     $report.error = $_.Exception.Message
     Write-Output "Installation arrêtée : $($_.Exception.Message)"
-    Save-Report
-    exit 1
+    Complete-Install 1
 }
-Save-Report
-exit 0
+Complete-Install 0
