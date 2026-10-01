@@ -1,0 +1,97 @@
+{
+  "prepared": {
+    "started_utc": "2026-10-01T05:11:50.735350+00:00",
+    "code": "RESTAURE-051150",
+    "extraction": "ready",
+    "backup_state": "verified",
+    "question_before_backup": {
+      "query_id": "b0b07410-2834-4255-bab7-1f23a7e9ac69",
+      "terminal": "done",
+      "code": null,
+      "message": null,
+      "answer_text": "La pression nominale du banc RESTAURE-051150 est de 3,1 bar.\n\nCette affirmation repose sur la preuve S001 qui indique explicitement : « La pression nominale du banc RESTAURE-051150 est de 3,1 bar » [S001].\n\nLes autres preuves fournies ne concernent pas cette question :\n*   La preuve S002 mentionne le couple de serrage (12 N.m) et non la pression nominale.\n*   La preuve S003 est une indication générale sur le contrôle de l'atelier documentaire et ne contient aucune donnée technique spécifique au banc.",
+      "citations": [
+        "S001"
+      ],
+      "metrics": {
+        "model_called": true,
+        "ttft_ms": 66801.16,
+        "elapsed_ms": 113478.66
+      }
+    },
+    "citations_before_backup": [
+      {
+        "source_id": "S001",
+        "http_status": 200,
+        "version_id": "06881b5f-b649-49c4-b9e3-127287e88bc5",
+        "extraction_revision_id": "e5c9c152-28f1-5433-8d6a-6a89ccbafe4b",
+        "pages": [
+          0
+        ],
+        "blocks": [
+          "7fae2f2b-e4c2-5120-b2ab-76719c28165f"
+        ]
+      }
+    ]
+  },
+  "started_utc": "2026-10-01T05:25:33.291568+00:00",
+  "checks": {
+    "restored": true,
+    "old_citations_identical": true,
+    "question_answered_with_citations": true,
+    "answer_gives_document_value": true
+  },
+  "target": "%TEMP%\\apr57f1",
+  "restore": {
+    "state": "restored_storage_verified",
+    "qdrant_data_dir": "%TEMP%\\apr57f1\\qdrant",
+    "qdrant_storage_relocated_for_windows_path_limit": false,
+    "error": null
+  },
+  "start": "running",
+  "citations_after_restore": [
+    {
+      "source_id": "S001",
+      "http_status": 200,
+      "version_id": "06881b5f-b649-49c4-b9e3-127287e88bc5",
+      "extraction_revision_id": "e5c9c152-28f1-5433-8d6a-6a89ccbafe4b",
+      "pages": [
+        0
+      ],
+      "blocks": [
+        "7fae2f2b-e4c2-5120-b2ab-76719c28165f"
+      ]
+    }
+  ],
+  "question_after_restore": {
+    "query_id": "daa6a7c6-0eb7-49c4-b4ad-e03e86899369",
+    "terminal": "done",
+    "code": null,
+    "message": null,
+    "answer_text": "La pression nominale du banc RESTAURE-051150 est de 3,1 bar.\n\nCette affirmation repose sur la preuve S001 qui indique explicitement : « La pression nominale du banc RESTAURE-051150 est de 3,1 bar » [S001].\n\nLes autres preuves fournies ne concernent pas cette question :\n*   La preuve S002 mentionne le couple de serrage (12 N.m) et non la pression nominale.\n*   La preuve S003 est une indication générale sur le contrôle de l'atelier documentaire et ne contient aucune donnée technique spécifique au banc.",
+    "citations": [
+      "S001"
+    ],
+    "metrics": {
+      "model_called": true,
+      "ttft_ms": 73980.79,
+      "elapsed_ms": 120664.6
+    }
+  },
+  "stop": "stopped",
+  "removed": {
+    "%TEMP%\\apr57f1": true,
+    "%TEMP%\\apsta39a": true
+  },
+  "result": "PASS",
+  "finished_utc": "2026-10-01T05:28:10.017660+00:00",
+  "prepare_phase": {
+    "started_utc": "2026-10-01T05:11:50.735350+00:00",
+    "extraction": "ready",
+    "start": "running",
+    "stop": "stopped",
+    "backup_state": "verified",
+    "note": "Phase 1 du 01/10 à 05:11 : code de sortie 1 dû à une condition erronée de l'outil (état de sauvegarde attendu « complete », rendu « verified »), corrigée ; données de la phase valides."
+  },
+  "first_restore_attempt": "05:15 : refus « Chemin Qdrant trop long » (racine de restauration relocalisée sous un dossier trop long) ; corrigé par 33e8cee, nouvelle cible de 42 caractères."
+}
