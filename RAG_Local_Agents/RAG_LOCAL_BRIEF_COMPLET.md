@@ -1806,7 +1806,7 @@ Restent ouverts en D08 : D08.1 (décision utilisateur), D08.2 (observation rése
 Constat (incohérence, prouvé par le schéma officiel) : la collection Qdrant était créée avec `on_disk` et `on_disk_payload`, dépréciés en 1.19.1, contrairement à `CONFIGURATION.md` §6. Corrigé (W017) : placement par `memory`, contrôle effectif `placement_matches` acceptant les deux formes, test unitaire, collection de sondage et autocontrôle sur instance isolée ([rapport](reports/qdrant-memory-2026-10-01.json)). D10.3 coché. La collection existante de l'instance principale garde l'ancienne forme : sa migration est une décision à prendre (Points à trancher).
 
 Push : toujours bloqué (github.com injoignable) ; commits locaux depuis `6e1f9be`.
-## Point à 10:54 UTC (1er octobre) — D10.4
+## Point à 10:53 UTC (1er octobre) — D10.4
 
 Réalisé : D10.4 coché : `verify_pack.py` 11/11 et `build_brief.py --check` PASS au commit `449504f`, rejoués après chaque modification de documentation canonique du jour. Le statut FAIL du 30/09 à 09:30 n'avait pas de motif consigné ; il est remplacé par cette preuve. D10.1, D10.2 et D10.5 restent ouverts (contrôles précoces Q-PDF et Q-CPU, essai d'embedding, rapport final).
 
