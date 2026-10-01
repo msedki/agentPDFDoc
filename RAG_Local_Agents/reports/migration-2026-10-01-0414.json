@@ -1,0 +1,234 @@
+{
+  "started_utc": "2026-10-01T04:14:19.466457+00:00",
+  "backup": "D:\\enhacements\\agentragpdf\\.runtime\\qa\\backup-first-published-20260930T0311",
+  "target": "%TEMP%\\apmigf76e",
+  "checks": {
+    "schema_migrated": true,
+    "counts_preserved": true,
+    "readiness_200": true,
+    "old_citations_open": true,
+    "new_generation_active": true,
+    "old_citations_keep_their_revision": true,
+    "search_after_reindex": true
+  },
+  "before": {
+    "schema_version": 2,
+    "counts": {
+      "documents": 1,
+      "document_versions": 1,
+      "index_generations": 1,
+      "citations": 8
+    }
+  },
+  "restore": {
+    "state": "restored_storage_verified",
+    "qdrant_data_dir": "D:\\enhacements\\agentragpdf\\.runtime\\q\\25eddeb8",
+    "qdrant_storage_relocated_for_windows_path_limit": true,
+    "collections": [
+      {
+        "name": "pdf_chunks_e5small_v1_53cac40518d0dec0",
+        "points_count": 11,
+        "upload_attempts": 1,
+        "retried_failures": []
+      }
+    ],
+    "error": null
+  },
+  "start": "running",
+  "after_start": {
+    "schema_version": 3,
+    "counts": {
+      "documents": 1,
+      "document_versions": 1,
+      "index_generations": 1,
+      "citations": 8
+    }
+  },
+  "citations_after_migration": [
+    {
+      "source_id": "S001",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        0
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    },
+    {
+      "source_id": "S002",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        1
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    },
+    {
+      "source_id": "S003",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        1
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    },
+    {
+      "source_id": "S004",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        1
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    },
+    {
+      "source_id": "S005",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        0
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    },
+    {
+      "source_id": "S006",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        1
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    },
+    {
+      "source_id": "S007",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        1
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    },
+    {
+      "source_id": "S008",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        1
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    }
+  ],
+  "reindex_jobs": {
+    "96638fbc-bf7b-4bc2-9e9b-74bed20e7101": {
+      "state": "ready",
+      "active": true,
+      "error_code": null
+    }
+  },
+  "after_reindex": {
+    "schema_version": 3,
+    "counts": {
+      "documents": 1,
+      "document_versions": 1,
+      "index_generations": 2,
+      "citations": 8
+    }
+  },
+  "citations_after_reindex": [
+    {
+      "source_id": "S001",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        0
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    },
+    {
+      "source_id": "S002",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        1
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    },
+    {
+      "source_id": "S003",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        1
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    },
+    {
+      "source_id": "S004",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        1
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    },
+    {
+      "source_id": "S005",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        0
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    },
+    {
+      "source_id": "S006",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        1
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    },
+    {
+      "source_id": "S007",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        1
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    },
+    {
+      "source_id": "S008",
+      "http_status": 200,
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "pages": [
+        1
+      ],
+      "blocks": 1,
+      "blocks_found": 1
+    }
+  ],
+  "stop": "stopped",
+  "result": "PASS",
+  "finished_utc": "2026-10-01T04:16:59.329006+00:00",
+  "removed": {
+    "%TEMP%\\apmigf76e": true,
+    "D:\\enhacements\\agentragpdf\\.runtime\\q\\25eddeb8": true
+  }
+}
