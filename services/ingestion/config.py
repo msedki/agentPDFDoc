@@ -43,7 +43,9 @@ class IngestionConfig:
     extraction_revision_id: str | None = None
     artifacts_lock_path: str | None = "config/artifacts.lock.json"
     max_page_render_pixels: int = 8_000_000
-    max_ocr_region_pixels: int = 8_000_000
+    # Allocation de rendu d'une région OCR (216 ppp, PDFium à 1,5 fois puis réduit) : une page A4, Lettre ou Legal
+    # scannée en pleine page y tient (12,5 M pixels au plus) ; un format plus grand reste refusé et déclaré (W016).
+    max_ocr_region_pixels: int = 13_000_000
 
     @property
     def resolved_tesseract_cmd(self):

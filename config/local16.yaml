@@ -76,7 +76,7 @@ pdf:
   max_file_mib: 200
   max_document_pages: 2000
   max_page_render_pixels: 8000000
-  max_ocr_region_pixels: 8000000
+  max_ocr_region_pixels: 13000000
   suspect_text_min_alnum_chars: 40
   suspect_text_max_replacement_ratio: 0.02
   routes:

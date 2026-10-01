@@ -1,6 +1,6 @@
 {
   "pack": "RAG-LOCAL-16-v2.1",
-  "checked_at_utc": "2026-10-01T06:25:39.302636+00:00",
+  "checked_at_utc": "2026-10-01T06:49:23.850919+00:00",
   "overall_status": "PASS",
   "scope": "Documentation, configuration syntax, runtime profile copy, skill format/registry, SQLite reference and deterministic examples ONLY",
   "python_version": "3.12.14",
@@ -48,7 +48,7 @@
       "detail": {
         "runtime_profile": "config/local16.yaml",
         "documentary_copy": "RAG_Local_Agents/config/local16.yaml",
-        "sha256": "1655e71ffd62f0619dbc85979fe5a27a2e58f54dd7d6585cb2a3ea8368676bc1",
+        "sha256": "a32cdba4c4e6eff838c21918f839be249ad19c961244b910ba6677e8bad3a9ab",
         "byte_identical": true,
         "collection_config": {
           "runtime": "config/qdrant.collection.json",

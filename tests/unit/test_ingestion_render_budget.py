@@ -12,6 +12,23 @@ def test_current_a4_scans_remain_inside_actual_216dpi_budget():
     check_render_budget(page, "structured", IngestionConfig())
 
 
+@pytest.mark.parametrize("size", [(595.28, 841.89), (612, 792), (612, 1008)], ids=["A4", "Letter", "Legal"])
+def test_full_page_scans_of_common_formats_reach_ocr_with_the_delivered_profile(size):
+    # Essai du 01/10 : la fixture DA-P02 (scan A4 pleine page) était refusée en OCR_RENDER_LIMIT avec le plafond de 8 M
+    # pixels, la région étant rendue à 3 × 1,5 (PDFium suréchantillonne puis réduit) : 10,1 M pixels.
+    width, height = size
+    settings = IngestionConfig(pdf_backend="pypdfium2")
+    scan = {"page_index": 0, "display_width": width, "display_height": height, "effective_box": [0, 0, width, height],
+            "image_regions": [{"bbox": [0, 0, width, height]}]}
+    check_render_budget(scan, "regional_ocr", settings)
+    a3 = {"page_index": 0, "display_width": 841.89, "display_height": 1190.55, "effective_box": [0, 0, 841.89, 1190.55],
+          "image_regions": [{"bbox": [0, 0, 841.89, 1190.55]}]}
+    # Un A3 reste refusé et déclaré : le plafond de la page, contrôlé avant celui de la région OCR, s'applique d'abord.
+    with pytest.raises(IngestionError) as caught:
+        check_render_budget(a3, "regional_ocr", settings)
+    assert caught.value.code == "PDF_RENDER_LIMIT"
+
+
 def test_large_declared_page_is_rejected_before_any_model_import():
     page = {"page_index": 3, "display_width": 4000, "display_height": 4000}
     for route in ("structured", "regional_ocr"):
