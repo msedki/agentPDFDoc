@@ -7,6 +7,8 @@ param(
     [string]$DataRoot = (Join-Path $env:LOCALAPPDATA 'APDF'),
     [string]$QdrantStorage,
     [string]$Ports,
+    # Dossier des raccourcis : menu Démarrer de l'utilisateur ; une installation d'essai en indique un autre.
+    [string]$Menu = (Join-Path ([Environment]::GetFolderPath('Programs')) 'Atelier documentaire'),
     [switch]$NoStart
 )
 $ErrorActionPreference = 'Stop'
@@ -92,6 +94,9 @@ try {
     $red = @($doctor.verdict.rubrics | Where-Object { $_.level -eq 'rouge' })
     if ($red.Count) { throw ("Vérification refusée : " + (($red | ForEach-Object { "$($_.message) $($_.action)" }) -join ' ')) }
     Write-Step 'doctor' 'ok' $doctor.verdict.summary
+    $shortcuts = & (Join-Path $target 'tools\dist\shortcuts.ps1') -Program $target -Profile $profilePath -Menu $Menu | Out-String | ConvertFrom-Json
+    $report.shortcuts = $shortcuts.shortcuts
+    Write-Step 'raccourcis' 'ok' "$(@($shortcuts.shortcuts).Count) raccourcis dans $($shortcuts.menu)"
     if (-not $NoStart) {
         $up = & (Join-Path $target 'rag.ps1') up -Profile $profilePath | Out-String | ConvertFrom-Json
         if ($up.status -ne 'running') { throw "Démarrage refusé : $($up.message)" }
