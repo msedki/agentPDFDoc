@@ -43,30 +43,23 @@ try {
     if ($free -lt $needed) { throw ("Espace insuffisant sur {0} : {1:N1} Gio libres, {2:N1} Gio nécessaires." -f $drive, ($free / 1GB), ($needed / 1GB)) }
     Write-Step 'prerequis' 'ok' ("Windows build {0}, {1} Gio de mémoire, {2:N1} Gio libres" -f $os.BuildNumber, $memoryGib, ($free / 1GB))
 
-    # 2. Intégrité du kit avec le Python qu'il contient.
-    $kitPython = Join-Path $kit '.runtime\python\cpython-3.12.14-windows-x86_64-none\python.exe'
-    $verification = & $kitPython (Join-Path $kit 'tools\dist\build_kit.py') verify --kit $kit | Out-String | ConvertFrom-Json
-    if ($verification.status -ne 'verified') {
-        $first = @($verification.altered_or_missing + $verification.unexpected)[0]
-        throw "Kit altéré ou incomplet (par exemple $first). Recopiez le kit ; rien n'a été installé."
-    }
-    Write-Step 'integrite' 'ok' "$($verification.files) fichiers conformes à SHA256SUMS"
-
-    # 3. Copie du programme ; le rapport va dans la racine des données.
+    # 2. Copie vérifiée en un seul passage : chaque fichier est haché pendant sa copie (l'analyse antivirus du poste
+    #    rend chaque lecture coûteuse) ; un écart retire la copie partielle. Le rapport va dans la racine des données.
     New-Item -ItemType Directory -Path $DataRoot -Force | Out-Null
     $reportPath = Join-Path $DataRoot ("install-{0}.json" -f (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ'))
-    New-Item -ItemType Directory -Path $target | Out-Null
-    Copy-Item -Path (Join-Path $kit '*') -Destination $target -Recurse
-    Write-Step 'copie' 'ok' $target
+    $kitPython = Join-Path $kit '.runtime\python\cpython-3.12.14-windows-x86_64-none\python.exe'
+    $copy = & $kitPython (Join-Path $kit 'tools\dist\build_kit.py') install-copy --kit $kit --target $target | Out-String | ConvertFrom-Json
+    if ($copy.status -ne 'copied') { throw "$($copy.message) Recopiez le kit ; rien n'a été installé." }
+    Write-Step 'copie' 'ok' "$($copy.files) fichiers conformes à SHA256SUMS copiés dans $target"
 
-    # 4. Environnement Python sans outils de développement, depuis le cache du kit.
+    # 3. Environnement Python sans outils de développement, depuis le cache du kit.
     & (Join-Path $target 'bootstrap.ps1') -Offline -NoDev | Out-Null
     $python = Join-Path $target '.venv\Scripts\python.exe'
     # Précompilation : le programme n'écrira plus de bytecode pendant l'exploitation.
     & $python -m compileall -q (Join-Path $target 'services') (Join-Path $target 'tools') | Out-Null
     Write-Step 'python' 'ok' (& $python --version)
 
-    # 5. Profil de l'utilisateur : données, stockage Qdrant court, ports libres.
+    # 4. Profil de l'utilisateur : données, stockage Qdrant court, ports libres.
     $profileArguments = @('init-profile', '-Target', $DataRoot)
     if ($QdrantStorage) { $profileArguments += @('-QdrantStorage', $QdrantStorage) }
     if ($Ports) { $profileArguments += @('-Ports', $Ports) }
@@ -75,7 +68,7 @@ try {
     $profilePath = $created.profile
     Write-Step 'profil' 'ok' $profilePath
 
-    # 6. Vérification, démarrage et ouverture.
+    # 5. Vérification, démarrage et ouverture.
     $doctor = & (Join-Path $target 'rag.ps1') doctor -Profile $profilePath | Out-String | ConvertFrom-Json
     $report.doctor_api_ready = $doctor.services.api_ready
     Write-Step 'doctor' 'ok' 'rapport joint'

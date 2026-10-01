@@ -164,6 +164,36 @@ def verify_kit(folder: Path) -> dict[str, Any]:
             "status": "verified" if not altered and present == set(expected) else "failed"}
 
 
+def install_copy(folder: Path, target: Path) -> dict[str, Any]:
+    """Copie vérifiée en un seul passage : chaque fichier de SHA256SUMS est haché pendant sa copie.
+
+    Un fichier absent ou différent arrête la copie et retire la copie partielle : rien d'altéré n'est installé.
+    Les fichiers du kit absents de SHA256SUMS ne sont pas copiés."""
+    folder, target = folder.resolve(), target.resolve()
+    if target.exists():
+        raise ValueError(f"Destination déjà présente, jamais remplacée : {target}")
+    entries = [line.split("  ", 1) for line in (folder / "SHA256SUMS").read_text(encoding="utf-8").splitlines() if line]
+    target.mkdir(parents=True)
+    copied = 0
+    try:
+        for digest, relative in entries:
+            source, destination = folder / relative, target / relative
+            if not source.is_file():
+                raise ValueError(f"Fichier du kit absent : {relative}")
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            actual, _ = stream_copy(source, destination)
+            if actual != digest:
+                raise ValueError(f"Fichier du kit altéré : {relative} (empreinte différente)")
+            shutil.copystat(source, destination)
+            copied += 1
+        for name in ("SHA256SUMS", "kit-manifest.json"):
+            shutil.copy2(folder / name, target / name)
+    except BaseException:
+        shutil.rmtree(target, ignore_errors=True)
+        raise
+    return {"status": "copied", "files": copied, "target": str(target)}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
@@ -172,9 +202,17 @@ def main() -> int:
     build.add_argument("--without-gpu", action="store_true", help="P3 : retirer cuda_v12, cuda_v13 et vulkan d'Ollama (après vérification de H1)")
     check = sub.add_parser("verify")
     check.add_argument("--kit", type=Path, required=True)
+    copy = sub.add_parser("install-copy", help="Copie vérifiée du kit vers le dossier programme, en un seul passage")
+    copy.add_argument("--kit", type=Path, required=True)
+    copy.add_argument("--target", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "verify":
         result = verify_kit(args.kit)
+    elif args.command == "install-copy":
+        try:
+            result = install_copy(args.kit, args.target)
+        except ValueError as error:
+            result = {"status": "failed", "message": str(error)}
     else:
         import subprocess
         import tomllib
@@ -183,7 +221,7 @@ def main() -> int:
         head = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True, text=True, check=False).stdout.strip() or None
         result = build_kit(args.output, version=version, without_gpu=args.without_gpu, commit=head)
     print(json.dumps(result, ensure_ascii=False, indent=2))
-    return 0 if result.get("status", "verified") == "verified" else 1
+    return 0 if result.get("status", "verified") in {"verified", "copied"} else 1
 
 
 if __name__ == "__main__":

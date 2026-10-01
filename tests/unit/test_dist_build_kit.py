@@ -70,3 +70,19 @@ def test_program_inventory_reports_added_removed_and_changed_files(tmp_path):
     write(tmp_path, "programme/__pycache__/c.pyc", "c")
     report = compare(before, snapshot(tmp_path / "programme"))
     assert (report["status"], report["changed"], report["removed"], report["added"]) == ("changed", ["a.py"], ["b.py"], ["__pycache__/c.pyc"])
+
+
+def test_install_copy_hashes_while_copying_and_removes_a_partial_copy(repository, tmp_path):
+    from tools.dist.build_kit import install_copy
+
+    kit = tmp_path / "kit"
+    build_kit(kit, root=repository, version="0.1.0")
+    result = install_copy(kit, tmp_path / "programme")
+    assert result["status"] == "copied" and (tmp_path / "programme/services/api/main.py").is_file()
+    assert (tmp_path / "programme/SHA256SUMS").is_file() and verify_kit(tmp_path / "programme")["status"] == "verified"
+    with pytest.raises(ValueError, match="jamais remplacée"):
+        install_copy(kit, tmp_path / "programme")
+    (kit / "rag.ps1").write_text("altéré", encoding="utf-8")
+    with pytest.raises(ValueError, match="altéré : rag.ps1"):
+        install_copy(kit, tmp_path / "autre")
+    assert not (tmp_path / "autre").exists()
