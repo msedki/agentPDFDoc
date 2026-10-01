@@ -1,0 +1,48 @@
+{
+  "run": "E2E d'import sur instance isolée : balisage hostile, budget de canvas, import, recherche, navigation, sélections",
+  "utc_start": "2026-10-01T05:42:21.323Z",
+  "duration_ms": 454980,
+  "target": "instance principale 6346e31c…, http://127.0.0.1:8785",
+  "environment": {
+    "RAG_E2E_IMPORT_ALLOWED": "1",
+    "RAG_E2E_BASE_URL": "instance isolée temporaire",
+    "RAG_E2E_CONTROL_TOKEN_FILE": "jeton de l instance isolée"
+  },
+  "captures": "aucune capture conservée",
+  "counts": {
+    "passed": 5,
+    "skipped": 1
+  },
+  "tests": [
+    {
+      "file": "canvas-budget.spec.ts",
+      "title": "scroll and zoom to 300 % stay within five canvases and 24 M pixels, then release detached canvases",
+      "status": "passed"
+    },
+    {
+      "file": "hostile-markup.spec.ts",
+      "title": "hostile markup stays literal text with no active element, no remote request and no scope change",
+      "status": "passed"
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "three panels use a real API and no external requests at both desktop sizes",
+      "status": "passed"
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "real import, reading, scoped search and source navigation",
+      "status": "passed"
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "real page and immutable block selection scopes reach the API",
+      "status": "passed"
+    },
+    {
+      "file": "workspace.spec.ts",
+      "title": "real local model answers with registered citations and preserves scope",
+      "status": "skipped"
+    }
+  ]
+}
