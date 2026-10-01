@@ -2,7 +2,7 @@
   "run": "E2E d'import sur instance isolée (tools/qualification/e2e_instance.py, racine et ports temporaires) : géométrie",
   "utc_start": "2026-10-01T05:34:52.880Z",
   "duration_ms": 425422,
-  "target": "instance principale 6346e31c…, http://127.0.0.1:8785",
+  "target": "instance isolée temporaire (tools/qualification/e2e_instance.py), http://127.0.0.1:49725",
   "environment": {
     "RAG_E2E_IMPORT_ALLOWED": "1",
     "RAG_E2E_BASE_URL": "instance isolée temporaire",

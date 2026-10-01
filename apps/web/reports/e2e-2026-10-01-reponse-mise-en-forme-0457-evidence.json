@@ -2,7 +2,7 @@
   "run": "E2E lecture seule, recette visuelle et question réelle après la mise en forme des réponses (build du 01/10 à 04:57)",
   "utc_start": "2026-10-01T04:57:27.577Z",
   "duration_ms": 163099,
-  "target": "instance principale 6346e31c…, http://127.0.0.1:8785",
+  "target": "instance principale d6789c32…, http://127.0.0.1:8785",
   "environment": {
     "RAG_E2E_READONLY_ALLOWED": "1",
     "RAG_E2E_VISUAL_QA": "1",
