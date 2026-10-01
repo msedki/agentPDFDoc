@@ -52,7 +52,7 @@ Preuve01/10/2026, API réelle d'une instance isolée (`tools/qualification/libra
 - [x] Une nouvelle version reste invisible en recherche jusqu'à publication de sa génération complète.
 - [x] Un retrait est immédiatement exclu des scopes ; les deux index actifs sont nettoyés/réconciliés.
 - [ ] Arrêt forcé pendant parsing, embedding, upsert et publication : reprise sans doubles chunks ni génération fantôme.
-- [ ] Une panne Qdrant au milieu d'un import ne fait pas apparaître le document comme complètement prêt.
+- [x] Une panne Qdrant au milieu d'un import ne fait pas apparaître le document comme complètement prêt.
 - [ ] Les anciennes citations ouvrent l’ancienne version et révision d’extraction ; une purge indique source supprimée sans substitution.
 - [ ] Changer le seul embedding ne refait pas l’OCR ; modèles de même dimension dans des collections distinctes ; aucun mélange query/documents de modèles différents.
 - [ ] Les générations épinglées par une requête en cours ne sont pas nettoyées prématurément ; retrait explicite réévalué avant fourniture de nouveau contexte.
@@ -60,6 +60,8 @@ Preuve01/10/2026, API réelle d'une instance isolée (`tools/qualification/libra
 **Preuves :** compteurs avant/après, scénarios de fault injection, journal des transitions et recherche sur versions différentes.
 
 Preuve01/10/2026, même instance isolée et même [rapport](reports/library-2026-10-01.json) : réimport identique : même document, `reused`, aucun traitement ni version ajoutés, compteurs `embedding_requests`, `embedding_texts_submitted` et `native_worker_launches` inchangés (D03.1) ; déplacement vers `Archives/Commun été.pdf` : aucun traitement, compteurs inchangés, document retrouvé par la recherche à son nouveau chemin (D03.2) ; seconde version de `Procédure QV-01.pdf` au même chemin : 52 recherches pendant sa file d'attente et son extraction ne rendent que la valeur de la première (2.7 bar), la version active reste la première, puis la seconde (4.9 bar) seule après publication (D03.3 ; l'étape d'indexation, brève, n'a pas été saisie par le sondage). Retrait (D03.4) : document exclu des recherches aussitôt, ses 2 points Qdrant supprimés par la réconciliation, aucun fragment SQLite restant pour sa génération, index plein texte aligné sur les fragments (2 lignes pour 2 fragments), index restant cohérent ([rapport du second essai](reports/library-2026-10-01-retrait.json)).
+
+Preuve01/10/2026, fautes injectées sur instance isolée (`tools/qualification/fault_check.py`, `f9c48da`, [rapport](reports/faults-2026-10-01.json)) : Qdrant tué pendant les embeddings d'un import : traitement en erreur `qdrant_unavailable`, document en erreur sans génération active, jamais présenté comme prêt ; après redémarrage et relance, prêt avec une seule génération publiée, 5 fragments pour 5 points (D03.6). Arrêt forcé de toute l'instance pendant l'extraction puis pendant les embeddings : traitement repris jusqu'à « prêt », une seule génération publiée, aucun fragment en double ni point orphelin, aucun nettoyage en attente ; l'écriture des points est couverte en processus par `test_api_failed_vectors_keep_previous_active_generation`. D03.5 reste ouvert : l'étape d'écriture des points, trop brève, n'a pas été visée par un arrêt forcé réel, et la publication pas du tout.
 
 ## D04 — Recherche et périmètre
 
