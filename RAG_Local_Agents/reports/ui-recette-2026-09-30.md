@@ -1,6 +1,6 @@
 # Recette visuelle et ergonomique de l'atelier — 30 septembre 2026
 
-**Rôle :** rapport de recette du lot R20 (documentation vivante) : défauts relevés sur captures du corpus réel, principe enfreint, source officielle, correction et preuve. **Statut :** premier passage clos ; second passage du 1er octobre (03:10 UTC, commit `49a2a1a`) : points B, C et E examinés, deux défauts corrigés ; restent ouverts A et D. **Date :** 30 septembre 2026, 22:53 UTC. **Base :** captures avant `apps/web/reports/visual-qa-20260930T1849/` (build du commit `10b5dd9`), après `apps/web/reports/visual-qa-20260930T2015/` (contenu du commit `6935e13`) ; E2E [lecture seule et recette visuelle 12/12](../../apps/web/reports/e2e-2026-09-30-r20-final-2015-evidence.json).
+**Rôle :** rapport de recette du lot R20 (documentation vivante) : défauts relevés sur captures du corpus réel, principe enfreint, source officielle, correction et preuve. **Statut :** premier passage clos ; second passage du 1er octobre (03:10 UTC, commit `49a2a1a`) : points B, C et E examinés, deux défauts corrigés ; A tranché (sur-titres conservés) ; reste ouvert D. **Date :** 30 septembre 2026, 22:53 UTC. **Base :** captures avant `apps/web/reports/visual-qa-20260930T1849/` (build du commit `10b5dd9`), après `apps/web/reports/visual-qa-20260930T2015/` (contenu du commit `6935e13`) ; E2E [lecture seule et recette visuelle 12/12](../../apps/web/reports/e2e-2026-09-30-r20-final-2015-evidence.json).
 
 ## Méthode
 
@@ -37,11 +37,11 @@ Parcours réels de l'atelier sur l'instance principale, avec les documents du co
 
 Contrôles associés : 130 tests unitaires web, `tsc`, build, E2E en lecture seule 12/12, dont l'ordre de tabulation, le focus visible à chaque arrêt clavier, les onglets à tabulation mobile et les séparateurs redimensionnables au clavier (`tests/e2e/a11y.spec.ts`), et 3 scénarios de session.
 
-## Points ouverts (non corrigés)
+## Points ouverts au premier passage
 
 | Id | Observation sur les captures d'après | Classement | Suite proposée |
 |---|---|---|---|
-| A | Sur-titres encore présents : « Lecture de l'original » au-dessus du nom du document, « Périmètre actif » dans l'analyse, « Poste documentaire local » dans l'en-tête | Amélioration : « Lecture de l'original » distingue l'original du texte extrait, mais le libellé du bas (« Texte extrait & provenance ») porte déjà cette distinction | Trancher par panneau ; garder seulement les sur-titres qui portent une information |
+| A | Sur-titres encore présents : « Lecture de l'original » au-dessus du nom du document, « Périmètre actif » dans l'analyse, « Poste documentaire local » dans l'en-tête | Amélioration : « Lecture de l'original » distingue l'original du texte extrait, mais le libellé du bas (« Texte extrait & provenance ») porte déjà cette distinction | Clos le 01/10 : sur-titres conservés, voir le second passage |
 | B | Arborescence défilée : la ligne fixe « Toute la bibliothèque » recouvre en partie l'élément suivant | Hypothèse à vérifier : un élément de l'arbre qui prend le focus au clavier pourrait être entièrement masqué par la ligne fixe (UX01 2.4.11) | Clos le 01/10 : hypothèse infirmée, voir le second passage |
 | C | Noms de documents tronqués dans l'arborescence | Inconnue : nom complet non vérifié au survol ni au lecteur d'écran | Clos le 01/10 : nom complet vérifié, voir le second passage |
 | D | Aucun contrôle automatique d'accessibilité (axe ou équivalent) ni essai avec un lecteur d'écran | Limite de la recette | Ajouter un contrôle automatique aux E2E ; un passage NVDA sur les parcours principaux |
@@ -61,6 +61,8 @@ Examen des points B, C et E, de 02:46 à 03:10 UTC, sur l'instance principale. C
 |---|---|---|---|---|
 | 12 | Bordure des champs (`--input` #C9CFC9) à 1,27–1,57:1 ; le filtre de bibliothèque et le numéro de page utilisaient même le filet décoratif `--border` (1,17–1,41:1). Pour la zone de question, les listes de portée et le numéro de page, cette bordure est le seul repère de l'emplacement du champ | Indicateur d'un champ de saisie à 3:1 (UX10, UX01 1.4.11) | `--input` porté à #788778 ; filtre et numéro de page passés sur `--input` ; mesure : 3,45:1 sur le fond, 3,76:1 sur les cartes et popovers, 3,57:1 sur la bibliothèque, au moins 3,05:1 sur toutes les surfaces | Test « field borders keep 3:1… » (`accessibility.test.ts`), rouge avant correction (1,57:1) ; captures 01 et 03 de [0307](../../apps/web/reports/visual-qa-20261001T0307/) |
 | 13 | Pendant le rendu d'une page, la légende affichait « Aucun texte extrait » sur une page à texte natif (capture 02 à 1920×1080 de [0258](../../apps/web/reports/visual-qa-20261001T0258/)) : l'état initial « pas de texte » était affiché comme un résultat | Visibilité de l'état réel (UX09 n° 1) | Légende « Lecture de la page… » tant que la couche texte de PDF.js ou les blocs sont en lecture (`pageTextCaption`, [ocr-overlay.ts](../../apps/web/src/lib/ocr-overlay.ts)) ; la recette visuelle attend la légende finale au lieu d'une attente fixe de 1,5 s | Test « the page caption states no text only once… » (`ocr-overlay.test.ts`) ; capture 02 de [0307](../../apps/web/reports/visual-qa-20261001T0307/) avec « Texte natif ». L'état intermédiaire n'a pas été capturé : le rendu a été plus rapide lors de la seconde exécution |
+
+**Point A, tranché : sur-titres conservés.** Chacun porte une information que le titre seul ne donne pas : « Lecture de l'original » distingue la page PDF du texte extrait affiché en dessous ; « Périmètre actif » est le libellé de la valeur affichée sous lui ; « Poste documentaire local » situe l'atelier sur le poste, sans service distant. Le motif suit la référence de forme decodair, qui l'emploie dans plus de quinze écrans ([analyse](ui-reference-decodair-2026-09-30.md)). Le sous-titre décoratif de l'analyse avait déjà été retiré (défaut 3).
 
 La recherche dans le lecteur (`.viewer-search`) n'a pas de bordure : son icône de loupe (5,9:1) et son texte l'identifient, ce que UX10 admet ; elle n'est pas modifiée.
 
