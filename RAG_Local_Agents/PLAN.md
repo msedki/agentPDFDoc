@@ -382,3 +382,8 @@ Toujours en attente de l'accord de l'utilisateur : rejeu de `extraction_check.py
 Réalisé : D08.3 coché (`DEFINITION_OF_DONE.md`) : `tools/qualification/http_guards_check.py` rend rejouable le contrôle des gardes HTTP du 30/09, qui n'avait pas d'outil versionné, et y ajoute le préflight CORS et le relevé des sockets en écoute ; 18/18 sur l'instance principale, écoute sur 127.0.0.1 seulement ([rapport](reports/http-guards-live-20261001T0943.json)). Correction : le point précédent portait « 09:55 », heure en avance sur l'horloge ; le commit `fcce2b0` date de 09:40.
 
 Restent ouverts en D08 : D08.1 (blocage réseau du système, décision utilisateur), D08.2, D08.4, D08.5 (exfiltration et élargissement de périmètre), D08.7.
+## Point à 09:52 UTC (1er octobre) — D08.7
+
+Réalisé : D08.7 coché (`DEFINITION_OF_DONE.md`) : `tools/qualification/log_privacy_check.py` cherche dans les 120 journaux de l'instance principale le texte réellement extrait, les questions et les réponses enregistrées : aucune occurrence, détecteur validé par un témoin positif sur les checkpoints ; exclusions Git vérifiées ([rapport](reports/log-privacy-20261001T0949.json)). Le commit `6e1f9be` (D08.3) n'a pas pu être poussé (connexion TLS vers GitHub interrompue, deux essais à 09:46) : il reste local avec celui-ci jusqu'au retour du réseau.
+
+Restent ouverts en D08 : D08.1 (décision utilisateur), D08.2, D08.4, D08.5.

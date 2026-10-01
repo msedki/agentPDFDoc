@@ -1,0 +1,56 @@
+{
+  "utc": "2026-10-01T09:50:05.553561+00:00",
+  "criterion": "D08.7",
+  "profile": "local16.yaml",
+  "samples": {
+    "document_text": 465,
+    "questions": 17,
+    "answers": 11
+  },
+  "log_files": 120,
+  "log_bytes": 35595722,
+  "log_kinds": {
+    "control/supervisor-start.log": 1,
+    "worker-lifecycle.jsonl": 12,
+    "worker-native-fault.log": 13,
+    "api.log": 23,
+    "ollama.log": 23,
+    "qdrant.log": 24,
+    "resources.jsonl": 23,
+    "security-audit.jsonl": 1
+  },
+  "hits": {},
+  "files_with_hits": {},
+  "detector_control": {
+    "checkpoint_files": 20,
+    "samples_found": 55
+  },
+  "ignored_paths": {
+    "PDF/exemple.pdf": true,
+    ".runtime/data/originals/exemple.pdf": true,
+    ".runtime/models/e5/model.onnx": true,
+    ".runtime/data/logs/x/api.log": true,
+    ".runtime/data/app.sqlite3": true
+  },
+  "tracked": {
+    "private": [],
+    "model_weights": [],
+    "pdfs": 10,
+    "pdfs_outside_fixtures": []
+  },
+  "method": "Extraits centraux de 32 caractères (24 pour les questions) cherchés en clair et échappés JSON ; blocs distincts d'au moins 48 caractères (tirage à graine fixe au-delà de --samples), toutes les questions et réponses enregistrées",
+  "limit": "Un texte reformulé, tronqué autrement ou plus court que les seuils ne serait pas détecté",
+  "checks": {
+    "samples_available": true,
+    "logs_examined": true,
+    "detector_finds_text_in_checkpoints": true,
+    "no_document_text_in_logs": true,
+    "no_question_in_logs": true,
+    "no_answer_in_logs": true,
+    "private_paths_ignored": true,
+    "nothing_tracked_under_pdf_or_runtime": true,
+    "no_model_weights_tracked": true,
+    "tracked_pdfs_are_fixtures": true
+  },
+  "result": "PASS"
+}

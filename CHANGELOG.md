@@ -8,6 +8,7 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 ### Ajouté
 
+- `tools/qualification/log_privacy_check.py` : vérifie en lecture seule que les journaux d'une instance ne contiennent ni texte extrait des documents, ni question, ni réponse (témoin positif sur les checkpoints d'extraction), et que originaux, corpus et modèles restent hors de Git ; PASS le 01/10 ([rapport](RAG_Local_Agents/reports/log-privacy-20261001T0949.json)).
 - `tools/qualification/http_guards_check.py` : contrôle en lecture seule d'une instance en marche (Host et Origin étrangers, requêtes inter-sites, préflight CORS, Qdrant sans clé, sockets en écoute limités au bouclage) ; 18/18 le 01/10 ([rapport](RAG_Local_Agents/reports/http-guards-live-20261001T0943.json)).
 - `tools/qualification/scope_check.py` : sur une instance isolée, vérifie avec Qdrant et E5 réels que les périmètres dossier récursif, documents, pages et section filtrent avant la coupe top-k, et qu'une sélection courte n'envoie aucune requête dense ; PASS le 01/10 ([rapport](RAG_Local_Agents/reports/scope-2026-10-01.json)).
 - `tools/qualification/library_check.py` et `fault_check.py` : bibliothèque (import d'un dossier, réimport, déplacement, versions, retrait, erreurs) et fautes injectées (arrêts forcés pendant l'import, panne de Qdrant) sur instance isolée ; PASS le 01/10 (`5fa22ae`, `f9c48da`, [rapports](RAG_Local_Agents/reports/)).
