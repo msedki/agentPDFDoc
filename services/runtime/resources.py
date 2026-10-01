@@ -225,9 +225,14 @@ def host_sample(disk_root: Path, process: psutil.Process | None = None) -> dict[
 class ResourceGovernor:
     """Un lease lourd ; la priorité interactive demande un checkpoint durable.
 
-    Le worker observe should_checkpoint() ou le fichier pause. Aucun délai
-    nominal ne tue le worker. La reprise d'un import exige une action explicite.
-    Le lease lourd prend aussi le verrou fichier de l'hôte (HOST_HEAVY_LOCK).
+    Le worker observe should_checkpoint() ou le fichier pause. Le gouverneur
+    n'arrête jamais le worker. Seul WorkerWatchdog (services/api/jobs.py)
+    l'arrête, selon les limites du profil
+    resources.scheduling.watchdog_no_progress_seconds_initial et
+    resources.scheduling.watchdog_window_seconds_initial ; sa docstring décrit
+    ce qui compte comme progrès. La reprise d'un import exige une action
+    explicite. Le lease lourd prend aussi le verrou fichier de l'hôte
+    (HOST_HEAVY_LOCK).
     """
 
     def __init__(self, settings: dict[str, Any] | None = None, host_lock_path: Path | None = None):

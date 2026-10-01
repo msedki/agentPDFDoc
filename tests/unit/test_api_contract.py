@@ -201,6 +201,71 @@ def test_contract_reindex_outcomes_are_those_of_the_api_for_each_last_job_state(
                     assert (body["job_state"], body["resume_required"], body["version_id"]) == (state, True, imported["version_id"])
 
 
+def test_contract_import_outcomes_are_those_of_the_api_for_each_last_job_state(tmp_path, monkeypatch):
+    """Ronde 4 : réimport d'un contenu identique au même chemin selon l'état du dernier travail de sa version.
+
+    Même règle que la réindexation : `resume_required` n'accompagne qu'un travail `paused`, le seul que
+    POST /jobs/{job_id}/resume accepte ; `pausing` est renvoyé avec son état, sans travail créé ni reprise annoncée ;
+    `cancelling` n'empêche pas un travail neuf. Chaque état est exercé par la vraie route d'import.
+    """
+    from fastapi.testclient import TestClient
+
+    nonce = "test-only-contract-nonce"
+    monkeypatch.setenv("RAG_CONTROL_TOKEN", nonce)
+    outcomes, response = CONTRACT["import_outcomes"], CONTRACT["import_response"]
+    entry = response["imports"][0]
+    covered = [state for key in outcomes for state in alternatives(key)]
+    assert len(covered) == len(set(covered)), "état de travail décrit deux fois"
+    assert set(covered) == Database.JOB_STATES
+    returned_with_state = {state for key, outcome in outcomes.items() if "job_state" in alternatives(outcome["fields"]) for state in alternatives(key)}
+    resumable = {state for key, outcome in outcomes.items() if "resume_required" in alternatives(outcome["fields"]) for state in alternatives(key)}
+    assert alternatives(entry["job_state"].split(",", 1)[0]) == returned_with_state == Database.SUSPENDED_JOB_STATES == {"paused", "pausing"}
+    assert resumable == {"paused"} and entry["resume_required"].startswith("true with job_state paused only")
+    # Avec un seul fichier, les champs de imports[0] sont repris à la racine de la réponse.
+    repeated = [key for key in response if key != "imports"]
+    assert len(repeated) == 1 and alternatives(repeated[0]) == set(entry)
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeLlmTokenizer(),
+                     ollama=SilentOllama(), governor=types.SimpleNamespace(), start_jobs=False)
+
+    def upload(client, *named):
+        files = [("files", (Path(path).name, payload, "application/pdf")) for path, payload in named]
+        return client.post("/api/v1/documents/import", files=files, data={"relative_paths": json.dumps([path for path, _ in named])})
+
+    with TestClient(app, base_url="http://127.0.0.1:8785", headers={"X-RAG-Control-Token": nonce}) as client:
+        db = app.state.db
+        for key, outcome in outcomes.items():
+            for state in sorted(alternatives(key)):
+                named = (f"contract/{state}.pdf", b"%PDF-1.7\ncontract " + state.encode())
+                imported = upload(client, named).json()["imports"][0]
+                db.execute("UPDATE jobs SET state=?,stage=? WHERE id=?", (state, state, imported["job_id"]))
+                answer = upload(client, named)
+                body = answer.json()
+                jobs = [row["id"] for row in db.rows("SELECT id FROM jobs WHERE document_id=? ORDER BY created_at,rowid", (imported["document_id"],))]
+                assert answer.status_code == outcome["status"] == 202, (state, body)
+                assert len(body["imports"]) == 1 and set(body) == {"imports", *body["imports"][0]}, state
+                again = body["imports"][0]
+                assert {name: body[name] for name in again} == again, state
+                assert set(again) == alternatives(outcome["fields"]) and set(again) <= set(entry), state
+                assert again["reused"] is outcome["reused"], state
+                assert (again["document_id"], again["version_id"]) == (imported["document_id"], imported["version_id"]), state
+                if outcome["reused"]:
+                    assert again["job_id"] == imported["job_id"] and jobs == [imported["job_id"]], state
+                else:
+                    assert again["job_id"] != imported["job_id"] and jobs == [imported["job_id"], again["job_id"]], state
+                    assert db.one("SELECT state FROM jobs WHERE id=?", (again["job_id"],))["state"] == "queued", state
+                if "job_state" in again:
+                    assert again["job_state"] == state, state
+                    assert again.get("resume_required", False) is (state == "paused"), state
+        # Plusieurs fichiers : un travail en cours de mise en pause n'empêche pas l'import des autres.
+        pausing = ("contract/pausing.pdf", b"%PDF-1.7\ncontract pausing")
+        batch = upload(client, pausing, ("contract/fresh.pdf", b"%PDF-1.7\ncontract fresh"))
+        assert batch.status_code == 202 and "document_id" not in batch.json()
+        first, second = batch.json()["imports"]
+        assert (first["job_state"], first["reused"], "resume_required" in first) == ("pausing", True, False)
+        assert second["reused"] is False and set(second) == {"document_id", "version_id", "job_id", "reused"}
+
+
 def test_contract_governor_boundary_matches_the_resource_governor():
     from services.runtime.resources import ResourceGovernor
 

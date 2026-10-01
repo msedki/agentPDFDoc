@@ -9,11 +9,13 @@ import hashlib
 import io
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
 import tarfile
 import urllib.request
+from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -177,17 +179,185 @@ def test_missing_tools_are_named_before_any_download(root, tmp_path, monkeypatch
     assert not (root / ".runtime").exists()
 
 
+# Préprocesseur simulé qui applique -ffile-prefix-map=ANCIEN=NOUVEAU à __FILE__ du fichier passé en dernier
+# argument, comme GCC 8 ou Clang 10 ; sans cette option, il lit l'entrée standard (contrôle des en-têtes).
+PREFIX_MAP_COMPILER = r"""map=
+for arg in "$@"; do
+  case "$arg" in -ffile-prefix-map=*) map="${arg#-ffile-prefix-map=}";; esac
+done
+if [ -n "$map" ]; then
+  old="${map%=*}"; new="${map##*=}"
+  eval file=\${$#}
+  sed "s|__FILE__|\"$new${file#"$old"}\"|" "$file"
+  exit 0
+fi
+"""
+# GCC 7 : option inconnue, refusée par le pilote (GCC la documente à partir de 8.1.0).
+COMPILER_WITHOUT_PREFIX_MAP = """case "$*" in *-ffile-prefix-map=*)
+  echo "cc: error: unrecognized command line option '-ffile-prefix-map'" >&2; exit 1;; esac
+case "$1" in --version) echo "gcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0";; esac
+exit 0
+"""
+# Option acceptée mais sans effet : __FILE__ garde le chemin absolu.
+COMPILER_IGNORING_PREFIX_MAP = r"""case "$1" in --version) echo "clang version 9.0.1"; exit 0;; esac
+case "$*" in *-ffile-prefix-map=*) eval file=\${$#}; sed "s|__FILE__|\"$file\"|" "$file";; esac
+exit 0
+"""
+# Libellés attendus quand aucun compilateur trouvé n'applique l'option.
+GCC7_C_LABEL = ("compilateur C appliquant -ffile-prefix-map (GCC 8 ou Clang 10 au minimum) : aucun compilateur trouvé "
+                "sous les noms cc, gcc ou clang ne l'applique (premier trouvé : gcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0) ; "
+                "en installer un conforme dans un dossier du PATH de l'utilisateur, retenu à défaut de celui du système")
+GCC7_CXX_LABEL = ("compilateur C++ appliquant -ffile-prefix-map (GCC 8 ou Clang 10 au minimum) : aucun compilateur trouvé "
+                  "sous les noms c++, g++ ou clang++ ne l'applique (premier trouvé : gcc (Ubuntu 7.5.0-3ubuntu1~18.04) "
+                  "7.5.0) ; en installer un conforme dans un dossier du PATH de l'utilisateur, retenu à défaut de celui "
+                  "du système")
+CLANG9_CXX_LABEL = ("compilateur C++ appliquant -ffile-prefix-map (GCC 8 ou Clang 10 au minimum) : aucun compilateur "
+                    "trouvé sous les noms c++, g++ ou clang++ ne l'applique (premier trouvé : clang version 9.0.1) ; "
+                    "en installer un conforme dans un dossier du PATH de l'utilisateur, retenu à défaut de celui du "
+                    "système")
+
+
 @POSIX
 def test_old_cmake_and_missing_headers_are_named(tmp_path):
     tools = tmp_path / "tools"
     executable(tools / "cmake", 'echo "cmake version 3.10.2"\n')
     # Préprocesseur simulé : seuls png.h et tiffio.h manquent.
-    executable(tools / "cc", 'input=$(cat)\ncase "$input" in *"<png.h>"*|*"<tiffio.h>"*) exit 1;; esac\nexit 0\n')
-    for name in ("c++", "make", "ldd", "readelf"):
+    executable(tools / "cc", PREFIX_MAP_COMPILER
+               + 'input=$(cat)\ncase "$input" in *"<png.h>"*|*"<tiffio.h>"*) exit 1;; esac\nexit 0\n')
+    executable(tools / "c++", PREFIX_MAP_COMPILER + "exit 0\n")
+    for name in ("make", "ldd", "readelf"):
         executable(tools / name, "exit 0\n")
     missing = provisioning.missing_build_prerequisites(provisioning.build_tools(str(tools)))
     assert missing == ["cmake 3.15 ou plus récent (trouvé : 3.10.2)", "en-tête png.h de libpng (libpng-dev)",
                        "en-tête tiffio.h de libtiff (libtiff-dev)"]
+
+
+@POSIX
+def test_compilers_that_do_not_apply_file_prefix_map_are_named_with_the_minimum(tmp_path):
+    """Un compilateur trop ancien (GCC 7) ou qui ignore l'option est nommé avant toute configuration CMake."""
+    tools = tmp_path / "tools"
+    executable(tools / "cmake", 'echo "cmake version 3.16.3"\n')
+    executable(tools / "cc", COMPILER_WITHOUT_PREFIX_MAP)
+    executable(tools / "c++", COMPILER_IGNORING_PREFIX_MAP)
+    for name in ("make", "ldd", "readelf"):
+        executable(tools / name, "exit 0\n")
+    missing = provisioning.missing_build_prerequisites(provisioning.build_tools(str(tools)))
+    assert missing == [GCC7_C_LABEL, CLANG9_CXX_LABEL]
+    error = provisioning.MissingBuildPrerequisites(missing)
+    assert "GCC 8 ou Clang 10 au minimum" in str(error)
+
+
+def compiler_setup(tmp_path, monkeypatch, system_compilers, user_compilers):
+    """Dossier système factice (cmake 3.16.3, make, ldd, readelf et `system_compilers`), PATH réduit à `user_compilers`."""
+    system, user_bin = tmp_path / "system-bin", tmp_path / "user-bin"
+    executable(system / "cmake", 'echo "cmake version 3.16.3"\n')
+    for name in ("make", "ldd", "readelf"):
+        executable(system / name, "exit 0\n")
+    for directory, compilers in ((system, system_compilers), (user_bin, user_compilers)):
+        for name, body in compilers.items():
+            executable(directory / name, body)
+    user_bin.mkdir(exist_ok=True)
+    monkeypatch.setattr(provisioning, "SYSTEM_TOOL_DIRS", (str(system),), raising=False)
+    monkeypatch.setenv("PATH", str(user_bin))
+    return system, user_bin
+
+
+CONFORMING = PREFIX_MAP_COMPILER + "exit 0\n"
+
+
+@POSIX
+def test_a_conforming_compiler_in_the_user_path_replaces_system_ones_without_file_prefix_map(tmp_path, monkeypatch):
+    """GCC 7 du système (option refusée) et clang conformes dans le PATH : ceux-ci sont retenus, comme un cmake récent
+    du PATH remplace un cmake système trop ancien, et la construction n'est plus arrêtée."""
+    system, user_bin = compiler_setup(tmp_path, monkeypatch,
+                                      {"cc": COMPILER_WITHOUT_PREFIX_MAP, "c++": COMPILER_WITHOUT_PREFIX_MAP},
+                                      {"clang": CONFORMING, "clang++": CONFORMING})
+    tools = provisioning.build_tools()
+    assert tools["cc"] == str(user_bin / "clang") and tools["c++"] == str(user_bin / "clang++")
+    assert tools["cmake"] == str(system / "cmake") and tools["make"] == str(system / "make")
+    assert provisioning.missing_build_prerequisites(tools) == []
+    # Le dossier des compilateurs retenus rejoint le PATH de compilation, après les dossiers système.
+    assert provisioning._tool_environment(tools)["PATH"] == f"/usr/bin:/bin:{system}:{user_bin}"
+
+
+@POSIX
+def test_c_and_cxx_compilers_fall_back_independently(tmp_path, monkeypatch):
+    """Seul le compilateur C du système refuse l'option : le C++ du système reste retenu."""
+    system, user_bin = compiler_setup(tmp_path, monkeypatch, {"cc": COMPILER_WITHOUT_PREFIX_MAP, "c++": CONFORMING},
+                                      {"clang": CONFORMING, "clang++": CONFORMING})
+    tools = provisioning.build_tools()
+    assert tools["cc"] == str(user_bin / "clang") and tools["c++"] == str(system / "c++")
+    assert provisioning.missing_build_prerequisites(tools) == []
+
+
+@POSIX
+def test_conforming_system_compilers_stay_preferred_over_conforming_ones_in_the_user_path(tmp_path, monkeypatch):
+    system, _ = compiler_setup(tmp_path, monkeypatch, {"gcc": CONFORMING, "g++": CONFORMING},
+                               {"cc": CONFORMING, "c++": CONFORMING, "clang": CONFORMING, "clang++": CONFORMING})
+    tools = provisioning.build_tools()
+    assert tools["cc"] == str(system / "gcc") and tools["c++"] == str(system / "g++")
+    assert provisioning._tool_environment(tools)["PATH"] == f"/usr/bin:/bin:{system}"
+
+
+@POSIX
+def test_without_any_conforming_compiler_the_first_found_is_named_with_the_recourse(tmp_path, monkeypatch):
+    """GCC 7 du système et clang 9 du PATH (option sans effet) : le premier trouvé est nommé, avec le recours possible
+    sans droits d'administration ; aucune configuration CMake n'est tentée."""
+    system, _ = compiler_setup(tmp_path, monkeypatch,
+                               {"cc": COMPILER_WITHOUT_PREFIX_MAP, "c++": COMPILER_WITHOUT_PREFIX_MAP},
+                               {"clang": COMPILER_IGNORING_PREFIX_MAP, "clang++": COMPILER_IGNORING_PREFIX_MAP})
+    tools = provisioning.build_tools()
+    assert tools["cc"] == str(system / "cc") and tools["c++"] == str(system / "c++")
+    assert provisioning.missing_build_prerequisites(tools) == [GCC7_C_LABEL, GCC7_CXX_LABEL]
+
+
+# Première version majeure de GCC et de Clang qui documente -ffile-prefix-map (FILE_PREFIX_MAP_MINIMUM).
+PREFIX_MAP_RELEASES = {"gcc": 8, "clang": 10}
+
+
+def compiler_release(version_line):
+    """Famille et version majeure lues sur la première ligne de `--version` de GCC ou de Clang ; None si non reconnue."""
+    clang = re.search(r"\bclang version (\d+)\.", version_line)
+    if clang:
+        return "clang", int(clang.group(1))
+    gcc = re.search(r"\) (\d+)\.\d+", version_line)
+    return ("gcc", int(gcc.group(1))) if gcc else None
+
+
+@pytest.mark.parametrize("line,release", [
+    ("cc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0", ("gcc", 9)),
+    ("gcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0", ("gcc", 7)),
+    ("clang version 9.0.1", ("clang", 9)),
+    ("version illisible", None),
+])
+def test_compiler_release_reads_the_first_version_line(line, release):
+    assert compiler_release(line) == release
+
+
+@POSIX
+@pytest.mark.parametrize("key,language", [("cc", "c"), ("c++", "c++")])
+def test_real_compilers_apply_file_prefix_map(key, language):
+    """Compilateur retenu sur le poste : d'une version qui documente l'option, il doit l'appliquer.
+
+    Antérieur à GCC 8 ou Clang 10, il relève d'une limite du poste, que missing_build_prerequisites refuse avec un
+    libellé nommé : l'essai est ignoré. Non reconnu, il n'échoue que s'il accepte l'option sans l'appliquer.
+    """
+    tools = provisioning.build_tools()
+    if not tools.get(key):
+        pytest.skip(f"Compilateur {key} absent : le contrôle de -ffile-prefix-map n'est pas exercé.")
+    compiler = str(tools[key])
+    env = provisioning._tool_environment(tools)
+    version = provisioning._first_line([compiler, "--version"], env) or "version illisible"
+    release = compiler_release(version)
+    if release is not None and release[1] < PREFIX_MAP_RELEASES[release[0]]:
+        pytest.skip(f"{compiler} ({version}) antérieur à GCC 8 ou Clang 10 : limite du poste, refusée par "
+                    "missing_build_prerequisites avec un libellé nommé ; l'application de l'option n'est pas exercée.")
+    if release is None:
+        accepted = subprocess.run([compiler, "-ffile-prefix-map=/agentragpdf=.", "-E", "-x", language, "-"], input="",
+                                  capture_output=True, text=True, env=env, timeout=60, check=False).returncode == 0
+        if not accepted:
+            pytest.skip(f"{compiler} ({version}) : compilateur non reconnu qui refuse -ffile-prefix-map, limite du poste.")
+    assert provisioning.applies_file_prefix_map(compiler, language, env), f"{compiler} ({version}) n'applique pas l'option"
 
 
 def test_unknown_cmake_variables_are_reported():
@@ -299,6 +469,38 @@ def test_system_tools_are_preferred_and_make_before_ninja(tmp_path, monkeypatch)
     assert tools["cmake"] == str(system / "cmake") and tools["cc"] == str(system / "cc")
     assert tools["make"] == str(system / "make")
     assert provisioning._tool_environment(tools)["PATH"] == f"/usr/bin:/bin:{system}"
+
+
+@POSIX
+def test_system_compilers_win_over_other_names_in_the_user_path(tmp_path, monkeypatch):
+    """Un `cc` du PATH de l'utilisateur ne passe pas devant le `gcc` du système : les dossiers d'abord, puis les noms."""
+    system, user_bin = tmp_path / "system-bin", tmp_path / "user-bin"
+    for name in ("gcc", "g++", "make", "ldd", "readelf"):
+        executable(system / name, "exit 0\n")
+    executable(system / "cmake", 'echo "cmake version 3.16.3"\n')
+    for name in ("cc", "c++", "clang", "clang++"):
+        executable(user_bin / name, "exit 0\n")
+    executable(user_bin / "ninja", "exit 0\n")
+    monkeypatch.setattr(provisioning, "SYSTEM_TOOL_DIRS", (str(system),), raising=False)
+    monkeypatch.setenv("PATH", str(user_bin))
+    tools = provisioning.build_tools()
+    assert tools["cc"] == str(system / "gcc") and tools["c++"] == str(system / "g++")
+    # Outil absent du système : celui du PATH reste retenu.
+    assert tools["ninja"] == str(user_bin / "ninja")
+    # Aucun outil retenu dans le PATH de l'utilisateur ne passe dans le PATH de compilation (make avant ninja).
+    assert provisioning._tool_environment(tools)["PATH"] == f"/usr/bin:/bin:{system}"
+
+
+@POSIX
+def test_a_compiler_only_in_the_user_path_is_still_found(tmp_path, monkeypatch):
+    system, user_bin = tmp_path / "system-bin", tmp_path / "user-bin"
+    executable(system / "make", "exit 0\n")
+    executable(user_bin / "clang", "exit 0\n")
+    executable(user_bin / "gcc", "exit 0\n")
+    monkeypatch.setattr(provisioning, "SYSTEM_TOOL_DIRS", (str(system),), raising=False)
+    monkeypatch.setenv("PATH", str(user_bin))
+    # Dans un même groupe de dossiers, l'ordre des noms est conservé : gcc avant clang.
+    assert provisioning.build_tools()["cc"] == str(user_bin / "gcc")
 
 
 @POSIX
@@ -422,7 +624,30 @@ def source_archive(path, top, files):
     return hashlib.sha256(path.read_bytes()).hexdigest(), path.stat().st_size
 
 
+def disk_space(monkeypatch, root, build_free):
+    """Double de `shutil.disk_usage`, indépendant du poste : `build_free` octets libres sous .runtime/build (contrôle de
+    build_tesseract), 1 Tio ailleurs (contrôle propre à `artifacts.download`, réserve de 2 Gio plus la taille de
+    l'archive) ; la liste rendue reçoit les chemins consultés, pour vérifier que chaque contrôle a eu lieu."""
+    queried = []
+
+    def usage(path):
+        queried.append(Path(path))
+        free = build_free if Path(path).is_relative_to(root / ".runtime/build") else 1024**4
+        return SimpleNamespace(total=free, used=0, free=free)
+
+    monkeypatch.setattr(provisioning.shutil, "disk_usage", usage)
+    return queried
+
+
+@pytest.fixture
+def reserve_available(root, monkeypatch):
+    """Exactement la réserve de 2 Gio libre sous .runtime/build, 1 Tio ailleurs : téléchargement et construction se
+    poursuivent quel que soit l'espace libre du poste."""
+    return disk_space(monkeypatch, root, 2 * 1024**3)
+
+
 @POSIX
+@pytest.mark.usefixtures("reserve_available")
 def test_build_installs_verified_binary_then_reuses_it(root, monkeypatch):
     tools = provisioning.build_tools()
     if not all(tools.get(name) for name in ("cc", "ldd", "readelf")):
@@ -564,6 +789,7 @@ def test_build_is_refused_while_another_process_holds_the_build_lock(root, monke
 
 
 @POSIX
+@pytest.mark.usefixtures("reserve_available")
 def test_build_lock_is_held_by_a_real_flock_during_compilation(root, monkeypatch):
     require_real_tools()
     prepared_sources(root)
@@ -583,6 +809,7 @@ def test_build_lock_is_held_by_a_real_flock_during_compilation(root, monkeypatch
 
 
 @POSIX
+@pytest.mark.usefixtures("reserve_available")
 def test_failed_copy_removes_the_staging_directory_and_installs_nothing(root, monkeypatch):
     require_real_tools()
     prepared_sources(root)
@@ -683,6 +910,7 @@ def test_offline_build_with_an_altered_leptonica_archive_fails_before_compilatio
 
 
 @POSIX
+@pytest.mark.usefixtures("reserve_available")
 def test_offline_build_with_altered_tesseract_content_fails_before_compilation(root, monkeypatch, no_network):
     prepared_sources(root)
     archive = root / ".runtime/cache/downloads/tesseract-5.4.0-source.tar.gz"
@@ -719,6 +947,7 @@ def test_content_digest_refuses_links(tmp_path):
 
 
 @POSIX
+@pytest.mark.usefixtures("reserve_available")
 def test_regenerated_cached_archive_with_identical_content_is_accepted_and_recorded(root, monkeypatch, no_network, capsys):
     require_real_tools()
     _, tess, digest = prepared_sources(root)
@@ -752,6 +981,7 @@ class Served(io.BytesIO):
 
 
 @POSIX
+@pytest.mark.usefixtures("reserve_available")
 @pytest.mark.parametrize("same_content", [True, False])
 def test_online_regenerated_archive_is_accepted_only_if_its_content_matches(root, monkeypatch, same_content):
     require_real_tools()
@@ -788,6 +1018,203 @@ def test_online_regenerated_archive_is_accepted_only_if_its_content_matches(root
         assert calls == [] and not archive.exists()
         assert not list(archive.parent.glob("*.part"))
         assert not (root / ".runtime/bin").exists()
+
+
+class Interrupted(Served):
+    """Réponse coupée après 16 premiers octets, comme une connexion réinitialisée en cours de transfert."""
+
+    def read(self, size=-1):
+        if self.tell():
+            raise ConnectionResetError(104, "Connection reset by peer")
+        return super().read(16)
+
+
+def serve_sequence(monkeypatch, responses):
+    """`urlopen` simulé : une réponse par requête, dans l'ordre ; la dernière est répétée."""
+    requests = []
+
+    def serve(request, timeout=None):
+        requests.append(request.full_url)
+        return responses[min(len(requests), len(responses)) - 1]()
+
+    monkeypatch.setattr(urllib.request, "urlopen", serve)
+    monkeypatch.setattr(artifacts.time, "sleep", lambda seconds: None)
+    return requests
+
+
+@POSIX
+@pytest.mark.usefixtures("reserve_available")
+@pytest.mark.parametrize("failure", ["oversized", "interrupted"])
+def test_served_archive_that_fails_while_downloading_leaves_no_part_file(root, monkeypatch, failure):
+    """Archive servie trop volumineuse, ou coupée en cours de transfert : aucun `.part` ne reste, rien n'est compilé."""
+    _, tess, _ = prepared_sources(root)
+    archive = root / ".runtime/cache/downloads/tesseract-5.4.0-source.tar.gz"
+    archive.unlink()
+    regenerated = regenerated_archive(root / "served.tar.gz", "tesseract-5.4.0", TESSERACT_FILES, level=1)[0]
+    assert regenerated != tess[0]
+    served = (root / "served.tar.gz").read_bytes()
+    # Trois essais de `download` refusés sur l'empreinte d'archive, puis le téléchargement vérifié par contenu.
+    last = ((lambda: Served(b"\0" * (4 * tess[1] + 1))) if failure == "oversized"
+            else (lambda: Interrupted(served)))
+    requests = serve_sequence(monkeypatch, [lambda: Served(served)] * 3 + [last])
+    monkeypatch.setattr(provisioning, "missing_build_prerequisites", lambda found: [])
+    forbid(monkeypatch, "compile_sources", "_prepare_build_root")
+    expected = (ValueError, "archive servie de plus de") if failure == "oversized" else (ConnectionResetError, "reset")
+    with pytest.raises(expected[0], match=expected[1]):
+        provisioning.tesseract(PROFILE)
+    assert len(requests) == 4
+    assert not list(archive.parent.glob("*.part")) and not archive.exists()
+    assert not (root / ".runtime/bin").exists()
+
+
+@POSIX
+@pytest.mark.usefixtures("reserve_available")
+def test_network_failure_of_a_locked_archive_leaves_no_part_file(root, monkeypatch):
+    """Archive Leptonica (empreinte d'archive seule) coupée à chaque essai : erreur réseau rendue, aucun `.part`."""
+    lept, _, _ = prepared_sources(root)
+    archive = root / ".runtime/cache/downloads/leptonica-1.87.0.tar.gz"
+    data = archive.read_bytes()
+    archive.unlink()
+    requests = serve_sequence(monkeypatch, [lambda: Interrupted(data)])
+    monkeypatch.setattr(provisioning, "missing_build_prerequisites", lambda found: [])
+    forbid(monkeypatch, "compile_sources", "_prepare_build_root")
+    with pytest.raises(ConnectionResetError):
+        provisioning.tesseract(PROFILE)
+    assert len(requests) == 3
+    assert not list(archive.parent.glob("*.part")) and not archive.exists()
+
+
+@POSIX
+def test_served_archive_is_removed_when_the_build_stops_before_extraction(root, monkeypatch, reserve_available):
+    """Archive servie acceptée en attente du contrôle de contenu, puis arrêt avant l'extraction : `.part` retiré.
+
+    L'espace libre est simulé (réserve exacte) : seul le dossier de construction sans marqueur arrête la construction.
+    """
+    _, tess, _ = prepared_sources(root)
+    archive = root / ".runtime/cache/downloads/tesseract-5.4.0-source.tar.gz"
+    archive.unlink()
+    regenerated_archive(root / "served.tar.gz", "tesseract-5.4.0", TESSERACT_FILES, level=1)
+    served = (root / "served.tar.gz").read_bytes()
+    serve_sequence(monkeypatch, [lambda: Served(served)])
+    # Dossier de construction existant sans marqueur : conservé, la construction s'arrête avant l'extraction.
+    personal = root / provisioning.BUILD_DIR / "personnel.txt"
+    personal.parent.mkdir(parents=True)
+    personal.write_text("à conserver\n", encoding="utf-8")
+    monkeypatch.setattr(provisioning, "missing_build_prerequisites", lambda found: [])
+    forbid(monkeypatch, "compile_sources")
+    with pytest.raises(ValueError, match="sans le marqueur"):
+        provisioning.tesseract(PROFILE)
+    # Contrôles d'espace passés (téléchargement, puis dossier de construction existant) avant le refus de l'effacer.
+    assert reserve_available == [root / ".runtime/cache/downloads", root / provisioning.BUILD_DIR]
+    assert personal.read_text(encoding="utf-8") == "à conserver\n"
+    assert not list(archive.parent.glob("*.part")) and not archive.exists()
+    # L'archive Leptonica en cache, conforme au verrou, n'est pas touchée.
+    assert (root / ".runtime/cache/downloads/leptonica-1.87.0.tar.gz").is_file()
+
+
+@POSIX
+def test_insufficient_disk_space_stops_before_the_build_directory_and_removes_the_served_archive(root, monkeypatch):
+    """Un octet de moins que la réserve de 2 Gio : arrêt nommé avant toute écriture sous le dossier de construction ;
+    l'archive servie (`.part`), pas encore vérifiée par son contenu, est retirée, le cache conforme reste en place."""
+    prepared_sources(root)
+    archive = root / ".runtime/cache/downloads/tesseract-5.4.0-source.tar.gz"
+    archive.unlink()
+    regenerated_archive(root / "served.tar.gz", "tesseract-5.4.0", TESSERACT_FILES, level=1)
+    served = (root / "served.tar.gz").read_bytes()
+    serve_sequence(monkeypatch, [lambda: Served(served)])
+    queried = disk_space(monkeypatch, root, 2 * 1024**3 - 1)
+    monkeypatch.setattr(provisioning, "missing_build_prerequisites", lambda found: [])
+    forbid(monkeypatch, "compile_sources", "_prepare_build_root")
+    with pytest.raises(RuntimeError, match="Espace disque insuffisant sous .runtime/build pour compiler Tesseract, "
+                                           "réserve 2 Gio"):
+        provisioning.tesseract(PROFILE)
+    assert queried == [root / ".runtime/cache/downloads", root / ".runtime/build"]
+    assert not (root / provisioning.BUILD_DIR).exists()
+    assert not list(archive.parent.glob("*.part")) and not archive.exists()
+    assert (root / ".runtime/cache/downloads/leptonica-1.87.0.tar.gz").is_file()
+
+
+@POSIX
+@pytest.mark.usefixtures("reserve_available")
+def test_online_build_keeps_a_regenerated_cache_whose_content_differs(root, monkeypatch):
+    """Choix documenté : en ligne aussi, une archive en cache d'empreinte différente est vérifiée par son contenu,
+    jamais remplacée implicitement ; un contenu non conforme arrête la construction et l'archive est conservée."""
+    prepared_sources(root)
+    archive = root / ".runtime/cache/downloads/tesseract-5.4.0-source.tar.gz"
+    regenerated_archive(archive, "tesseract-5.4.0", {**TESSERACT_FILES, "VERSION": b"5.4.1\n"}, level=6)
+    before = archive.read_bytes()
+
+    def refuse(*args, **kwargs):
+        raise AssertionError("aucun téléchargement : l'archive en cache n'est pas remplacée")
+
+    monkeypatch.setattr(urllib.request, "urlopen", refuse)
+    monkeypatch.setattr(provisioning, "missing_build_prerequisites", lambda found: [])
+    forbid(monkeypatch, "compile_sources")
+    with pytest.raises(ValueError, match="archive conservée pour diagnostic"):
+        provisioning.tesseract(PROFILE)
+    assert archive.read_bytes() == before
+
+
+@POSIX
+@pytest.mark.usefixtures("reserve_available")
+def test_built_binary_quoting_the_build_root_is_refused_and_not_installed(root, monkeypatch):
+    """Compilateur qui laisserait le chemin absolu du dossier de construction dans le binaire : rien n'est installé."""
+    require_real_tools()
+    prepared_sources(root)
+
+    def leaking_compiler(source_dirs, build_root, prefix, found, jobs, log_dir):
+        # Substitut nommé de la compilation CMake : un vrai binaire C qui cite le dossier de construction.
+        program = build_root / "fuite.c"
+        program.write_text('#include <stdio.h>\nint main(void){puts("tesseract 5.4.0");puts(" leptonica-1.87.0");'
+                           f'puts("{build_root}/src/tesseract-5.4.0/src/api/baseapi.cpp");return 0;}}\n', encoding="utf-8")
+        (prefix / "bin").mkdir(parents=True)
+        subprocess.run([found["cc"], str(program), "-o", str(prefix / "bin/tesseract")], check=True)
+        return {"generator": "substitut de test", "steps": [], "configure_summary": {}}
+
+    monkeypatch.setattr(provisioning, "missing_build_prerequisites", lambda found: [])
+    monkeypatch.setattr(provisioning, "compile_sources", leaking_compiler)
+    with pytest.raises(ValueError, match="chemin absolu du dossier de construction") as error:
+        provisioning.tesseract(PROFILE, offline=True)
+    assert str(root / provisioning.BUILD_DIR) in str(error.value)
+    assert not (root / ".runtime/bin").exists() and not (root / provisioning.BUILT_MANIFEST).exists()
+
+
+@POSIX
+def test_installation_finished_before_the_lock_is_taken_is_verified_not_rebuilt(root, monkeypatch):
+    """Construction achevée par un autre processus entre le contrôle préalable et la prise du verrou, qui n'attend pas
+    (LOCK_NB) : l'état relu sous le verrou mène à la vérification de cette installation, sans recompilation."""
+    real_lock = provisioning._build_lock
+
+    @contextmanager
+    def lock_after_a_concurrent_build(path):
+        installed_copy(root)
+        with real_lock(path):
+            yield
+
+    monkeypatch.setattr(provisioning, "_build_lock", lock_after_a_concurrent_build)
+    monkeypatch.setattr(provisioning, "missing_build_prerequisites", lambda found: [])
+    forbid(monkeypatch, "download", "compile_sources", "_prepare_build_root", "_source_archive")
+    result = provisioning.tesseract(PROFILE, offline=True)
+    assert result["status"] == "verified_built_copy"
+
+
+@POSIX
+def test_reuse_refuses_a_license_replaced_by_a_link(root, monkeypatch):
+    """Licence remplacée par un lien vers un fichier du même dossier, de contenu conforme au manifeste : refusée."""
+    target, manifest_path = installed_copy(root)
+    license_path, other = target.parent / "LICENSE", target.parent / "leptonica-license.txt"
+    license_path.unlink()
+    license_path.symlink_to(other.name)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    for item in manifest["files"]:
+        if item["path"].endswith("/LICENSE"):
+            item.update(sha256=artifacts.file_hash(other), size=other.stat().st_size)
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    forbid(monkeypatch, "download", "compile_sources")
+    with pytest.raises(ValueError, match="aucun remplacement implicite") as error:
+        provisioning.tesseract(PROFILE)
+    assert "fichier .runtime/bin/tesseract-5.4.0/LICENSE différent du manifeste" in str(error.value)
+    assert license_path.is_symlink()
 
 
 @pytest.mark.integration

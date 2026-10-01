@@ -48,6 +48,50 @@ case "$system/$machine" in
         fail "Plateforme non prise en charge : $system $machine. bootstrap.sh vise Linux aarch64 ou x86_64 ; utiliser bootstrap.ps1 sous Windows x86-64."
         ;;
 esac
+# Bibliothèque C, avant tout téléchargement : le verrou uv impose des roues manylinux_2_28 (torch, torchvision et
+# onnxruntime sur les deux architectures), donc la glibc 2.28 ou plus récente ; uv et CPython sont aussi en variante gnu,
+# et bin/ollama 0.35.0 arm64 réclame des symboles GLIBC_2.28.
+# La glibc répond à `getconf GNU_LIBC_VERSION` (« glibc 2.31 »). Sans getconf, la première ligne de `ldd --version` la
+# nomme et finit par sa version (« ldd (GNU libc) 2.39 », ou sur Ubuntu 20.04 « ldd (Ubuntu GLIBC 2.31-0ubuntu9.18) 2.31 ») ;
+# musl s'y nomme aussi.
+libc_requirement='bootstrap.sh exige la glibc 2.28 ou plus récente (roues manylinux_2_28 du verrou)'
+# Version « majeur.mineur » de la glibc en nombres ; glibc_major vide si elle est illisible.
+read_glibc_version() {
+    glibc_version=$1
+    glibc_major=${glibc_version%%.*}
+    glibc_minor=${glibc_version#"$glibc_major".}
+    glibc_minor=${glibc_minor%%.*}
+    case "$glibc_version/$glibc_major/$glibc_minor" in
+        [0-9]*.*/[0-9]*/[0-9]*)
+            case "$glibc_major$glibc_minor" in
+                *[!0-9]*) glibc_major= ;;
+            esac
+            ;;
+        *) glibc_major= ;;
+    esac
+}
+glibc_major=
+libc=$(getconf GNU_LIBC_VERSION 2>/dev/null) || libc=
+case "$libc" in
+    'glibc '*) read_glibc_version "${libc#glibc }" ;;
+esac
+ldd_output=
+if [ -z "$glibc_major" ]; then
+    ldd_output=$(ldd --version 2>&1) || :
+    ldd_banner=$(printf '%s\n' "$ldd_output" | sed -n 1p)
+    case "$ldd_banner" in
+        *'GNU libc'*|*GLIBC*) read_glibc_version "${ldd_banner##* }" ;;
+    esac
+fi
+if [ -z "$glibc_major" ]; then
+    if printf '%s\n' "$ldd_output" | grep -qi musl; then
+        fail "Bibliothèque C musl détectée : $libc_requirement ; utiliser une distribution Linux à glibc."
+    fi
+    fail "Bibliothèque C non reconnue (ni getconf GNU_LIBC_VERSION ni ldd --version ne donnent de version de glibc) : $libc_requirement."
+fi
+if [ "$glibc_major" -lt 2 ] || { [ "$glibc_major" -eq 2 ] && [ "$glibc_minor" -lt 28 ]; }; then
+    fail "glibc $glibc_version trop ancienne : $libc_requirement ; utiliser une distribution plus récente."
+fi
 # CPython géré par uv, demandé par sa clé complète : la variante de base de l'architecture (x86_64 et non x86_64_v2
 # à v4), qui s'exécute sur tout processeur de cette architecture, dans un dossier au nom connu.
 python_key=cpython-3.12.14-linux-$machine-gnu

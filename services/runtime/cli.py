@@ -143,6 +143,35 @@ def model_lock_conformity(lock_path: Path | None = None, store: Path | None = No
     return result
 
 
+def _profile_models(profile: dict) -> set[str]:
+    llm = profile["llm"]
+    return {llm["model"], llm.get("source_model", llm["model"])}
+
+
+def profile_model_lock(profile: dict) -> dict:
+    """Contrôle du verrou des modèles commun à doctor et pull-model : stockage Ollama comparé au verrou (blobs rehachés
+    jusqu'au seuil de model_lock_conformity, tailles au-delà) et modèles du profil présents dans le verrou."""
+    check = model_lock_conformity()
+    check["profile_models_locked"] = all(name in check["models"] for name in _profile_models(profile))
+    return check
+
+
+def model_lock_differences(check: dict, profile: dict) -> str | None:
+    """Écarts au verrou des seuls modèles du profil (source et servi) dans un contrôle profile_model_lock, en une phrase ;
+    None s'ils sont conformes. Les autres modèles du verrou n'entrent pas dans ce contrôle (doctor juge tout le verrou)."""
+    used = _profile_models(profile)
+    parts = []
+    unlocked = sorted(used - set(check["models"]))
+    if unlocked:
+        parts.append(f"modèle du profil absent du verrou ({', '.join(unlocked)})")
+    for name in sorted(used & set(check["models"])):
+        model = check["models"][name]
+        if model.get("status") != "conform":
+            issues = sorted({str(issue.get("issue", "?")) for issue in model.get("issues", [])})
+            parts.append(f"{name} ({', '.join(issues) or model.get('status')})")
+    return " ; ".join(parts) or None
+
+
 def llm_model_diagnosis(files: dict, service: dict) -> dict:
     """Sépare modèle absent du stockage et service Ollama indisponible."""
     if files["status"] == "absent":
@@ -198,9 +227,7 @@ def doctor(profile_path: Path) -> dict:
     checks["cold_admission"]["limit"] = ("Snapshot: required = max(admit minimum, cold peak estimate + host reserve); "
                                          "a resident model only needs its additional peak.")
     try:
-        checks["model_lock"] = model_lock_conformity()
-        checks["model_lock"]["profile_models_locked"] = all(
-            name in checks["model_lock"]["models"] for name in {profile["llm"]["model"], profile["llm"].get("source_model", profile["llm"]["model"])})
+        checks["model_lock"] = profile_model_lock(profile)
     except (OSError, ValueError, KeyError) as exc:
         checks["model_lock"] = {"status": "invalid_lock", "reason": f"{type(exc).__name__}: {exc}"}
     model_files = ollama_store_files(profile["llm"]["model"])
@@ -435,6 +462,13 @@ def pull_model(profile_path: Path, offline: bool = False) -> dict:
             child.wait(30)
         except TimeoutError:
             print("Service de provisionnement : arrêt forcé ciblé du Job, aucune inférence active.", flush=True)
+    # Service arrêté, fichiers définitifs : un tirage ou une dérivation qui ne reproduit pas le stockage verrouillé des
+    # modèles du profil échoue ici, au lieu d'être découvert ensuite par doctor.
+    differences = model_lock_differences(profile_model_lock(profile), profile)
+    if differences:
+        raise RuntimeError(f"Stockage Ollama différent du verrou {MODELS_LOCK} après pull-model : {differences}. "
+                           "Contrôle limité aux modèles du profil, avec les critères de doctor ; les fichiers du stockage "
+                           "sont conservés pour diagnostic.")
     return result["model"]
 
 
@@ -497,10 +531,12 @@ def open_workspace(profile_path: Path, *, launch: bool = True) -> dict[str, Any]
         else:
             import webbrowser
 
-            # Navigateur par défaut de la session (xdg-open sous Linux) ; sans navigateur, le lien n'est pas affiché.
+            # Navigateur par défaut de la session (xdg-open sous Linux) : URL de boucle locale, comme sous Windows. Le lien
+            # figure dans la ligne de commande de xdg-open et du navigateur et ne sert plus une fois consommé (W023).
+            # Sans navigateur, le lien n'est pas affiché.
             if not webbrowser.open(url, new=2):
-                raise RuntimeError("Aucun navigateur disponible dans cette session : « .venv/bin/python -m services.runtime.cli "
-                                   "open --no-browser » affiche le lien à usage unique")
+                raise RuntimeError("Aucun navigateur disponible dans cette session : « "
+                                   + launcher_command("open --no-browser") + " » affiche le lien à usage unique")
         # Le lien est un secret à usage unique : il n'est ni affiché ni écrit dans un rapport quand le navigateur l'a reçu.
         return {"opened_in_browser": True, "expires_in_seconds": link["expires_in_seconds"], "single_use": True}
     return {"opened_in_browser": False, "url": url, "expires_in_seconds": link["expires_in_seconds"], "single_use": True}

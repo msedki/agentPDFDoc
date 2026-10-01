@@ -650,6 +650,107 @@ def test_api_watchdog_counts_cpu_work_and_durable_windows_as_progress(tmp_path):
     assert reason == "watchdog_window_deadline"
 
 
+def test_api_extraction_progress_counts_the_pages_covered_by_durable_windows(tmp_path):
+    """Ronde 4 : progression de l'extraction = pages couvertes par les fenêtres durables / pages du préflight, dans la plage de l'étape."""
+    from services.api.indexing import INDEXING_PROGRESS_START
+    from services.api.jobs import EXTRACTION_PROGRESS_START, ExtractionProgress, extraction_progress
+
+    assert (EXTRACTION_PROGRESS_START, INDEXING_PROGRESS_START) == (0.05, 0.65)
+    assert extraction_progress([], 10) == 0.05
+    assert extraction_progress(["window-000000-000003.json"], 10) == 0.29
+    # Pages comptées une fois (fenêtres qui se recouvrent), bornées au document ; noms étrangers ignorés.
+    assert extraction_progress(["window-000000-000003.json", "window-000002-000005.json", "window-000008-000099.json",
+                                ".window-000006-000007.json.tmp", "window-x-y.json"], 10) == 0.53
+    assert extraction_progress(["window-000000-000003.json", "window-000004-000007.json", "window-000008-000009.json"], 10) == 0.65
+    tracker = ExtractionProgress(tmp_path)
+    # Préflight absent ou illisible : aucune progression calculée, les fenêtres seront relues au passage suivant.
+    assert tracker.update(("window-000000-000003.json",)) is None
+    (tmp_path / "preflight.json").write_text("{\"page_count\": 0}", encoding="utf-8")
+    assert tracker.update(("window-000000-000003.json",)) is None
+    (tmp_path / "preflight.json").write_text(json.dumps({"page_count": 10, "pages": [{}] * 10}), encoding="utf-8")
+    assert tracker.update(("window-000000-000003.json",)) == 0.29
+    # Mêmes fenêtres : rien à écrire.
+    assert tracker.update(("window-000000-000003.json",)) is None
+    assert tracker.update(("window-000000-000003.json", "window-000004-000007.json")) == 0.53
+    # Reprise : le préflight de l'essai précédent, présent avant le lancement, n'est pas ouvert ; le worker le réécrit
+    # (remplacement atomique) au début de chaque extraction, et sous Windows ce remplacement échoue sur un fichier ouvert
+    # par un autre processus. Il n'est lu qu'une fois réécrit par ce worker.
+    resumed = ExtractionProgress(tmp_path)
+    assert resumed.update(("window-000000-000003.json", "window-000004-000007.json")) is None
+    rewritten = tmp_path / ".preflight.json.tmp"
+    rewritten.write_text(json.dumps({"page_count": 10, "pages": [{}] * 10}), encoding="utf-8")
+    import os
+    os.replace(rewritten, tmp_path / "preflight.json")
+    assert resumed.update(("window-000000-000003.json", "window-000004-000007.json")) == 0.53
+
+
+PROGRESS_WORKER_DOUBLE = r'''
+import json, os, sys, time
+from pathlib import Path
+directory, result, payload, page_count, size = Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3], int(sys.argv[4]), int(sys.argv[5])
+
+def atomic(path, data):
+    temporary = path.with_name("." + path.name + ".tmp")
+    temporary.write_text(json.dumps(data), encoding="utf-8")
+    os.replace(temporary, path)
+
+atomic(directory / "preflight.json", {"page_count": page_count, "pages": [{"page_index": index} for index in range(page_count)]})
+for number, first in enumerate(range(0, page_count, size), 1):
+    last = min(page_count - 1, first + size - 1)
+    atomic(directory / f"window-{first:06d}-{last:06d}.json", {"payload": {"page_start": first, "page_end": last}})
+    # Attend que l'API ait publié la progression de cette fenêtre (accusé écrit par le test), puis laisse passer
+    # plusieurs relevés de la boucle de surveillance (0,5 s) sans fenêtre nouvelle.
+    deadline = time.monotonic() + 30
+    while not (directory / f"progress-ack-{number}").exists():
+        if time.monotonic() > deadline:
+            sys.exit(7)
+        time.sleep(0.05)
+    time.sleep(1.2)
+result.write_text(json.dumps({"ok": True, "result": json.loads(payload)}), encoding="utf-8")
+'''
+
+
+def test_api_job_progress_follows_durable_windows_during_extraction_without_a_write_per_poll(storage, monkeypatch):
+    """Ronde 4 (J10) : `progress` restait à 0,05 pendant toute l'extraction.
+
+    Vrai sous-processus, double explicite du worker : préflight de 10 pages, puis trois fenêtres durables de 4 pages.
+    La boucle qui surveille le worker publie la progression à chaque fenêtre nouvelle (0,29 ; 0,53 ; 0,65), dans la
+    plage de l'étape d'extraction, et ne l'écrit pas aux relevés sans fenêtre nouvelle.
+    """
+    from pathlib import Path
+
+    imported, extraction = import_fixture(storage)
+    settings, db, _, indexer = storage
+    job_id = new_job(db, imported)
+    directory = settings.data_dir / "extractions" / imported["version_id"] / job_id
+    real_exec = asyncio.create_subprocess_exec
+    async def launch(*args, **kwargs):
+        result = Path(args[args.index("--result") + 1])
+        return await real_exec(sys.executable, "-c", PROGRESS_WORKER_DOUBLE, str(result.parent), str(result), json.dumps(extraction), "10", "4", **kwargs)
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", launch)
+    monkeypatch.setattr(JobSupervisor, "cached_extraction", lambda self, version: None)
+    published, progress_writes = [], []
+    real_execute = db.execute
+    def observed_execute(sql, parameters=()):
+        real_execute(sql, parameters)
+        row = db.one("SELECT progress,stage FROM jobs WHERE id=?", (job_id,))
+        if row["stage"] != "extracting":
+            return
+        if "progress" in sql:
+            progress_writes.append(row["progress"])
+        if not published or row["progress"] != published[-1]:
+            published.append(row["progress"])
+            if len(published) > 1:
+                (directory / f"progress-ack-{len(published) - 1}").touch()
+    monkeypatch.setattr(db, "execute", observed_execute)
+    supervisor = JobSupervisor(db, indexer, settings)
+    asyncio.run(supervisor.run(db.one("SELECT * FROM jobs WHERE id=?", (job_id,))))
+    assert published == [0.05, 0.29, 0.53, 0.65]
+    # Une écriture au lancement, puis une par fenêtre nouvelle : aucune aux relevés de 0,5 s sans fenêtre nouvelle.
+    assert progress_writes == published
+    assert db.one("SELECT state,progress FROM jobs WHERE id=?", (job_id,)) == {"state": "ready", "progress": 1}
+
+
 class FakeCpuTree:
     """Double explicite de psutil.Process : arbre de processus et temps CPU scriptés (pid -> création, temps, enfants)."""
 

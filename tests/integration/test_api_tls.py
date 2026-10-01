@@ -154,3 +154,66 @@ def test_comparison_quiet_check_reports_a_silent_listener_as_unverified_not_as_a
     links = exception_chain(refused.value.__cause__)
     assert any(isinstance(link, ssl.SSLWantReadError) for link in links)
     assert not any(isinstance(link, ssl.SSLCertVerificationError) for link in links)
+
+
+@contextmanager
+def closing_listener():
+    """Service réel qui accepte chaque connexion TCP puis ferme son sens d'émission sans un octet TLS.
+
+    `shutdown(SHUT_WR)` envoie la fin de flux aussitôt après `accept` ; le service lit ensuite ce que le client envoie
+    jusqu'à sa fermeture, pour qu'aucune réinitialisation (RST) ne remplace la fin de flux attendue par le client.
+    """
+    stop = threading.Event()
+    listener = socket.socket()
+    listener.bind(("127.0.0.1", 0))
+    listener.listen()
+    listener.settimeout(0.1)
+
+    def serve():
+        while not stop.is_set():
+            try:
+                connection, _ = listener.accept()
+            except TimeoutError:
+                continue
+            except OSError:
+                return
+            with connection:
+                connection.shutdown(socket.SHUT_WR)
+                connection.settimeout(5)
+                try:
+                    while connection.recv(4096):
+                        pass
+                except OSError:
+                    pass
+
+    thread = threading.Thread(target=serve, daemon=True)
+    thread.start()
+    try:
+        yield listener.getsockname()[1]
+    finally:
+        stop.set()
+        thread.join(timeout=10)
+        listener.close()
+
+
+def test_comparison_quiet_check_reports_a_stream_closed_before_tls_as_unverified_not_as_a_tls_failure(tmp_path, certificate):
+    """Ronde 4 : un service accepte la connexion puis ferme le flux avant toute négociation TLS.
+
+    Chaîne réelle httpx.ConnectError -> ... -> ssl.SSLEOFError : aucun certificat n'a été présenté ni vérifié. Le
+    comparatif s'arrête avec `comparison_api_unverified` (service non identifié), sans inviter à corriger le certificat.
+    """
+    cert, key = certificate
+    llm_port = free_port()
+    with closing_listener() as port:
+        settings = Settings(tmp_path / "comparison", {"app": {"port": port}, "llm": {"base_url": f"http://127.0.0.1:{llm_port}"},
+                                                      "security": {"environment": "production", "tls_cert_file": str(cert),
+                                                                   "tls_key_file": str(key)}})
+        with pytest.raises(ApiError) as refused:
+            asyncio.run(comparison.assert_quiet(settings))
+    assert (refused.value.code, refused.value.status) == ("comparison_api_unverified", 409)
+    assert "sans répondre" in refused.value.message and "certificat" not in refused.value.message
+    # Le cas visé est bien exercé : fin de flux pendant la négociation TLS, sans délai dépassé ni refus de certificat.
+    assert isinstance(refused.value.__cause__, httpx.ConnectError)
+    links = exception_chain(refused.value.__cause__)
+    assert any(isinstance(link, ssl.SSLEOFError) for link in links)
+    assert not any(isinstance(link, ssl.SSLCertVerificationError) for link in links)

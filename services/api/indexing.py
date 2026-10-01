@@ -12,6 +12,10 @@ from .db import json_dump, now, uid
 from .errors import ApiError
 from .retrieval import identifiers, normalized_identifier
 
+# Progression d'un travail au début de l'indexation (vecteurs de 0,65 à 0,95, publication à 1) ; l'extraction
+# occupe la plage qui la précède (`jobs.EXTRACTION_PROGRESS_START`).
+INDEXING_PROGRESS_START = 0.65
+
 
 def extraction_content_hash(extraction):
     content = {"pages": extraction["pages"], "sections": extraction.get("sections", []), "tables": extraction.get("tables", [])}
@@ -207,7 +211,7 @@ class Indexer:
                     connection.execute("INSERT OR IGNORE INTO chunk_sources VALUES(?,?,?,?,?,?)", (chunk["id"], source["block_id"], chunk["page_index"], source["start"], source["end"], position))
                 for identifier in identifiers(chunk["text"]):
                     connection.execute("INSERT OR IGNORE INTO identifiers VALUES(?,?,?)", (chunk["id"], identifier, normalized_identifier(identifier)))
-            connection.execute("UPDATE jobs SET generation_id=?,state='indexing',stage='embedding',progress=0.65,updated_at=? WHERE id=?", (generation_id, now(), job_id))
+            connection.execute("UPDATE jobs SET generation_id=?,state='indexing',stage='embedding',progress=?,updated_at=? WHERE id=?", (generation_id, INDEXING_PROGRESS_START, now(), job_id))
             connection.execute("UPDATE documents SET state='indexing',updated_at=? WHERE id=? AND active_generation_id IS NULL", (now(), version["document_id"]))
         return generation_id, chunks
 
@@ -256,7 +260,7 @@ class Indexer:
             points = [{"id": chunk["id"], "vector": {"dense": vector}, "payload": {"generation_id": generation_id, "version_id": job["version_id"], "document_id": job["document_id"], "page_indices": [chunk["page_index"]], "block_ids": [source["block_id"] for source in chunk["sources"]], "text_hash": chunk["hash"]}} for chunk, vector in zip(batch, vectors, strict=True)]
             await self.vectors.upsert(points)
             await self.vectors.verify({chunk["id"]: chunk["hash"] for chunk in batch})
-            self.db.execute("UPDATE jobs SET progress=?,heartbeat_at=?,stage='vectors',updated_at=? WHERE id=?", (0.65 + 0.3 * (offset + len(batch)) / max(1, len(chunks)), now(), now(), job_id))
+            self.db.execute("UPDATE jobs SET progress=?,heartbeat_at=?,stage='vectors',updated_at=? WHERE id=?", (INDEXING_PROGRESS_START + 0.3 * (offset + len(batch)) / max(1, len(chunks)), now(), now(), job_id))
         self.publish(job_id, generation_id, len(chunks), partial=text_loss(extraction))
         return generation_id
 

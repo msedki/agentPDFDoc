@@ -236,23 +236,45 @@ def test_api_gc_waits_for_active_indexing_writer(storage):
     assert asyncio.run(reconciler.run_once())["completed"] == [generation] and calls == [generation]
 
 
-@pytest.mark.parametrize("state", ["paused", "pausing", "cancelling"])
-def test_api_reimport_during_suspended_job_returns_existing_job(storage, state):
+def suspended_fixture(storage):
     settings, db, _, _ = storage
     payload = b"%PDF-1.7\ncontrolled suspended fixture"
     digest = hashlib.sha256(payload).hexdigest()
     blob = settings.data_dir / "originals" / (digest + ".pdf")
     blob.parent.mkdir(parents=True, exist_ok=True)
     blob.write_bytes(payload)
-    first = db.import_original("folder/suspended.pdf", digest, blob)
+    return db, digest, blob, db.import_original("folder/suspended.pdf", digest, blob)
+
+
+@pytest.mark.parametrize("state", ["paused", "pausing"])
+def test_api_reimport_during_suspended_job_returns_existing_job(storage, state):
+    """`resume_required` seulement pour `paused`, que POST /jobs/{id}/resume accepte ; `pausing` est renvoyé avec son état."""
+    db, digest, blob, first = suspended_fixture(storage)
     db.execute("UPDATE jobs SET state=?,pause_requested=1 WHERE id=?", (state, first["job_id"]))
     again = db.import_original("folder/suspended.pdf", digest, blob)
-    assert again == {**first, "reused": True, "job_state": state, "resume_required": True}
+    expected = {**first, "reused": True, "job_state": state}
+    assert again == ({**expected, "resume_required": True} if state == "paused" else expected)
     assert db.one("SELECT count(*) AS n FROM jobs WHERE version_id=?", (first["version_id"],))["n"] == 1
     assert db.one("SELECT count(*) AS n FROM document_versions")["n"] == 1
     db.execute("UPDATE jobs SET state='cancelled' WHERE id=?", (first["job_id"],))
     retried = db.import_original("folder/suspended.pdf", digest, blob)
     assert retried["reused"] is False and retried["version_id"] == first["version_id"] and retried["job_id"] != first["job_id"]
+
+
+def test_api_reimport_during_cancelling_queues_a_new_job_like_reindex(storage):
+    """Ronde 4 : l'annulation reste définitive ; le réimport crée un travail neuf, exécuté après elle par la file séquentielle."""
+    db, digest, blob, first = suspended_fixture(storage)
+    db.execute("UPDATE jobs SET state='cancelling',cancel_requested=1 WHERE id=?", (first["job_id"],))
+    again = db.import_original("folder/suspended.pdf", digest, blob)
+    assert again["reused"] is False and set(again) == {"document_id", "version_id", "job_id", "reused"}
+    assert (again["document_id"], again["version_id"]) == (first["document_id"], first["version_id"]) and again["job_id"] != first["job_id"]
+    jobs = db.rows("SELECT id,state,cancel_requested FROM jobs WHERE version_id=? ORDER BY created_at,rowid", (first["version_id"],))
+    assert jobs == [{"id": first["job_id"], "state": "cancelling", "cancel_requested": 1}, {"id": again["job_id"], "state": "queued", "cancel_requested": 0}]
+    # Fin de l'annulation : le document non publié affiche le travail neuf en file, pas l'annulation.
+    with db.transaction() as connection:
+        connection.execute("UPDATE jobs SET state='cancelled' WHERE id=?", (first["job_id"],))
+        db.align_document_states(connection, [first["document_id"]])
+    assert db.one("SELECT state FROM documents WHERE id=?", (first["document_id"],))["state"] == "queued"
 
 
 def legacy_v2_database(path, patched=False):

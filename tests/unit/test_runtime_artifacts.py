@@ -1,6 +1,7 @@
 """Provisionnement par plateforme et extraction sûre des archives .tar.gz et .tar.zst (W018), sur archives construites."""
 
 import gzip
+import hashlib
 import io
 import json
 import tarfile
@@ -204,3 +205,71 @@ def test_links_of_an_earlier_extraction_are_replaced_by_the_same_links(root):
     first = extract_verified_archive(archive, root / "dest")
     assert extract_verified_archive(archive, root / "dest") == first
     assert (root / "dest/lib/libx.so").is_symlink() and (root / "dest/lib/libx.so.1").read_bytes() == b"bibliotheque"
+
+
+def _lock_with_sources_for_this_platform(root, monkeypatch, *, sources_sha256: str = "3" * 64) -> dict:
+    """Verrou dont le groupe `tesseract-source` vaut pour ce poste, entre deux groupes ordinaires."""
+    current = platform_id()
+    lock = {"schema_version": 1, "groups": {
+        "qdrant": [{"platform": current, "url": "https://ici/q", "target": "cache/q-ici.bin", "sha256": "1" * 64}],
+        "tesseract-source": [
+            {"platform": [current, "autre-plateforme"], "url": "https://sources/leptonica", "target": "cache/leptonica.tar.gz",
+             "sha256": sources_sha256, "content_sha256": "4" * 64},
+            {"platform": [current], "url": "https://sources/tesseract", "target": "cache/tesseract.tar.gz",
+             "sha256": sources_sha256, "content_sha256": "5" * 64}],
+        "tessdata": [{"url": "https://commun/fra", "target": "models/fra.traineddata", "git_blob_sha1": "2" * 40}]}}
+    (root / "config").mkdir(exist_ok=True)
+    (root / "config/artifacts.lock.json").write_text(json.dumps(lock), encoding="utf-8")
+    monkeypatch.setattr(artifacts, "ARTIFACT_LOCK", root / "config/artifacts.lock.json")
+    return lock
+
+
+def test_provision_leaves_the_tesseract_sources_to_the_tesseract_build(root, monkeypatch):
+    # Revue OCR R2b : provision_artifacts téléchargeait les sources avec contrôle strict de l'empreinte d'archive, avant
+    # provisioning.build_tesseract ; une archive de tag régénérée par GitHub (contenu conforme) était refusée avant
+    # d'atteindre la vérification par empreinte de contenu. Le groupe est désormais laissé à build_tesseract.
+    from services.runtime import provisioning
+
+    _lock_with_sources_for_this_platform(root, monkeypatch)
+    downloaded = []
+
+    def fake_download(entry, target, *, offline=False):
+        downloaded.append(entry["url"])
+        return {**entry, "path": str(target.relative_to(root)), "cached": True}
+
+    monkeypatch.setattr(artifacts, "download", fake_download)
+    manifest = artifacts.provision_artifacts()
+    assert downloaded == ["https://ici/q", "https://commun/fra"]
+    assert set(manifest) == {"qdrant", "tessdata"}
+    assert json.loads((root / ".runtime/manifests/artifacts.json").read_text(encoding="utf-8")) == manifest
+    # Même nom de groupe des deux côtés : celui que build_tesseract lit dans le verrou.
+    assert artifacts.TESSERACT_SOURCE_GROUP == provisioning.SOURCE_GROUP
+
+
+def test_offline_provision_accepts_a_regenerated_source_archive_left_for_the_tesseract_build(root, monkeypatch):
+    # Chaîne réelle hors ligne, sans double de download : archive des sources en cache d'empreinte différente du verrou
+    # (archive de tag régénérée). Avant correction : FileNotFoundError « Artefact offline absent ou corrompu ».
+    _lock_with_sources_for_this_platform(root, monkeypatch)
+    (root / "cache").mkdir()
+    for name in ("leptonica", "tesseract"):
+        (root / f"cache/{name}.tar.gz").write_bytes(b"archive regeneree " + name.encode())
+    qdrant = b"binaire qdrant"
+    (root / "cache/q-ici.bin").write_bytes(qdrant)
+    tessdata = b"modele fra"
+    (root / "models").mkdir()
+    (root / "models/fra.traineddata").write_bytes(tessdata)
+    lock = json.loads((root / "config/artifacts.lock.json").read_text(encoding="utf-8"))
+    lock["groups"]["qdrant"][0]["sha256"] = hashlib.sha256(qdrant).hexdigest()
+    lock["groups"]["tessdata"][0]["git_blob_sha1"] = hashlib.sha1(b"blob %d\0" % len(tessdata) + tessdata).hexdigest()
+    (root / "config/artifacts.lock.json").write_text(json.dumps(lock), encoding="utf-8")
+    manifest = artifacts.provision_artifacts(offline=True)
+    assert set(manifest) == {"qdrant", "tessdata"}
+    assert (root / "cache/tesseract.tar.gz").read_bytes() == b"archive regeneree tesseract"
+
+
+def test_provision_only_the_tesseract_sources_is_refused_with_the_command_to_run(root, monkeypatch):
+    _lock_with_sources_for_this_platform(root, monkeypatch)
+    monkeypatch.setattr(artifacts, "download", lambda *args, **kwargs: pytest.fail("aucun téléchargement attendu"))
+    with pytest.raises(ValueError, match="tesseract-source.*construction de Tesseract.*provision"):
+        artifacts.provision_artifacts("tesseract-source")
+    assert not (root / ".runtime/manifests/artifacts.json").exists()

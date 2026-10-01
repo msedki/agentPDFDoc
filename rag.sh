@@ -19,6 +19,7 @@ Options :
   --report <fichier>         rapport JSON
   --qdrant-storage <dossier> init-profile : dossier court du stockage Qdrant
   --ports <a,q,o>            init-profile : ports API, Qdrant et Ollama
+  --no-browser               open : afficher le lien à usage unique au lieu d'ouvrir le navigateur
   -h, --help                 cette aide
 EOF
 }
@@ -34,6 +35,7 @@ profile=config/local16.yaml
 only=
 offline=0
 skip_model=0
+no_browser=0
 path=
 target=
 report=
@@ -57,6 +59,7 @@ while [ "$#" -gt 0 ]; do
             ;;
         --offline) offline=1 ;;
         --skip-model) skip_model=1 ;;
+        --no-browser) no_browser=1 ;;
         --profile|--only|--path|--target|--report|--qdrant-storage|--ports)
             [ "$#" -ge 2 ] || fail "Option $option : valeur manquante."
             case "$option" in
@@ -108,6 +111,7 @@ set -- -m services.runtime.cli "$command_name" --profile "$resolved_profile"
 [ -z "$report" ] || set -- "$@" --report "$report"
 [ -z "$qdrant_storage" ] || set -- "$@" --qdrant-storage "$qdrant_storage"
 [ -z "$ports" ] || set -- "$@" --ports "$ports"
+[ "$no_browser" -eq 0 ] || set -- "$@" --no-browser
 
 export PYTHONUTF8=1
 # Le CLI et ses sondes (uv, pnpm, Tesseract) n'utilisent que les bibliothèques du système : un LD_LIBRARY_PATH hérité du

@@ -12,7 +12,8 @@ param(
     [string]$Target,
     [string]$Report,
     [string]$QdrantStorage,
-    [string]$Ports
+    [string]$Ports,
+    [switch]$NoBrowser
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = $PSScriptRoot
@@ -34,6 +35,7 @@ if ($Target) { $arguments += @('--target',$Target) }
 if ($Report) { $arguments += @('--report',$Report) }
 if ($QdrantStorage) { $arguments += @('--qdrant-storage',$QdrantStorage) }
 if ($Ports) { $arguments += @('--ports',$Ports) }
+if ($NoBrowser) { $arguments += '--no-browser' }
 $env:PYTHONUTF8 = '1'
 Push-Location -LiteralPath $projectRoot
 try {

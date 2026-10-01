@@ -489,7 +489,9 @@ def test_api_reindex_during_pausing_asks_to_wait_for_the_pause_without_claiming_
         refused = client.post(f"/api/v1/documents/{imported['document_id']}/reindex")
         assert refused.status_code == 409
         body = refused.json()
-        assert body["code"] == "job_pausing" and "attendre" in body["message"]
+        # Vocabulaire de l'atelier (Suivi, traitement, invitation à l'utilisateur), message affiché tel quel sous le bouton.
+        assert body["code"] == "job_pausing"
+        assert body["message"] == "Mise en pause en cours pour ce document : attendez qu'elle aboutisse, puis reprenez ce traitement depuis le Suivi."
         assert body["details"] == {"job_id": imported["job_id"], "version_id": imported["version_id"], "job_state": "pausing"}
         assert client.post(f"/api/v1/jobs/{imported['job_id']}/resume").json()["code"] == "job_not_resumable"
         assert [job["id"] for job in document_jobs(app, imported["document_id"])] == [imported["job_id"]]

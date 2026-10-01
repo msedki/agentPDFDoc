@@ -16,9 +16,12 @@ import zipfile
 from pathlib import Path, PurePosixPath
 from typing import Any
 
-from .platforms import entries_for_platform
+from .platforms import entries_for_platform, launcher_command
 
 ROOT = Path(__file__).resolve().parents[2]
+# Sources Leptonica et Tesseract (Linux) : téléchargées, vérifiées (empreinte d'archive, ou empreinte de contenu pour une
+# archive de tag régénérée par GitHub) et consignées par provisioning.build_tesseract, jamais par provision_artifacts.
+TESSERACT_SOURCE_GROUP = "tesseract-source"
 # Fenêtre zstd maximale acceptée (128 Mio, limite par défaut de zstd sans --long) : la mémoire de décompression reste
 # bornée ; l'archive Ollama 0.35.0 linux-arm64 annonce 8 Mio.
 ZSTD_MAX_WINDOW = 1 << 27
@@ -249,6 +252,12 @@ def provision_artifacts(only: str | None = None, *, offline: bool = False) -> di
     manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
     for name, entries in lock["groups"].items():
         if only and name != only:
+            continue
+        if name == TESSERACT_SOURCE_GROUP:
+            # Un contrôle strict ici refuserait, avant build_tesseract, une archive régénérée de contenu conforme.
+            if only and entries_for_platform(entries):
+                raise ValueError(f"Le groupe {name} est téléchargé, vérifié et consigné par la construction de Tesseract : "
+                                 f"exécuter {launcher_command('provision')} sans --only")
             continue
         records = []
         # Seules les entrées de ce poste (sans champ platform, ou avec le sien) sont téléchargées.

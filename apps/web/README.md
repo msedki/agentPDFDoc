@@ -5,7 +5,9 @@ native sur la même origine, sous Windows x86-64 ou Linux aarch64 et x86-64
 ([W018](../../RAG_Local_Agents/DECISIONS.md#w018-double-plateforme--windows-11-x86-64-et-linux-aarch64-natifs)
 et son complément du 01/10/2026). Les constats datés ci-dessous nomment le poste
 où ils ont été faits : le poste Windows 11 x86-64 de qualification ou le poste
-Linux aarch64 de développement ; aucun n'a été fait sur Linux x86-64.
+Linux aarch64 de développement ; aucun n'a été fait sur Linux x86-64. Ceux du
+30/09/2026, antérieurs au clonage du dépôt sur le poste Linux (01/10/2026,
+12:42 UTC), ont tous été faits sur le poste Windows de qualification.
 Les originaux, bibliothèques, jobs, recherches et questions viennent uniquement
 de `/api/v1`. Le build livré ne comporte aucune réponse simulée, fixture
 embarquée, requête de fonte/CDN ou route serveur Next.
@@ -22,13 +24,19 @@ exactes et dépendances sont dans `package.json` et `pnpm-lock.yaml`. Les états
 fixé à 10.34.1 par le champ `packageManager` de `package.json`, avec l'empreinte
 SHA-512 du paquet publiée par le [registre npm](https://registry.npmjs.org/pnpm/10.34.1)
 (`dist.integrity`, convertie en hexadécimal). Node doit satisfaire `engines.node`
-(22.13.0 au moins) : 22.17.0 sur le poste Windows, 24.16.0 (nvm) sur le poste
-Linux aarch64. La commande `pnpm` dépend du poste :
+(22.13.0 au moins) ; par exemple, le poste Windows de qualification emploie
+22.17.0 et le poste Linux aarch64 de développement 24.16.0, installé par nvm.
+La commande `pnpm` dépend du système :
 
-| Poste | `pnpm` employé | Condition pour obtenir 10.34.1 |
+| Système | `pnpm` employé | Condition pour obtenir 10.34.1 |
 |---|---|---|
 | Windows | `pnpm.cmd` du PATH, celui que cherche `services/runtime/cli.py` (`pnpm_command`) ; `scripts/build-monitored.py` passe toujours par le `pnpm.js` du Corepack livré avec Node | `pnpm.cmd` en 10.34.1, ou, pour Corepack, la version 10.34.1 dans son cache (`%LOCALAPPDATA%\node\corepack` par défaut), le build se faisant sans réseau |
-| Linux | shim `pnpm` de Corepack livré avec Node (sur le poste Linux aarch64, celui de Node 24.16.0 installé par nvm) | Corepack télécharge la version de `packageManager` et vérifie son empreinte au premier appel avec réseau, puis la garde dans son cache (`~/.cache/node/corepack` par défaut) |
+| Linux | Choix de `services/runtime/cli.py` (`pnpm_command`) : le `pnpm` du PATH s'il répond 10.34.1 à `pnpm --version` (lancé avec Corepack hors réseau) ; sinon `corepack pnpm` (Corepack du PATH) ; sans `corepack` dans le PATH, le `pnpm` du PATH quelle que soit sa version. `scripts/build-monitored.py` passe toujours par le `pnpm.js` du Corepack livré avec Node. Exemple local : sur le poste Linux aarch64 de développement, le `pnpm` du PATH est le shim de Corepack de Node 24.16.0 installé par nvm | `pnpm` du PATH en 10.34.1, ou, pour Corepack, la version 10.34.1 dans son cache (`~/.cache/node/corepack` par défaut) : Corepack la télécharge et vérifie son empreinte au premier appel avec réseau, alors que `rag.sh provision` et le build surveillé lancent Corepack hors réseau (`COREPACK_ENABLE_NETWORK=0`, voir ci-dessous). Sans `corepack` dans le PATH, le `pnpm` du PATH doit lui-même répondre 10.34.1 |
+
+Seul Corepack est privé de réseau : `pnpm install --frozen-lockfile`, lancé par
+`rag.ps1 provision` ou `rag.sh provision`, télécharge depuis le registre npm les
+paquets absents du store de pnpm, sauf avec `rag.ps1 provision -Offline` ou
+`rag.sh provision --offline`, qui lui passent `--offline`.
 
 Sans réseau (`COREPACK_ENABLE_NETWORK=0`), Corepack refuse de lancer une version
 absente de son cache (« Network access disabled by the environment; can't reach
@@ -47,9 +55,10 @@ aucun navigateur Playwright n'est installé au 01/10/2026 (`~/.cache/ms-playwrig
 ne contient qu'un lien vers un autre projet) ; `playwright install` n'y a pas été
 exécuté et aucune recette E2E n'y a tourné.
 
-Depuis ce dossier, sous un créneau de build accordé par le superviseur, sur le
-poste Windows (si `pnpm` y est le shim Corepack, `corepack install` doit avoir été
-exécuté une fois avec réseau, voir ci-dessus) :
+Depuis ce dossier, sous un créneau de build accordé par le superviseur, sous
+Windows, une fois les dépendances installées (`rag.ps1 provision` exécute
+`pnpm install --frozen-lockfile`) ; si `pnpm` y est le shim Corepack,
+`corepack install` doit avoir été exécuté une fois avec réseau (voir ci-dessus) :
 
 ```powershell
 $env:NEXT_TELEMETRY_DISABLED='1'
@@ -108,7 +117,18 @@ cd "<dépôt>/apps/web" && "<node>" "<préfixe de node>/lib/node_modules/corepac
 Corepack télécharge alors pnpm 10.34.1, vérifie son empreinte et le garde dans
 son cache (`COREPACK_HOME`, par défaut `%LOCALAPPDATA%\node\corepack` sous
 Windows et `~/.cache/node/corepack` sous Linux). Le résumé JSON final donne la
-version de pnpm employée (`pnpm`). L'arrêt sur cache vide, sans fichier écrit
+version de pnpm employée (`pnpm`) et celle de Node (`node_version`, sortie de
+`node --version`), que le premier relevé de `reports/build-<étiquette>-resources.jsonl`
+consigne aussi. Cette version est lue avant toute preuve, comme celle de pnpm
+(même dossier, même environnement, délai de 120 s) ; si Node ne la donne pas, le
+script s'arrête sans rien écrire dans `reports/`. Son message nomme la provenance
+du Node retenu et l'action qui lui correspond : corriger ou retirer `RAG_WEB_NODE`
+quand cette variable le désigne ; quand il vient du repli Windows du poste de
+qualification, désigner un Node valide par `RAG_WEB_NODE`, prioritaire sur ce
+repli ; quand il vient du PATH, désigner un Node par `RAG_WEB_NODE` ou corriger
+le `node` du PATH. Les relevés antérieurs à cet ajout (30/09/2026
+sur le poste Windows, 01/10/2026 sur le poste Linux) ne la contiennent pas ; elle
+n'y est pas reconstituée. L'arrêt sur cache vide, sans fichier écrit
 dans `reports/`, et la commande affichée ont été constatés le 01/10/2026 sur le
 poste Linux aarch64 en lançant le script avec un `COREPACK_HOME` vide. Rien n'a
 été exécuté sur le poste Windows : la présence de 10.34.1 dans le cache de
@@ -167,11 +187,11 @@ version installée par `tests/unit/pdf-styles.test.ts` : la feuille complète
 `web/pdf_viewer.css` n'est plus importée, car elle imposait `color-scheme: light dark`
 à `:root` et ajoutait au build 32 icônes et les styles du visualiseur et de
 l'éditeur PDF.js (163 832 octets en source dans pdfjs-dist 6.3.289), inutilisés
-ici. Le premier build Linux du 01/10/2026
-([manifeste](reports/export-manifest-2026-10-01-linux-aarch64.json)) exporte
+ici. Le premier build du poste Linux aarch64 de développement, le 01/10/2026
+([manifeste](reports/export-manifest-2026-10-01-linux-aarch64.json)), exporte
 243 fichiers pour 6 514 529 octets, dont une feuille CSS de 44 642 octets. Next utilise
-un seul worker. Ne pas lancer de build en concurrence avec OCR/LLM lourd sur le
-poste Windows de 16 Go.
+un seul worker. Ne pas lancer de build en concurrence avec OCR/LLM lourd sur un
+poste de 16 Go.
 
 Les trois panneaux partagent un scope explicite gelé par requête. Lire un PDF,
 tourner une page ou ouvrir une citation ne change pas ce scope. Les recherches
@@ -208,20 +228,33 @@ dernier traitement par `reindex_outcomes` dans le contrat (`src/lib/reindex.ts`,
 |---|---|---|
 | `queued`, `extracting`, `indexing` | 202, traitement en cours renvoyé (`reused`) | « Un traitement de ce document est déjà en cours : aucune nouvelle réindexation n'a été lancée. Sa progression s'affiche dans le Suivi. » |
 | `paused` | 202, ce traitement renvoyé avec `resume_required` | avis de pause et bouton « Reprendre le traitement », qui appelle `POST /jobs/{job_id}/resume` |
-| `pausing` | 409 `job_pausing`, aucun traitement créé | message du service, tel quel : « Mise en pause en cours pour ce document : attendre qu'elle aboutisse, puis reprendre ce travail depuis le Suivi. » |
+| `pausing` | 409 `job_pausing`, aucun traitement créé | message du service, tel quel : « Mise en pause en cours pour ce document : attendez qu'elle aboutisse, puis reprenez ce traitement depuis le Suivi. » |
 | `cancelling`, `cancelled`, `error`, `ready`, `ready_partial` | 202, traitement neuf mis en file ; pendant `cancelling`, l'annulation reste définitive et le nouveau traitement démarre après elle | « Réindexation demandée : sa progression s'affiche dans le Suivi. » |
 
 Le bouton n'est actif que pour un document `ready`, `ready_partial` ou `error`
 (comportement antérieur inchangé). Un `resume_required` avec un autre état que
 `paused`, que ce service ne renvoie pas, renvoie au Suivi sans proposer de reprise.
 
-À l'import, un fichier identique déjà importé au même chemin dont le traitement
-est `paused`, `pausing` ou `cancelling` ne relance rien : le service renvoie ce
-traitement avec `job_state` et `resume_required` (`Database.import_original`).
-L'avis de la bibliothèque le dit pour chaque cas et propose « Reprendre le
-traitement » pour les traitements en pause seulement, les deux autres états étant
-refusés par `POST /jobs/{job_id}/resume` (`src/lib/import-outcome.ts`,
-`tests/unit/import-outcome.test.ts`).
+À l'import, un fichier identique (même contenu) déjà importé au même chemin
+reçoit l'issue que le contrat décrit pour le dernier traitement de cette version
+(`import_outcomes`, `Database.import_original` dans `services/api/db.py`). L'avis
+de la bibliothèque suit la réponse (`src/lib/import-outcome.ts`,
+`tests/unit/import-outcome.test.ts`) ; les textes ci-dessous sont ceux d'un seul
+fichier reçu, un import de plusieurs fichiers comptant chaque cas :
+
+| Dernier traitement | Réponse du service | Avis de la bibliothèque |
+|---|---|---|
+| `queued`, `extracting`, `indexing`, `ready`, `ready_partial` | 202, ce traitement renvoyé (`reused: true`), aucun traitement créé | avis ordinaire de l'import : « 1 PDF reçu par le service. Son extraction et son indexation s'affichent dans le Suivi. » |
+| `paused` | 202, ce traitement renvoyé avec `job_state: "paused"` et `resume_required: true` | « Ce fichier était déjà importé à l'identique et son traitement est en pause : l'import n'en lance pas un second. Reprenez-le pour poursuivre son indexation depuis son dernier point de reprise. » et bouton « Reprendre le traitement », qui appelle `POST /jobs/{job_id}/resume` |
+| `pausing` | 202, ce traitement renvoyé avec `job_state: "pausing"`, sans `resume_required` ni traitement créé : `POST /jobs/{job_id}/resume` le refuserait (409 `job_not_resumable`) | « Ce fichier était déjà importé à l'identique et son traitement est en cours de mise en pause : l'import n'en lance pas un second. Une fois la pause effective, reprenez-le depuis le Suivi. », sans bouton |
+| `cancelling`, `cancelled`, `error` | 202, traitement neuf mis en file sur la même version (`reused: false`) ; pendant `cancelling`, l'annulation reste définitive et le nouveau traitement démarre après elle | avis ordinaire de l'import |
+
+Contrairement à la réindexation, l'import ne refuse pas `pausing` : il traite
+jusqu'à cinquante fichiers par requête et renvoie l'état pour que les autres
+fichiers soient importés. La reprise n'est proposée que pour un `job_state`
+`paused` accompagné de `resume_required: true` ; un autre `job_state`, que ce
+service ne renvoie pas, renvoie au Suivi sans proposer de reprise.
+
 Le SSE reprend le query ID et dernier event ID sans nouvelle génération ; seules
 les références enregistrées deviennent des citations cliquables.
 
@@ -326,7 +359,7 @@ pnpm exec playwright test --grep 'three panels|real import|immutable block'
 ```
 
 Le superviseur confirme d'abord que cette cible correspond aux services/données
-isolés prévus. Depuis le 01/10, sur le poste Windows,
+isolés prévus. Depuis le 01/10,
 `tools/qualification/e2e_instance.py start --state <etat.json>` fournit cette cible : instance neuve dans une racine et des ports temporaires, dont
 l'état donne l'origine (`RAG_E2E_BASE_URL`) et le fichier de jeton
 (`RAG_E2E_CONTROL_TOKEN_FILE`) ; `stop` l'arrête et supprime sa racine. Les scénarios
@@ -335,10 +368,10 @@ le 01/10 ([géométrie](reports/e2e-2026-10-01-import-isole-geometrie-evidence.j
 [parcours](reports/e2e-2026-10-01-import-isole-parcours-evidence.json)), ainsi que la sélection Unicode de
 `unicode-selection.spec.ts` (hors BMP, accent combinant, ligature, césure, sélection ambiguë refusée ;
 [rapport](reports/e2e-2026-10-01-unicode-selection-evidence.json)). Ces exécutions ont
-toutes eu lieu sur le poste Windows, et l'outil y est documenté avec
-`.venv\Scripts\python.exe` et les mécanismes de `rag.ps1 selftest` : c'est le seul
-poste où cette cible est utilisable aujourd'hui. Sous Linux, ni l'outil ni la
-recette E2E n'ont été exécutés ; leur prise en charge reste à établir.
+toutes eu lieu sur le poste Windows de qualification, avec `.venv\Scripts\python.exe`
+et les mécanismes de `rag.ps1 selftest`. L'en-tête de `e2e_instance.py` documente
+aussi une commande Linux, sur les mécanismes de `rag.sh selftest`, mais sous Linux
+ni l'outil ni la recette E2E n'ont été exécutés : leur prise en charge reste à établir.
 Une reprise fournit `RAG_E2E_REUSE_DOCUMENT_ID` et vérifie le SHA
 de la même fixture DEV, sans nouvel import. La question réelle exige un créneau
 distinct et `RAG_E2E_GENERATION_ALLOWED=1`. La sonde mémoire (`tests/e2e/resources.ts`,

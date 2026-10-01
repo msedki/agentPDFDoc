@@ -6,6 +6,9 @@ propre à ce poste) ; à défaut, le node du PATH. pnpm passe par le Corepack li
 par le champ packageManager de package.json. Le build s'exécute sans réseau (COREPACK_ENABLE_NETWORK=0) :
 avant d'écrire la moindre preuve, le script vérifie que Corepack lance cette version depuis son cache,
 et sinon s'arrête en donnant la commande `corepack install` à exécuter une fois avec réseau.
+La version de ce Node (`node --version`, lancé comme la sonde pnpm) est lue avant toute preuve, puis consignée
+dans le premier relevé de ressources et dans le résumé JSON (`node_version`) ; si elle manque, le message d'arrêt
+nomme la provenance de ce Node (RAG_WEB_NODE, repli Windows du poste de qualification ou PATH) et l'action à mener.
 Lancer avec l'interpréteur du projet (Python 3.12).
 """
 import argparse
@@ -20,6 +23,7 @@ import time
 from collections.abc import Callable, Mapping
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Literal, NamedTuple
 
 import psutil
 
@@ -27,34 +31,48 @@ import psutil
 WINDOWS_NODE = Path("D:/node/node-v22.17.0-win-x64/node.exe")
 NODE_VARIABLE = "RAG_WEB_NODE"
 PACKAGE_MANAGER = re.compile(r"pnpm@(\d+\.\d+\.\d+)(?:\+sha\d+\.[0-9a-f]+)?")
+# Forme de `node --version` : v<majeure>.<mineure>.<correctif>, suffixe de préversion admis (v24.0.0-rc.1).
+NODE_VERSION = re.compile(r"v\d+\.\d+\.\d+(?:-[0-9A-Za-z.]+)?")
+# Délai de chaque sonde lancée avant le build (node --version, pnpm --version).
+PROBE_TIMEOUT_SECONDS = 120
+# Provenance du Node retenu : RAG_WEB_NODE, repli WINDOWS_NODE ou PATH.
+NodeOrigin = Literal["variable", "windows_fallback", "path"]
+
+
+class Toolchain(NamedTuple):
+    """Node retenu, pnpm.js de son Corepack et provenance de ce Node, que cite l'échec de la sonde Node."""
+    node: Path
+    corepack: Path
+    origin: NodeOrigin
 
 
 def resolve_toolchain(environ: Mapping[str, str] = os.environ, platform: str = sys.platform,
-                      which: Callable[[str], str | None] = shutil.which) -> tuple[Path, Path]:
-    """Exécutable node et pnpm.js de son Corepack, ou SystemExit qui dit quoi fournir.
+                      which: Callable[[str], str | None] = shutil.which) -> Toolchain:
+    """Exécutable node, pnpm.js de son Corepack et provenance du node, ou SystemExit qui dit quoi fournir.
 
     Ordre : RAG_WEB_NODE s'il est renseigné (sans repli s'il désigne un fichier absent) ; sous Windows,
     WINDOWS_NODE s'il existe ; le node du PATH.
     """
     declared = environ.get(NODE_VARIABLE)
+    origin: NodeOrigin
     if declared:
-        node = Path(declared).resolve()
+        node, origin = Path(declared).resolve(), "variable"
         if not node.is_file():
             raise SystemExit(f"{NODE_VARIABLE} désigne {declared}, introuvable : corriger la variable ou la retirer")
     elif platform == "win32" and WINDOWS_NODE.is_file():
-        node = WINDOWS_NODE
+        node, origin = WINDOWS_NODE, "windows_fallback"
     else:
         found = which("node")
         if not found:
             raise SystemExit(f"node introuvable : renseigner {NODE_VARIABLE} ou placer node dans le PATH")
-        node = Path(found).resolve()
+        node, origin = Path(found).resolve(), "path"
     # Corepack est livré à côté de node.exe sous Windows, dans lib/node_modules sous Linux.
     layouts = (node.parent / "node_modules/corepack/dist/pnpm.js",
                node.parent.parent / "lib/node_modules/corepack/dist/pnpm.js")
     corepack = next((path for path in layouts if path.is_file()), None)
     if not node.is_file() or corepack is None:
         raise SystemExit(f"Node ou Corepack absent : {node} ; pnpm.js cherché dans {', '.join(map(str, layouts))}")
-    return node, corepack
+    return Toolchain(node, corepack, origin)
 
 
 def no_window() -> int:
@@ -81,16 +99,59 @@ def corepack_install_command(node: Path, corepack: Path, web: Path, platform: st
     return f'cd "{web}" && "{node}" "{corepack_js}" install'
 
 
+def probe_options(web: Path, environment: Mapping[str, str]) -> dict:
+    """Options communes des sondes lancées avant le build : dossier du projet, environnement du build, délai borné."""
+    return {"cwd": web, "env": dict(environment), "capture_output": True, "text": True, "encoding": "utf-8",
+            "errors": "replace", "timeout": PROBE_TIMEOUT_SECONDS, "creationflags": no_window()}
+
+
+def node_origin_advice(origin: NodeOrigin) -> str:
+    """Provenance du Node retenu et action qui la corrige, pour l'échec de la sonde Node."""
+    if origin == "variable":
+        return f"Ce Node est désigné par {NODE_VARIABLE} : corriger la variable ou la retirer, puis relancer ce build."
+    if origin == "windows_fallback":
+        return (f"Ce Node est le repli Windows propre au poste de qualification, employé faute de {NODE_VARIABLE} : "
+                f"désigner un exécutable Node valide par {NODE_VARIABLE}, prioritaire sur ce repli, puis relancer ce build.")
+    return (f"Ce Node est celui du PATH, employé faute de {NODE_VARIABLE} : désigner un exécutable Node valide par "
+            f"{NODE_VARIABLE}, prioritaire sur le PATH, ou corriger le node du PATH, puis relancer ce build.")
+
+
+def probe_node_version(node: Path, web: Path, environment: Mapping[str, str],
+                       run: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run, *, origin: NodeOrigin) -> str:
+    """Version de Node rendue par `node --version`, ou SystemExit avant toute preuve écrite.
+
+    `origin` est la provenance rendue par resolve_toolchain : le message d'arrêt donne l'action qui lui correspond.
+    """
+    code: int | None = None
+    try:
+        result = run([str(node), "--version"], **probe_options(web, environment))
+    except subprocess.TimeoutExpired:
+        reason = f"aucune réponse en {PROBE_TIMEOUT_SECONDS} s"
+    except OSError as error:
+        reason = f"lancement impossible ({error})"
+    else:
+        code, found = result.returncode, result.stdout.strip()
+        if code == 0 and NODE_VERSION.fullmatch(found):
+            return found
+        lines = (result.stderr or result.stdout).strip().splitlines()
+        reason = (f"sortie {found!r} au lieu de v<majeure>.<mineure>.<correctif>" if code == 0
+                  else (lines[-1] if lines else "aucune sortie"))
+    raise SystemExit(
+        f"{node} --version n'a pas donné la version de Node{f' (code {code})' if code is not None else ''} : {reason}\n"
+        "La preuve du build consigne cette version ; rien n'a été écrit dans reports/.\n"
+        + node_origin_advice(origin)
+    )
+
+
 def check_offline_pnpm(node: Path, corepack: Path, web: Path, environment: Mapping[str, str],
                        platform: str = sys.platform, run: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run) -> str:
     """Version de pnpm lancée sans réseau par Corepack, ou SystemExit qui donne la commande à exécuter."""
     expected = pinned_pnpm(web)
     code: int | None = None
     try:
-        result = run([str(node), str(corepack), "--version"], cwd=web, env=dict(environment), capture_output=True,
-                     text=True, encoding="utf-8", errors="replace", timeout=120, creationflags=no_window())
+        result = run([str(node), str(corepack), "--version"], **probe_options(web, environment))
     except subprocess.TimeoutExpired:
-        reason = "aucune réponse de Corepack en 120 s"
+        reason = f"aucune réponse de Corepack en {PROBE_TIMEOUT_SECONDS} s"
     else:
         code, found = result.returncode, result.stdout.strip()
         if code == 0 and found == expected:
@@ -115,7 +176,7 @@ def main():
     if not re.fullmatch(r"[A-Za-z0-9-]{1,90}", args.tag):
         parser.error("Use a unique simple evidence tag")
     web = Path(__file__).resolve().parents[1]
-    node, corepack = resolve_toolchain()
+    node, corepack, origin = resolve_toolchain()
     log = web / "reports" / f"build-{args.tag}.log"
     resources = web / "reports" / f"build-{args.tag}-resources.jsonl"
     manifest = web / "reports" / f"export-manifest-{args.tag}.json"
@@ -125,7 +186,9 @@ def main():
     environment.update(NEXT_TELEMETRY_DISABLED="1", COREPACK_ENABLE_NETWORK="0", NODE_OPTIONS="--max-old-space-size=2048", FORCE_COLOR="0")
     environment.pop("NO_COLOR", None)
     environment["PATH"] = str(node.parent) + os.pathsep + environment.get("PATH", "")
-    # Avant toute preuve : un pnpm absent du cache de Corepack ferait échouer le build hors ligne.
+    # Avant toute preuve : la version de Node consignée, puis pnpm, dont l'absence du cache de Corepack
+    # ferait échouer le build hors ligne.
+    node_version = probe_node_version(node, web, environment, origin=origin)
     pnpm_version = check_offline_pnpm(node, corepack, web, environment)
     psutil.cpu_percent(interval=0.2)
 
@@ -150,7 +213,7 @@ def main():
         def record(value):
             samples.write(json.dumps(value, ensure_ascii=True) + "\n")
             samples.flush()
-        record(sample("before"))
+        record({**sample("before"), "node_version": node_version})
         build = subprocess.Popen([str(node), str(corepack), "build"], cwd=web, env=environment, stdout=output, stderr=subprocess.STDOUT, creationflags=no_window())
         owned = psutil.Process(build.pid)
         while build.poll() is None:
@@ -164,7 +227,7 @@ def main():
             if path.is_file():
                 entries.append({"path": path.relative_to(web / "out").as_posix(), "bytes": path.stat().st_size, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()})
         manifest.write_text(json.dumps({"status": "BUILD_EXIT_0_STATIC_EXPORT", "files": len(entries), "total_bytes": sum(entry["bytes"] for entry in entries), "entries": entries}, indent=2), encoding="utf-8")
-    print(json.dumps({"exit_code": code, "elapsed_seconds": round(time.monotonic() - started, 2), "node": str(node), "pnpm_js": str(corepack), "pnpm": pnpm_version, "log": str(log), "resources": str(resources), "manifest": str(manifest) if code == 0 else None}))
+    print(json.dumps({"exit_code": code, "elapsed_seconds": round(time.monotonic() - started, 2), "node": str(node), "node_version": node_version, "pnpm_js": str(corepack), "pnpm": pnpm_version, "log": str(log), "resources": str(resources), "manifest": str(manifest) if code == 0 else None}))
     return code
 
 

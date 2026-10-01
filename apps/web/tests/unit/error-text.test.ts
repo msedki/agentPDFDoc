@@ -6,6 +6,7 @@
  * leur câblage est vérifié dans la source, la logique dans les modules qu'ils appellent.
  */
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import { ApiError, localFailure } from "../../src/lib/api-error.ts";
 import { HEALTH_RETRY_DELAYS_MS, knownLauncherCommands, retryLauncherCommands, type LauncherCommands } from "../../src/lib/launcher.ts";
@@ -52,7 +53,10 @@ test("components keep the failure itself and compute its text when they render",
 test("a failure kept in a state is shown with the commands known when it renders", () => {
   const unreachable = localFailure("NETWORK_ERROR", serviceUnreachableMessage);
   const http = localFailure("HTTP_502", commands => httpFailureMessage(502, commands));
-  const service = new ApiError("job_pausing", "Mise en pause en cours pour ce document : attendre qu'elle aboutisse, puis reprendre ce travail depuis le Suivi.");
+  // Message réel du service : 409 job_pausing de la réindexation (services/api/main.py).
+  const service = new ApiError("job_pausing", "Mise en pause en cours pour ce document : attendez qu'elle aboutisse, puis reprenez ce traitement depuis le Suivi.");
+  assert.ok(readFileSync(new URL("../../../../services/api/main.py", import.meta.url), "utf8").includes(`ApiError("job_pausing", ${JSON.stringify(service.message)}, 409`),
+    "le message de cette fixture diffère de celui de services/api/main.py");
   assert.match(errorMessage(unreachable, null), /\(\.\\rag\.ps1 status sous Windows ou \.\/rag\.sh status sous Linux\)/);
   assert.match(errorMessage(unreachable, LINUX), /\(\.\/rag\.sh status\)/);
   assert.match(errorMessage(http, LINUX), /la commande \.\/rag\.sh logs en donne l'emplacement\.$/);

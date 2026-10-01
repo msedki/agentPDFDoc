@@ -171,11 +171,19 @@ async def api_port_open(origin, timeout=API_PORT_PROBE_TIMEOUT_SECONDS):
     return await asyncio.to_thread(connect)
 
 
+# Fin du flux avant l'issue de la négociation TLS : le service a fermé la connexion sans présenter de certificat ni
+# refuser le protocole (essai réel : ConnectError -> EndOfStream -> SSLEOFError). Rien n'est alors prouvé sur TLS.
+TLS_STREAM_ENDED = (ssl.SSLEOFError, ssl.SSLZeroReturnError)
+
+
 def tls_failure(error):
-    """Vrai si l'erreur httpx provient de la négociation ou de la vérification TLS (certificat, protocole)."""
+    """Vrai si l'erreur httpx provient de la négociation ou de la vérification TLS (certificat, protocole).
+
+    Une fin de flux pendant la négociation (`TLS_STREAM_ENDED`) n'en est pas une : le service n'est pas identifié.
+    """
     seen = set()
     while error is not None and id(error) not in seen:
-        if isinstance(error, ssl.SSLError):
+        if isinstance(error, ssl.SSLError) and not isinstance(error, TLS_STREAM_ENDED):
             return True
         seen.add(id(error))
         error = error.__cause__ or error.__context__
@@ -188,7 +196,8 @@ async def assert_quiet(settings):
     L'API n'est tenue pour arrêtée que si son port refuse la connexion. Un service qui écoute est sondé sur `/health`
     (HTTPS en production, certificat du profil vérifié comme le fait le superviseur) : une réponse prouve une API en
     marche, un échec TLS ou HTTP laisse un service non identifié ; dans les deux cas le comparatif ne démarre pas.
-    Un délai dépassé, y compris pendant la négociation TLS d'un service muet, n'est pas un échec de vérification.
+    Un délai dépassé, y compris pendant la négociation TLS d'un service muet, n'est pas un échec de vérification, pas
+    plus qu'une fin de flux avant l'issue de la négociation (service qui accepte puis ferme la connexion).
     """
     try:
         listening = await api_port_open(settings.origin)

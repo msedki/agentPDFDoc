@@ -52,9 +52,11 @@ class Database:
     # États produits par l'API, publiés dans packages/contracts/contracts.json (test de non-dérive du contrat).
     JOB_STATES = frozenset({"queued", "extracting", "indexing", "pausing", "paused", "cancelling", "cancelled", "error", "ready", "ready_partial"})
     DOCUMENT_STATES = frozenset({"queued", "extracting", "indexing", "paused", "cancelled", "error", "ready", "ready_partial", "deleted"})
-    # Travail suspendu ou en cours d'arrêt : le réimport le désigne au lieu d'en créer un second. La réindexation ne
-    # reprend que `paused`, refuse `pausing` et, pendant `cancelling`, crée un travail neuf (main.py, reindex_document).
-    SUSPENDED_JOB_STATES = frozenset({"paused", "pausing", "cancelling"})
+    # Travail suspendu : le réimport d'un contenu identique le renvoie avec son état au lieu d'en créer un second, avec
+    # `resume_required` pour `paused` seulement (seul état que POST /jobs/{id}/resume accepte). Comme pour la
+    # réindexation (main.py, reindex_document), `cancelling` n'en fait pas partie : l'annulation est définitive et un
+    # travail neuf est créé (`import_outcomes` du contrat).
+    SUSPENDED_JOB_STATES = frozenset({"paused", "pausing"})
 
     def __init__(self, path: Path, busy_timeout_ms: int = 5000, cache_size_kib: int = 32768):
         self.path = Path(path)
@@ -223,9 +225,11 @@ class Database:
                 if job and job["state"] in {"queued", "extracting", "indexing", "ready", "ready_partial"}:
                     return {"document_id": document_id, "version_id": version_id, "job_id": job["id"], "reused": True}
                 if job and job["state"] in self.SUSPENDED_JOB_STATES:
-                    # Un second job concurrent sur la même version doublerait extraction et génération.
-                    return {"document_id": document_id, "version_id": version_id, "job_id": job["id"], "reused": True,
-                            "job_state": job["state"], "resume_required": True}
+                    # Un second job concurrent sur la même version doublerait extraction et génération. Pendant `pausing`,
+                    # le travail n'est pas encore reprenable : il est renvoyé avec son état, sans `resume_required`, et
+                    # non refusé comme par la réindexation (409), pour ne pas faire échouer l'import des autres fichiers.
+                    suspended = {"document_id": document_id, "version_id": version_id, "job_id": job["id"], "reused": True, "job_state": job["state"]}
+                    return {**suspended, "resume_required": True} if job["state"] == "paused" else suspended
             else:
                 version_id = uid()
                 connection.execute("INSERT INTO document_versions(id,document_id,sha256,blob_path,created_at) VALUES(?,?,?,?,?)", (version_id, document_id, sha256, str(blob_path), timestamp))

@@ -509,7 +509,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         if latest and latest["state"] == "paused":
             return {"job_id": latest["id"], "version_id": version["id"], "reused": True, "job_state": "paused", "resume_required": True}
         if latest and latest["state"] == "pausing":
-            raise ApiError("job_pausing", "Mise en pause en cours pour ce document : attendre qu'elle aboutisse, puis reprendre ce travail depuis le Suivi.", 409,
+            raise ApiError("job_pausing", "Mise en pause en cours pour ce document : attendez qu'elle aboutisse, puis reprenez ce traitement depuis le Suivi.", 409,
                            {"job_id": latest["id"], "version_id": version["id"], "job_state": "pausing"})
         job_id = uid()
         with db.transaction() as connection:

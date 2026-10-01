@@ -3,6 +3,7 @@ import contextlib
 import json
 import logging
 import os
+import re
 import sys
 import threading
 import time
@@ -14,7 +15,7 @@ from services.runtime.platforms import native_executable
 from .background import FailureLog, finish, log_unexpected_end
 from .db import json_dump, now
 from .errors import ApiError
-from .indexing import extraction_content_hash
+from .indexing import INDEXING_PROGRESS_START, extraction_content_hash
 from .query import empty_lease
 
 logger = logging.getLogger("rag.jobs")
@@ -176,6 +177,79 @@ class WorkerWatchdog:
                 "seconds_since_progress": round(now - self.last_progress, 1), "seconds_since_durable_window": round(now - self.last_window, 1)}
 
 
+# Progression d'un travail pendant l'extraction : de EXTRACTION_PROGRESS_START au lancement à INDEXING_PROGRESS_START
+# quand les fenêtres durables couvrent toutes les pages du préflight ; l'indexation reprend à cette valeur.
+EXTRACTION_PROGRESS_START = 0.05
+# Nom d'une fenêtre durable (`CheckpointStore.path`, services/ingestion/checkpoint.py) : première et dernière page, base 0.
+DURABLE_WINDOW_NAME = re.compile(r"window-(\d+)-(\d+)\.json")
+
+
+def extraction_progress(window_names, page_count):
+    """Progression de l'extraction : pages couvertes par les fenêtres durables sur le nombre de pages du préflight.
+
+    Chaque page compte une fois, même si des fenêtres se recouvrent ; une page hors du document est ignorée. La valeur
+    reste dans la plage de l'étape d'extraction, [EXTRACTION_PROGRESS_START ; INDEXING_PROGRESS_START].
+    """
+    covered: set[int] = set()
+    for name in window_names:
+        match = DURABLE_WINDOW_NAME.fullmatch(name)
+        if match:
+            covered.update(range(int(match[1]), min(int(match[2]), page_count - 1) + 1))
+    span = INDEXING_PROGRESS_START - EXTRACTION_PROGRESS_START
+    return round(EXTRACTION_PROGRESS_START + span * len(covered) / page_count, 4)
+
+
+class ExtractionProgress:
+    """Suit la progression d'une extraction depuis son dossier : fenêtres durables relevées par le watchdog, préflight.
+
+    À créer avant le lancement du worker. Celui-ci réécrit `preflight.json` (remplacement atomique) au début de chaque
+    extraction, puis n'y touche plus ; sous Windows, ce remplacement échoue si un autre processus a le fichier ouvert.
+    Le préflight d'un essai précédent (reprise) n'est donc jamais ouvert : il n'est lu qu'une fois réécrit par ce worker,
+    ce que révèle sa signature (inode, taille, date) différente de celle relevée avant le lancement.
+    """
+
+    def __init__(self, directory):
+        self.directory = Path(directory)
+        self.preflight = self.directory / "preflight.json"
+        self.previous_preflight = self._preflight_signature()
+        self.page_count: int | None = None
+        self.windows: tuple[str, ...] | None = None
+        self.value = EXTRACTION_PROGRESS_START
+
+    def _preflight_signature(self):
+        try:
+            status = self.preflight.stat()
+        except OSError:
+            return None
+        return status.st_ino, status.st_size, status.st_mtime_ns
+
+    def _read_page_count(self):
+        signature = self._preflight_signature()
+        if signature is None or signature == self.previous_preflight:
+            return None
+        try:
+            count = json.loads(self.preflight.read_text(encoding="utf-8")).get("page_count")
+        except (OSError, ValueError, AttributeError):
+            return None
+        return count if isinstance(count, int) and not isinstance(count, bool) and count > 0 else None
+
+    def update(self, windows):
+        """Rend la nouvelle progression quand les fenêtres durables ont changé et qu'elle diffère ; sinon None."""
+        windows = tuple(windows)
+        if windows == self.windows:
+            return None
+        if self.page_count is None:
+            self.page_count = self._read_page_count()
+            if self.page_count is None:
+                return None
+        self.windows = windows
+        value = extraction_progress(windows, self.page_count)
+        if value == self.value:
+            return None
+        self.value = value
+        return value
+
+
 class JobSupervisor:
     # Reprise de la boucle après une erreur de lecture de la file (SQLite verrouillé, gouverneur indisponible).
     retry_base_seconds = 0.5
@@ -285,7 +359,7 @@ class JobSupervisor:
         result_path.unlink(missing_ok=True)
         request = {"path": version["blob_path"], "output_dir": str(directory), "config": worker_profile(self.settings.profile),
                    "version_id": version["id"], "cancel_path": str(cancel_path)}
-        self.db.execute("UPDATE jobs SET state='extracting',stage='extracting',attempts=attempts+1,progress=0.05,heartbeat_at=?,updated_at=? WHERE id=?", (now(), now(), job["id"]))
+        self.db.execute("UPDATE jobs SET state='extracting',stage='extracting',attempts=attempts+1,progress=?,heartbeat_at=?,updated_at=? WHERE id=?", (EXTRACTION_PROGRESS_START, now(), now(), job["id"]))
         cached = await asyncio.to_thread(self.cached_extraction, version) if not self.ingestion_runner else None
         if cached:
             result, extraction_path = cached
@@ -299,6 +373,7 @@ class JobSupervisor:
             if sys.platform == "win32":
                 import subprocess
                 kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+            progress = ExtractionProgress(directory)
             process = await asyncio.create_subprocess_exec(sys.executable, "-m", "services.ingestion.worker", "--request", str(request_path), "--result", str(result_path), **kwargs)
             self.record_extraction(job, "native_worker")
             self._process = process
@@ -306,6 +381,11 @@ class JobSupervisor:
             scheduling = self.settings.value("resources", "scheduling", {}) or {}
             watchdog = WorkerWatchdog(directory, process.pid, scheduling.get("watchdog_no_progress_seconds_initial", 300),
                                       scheduling.get("watchdog_window_seconds_initial", 900))
+
+            def observe_worker():
+                # Fenêtres durables relevées par le watchdog, reprises pour la progression (aucun relevé de plus).
+                return watchdog.observe(), progress.update(watchdog.durable_windows())
+
             watchdog_error = None
             while process.returncode is None:
                 if self.cancelled(job["id"]) or self.checkpoint_requested():
@@ -313,8 +393,12 @@ class JobSupervisor:
                 try:
                     await asyncio.wait_for(process.wait(), timeout=0.5)
                 except TimeoutError:
-                    self.db.execute("UPDATE jobs SET heartbeat_at=?,updated_at=? WHERE id=?", (now(), now(), job["id"]))
-                    reason = await asyncio.to_thread(watchdog.observe)
+                    reason, advanced = await asyncio.to_thread(observe_worker)
+                    # La progression n'est écrite qu'avec le battement qui suit une fenêtre durable nouvelle.
+                    if advanced is None:
+                        self.db.execute("UPDATE jobs SET heartbeat_at=?,updated_at=? WHERE id=?", (now(), now(), job["id"]))
+                    else:
+                        self.db.execute("UPDATE jobs SET progress=?,heartbeat_at=?,updated_at=? WHERE id=?", (advanced, now(), now(), job["id"]))
                     if reason:
                         cancel_path.touch(exist_ok=True)
                         # A proven stalled owned subprocess is distinct from normal interactive checkpointing.

@@ -18,6 +18,7 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import tempfile
 import time
 import urllib.request
 import uuid
@@ -88,7 +89,8 @@ BUILD_MARKER = ".agentragpdf-build"
 # `cmake --install` n'existe qu'à partir de CMake 3.15 ; les deux projets exigent 3.10.
 MINIMUM_CMAKE = (3, 15)
 SYSTEM_LIBRARY_DIRS = ("/lib/", "/lib64/", "/usr/lib/", "/usr/lib64/")
-# Outils du système d'abord ; un outil ailleurs dans le PATH n'est retenu qu'à défaut (ou si cmake y est trop ancien).
+# Outils du système d'abord ; un outil ailleurs dans le PATH n'est retenu qu'à défaut, ou si cmake y est trop ancien,
+# ou si le compilateur n'y applique pas -ffile-prefix-map.
 SYSTEM_TOOL_DIRS = ("/usr/bin", "/bin")
 # PATH des étapes de compilation et de contrôle : ces dossiers, plus celui de chaque outil retenu hors d'eux.
 COMPILATION_PATH = ("/usr/bin", "/bin")
@@ -99,12 +101,16 @@ _LICENSE_FILES = {"leptonica": "leptonica-license.txt", "tesseract": "LICENSE"}
 
 # Les chaînes du binaire (__FILE__ des assertions de Tesseract) contiendraient sinon le chemin absolu du dossier de
 # construction, donc le dossier personnel de l'utilisateur, et son empreinte dépendrait de l'emplacement du projet.
-# Un compilateur qui refuse -ffile-prefix-map fait échouer les essais de compilation de la configuration ; un
-# compilateur qui l'ignorerait est arrêté par le contrôle des chaînes du binaire (absolute_build_paths). Le jeton est
-# remplacé à la compilation par ce dossier (et par son chemin résolu s'il passe par un lien) ; les options
-# consignées restent indépendantes de l'emplacement.
+# L'option apparaît dans le manuel de GCC 8.1.0 (« Overall Options »), absente de celui de GCC 7.5.0, et dans les
+# notes de version de Clang 10.0.0 (« New Compiler Flags »). build_tools retient le premier compilateur qui
+# l'applique, système d'abord ; missing_build_prerequisites refuse, avant la configuration, un compilateur retenu qui
+# ne l'applique pas, et un compilateur qui l'ignorerait malgré tout est arrêté par le contrôle des chaînes du binaire
+# (absolute_build_paths). Le jeton est remplacé à la compilation par ce dossier (et par son chemin résolu s'il passe
+# par un lien) ; les options consignées restent indépendantes de l'emplacement.
 BUILD_ROOT_TOKEN = "<build_root>"
 FILE_PREFIX_MAP = f"-ffile-prefix-map={BUILD_ROOT_TOKEN}=."
+FILE_PREFIX_MAP_MINIMUM = "GCC 8 ou Clang 10 au minimum"
+COMPILER_NAMES = {"cc": ("cc", "gcc", "clang"), "c++": ("c++", "g++", "clang++")}
 
 # Options relues dans les CMakeLists.txt des archives verrouillées (Leptonica 1.87.0, Tesseract 5.4.0).
 # Une variable que le projet n'utilise pas fait échouer la configuration au lieu d'être ignorée.
@@ -141,7 +147,11 @@ TESSERACT_OPTIONS = (
     # L'OSD (`--psm 0 -l osd`, orientation des régions) repose sur le moteur historique.
     "-DDISABLED_LEGACY_ENGINE=OFF",
     # LSTM en float : défaut amont de CMake (FAST_FLOAT) comme d'autotools (--enable-float32). Une construction
-    # d'essai en double (FAST_FLOAT=OFF, 01/10) lit les mêmes textes sur les cellules de la fixture OCR.
+    # d'essai en double (FAST_FLOAT=OFF, 01/10, Linux aarch64) et la construction en float de mêmes sources et options
+    # rendent les mêmes 36 lectures du glyphe « V » des cellules à 0° et à 90° de l'essai OCR (12 échelles ; --psm 6 ;
+    # fra+eng, fra, eng) : mêmes textes, mêmes confiances au centième de point près, précision des relevés conservés
+    # (TSV arrondi à deux décimales). Ce réglage n'explique donc pas l'échec du cas à 90° sous Linux. Rien n'est
+    # établi ainsi sur l'écart avec le binaire Windows, qui n'a pas lu ces images.
     "-DFAST_FLOAT=ON",
 )
 
@@ -222,22 +232,36 @@ def absolute_build_paths(binary: Path, build_root: Path) -> list[str]:
 def build_tools(search_path: str | None = None) -> dict[str, str | None]:
     """Outils de construction et de contrôle : dossiers système d'abord, puis le PATH de l'utilisateur.
 
-    cmake : le premier qui atteint MINIMUM_CMAKE ; à défaut, le premier trouvé, dont la version sera nommée.
+    La priorité porte sur les dossiers avant les noms : un `gcc` de SYSTEM_TOOL_DIRS l'emporte sur un `cc` du PATH
+    de l'utilisateur. Au sein d'un même groupe de dossiers, l'ordre des noms prime (cc, gcc, clang), puis celui des
+    dossiers. Dans cet ordre, cmake : le premier qui atteint MINIMUM_CMAKE ; compilateurs C et C++, choisis
+    indépendamment : le premier qui applique -ffile-prefix-map. À défaut, le premier trouvé, que
+    missing_build_prerequisites refuse en nommant sa version.
     """
     if search_path is None:
         search_path = os.pathsep.join([*SYSTEM_TOOL_DIRS, os.environ.get("PATH", os.defpath)])
     directories = list(dict.fromkeys(directory for directory in search_path.split(os.pathsep) if directory))
+    system = {os.path.normpath(directory) for directory in SYSTEM_TOOL_DIRS}
+    groups = ([directory for directory in directories if os.path.normpath(directory) in system],
+              [directory for directory in directories if os.path.normpath(directory) not in system])
 
-    def found(name: str) -> list[str]:
-        paths = (shutil.which(name, path=directory) for directory in directories)
+    def found(*names: str) -> list[str]:
+        paths = (shutil.which(name, path=directory) for group in groups for name in names for directory in group)
         return list(dict.fromkeys(path for path in paths if path))
 
     def first(*names: str) -> str | None:
-        return next((path for name in names for path in found(name)), None)
+        return next(iter(found(*names)), None)
+
+    def compiler(key: str, language: str) -> str | None:
+        candidates = found(*COMPILER_NAMES[key])
+        # Chaque candidat est sondé sous le PATH de compilation qu'il aurait : /usr/bin, /bin et son propre dossier.
+        conforming = (path for path in candidates
+                      if applies_file_prefix_map(path, language, _tool_environment({key: path})))
+        return next(conforming, candidates[0] if candidates else None)
 
     cmakes = found("cmake")
     cmake = next((path for path in cmakes if (cmake_version(path) or (0,)) >= MINIMUM_CMAKE), cmakes[0] if cmakes else None)
-    return {"cmake": cmake, "cc": first("cc", "gcc", "clang"), "c++": first("c++", "g++", "clang++"),
+    return {"cmake": cmake, "cc": compiler("cc", "c"), "c++": compiler("c++", "c++"),
             "make": first("make"), "ninja": first("ninja"), "ldd": first("ldd"), "readelf": first("readelf")}
 
 
@@ -277,6 +301,20 @@ def _header_available(compiler: str, header: str, env: dict[str, str]) -> bool:
     return result.returncode == 0
 
 
+def applies_file_prefix_map(compiler: str, language: str, env: dict[str, str]) -> bool:
+    """Le compilateur accepte -ffile-prefix-map et l'applique à __FILE__ (préprocesseur seul, aucun binaire produit).
+
+    Un compilateur qui refuse l'option (GCC 7 : « unrecognized command line option ») ou qui l'ignore est refusé.
+    """
+    with tempfile.TemporaryDirectory(prefix="agentragpdf-prefix-map-") as directory:
+        source = Path(directory) / ("essai.c" if language == "c" else "essai.cpp")
+        source.write_text("const char *chemin = __FILE__;\n", encoding="utf-8")
+        result = subprocess.run([compiler, f"-ffile-prefix-map={directory}=.", "-E", "-x", language, str(source)],
+                                capture_output=True, text=True, errors="replace", env=env, stdin=subprocess.DEVNULL,
+                                timeout=60, check=False)
+    return result.returncode == 0 and f'"./{source.name}"' in result.stdout
+
+
 def missing_build_prerequisites(tools: dict[str, str | None]) -> list[str]:
     """Prérequis absents, nommés ; les en-têtes sont vérifiés par le préprocesseur du compilateur C retenu."""
     env = _tool_environment(tools)
@@ -291,6 +329,17 @@ def missing_build_prerequisites(tools: dict[str, str | None]) -> list[str]:
         if version is None or version < MINIMUM_CMAKE:
             found = ".".join(str(part) for part in version) if version else "version illisible"
             missing.append(f"cmake 3.15 ou plus récent (trouvé : {found})")
+    # Contrôlé avant la configuration CMake, où un refus de l'option n'apparaîtrait que comme un échec des essais de
+    # compilation, sans nommer sa cause. build_tools n'a retenu un compilateur qui ne l'applique pas qu'à défaut d'un
+    # autre : le recours, sans droits d'administration, est un compilateur conforme dans le PATH de l'utilisateur.
+    for key, language, name in (("cc", "c", "C"), ("c++", "c++", "C++")):
+        tool = tools.get(key)
+        if tool and not applies_file_prefix_map(tool, language, env):
+            found = _first_line([tool, "--version"], env) or "version illisible"
+            names = "{}, {} ou {}".format(*COMPILER_NAMES[key])
+            missing.append(f"compilateur {name} appliquant -ffile-prefix-map ({FILE_PREFIX_MAP_MINIMUM}) : aucun compilateur "
+                           f"trouvé sous les noms {names} ne l'applique (premier trouvé : {found}) ; en installer un "
+                           "conforme dans un dossier du PATH de l'utilisateur, retenu à défaut de celui du système")
     compiler = tools.get("cc")
     if compiler:
         missing.extend(f"en-tête {header} de {label}" for header, label in REQUIRED_HEADERS.items()
@@ -518,22 +567,32 @@ def _source_archive(entry: dict[str, Any], *, offline: bool) -> tuple[Path, dict
     Empreinte d'archive conforme au verrou : cas nominal, par `artifacts.download`. Une entrée qui porte aussi
     `content_sha256` (archive de tag générée par GitHub, sans garantie de stabilité octet par octet) admet une
     archive d'empreinte différente, en cache ou servie à la même URL, dont le contenu extrait est vérifié ensuite.
+    Une archive en cache d'empreinte différente est vérifiée par son contenu, y compris en ligne, et jamais
+    remplacée implicitement : un contenu non conforme arrête la construction et l'archive reste pour diagnostic.
+
+    En ligne, un échec ne laisse aucun fichier partiel : le `.part` de `download` ou du téléchargement vérifié par
+    contenu (archive tronquée, trop volumineuse, transfert interrompu) est retiré avant de rendre l'erreur.
     """
     target = ROOT / entry["target"]
     tolerant = bool(entry.get("content_sha256"))
     if tolerant and target.is_file() and file_hash(target) != entry["sha256"]:
         return target, {"archive_sha256": file_hash(target), "archive_matches_lock": False, "origin": "cache"}
     cached = target.is_file()
+    part = target.with_name(target.name + ".part")
     try:
-        download(entry, target, offline=offline)
-    except ValueError:
-        # En ligne, après les essais de `download` : l'archive servie diffère du verrou. Même fichier partiel que
-        # `download`, remplacé par ce téléchargement puis retiré ou publié selon le contenu.
-        if offline or not tolerant:
-            raise
-        part = target.with_name(target.name + ".part")
-        _fetch_served_archive(entry, part)
-        return part, {"archive_sha256": file_hash(part), "archive_matches_lock": False, "origin": "download"}
+        try:
+            download(entry, target, offline=offline)
+        except ValueError:
+            # En ligne, après les essais de `download` : l'archive servie diffère du verrou. Même fichier partiel
+            # que `download`, remplacé par ce téléchargement puis retiré ou publié selon le contenu.
+            if offline or not tolerant:
+                raise
+            _fetch_served_archive(entry, part)
+            return part, {"archive_sha256": file_hash(part), "archive_matches_lock": False, "origin": "download"}
+    except BaseException:
+        if not offline:
+            part.unlink(missing_ok=True)
+        raise
     return target, {"archive_sha256": entry["sha256"], "archive_matches_lock": True, "origin": "cache" if cached else "download"}
 
 
@@ -690,13 +749,22 @@ def build_tesseract(profile: dict, *, offline: bool = False, jobs: int | None = 
             missing = missing_build_prerequisites(tools)
             if missing:
                 raise MissingBuildPrerequisites(missing)
-        archives = {name: _source_archive(entry, offline=offline) for name, entry in sources.items()}
+        archives: dict[str, tuple[Path, dict[str, Any]]] = {}
         build_root = ROOT / BUILD_DIR
-        existing = next(parent for parent in (build_root, *build_root.parents) if parent.exists())
-        if shutil.disk_usage(existing).free < 2 * 1024**3:
-            raise RuntimeError(f"Espace disque insuffisant sous {_display(existing)} pour compiler Tesseract, réserve 2 Gio")
-        _prepare_build_root(build_root)
-        source_dirs, archive_records = _extract_verified_sources(sources, archives, build_root / "src")
+        try:
+            for name, entry in sources.items():
+                archives[name] = _source_archive(entry, offline=offline)
+            existing = next(parent for parent in (build_root, *build_root.parents) if parent.exists())
+            if shutil.disk_usage(existing).free < 2 * 1024**3:
+                raise RuntimeError(f"Espace disque insuffisant sous {_display(existing)} pour compiler Tesseract, réserve 2 Gio")
+            _prepare_build_root(build_root)
+            source_dirs, archive_records = _extract_verified_sources(sources, archives, build_root / "src")
+        except BaseException:
+            # Archive servie (`.part`) pas encore vérifiée par son contenu ni publiée dans le cache : retirée.
+            for name, (archive, _) in archives.items():
+                if archive != ROOT / sources[name]["target"]:
+                    archive.unlink(missing_ok=True)
+            raise
         started_at = datetime.now(UTC)
         log_dir = ROOT / BUILD_LOGS / f"tesseract-{TESSERACT_VERSION}-{started_at:%Y%m%dT%H%M%SZ}"
         jobs = jobs or min(4, os.cpu_count() or 1)

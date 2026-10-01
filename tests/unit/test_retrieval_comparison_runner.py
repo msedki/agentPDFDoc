@@ -235,7 +235,8 @@ def test_retrieval_comparison_quiet_check_reaches_the_https_api_in_production(tm
 
 
 @pytest.mark.parametrize("failure,expected", [("tls", "comparison_api_tls_unverified"), ("connect", "comparison_api_unverified"),
-                                              ("timeout", "comparison_api_unverified")])
+                                              ("timeout", "comparison_api_unverified"), ("eof", "comparison_api_unverified"),
+                                              ("zero_return", "comparison_api_unverified")])
 def test_retrieval_comparison_quiet_check_never_takes_an_unidentified_listener_for_a_stopped_api(tmp_path, monkeypatch, failure, expected):
     """Revue A1 : seul un refus de connexion prouve l'arrêt ; un service qui écoute sans répondre à la sonde arrête le comparatif."""
     from services.api.settings import Settings
@@ -252,6 +253,14 @@ def test_retrieval_comparison_quiet_check_never_takes_an_unidentified_listener_f
                 raise httpx.ConnectError(str(error), request=request) from error
         if failure == "connect":
             raise httpx.ConnectError("Controlled connection reset after accept", request=request)
+        if failure in {"eof", "zero_return"}:
+            # Flux fermé par le service avant la fin de la négociation TLS : aucun certificat n'a été vérifié
+            # (chaîne réelle ConnectError -> EndOfStream -> SSLEOFError : test_api_tls.py).
+            ended = ssl.SSLEOFError(8, "EOF occurred in violation of protocol") if failure == "eof" else ssl.SSLZeroReturnError(6, "TLS/SSL connection has been closed (EOF)")
+            try:
+                raise ended
+            except ssl.SSLError as error:
+                raise httpx.ConnectError(str(error), request=request) from error
         raise httpx.ReadTimeout("Controlled silent listener", request=request)
     actual_client = httpx.AsyncClient
     monkeypatch.setattr(comparison.httpx, "AsyncClient", lambda **kwargs: actual_client(

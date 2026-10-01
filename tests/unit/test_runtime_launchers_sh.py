@@ -54,10 +54,30 @@ UV_ARCHIVES = {
 }
 
 
-def fake_host(tmp_path: Path, system: str, machine: str, *, digest: str = "0" * 64, archive: bytes = b"altere") -> Path:
-    """Doubles d'uname (plateforme simulée), de curl (écrit `archive`, consigne ses arguments) et de sha256sum (`digest`)."""
+GLIBC_HOST = "#!/bin/sh\n[ \"$1\" = GNU_LIBC_VERSION ] && echo 'glibc 2.31'\n"
+# Doubles d'un poste musl (forme attendue, non relevée sur un tel poste) : getconf sans GNU_LIBC_VERSION, code non nul ;
+# ldd --version qui nomme musl sur stderr.
+MUSL_GETCONF = "#!/bin/sh\necho \"getconf: $1: unknown variable\" >&2\nexit 1\n"
+MUSL_LDD = "#!/bin/sh\nprintf 'musl libc (x86_64)\\nVersion 1.2.5\\nDynamic Program Loader\\n' >&2\nexit 1\n"
+# Commande absente du poste, vue du script : le shell ne la trouve pas (code 127, message sur stderr). Le PATH des essais
+# contient /usr/bin, où getconf et ldd existent sur ce poste : l'absence est donc simulée par ce double.
+ABSENT = "#!/bin/sh\necho \"sh: 1: ${0##*/}: not found\" >&2\nexit 127\n"
+
+
+def ldd_banner(first_line: str) -> str:
+    """Double de `ldd --version` : première ligne donnée, suivie de la mention de copyright de la glibc."""
+    return f"#!/bin/sh\nprintf '%s\\n' '{first_line}' 'Copyright (C) 2020 Free Software Foundation, Inc.'\n"
+
+
+def fake_host(tmp_path: Path, system: str, machine: str, *, digest: str = "0" * 64, archive: bytes = b"altere",
+              getconf: str = GLIBC_HOST, ldd: str | None = None) -> Path:
+    """Doubles d'uname (plateforme simulée), de getconf et ldd (bibliothèque C simulée, glibc 2.31 par défaut), de curl
+    (écrit `archive`, consigne ses arguments) et de sha256sum (`digest`)."""
     fakes = tmp_path / "doubles"
     executable(fakes / "uname", f'#!/bin/sh\ncase "$1" in -s) echo {system} ;; -m) echo {machine} ;; esac\n')
+    executable(fakes / "getconf", getconf)
+    if ldd is not None:
+        executable(fakes / "ldd", ldd)
     (fakes / "archive.bin").write_bytes(archive)
     executable(fakes / "curl", "#!/bin/sh\n"
                f"printf '%s\\n' \"$@\" > '{fakes}/curl.args'\n"
@@ -86,7 +106,7 @@ def test_rag_sh_help_lists_the_commands_and_options_of_rag_ps1(tmp_path):
     result = run(project(tmp_path) / "rag.sh", "--help")
     assert result.returncode == 0 and result.stdout.startswith("Usage : ./rag.sh")
     for word in ("provision", "doctor", "pull-model", "init-profile", "selftest", "--only", "--offline", "--skip-model",
-                 "--path", "--target", "--report", "--qdrant-storage", "--ports", "--profile"):
+                 "--path", "--target", "--report", "--qdrant-storage", "--ports", "--profile", "--no-browser"):
         assert word in result.stdout
 
 
@@ -196,3 +216,69 @@ def test_bootstrap_sh_offline_without_uv_and_a_tampered_archive_are_refused(tmp_
 def test_rag_sh_does_not_pass_ld_library_path_to_the_project_interpreter(tmp_path):
     result = run(project(tmp_path) / "rag.sh", "status", extra_env={"LD_LIBRARY_PATH": "/opt/fournisseur/lib64:"})
     assert result.returncode == 0 and json.loads(result.stdout)["ld"] is None
+
+
+LIBC_REQUIREMENT = "bootstrap.sh exige la glibc 2.28 ou plus récente (roues manylinux_2_28 du verrou)"
+UNKNOWN_LIBC = (f"Bibliothèque C non reconnue (ni getconf GNU_LIBC_VERSION ni ldd --version ne donnent de version de glibc) : "
+                f"{LIBC_REQUIREMENT}.")
+
+
+@pytest.mark.parametrize("machine", sorted(UV_ARCHIVES))
+@pytest.mark.parametrize(("getconf", "ldd", "message"), [
+    (MUSL_GETCONF, MUSL_LDD, f"Bibliothèque C musl détectée : {LIBC_REQUIREMENT} ; utiliser une distribution Linux à glibc."),
+    ("#!/bin/sh\necho 'glibc 2.27'\n", None, f"glibc 2.27 trop ancienne : {LIBC_REQUIREMENT} ; utiliser une distribution plus récente."),
+    ("#!/bin/sh\necho 'glibc 2.17'\n", None, f"glibc 2.17 trop ancienne : {LIBC_REQUIREMENT} ; utiliser une distribution plus récente."),
+    ("#!/bin/sh\necho 'glibc 1.99'\n", None, f"glibc 1.99 trop ancienne : {LIBC_REQUIREMENT} ; utiliser une distribution plus récente."),
+    (MUSL_GETCONF, "#!/bin/sh\necho 'ldd (autre libc) 9.9'\n", UNKNOWN_LIBC),
+    ("#!/bin/sh\necho 'glibc deux.vingt'\n", ldd_banner("ldd (GNU libc) deux.vingt"), UNKNOWN_LIBC),
+    (ABSENT, MUSL_LDD, f"Bibliothèque C musl détectée : {LIBC_REQUIREMENT} ; utiliser une distribution Linux à glibc."),
+    (ABSENT, ldd_banner("ldd (GNU libc) 2.27"),
+     f"glibc 2.27 trop ancienne : {LIBC_REQUIREMENT} ; utiliser une distribution plus récente."),
+    (ABSENT, ldd_banner("ldd (Debian GLIBC 2.24-11+deb9u4) 2.24"),
+     f"glibc 2.24 trop ancienne : {LIBC_REQUIREMENT} ; utiliser une distribution plus récente."),
+    (ABSENT, ABSENT, UNKNOWN_LIBC),
+], ids=["musl", "glibc-2.27", "glibc-2.17", "glibc-1.99", "libc-inconnue", "version-illisible", "sans-getconf-musl",
+        "sans-getconf-glibc-2.27", "sans-getconf-glibc-debian-2.24", "ni-getconf-ni-ldd"])
+def test_bootstrap_sh_refuses_musl_or_a_glibc_older_than_2_28_before_any_download(tmp_path, machine, getconf, ldd, message):
+    # Roues manylinux_2_28 du verrou (torch, torchvision, onnxruntime). Sans ce contrôle, le lanceur téléchargeait uv puis
+    # échouait plus loin (revue R1b : « Version uv différente du verrou. » sous musl, uv sync avec une glibc ancienne).
+    root = project(tmp_path)
+    result = run(root / "bootstrap.sh", path_prefix=fake_host(tmp_path, "Linux", machine, getconf=getconf, ldd=ldd))
+    assert result.returncode == 1 and result.stdout == ""
+    assert result.stderr.strip() == message
+    assert not (root / ".runtime").exists() and not (tmp_path / "doubles/curl.args").exists()
+
+
+@pytest.mark.parametrize("version", ["2.28", "2.39", "3.0"])
+def test_bootstrap_sh_accepts_glibc_2_28_and_later(tmp_path, version):
+    # Contrôle passé : le lanceur poursuit jusqu'au kit hors ligne absent, première étape après lui.
+    root = project(tmp_path)
+    fakes = fake_host(tmp_path, "Linux", "x86_64", getconf=f"#!/bin/sh\necho 'glibc {version}'\n")
+    result = run(root / "bootstrap.sh", "--offline", path_prefix=fakes)
+    assert result.returncode == 1 and result.stderr.strip() == "uv local absent du kit offline."
+
+
+@pytest.mark.parametrize("machine", sorted(UV_ARCHIVES))
+@pytest.mark.parametrize("first_line", ["ldd (GNU libc) 2.39", "ldd (Ubuntu GLIBC 2.31-0ubuntu9.18) 2.31",
+                                        "ldd (Debian GLIBC 2.36-9+deb12u4) 2.36"],
+                         ids=["gnu-libc-2.39", "ubuntu-glibc-2.31", "debian-glibc-2.36"])
+def test_bootstrap_sh_without_getconf_identifies_the_glibc_by_ldd_version(tmp_path, machine, first_line):
+    # Poste glibc sans getconf : la première ligne de `ldd --version` nomme la glibc (« GNU libc », ou « GLIBC » précédé
+    # de la distribution) et finit par sa version. Avant correction : « Bibliothèque C non reconnue ». La forme Ubuntu est
+    # celle relevée sur le poste de développement (Ubuntu 20.04, /usr/bin/ldd) ; la forme Debian est supposée par analogie.
+    root = project(tmp_path)
+    fakes = fake_host(tmp_path, "Linux", machine, getconf=ABSENT, ldd=ldd_banner(first_line))
+    result = run(root / "bootstrap.sh", "--offline", path_prefix=fakes)
+    assert result.returncode == 1 and result.stderr.strip() == "uv local absent du kit offline."
+
+
+def test_rag_sh_passes_no_browser_to_the_cli_and_keeps_the_browser_by_default(tmp_path):
+    # Poste sans navigateur (serveur, session SSH) : `./rag.sh open --no-browser` affiche le lien à usage unique ;
+    # l'option était refusée par le lanceur (« Option inconnue »), seul le CLI la connaissait.
+    root = project(tmp_path)
+    profile = str(root.resolve() / "config/local16.yaml")
+    result = run(root / "rag.sh", "open", "--no-browser")
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["argv"] == ["-m", "services.runtime.cli", "open", "--profile", profile, "--no-browser"]
+    default = run(root / "rag.sh", "open")
+    assert json.loads(default.stdout)["argv"] == ["-m", "services.runtime.cli", "open", "--profile", profile]

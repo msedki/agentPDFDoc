@@ -238,6 +238,45 @@
       "rule": "a new queued job is created on the latest version; while cancelling, the cancellation stays final and the queue, which runs one job at a time, starts the new job after it"
     }
   },
+  "import_response": {
+    "imports": [
+      {
+        "document_id": "uuid",
+        "version_id": "uuid",
+        "job_id": "uuid: the queued job created for a new path or new content (new version), or, when identical content was already imported at the same path, the job given by import_outcomes",
+        "reused": false,
+        "job_state": "paused|pausing, only when the last job of the identical version is suspended and returned instead of a new job; outcome of every last job state in import_outcomes",
+        "resume_required": "true with job_state paused only: resume that job (POST /jobs/{job_id}/resume) instead of starting a second extraction"
+      }
+    ],
+    "document_id|version_id|job_id|reused|job_state|resume_required": "with a single file only: the fields of imports[0], repeated at the top level"
+  },
+  "import_outcomes": {
+    "queued|extracting|indexing|ready|ready_partial": {
+      "status": 202,
+      "fields": "document_id|version_id|job_id|reused",
+      "reused": true,
+      "rule": "identical content already imported at the same path: its last job is returned and no job is created"
+    },
+    "paused": {
+      "status": 202,
+      "fields": "document_id|version_id|job_id|reused|job_state|resume_required",
+      "reused": true,
+      "rule": "the paused job is returned, to resume, instead of a second extraction"
+    },
+    "pausing": {
+      "status": 202,
+      "fields": "document_id|version_id|job_id|reused|job_state",
+      "reused": true,
+      "rule": "the job cannot be resumed yet (POST /jobs/{job_id}/resume answers 409 job_not_resumable): it is returned with job_state pausing, without resume_required, and no job is created; the other files of the request are imported (reindex refuses this state with 409 job_pausing)"
+    },
+    "cancelling|cancelled|error": {
+      "status": 202,
+      "fields": "document_id|version_id|job_id|reused",
+      "reused": false,
+      "rule": "a new queued job is created on the identical version; while cancelling, the cancellation stays final and the queue, which runs one job at a time, starts the new job after it"
+    }
+  },
   "query_request": {
     "question": "string",
     "scope": {},

@@ -17,8 +17,10 @@ from services.runtime.platforms import native_executable
 pytestmark = [pytest.mark.integration, pytest.mark.slow]
 
 # Police de la fixture : Arial sous Windows, comme jusqu'ici ; ailleurs Liberation Sans Regular seule, police libre
-# aux métriques d'Arial (mêmes chasses, donc même mise en page des cellules). Aucune autre police n'est substituée :
-# DejaVu Sans, par exemple, a d'autres chasses. Texte, corps et positions sont inchangés.
+# aux métriques d'Arial (mêmes chasses, donc même mise en page des cellules ; le dessin des glyphes diffère, et
+# l'effet de cette différence sur l'OCR n'est pas mesuré séparément, voir le cas [90]). Aucune autre police n'est
+# substituée : DejaVu Sans, par exemple, a d'autres chasses. Texte, corps et positions sont inchangés. Seuls les
+# essais qui dessinent la fixture demandent la police (marqueur `usefixtures("recorded_fixture_font")`).
 FONT_SEARCH_ROOTS = (Path("/usr/share/fonts"), Path("/usr/local/share/fonts"),
                      Path.home() / ".local/share/fonts", Path.home() / ".fonts")
 LIBERATION_SANS_MISSING = ("Police de fixture Liberation Sans Regular (métriques d'Arial) introuvable sous /usr/share/fonts, "
@@ -58,9 +60,13 @@ def fixture_font_evidence(font_path):
             "font_revision": _font_revision(font_path), "platform": sys.platform}
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def recorded_fixture_font(record_property):
-    """Police de la fixture consignée dans le rapport JUnit de chaque essai de ce module."""
+    """Police de la fixture consignée dans le rapport JUnit de chaque essai qui dessine la fixture.
+
+    Demandée par marqueur (`usefixtures`) sur ces seuls essais : sans la police, eux seuls sont ignorés, avec le motif
+    LIBERATION_SANS_MISSING, avant tout chargement de Docling ; les autres essais du module s'exécutent.
+    """
     for key, value in fixture_font_evidence(fixture_font()).items():
         record_property(key, value)
 
@@ -197,6 +203,7 @@ def assert_nominal_table(page, image_rotation=0):
         assert limit[1] - 3 <= region[1] <= region[3] <= limit[3] + 3
 
 
+@pytest.mark.usefixtures("recorded_fixture_font")
 def test_real_mixed_native_and_scanned_table_without_duplicate(tmp_path, actual_profile):
     original = write_printed_pdf(tmp_path / "mixed.pdf")
     source_hash = hashlib.sha256(original.read_bytes()).hexdigest()
@@ -221,6 +228,15 @@ def test_real_mixed_native_and_scanned_table_without_duplicate(tmp_path, actual_
     Path(tmp_path / "fixture-proof.json").write_text(json.dumps({"source_sha256": source_hash, "coverage": result["coverage"], "warnings": result["warnings"], "ocr_cell_count": page["ocr_cell_count"]}), encoding="utf-8")
 
 
+# Cas [90] : l'image tournée (600×1000 px) occupe le même cadre de 500×320 pt qu'à 0°, géométrie qualifiée 4/4 sous
+# Windows avec Arial (W009). Sous Linux aarch64 (Liberation Sans 2.1, Tesseract 5.4.0 compilé), mesures du 01/10 :
+# échec à la limite du seuil, cellule « V » lue « Vv » à 0,74 pour un seuil de 0,8. Le glyphe n'y fait que 18×19 px
+# après la restauration d'aspect, qui ne fait que réduire (0,96 px rendu par pixel source, contre 1,5 à 1,6 à 0°) ;
+# dans un cadre permuté (320×500 pt), la cellule est lue « V » à 0,90, et à 0° dans un cadre réduit à la même densité,
+# « Vv » à 0,72. Une construction LSTM en double (FAST_FLOAT=OFF) lit les mêmes textes. L'écart avec Windows n'est pas
+# départagé entre la police et le binaire : le Tesseract Windows n'a pas encore lu l'image de cellule conservée.
+# Fixture, seuil et assertions restent ceux de W009 tant qu'aucune décision n'est consignée.
+@pytest.mark.usefixtures("recorded_fixture_font")
 @pytest.mark.parametrize("rotation", [0, 90])
 def test_real_french_scan_and_region_orientation(tmp_path, actual_profile, rotation):
     original = write_printed_pdf(tmp_path / "scan.pdf", native=False, image_rotation=rotation)
@@ -236,6 +252,7 @@ def test_real_french_scan_and_region_orientation(tmp_path, actual_profile, rotat
     assert all(block["source_text_hash"] == hashlib.sha256(block["raw_text"].encode()).hexdigest() for block in page["blocks"])
 
 
+@pytest.mark.usefixtures("recorded_fixture_font")
 def test_real_five_page_scan_reuses_pipeline_across_windows(tmp_path, actual_profile):
     import pypdfium2 as pdfium
 

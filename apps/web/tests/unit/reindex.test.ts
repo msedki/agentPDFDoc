@@ -18,7 +18,13 @@ const STARTED = "Réindexation demandée : sa progression s'affiche dans le Suiv
 const RUNNING = "Un traitement de ce document est déjà en cours : aucune nouvelle réindexation n'a été lancée. Sa progression s'affiche dans le Suivi.";
 const PAUSED = "Le dernier traitement de ce document est en pause : la réindexation n'en lance pas un second. Reprenez-le pour poursuivre l'indexation depuis son dernier point de reprise.";
 // Message du service (services/api/main.py, reindex_document), affiché tel quel sous le bouton.
-const PAUSING_MESSAGE = "Mise en pause en cours pour ce document : attendre qu'elle aboutisse, puis reprendre ce travail depuis le Suivi.";
+const PAUSING_MESSAGE = "Mise en pause en cours pour ce document : attendez qu'elle aboutisse, puis reprenez ce traitement depuis le Suivi.";
+
+test("the pausing message of the fixture is the one the service sends", () => {
+  // Une fixture périmée ferait vérifier l'affichage d'un message que le service n'envoie plus.
+  const service = readFileSync(new URL("../../../../services/api/main.py", import.meta.url), "utf8");
+  assert.ok(service.includes(`ApiError("job_pausing", ${JSON.stringify(PAUSING_MESSAGE)}, 409`), "PAUSING_MESSAGE diffère du message 409 job_pausing de services/api/main.py");
+});
 
 test("the suspended job states handled are those of the contract", () => {
   const field: string = contract.reindex_response.job_state;
