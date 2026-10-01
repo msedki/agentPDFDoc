@@ -1,0 +1,26 @@
+{
+  "subject": "Appels au modèle par question (critères D05 : vrai modèle Ollama local, une seule génération par question nominale)",
+  "observed_utc": "2026-10-01T05:33:00Z",
+  "instance": "d6789c32c17c40f586efc15099abdf22 (instance principale, vie de 04:29 à 05:04 UTC)",
+  "code": "986d846 pour l'API (prompt), 0c7fd84 pour l'interface",
+  "profile": "config/local16.yaml, modèle qwen3.5:4b-text",
+  "method": "Requêtes POST du journal HTTP d'Ollama de l'instance (.runtime/data/logs/<instance>/ollama.log, lignes [GIN]) rapprochées des questions de la table query_runs créées sur la même période (lecture seule) ; lecture des points d'appel du modèle dans services/api.",
+  "questions": [
+    {"query_id": "3a69320b-12b5-45fc-a260-e4590cc7ec1f", "created_utc": "04:30:03", "state": "done", "origin": "API (scratchpad r2_question.py)"},
+    {"query_id": "7803f233-6582-4096-b21a-899d5c06fa2a", "created_utc": "04:47:14", "state": "done", "origin": "E2E workspace.spec.ts, génération"},
+    {"query_id": "4a51e69c-3758-4b2a-a8b6-23272a74f2ca", "created_utc": "04:59:08", "state": "done", "origin": "E2E workspace.spec.ts, génération"}
+  ],
+  "ollama_post_requests": [
+    {"completed_utc": "04:33:21", "route": "/api/chat"},
+    {"completed_utc": "04:41:23", "route": "/api/generate", "note": "déchargement manuel keep_alive 0, sans prompt, envoyé hors de l'API pour libérer la mémoire"},
+    {"completed_utc": "04:49:58", "route": "/api/chat"},
+    {"completed_utc": "04:59:59", "route": "/api/chat"}
+  ],
+  "call_sites": {
+    "generation": "services/api/query.py:229 -> services/api/ollama.py:130 (POST /api/chat, flux)",
+    "control": "services/api/ollama.py:96 (POST /api/generate, prompt vide, keep_alive 0 : déchargement)",
+    "retrieval_and_context": "aucun appel au modèle de langue (recherche hybride, contexte et validation des citations locaux)"
+  },
+  "result": "3 questions terminées, 3 appels /api/chat : une génération par question, aucun appel supplémentaire de reformulation, de reclassement ou de jugement.",
+  "limits": "Échantillon de trois questions sur une instance ; l'heure du journal [GIN] est celle de la fin de la requête. Les questions de la recette finale (R13) restent à rapprocher de la même façon."
+}
