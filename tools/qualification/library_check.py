@@ -4,13 +4,13 @@ L'instance est démarrée par `tools/qualification/e2e_instance.py start` ; cet 
 un cas à la fois, avec les fixtures contrôlées de `fixtures/qualification-v2.1/`. Chaque cas ajoute son résultat au
 rapport ; aucun cas ne touche la bibliothèque de l'utilisateur.
 
-    tree      import d'un dossier : sous-dossiers Unicode, fichiers homonymes, originaux relus octet pour octet (D02.27, D02.28)
-    reimport  réimport identique : même document, version et traitement, aucun calcul supplémentaire (D03.42)
-    move      déplacement : chemin changé, aucun traitement ni calcul d'embedding (D03.43)
-    versions  seconde version au même chemin : invisible en recherche avant sa publication (D03.44)
-    delete    retrait : exclu des recherches aussitôt, points Qdrant nettoyés ensuite (D03.45)
-    errors    PDF chiffré, structure invalide, page blanche : état explicite (D02.34)
-    size      PDF au-delà de la limite du profil : refus 413, aucun document créé (D02.34 ; instance lancée avec --max-file-mib)
+    tree      import d'un dossier : sous-dossiers Unicode, fichiers homonymes, originaux relus octet pour octet (D02.1, D02.2)
+    reimport  réimport identique : même document, version et traitement, aucun calcul supplémentaire (D03.1)
+    move      déplacement : chemin changé, aucun traitement ni calcul d'embedding (D03.2)
+    versions  seconde version au même chemin : invisible en recherche avant sa publication (D03.3)
+    delete    retrait : exclu des recherches aussitôt, points Qdrant, fragments et index plein texte nettoyés ensuite (D03.4)
+    errors    PDF chiffré, structure invalide, page blanche : état explicite (D02.8)
+    size      PDF au-delà de la limite du profil : refus 413, aucun document créé (D02.8 ; instance lancée avec --max-file-mib)
 
     .venv\\Scripts\\python.exe tools/qualification/library_check.py <cas> --instance <etat.json> --report <rapport.json>
 """
@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sqlite3
 import time
 from datetime import UTC, datetime
 from pathlib import Path
@@ -182,10 +183,18 @@ def case_delete(instance: Instance, report: dict) -> dict:
         if points_after == 0 and pending == 0:
             break
         time.sleep(3)
+    # Index plein texte : lecture seule de la base de l'instance isolée ; les lignes FTS suivent la table chunks par déclencheur.
+    profile = yaml.safe_load(Path(instance.state["profile"]).read_text(encoding="utf-8"))
+    with sqlite3.connect(f"file:{Path(profile['app']['data_dir']) / 'app.sqlite3'}?mode=ro", uri=True) as connection:
+        chunks_left = connection.execute("SELECT count(*) FROM chunks WHERE generation_id=?", (generation,)).fetchone()[0]
+        chunks_total = connection.execute("SELECT count(*) FROM chunks").fetchone()[0]
+        fts_total = connection.execute("SELECT count(*) FROM chunks_fts").fetchone()[0]
     checks = {"deleted": response.status_code == 200, "found_before": found_before, "excluded_immediately": not found_after,
-              "qdrant_points_cleaned": points_before > 0 and points_after == 0,
+              "qdrant_points_cleaned": points_before > 0 and points_after == 0, "sqlite_fragments_cleaned": chunks_left == 0,
+              "full_text_index_follows_fragments": fts_total == chunks_total,
               "remaining_index_consistent": instance.client.get("/api/v1/diagnostics").json()["index_consistency"]["status"] == "consistent"}
-    return {"generation_id": generation, "points_before": points_before, "points_after": points_after, "checks": checks}
+    return {"generation_id": generation, "points_before": points_before, "points_after": points_after, "sqlite_chunks_left": chunks_left,
+            "chunks_total": chunks_total, "fts_rows_total": fts_total, "checks": checks}
 
 
 def case_errors(instance: Instance, report: dict) -> dict:
