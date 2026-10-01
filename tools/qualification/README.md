@@ -204,6 +204,27 @@ rapporté par l'API et le seuil déclaré `--cold-load-ms`. Une réponse n'attei
 pas 400 tokens reste `NOT_OBSERVED` pour ce scénario ; le rapport est
 `MEASURED_NOT_QUALIFIED` et ne vérifie pas la taille du corpus exigée par D07.
 
+## Essais réels sur instances isolées
+
+Ces outils démarrent leurs propres instances dans une racine et des ports temporaires
+(`%TEMP%\ape…`, `apst…`, `apr…`), avec le verrou lourd du poste partagé, et suppriment
+leurs racines en fin d'essai ; la bibliothèque de l'utilisateur n'est jamais la cible.
+Une génération réelle demande la mémoire d'une instance complète : sur un poste de
+16 Gio, l'instance principale est arrêtée pendant l'essai, puis redémarrée.
+
+| Outil | Ce qu'il établit | Critères |
+|---|---|---|
+| `e2e_instance.py start` / `stop` | Instance isolée pour Playwright ou pour les outils ci-dessous ; `--max-file-mib` règle la limite de taille | — |
+| `library_check.py <cas>` | Import d'un dossier Unicode avec homonymes, originaux intacts, réimport et déplacement sans calcul, seconde version invisible avant publication, retrait nettoyé, fichiers en erreur et trop volumineux | D02.1, D02.2, D02.8, D03.1 à D03.4 |
+| `fault_check.py <cas>` | Arrêts forcés pendant l'extraction, les embeddings ou l'écriture des points (`--pages` produit un document long), panne de Qdrant pendant un import | D03.5, D03.6 |
+| `migration_check.py` | Sauvegarde d'un schéma antérieur restaurée et migrée, anciennes citations, réindexation, `--question` pour une question réelle | D09.4 |
+| `restore_question_check.py prepare` / `restore` | Question et ancienne citation après restauration d'une sauvegarde au format courant | D09.3 |
+| `injection_check.py` | Instruction hostile placée dans un PDF sans effet sur la réponse | D08.5 (en partie) |
+
+Rapports du 01/10 : `RAG_Local_Agents/reports/library-2026-10-01*.json`,
+`faults-2026-10-01.json`, `migration-2026-10-01-0414.json`,
+`restore-question-2026-10-01-0525.json`, `injection-2026-10-01-0441.json`.
+
 ## Fixtures séparées D08.5/D08.6 et D06.8
 
 `extra_fixtures.py` crée, hors manifeste et hors jeux de questions,

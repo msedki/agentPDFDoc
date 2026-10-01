@@ -160,7 +160,14 @@ pnpm exec playwright test --grep 'three panels|real import|immutable block'
 ```
 
 Le superviseur confirme d'abord que cette cible correspond aux services/données
-isolés prévus. Une reprise fournit `RAG_E2E_REUSE_DOCUMENT_ID` et vérifie le SHA
+isolés prévus. Depuis le 01/10, `tools/qualification/e2e_instance.py start --state <etat.json>`
+fournit cette cible : instance neuve dans une racine et des ports temporaires, dont
+l'état donne l'origine (`RAG_E2E_BASE_URL`) et le fichier de jeton
+(`RAG_E2E_CONTROL_TOKEN_FILE`) ; `stop` l'arrête et supprime sa racine. Les scénarios
+de géométrie, de balisage hostile, de canvas, d'import et de sélection y sont passés
+le 01/10 ([géométrie](reports/e2e-2026-10-01-import-isole-geometrie-evidence.json),
+[parcours](reports/e2e-2026-10-01-import-isole-parcours-evidence.json)).
+Une reprise fournit `RAG_E2E_REUSE_DOCUMENT_ID` et vérifie le SHA
 de la même fixture DEV, sans nouvel import. La question réelle exige un créneau
 distinct et `RAG_E2E_GENERATION_ALLOWED=1`. La sonde mémoire utilise la venv du
 projet et psutil : PID propre du worker Node, descendants Chromium récursifs,

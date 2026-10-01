@@ -1,6 +1,6 @@
 {
   "pack": "RAG-LOCAL-16-v2.1",
-  "checked_at_utc": "2026-10-01T07:35:09.406950+00:00",
+  "checked_at_utc": "2026-10-01T07:38:43.743891+00:00",
   "overall_status": "PASS",
   "scope": "Documentation, configuration syntax, runtime profile copy, skill format/registry, SQLite reference and deterministic examples ONLY",
   "python_version": "3.12.14",
@@ -10,7 +10,7 @@
       "id": "markdown_links",
       "status": "PASS",
       "detail": {
-        "local_links_checked": 532,
+        "local_links_checked": 535,
         "links_to_project_outside_pack": 105,
         "git_ignore_check": "PASS",
         "external_urls_fetched": false
