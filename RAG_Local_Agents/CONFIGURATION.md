@@ -1,6 +1,6 @@
 # Configuration et provisionnement — V2.1, profil local16
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 ## 1. Nature des configurations
 
@@ -105,9 +105,9 @@ Windows natif constitue la cible W001. Les données actives sont stockées sur N
 
 ## 8. Versions, hors ligne et fichiers dérivés
 
-`provision` résout puis verrouille les versions compatibles, modèles, tokenizers, quantifications, langues OCR et assets dans les manifests réels. `start` ne télécharge rien. Pas de `latest` comme identité finale. Les `.env` ne remplacent pas le test de blocage réseau, la vérification Host/Origin et la suppression des chargements distants dans le rendu Markdown/PDF.
+`provision` résout puis verrouille les versions compatibles, modèles, tokenizers, quantifications, langues OCR et assets dans les manifests réels. `start` (sous-commande `up` du lanceur) ne télécharge rien. Pas de `latest` comme identité finale. Les `.env` ne remplacent pas le test de blocage réseau, la vérification Host/Origin et la suppression des chargements distants dans le rendu Markdown/PDF.
 
-Après chaque changement canonique : régénérer le brief avec `python tools/build_brief.py`, contrôler avec `python tools/verify_bundle.py --output CONTROLES_DOSSIER.json`. Ces deux commandes sont disponibles dans cette archive ; elles ne démarrent pas l'application. Les commandes produit décrites dans `IMPLEMENTATION.md` restent à développer.
+Après chaque changement canonique : régénérer le brief avec `python tools/build_brief.py`, puis contrôler avec `python tools/build_brief.py --check` et `python tools/verify_pack.py --report <fichier-neuf>.json` (Python 3.11 ou plus et PyYAML ; sans `--report`, `verify_pack.py` réécrit `CONTROLES_DOSSIER.json`, rapport suivi par Git). Ces outils, présents dans `tools/`, ne démarrent pas l'application. Les commandes produit décrites dans `IMPLEMENTATION.md` sont implémentées, sous d'autres noms et avec d'autres options, comme sous-commandes de `services/runtime/cli.py` (lanceur `rag.ps1` sous Windows) : `up` et `down` au lieu de `start` et `stop`, `verify` contrôle une sauvegarde et non une suite de recette, `restore` exige `--path` et `--target` ; détail des correspondances et des écarts dans [00_LIRE_AVANT.md](00_LIRE_AVANT.md#contrôles-du-dossier-disponibles) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md).
 
 
 ## Révision des paramètres et des dépendances

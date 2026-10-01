@@ -1,6 +1,9 @@
 # Runtimes, modèles, données applicatives et essais QA locaux (provisionnés, jamais versionnés)
 .runtime/
 .venv/
+# Mêmes emplacements quand ils sont des liens symboliques vers un autre volume (poste Linux, W018)
+/.runtime
+/.venv
 node_modules/
 .qdrant-initialized
 

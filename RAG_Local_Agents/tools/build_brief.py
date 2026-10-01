@@ -69,6 +69,10 @@ def render(root: Path = ROOT) -> str:
                  'donné par `--report`.\n')
     return ''.join(parts)
 
+def as_bytes(text: str) -> bytes:
+    """Octets du brief suivi : UTF-8 et fins de ligne CRLF, identiques sous Windows et Linux (W018)."""
+    return text.replace('\n', '\r\n').encode('utf-8')
+
 def main() -> int:
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check',action='store_true',help='Fail if the generated brief differs.')
@@ -76,10 +80,10 @@ def main() -> int:
     target=ROOT/OUTPUT
     expected=render()
     if args.check:
-        ok=target.is_file() and target.read_text(encoding='utf-8')==expected
+        ok=target.is_file() and target.read_bytes()==as_bytes(expected)
         print('PASS: brief synchronisé' if ok else 'FAIL: régénérer avec python tools/build_brief.py')
         return 0 if ok else 1
-    target.write_text(expected,encoding='utf-8')
+    target.write_bytes(as_bytes(expected))
     print(f'Écrit : {target}')
     return 0
 

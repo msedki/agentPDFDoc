@@ -132,7 +132,7 @@ Description complète, flux, interfaces internes, sécurité et points d'observa
 | `.agents/skills/` | Compétences projet et références de sécurité utilisées par les agents | Oui |
 | `rag.ps1`, `bootstrap.ps1` | Entrées PowerShell du poste | Oui |
 | `pyproject.toml`, `uv.lock` | Dépendances Python verrouillées | Oui |
-| `RAG_Local_V2_1_Complet.zip`, `SHA256SUMS_COMPLET.txt` | Archive du brief V2.1 et ses empreintes | Oui |
+| `RAG_Local_V2_1_Complet.zip`, `SHA256SUMS_COMPLET.txt` | Archive du brief V2.1 telle que reçue ; une fois extraite, son `RAG_Local_V2_1/SHA256SUMS.txt` vérifie ses 34 fichiers. `SHA256SUMS_COMPLET.txt` et `RAG_Local_Agents/SHA256SUMS.txt` sont les empreintes fournies avec le dossier inspecté les 29 et 30 septembre 2026, conformes lors de l'inspection (I01 : 20/20 et 18/18) : ils ne vérifient plus l'arbre courant et ne sont pas le manifeste de l'archive | Oui |
 | `.runtime/` | Python géré, binaires, modèles, caches, données, essais de recette | Non |
 | `.venv/` | Environnement Python du projet | Non |
 | `PDF/` | Corpus métier privé | Non |

@@ -1,6 +1,6 @@
 # Changements intégrés — baseline documentaire 2.1
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 **Date :** 29 septembre 2026. **Remplace :** baseline documentaire 1.0.
 

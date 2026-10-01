@@ -1,9 +1,9 @@
 # RAG PDF local — dossier de réalisation V2.1
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 **Référence :** RAG-LOCAL-16 / baseline documentaire 2.1 / 29 septembre 2026.
-**Statut :** fichiers de spécification et de consignes révisés après audit ; application à implémenter et à qualifier.
+**Statut :** référentiel d'exigences V2.1 (spécifications et consignes révisées après audit), base de la recette. L'application est implémentée dans ce dépôt et en cours de qualification ; l'état par critère est suivi dans [PLAN.md](PLAN.md) et [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
 ## Résultat attendu
 
@@ -22,6 +22,7 @@ Dans un dépôt existant, fusionner ces consignes avec les instructions déjà a
 | [SPEC_ARCHITECTURE.md](SPEC_ARCHITECTURE.md) | Architecture, stack, parcours et budget de ressources |
 | [IMPLEMENTATION.md](IMPLEMENTATION.md) | API, algorithmes, provenance, sélection et persistance |
 | [CONFIGURATION.md](CONFIGURATION.md) | Paramétrage, mapping aux composants et provisionnement |
+| [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md) | Contrat d'exploitation Windows natif (W001) : lanceur, processus, disponibilité et limites |
 | [QUALIFICATION.md](QUALIFICATION.md) | Vérifications précoces, A/B ciblé et protocole de mesure |
 | [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md) | Critères de recette et preuves exigées |
 | [PLAN.md](PLAN.md) | Dépendances, propriétaires et intégration verticale |
@@ -29,11 +30,12 @@ Dans un dépôt existant, fusionner ces consignes avec les instructions déjà a
 | [CHANGELOG.md](CHANGELOG.md) | Corrections effectivement intégrées aux documents |
 | [SOURCES.md](SOURCES.md) | Liens officiels et statut des références |
 | [RECHERCHE_ET_SKILLS.md](RECHERCHE_ET_SKILLS.md) | Vérification officielle obligatoire, étude SOTA utile et maintenance traçable |
-| [SKILLS.md](SKILLS.md) | Registre des cinq skills projet et sélection des skills externes |
+| [SKILLS.md](SKILLS.md) | Registre des skills du pack (`skills/`) et des skills projet (`.agents/skills/` à la racine du dépôt), sélection des skills externes |
 | [CLAUDE.md](CLAUDE.md) | Adaptateur de consignes sans installation ou auto-découverte supposée |
 | `skills/` | Cinq dossiers avec leur vrai `SKILL.md`, à charger selon la tâche |
 | `config/` | Paramètres de référence et exemples natifs |
 | `tools/` | Génération du brief et vérification documentaire réellement disponibles |
+| [journal/](journal/README.md), `reports/` | Journal daté des travaux et rapports de preuve du chantier |
 
 ## Source de vérité et usage du fichier unique
 
@@ -55,18 +57,20 @@ Conserver Next.js/React statique + PDF.js, FastAPI, SQLite/FTS5, Qdrant et Ollam
 
 Les invariants sont fixes : local, CPU, enveloppe 16 Go, traçabilité, périmètre explicite, sécurité, absence de résultat fabriqué. Les paramètres CPU, la stratégie de résidence des index, les budgets de contexte et le choix final d'embedding sont qualifiés par des essais ciblés avant verrouillage. Aucune prétention de supériorité SOTA ou de performance matérielle n'est déduite de ce dossier.
 
-La machine cible est Windows 11 natif, 16 Gio physiques, CPU uniquement. Les services et données sont gérés localement sans WSL ni Docker ; le budget comprend le navigateur et les processus Windows.
+La machine cible est Windows 11 natif, 16 Gio physiques, CPU uniquement. Les services et données sont gérés localement sans WSL ni Docker ; le budget comprend le navigateur et les processus Windows. Depuis le 1er octobre 2026, Linux aarch64 natif est une seconde plateforme ([W018](DECISIONS.md#w018-double-plateforme--windows-11-x86-64-et-linux-aarch64-natifs)), en cours de réalisation ; ses preuves déclarent leur machine et ne valent pas pour la cible Windows de 16 Gio.
 
-Les tests disponibles dans cette archive contrôlent les documents, leurs liens locaux, le SQL lexical et des exemples déterministes de référence. Ils ne valident ni Docling, ni le LLM, ni Qdrant, ni l'interface sur le poste utilisateur. Le rapport `CONTROLES_DOSSIER.json` distingue explicitement ces périmètres.
+Les contrôles de ce dossier (`tools/`) portent sur les documents, leurs liens locaux, le SQL lexical et des exemples déterministes de référence. Ils ne valident ni Docling, ni le LLM, ni Qdrant, ni l'interface sur le poste utilisateur. Le rapport `CONTROLES_DOSSIER.json` distingue explicitement ces périmètres. Les tests de l'application sont à la racine du dépôt ; leur mode d'emploi est dans le [README racine](../README.md#14-tests-et-build).
 
 ## Contrôles du dossier disponibles
 
-`tools/build_brief.py` utilise la bibliothèque standard Python. Le vérificateur requiert PyYAML ; sa version utilisée ici est indiquée dans `tools/requirements.txt`. Provisionner cette dépendance avant un contrôle hors ligne.
+`tools/build_brief.py` n'utilise que la bibliothèque standard Python. `tools/verify_pack.py` exige Python 3.11 ou plus (`datetime.UTC`) et PyYAML, dont la version est fixée dans `tools/requirements.txt` ; le contrôle de la documentation stabilisée, `tools/docs/check_docs.py` à la racine du dépôt, exige aussi Python 3.11 ou plus (`tomllib`). L'environnement du projet fournit les deux : CPython 3.12.14 (installé par `bootstrap.ps1` sous Windows, par uv dans `.runtime/python` sous Linux ; plage `>=3.12,<3.13` dans `pyproject.toml`) et PyYAML 6.0.3 (`pyproject.toml`). Lancer les contrôles depuis la racine du dépôt avec son interpréteur, noté `<python>` ci-dessous : `.\.venv\Scripts\python.exe` sous Windows, préparé par `bootstrap.ps1` ; `.venv/bin/python` sous Linux aarch64, environnement synchronisé par uv dont la préparation par un script reste à livrer (W018, lot J1).
 
 ```bash
-python tools/build_brief.py
-python tools/build_brief.py --check
-python tools/verify_pack.py
+<python> RAG_Local_Agents/tools/build_brief.py --check
+<python> RAG_Local_Agents/tools/verify_pack.py --report <fichier-neuf>.json
+<python> tools/docs/check_docs.py
 ```
 
-Ces commandes s’exécutent sur le dossier documentaire. Les commandes `scripts/provision.py`, `scripts/start.py` et les autres commandes de produit décrites dans `IMPLEMENTATION.md` restent à implémenter par les agents ; elles ne sont pas livrées comme application existante.
+Sans l'option indiquée, deux de ces outils écrivent dans un fichier suivi par Git. `build_brief.py` sans `--check` régénère `RAG_LOCAL_BRIEF_COMPLET.md` : le lancer après la modification d'un document canonique et committer le brief avec elle. `verify_pack.py` sans `--report` réécrit `CONTROLES_DOSSIER.json` : pour un simple contrôle, donner un fichier neuf hors du dépôt ou sous `.runtime/qa/`, ignoré par Git. La liste complète des contrôles documentaires est tenue dans [docs/README.md](../docs/README.md#contrôles).
+
+Ces commandes contrôlent le dossier documentaire, pas l'application. Les commandes de produit que `IMPLEMENTATION.md` décrit sous la forme `scripts/*.py` (contrat d'origine du pack) n'existent pas sous ces noms : elles sont implémentées comme sous-commandes de `services/runtime/cli.py`, appelées sous Windows par le lanceur [`rag.ps1`](../rag.ps1) ; `up` et `down` y tiennent les rôles de `start` et `stop`, et `verify` contrôle une sauvegarde, pas une suite de recette. Leur mode d'emploi est dans [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md) et dans la [documentation d'exploitation](../docs/exploitation/EXPLOITATION.md). Sous Linux aarch64, le lanceur `rag.sh` prévu par W018 est en cours de réalisation (lot J2) et n'est pas livré.

@@ -1,6 +1,6 @@
 # Spécification et architecture — V2.1 corrigée
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 **Baseline de conception :** RAG-LOCAL-16 v2.1. Les invariants sont obligatoires ; les paramètres initiaux sont qualifiés selon `QUALIFICATION.md` puis verrouillés. Voir `DECISIONS.md` et les références de `SOURCES.md`.
 

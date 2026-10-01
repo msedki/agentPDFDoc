@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Statut :** décisions de conception et règles de qualification. Aucune performance applicative mesurée n'est enregistrée dans cette version initiale.
+**Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
 | ID | Décision | Statut et condition de révision |
 |---|---|---|
@@ -193,7 +193,7 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 **Conséquences :** la première série mesure la capacité à retrouver le bloc d'origine d'une question tirée du texte extrait, pas l'utilité métier (limites §4 du dossier : validité externe, circularité de l'extraction, petits effectifs). Les extractions partielles de CPR-07A et MR2_30A ont été publiées explicitement par l'intégrateur à 20:35 UTC, celle d'« essais MIGBT » à 21:16 UTC, pour que l'évaluation porte sur plus d'un document ; action réversible par réindexation, visible dans le Suivi.
 ## W014 Jeu de questions de référence établi par lecture intégrale des documents
 
-**Date :** 30 septembre 2026, vers 22:48 UTC. **Statut :** acquise (demande utilisateur reçue vers 22:44 UTC) ; lecture en cours, jeu non encore exécuté.
+**Date :** 30 septembre 2026, vers 22:48 UTC. **Statut :** acquise (demande utilisateur reçue vers 22:44 UTC). À 22:48 : lecture en cours, jeu non encore exécuté. Depuis : jeu établi (85 questions, dont 72 avec réponse) et exécuté pour la recherche, mesure A le 30/09 à 23:09, mesures B et C le 01/10 à 00:41 et 00:49 (W015) ; génération sur ce jeu (EV-3) interrompue faute de mémoire le 01/10 à 01:24 ; validation par un expert toujours attendue (point à trancher n° 2).
 
 **Contexte :** la qualification métier était bloquée faute de questions annotées par un expert (point à trancher n° 2). L'utilisateur demande que l'assistant produise lui-même ce jeu « en lisant profondément les documents ». La règle du dossier interdisait jusqu'ici d'envoyer le texte du corpus à un service externe et W013 réservait la lecture d'extraits à une autorisation explicite.
 
@@ -226,7 +226,7 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 **Conséquences :** allocation transitoire de rendu d'une région au plus 13 millions de pixels (environ 52 Mo en 4 octets par pixel), sans effet mesuré sur l'estimation d'admission d'extraction ; les extractions déjà faites ne sont pas refaites ; une page scannée de format courant devient exploitable au lieu d'être déclarée sans texte.
 ## W017 Placement mémoire Qdrant exprimé par `memory`, forme dépréciée `on_disk` retirée
 
-**Date :** 1er octobre 2026, 10:49 UTC. **Statut :** acquise (traitement d'une dépréciation à la version installée, D10.3) ; configuration de collection, contrôle effectif et documentation mis à jour ; collection existante de l'instance principale inchangée.
+**Date :** 1er octobre 2026, 10:49 UTC. **Statut :** acquise (traitement d'une dépréciation à la version installée, D10.3) ; configuration de collection, contrôle effectif et documentation mis à jour ; collection existante de l'instance principale inchangée à 10:49, migrée en place le 1er octobre à 12:17 sur décision de l'utilisateur (complément ci-dessous).
 
 **Contexte :** le schéma OpenAPI officiel du tag Qdrant v1.19.1 ([QDR05](SOURCES.md)) marque `VectorParams.on_disk`, `HnswConfigDiff.on_disk` et `on_disk_payload` comme dépréciés, au profit de `memory` (`cold`, `cached`, `pinned`), qui prévaut si les deux formes sont présentes. `config/qdrant.collection.json` utilisait les trois champs dépréciés, ce que `CONFIGURATION.md` §6 demandait de migrer dès que la version retenue expose le successeur.
 
@@ -236,3 +236,33 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 
 **Conséquences :** les nouvelles collections (installation neuve, changement d'identité d'embedding) n'emploient plus de champ déprécié. La collection existante de l'instance principale garde l'ancienne forme, fonctionnelle en 1.19.1 et sans avertissement dans ses journaux ; sa migration (recréation par réindexation ou mise à jour des paramètres) est une opération sur l'index de l'utilisateur, à décider séparément et à refaire avant toute version de Qdrant qui retirerait l'ancienne forme. Retour arrière : restaurer l'ancien `config/qdrant.collection.json` ; le contrôle accepte les deux formes.
 **Complément W017 (1er octobre 2026, 12:17 UTC) :** sur décision de l'utilisateur (12:15), la collection existante de l'instance principale est migrée en place par `PATCH /collections/{nom}` avec `{"vectors": {"dense": {"memory": "cold"}}, "hnsw_config": {"memory": "cached"}, "params": {"payload": {"memory": "cold"}}}` (schéma `UpdateCollection` v1.19.1). Avant : 724 points, ancienne forme seule ; après : statut vert, 724 points, `memory` présent sur les trois composants (l'ancien drapeau `on_disk` reste affiché, `memory` prévaut), contrôle `placement_matches` vrai, cohérence SQLite/Qdrant conservée, recherche réelle 6 résultats ([rapport](reports/qdrant-memory-migration-main-2026-10-01.json)). Retour arrière : même mise à jour avec les anciennes valeurs, ou réindexation depuis SQLite, qui reste la référence.
+
+## W018 Double plateforme : Windows 11 x86-64 et Linux aarch64 natifs
+
+**Date :** 1er octobre 2026, 14:52 UTC. **Statut :** décision acquise de l'utilisateur (« ajuster selon l'environnement ici, ça doit rester compatible aussi avec Windows ») ; réalisation en cours (lot J du plan) ; qualification Linux à exécuter ; preuves Windows acquises inchangées.
+
+**Contexte :** le dépôt est cloné le 1er octobre à 12:42 UTC sur un second poste : NVIDIA Jetson AGX Orin Developer Kit (L4T R35.4.1, Ubuntu 20.04.6, aarch64, glibc 2.31, 61 Gio de RAM partagée CPU/GPU, mode d'alimentation `MODE_30W` : 8 cœurs Cortex-A78AE en ligne plafonnés à 1,728 GHz). L'inspection en lecture seule du même jour constate que rien n'y est exécutable : verrou uv limité à `win32`/`AMD64`, supervision dépendante de pywin32 et de `msvcrt`, lanceurs PowerShell, binaires Windows, Python 3.8 et 3.9 seulement.
+
+**Choix retenu :** W001 reste valide pour Windows ; Linux aarch64 natif devient une seconde plateforme supportée, au même niveau d'exigence : processus natifs sans Docker ni WSL, aucune élévation de privilèges, versions et empreintes verrouillées, provisionnement par le lanceur. Toute modification préserve le comportement Windows : la résolution Windows de `uv.lock` est identique (mêmes paquets, roues et empreintes, comparaison du 01/10 à 15:09), et les mécanismes Windows qualifiés (Job Object, verrous `msvcrt`, `rag.ps1`) ne changent pas. Sous Linux : uv 0.12.21 et CPython 3.12.14 gérés par uv dans `.runtime/` ; torch et torchvision en variante `+cpu` de l'index officiel PyTorch, la roue PyPI aarch64 tirant CUDA 13 ; Qdrant 1.19.1 `aarch64-unknown-linux-musl` ; Ollama 0.35.0 `linux-arm64` ; Tesseract 5.4.0 compilé depuis les sources officielles ; supervision par groupe de processus POSIX, signaux et verrous `flock` ; lanceur `rag.sh`. Le calcul reste sur CPU (`llm.num_gpu: 0`, D-01) : le GPU du Jetson n'est pas utilisé.
+
+**Justification :** demande explicite de l'utilisateur. Toutes les versions verrouillées existent en roues officielles manylinux aarch64 compatibles avec la glibc 2.31 (contrôle PyPI du 01/10 sur les 126 paquets : seul pywin32 est propre à Windows) ; Qdrant et Ollama publient des artefacts officiels Linux arm64 pour les versions verrouillées.
+
+**Conséquences :**
+- Les critères D01 à D11 se qualifient par plateforme, chaque preuve déclarant sa machine ; une preuve Linux ne vaut pas pour Windows, et réciproquement.
+- D07 exige un hôte de 16 Go au plus. Le Jetson en a 61, et cgroup v1 sans droits d'administration ne permet pas de borner la mémoire : ses mesures sont rapportées comme celles de ce poste, sans prétendre qualifier la cible 16 Go.
+- Les données lourdes de ce poste (`.runtime/`, `.venv/`) résident sur la carte microSD `/media/safae/devsave1`, par liens symboliques, la partition système n'ayant que 9 Go libres ; `.gitignore` couvre aussi ces liens.
+- Le mode d'alimentation n'est pas modifié : il exige des droits d'administration.
+
+**Décision remplacée :** aucune ; W001 est étendue. Retour arrière : retirer l'environnement Linux de `[tool.uv] environments` et relancer `uv lock` ; la partie Windows du verrou reste identique.
+
+## W019 Espace documentaire : `docs/` stabilisé, `RAG_Local_Agents/` vivant
+
+**Date :** consignée le 1er octobre 2026 à 16:45 UTC ; organisation livrée le 30 septembre à 18:33 UTC (`10b5dd9`). **Statut :** acquise (demande utilisateur R14 reçue le 30/09 vers 09:34 UTC) ; décision consignée a posteriori, l'inspection du 01/10 ayant constaté qu'aucune entrée de ce registre ne portait l'arborescence (le lot R14 renvoyait à tort à W008).
+
+**Contexte :** la charte (`CLAUDE.md`, section « Documentation et textes de l'interface ») exige un espace documentaire qui sépare la documentation vivante (plan, journal, décisions, preuves) de la documentation stabilisée (architecture, interfaces, exploitation, README), avec index et en-tête de statut.
+
+**Choix retenu :** `docs/` porte la documentation stabilisée (architecture, interface HTTP et SSE, exploitation, sauvegarde et restauration, dépannage, schémas SVG générés par `tools/docs/diagrams.py`), indexée par `docs/README.md`, qui fixe aussi l'en-tête obligatoire et la règle vivant, stabilisé, généré, historique. `RAG_Local_Agents/` reste le dossier vivant du chantier et le référentiel d'exigences V2.1, sans déplacement, parce que `build_brief.py` et `verify_pack.py` dépendent de son emplacement. Le README racine est le point d'entrée.
+
+**Justification :** charte du dépôt ; l'outillage existant interdit de déplacer `RAG_Local_Agents/`.
+
+**Conséquences :** un document stabilisé ne change qu'après un changement réel et vérifié du système ; `tools/docs/check_docs.py` contrôle liens, en-têtes, statuts et schémas. Les documents de `docs/` restent référencés sur `e4c7caf` tant qu'ils n'ont pas été mis à jour pour W016, W017 et W018 (lot J9).

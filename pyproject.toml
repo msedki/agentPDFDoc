@@ -1,7 +1,7 @@
 [project]
 name = "agentragpdf"
 version = "0.1.0"
-description = "Poste documentaire PDF local sur Windows natif"
+description = "Poste documentaire PDF local, Windows natif et Linux aarch64 natif"
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "fastapi==0.142.1",
@@ -11,7 +11,7 @@ dependencies = [
   "python-multipart==0.0.32",
   "PyYAML==6.0.3",
   "psutil==7.2.2",
-  "pywin32==312",
+  "pywin32==312; sys_platform == 'win32'",
   "numpy>=2.0,<3",
   "onnxruntime==1.30.0",
   "tokenizers==0.23.2",
@@ -21,6 +21,18 @@ dependencies = [
   "huggingface-hub>=0.36,<3",
   "transformers>=4.56,<6",
   "onnx==1.23.1",
+  # Importés directement par services/ (inspection du 01/10, C9) ; versions déjà résolues par Docling et FastAPI.
+  "docling-core==2.99.0",
+  "jinja2==3.1.6",
+  "pandas==3.0.6",
+  "scipy==1.18.1",
+  "starlette==1.7.0",
+  # torch et torchvision viennent de Docling ; déclarés dans project.dependencies, comme le guide PyTorch d'uv
+  # le prescrit pour un paquet tiré d'un index par [tool.uv.sources] (source CPU sous Linux, PyPI sous Windows).
+  "torch==2.14.0",
+  "torchvision==0.29.0",
+  # Archive officielle d'Ollama pour Linux arm64 en .tar.zst (W018) ; décompressée par le provisionnement.
+  "zstandard==0.25.0; sys_platform == 'linux'",
 ]
 
 [dependency-groups]
@@ -28,16 +40,20 @@ dev = ["pytest==9.1.1", "pytest-asyncio>=1.0,<2", "ruff==0.16.9", "mypy==2.3.1",
 
 [tool.uv]
 package = false
-environments = ["sys_platform == 'win32' and platform_machine == 'AMD64'"]
+environments = [
+  "sys_platform == 'win32' and platform_machine == 'AMD64'",
+  "sys_platform == 'linux' and platform_machine == 'aarch64'",
+]
 
 [[tool.uv.index]]
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
+# Windows : roues PyPI (CPU seul pour win_amd64). Linux : la roue PyPI tire CUDA 13 ; la variante +cpu vient de l'index officiel PyTorch.
 [tool.uv.sources]
-torch = { index = "pytorch-cpu" }
-torchvision = { index = "pytorch-cpu" }
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+torchvision = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

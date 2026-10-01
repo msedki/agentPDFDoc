@@ -21,7 +21,7 @@ try:
 except ImportError as exc:
     raise SystemExit('PyYAML absent. Provisionner tools/requirements.txt avant ce contrôle hors ligne.') from exc
 
-from build_brief import ORDER, OUTPUT, ROOT, render
+from build_brief import ORDER, OUTPUT, ROOT, as_bytes, render
 
 RESULTS: list[dict] = []
 
@@ -318,7 +318,7 @@ def deterministic_examples():
     return {'rrf_counterexample':{'exact_score':scores['exact'],'top6_without_exact':unconstrained,'illustrative_selection':reference_selection},'unicode_roundtrip':True,'dense_25000x384_float32_bytes':25000*384*4,'wilson_27_of_30_95pct':[center-radius,center+radius],'not_a_test_of_future_application':True}
 
 def brief_check():
-    require((ROOT/OUTPUT).read_text(encoding='utf-8')==render(),'Brief désynchronisé')
+    require((ROOT/OUTPUT).read_bytes()==as_bytes(render()),'Brief désynchronisé')
     return {'output':OUTPUT,'canonical_docs_and_configs_included':True}
 
 def main():
@@ -333,7 +333,8 @@ def main():
     report={'pack':'RAG-LOCAL-16-v2.1','checked_at_utc':datetime.now(UTC).isoformat(),'overall_status':'PASS' if passed else 'FAIL','scope':'Documentation, configuration syntax, runtime profile copy, skill format/registry, SQLite reference and deterministic examples ONLY','python_version':sys.version.split()[0],'pyyaml_version':importlib.metadata.version('PyYAML'),'results':RESULTS,'warnings':warnings,'not_executed':['LLM inference','Docling or OCR','Qdrant server/API','Frontend or browser E2E','16 GB target qualification','Native skill installation/discovery/invocation','External source link accessibility in this offline script']}
     path=Path(args.report)
     path.parent.mkdir(parents=True,exist_ok=True)
-    path.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    # Rapport suivi en CRLF : mêmes octets sous Windows et Linux (W018).
+    path.write_bytes((json.dumps(report,ensure_ascii=False,indent=2)+'\n').replace('\n','\r\n').encode('utf-8'))
     print(json.dumps(report,ensure_ascii=False,indent=2))
     return 0 if passed else 1
 

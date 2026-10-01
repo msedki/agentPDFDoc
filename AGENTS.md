@@ -176,8 +176,12 @@ et permissions de l'environnement.
 
 ## Skills et sous-agents
 
-- Utiliser les skills pertinents disponibles, notamment dans `.agents/skills/`.
-  Lire leur `SKILL.md` lorsqu'ils s'appliquent, puis leurs références utiles seulement.
+- Utiliser les skills pertinents disponibles, notamment ceux du dépôt sous
+  `.agents/skills/` et `RAG_Local_Agents/skills/`, recensés dans
+  `RAG_Local_Agents/SKILLS.md`. Codex parcourt les dossiers `.agents/skills` du
+  répertoire courant jusqu'à la racine du dépôt, pas `RAG_Local_Agents/skills/` :
+  ouvrir un `SKILL.md` de ce dernier par son chemin lorsqu'il s'applique. Lire
+  ensuite les références utiles seulement.
 - Utiliser les sous-agents disponibles pour des recherches, lots indépendants ou
   revues séparées lorsqu'ils apportent un gain. Ne pas imposer de quota par tâche.
 - Définir pour chaque délégation objectif, périmètre, instructions applicables,

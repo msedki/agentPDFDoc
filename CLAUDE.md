@@ -20,7 +20,9 @@ et permissions de l'environnement.
 ## Contexte et conventions Claude Code
 
 - Appliquer les instructions chargées et celles propres aux fichiers concernés.
-  Consulter les règles pertinentes de `.claude/rules/` sans importer tout le corpus.
+  Consulter les règles locales pertinentes sans importer tout le corpus : pour
+  `RAG_Local_Agents/`, son `CLAUDE.md` (chargé à la lecture d'un fichier du dossier)
+  et l'`AGENTS.md` auquel il renvoie.
 - Lire le README, les décisions, contrats et procédures selon le besoin réel :
   architecture pour les frontières, schéma pour les données, exploitation pour un
   déploiement. Ne pas recommencer une étude dont les résultats restent applicables.
@@ -174,8 +176,11 @@ et permissions de l'environnement.
 
 ## Skills et délégation
 
-- Utiliser les skills pertinents disponibles, notamment dans `.claude/skills/`.
-  Lire leur `SKILL.md` lorsqu'ils s'appliquent, puis leurs références utiles seulement.
+- Utiliser les skills pertinents disponibles, notamment ceux du dépôt sous
+  `.agents/skills/` et `RAG_Local_Agents/skills/`, recensés dans
+  `RAG_Local_Agents/SKILLS.md`. Dans un projet, Claude Code ne découvre les skills
+  que sous `.claude/skills/` : ouvrir le `SKILL.md` par son chemin lorsqu'il
+  s'applique, puis ses références utiles seulement.
 - Utiliser les sous-agents ou workflows disponibles lorsque des travaux indépendants
   ou une revue séparée apportent un gain. Ne pas imposer de quota d'agents par tâche.
 - Définir pour chaque délégation objectif, périmètre, instructions applicables,

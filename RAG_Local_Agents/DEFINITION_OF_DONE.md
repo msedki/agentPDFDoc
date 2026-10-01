@@ -1,12 +1,14 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 ## Règle de clôture
 
 Un critère est `PASS` uniquement avec une preuve reproductible associée au commit, à la configuration, au corpus et à la machine. Les statuts permis sont `NOT_RUN`, `PASS`, `FAIL`, `BLOCKED`. « Le code existe », « l'agent affirme que cela marche » et « le test utilise un mock » ne valent pas validation de bout en bout.
 
 Les seuils suivants sont des objectifs de recette, pas des performances déjà atteintes. Ne pas les diminuer après un échec pour afficher un succès. Une modification approuvée du périmètre exige une nouvelle baseline, une justification et une nouvelle recette.
+
+**Qualification par plateforme (W018, 01/10/2026).** Le produit cible Windows 11 x86-64 (W001) et Linux aarch64 (W018). Les cases et preuves des sections D01 à D11 portent la qualification Windows acquise jusqu'au 01/10 ; une preuve vaut pour la machine qu'elle déclare. La plateforme Linux aarch64 est qualifiée séparément, dans le tableau « Qualification Linux aarch64 » en fin de document, avec les mêmes critères et les mêmes seuils ; aucune preuve Linux ne coche une case Windows, et réciproquement.
 
 La validation sur fixtures et la validation sur documents métier réels sont distinctes. Si aucun corpus privé autorisé n'est disponible, produire les fixtures synthétiques, réaliser tout ce qui est testable et marquer la qualification métier `BLOCKED — corpus métier absent`. Ne pas présenter cette limite comme un échec général de l'application ni inventer un corpus représentatif.
 
@@ -133,13 +135,14 @@ Recette sur un hôte **16 Go physiques maximum**, CPU uniquement, sans utilisati
 - [ ] Mémoire cible application <= **10 Gio** de résidence non dupliquée ; mémoire hôte disponible >= **1,5 Gio**. Préciser working set et private bytes Windows, sans addition trompeuse de pages partagées.
 - [ ] Admission et pause coopérative fonctionnent ; pas de kill nominal après cinq secondes. Un job interrompu reprend au dernier checkpoint durable.
 - [ ] Alternance chat/import : attente visible, reprise explicite fonctionnelle et absence de rechargement périodique sans action. Mesurer initialisations, travail utile et unités rejouées.
-- [ ] Reprise automatique désactivée dans le profil livré, ou activée uniquement avec politique documentée et essai anti-ping-pong concluant.
+- [x] Reprise automatique désactivée dans le profil livré, ou activée uniquement avec politique documentée et essai anti-ping-pong concluant.
 - [ ] Avec au moins 25 000 chunks et modèle chaud : recherche hybride p95 <= **3 s** ; premier token p95 <= **45 s** pour environ 3 000 tokens d'entrée ; réponse de 400 tokens p95 <= **180 s**.
 - [ ] Mesurer aussi démarrages à froid et indexation pages/minute ; séparer modèle chaud et préfixe réutilisé en cache, ainsi que chargement/prompt/génération.
 - [ ] Le scénario 400 tokens autorise une sortie >400 ; une sortie plus courte naturelle n’est pas imputée comme temps pour 400 tokens. Rapporter les longueurs observées.
 - [ ] Au moins 30 questions de performance et un scénario d'usage de 30 minutes : navigation, recherches, questions, import et reprise.
 
 Si la cible CPU ne passe pas une mesure, conserver `FAIL`, identifier la phase dominante et tester une optimisation ciblée. Ne pas augmenter RAM/GPU, raccourcir secrètement les réponses ou remplacer le modèle sans nouvelle mesure déclarée. Les seuils ne sont pas garantis par ce dossier : leur atteinte est précisément l'objet de la qualification.
+Preuve01/10/2026 (D07.6), poste Windows (W001), première branche du critère, au commit `ea49d05` : `config/local16.yaml` l.160 `resources.scheduling.auto_resume_ingestion: false`, copie documentaire identique (`verify_pack.py` : `runtime_profile_copy` et `configuration_consistency` PASS) ; le gouverneur refuse au démarrage toute autre valeur (`services/runtime/resources.py:194-198`, tests `test_auto_resume_ingestion_enabled_in_profile_is_refused` et `test_auto_resume_ingestion_is_read_from_delivered_profile`, inclus dans la suite Windows du 01/10, 538 réussis, point de 09:08). Un traitement mis en pause au checkpoint passe à `paused` (`services/api/jobs.py`) et ne revient en file que par `POST /jobs/{id}/resume` ou `/jobs/resume-paused`, appelés par les seuls boutons de l'interface ; le retour au mode ingestion répond `manual_jobs_require_resume: true`. Observation réelle : les 61 traitements en pause le sont restés à travers le redémarrage de 06:50 jusqu'au point de 12:20. Seconde branche (reprise activée avec essai anti-ping-pong) non retenue. Linux aarch64 (W018) : configuration et refus au démarrage vérifiés (4 tests PASS le 01/10 à 16:13 UTC), comportement à rejouer en J8.
 
 ## D08 — Hors ligne et sécurité
 
@@ -203,6 +206,24 @@ Preuve01/10/2026 (D10.3) : schéma OpenAPI officiel du tag Qdrant v1.19.1 consul
 - [ ] `SOURCES.md`, `DECISIONS.md`, `PLAN.md`, spécifications, configs, tests et brief synchronisés après les changements qui les concernent ; pas de correctif seulement décrit dans un audit séparé.
 
 **Preuves :** registre de décision/source, diff des fichiers, références des skills lus/utilisés, résultats des tests de contrat/migration/skills et limites explicites. Ces critères concernent le travail des agents, pas des fonctionnalités réseau du produit.
+
+## Qualification Linux aarch64 (W018)
+
+Poste : Jetson AGX Orin Developer Kit, L4T R35.4.1, Ubuntu 20.04.6, glibc 2.31, `MODE_30W` (8 cœurs en ligne), 61 Gio. Statuts permis : `NOT_RUN`, `PASS`, `FAIL`, `BLOCKED`, avec preuve liée au commit, à la configuration, au corpus et à la machine. Tenu par le lot J8 du [plan](PLAN.md).
+
+| Section | Statut Linux | Preuve et limite |
+|---|---|---|
+| D01 | NOT_RUN | — |
+| D02 | NOT_RUN | — |
+| D03 | NOT_RUN | — |
+| D04 | NOT_RUN | — |
+| D05 | NOT_RUN | — |
+| D06 | NOT_RUN | — |
+| D07 | NOT_RUN | — |
+| D08 | NOT_RUN | — |
+| D09 | NOT_RUN | — |
+| D10 | NOT_RUN | — |
+| D11 | NOT_RUN | — |
 
 ## Rapport final exigé
 

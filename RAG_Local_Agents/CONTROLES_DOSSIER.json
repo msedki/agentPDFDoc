@@ -1,6 +1,6 @@
 {
   "pack": "RAG-LOCAL-16-v2.1",
-  "checked_at_utc": "2026-10-01T12:20:12.565339+00:00",
+  "checked_at_utc": "2026-10-01T16:33:38.455529+00:00",
   "overall_status": "PASS",
   "scope": "Documentation, configuration syntax, runtime profile copy, skill format/registry, SQLite reference and deterministic examples ONLY",
   "python_version": "3.12.14",
@@ -10,8 +10,8 @@
       "id": "markdown_links",
       "status": "PASS",
       "detail": {
-        "local_links_checked": 586,
-        "links_to_project_outside_pack": 113,
+        "local_links_checked": 658,
+        "links_to_project_outside_pack": 131,
         "git_ignore_check": "PASS",
         "external_urls_fetched": false
       }
@@ -99,12 +99,14 @@
           "frontend-design",
           "frontend-skill",
           "hybrid-rag-api",
+          "linux-rag-runtime",
           "pdf-ingestion-windows",
           "pdf-workspace-web",
           "rag-qualification-fixtures",
           "windows-rag-runtime"
         ],
         "warnings": [
+          "Fichier tiers mal rangé : .agents/skills/SKILL.md (SKILL.md hors dossier de skill, non découvrable)",
           "Fichier tiers mal rangé : .agents/skills/golang-general-backend-security.md",
           "Fichier tiers mal rangé : .agents/skills/javascript-express-web-server-security.md",
           "Fichier tiers mal rangé : .agents/skills/javascript-general-web-frontend-security.md",
@@ -115,8 +117,7 @@
           "Fichier tiers mal rangé : .agents/skills/openai.yaml",
           "Fichier tiers mal rangé : .agents/skills/python-django-web-server-security.md",
           "Fichier tiers mal rangé : .agents/skills/python-fastapi-web-server-security.md",
-          "Fichier tiers mal rangé : .agents/skills/python-flask-web-server-security.md",
-          "Fichier tiers mal rangé : .agents/skills/SKILL.md (SKILL.md hors dossier de skill, non découvrable)"
+          "Fichier tiers mal rangé : .agents/skills/python-flask-web-server-security.md"
         ],
         "syntax_and_links_only": true,
         "native_client_discovery_tested": false
@@ -136,12 +137,14 @@
         "project": [
           "embedding-comparison-windows",
           "hybrid-rag-api",
+          "linux-rag-runtime",
           "pdf-ingestion-windows",
           "pdf-workspace-web",
           "rag-qualification-fixtures",
           "windows-rag-runtime"
         ],
         "third_party": [
+          "SKILL.md",
           "golang-general-backend-security.md",
           "javascript-express-web-server-security.md",
           "javascript-general-web-frontend-security.md",
@@ -153,13 +156,12 @@
           "python-django-web-server-security.md",
           "python-fastapi-web-server-security.md",
           "python-flask-web-server-security.md",
-          "SKILL.md",
           "agent-introspection-debugging",
           "backend-patterns",
           "frontend-design",
           "frontend-skill"
         ],
-        "sha256_checked": 27,
+        "sha256_checked": 28,
         "behavior_tested": false
       }
     },
@@ -213,6 +215,7 @@
     }
   ],
   "warnings": [
+    "Fichier tiers mal rangé : .agents/skills/SKILL.md (SKILL.md hors dossier de skill, non découvrable)",
     "Fichier tiers mal rangé : .agents/skills/golang-general-backend-security.md",
     "Fichier tiers mal rangé : .agents/skills/javascript-express-web-server-security.md",
     "Fichier tiers mal rangé : .agents/skills/javascript-general-web-frontend-security.md",
@@ -223,8 +226,7 @@
     "Fichier tiers mal rangé : .agents/skills/openai.yaml",
     "Fichier tiers mal rangé : .agents/skills/python-django-web-server-security.md",
     "Fichier tiers mal rangé : .agents/skills/python-fastapi-web-server-security.md",
-    "Fichier tiers mal rangé : .agents/skills/python-flask-web-server-security.md",
-    "Fichier tiers mal rangé : .agents/skills/SKILL.md (SKILL.md hors dossier de skill, non découvrable)"
+    "Fichier tiers mal rangé : .agents/skills/python-flask-web-server-security.md"
   ],
   "not_executed": [
     "LLM inference",
