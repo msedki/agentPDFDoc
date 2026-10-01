@@ -6,7 +6,7 @@ import httpx
 import pytest
 
 from services.api.ollama import OllamaGateway
-from services.api.retrieval import QdrantStore
+from services.api.retrieval import QdrantStore, placement_matches
 from services.api.scope import ScopeSnapshot
 from services.api.settings import Settings
 
@@ -65,6 +65,38 @@ def test_api_qdrant_server_filter_identity_and_verified_upsert(tmp_path):
         await store.close()
     asyncio.run(scenario())
     assert any(method == "PUT" and path.endswith("/index") for method, path, _, _ in requests)
+
+
+# Configurations effectives relues le 01/10 sur Qdrant 1.19.1 : collection de l'instance principale créée avant W017
+# (ancienne forme) et collection de sondage créée avec `memory` (W017).
+LEGACY_EFFECTIVE = {"params": {"vectors": {"dense": {"size": 384, "distance": "Cosine", "on_disk": True}}, "replication_factor": 1, "on_disk_payload": True},
+                    "hnsw_config": {"m": 16, "ef_construct": 100, "on_disk": False}, "optimizer_config": {"max_optimization_threads": 1}}
+MEMORY_EFFECTIVE = {"params": {"vectors": {"dense": {"size": 384, "distance": "Cosine", "memory": "cold"}}, "replication_factor": 1, "on_disk_payload": True,
+                               "payload": {"memory": "cold"}},
+                    "hnsw_config": {"m": 16, "ef_construct": 100, "on_disk": False, "memory": "cached"}, "optimizer_config": {"max_optimization_threads": 1}}
+
+
+def test_api_qdrant_memory_placement_accepts_both_forms_and_rejects_other_tiers():
+    import copy
+    assert placement_matches(LEGACY_EFFECTIVE) and placement_matches(MEMORY_EFFECTIVE)
+    wrong = []
+    for path, value in ((("params", "vectors", "dense", "memory"), "cached"), (("params", "payload", "memory"), "cached"), (("hnsw_config", "memory"), "cold"),
+                        (("params", "vectors", "dense", "memory"), "pinned"), (("hnsw_config", "memory"), "pinned")):
+        effective = copy.deepcopy(MEMORY_EFFECTIVE)
+        target = effective
+        for key in path[:-1]:
+            target = target[key]
+        target[path[-1]] = value
+        wrong.append(placement_matches(effective))
+    legacy_ram_vectors = copy.deepcopy(LEGACY_EFFECTIVE)
+    legacy_ram_vectors["params"]["vectors"]["dense"]["on_disk"] = False
+    legacy_disk_graph = copy.deepcopy(LEGACY_EFFECTIVE)
+    legacy_disk_graph["hnsw_config"]["on_disk"] = True
+    assert wrong == [False] * 5 and not placement_matches(legacy_ram_vectors) and not placement_matches(legacy_disk_graph)
+    # `memory` prévaut sur l'ancien drapeau quand les deux sont présents.
+    conflicting = copy.deepcopy(MEMORY_EFFECTIVE)
+    conflicting["hnsw_config"]["memory"] = "cold"
+    assert not placement_matches(conflicting)
 
 
 def test_api_qdrant_store_sends_instance_api_key_from_supervisor_or_control_file(tmp_path, monkeypatch):

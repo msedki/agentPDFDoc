@@ -183,9 +183,11 @@ Une duplication massive d'un même texte pour atteindre 25 000 chunks ne suffit 
 
 - [ ] Les trois contrôles précoces ont des preuves ou des blocages explicites ; l’environnement de développement n’est pas présenté comme la machine cible.
 - [ ] Embedding choisi : essai ciblé et décision enregistrés, ou candidat officiellement non vérifiable/incompatible documenté et E5 qualifié sans prétendre avoir gagné un A/B.
-- [ ] Placement mémoire Qdrant et paramètres effectifs relus après création ; dépréciations traitées à la version installée.
+- [x] Placement mémoire Qdrant et paramètres effectifs relus après création ; dépréciations traitées à la version installée.
 - [ ] Sources canoniques, configuration et brief complet synchronisés ; contrôles documentaires rejouables.
 - [ ] Les seuls résultats annoncés correspondent à des exécutions effectives ; résultats documentaires et applicatifs restent séparés.
+
+Preuve01/10/2026 (D10.3) : schéma OpenAPI officiel du tag Qdrant v1.19.1 consulté ([QDR05](SOURCES.md)) : `on_disk` et `on_disk_payload` dépréciés au profit de `memory` ; configuration de collection migrée (vecteurs et payload `cold`, HNSW `cached`) et placement relu après création par `placement_matches`, qui accepte encore l'ancienne forme pour la collection existante de l'instance principale (W017). Sur instance isolée : collection de sondage créée avec la nouvelle forme et relue, autocontrôle complet avec une collection créée par le code courant ; aucune option dépréciée dans la configuration serveur ; tests unitaires 473/473 ([rapport](reports/qdrant-memory-2026-10-01.json)). La collection existante n'est pas migrée : décision séparée sur l'index de l'utilisateur.
 
 ## D11 — Sources officielles, skills et mises à jour
 

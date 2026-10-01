@@ -940,7 +940,7 @@ Ne pas appeler à nouveau Docling pour chaque petite modification de chunking ou
 
 Un serveur Qdrant local ; pas de substitution silencieuse par le mode embarqué Python. Lancer avec configuration et chemins absolus validés. `config/qdrant.yaml` utilise `storage.payload.memory: cold` dans le schéma officiel consulté [S08]. Si le binaire verrouillé ne supporte pas ce champ, générer un overlay de compatibilité explicite avec son option documentée et le tester ; ne jamais ignorer une option inconnue.
 
-Le JSON de collection utilise la forme compatible `on_disk` pour les vecteurs/HNSW. Il est fourni comme exemple d'API à valider au provisionnement : `on_disk=true` pour les vecteurs, `false` pour HNSW. Si la version retenue expose le successeur `memory`, migrer selon son schéma OpenAPI exact, sans dupliquer des paramètres incompatibles. Relire la configuration effective de la collection après création. La dépréciation du champ serveur n'autorise pas à deviner une forme équivalente de la requête API.
+Le JSON de collection exprime le placement par `memory`, successeur de `on_disk` et `on_disk_payload` dépréciés à la version installée 1.19.1 (W017) : vecteurs `cold`, payload `cold`, graphe HNSW `cached`. Une collection créée avant W017 garde l'ancienne forme (`on_disk=true` pour les vecteurs, `false` pour HNSW, `on_disk_payload=true`), équivalente et encore acceptée par le contrôle. Pour une version ultérieure, migrer selon son schéma OpenAPI exact, sans dupliquer des paramètres incompatibles. Relire la configuration effective de la collection après création. La dépréciation du champ serveur n'autorise pas à deviner une forme équivalente de la requête API.
 
 Créer les index de payload generation_id, version_id, document_id et page_indices. Le modèle actif impose collection, dimension et identité du pipeline ; une query emploie le vecteur nommé `dense`. BM25 reste dans SQLite. Ne pas optimiser l'index selon la seule taille des vecteurs : mesurer payloads, graphe, caches, segments et processus.
 
@@ -1358,9 +1358,11 @@ Une duplication massive d'un même texte pour atteindre 25 000 chunks ne suffit 
 
 - [ ] Les trois contrôles précoces ont des preuves ou des blocages explicites ; l’environnement de développement n’est pas présenté comme la machine cible.
 - [ ] Embedding choisi : essai ciblé et décision enregistrés, ou candidat officiellement non vérifiable/incompatible documenté et E5 qualifié sans prétendre avoir gagné un A/B.
-- [ ] Placement mémoire Qdrant et paramètres effectifs relus après création ; dépréciations traitées à la version installée.
+- [x] Placement mémoire Qdrant et paramètres effectifs relus après création ; dépréciations traitées à la version installée.
 - [ ] Sources canoniques, configuration et brief complet synchronisés ; contrôles documentaires rejouables.
 - [ ] Les seuls résultats annoncés correspondent à des exécutions effectives ; résultats documentaires et applicatifs restent séparés.
+
+Preuve01/10/2026 (D10.3) : schéma OpenAPI officiel du tag Qdrant v1.19.1 consulté ([QDR05](SOURCES.md)) : `on_disk` et `on_disk_payload` dépréciés au profit de `memory` ; configuration de collection migrée (vecteurs et payload `cold`, HNSW `cached`) et placement relu après création par `placement_matches`, qui accepte encore l'ancienne forme pour la collection existante de l'instance principale (W017). Sur instance isolée : collection de sondage créée avec la nouvelle forme et relue, autocontrôle complet avec une collection créée par le code courant ; aucune option dépréciée dans la configuration serveur ; tests unitaires 473/473 ([rapport](reports/qdrant-memory-2026-10-01.json)). La collection existante n'est pas migrée : décision séparée sur l'index de l'utilisateur.
 
 ## D11 — Sources officielles, skills et mises à jour
 
@@ -1797,6 +1799,11 @@ Restent en D06 : 5, 6 et 9 (ancres de région sur le corpus contrôlé, sélecti
 Réalisé : D08.4 coché (`DEFINITION_OF_DONE.md`). Test d'intégration à jonction Windows réelle (`test_api_http.py`), vérifié par mutation (sans résolution du chemin, l'original extérieur est servi et le test échoue) ; `http_guards_check.py` étendu à huit traversées encodées, 26/26 sur l'instance principale ([rapport](reports/http-guards-live-20261001T1030.json)) ; tests HTTP et de stockage 57/57.
 
 Restent ouverts en D08 : D08.1 (décision utilisateur), D08.2 (observation réseau pendant le scénario complet, génération comprise), D08.5 (exfiltration et élargissement de périmètre, génération).
+## Point à 10:50 UTC (1er octobre) — D10.3, W017
+
+Constat (incohérence, prouvé par le schéma officiel) : la collection Qdrant était créée avec `on_disk` et `on_disk_payload`, dépréciés en 1.19.1, contrairement à `CONFIGURATION.md` §6. Corrigé (W017) : placement par `memory`, contrôle effectif `placement_matches` acceptant les deux formes, test unitaire, collection de sondage et autocontrôle sur instance isolée ([rapport](reports/qdrant-memory-2026-10-01.json)). D10.3 coché. La collection existante de l'instance principale garde l'ancienne forme : sa migration est une décision à prendre (Points à trancher).
+
+Push : toujours bloqué (github.com injoignable) ; commits locaux depuis `6e1f9be`.
 
 ---
 
@@ -2028,6 +2035,17 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 **Mesure :** test paramétré A4, Lettre et Legal en pleine page (rouge avant, vert après) ; DA-P02 réimporté sur instance isolée : les deux pages passent à l'OCR, toutes les valeurs de la page 1 et le tableau de la page 2 sont lus ; 7 mots de faible confiance restent signalés comme régions non résolues, si bien que la génération est partielle et attend une publication explicite (W012).
 
 **Conséquences :** allocation transitoire de rendu d'une région au plus 13 millions de pixels (environ 52 Mo en 4 octets par pixel), sans effet mesuré sur l'estimation d'admission d'extraction ; les extractions déjà faites ne sont pas refaites ; une page scannée de format courant devient exploitable au lieu d'être déclarée sans texte.
+## W017 Placement mémoire Qdrant exprimé par `memory`, forme dépréciée `on_disk` retirée
+
+**Date :** 1er octobre 2026, 10:49 UTC. **Statut :** acquise (traitement d'une dépréciation à la version installée, D10.3) ; configuration de collection, contrôle effectif et documentation mis à jour ; collection existante de l'instance principale inchangée.
+
+**Contexte :** le schéma OpenAPI officiel du tag Qdrant v1.19.1 ([QDR05](SOURCES.md)) marque `VectorParams.on_disk`, `HnswConfigDiff.on_disk` et `on_disk_payload` comme dépréciés, au profit de `memory` (`cold`, `cached`, `pinned`), qui prévaut si les deux formes sont présentes. `config/qdrant.collection.json` utilisait les trois champs dépréciés, ce que `CONFIGURATION.md` §6 demandait de migrer dès que la version retenue expose le successeur.
+
+**Choix retenu :** vecteurs denses `memory: cold`, payload `payload.memory: cold`, graphe HNSW `memory: cached`, soit les valeurs que le schéma donne comme équivalentes des anciens réglages (`on_disk: true` → `cold`, HNSW `on_disk: false` → `cached`, `on_disk_payload: true` → `cold`). Le contrôle relu après création (`placement_matches`, `services/api/retrieval.py`) exige ce placement sous la nouvelle forme et accepte encore l'ancienne pour une collection créée avant cette décision. `pinned` n'est pas retenu : le schéma le refuse pour les vecteurs denses et le payload, et le garder pour le graphe imposerait qu'il tienne en RAM en permanence, sans mesure à ce jour.
+
+**Mesure :** collection de sondage créée sur instance isolée avec la nouvelle forme (200), configuration effective relue ; autocontrôle complet sur instance isolée (import, extraction, recherche, provenance) avec une collection créée par le code courant, placement relu dans le stockage ; tests unitaires 473/473 ([rapport](reports/qdrant-memory-2026-10-01.json)).
+
+**Conséquences :** les nouvelles collections (installation neuve, changement d'identité d'embedding) n'emploient plus de champ déprécié. La collection existante de l'instance principale garde l'ancienne forme, fonctionnelle en 1.19.1 et sans avertissement dans ses journaux ; sa migration (recréation par réindexation ou mise à jour des paramètres) est une opération sur l'index de l'utilisateur, à décider séparément et à refaire avant toute version de Qdrant qui retirerait l'ancienne forme. Retour arrière : restaurer l'ancien `config/qdrant.collection.json` ; le contrôle accepte les deux formes.
 
 ---
 
@@ -2209,6 +2227,7 @@ Les fichiers de preuve sous reports et les skills projet portent les exécutions
 | SEC02 | Dépôt de référence `D:\enhacements\decodair` (lecture seule le 30/09), fichiers cités dans [security-reference-decodair-2026-09-30.md](reports/security-reference-decodair-2026-09-30.md) | Mécanismes de session, CSRF, révocation et en-têtes d'une application multi-utilisateur ; transposés selon W011. Ce n'est pas une source officielle : chaque choix repris est vérifié contre SEC01. |
 | EVA01–EVA31 | Dossier [evaluation-methodology-sources-2026-09-30.md](reports/evaluation-methodology-sources-2026-09-30.md) §1 (sources primaires : trec_eval/NIST, Manning et al. chap. 8, Robertson et Zaragoza 2009, Cormack et al. 2009, RAGAS, ARES, TREC 2024 RAG, ALCE, Liu et al. 2023, SQuAD 2.0, BEIR, Promptagator, InPars, Wilson/NIST e-Handbook, Smucker et al. 2007, travaux OCR) ; consultées le 30/09 entre 17:38 et 17:59 UTC | Définitions des métriques, biais des questions synthétiques, statistiques pour petits effectifs, limites des juges LLM ; base de W013. Les sources non ouvertes ou lues en partie sont listées au §5 du dossier ; aucune ne porte sur le français ni sur des documents ferroviaires. |
 | UX01–UX10 | Rapport [ui-recette-2026-09-30.md](reports/ui-recette-2026-09-30.md) §Méthode : WCAG 2.2 (recommandation W3C du 12/12/2024) et pages Understanding 4.1.3, 3.2.4, 2.5.8, 1.4.11 (cette dernière consultée le 01/10/2026) ; WAI-ARIA APG, motif Button ; WAI-ARIA 1.2 (06/06/2023), rôles progressbar et status ; GOV.UK Design System, composants Tag et Error message ; Nielsen Norman Group, 10 heuristiques (mise à jour du 30/01/2024) ; consultées le 30/09/2026 | Grille de recette de l'interface (états, bascules, barres d'avancement, messages sans code, cohérence des libellés). Pages GOV.UK et APG non datées ; NN/g n'est pas un organisme normatif ; contrastes calculés à partir des jetons par les tests unitaires, sans outil d'audit automatique ni lecteur d'écran |
+| QDR05 | [Qdrant v1.19.1, schéma OpenAPI `docs/redoc/master/openapi.json` du tag](https://raw.githubusercontent.com/qdrant/qdrant/v1.19.1/docs/redoc/master/openapi.json), téléchargé le 01/10 à 10:34 UTC (github.com injoignable, raw.githubusercontent.com joignable), SHA-256 `eb3e5d71…a4ce0a`, copie hors Git sous `.runtime/references/qdrant-openapi/` | `VectorParams.on_disk`, `HnswConfigDiff.on_disk` et `on_disk_payload` dépréciés au profit de `memory` (`cold`, `cached`, `pinned`), valeurs par défaut et équivalences ; base de W017. Schéma d'API : la tenue réelle du binaire a été vérifiée séparément (collection de sondage, autocontrôle) |
 
 ---
 
@@ -2712,16 +2731,18 @@ OLLAMA_KEEP_ALIVE=10m
     "dense": {
       "size": 384,
       "distance": "Cosine",
-      "on_disk": true
+      "memory": "cold"
     }
   },
   "shard_number": 1,
   "replication_factor": 1,
-  "on_disk_payload": true,
+  "payload": {
+    "memory": "cold"
+  },
   "hnsw_config": {
     "m": 16,
     "ef_construct": 100,
-    "on_disk": false
+    "memory": "cached"
   },
   "optimizers_config": {
     "default_segment_number": 2,

@@ -98,6 +98,22 @@ def rrf(lexical, dense, k=60):
     return sorted(scores.items(), key=lambda pair: (-pair[1], pair[0]))
 
 
+def placement_matches(effective):
+    """Placement mémoire relu après création (W017) : vecteurs et payload `cold`, graphe HNSW `cached`.
+
+    Qdrant 1.19.1 déprécie `on_disk` et `on_disk_payload` au profit de `memory`, qui prévaut quand les deux sont présents.
+    Une collection créée avant W017 ne porte que l'ancienne forme, dont les valeurs par défaut documentées sont les mêmes
+    (`on_disk: true` = `cold`, HNSW `on_disk: false` = `cached`, `on_disk_payload: true` = `cold`)."""
+    params = effective["params"]
+    dense = params["vectors"].get("dense", {})
+    hnsw = effective.get("hnsw_config", {})
+    payload = params.get("payload") or {}
+    vectors_cold = dense["memory"] == "cold" if dense.get("memory") else dense.get("on_disk") is True
+    payload_cold = payload["memory"] == "cold" if payload.get("memory") else params.get("on_disk_payload") is True
+    graph_cached = hnsw["memory"] == "cached" if hnsw.get("memory") else hnsw.get("on_disk") is False
+    return vectors_cold and payload_cold and graph_cached
+
+
 class QdrantStore:
     def __init__(self, settings):
         self.settings = settings
@@ -142,9 +158,8 @@ class QdrantStore:
         effective = actual["config"]
         params = effective["params"]
         dense = params["vectors"].get("dense", {})
-        if (dense.get("size") != 384 or dense.get("distance", "").lower() != "cosine" or dense.get("on_disk") is not True
-                or params.get("on_disk_payload") is not True or params.get("replication_factor") != 1
-                or effective.get("hnsw_config", {}).get("on_disk") is not False
+        if (dense.get("size") != 384 or dense.get("distance", "").lower() != "cosine" or not placement_matches(effective)
+                or params.get("replication_factor") != 1
                 or effective.get("optimizer_config", effective.get("optimizers_config", {})).get("max_optimization_threads") != 1):
             raise ApiError("incompatible_collection", "Paramètres effectifs Qdrant incompatibles avec le profil CPU et l'identité dense.", 503)
         for name, field_type in (("generation_id", "keyword"), ("version_id", "keyword"), ("document_id", "keyword"), ("page_indices", "integer"), ("block_ids", "keyword")):

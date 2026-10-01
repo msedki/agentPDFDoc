@@ -410,3 +410,8 @@ Restent en D06 : 5, 6 et 9 (ancres de région sur le corpus contrôlé, sélecti
 Réalisé : D08.4 coché (`DEFINITION_OF_DONE.md`). Test d'intégration à jonction Windows réelle (`test_api_http.py`), vérifié par mutation (sans résolution du chemin, l'original extérieur est servi et le test échoue) ; `http_guards_check.py` étendu à huit traversées encodées, 26/26 sur l'instance principale ([rapport](reports/http-guards-live-20261001T1030.json)) ; tests HTTP et de stockage 57/57.
 
 Restent ouverts en D08 : D08.1 (décision utilisateur), D08.2 (observation réseau pendant le scénario complet, génération comprise), D08.5 (exfiltration et élargissement de périmètre, génération).
+## Point à 10:50 UTC (1er octobre) — D10.3, W017
+
+Constat (incohérence, prouvé par le schéma officiel) : la collection Qdrant était créée avec `on_disk` et `on_disk_payload`, dépréciés en 1.19.1, contrairement à `CONFIGURATION.md` §6. Corrigé (W017) : placement par `memory`, contrôle effectif `placement_matches` acceptant les deux formes, test unitaire, collection de sondage et autocontrôle sur instance isolée ([rapport](reports/qdrant-memory-2026-10-01.json)). D10.3 coché. La collection existante de l'instance principale garde l'ancienne forme : sa migration est une décision à prendre (Points à trancher).
+
+Push : toujours bloqué (github.com injoignable) ; commits locaux depuis `6e1f9be`.

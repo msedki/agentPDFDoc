@@ -1,0 +1,91 @@
+{
+  "criterion": "D10.3",
+  "decision": "W017",
+  "date_utc": "2026-10-01",
+  "source": {
+    "file": "https://raw.githubusercontent.com/qdrant/qdrant/v1.19.1/docs/redoc/master/openapi.json",
+    "retrieved_utc": "2026-10-01T10:34Z",
+    "sha256": "eb3e5d71ba74e1d99124ca1a77d563bbfa47084f04a13ef9b197e339f5a4ce0a",
+    "local_copy": ".runtime/references/qdrant-openapi/openapi-v1.19.1.json (hors Git)",
+    "deprecated_fields_previously_used": [
+      "VectorParams.on_disk",
+      "HnswConfigDiff.on_disk",
+      "CreateCollection.on_disk_payload"
+    ],
+    "successors": {
+      "VectorParams.memory": "cold | cached | pinned (pinned refusé pour les vecteurs denses), défaut cached, cold si on_disk=true",
+      "HnswConfigDiff.memory": "défaut cached, cold si on_disk=true",
+      "PayloadStorageParams.memory": "défaut cold, cached si on_disk_payload=false ; pinned refusé"
+    }
+  },
+  "server_config_deprecated_fields": [],
+  "observations": {
+    "main_instance_existing_collection_10_32": {
+      "dense": {
+        "size": 384,
+        "distance": "Cosine",
+        "on_disk": true
+      },
+      "on_disk_payload": true,
+      "hnsw": {
+        "on_disk": false
+      },
+      "max_optimization_threads": 1,
+      "deprecation_lines_in_qdrant_logs": 0,
+      "note": "créée avant W017, laissée telle quelle, acceptée par le contrôle (ancienne forme)"
+    },
+    "probe_collection_isolated_10_35": {
+      "server_version": "1.19.1",
+      "create_status": 200,
+      "effective": {
+        "dense": {
+          "size": 384,
+          "distance": "Cosine",
+          "memory": "cold"
+        },
+        "payload": {
+          "memory": "cold"
+        },
+        "on_disk_payload": true,
+        "hnsw": {
+          "on_disk": false,
+          "memory": "cached"
+        }
+      },
+      "note": "collection de sondage créée puis supprimée sur instance isolée"
+    },
+    "selftest_isolated_10_40": {
+      "steps": {
+        "préparation": "PASS",
+        "démarrage": "PASS",
+        "import": "PASS",
+        "extraction": "PASS (136,2 s)",
+        "recherche": "PASS",
+        "provenance": "PASS",
+        "réponse": "SKIPPED (génération non demandée)",
+        "arrêt": "PASS"
+      },
+      "stored_collection_config": {
+        "dense": {
+          "size": 384,
+          "distance": "Cosine",
+          "memory": "cold"
+        },
+        "payload": {
+          "memory": "cold"
+        },
+        "on_disk_payload": true,
+        "hnsw": {
+          "on_disk": false,
+          "memory": "cached"
+        }
+      },
+      "note": "collection créée par le code courant depuis config/qdrant.collection.json, relue dans le stockage Qdrant de la racine conservée puis supprimée"
+    }
+  },
+  "tests": {
+    "unit": "473 passed (tests/unit, 299,7 s)",
+    "placement": "test_api_qdrant_memory_placement_accepts_both_forms_and_rejects_other_tiers"
+  },
+  "result": "PASS"
+}
