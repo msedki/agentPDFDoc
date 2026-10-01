@@ -1191,11 +1191,13 @@ Baseline documentaire 2.1. Les objectifs conservés et ajoutés ci-dessous sont 
 
 - [ ] Un environnement neuf peut être provisionné par le lanceur documenté, sans édition manuelle de code.
 - [ ] Une installation provisionnée redémarre sans Internet et sans téléchargement implicite.
-- [ ] Les lockfiles de paquets et manifests de runtimes/modèles contiennent des versions/hashes réels ; aucun `latest` comme identité finale.
+- [x] Les lockfiles de paquets et manifests de runtimes/modèles contiennent des versions/hashes réels ; aucun `latest` comme identité finale.
 - [ ] `doctor` distingue modèle absent, service indisponible, configuration ignorée, CPU/GPU utilisé et stockage incohérent.
 - [ ] Start/stop ne créent pas d'instances doublées et ne détruisent pas les données.
 
 **Preuves :** logs de provisionnement/restart, manifests, sortie doctor, commandes exactes et versions des exécutables.
+
+Preuve01/10/2026 (D01.19), contrôle relu sur le dépôt au commit `d52834f` : aucune occurrence de `latest` dans `config/artifacts.lock.json`, `config/models.lock.json`, `config/embedding-comparison.lock.json`, `uv.lock`, `apps/web/pnpm-lock.yaml` ni dans les manifestes de `.runtime/manifests/` ; chaque entrée de `artifacts.lock.json` porte une empreinte ou une révision ; `models.lock.json` fixe l'empreinte du manifeste et des couches de `qwen3.5:4b` et `qwen3.5:4b-text` ; `uv.lock` : 127 paquets, aucun paquet de registre sans empreinte SHA-256 ; `pnpm-lock.yaml` : 126 résolutions avec intégrité sha512. Le contrôle `doctor` (`model_lock`) vérifie hors ligne la conformité du stockage au verrou.
 
 ## D02 — Import, bibliothèque et extraction
 
@@ -1303,8 +1305,10 @@ Si la cible CPU ne passe pas une mesure, conserver `FAIL`, identifier la phase d
 - [ ] Origines/Host non autorisés rejetés ; pas de bind LAN involontaire ; pas de CORS wildcard.
 - [ ] Traversal, symlink sortant de la racine et fichiers malformés traités sans lecture arbitraire ou crash du serveur API.
 - [ ] Instructions malveillantes insérées dans une fixture PDF ne provoquent ni exécution, ni exfiltration, ni élargissement du scope.
-- [ ] Markdown/HTML actif et liens d'images distantes ne sont pas exécutés/chargés automatiquement.
+- [x] Markdown/HTML actif et liens d'images distantes ne sont pas exécutés/chargés automatiquement.
 - [ ] Logs normaux sans texte privé ; originaux et modèles exclus du Git par défaut.
+
+Preuve01/10/2026 (D08.131) : texte de document hostile rendu littéral, sans élément actif ni requête distante ni changement de périmètre (Playwright sur instance isolée, [rapport](../apps/web/reports/e2e-2026-10-01-import-isole-parcours-evidence.json)) ; côté serveur, balises retirées et images Markdown remplacées avant affichage (`validate_answer`, `services/api/context.py`, testé avec `<script>` et une image distante dans `tests/unit/test_retrieval.py`) ; côté interface, réponse rendue en éléments React sans interprétation de balise (`apps/web/src/lib/answer-format.ts`, `tests/unit/answer-format.test.ts`). Instruction hostile dans une fixture (D08.130) : sans effet sur la réponse ([rapport](reports/injection-2026-10-01-0441.json)), exfiltration et élargissement du périmètre non mesurés : critère laissé ouvert.
 
 ## D09 — Sauvegarde, restauration et maintien
 
