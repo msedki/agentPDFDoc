@@ -1,8 +1,9 @@
-"""Gardes HTTP et écoute réseau d'une instance en marche, en lecture seule (critère D08.3).
+"""Gardes HTTP, traversées et écoute réseau d'une instance en marche, en lecture seule (critères D08.3, D08.4).
 
 Rejoue sur l'API, Ollama et Qdrant de l'instance les contrôles d'en-têtes forgés du 30/09 (Host et Origin étrangers,
 requête inter-sites, Qdrant sans clé), vérifie qu'aucune réponse n'ouvre le CORS à toute origine et qu'un préflight
-étranger est refusé, puis relève les sockets en écoute de chaque processus de l'instance : seules les adresses de
+étranger est refusé, tente des traversées encodées vers le profil, la base et les jetons de l'instance (refus sans
+aucun contenu sensible), puis relève les sockets en écoute de chaque processus de l'instance : seules les adresses de
 bouclage sont admises. Aucune écriture, aucun import, aucune question.
 
 Limite : contrôle applicatif ; il ne prouve pas le blocage réseau du système (D08.1).
@@ -82,6 +83,19 @@ def main() -> int:
         results.append({"service": "api", "method": "GET", "authority": api, "path": "/api/v1/health", "headers": {"Origin": origin}, "expected_status": 200,
                         "status": same_origin.status_code, "code": None, "allow_origin": same_origin.headers.get("access-control-allow-origin"),
                         "pass": same_origin.status_code == 200 and same_origin.headers.get("access-control-allow-origin") != "*"})
+        # D08.4 : traversées encodées vers les fichiers de l'instance ; refus attendu sans aucun contenu sensible.
+        admin = (data_path(profile) / "control" / "admin-token").read_text(encoding="ascii").strip()
+        markers = {"jeton de contrôle": admin.encode(), "clé Qdrant": key.encode(), "profil": b"schema_version", "base SQLite": b"SQLite format 3"}
+        for path in ("/..%2f..%2fconfig/local16.yaml", "/%2e%2e/%2e%2e/config/local16.yaml", "/..%5c..%5cconfig%5clocal16.yaml",
+                     "/workspace/..%2f..%2f..%2f.runtime/data/control/admin-token", "/_next/..%2f..%2f..%2f..%2f.runtime/data/control/qdrant-api-key",
+                     "/api/v1/versions/..%2f..%2fapp.sqlite3/file", "/api/v1/versions/%2e%2e/file", "/api/v1/versions/%2e%2e%2f%2e%2e%2fapp.sqlite3/file"):
+            # Routes de l'API authentifiées par le jeton de contrôle : la route elle-même est éprouvée, pas seulement l'accès.
+            authenticated = path.startswith("/api/")
+            response = client.get(f"http://{api}{path}", headers={"x-rag-control-token": admin} if authenticated else {})
+            leaked = [name for name, marker in markers.items() if marker in response.content]
+            results.append({"service": "api", "method": "GET", "authority": api, "path": path, "headers": {"x-rag-control-token": "<jeton de l'instance>"} if authenticated else {}, "expected_status": "4xx",
+                            "status": response.status_code, "code": None, "allow_origin": response.headers.get("access-control-allow-origin"),
+                            "leaked": leaked, "pass": 400 <= response.status_code < 500 and not leaked})
     pids = {name: (service or {}).get("pid") for name, service in (state.get("services") or {}).items()}
     pids["supervisor"] = (state.get("supervisor") or {}).get("pid")
     listeners: dict[tuple[int, str, int], dict] = {}
@@ -99,8 +113,8 @@ def main() -> int:
     model_loaded = any(member.name().lower().startswith(("llama", "ollama_llama")) for pid in pids.values() if pid and psutil.pid_exists(pid)
                        for member in psutil.Process(pid).children(recursive=True))
     passed = sum(item["pass"] for item in results)
-    report = {"utc": datetime.now(UTC).isoformat(), "criterion": "D08.3", "profile": args.profile.name, "instance_id": state.get("instance_id"),
-              "method": "httpx loopback, en-têtes Host/Origin/Sec-Fetch-Site forgés, préflight CORS étranger ; aucune redirection suivie ; sockets en écoute relevés par psutil",
+    report = {"utc": datetime.now(UTC).isoformat(), "criteria": ["D08.3", "D08.4"], "profile": args.profile.name, "instance_id": state.get("instance_id"),
+              "method": "httpx loopback, en-têtes Host/Origin/Sec-Fetch-Site forgés, préflight CORS étranger, traversées encodées vers les fichiers de l'instance ; aucune redirection suivie ; sockets en écoute relevés par psutil",
               "limit": "Contrôle applicatif ; ne prouve pas le blocage réseau du système (D08.1). Sans modèle chargé, le processus d'inférence lancé par Ollama n'est pas observé.",
               "results": results, "passed": passed, "total": len(results), "listeners": list(listeners.values()), "listeners_loopback_only": sockets_ok,
               "inference_process_observed": model_loaded,

@@ -1,0 +1,402 @@
+{
+  "utc": "2026-10-01T10:30:47.875659+00:00",
+  "criteria": [
+    "D08.3",
+    "D08.4"
+  ],
+  "profile": "local16.yaml",
+  "instance_id": "151b2dac365246aa8ae70f7ad7207bfd",
+  "method": "httpx loopback, en-têtes Host/Origin/Sec-Fetch-Site forgés, préflight CORS étranger, traversées encodées vers les fichiers de l'instance ; aucune redirection suivie ; sockets en écoute relevés par psutil",
+  "limit": "Contrôle applicatif ; ne prouve pas le blocage réseau du système (D08.1). Sans modèle chargé, le processus d'inférence lancé par Ollama n'est pas observé.",
+  "results": [
+    {
+      "service": "api",
+      "method": "GET",
+      "authority": "127.0.0.1:8785",
+      "path": "/api/v1/health",
+      "headers": {},
+      "expected_status": 200,
+      "status": 200,
+      "code": null,
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "GET",
+      "authority": "127.0.0.1:8785",
+      "path": "/api/v1/health",
+      "headers": {
+        "Host": "localhost:8785"
+      },
+      "expected_status": 200,
+      "status": 200,
+      "code": null,
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "GET",
+      "authority": "127.0.0.1:8785",
+      "path": "/api/v1/health",
+      "headers": {
+        "Host": "attaquant.example"
+      },
+      "expected_status": 400,
+      "status": 400,
+      "code": "invalid_host",
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "GET",
+      "authority": "127.0.0.1:8785",
+      "path": "/api/v1/health",
+      "headers": {
+        "Host": "127.0.0.1:9999"
+      },
+      "expected_status": 400,
+      "status": 400,
+      "code": "invalid_host",
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "GET",
+      "authority": "127.0.0.1:8785",
+      "path": "/api/v1/health",
+      "headers": {
+        "Origin": "http://attaquant.example"
+      },
+      "expected_status": 403,
+      "status": 403,
+      "code": "invalid_origin",
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "GET",
+      "authority": "127.0.0.1:8785",
+      "path": "/api/v1/health",
+      "headers": {
+        "Sec-Fetch-Site": "cross-site"
+      },
+      "expected_status": 403,
+      "status": 403,
+      "code": "cross_site_request",
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "POST",
+      "authority": "127.0.0.1:8785",
+      "path": "/api/v1/search",
+      "headers": {
+        "Origin": "http://attaquant.example"
+      },
+      "expected_status": 403,
+      "status": 403,
+      "code": "invalid_origin",
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "POST",
+      "authority": "127.0.0.1:8785",
+      "path": "/api/v1/search",
+      "headers": {
+        "Origin": "null"
+      },
+      "expected_status": 403,
+      "status": 403,
+      "code": "invalid_origin",
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "OPTIONS",
+      "authority": "127.0.0.1:8785",
+      "path": "/api/v1/search",
+      "headers": {
+        "Origin": "http://attaquant.example",
+        "Access-Control-Request-Method": "POST"
+      },
+      "expected_status": 403,
+      "status": 403,
+      "code": "invalid_origin",
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "ollama",
+      "method": "GET",
+      "authority": "127.0.0.1:11434",
+      "path": "/api/tags",
+      "headers": {
+        "Host": "attaquant.example"
+      },
+      "expected_status": 403,
+      "status": 403,
+      "code": null,
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "ollama",
+      "method": "GET",
+      "authority": "127.0.0.1:11434",
+      "path": "/api/tags",
+      "headers": {
+        "Origin": "http://attaquant.example"
+      },
+      "expected_status": 403,
+      "status": 403,
+      "code": null,
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "qdrant",
+      "method": "GET",
+      "authority": "127.0.0.1:6333",
+      "path": "/healthz",
+      "headers": {
+        "Host": "attaquant.example"
+      },
+      "expected_status": 200,
+      "status": 200,
+      "code": null,
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "qdrant",
+      "method": "GET",
+      "authority": "127.0.0.1:6333",
+      "path": "/collections",
+      "headers": {},
+      "expected_status": 401,
+      "status": 401,
+      "code": null,
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "qdrant",
+      "method": "GET",
+      "authority": "127.0.0.1:6333",
+      "path": "/collections",
+      "headers": {
+        "Host": "attaquant.example",
+        "Origin": "http://attaquant.example"
+      },
+      "expected_status": 401,
+      "status": 401,
+      "code": null,
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "qdrant",
+      "method": "GET",
+      "authority": "127.0.0.1:6333",
+      "path": "/telemetry",
+      "headers": {
+        "Host": "attaquant.example"
+      },
+      "expected_status": 401,
+      "status": 401,
+      "code": null,
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "qdrant",
+      "method": "GET",
+      "authority": "127.0.0.1:6333",
+      "path": "/collections",
+      "headers": {
+        "api-key": "<clé de l'instance>"
+      },
+      "expected_status": 200,
+      "status": 200,
+      "code": null,
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "qdrant",
+      "method": "GET",
+      "authority": "127.0.0.1:6333",
+      "path": "/collections",
+      "headers": {
+        "api-key": "<clé de l'instance>",
+        "Origin": "http://attaquant.example"
+      },
+      "expected_status": 200,
+      "status": 200,
+      "code": null,
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "GET",
+      "authority": "127.0.0.1:8785",
+      "path": "/api/v1/health",
+      "headers": {
+        "Origin": "http://127.0.0.1:8785"
+      },
+      "expected_status": 200,
+      "status": 200,
+      "code": null,
+      "allow_origin": null,
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "GET",
+      "authority": "127.0.0.1:8785",
+      "path": "/..%2f..%2fconfig/local16.yaml",
+      "headers": {},
+      "expected_status": "4xx",
+      "status": 404,
+      "code": null,
+      "allow_origin": null,
+      "leaked": [],
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "GET",
+      "authority": "127.0.0.1:8785",
+      "path": "/%2e%2e/%2e%2e/config/local16.yaml",
+      "headers": {},
+      "expected_status": "4xx",
+      "status": 404,
+      "code": null,
+      "allow_origin": null,
+      "leaked": [],
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "GET",
+      "authority": "127.0.0.1:8785",
+      "path": "/..%5c..%5cconfig%5clocal16.yaml",
+      "headers": {},
+      "expected_status": "4xx",
+      "status": 404,
+      "code": null,
+      "allow_origin": null,
+      "leaked": [],
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "GET",
+      "authority": "127.0.0.1:8785",
+      "path": "/workspace/..%2f..%2f..%2f.runtime/data/control/admin-token",
+      "headers": {},
+      "expected_status": "4xx",
+      "status": 404,
+      "code": null,
+      "allow_origin": null,
+      "leaked": [],
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "GET",
+      "authority": "127.0.0.1:8785",
+      "path": "/_next/..%2f..%2f..%2f..%2f.runtime/data/control/qdrant-api-key",
+      "headers": {},
+      "expected_status": "4xx",
+      "status": 404,
+      "code": null,
+      "allow_origin": null,
+      "leaked": [],
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "GET",
+      "authority": "127.0.0.1:8785",
+      "path": "/api/v1/versions/..%2f..%2fapp.sqlite3/file",
+      "headers": {
+        "x-rag-control-token": "<jeton de l'instance>"
+      },
+      "expected_status": "4xx",
+      "status": 404,
+      "code": null,
+      "allow_origin": null,
+      "leaked": [],
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "GET",
+      "authority": "127.0.0.1:8785",
+      "path": "/api/v1/versions/%2e%2e/file",
+      "headers": {
+        "x-rag-control-token": "<jeton de l'instance>"
+      },
+      "expected_status": "4xx",
+      "status": 404,
+      "code": null,
+      "allow_origin": null,
+      "leaked": [],
+      "pass": true
+    },
+    {
+      "service": "api",
+      "method": "GET",
+      "authority": "127.0.0.1:8785",
+      "path": "/api/v1/versions/%2e%2e%2f%2e%2e%2fapp.sqlite3/file",
+      "headers": {
+        "x-rag-control-token": "<jeton de l'instance>"
+      },
+      "expected_status": "4xx",
+      "status": 404,
+      "code": null,
+      "allow_origin": null,
+      "leaked": [],
+      "pass": true
+    }
+  ],
+  "passed": 26,
+  "total": 26,
+  "listeners": [
+    {
+      "service": "qdrant",
+      "pid": 19992,
+      "process": "qdrant.exe",
+      "address": "127.0.0.1",
+      "port": 6333
+    },
+    {
+      "service": "ollama",
+      "pid": 20036,
+      "process": "ollama.exe",
+      "address": "127.0.0.1",
+      "port": 11434
+    },
+    {
+      "service": "api",
+      "pid": 27952,
+      "process": "python.exe",
+      "address": "127.0.0.1",
+      "port": 8785
+    }
+  ],
+  "listeners_loopback_only": true,
+  "inference_process_observed": false,
+  "result": "PASS"
+}

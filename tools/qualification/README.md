@@ -223,10 +223,10 @@ Une génération réelle demande la mémoire d'une instance complète : sur un p
 | `restore_question_check.py prepare` / `restore` | Question et ancienne citation après restauration d'une sauvegarde au format courant | D09.3 |
 | `injection_check.py` | Instruction hostile placée dans un PDF sans effet sur la réponse | D08.5 (en partie) |
 | `log_privacy_check.py` | Lecture seule : texte extrait, questions et réponses de l'instance cherchés dans tous ses journaux (témoin positif sur les checkpoints), exclusions Git des originaux, du corpus et des modèles | D08.7 |
-| `http_guards_check.py` | Lecture seule sur une instance en marche (par défaut l'instance principale) : Host et Origin étrangers, requêtes inter-sites, préflight CORS, Qdrant sans clé, sockets en écoute limités au bouclage | D08.3 |
+| `http_guards_check.py` | Lecture seule sur une instance en marche (par défaut l'instance principale) : Host et Origin étrangers, requêtes inter-sites, préflight CORS, Qdrant sans clé, traversées encodées vers le profil, la base et les jetons, sockets en écoute limités au bouclage | D08.3, D08.4 |
 
 Rapports du 01/10 : `RAG_Local_Agents/reports/library-2026-10-01*.json`,
-`faults-2026-10-01.json`, `scope-2026-10-01.json`, `http-guards-live-20261001T0943.json`, `log-privacy-20261001T0949.json`, `migration-2026-10-01-0414.json`,
+`faults-2026-10-01.json`, `scope-2026-10-01.json`, `http-guards-live-20261001T0943.json`, `http-guards-live-20261001T1030.json`, `log-privacy-20261001T0949.json`, `migration-2026-10-01-0414.json`,
 `restore-question-2026-10-01-0525.json`, `injection-2026-10-01-0441.json`.
 
 ## Fixtures séparées D08.5/D08.6 et D06.8

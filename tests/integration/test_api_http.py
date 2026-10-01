@@ -2,6 +2,8 @@
 import asyncio
 import hashlib
 import json
+import subprocess
+import sys
 from contextlib import asynccontextmanager, contextmanager
 
 import pytest
@@ -387,7 +389,31 @@ def test_api_rejects_host_origin_traversal_and_private_error_inputs(tmp_path):
         assert body.status_code == 422 and "private marker" not in body.text
 
 
-def test_api_backend_restart_marks_query_interrupted(tmp_path):
+@pytest.mark.skipif(sys.platform != "win32", reason="Jonction de répertoire Windows, créée sans droit administrateur")
+def test_api_original_behind_junction_or_outside_storage_is_never_served(tmp_path):
+    # Un compte standard ne peut pas créer de lien symbolique de fichier (erreur 1314) mais peut créer une jonction :
+    # un original déplacé derrière une jonction qui sort du stockage, ou désigné hors du stockage, n'est jamais lu.
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+    outside = tmp_path / "hors-stockage"
+    outside.mkdir()
+    secret = b"%PDF-1.7\nsecret hors du stockage"
+    (outside / "secret.pdf").write_bytes(secret)
+    with browser_client(app) as client:
+        imported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", b"%PDF-1.7\ncontrolled junction fixture", "application/pdf")}).json()
+        file_url = f"/api/v1/versions/{imported['version_id']}/file"
+        assert client.get(file_url).status_code == 200
+        originals = settings.data_dir / "originals"
+        junction = originals / "evasion"
+        created = subprocess.run(["cmd", "/c", "mklink", "/J", str(junction), str(outside)], capture_output=True, check=False)
+        if created.returncode != 0:
+            pytest.skip("Jonction impossible sur ce volume ; aucune preuve produite.")
+        for blob in (junction / "secret.pdf", outside / "secret.pdf", originals / ".." / ".." / "hors-stockage" / "secret.pdf"):
+            app.state.db.execute("UPDATE document_versions SET blob_path=? WHERE id=?", (str(blob), imported["version_id"]))
+            response = client.get(file_url)
+            assert response.status_code == 409 and response.json()["code"] == "invalid_storage_path", blob
+            assert secret not in response.content
+        assert client.get("/api/v1/health").status_code == 200
     from services.api.db import Database
     db = Database(tmp_path / "state.sqlite")
     db.initialize()

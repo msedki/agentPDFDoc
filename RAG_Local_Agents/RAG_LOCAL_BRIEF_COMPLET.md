@@ -1321,7 +1321,7 @@ Si la cible CPU ne passe pas une mesure, conserver `FAIL`, identifier la phase d
 - [ ] Après provisionnement, bloquer toutes les sorties non-loopback et exécuter import, OCR, embeddings, recherche, génération et lecture.
 - [ ] Zéro requête externe nécessaire et aucune tentative inexpliquée de DNS/télémétrie/CDN/modèle manquant dans le scénario applicatif.
 - [x] Origines/Host non autorisés rejetés ; pas de bind LAN involontaire ; pas de CORS wildcard.
-- [ ] Traversal, symlink sortant de la racine et fichiers malformés traités sans lecture arbitraire ou crash du serveur API.
+- [x] Traversal, symlink sortant de la racine et fichiers malformés traités sans lecture arbitraire ou crash du serveur API.
 - [ ] Instructions malveillantes insérées dans une fixture PDF ne provoquent ni exécution, ni exfiltration, ni élargissement du scope.
 - [x] Markdown/HTML actif et liens d'images distantes ne sont pas exécutés/chargés automatiquement.
 - [x] Logs normaux sans texte privé ; originaux et modèles exclus du Git par défaut.
@@ -1331,6 +1331,8 @@ Preuve01/10/2026 (D08.6) : texte de document hostile rendu littéral, sans élé
 Preuve01/10/2026 (D08.3) : `tools/qualification/http_guards_check.py` sur l'instance principale en marche, en lecture seule ([rapport](reports/http-guards-live-20261001T0943.json)) : 18/18 contrôles conformes. API : Host étranger ou port différent refusés (400 `invalid_host`), Origin étrangère ou `null` et requête inter-sites refusées (403), préflight CORS étranger refusé ; Ollama : Host et Origin étrangers refusés (403) ; Qdrant : sans clé 401, y compris avec Host et Origin étrangers ; aucune réponse ne porte `Access-Control-Allow-Origin`. Sockets en écoute de l'instance relevés par processus : API, Qdrant et Ollama sur 127.0.0.1 uniquement. Limites : contrôle applicatif, sans blocage réseau du système (D08.1) ; modèle non chargé pendant la mesure, le processus d'inférence lancé par Ollama n'a pas été observé. Même résultat que le contrôle du 30/09 ([rapport](reports/http-guards-live-20260930T1636.json)), rejoué après l'ajout des sessions (W011).
 
 Preuve01/10/2026 (D08.7) : `tools/qualification/log_privacy_check.py` en lecture seule sur l'instance principale ([rapport](reports/log-privacy-20261001T0949.json), comptes seulement, aucun texte cherché) : les 465 blocs distincts d'au moins 48 caractères du corpus réel extrait, les 17 questions et les 11 réponses enregistrées sont absents, en clair comme échappés JSON, des 120 journaux de l'instance (35,6 Mo : API, Ollama, Qdrant, ressources, audit de sécurité, démarrage du superviseur, worker d'extraction, 23 démarrages successifs) ; témoin positif : le même détecteur retrouve 55 extraits dans 20 checkpoints d'extraction. Git : `PDF/`, originaux, modèles, journaux et base ignorés ; aucun fichier suivi sous `PDF/` ou `.runtime/`, aucun poids de modèle suivi, les 10 PDF suivis sont des fixtures synthétiques. Limite : un texte reformulé ou plus court que les seuils ne serait pas détecté.
+
+Preuve01/10/2026 (D08.4) : traversées encodées sur l'instance principale en marche (`tools/qualification/http_guards_check.py`, lecture seule, [rapport](reports/http-guards-live-20261001T1030.json), 26/26) : huit chemins `..%2f`, `%2e%2e`, `..%5c` vers le profil, la base SQLite et les jetons de l'instance, par l'interface statique et par la route des originaux authentifiée : tous refusés (404), aucun contenu sensible dans les réponses. Lien sortant de la racine : un compte standard ne peut pas créer de lien symbolique de fichier sous Windows (erreur 1314) mais peut créer une jonction ; `test_api_original_behind_junction_or_outside_storage_is_never_served` crée une vraie jonction dans le stockage des originaux vers un dossier extérieur : original refusé (409 `invalid_storage_path`), aucun octet du fichier extérieur servi, API toujours disponible ; le test échoue si le chemin n'est plus résolu avant contrôle. Chemins d'import et de déplacement dangereux refusés (`test_api_paths_reject_unsafe_input`, tests HTTP d'import et de déplacement). Fichiers malformés sur instance isolée : PDF chiffré et structure invalide en erreur explicite, page blanche signalée, l'API continuant de servir les cas suivants ([rapport](reports/library-2026-10-01.json), D02.8).
 
 ## D09 — Sauvegarde, restauration et maintien
 
@@ -1790,6 +1792,11 @@ Réalisé : D06.2 coché sur preuves existantes, après vérification que les so
 Réalisé : D06.7 coché (`DEFINITION_OF_DONE.md`) : nouveau scénario Playwright `unicode-selection.spec.ts`, joué sur une instance isolée (aucun OCR ni génération) : aller-retour exact en points de code pour hors BMP, accent combinant, ligature et césure, refus explicite d'une sélection ambiguë ([rapport](../apps/web/reports/e2e-2026-10-01-unicode-selection-evidence.json)). Limite consignée : la ligature U+FB01 est développée en « fi » par l'extraction comme par PDF.js. Instance arrêtée, racine supprimée.
 
 Restent en D06 : 5, 6 et 9 (ancres de région sur le corpus contrôlé, sélection sur régions OCR, réponse progressive et reconnexion SSE), qui demandent extraction OCR ou génération.
+## Point à 10:32 UTC (1er octobre) — D08.4
+
+Réalisé : D08.4 coché (`DEFINITION_OF_DONE.md`). Test d'intégration à jonction Windows réelle (`test_api_http.py`), vérifié par mutation (sans résolution du chemin, l'original extérieur est servi et le test échoue) ; `http_guards_check.py` étendu à huit traversées encodées, 26/26 sur l'instance principale ([rapport](reports/http-guards-live-20261001T1030.json)) ; tests HTTP et de stockage 57/57.
+
+Restent ouverts en D08 : D08.1 (décision utilisateur), D08.2 (observation réseau pendant le scénario complet, génération comprise), D08.5 (exfiltration et élargissement de périmètre, génération).
 
 ---
 

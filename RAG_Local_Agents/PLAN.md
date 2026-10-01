@@ -405,3 +405,8 @@ Réalisé : D06.2 coché sur preuves existantes, après vérification que les so
 Réalisé : D06.7 coché (`DEFINITION_OF_DONE.md`) : nouveau scénario Playwright `unicode-selection.spec.ts`, joué sur une instance isolée (aucun OCR ni génération) : aller-retour exact en points de code pour hors BMP, accent combinant, ligature et césure, refus explicite d'une sélection ambiguë ([rapport](../apps/web/reports/e2e-2026-10-01-unicode-selection-evidence.json)). Limite consignée : la ligature U+FB01 est développée en « fi » par l'extraction comme par PDF.js. Instance arrêtée, racine supprimée.
 
 Restent en D06 : 5, 6 et 9 (ancres de région sur le corpus contrôlé, sélection sur régions OCR, réponse progressive et reconnexion SSE), qui demandent extraction OCR ou génération.
+## Point à 10:32 UTC (1er octobre) — D08.4
+
+Réalisé : D08.4 coché (`DEFINITION_OF_DONE.md`). Test d'intégration à jonction Windows réelle (`test_api_http.py`), vérifié par mutation (sans résolution du chemin, l'original extérieur est servi et le test échoue) ; `http_guards_check.py` étendu à huit traversées encodées, 26/26 sur l'instance principale ([rapport](reports/http-guards-live-20261001T1030.json)) ; tests HTTP et de stockage 57/57.
+
+Restent ouverts en D08 : D08.1 (décision utilisateur), D08.2 (observation réseau pendant le scénario complet, génération comprise), D08.5 (exfiltration et élargissement de périmètre, génération).
