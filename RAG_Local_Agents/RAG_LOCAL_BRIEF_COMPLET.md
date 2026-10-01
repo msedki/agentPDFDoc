@@ -1263,19 +1263,21 @@ Preuve partielle acquise30/09/2026 : [publication réelle11chunks/11points](repo
 
 - [x] Trois panneaux utilisables à 1 366 × 768 et 1 920 × 1 080, sans chevauchement bloquant.
 - [ ] Arborescence, lecteur et chat partagent le bon état ; périmètre toujours visible.
-- [ ] Le clic sur une citation navigue vers la version/page, surligne et permet de revenir au point précédent.
-- [ ] Zoom, rotation 0/90/180/270°, CropBox non trivial et labels de pages romains ne cassent pas la navigation.
+- [x] Le clic sur une citation navigue vers la version/page, surligne et permet de revenir au point précédent.
+- [x] Zoom, rotation 0/90/180/270°, CropBox non trivial et labels de pages romains ne cassent pas la navigation.
 - [ ] Au moins 95 % des ancres de région du corpus contrôlé couvrent effectivement le passage attendu ; 100 % ouvrent la bonne page. Les cas `page` ne sont pas comptés comme surlignages de région réussis.
 - [ ] Sélection native et OCR lorsque géométrie disponible ; actions page/section fonctionnelles.
 - [ ] Aller-retour des offsets UTF-16/points de code, ligatures, césures, caractères hors BMP et accents combinants ; hash source vérifié ; fallback de granularité explicite.
-- [ ] Nombre de canvases ET budget cumulé de pixels respectés pendant zoom/scroll ; allocations obsolètes libérées.
+- [x] Nombre de canvases ET budget cumulé de pixels respectés pendant zoom/scroll ; allocations obsolètes libérées.
 - [ ] Réponse progressive, statut d'indexation, annulation et reconnexion SSE observables.
 - [ ] Aucun bouton factice et aucun écran dépendant de données mockées dans le build de livraison.
-- [ ] Navigation clavier, focus visible, labels accessibles et contraste vérifiés sur les composants essentiels.
+- [x] Navigation clavier, focus visible, labels accessibles et contraste vérifiés sur les composants essentiels.
 
 **Preuves :** Playwright utilisant l'API réelle, traces et captures annotées par nom de scénario. Un test avec Qdrant/Ollama mockés reste un test UI isolé et n'est pas compté comme E2E réel.
 
 Disposition aux deux résolutions vérifiée contre l'API native : [rapport et captures](../apps/web/reports/QUALIFICATION_UI_NATIVE_2026-09-30.md). Ce résultat ne clôt pas navigation de toutes géométries, réponse progressive ou anciennes révisions.
+
+Preuves01/10/2026, Playwright sur l'API réelle (Qdrant et Ollama réels) : clic sur une citation, page et surlignage ([question réelle, instance principale](../apps/web/reports/e2e-2026-10-01-r2-generation-0446/evidence.json)) et retour au passage précédent ([import réel et navigation, instance isolée](../apps/web/reports/e2e-2026-10-01-import-isole-parcours-evidence.json)) ; rotations 0/90/180/270 avec CropBox et folios romains ([géométrie, 4/4](../apps/web/reports/e2e-2026-10-01-import-isole-geometrie-evidence.json)) ; zoom à 300 % dans le budget de canvases et de pixels, canvases détachés libérés (même rapport que l'import) ; clavier, focus visible, libellés et contrastes ([E2E lecture seule](../apps/web/reports/e2e-2026-10-01-reponse-mise-en-forme-0457-evidence.json), tests unitaires `accessibility.test.ts` et `ui-guards.test.ts`, [recette](reports/ui-recette-2026-09-30.md#second-passage--1er-octobre-2026)). Traces Playwright conservées localement sous `apps/web/test-results/`, hors Git. Restent ouverts : état partagé (90), ancres de région (93), sélection OCR (94), offsets (95), annulation et reconnexion SSE (97), absence de bouton factice (98).
 
 ## D07 — RAM, CPU et latence
 
@@ -1543,7 +1545,7 @@ Les sections précédentes restent l'historique. Entre 04:36 et 04:49, sans mise
 | R2 | V — première réponse réelle | R1 | Question → sources → réponse Qwen → citation cliquable | SSE brut, model_called, IDs de citation dans le registre, clic UI | IN_PROGRESS — 09:27 admise, `model_called=true`, réponse partielle correcte « 3,1 bar [S001] » puis annulée par le gouverneur (réserve 1500 < 1536 sous charge) ; à rejouer hors charge concurrente ([preuve](reports/backend/2026-09-30-restored-question-20260930T0927.json)) ; 20:29 question de l'utilisateur sur le corpus réel : réponse complète (`done`, `stop`), premier token à 175 s (attente d'admission 67 s, chargement 20 s), 298 s au total, 6 marqueurs de citation tous dans le registre (4 sources, 2 documents) ([preuve](reports/backend/2026-09-30-real-corpus-question-20260930T2029.json)) ; reste l'ouverture d'une citation dans l'interface ; 01/10 : VERIFIED — API à 04:22 (done, `model_called`, 6 citations relues, [preuve](reports/backend/r2-question-20261001T042222Z.json)), prompt corrigé (`986d846`, la réponse jugeait la source « non fiable »), interface à 04:46 : question, réponse « 3,1 bar », clic sur la citation, page et surlignage ([preuves](../apps/web/reports/e2e-2026-10-01-r2-generation-0446/evidence.json)), rejoué à 04:57 après la mise en forme des réponses (`0c7fd84`) |
 | R3 | D09.3 après restauration | R1 | Ancienne citation + question sur la restauration | E2E lifecycle PASS + réponse réelle | Citation VERIFIED ([preuve](../apps/web/reports/e2e-2026-09-30-restored-source-rerun-0910-evidence.json)) ; question VERIFIED le 01/10 à 05:25 sur une sauvegarde au format courant ([rapport](reports/restore-question-2026-10-01-0525.json), `bf71f14`) ; D09.3 coché |
 | R4 | Code (7 zones : retrieval, API, runtime, ingestion, outils qualification, outillage docs, frontend) | R0 | Corrections des défauts prouvés, tests, revue adversariale | Tests unitaires/in-process PASS, junit sous reports/backend/…-lotR4-*, revue sans constat bloquant | VERIFIED (niveau unitaire et in-process) — commits c3f9a72, 61e5d78, 4c87775, bc1494f, 0fabf03, 72a10e5, b4c940b ; 7 revues indépendantes, 4 constats majeurs corrigés avec tests de reproduction ; suite complète 355 tests ([junit](reports/backend/2026-09-30-lotR4-full-unit.xml)). Parcours réels, build et E2E relèvent de R2/R3/R5/R6. |
-| R5 | Build UI + E2E de non-régression | R4 frontend | Export rebuild, specs a11y/deeplink/géométrie/markup/canvas | Build surveillé PASS, E2E réels PASS sur cible isolée | NOT_STARTED |
+| R5 | Build UI + E2E de non-régression | R4 frontend | Export rebuild, specs a11y/deeplink/géométrie/markup/canvas | Build surveillé PASS, E2E réels PASS sur cible isolée | IN_PROGRESS — 01/10 : E2E réels sur cible isolée (`tools/qualification/e2e_instance.py`, `8186162`) : géométrie 4/4, balisage hostile, budget de canvas, import, recherche, navigation et sélections 5/5 ; lecture seule 11/11 et génération sur l'instance principale ; D06.91, 92, 96 et 99 cochés ; build surveillé (`build-monitored.py`) non rejoué, builds simples `pnpm build` |
 | R6 | Ingestion OCR (W-PDF01) | R4 ingestion (E1) | Voie scan fiable ou limite déclarée | scan90/scan0/mixte/5 pages exacts ou ready_partial honnête | VERIFIED sur fixtures synthétiques (W009) : 4/4 OCR sur le profil nominal, voie native 8/8 ; corpus métier et réindex des fixtures DEV restent à faire (R7) |
 | R7 | Évaluation DEV (retrieval, contexte, génération) | R4, R6 | Import DA-P02..07, bindings fusionnés, rapports DEV | 100/100 résolues ; métriques avec dénominateurs | NOT_STARTED |
 | R8 | D07 performance | R2, R7 | Stress 25k nommé, 30 questions, scénario 30 min | p95 mesurés, FAIL conservés avec phase dominante | NOT_STARTED |
@@ -1704,6 +1706,11 @@ Restent : D09.3 (question sur une instance restaurée), R3, R7, R8, R10, R13 ; v
 Réalisé : D09.3 (question et ancienne citation après restauration) PASS sur une sauvegarde au format courant (`bf71f14`) ; critère coché. En chemin, défaut latent de la distribution trouvé et corrigé (`33e8cee`) : pour un profil généré, les stockages de restauration dépassaient la borne de Qdrant dès 39 caractères de racine des données ; ils sont désormais voisins du stockage court, et `init-profile` comme `install.ps1` refusent un chemin trop long avant toute copie. La sauvegarde du 30/09 à 03:11 reste non admissible à la génération sur ce poste (profil de l'époque, 5 888 Mio requis), ce qui est documenté. Pour chaque essai de génération en instance temporaire, l'instance principale a été arrêtée puis redémarrée (inactive, `readiness` 200 ensuite).
 
 Contrôles : 464 tests unitaires Python, `ruff`, `mypy` ; essais réels conservés.
+## Point à 05:52 UTC (1er octobre) — E2E d'import sur instance isolée
+
+Réalisé : outil `tools/qualification/e2e_instance.py` (`8186162`) ; scénarios Playwright d'import joués pour la première fois sur une cible isolée réelle : géométrie 4/4, balisage hostile, budget de canvas, import, recherche, navigation et sélections 5/5 ; instance arrêtée et racine supprimée, instance principale intacte. Critères D06.91, 92, 96 et 99 cochés avec leurs preuves (`DEFINITION_OF_DONE.md`). Preuves E2E du jour corrigées : la cible était inscrite en dur (`87a8aef`).
+
+Restent pour R5 : build surveillé et rejeu complet sur le build de livraison ; pour D06 : 90, 93, 94, 95, 97, 98.
 
 ---
 

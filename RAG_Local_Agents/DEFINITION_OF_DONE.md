@@ -88,19 +88,21 @@ Preuve partielle acquise30/09/2026 : [publication réelle11chunks/11points](repo
 
 - [x] Trois panneaux utilisables à 1 366 × 768 et 1 920 × 1 080, sans chevauchement bloquant.
 - [ ] Arborescence, lecteur et chat partagent le bon état ; périmètre toujours visible.
-- [ ] Le clic sur une citation navigue vers la version/page, surligne et permet de revenir au point précédent.
-- [ ] Zoom, rotation 0/90/180/270°, CropBox non trivial et labels de pages romains ne cassent pas la navigation.
+- [x] Le clic sur une citation navigue vers la version/page, surligne et permet de revenir au point précédent.
+- [x] Zoom, rotation 0/90/180/270°, CropBox non trivial et labels de pages romains ne cassent pas la navigation.
 - [ ] Au moins 95 % des ancres de région du corpus contrôlé couvrent effectivement le passage attendu ; 100 % ouvrent la bonne page. Les cas `page` ne sont pas comptés comme surlignages de région réussis.
 - [ ] Sélection native et OCR lorsque géométrie disponible ; actions page/section fonctionnelles.
 - [ ] Aller-retour des offsets UTF-16/points de code, ligatures, césures, caractères hors BMP et accents combinants ; hash source vérifié ; fallback de granularité explicite.
-- [ ] Nombre de canvases ET budget cumulé de pixels respectés pendant zoom/scroll ; allocations obsolètes libérées.
+- [x] Nombre de canvases ET budget cumulé de pixels respectés pendant zoom/scroll ; allocations obsolètes libérées.
 - [ ] Réponse progressive, statut d'indexation, annulation et reconnexion SSE observables.
 - [ ] Aucun bouton factice et aucun écran dépendant de données mockées dans le build de livraison.
-- [ ] Navigation clavier, focus visible, labels accessibles et contraste vérifiés sur les composants essentiels.
+- [x] Navigation clavier, focus visible, labels accessibles et contraste vérifiés sur les composants essentiels.
 
 **Preuves :** Playwright utilisant l'API réelle, traces et captures annotées par nom de scénario. Un test avec Qdrant/Ollama mockés reste un test UI isolé et n'est pas compté comme E2E réel.
 
 Disposition aux deux résolutions vérifiée contre l'API native : [rapport et captures](../apps/web/reports/QUALIFICATION_UI_NATIVE_2026-09-30.md). Ce résultat ne clôt pas navigation de toutes géométries, réponse progressive ou anciennes révisions.
+
+Preuves01/10/2026, Playwright sur l'API réelle (Qdrant et Ollama réels) : clic sur une citation, page et surlignage ([question réelle, instance principale](../apps/web/reports/e2e-2026-10-01-r2-generation-0446/evidence.json)) et retour au passage précédent ([import réel et navigation, instance isolée](../apps/web/reports/e2e-2026-10-01-import-isole-parcours-evidence.json)) ; rotations 0/90/180/270 avec CropBox et folios romains ([géométrie, 4/4](../apps/web/reports/e2e-2026-10-01-import-isole-geometrie-evidence.json)) ; zoom à 300 % dans le budget de canvases et de pixels, canvases détachés libérés (même rapport que l'import) ; clavier, focus visible, libellés et contrastes ([E2E lecture seule](../apps/web/reports/e2e-2026-10-01-reponse-mise-en-forme-0457-evidence.json), tests unitaires `accessibility.test.ts` et `ui-guards.test.ts`, [recette](reports/ui-recette-2026-09-30.md#second-passage--1er-octobre-2026)). Traces Playwright conservées localement sous `apps/web/test-results/`, hors Git. Restent ouverts : état partagé (90), ancres de région (93), sélection OCR (94), offsets (95), annulation et reconnexion SSE (97), absence de bouton factice (98).
 
 ## D07 — RAM, CPU et latence
 

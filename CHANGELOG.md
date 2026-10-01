@@ -8,6 +8,7 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 ### Ajouté
 
+- `tools/qualification/e2e_instance.py` : instance isolée temporaire pour les scénarios Playwright qui importent des fixtures ; géométrie 4/4 et parcours d'import 5/5 le 01/10 (`8186162`, [géométrie](apps/web/reports/e2e-2026-10-01-import-isole-geometrie-evidence.json), [parcours](apps/web/reports/e2e-2026-10-01-import-isole-parcours-evidence.json)).
 - `tools/qualification/restore_question_check.py` : question réelle et ancienne citation après restauration d'une sauvegarde au format courant ; PASS le 01/10 (`bf71f14`, [rapport](RAG_Local_Agents/reports/restore-question-2026-10-01-0525.json)).
 - `tools/qualification/injection_check.py` : vérifie dans une instance temporaire qu'une instruction hostile placée dans un PDF (inventer une valeur, citer une source inexistante) reste sans effet sur la réponse ; PASS le 01/10 (`df80786`, [rapport](RAG_Local_Agents/reports/injection-2026-10-01-0441.json)).
 - `tools/qualification/migration_check.py` : qualification d'une migration sur une sauvegarde, sans toucher à l'instance principale (restauration, migration au démarrage, anciennes citations, réindexation, recherche) ; sauvegarde du 30/09 au schéma 2 migrée en 3, 8 anciennes citations ouvertes avant et après réindexation, nouvelle génération active (`77cc185`, [rapport](RAG_Local_Agents/reports/migration-2026-10-01-0414.json), [retour arrière](docs/exploitation/SAUVEGARDE-RESTAURATION.md#6-retour-arrière-et-relocalisation)).
