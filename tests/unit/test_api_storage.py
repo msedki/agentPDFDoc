@@ -61,7 +61,7 @@ def storage(tmp_path):
     return settings, db, vectors, indexer
 
 
-def import_fixture(storage, path="folder/manual.pdf", text="CCU-21 : tension nominale 72 V.", pages=None):
+def import_fixture(storage, path="folder/manual.pdf", text="CCU-21 : tension nominale 72 V.", pages=None, sections=None):
     settings, db, vectors, indexer = storage
     payload = b"%PDF-1.7\n" + text.encode()
     digest = hashlib.sha256(payload).hexdigest()
@@ -70,6 +70,8 @@ def import_fixture(storage, path="folder/manual.pdf", text="CCU-21 : tension nom
     blob.write_bytes(payload)
     imported = db.import_original(path, digest, blob)
     extraction = {"sha256": digest, "fingerprint": "fixture-native-v1", "page_count": len(pages or [0]), "status": "ready", "pages": pages or [{"page_index": 0, "width": 595, "height": 842, "media_box": [0, 0, 595, 842], "crop_box": [0, 0, 595, 842], "rotation": 0, "blocks": [{"id": "b0", "type": "text", "text": text, "raw_text": text, "bbox": [10, 10, 100, 30], "precision": "block"}]}]}
+    if sections:
+        extraction["sections"] = sections
     asyncio.run(indexer.index(imported["job_id"], extraction))
     return imported, extraction
 

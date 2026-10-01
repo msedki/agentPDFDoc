@@ -8,6 +8,8 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 ### Ajouté
 
+- `tools/qualification/scope_check.py` : sur une instance isolée, vérifie avec Qdrant et E5 réels que les périmètres dossier récursif, documents, pages et section filtrent avant la coupe top-k, et qu'une sélection courte n'envoie aucune requête dense ; PASS le 01/10 ([rapport](RAG_Local_Agents/reports/scope-2026-10-01.json)).
+- `tools/qualification/library_check.py` et `fault_check.py` : bibliothèque (import d'un dossier, réimport, déplacement, versions, retrait, erreurs) et fautes injectées (arrêts forcés pendant l'import, panne de Qdrant) sur instance isolée ; PASS le 01/10 (`5fa22ae`, `f9c48da`, [rapports](RAG_Local_Agents/reports/)).
 - `tools/qualification/e2e_instance.py` : instance isolée temporaire pour les scénarios Playwright qui importent des fixtures ; géométrie 4/4 et parcours d'import 5/5 le 01/10 (`8186162`, [géométrie](apps/web/reports/e2e-2026-10-01-import-isole-geometrie-evidence.json), [parcours](apps/web/reports/e2e-2026-10-01-import-isole-parcours-evidence.json)).
 - `tools/qualification/restore_question_check.py` : question réelle et ancienne citation après restauration d'une sauvegarde au format courant ; PASS le 01/10 (`bf71f14`, [rapport](RAG_Local_Agents/reports/restore-question-2026-10-01-0525.json)).
 - `tools/qualification/injection_check.py` : vérifie dans une instance temporaire qu'une instruction hostile placée dans un PDF (inventer une valeur, citer une source inexistante) reste sans effet sur la réponse ; PASS le 01/10 (`df80786`, [rapport](RAG_Local_Agents/reports/injection-2026-10-01-0441.json)).

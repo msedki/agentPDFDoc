@@ -360,3 +360,8 @@ Restent, par ordre de dépendance : génération des réponses DEV et grille D05
 ## Point à 07:35 UTC (1er octobre) — fautes injectées
 
 Réalisé : `tools/qualification/fault_check.py` (`f9c48da`) ; arrêts forcés pendant l'extraction et les embeddings, puis reprise sans doublon ni génération fantôme ; panne de Qdrant pendant un import sans document présenté comme prêt, puis reprise. D03.6 coché ; D03.5 reste ouvert (écriture des points et publication non visées par un arrêt forcé réel, l'étape étant trop brève pour le sondage). Chaque essai sur instance isolée, racines supprimées, instance principale intacte.
+## Point à 09:08 UTC (1er octobre) — recherche et périmètre (D04)
+
+Réalisé : D04.2 à D04.6 et D04.8 cochés avec leurs preuves (`DEFINITION_OF_DONE.md`). Test unitaire des filtres avant la coupe top-k sur quatre périmètres, essai réel `tools/qualification/scope_check.py` sur instance isolée (Qdrant et E5 réels, sélection courte mesurée par le compteur natif de Qdrant), contre-exemple RRF suivi jusqu'au contexte ; deux tests rendus discriminants après vérification par mutation. Deux erreurs `mypy` déjà committées (`fault_check.py`, `migration_check.py`) corrigées. Contrôles : suite Python complète 538 réussis et 2 `xfail` connus (W-PDF01), 906 s ; `ruff` et `mypy` au vert.
+
+Restent pour D04 : D04.7 (réponses générées, R7 puis R13) et les objectifs de qualité sur le jeu final (R13). Prochaine action exécutable sans accord supplémentaire : critères D05, D06 et D08 démontrables par instances isolées, la génération DEV (R7) demandant l'arrêt de l'instance principale.

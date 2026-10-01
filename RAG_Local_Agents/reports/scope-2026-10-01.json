@@ -1,0 +1,83 @@
+{
+  "criteria": [
+    "D04.2",
+    "D04.8"
+  ],
+  "started_utc": "2026-10-01T08:59:49.114050+00:00",
+  "seconds": 454.9,
+  "question": "frein disque garniture",
+  "dense_top_k": 24,
+  "chunks": {
+    "noise": 32,
+    "target": 3
+  },
+  "target_lexical_matches": 0,
+  "target_sections": 3,
+  "admission_retries": 0,
+  "unfiltered_dense": {
+    "points": 24,
+    "target_points": 0
+  },
+  "scopes": {
+    "folder_recursive": {
+      "results": 3,
+      "top10": 3,
+      "context_sources": 3,
+      "pages": [
+        0,
+        1,
+        2
+      ],
+      "model_called": false
+    },
+    "documents": {
+      "results": 3,
+      "top10": 3,
+      "context_sources": 3,
+      "pages": [
+        0,
+        1,
+        2
+      ],
+      "model_called": false
+    },
+    "pages": {
+      "results": 1,
+      "top10": 1,
+      "context_sources": 1,
+      "pages": [
+        1
+      ],
+      "model_called": false
+    },
+    "section": {
+      "results": 1,
+      "top10": 1,
+      "context_sources": 1,
+      "pages": [
+        2
+      ],
+      "model_called": false
+    },
+    "selection": {
+      "results": 1,
+      "context_sources": 1,
+      "dense_queries_before": 9,
+      "dense_queries_after": 9,
+      "dense_queries_after_witness": 10
+    }
+  },
+  "checks": {
+    "imports_ready": true,
+    "noise_chunks_exceed_dense_top_k": true,
+    "target_lexical_lane_empty": true,
+    "unfiltered_dense_top_k_all_outside": true,
+    "folder_recursive_non_empty_and_in_scope": true,
+    "documents_non_empty_and_in_scope": true,
+    "pages_non_empty_and_in_scope": true,
+    "section_non_empty_and_in_scope": true,
+    "selection_only_selected_text": true,
+    "selection_without_dense_query": true
+  },
+  "result": "PASS"
+}

@@ -73,7 +73,8 @@ def open_citations(client: httpx.Client, citations: list[dict]) -> list[dict]:
 
 
 def wait_jobs(client: httpx.Client, job_ids: list[str], timeout: float) -> dict[str, dict]:
-    deadline, final = time.monotonic() + timeout, {}
+    deadline = time.monotonic() + timeout
+    final: dict[str, dict] = {}
     while time.monotonic() < deadline and len(final) < len(job_ids):
         for job in client.get("/api/v1/jobs", params={"limit": 50}).json()["jobs"]:
             if job["id"] in job_ids and job["state"] in JOB_DONE:

@@ -62,7 +62,7 @@ class Isolated:
 
     def restart(self) -> str:
         from services.runtime.supervisor import start
-        return start(self.profile_path).get("status")
+        return str(start(self.profile_path).get("status"))
 
     def database(self) -> sqlite3.Connection:
         connection = sqlite3.connect(f"file:{self.data / 'app.sqlite3'}?mode=ro", uri=True)

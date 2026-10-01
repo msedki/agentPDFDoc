@@ -1,5 +1,6 @@
 import asyncio
 
+import pytest
 from test_api_storage import FakeEmbedding, import_fixture
 from test_api_storage import storage as storage
 
@@ -40,8 +41,63 @@ def test_retrieval_scope_filters_precede_topk(storage):
     assert result["results"] and all(row["document_id"] == imported["document_id"] for row in result["results"])
 
 
+class FilteringVectors:
+    """Double de la recherche filtrée Qdrant : conditions `must`/`any` du snapshot appliquées avant la limite."""
+    def __init__(self, points):
+        self.points = points
+
+    async def query(self, vector, snapshot, limit=24):
+        def kept(payload):
+            return all(set(condition["match"]["any"]) & set(payload[condition["key"]] if isinstance(payload[condition["key"]], list) else [payload[condition["key"]]])
+                       for condition in snapshot.vector_filter()["must"])
+        return [key for key, point in self.points.items() if kept(point["payload"])][:limit]
+
+
+def page_of(index, blocks):
+    return {"page_index": index, "width": 595, "height": 842, "blocks": blocks}
+
+
+@pytest.mark.parametrize("kind", ["folder", "documents", "pages", "section"])
+def test_retrieval_scope_filters_precede_topk_against_dominant_outside_chunks(storage, kind):
+    # Plus de concurrents hors périmètre que lexical_top_k et dense_top_k (24), tous mieux classés : un filtre appliqué
+    # après la coupe ne laisserait rien ; appliqué avant, il rend les passages autorisés, jusqu'au contexte.
+    settings, db, vectors, _ = storage
+    noise, _ = import_fixture(storage, path="outside/noise.pdf", pages=[page_of(0, [{"id": f"n{i}", "text": " ".join(["frein"] * 8)} for i in range(30)])])
+    target_block = {"id": "t", "text": " ".join(["frein"] + ["voiture"] * 7), "section_id": "s1"}
+    rivals = [page_of(i, [{"id": f"c{i}", "text": " ".join(["frein"] * 4 + ["voiture"] * 4)}]) for i in range(1, 31)]
+    target, _ = import_fixture(storage, path="allowed/sub/target.pdf", pages=[page_of(0, [target_block])] + rivals,
+                               sections=[{"id": "s1", "title": "Freinage", "page_index": 0, "block_ids": ["t"]}])
+    resolver = ScopeResolver(db)
+    folders = {row["path"]: row["id"] for row in db.rows("SELECT id,path FROM folders")}
+    scope = {"folder": Scope(kind="folder", folderId=folders["allowed"], recursive=True),
+             "documents": Scope(kind="documents", documentIds=[target["document_id"]]),
+             "pages": Scope(kind="pages", versionId=target["version_id"], pageStart=0, pageEnd=0),
+             "section": Scope(kind="section", versionId=target["version_id"], sectionId="s1")}[kind]
+    snapshot = resolver.resolve(scope)
+    search = SearchService(db, resolver, FakeEmbedding(), FilteringVectors(vectors.points), settings)
+    outside = set(db.one("SELECT active_generation_id FROM documents WHERE id=?", (noise["document_id"],)).values())
+    unfiltered, _ = search.lexical("frein", resolver.resolve(Scope(kind="library")))
+    assert len(unfiltered) == 24 and all(db.one("SELECT generation_id FROM chunks WHERE chunk_uuid=?", (chunk,))["generation_id"] in outside for chunk in unfiltered)
+    lexical, _ = search.lexical("frein", snapshot)
+    dense = asyncio.run(search.vectors.query([0.0], snapshot, 24))
+    allowed_pages = {0} if kind in {"pages", "section"} else set(range(31))
+    allowed_blocks = {"t"} if kind == "section" else {"t"} | {f"c{i}" for i in range(1, 31)}
+    for chunk in lexical + dense:
+        assert db.one("SELECT generation_id FROM chunks WHERE chunk_uuid=?", (chunk,))["generation_id"] in snapshot.generations
+        sources = db.rows("SELECT page_index,block_id FROM chunk_sources WHERE chunk_uuid=?", (chunk,))
+        assert sources and {row["page_index"] for row in sources} <= allowed_pages and {row["block_id"] for row in sources} <= allowed_blocks
+    assert lexical and dense
+    if kind in {"pages", "section"}:
+        assert parents(db, lexical) == parents(db, dense) == ["t"]
+    result = asyncio.run(search.search("frein", snapshot))
+    expanded = [resolver.expand_parent(source, snapshot, CharTokenizer()) for source in result["results"]]
+    _, retained, _, _ = ContextBuilder(settings, CharTokenizer()).build("frein", expanded)
+    assert retained and all(source["document_id"] == target["document_id"] for source in expanded + retained)
+    assert all(block["page_index"] in allowed_pages and block["id"] in allowed_blocks for source in expanded + retained for block in source["blocks"])
+
+
 def test_retrieval_exact_survives_rrf_competitors(storage):
-    pages = [{"page_index": 0, "width": 595, "height": 842, "blocks": [{"id": "exact", "text": "CCU-21 tension = 72 V"}] + [{"id": f"other{i}", "text": "tension alimentation électrique nominale"} for i in range(8)]}]
+    pages = [{"page_index": 0, "width": 595, "height": 842, "blocks": [{"id": "exact", "text": "CCU-21 tension = 72 V"}] + [{"id": f"other{i}", "text": f"tension alimentation électrique nominale du circuit {i}"} for i in range(8)]}]
     imported, _ = import_fixture(storage, pages=pages)
     settings, db, vectors, _ = storage
     resolver = ScopeResolver(db)
@@ -51,8 +107,20 @@ def test_retrieval_exact_survives_rrf_competitors(storage):
     async def competitors(vector, scope, limit=24):
         return [chunk for chunk in await original_query(vector, scope, limit) if chunk != exact_chunk]
     vectors.query = competitors
-    result = asyncio.run(SearchService(db, resolver, FakeEmbedding(), vectors, settings).search("CCU-21 tension", snapshot))
+    search = SearchService(db, resolver, FakeEmbedding(), vectors, settings)
+    # Contre-exemple de QUALIFICATION.md §4 : seule occurrence exacte, première en lexical, absente du dense ; sans contrainte,
+    # la fusion RRF la classe après les huit voisins présents dans les deux branches, donc hors des six fragments finaux.
+    lexical, exact = search.lexical("CCU-21 tension", snapshot)
+    dense = asyncio.run(vectors.query([0.0], snapshot))
+    assert exact == [exact_chunk] and lexical[0] == exact_chunk and exact_chunk not in dense
+    assert [chunk for chunk, _ in rrf(lexical, dense, 60)].index(exact_chunk) >= settings.value("retrieval", "final_max_fragments", 6)
+    result = asyncio.run(search.search("CCU-21 tension", snapshot))
     assert any("CCU-21" in source["text"] for source in result["results"])
+    # Contrôle après déduplication, expansion de parent et coupe finale du contexte.
+    expanded = [resolver.expand_parent(source, snapshot, CharTokenizer()) for source in result["results"]]
+    messages, retained, metrics, warnings = ContextBuilder(settings, CharTokenizer()).build("CCU-21 tension", expanded)
+    assert metrics["identifier_coverage_states"] == {"CCU-21": "covered"} and any("CCU-21" in source["text"] for source in retained)
+    assert "CCU-21 tension = 72 V" in messages[-1]["content"] and not any(warning["code"] == "exact_identifier_not_in_context" for warning in warnings)
 
 
 class CharTokenizer:

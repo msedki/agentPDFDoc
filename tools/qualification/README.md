@@ -217,12 +217,13 @@ Une génération réelle demande la mémoire d'une instance complète : sur un p
 | `e2e_instance.py start` / `stop` | Instance isolée pour Playwright ou pour les outils ci-dessous ; `--max-file-mib` règle la limite de taille | — |
 | `library_check.py <cas>` | Import d'un dossier Unicode avec homonymes, originaux intacts, réimport et déplacement sans calcul, seconde version invisible avant publication, retrait nettoyé, fichiers en erreur et trop volumineux | D02.1, D02.2, D02.8, D03.1 à D03.4 |
 | `fault_check.py <cas>` | Arrêts forcés pendant l'extraction, les embeddings ou l'écriture des points (`--pages` produit un document long), panne de Qdrant pendant un import | D03.5, D03.6 |
+| `scope_check.py` | Filtres de périmètre (dossier récursif, documents, pages, section) appliqués avant la coupe top-k avec Qdrant et E5 réels ; sélection courte sans requête dense, mesurée par le compteur `rest_responses_total` de Qdrant | D04.2, D04.8 |
 | `migration_check.py` | Sauvegarde d'un schéma antérieur restaurée et migrée, anciennes citations, réindexation, `--question` pour une question réelle | D09.4 |
 | `restore_question_check.py prepare` / `restore` | Question et ancienne citation après restauration d'une sauvegarde au format courant | D09.3 |
 | `injection_check.py` | Instruction hostile placée dans un PDF sans effet sur la réponse | D08.5 (en partie) |
 
 Rapports du 01/10 : `RAG_Local_Agents/reports/library-2026-10-01*.json`,
-`faults-2026-10-01.json`, `migration-2026-10-01-0414.json`,
+`faults-2026-10-01.json`, `scope-2026-10-01.json`, `migration-2026-10-01-0414.json`,
 `restore-question-2026-10-01-0525.json`, `injection-2026-10-01-0441.json`.
 
 ## Fixtures séparées D08.5/D08.6 et D06.8
