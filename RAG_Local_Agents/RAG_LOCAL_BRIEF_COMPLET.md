@@ -1645,6 +1645,13 @@ Prochaine action exécutable : commit et push ; puis EV-1 (regroupement des bloc
 - EV-1 (`section-pack-v1`) : implémenté et testé, non commité ; mesure prévue en deux temps pour séparer les effets : B = réextraction avec les correctifs d'extraction et l'ancien découpage (sans redémarrer l'API), puis C = nouveau découpage après redémarrage, sur le jeu W014 et les séries 2 et 3.
 
 Prochaine action exécutable : build de l'interface (libellés des nouveaux codes), réindexation des 4 documents (B), mesure, puis redémarrage avec `section-pack-v1`, réindexation (C) et mesure.
+## Point à 01:00 UTC (1er octobre) — mesures B et C, découpage W015 adopté
+
+- B (réextraction des 4 documents avec les correctifs de découpe OCR et de la voie `structured`, 23:37–00:38) : plus aucune page non convertie sur MR2_30A ; reprise par la voie native sur CPR-07A p. 5, 8, 9 et MR2_30A p. 7, 8, 9 ; les 3 questions dont la preuve était sur les pages perdues sont retrouvées. Mémoire libre minimale pendant la réextraction : 2 127 Mio.
+- C (redémarrage à 00:47 avec `section-pack-v1`, réindexation depuis l'extraction en cache en moins de 2 min) : bloc attendu dans le contexte 46 → 53 sur 68 (document) et 37 → 41 (bibliothèque) ; page sur la bibliothèque 51 → 48, perte concentrée sur le document italien. Décision W015 : découpage adopté, conforme à la cible de la spécification ; perte suivie.
+- Le nouveau code de l'API est déployé (disponibilité sur base neuve, emplacements `runtime`, découpage) : instance `6346e31c…`, disponibilité `ready`, collection `present`.
+
+Prochaine action exécutable : EV-3, génération réelle sur 22 questions du jeu W014 (16 avec réponse, 6 sans) dans le créneau de nuit, contrôles automatiques puis relecture de chaque réponse ; documentation stabilisée du découpage ; R22 suite (DIST-03).
 
 ---
 
@@ -1854,6 +1861,17 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 **Écarté :** génération des questions par le modèle local (circularité avec le système évalué) ; affichage ou versionnement du texte des questions.
 
 **Conséquences :** premier jeu de questions non dérivées du texte extrait par le système lui-même, donc sans le biais de construction des séries W013 ; validité métier toujours limitée tant qu'un expert n'a pas relu le jeu. Le point à trancher n° 2 reste ouvert pour cette validation.
+## W015 Découpage section-pack-v1 : blocs courts d'une même section regroupés jusqu'à la cible
+
+**Date :** 1er octobre 2026, 00:57 UTC. **Statut :** acquise (choix technique dans le périmètre de R21 et de la spécification) ; déployée sur l'instance principale à 00:47.
+
+**Contexte :** la spécification demande de découper aux frontières structurelles avec une cible de 320 tokens E5 ([SPEC_ARCHITECTURE.md](SPEC_ARCHITECTURE.md), découpage). Le découpage `codepoint-block-v1` faisait un chunk par bloc (13 à 41 tokens en moyenne selon le document) ; le diagnostic de la série 2 attribuait 9 pertes sur 10 à la branche lexicale, pénalisée par ces chunks minuscules.
+
+**Choix retenu :** blocs consécutifs de texte et de titres d'une même section connue, sur une même page, joints par « \n » tant que le texte tient dans la cible ; tableaux, figures, légendes, blocs sans section et blocs plus longs que la cible restent seuls et se découpent comme avant ; une ligne `chunk_sources` par bloc, citations et coupe au périmètre inchangées ; révision `section-pack-v1` dans l'empreinte de génération.
+
+**Mesure (jeu W014, même extraction, apparié) :** bloc attendu dans le contexte 46 → 53 sur 68 sur le document de la question (+11 / −4, McNemar exact p = 0,12), 37 → 41 sur toute la bibliothèque (+10 / −6) ; page attendue dans le contexte 60 → 61 et 51 → 48 sur 72. Taille moyenne des chunks : MR2_30A 31 → 125 tokens, CPR-07A 41 → 113, MIGBT 13 → 52.
+
+**Conséquence acceptée et à suivre :** sur toute la bibliothèque, les questions en français sur le document italien (MIGBT) perdent leur page dans le contexte (9 → 4 sur 16) ; hypothèse : ses chunks minuscules étaient favorisés par la normalisation de longueur de BM25. Aucun gain ni perte n'est significatif à ces effectifs ; à remesurer sur le corpus complet et avec la génération (EV-3).
 
 ---
 

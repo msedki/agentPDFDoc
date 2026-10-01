@@ -53,6 +53,47 @@ def split_text(text, embedding, target=320, overlap=48):
         offset = max(offset + 1, next_offset)
 
 
+# Révision du découpage, dans l'empreinte de génération : la changer impose une nouvelle génération (l'extraction est réutilisée).
+CHUNKER_REVISION = "section-pack-v1"
+# Blocs regroupables : texte courant et titres. Tableaux, figures et légendes restent des chunks à part.
+PACKABLE_KINDS = frozenset({"text", "heading"})
+
+
+def block_text(block):
+    return block.get("raw_text", block.get("text", ""))
+
+
+def chunk_plan(blocks, embedding, target=320, overlap=48):
+    """Parts (bloc, début, fin) de chaque chunk d'une page, dans l'ordre de lecture.
+
+    Les blocs consécutifs d'une même section connue sont joints par « \\n » tant que le texte joint tient dans la cible
+    (frontières structurelles, cible de 320 tokens E5). Un bloc plus long que la cible, un tableau, une figure ou un bloc
+    sans section reste seul et se découpe comme avant, avec recouvrement seulement pour une coupe de bloc."""
+    plans: list[list[tuple[dict[str, Any], int, int]]] = []
+    pending: list[tuple[dict[str, Any], str]] = []
+
+    def flush():
+        if pending:
+            plans.append([(block, 0, len(text)) for block, text in pending])
+            pending.clear()
+
+    for block in blocks:
+        text = block_text(block)
+        if not text.strip():
+            continue
+        section = block.get("section_id")
+        if block.get("type", block.get("kind", "text")) not in PACKABLE_KINDS or section is None or embedding.count(text) > target:
+            flush()
+            plans.extend([(block, start, end)] for start, end in split_text(text, embedding, target, overlap))
+            continue
+        if pending and (pending[-1][0].get("section_id") != section
+                        or embedding.count("\n".join([joined for _, joined in pending] + [text])) > target):
+            flush()
+        pending.append((block, text))
+    flush()
+    return plans
+
+
 # W012 : une zone graphique non interprétée est une limite déclarée, pas une perte de texte ;
 # une page sans rien à lire (préflight « graphique incertain » ou « blanche », aucun caractère) non plus.
 LOSS_FREE_REGION_REASONS = frozenset({"GRAPHIC_INTERPRETATION_UNAVAILABLE"})
@@ -97,7 +138,7 @@ class Indexer:
         identity = self.embedding.identity() if hasattr(self.embedding, "identity") else {"fingerprint": "explicit-test-embedding"}
         return hashlib.sha256(json_dump({"extraction": extraction_fingerprint, "embedding": identity,
             "llm_tokenizer": self.llm_tokenizer.identity() if hasattr(self.llm_tokenizer, "identity") else "explicit-test-tokenizer",
-            "chunking": self.settings.profile.get("chunking", {}), "chunker_revision": "codepoint-block-v1"}).encode()).hexdigest()
+            "chunking": self.settings.profile.get("chunking", {}), "chunker_revision": CHUNKER_REVISION}).encode()).hexdigest()
 
     def stage(self, job_id, extraction, extraction_path=None):
         job = self.db.one("SELECT * FROM jobs WHERE id=?", (job_id,))
@@ -117,18 +158,17 @@ class Indexer:
         if page_count > self.settings.value("pdf", "max_document_pages", 2000):
             raise ApiError("document_too_many_pages", "Document trop long.")
         chunks = []
+        target, overlap = self.settings.value("chunking", "target_tokens", 320), self.settings.value("chunking", "overlap_max_tokens", 48)
         for page in extraction["pages"]:
-            for block in page.get("blocks", []):
-                text = block.get("raw_text", block.get("text", ""))
-                if not text.strip():
-                    continue
-                for start, end in split_text(text, self.embedding, self.settings.value("chunking", "target_tokens", 320), self.settings.value("chunking", "overlap_max_tokens", 48)):
-                    chunk_id = str(uuid5(UUID(generation_id), f"{block['id']}:{start}:{end}"))
-                    chunk_text = text[start:end]
-                    chunks.append({"id": chunk_id, "block_id": block["id"], "page_index": page["page_index"],
-                                   "text": chunk_text, "start": start, "end": end, "section_id": block.get("section_id"),
-                                   "hash": hashlib.sha256(chunk_text.encode("utf-8")).hexdigest(), "tokens": self.embedding.count(chunk_text),
-                                   "llm_tokens": self.llm_tokenizer.count(chunk_text)})
+            for parts in chunk_plan(page.get("blocks", []), self.embedding, target, overlap):
+                # Même texte que la source reconstruite à la lecture (scope.source_for_chunk) : parts jointes par « \n ».
+                chunk_text = "\n".join(block_text(block)[start:end] for block, start, end in parts)
+                key = "|".join(f"{block['id']}:{start}:{end}" for block, start, end in parts)
+                chunks.append({"id": str(uuid5(UUID(generation_id), key)), "block_id": parts[0][0]["id"], "page_index": page["page_index"],
+                               "sources": [{"block_id": block["id"], "start": start, "end": end} for block, start, end in parts],
+                               "text": chunk_text, "section_id": parts[0][0].get("section_id"),
+                               "hash": hashlib.sha256(chunk_text.encode("utf-8")).hexdigest(), "tokens": self.embedding.count(chunk_text),
+                               "llm_tokens": self.llm_tokenizer.count(chunk_text)})
         coverage = extraction.get("coverage", {"total": page_count, "processed": len(extraction["pages"]), "ocr": 0})
         warnings = list(extraction.get("warnings", []))
         if not chunks and not any(isinstance(warning, dict) and warning.get("code") == "no_exploitable_text" for warning in warnings):
@@ -163,7 +203,8 @@ class Indexer:
             section_titles = {section["id"]: section.get("title", "") for section in extraction.get("sections", [])}
             for chunk in chunks:
                 connection.execute("INSERT OR IGNORE INTO chunks(chunk_uuid,generation_id,version_id,parent_id,section_title,text,e5_tokens,llm_tokens,text_hash,extraction_revision_id) VALUES(?,?,?,?,?,?,?,?,?,?)", (chunk["id"], generation_id, version["id"], chunk["block_id"], section_titles.get(chunk["section_id"], ""), chunk["text"], chunk["tokens"], chunk["llm_tokens"], chunk["hash"], extraction_revision_id))
-                connection.execute("INSERT OR IGNORE INTO chunk_sources VALUES(?,?,?,?,?,0)", (chunk["id"], chunk["block_id"], chunk["page_index"], chunk["start"], chunk["end"]))
+                for position, source in enumerate(chunk["sources"]):
+                    connection.execute("INSERT OR IGNORE INTO chunk_sources VALUES(?,?,?,?,?,?)", (chunk["id"], source["block_id"], chunk["page_index"], source["start"], source["end"], position))
                 for identifier in identifiers(chunk["text"]):
                     connection.execute("INSERT OR IGNORE INTO identifiers VALUES(?,?,?)", (chunk["id"], identifier, normalized_identifier(identifier)))
             connection.execute("UPDATE jobs SET generation_id=?,state='indexing',stage='embedding',progress=0.65,updated_at=? WHERE id=?", (generation_id, now(), job_id))
@@ -212,7 +253,7 @@ class Indexer:
                 raise ApiError("cancelled", "Indexation annulée.", 409)
             batch = chunks[offset:offset + batch_size]
             vectors = await asyncio.to_thread(self.cached_embeddings, batch)
-            points = [{"id": chunk["id"], "vector": {"dense": vector}, "payload": {"generation_id": generation_id, "version_id": job["version_id"], "document_id": job["document_id"], "page_indices": [chunk["page_index"]], "block_ids": [chunk["block_id"]], "text_hash": chunk["hash"]}} for chunk, vector in zip(batch, vectors, strict=True)]
+            points = [{"id": chunk["id"], "vector": {"dense": vector}, "payload": {"generation_id": generation_id, "version_id": job["version_id"], "document_id": job["document_id"], "page_indices": [chunk["page_index"]], "block_ids": [source["block_id"] for source in chunk["sources"]], "text_hash": chunk["hash"]}} for chunk, vector in zip(batch, vectors, strict=True)]
             await self.vectors.upsert(points)
             await self.vectors.verify({chunk["id"]: chunk["hash"] for chunk in batch})
             self.db.execute("UPDATE jobs SET progress=?,heartbeat_at=?,stage='vectors',updated_at=? WHERE id=?", (0.65 + 0.3 * (offset + len(batch)) / max(1, len(chunks)), now(), now(), job_id))

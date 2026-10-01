@@ -81,6 +81,18 @@ Causes établies pendant le rattachement, en lecture seule sur la base :
 - **Pages sans texte extrait** : MR2_30A pages 18, 19 et 27 en erreur dans l'extraction active, antérieure au correctif des découpes ; 3 questions ne peuvent pas trouver leur preuve avant réextraction.
 - **Perte silencieuse de la voie `structured`** : la couche texte du PDF compte 1 066 et 239 caractères alphanumériques sur MR2_30A pages 7 et 8, 1 162 et 1 125 sur CPR-07A pages 8 et 9 ; les blocs extraits en gardent 8, 13, 73 et 43. Le contrôle de couverture à 95 % ne s'applique qu'à la voie `native` (`services/ingestion/pipeline.py:82-91,162-166`), si bien que ces pages ne déclarent aucune limite et que le document ne signale pas cette perte. Couverture de la couche texte sur l'ensemble : CPR-07A 0,887, MR2_30A 0,917, MIGBT et Evaluation module4 1,0.
 
+## Mesures B et C du jeu de référence (1er octobre)
+
+Les séries générées 2 et 3 ne sont plus rejouables après réextraction : l'identifiant de bloc dépend de la révision d'extraction (`services/ingestion/docling_adapter.py:195-197`). Le jeu W014, ancré sur des extraits de texte, est rattaché à nouveau aux blocs avant chaque mesure (68 questions sur 72 rattachées au bloc en B et C, 64 en A).
+
+| Mesure | Extraction | Découpage | Page dans le contexte, document | Page dans le contexte, bibliothèque | Bloc dans le contexte, document | Bloc dans le contexte, bibliothèque |
+|---|---|---|---|---|---|---|
+| A (30/09, 23:09) | avant les correctifs de découpe OCR et de la voie `structured` | `codepoint-block-v1` | 59/72 | 47/72 | 47/64 | 37/64 |
+| B (01/10, 00:42) | réextraite avec les deux correctifs | `codepoint-block-v1` | 60/72 | 51/72 | 46/68 | 37/68 |
+| C (01/10, 00:49) | même extraction que B | `section-pack-v1` | 61/72 | 48/72 | 53/68 | 41/68 |
+
+A → B : les 3 questions dont la preuve est sur les pages de MR2_30A naguère non converties (18 et 27) sont retrouvées ; la reprise de la voie `structured` a joué sur CPR-07A p. 5, 8, 9 et MR2_30A p. 7, 8, 9 ; le reste varie de quelques rangs sans tendance (bibliothèque : +5 / −1, p = 0,22). B → C : décision [W015](../../DECISIONS.md) ; gain au bloc dans les deux périmètres, perte à la page sur toute la bibliothèque concentrée sur le document italien (MIGBT, 9 → 4 sur 16). Rapports : [A](annotated-v1-reference-20260930T2310.json), [B](annotated-v1-B-20261001T004156Z.json), [C](annotated-v1-C-20261001T004923Z.json).
+
 ## Améliorations proposées, par ordre de preuve attendue
 
 | Id | Hypothèse | Expérience appariée | Coût à surveiller |

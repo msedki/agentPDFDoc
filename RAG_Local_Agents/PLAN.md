@@ -288,3 +288,10 @@ Prochaine action exécutable : commit et push ; puis EV-1 (regroupement des bloc
 - EV-1 (`section-pack-v1`) : implémenté et testé, non commité ; mesure prévue en deux temps pour séparer les effets : B = réextraction avec les correctifs d'extraction et l'ancien découpage (sans redémarrer l'API), puis C = nouveau découpage après redémarrage, sur le jeu W014 et les séries 2 et 3.
 
 Prochaine action exécutable : build de l'interface (libellés des nouveaux codes), réindexation des 4 documents (B), mesure, puis redémarrage avec `section-pack-v1`, réindexation (C) et mesure.
+## Point à 01:00 UTC (1er octobre) — mesures B et C, découpage W015 adopté
+
+- B (réextraction des 4 documents avec les correctifs de découpe OCR et de la voie `structured`, 23:37–00:38) : plus aucune page non convertie sur MR2_30A ; reprise par la voie native sur CPR-07A p. 5, 8, 9 et MR2_30A p. 7, 8, 9 ; les 3 questions dont la preuve était sur les pages perdues sont retrouvées. Mémoire libre minimale pendant la réextraction : 2 127 Mio.
+- C (redémarrage à 00:47 avec `section-pack-v1`, réindexation depuis l'extraction en cache en moins de 2 min) : bloc attendu dans le contexte 46 → 53 sur 68 (document) et 37 → 41 (bibliothèque) ; page sur la bibliothèque 51 → 48, perte concentrée sur le document italien. Décision W015 : découpage adopté, conforme à la cible de la spécification ; perte suivie.
+- Le nouveau code de l'API est déployé (disponibilité sur base neuve, emplacements `runtime`, découpage) : instance `6346e31c…`, disponibilité `ready`, collection `present`.
+
+Prochaine action exécutable : EV-3, génération réelle sur 22 questions du jeu W014 (16 avec réponse, 6 sans) dans le créneau de nuit, contrôles automatiques puis relecture de chaque réponse ; documentation stabilisée du découpage ; R22 suite (DIST-03).

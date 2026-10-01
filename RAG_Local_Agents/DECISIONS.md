@@ -202,3 +202,14 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 **Écarté :** génération des questions par le modèle local (circularité avec le système évalué) ; affichage ou versionnement du texte des questions.
 
 **Conséquences :** premier jeu de questions non dérivées du texte extrait par le système lui-même, donc sans le biais de construction des séries W013 ; validité métier toujours limitée tant qu'un expert n'a pas relu le jeu. Le point à trancher n° 2 reste ouvert pour cette validation.
+## W015 Découpage section-pack-v1 : blocs courts d'une même section regroupés jusqu'à la cible
+
+**Date :** 1er octobre 2026, 00:57 UTC. **Statut :** acquise (choix technique dans le périmètre de R21 et de la spécification) ; déployée sur l'instance principale à 00:47.
+
+**Contexte :** la spécification demande de découper aux frontières structurelles avec une cible de 320 tokens E5 ([SPEC_ARCHITECTURE.md](SPEC_ARCHITECTURE.md), découpage). Le découpage `codepoint-block-v1` faisait un chunk par bloc (13 à 41 tokens en moyenne selon le document) ; le diagnostic de la série 2 attribuait 9 pertes sur 10 à la branche lexicale, pénalisée par ces chunks minuscules.
+
+**Choix retenu :** blocs consécutifs de texte et de titres d'une même section connue, sur une même page, joints par « \n » tant que le texte tient dans la cible ; tableaux, figures, légendes, blocs sans section et blocs plus longs que la cible restent seuls et se découpent comme avant ; une ligne `chunk_sources` par bloc, citations et coupe au périmètre inchangées ; révision `section-pack-v1` dans l'empreinte de génération.
+
+**Mesure (jeu W014, même extraction, apparié) :** bloc attendu dans le contexte 46 → 53 sur 68 sur le document de la question (+11 / −4, McNemar exact p = 0,12), 37 → 41 sur toute la bibliothèque (+10 / −6) ; page attendue dans le contexte 60 → 61 et 51 → 48 sur 72. Taille moyenne des chunks : MR2_30A 31 → 125 tokens, CPR-07A 41 → 113, MIGBT 13 → 52.
+
+**Conséquence acceptée et à suivre :** sur toute la bibliothèque, les questions en français sur le document italien (MIGBT) perdent leur page dans le contexte (9 → 4 sur 16) ; hypothèse : ses chunks minuscules étaient favorisés par la normalisation de longueur de BM25. Aucun gain ni perte n'est significatif à ces effectifs ; à remesurer sur le corpus complet et avec la génération (EV-3).
