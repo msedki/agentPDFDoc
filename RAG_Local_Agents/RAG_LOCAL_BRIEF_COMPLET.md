@@ -354,7 +354,7 @@ Le chemin `skills/` est un rangement portable du projet, **pas une promesse d'au
 
 Avant une intégration native Codex, Claude Code ou autre : identifier la version du client ; consulter sa documentation actuelle ; utiliser son format de manifeste, son emplacement et sa procédure de validation réels ; tester la découverte et l'invocation. Ne pas inventer une commande, un champ YAML, un outil `skill-installer` disponible ni un chemin global. Aucun identifiant de modèle « Astra » n'est fixé par un Markdown.
 
-**Constat Claude Code (30/09/2026) :** le dépôt ne contient aucun dossier `.claude/skills/`, et les sessions Claude Code de ce chantier ne découvrent nativement ni les skills du pack ni ceux de `.agents/skills/` : aucun n'apparaît parmi leurs skills disponibles. Ils sont lus explicitement par leur chemin, comme le consigne [skills-usage-2026-09-30.json](reports/skills-usage-2026-09-30.json). Une découverte native exigerait l'emplacement et le format documentés du client, puis un essai de sélection ; ni l'un ni l'autre n'est réalisé.
+**Constat Claude Code (30/09/2026) :** le dépôt ne contient aucun dossier `.claude/skills/`, et les sessions Claude Code de ce chantier ne découvrent nativement ni les skills du pack ni ceux de `.agents/skills/` : aucun n'apparaît parmi leurs skills disponibles. Ils sont lus explicitement par leur chemin, comme le consigne [skills-usage-2026-09-30.json](reports/skills-usage-2026-09-30.json) ; relevé du 01/10, avec les travaux confrontés aux invariants de chaque skill : [skills-usage-2026-10-01.json](reports/skills-usage-2026-10-01.json). Une découverte native exigerait l'emplacement et le format documentés du client, puis un essai de sélection ; ni l'un ni l'autre n'est réalisé.
 
 Les skills du pack pointent vers les documents canoniques situés deux niveaux plus haut ; ceux de `.agents/skills/` citent leurs documents par chemin relatif à la racine du dépôt. Conserver le dossier complet. Une copie dans un autre emplacement doit adapter les références ou embarquer les fichiers nécessaires, puis contrôler les liens et l'absence de divergence ; ne pas déplacer un `SKILL.md` seul en prétendant qu'il reste autonome.
 
@@ -1768,6 +1768,13 @@ Restent ouverts en D08 : D08.1 (blocage réseau du système, décision utilisate
 Réalisé : D08.7 coché (`DEFINITION_OF_DONE.md`) : `tools/qualification/log_privacy_check.py` cherche dans les 120 journaux de l'instance principale le texte réellement extrait, les questions et les réponses enregistrées : aucune occurrence, détecteur validé par un témoin positif sur les checkpoints ; exclusions Git vérifiées ([rapport](reports/log-privacy-20261001T0949.json)). Le commit `6e1f9be` (D08.3) n'a pas pu être poussé (connexion TLS vers GitHub interrompue, deux essais à 09:46) : il reste local avec celui-ci jusqu'au retour du réseau.
 
 Restent ouverts en D08 : D08.1 (décision utilisateur), D08.2, D08.4, D08.5.
+## Point à 09:58 UTC (1er octobre) — skills relus, constat d'interface
+
+Skills relus par chemin et travaux du jour confrontés à leurs invariants ([relevé](reports/skills-usage-2026-10-01.json)) : `rag-retrieval-evaluation`, `hybrid-rag-api`, `rag-qualification-fixtures`, `rag-pdf-provenance`, `pdf-ingestion-windows`, `pdf-workspace-web`. Aucun écart pour la recherche, les fixtures et l'ingestion.
+
+Constat C-UI-01 (bug mineur, prouvé par lecture du code) : dans `apps/web/src/components/scope-control.tsx`, « Appliquer » est désactivé pour un périmètre page ou section tant que la citation ouverte n'est pas vérifiée, mais la raison (`binding.actions.reason`) n'est affichée que dans `apply`, inatteignable quand le bouton est désactivé : l'utilisateur ne voit pas pourquoi. Même invariant du skill `pdf-workspace-web` (« les contrôles désactivés indiquent pourquoi ») non tenu, sans défaut fonctionnel, pour : envoi de la question (`analysis-panel.tsx`), annulation en cours, retrait d'un document (`document-tools.tsx`), page précédente et suivante, limites de zoom 50 % et 300 % (`pdf-viewer.tsx`). Correction prévue : raison affichée sous le sélecteur et dans `title`/`aria-describedby` ; garde statique « tout `disabled` porte une explication » dans `ui-guards.test.ts`. Validation : tests unitaires, typecheck, build et E2E rejoués, rendu examiné. Non réalisée à ce stade : le build et les E2E attendent une mémoire libre suffisante (2,6 à 5,4 Gio observés).
+
+Push : `6e1f9be` et `52801b3` toujours locaux (quatre essais entre 09:46 et 09:55, github.com injoignable ; api.github.com joignable).
 
 ---
 

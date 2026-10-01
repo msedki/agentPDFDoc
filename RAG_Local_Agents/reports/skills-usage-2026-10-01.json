@@ -1,0 +1,61 @@
+{
+  "utc": "2026-10-01T09:57:36.859755+00:00",
+  "session": "reprise 01/10 (Claude Code), travaux D04, D02, D06.10, D08.3, D08.7",
+  "skills_read": [
+    {
+      "name": "rag-retrieval-evaluation",
+      "path": "RAG_Local_Agents/skills/rag-retrieval-evaluation/SKILL.md",
+      "origin": "pack V2.1",
+      "task": "D04 : filtres de périmètre avant top-k, contre-exemple RRF, codes voisins, changement de périmètre (scope_check.py, tests)",
+      "sha256": "bab9084f6e77174b8581e059df1b0950d459ef878c138490c5128795191ede07",
+      "read_utc": "2026-10-01T09:57Z",
+      "behavioral_validation": "NOT_RUN (lecture explicite par chemin, pas de découverte native par ce client)"
+    },
+    {
+      "name": "hybrid-rag-api",
+      "path": ".agents/skills/hybrid-rag-api/SKILL.md",
+      "origin": "projet",
+      "task": "D04 et D08.3 : scope résolu depuis SQLite avant les top-k, couverture des identifiants après coupe, Host/Origin loopback",
+      "sha256": "c386789bac9ca9c8f821c8f5bf9d3a4c463b18ec69d7cc11d8a489cd9d164ae4",
+      "read_utc": "2026-10-01T09:57Z",
+      "behavioral_validation": "NOT_RUN (lecture explicite par chemin, pas de découverte native par ce client)"
+    },
+    {
+      "name": "rag-qualification-fixtures",
+      "path": ".agents/skills/rag-qualification-fixtures/SKILL.md",
+      "origin": "projet",
+      "task": "extraction_check.py : fixtures DEV et contrat uniquement, jeu final ni importé ni lu, schéma synthétique produit hors du dépôt",
+      "sha256": "04dd992863315562c3910ab05fac6e353843fc70e11ce199b19df759fb8f2e7f",
+      "read_utc": "2026-10-01T09:57Z",
+      "behavioral_validation": "NOT_RUN (lecture explicite par chemin, pas de découverte native par ce client)"
+    },
+    {
+      "name": "rag-pdf-provenance",
+      "path": "RAG_Local_Agents/skills/rag-pdf-provenance/SKILL.md",
+      "origin": "pack V2.1",
+      "task": "extraction_check.py (D02) : page mixte, table pages 4/5, régions non interprétées signalées, checkpoint non sémantique",
+      "sha256": "e4eea5f4412fe1a88723f8b752d4f240a7142d04d53c8204fdf47956a6cdf4cc",
+      "read_utc": "2026-10-01T09:57Z",
+      "behavioral_validation": "NOT_RUN (lecture explicite par chemin, pas de découverte native par ce client)"
+    },
+    {
+      "name": "pdf-ingestion-windows",
+      "path": ".agents/skills/pdf-ingestion-windows/SKILL.md",
+      "origin": "projet",
+      "task": "D02 et D08.7 : continuation de table prouvée, pas de texte du parseur dans les journaux normaux",
+      "sha256": "3410656c843e9bb9505728e7f4aae5984b1158f32cfedd5dd50f320cb508690d",
+      "read_utc": "2026-10-01T09:57Z",
+      "behavioral_validation": "NOT_RUN (lecture explicite par chemin, pas de découverte native par ce client)"
+    },
+    {
+      "name": "pdf-workspace-web",
+      "path": ".agents/skills/pdf-workspace-web/SKILL.md",
+      "origin": "projet",
+      "task": "D06.10 : gardes statiques ; constat : contrôles désactivés sans raison visible (invariant du skill)",
+      "sha256": "a96ca71a8b7a622ed1276ef95147dc422c43f54f9a64b3e777d5e3a4cf4e6b3a",
+      "read_utc": "2026-10-01T09:57Z",
+      "behavioral_validation": "NOT_RUN (lecture explicite par chemin, pas de découverte native par ce client)"
+    }
+  ],
+  "note": "Lecture des SKILL.md après une partie des travaux du jour (reprise après compaction) ; travaux relus contre leurs invariants : écart trouvé côté interface (constat C-UI-01), aucun écart côté recherche, fixtures et ingestion."
+}
