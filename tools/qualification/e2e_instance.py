@@ -16,6 +16,8 @@ import json
 import sys
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
@@ -27,10 +29,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("action", choices=["start", "stop"])
     parser.add_argument("--state", type=Path, required=True)
+    parser.add_argument("--max-file-mib", type=float, help="taille maximale d'un PDF importé (essai du refus de taille)")
     args = parser.parse_args()
     if args.action == "start":
         root = short_root("ape")
         profile_path = control_profile(ROOT / "config/local16.yaml", root)
+        if args.max_file_mib:
+            settings = yaml.safe_load(profile_path.read_text(encoding="utf-8"))
+            settings["pdf"]["max_file_mib"] = args.max_file_mib
+            profile_path.write_text(yaml.safe_dump(settings, allow_unicode=True, sort_keys=False), encoding="utf-8")
         state = start(profile_path)
         profile = load_profile(profile_path)
         result = {"status": state.get("status"), "root": str(root), "profile": str(profile_path), "origin": app_origin(profile)[0],

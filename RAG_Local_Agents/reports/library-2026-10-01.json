@@ -1,0 +1,209 @@
+{
+  "cases": {
+    "tree": {
+      "imported": [
+        {
+          "relative_path": "Unité hiver/Commun.pdf",
+          "document_id": "cc634cf2-4c5d-40ba-8e5a-fd0d4b37aa08",
+          "version_id": "75f4a251-ad5f-45b6-96be-0bb4181812d9",
+          "job_id": "ecb7aa0d-2a74-41ba-bb97-636f852140ff",
+          "fixture_sha256": "fb9538fa4f0a31be6e29b1178a29688588872edc42b113f957f51889d36e93e6",
+          "job_state": "ready",
+          "library_path": "Unité hiver/Commun.pdf",
+          "version_sha256": "fb9538fa4f0a31be6e29b1178a29688588872edc42b113f957f51889d36e93e6",
+          "original_sha256": "fb9538fa4f0a31be6e29b1178a29688588872edc42b113f957f51889d36e93e6",
+          "original_http": 200
+        },
+        {
+          "relative_path": "Unité été/Commun.pdf",
+          "document_id": "3c3a527b-6ef3-42fd-a17b-74bfc69a6514",
+          "version_id": "ae1085fc-983f-4306-b90b-79529eab1038",
+          "job_id": "873f11a5-5b9d-4e91-9ac2-02fb8dc52c9b",
+          "fixture_sha256": "e7f4dadc5e846af3833b0c3a5e767c54a8c2e7eb3d8223729613be81e30b5203",
+          "job_state": "ready",
+          "library_path": "Unité été/Commun.pdf",
+          "version_sha256": "e7f4dadc5e846af3833b0c3a5e767c54a8c2e7eb3d8223729613be81e30b5203",
+          "original_sha256": "e7f4dadc5e846af3833b0c3a5e767c54a8c2e7eb3d8223729613be81e30b5203",
+          "original_http": 200
+        }
+      ],
+      "checks": {
+        "distinct_documents_for_homonyms": true,
+        "unicode_paths_preserved": true,
+        "extraction_ready": true,
+        "original_bytes_identical": true
+      },
+      "started_utc": "2026-10-01T06:08:08.846723+00:00",
+      "seconds": 154.0,
+      "result": "PASS"
+    },
+    "reimport": {
+      "response": {
+        "document_id": "cc634cf2-4c5d-40ba-8e5a-fd0d4b37aa08",
+        "version_id": "75f4a251-ad5f-45b6-96be-0bb4181812d9",
+        "job_id": "ecb7aa0d-2a74-41ba-bb97-636f852140ff",
+        "reused": true
+      },
+      "before": {
+        "counters": {
+          "embedding_requests": 2,
+          "embedding_texts": 3,
+          "worker_launches": 2
+        },
+        "jobs": 2,
+        "versions": 1
+      },
+      "after": {
+        "counters": {
+          "embedding_requests": 2,
+          "embedding_texts": 3,
+          "worker_launches": 2
+        },
+        "jobs": 2,
+        "versions": 1
+      },
+      "checks": {
+        "same_document": true,
+        "reused": true,
+        "no_new_job_or_version": true,
+        "no_new_extraction_or_embedding": true
+      },
+      "started_utc": "2026-10-01T06:10:45.117473+00:00",
+      "seconds": 3.4,
+      "result": "PASS"
+    },
+    "move": {
+      "http_status": 200,
+      "path_after": "Archives/Commun été.pdf",
+      "before": {
+        "counters": {
+          "embedding_requests": 2,
+          "embedding_texts": 3,
+          "worker_launches": 2
+        },
+        "jobs": 2
+      },
+      "after": {
+        "counters": {
+          "embedding_requests": 2,
+          "embedding_texts": 3,
+          "worker_launches": 2
+        },
+        "jobs": 2
+      },
+      "checks": {
+        "moved": true,
+        "no_new_job": true,
+        "no_new_extraction_or_embedding": true,
+        "still_searchable_at_new_path": true
+      },
+      "started_utc": "2026-10-01T06:10:50.509967+00:00",
+      "seconds": 3.7,
+      "result": "PASS"
+    },
+    "versions": {
+      "first": {
+        "document_id": "f6628256-5a72-4a20-b6f3-4671ef830d88",
+        "version_id": "9ced579c-ad51-409f-b9bd-99f6b6a584d4",
+        "job_id": "ece178a5-da65-46ad-8010-392b3e72634c",
+        "reused": false
+      },
+      "second": {
+        "document_id": "f6628256-5a72-4a20-b6f3-4671ef830d88",
+        "version_id": "38016f5f-ef7a-422c-95c1-ecfa2461de84",
+        "job_id": "0a4ec75a-f646-4169-bc39-f32e651e39e3",
+        "reused": false
+      },
+      "observations_before_publication": 52,
+      "stages_observed": [
+        "extracting",
+        "queued"
+      ],
+      "values_before": [
+        "2.7"
+      ],
+      "values_after": [
+        "4.9"
+      ],
+      "checks": {
+        "same_document_new_version": true,
+        "first_published": true,
+        "second_invisible_before_publication": true,
+        "second_visible_after_publication": true
+      },
+      "started_utc": "2026-10-01T06:14:58.986055+00:00",
+      "seconds": 154.6,
+      "result": "PASS"
+    },
+    "delete": {
+      "generation_id": "260bf48e-2488-4c68-8956-375d85c80a52",
+      "points_before": 2,
+      "points_after": 0,
+      "checks": {
+        "deleted": true,
+        "found_before": true,
+        "excluded_immediately": true,
+        "qdrant_points_cleaned": true,
+        "remaining_index_consistent": true
+      },
+      "started_utc": "2026-10-01T06:13:34.808509+00:00",
+      "seconds": 4.8,
+      "result": "PASS"
+    },
+    "errors": {
+      "rows": [
+        {
+          "file": "Chiffré mot de passe.pdf",
+          "http_status": 202,
+          "expected_state": "error",
+          "job_state": "error",
+          "error_code": "PDF_ENCRYPTED",
+          "error_message": "Le PDF ne peut pas être ouvert sans mot de passe ou est invalide."
+        },
+        {
+          "file": "Structure invalide.pdf",
+          "http_status": 202,
+          "expected_state": "error",
+          "job_state": "error",
+          "error_code": "PDF_INVALID",
+          "error_message": "Le PDF ne peut pas être ouvert sans mot de passe ou est invalide."
+        },
+        {
+          "file": "Page blanche.pdf",
+          "http_status": 202,
+          "expected_state": "ready",
+          "job_state": "ready",
+          "error_code": null,
+          "error_message": null,
+          "page_state": "blank",
+          "blocks": 0
+        }
+      ],
+      "checks": {
+        "encrypted_explicit_error": true,
+        "invalid_structure_explicit": true,
+        "blank_page_declared_blank": true
+      },
+      "started_utc": "2026-10-01T06:13:41.521509+00:00",
+      "seconds": 12.8,
+      "result": "PASS"
+    },
+    "size": {
+      "bytes": 112085,
+      "http_status": 413,
+      "code": "file_too_large",
+      "message": "PDF trop volumineux.",
+      "checks": {
+        "refused_413": true,
+        "no_document_created": true
+      },
+      "started_utc": "2026-10-01T06:18:12.473460+00:00",
+      "seconds": 0.1,
+      "result": "PASS"
+    }
+  },
+  "tree_documents": {
+    "Unité hiver/Commun.pdf": "cc634cf2-4c5d-40ba-8e5a-fd0d4b37aa08",
+    "Unité été/Commun.pdf": "3c3a527b-6ef3-42fd-a17b-74bfc69a6514"
+  }
+}
