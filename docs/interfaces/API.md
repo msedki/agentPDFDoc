@@ -1,6 +1,6 @@
 # Interface HTTP et SSE de l'API locale
 
-**Rôle :** référence des routes `/api/v1` réellement déclarées, de la session locale qui en protège l'accès, des erreurs notables, du flux SSE des questions et des en-têtes · **Statut :** Stabilisé · **Référence :** commit `6935e13` · **Mis à jour :** 2026-09-30 19:59 (UTC) · **Source de vérité :** [services/api/main.py](../../services/api/main.py) (routes et frontière), [services/api/security.py](../../services/api/security.py) (session, CSRF, audit), [services/api/schemas.py](../../services/api/schemas.py) (corps validés), [packages/contracts/contracts.json](../../packages/contracts/contracts.json) (contrat partagé) · **Remplace :** aucun document (le contrat d'origine reste [IMPLEMENTATION.md §2](../../RAG_Local_Agents/IMPLEMENTATION.md#2-contrats-http))
+**Rôle :** référence des routes `/api/v1` réellement déclarées, de la session locale qui en protège l'accès, des erreurs notables, du flux SSE des questions et des en-têtes · **Statut :** Stabilisé · **Référence :** commit `dfb8dbd` · **Mis à jour :** 2026-10-01 00:27 (UTC) · **Source de vérité :** [services/api/main.py](../../services/api/main.py) (routes et frontière), [services/api/security.py](../../services/api/security.py) (session, CSRF, audit), [services/api/schemas.py](../../services/api/schemas.py) (corps validés), [packages/contracts/contracts.json](../../packages/contracts/contracts.json) (contrat partagé) · **Remplace :** aucun document (le contrat d'origine reste [IMPLEMENTATION.md §2](../../RAG_Local_Agents/IMPLEMENTATION.md#2-contrats-http))
 
 L'API écoute sur `http://127.0.0.1:8785` (profil `local16`, clés `app.port` et `security.environment: development`) avec un seul worker uvicorn ; en production (`security.environment: production`), la même adresse est servie en HTTPS. Elle sert aussi l'interface statique sur `/` (`/workspace/` pour le poste de travail). Depuis la session locale ([W011](../../RAG_Local_Agents/DECISIONS.md#w011-session-locale-du-poste-ouverte-par-un-lien-à-usage-unique)), toute route `/api/v1` autre que les sondes et l'ouverture de session exige une session de navigateur ou le jeton de contrôle de l'instance. Les exemples utilisent PowerShell 5.1, dont les cmdlets web envoient un `Host` conforme, et le jeton de contrôle défini en [section 2.4](#24-jeton-de-contrôle-des-outils-locaux) ; ils n'ont pas été rejoués pour ce document et n'emploient que les routes et champs décrits ici.
 
@@ -16,19 +16,19 @@ L'API écoute sur `http://127.0.0.1:8785` (profil `local16`, clés `app.port` et
 
 ## 1. Frontière locale et en-têtes
 
-Chaque requête traverse le middleware `local_boundary` (contrôles de `admitted`, en-têtes de `protected`) ([main.py:161-211](../../services/api/main.py#L161-L211)) avant toute route. Les contrôles s'appliquent dans l'ordre du tableau ; le premier refus termine la requête.
+Chaque requête traverse le middleware `local_boundary` (contrôles de `admitted`, en-têtes de `protected`) ([main.py:162-212](../../services/api/main.py#L162-L212)) avant toute route. Les contrôles s'appliquent dans l'ordre du tableau ; le premier refus termine la requête.
 
 | Ordre | Contrôle | Règle | Refus |
 |---|---|---|---|
 | 1 | `Host` | `127.0.0.1:<port>`, `localhost:<port>` ou `[::1]:<port>`, casse ignorée | 400 `invalid_host` « Host non autorisé. » |
-| 2 | `Origin` (si présent) | Schéma de l'environnement (`http://` en développement, `https://` en production) suivi de l'un des hôtes ci-dessus ([main.py:119-121](../../services/api/main.py#L119-L121)) ; `Origin: null` est refusé | 403 `invalid_origin` « Origine non autorisée. » |
+| 2 | `Origin` (si présent) | Schéma de l'environnement (`http://` en développement, `https://` en production) suivi de l'un des hôtes ci-dessus ([main.py:120-122](../../services/api/main.py#L120-L122)) ; `Origin: null` est refusé | 403 `invalid_origin` « Origine non autorisée. » |
 | 3 | `Sec-Fetch-Site` | `cross-site` refusé | 403 `cross_site_request` « Requête intersite refusée. » |
 | 4 | Session ou jeton de contrôle | Toute route `/api/v1/*` hors sondes, ouverture et fermeture de session, et hors `/api/v1/admin/` : voir [section 2](#2-session-et-autorisation) | 401 `session_required` ou `session_expired` ; 403 `csrf_rejected` |
 | 5 | `Content-Length` (POST, PUT, PATCH, DELETE) | Au plus `pdf.max_file_mib` (200 Mio) + 1 Mio | 413 `request_too_large` « Requête trop volumineuse. » |
 | 6 | Sauvegarde en cours | Mutations hors `/api/v1/admin/` suspendues | 503 `mutations_paused` « Sauvegarde en cours ; mutations suspendues. » |
 | 7 | Administration (contrôle fait par la route) | En-tête `X-RAG-Control-Token` égal au jeton du lancement courant | 403 `invalid_control_token` « Contrôle d'administration non autorisé. » |
 
-Toutes les réponses, refus des contrôles 1 à 6 compris, portent les en-têtes suivants ([main.py:161-177](../../services/api/main.py#L161-L177)). Aucun en-tête CORS n'est émis.
+Toutes les réponses, refus des contrôles 1 à 6 compris, portent les en-têtes suivants ([main.py:162-178](../../services/api/main.py#L162-L178)). Aucun en-tête CORS n'est émis.
 
 | En-tête | Valeur | Portée |
 |---|---|---|
@@ -41,7 +41,7 @@ Toutes les réponses, refus des contrôles 1 à 6 compris, portent les en-têtes
 | `Vary` | `Cookie`, ajouté à une valeur existante | Chemins `/api/` |
 | `Strict-Transport-Security` | `max-age=31536000` | Production seulement |
 
-Un refus 401 efface en plus les cookies de session ([main.py:129-137](../../services/api/main.py#L129-L137)). Jusqu'au commit `10b5dd9`, les refus des contrôles 1 à 6 ne portaient que leur corps JSON ; ils reçoivent désormais les mêmes en-têtes (`test_refusals_carry_the_security_headers_and_are_not_cached` dans [test_api_session.py](../../tests/integration/test_api_session.py)). Vérifications sur serveur réel : [Host et Origin, 30/09 à 09:30](../../RAG_Local_Agents/reports/host-origin-live-20260930T0930.json) ; [gardes réelles avec session, 19/19, 30/09 à 18:29](../../RAG_Local_Agents/reports/http-guards-live-20260930T1829.json).
+Un refus 401 efface en plus les cookies de session ([main.py:130-138](../../services/api/main.py#L130-L138)). Jusqu'au commit `10b5dd9`, les refus des contrôles 1 à 6 ne portaient que leur corps JSON ; ils reçoivent désormais les mêmes en-têtes (`test_refusals_carry_the_security_headers_and_are_not_cached` dans [test_api_session.py](../../tests/integration/test_api_session.py)). Vérifications sur serveur réel : [Host et Origin, 30/09 à 09:30](../../RAG_Local_Agents/reports/host-origin-live-20260930T0930.json) ; [gardes réelles avec session, 19/19, 30/09 à 18:29](../../RAG_Local_Agents/reports/http-guards-live-20260930T1829.json).
 
 ## 2. Session et autorisation
 
@@ -52,10 +52,10 @@ Le poste est mono-utilisateur et sans compte : l'accès aux données passe par u
 | Chemins | Accès | Code |
 |---|---|---|
 | `/api/v1/health`, `/api/v1/readiness` | Public (sondes de disponibilité) | `PUBLIC_PATHS`, [main.py:33](../../services/api/main.py#L33) |
-| `/api/v1/session/open`, `/api/v1/session/logout` | Public : la route contrôle elle-même le lien d'ouverture ou le jeton CSRF | [main.py:247-277](../../services/api/main.py#L247-L277) |
-| `/api/v1/admin/*` | Jeton de contrôle seulement ; une session de navigateur n'y donne pas accès | [main.py:188](../../services/api/main.py#L188), [main.py:233-235](../../services/api/main.py#L233-L235) |
-| Toute autre route `/api/v1/*`, y compris une route inexistante | Session valide, avec jeton CSRF pour `POST`, `PUT`, `PATCH` et `DELETE` ; ou jeton de contrôle | [main.py:139-159](../../services/api/main.py#L139-L159) |
-| Hors `/api/v1` : `/`, `/workspace/`, fichiers statiques ; `/openapi.json` et `/api/docs` en développement | Public ; l'interface affiche l'écran de session tant que `GET /api/v1/session` répond 401 | [main.py:99-101](../../services/api/main.py#L99-L101), [main.py:657-659](../../services/api/main.py#L657-L659) |
+| `/api/v1/session/open`, `/api/v1/session/logout` | Public : la route contrôle elle-même le lien d'ouverture ou le jeton CSRF | [main.py:248-278](../../services/api/main.py#L248-L278) |
+| `/api/v1/admin/*` | Jeton de contrôle seulement ; une session de navigateur n'y donne pas accès | [main.py:189](../../services/api/main.py#L189), [main.py:234-236](../../services/api/main.py#L234-L236) |
+| Toute autre route `/api/v1/*`, y compris une route inexistante | Session valide, avec jeton CSRF pour `POST`, `PUT`, `PATCH` et `DELETE` ; ou jeton de contrôle | [main.py:140-160](../../services/api/main.py#L140-L160) |
+| Hors `/api/v1` : `/`, `/workspace/`, fichiers statiques ; `/openapi.json` et `/api/docs` en développement | Public ; l'interface affiche l'écran de session tant que `GET /api/v1/session` répond 401 | [main.py:100-102](../../services/api/main.py#L100-L102), [main.py:667-669](../../services/api/main.py#L667-L669) |
 
 Le refus par défaut est vérifié route par route sur toutes les routes montées (`test_every_mounted_api_route_refuses_requests_without_session` dans [test_api_session.py](../../tests/integration/test_api_session.py)).
 
@@ -63,10 +63,10 @@ Le refus par défaut est vérifié route par route sur toutes les routes montée
 
 1. `.\rag.ps1 open` vérifie que l'instance du profil est `running`, lit `<data_dir>\control\admin-token` et appelle `POST /api/v1/admin/session-links` avec l'en-tête `X-RAG-Control-Token` ([cli.py:422-443](../../services/runtime/cli.py#L422-L443)).
 2. L'API rend `{"path": "/api/v1/session/open?link=<lien>", "expires_in_seconds": 300}` : le lien est un jeton aléatoire de 256 bits (`secrets.token_urlsafe(32)`), valable `security.launch_link_ttl_seconds` ([security.py:115-122](../../services/api/security.py#L115-L122)).
-3. Le lanceur ouvre `<origine><path>` dans le navigateur par défaut (`os.startfile`) sans l'afficher. L'option `--no-browser` de la CLI Python l'affiche au lieu de l'ouvrir ; `rag.ps1` ne l'expose pas. Dans les deux cas, le rapport `--report` ne contient jamais le lien ([cli.py:491-493](../../services/runtime/cli.py#L491-L493)).
-4. `GET /api/v1/session/open?link=…` retire le lien du registre dès sa présentation, valide ou non. S'il est valide, l'API crée une session, révoque celle que le navigateur portait déjà, pose les deux cookies et redirige en 303 vers `/workspace/` ([main.py:247-259](../../services/api/main.py#L247-L259), [security.py:124-139](../../services/api/security.py#L124-L139)). Un lien inconnu, déjà présenté ou expiré redirige en 303 vers `/workspace/?session=lien-invalide` et efface les cookies ; l'interface affiche « Lien d'ouverture expiré ou déjà utilisé » puis retire le paramètre de l'adresse.
-5. Chaque requête de l'interface porte le cookie de session ; `POST`, `PUT`, `PATCH` et `DELETE` ajoutent l'en-tête `X-CSRF-Token`, copie du cookie CSRF lisible par le script ([main.py:155-158](../../services/api/main.py#L155-L158), [api.ts:17-21](../../apps/web/src/lib/api.ts#L17-L21)). Les lectures, y compris le flux SSE ouvert par `EventSource`, n'en ont pas besoin.
-6. `POST /api/v1/session/logout` efface toujours les deux cookies, mais ne révoque la session côté serveur qu'avec son jeton CSRF (réponse `{"revoked": true}`) : une page étrangère ne peut pas fermer la session de l'utilisateur ([main.py:269-277](../../services/api/main.py#L269-L277)). Le bouton « Fermer la session » de la barre supérieure appelle cette route ([app-topbar.tsx:67-68](../../apps/web/src/components/app-topbar.tsx#L67-L68)).
+3. Le lanceur ouvre `<origine><path>` dans le navigateur par défaut (`os.startfile`) sans l'afficher. L'option `--no-browser` de la CLI Python l'affiche au lieu de l'ouvrir ; `rag.ps1` ne l'expose pas. Dans les deux cas, le rapport `--report` ne contient jamais le lien ([cli.py:499-501](../../services/runtime/cli.py#L499-L501)).
+4. `GET /api/v1/session/open?link=…` retire le lien du registre dès sa présentation, valide ou non. S'il est valide, l'API crée une session, révoque celle que le navigateur portait déjà, pose les deux cookies et redirige en 303 vers `/workspace/` ([main.py:248-260](../../services/api/main.py#L248-L260), [security.py:124-139](../../services/api/security.py#L124-L139)). Un lien inconnu, déjà présenté ou expiré redirige en 303 vers `/workspace/?session=lien-invalide` et efface les cookies ; l'interface affiche « Lien d'ouverture expiré ou déjà utilisé » puis retire le paramètre de l'adresse.
+5. Chaque requête de l'interface porte le cookie de session ; `POST`, `PUT`, `PATCH` et `DELETE` ajoutent l'en-tête `X-CSRF-Token`, copie du cookie CSRF lisible par le script ([main.py:156-159](../../services/api/main.py#L156-L159), [api.ts:17-21](../../apps/web/src/lib/api.ts#L17-L21)). Les lectures, y compris le flux SSE ouvert par `EventSource`, n'en ont pas besoin.
+6. `POST /api/v1/session/logout` efface toujours les deux cookies, mais ne révoque la session côté serveur qu'avec son jeton CSRF (réponse `{"revoked": true}`) : une page étrangère ne peut pas fermer la session de l'utilisateur ([main.py:270-278](../../services/api/main.py#L270-L278)). Le bouton « Fermer la session » de la barre supérieure appelle cette route ([app-topbar.tsx:67-68](../../apps/web/src/components/app-topbar.tsx#L67-L68)).
 
 ### 2.3 Cookies, durées et révocation
 
@@ -77,7 +77,7 @@ Le refus par défaut est vérifié route par route sur toutes les routes montée
 | Attributs communs | `SameSite=Strict`, `Path=/`, `Max-Age` égal à la durée absolue, sans `Domain` | Identiques |
 | Transport | HTTP sur 127.0.0.1 | HTTPS sur 127.0.0.1 avec le certificat et la clé du profil, HSTS |
 
-Sources : [security.py:68-75](../../services/api/security.py#L68-L75), [security.py:207-209](../../services/api/security.py#L207-L209), [main.py:257-258](../../services/api/main.py#L257-L258).
+Sources : [security.py:68-75](../../services/api/security.py#L68-L75), [security.py:207-209](../../services/api/security.py#L207-L209), [main.py:258-259](../../services/api/main.py#L258-L259).
 
 | Clé du profil (`security`) | Valeur `local16` | Effet |
 |---|---|---|
@@ -89,7 +89,7 @@ Sources : [security.py:68-75](../../services/api/security.py#L68-L75), [security
 
 Valeurs lues dans [config/local16.yaml:164-171](../../config/local16.yaml#L164-L171) et contrôlées au démarrage de l'API ([security.py:42-58](../../services/api/security.py#L42-L58)) : l'inactivité doit rester inférieure ou égale à la durée absolue.
 
-L'inactivité se mesure entre deux requêtes authentifiées comptées comme activité. L'atelier relit la disponibilité, la bibliothèque et le suivi des traitements toutes les 3 à 10 s avec l'en-tête `X-RAG-Background: 1` ([api.ts:43-72](../../apps/web/src/lib/api.ts#L43-L72)) : ces requêtes vérifient la session sans la prolonger ([main.py:144-146](../../services/api/main.py#L144-L146), [security.py:141-162](../../services/api/security.py#L141-L162)) ; `/readiness`, public, ne consulte pas la session. Les autres requêtes, dont celles déclenchées par l'utilisateur, remettent l'inactivité à zéro. Exception relevée dans le code : tant qu'un document sans extraction publiée est ouvert, le lecteur relit ses métadonnées toutes les 3 s sans cet en-tête et prolonge la session ([pdf-viewer.tsx:131](../../apps/web/src/components/pdf-viewer.tsx#L131)). La durée absolue s'applique dans tous les cas.
+L'inactivité se mesure entre deux requêtes authentifiées comptées comme activité. L'atelier relit la disponibilité, la bibliothèque et le suivi des traitements toutes les 3 à 10 s avec l'en-tête `X-RAG-Background: 1` ([api.ts:43-72](../../apps/web/src/lib/api.ts#L43-L72)) : ces requêtes vérifient la session sans la prolonger ([main.py:145-147](../../services/api/main.py#L145-L147), [security.py:141-162](../../services/api/security.py#L141-L162)) ; `/readiness`, public, ne consulte pas la session. Les autres requêtes, dont celles déclenchées par l'utilisateur, remettent l'inactivité à zéro. Exception relevée dans le code : tant qu'un document sans extraction publiée est ouvert, le lecteur relit ses métadonnées toutes les 3 s sans cet en-tête et prolonge la session ([pdf-viewer.tsx:131](../../apps/web/src/components/pdf-viewer.tsx#L131)). La durée absolue s'applique dans tous les cas.
 
 | Événement | Effet |
 |---|---|
@@ -100,7 +100,7 @@ L'inactivité se mesure entre deux requêtes authentifiées comptées comme acti
 
 ### 2.4 Jeton de contrôle des outils locaux
 
-Le superviseur tire un jeton aléatoire à chaque lancement, l'écrit dans `<data_dir>\control\admin-token` (fichier supprimé à l'arrêt) et le transmet à l'API par la variable `RAG_CONTROL_TOKEN` ([supervisor.py:363-364](../../services/runtime/supervisor.py#L363-L364), [supervisor.py:405-407](../../services/runtime/supervisor.py#L405-L407)). Présenté dans l'en-tête `X-RAG-Control-Token`, il est comparé en temps constant ([main.py:124-127](../../services/api/main.py#L124-L127)) et ouvre toutes les routes `/api/v1`, mutations comprises, sans session ni jeton CSRF ; `GET /api/v1/session` répond alors `"method": "control_token"`. Il ne doit figurer ni dans une URL, ni dans un rapport, ni dans un journal.
+Le superviseur tire un jeton aléatoire à chaque lancement, l'écrit dans `<data_dir>\control\admin-token` (fichier supprimé à l'arrêt) et le transmet à l'API par la variable `RAG_CONTROL_TOKEN` ([supervisor.py:363-364](../../services/runtime/supervisor.py#L363-L364), [supervisor.py:405-407](../../services/runtime/supervisor.py#L405-L407)). Présenté dans l'en-tête `X-RAG-Control-Token`, il est comparé en temps constant ([main.py:125-128](../../services/api/main.py#L125-L128)) et ouvre toutes les routes `/api/v1`, mutations comprises, sans session ni jeton CSRF ; `GET /api/v1/session` répond alors `"method": "control_token"`. Il ne doit figurer ni dans une URL, ni dans un rapport, ni dans un journal.
 
 | Client | Origine du jeton | Code |
 |---|---|---|
@@ -121,7 +121,7 @@ Invoke-RestMethod http://127.0.0.1:8785/api/v1/jobs -Headers $controle
 
 ### 2.5 Refus et journal d'audit
 
-Les messages des refus 401 se terminent par « Ouvrir l'atelier avec « .\rag.ps1 open » depuis le dossier du projet. » ([security.py:25](../../services/api/security.py#L25), [main.py:139-159](../../services/api/main.py#L139-L159)).
+Les messages des refus 401 se terminent par « Ouvrir l'atelier avec « .\rag.ps1 open » depuis le dossier du projet. » ([security.py:25](../../services/api/security.py#L25), [main.py:140-160](../../services/api/main.py#L140-L160)).
 
 | Statut | Code | Début du message | `details.reason` | Cause |
 |---|---|---|---|---|
@@ -152,7 +152,7 @@ Vérifications : 9 tests de session et un test HTTPS réel avec certificat de te
 {"code": "document_not_found", "message": "Document inconnu.", "details": {}, "request_id": "<uuid>"}
 ```
 
-Une erreur de validation Pydantic rend 422 `validation_error` avec `details.fields` (emplacement et type, sans valeur). Une exception imprévue rend 500 `internal_error` « Erreur interne ; consulter les diagnostics locaux. », sans trace ([main.py:213-224](../../services/api/main.py#L213-L224)). Les refus de session portent le motif dans `details.reason` ([section 2.5](#25-refus-et-journal-daudit)).
+Une erreur de validation Pydantic rend 422 `validation_error` avec `details.fields` (emplacement et type, sans valeur). Une exception imprévue rend 500 `internal_error` « Erreur interne ; consulter les diagnostics locaux. », sans trace ([main.py:214-225](../../services/api/main.py#L214-L225)). Les refus de session portent le motif dans `details.reason` ([section 2.5](#25-refus-et-journal-daudit)).
 
 ## 4. Routes
 
@@ -163,7 +163,7 @@ Préfixe `/api/v1` omis dans la colonne Chemin. Les numéros de ligne renvoient 
 | Méthode | Chemin | Rôle | Réponses et erreurs notables |
 |---|---|---|---|
 | GET | `/health` | Public. Processus vivant, sans accès aux stores (l. 338) | 200 `{"status": "alive", "service": "rag-api"}` |
-| GET | `/readiness` | Public. Contrôle SQLite (`quick_check`), fichiers E5 et tokenizer Qwen, collection Qdrant, modèle listé par Ollama, gouverneur (l. 342) | 200 `ready` ; 503 `blocked` avec `checks` et `blockers` (`qdrant_not_ready` tant que la collection n'existe pas) |
+| GET | `/readiness` | Public. Contrôle SQLite (`quick_check`), fichiers E5 et tokenizer Qwen, collection Qdrant, modèle listé par Ollama, gouverneur (l. 342) | 200 `ready` ; 503 `blocked` avec `checks` et `blockers` (`qdrant_not_ready` si Qdrant ne répond pas, ou si la collection manque alors que des générations sont publiées) ; champ `qdrant_collection` : `present`, `absent_empty_library`, `absent_with_published_generations` ou `unreachable` |
 | GET | `/diagnostics` | Versions, ressources du gouverneur, `security` (environnement et nombre de sessions actives), identités dense et tokenizer, caches, empreinte du profil et du sélecteur, réconciliation (l. 632) | 200 ; aucun extrait documentaire |
 
 ### 4.2 Session
@@ -212,7 +212,7 @@ Le champ `state` d'un document publié suit sa génération active (`ready` ou `
 | Méthode | Chemin | Rôle | Réponses et erreurs notables |
 |---|---|---|---|
 | GET | `/jobs?limit` | Travaux récents avec couverture, avertissements, publication ; `runtime_mode` : priorité choisie, `interactive` (priorité aux questions, imports suspendus) ou `ingestion` (priorité aux imports) ; le mode instantané du gouverneur n'est plus exposé ici (l. 578) | 400 `invalid_pagination` |
-| POST | `/jobs/resume-paused` | Remet en file, dans leur ordre d'import, tous les travaux à l'état `paused` (l. 587 ; [jobs.py:243-248](../../services/api/jobs.py#L243-L248)) | 200 `{"resumed": n}` ; 409 `interaction_active` si une question est active, avant toute reprise (tout ou rien) |
+| POST | `/jobs/resume-paused` | Remet en file, dans leur ordre d'import, tous les travaux à l'état `paused` (l. 587 ; [jobs.py:252-257](../../services/api/jobs.py#L252-L257)) | 200 `{"resumed": n}` ; 409 `interaction_active` si une question est active, avant toute reprise (tout ou rien) |
 | POST | `/jobs/{job_id}/pause` | Pause coopérative : `pausing` si le travail tourne, sinon `paused` (l. 599) | 404 `job_not_found` ; 409 `job_not_pauseable` |
 | POST | `/jobs/{job_id}/resume` | Remet en file un travail `paused`, `error` ou `cancelled` (l. 595) | 409 `job_not_resumable`, `retry_limit` (trois tentatives en erreur), `interaction_active` |
 | POST | `/jobs/{job_id}/cancel` | Annulation : `cancelling` si le travail tourne (l. 591) | 404 `job_not_found` |
@@ -236,13 +236,13 @@ Le jeton est celui de la [section 2.4](#24-jeton-de-contrôle-des-outils-locaux)
 
 | Méthode | Chemin | Rôle |
 |---|---|---|
-| GET | `/openapi.json` | Schéma OpenAPI généré par FastAPI 0.142.1 ; développement seulement ([main.py:99-101](../../services/api/main.py#L99-L101)) |
+| GET | `/openapi.json` | Schéma OpenAPI généré par FastAPI 0.142.1 ; développement seulement ([main.py:100-102](../../services/api/main.py#L100-L102)) |
 | GET | `/api/docs` | Interface Swagger de FastAPI, développement seulement ; ses scripts viennent d'un CDN que la CSP bloque ; page non examinée au rendu |
-| GET | `/`, `/workspace/`… | Export statique de `apps/web/out` ([main.py:657-659](../../services/api/main.py#L657-L659)) |
+| GET | `/`, `/workspace/`… | Export statique de `apps/web/out` ([main.py:667-669](../../services/api/main.py#L667-L669)) |
 
 ## 5. Flux SSE d'une question
 
-Le flux `GET /api/v1/queries/{query_id}/events` (`text/event-stream`, `Cache-Control: no-cache`) relit les événements persistés dans SQLite : chaque événement porte `id` (entier croissant par question), `event` (type) et `data` (JSON). La reprise se fait par l'en-tête `Last-Event-ID` (envoyé automatiquement par `EventSource`) ou le paramètre `after` ; elle ne relance pas la génération. Une ligne de commentaire `: heartbeat` est émise toutes les 10 s ; le flux se ferme quand la question est terminée et que le dernier événement a été envoyé ([main.py:538-564](../../services/api/main.py#L538-L564)). Le flux suit les règles de la [section 2](#2-session-et-autorisation) : `EventSource` envoie le cookie de session de la même origine, un outil local présente le jeton de contrôle.
+Le flux `GET /api/v1/queries/{query_id}/events` (`text/event-stream`, `Cache-Control: no-cache`) relit les événements persistés dans SQLite : chaque événement porte `id` (entier croissant par question), `event` (type) et `data` (JSON). La reprise se fait par l'en-tête `Last-Event-ID` (envoyé automatiquement par `EventSource`) ou le paramètre `after` ; elle ne relance pas la génération. Une ligne de commentaire `: heartbeat` est émise toutes les 10 s ; le flux se ferme quand la question est terminée et que le dernier événement a été envoyé ([main.py:548-574](../../services/api/main.py#L548-L574)). Le flux suit les règles de la [section 2](#2-session-et-autorisation) : `EventSource` envoie le cookie de session de la même origine, un outil local présente le jeton de contrôle.
 
 | Type | Données | Émis par |
 |---|---|---|
