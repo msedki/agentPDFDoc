@@ -16,7 +16,7 @@ def write(root, relative, content="x"):
 @pytest.fixture
 def repository(tmp_path):
     root = tmp_path / "depot"
-    for relative in ("services/api/main.py", "config/local16.yaml", "apps/web/out/index.html", "rag.ps1", "pyproject.toml", "uv.lock",
+    for relative in ("services/api/main.py", "config/local16.yaml", "apps/web/out/index.html", "rag.ps1", "pyproject.toml", "uv.lock", "tools/dist/install.ps1",
                      ".runtime/models/e5-small-int8/model.onnx", ".runtime/bin/ollama-0.35.0/lib/ollama/cuda_v12/cublas.dll",
                      ".runtime/bin/ollama-0.35.0/ollama.exe"):
         write(root, relative)
@@ -42,6 +42,7 @@ def test_kit_neutralizes_the_tesseract_source_checks_integrity_and_detects_tampe
     copied = json.loads((kit / ".runtime/manifests/tesseract-installed-copy.json").read_text(encoding="utf-8"))
     assert copied["source"] == "<poste de fabrication>/Tesseract-OCR"
     assert verify_kit(kit)["status"] == "verified"
+    assert b"-ExecutionPolicy Bypass" in (kit / "Installer l'atelier.cmd").read_bytes() and (kit / "tools/dist/install.ps1").is_file()
     (kit / "services/api/main.py").write_text("modifié", encoding="utf-8")
     (kit / "en-trop.txt").write_text("y", encoding="utf-8")
     report = verify_kit(kit)

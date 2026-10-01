@@ -1,6 +1,6 @@
 ﻿<# Provision uv/Python dans le projet ; aucune modification de PATH ou ExecutionPolicy. #>
 [CmdletBinding()]
-param([switch]$Offline)
+param([switch]$Offline, [switch]$NoDev)
 $ErrorActionPreference = 'Stop'
 $projectRoot = $PSScriptRoot
 $bootstrapRoot = Join-Path $projectRoot '.runtime/bootstrap'
@@ -42,7 +42,10 @@ if (-not (Test-Path -LiteralPath $managedPython -PathType Leaf)) {
 }
 Push-Location -LiteralPath $projectRoot
 try {
-    & $uvPath sync --locked --python $managedPython --no-python-downloads @uvOptions
+    # -NoDev : installation d'un kit, sans le groupe de développement (outils de test et de typage).
+    $syncOptions = @()
+    if ($NoDev) { $syncOptions += '--no-dev' }
+    & $uvPath sync --locked --python $managedPython --no-python-downloads @uvOptions @syncOptions
     if ($LASTEXITCODE -ne 0) { throw 'Synchronisation Python verrouillée échouée.' }
 } finally { Pop-Location }
 Write-Output 'Environnement Python isolé prêt. Exécuter .\rag.ps1 provision pour artefacts et modèle.'

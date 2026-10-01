@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 # Chemins relatifs à la racine du dépôt, fichiers ou dossiers copiés entiers (moins les exclusions).
 INCLUDED = ("services", "config", "apps/web/out", "apps/web/package.json", "apps/web/pnpm-lock.yaml", "rag.ps1", "bootstrap.ps1",
-            "pyproject.toml", "uv.lock", "README.md", "CHANGELOG.md", "docs", "tools/corpus",
+            "pyproject.toml", "uv.lock", "README.md", "CHANGELOG.md", "docs", "tools/corpus", "tools/dist",
             ".runtime/bin", ".runtime/models", ".runtime/python", ".runtime/bootstrap", ".runtime/cache/uv", ".runtime/manifests",
             ".runtime/model-metadata")
 # Motifs exclus partout (fnmatch sur le chemin relatif en POSIX) ; la comparaison Granite n'appartient pas au produit.
@@ -35,6 +35,10 @@ FORBIDDEN_PREFIXES = ("PDF/", ".runtime/data/", ".runtime/qa/", ".runtime/evals/
 GPU_DIRECTORIES = ("cuda_v12", "cuda_v13", "vulkan")  # P3 : sous lib/ollama, inutiles avec num_gpu 0 si H1 est vérifiée.
 TEXT_SUFFIXES = {".json", ".yaml", ".yml", ".md", ".py", ".ps1", ".txt", ".toml", ".lock", ".cfg"}
 TEXT_SCAN_LIMIT = 32 * 1024 * 1024
+LAUNCHER = "Installer l'atelier.cmd"
+LAUNCHER_CONTENT = (b"@echo off\r\n"
+                    b"powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"%~dp0tools\\dist\\install.ps1\" %*\r\n"
+                    b"pause\r\n")
 CHUNK = 1024 * 1024
 
 
@@ -129,6 +133,10 @@ def build_kit(output: Path, *, root: Path = ROOT, version: str, without_gpu: boo
         sums.append(f"{digest}  {relative}")
         group = relative.split("/")[1] if relative.startswith(".runtime/") else relative.split("/")[0]
         sizes[group] = sizes.get(group, 0) + size
+    # Lanceur à double-cliquer : Bypass ne vaut que pour cette session et ne touche pas la politique du poste.
+    launcher = output / LAUNCHER
+    launcher.write_bytes(LAUNCHER_CONTENT)
+    sums.append(f"{hashlib.sha256(LAUNCHER_CONTENT).hexdigest()}  {LAUNCHER}")
     if leaks:
         shutil.rmtree(output)
         raise ValueError(f"Chemin du poste de fabrication présent dans le kit : {sorted(set(leaks))[:5]}")
