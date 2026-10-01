@@ -56,3 +56,17 @@ def test_kit_refuses_a_build_host_path_and_an_output_inside_the_repository(repos
     with pytest.raises(ValueError, match="Chemin du poste de fabrication"):
         build_kit(tmp_path / "kit2", root=repository, version="0.1.0")
     assert not (tmp_path / "kit2").exists()
+
+
+def test_program_inventory_reports_added_removed_and_changed_files(tmp_path):
+    from tools.dist.program_inventory import compare, snapshot
+
+    write(tmp_path, "programme/a.py", "a")
+    write(tmp_path, "programme/b.py", "b")
+    before = snapshot(tmp_path / "programme")
+    assert compare(before, snapshot(tmp_path / "programme"))["status"] == "unchanged"
+    write(tmp_path, "programme/a.py", "modifié")
+    (tmp_path / "programme/b.py").unlink()
+    write(tmp_path, "programme/__pycache__/c.pyc", "c")
+    report = compare(before, snapshot(tmp_path / "programme"))
+    assert (report["status"], report["changed"], report["removed"], report["added"]) == ("changed", ["a.py"], ["b.py"], ["__pycache__/c.pyc"])
