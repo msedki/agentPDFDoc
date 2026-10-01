@@ -178,8 +178,10 @@ Lot R4 (30/09/2026, sources modifiées, build non relancé) : une précision `pa
 ne dessine plus aucune boîte de région et le lecteur reprend le libellé des
 cartes source ; une région déclarée sans géométrie valide s'affiche comme
 localisation à la page (`src/lib/source-location.ts`). Les réponses reconnaissent
-aussi les listes `[S001, S002]`, chaque ID étant validé individuellement, sans
-interprétation HTML/Markdown (`src/lib/citations.ts`). Les onglets d'analyse
+aussi les listes `[S001, S002]`, chaque ID étant validé individuellement
+(`src/lib/citations.ts`) ; aucune balise HTML n'est interprétée, seuls les
+paragraphes, listes à puces et passages en gras `**…**` sont mis en forme, par des
+éléments React (`src/lib/answer-format.ts`, depuis `0c7fd84`). Les onglets d'analyse
 suivent le motif tablist (flèches, Home/End, tabIndex itinérant, `tabpanel`) ;
 la plage de pages est validée contre le nombre de pages de la version ouverte,
 pas de la version active. Le gris secondaire (jeton `--muted-foreground` de
