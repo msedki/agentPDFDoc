@@ -60,7 +60,7 @@ ignore = ["E501"]
 python_version = "3.12"
 check_untyped_defs = true
 ignore_missing_imports = true
-files = ["services", "tools/qualification", "tools/corpus", "RAG_Local_Agents/tools"]
+files = ["services", "tools/qualification", "tools/corpus", "tools/dist", "RAG_Local_Agents/tools"]
 # Lancer mypy depuis la racine : elle sert de base aux paquets (services.*, tools.corpus.*).
 # Les scripts de tools/qualification et RAG_Local_Agents/tools s'importent entre eux par
 # leur nom court (dossier du script dans sys.path) : ces dossiers sont donc des bases.
