@@ -1,6 +1,6 @@
 # Qualification ciblée — RAG-LOCAL-16 V2.1
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 ## 1. Objet et limites
 
@@ -109,7 +109,7 @@ Le scénario chat/import mesure chargements par transition, travail non validé 
 
 Pour chaque essai : objectif, hypothèse, données, commit, versions, machine, commande, résultats bruts, interprétation et décision. Statuts `NOT_RUN`, `PASS`, `FAIL`, `BLOCKED`. Ne pas affirmer qu'un modèle est SOTA parce qu'il est récent, ni qu'une dépendance est compatible parce qu'elle est installable.
 
-Garder un tableau des critères DoD avec leur preuve. Les résultats de `tools/verify_bundle.py` restent dans la catégorie **contrôles documentaires/de référence**, jamais parmi les essais applicatifs Q-CPU/Q-PDF/Q-SEARCH.
+Garder un tableau des critères DoD avec leur preuve. Les résultats de `tools/verify_pack.py` restent dans la catégorie **contrôles documentaires/de référence**, jamais parmi les essais applicatifs Q-CPU/Q-PDF/Q-SEARCH.
 
 
 ## Sources et skills dans chaque essai

@@ -2,6 +2,61 @@
   "schema_version": 2,
   "api_prefix": "/api/v1",
   "coordinate_system": "Unrotated PDF user-space points; retain MediaBox/CropBox/page rotation; page_index is zero-based and UI page_number is index+1",
+  "routes": [
+    "GET /health",
+    "GET /readiness",
+    "GET /diagnostics",
+    "GET /session/open",
+    "GET /session",
+    "POST /session/logout",
+    "GET /library/tree",
+    "POST /documents/import",
+    "GET /documents/{document_id}",
+    "DELETE /documents/{document_id}",
+    "POST /documents/{document_id}/move",
+    "POST /documents/{document_id}/reindex",
+    "GET /versions/{version_id}/file",
+    "GET /versions/{version_id}/outline",
+    "GET /versions/{version_id}/pages/{page_index}/blocks",
+    "POST /search",
+    "POST /queries",
+    "GET /queries/{query_id}/events",
+    "POST /queries/{query_id}/cancel",
+    "GET /citations/{query_id}/{source_id}",
+    "GET /jobs",
+    "POST /jobs/resume-paused",
+    "POST /jobs/{job_id}/pause",
+    "POST /jobs/{job_id}/resume",
+    "POST /jobs/{job_id}/cancel",
+    "POST /jobs/{job_id}/publish-partial",
+    "POST /runtime/mode",
+    "POST /admin/session-links",
+    "POST /admin/sessions/revoke",
+    "POST /admin/quiesce",
+    "POST /admin/resume",
+    "GET /admin/status",
+    "POST /admin/evaluation/context"
+  ],
+  "access": {
+    "public": [
+      "/health",
+      "/readiness",
+      "/session/open",
+      "/session/logout"
+    ],
+    "control_token_only_prefix": "/admin/",
+    "default": "Browser session cookie (X-CSRF-Token header on POST, PUT, PATCH, DELETE) or X-RAG-Control-Token header"
+  },
+  "health_response": {
+    "status": "alive",
+    "service": "rag-api",
+    "commands": {
+      "open": "launcher command of this host: .\\rag.ps1 open on Windows, ./rag.sh open on Linux",
+      "status": "launcher command: .\\rag.ps1 status or ./rag.sh status",
+      "logs": "launcher command: .\\rag.ps1 logs or ./rag.sh logs",
+      "doctor": "launcher command: .\\rag.ps1 doctor or ./rag.sh doctor"
+    }
+  },
   "scope": {
     "kind": "library|folder|documents|section|pages|selection",
     "folderId": "uuid optional",
@@ -15,10 +70,10 @@
     "pageEnd": "zero-based inclusive optional",
     "spans": [
       {
-        "blockId": "string",
-        "versionId": "uuid",
         "extractionRevisionId": "uuid",
-        "sourceTextHash": "sha256",
+        "blockId": "string",
+        "blockTextSha256": "sha256 of the block source_text",
+        "offsetUnit": "unicode_code_point",
         "startOffset": 0,
         "endOffset": 1
       }
@@ -29,7 +84,7 @@
     "folder_id": "uuid|null",
     "name": "string",
     "relative_path": "string",
-    "state": "imported|queued|extracting|ocr|indexing|ready|ready_partial|error|deleted",
+    "state": "queued|extracting|indexing|paused|cancelled|error|ready|ready_partial|deleted",
     "active_version_id": "uuid|null",
     "active_generation_id": "uuid|null",
     "page_count": 0,
@@ -38,6 +93,25 @@
       "processed": 0,
       "ocr": 0
     }
+  },
+  "job": {
+    "id": "uuid",
+    "document_id": "uuid",
+    "version_id": "uuid",
+    "generation_id": "uuid|null",
+    "state": "queued|extracting|indexing|pausing|paused|cancelling|cancelled|error|ready|ready_partial",
+    "stage": "string",
+    "progress": 0.0,
+    "attempts": 0,
+    "error_code": "string|null",
+    "error_message": "string|null",
+    "coverage": {},
+    "warnings": [],
+    "published": false,
+    "published_at": "iso8601|null",
+    "active": false,
+    "created_at": "iso8601",
+    "updated_at": "iso8601"
   },
   "library_tree_response": {
     "folders": [
@@ -123,15 +197,66 @@
     "e5_tokens": 0,
     "content_hash": "sha256"
   },
+  "reindex_response": {
+    "job_id": "uuid",
+    "version_id": "uuid, absent when a queued, extracting or indexing job of the document is returned (reused true)",
+    "reused": false,
+    "job_state": "paused, only when the last job of the latest version is paused and returned instead of a new job; outcome of every last job state in reindex_outcomes",
+    "resume_required": "true with job_state: resume that job (POST /jobs/{job_id}/resume) instead of starting a second extraction"
+  },
+  "reindex_outcomes": {
+    "queued|extracting|indexing": {
+      "status": 202,
+      "fields": "job_id|reused",
+      "reused": true,
+      "rule": "a job of the document is in progress: it is returned and no job is created"
+    },
+    "paused": {
+      "status": 202,
+      "fields": "job_id|version_id|reused|job_state|resume_required",
+      "reused": true,
+      "rule": "the paused job of the latest version is returned, to resume, instead of a second extraction"
+    },
+    "pausing": {
+      "status": 409,
+      "error": {
+        "code": "job_pausing",
+        "message": "string: wait for the pause to complete, then resume that job from the Suivi view",
+        "details": {
+          "job_id": "uuid",
+          "version_id": "uuid",
+          "job_state": "pausing"
+        },
+        "request_id": "uuid"
+      },
+      "rule": "the job cannot be resumed yet (POST /jobs/{job_id}/resume answers 409 job_not_resumable): the request is refused and no job is created"
+    },
+    "cancelling|cancelled|error|ready|ready_partial": {
+      "status": 202,
+      "fields": "job_id|version_id|reused",
+      "reused": false,
+      "rule": "a new queued job is created on the latest version; while cancelling, the cancellation stays final and the queue, which runs one job at a time, starts the new job after it"
+    }
+  },
   "query_request": {
     "question": "string",
     "scope": {},
-    "mode": "question|selection|section|comparison",
-    "conversation_id": "uuid|null"
+    "mode": "question|selection|section|comparison|compare|factual|ordinary|analysis",
+    "conversation_id": "uuid|null",
+    "followup_of": "uuid|null",
+    "focus": {
+      "query_id": "uuid",
+      "source_id": "S001",
+      "version_id": "uuid",
+      "block_id": "string",
+      "identifier": "string"
+    }
   },
   "query_created_response": {
     "query_id": "uuid",
-    "events_url": "/api/v1/queries/uuid/events"
+    "conversation_id": "uuid",
+    "events_url": "/api/v1/queries/uuid/events",
+    "state": "needs_clarification, only when the follow-up referent is ambiguous"
   },
   "search_response": {
     "results": [],
@@ -157,6 +282,7 @@
   "query_events": {
     "types": [
       "status",
+      "needs_clarification",
       "sources",
       "delta",
       "warning",
@@ -165,6 +291,20 @@
       "cancelled"
     ],
     "event_id": "per-query monotonic integer",
+    "status_data": {
+      "state": "queued|waiting_for_ingestion_checkpoint|searching|waiting_for_resources|generating"
+    },
+    "needs_clarification_data": {
+      "state": "needs_clarification",
+      "message": "string",
+      "choices": [
+        {
+          "identifier": "string",
+          "query_id": "uuid",
+          "label": "string"
+        }
+      ]
+    },
     "sources_data": {
       "sources": []
     },
@@ -173,10 +313,27 @@
     },
     "done_data": {
       "message": "string",
+      "text": "string",
+      "status": "done|length_limited",
       "citations": [],
       "finish_reason": "stop|length",
+      "metrics": {},
+      "warnings": []
+    },
+    "error_data": {
+      "code": "string",
+      "message": "string",
+      "metrics": {}
+    },
+    "cancelled_data": {
+      "state": "cancelled",
+      "status": "cancelled",
+      "text": "string",
       "metrics": {}
     }
+  },
+  "query_run": {
+    "states": "queued|running|needs_clarification|done|length_limited|cancelled|error|interrupted"
   },
   "error": {
     "code": "string",
@@ -184,8 +341,73 @@
     "details": {},
     "request_id": "uuid"
   },
-  "ingestion_boundary": "services.ingestion exposes preflight_pdf(path, config) and extract_window(path, version_id, page_start, page_end, config, output_dir, cancel_event=None). Return serializable window_extraction. Backend owns chunking with true E5 tokenizer and SQLite publication; ingestion never imports backend stores or Qdrant handles.",
-  "governor_boundary": "services.runtime.resources.ResourceGovernor(settings) exposes snapshot(), async generation() context manager, begin_interactive(), allow_ingestion(), should_checkpoint() and finish_interactive(). Generation and ingestion leases are mutually exclusive; heavy admission is enforced, failures are explicit. Root supplies implementation; backend injects it into create_app.",
-  "integration_entry": "services.api.main.create_app(profile_path=None, governor=None, ingestion_runner=None) and module app use RAG_PROFILE env or root config/local16.yaml; RAG_DATA_DIR overrides with an explicit absolute isolated target. Root launches via python -m uvicorn services.api.main:app with --workers 1.",
+  "ingestion_boundary": "services.ingestion exposes preflight_pdf(path, config=None), extraction_fingerprint(config=None), extract_window(path, version_id, page_start, page_end, config, output_dir, cancel_event=None) and extract_pdf(path, output_dir, config, version_id, cancel_path=None) without importing Docling. The API runs the extraction in a separate process, python -m services.ingestion.worker --request worker-request.json --result worker-result.json, with an environment stripped of the instance secrets (RAG_CONTROL_TOKEN, RAG_QDRANT_API_KEY). Return serializable window_extraction documents and extraction.json. Backend owns chunking with true E5 tokenizer and SQLite publication; ingestion never imports backend stores or Qdrant handles.",
+  "ingestion_interface": {
+    "preflight_pdf": [
+      "path",
+      "config"
+    ],
+    "extraction_fingerprint": [
+      "config"
+    ],
+    "extract_window": [
+      "path",
+      "version_id",
+      "page_start",
+      "page_end",
+      "config",
+      "output_dir",
+      "cancel_event"
+    ],
+    "extract_pdf": [
+      "path",
+      "output_dir",
+      "config",
+      "version_id",
+      "cancel_path"
+    ],
+    "worker_module": "services.ingestion.worker"
+  },
+  "governor_boundary": "services.runtime.resources.ResourceGovernor(settings=None, host_lock_path=None) is built by services.api.main.create_app with the loaded profile (app.data_dir resolved) and runtime_location(profile, 'host_lock_path'), or injected into create_app(governor=...). It exposes snapshot(), begin_interactive(), finish_interactive(), should_checkpoint(), allow_ingestion(), resume_ingestion(), request_ingestion_pause() and the async context managers ingestion() and generation(on_wait=None); the API sets the hooks before_ingestion, after_resource_violation and before_generation. Generation and ingestion leases are mutually exclusive; heavy admission is enforced, failures are explicit.",
+  "governor_interface": {
+    "constructor": [
+      "settings",
+      "host_lock_path"
+    ],
+    "methods": [
+      "snapshot",
+      "begin_interactive",
+      "finish_interactive",
+      "should_checkpoint",
+      "allow_ingestion",
+      "resume_ingestion",
+      "request_ingestion_pause"
+    ],
+    "async_context_managers": [
+      "ingestion",
+      "generation"
+    ],
+    "hooks_set_by_api": [
+      "before_ingestion",
+      "after_resource_violation",
+      "before_generation"
+    ]
+  },
+  "integration_entry": "services.api.main.create_app(profile_path=None, governor=None, ingestion_runner=None, *, settings=None, embedding=None, vectors=None, ollama=None, tokenizer=None, start_jobs=True) and module app read RAG_PROFILE or root config/local16.yaml (fallback RAG_Local_Agents/config/local16.yaml); RAG_DATA_DIR and RAG_DB_PATH override storage with an explicit isolated target. The supervisor launches python -m services.runtime.api_entry, which serves services.api.main:app with uvicorn on 127.0.0.1:app.port, one worker, HTTPS with the profile certificate in production.",
+  "integration_interface": {
+    "create_app_parameters": [
+      "profile_path",
+      "governor",
+      "ingestion_runner",
+      "settings",
+      "embedding",
+      "vectors",
+      "ollama",
+      "tokenizer",
+      "start_jobs"
+    ],
+    "launch_module": "services.runtime.api_entry",
+    "asgi_application": "services.api.main:app"
+  },
   "offset_unit": "Unicode code points in immutable block source_text; client UTF16 offsets must be converted and source_text_hash verified"
 }

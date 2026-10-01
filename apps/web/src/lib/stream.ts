@@ -1,7 +1,6 @@
 import { sameOriginPath } from "./api";
-import type { StreamEvent } from "./types";
+import { QUERY_EVENT_TYPES, type StreamEvent } from "./types";
 
-const eventTypes = ["status", "sources", "delta", "warning", "done", "error", "cancelled", "needs_clarification"];
 export function connectQueryStream(url: string, after: string, onEvent: (event: StreamEvent) => void, onConnection: (state: "connected" | "reconnecting") => void) {
   const safe = sameOriginPath(url);
   const params = new URL(safe, window.location.origin);
@@ -10,7 +9,7 @@ export function connectQueryStream(url: string, after: string, onEvent: (event: 
   let lastId = Number(after || 0);
   stream.onopen = () => onConnection("connected");
   stream.onerror = () => onConnection("reconnecting");
-  for (const type of eventTypes) stream.addEventListener(type, event => {
+  for (const type of QUERY_EVENT_TYPES) stream.addEventListener(type, event => {
     if (!(event instanceof MessageEvent)) return;
     const id = Number(event.lastEventId);
     if (id && id <= lastId) return;

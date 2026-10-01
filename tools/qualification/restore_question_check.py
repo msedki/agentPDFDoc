@@ -2,7 +2,7 @@
 
 Deux phases, chacune sous quelques minutes, sans toucher à la bibliothèque de l'utilisateur :
 
-1. `prepare` : instance de contrôle temporaire (mécanismes de `rag.ps1 selftest`), import d'un PDF synthétique, question
+1. `prepare` : instance de contrôle temporaire (mécanismes de `rag.ps1 selftest` et `rag.sh selftest`), import d'un PDF synthétique, question
    réelle dont les citations sont enregistrées, sauvegarde par `create_backup`, arrêt ; l'état est écrit dans --state.
 2. `restore` : restauration de cette sauvegarde dans une racine neuve, démarrage, ouverture de chaque citation enregistrée
    avant la sauvegarde (même version, révision et blocs), nouvelle question réelle avec citations, arrêt, suppression des
@@ -13,6 +13,8 @@ pendant l'essai.
 
     .venv\\Scripts\\python.exe tools/qualification/restore_question_check.py prepare --state <etat.json>
     .venv\\Scripts\\python.exe tools/qualification/restore_question_check.py restore --state <etat.json> --report <rapport.json>
+    .venv/bin/python tools/qualification/restore_question_check.py prepare --state <etat.json>
+    .venv/bin/python tools/qualification/restore_question_check.py restore --state <etat.json> --report <rapport.json>
 """
 
 from __future__ import annotations

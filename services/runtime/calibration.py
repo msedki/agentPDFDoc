@@ -5,6 +5,7 @@ from __future__ import annotations
 import concurrent.futures
 import json
 import socket
+import sys
 import time
 from datetime import UTC, datetime
 from pathlib import Path
@@ -13,9 +14,16 @@ import httpx
 import psutil
 
 from .artifacts import ROOT, file_hash, runtime_location, write_json_atomic
-from .resources import acquire_host_heavy_lock
-from .supervisor import environment, load_profile, native_paths, send_owned_console_interrupt, wait_http
-from .windows_process import WindowsJob
+from .resources import acquire_host_heavy_lock, linux_memory_mib
+from .supervisor import (
+    ProcessJob,
+    environment,
+    load_profile,
+    native_paths,
+    ollama_working_directory,
+    send_owned_console_interrupt,
+    wait_http,
+)
 
 
 def calibrate(profile_path: Path, output: Path, *, input_target: int = 2950,
@@ -65,8 +73,9 @@ def calibrate(profile_path: Path, output: Path, *, input_target: int = 2950,
     service_profile = {**profile, "llm": {**profile["llm"], "base_url": "http://127.0.0.1:11444"}}
     base_url = service_profile["llm"]["base_url"]
     # Même verrou que les générations et imports de toutes les instances : un seul modèle chargé par poste.
-    with acquire_host_heavy_lock("calibration", runtime_location(profile, "host_lock_path")), WindowsJob() as job:
-        child = job.launch([str(native_paths()["ollama"]), "serve"], cwd=ROOT,
+    with acquire_host_heavy_lock("calibration", runtime_location(profile, "host_lock_path")), ProcessJob() as job:
+        ollama = native_paths()["ollama"]
+        child = job.launch([str(ollama), "serve"], cwd=ollama_working_directory(ollama),
                            env=environment(service_profile, ROOT / ".runtime/cpu-pilot", profile_path),
                            log_path=output.with_suffix(".service.log"))
         wait_http(base_url + "/api/version", child, "0.35.0")
@@ -77,7 +86,7 @@ def calibrate(profile_path: Path, output: Path, *, input_target: int = 2950,
             text = ""
             final = None
             body = {"model": profile["llm"]["model"], "messages": trial_messages[label], "think": False,
-                    "stream": True, "keep_alive": "10m", "options": {
+                    "stream": True, "keep_alive": profile["llm"].get("keep_alive", "10m"), "options": {
                         "num_ctx": profile["llm"]["num_ctx"], "num_predict": output_limit, "num_gpu": 0,
                         "num_thread": threads, "temperature": profile["llm"]["temperature"],
                         "top_p": profile["llm"]["top_p"]}}
@@ -118,9 +127,12 @@ def calibrate(profile_path: Path, output: Path, *, input_target: int = 2950,
                     try:
                         tree = [psutil.Process(child.pid), *psutil.Process(child.pid).children(recursive=True)]
                         for process in tree:
-                            memory = process.memory_info()
-                            sample["processes"].append({"pid": process.pid, "rss_mib": memory.rss / 1048576,
-                                                        "private_mib": getattr(memory, "private", memory.rss) / 1048576})
+                            if sys.platform == "win32":
+                                memory = process.memory_info()
+                                sample["processes"].append({"pid": process.pid, "rss_mib": memory.rss / 1048576,
+                                                            "private_mib": getattr(memory, "private", memory.rss) / 1048576})
+                            else:
+                                sample["processes"].append({"pid": process.pid, **linux_memory_mib(process)})
                     except psutil.Error:
                         pass
                     report["samples"].append(sample)
@@ -151,11 +163,16 @@ def calibrate(profile_path: Path, output: Path, *, input_target: int = 2950,
         report["status"] = "PASS_PILOT_ONLY"
         report["minimum_available_mib"] = min(item["available_mib"] for item in report["samples"])
         report["peak_sum_rss_mib_upper_bound"] = max(sum(p["rss_mib"] for p in item["processes"]) for item in report["samples"])
-        report["peak_sum_private_mib"] = max(sum(p["private_mib"] for p in item["processes"]) for item in report["samples"])
+        if sys.platform == "win32":
+            report["peak_sum_private_mib"] = max(sum(p["private_mib"] for p in item["processes"]) for item in report["samples"])
+        else:
+            # USS : pages propres à chaque processus ; la PSS ajoute la part des pages partagées (GGUF mappé).
+            report["peak_sum_uss_mib"] = max(sum(p["uss_mib"] for p in item["processes"]) for item in report["samples"])
+            report["peak_sum_pss_mib"] = max(sum(p["pss_mib"] or 0 for p in item["processes"]) for item in report["samples"])
         # Grandeur prévue par l'admission : baisse de mémoire disponible de l'hôte due au pilote.
         report["max_available_drop_mib"] = initial - report["minimum_available_mib"]
         write_json_atomic(output, report)
-        send_owned_console_interrupt(child)
+        send_owned_console_interrupt(child, "ollama")
         try:
             child.wait(30)
         except TimeoutError:

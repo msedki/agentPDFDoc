@@ -11,8 +11,9 @@ import yaml
 from services.runtime.artifacts import ROOT
 from services.runtime.supervisor import acquire_qdrant_lock, process_identity_valid, read_state, start
 
+# Superviseur détaché réel : Job Object et msvcrt sous Windows, groupe POSIX et flock sous Linux (W018).
 pytestmark = [pytest.mark.integration,
-              pytest.mark.skipif(sys.platform != "win32", reason="Windows native supervisor")]
+              pytest.mark.skipif(sys.platform not in {"win32", "linux"}, reason="Superviseur natif Windows ou Linux")]
 
 
 @pytest.fixture

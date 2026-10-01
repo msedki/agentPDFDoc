@@ -3,6 +3,7 @@ import asyncio
 import hashlib
 import json
 import sqlite3
+import ssl
 from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
@@ -194,12 +195,106 @@ def test_retrieval_comparison_checks_stopped_api_and_unloaded_llm_without_mutati
         return httpx.Response(200, json={"models": [{"name": "controlled"}] if llm_resident else []})
     actual_client = httpx.AsyncClient
     monkeypatch.setattr(comparison.httpx, "AsyncClient", lambda **kwargs: actual_client(**kwargs, transport=httpx.MockTransport(handler)))
+    # Double explicite du port : API arrêtée = refus de connexion (ECONNREFUSED), sinon un service écoute.
+    async def port_open(origin, timeout=comparison.API_PORT_PROBE_TIMEOUT_SECONDS):
+        return api_active
+    monkeypatch.setattr(comparison, "api_port_open", port_open)
     if api_active or llm_resident:
         with pytest.raises(ApiError):
             asyncio.run(comparison.assert_quiet(settings))
     else:
         asyncio.run(comparison.assert_quiet(settings))
     assert all(method == "GET" for method, path in requests)
+
+
+def test_retrieval_comparison_quiet_check_reaches_the_https_api_in_production(tmp_path, monkeypatch):
+    """C16 : en production l'API écoute en HTTPS ; la sonde vérifie le certificat du profil, comme le superviseur."""
+    from services.api.settings import Settings
+    settings = Settings(tmp_path, {"app": {"port": 8790}, "security": {"environment": "production", "tls_cert_file": "certs/api.pem", "tls_key_file": "certs/api.key"}})
+    urls, verifies, cafiles, context = [], [], [], object()
+    monkeypatch.setattr(comparison.ssl, "create_default_context", lambda cafile=None: cafiles.append(cafile) or context)
+    def handler(request):
+        urls.append(str(request.url))
+        return httpx.Response(200, json={"status": "alive"} if request.url.path.endswith("/health") else {"models": []})
+    actual_client = httpx.AsyncClient
+    def client(**kwargs):
+        # Double explicite : transport simulé, aucune connexion TLS ouverte.
+        verifies.append(kwargs.pop("verify", True))
+        return actual_client(**kwargs, transport=httpx.MockTransport(handler))
+    monkeypatch.setattr(comparison.httpx, "AsyncClient", client)
+    probed = []
+    async def port_open(origin, timeout=comparison.API_PORT_PROBE_TIMEOUT_SECONDS):
+        probed.append(origin)
+        return True
+    monkeypatch.setattr(comparison, "api_port_open", port_open)
+    with pytest.raises(ApiError, match="Arrêter l'API"):
+        asyncio.run(comparison.assert_quiet(settings))
+    assert probed == ["https://127.0.0.1:8790"]
+    assert urls == ["https://127.0.0.1:8790/api/v1/health"]
+    assert cafiles == [str((tmp_path / "certs/api.pem").resolve())] and verifies[0] is context
+
+
+@pytest.mark.parametrize("failure,expected", [("tls", "comparison_api_tls_unverified"), ("connect", "comparison_api_unverified"),
+                                              ("timeout", "comparison_api_unverified")])
+def test_retrieval_comparison_quiet_check_never_takes_an_unidentified_listener_for_a_stopped_api(tmp_path, monkeypatch, failure, expected):
+    """Revue A1 : seul un refus de connexion prouve l'arrêt ; un service qui écoute sans répondre à la sonde arrête le comparatif."""
+    from services.api.settings import Settings
+    settings = Settings(tmp_path, {"app": {"port": 8790}, "security": {"environment": "production", "tls_cert_file": "certs/api.pem", "tls_key_file": "certs/api.key"}})
+    monkeypatch.setattr(comparison.ssl, "create_default_context", lambda cafile=None: object())
+    def handler(request):
+        if not request.url.path.endswith("/health"):
+            return httpx.Response(200, json={"models": []})
+        if failure == "tls":
+            # Chaîne levée par httpx quand le certificat servi n'est pas celui du profil (essai réel : test_api_tls.py).
+            try:
+                raise ssl.SSLCertVerificationError(1, "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed")
+            except ssl.SSLError as error:
+                raise httpx.ConnectError(str(error), request=request) from error
+        if failure == "connect":
+            raise httpx.ConnectError("Controlled connection reset after accept", request=request)
+        raise httpx.ReadTimeout("Controlled silent listener", request=request)
+    actual_client = httpx.AsyncClient
+    monkeypatch.setattr(comparison.httpx, "AsyncClient", lambda **kwargs: actual_client(
+        **{key: value for key, value in kwargs.items() if key != "verify"}, transport=httpx.MockTransport(handler)))
+    async def port_open(origin, timeout=comparison.API_PORT_PROBE_TIMEOUT_SECONDS):
+        return True
+    monkeypatch.setattr(comparison, "api_port_open", port_open)
+    with pytest.raises(ApiError) as refused:
+        asyncio.run(comparison.assert_quiet(settings))
+    assert refused.value.code == expected and refused.value.status == 409
+
+
+def test_retrieval_comparison_port_probe_reports_only_a_real_refusal_as_stopped():
+    """ECONNREFUSED réel sur loopback : port fermé = API arrêtée ; port en écoute = service présent."""
+    import socket
+    with socket.socket() as listener:
+        listener.bind(("127.0.0.1", 0))
+        listener.listen()
+        port = listener.getsockname()[1]
+        assert asyncio.run(comparison.api_port_open(f"https://127.0.0.1:{port}")) is True
+    assert asyncio.run(comparison.api_port_open(f"https://127.0.0.1:{port}")) is False
+
+
+def test_retrieval_comparison_quiet_check_names_the_profile_certificate_when_it_cannot_be_read(tmp_path):
+    """Revue J5 : en production, un service écoute (socket réelle) et `security.tls_cert_file` désigne un fichier absent.
+
+    Le comparatif reste refusé, par une erreur 409 qui nomme la clé du profil, au lieu d'un FileNotFoundError brut.
+    """
+    import socket
+
+    from services.api.settings import Settings
+    with socket.socket() as listener:
+        listener.bind(("127.0.0.1", 0))
+        listener.listen()
+        port = listener.getsockname()[1]
+        settings = Settings(tmp_path, {"app": {"port": port}, "security": {"environment": "production", "tls_cert_file": "certs/absent.pem",
+                                                                           "tls_key_file": "certs/absent.key"}})
+        with pytest.raises(ApiError) as refused:
+            asyncio.run(comparison.assert_quiet(settings))
+    assert (refused.value.code, refused.value.status) == ("comparison_api_certificate_unreadable", 409)
+    assert "security.tls_cert_file" in refused.value.message
+    assert refused.value.details == {"tls_cert_file": str((tmp_path / "certs/absent.pem").resolve()), "reason": "FileNotFoundError"}
+    assert isinstance(refused.value.__cause__, FileNotFoundError)
 
 
 def test_retrieval_comparison_percentiles_and_storage_use_actual_files(tmp_path):

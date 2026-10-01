@@ -1,12 +1,20 @@
 """Bounded vector cleanup keeps SQLite source records and citation snapshots intact."""
 import asyncio
 import json
+import logging
 
+from .background import FailureLog, finish, log_unexpected_end
 from .db import now
 from .errors import ApiError
 
+logger = logging.getLogger("rag.reconcile")
+
 
 class Reconciler:
+    # Pause entre deux passes, et reprise bornée après une passe en erreur (SQLite verrouillé, Qdrant muet).
+    interval_seconds = 1.0
+    retry_max_seconds = 60.0
+
     def __init__(self, db, vectors):
         self.db, self.vectors = db, vectors
         self.suspended = False
@@ -16,6 +24,7 @@ class Reconciler:
 
     def start(self):
         self._task = asyncio.create_task(self.loop())
+        log_unexpected_end(self._task, "de nettoyage vectoriel", lambda: self._closing, logger)
 
     def pinned(self):
         queries = {generation for row in self.db.rows("SELECT snapshot_json FROM query_runs WHERE state IN ('queued','running')")
@@ -54,14 +63,20 @@ class Reconciler:
         return {"completed": completed, "pinned": sorted(pinned), "staged": self.inspect()}
 
     async def loop(self):
+        """Passe de nettoyage chaque seconde ; une passe en erreur est journalisée et retentée après une attente croissante, plafonnée."""
+        failures = FailureLog(logger, self.interval_seconds, self.retry_max_seconds)
         while not self._closing:
+            delay = self.interval_seconds
             if not self.suspended:
                 self._busy = True
                 try:
                     await self.run_once()
+                    failures.success()
+                except Exception as error:
+                    delay = failures.failure("Passe de nettoyage vectoriel en erreur", error)
                 finally:
                     self._busy = False
-            await asyncio.sleep(1)
+            await asyncio.sleep(delay)
 
     async def quiesce(self):
         self.suspended = True
@@ -70,5 +85,4 @@ class Reconciler:
 
     async def close(self):
         self._closing = True
-        if self._task:
-            await self._task
+        await finish(self._task)

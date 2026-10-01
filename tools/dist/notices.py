@@ -12,6 +12,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from services.runtime.platforms import entries_for_platform
+
 # Nom qui porte le mot comme élément distinct : LICENSE, LICENSE.txt, LLAMA_CPP_LICENSE, DLFCN_WIN32_COPYING, XGRAMMAR_NOTICE.
 LICENSE_FILE = re.compile(r"(?i)(^|[-_.])(licen[cs]es?|notices?|copying|copyright|third[-_ ]?party[-_ ]?notices?)([-_.]|$)")
 
@@ -21,12 +23,16 @@ def license_files(files: list[str], prefix: str) -> list[str]:
     return [name for name in files if name.startswith(prefix) and LICENSE_FILE.search(name.rsplit("/", 1)[-1])]
 
 
-def artifact_rows(lock: dict[str, Any], files: list[str]) -> list[dict[str, Any]]:
-    """Une ligne par composant et version ; les textes de licence sont cherchés dans les dossiers de ses fichiers."""
+def artifact_rows(lock: dict[str, Any], files: list[str], platform: str = "windows-x86_64") -> list[dict[str, Any]]:
+    """Une ligne par composant et version ; les textes de licence sont cherchés dans les dossiers de ses fichiers.
+
+    Seules les entrées de la plateforme du kit sont livrées, selon la règle du provisionnement (`entries_for_platform` :
+    sans champ `platform`, partout ; sinon la plateforme nommée ou l'une de celles listées).
+    """
     present = set(files)
     rows: dict[tuple[str, str], dict[str, Any]] = {}
     for group, entries in lock["groups"].items():
-        for entry in entries if isinstance(entries, list) else [entries]:
+        for entry in entries_for_platform(entries if isinstance(entries, list) else [entries], platform):
             location = str(entry.get("extract_to") or entry.get("target") or "").strip("/")
             folder = location.rsplit("/", 1)[0] if location in present else location
             key = (str(entry.get("model_id") or group), str(entry.get("version") or entry.get("revision") or ""))
@@ -36,9 +42,9 @@ def artifact_rows(lock: dict[str, Any], files: list[str]) -> list[dict[str, Any]
     return list(rows.values())
 
 
-def third_party_notices(root: Path, files: list[str], version: str) -> str:
+def third_party_notices(root: Path, files: list[str], version: str, platform: str = "windows-x86_64") -> str:
     lock = json.loads((root / "config/artifacts.lock.json").read_text(encoding="utf-8"))
-    rows = artifact_rows(lock, files)
+    rows = artifact_rows(lock, files, platform)
     lines = [f"# Avis de tiers — Atelier documentaire {version}", "",
              "Composants livrés par ce kit, avec la licence déclarée par le verrou du projet (`config/artifacts.lock.json`) et les textes "
              "de licence effectivement présents dans le kit. Ce document n'est pas un avis juridique : les manques listés en fin de "

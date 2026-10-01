@@ -9,6 +9,7 @@ bouclage sont admises. Aucune écriture, aucun import, aucune question.
 Limite : contrôle applicatif ; il ne prouve pas le blocage réseau du système (D08.1).
 
     .venv\\Scripts\\python.exe tools/qualification/http_guards_check.py [--profile config/local16.yaml] --report <rapport.json>
+    .venv/bin/python tools/qualification/http_guards_check.py [--profile config/local16.yaml] --report <rapport.json>
 """
 
 from __future__ import annotations

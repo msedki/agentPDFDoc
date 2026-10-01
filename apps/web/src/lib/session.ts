@@ -3,6 +3,7 @@
  * (cookie HttpOnly) ; il relit seulement le jeton anti-falsification, lisible, pour
  * l'envoyer dans X-CSRF-Token sur les requêtes qui modifient.
  */
+import { knownLauncherCommands, launcherShell, openCommandChoices, type LauncherCommands } from "./launcher.ts";
 
 export type SessionEndReason = "session_required" | "session_expired" | "session_closed" | "link_invalid";
 export type SessionState = {
@@ -11,7 +12,6 @@ export type SessionState = {
 };
 
 export const SESSION_ENDED_EVENT = "rag:session-ended";
-export const OPEN_COMMAND = ".\\rag.ps1 open";
 const CSRF_COOKIES = ["__Host-rag_csrf", "rag_csrf"];
 
 /** Jeton CSRF lu dans une chaîne `document.cookie` ; le nom préfixé de la production l'emporte. */
@@ -46,19 +46,25 @@ export function announceSessionEnd(reason: SessionEndReason): void {
   if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent<SessionEndReason>(SESSION_ENDED_EVENT, { detail: reason }));
 }
 
-export function sessionScreen(reason: SessionEndReason): { title: string; body: string } {
+/**
+ * Écran de réouverture ; la commande elle-même vient du poste (`openCommandChoices`). Quand l'écran
+ * affiche une ligne par système (commande d'ouverture non annoncée), le texte dit de choisir la sienne.
+ */
+export function sessionScreen(reason: SessionEndReason, commands: LauncherCommands | null = knownLauncherCommands()): { title: string; body: string } {
+  const shell = launcherShell(commands);
+  const command = openCommandChoices(commands).length > 1 ? "la commande de votre système ci-dessous" : "la commande ci-dessous";
   switch (reason) {
     case "session_required":
       return { title: "Session requise",
-        body: "L'atelier s'ouvre avec un lien à usage unique délivré sur ce poste. Dans PowerShell, depuis le dossier du projet, lancez la commande ci-dessous : elle ouvre l'atelier dans un nouvel onglet." };
+        body: `L'atelier s'ouvre avec un lien à usage unique délivré sur ce poste. ${shell[0].toUpperCase()}${shell.slice(1)}, depuis le dossier du projet, lancez ${command} : elle ouvre l'atelier dans un nouvel onglet.` };
     case "session_expired":
       return { title: "Session expirée",
-        body: "La session s'est fermée après une période sans activité ou a atteint sa durée maximale. Rouvrez l'atelier avec la commande ci-dessous ; documents, index et conversations enregistrés restent intacts." };
+        body: `La session s'est fermée après une période sans activité ou a atteint sa durée maximale. Rouvrez l'atelier avec ${command} ; documents, index et conversations enregistrés restent intacts.` };
     case "session_closed":
       return { title: "Session fermée",
-        body: "La session de ce navigateur est fermée. Pour reprendre le travail, rouvrez l'atelier avec la commande ci-dessous." };
+        body: `La session de ce navigateur est fermée. Pour reprendre le travail, rouvrez l'atelier avec ${command}.` };
     case "link_invalid":
       return { title: "Lien d'ouverture expiré ou déjà utilisé",
-        body: "Chaque lien d'ouverture ne sert qu'une fois et expire après quelques minutes. Demandez-en un nouveau avec la commande ci-dessous." };
+        body: `Chaque lien d'ouverture ne sert qu'une fois et expire après quelques minutes. Demandez-en un nouveau avec ${command}.` };
   }
 }

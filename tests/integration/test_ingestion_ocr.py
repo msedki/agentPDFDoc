@@ -3,6 +3,7 @@
 import hashlib
 import json
 import os
+import struct
 import subprocess
 import sys
 import zlib
@@ -11,8 +12,83 @@ from pathlib import Path
 import pytest
 
 from services.ingestion import preflight_pdf
+from services.runtime.platforms import native_executable
 
 pytestmark = [pytest.mark.integration, pytest.mark.slow]
+
+# Police de la fixture : Arial sous Windows, comme jusqu'ici ; ailleurs Liberation Sans Regular seule, police libre
+# aux métriques d'Arial (mêmes chasses, donc même mise en page des cellules). Aucune autre police n'est substituée :
+# DejaVu Sans, par exemple, a d'autres chasses. Texte, corps et positions sont inchangés.
+FONT_SEARCH_ROOTS = (Path("/usr/share/fonts"), Path("/usr/local/share/fonts"),
+                     Path.home() / ".local/share/fonts", Path.home() / ".fonts")
+LIBERATION_SANS_MISSING = ("Police de fixture Liberation Sans Regular (métriques d'Arial) introuvable sous /usr/share/fonts, "
+                           "/usr/local/share/fonts, ~/.local/share/fonts ou ~/.fonts : l'installer (paquet fonts-liberation2 "
+                           "sous Ubuntu 20.04) pour exécuter cet essai OCR ; aucune autre police n'est substituée.")
+
+
+def _font_revision(path):
+    """Révision déclarée par la table `head` du fichier TrueType (2.1 pour Liberation 2.1.0)."""
+    data = path.read_bytes()
+    for index in range(struct.unpack(">H", data[4:6])[0]):
+        tag, _, offset, _ = struct.unpack(">4sIII", data[12 + 16 * index:28 + 16 * index])
+        if tag == b"head":
+            return round(struct.unpack(">i", data[offset + 4:offset + 8])[0] / 65536, 4)
+    return 0.0
+
+
+def fixture_font():
+    """Arial sous Windows ; ailleurs le Liberation Sans Regular de plus haute révision, sinon essai ignoré."""
+    if sys.platform == "win32":
+        font_path = Path(os.environ.get("WINDIR", "C:/Windows")) / "Fonts/arial.ttf"
+        if not font_path.is_file():
+            pytest.skip("Police de fixture Windows Arial indisponible.")
+        return font_path
+    from PIL import ImageFont
+
+    candidates = sorted({path.resolve() for root in FONT_SEARCH_ROOTS if root.is_dir()
+                         for path in root.rglob("LiberationSans-Regular.ttf") if path.is_file()})
+    candidates = [path for path in candidates if ImageFont.truetype(str(path), 29).getname() == ("Liberation Sans", "Regular")]
+    if not candidates:
+        pytest.skip(LIBERATION_SANS_MISSING)
+    return max(candidates, key=lambda path: (_font_revision(path), str(path)))
+
+
+def fixture_font_evidence(font_path):
+    return {"font_path": str(font_path), "font_sha256": hashlib.sha256(font_path.read_bytes()).hexdigest(),
+            "font_revision": _font_revision(font_path), "platform": sys.platform}
+
+
+@pytest.fixture(autouse=True)
+def recorded_fixture_font(record_property):
+    """Police de la fixture consignée dans le rapport JUnit de chaque essai de ce module."""
+    for key, value in fixture_font_evidence(fixture_font()).items():
+        record_property(key, value)
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="Sous Windows, la fixture utilise Arial, comme avant W018.")
+def test_fixture_font_is_liberation_sans_only_outside_windows(tmp_path, monkeypatch):
+    """Sans Liberation Sans, l'essai est ignoré avec son motif ; aucune autre police, même renommée, n'est prise."""
+    fonts = tmp_path / "fonts"
+    dejavu = Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")
+    if dejavu.is_file():
+        # Autre famille sous le nom attendu : refusée sur le nom interne de la police.
+        (fonts / "faux").mkdir(parents=True)
+        (fonts / "faux/LiberationSans-Regular.ttf").write_bytes(dejavu.read_bytes())
+        (fonts / "faux/DejaVuSans.ttf").write_bytes(dejavu.read_bytes())
+    monkeypatch.setattr(sys.modules[__name__], "FONT_SEARCH_ROOTS", (fonts,))
+    with pytest.raises(pytest.skip.Exception, match="Liberation Sans Regular"):
+        fixture_font()
+    installed = {_font_revision(path): path for path in Path("/usr/share/fonts").rglob("LiberationSans-Regular.ttf")} \
+        if Path("/usr/share/fonts").is_dir() else {}
+    if not installed:
+        return
+    for index, path in enumerate(installed.values()):
+        copy = fonts / f"v{index}/LiberationSans-Regular.ttf"
+        copy.parent.mkdir(parents=True)
+        copy.write_bytes(path.read_bytes())
+    chosen = fixture_font()
+    assert _font_revision(chosen) == max(installed)
+    assert fixture_font_evidence(chosen)["font_sha256"] == hashlib.sha256(installed[max(installed)].read_bytes()).hexdigest()
 
 
 def extract_in_fresh_worker(source, output_dir, config, version_id):
@@ -32,9 +108,9 @@ def extract_in_fresh_worker(source, output_dir, config, version_id):
 def write_printed_pdf(path, native=True, image_rotation=0):
     from PIL import Image, ImageDraw, ImageFont
 
-    font_path = Path(os.environ.get("WINDIR", "C:/Windows")) / "Fonts/arial.ttf"
-    if not font_path.is_file():
-        pytest.skip("Police de fixture Windows Arial indisponible.")
+    font_path = fixture_font()
+    # Preuve à côté du PDF : chemin, SHA-256 et révision de la police qui a dessiné la fixture.
+    Path(path).with_name(Path(path).stem + "-font.json").write_text(json.dumps(fixture_font_evidence(font_path)), encoding="utf-8")
     image = Image.new("RGB", (1000, 600), "white")
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype(str(font_path), 29)
@@ -84,6 +160,8 @@ def actual_profile():
     import yaml
 
     profile = yaml.safe_load(Path("config/local16.yaml").read_text(encoding="utf-8-sig"))
+    # Même commande que celle que l'API transmet au worker : sans `.exe` hors Windows (W018), inchangée sous Windows.
+    profile["pdf"]["tesseract_cmd"] = native_executable(profile["pdf"]["tesseract_cmd"])
     if os.environ.get("RAG_TEST_PDF_BACKEND"):
         profile["pdf"]["pdf_backend"] = os.environ["RAG_TEST_PDF_BACKEND"]
     if os.environ.get("RAG_TEST_OCR_DERIVATIVES") == "intrinsic_and_border":

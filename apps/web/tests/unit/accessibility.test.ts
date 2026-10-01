@@ -52,6 +52,7 @@ test("current text rules keep WCAG AA 4.5:1 on their declared backgrounds", () =
     [".readiness-notice", ".readiness-notice"], [".workspace-error", ".workspace-error"], [".panel-message", ".panel-message"], [".panel-message-error", ".panel-message-error"], [".panel-message-error span", ".panel-message-error"],
     [".source-navigation strong", ".source-navigation"], [".document-tools-menu .document-tools-hash", ".document-tools-menu"], [".reader-footer", ".reader-footer"], [".result-count", ".analysis-panel"],
     [".query-status", ".analysis-panel"], [".question-message small", ".analysis-panel"], [".job-heading > span", ".sheet"], [".scope-help", ".scope-popover"],
+    [".session-command .session-system", ".session-command"],
   ];
   // Les fonds translucides (survol de la bibliothèque) sont composés sur le fond de leur panneau.
   const panel = resolve(declaration(".library-panel", "background"), page);

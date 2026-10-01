@@ -52,7 +52,8 @@ def test_restore_stores_sit_beside_the_short_storage_and_init_refuses_them_when_
     root = tmp_path / "utilisateur"
     profile = user_profile(base, root, qdrant_storage=tmp_path / "court" / "q", ports=ports(), program_root=tmp_path / "programme", storage_max=1000)
     assert profile["runtime"]["restore_storage_dir"] == str((tmp_path / "court" / "qr").resolve())
-    monkeypatch.setattr("services.runtime.profile_setup.os.name", "nt")
+    # Borne du binaire Windows exercée sur tout poste, sans changer os.name (pathlib en dépend sous Linux).
+    monkeypatch.setattr("services.runtime.profile_setup.qdrant_path_bounded", lambda: True)
     storage = (root / "q").resolve()
     main, restores = len(str(storage / "storage")), len(str(storage.with_name("qr") / ("0" * 8) / "storage"))
     assert restores > main
@@ -65,7 +66,8 @@ def test_profile_refuses_a_root_inside_the_program_a_long_qdrant_path_and_busy_o
     base = yaml.safe_load(BASE.read_text(encoding="utf-8"))
     with pytest.raises(ValueError, match="hors du dossier du programme"):
         user_profile(base, tmp_path / "programme" / "donnees", ports=ports(), program_root=tmp_path / "programme", storage_max=1000)
-    monkeypatch.setattr("services.runtime.profile_setup.os.name", "nt")
+    # Borne du binaire Windows exercée sur tout poste, sans changer os.name (pathlib en dépend sous Linux).
+    monkeypatch.setattr("services.runtime.profile_setup.qdrant_path_bounded", lambda: True)
     with pytest.raises(ValueError, match="Stockage Qdrant trop long"):
         user_profile(base, tmp_path / ("u" * 80), ports=ports(), program_root=tmp_path / "programme")
     chosen = ports()

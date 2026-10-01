@@ -6,6 +6,8 @@
  * pas affiché brut : il reçoit un libellé explicite et reste disponible dans
  * `code` pour l'info-bulle ou le diagnostic.
  */
+import type { DocumentState, JobState } from "./types.ts";
+
 export type Tone = "neutral" | "info" | "success" | "warning" | "destructive";
 export type StatusView = { label: string; tone: Tone; code: string; known: boolean };
 type Entry = readonly [label: string, tone: Tone];
@@ -16,7 +18,7 @@ function view(table: Record<string, Entry>, code: string | null | undefined, unk
   return entry ? { label: entry[0], tone: entry[1], code: value, known: true } : { label: unknown, tone: "neutral", code: value, known: false };
 }
 
-/** États de document du contrat (`document.state`) et états transitoires du suivi. */
+/** États de document du contrat (`document.state`, tous exigés à la compilation) et états hérités ou transitoires. */
 export const documentStates = {
   imported: ["Importé", "neutral"],
   queued: ["En attente", "neutral"],
@@ -31,7 +33,7 @@ export const documentStates = {
   paused: ["En pause", "warning"],
   cancelled: ["Traitement annulé", "neutral"],
   waiting_for_ingestion_checkpoint: ["Mise en pause en cours", "warning"],
-} as const satisfies Record<string, Entry>;
+} as const satisfies Record<DocumentState, Entry> & Record<string, Entry>;
 
 export function documentStatus(state: string | null | undefined): StatusView {
   return view(documentStates, state, "État de document non reconnu");
@@ -65,7 +67,7 @@ export const jobStates = {
   ready_partial: ["Extraction partielle", "warning"],
   error: ["Échec", "destructive"],
   failed: ["Échec", "destructive"],
-} as const satisfies Record<string, Entry>;
+} as const satisfies Record<JobState, Entry> & Record<string, Entry>;
 
 export function jobStatus(state: string | null | undefined): StatusView {
   return view(jobStates, state, "État de traitement non reconnu");

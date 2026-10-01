@@ -191,7 +191,7 @@ def registry_row(root: Path, path: Path, category: str) -> str:
 
 def test_registry_real_repository():
     detail = vp.registry_check()
-    assert len(detail['pack']) == 5 and len(detail['project']) == 6
+    assert len(detail['pack']) == 5 and len(detail['project']) == 7
     assert set(detail['third_party']) >= {'backend-patterns', 'agent-introspection-debugging', 'frontend-design',
                                           'frontend-skill', 'SKILL.md', 'openai.yaml'}
 

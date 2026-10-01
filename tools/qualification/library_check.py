@@ -13,6 +13,7 @@ rapport ; aucun cas ne touche la bibliothèque de l'utilisateur.
     size      PDF au-delà de la limite du profil : refus 413, aucun document créé (D02.8 ; instance lancée avec --max-file-mib)
 
     .venv\\Scripts\\python.exe tools/qualification/library_check.py <cas> --instance <etat.json> --report <rapport.json>
+    .venv/bin/python tools/qualification/library_check.py <cas> --instance <etat.json> --report <rapport.json>
 """
 
 from __future__ import annotations

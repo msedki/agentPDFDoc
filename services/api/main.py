@@ -14,6 +14,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response, StreamingResponse
 from starlette.staticfiles import StaticFiles
 
+from services.runtime.platforms import launcher_command
+
 from .context import ContextBuilder, LlmTokenizer
 from .db import Database, json_dump, now, relative_pdf_path, uid
 from .embedding import EmbeddingService
@@ -35,7 +37,7 @@ PUBLIC_PATHS = frozenset({"/api/v1/health", "/api/v1/readiness", "/api/v1/sessio
 
 def create_app(profile_path=None, governor=None, ingestion_runner=None, *, settings=None, embedding=None, vectors=None, ollama=None, tokenizer=None, start_jobs=True):
     settings = settings or Settings.load(profile_path)
-    db = Database(settings.db_path)
+    db = Database.from_settings(settings)
     embedding = embedding or EmbeddingService(settings)
     vectors = vectors or QdrantStore(settings)
     ollama = ollama or OllamaGateway(settings)
@@ -95,6 +97,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         await reconciler.close()
         await vectors.close()
         await ollama.close()
+        sessions.close()
 
     # Documentation interactive de l'API : diagnostic local en développement, absente en production.
     application = FastAPI(title="RAG PDF local", version="0.1.0", lifespan=lifespan, redoc_url=None,
@@ -336,9 +339,12 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         finally:
             governor.finish_interactive() if governor else None
 
+    # Commandes du lanceur de ce poste (W018), citées par l'atelier : « .\\rag.ps1 … » sous Windows, « ./rag.sh … » sous Linux.
+    launcher_commands = {action: launcher_command(action) for action in ("open", "status", "logs", "doctor")}
+
     @application.get(prefix + "/health")
     async def health():
-        return {"status": "alive", "service": "rag-api"}
+        return {"status": "alive", "service": "rag-api", "commands": dict(launcher_commands)}
 
     @application.get(prefix + "/readiness")
     async def readiness():
@@ -495,8 +501,21 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         existing = db.one("SELECT id FROM jobs WHERE document_id=? AND state IN ('queued','extracting','indexing')", (document_id,))
         if existing:
             return {"job_id": existing["id"], "reused": True}
+        # Un travail en pause de cette version est renvoyé, à reprendre (POST /jobs/{id}/resume), jamais doublé par un
+        # second qui recommencerait l'extraction dans un autre dossier. Pendant `pausing`, il n'est pas encore reprenable :
+        # refus explicite, sans travail créé. Un travail en cours d'annulation n'est pas repris : l'annulation est
+        # définitive et la demande crée un travail neuf, que la file séquentielle n'exécute qu'après l'annulation.
+        latest = db.one("SELECT id,state FROM jobs WHERE version_id=? ORDER BY created_at DESC LIMIT 1", (version["id"],))
+        if latest and latest["state"] == "paused":
+            return {"job_id": latest["id"], "version_id": version["id"], "reused": True, "job_state": "paused", "resume_required": True}
+        if latest and latest["state"] == "pausing":
+            raise ApiError("job_pausing", "Mise en pause en cours pour ce document : attendre qu'elle aboutisse, puis reprendre ce travail depuis le Suivi.", 409,
+                           {"job_id": latest["id"], "version_id": version["id"], "job_state": "pausing"})
         job_id = uid()
-        db.execute("INSERT INTO jobs(id,document_id,version_id,state,stage,created_at,updated_at) VALUES(?,?,?,'queued','queued',?,?)", (job_id, document_id, version["id"], now(), now()))
+        with db.transaction() as connection:
+            connection.execute("INSERT INTO jobs(id,document_id,version_id,state,stage,created_at,updated_at) VALUES(?,?,?,'queued','queued',?,?)", (job_id, document_id, version["id"], now(), now()))
+            # Document non publié : il affiche son dernier travail, désormais en file (et non l'annulation ou l'erreur qui précède).
+            db.align_document_states(connection, [document_id])
         return {"job_id": job_id, "version_id": version["id"], "reused": False}
 
     @application.get(prefix + "/versions/{version_id}/file")
@@ -656,7 +675,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         return {"python": platform.python_version(), "sqlite": sqlite3.sqlite_version, "platform": platform.system(),
                 "logical_cores": os.cpu_count(), "database_bytes": settings.db_path.stat().st_size if settings.db_path.exists() else 0,
                 "resources": governor.snapshot() if governor else {"status": "not_configured"},
-                "security": {"environment": policy.environment, "active_sessions": sessions.active_count()},
+                "security": {"environment": policy.environment, "active_sessions": sessions.active_count(), "audit_log": sessions.audit_state()},
                 "runtime_network": "loopback_only", "active_queries": len(queries.tasks), "dense_identity": dense_identity, "qdrant_collection": collection,
                 "llm_tokenizer_identity": tokenizer_identity, "selector_sha256": selector_identity(),
                 "embedding_session": embedding.lifecycle() if hasattr(embedding, "lifecycle") else {"status": "explicit_test_substitute"},

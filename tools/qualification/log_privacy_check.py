@@ -10,6 +10,7 @@ Contrôle Git : les chemins des originaux, du corpus `PDF/`, des modèles et des
 suivi sous `PDF/` ou `.runtime/`, aucun poids de modèle suivi, et les seuls PDF suivis sont des fixtures synthétiques.
 
     .venv\\Scripts\\python.exe tools/qualification/log_privacy_check.py [--profile config/local16.yaml] --report <rapport.json>
+    .venv/bin/python tools/qualification/log_privacy_check.py [--profile config/local16.yaml] --report <rapport.json>
 """
 
 from __future__ import annotations

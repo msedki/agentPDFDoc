@@ -1,6 +1,6 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 ## Règle de clôture
 
@@ -8,7 +8,7 @@ Un critère est `PASS` uniquement avec une preuve reproductible associée au com
 
 Les seuils suivants sont des objectifs de recette, pas des performances déjà atteintes. Ne pas les diminuer après un échec pour afficher un succès. Une modification approuvée du périmètre exige une nouvelle baseline, une justification et une nouvelle recette.
 
-**Qualification par plateforme (W018, 01/10/2026).** Le produit cible Windows 11 x86-64 (W001) et Linux aarch64 (W018). Les cases et preuves des sections D01 à D11 portent la qualification Windows acquise jusqu'au 01/10 ; une preuve vaut pour la machine qu'elle déclare. La plateforme Linux aarch64 est qualifiée séparément, dans le tableau « Qualification Linux aarch64 » en fin de document, avec les mêmes critères et les mêmes seuils ; aucune preuve Linux ne coche une case Windows, et réciproquement.
+**Qualification par plateforme (W018, 01/10/2026).** Le produit cible toute machine Windows 11 x86-64 (W001) et Linux natif aarch64 ou x86-64 (W018 et son complément). Les cases et preuves des sections D01 à D11 portent la qualification Windows acquise jusqu'au 01/10 ; une preuve vaut pour la machine qu'elle déclare. La plateforme Linux est qualifiée séparément, dans le tableau « Qualification Linux » en fin de document, avec les mêmes critères et les mêmes seuils ; aucune preuve Linux ne coche une case Windows, et réciproquement.
 
 La validation sur fixtures et la validation sur documents métier réels sont distinctes. Si aucun corpus privé autorisé n'est disponible, produire les fixtures synthétiques, réaliser tout ce qui est testable et marquer la qualification métier `BLOCKED — corpus métier absent`. Ne pas présenter cette limite comme un échec général de l'application ni inventer un corpus représentatif.
 
@@ -207,9 +207,9 @@ Preuve01/10/2026 (D10.3) : schéma OpenAPI officiel du tag Qdrant v1.19.1 consul
 
 **Preuves :** registre de décision/source, diff des fichiers, références des skills lus/utilisés, résultats des tests de contrat/migration/skills et limites explicites. Ces critères concernent le travail des agents, pas des fonctionnalités réseau du produit.
 
-## Qualification Linux aarch64 (W018)
+## Qualification Linux (W018)
 
-Poste : Jetson AGX Orin Developer Kit, L4T R35.4.1, Ubuntu 20.04.6, glibc 2.31, `MODE_30W` (8 cœurs en ligne), 61 Gio. Statuts permis : `NOT_RUN`, `PASS`, `FAIL`, `BLOCKED`, avec preuve liée au commit, à la configuration, au corpus et à la machine. Tenu par le lot J8 du [plan](PLAN.md).
+Poste de qualification Linux aarch64 : Jetson AGX Orin Developer Kit, L4T R35.4.1, Ubuntu 20.04.6, glibc 2.31, `MODE_30W` (8 cœurs en ligne), 61 Gio. Statuts permis : `NOT_RUN`, `PASS`, `FAIL`, `BLOCKED`, avec preuve liée au commit, à la configuration, au corpus et à la machine. Linux x86-64 : verrou et artefacts résolus, aucune machine de qualification à ce jour ; ses critères restent `NOT_RUN`. Tenu par le lot J8 du [plan](PLAN.md).
 
 | Section | Statut Linux | Preuve et limite |
 |---|---|---|

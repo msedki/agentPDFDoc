@@ -1,20 +1,19 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, ChevronDown, ChevronRight, CircleAlert, Crosshair, FileText, Folder as FolderIcon, FolderPlus, ListChecks, RefreshCw, Search, Upload } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, CircleAlert, Crosshair, FileText, Folder as FolderIcon, FolderPlus, ListChecks, Play, RefreshCw, Search, Upload } from "lucide-react";
 import { api } from "@/lib/api";
 import { useWorkspace } from "@/lib/store";
-import { errorMessage } from "@/lib/utils";
+import { importOutcome, resumedNotice, resumeLabel } from "@/lib/import-outcome";
 import { documentRecordStatus } from "@/lib/status";
 import { isServiceUnavailable, libraryView, selectedDocumentsSentence } from "@/lib/panel-state";
 import type { DocumentRecord, Folder, LibraryTree } from "@/lib/types";
 import { Button } from "./ui/button";
 import { ActionButton } from "./ui/action-button";
+import { useErrorText, type Failure } from "./ui/error-text";
 import { PanelEmpty, PanelError, PanelHeader, PanelLoading } from "./ui/panel";
 import { StatusIndicator } from "./ui/status-indicator";
 
-function ignoredSentence(count: number) { return count === 1 ? "1 fichier non PDF ignoré" : `${count} fichiers non PDF ignorés`; }
-function receivedSentence(count: number) { return count === 1 ? "1 PDF reçu par le service" : `${count} PDF reçus par le service`; }
 function documentsLabel(documents: DocumentRecord[]) { return documents.length === 1 ? documents[0].name : `${documents.length} documents sélectionnés`; }
 
 /** Actions de la bibliothèque déclenchées depuis le rail, alors que le panneau est replié. */
@@ -43,7 +42,11 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
   const [closed, setClosed] = useState(new Set<string>());
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [notice, setNotice] = useState("");
-  const [openError, setOpenError] = useState("");
+  // Traitements en pause renvoyés par l'import d'un fichier identique (`resume_required`), à reprendre.
+  const [resumeJobs, setResumeJobs] = useState<string[]>([]);
+  // Échec d'ouverture gardé tel quel : son texte se calcule au rendu (useErrorText).
+  const [openError, setOpenError] = useState<Failure | null>(null);
+  const errorText = useErrorText();
   const [importIssue, setImportIssue] = useState("");
   const [importOrigin, setImportOrigin] = useState<"files" | "folder">("files");
   const ignored = useRef(0);
@@ -52,17 +55,28 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
   const folderInput = useRef<HTMLInputElement>(null);
   const importMutation = useMutation({
     mutationFn: (files: File[]) => api.import(files, setUploadProgress),
-    onSuccess: (_, files) => {
-      setNotice(`${receivedSentence(files.length)}${ignored.current ? ` ; ${ignoredSentence(ignored.current)}` : ""}. ${files.length === 1 ? "Son extraction et son indexation s'affichent" : "Leur extraction et leur indexation s'affichent"} dans le Suivi.`);
+    onSuccess: (response, files) => {
+      const outcome = importOutcome(response, files.length, ignored.current);
+      setNotice(outcome.notice); setResumeJobs(outcome.resumeJobs);
       setUploadProgress(null);
       void client.invalidateQueries({ queryKey: ["tree"] }); void client.invalidateQueries({ queryKey: ["jobs"] });
     },
     onError: () => setUploadProgress(null),
   });
-  const importFailure = importIssue || (importMutation.isError ? errorMessage(importMutation.error) : "");
+  const importFailure = importIssue || (importMutation.isError ? errorText(importMutation.error) : "");
+  // Reprise une à une ; un échec laisse à l'écran les traitements non repris, sous le bouton qui l'affiche.
+  const resumeImported = async () => {
+    const requested = resumeJobs.length;
+    for (const id of resumeJobs) {
+      await api.resumeJob(id);
+      setResumeJobs(current => current.filter(job => job !== id));
+    }
+    setNotice(resumedNotice(requested));
+    await Promise.all([client.invalidateQueries({ queryKey: ["tree"] }), client.invalidateQueries({ queryKey: ["jobs"] })]);
+  };
   const openDocument = async (document: DocumentRecord) => {
     const requestId = ++openRequest.current;
-    setOpenError("");
+    setOpenError(null);
     try {
       let version = document.active_version_id ?? document.version_id;
       if (!version) {
@@ -71,12 +85,12 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
       }
       if (requestId !== openRequest.current) return;
       if (version) state.open({ documentId: document.id, versionId: version, pageIndex: 0 });
-      else setOpenError(`« ${document.name} » n'a pas encore de version consultable : attendez la fin de son import dans le Suivi.`);
-    } catch (failure) { if (requestId === openRequest.current) setOpenError(errorMessage(failure)); }
+      else setOpenError({ error: new Error(`« ${document.name} » n'a pas encore de version consultable : attendez la fin de son import dans le Suivi.`) });
+    } catch (failure) { if (requestId === openRequest.current) setOpenError({ error: failure }); }
   };
   const imported = (files: FileList | null) => {
     if (!files?.length) return;
-    importMutation.reset(); setImportIssue(""); setNotice("");
+    importMutation.reset(); setImportIssue(""); setNotice(""); setResumeJobs([]);
     const pdfs = [...files].filter(file => file.name.toLocaleLowerCase().endsWith(".pdf"));
     ignored.current = files.length - pdfs.length;
     if (!pdfs.length) { setImportIssue("Aucun fichier PDF dans cette sélection : seuls les PDF sont importés."); return; }
@@ -113,7 +127,7 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
   const selectedDocuments = live.filter(document => state.selectedIds.includes(document.id));
   return <aside className="library-panel" aria-labelledby="library-heading">
     <PanelHeader title="Bibliothèque" id="library-heading"><div className="panel-heading-actions">{tree.data && <span className="count-pill" title="Documents présents dans la bibliothèque"><span className="sr-only">Documents présents : </span>{data.total_documents ?? live.length}</span>}{headerAction}</div></PanelHeader>
-    {tree.isError && <PanelError title={isServiceUnavailable(tree.error) ? "Service local indisponible" : "Lecture de la bibliothèque impossible"} message={view === "unavailable" ? errorMessage(tree.error) : `${errorMessage(tree.error)} La liste affichée date de la dernière lecture réussie.`} onRetry={() => void tree.refetch()} />}
+    {tree.isError && <PanelError title={isServiceUnavailable(tree.error) ? "Service local indisponible" : "Lecture de la bibliothèque impossible"} message={view === "unavailable" ? errorText(tree.error) : `${errorText(tree.error)} La liste affichée date de la dernière lecture réussie.`} onRetry={() => void tree.refetch()} />}
     {view === "loading" && <PanelLoading label="Chargement de la bibliothèque…" />}
     <div className="import-actions">
       <ActionButton variant="secondary" size="sm" onAction={() => chooseFiles("files")} disabled={importMutation.isPending} pending={importMutation.isPending && importOrigin === "files"} pendingLabel="Import en cours…" error={importOrigin === "files" ? importFailure : ""}><Upload size={16} />Importer des PDF</ActionButton>
@@ -124,7 +138,8 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
     <input ref={folderInput} type="file" multiple hidden {...({ webkitdirectory: "", directory: "" } as React.InputHTMLAttributes<HTMLInputElement>)} onChange={event => { imported(event.target.files); event.target.value = ""; }} />
     {uploadProgress !== null && <div className="upload-progress" role="status"><span>Transfert des fichiers · <span className="tabular">{Math.round(uploadProgress * 100)} %</span></span><progress max={1} value={uploadProgress} aria-label="Transfert des fichiers" /></div>}
     {notice && <p className="library-notice" role="status">{notice}</p>}
-    {openError && <p className="library-notice action-error" role="alert"><CircleAlert size={14} aria-hidden="true" />{openError}</p>}
+    {resumeJobs.length > 0 && <div className="library-resume"><ActionButton variant="secondary" size="sm" onAction={resumeImported} pendingLabel="Reprise…"><Play size={16} />{resumeLabel(resumeJobs.length)}</ActionButton></div>}
+    {openError && <p className="library-notice action-error" role="alert"><CircleAlert size={14} aria-hidden="true" />{errorText(openError.error)}</p>}
     <label className="library-filter"><Search size={14} aria-hidden="true" /><input ref={filterInput} aria-label="Filtrer les fichiers" placeholder="Nom ou chemin de fichier…" value={filter} onChange={event => setFilter(event.target.value)} /></label>
     <button className={`library-all ${state.scope.kind === "library" ? "is-active" : ""}`} title="Définir le périmètre sur toute la bibliothèque" aria-pressed={state.scope.kind === "library"} onClick={() => state.setScope({ kind: "library" }, "Toute la bibliothèque")}><FolderIcon size={16} /><span>Toute la bibliothèque</span>{state.scope.kind === "library" && <Check size={14} aria-hidden="true" />}</button>
     <div className="tree" role="navigation" aria-label="Arborescence documentaire">

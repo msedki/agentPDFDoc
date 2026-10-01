@@ -26,7 +26,7 @@ test("an empty library and a filter without match are distinct states", () => {
 const documentRecord = (id: string, state: DocumentRecord["state"], folder: string | null, version = `v-${id}`, generation: string | null = ["ready", "ready_partial"].includes(String(state)) ? `g-${id}` : null): DocumentRecord => ({ id, folder_id: folder, name: `${id}.pdf`, relative_path: `${id}.pdf`, state, active_version_id: version, active_generation_id: generation, page_count: 1 });
 const tree: LibraryTree = {
   folders: [{ id: "root", parent_id: null, name: "root", path: "root" }, { id: "child", parent_id: "root", name: "child", path: "root/child" }, { id: "loop-a", parent_id: "loop-b", name: "a", path: "a" }, { id: "loop-b", parent_id: "loop-a", name: "b", path: "b" }, { id: "other", parent_id: null, name: "other", path: "other" }],
-  documents: [documentRecord("ready", "ready", "root"), documentRecord("partial", "ready_partial", "child"), documentRecord("indexing", "indexing", "child"), documentRecord("removed", "deleted", "root"), documentRecord("loose", "queued", null), documentRecord("looped", "ocr", "loop-a"), documentRecord("elsewhere", "error", "other")],
+  documents: [documentRecord("ready", "ready", "root"), documentRecord("partial", "ready_partial", "child"), documentRecord("indexing", "indexing", "child"), documentRecord("removed", "deleted", "root"), documentRecord("loose", "queued", null), documentRecord("looped", "extracting", "loop-a"), documentRecord("elsewhere", "error", "other")],
 };
 
 test("scope documents follow folders recursively, ignore removed documents and survive folder cycles", () => {
@@ -64,7 +64,7 @@ test("counts are written with French agreement", () => {
 });
 
 test("scope coverage counts queryable documents and groups exclusions by reason in a fixed order", () => {
-  // Bibliothèque : ready, partial (interrogeables) ; indexing, loose/queued, looped/ocr (traitement) ; elsewhere (erreur) ; removed ignoré.
+  // Bibliothèque : ready, partial (interrogeables) ; indexing, loose/queued, looped/extracting (traitement) ; elsewhere (erreur) ; removed ignoré.
   assert.deepEqual(scopeCoverage({ kind: "library" }, tree), { queryable: 2, excluded: [{ reason: "processing", count: 3 }, { reason: "error", count: 1 }] });
   assert.deepEqual(scopeCoverage({ kind: "documents", documentIds: ["ready", "partial"] }, tree), { queryable: 2, excluded: [] });
   const withPause: LibraryTree = { folders: [], documents: [documentRecord("held", "paused" as DocumentRecord["state"], null), documentRecord("odd", "migrating" as DocumentRecord["state"], null)] };
@@ -86,7 +86,7 @@ test("every scope kind has a chip label distinct from its technical kind", () =>
 });
 
 test("documents waiting for indexing make the index lag; ready, partial, failed and removed ones do not", () => {
-  // indexing, loose (queued) et looped (ocr) attendent leur index ; elsewhere est en erreur, removed est retiré.
+  // indexing, loose (queued) et looped (extracting) attendent leur index ; elsewhere est en erreur, removed est retiré.
   assert.equal(pendingIndexCount(tree), 3);
   assert.equal(pendingIndexCount({ folders: [], documents: [documentRecord("held", "paused" as DocumentRecord["state"], null)] }), 1);
   assert.equal(pendingIndexCount({ folders: [], documents: [documentRecord("done", "ready", null), documentRecord("half", "ready_partial", null)] }), 0);

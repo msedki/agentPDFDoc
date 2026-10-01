@@ -6,7 +6,6 @@ import { api } from "@/lib/api";
 import { connectQueryStream } from "@/lib/stream";
 import { sourcePage } from "@/lib/selection";
 import { useWorkspace } from "@/lib/store";
-import { errorMessage } from "@/lib/utils";
 import { warningText } from "@/lib/warnings";
 import { answerBlocks, type Inline } from "@/lib/answer-format";
 import { citationParts, citedSourceIds } from "@/lib/citations";
@@ -17,6 +16,7 @@ import { unindexedInScope, unindexedSentence } from "@/lib/panel-state";
 import type { LibraryTree, QueryState, Scope, SearchResponse, Source, StreamEvent } from "@/lib/types";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { ErrorText, type Failure } from "./ui/error-text";
 import { PanelEmpty, PanelHeader } from "./ui/panel";
 import { StatusIndicator } from "./ui/status-indicator";
 
@@ -62,7 +62,8 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
   // `unindexed` est figé au moment de la recherche : null si l'arborescence n'était pas lisible.
   const [searchScope, setSearchScope] = useState<{ scope: Scope; label: string; unindexed: number | null } | null>(null);
   const client = useQueryClient();
-  const [error, setError] = useState("");
+  // Échec gardé tel quel : son texte se calcule au rendu, avec les commandes du lanceur connues à cet instant.
+  const [error, setError] = useState<Failure | null>(null);
   const streams = useRef(new Map<string, () => void>());
   const queriesRef = useRef(queries);
   queriesRef.current = queries;
@@ -115,17 +116,17 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
     setQueries(current => [...current, query]);
     connect(created.query_id, created.events_url);
     return created;
-  }, onError: failure => setError(errorMessage(failure)) });
+  }, onError: failure => setError({ error: failure }) });
   const searchMutation = useMutation({ mutationFn: ({ text, scope }: { text: string; scope: Scope; scopeLabel: string }) => api.search(text, scope), onSuccess: (response, variables) => {
     const tree = client.getQueryData<LibraryTree>(["tree"]);
-    setSearch(response); setSearchScope({ scope: variables.scope, label: variables.scopeLabel, unindexed: tree ? unindexedInScope(variables.scope, tree) : null }); setError("");
-  }, onError: failure => setError(errorMessage(failure)) });
+    setSearch(response); setSearchScope({ scope: variables.scope, label: variables.scopeLabel, unindexed: tree ? unindexedInScope(variables.scope, tree) : null }); setError(null);
+  }, onError: failure => setError({ error: failure }) });
   const active = queries.findLast(query => query.connection !== "closed");
   const compareAllowed = state.scope.kind === "documents" && state.scope.documentIds.length >= 2 && state.scope.documentIds.length <= 4;
   const emptyScope = state.scope.kind === "documents" && !state.scope.documentIds.length;
   const submit = () => {
     if (!question.trim() || emptyScope || submission.isPending || active || tab === "comparison" && !compareAllowed) return;
-    setError("");
+    setError(null);
     const snapshot = structuredClone(state.scope);
     if (tab === "search") searchMutation.mutate({ text: question.trim(), scope: snapshot, scopeLabel: state.scopeLabel });
     else { submission.mutate({ text: question.trim(), scope: snapshot, scopeLabel: state.scopeLabel, mode: tab === "comparison" ? "comparison" : snapshot.kind === "selection" ? "selection" : snapshot.kind === "section" ? "section" : "question" }); setQuestion(""); }
@@ -133,14 +134,14 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
   const cancel = async () => {
     if (!active) return;
     setCancelBusy(true);
-    try { await api.cancelQuery(active.id); } catch (failure) { setError(errorMessage(failure)); }
+    try { await api.cancelQuery(active.id); } catch (failure) { setError({ error: failure }); }
     finally { setCancelBusy(false); }
   };
   const openSource = (source: Source, queryId?: string, sourceScope?: Scope) => {
     const fromQuery = queriesRef.current.find(query => query.id === queryId);
     const usedScope = fromQuery?.scope ?? sourceScope ?? (queryId && source.query_id === queryId ? searchScope?.scope : undefined);
     focus.current = queryId && source.source_id && usedScope && JSON.stringify(usedScope) === scopeFingerprint ? { query_id: queryId, source_id: source.source_id } : undefined;
-    void onSource(source, queryId).catch(failure => setError(errorMessage(failure)));
+    void onSource(source, queryId).catch(failure => setError({ error: failure }));
   };
 
   return <aside className="analysis-panel" aria-labelledby="analysis-heading">
@@ -174,7 +175,7 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
     <div className="composer-area">
       {state.selection && <div className="selection-action"><span>{state.selection.text.slice(0, 95)}{state.selection.text.length > 95 ? "…" : ""}</span><Button size="sm" variant="secondary" onClick={() => state.setScope({ kind: "selection", versionId: state.selection!.versionId, spans: state.selection!.spans }, "Texte sélectionné dans le document")}>Analyser la sélection</Button></div>}
       {tab === "comparison" && !compareAllowed && <p className="inline-warning">Définissez un périmètre de deux à quatre documents pour comparer.</p>}
-      {error && <p className="inline-error" role="alert"><CircleAlert size={14} aria-hidden="true" />{error}</p>}
+      {error && <p className="inline-error" role="alert"><CircleAlert size={14} aria-hidden="true" /><ErrorText error={error.error} /></p>}
       <form onSubmit={event => { event.preventDefault(); submit(); }}><label className="sr-only" htmlFor="question-input">{tab === "search" ? "Votre recherche" : "Votre question"}</label><textarea id="question-input" value={question} onChange={event => setQuestion(event.target.value)} placeholder={tab === "search" ? "Expression ou référence à retrouver…" : tab === "comparison" ? "Quels points comparer entre ces documents ?" : "Posez une question sur ce périmètre…"} rows={3} maxLength={12000} onKeyDown={event => { if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) { event.preventDefault(); submit(); } }} /><div className="composer-footer"><span><kbd>Ctrl</kbd> + <kbd>Entrée</kbd> {tab === "search" ? "pour rechercher" : "pour envoyer"}</span>{active ? <Button variant="danger" size="sm" onClick={() => void cancel()} disabled={cancelBusy} type="button"><Ban size={16} />{cancelBusy ? "Annulation…" : "Annuler"}</Button> : <Button size="sm" type="submit" disabled={!question.trim() || emptyScope || submission.isPending || searchMutation.isPending || tab === "comparison" && !compareAllowed}>{tab === "search" ? <Search size={16} /> : <Send size={16} />}{searchMutation.isPending ? "Recherche…" : submission.isPending ? "Envoi…" : tab === "search" ? "Rechercher" : "Envoyer"}</Button>}</div></form>
     </div>
   </aside>;

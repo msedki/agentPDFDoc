@@ -13,10 +13,16 @@ from typing import Any
 
 import yaml
 
+from . import platforms
 from .artifacts import ROOT
 
 # Borne de W004 : le binaire Qdrant Windows verrouillé exige « <stockage>\\storage » de 57 caractères au plus.
 QDRANT_STORAGE_MAX = 57
+
+
+def qdrant_path_bounded() -> bool:
+    """Vrai sous Windows seulement : la borne W004 tient au binaire Qdrant Windows, pas au binaire Linux."""
+    return os.name == "nt"
 
 
 def port_free(port: int) -> bool:
@@ -35,7 +41,7 @@ def user_profile(base: dict[str, Any], data_root: Path, *, qdrant_storage: Path 
     if not data_root.is_absolute() or data_root.is_relative_to((program_root or ROOT).resolve()):
         raise ValueError("La racine des données doit être un chemin absolu hors du dossier du programme")
     storage = (qdrant_storage or data_root / "q").resolve()
-    if os.name == "nt" and len(str(storage / "storage")) > storage_max:
+    if qdrant_path_bounded() and len(str(storage / "storage")) > storage_max:
         raise ValueError(f"Stockage Qdrant trop long ({len(str(storage / 'storage'))} caractères pour {storage_max}) : choisir un dossier court avec --qdrant-storage")
     chosen = {"app": base["app"]["port"], "qdrant": int(base["qdrant"]["url"].rsplit(":", 1)[1].rstrip("/")),
               "ollama": int(base["llm"]["base_url"].rsplit(":", 1)[1].rstrip("/")), **(ports or {})}
@@ -71,15 +77,16 @@ def write_user_profile(base_path: Path, data_root: Path, *, qdrant_storage: Path
     base = yaml.safe_load(base_path.read_text(encoding="utf-8"))
     profile = user_profile(base, data_root, qdrant_storage=qdrant_storage, ports=ports, program_root=program_root, storage_max=storage_max)
     restores = Path(profile["runtime"]["restore_storage_dir"])
-    if os.name == "nt" and restore_store_length(restores) > storage_max:
+    if qdrant_path_bounded() and restore_store_length(restores) > storage_max:
         # Refus dès la création : sinon une restauration ultérieure échouerait sur la même borne du binaire Qdrant.
         example = Path(os.environ.get("USERPROFILE") or Path.home()) / "apdfq"
         raise ValueError(f"Stockages de restauration trop longs ({restore_store_length(restores)} caractères pour {storage_max}) sous {restores} : "
                          f"choisir un stockage Qdrant plus court avec --qdrant-storage, par exemple {example}")
     target.parent.mkdir(parents=True, exist_ok=True)
     with target.open("x", encoding="utf-8", newline="\n") as stream:
-        stream.write("# Profil généré par rag.ps1 init-profile depuis " + base_path.name + " ; données et écritures d'exécution hors du programme.\n")
+        launcher = "rag.ps1" if platforms.WINDOWS else "rag.sh"
+        stream.write("# Profil généré par " + launcher + " init-profile depuis " + base_path.name + " ; données et écritures d'exécution hors du programme.\n")
         yaml.safe_dump(profile, stream, allow_unicode=True, sort_keys=False)
     return {"status": "created", "profile": str(target), "data_dir": profile["app"]["data_dir"], "qdrant_storage": profile["qdrant"]["storage_dir"],
             "ports": {"app": profile["app"]["port"], "qdrant": profile["qdrant"]["url"], "ollama": profile["llm"]["base_url"]}, "runtime": profile["runtime"],
-            "next": f".\\rag.ps1 up -Profile \"{target}\""}
+            "next": f".\\rag.ps1 up -Profile \"{target}\"" if platforms.WINDOWS else platforms.launcher_command(f"up --profile \"{target}\"")}

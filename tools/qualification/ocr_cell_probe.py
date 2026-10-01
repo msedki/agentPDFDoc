@@ -27,9 +27,11 @@ from services.ingestion.regional_grid import (  # noqa: E402
     read_tesseract_tsv,
     temporary_raster,
 )
+from services.runtime.platforms import native_executable  # noqa: E402
 
 DIAGNOSTIC = ROOT / ".runtime/qa/ingestion-synthetic/tesseract-aspect-diagnostic-20260930T040453Z"
-TESSERACT = ROOT / ".runtime/bin/tesseract-5.4.0/tesseract.exe"
+# Exécutable du profil (`tesseract.exe` sous Windows, même emplacement sans suffixe sous Linux).
+TESSERACT = ROOT / native_executable(".runtime/bin/tesseract-5.4.0/tesseract.exe")
 TESSDATA = ROOT / ".runtime/models/tessdata"
 REPORTS = ROOT / "RAG_Local_Agents/reports/ingestion"
 # Valeurs de la fixture synthétique pour les cellules fautives du rendu nominal.

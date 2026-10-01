@@ -20,6 +20,7 @@ import yaml
 
 from .artifacts import ROOT, file_hash, runtime_location, write_json_atomic
 from .supervisor import (
+    ProcessJob,
     acquire_qdrant_lock,
     app_origin,
     check_ports,
@@ -35,7 +36,6 @@ from .supervisor import (
     wait_http,
     write_qdrant_config,
 )
-from .windows_process import WindowsJob
 
 TABLES = ("documents", "document_versions", "extraction_revisions", "index_generations",
           "pages", "blocks", "chunks", "jobs", "query_runs", "citations", "embedding_cache")
@@ -309,7 +309,7 @@ def restore_backup(folder: Path, target: Path, *, qdrant_port: int = 6343) -> di
         # Le serveur de restauration exige lui aussi une clé, propre à cette restauration.
         restore_key = issue_qdrant_key(control)
         try:
-            with closing(acquire_qdrant_lock(qdrant_directory)), WindowsJob() as job:
+            with closing(acquire_qdrant_lock(qdrant_directory)), ProcessJob() as job:
                 child = job.launch([str(native_paths()["qdrant"]), "--config-path", str(config), "--disable-telemetry"],
                                    cwd=ROOT, env=qdrant_environment(environment(profile, target, ROOT / "config/local16.yaml"), restore_key),
                                    log_path=target / "restore-qdrant.log")
@@ -330,7 +330,7 @@ def restore_backup(folder: Path, target: Path, *, qdrant_port: int = 6343) -> di
                             raise ValueError("Compte des points Qdrant différent après restauration")
                         report["collections"].append({"name": item["name"], "points_count": count,
                                                       "upload_attempts": len(retried) + 1, "retried_failures": retried})
-                send_owned_console_interrupt(child)
+                send_owned_console_interrupt(child, "qdrant")
                 try:
                     report["qdrant_stop_exit_code"] = child.wait(30)
                 except TimeoutError:

@@ -50,3 +50,7 @@ desktop.ini
 
 # Assets PDF.js recopiés depuis pdfjs-dist par scripts/prepare-assets.mjs au build
 apps/web/public/pdfjs/
+
+# Fichiers d'instructions créés par `next dev` lorsqu'il est lancé depuis un agent
+apps/web/AGENTS.md
+apps/web/CLAUDE.md

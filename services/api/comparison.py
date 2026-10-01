@@ -12,6 +12,8 @@ import asyncio
 import hashlib
 import json
 import math
+import socket
+import ssl
 import threading
 import time
 from contextlib import contextmanager
@@ -147,15 +149,68 @@ def selector_identity():
     return hashlib.sha256(json.dumps(hashes, sort_keys=True).encode()).hexdigest()
 
 
-async def assert_quiet(settings):
-    """Refuse a second API or a resident LLM; no service starts or stops here."""
-    async with httpx.AsyncClient(trust_env=False, timeout=2) as client:
+# Délai de la sonde TCP du port de l'API : un refus (ECONNREFUSED) revient sans attendre ; ce délai ne borne qu'un port
+# qui n'accepte ni ne refuse la connexion, cas tenu pour non concluant.
+API_PORT_PROBE_TIMEOUT_SECONDS = 5.0
+
+
+async def api_port_open(origin, timeout=API_PORT_PROBE_TIMEOUT_SECONDS):
+    """Vrai si un service accepte une connexion TCP sur le port de l'API ; faux seulement sur un refus de connexion.
+
+    Toute autre erreur (délai dépassé, réseau) est propagée : elle ne prouve pas que l'API est arrêtée.
+    """
+    url = httpx.URL(origin)
+
+    def connect():
         try:
-            await client.get(settings.origin + "/api/v1/health")
-        except httpx.ConnectError:
-            pass
-        else:
-            raise ApiError("comparison_requires_stopped_api", "Arrêter l'API avant le comparatif à un seul graphe.", 409)
+            with socket.create_connection((url.host, url.port), timeout=timeout):
+                return True
+        except ConnectionRefusedError:
+            return False
+
+    return await asyncio.to_thread(connect)
+
+
+def tls_failure(error):
+    """Vrai si l'erreur httpx provient de la négociation ou de la vérification TLS (certificat, protocole)."""
+    seen = set()
+    while error is not None and id(error) not in seen:
+        if isinstance(error, ssl.SSLError):
+            return True
+        seen.add(id(error))
+        error = error.__cause__ or error.__context__
+    return False
+
+
+async def assert_quiet(settings):
+    """Refuse a second API or a resident LLM; no service starts or stops here.
+
+    L'API n'est tenue pour arrêtée que si son port refuse la connexion. Un service qui écoute est sondé sur `/health`
+    (HTTPS en production, certificat du profil vérifié comme le fait le superviseur) : une réponse prouve une API en
+    marche, un échec TLS ou HTTP laisse un service non identifié ; dans les deux cas le comparatif ne démarre pas.
+    Un délai dépassé, y compris pendant la négociation TLS d'un service muet, n'est pas un échec de vérification.
+    """
+    try:
+        listening = await api_port_open(settings.origin)
+    except OSError as error:
+        raise ApiError("comparison_api_unverified", "Le port de l'API ne répond ni par une connexion ni par un refus : vérifier que l'API est arrêtée avant le comparatif.", 409) from error
+    if listening:
+        certificate = settings.origin_certificate
+        try:
+            verify = ssl.create_default_context(cafile=str(certificate)) if certificate else True
+        except OSError as error:
+            raise ApiError("comparison_api_certificate_unreadable", f"Un service écoute sur le port de l'API, mais le certificat du profil (security.tls_cert_file : {certificate}) ne peut pas être lu ({type(error).__name__}) : corriger le profil ou arrêter l'API avant le comparatif.", 409,
+                           {"tls_cert_file": str(certificate), "reason": type(error).__name__}) from error
+        async with httpx.AsyncClient(trust_env=False, timeout=2, verify=verify) as api_client:
+            try:
+                await api_client.get(settings.origin + "/api/v1/health")
+            except httpx.HTTPError as error:
+                # Délai dépassé avant toute vérification du certificat : le service ne répond pas, rien n'est prouvé sur TLS.
+                if not isinstance(error, httpx.TimeoutException) and tls_failure(error):
+                    raise ApiError("comparison_api_tls_unverified", "Un service écoute sur le port de l'API mais la vérification TLS a échoué (certificat différent de security.tls_cert_file ou protocole inattendu) : arrêter l'API ou corriger le profil avant le comparatif.", 409) from error
+                raise ApiError("comparison_api_unverified", "Un service écoute sur le port de l'API sans répondre à la sonde /api/v1/health : l'arrêter avant le comparatif.", 409) from error
+        raise ApiError("comparison_requires_stopped_api", "Arrêter l'API avant le comparatif à un seul graphe.", 409)
+    async with httpx.AsyncClient(trust_env=False, timeout=2) as client:
         try:
             response = await client.get(settings.value("llm", "base_url", "http://127.0.0.1:11434").rstrip("/") + "/api/ps")
             response.raise_for_status()

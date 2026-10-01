@@ -1,6 +1,6 @@
 # RAG PDF local — dossier de réalisation V2.1
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 **Référence :** RAG-LOCAL-16 / baseline documentaire 2.1 / 29 septembre 2026.
 **Statut :** référentiel d'exigences V2.1 (spécifications et consignes révisées après audit), base de la recette. L'application est implémentée dans ce dépôt et en cours de qualification ; l'état par critère est suivi dans [PLAN.md](PLAN.md) et [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).

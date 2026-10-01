@@ -4,6 +4,9 @@ import ctypes
 import sys
 import time
 
+# Module Windows seulement : mypy ignore la suite hors --platform win32, et l'importer ailleurs est une erreur.
+assert sys.platform == "win32", "console_signal exige Windows"
+
 
 def signal_console(pid: int) -> None:
     kernel = ctypes.WinDLL("kernel32", use_last_error=True)

@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, realpathSync } from "node:fs";
 import { basename, isAbsolute, relative, resolve } from "node:path";
 import { expect, type APIRequestContext, type Page, type TestInfo } from "@playwright/test";
+import { dataDirKey, projectPython, projectRoot } from "./host.ts";
 
 export type LifecycleTarget = {
   schema_version: number; origin: string; data_dir: string; runtime_instance_id: string;
@@ -13,7 +14,6 @@ export type LifecycleTarget = {
   upload_limit_bytes?: number;
 };
 type Fixture = { key: string; path: string; sha256: string; bytes: number };
-const projectRoot = resolve(process.cwd(), "../..");
 const fixturesRoot = resolve(projectRoot, "fixtures");
 export const sha256 = (data: Buffer) => createHash("sha256").update(data).digest("hex");
 
@@ -41,7 +41,7 @@ export async function guardTarget(request: APIRequestContext, target: LifecycleT
   expect(state.status).toBe("running");
   expect(state.instance_id).toBe(target.runtime_instance_id);
   expect(state.app_url).toBe(target.origin);
-  expect(realpathSync(state.data_dir).toLowerCase()).toBe(dataDir.toLowerCase());
+  expect(dataDirKey(realpathSync(state.data_dir))).toBe(dataDirKey(dataDir));
   expect(target.runtime_profile_file_sha256).toMatch(/^[a-f0-9]{64}$/);
   expect(state.profile_sha256).toBe(target.runtime_profile_file_sha256);
   expect(sha256(readFileSync(state.profile_path))).toBe(target.runtime_profile_file_sha256);
@@ -79,7 +79,7 @@ export async function detail(request: APIRequestContext, target: LifecycleTarget
 export function configuredUploadLimit(target: LifecycleTarget) {
   const state = JSON.parse(readFileSync(resolve(target.data_dir, "control/runtime.json"), "utf8"));
   const source = "import json,sys,yaml\nwith open(sys.argv[1],encoding='utf-8-sig') as f: profile=yaml.safe_load(f)\nprint(json.dumps({'bytes':profile.get('pdf',{}).get('max_file_mib',200)*1048576}))";
-  const output = execFileSync(resolve(projectRoot, ".venv/Scripts/python.exe"), ["-c", source, state.profile_path], { encoding: "utf8", timeout: 10000, windowsHide: true });
+  const output = execFileSync(projectPython(), ["-c", source, state.profile_path], { encoding: "utf8", timeout: 10000, windowsHide: true });
   return (JSON.parse(output) as { bytes: number }).bytes;
 }
 

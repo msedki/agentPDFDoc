@@ -4,7 +4,11 @@ import hashlib
 import json
 import subprocess
 import sys
+import threading
+import time
+from collections import defaultdict
 from contextlib import asynccontextmanager, contextmanager
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -389,10 +393,8 @@ def test_api_rejects_host_origin_traversal_and_private_error_inputs(tmp_path):
         assert body.status_code == 422 and "private marker" not in body.text
 
 
-@pytest.mark.skipif(sys.platform != "win32", reason="Jonction de répertoire Windows, créée sans droit administrateur")
-def test_api_original_behind_junction_or_outside_storage_is_never_served(tmp_path):
-    # Un compte standard ne peut pas créer de lien symbolique de fichier (erreur 1314) mais peut créer une jonction :
-    # un original déplacé derrière une jonction qui sort du stockage, ou désigné hors du stockage, n'est jamais lu.
+def evasion_paths_are_never_served(tmp_path, make_link):
+    """Original déplacé derrière un lien de répertoire qui sort du stockage, ou désigné hors du stockage : jamais lu."""
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
     outside = tmp_path / "hors-stockage"
@@ -404,16 +406,40 @@ def test_api_original_behind_junction_or_outside_storage_is_never_served(tmp_pat
         file_url = f"/api/v1/versions/{imported['version_id']}/file"
         assert client.get(file_url).status_code == 200
         originals = settings.data_dir / "originals"
-        junction = originals / "evasion"
-        created = subprocess.run(["cmd", "/c", "mklink", "/J", str(junction), str(outside)], capture_output=True, check=False)
-        if created.returncode != 0:
-            pytest.skip("Jonction impossible sur ce volume ; aucune preuve produite.")
-        for blob in (junction / "secret.pdf", outside / "secret.pdf", originals / ".." / ".." / "hors-stockage" / "secret.pdf"):
+        candidates = [outside / "secret.pdf", originals / ".." / ".." / "hors-stockage" / "secret.pdf"]
+        if make_link is not None:
+            link = originals / "evasion"
+            make_link(link, outside)
+            candidates.insert(0, link / "secret.pdf")
+        for blob in candidates:
             app.state.db.execute("UPDATE document_versions SET blob_path=? WHERE id=?", (str(blob), imported["version_id"]))
             response = client.get(file_url)
             assert response.status_code == 409 and response.json()["code"] == "invalid_storage_path", blob
             assert secret not in response.content
         assert client.get("/api/v1/health").status_code == 200
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Jonction de répertoire Windows, créée sans droit administrateur")
+def test_api_original_behind_junction_or_outside_storage_is_never_served(tmp_path):
+    # Un compte standard ne peut pas créer de lien symbolique de fichier (erreur 1314) mais peut créer une jonction.
+    def junction(link, target):
+        created = subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(target)], capture_output=True, check=False)
+        if created.returncode != 0:
+            pytest.skip("Jonction impossible sur ce volume ; aucune preuve produite.")
+    evasion_paths_are_never_served(tmp_path, junction)
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="Lien symbolique de répertoire POSIX ; sous Windows, la jonction est éprouvée ci-dessus")
+def test_api_original_behind_symlinked_directory_or_outside_storage_is_never_served(tmp_path):
+    evasion_paths_are_never_served(tmp_path, lambda link, target: link.symlink_to(target, target_is_directory=True))
+
+
+def test_api_original_outside_storage_is_never_served(tmp_path):
+    """Partie indépendante de la plateforme : chemin hors du stockage, absolu ou par remontée."""
+    evasion_paths_are_never_served(tmp_path, None)
+
+
+def test_api_restart_marks_running_questions_interrupted(tmp_path):
     from services.api.db import Database
     db = Database(tmp_path / "state.sqlite")
     db.initialize()
@@ -422,6 +448,158 @@ def test_api_original_behind_junction_or_outside_storage_is_never_served(tmp_pat
     db.initialize()
     assert db.one("SELECT state FROM query_runs WHERE id=?", (query_id,))["state"] == "interrupted"
     assert db.one("SELECT type,data_json FROM events WHERE query_id=?", (query_id,))["type"] == "error"
+
+
+def reindex_fixture(tmp_path):
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+    return app, b"%PDF-1.7\nreindex fixture"
+
+
+def document_jobs(app, document_id):
+    return app.state.db.rows("SELECT id,state,cancel_requested FROM jobs WHERE document_id=? ORDER BY created_at,rowid", (document_id,))
+
+
+def test_api_reindex_reuses_a_paused_job_like_reimport_instead_of_doubling_extraction(tmp_path):
+    """C2 : un travail en pause de la dernière version est renvoyé, à reprendre, au lieu d'un second qui recommencerait l'extraction."""
+    app, payload = reindex_fixture(tmp_path)
+    with browser_client(app) as client:
+        imported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", payload, "application/pdf")}).json()
+        assert client.post(f"/api/v1/jobs/{imported['job_id']}/pause").json()["state"] == "paused"
+        reindexed = client.post(f"/api/v1/documents/{imported['document_id']}/reindex")
+        assert reindexed.status_code == 202
+        assert reindexed.json() == {"job_id": imported["job_id"], "version_id": imported["version_id"], "reused": True,
+                                    "job_state": "paused", "resume_required": True}
+        assert len(document_jobs(app, imported["document_id"])) == 1
+        reimported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", payload, "application/pdf")}).json()
+        assert reimported["job_id"] == imported["job_id"] and reimported["resume_required"] is True
+        # Travail remis en file : la réindexation renvoie le travail en cours, toujours sans doublon (règle inchangée).
+        app.state.db.execute("UPDATE jobs SET state='queued',pause_requested=0 WHERE id=?", (imported["job_id"],))
+        assert client.post(f"/api/v1/documents/{imported['document_id']}/reindex").json() == {"job_id": imported["job_id"], "reused": True}
+        assert len(document_jobs(app, imported["document_id"])) == 1
+
+
+def test_api_reindex_during_pausing_asks_to_wait_for_the_pause_without_claiming_progress(tmp_path):
+    """Revue A1 : pendant `pausing`, le travail n'est pas encore reprenable (resume rend 409) ; la réindexation le dit, sans 202."""
+    app, payload = reindex_fixture(tmp_path)
+    with browser_client(app) as client:
+        imported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", payload, "application/pdf")}).json()
+        # Travail actif dont la pause est demandée : état transitoire `pausing` jusqu'au checkpoint du worker.
+        app.state.db.execute("UPDATE jobs SET state='pausing',stage='pausing',pause_requested=1 WHERE id=?", (imported["job_id"],))
+        refused = client.post(f"/api/v1/documents/{imported['document_id']}/reindex")
+        assert refused.status_code == 409
+        body = refused.json()
+        assert body["code"] == "job_pausing" and "attendre" in body["message"]
+        assert body["details"] == {"job_id": imported["job_id"], "version_id": imported["version_id"], "job_state": "pausing"}
+        assert client.post(f"/api/v1/jobs/{imported['job_id']}/resume").json()["code"] == "job_not_resumable"
+        assert [job["id"] for job in document_jobs(app, imported["document_id"])] == [imported["job_id"]]
+        # Pause aboutie : la réindexation renvoie le travail en pause, à reprendre.
+        app.state.db.execute("UPDATE jobs SET state='paused',stage='paused' WHERE id=?", (imported["job_id"],))
+        reindexed = client.post(f"/api/v1/documents/{imported['document_id']}/reindex")
+        assert reindexed.status_code == 202 and reindexed.json()["resume_required"] is True and reindexed.json()["job_id"] == imported["job_id"]
+
+
+def test_api_reindex_during_cancelling_queues_a_new_job_as_before(tmp_path):
+    """Revue A1 : l'annulation est définitive ; la demande de réindexation n'est pas perdue, un travail neuf est mis en file.
+
+    La file est séquentielle (JobSupervisor.loop attend la fin du travail actif) : le travail neuf ne démarre qu'une fois
+    l'annulation terminée, sans extraction concurrente sur la même version.
+    """
+    app, payload = reindex_fixture(tmp_path)
+    with browser_client(app) as client:
+        imported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", payload, "application/pdf")}).json()
+        # Travail actif dont l'annulation est demandée : état transitoire `cancelling` jusqu'au checkpoint du worker.
+        app.state.db.execute("UPDATE jobs SET state='cancelling',cancel_requested=1 WHERE id=?", (imported["job_id"],))
+        reindexed = client.post(f"/api/v1/documents/{imported['document_id']}/reindex")
+        assert reindexed.status_code == 202
+        fresh = reindexed.json()
+        assert fresh["reused"] is False and fresh["job_id"] != imported["job_id"] and fresh["version_id"] == imported["version_id"]
+        assert document_jobs(app, imported["document_id"]) == [{"id": imported["job_id"], "state": "cancelling", "cancel_requested": 1},
+                                                               {"id": fresh["job_id"], "state": "queued", "cancel_requested": 0}]
+        # Une seconde demande renvoie le travail neuf en file : aucun troisième travail.
+        assert client.post(f"/api/v1/documents/{imported['document_id']}/reindex").json() == {"job_id": fresh["job_id"], "reused": True}
+        # Une fois annulé, le travail est terminal ; la demande suivante renvoie toujours le travail en file.
+        app.state.db.execute("UPDATE jobs SET state='cancelled' WHERE id=?", (imported["job_id"],))
+        assert client.post(f"/api/v1/documents/{imported['document_id']}/reindex").json() == {"job_id": fresh["job_id"], "reused": True}
+        assert len(document_jobs(app, imported["document_id"])) == 2
+
+
+class AdmittingGovernor(FakeGovernor):
+    """Double explicite du gouverneur : ingestion toujours admise, aucun checkpoint demandé."""
+    def should_checkpoint(self):
+        return False
+    def allow_ingestion(self):
+        return True
+    def resume_ingestion(self):
+        pass
+    @asynccontextmanager
+    async def ingestion(self):
+        yield
+
+
+def test_api_reindex_during_cancelling_shows_the_last_job_state_through_the_real_queue(tmp_path):
+    """Revue J5 (défaut préexistant) : réindexation pendant `cancelling`, exécutée par la vraie file de l'API.
+
+    Le travail annulé se termine par record_failure, puis la file lance le travail neuf. Le document affiché suit
+    son dernier travail (Database.align_document_states) : en file puis publié, jamais « annulé » pendant ce temps.
+    L'extraction est un double explicite (ingestion_runner) que le test libère étape par étape.
+    """
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    payload = b"%PDF-1.7\nreindex during cancelling"
+    text = "CCU-21 : tension nominale 72 V."
+    extraction = {"sha256": hashlib.sha256(payload).hexdigest(), "fingerprint": "cancelling-fixture", "page_count": 1, "status": "ready",
+                  "pages": [{"page_index": 0, "width": 595, "height": 842, "blocks": [
+                      {"id": "b0", "type": "text", "text": text, "raw_text": text, "bbox": [10, 10, 100, 30], "precision": "block"}]}]}
+    started, released, observed = defaultdict(threading.Event), defaultdict(threading.Event), []
+    # Libère tout travail retenu si une assertion échoue : l'arrêt de l'API attend la fin du travail actif.
+    aborted = threading.Event()
+
+    async def runner(request):
+        job_id = Path(request["output_dir"]).name
+        observed.append({"job_id": job_id, "jobs": {row["id"]: row["state"] for row in app.state.db.rows("SELECT id,state FROM jobs")},
+                         "document": app.state.db.one("SELECT state FROM documents")["state"]})
+        started[job_id].set()
+        while not (released[job_id].is_set() or aborted.is_set()):
+            await asyncio.sleep(0.02)
+        return extraction
+
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(),
+                     governor=AdmittingGovernor(), ingestion_runner=runner)
+
+    def displayed(client, document_id):
+        return client.get(f"/api/v1/documents/{document_id}").json()["state"]
+
+    def wait_for_job(job_id, state):
+        deadline = time.monotonic() + 10
+        while app.state.db.one("SELECT state FROM jobs WHERE id=?", (job_id,))["state"] != state:
+            assert time.monotonic() < deadline, f"{job_id} n'atteint pas {state}"
+            time.sleep(0.02)
+
+    with browser_client(app) as client:
+        try:
+            imported = client.post("/api/v1/documents/import", files={"files": ("manual.pdf", payload, "application/pdf")}).json()
+            first, document_id = imported["job_id"], imported["document_id"]
+            assert started[first].wait(10), "la file n'a pas lancé le premier travail"
+            assert client.post(f"/api/v1/jobs/{first}/cancel").json() == {"job_id": first, "state": "cancelling"}
+            assert displayed(client, document_id) == "cancelled"
+            fresh = client.post(f"/api/v1/documents/{document_id}/reindex").json()
+            assert fresh["reused"] is False and fresh["job_id"] != first
+            # Demande acceptée : le dernier travail du document est en file, l'état affiché le dit.
+            assert displayed(client, document_id) == "queued"
+            released[first].set()
+            assert started[fresh["job_id"]].wait(10), "la file n'a pas lancé le travail neuf"
+            # File séquentielle : le travail neuf ne démarre qu'après la fin de l'annulation, enregistrée par record_failure.
+            assert [step["job_id"] for step in observed] == [first, fresh["job_id"]]
+            assert observed[1]["jobs"] == {first: "cancelled", fresh["job_id"]: "extracting"}
+            assert observed[1]["document"] == "queued"
+            assert app.state.db.one("SELECT error_code FROM jobs WHERE id=?", (first,))["error_code"] == "cancelled"
+            assert displayed(client, document_id) == "queued"
+            released[fresh["job_id"]].set()
+            wait_for_job(fresh["job_id"], "ready")
+            assert displayed(client, document_id) == "ready"
+            assert {job["id"]: job["state"] for job in client.get(f"/api/v1/documents/{document_id}").json()["jobs"]} == {first: "cancelled", fresh["job_id"]: "ready"}
+        finally:
+            aborted.set()
 
 
 def test_api_quiesce_nonce_blocks_mutations_and_preserves_reads(tmp_path, monkeypatch):

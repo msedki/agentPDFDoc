@@ -49,16 +49,33 @@ def migrations():
 
 
 class Database:
-    def __init__(self, path: Path):
+    # États produits par l'API, publiés dans packages/contracts/contracts.json (test de non-dérive du contrat).
+    JOB_STATES = frozenset({"queued", "extracting", "indexing", "pausing", "paused", "cancelling", "cancelled", "error", "ready", "ready_partial"})
+    DOCUMENT_STATES = frozenset({"queued", "extracting", "indexing", "paused", "cancelled", "error", "ready", "ready_partial", "deleted"})
+    # Travail suspendu ou en cours d'arrêt : le réimport le désigne au lieu d'en créer un second. La réindexation ne
+    # reprend que `paused`, refuse `pausing` et, pendant `cancelling`, crée un travail neuf (main.py, reindex_document).
+    SUSPENDED_JOB_STATES = frozenset({"paused", "pausing", "cancelling"})
+
+    def __init__(self, path: Path, busy_timeout_ms: int = 5000, cache_size_kib: int = 32768):
         self.path = Path(path)
+        if isinstance(busy_timeout_ms, bool) or isinstance(cache_size_kib, bool) or not (
+                isinstance(busy_timeout_ms, int) and isinstance(cache_size_kib, int) and busy_timeout_ms > 0 and cache_size_kib > 0):
+            raise ApiError("invalid_profile", "sqlite.busy_timeout_ms et sqlite.cache_size_kib doivent être des entiers positifs.")
+        self.busy_timeout_ms, self.cache_size_kib = busy_timeout_ms, cache_size_kib
+
+    @classmethod
+    def from_settings(cls, settings):
+        """Base applicative du profil : chemin effectif de Settings.db_path, délai d'attente et cache de la section sqlite."""
+        return cls(settings.db_path, settings.value("sqlite", "busy_timeout_ms", 5000), settings.value("sqlite", "cache_size_kib", 32768))
 
     @contextmanager
     def connect(self):
-        connection = sqlite3.connect(self.path, timeout=5, isolation_level=None)
+        connection = sqlite3.connect(self.path, timeout=self.busy_timeout_ms / 1000, isolation_level=None)
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys=ON")
-        connection.execute("PRAGMA busy_timeout=5000")
-        connection.execute("PRAGMA cache_size=-32768")
+        connection.execute(f"PRAGMA busy_timeout={self.busy_timeout_ms:d}")
+        # Valeur négative : taille du cache en Kio (documentation SQLite, PRAGMA cache_size).
+        connection.execute(f"PRAGMA cache_size=-{self.cache_size_kib:d}")
         try:
             yield connection
         finally:
@@ -205,7 +222,7 @@ class Database:
                 job = connection.execute("SELECT id,state FROM jobs WHERE version_id=? ORDER BY created_at DESC LIMIT 1", (version_id,)).fetchone()
                 if job and job["state"] in {"queued", "extracting", "indexing", "ready", "ready_partial"}:
                     return {"document_id": document_id, "version_id": version_id, "job_id": job["id"], "reused": True}
-                if job and job["state"] in {"paused", "pausing", "cancelling"}:
+                if job and job["state"] in self.SUSPENDED_JOB_STATES:
                     # Un second job concurrent sur la même version doublerait extraction et génération.
                     return {"document_id": document_id, "version_id": version_id, "job_id": job["id"], "reused": True,
                             "job_state": job["state"], "resume_required": True}

@@ -1,12 +1,11 @@
-import type { DocumentDetail, JobsResponse, LibraryTree, Outline, PageBlocks, QueryCreated, Readiness, Scope, SearchResponse, Source } from "./types";
-import { blocksPath, outlinePath, verifyPinnedBlocks, verifyPinnedOutline } from "./provenance-revision";
-import { httpFailureMessage } from "./warnings";
-import { announceSessionEnd, currentCsrfToken, isSessionFailure, type SessionState } from "./session";
+import type { DocumentDetail, JobsResponse, LibraryTree, Outline, PageBlocks, QueryCreated, Readiness, ReindexResponse, Scope, SearchResponse, Source } from "./types.ts";
+import { ApiError, localFailure } from "./api-error.ts";
+import { blocksPath, outlinePath, verifyPinnedBlocks, verifyPinnedOutline } from "./provenance-revision.ts";
+import { httpFailureMessage, serviceUnreachableMessage } from "./warnings.ts";
+import { announceSessionEnd, currentCsrfToken, isSessionFailure, type SessionState } from "./session.ts";
 
+export { ApiError };
 const prefix = "/api/v1";
-export class ApiError extends Error {
-  constructor(public code: string, message: string, public requestId?: string) { super(message); this.name = "ApiError"; }
-}
 export function sameOriginPath(path: string): string {
   const refused = "Adresse refusée : seules les ressources de l'API locale (/api/v1) sont chargées.";
   if (!path.startsWith("/api/v1/") || path.startsWith("//") || /[\r\n]/.test(path)) throw new ApiError("INVALID_URL", refused);
@@ -29,13 +28,15 @@ async function request<T>(path: string, options: RequestInit = {}, acceptedStatu
   } catch (failure) {
     // Une annulation (changement de page, requête remplacée) n'est pas une panne du service.
     if ((failure as { name?: unknown })?.name === "AbortError" || failure instanceof ApiError) throw failure;
-    throw new ApiError("NETWORK_ERROR", "Le service local ne répond pas. Vérifiez qu'il est démarré (.\\rag.ps1 status), puis réessayez.");
+    throw localFailure("NETWORK_ERROR", serviceUnreachableMessage);
   }
   if (!response.ok && !acceptedStatuses.includes(response.status)) {
     const data = await response.json().catch(() => null);
     const code = data?.code ?? `HTTP_${response.status}`;
     rejectedSession(code);
-    throw new ApiError(code, data?.message ?? httpFailureMessage(response.status), data?.request_id);
+    // Sans message du service, le texte de l'atelier cite la commande du poste connue à l'affichage.
+    const status = response.status;
+    throw data?.message != null ? new ApiError(code, data.message, data?.request_id) : localFailure(code, commands => httpFailureMessage(status, commands), data?.request_id);
   }
   if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
@@ -87,7 +88,8 @@ export const api = {
       else {
         const code = String(data.code ?? `HTTP_${xhr.status}`);
         rejectedSession(code);
-        reject(new ApiError(code, String(data.message ?? httpFailureMessage(xhr.status))));
+        const status = xhr.status;
+        reject(data.message != null ? new ApiError(code, String(data.message)) : localFailure(code, commands => httpFailureMessage(status, commands)));
       }
     };
     xhr.send(form);
@@ -101,10 +103,12 @@ export const api = {
   resumePaused: () => post<{ resumed: number }>("/jobs/resume-paused", {}),
   publishPartial: (id: string) => post(`/jobs/${encodeURIComponent(id)}/publish-partial`, {}),
   runtimeMode: (mode: "interactive" | "ingestion") => post("/runtime/mode", { mode }),
-  reindex: (id: string) => post(`/documents/${encodeURIComponent(id)}/reindex`, {}),
+  reindex: (id: string) => post<ReindexResponse>(`/documents/${encodeURIComponent(id)}/reindex`, {}),
   remove: (id: string) => request(`/documents/${encodeURIComponent(id)}`, { method: "DELETE" }),
   citation: (queryId: string, sourceId: string) => request<Source>(`/citations/${encodeURIComponent(queryId)}/${encodeURIComponent(sourceId)}`),
   fileUrl: (versionId: string) => prefix + `/versions/${encodeURIComponent(versionId)}/file`,
+  /** Route publique : état du service et, depuis W018, commandes du lanceur de ce poste (`commands`). */
+  health: (signal?: AbortSignal) => request<{ status: string; service: string; commands?: unknown }>("/health", { signal }),
   session: (signal?: AbortSignal) => request<SessionState>("/session", { signal }),
   logout: () => post<{ revoked: boolean }>("/session/logout", {}),
 };

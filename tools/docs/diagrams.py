@@ -4,6 +4,8 @@ Depuis la racine du dépôt :
 
     .venv\\Scripts\\python.exe tools/docs/diagrams.py          écrit docs/assets/diagrams/*.svg
     .venv\\Scripts\\python.exe tools/docs/diagrams.py --check  compare sans écrire (code 1 si écart)
+    .venv/bin/python tools/docs/diagrams.py                  écrit docs/assets/diagrams/*.svg
+    .venv/bin/python tools/docs/diagrams.py --check          compare sans écrire (code 1 si écart)
 
 Chaque valeur affichée provient du code ou de la configuration cités dans docs/ ; modifier
 ce script puis régénérer, jamais les SVG à la main. La sortie est déterministe (LF, sans date).

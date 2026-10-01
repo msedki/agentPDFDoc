@@ -1,5 +1,6 @@
 """Kit hors ligne (DIST-04) : liste blanche, exclusions, chemins du poste de fabrication et intégrité, sur une arborescence factice."""
 import json
+import sys
 
 import pytest
 
@@ -107,4 +108,56 @@ def test_notices_cover_every_locked_artifact_of_the_repository():
     notices = third_party_notices(ROOT, selected_files(ROOT), "0.1.0")
     for group, entries in lock["groups"].items():
         for entry in entries:
-            assert f"| {entry.get('model_id') or group} |" in notices
+            # Le kit est celui de Windows : chaque artefact Windows ou commun figure, aucun artefact propre à Linux.
+            if entry.get("platform", "windows-x86_64") == "windows-x86_64":
+                assert f"| {entry.get('model_id') or group} |" in notices
+            else:
+                assert entry["url"] not in notices
+
+
+def test_kit_lists_only_windows_and_common_artifacts(repository, tmp_path):
+    lock = {"groups": {"qdrant": [
+        {"version": "1.19.1", "platform": "windows-x86_64", "publisher": "Qdrant", "license": "Apache-2.0",
+         "url": "https://example.invalid/qdrant-x86_64-pc-windows-msvc.zip", "extract_to": ".runtime/bin/qdrant-1.19.1"},
+        {"version": "1.19.1", "platform": "linux-aarch64", "publisher": "Qdrant", "license": "Apache-2.0",
+         "url": "https://example.invalid/qdrant-aarch64-unknown-linux-musl.tar.gz", "extract_to": ".runtime/bin/qdrant-1.19.1"}],
+        "tesseract-source": [{"version": "5.4.0", "platform": ["linux-aarch64", "linux-x86_64"], "publisher": "tesseract-ocr", "license": "Apache-2.0",
+                              "url": "https://example.invalid/tesseract-5.4.0.tar.gz", "target": ".runtime/cache/downloads/t.tar.gz"}]}}
+    write(repository, "config/artifacts.lock.json", json.dumps(lock))
+    build_kit(tmp_path / "kit", root=repository, version="0.1.0")
+    notices = (tmp_path / "kit/THIRD_PARTY_NOTICES.md").read_text(encoding="utf-8")
+    assert "qdrant-x86_64-pc-windows-msvc.zip" in notices
+    assert "linux-musl" not in notices and "tesseract-source" not in notices
+
+
+@pytest.mark.parametrize(("platform", "expected"), [
+    ("windows-x86_64", {("qdrant", "qdrant-x86_64-pc-windows-msvc.zip"), ("e5", "model.onnx")}),
+    ("linux-x86_64", {("qdrant", "qdrant-x86_64-unknown-linux-musl.tar.gz"), ("tesseract-source", "tesseract-5.4.0.tar.gz"),
+                      ("e5", "model.onnx")}),
+    ("linux-aarch64", {("tesseract-source", "tesseract-5.4.0.tar.gz"), ("e5", "model.onnx")}),
+])
+def test_notice_rows_apply_the_platform_rule_of_the_lock_including_platform_lists(platform, expected):
+    # Même règle que le provisionnement (platforms.entries_for_platform) : sans champ, partout ; un nom, cette
+    # plateforme ; une liste, chacune des plateformes listées (sources Tesseract des deux architectures Linux).
+    from tools.dist.notices import artifact_rows
+
+    def entry(name, platform=None, **fields):
+        return {"version": "1", "publisher": "p", "license": "l", "url": f"https://example.invalid/{name}",
+                **({"platform": platform} if platform else {}), **fields}
+
+    lock = {"groups": {
+        "qdrant": [entry("qdrant-x86_64-pc-windows-msvc.zip", "windows-x86_64"),
+                   entry("qdrant-x86_64-unknown-linux-musl.tar.gz", "linux-x86_64")],
+        "tesseract-source": [entry("tesseract-5.4.0.tar.gz", ["linux-aarch64", "linux-x86_64"])],
+        "e5": [entry("model.onnx")]}}
+    rows = artifact_rows(lock, [], platform)
+    assert {(row["component"], row["source"].rsplit("/", 1)[-1]) for row in rows} == expected
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="refus propre aux postes non Windows")
+def test_kit_build_is_refused_outside_windows(tmp_path, monkeypatch, capsys):
+    from tools.dist import build_kit as module
+
+    monkeypatch.setattr(sys, "argv", ["build_kit", "build", "--output", str(tmp_path / "kit")])
+    assert module.main() == 1
+    assert "windows-x86_64" in capsys.readouterr().out and not (tmp_path / "kit").exists()

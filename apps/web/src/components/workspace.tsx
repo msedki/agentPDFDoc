@@ -8,7 +8,6 @@ import { useWorkspace } from "@/lib/store";
 import { restorePanelPreferences, savePanelPreferences } from "@/lib/panel-storage";
 import { clampPanelWidth, COMPACT_LAYOUT_QUERY, isLibraryShortcut, nextLibraryMode, PANEL_WIDTH_MAX, PANEL_WIDTH_MIN, panelGridColumns } from "@/lib/panel-preferences";
 import { sourcePage } from "@/lib/selection";
-import { errorMessage } from "@/lib/utils";
 import { serviceDetail } from "@/lib/warnings";
 import { citationLinkIds, registeredCitationLocation } from "@/lib/citation-link";
 import { isActiveJobState, serviceStatus } from "@/lib/status";
@@ -21,6 +20,7 @@ import { JobsPanel } from "./jobs-panel";
 import { LibraryPanel, LibraryRail, type LibraryController } from "./library-panel";
 import { PdfViewer } from "./pdf-viewer";
 import { Button } from "./ui/button";
+import { useErrorText, type Failure } from "./ui/error-text";
 import { Sheet } from "./ui/sheet";
 
 /** Vrai sous le point de rupture lg (64rem) ; faux avant hydratation, le CSS couvre cet intervalle. */
@@ -63,7 +63,9 @@ function WorkspaceBody() {
   const tree = useQuery({ queryKey: ["tree"], queryFn: ({ signal }) => api.tree(signal), staleTime: 3000 });
   const [jobsVisible, setJobsVisible] = useState(false);
   const [sheet, setSheet] = useState<"library" | "analysis" | null>(null);
-  const [error, setError] = useState("");
+  // Échec d'ouverture d'une citation ou d'un lien : gardé tel quel, son texte se calcule au rendu.
+  const [failure, setFailure] = useState<Failure | null>(null);
+  const errorText = useErrorText();
   const layout = useRef<HTMLDivElement>(null);
   const librarySlot = useRef<HTMLDivElement>(null);
   const analysisSlot = useRef<HTMLDivElement>(null);
@@ -85,9 +87,9 @@ function WorkspaceBody() {
         void api.citation(citation.queryId, citation.sourceId).then(source => {
           const location = registeredCitationLocation(source, citation.queryId, citation.sourceId);
           if (!disposed) state.open(location, source);
-        }).catch(failure => { if (!disposed) setError(errorMessage(failure)); });
+        }).catch(failure => { if (!disposed) setFailure({ error: failure }); });
       } else if (documentId && versionId && /^[\w-]{1,128}$/.test(documentId) && /^[\w-]{1,128}$/.test(versionId) && Number.isInteger(page) && page >= 1) state.open({ documentId, versionId, pageIndex: page - 1 });
-    } catch (failure) { setError(errorMessage(failure)); }
+    } catch (failure) { setFailure({ error: failure }); }
     const unsubscribe = useWorkspace.subscribe((next, previous) => { if (next.libraryMode !== previous.libraryMode || next.analysisMode !== previous.analysisMode || next.panelWidths !== previous.panelWidths) savePanelPreferences(); });
     return () => { disposed = true; unsubscribe(); };
   }, []);
@@ -171,7 +173,7 @@ function WorkspaceBody() {
   // et isLoading reste faux ; l'état serait alors présenté à tort comme « non prêt ».
   const service: ServiceSummary = {
     status: serviceStatus({ loading: readiness.isPending, failed: readiness.isError, unreachable: isServiceUnavailable(readiness.error), ready: readiness.data?.ready, pendingDocuments }),
-    detail: serviceDetail({ failed: readiness.isError, error: readiness.isError ? errorMessage(readiness.error) : undefined, ready: readiness.data?.ready, blockers, pendingDocuments }),
+    detail: serviceDetail({ failed: readiness.isError, error: readiness.isError ? errorText(readiness.error) : undefined, ready: readiness.data?.ready, blockers, pendingDocuments }),
   };
   const closeButton = (label: string) => <Button variant="ghost" size="sm" onClick={() => setSheet(null)} aria-label={label}><X size={16} aria-hidden="true" />Fermer</Button>;
 
@@ -183,7 +185,7 @@ function WorkspaceBody() {
     <div className="workspace-shell">
       <AppTopbar compact={compact} libraryMode={state.libraryMode} analysisMode={state.analysisMode} librarySheetOpen={sheet === "library"} analysisSheetOpen={sheet === "analysis"}
         onLibraryToggle={toggleLibrary} onAnalysisToggle={toggleAnalysis} service={service} activeJobs={activeJobs} jobsFailed={jobs.isError} jobsOpen={jobsVisible} onJobsOpen={() => setJobsVisible(true)} />
-      <ContextBand scope={state.scope} tree={tree.data} treeFailed={tree.isError && !tree.data} blockers={blockers} error={error} onDismissError={() => setError("")} service={service} />
+      <ContextBand scope={state.scope} tree={tree.data} treeFailed={tree.isError && !tree.data} blockers={blockers} error={failure ? errorText(failure.error) : ""} onDismissError={() => setFailure(null)} service={service} />
       {comparisonDocuments.length > 0 && <nav className="comparison-documents" aria-label="Documents comparés"><span>Comparer {comparisonDocuments.length} documents</span>{comparisonDocuments.map(document => <button key={document.id} className={state.opened?.documentId === document.id ? "is-active" : ""} disabled={!document.active_version_id && !document.version_id} title={!document.active_version_id && !document.version_id ? "Ce document n'a pas encore de version consultable." : undefined} onClick={() => state.open({ documentId: document.id, versionId: document.active_version_id ?? document.version_id!, pageIndex: 0 })}><FileText size={14} aria-hidden="true" />{document.name}</button>)}</nav>}
       <div className="workspace-layout" ref={layout} style={{ gridTemplateColumns: panelGridColumns({ compact, library: state.libraryMode, analysis: state.analysisMode, widths: state.panelWidths }) }}>
         <div className="library-column" data-mode={compact ? "sheet" : state.libraryMode}>

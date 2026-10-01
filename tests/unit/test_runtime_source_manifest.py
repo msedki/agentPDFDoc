@@ -62,3 +62,55 @@ def test_delivered_files_list_matches_repository():
     assert "config/models.lock.json" in source_manifest.FILES
     assert "apps/web/next.config.ts" not in source_manifest.FILES
     assert (ROOT / "apps/web/next.config.mjs").is_file() and (ROOT / "config/models.lock.json").is_file()
+
+
+def test_capture_covers_the_launchers_of_both_platforms(tmp_path, monkeypatch):
+    root = tmp_path / "livraison"
+    _tree(root)
+    for name in ("rag.ps1", "bootstrap.ps1", "rag.sh", "bootstrap.sh"):
+        (root / name).write_text("lanceur\n", encoding="utf-8")
+    monkeypatch.setattr(source_manifest.shutil, "which", lambda name: None)
+    paths = {item["path"] for item in source_manifest.capture(root)["files"]}
+    assert {"rag.ps1", "bootstrap.ps1", "rag.sh", "bootstrap.sh"} <= paths
+
+
+def _relocated_runtime(tmp_path):
+    """Livraison dont `.runtime` est un lien vers un autre volume (disque de données), manifestes compris."""
+    root = tmp_path / "livraison"
+    _tree(root)
+    volume = tmp_path / "volume" / "runtime"
+    (volume / "manifests").mkdir(parents=True)
+    (volume / "manifests/artifacts.json").write_text("{}\n", encoding="utf-8")
+    (root / ".runtime").symlink_to(volume, target_is_directory=True)
+    return root, volume
+
+
+@pytest.mark.skipif(os.name == "nt", reason="liens symboliques POSIX")
+def test_capture_accepts_a_runtime_folder_relocated_by_a_link(tmp_path, monkeypatch):
+    # Chaîne réelle Linux du 01/10 : `up` refusait de démarrer (« Source hors racine ou lien refusé ») parce que les
+    # manifestes de `.runtime/manifests` se résolvent sous la cible du lien `.runtime`, hors de la racine du programme.
+    root, _ = _relocated_runtime(tmp_path)
+    monkeypatch.setattr(source_manifest.shutil, "which", lambda name: None)
+    paths = {item["path"] for item in source_manifest.capture(root)["files"]}
+    assert ".runtime/manifests/artifacts.json" in paths and "services/demo.py" in paths
+
+
+@pytest.mark.skipif(os.name == "nt", reason="liens symboliques POSIX")
+@pytest.mark.parametrize("hostile", ["fichier_lien", "dossier_lien_sortant", "source_lien"])
+def test_capture_still_refuses_links_inside_the_sources_and_the_runtime_folder(tmp_path, monkeypatch, hostile):
+    root, volume = _relocated_runtime(tmp_path)
+    elsewhere = tmp_path / "ailleurs"
+    elsewhere.mkdir()
+    (elsewhere / "ollama-model.json").write_text("{}\n", encoding="utf-8")
+    if hostile == "fichier_lien":
+        (volume / "manifests/ollama-model.json").symlink_to(elsewhere / "ollama-model.json")
+    elif hostile == "dossier_lien_sortant":
+        (volume / "manifests/artifacts.json").unlink()
+        (volume / "manifests").rmdir()
+        (volume / "manifests").symlink_to(elsewhere, target_is_directory=True)
+        (elsewhere / "artifacts.json").write_text("{}\n", encoding="utf-8")
+    else:
+        (root / "services/lien.py").symlink_to(elsewhere / "ollama-model.json")
+    monkeypatch.setattr(source_manifest.shutil, "which", lambda name: None)
+    with pytest.raises(ValueError, match="Source hors racine ou lien refusé"):
+        source_manifest.capture(root)

@@ -1,6 +1,6 @@
 # Inventaire des textes de l'interface (lot R15, étape B du lot R16)
 
-**Rôle :** inventaire de tous les textes visibles ou restitués par `apps/web/src/`, avec leur réécriture et son motif · **Propriétaire :** lots R15/R16 (frontend) · **Statut :** Vivant ; textes implémentés et couverts en partie par les tests unitaires, rendu et parcours E2E à vérifier · **Référence :** commit `ae387a9` et modifications non commitées des étapes A et B du lot R16, corrections de la relecture indépendante comprises · **Mis à jour :** 2026-09-30 (UTC) · **Source de vérité :** `apps/web/src/` pour les textes livrés ; ce document pour les motifs.
+**Rôle :** inventaire de tous les textes visibles ou restitués par `apps/web/src/`, avec leur réécriture et son motif · **Propriétaire :** lots R15/R16 (frontend) · **Statut :** Vivant ; textes implémentés et couverts en partie par les tests unitaires, rendu et parcours E2E à vérifier · **Référence :** commit `ae387a9` et modifications non commitées des étapes A et B du lot R16, corrections de la relecture indépendante comprises · **Mis à jour :** 2026-09-30 (UTC), sections des commandes du lanceur, de la réindexation et de l'import d'un fichier identique le 2026-10-01 (UTC) · **Source de vérité :** `apps/web/src/` pour les textes livrés ; ce document pour les motifs.
 
 « Avant » désigne l'état au début de l'étape B (après l'étape A, non commitée). Un texte marqué *inchangé* a été relu et gardé. « Nouveau » signale un texte introduit par l'étape B. Les textes produits par le service (message d'erreur d'API, `job.error_message`, avertissements structurés, noms de documents et de sections) sont affichés tels qu'ils arrivent et ne figurent pas ici ; seuls leurs textes de repli, écrits dans `src/`, sont inventoriés.
 
@@ -293,6 +293,46 @@
 | `page.tsx`, titre | Atelier documentaire | *inchangé* | |
 | `page.tsx`, texte | Lire, retrouver et vérifier les sources de vos documents. | Importez des PDF, retrouvez un passage et posez vos questions : chaque réponse renvoie à la page et au texte qu'elle cite. | Dit ce que fait l'outil |
 | `page.tsx`, lien | Ouvrir l'espace de travail → | Ouvrir l'espace de travail (flèche masquée aux lecteurs d'écran) | Flèche décorative |
+
+## Commandes du lanceur selon le poste (W018, 1er octobre 2026)
+
+Le poste annonce ses commandes dans `GET /api/v1/health` (`commands.open`, `status`, `logs`, `doctor`) ; l'atelier les lit au chargement (`src/lib/launcher.ts`). Une commande annoncée est citée telle quelle ; une commande absente de la réponse prend le lanceur livré qu'emploient toutes les commandes annoncées (plateforme connue). « Windows » et « Linux » désignent le texte affiché une fois la plateforme connue ; « inconnues » le texte affiché tant qu'elle ne l'est pas (`/health` sans réponse ou en échec, lanceurs mêlés). Sous Windows, chaque texte est identique à celui d'avant W018 dès que la plateforme est connue, quel que soit l'ordre d'arrivée de `/health` et de la requête en échec : chaque composant garde l'échec et calcule son texte au rendu (`src/components/ui/error-text.tsx`). `tests/unit/windows-texts.test.ts` compare ces textes à ceux du commit 26fa7a5 lus par `git show` ; `tests/unit/launcher.test.ts`, `tests/unit/session-check.test.ts` et `tests/unit/error-text.test.ts` couvrent les autres cas.
+
+| Emplacement | Windows | Linux | Commandes inconnues |
+|---|---|---|---|
+| `warnings.ts` `serviceUnreachableMessage`, service injoignable | … Vérifiez qu'il est démarré (.\rag.ps1 status), puis réessayez. | … (./rag.sh status) … | … (.\rag.ps1 status sous Windows ou ./rag.sh status sous Linux) … |
+| `warnings.ts` `httpFailureMessage` (5xx) et `utils.ts` `errorMessage` | … la commande .\rag.ps1 logs en donne l'emplacement. | … ./rag.sh logs … | … .\rag.ps1 logs sous Windows ou ./rag.sh logs sous Linux … |
+| `warnings.ts` `readinessSentence` | La commande .\rag.ps1 doctor détaille chaque contrôle … | ./rag.sh doctor | .\rag.ps1 doctor sous Windows ou ./rag.sh doctor sous Linux |
+| `session.ts`, écran « Session requise » | Dans PowerShell, depuis le dossier du projet, lancez la commande ci-dessous … | Dans un terminal, … | Dans PowerShell sous Windows ou dans un terminal sous Linux, depuis le dossier du projet, lancez la commande de votre système ci-dessous … |
+| `session.ts`, écrans « Session expirée », « Session fermée », « Lien d'ouverture expiré ou déjà utilisé » | … avec la commande ci-dessous … | idem | … avec la commande de votre système ci-dessous … (deux lignes de commande affichées) |
+| `session-gate.tsx`, commande d'ouverture | `.\rag.ps1 open`, bouton « Copier la commande » | `./rag.sh open` | Deux lignes titrées « Windows » et « Linux », boutons « Copier la commande Windows » et « Copier la commande Linux » |
+| `app-topbar.tsx`, info-bulle « Fermer la session » | … Pour revenir : .\rag.ps1 open depuis le dossier du projet. | ./rag.sh open | .\rag.ps1 open sous Windows ou ./rag.sh open sous Linux |
+
+## Réindexation d'un document (1er octobre 2026)
+
+`POST /documents/{id}/reindex` répond selon le dernier traitement du document (contrat `reindex_outcomes`) : traitement en cours renvoyé (`reused`), traitement `paused` renvoyé avec `resume_required`, refus 409 `job_pausing` pendant une mise en pause, traitement neuf dans les autres cas, y compris pendant une annulation. Le menu du document lit cette réponse (`src/lib/reindex.ts`, `tests/unit/reindex.test.ts`).
+
+| Emplacement | Texte avant | Texte après | Motif |
+|---|---|---|---|
+| `document-tools.tsx`, avis après un nouveau traitement | Réindexation demandée : sa progression s'affiche dans le Suivi. | *inchangé* | — |
+| idem, traitement déjà en cours (`reused`) | Réindexation demandée : sa progression s'affiche dans le Suivi. | Un traitement de ce document est déjà en cours : aucune nouvelle réindexation n'a été lancée. Sa progression s'affiche dans le Suivi. | Aucune réindexation n'est lancée |
+| idem, traitement en pause (`resume_required`, `paused`) | Réindexation demandée : sa progression s'affiche dans le Suivi. | Le dernier traitement de ce document est en pause : la réindexation n'en lance pas un second. Reprenez-le pour poursuivre l'indexation depuis son dernier point de reprise. Bouton « Reprendre le traitement » (attente : « Reprise… »), puis « Reprise demandée : sa progression s'affiche dans le Suivi. » | Rien ne progressait sans reprise |
+| idem, `pausing` (409 `job_pausing`) | idem | Message du service sous le bouton, tel quel : « Mise en pause en cours pour ce document : attendre qu'elle aboutisse, puis reprendre ce travail depuis le Suivi. » | Le service refuse la demande sans créer de traitement ; l'atelier n'ajoute aucun texte |
+| idem, `cancelling` | idem | Réindexation demandée : sa progression s'affiche dans le Suivi. | Le service crée un traitement neuf, exécuté après l'annulation |
+| idem, `resume_required` avec un autre état que `paused` | idem | Un traitement suspendu de ce document existe déjà (état {code}) : aucune nouvelle réindexation n'a été lancée. Consultez le Suivi pour le reprendre. | Repli : ce service ne renvoie que `paused` ; aucune reprise proposée qui pourrait être refusée ; le code reste lisible |
+
+## Import d'un fichier identique dont le traitement est suspendu (1er octobre 2026)
+
+`POST /documents/import` renvoie, pour un fichier identique déjà importé au même chemin dont le traitement est `paused`, `pausing` ou `cancelling`, ce traitement avec `job_state` et `resume_required`, sans en lancer un autre (`Database.import_original`). L'avis de la bibliothèque le dit (`src/lib/import-outcome.ts`, `tests/unit/import-outcome.test.ts`). Les phrases ci-dessous suivent l'avis « {n} PDF reçus par le service[ ; {k} fichiers non PDF ignorés]. » ; « Ce fichier » quand un seul PDF est importé, « Un fichier » parmi plusieurs, « {n} fichiers étaient… leurs traitements… » au pluriel.
+
+| Emplacement | Texte avant | Texte après | Motif |
+|---|---|---|---|
+| `library-panel.tsx`, avis d'import sans traitement suspendu | {n} PDF reçus par le service[ ; {k} fichiers non PDF ignorés]. Leur extraction et leur indexation s'affichent dans le Suivi. | *inchangé* | — |
+| idem, autres fichiers de l'import | Leur extraction et leur indexation s'affichent dans le Suivi. | L'extraction et l'indexation de l'autre fichier / des {m} autres fichiers s'affichent dans le Suivi. | Seuls ces fichiers progressent |
+| idem, `paused` | idem | Ce fichier était déjà importé à l'identique et son traitement est en pause : l'import n'en lance pas un second. Reprenez-le pour poursuivre son indexation depuis son dernier point de reprise. Bouton « Reprendre le traitement » ou « Reprendre les {n} traitements » (attente : « Reprise… »), puis « Reprise demandée : sa progression s'affiche dans le Suivi. » ou « Reprises demandées : leur progression s'affiche dans le Suivi. » | Rien ne progressait sans reprise |
+| idem, `pausing` | idem | Ce fichier était déjà importé à l'identique et son traitement est en cours de mise en pause : l'import n'en lance pas un second. Une fois la pause effective, reprenez-le depuis le Suivi. | La reprise est refusée tant que la pause n'est pas effective (409 `job_not_resumable`) |
+| idem, `cancelling` | idem | Ce fichier était déjà importé à l'identique et son traitement est en cours d'annulation : l'import n'en lance pas un second. Une fois l'annulation terminée, importez-le de nouveau pour lancer un nouveau traitement ; le Suivi indique quand elle l'est. | Un traitement annulé n'est plus renvoyé : le réimport en crée un nouveau |
+| idem, autre état | idem | Ce fichier était déjà importé à l'identique et son traitement est suspendu (état {code}) : l'import n'en lance pas un second. Consultez le Suivi pour le reprendre. | Repli ; aucune action proposée qui pourrait échouer |
 
 ## Limites
 

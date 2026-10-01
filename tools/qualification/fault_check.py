@@ -12,6 +12,7 @@ Après reprise, chaque cas exige : traitement prêt, une seule génération publ
 double, autant de points Qdrant dans la collection que de fragments des générations actives, aucun nettoyage en attente.
 
     .venv\\Scripts\\python.exe tools/qualification/fault_check.py <cas> --instance <etat.json> --fixture <pdf> --report <rapport.json>
+    .venv/bin/python tools/qualification/fault_check.py <cas> --instance <etat.json> --fixture <pdf> --report <rapport.json>
 """
 
 from __future__ import annotations
@@ -22,6 +23,7 @@ import sqlite3
 import subprocess
 import sys
 import time
+from contextlib import suppress
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -33,6 +35,38 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 DONE = {"ready", "ready_partial", "error", "cancelled"}
+
+
+def kill_tree(pid: int) -> None:
+    """Arrêt forcé de l'arbre `pid` : aucune sortie propre, comme une coupure.
+
+    Windows : TerminateProcess de l'arbre (taskkill /F /T). Linux : l'arbre relevé par psutil est d'abord gelé
+    (SIGSTOP) : le superviseur ne réagit plus à la perte d'un enfant et le SIGTERM de PR_SET_PDEATHSIG reste en attente ;
+    chaque processus reçoit ensuite SIGKILL. psutil revérifie la date de création avant chaque signal.
+    """
+    if sys.platform == "win32":
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], capture_output=True, check=False)
+        return
+    try:
+        root = psutil.Process(pid)
+        root.suspend()
+    except psutil.Error:
+        return
+    tree = [root]
+    # Deux relevés : un enfant créé pendant le premier gel est rattrapé par le second.
+    for _ in range(2):
+        try:
+            found = root.children(recursive=True)
+        except psutil.Error:
+            found = []
+        for process in found:
+            if process not in tree:
+                with suppress(psutil.Error):
+                    process.suspend()
+                tree.append(process)
+    for process in tree:
+        with suppress(psutil.Error):
+            process.kill()
 
 
 class Isolated:
@@ -57,8 +91,7 @@ class Isolated:
             return None
 
     def kill_tree(self, pid: int) -> None:
-        # Arrêt forcé (TerminateProcess) de l'arbre : aucune sortie propre, comme une coupure.
-        subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], capture_output=True, check=False)
+        kill_tree(pid)
 
     def restart(self) -> str:
         from services.runtime.supervisor import start

@@ -1,3 +1,5 @@
+import { knownLauncherCommands, launcherText, type LauncherCommands } from "./launcher.ts";
+
 /**
  * Texte d'un avertissement du service : son message, sinon une phrase qui
  * garde le code pour le diagnostic. Aucun autre champ de l'objet n'est affiché.
@@ -84,10 +86,15 @@ export function readinessBlockerText(code: string): string {
   return Object.hasOwn(readinessLabels, code) ? readinessLabels[code] : `Composant local non prêt (code ${code})`;
 }
 
+/** Service injoignable (requête sans réponse) : la commande qui dit s'il est démarré. */
+export function serviceUnreachableMessage(commands: LauncherCommands | null = knownLauncherCommands()): string {
+  return `Le service local ne répond pas. Vérifiez qu'il est démarré (${launcherText("status", commands)}), puis réessayez.`;
+}
+
 /** Refus HTTP sans message du service : le statut reste lisible et l'action possible est indiquée. */
-export function httpFailureMessage(status: number): string {
+export function httpFailureMessage(status: number, commands: LauncherCommands | null = knownLauncherCommands()): string {
   return status >= 500
-    ? `Le service local a échoué (HTTP ${status}). Réessayez ; si l'échec persiste, consultez son journal : la commande .\\rag.ps1 logs en donne l'emplacement.`
+    ? `Le service local a échoué (HTTP ${status}). Réessayez ; si l'échec persiste, consultez son journal : la commande ${launcherText("logs", commands)} en donne l'emplacement.`
     : `Le service local a refusé la demande (HTTP ${status}).`;
 }
 
@@ -100,6 +107,6 @@ export function serviceDetail(input: { failed: boolean; error?: string; ready?: 
 }
 
 /** Message du bandeau de contexte quand `/readiness` signale des composants non prêts. */
-export function readinessSentence(blockers: string[]): string {
-  return `Préparation du poste incomplète : ${blockers.map(readinessBlockerText).join(", ")}. Les recherches et les questions qui en dépendent échouent tant que ces composants ne sont pas prêts. La commande .\\rag.ps1 doctor détaille chaque contrôle ; l'état est relu toutes les 10 secondes.`;
+export function readinessSentence(blockers: string[], commands: LauncherCommands | null = knownLauncherCommands()): string {
+  return `Préparation du poste incomplète : ${blockers.map(readinessBlockerText).join(", ")}. Les recherches et les questions qui en dépendent échouent tant que ces composants ne sont pas prêts. La commande ${launcherText("doctor", commands)} détaille chaque contrôle ; l'état est relu toutes les 10 secondes.`;
 }

@@ -1,12 +1,20 @@
 """Instance isolée pour les scénarios Playwright qui importent des fixtures (RAG_E2E_IMPORT_ALLOWED=1).
 
-`start` démarre une instance neuve dans une racine et des ports temporaires (mécanismes de `rag.ps1 selftest`, verrou
-lourd du poste partagé) et écrit dans --state son origine et le fichier de son jeton de contrôle ; la bibliothèque de
-l'utilisateur n'est jamais la cible. `stop` arrête cette instance et supprime sa racine.
+`start` démarre une instance neuve dans une racine et des ports temporaires (mécanismes de `rag.ps1 selftest` et de
+`rag.sh selftest`, verrou lourd du poste partagé) et écrit dans --state son origine et le fichier de son jeton de
+contrôle ; la bibliothèque de l'utilisateur n'est jamais la cible. `stop` arrête cette instance et supprime sa racine.
+
+Windows (PowerShell) :
 
     .venv\\Scripts\\python.exe tools/qualification/e2e_instance.py start --state <etat.json>
     $env:RAG_E2E_BASE_URL = <origin> ; $env:RAG_E2E_CONTROL_TOKEN_FILE = <token_file> ; $env:RAG_E2E_IMPORT_ALLOWED = '1'
     .venv\\Scripts\\python.exe tools/qualification/e2e_instance.py stop --state <etat.json>
+
+Linux (shell POSIX, depuis la racine du projet) :
+
+    .venv/bin/python tools/qualification/e2e_instance.py start --state <etat.json>
+    export RAG_E2E_BASE_URL=<origin> RAG_E2E_CONTROL_TOKEN_FILE=<token_file> RAG_E2E_IMPORT_ALLOWED=1
+    .venv/bin/python tools/qualification/e2e_instance.py stop --state <etat.json>
 """
 
 from __future__ import annotations

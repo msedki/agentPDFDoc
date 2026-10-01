@@ -12,7 +12,7 @@ from pathlib import Path
 
 from .artifacts import ROOT, file_hash, write_json_atomic
 
-FILES = ("AGENTS.md", "CLAUDE.md", "rag.ps1", "bootstrap.ps1", "pyproject.toml", "uv.lock",
+FILES = ("AGENTS.md", "CLAUDE.md", "rag.ps1", "bootstrap.ps1", "rag.sh", "bootstrap.sh", "pyproject.toml", "uv.lock",
          "config/local16.yaml", "config/artifacts.lock.json", "config/embedding-comparison.lock.json",
          "config/models.lock.json", "config/qdrant.collection.json",
          "apps/web/package.json", "apps/web/pnpm-lock.yaml", "apps/web/next.config.mjs",
@@ -66,8 +66,12 @@ def capture(root: Path = ROOT) -> dict:
         if path.is_file():
             selected.add(path)
     records = []
+    # `.runtime` peut être un lien vers un autre volume (données d'exécution sur un disque dédié) : ses manifestes sont
+    # admis sous la cible de ce lien. Tout autre lien, fichier ou dossier, et toute source hors racine restent refusés.
+    program, runtime = root.resolve(), (root / ".runtime").resolve()
     for path in sorted(selected):
-        if path.is_symlink() or not path.resolve().is_relative_to(root.resolve()):
+        base = runtime if path.relative_to(root).parts[0] == ".runtime" else program
+        if path.is_symlink() or not path.resolve().is_relative_to(base):
             raise ValueError("Source hors racine ou lien refusé")
         before = path.stat()
         digest = file_hash(path)

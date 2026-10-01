@@ -18,14 +18,17 @@ from urllib.parse import urlsplit
 import psutil
 
 from .artifacts import ROOT, file_hash, provision_artifacts, write_json_atomic
+from .platforms import executable_name, launcher_command, native_executable, platform_label
 from .resources import admission_requirement
 from .supervisor import (
+    ProcessJob,
     app_origin,
     control_headers,
     data_path,
     environment,
     load_profile,
     native_paths,
+    ollama_working_directory,
     owned_pids,
     port_states,
     qdrant_data_path,
@@ -36,9 +39,43 @@ from .supervisor import (
     supervise,
     wait_http,
 )
-from .windows_process import WindowsJob
 
 MODELS_LOCK = ROOT / "config/models.lock.json"
+PNPM_DEFAULT_VERSION = "10.34.1"
+
+
+def pnpm_required_version() -> str:
+    """Version de pnpm fixée par `packageManager` de l'interface (« pnpm@10.34.1+sha512… »)."""
+    try:
+        declared = json.loads((ROOT / "apps/web/package.json").read_text(encoding="utf-8")).get("packageManager", "")
+    except (OSError, ValueError):
+        declared = ""
+    name, _, version = str(declared).partition("@")
+    return version.split("+", 1)[0] if name == "pnpm" and version else PNPM_DEFAULT_VERSION
+
+
+def _tool_version(command: list[str]) -> str | None:
+    try:
+        probe = subprocess.run([*command, "--version"], capture_output=True, text=True, timeout=30, cwd=ROOT,
+                               env={**os.environ, "COREPACK_ENABLE_NETWORK": "0"})
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    return probe.stdout.strip() if probe.returncode == 0 else None
+
+
+def pnpm_command() -> list[str] | None:
+    """Commande pnpm : `pnpm.cmd` du PATH sous Windows ; sous Linux, pnpm du PATH s'il a la version de
+    `packageManager`, sinon `corepack pnpm`, qui applique cette version."""
+    if sys.platform == "win32":
+        found = shutil.which("pnpm.cmd")
+        return [found] if found else None
+    found = shutil.which("pnpm")
+    if found and _tool_version([found]) == pnpm_required_version():
+        return [found]
+    corepack = shutil.which("corepack")
+    if corepack:
+        return [corepack, "pnpm"]
+    return [found] if found else None
 
 
 def ollama_store_files(name: str, store: Path | None = None) -> dict:
@@ -127,7 +164,8 @@ def doctor(profile_path: Path) -> dict:
     profile = load_profile(profile_path)
     directory = data_path(profile)
     available = psutil.virtual_memory().available / 1048576
-    result: dict = {"utc": datetime.now(UTC).isoformat(), "platform": "Windows native, no WSL/Docker",
+    result: dict = {"utc": datetime.now(UTC).isoformat(),
+              "platform": "Windows native, no WSL/Docker" if sys.platform == "win32" else platform_label(),
               "python": {"version": sys.version.split()[0], "executable": sys.executable},
               "resources": {"available_mib": available,
                             "disk_free_mib": shutil.disk_usage(ROOT).free / 1048576},
@@ -136,7 +174,7 @@ def doctor(profile_path: Path) -> dict:
     checks = result["checks"]
     try:
         checks["qdrant_storage"] = {"status": "valid", "path": str(qdrant_data_path(profile, directory)),
-                                    "native_storage_path_limit": 57}
+                                    "native_storage_path_limit": 57 if sys.platform == "win32" else None}
     except ValueError as exc:
         checks["qdrant_storage"] = {"status": "invalid", "reason": str(exc)}
     runtime = result["runtime"]
@@ -182,15 +220,30 @@ def doctor(profile_path: Path) -> dict:
     checks["ocr_languages"] = {name: (ROOT / profile["pdf"]["tessdata_dir"] / (name + ".traineddata")).is_file()
                                for name in set(profile["pdf"]["ocr_languages"]) | {"osd"}}
     checks["ocr_tsv_config"] = (ROOT / profile["pdf"]["tessdata_dir"] / "configs/tsv").is_file()
-    checks["tesseract_binary"] = (ROOT / profile["pdf"]["tesseract_cmd"]).is_file()
+    checks["tesseract_binary"] = (ROOT / native_executable(profile["pdf"]["tesseract_cmd"])).is_file()
+    if sys.platform != "win32":
+        # Arrêt des enfants à la mort du superviseur (PR_SET_PDEATHSIG) : outil util-linux vérifié, pas supposé.
+        from .posix_process import setpriv_executable
+
+        try:
+            checks["parent_death_signal"] = {"status": "available", "setpriv": setpriv_executable()}
+        except RuntimeError as exc:
+            checks["parent_death_signal"] = {"status": "missing", "reason": str(exc)}
     result["node_tools"] = {}
-    for name, command in [("node", shutil.which("node.exe")), ("pnpm", shutil.which("pnpm.cmd"))]:
+    if sys.platform == "win32":
+        tools = [("node", shutil.which("node.exe")), ("pnpm", shutil.which("pnpm.cmd"))]
+    else:
+        tools = [("node", shutil.which("node")), ("pnpm", shutil.which("pnpm")), ("corepack", shutil.which("corepack"))]
+    for name, command in tools:
         if command:
             probe = subprocess.run([command, "--version"], capture_output=True, text=True, timeout=15,
                                    env={**os.environ, "COREPACK_ENABLE_NETWORK": "0"})
             result["node_tools"][name] = {"path": command, "version": probe.stdout.strip(), "exit_code": probe.returncode}
         else:
             result["node_tools"][name] = {"status": "absent_from_path"}
+    if sys.platform != "win32":
+        selected = pnpm_command()
+        result["node_tools"]["pnpm_selected"] = {"command": selected, "required_version": pnpm_required_version()}
     result["services"] = {}
     origin, verify = app_origin(profile)
     with httpx.Client(timeout=5, trust_env=False, verify=verify) as client:
@@ -340,8 +393,8 @@ def pull_model(profile_path: Path, offline: bool = False) -> dict:
     paths = native_paths()
     directory = ROOT / ".runtime/provision-service"
     env = environment(profile, directory, profile_path)
-    with WindowsJob() as job:
-        child = job.launch([str(paths["ollama"]), "serve"], cwd=ROOT, env=env,
+    with ProcessJob() as job:
+        child = job.launch([str(paths["ollama"]), "serve"], cwd=ollama_working_directory(paths["ollama"]), env=env,
                            log_path=directory / "ollama-pull.log")
         wait_http(llm["base_url"] + "/api/version", child, "0.35.0")
         with httpx.Client(timeout=httpx.Timeout(300, connect=10), trust_env=False) as client:
@@ -377,7 +430,7 @@ def pull_model(profile_path: Path, offline: bool = False) -> dict:
             result = source
             if llm["model"] != source_name:
                 result = _derive_text_model(client, llm["base_url"], profile, env, directory, source)
-        send_owned_console_interrupt(child)
+        send_owned_console_interrupt(child, "ollama")
         try:
             child.wait(30)
         except TimeoutError:
@@ -388,16 +441,16 @@ def pull_model(profile_path: Path, offline: bool = False) -> dict:
 def provision(profile_path: Path, only: str | None = None, offline: bool = False, skip_model: bool = False):
     if sys.version_info[:2] != (3, 12):
         raise RuntimeError("Provisionnement applicatif requis sous Python3.12 isolé")
-    uv = ROOT / ".runtime/bootstrap/bin/uv.exe"
+    uv = ROOT / ".runtime/bootstrap/bin" / executable_name("uv")
     if not only:
         subprocess.run([str(uv), "sync", "--locked", "--python", sys.executable, "--no-python-downloads",
                         "--cache-dir", str(ROOT / ".runtime/cache/uv"), *(["--offline"] if offline else [])],
                        cwd=ROOT, check=True)
         node_env = {**os.environ, "COREPACK_ENABLE_NETWORK": "0", "NEXT_TELEMETRY_DISABLED": "1"}
-        pnpm = shutil.which("pnpm.cmd")
+        pnpm = pnpm_command()
         if not pnpm:
             raise FileNotFoundError("pnpm10.34.1 requis ; doctor indique le prérequis manquant")
-        subprocess.run([pnpm, "install", "--frozen-lockfile", *(["--offline"] if offline else [])],
+        subprocess.run([*pnpm, "install", "--frozen-lockfile", *(["--offline"] if offline else [])],
                        cwd=ROOT / "apps/web", env=node_env, check=True)
     provision_artifacts(only, offline=offline)
     if not only:
@@ -405,7 +458,7 @@ def provision(profile_path: Path, only: str | None = None, offline: bool = False
         tesseract(load_profile(profile_path), offline=offline)
         # Même condition que le premier bloc, qui lève FileNotFoundError si pnpm manque.
         assert pnpm is not None
-        subprocess.run([pnpm, "run", "build"], cwd=ROOT / "apps/web",
+        subprocess.run([*pnpm, "run", "build"], cwd=ROOT / "apps/web",
                        env={**node_env, "NODE_OPTIONS": "--max-old-space-size=2048"}, check=True)
     if not only and not skip_model:
         if offline:
@@ -428,10 +481,10 @@ def open_workspace(profile_path: Path, *, launch: bool = True) -> dict[str, Any]
     profile = load_profile(profile_path)
     current = status(profile_path)
     if current.get("status") != "running":
-        raise RuntimeError("Instance non démarrée : lancer d'abord .\\rag.ps1 up")
+        raise RuntimeError("Instance non démarrée : lancer d'abord " + launcher_command("up"))
     headers = control_headers(data_path(profile))
     if not headers:
-        raise RuntimeError("Jeton de contrôle de l'instance absent : redémarrer avec .\\rag.ps1 down puis up")
+        raise RuntimeError("Jeton de contrôle de l'instance absent : redémarrer avec " + launcher_command("down") + " puis up")
     origin, verify = app_origin(profile)
     with httpx.Client(timeout=10, trust_env=False, verify=verify) as client:
         response = client.post(origin + "/api/v1/admin/session-links", headers=headers)
@@ -439,7 +492,15 @@ def open_workspace(profile_path: Path, *, launch: bool = True) -> dict[str, Any]
         link = response.json()
     url = origin + link["path"]
     if launch:
-        os.startfile(url)  # type: ignore[attr-defined]  # Windows seulement (W001) ; absent des stubs hors win32
+        if sys.platform == "win32":
+            os.startfile(url)
+        else:
+            import webbrowser
+
+            # Navigateur par défaut de la session (xdg-open sous Linux) ; sans navigateur, le lien n'est pas affiché.
+            if not webbrowser.open(url, new=2):
+                raise RuntimeError("Aucun navigateur disponible dans cette session : « .venv/bin/python -m services.runtime.cli "
+                                   "open --no-browser » affiche le lien à usage unique")
         # Le lien est un secret à usage unique : il n'est ni affiché ni écrit dans un rapport quand le navigateur l'a reçu.
         return {"opened_in_browser": True, "expires_in_seconds": link["expires_in_seconds"], "single_use": True}
     return {"opened_in_browser": False, "url": url, "expires_in_seconds": link["expires_in_seconds"], "single_use": True}

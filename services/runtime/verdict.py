@@ -10,6 +10,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from . import platforms
+
 GREEN, ORANGE, RED = "vert", "orange", "rouge"
 SEVERITY = {GREEN: 0, ORANGE: 1, RED: 2}
 
@@ -25,6 +27,21 @@ def mib(value: float) -> str:
     return f"{value:,.0f}".replace(",", " ") + " Mio"
 
 
+def on_this_host(windows: str, posix: str) -> str:
+    """Action propre au lanceur du poste : texte de rag.ps1 inchangé sous Windows (W001), rag.sh sous Linux (W018).
+
+    Le poste Linux n'a pas de kit d'installation : la reprise des fichiers du programme y passe par `provision`.
+    """
+    return windows if platforms.WINDOWS else posix
+
+
+def run(command: str) -> str:
+    return platforms.launcher_command(command)
+
+
+REPROVISION = "Relancez {} ; les données de l'utilisateur ne sont pas touchées."
+
+
 def rubric(name: str, level: str, message: str, action: str | None = None) -> dict[str, Any]:
     return {"rubric": name, "level": level, "message": message, **({"action": action} if action else {})}
 
@@ -36,7 +53,8 @@ def program_rubric(checks: dict[str, Any]) -> dict[str, Any]:
         missing.append(f"binaires Qdrant et Ollama ({checks['native_binaries']['error']})")
     if missing:
         return rubric("programme", RED, "Fichiers du programme absents ou incomplets : " + ", ".join(missing) + ".",
-                      "Réinstallez l'atelier depuis le kit ; les données de l'utilisateur ne sont pas touchées.")
+                      on_this_host("Réinstallez l'atelier depuis le kit ; les données de l'utilisateur ne sont pas touchées.",
+                                   REPROVISION.format(run("provision"))))
     return rubric("programme", GREEN, "Fichiers du programme présents.")
 
 
@@ -44,7 +62,8 @@ def model_rubric(checks: dict[str, Any]) -> dict[str, Any]:
     lock = checks.get("model_lock", {})
     if lock.get("status") == "invalid_lock":
         return rubric("modèle", RED, f"Verrou des modèles illisible : {lock.get('reason', 'raison inconnue')}.",
-                      "Réinstallez l'atelier depuis le kit.")
+                      on_this_host("Réinstallez l'atelier depuis le kit.",
+                                   "Rétablissez config/models.lock.json de la version installée, puis relancez " + run("doctor") + "."))
     if lock.get("profile_models_locked") is False:
         return rubric("modèle", RED, "Le modèle déclaré par le profil ne figure pas dans config/models.lock.json.",
                       "Rétablissez le profil généré à l'installation ou réinstallez l'atelier.")
@@ -53,15 +72,18 @@ def model_rubric(checks: dict[str, Any]) -> dict[str, Any]:
     altered = {name: model for name, model in sorted(models.items()) if model.get("status") == "nonconform"}
     if absent:
         return rubric("modèle", RED, "Modèle absent du stockage local : " + ", ".join(absent) + ".",
-                      r"Lancez .\rag.ps1 pull-model -Offline ; s'il échoue, réinstallez l'atelier depuis le kit.")
+                      on_this_host(r"Lancez .\rag.ps1 pull-model -Offline ; s'il échoue, réinstallez l'atelier depuis le kit.",
+                                   f"Lancez {run('pull-model --offline')} ; s'il échoue, lancez {run('pull-model')}, qui télécharge le modèle verrouillé."))
     if altered:
         detail = "; ".join(f"{name} ({', '.join(sorted({issue.get('issue', '?') for issue in model.get('issues', [])}))})"
                            for name, model in altered.items())
         return rubric("modèle", RED, f"Modèle différent du verrou : {detail}.",
-                      "Réinstallez l'atelier depuis le kit pour retrouver les fichiers vérifiés.")
+                      on_this_host("Réinstallez l'atelier depuis le kit pour retrouver les fichiers vérifiés.",
+                                   f"Relancez {run('pull-model')} pour retrouver les fichiers vérifiés."))
     if lock.get("status") != "conform":
         return rubric("modèle", RED, f"Conformité du modèle non établie (état {lock.get('status', 'inconnu')}).",
-                      r"Relancez .\rag.ps1 doctor ; si l'état persiste, réinstallez l'atelier.")
+                      on_this_host(r"Relancez .\rag.ps1 doctor ; si l'état persiste, réinstallez l'atelier.",
+                                   f"Relancez {run('doctor')} ; si l'état persiste, relancez {run('provision')}."))
     return rubric("modèle", GREEN, "Modèle vérifié contre le verrou : " + ", ".join(sorted(models)) + ".")
 
 
@@ -73,7 +95,7 @@ def profile_rubric(checks: dict[str, Any]) -> dict[str, Any]:
     application = checks.get("profile_application", {}).get("status")
     if application == "restart_required":
         return rubric("profil", ORANGE, "Le profil a changé depuis le démarrage de l'atelier : l'instance applique encore l'ancien.",
-                      r"Redémarrez : .\rag.ps1 down puis .\rag.ps1 up.")
+                      f"Redémarrez : {run('down')} puis {run('up')}.")
     return rubric("profil", GREEN, "Profil valide" + (", appliqué par l'instance démarrée." if application == "applied" else "."))
 
 
@@ -98,13 +120,13 @@ def library_state(result: dict[str, Any]) -> str:
 def services_rubric(result: dict[str, Any]) -> dict[str, Any]:
     state = result.get("runtime", {}).get("status", "stopped")
     if state in {"stopped", "failed"}:
-        return rubric("services", ORANGE, "Atelier arrêté.", r"Démarrez-le : .\rag.ps1 up, ou ouvrez-le par .\rag.ps1 open.")
+        return rubric("services", ORANGE, "Atelier arrêté.", f"Démarrez-le : {run('up')}, ou ouvrez-le par {run('open')}.")
     if state == "stale":
         return rubric("services", ORANGE, "État d'exécution périmé : le superviseur s'est arrêté sans le mettre à jour.",
-                      r"Relancez l'atelier : .\rag.ps1 up.")
+                      f"Relancez l'atelier : {run('up')}.")
     if state in {"starting", "stopping"}:
         return rubric("services", ORANGE, "Atelier en cours de " + ("démarrage." if state == "starting" else "arrêt."),
-                      r"Relancez .\rag.ps1 doctor dans une minute.")
+                      f"Relancez {run('doctor')} dans une minute.")
     ready = result.get("services", {}).get("api_ready", {})
     body = ready.get("body") if isinstance(ready.get("body"), dict) else {}
     if ready.get("http_status") != 200:
@@ -113,8 +135,10 @@ def services_rubric(result: dict[str, Any]) -> dict[str, Any]:
         if body.get("qdrant_collection") == "absent_with_published_generations":
             detail += " ; collection Qdrant absente alors que des documents sont publiés"
         return rubric("services", RED, f"Atelier démarré mais pas prêt : {detail}.",
-                      r"Consultez les journaux (.\rag.ps1 logs). Une collection perdue ne se recrée pas sur place : restaurez une "
-                      r"sauvegarde dans une racine neuve (.\rag.ps1 restore -Path <sauvegarde> -Target <racine neuve>).")
+                      f"Consultez les journaux ({run('logs')}). Une collection perdue ne se recrée pas sur place : restaurez une "
+                      "sauvegarde dans une racine neuve ("
+                      + on_this_host(r".\rag.ps1 restore -Path <sauvegarde> -Target <racine neuve>",
+                                     run("restore --path <sauvegarde> --target <racine neuve>")) + ").")
     return rubric("services", GREEN, f"Services démarrés et prêts ({library_state(result)}).")
 
 
@@ -129,7 +153,7 @@ def index_rubric(checks: dict[str, Any]) -> dict[str, Any]:
         return rubric("index", RED, f"Index incohérent pour {len(consistency.get('mismatches', []))} document(s) : points Qdrant et fragments SQLite diffèrent.",
                       "Réindexez les documents concernés depuis l'atelier ; si l'écart persiste, restaurez une sauvegarde dans une racine neuve.")
     reason = "atelier arrêté" if state == "api_unavailable" else f"état {state or 'inconnu'}"
-    return rubric("index", ORANGE, f"Cohérence de l'index non vérifiée ({reason}).", r"Démarrez l'atelier puis relancez .\rag.ps1 doctor.")
+    return rubric("index", ORANGE, f"Cohérence de l'index non vérifiée ({reason}).", f"Démarrez l'atelier puis relancez {run('doctor')}.")
 
 
 def memory_rubric(checks: dict[str, Any]) -> dict[str, Any]:

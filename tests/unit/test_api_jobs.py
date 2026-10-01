@@ -1,5 +1,7 @@
 import asyncio
 import json
+import sys
+import time
 from contextlib import asynccontextmanager
 
 import pytest
@@ -40,7 +42,8 @@ def test_api_job_pause_is_cooperative_and_resume_is_manual(storage):
         governor.pause = True
         assert db.one("SELECT state FROM jobs WHERE id=?", (job_id,))["state"] == "extracting"
         release.set()
-        for _ in range(100):
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline:
             if db.one("SELECT state FROM jobs WHERE id=?", (job_id,))["state"] == "paused":
                 break
             await asyncio.sleep(0.02)
@@ -345,3 +348,432 @@ def test_api_a_worker_that_leaves_no_result_is_not_mistaken_for_a_previous_run(s
         asyncio.run(supervisor.run(db.one("SELECT * FROM jobs WHERE id=?", (job_id,))))
     assert failed.value.code == "worker_failed" and "code 3" in failed.value.message
 
+
+
+def launch_capturing_worker(monkeypatch, extraction):
+    """Double explicite du lancement du worker : aucun processus, requête et environnement capturés, résultat écrit."""
+    from pathlib import Path
+
+    captured = {}
+    class FinishedWorker:
+        returncode, pid = 0, 4545
+        async def wait(self):
+            return 0
+    async def fake_worker(*args, **kwargs):
+        captured["args"], captured["env"] = args, kwargs["env"]
+        captured["request"] = json.loads(Path(args[args.index("--request") + 1]).read_text(encoding="utf-8"))
+        Path(args[args.index("--result") + 1]).write_text(json.dumps({"ok": True, "result": extraction}), encoding="utf-8")
+        return FinishedWorker()
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", fake_worker)
+    monkeypatch.setattr(JobSupervisor, "cached_extraction", lambda self, version: None)
+    return captured
+
+
+def test_api_worker_environment_withholds_instance_secrets(storage, monkeypatch):
+    """C3 : le worker qui analyse des PDF non fiables ne reçoit ni le jeton de contrôle ni les clés Qdrant."""
+    imported, extraction = import_fixture(storage)
+    settings, db, _, indexer = storage
+    for name in ("RAG_CONTROL_TOKEN", "RAG_QDRANT_API_KEY", "QDRANT__SERVICE__API_KEY"):
+        monkeypatch.setenv(name, "secret-de-test-" + name.lower())
+    monkeypatch.setenv("RAG_TEST_INHERITED", "conservée")
+    captured = launch_capturing_worker(monkeypatch, extraction)
+    job_id = new_job(db, imported)
+    asyncio.run(JobSupervisor(db, indexer, settings).run(db.one("SELECT * FROM jobs WHERE id=?", (job_id,))))
+    environment = captured["env"]
+    assert not {"RAG_CONTROL_TOKEN", "RAG_QDRANT_API_KEY", "QDRANT__SERVICE__API_KEY"} & {name.upper() for name in environment}
+    assert not any(value.startswith("secret-de-test-") for value in environment.values())
+    assert environment["RAG_TEST_INHERITED"] == "conservée" and environment["HF_HUB_OFFLINE"] == "1" and environment["OMP_NUM_THREADS"] == "2"
+    assert db.one("SELECT state FROM jobs WHERE id=?", (job_id,))["state"] == "ready"
+
+
+def test_api_worker_receives_the_native_tesseract_command_of_this_platform(storage, monkeypatch):
+    """W018 : `.exe` retiré hors Windows dans la requête du worker et dans l'empreinte du cache ; profil Windows inchangé."""
+    import sys
+
+    from services.runtime.platforms import native_executable
+
+    imported, extraction = import_fixture(storage)
+    settings, db, _, indexer = storage
+    configured = ".runtime/bin/tesseract-5.4.0/tesseract.exe"
+    settings.profile["pdf"] = {"tesseract_cmd": configured, "tessdata_dir": ".runtime/models/tessdata"}
+    captured = launch_capturing_worker(monkeypatch, extraction)
+    job_id = new_job(db, imported)
+    asyncio.run(JobSupervisor(db, indexer, settings).run(db.one("SELECT * FROM jobs WHERE id=?", (job_id,))))
+    sent = captured["request"]["config"]["pdf"]
+    expected = configured if sys.platform == "win32" else ".runtime/bin/tesseract-5.4.0/tesseract"
+    assert sent["tesseract_cmd"] == expected == native_executable(configured)
+    assert sent["tessdata_dir"] == ".runtime/models/tessdata" and settings.profile["pdf"]["tesseract_cmd"] == configured
+    # L'empreinte du cache d'extraction hache le même profil que celui du worker (doubles du lancement retirés).
+    monkeypatch.undo()
+    hashed = []
+    monkeypatch.setattr("services.ingestion.extraction_fingerprint", lambda config: hashed.append(config) or "fixture")
+    JobSupervisor(db, indexer, settings).cached_extraction(db.version(imported["version_id"]))
+    assert hashed and hashed[-1]["pdf"]["tesseract_cmd"] == expected
+
+
+def queued_import(storage, name="queued.pdf", text="CCU-21 : tension nominale 72 V."):
+    """Original importé et son travail en file, sans indexation ; extraction de fixture correspondante."""
+    import hashlib
+
+    settings, db, _, _ = storage
+    payload = b"%PDF-1.7\n" + text.encode()
+    digest = hashlib.sha256(payload).hexdigest()
+    blob = settings.data_dir / "originals" / (digest + ".pdf")
+    blob.parent.mkdir(parents=True, exist_ok=True)
+    blob.write_bytes(payload)
+    imported = db.import_original("folder/" + name, digest, blob)
+    extraction = {"sha256": digest, "fingerprint": "fixture-native-v1", "page_count": 1, "status": "ready",
+                  "pages": [{"page_index": 0, "width": 595, "height": 842, "blocks": [{"id": "b0", "type": "text", "text": text, "raw_text": text, "bbox": [10, 10, 100, 30], "precision": "block"}]}]}
+    return imported, extraction
+
+
+class FlakyGovernor:
+    """Double explicite du gouverneur : la première admission lève une erreur (ex. verrou d'hôte illisible), puis admet."""
+    def __init__(self):
+        self.calls = 0
+    def should_checkpoint(self):
+        return False
+    def allow_ingestion(self):
+        self.calls += 1
+        if self.calls == 1:
+            raise RuntimeError("verrou d'hôte illisible (simulé)")
+        return True
+    def resume_ingestion(self):
+        pass
+    @asynccontextmanager
+    async def ingestion(self):
+        yield
+
+
+@pytest.mark.parametrize("failure", ["queue", "governor"])
+def test_api_ingestion_loop_survives_queue_and_governor_errors(storage, monkeypatch, caplog, failure):
+    """C4 : une erreur de lecture de la file ou du gouverneur est journalisée et la boucle reprend après une attente bornée."""
+    import sqlite3
+
+    settings, db, _, indexer = storage
+    imported, extraction = queued_import(storage)
+    monkeypatch.setattr(JobSupervisor, "retry_base_seconds", 0.01, raising=False)
+    governor = FlakyGovernor() if failure == "governor" else None
+    if failure == "queue":
+        original_one, failures = db.one, [2]
+        def flaky_one(sql, parameters=()):
+            if sql.startswith("SELECT * FROM jobs WHERE state='queued'") and failures[0]:
+                failures[0] -= 1
+                raise sqlite3.OperationalError("database is locked")
+            return original_one(sql, parameters)
+        monkeypatch.setattr(db, "one", flaky_one)
+    async def runner(request):
+        return extraction
+    async def scenario():
+        supervisor = JobSupervisor(db, indexer, settings, governor, runner)
+        supervisor.start()
+        # Échéance large : sous charge (suite complète, extraction réelle en cours), 4 s ne suffisaient pas toujours.
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline:
+            if db.one("SELECT state FROM jobs WHERE id=?", (imported["job_id"],))["state"] == "ready":
+                break
+            await asyncio.sleep(0.02)
+        alive = not supervisor._task.done()
+        await supervisor.close()
+        return alive
+    with caplog.at_level("ERROR", logger="rag.jobs"):
+        alive = asyncio.run(scenario())
+    assert alive, "la boucle d'ingestion s'est arrêtée"
+    assert db.one("SELECT state FROM jobs WHERE id=?", (imported["job_id"],))["state"] == "ready"
+    assert "Sélection du prochain traitement impossible" in caplog.text and "nouvel essai" in caplog.text
+
+
+def test_api_ingestion_retry_delay_is_bounded_and_never_a_tight_loop():
+    from services.api.background import retry_delay
+
+    delays = [retry_delay(failures, JobSupervisor.retry_base_seconds, JobSupervisor.retry_max_seconds) for failures in range(1, 12)]
+    assert delays[0] == 0.5 and delays == sorted(delays) and max(delays) == 30.0
+
+
+def test_api_repeated_loop_failure_logs_its_traceback_once_until_the_error_changes(caplog):
+    import logging
+
+    from services.api.background import FailureLog
+
+    failures = FailureLog(logging.getLogger("rag.test"), 0.5, 30.0)
+    with caplog.at_level("ERROR", logger="rag.test"):
+        delays = [failures.failure("Lecture impossible", error) for error in
+                  (OSError("disque plein"), OSError("disque plein"), RuntimeError("autre cause"))]
+        failures.success()
+        delays.append(failures.failure("Lecture impossible", OSError("disque plein")))
+    assert delays == [0.5, 1.0, 2.0, 0.5]
+    assert [record.exc_info is not None for record in caplog.records] == [True, False, True, True]
+    assert "échec consécutif n° 2" in caplog.records[1].getMessage()
+
+
+def test_api_reconciler_loop_survives_a_failed_pass(storage, monkeypatch, caplog):
+    """C4 : une passe de nettoyage en erreur (SQLite verrouillé) n'arrête pas le nettoyage vectoriel."""
+    import sqlite3
+
+    from services.api.reconcile import Reconciler
+
+    imported, _ = import_fixture(storage)
+    settings, db, vectors, _ = storage
+    generation = db.one("SELECT active_generation_id FROM documents WHERE id=?", (imported["document_id"],))["active_generation_id"]
+    db.execute("INSERT INTO vector_cleanup VALUES(?,?,?,?,?,?)", (generation, "superseded", "pending", None, now(), now()))
+    monkeypatch.setattr(Reconciler, "interval_seconds", 0.01, raising=False)
+    reconciler = Reconciler(db, vectors)
+    original, failures = reconciler.pinned, [1]
+    def flaky_pinned():
+        if failures[0]:
+            failures[0] -= 1
+            raise sqlite3.OperationalError("database is locked")
+        return original()
+    reconciler.pinned = flaky_pinned
+    async def scenario():
+        reconciler.start()
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline:
+            if db.one("SELECT state FROM vector_cleanup WHERE generation_id=?", (generation,))["state"] != "pending":
+                break
+            await asyncio.sleep(0.02)
+        alive = not reconciler._task.done()
+        await reconciler.close()
+        return alive
+    with caplog.at_level("ERROR", logger="rag.reconcile"):
+        alive = asyncio.run(scenario())
+    assert alive, "la boucle de nettoyage s'est arrêtée"
+    # Génération encore active : conservée, et non supprimée, une fois la passe reprise.
+    assert db.one("SELECT state FROM vector_cleanup WHERE generation_id=?", (generation,))["state"] == "retained"
+    assert "Passe de nettoyage vectoriel en erreur" in caplog.text
+
+
+@pytest.mark.parametrize("owner", ["jobs", "reconciler"])
+def test_api_unexpected_end_of_a_background_loop_is_logged_and_does_not_break_shutdown(storage, caplog, owner):
+    """C4 : une boucle de fond qui s'arrête sans demande laisse une trace, et la fermeture de l'API se poursuit."""
+    from services.api.reconcile import Reconciler
+
+    settings, db, vectors, indexer = storage
+    loop_owner = JobSupervisor(db, indexer, settings) if owner == "jobs" else Reconciler(db, vectors)
+    async def broken_loop():
+        raise RuntimeError("défaut simulé hors de la reprise de la boucle")
+    loop_owner.loop = broken_loop
+    async def scenario():
+        loop_owner.start()
+        await asyncio.sleep(0.05)
+        await loop_owner.close()
+    with caplog.at_level("ERROR"):
+        asyncio.run(scenario())
+    assert "arrêtée par une erreur inattendue" in caplog.text and "défaut simulé" in caplog.text
+
+
+WORKER_DOUBLE = r'''
+import json, sys, time
+from pathlib import Path
+directory, result, payload, mode, seconds = Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3], sys.argv[4], float(sys.argv[5])
+deadline = time.monotonic() + seconds
+while time.monotonic() < deadline:
+    if mode == "trace":
+        with (directory / "worker-lifecycle.jsonl").open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps({"event": "page_load"}) + "\n")
+    time.sleep(0.2)
+result.write_text(json.dumps({"ok": True, "result": json.loads(payload)}), encoding="utf-8")
+'''
+
+
+def run_with_worker_double(storage, monkeypatch, mode, seconds, no_progress, window):
+    """Lance un vrai sous-processus, double explicite du worker : il écrit (ou non) sa trace de cycle de vie, sans fenêtre durable."""
+    import sys
+
+    imported, extraction = import_fixture(storage)
+    settings, db, _, indexer = storage
+    settings.profile["resources"] = {"scheduling": {"watchdog_no_progress_seconds_initial": no_progress, "watchdog_window_seconds_initial": window}}
+    real_exec = asyncio.create_subprocess_exec
+    async def launch(*args, **kwargs):
+        from pathlib import Path
+        result = Path(args[args.index("--result") + 1])
+        return await real_exec(sys.executable, "-c", WORKER_DOUBLE, str(result.parent), str(result), json.dumps(extraction), mode, str(seconds), **kwargs)
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", launch)
+    monkeypatch.setattr(JobSupervisor, "cached_extraction", lambda self, version: None)
+    job_id = new_job(db, imported)
+    supervisor = JobSupervisor(db, indexer, settings)
+    asyncio.run(supervisor.run(db.one("SELECT * FROM jobs WHERE id=?", (job_id,))))
+    return db, job_id
+
+
+def test_api_watchdog_does_not_kill_a_worker_that_progresses_within_its_window(storage, monkeypatch):
+    """C5 : une fenêtre plus longue que le délai sans progrès n'est pas coupée tant que le worker progresse."""
+    db, job_id = run_with_worker_double(storage, monkeypatch, "trace", 2.5, no_progress=1, window=10)
+    assert db.one("SELECT state FROM jobs WHERE id=?", (job_id,))["state"] == "ready"
+
+
+def test_api_watchdog_enforces_the_window_deadline_even_while_the_worker_progresses(storage, monkeypatch):
+    """C5 : la durée maximale d'une fenêtre s'applique à un worker actif, avec son propre motif."""
+    with pytest.raises(ApiError) as stopped:
+        run_with_worker_double(storage, monkeypatch, "trace", 8, no_progress=1, window=2)
+    assert stopped.value.code == "interrupted" and "durée maximale" in stopped.value.message
+    db = storage[1]
+    checkpoint = json.loads(db.one("SELECT checkpoint_json FROM jobs ORDER BY created_at DESC, rowid DESC LIMIT 1")["checkpoint_json"])
+    assert checkpoint["reason"] == "watchdog_window_deadline" and checkpoint["window_limit_seconds"] == 2
+
+
+def test_api_watchdog_stops_an_idle_worker_after_the_no_progress_delay(storage, monkeypatch):
+    with pytest.raises(ApiError) as stopped:
+        run_with_worker_double(storage, monkeypatch, "idle", 8, no_progress=1, window=10)
+    assert stopped.value.code == "interrupted" and "sans progrès" in stopped.value.message
+    checkpoint = json.loads(storage[1].one("SELECT checkpoint_json FROM jobs ORDER BY created_at DESC, rowid DESC LIMIT 1")["checkpoint_json"])
+    assert checkpoint["reason"] == "watchdog_no_progress" and checkpoint["seconds_since_progress"] > 1
+
+
+def test_api_watchdog_counts_cpu_work_and_durable_windows_as_progress(tmp_path):
+    """Horloge et temps CPU contrôlés : calcul du worker ou de Tesseract = progrès ; activité résiduelle = inactivité."""
+    from services.api.jobs import WorkerWatchdog
+
+    clock, cpu = [0.0], [0.0]
+    watchdog = WorkerWatchdog(tmp_path, 0, no_progress_seconds=300, window_seconds=900, clock=lambda: clock[0], cpu_seconds=lambda: cpu[0])
+    assert watchdog.observe() is None
+    # Calcul continu sur un cœur pendant 600 s, sans fichier : pas d'arrêt avant la durée maximale de fenêtre.
+    for _ in range(120):
+        clock[0] += 5
+        cpu[0] += 5
+        assert watchdog.observe() is None
+    # Fenêtre durable écrite : la durée de fenêtre repart.
+    (tmp_path / "window-000000-000003.json").write_text("{}", encoding="utf-8")
+    clock[0] += 5
+    assert watchdog.observe() is None and watchdog.durable_windows() == ["window-000000-000003.json"]
+    # Activité résiduelle (moins de 10 % d'un cœur) : inactivité au-delà de 300 s.
+    for _ in range(61):
+        clock[0] += 5
+        cpu[0] += 0.1
+        reason = watchdog.observe()
+    assert reason == "watchdog_no_progress"
+    # Calcul soutenu mais aucune fenêtre durable depuis plus de 900 s : durée maximale dépassée.
+    for _ in range(130):
+        clock[0] += 5
+        cpu[0] += 5
+        reason = watchdog.observe()
+    assert reason == "watchdog_window_deadline"
+
+
+class FakeCpuTree:
+    """Double explicite de psutil.Process : arbre de processus et temps CPU scriptés (pid -> création, temps, enfants)."""
+
+    def __init__(self):
+        self.table = {}
+
+    def process_class(self):
+        import contextlib
+
+        import psutil
+        table = self.table
+
+        class Process:
+            def __init__(self, pid):
+                if pid not in table:
+                    raise psutil.NoSuchProcess(pid)
+                self.pid = pid
+
+            def children(self, recursive=False):
+                return [Process(child) for child in table[self.pid]["children"] if child in table]
+
+            def oneshot(self):
+                return contextlib.nullcontext()
+
+            def cpu_times(self):
+                if self.pid not in table:
+                    raise psutil.NoSuchProcess(self.pid)
+                return table[self.pid]["times"]
+
+            def create_time(self):
+                return table[self.pid]["created"]
+
+        return Process
+
+
+def cpu_times(user, system=0.0, children_user=0.0, children_system=0.0):
+    from types import SimpleNamespace
+    return SimpleNamespace(user=user, system=system, children_user=children_user, children_system=children_system)
+
+
+def test_api_worker_cpu_counts_a_waited_child_once_when_the_kernel_reports_it_to_the_parent(monkeypatch):
+    """Revue A1 (C5), Linux : un Tesseract terminé et attendu passe dans children_* du worker ; il n'est plus compté deux fois."""
+    import psutil
+
+    from services.api.jobs import process_tree_cpu_seconds
+
+    tree = FakeCpuTree()
+    monkeypatch.setattr(psutil, "Process", tree.process_class())
+    observed = {}
+    tree.table.update({10: {"created": 1.0, "times": cpu_times(1.0), "children": [20]},
+                       20: {"created": 2.0, "times": cpu_times(2.0, 0.5), "children": []}})
+    assert process_tree_cpu_seconds(10, observed, waited_children_accounted=True) == pytest.approx(3.5)
+    # Tesseract terminé puis attendu : 3,0 s de CPU au total, désormais dans children_* du worker.
+    del tree.table[20]
+    tree.table[10] = {"created": 1.0, "times": cpu_times(1.0, children_user=2.4, children_system=0.6), "children": []}
+    assert process_tree_cpu_seconds(10, observed, waited_children_accounted=True) == pytest.approx(4.0)
+
+
+def test_api_worker_cpu_keeps_a_finished_child_where_the_kernel_does_not_report_it(monkeypatch):
+    """Windows (children_* toujours nuls) : la dernière valeur lue d'un enfant terminé reste comptée, sans changement."""
+    import psutil
+
+    from services.api.jobs import process_tree_cpu_seconds
+
+    tree = FakeCpuTree()
+    monkeypatch.setattr(psutil, "Process", tree.process_class())
+    observed = {}
+    tree.table.update({10: {"created": 1.0, "times": cpu_times(1.0), "children": [20]},
+                       20: {"created": 2.0, "times": cpu_times(2.0, 0.5), "children": []}})
+    assert process_tree_cpu_seconds(10, observed, waited_children_accounted=False) == pytest.approx(3.5)
+    del tree.table[20]
+    tree.table[10]["children"] = []
+    assert process_tree_cpu_seconds(10, observed, waited_children_accounted=False) == pytest.approx(3.5)
+    # Nouvel enfant réutilisant le même pid : clé distincte par date de création, contribution ajoutée.
+    tree.table[20] = {"created": 9.0, "times": cpu_times(0.25), "children": []}
+    tree.table[10]["children"] = [20]
+    assert process_tree_cpu_seconds(10, observed, waited_children_accounted=False) == pytest.approx(3.75)
+    del tree.table[10]
+    assert process_tree_cpu_seconds(10, observed, waited_children_accounted=False) is None
+
+
+PARENT_DOUBLE = r'''
+import subprocess, sys, time
+from pathlib import Path
+directory = Path(sys.argv[1])
+child = subprocess.Popen([sys.executable, "-c", (
+    "import sys, time\nfrom pathlib import Path\nd = Path(sys.argv[1])\nend = time.process_time() + 0.6\n"
+    "while time.process_time() < end:\n    pass\n(d / 'burned').write_text('1')\n"
+    "while not (d / 'exit').exists():\n    time.sleep(0.02)\n"), str(directory)])
+child.wait()
+(directory / "waited").write_text("1")
+time.sleep(60)
+'''
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="comptabilité noyau des enfants attendus (children_*) propre à POSIX")
+def test_api_worker_cpu_of_a_real_waited_child_is_not_counted_twice(tmp_path):
+    """Revue A1 (C5) sur le noyau réel : après l'attente d'un enfant qui a calculé 0,6 s, la mesure reste celle du noyau."""
+    import subprocess
+    import time
+
+    import psutil
+
+    from services.api.jobs import process_tree_cpu_seconds
+
+    def wait_for(name):
+        deadline = time.monotonic() + 30
+        while not (tmp_path / name).exists():
+            assert time.monotonic() < deadline, f"{name} absent"
+            time.sleep(0.02)
+
+    parent = subprocess.Popen([sys.executable, "-c", PARENT_DOUBLE, str(tmp_path)])
+    try:
+        observed = {}
+        wait_for("burned")
+        while_running = process_tree_cpu_seconds(parent.pid, observed)
+        assert while_running >= 0.5
+        (tmp_path / "exit").write_text("1")
+        wait_for("waited")
+        after_wait = process_tree_cpu_seconds(parent.pid, observed)
+        times = psutil.Process(parent.pid).cpu_times()
+        kernel = times.user + times.system + times.children_user + times.children_system
+        assert times.children_user + times.children_system >= 0.5
+        assert after_wait == pytest.approx(kernel, abs=0.05) and after_wait >= while_running - 0.05
+    finally:
+        parent.kill()
+        parent.wait()

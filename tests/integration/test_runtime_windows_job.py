@@ -7,7 +7,11 @@ from pathlib import Path
 import psutil
 import pytest
 
-from services.runtime.windows_process import WindowsJob
+if sys.platform != "win32":
+    # Ignoré avant tout import de pywin32 ; les mêmes garanties sous Linux : test_runtime_posix_job.py.
+    pytest.skip("Job Object Windows (pywin32)", allow_module_level=True)
+
+from services.runtime.windows_process import WindowsJob  # noqa: E402
 
 
 @pytest.mark.integration

@@ -5,6 +5,7 @@ from __future__ import annotations
 import ctypes
 import os
 import subprocess
+import sys
 import time
 import uuid
 from pathlib import Path
@@ -15,6 +16,9 @@ import win32api
 import win32con
 import win32job
 import win32process
+
+# Module Windows seulement : mypy ignore la suite hors --platform win32, et l'importer ailleurs est une erreur.
+assert sys.platform == "win32", "windows_process exige Windows ; posix_process s'applique sous Linux"
 
 
 class OwnedProcess:

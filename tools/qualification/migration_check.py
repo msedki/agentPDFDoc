@@ -7,6 +7,7 @@ toujours désigner leur révision d'extraction d'origine. L'instance est arrêt�
 court restent pour diagnostic, sauf avec --cleanup.
 
     .venv\\Scripts\\python.exe tools/qualification/migration_check.py --backup <sauvegarde> --target <racine neuve> --report <rapport.json>
+    .venv/bin/python tools/qualification/migration_check.py --backup <sauvegarde> --target <racine neuve> --report <rapport.json>
 """
 
 from __future__ import annotations

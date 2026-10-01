@@ -2,19 +2,26 @@
 
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
 import os
 import shutil
 import stat
+import tarfile
 import time
 import urllib.request
 import uuid
 import zipfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
+from .platforms import entries_for_platform
+
 ROOT = Path(__file__).resolve().parents[2]
+# Fenêtre zstd maximale acceptée (128 Mio, limite par défaut de zstd sans --long) : la mémoire de décompression reste
+# bornée ; l'archive Ollama 0.35.0 linux-arm64 annonce 8 Mio.
+ZSTD_MAX_WINDOW = 1 << 27
 ARTIFACT_LOCK = ROOT / "config" / "artifacts.lock.json"
 # Écritures d'exécution que le profil peut sortir du dossier programme (installation par utilisateur, DIST-02) ;
 # sans valeur, l'emplacement historique sous le dépôt est gardé.
@@ -150,6 +157,92 @@ def extract_verified_zip(archive_path: Path, destination: Path) -> list[dict[str
     return files
 
 
+def _checked_member(member: tarfile.TarInfo, destination: Path) -> tarfile.TarInfo:
+    """Membre accepté par le filtre `data` de tarfile, après refus explicite des chemins absolus et des `..`.
+
+    Le filtre `data` retire seulement la barre initiale d'un chemin absolu : il est refusé ici avant lui. Le filtre
+    refuse ensuite toute sortie de la destination (y compris par un lien déjà extrait), les liens absolus ou
+    sortants, les périphériques et tubes, et retire les bits setuid, setgid et d'écriture de groupe.
+    """
+    name = PurePosixPath(member.name)
+    if name.is_absolute() or member.name.startswith(("/", "\\")) or ".." in name.parts:
+        raise ValueError(f"Chemin absolu ou remontant refusé dans l'archive : {member.name}")
+    try:
+        return tarfile.data_filter(member, str(destination))
+    except tarfile.FilterError as exc:
+        raise ValueError(f"Membre refusé dans l'archive ({type(exc).__name__}) : {member.name}") from None
+
+
+def _refuse_write_through_link(root: Path, name: PurePosixPath, *, replaces_final: bool) -> None:
+    """Refuse un membre dont le chemin traverse un lien symbolique déjà présent sous la destination.
+
+    tarfile ouvre un fichier régulier en écriture sans retirer un lien existant : la cible serait écrasée et le
+    manifeste ne décrirait plus le disque. Un lien symbolique remplace le dernier élément (tarfile le retire avant
+    de le recréer) : seul son dossier parent est alors contrôlé.
+    """
+    parts = name.parts if not replaces_final else name.parts[:-1]
+    current = root
+    for part in parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError(f"Écriture à travers un lien refusée dans l'archive : {name}")
+
+
+def extract_verified_tar(archive_path: Path, destination: Path) -> dict[str, list[dict[str, Any]]]:
+    """Extraction en flux d'une archive .tar.gz ou .tar.zst ; SHA-256 de chaque fichier extrait.
+
+    zstd : `read_across_frames=True` lit l'archive multi-trame (celle d'Ollama) d'un seul tenant. Par défaut,
+    python-zstandard arrête chaque lecture à la fin d'une trame, et un lecteur qui prendrait cette lecture courte pour
+    la fin de l'archive la tronquerait sans erreur. Les liens symboliques internes sont consignés à part, avec leur
+    cible. Chaque nom de membre n'est admis qu'une fois et aucun membre n'est écrit à travers un lien : l'empreinte
+    relevée à l'extraction reste celle du fichier sur disque.
+    """
+    destination.mkdir(parents=True, exist_ok=True)
+    root = destination.resolve()
+    files: list[dict[str, Any]] = []
+    links: list[dict[str, Any]] = []
+    seen: set[PurePosixPath] = set()
+    with archive_path.open("rb") as raw:
+        if archive_path.name.endswith(".tar.zst"):
+            import zstandard
+
+            reader: Any = zstandard.ZstdDecompressor(max_window_size=ZSTD_MAX_WINDOW).stream_reader(
+                raw, read_across_frames=True, closefd=False)
+        elif archive_path.name.endswith((".tar.gz", ".tgz")):
+            reader = gzip.GzipFile(fileobj=raw, mode="rb")
+        else:
+            raise ValueError(f"Format d'archive non pris en charge : {archive_path.name}")
+        with reader, tarfile.open(fileobj=reader, mode="r|") as archive:
+            for member in archive:
+                accepted = _checked_member(member, root)
+                # Nom normalisé (« ./a » et « a », « lib/ » et « lib ») : un second membre du même nom réécrirait le premier.
+                name = PurePosixPath(accepted.name)
+                if name in seen:
+                    raise ValueError(f"Membre déjà présent dans l'archive : {member.name}")
+                seen.add(name)
+                _refuse_write_through_link(root, name, replaces_final=accepted.issym())
+                archive.extract(member, root, filter="data")
+                # Chemin consigné sous la racine du programme, sans résoudre les liens de l'installation (.runtime
+                # peut désigner un autre volume) ; native_paths résout les deux côtés avant de comparer.
+                recorded = str((destination / accepted.name).relative_to(ROOT))
+                if accepted.isreg() or accepted.islnk():
+                    extracted = root / accepted.name
+                    files.append({"path": recorded, "sha256": file_hash(extracted), "size": extracted.stat().st_size})
+                elif accepted.issym():
+                    links.append({"path": recorded, "target": accepted.linkname})
+            # Après la fin de l'archive tar, seul du remplissage nul est admis : d'autres octets échapperaient au contrôle.
+            for block in iter(lambda: reader.read(1024 * 1024), b""):
+                if block.strip(b"\0"):
+                    raise ValueError(f"Données après la fin de l'archive tar : {archive_path.name}")
+    return {"files": files, "links": links}
+
+
+def extract_verified_archive(archive_path: Path, destination: Path) -> dict[str, list[dict[str, Any]]]:
+    if archive_path.suffix == ".zip":
+        return {"files": extract_verified_zip(archive_path, destination), "links": []}
+    return extract_verified_tar(archive_path, destination)
+
+
 def provision_artifacts(only: str | None = None, *, offline: bool = False) -> dict[str, Any]:
     lock = json.loads(ARTIFACT_LOCK.read_text(encoding="utf-8"))
     manifest_path = ROOT / ".runtime" / "manifests" / "artifacts.json"
@@ -158,11 +251,15 @@ def provision_artifacts(only: str | None = None, *, offline: bool = False) -> di
         if only and name != only:
             continue
         records = []
-        for entry in entries:
+        # Seules les entrées de ce poste (sans champ platform, ou avec le sien) sont téléchargées.
+        for entry in entries_for_platform(entries):
             target = ROOT / entry["target"]
             record = download(entry, target, offline=offline)
             if entry.get("extract_to"):
-                record["extracted_files"] = extract_verified_zip(target, ROOT / entry["extract_to"])
+                extracted = extract_verified_archive(target, ROOT / entry["extract_to"])
+                record["extracted_files"] = extracted["files"]
+                if extracted["links"]:
+                    record["extracted_links"] = extracted["links"]
             records.append(record)
             manifest[name] = records
             write_json_atomic(manifest_path, manifest)

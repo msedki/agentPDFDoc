@@ -10,7 +10,7 @@ Les sections « Fichier » donnent le chemin relatif à `RAG_Local_Agents/` ; le
 
 # RAG PDF local — dossier de réalisation V2.1
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 **Référence :** RAG-LOCAL-16 / baseline documentaire 2.1 / 29 septembre 2026.
 **Statut :** référentiel d'exigences V2.1 (spécifications et consignes révisées après audit), base de la recette. L'application est implémentée dans ce dépôt et en cours de qualification ; l'état par critère est suivi dans [PLAN.md](PLAN.md) et [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
@@ -91,7 +91,7 @@ Ces commandes contrôlent le dossier documentaire, pas l'application. Les comman
 
 # Mission agents — RAG PDF local V2.1, CPU, 16 Go
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 Tu es l'agent principal chargé de **réaliser, intégrer et vérifier une application exploitable**, pas de produire uniquement un plan, un scaffold, des écrans factices ou un nouvel audit.
 
@@ -155,7 +155,7 @@ Commence par l'inspection ciblée du dépôt et de la machine, fixe les contrats
 
 # Instructions persistantes — RAG-LOCAL-16 V2.1
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 ## Mission et référentiel
 
@@ -225,7 +225,7 @@ Appliquer la règle « Référence de sécurité applicative » des `CLAUDE.md`/
 
 # Adaptateur de lecture — agents Claude Code
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 Lire [AGENTS.md](AGENTS.md) pour les consignes persistantes de ce dépôt, puis [RECHERCHE_ET_SKILLS.md](RECHERCHE_ET_SKILLS.md) pour toute décision technique significative. Conserver les instructions préexistantes de l'environnement.
 
@@ -241,7 +241,7 @@ Ne pas exposer les skills de développement au LLM documentaire local. Ne pas en
 
 # Sources officielles, étude technique et skills — consignes obligatoires
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 **Baseline :** RAG-LOCAL-16 V2.1. **Application :** agent principal et tous les sous-agents, pendant l'étude, le développement, le diagnostic et la maintenance. Les règles ci-dessous ne donnent aucun accès Internet au LLM documentaire du produit.
 
@@ -327,7 +327,7 @@ Le **travail des agents** peut consulter Internet selon l'autorisation de l'util
 
 **Statut :** registre vivant des skills présents dans le dépôt. **Date :** 30/09/2026 (UTC). **Référence :** empreintes SHA-256 des fichiers de la révision Git qui contient ce registre, recontrôlées à chaque exécution de `tools/verify_pack.py`.
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 ## Point d'entrée
 
@@ -350,7 +350,7 @@ Lire les noms/descriptions, choisir le skill utile, puis ouvrir son fichier. Si 
 | Poste documentaire `apps/web` : Next.js/PDF.js, périmètres, citations, textes d'interface | [pdf-workspace-web](../.agents/skills/pdf-workspace-web/SKILL.md) | Export statique, E2E D06 sur l'API réelle ; hors extraction et provisionnement des modèles |
 | PDF synthétiques et annotations de qualification, séparation développement/final | [rag-qualification-fixtures](../.agents/skills/rag-qualification-fixtures/SKILL.md) | Fixtures hashées ; ni benchmark métier ni import/indexation |
 | Provisionnement, supervision et arrêt ciblé des processus natifs Windows | [windows-rag-runtime](../.agents/skills/windows-rag-runtime/SKILL.md) | Versions verrouillées, Job Object, aucun WSL/Docker ni mutation système |
-| Provisionnement, supervision et arrêt ciblé des processus natifs Linux aarch64 (W018, sans sudo) | [linux-rag-runtime](../.agents/skills/linux-rag-runtime/SKILL.md) | uv et torch +cpu, binaires arm64 vérifiés, Tesseract compilé en espace utilisateur, groupes de processus et `flock` ; aucun sudo ni Docker, comportement Windows inchangé |
+| Provisionnement, supervision et arrêt ciblé des processus natifs Linux aarch64 et x86-64 (W018, sans sudo) | [linux-rag-runtime](../.agents/skills/linux-rag-runtime/SKILL.md) | uv et torch +cpu, binaires arm64 vérifiés, Tesseract compilé en espace utilisateur, groupes de processus et `flock` ; aucun sudo ni Docker, comportement Windows inchangé |
 | Comparatif d'embedding E5-small INT8 / Granite 97M R2 ONNX CPU | [embedding-comparison-windows](../.agents/skills/embedding-comparison-windows/SKILL.md) | Collections séparées, décision tracée ; modèle actif inchangé sans décision |
 
 ## Découverte et compatibilité avec les agents
@@ -390,7 +390,7 @@ Chaque ligne donne le fichier, son origine telle qu'elle se constate dans le dé
 | rag-qualification-fixtures | projet | [`.agents/skills/rag-qualification-fixtures/SKILL.md`](../.agents/skills/rag-qualification-fixtures/SKILL.md) | Rédigé pour ce dépôt (renvoie à `RAG_Local_Agents/`) ; création non tracée dans `PLAN.md` ni le journal | `04dd992863315562c3910ab05fac6e353843fc70e11ce199b19df759fb8f2e7f` | PASS `agents_skill_format` | NOT_RUN |
 | windows-rag-runtime | projet | [`.agents/skills/windows-rag-runtime/SKILL.md`](../.agents/skills/windows-rag-runtime/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot E de `PLAN.md` ; lecture consignée dans `reports/skills-usage-2026-09-30.json` | `fb0b076d820cb4da0448eee37eeda7840343cc3b7bc56ef93c9149b3e283f451` | PASS `agents_skill_format` | NOT_RUN |
 | embedding-comparison-windows | projet | [`.agents/skills/embedding-comparison-windows/SKILL.md`](../.agents/skills/embedding-comparison-windows/SKILL.md) | Rédigé pour ce dépôt ; création consignée au journal du 30/09/2026 | `b2f18df54759dff6273605215188d22f9d1462f302e1ccd4e2292058020fa49f` | PASS `agents_skill_format` | NOT_RUN |
-| linux-rag-runtime | projet | [`.agents/skills/linux-rag-runtime/SKILL.md`](../.agents/skills/linux-rag-runtime/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot J0 de `PLAN.md` (W018) ; sources officielles consultées le 01/10/2026 (LNX01 à LNX15 de `SOURCES.md`), affirmations revérifiées par un vérificateur indépendant | `23e0a6cd18dfb0a0650991a0eeae1d6a2a434013ca78ac5457451952463b476c` | PASS `agents_skill_format` | NOT_RUN |
+| linux-rag-runtime | projet | [`.agents/skills/linux-rag-runtime/SKILL.md`](../.agents/skills/linux-rag-runtime/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot J0 de `PLAN.md` (W018) ; sources officielles consultées le 01/10/2026 (LNX01 à LNX15 de `SOURCES.md`), affirmations revérifiées par un vérificateur indépendant | `f8fd4e98a2883183cab586232b785e8164169afdad4b31a54828f6ee5a570da8` | PASS `agents_skill_format` | NOT_RUN |
 | backend-patterns | tiers | [`.agents/skills/backend-patterns/SKILL.md`](../.agents/skills/backend-patterns/SKILL.md) | Autre projet : décrit le backend Decodair (PostgreSQL, SQLAlchemy 2) et renvoie au skill `postgresql-data-pipelines`, absent ici | `15bcac61e48183586d8b3ecd8cebabda3ad9c9ae782a3f4beb5dab7adecc986f` | PASS `agents_skill_format` | NOT_RUN |
 | agent-introspection-debugging | tiers | [`.agents/skills/agent-introspection-debugging/SKILL.md`](../.agents/skills/agent-introspection-debugging/SKILL.md) | Champ `origin: ECC` et section « Integration with ECC » ; source non vérifiée | `84f817fd626369280affe13883acb490c3856c0b108f9bb2ff78a59c7ce78aff` | PASS `agents_skill_format` | NOT_RUN |
 | frontend-design | tiers | [`.agents/skills/frontend-design/SKILL.md`](../.agents/skills/frontend-design/SKILL.md) | Aucune origine déclarée ; contenu générique sans référence à ce dépôt ; source non vérifiée | `50aff55b89e8d2699940dfa7308db236aed7749c7efebf92451ba00b0ca5b95e` | PASS `agents_skill_format` | NOT_RUN |
@@ -430,7 +430,7 @@ La recette agent doit ajouter une tâche de bon déclenchement, une de non-décl
 
 # Spécification et architecture — V2.1 corrigée
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 **Baseline de conception :** RAG-LOCAL-16 v2.1. Les invariants sont obligatoires ; les paramètres initiaux sont qualifiés selon `QUALIFICATION.md` puis verrouillés. Voir `DECISIONS.md` et les références de `SOURCES.md`.
 
@@ -618,7 +618,7 @@ Le registre [SKILLS.md](SKILLS.md) oriente les agents vers les compétences util
 
 # Contrats et instructions d'implémentation — V2.1
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 Baseline RAG-LOCAL-16 v2.1. Ce document décrit l'application **à réaliser**. Les routes, modules et commandes ci-dessous sont ses contrats cibles ; ils ne sont pas annoncés comme déjà exécutables dans ce dossier documentaire.
 
@@ -859,7 +859,7 @@ Les skills choisis dans [SKILLS.md](SKILLS.md) assistent le développement, sans
 
 # Configuration et provisionnement — V2.1, profil local16
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 ## 1. Nature des configurations
 
@@ -950,17 +950,17 @@ Le JSON de collection exprime le placement par `memory`, successeur de `on_disk`
 
 Créer les index de payload generation_id, version_id, document_id et page_indices. Le modèle actif impose collection, dimension et identité du pipeline ; une query emploie le vecteur nommé `dense`. BM25 reste dans SQLite. Ne pas optimiser l'index selon la seule taille des vecteurs : mesurer payloads, graphe, caches, segments et processus.
 
-SQLite : WAL, foreign_keys, busy_timeout 5 000 ms et cache initial 32 Mio par connexion, peu de connexions et transactions courtes. Tester FTS5 avec une vraie table temporaire. `config/lexical.sql` valide les triggers et le classement de base, pas toutes les migrations métier.
+SQLite : WAL, foreign_keys, busy_timeout 5 000 ms et cache initial 32 Mio par connexion, peu de connexions et transactions courtes. `sqlite.busy_timeout_ms` et `sqlite.cache_size_kib` sont lus ; `journal_mode`, `foreign_keys` et `fts_tokenizer` n'ont qu'une valeur prise en charge, refusée sinon au démarrage (W021) ; `sqlite.path` est informatif : la base effective est `<app.data_dir>/app.sqlite3`. Tester FTS5 avec une vraie table temporaire. `config/lexical.sql` valide les triggers et le classement de base, pas toutes les migrations métier.
 
 ## 7. Ordonnancement, UI et plateformes
 
-`resources.scheduling.pause_policy=cooperative_checkpoint`. La reprise automatique reste désactivée ; l'UI expose pause/reprise et les unités réellement achevées. Watchdog initial : absence de progrès 300 s, durée maximale d'une fenêtre 900 s ; ces plafonds sont des protections à qualifier, non une promesse de latence interactive. Une question peut attendre le prochain checkpoint ; elle doit voir cette attente. Annulation explicite et pression mémoire restent des motifs d'arrêt contrôlé.
+`resources.scheduling.pause_policy=cooperative_checkpoint`. La reprise automatique reste désactivée ; l'UI expose pause/reprise et les unités réellement achevées. Watchdog du worker d'extraction (`WorkerWatchdog`, `services/api/jobs.py`) : deux limites indépendantes lues dans `resources.scheduling` (interprétation à confirmer, point à trancher 7 du plan). Absence de progrès, `watchdog_no_progress_seconds_initial` (300 s) : aucun fichier nouveau ou modifié dans le dossier du travail (`window-*.json`, `docling-*.json`, `preflight.json`, `worker-lifecycle.jsonl`, `extraction.json`) et un temps CPU du worker et de ses descendants (Tesseract) inférieur à 10 % d'un cœur, mesuré toutes les 5 s. Durée maximale d'une fenêtre, `watchdog_window_seconds_initial` (900 s) : temps écoulé depuis la dernière fenêtre durable, même si le worker reste actif. Les deux seuils de mesure du CPU (10 % d'un cœur, 5 s) sont fixés dans le code. Chaque seconde de CPU est comptée une fois : sous Linux, celle d'un enfant terminé est lue dans les champs `children_*` de son parent ; sous Windows, la dernière valeur lue d'un enfant terminé est conservée. Le motif (`watchdog_no_progress` ou `watchdog_window_deadline`) et les durées observées sont enregistrés ; le travail passe en pause, reprise manuelle depuis les fenêtres durables. Ces plafonds sont des protections à qualifier, non une promesse de latence interactive. Une question peut attendre le prochain checkpoint ; elle doit voir cette attente. Annulation explicite et pression mémoire restent des motifs d'arrêt contrôlé.
 
 Le nombre de workers ne borne pas toutes les allocations. Le gouverneur prend les pics mesurés et la réserve hôte avant admission. Remplacer progressivement les estimations prudentes par les mesures enregistrées, sans effacer leurs conditions.
 
 L'UI utilise Next.js export statique, `out/` servi par FastAPI ; pas de serveur Node permanent. Worker PDF.js et viewer de même version, assets locaux. Le plafond de pixels inclut les miniatures ; libérer les canvases, annuler les rendus obsolètes et réduire le raster hors écran. Les positions des sélections sont des points de code Unicode dans le texte canonique hashé ; l'API ne reçoit pas des offsets UTF-16 non convertis.
 
-Windows natif constitue la cible W001. Les données actives sont stockées sur NTFS dans la racine gérée. La recette inclut les services, le navigateur et la mémoire hôte. Aucun swap soutenu ne doit servir à masquer un dépassement de mémoire.
+Windows natif constitue la cible W001 ; Linux natif (aarch64, x86-64) la seconde plateforme (W018). Les données actives sont stockées dans la racine gérée (NTFS sous Windows, système de fichiers POSIX local sous Linux ; `.runtime/` et `.venv/` peuvent y être des liens vers un autre volume). Sous Linux, `pdf.tesseract_cmd` désigne le même emplacement sans le suffixe `.exe` (`platforms.native_executable`) : le binaire y est compilé par `provision` depuis les sources verrouillées. Clés lues ou bornées par le runtime sur les deux plateformes (W021) : `app.offline: true` et `app.telemetry: false` (profil refusé sinon), `app.asgi_workers: 1`, `llm.keep_alive` (transmis à Ollama et à la calibration), `resources.scheduling.initial_mode: interactive`, `resources.unload_llm_before_ingestion` (décharge le modèle avant chaque extraction). Clés informatives, sans lecteur dans le code : `qdrant.vector_storage_initial`, `qdrant.hnsw_storage_initial` (le placement réel vient de `qdrant.collection.json`), `embedding.qualification.*`, `resources.application_target_max_mib` (cible de mesure D07), `resources.scheduling.record_checkpoint_and_reload_costs`, la plupart des `ui.*` et `evaluation_targets.*`, et les clés `pdf.*` que l'ingestion gelée ne lit pas (W022). La recette inclut les services, le navigateur et la mémoire hôte. Aucun swap soutenu ne doit servir à masquer un dépassement de mémoire.
 
 ## 8. Versions, hors ligne et fichiers dérivés
 
@@ -994,6 +994,8 @@ Python cible reste 3.12 dans un environnement dédié, sans écraser le Python 3
 ## Commandes et prérequis
 
 Depuis la racine du dépôt, PowerShell 5.1, Node 22.17.0 et pnpm 10.34.1 déjà présents sur le poste. `./bootstrap.ps1` prépare uv 0.12.21 et Python 3.12.14 dans le projet ; `-Offline` utilise les caches existants. `./rag.ps1 provision` synchronise les locks, vérifie les artefacts, prépare le build et le modèle. Tesseract 5.4.0 Windows est un prérequis local copié dans le projet avec ses DLL et hashes : sa provenance d'installateur reste non authentifiée indépendamment. Aucun installateur tiers ni paramètre système n'est appliqué automatiquement.
+
+Le frontend fixe pnpm 10.34.1 par le champ `packageManager` de `apps/web/package.json` (01/10/2026, J4) ; `rag.ps1 provision` emploie le `pnpm.cmd` du poste, qui doit être cette version. Le build surveillé `apps/web/scripts/build-monitored.py` choisit Node dans l'ordre : variable `RAG_WEB_NODE`, puis `D:\node\node-v22.17.0-win-x64\node.exe` s'il existe (repli du poste de qualification), puis `node` du PATH ; il lance pnpm par le Corepack de ce Node, sans réseau, et s'arrête avant le build, avec la commande à exécuter une fois avec réseau, si pnpm 10.34.1 manque au cache de Corepack. **Non vérifié sur le poste Windows à ce jour** : depuis `apps\web`, `$env:COREPACK_ENABLE_NETWORK='0'` puis `pnpm.js --version` du Corepack de ce Node doit rendre `10.34.1`.
 
 | Entrée | Comportement implémenté et limite |
 |---|---|
@@ -1057,7 +1059,7 @@ Le résultat attendu demeure une chaîne réelle import → OCR/extraction → d
 
 # Qualification ciblée — RAG-LOCAL-16 V2.1
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 ## 1. Objet et limites
 
@@ -1166,7 +1168,7 @@ Le scénario chat/import mesure chargements par transition, travail non validé 
 
 Pour chaque essai : objectif, hypothèse, données, commit, versions, machine, commande, résultats bruts, interprétation et décision. Statuts `NOT_RUN`, `PASS`, `FAIL`, `BLOCKED`. Ne pas affirmer qu'un modèle est SOTA parce qu'il est récent, ni qu'une dépendance est compatible parce qu'elle est installable.
 
-Garder un tableau des critères DoD avec leur preuve. Les résultats de `tools/verify_bundle.py` restent dans la catégorie **contrôles documentaires/de référence**, jamais parmi les essais applicatifs Q-CPU/Q-PDF/Q-SEARCH.
+Garder un tableau des critères DoD avec leur preuve. Les résultats de `tools/verify_pack.py` restent dans la catégorie **contrôles documentaires/de référence**, jamais parmi les essais applicatifs Q-CPU/Q-PDF/Q-SEARCH.
 
 
 ## Sources et skills dans chaque essai
@@ -1181,7 +1183,7 @@ Pour chaque skill retenu, vérifier une tâche pertinente et une tâche hors pé
 
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 ## Règle de clôture
 
@@ -1189,7 +1191,7 @@ Un critère est `PASS` uniquement avec une preuve reproductible associée au com
 
 Les seuils suivants sont des objectifs de recette, pas des performances déjà atteintes. Ne pas les diminuer après un échec pour afficher un succès. Une modification approuvée du périmètre exige une nouvelle baseline, une justification et une nouvelle recette.
 
-**Qualification par plateforme (W018, 01/10/2026).** Le produit cible Windows 11 x86-64 (W001) et Linux aarch64 (W018). Les cases et preuves des sections D01 à D11 portent la qualification Windows acquise jusqu'au 01/10 ; une preuve vaut pour la machine qu'elle déclare. La plateforme Linux aarch64 est qualifiée séparément, dans le tableau « Qualification Linux aarch64 » en fin de document, avec les mêmes critères et les mêmes seuils ; aucune preuve Linux ne coche une case Windows, et réciproquement.
+**Qualification par plateforme (W018, 01/10/2026).** Le produit cible toute machine Windows 11 x86-64 (W001) et Linux natif aarch64 ou x86-64 (W018 et son complément). Les cases et preuves des sections D01 à D11 portent la qualification Windows acquise jusqu'au 01/10 ; une preuve vaut pour la machine qu'elle déclare. La plateforme Linux est qualifiée séparément, dans le tableau « Qualification Linux » en fin de document, avec les mêmes critères et les mêmes seuils ; aucune preuve Linux ne coche une case Windows, et réciproquement.
 
 La validation sur fixtures et la validation sur documents métier réels sont distinctes. Si aucun corpus privé autorisé n'est disponible, produire les fixtures synthétiques, réaliser tout ce qui est testable et marquer la qualification métier `BLOCKED — corpus métier absent`. Ne pas présenter cette limite comme un échec général de l'application ni inventer un corpus représentatif.
 
@@ -1388,9 +1390,9 @@ Preuve01/10/2026 (D10.3) : schéma OpenAPI officiel du tag Qdrant v1.19.1 consul
 
 **Preuves :** registre de décision/source, diff des fichiers, références des skills lus/utilisés, résultats des tests de contrat/migration/skills et limites explicites. Ces critères concernent le travail des agents, pas des fonctionnalités réseau du produit.
 
-## Qualification Linux aarch64 (W018)
+## Qualification Linux (W018)
 
-Poste : Jetson AGX Orin Developer Kit, L4T R35.4.1, Ubuntu 20.04.6, glibc 2.31, `MODE_30W` (8 cœurs en ligne), 61 Gio. Statuts permis : `NOT_RUN`, `PASS`, `FAIL`, `BLOCKED`, avec preuve liée au commit, à la configuration, au corpus et à la machine. Tenu par le lot J8 du [plan](PLAN.md).
+Poste de qualification Linux aarch64 : Jetson AGX Orin Developer Kit, L4T R35.4.1, Ubuntu 20.04.6, glibc 2.31, `MODE_30W` (8 cœurs en ligne), 61 Gio. Statuts permis : `NOT_RUN`, `PASS`, `FAIL`, `BLOCKED`, avec preuve liée au commit, à la configuration, au corpus et à la machine. Linux x86-64 : verrou et artefacts résolus, aucune machine de qualification à ce jour ; ses critères restent `NOT_RUN`. Tenu par le lot J8 du [plan](PLAN.md).
 
 | Section | Statut Linux | Preuve et limite |
 |---|---|---|
@@ -1854,13 +1856,13 @@ En cours : attente d'une mémoire libre d'au moins 5 120 Mio avant de relancer l
 
 | ID | Lot / couche | Dépendances | Livrable | Validation | Statut / preuve |
 |---|---|---|---|---|---|
-| J0 | Préalables | — | Identité Git locale, W018, skill Linux depuis sources officielles, registre des skills et sources | `verify_pack` PASS ; skill lu et appliqué | IN_PROGRESS — identité et W018 faits |
-| J1 | Environnement Python double plateforme | J0 | `pyproject.toml` et `uv.lock` pour `win32/AMD64` et `linux/aarch64`, `bootstrap.sh` | Résolution Windows identique ; `uv sync --locked` PASS sous Linux | IN_PROGRESS — verrou re-résolu à 15:09 : partie Windows identique (paquets, roues, empreintes), seuls `torch 2.14.0+cpu` et `torchvision 0.29.0+cpu` ajoutés pour Linux |
-| J2 | Runtime POSIX | J1 | Supervision Linux (groupe de processus, signaux, `flock`, environnement des enfants, binaires par plateforme), CLI, verrous d'artefacts par plateforme, `rag.sh` | Tests Linux PASS ; chemins Windows inchangés ; `up`, `status`, `down` réels sous Linux | NOT_STARTED |
-| J3 | OCR sous Linux | J1, J2 | Leptonica et Tesseract 5.4.0 compilés depuis les sources verrouillées, commande Tesseract par plateforme | Tests OCR Linux PASS sur les fixtures | NOT_STARTED |
-| J4 | Interface | J1 | `packageManager` pnpm 10.34.1, commande du lanceur selon la plateforme, sonde E2E Linux, build surveillé portable | `tsc`, tests unitaires web, build sous Linux PASS ; Windows inchangé | NOT_STARTED |
-| J5 | Écarts de code de l'inspection | J1 | Corrections C1–C17 retenues (contrat, réindexation en pause, secrets du worker, boucles de fond, watchdog, clés de profil sans effet, rotation de l'audit, jeton avant `try`, collecte des tests hors Windows, origine HTTPS, dépendances déclarées) | Test de reproduction rouge puis vert pour chaque défaut ; suite complète PASS | NOT_STARTED |
-| J6 | Écarts documentaires de l'inspection | — | Cellules périmées du plan, statuts de DECISIONS, README, `00_LIRE_AVANT.md`, manifestes SHA-256 historiques, renvois `.claude/`, index du journal, renvois de lignes de `docs/` | `check_docs`, `verify_pack`, `build_brief --check` PASS | NOT_STARTED |
+| J0 | Préalables | — | Identité Git locale, W018, skill Linux depuis sources officielles, registre des skills et sources | `verify_pack` PASS ; skill lu et appliqué | VERIFIED — skill `linux-rag-runtime` (LNX01–LNX18), revérifié puis généralisé à x86-64, registre à jour ; `verify_pack` 11/11 (commit `26fa7a5`) ; lu et appliqué par R1, R2 et leurs reprises |
+| J1 | Environnement Python multiplateforme | J0 | `pyproject.toml` et `uv.lock` pour `win32/AMD64`, `linux/aarch64` et `linux/x86_64`, `bootstrap.sh` | Résolution Windows identique ; `uv sync --locked` PASS sous Linux | IN_PROGRESS — verrou re-résolu à 15:09 (aarch64) puis 16:36 (x86-64) : partie Windows identique (paquets, roues, empreintes), aarch64 inchangé par l'ajout de x86-64 ; `torch 2.14.0+cpu`, `torchvision 0.29.0+cpu` et `zstandard` pour Linux seulement ; `uv sync --locked` PASS et imports vérifiés sur ce poste aarch64 (16:05) ; commit `26fa7a5` |
+| J2 | Runtime POSIX | J1 | Supervision Linux (groupe de processus, signaux, `flock`, environnement des enfants, binaires par plateforme), CLI, verrous d'artefacts par plateforme, `rag.sh` | Tests Linux PASS ; chemins Windows inchangés ; `up`, `status`, `down` réels sous Linux | IN_PROGRESS — réalisé et revu deux fois (R1, R1b) ; chaîne réelle `provision`, `pull-model`, `up`, `status`, `doctor` (vert, 7 rubriques), `down` passée le 01/10 entre 17:31 et 17:54 (preuves sous `.runtime/qa/linux-chain-2026-10-01/`, hors Git) ; `mypy --platform win32` propre ; reste : ronde 4 (voir point de 18:59) |
+| J3 | OCR sous Linux | J1, J2 | Leptonica et Tesseract 5.4.0 compilés depuis les sources verrouillées, commande Tesseract par plateforme | Tests OCR Linux PASS sur les fixtures | IN_PROGRESS — binaire reproductible (même SHA-256 depuis deux emplacements), lié statiquement, `--version` 5.4.0, manifeste vérifié strictement ; essais d'intégration OCR : un échec reproductible `test_real_french_scan_and_region_orientation[90]` (cellule « V » lue « Vv » à 0,74 sous le seuil 0,8), cause non départagée entre police et binaire (action Windows : Tesseract Windows sur l'image de cellule conservée) ; reste : ronde 4 |
+| J4 | Interface | J1 | `packageManager` pnpm 10.34.1, commande du lanceur selon la plateforme, sonde E2E Linux, build surveillé portable | `tsc`, tests unitaires web, build sous Linux PASS ; Windows inchangé | IN_PROGRESS — trois rondes revues (dernière « conforme ») : commandes du lanceur lues sur `/health`, textes Windows identiques à `HEAD` (test `windows-texts.test.ts`), contrat de réindexation réel, sondes E2E portables ; 19:00 : `tsc` PASS, 199/199 tests unitaires web, pnpm 10.34.1 ; reste : E2E Linux (API et navigateur), recette Windows (tests, `session.spec`, build surveillé) |
+| J5 | Écarts de code de l'inspection | J1 | Corrections C1–C17 retenues (contrat, réindexation en pause, secrets du worker, boucles de fond, watchdog, clés de profil sans effet, rotation de l'audit, jeton avant `try`, collecte des tests hors Windows, origine HTTPS, dépendances déclarées) | Test de reproduction rouge puis vert pour chaque défaut ; suite complète PASS | IN_PROGRESS — C1, C2, C3, C4, C5, C6 (W021), C7, C8, C9, C11, C12, C13 (test de contrat Docling), C16 corrigés avec essais rouges puis verts et trois revues ; collecte de toute la suite sous Linux : 0 erreur ; 19:00 : suite hors intégration 741 réussis, 12 ignorés (Windows), 0 échec ; `ruff` PASS ; `mypy --platform win32` PASS ; `mypy` Linux : 3 erreurs du fichier gelé (W022) ; reste : intégration complète après l'extraction J10, C10 et C17 (documentation), suite Windows |
+| J6 | Écarts documentaires de l'inspection | — | Cellules périmées du plan, statuts de DECISIONS, README, `00_LIRE_AVANT.md`, manifestes SHA-256 historiques, renvois `.claude/`, index du journal, renvois de lignes de `docs/` | `check_docs`, `verify_pack`, `build_brief --check` PASS | IN_PROGRESS — fait et vérifié au commit `26fa7a5` (sauf renvois de lignes et état du README) ; 18:59 : renvoi `verify_bundle.py` de `QUALIFICATION.md` corrigé ; renvois de lignes de `docs/` et état du README reportés en J9 sur le commit final |
 | J7 | Chaîne réelle Linux | J2, J3, J4 | Provisionnement, `doctor`, `up`, ouverture, import, question, citation, sauvegarde et restauration | Rapports JSON et E2E sur ce poste | NOT_STARTED |
 | J8 | Qualification Linux | J7 | D01–D11 évalués pour la plateforme Linux, avec machine déclarée ; D08.1 dans un espace de noms réseau utilisateur (`unshare -rn`, `lo` seul) | Rapport par critère ; seuils inchangés ; FAIL conservés | NOT_STARTED — faisabilité D08.1 vérifiée le 01/10 à 16:06 : sans droits d'administration, `unshare -rn` isole le poste (seule `lo`, sortie externe « Network is unreachable », DNS en échec) et le trafic loopback passe après `ip link set lo up` |
 | J9 | Documentation et publication | J1–J8 | Documentation stabilisée selon l'état livré, brief, commits | `check_docs`, `verify_pack` PASS ; push | NOT_STARTED |
@@ -1870,6 +1872,24 @@ En cours : attente d'une mémoire libre d'au moins 5 120 Mio avant de relancer l
 **Ressources :** un seul traitement lourd à la fois ; `.runtime/` et `.venv/` sur la carte microSD ; espace de `/` contrôlé avant chaque installation (`node_modules`, build web).
 
 Prochaine action : environnement Python synchronisé (J1), puis J2 et J5 en parallèle sur des fichiers distincts.
+
+**Précision de l'utilisateur vers 16:34 UTC :** l'installation doit fonctionner sur n'importe quel poste Windows, comme avant, et sur n'importe quel poste Linux, pas seulement ici ([complément W018](DECISIONS.md#w018-double-plateforme--windows-11-x86-64-et-linux-aarch64-natifs)). Réalisé à 16:36 : `uv.lock` étendu à `linux/x86_64` (résolutions Windows et aarch64 identiques), artefacts Linux x86-64 verrouillés (Qdrant 1.19.1 musl, Ollama 0.35.0 `linux-amd64`), sources Tesseract valables pour les deux architectures Linux (`platform` en liste, `entries_for_platform` adapté). Ajouté : J2b — généraliser `bootstrap.sh` (uv 0.12.21 `x86_64-unknown-linux-gnu`, SHA-256 `23f02075…52c0`) et les éventuelles hypothèses aarch64 du code de R1/R2, puis vérifier qu'aucun chemin ou réglage propre à ce poste n'est versionné ; preuve D01 Linux par `bootstrap.sh` puis `rag.sh provision` sur une racine neuve.
+
+**Demande de l'utilisateur vers 18:10 UTC :** évaluations question-réponse sur les documents réels déposés dans `PDF/` ([W020](DECISIONS.md#w020-évaluation-question-réponse-sur-le-corpus-réel-du-poste-linux-pdfmgv-pdftest)). Lot ajouté :
+
+| ID | Lot / couche | Dépendances | Livrable | Validation | Statut / preuve |
+|---|---|---|---|---|---|
+| J10 | Évaluation sur le corpus réel Linux | J7 (instance Linux) | Import et extraction des 4 documents ; jeu annoté par lecture intégrale (dev `MGV/`, test `TEST/`) relu par un second agent ; mesures de recherche et de contexte (`annotated_eval run`) ; réponses du vrai modèle et grille de jugement | Rapports agrégés versionnés, dénominateurs et intervalles ; aucun texte du corpus dans Git | IN_PROGRESS — corpus caractérisé à 18:13 (208 pages, couche texte partout) ; import 18:14 (4/4) ; jeu de 105 questions (66 dev, 39 test ; 83 répondables, 22 sans réponse) écrit et vérifié contre les PDF à 18:31 ; extraction en cours (environ 2 min par fenêtre de 4 pages) ; constat : `progress` des travaux figé à 0,05 pendant toute l'extraction |
+
+**Constat J10 (01/10, 18:20 UTC), à trancher (8) :** `TEST/ePMO.pdf` (2 pages A3, 3 265 caractères de couche texte, 236 images) sort `ready_partial` sans aucun texte : routage `regional_ocr`, puis rendu refusé `PDF_RENDER_LIMIT` (9 025 398 pixels à l'échelle 3 pour un plafond `max_page_render_pixels` de 8 000 000), `DOCUMENT_WITHOUT_TEXT`. C'est la limite déclarée par W016 (A3 refusé), mais elle fait perdre aussi la couche texte native. Options : (a) garder la limite (document déclaré non exploitable) ; (b) pour une page au-delà du plafond, retenir la couche texte native au lieu de l'OCR régional ; (c) rendre ces pages à une échelle réduite qui respecte le plafond. (b) et (c) modifient l'ingestion et l'empreinte d'extraction des deux plateformes : décision de l'utilisateur. L'évaluation J10 mesure la limite telle quelle.
+
+## Point à 18:59 UTC (1er octobre) — intégration avant commit, ronde 4
+
+Contrôles sur l'arbre de travail : suite Python hors intégration 741 réussis, 12 ignorés (propres à Windows), 0 échec (2 min 07) après deux corrections de l'intégrateur (attentes bornées à 2 et 4 s remplacées par une échéance de 30 s dans `test_api_jobs.py`, instables sous charge ; compte des skills projet porté à 7 dans `test_docs_tooling.py`) ; `ruff check .` PASS ; `mypy --platform win32` PASS (89 fichiers) ; `mypy` Linux : 3 erreurs du fichier gelé `checkpoint.py` (W022) ; web : `tsc` PASS, 199/199 tests unitaires ; test du build surveillé intégré (`tests/unit/test_web_build_monitored.py`, 13/13). Tests d'intégration (Docling, OCR, services réels) : après la fin de l'extraction J10, pour ne pas cumuler deux traitements lourds.
+
+**Ronde 4 (à lancer après les mesures J10) :** runtime — tolérance par empreinte de contenu des sources Tesseract inopérante dans `provision_artifacts` (le groupe `tesseract-source` doit être laissé à `provisioning.build_tesseract`), `bootstrap.sh` sans contrôle glibc ≥ 2.28 ni refus de musl, `--no-browser` absent des lanceurs, lien de session passé en clair sur la ligne de commande du navigateur sous Linux, chemin Linux x86-64 non exécuté (archives à télécharger et parcourir au moins), `pull-model` sans comparaison au verrou ; OCR — conclusion de l'enquête 90° à ramener à ce que les mesures établissent, version finale des essais OCR à rejouer, priorité des compilateurs système, garanties non couvertes par des essais, `.part` laissés, minimum GCC de `-ffile-prefix-map` à sourcer, module OCR ignoré sans police Liberation ; API — `progress` des travaux figé à 0,05 pendant l'extraction (calcul sur les fenêtres durables), message `job_pausing` au vocabulaire de l'atelier, fin de flux TLS mal classée, version de Node absente de la preuve du build, `resume_required` à l'import pour `pausing`/`cancelling`.
+
+**Points à trancher ajoutés :** (7) watchdog C5 : limites indépendantes (300 s sans fichier ni CPU, 900 s sans fenêtre durable) au lieu de min(300, 900) — à confirmer ; (9) W-PDF01 sous Windows : passer le `xfail` en strict maintenant qu'il est limité à Windows.
 
 ---
 
@@ -2132,6 +2152,8 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 
 **Décision remplacée :** aucune ; W001 est étendue. Retour arrière : retirer l'environnement Linux de `[tool.uv] environments` et relancer `uv lock` ; la partie Windows du verrou reste identique.
 
+**Complément W018 (1er octobre 2026, 16:37 UTC) :** précision de l'utilisateur vers 16:34 : « je ne veux pas une implémentation ou installation qui ne fonctionne qu'ici ; je dois pouvoir le faire dans n'importe quelle machine Windows tel qu'avant, et aussi Linux ». Conséquences : (1) la plateforme Linux couvre aarch64 et x86-64 : `uv.lock` résout trois environnements (`win32`/`AMD64`, `linux`/`aarch64`, `linux`/`x86_64`), les résolutions Windows et aarch64 restant identiques après l'ajout (comparaison scriptée du 01/10 à 16:36) ; `config/artifacts.lock.json` verrouille pour chacune ses binaires officiels (Qdrant 1.19.1 musl statique, Ollama 0.35.0 `linux-arm64` et `linux-amd64`), les sources de Leptonica et Tesseract valant pour les deux architectures Linux ; (2) aucun chemin, réglage ni prérequis propre au Jetson n'entre dans le code, les lanceurs ou le verrou : le placement de `.runtime/` et `.venv/` sur la carte microSD, par liens symboliques non versionnés, et le préchargement du modèle sont des aménagements locaux de ce poste, pas des étapes du produit ; (3) l'installation Windows reste celle qualifiée (`bootstrap.ps1`, `rag.ps1`, mêmes artefacts et mêmes empreintes) ; (4) la preuve d'installation Linux (D01) passe par `bootstrap.sh` puis `rag.sh provision` sur une racine neuve, sans édition manuelle. Les prérequis système de Linux (compilateur, CMake et en-têtes d'images pour Tesseract 5.4.0, ou un Tesseract 5.4.0 déjà installé) sont documentés comme l'est l'installation de Tesseract sous Windows.
+
 ## W019 Espace documentaire : `docs/` stabilisé, `RAG_Local_Agents/` vivant
 
 **Date :** consignée le 1er octobre 2026 à 16:45 UTC ; organisation livrée le 30 septembre à 18:33 UTC (`10b5dd9`). **Statut :** acquise (demande utilisateur R14 reçue le 30/09 vers 09:34 UTC) ; décision consignée a posteriori, l'inspection du 01/10 ayant constaté qu'aucune entrée de ce registre ne portait l'arborescence (le lot R14 renvoyait à tort à W008).
@@ -2144,13 +2166,45 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 
 **Conséquences :** un document stabilisé ne change qu'après un changement réel et vérifié du système ; `tools/docs/check_docs.py` contrôle liens, en-têtes, statuts et schémas. Les documents de `docs/` restent référencés sur `e4c7caf` tant qu'ils n'ont pas été mis à jour pour W016, W017 et W018 (lot J9).
 
+## W020 Évaluation question-réponse sur le corpus réel du poste Linux (`PDF/MGV`, `PDF/TEST`)
+
+**Date :** 1er octobre 2026, 18:13 UTC. **Statut :** acquise (demande de l'utilisateur reçue vers 18:10 UTC : « je t'ai mis un dossier PDF afin de faire des evals avec question réponse attendue et en se basant sur de vrais documents ») ; réalisation en cours (lot J10 du plan).
+
+**Contexte :** l'utilisateur dépose sur le poste Linux un dossier `PDF/` (ignoré par Git) de 4 documents réels, 208 pages avec couche texte : `MGV/MGV-CMD0002933794-B.1.pdf` (56 pages), `MGV/MGV-CMD0002933796-D.0.pdf` (140 pages), `TEST/ePMO.pdf` (2 pages A3, 236 images) et `TEST/modelcards.pdf` (10 pages). Les décisions W013 (protocole sans juge, agrégats seuls versionnés) et W014 (jeu de référence établi par lecture intégrale par l'assistant) fixent déjà la méthode sur le corpus du poste Windows.
+
+**Choix retenu :** (1) même méthode que W014, appliquée à ce corpus : l'assistant et des agents de lecture du même service lisent les 4 documents en entier sur les PDF originaux, sur demande explicite de l'utilisateur, et rédigent des questions de métier avec réponse attendue, valeurs, unités, pages et extraits exacts (schéma lu par `tools/qualification/annotated_eval.py`), y compris des questions sans réponse vérifiées sur tout le document ; chaque question est relue par un second agent contre le PDF ; état `ASSISTANT_READ_NOT_EXPERT_VALIDATED` ; (2) séparation par document d'après les dossiers fournis : `MGV/` en développement, `TEST/` tenu à l'écart ; (3) les jeux et réponses contiennent du texte du corpus : ils restent sous `.runtime/evals/annotated-linux-v1/` et `.runtime/qa/`, hors Git ; seuls des agrégats, des comptes et des identifiants sont versionnés ; (4) import, extraction, recherche et génération passent par l'instance Linux réelle (`rag.sh`), modèle `qwen3.5:4b-text` sur CPU.
+
+**Conséquences :** premier corpus réel qualifiable sur la plateforme Linux ; les mesures de ce poste ne remplacent pas celles du corpus du poste Windows (W013, W014) ; la validité métier reste limitée tant qu'un expert n'a pas relu le jeu (point à trancher n° 2).
+
+## W021 Invariants du profil contrôlés au chargement, communs aux deux plateformes
+
+**Date :** 1er octobre 2026, 18:59 UTC. **Statut :** acquise (traitement du constat C6 de l'inspection : une trentaine de clés du profil n'avaient aucun effet) ; réalisée et testée sous Linux ; comportement Windows identique avec le profil livré (`test_runtime_windows_profile_invariants.py`, plateforme simulée) ; suite Windows à rejouer sur le poste Windows.
+
+**Contexte :** le profil `local16` portait des clés que le code ignorait (valeurs codées en dur) : modifier ces clés ne changeait rien, ce que le profil laissait croire.
+
+**Choix retenu :** une clé dont la valeur livrée égale la valeur codée est désormais lue (`sqlite.busy_timeout_ms`, `sqlite.cache_size_kib`, `llm.connect_timeout_seconds`, `llm.keep_alive`, `app.asgi_workers`, `resources.unload_llm_before_ingestion`, `resources.scheduling.initial_mode`) ; une clé qui n'a qu'une valeur mise en œuvre est vérifiée au chargement et toute autre valeur refusée au démarrage avec la liste des clés en cause (29 clés de `FIXED_PROFILE_VALUES`, `services/api/settings.py`, plus `app.offline: true`, `app.telemetry: false`, `app.asgi_workers: 1`, `scheduling.initial_mode: interactive` côté runtime). Trois clés lues par `embedding.py` sont contrôlées plutôt que lues, pour ne pas changer l'identité `selector_sha256` des évaluations.
+
+**Conséquences :** avec `config/local16.yaml`, comportement inchangé sur les deux plateformes ; un profil modifié sur une de ces clés est refusé au lieu d'être ignoré en silence. Les clés sans lecteur ni contrôle sont déclarées informatives dans `CONFIGURATION.md`. Retour arrière : retirer les contrôles de `settings.py`, `supervisor.py`, `api_entry.py` et `resources.py`.
+
+## W022 Gel de `services/ingestion` pendant le chantier Linux
+
+**Date :** 1er octobre 2026, 18:59 UTC. **Statut :** acquise (choix technique de l'intégrateur, conséquence de W018) ; à lever avec la prochaine évolution décidée de l'ingestion (point à trancher 8).
+
+**Contexte :** l'empreinte d'extraction (`services/ingestion/config.py`, `fingerprint`) hache les sources de `services/ingestion/*.py`. Modifier un de ces fichiers, même un commentaire, rend caduques sous Windows le cache d'extraction et les points de reprise des traitements en pause (61 documents du corpus Windows).
+
+**Choix retenu :** aucune modification de `services/ingestion/*.py` ni de `config/local16.yaml` pendant le portage Linux ; les adaptations passent par le runtime et l'API (commande Tesseract sans `.exe` hors Windows par `platforms.native_executable`, transmise au worker) et par les tests. Exception constatée et acceptée jusqu'à la levée du gel : `mypy` sous Linux signale 3 erreurs `attr-defined` dans `services/ingestion/checkpoint.py:44` (branche `msvcrt` choisie par `os.name`, que mypy ne relie pas à la plateforme) ; `mypy --platform win32` est propre et le code est exercé par les tests sur les deux plateformes. La levée remplacera `os.name == "nt"` par `sys.platform == "win32"` dans le même changement que l'évolution d'ingestion, qui invalidera de toute façon l'empreinte.
+
+**Conséquences :** l'empreinte change quand même sous Linux avec le binaire Tesseract (`tesseract_executable_sha256`), propre à chaque poste ; aucune extraction Windows n'est rendue caduque par le portage.
+
+**Complément W018 (1er octobre 2026, 18:59 UTC) :** sous Linux, arrêt de Qdrant et d'Ollama par SIGTERM au groupe de processus (Qdrant : « graceful shutdown », alors que SIGINT donne « forced » ; Ollama : SIGINT et SIGTERM traités de la même façon d'après `server/routes.go` v0.35.0, quatre essais réels avec le modèle chargé), Windows inchangé (CTRL+C console) ; un processus n'est tenu pour orphelin d'une instance que si son appartenance est prouvée (`RAG_DATA_DIR` initial égal à la racine de l'instance et exécutable du programme), `up` refusant de démarrer tant qu'il en reste, sans rien arrêter de lui-même.
+
 ---
 
 ## Fichier : `CHANGELOG.md`
 
 # Changements intégrés — baseline documentaire 2.1
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux aarch64 natif devient une seconde plateforme**, Windows restant compatible ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 **Date :** 29 septembre 2026. **Remplace :** baseline documentaire 1.0.
 
@@ -2360,6 +2414,15 @@ Pages ouvertes le 01/10/2026, sans version publiée sauf mention.
 | AGT02 | Claude Code, [Extend Claude with skills](https://code.claude.com/docs/en/skills) : section « Where skills live » | Skills de projet découverts sous `.claude/skills/<nom>/SKILL.md`, y compris dans des sous-dossiers ; les skills de `.agents/skills/` ne sont donc pas découverts nativement et se lisent par leur chemin |
 | AGT03 | OpenAI, [Build skills](https://learn.chatgpt.com/docs/build-skills) (redirection 308 depuis `developers.openai.com/codex/skills`) | « For repositories, Codex scans `.agents/skills` in every directory from your current working directory up to the repository root » |
 | PY01 | Python 3.12 : [datetime](https://docs.python.org/3.12/library/datetime.html), [tomllib](https://docs.python.org/3.12/library/tomllib.html) | `datetime.UTC` et `tomllib` : « Added in version 3.11 » ; fonde le prérequis Python 3.11 de `verify_pack.py` et `check_docs.py` |
+
+| ID | Source officielle/version | Contrat et limite |
+|---|---|---|
+| LNX16 | astral-sh/uv, release [0.12.21](https://github.com/astral-sh/uv/releases/tag/0.12.21) : fichiers `.sha256` publiés à côté des archives, et champ `digest` de l'API GitHub des releases | `uv-aarch64-unknown-linux-gnu.tar.gz` : SHA-256 `030b69227b40af8c1981b7301793dc66e71ed3c796ea8688209dd268bd91ec51` (fichier `.sha256` et API concordants, archive téléchargée et vérifiée le 01/10 à 14:53 UTC) ; `uv-x86_64-unknown-linux-gnu.tar.gz` : `23f02075b652bb1df64178cfae41b5caf160822e720e2663568f3f5d63bc52c0` (fichier `.sha256` relu le 01/10 vers 17:05 UTC, archive non téléchargée sur ce poste aarch64). Valeurs reprises par `bootstrap.sh` ; l'archive Windows reste celle de `bootstrap.ps1` |
+
+| ID | Source officielle/version | Contrat et limite |
+|---|---|---|
+| LNX17 | ollama/ollama v0.35.0, [`server/routes.go`](https://github.com/ollama/ollama/blob/v0.35.0/server/routes.go) (lu le 01/10/2026) | `signal.Notify` sur SIGINT et SIGTERM, même traitement : fermeture du serveur HTTP puis déchargement des runners ; confirmé par quatre essais réels sur ce poste (code 0, groupe vide). Fonde l'arrêt Linux par SIGTERM (complément W018) |
+| LNX18 | Sources verrouillées Tesseract 5.4.0 (`CMakeLists.txt` l.90 `FAST_FLOAT`, `src/arch/simddetect.cpp`, `src/ccutil/tesstypes.h`) et Leptonica 1.87.0 (`CMakeLists.txt` l.42–45, `src/utils1.c`), lues dans les archives du groupe `tesseract-source` le 01/10/2026 | Options de compilation retenues et absence d'horodatage compilé hors MSVC ; la documentation GCC de `-ffile-prefix-map` n'a pas été relue : seule la reproductibilité mesurée (même SHA-256 depuis deux emplacements) est établie |
 
 ---
 

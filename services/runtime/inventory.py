@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from .artifacts import ROOT, file_hash, write_json_atomic
+from .platforms import WINDOWS, entries_for_platform, executable_name, platform_id
 
 
 def notice(path: Path) -> dict:
@@ -24,13 +25,16 @@ def license_inventory(output: Path) -> dict:
                               "python": [], "npm": [], "artifacts": [], "native_notices": [],
                               "runtime_prerequisites": [], "limits": []}
     python_root = Path(sys.base_prefix)
+    # Windows : LICENSE.txt à la racine de l'installation ; Linux (python-build-standalone) : dans lib/python3.x.
+    python_licenses = [python_root / "LICENSE.txt",
+                       python_root / "lib" / f"python{sys.version_info.major}.{sys.version_info.minor}" / "LICENSE.txt"]
     result["runtime_prerequisites"].append({"name": "CPython", "version": sys.version.split()[0],
         "path": str(python_root), "redistributed_in_project": python_root.resolve().is_relative_to(ROOT),
-        "notices": [notice(path) for path in [python_root / "LICENSE.txt"] if path.is_file()]})
+        "notices": [notice(path) for path in python_licenses if path.is_file()]})
     result["runtime_prerequisites"].append({"name": "uv", "version": "0.12.21",
         "redistributed_in_project": True, "notices": [notice(path) for path in
             sorted((ROOT / ".runtime/bootstrap").glob("uv-*.dist-info/licenses/*")) if path.is_file()]})
-    node_path = shutil.which("node.exe")
+    node_path = shutil.which(executable_name("node"))
     if node_path:
         node_root = Path(node_path).parent
         result["runtime_prerequisites"].append({"name": "Node.js", "path": str(node_path),
@@ -65,8 +69,10 @@ def license_inventory(output: Path) -> dict:
         result["npm"].append({"name": identity[0], "version": identity[1], "license": package.get("license"),
                               "metadata_sha256": file_hash(path), "notices": notices})
     lock = json.loads((ROOT / "config/artifacts.lock.json").read_text(encoding="utf-8"))
+    result["platform"] = platform_id()
     for group, artifacts in lock["groups"].items():
-        for artifact in artifacts:
+        # Artefacts de ce poste seulement : ceux de l'autre plateforme ne sont ni provisionnés ni livrés ici.
+        for artifact in entries_for_platform(artifacts):
             path = ROOT / artifact["target"]
             result["artifacts"].append({"group": group, "publisher": artifact.get("publisher"),
                 "version": artifact.get("version"), "revision": artifact.get("revision"),
@@ -100,7 +106,8 @@ def license_inventory(output: Path) -> dict:
             result[key] = {"model": data["model"], "license_notice": data.get("license"),
                            "derived_from": data.get("source_model"), "manifest_sha256": file_hash(manifest)}
     result["limits"] = [
-        "Tesseract Windows installed copy has verified local hashes, but installer provenance not independently authenticated",
+        "Tesseract Windows installed copy has verified local hashes, but installer provenance not independently authenticated"
+        if WINDOWS else "Tesseract 5.4.0 and Leptonica 1.87.0 built locally from the locked source archives (tesseract-source)",
         "License declarations and bundled notice paths are recorded; no compatibility or redistribution opinion is inferred",
         "Development dependencies are included because they are installed in this environment",
     ]

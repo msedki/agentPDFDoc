@@ -3,6 +3,9 @@ import assert from "node:assert/strict";
 import { httpFailureMessage, readinessBlockerText, readinessSentence, serviceDetail, warningText } from "../../src/lib/warnings.ts";
 import { errorMessage } from "../../src/lib/utils.ts";
 
+/** Commandes annoncées par un poste Windows (`GET /api/v1/health`) ; Linux et le cas inconnu sont dans launcher.test.ts. */
+const windows = { open: ".\\rag.ps1 open", status: ".\\rag.ps1 status", logs: ".\\rag.ps1 logs", doctor: ".\\rag.ps1 doctor" };
+
 test("structured retrieval warnings display the actual message without passing an object to React", () => {
   assert.equal(warningText({ code: "identifier_not_found_in_scope", identifier: "DA-P01", message: "Référence non retrouvée dans ce périmètre." }), "Référence non retrouvée dans ce périmètre.");
   assert.equal(warningText("Extraction partielle"), "Extraction partielle");
@@ -20,17 +23,17 @@ test("readiness blockers are shown with readable labels and unknown codes stay v
   assert.match(readinessBlockerText("constructor"), /code constructor/, "les propriétés héritées d'Object ne sont pas des libellés");
 });
 test("the readiness message names the missing components and the command that details them", () => {
-  const sentence = readinessSentence(["ollama_not_ready", "qdrant_not_ready"]);
+  const sentence = readinessSentence(["ollama_not_ready", "qdrant_not_ready"], windows);
   assert.match(sentence, /^Préparation du poste incomplète : Modèle de réponse indisponible, Index vectoriel indisponible\./);
-  assert.match(sentence, /\.\\rag\.ps1 doctor/);
+  assert.match(sentence, /La commande \.\\rag\.ps1 doctor détaille chaque contrôle/);
   assert.match(sentence, /toutes les 10 secondes/);
   assert.doesNotMatch(sentence, /_not_ready/);
 });
 test("an HTTP refusal without service message keeps its status and says what to do", () => {
   assert.equal(httpFailureMessage(409), "Le service local a refusé la demande (HTTP 409).");
   // `rag.ps1 logs` imprime le chemin du journal de chaque service (services/runtime/cli.py), pas son contenu.
-  assert.equal(httpFailureMessage(500), "Le service local a échoué (HTTP 500). Réessayez ; si l'échec persiste, consultez son journal : la commande .\\rag.ps1 logs en donne l'emplacement.");
-  assert.match(errorMessage("échec sans objet Error"), /consultez le journal du service : la commande \.\\rag\.ps1 logs en donne l'emplacement\.$/);
+  assert.equal(httpFailureMessage(500, windows), "Le service local a échoué (HTTP 500). Réessayez ; si l'échec persiste, consultez son journal : la commande .\\rag.ps1 logs en donne l'emplacement.");
+  assert.match(errorMessage("échec sans objet Error", windows), /consultez le journal du service : la commande \.\\rag\.ps1 logs en donne l'emplacement\.$/);
   for (const message of [httpFailureMessage(503), errorMessage(null)]) assert.doesNotMatch(message, /logs affiche/);
 });
 test("the service status tooltip explains each state with readable labels", () => {

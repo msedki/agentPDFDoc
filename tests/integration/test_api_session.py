@@ -228,3 +228,25 @@ def test_background_polling_does_not_extend_inactivity_and_purged_sessions_keep_
         client.cookies.set("rag_session", first)
         assert client.get("/api/v1/library/tree").json()["details"]["reason"] == "session_idle_expired"
 
+
+
+def test_diagnostics_expose_the_security_audit_writer_counters(tmp_path):
+    """Revue A1 : un échec d'écriture du journal d'audit, sans effet sur la requête, est visible dans /api/v1/diagnostics."""
+    app, _ = build(tmp_path)
+    control = {"X-RAG-Control-Token": CONTROL}
+    with TestClient(app, base_url=ORIGIN) as client:
+        assert client.get("/api/v1/library/tree").status_code == 401
+        audit = app.state.sessions.audit_log
+        assert audit.flush(timeout=2)
+        assert client.get("/api/v1/diagnostics", headers=control).json()["security"]["audit_log"] == {
+            "failures": 0, "dropped": 0, "writer_restarts": 0, "rotations_deferred": 0, "pending_bytes": 0,
+            "queue_limit_bytes": 8 * 1048576}
+
+        def refused_disk(line):
+            raise OSError(28, "contrôlée : disque plein")
+
+        audit._append = refused_disk
+        assert client.get("/api/v1/library/tree").status_code == 401
+        assert audit.flush(timeout=2)
+        counters = client.get("/api/v1/diagnostics", headers=control).json()["security"]["audit_log"]
+        assert counters["failures"] == 1 and counters["dropped"] == 0

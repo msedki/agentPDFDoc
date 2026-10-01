@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { api } from "@/lib/api";
-import { errorMessage } from "@/lib/utils";
 import { groupedWarningTexts } from "@/lib/warnings";
 import { isActiveJobState, jobStageLabel, jobStatus } from "@/lib/status";
 import { isServiceUnavailable } from "@/lib/panel-state";
@@ -11,6 +10,7 @@ import { jobGroup, jobsSummary, latestJobIds, showsProgress, sortJobsForAttentio
 import type { Job, JobsResponse, LibraryTree } from "@/lib/types";
 import { Button } from "./ui/button";
 import { ActionButton } from "./ui/action-button";
+import { useErrorText } from "./ui/error-text";
 import { PanelEmpty, PanelError, PanelHeader, PanelLoading } from "./ui/panel";
 import { StatusIndicator } from "./ui/status-indicator";
 
@@ -25,6 +25,7 @@ export function JobsPanel({ jobs, tree, onClose }: { jobs: UseQueryResult<JobsRe
   const client = useQueryClient();
   const [pendingJob, setPendingJob] = useState<string | null>(null);
   const [modeNotice, setModeNotice] = useState("");
+  const errorText = useErrorText();
   // L'échec remonte à l'ActionButton appelant, qui l'affiche sous l'action concernée.
   const jobAction = async (id: string, action: () => Promise<unknown>, notice?: string) => {
     setPendingJob(id);
@@ -43,7 +44,7 @@ export function JobsPanel({ jobs, tree, onClose }: { jobs: UseQueryResult<JobsRe
   const mode = jobs.data?.runtime_mode ?? null;
   return <section className="jobs-panel" aria-labelledby="jobs-heading">
     <PanelHeader title="Suivi des traitements" id="jobs-heading"><Button variant="ghost" size="sm" onClick={onClose} aria-label="Fermer le suivi"><X size={16} aria-hidden="true" />Fermer</Button></PanelHeader>
-    {jobs.isError && <PanelError title={isServiceUnavailable(jobs.error) ? "Service local indisponible" : "Lecture du suivi impossible"} message={jobs.data ? `${errorMessage(jobs.error)} La liste affichée date de la dernière lecture réussie.` : errorMessage(jobs.error)} onRetry={() => void jobs.refetch()} />}
+    {jobs.isError && <PanelError title={isServiceUnavailable(jobs.error) ? "Service local indisponible" : "Lecture du suivi impossible"} message={jobs.data ? `${errorText(jobs.error)} La liste affichée date de la dernière lecture réussie.` : errorText(jobs.error)} onRetry={() => void jobs.refetch()} />}
     {/* Mode courant du gouverneur : l'option active est marquée (aria-pressed) au lieu de deux boutons indistincts. */}
     <div className="job-mode-actions" role="group" aria-label="Priorité du poste">
       <ActionButton variant={mode === "interactive" ? "default" : "secondary"} size="sm" aria-pressed={mode === "interactive"} disabled={Boolean(pendingJob)} pendingLabel="Changement de priorité…" onAction={() => jobAction("runtime-mode", () => api.runtimeMode("interactive"), "Priorité aux questions : les indexations en cours s'arrêtent à leur prochain point de reprise et restent en pause jusqu'à leur reprise.")}>Priorité aux questions</ActionButton>

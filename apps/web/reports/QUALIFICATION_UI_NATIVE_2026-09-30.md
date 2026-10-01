@@ -37,7 +37,7 @@ aucune erreur de page ni requête externe. Aucun ID de citation n'est fabriqué
 pour un hit search. Preuves :
 [sortie](e2e-2026-09-30-native-dev-source-final.log),
 [géométrie et provenance](e2e-2026-09-30-native-dev-source-final-evidence.json),
-[trace et captures](../test-results/2026-09-30-native-dev-source-final/results.json).
+trace et captures conservées hors Git sur le poste Windows (`test-results/2026-09-30-native-dev-source-final/`).
 La sélection page/bloc réelle a passé séparément dans
 [la reprise précédente](e2e-2026-09-30-native-dev-reprise.log).
 
@@ -61,7 +61,7 @@ Preuves : [log FAIL](e2e-2026-09-30-qwen-question-first.log),
 [attachments décodés](e2e-2026-09-30-qwen-question-first-evidence.json),
 [SSE brut UTF-8](e2e-2026-09-30-qwen-question-first-events-raw.sse),
 [hash et terminal](e2e-2026-09-30-qwen-question-first-events-raw.json),
-[trace/capture](../test-results/2026-09-30-qwen-question-first/results.json).
+trace et capture conservées hors Git sur le poste Windows (`test-results/2026-09-30-qwen-question-first/`).
 Le GET du SSE terminal ne déclenche pas de génération.
 
 ## Mesures du seul navigateur de recette
@@ -96,7 +96,7 @@ utilise psutil 7.2.2 depuis le PID vivant du propre worker et ses descendants
 récursifs uniquement. Son navigateur est fermé à la fin.
 Preuves : [log](e2e-2026-09-30-own-browser-memory.log),
 [mesures](e2e-2026-09-30-own-browser-memory-evidence.json),
-[trace/capture](../test-results/2026-09-30-own-browser-memory/results.json).
+trace et capture conservées hors Git sur le poste Windows (`test-results/2026-09-30-own-browser-memory/`).
 
 [Playwright](https://playwright.dev/docs/browsers) confirme que le headless shell
 est déjà utilisé sans option `channel`. Sa
@@ -203,7 +203,7 @@ Preuves : [log FAIL](e2e-2026-09-30-qwen-question-second.log),
 [attachments décodés](e2e-2026-09-30-qwen-question-second-evidence.json),
 [SSE UTF-8 exact](e2e-2026-09-30-qwen-question-second-events.sse),
 [hash/terminal](e2e-2026-09-30-qwen-question-second-events.json),
-[trace/capture](../test-results/2026-09-30-qwen-question-second/results.json).
+trace et capture conservées hors Git sur le poste Windows (`test-results/2026-09-30-qwen-question-second/`).
 SSE 40 752 octets, SHA256
 `0773b4202adc117c4785160808d755706f71ae582543f2898d7b83c7df8d12c9`.
 Les octets proviennent du replay GET de cette query terminale, sans autre

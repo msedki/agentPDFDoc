@@ -34,6 +34,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from services.api.retrieval import identifiers, normalized_identifier  # noqa: E402
+from services.runtime.platforms import launcher_command  # noqa: E402
 from services.runtime.supervisor import app_origin, control_headers, data_path, load_profile  # noqa: E402
 
 # Unités usuelles des notices techniques ; les plus longues d'abord, pour que « N·m » ne s'arrête pas à « N ».
@@ -284,7 +285,7 @@ def instance(profile_path: Path) -> tuple[str, str | bool, dict[str, str]]:
     profile = load_profile(profile_path)
     headers = control_headers(data_path(profile))
     if not headers:
-        raise SystemExit("Jeton de contrôle absent : démarrer l'instance du profil (.\\rag.ps1 up)")
+        raise SystemExit(f"Jeton de contrôle absent : démarrer l'instance du profil ({launcher_command('up')})")
     origin, verify = app_origin(profile)
     return origin, verify, headers
 

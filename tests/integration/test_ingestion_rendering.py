@@ -77,7 +77,11 @@ def install_seh_capture(directory):
 # Défaut tiers connu (W-PDF01) : avec Torch chargé, le rendu concurrent de docling_parse provoque par intermittence
 # une violation d'accès native ; la voie nominale n'utilise plus ce rendu (DECISIONS.md, W009). Le diagnostic
 # reste exécuté : un passage est signalé XPASS et montrerait que le défaut a disparu.
-KNOWN_TORCH_RENDER_FAULT = pytest.mark.xfail(reason="W-PDF01 : faute native de docling_parse avec Torch chargé ; voie nominale pypdfium2 (W009)", strict=False)
+# Constaté sous Windows seulement (pdf_parsers.cp312-win_amd64.pyd) : ailleurs, ces essais sont ordinaires et toute
+# faute les fait échouer (aucune sous Linux aarch64 le 01/10, W018). Non strict sous Windows : le défaut est
+# intermittent (journal du 30/09, 21:46-22:02 : le cas à une itération est passé au second essai) ; un XPASS
+# strict y ferait échouer une série sans faute.
+KNOWN_TORCH_RENDER_FAULT = pytest.mark.xfail(sys.platform == "win32", reason="W-PDF01 : faute native de docling_parse avec Torch chargé ; voie nominale pypdfium2 (W009)", strict=False)
 
 
 @pytest.mark.parametrize("threads,concurrent,load_torch", [(2, False, False), (2, True, False), (1, True, False),

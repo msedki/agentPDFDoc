@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { hasPublishedExtraction } from "../../src/lib/publication.ts";
 import type { DocumentDetail } from "../../src/lib/types.ts";
 
-const original: DocumentDetail = { id: "document", folder_id: null, name: "Controlled.pdf", relative_path: "Controlled.pdf", state: "imported", page_count: null, active_generation_id: null, active_version_id: null, versions: [{ id: "new", document_id: "document", sha256: "actual-api-hash", page_count: null, created_at: "2026-09-30" }] };
+const original: DocumentDetail = { id: "document", folder_id: null, name: "Controlled.pdf", relative_path: "Controlled.pdf", state: "queued", page_count: null, active_generation_id: null, active_version_id: null, versions: [{ id: "new", document_id: "document", sha256: "actual-api-hash", page_count: null, created_at: "2026-09-30" }] };
 
 test("an imported original and verified unpublished partial have no published extraction", () => {
   assert.equal(hasPublishedExtraction(original, "new"), false);

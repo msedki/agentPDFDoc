@@ -1,4 +1,7 @@
-/** API v1 boundary, aligned with packages/contracts/contracts.json (schema_version 2). */
+/**
+ * API v1 boundary, aligned with packages/contracts/contracts.json (schema_version 2).
+ * Les listes d'états et d'événements ci-dessous sont comparées au contrat par tests/unit/contracts.test.ts.
+ */
 export type Scope =
   | { kind: "library" }
   | { kind: "folder"; folderId: string; recursive: true }
@@ -10,7 +13,15 @@ export type SelectedSpan = { extractionRevisionId: string; blockId: string; bloc
 export type Precision = "span" | "block" | "table" | "page";
 export type Bbox = [number, number, number, number];
 export type ApiWarning = string | { code?: string; message?: string; [key: string]: unknown };
-export type DocumentState = "imported" | "queued" | "extracting" | "ocr" | "indexing" | "ready" | "ready_partial" | "error" | "deleted";
+/** `document.state` du contrat. */
+export const DOCUMENT_STATES = ["queued", "extracting", "indexing", "paused", "cancelled", "error", "ready", "ready_partial", "deleted"] as const;
+export type DocumentState = typeof DOCUMENT_STATES[number];
+/** `job.state` du contrat ; `Job.state` reste une chaîne pour afficher aussi un état inconnu, avec son code. */
+export const JOB_STATES = ["queued", "extracting", "indexing", "pausing", "paused", "cancelling", "cancelled", "error", "ready", "ready_partial"] as const;
+export type JobState = typeof JOB_STATES[number];
+/** `query_events.types` du contrat : événements SSE d'une question. */
+export const QUERY_EVENT_TYPES = ["status", "needs_clarification", "sources", "delta", "warning", "done", "error", "cancelled"] as const;
+export type QueryEventType = typeof QUERY_EVENT_TYPES[number];
 export interface Folder { id: string; parent_id: string | null; name: string; path: string }
 export interface DocumentRecord {
   id: string; folder_id: string | null; name: string; relative_path: string; state: DocumentState;
@@ -47,7 +58,9 @@ export interface Source {
 }
 export interface SearchResult { source?: Source; source_id?: string; score?: number; text?: string; [key: string]: unknown }
 export interface SearchResponse { results: (Source | SearchResult)[]; warnings: ApiWarning[]; scope_snapshot: unknown; elapsed_ms: number }
-export interface QueryCreated { query_id: string; events_url: string; conversation_id?: string }
+export interface QueryCreated { query_id: string; events_url: string; conversation_id?: string; state?: "needs_clarification" }
+/** `reindex_response` du contrat : `resume_required`, avec `job_state` `paused`, signale le traitement en pause de cette version, à reprendre. */
+export interface ReindexResponse { job_id: string; version_id?: string; reused: boolean; job_state?: string; resume_required?: boolean }
 export interface Job { id: string; document_id?: string; version_id?: string; generation_id?: string; state?: string; status?: string; stage?: string; progress?: number; coverage?: { total: number; processed: number; ocr?: number }; published?: boolean; published_at?: string | null; active?: boolean; warnings?: ApiWarning[]; error?: string; error_message?: string; message?: string }
 export interface JobsResponse { jobs: Job[]; total?: number; runtime_mode?: "interactive" | "ingestion" | null }
 export interface Readiness { ready?: boolean; status?: string; blockers?: string[]; [key: string]: unknown }

@@ -14,7 +14,8 @@ from services.runtime.resources import (
     host_heavy_lock_available,
 )
 
-pytestmark = pytest.mark.skipif(sys.platform != "win32", reason="Byte-lock Windows (msvcrt)")
+# Byte-lock msvcrt sous Windows, flock sous Linux : mêmes garanties vérifiées entre vrais processus.
+pytestmark = pytest.mark.skipif(sys.platform not in {"win32", "linux"}, reason="verrou msvcrt (Windows) ou flock (Linux)")
 CONTEXT = multiprocessing.get_context("spawn")
 
 
@@ -84,6 +85,7 @@ def test_host_lock_excludes_another_process_and_names_holder(tmp_path):
 
 
 def test_lock_of_killed_holder_is_released_by_windows(tmp_path):
+    # Nom historique (preuves Windows) ; sous Linux, flock est relâché de même à la mort du détenteur.
     lock = tmp_path / "host-heavy.lock"
     process, _ = _holder(lock, "ingestion")
     process.kill()

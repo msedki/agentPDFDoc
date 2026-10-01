@@ -3,6 +3,7 @@
 Depuis la racine du dépôt :
 
     .venv\\Scripts\\python.exe tools/docs/check_docs.py [--report <nouveau-fichier.json>]
+    .venv/bin/python tools/docs/check_docs.py [--report <nouveau-fichier.json>]
 
 Contrôles, chacun PASS ou FAIL (code de sortie 1 si l'un échoue) :
 

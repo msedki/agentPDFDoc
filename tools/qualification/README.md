@@ -31,6 +31,14 @@ Depuis `D:\enhacements\agentragpdf`, les commandes réalisées sont :
   --output evals/qualification-v2.1/reports/<nouveau-rapport>.json
 ```
 
+Sous Linux (W018), les mêmes commandes s'exécutent depuis la racine du projet avec
+`.venv/bin/python` à la place de `.\.venv\Scripts\python.exe`, une barre oblique
+inverse en fin de ligne à la place de l'accent grave de PowerShell, et
+`export NOM=valeur` pour les variables d'environnement ; l'en-tête de chaque outil
+donne sa commande pour les deux plateformes. Le 1er octobre 2026, l'import et l'aide
+(`--help`) de chaque outil ont été vérifiés sous Linux aarch64 ; aucune campagne de
+qualification n'y a encore été exécutée.
+
 La génération écrit d'abord dans un dossier temporaire, puis copie seulement les
 fichiers synthétiques identifiés dans `fixtures/qualification-v2.1/` et les jeux de
 `evals/qualification-v2.1/`. Elle ne supprime aucun fichier. Elle refuse, sans rien

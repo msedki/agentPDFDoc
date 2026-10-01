@@ -6,6 +6,7 @@ import asyncio
 import json
 import os
 import shutil
+import sys
 import time
 from contextlib import asynccontextmanager, contextmanager, suppress
 from datetime import UTC, datetime
@@ -41,15 +42,38 @@ class HostHeavyLockBusy(ResourceAdmissionError):
                          code="host_heavy_lock_busy")
 
 
+def _try_lock(handle) -> None:
+    """Verrou exclusif non bloquant ; OSError s'il est tenu par un autre handle, de ce processus ou d'un autre."""
+    if sys.platform == "win32":
+        import msvcrt
+
+        msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+    else:
+        import fcntl
+
+        # flock et non lockf : un verrou POSIX d'enregistrement tomberait dès la fermeture d'un autre descripteur du
+        # même fichier, par exemple après la lecture du détenteur.
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+
+def _unlock(handle) -> None:
+    if sys.platform == "win32":
+        import msvcrt
+
+        msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+    else:
+        import fcntl
+
+        fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
 class HostHeavyLock:
-    """Byte-lock Windows non bloquant ; le système le libère si le détenteur meurt."""
+    """Byte-lock Windows (flock sous Linux) non bloquant ; le système le libère si le détenteur meurt."""
 
     def __init__(self, handle, path: Path, owner: str):
         self._handle, self.path, self.owner = handle, path, owner
 
     def release(self) -> None:
-        import msvcrt
-
         if self._handle is None:
             return
         handle, self._handle = self._handle, None
@@ -57,7 +81,7 @@ class HostHeavyLock:
             with suppress(OSError):
                 handle.truncate(1)
                 handle.seek(0)
-                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+                _unlock(handle)
         finally:
             handle.close()  # Libère aussi le verrou si le déverrouillage explicite a échoué.
 
@@ -80,8 +104,6 @@ def _lock_holder(path: Path) -> dict[str, Any] | None:
 
 def acquire_host_heavy_lock(owner: str, path: Path | None = None) -> HostHeavyLock:
     """Prendre sans attendre le verrou lourd de l'hôte, ou lever HostHeavyLockBusy."""
-    import msvcrt
-
     path = Path(path or HOST_HEAVY_LOCK)
     path.parent.mkdir(parents=True, exist_ok=True)
     handle = path.open("a+b")
@@ -90,7 +112,7 @@ def acquire_host_heavy_lock(owner: str, path: Path | None = None) -> HostHeavyLo
             handle.write(b"0")
             handle.flush()
         handle.seek(0)
-        msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+        _try_lock(handle)
     except OSError:
         handle.close()
         raise HostHeavyLockBusy(path, owner, _lock_holder(path)) from None
@@ -110,8 +132,6 @@ def host_heavy_lock_available(path: Path | None = None) -> bool:
     Un verrou libéré proprement laisse un fichier d'un octet ; seul un contenu plus
     long (détenteur actif ou arrêté brutalement) justifie un essai de verrouillage.
     """
-    import msvcrt
-
     path = Path(path or HOST_HEAVY_LOCK)
     try:
         if path.stat().st_size <= 1:
@@ -123,14 +143,14 @@ def host_heavy_lock_available(path: Path | None = None) -> bool:
     except OSError:
         return False
     try:
-        msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+        _try_lock(handle)
     except OSError:
         handle.close()
         return False
     try:
         handle.truncate(1)  # Identité périmée d'un détenteur disparu.
         handle.seek(0)
-        msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+        _unlock(handle)
     except OSError:
         pass
     finally:
@@ -155,25 +175,51 @@ def admission_requirement(settings: dict[str, Any], owner: str, loaded: dict[str
             "host_reserve_mib": reserve, "required_available_mib": required}
 
 
+def linux_memory_mib(process: psutil.Process) -> dict[str, float | None]:
+    """RSS, USS et PSS d'un processus Linux (memory_full_info, /proc/<pid>/smaps_rollup).
+
+    La PSS répartit les pages partagées entre leurs utilisateurs (GGUF mappé par Ollama, bibliothèques) ; elle est
+    None si le noyau ne l'a pas fournie. Plus coûteux que memory_info : réservé aux échantillons périodiques.
+    """
+    info = process.memory_full_info()
+    pss = getattr(info, "pss", None)
+    return {"rss_mib": round(info.rss / 1048576, 2), "uss_mib": round(info.uss / 1048576, 2),
+            "pss_mib": None if pss is None else round(pss / 1048576, 2)}
+
+
 def host_sample(disk_root: Path, process: psutil.Process | None = None) -> dict[str, Any]:
     """Mesures hôte et processus courant seulement, sans état de lease."""
     memory = psutil.virtual_memory()
     process = process or psutil.Process()
-    info = process.memory_info()
-    private = getattr(info, "private", None)
     root = Path(disk_root)
     while not root.exists() and root != root.parent:
         root = root.parent
-    return {
+    sample: dict[str, Any] = {
         "utc": datetime.now(UTC).isoformat(),
         "available_mib": round(memory.available / 1048576, 2),
         "total_mib": round(memory.total / 1048576, 2),
         "cpu_percent": psutil.cpu_percent(interval=None),
         "disk_free_mib": round(shutil.disk_usage(root).free / 1048576, 2),
-        "process_rss_mib": round(info.rss / 1048576, 2),
-        "process_private_mib": None if private is None else round(private / 1048576, 2),
-        "memory_method": "Windows working set and private bytes; shared pages not summed",
     }
+    if sys.platform == "win32":
+        info = process.memory_info()
+        private = getattr(info, "private", None)
+        sample.update({
+            "process_rss_mib": round(info.rss / 1048576, 2),
+            "process_private_mib": None if private is None else round(private / 1048576, 2),
+            "memory_method": "Windows working set and private bytes; shared pages not summed",
+        })
+    else:
+        # Aucun « private bytes » sous Linux : RSS, USS (pages propres au processus) et PSS si le noyau la fournit.
+        measured = linux_memory_mib(process)
+        sample.update({
+            "process_rss_mib": measured["rss_mib"],
+            "process_private_mib": None,
+            "process_uss_mib": measured["uss_mib"],
+            "process_pss_mib": measured["pss_mib"],
+            "memory_method": "Linux RSS/USS" if measured["pss_mib"] is None else "Linux RSS/USS/PSS",
+        })
+    return sample
 
 
 class ResourceGovernor:
@@ -196,13 +242,19 @@ class ResourceGovernor:
             raise ValueError("resources.scheduling.auto_resume_ingestion doit valoir false : aucune reprise "
                              "automatique sans essai anti-ping-pong documenté (D07).")
         self.auto_resume_ingestion = False
+        initial_mode = (self.settings.get("scheduling") or {}).get("initial_mode", "interactive")
+        if initial_mode != "interactive":
+            raise ValueError("resources.scheduling.initial_mode doit valoir interactive : aucun travail lourd n'est "
+                             "admis avant une demande explicite.")
+        # Vrai dans le profil livré : le modèle de réponse est déchargé d'Ollama avant chaque extraction.
+        self.unload_llm_before_ingestion = bool(self.settings.get("unload_llm_before_ingestion", True))
         self.host_lock_path = Path(host_lock_path) if host_lock_path else HOST_HEAVY_LOCK
         self._host_lock: HostHeavyLock | None = None
         self._heavy = asyncio.Lock()
         self._interactive_requests = 0
         self._generation_requests = 0
         self._owner: str | None = None
-        self._mode = "interactive"
+        self._mode = initial_mode
         self._pause_path = self.data_dir / "control" / "pause-ingestion"
         self.before_ingestion = None
         self.before_generation = None
@@ -303,7 +355,7 @@ class ResourceGovernor:
             if self.should_checkpoint():
                 raise ResourceAdmissionError("Import en pause ; reprise explicite requise.", self.snapshot())
             with self._host_heavy("ingestion"):
-                if self.before_ingestion:
+                if self.before_ingestion and self.unload_llm_before_ingestion:
                     await self.before_ingestion()
                 if self.should_checkpoint():
                     raise ResourceAdmissionError("Import en pause ; reprise explicite requise.", self.snapshot())
@@ -387,10 +439,14 @@ async def monitor_resources(path: Path, governor: ResourceGovernor, stop: asynci
             children = []
             for child in psutil.Process(os.getpid()).children(recursive=True):
                 try:
-                    info = child.memory_info()
-                    children.append({"pid": child.pid, "rss_mib": round(info.rss / 1048576, 2),
-                                     "private_mib": round(getattr(info, "private", info.rss) / 1048576, 2),
-                                     "cpu_seconds": sum(child.cpu_times()[:2])})
+                    if sys.platform == "win32":
+                        info = child.memory_info()
+                        children.append({"pid": child.pid, "rss_mib": round(info.rss / 1048576, 2),
+                                         "private_mib": round(getattr(info, "private", info.rss) / 1048576, 2),
+                                         "cpu_seconds": sum(child.cpu_times()[:2])})
+                    else:
+                        children.append({"pid": child.pid, **linux_memory_mib(child),
+                                         "cpu_seconds": sum(child.cpu_times()[:2])})
                 except psutil.Error:
                     continue
             sample["children"] = children

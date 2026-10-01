@@ -12,6 +12,8 @@ import datetime as dt
 import hashlib
 import hmac
 import json
+import logging
+import queue
 import secrets
 import threading
 import time
@@ -19,10 +21,20 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from services.runtime.platforms import launcher_command
+
 from .errors import ApiError
 
 ENVIRONMENTS = ("development", "production")
-LINK_HELP = "Ouvrir l'atelier avec « .\\rag.ps1 open » depuis le dossier du projet."
+# Commande du lanceur du poste : « .\\rag.ps1 open » sous Windows (texte inchangé), « ./rag.sh open » sous Linux (W018).
+LINK_HELP = f"Ouvrir l'atelier avec « {launcher_command('open')} » depuis le dossier du projet."
+
+logger = logging.getLogger("rag.security")
+
+
+def scheme_for(environment: str) -> str:
+    """Schéma servi par l'API : HTTPS en production (W011), HTTP en développement."""
+    return "https" if environment == "production" else "http"
 
 
 def digest(value: str) -> str:
@@ -63,7 +75,7 @@ class SecurityPolicy:
 
     @property
     def scheme(self) -> str:
-        return "https" if self.production else "http"
+        return scheme_for(self.environment)
 
     @property
     def session_cookie(self) -> str:
@@ -82,11 +94,176 @@ class Session:
     last_seen: float
 
 
+class AuditLog:
+    """Journal JSONL borné, écrit hors de la boucle asynchrone de l'API.
+
+    Même politique que la trace de ressources du superviseur (`RotatingJsonl` de `services.runtime.supervisor`) :
+    fichier courant d'au plus `max_bytes` puis archives `.1` à `.archives`, lignes jamais coupées ; si Windows
+    refuse un renommage (analyse antivirus, lecteur ouvert sans partage de suppression), la rotation est
+    reportée de `retry_after_seconds` sans perdre de ligne. Un fil dédié écrit les enregistrements reçus par une
+    file : l'appelant, y compris le middleware de l'API, ne fait aucune entrée-sortie disque.
+
+    Le fil survit à toute exception d'écriture (comptée dans `failures`) et l'écriture suivante le relance s'il est
+    mort (`writer_restarts`). La file est bornée à `queue_limit_bytes` octets en attente : au-delà, l'enregistrement
+    est abandonné et compté (`dropped`) plutôt que de bloquer la requête ou de laisser croître la mémoire quand le
+    disque ne répond plus. Les compteurs sont publiés par `state()` dans `/api/v1/diagnostics`.
+    """
+
+    def __init__(self, path: Path, max_bytes: int = 5 * 1048576, archives: int = 2,
+                 busy_timeout_seconds: float = 1.0, retry_after_seconds: float = 30.0,
+                 queue_limit_bytes: int = 8 * 1048576, clock=time.monotonic):
+        self.path, self.max_bytes, self.archives = Path(path), max_bytes, archives
+        self.busy_timeout_seconds, self.retry_after_seconds = busy_timeout_seconds, retry_after_seconds
+        self.queue_limit_bytes, self.clock = queue_limit_bytes, clock
+        self.failures = 0
+        self.dropped = 0
+        self.writer_restarts = 0
+        self.rotations_deferred = 0
+        self._pending_bytes = 0
+        self._dropped_reported = 0
+        self._counter_lock = threading.Lock()
+        self._queue: queue.SimpleQueue[bytes | threading.Event | None] = queue.SimpleQueue()
+        self._start_lock = threading.Lock()
+        self._thread: threading.Thread | None = None
+        self._stream: Any = None
+        self._retry_at = 0.0
+
+    def state(self) -> dict[str, int]:
+        """Compteurs du fil d'écriture depuis le démarrage du processus (diagnostics)."""
+        with self._counter_lock:
+            return {"failures": self.failures, "dropped": self.dropped, "writer_restarts": self.writer_restarts,
+                    "rotations_deferred": self.rotations_deferred, "pending_bytes": self._pending_bytes,
+                    "queue_limit_bytes": self.queue_limit_bytes}
+
+    def _ensure_writer(self) -> None:
+        thread = self._thread
+        if thread is not None and thread.is_alive():
+            return
+        with self._start_lock:
+            thread = self._thread
+            if thread is not None and thread.is_alive():
+                return
+            if thread is not None:
+                # Fil terminé sans fermeture (exception hors Exception) : relancé, la file est conservée.
+                with self._counter_lock:
+                    self.writer_restarts += 1
+            self._thread = threading.Thread(target=self._run, name="rag-security-audit", daemon=True)
+            self._thread.start()
+
+    def write(self, record: dict[str, Any]) -> None:
+        line = (json.dumps(record, ensure_ascii=False) + "\n").encode("utf-8")
+        self._ensure_writer()
+        with self._counter_lock:
+            if self._pending_bytes + len(line) > self.queue_limit_bytes:
+                self.dropped += 1
+                return
+            self._pending_bytes += len(line)
+        self._queue.put(line)
+
+    def flush(self, timeout: float = 5.0) -> bool:
+        """Attend l'écriture des enregistrements déjà remis ; faux si le délai expire."""
+        if self._thread is None and self._queue.empty():
+            return True
+        self._ensure_writer()
+        written = threading.Event()
+        self._queue.put(written)
+        return written.wait(timeout)
+
+    def close(self, timeout: float = 5.0) -> bool:
+        """Écrit ce qui reste dans la file puis arrête le fil d'écriture ; un enregistrement ultérieur le relance."""
+        if self._thread is None and self._queue.empty():
+            return True
+        self._ensure_writer()
+        with self._start_lock:
+            thread = self._thread
+            if thread is None:
+                return True
+            self._queue.put(None)
+            thread.join(timeout)
+            if thread.is_alive():
+                return False
+            self._thread = None
+            return True
+
+    def _run(self) -> None:
+        while True:
+            item = self._queue.get()
+            if item is None:
+                break
+            if isinstance(item, threading.Event):
+                item.set()
+                continue
+            with self._counter_lock:
+                self._pending_bytes -= len(item)
+            try:
+                self._append(item)
+            except Exception:
+                # Aucune requête n'échoue pour l'audit ; l'échec reste visible dans le journal de l'API et les diagnostics.
+                with self._counter_lock:
+                    self.failures += 1
+                logger.exception("Journal d'audit de sécurité : écriture impossible dans %s", self.path)
+                self._discard_stream()
+            self._report_dropped()
+        self._discard_stream()
+
+    def _report_dropped(self) -> None:
+        with self._counter_lock:
+            dropped, reported = self.dropped, self._dropped_reported
+            self._dropped_reported = dropped
+        if dropped != reported:
+            logger.warning("Journal d'audit de sécurité : %d enregistrement(s) abandonné(s), file d'attente pleine (%d octets)",
+                           dropped - reported, self.queue_limit_bytes)
+
+    def _append(self, line: bytes) -> None:
+        if self._stream is None:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            self._stream = self.path.open("ab")
+        position = self._stream.tell()
+        if position and position + len(line) > self.max_bytes and self.clock() >= self._retry_at:
+            self._rotate()
+        self._stream.write(line)
+        self._stream.flush()
+
+    def _rotate(self) -> None:
+        self._close_stream()
+        deadline = self.clock() + self.busy_timeout_seconds
+        try:
+            for index in range(self.archives, 0, -1):
+                source = self.path if index == 1 else self.path.with_name(f"{self.path.name}.{index - 1}")
+                while source.exists():
+                    try:
+                        source.replace(self.path.with_name(f"{self.path.name}.{index}"))
+                    except PermissionError:
+                        if self.clock() >= deadline:
+                            raise
+                        time.sleep(0.02)
+        except PermissionError as error:
+            # Refus persistant : aucune ligne perdue, rotation reportée (borne dépassée d'autant).
+            self._retry_at = self.clock() + self.retry_after_seconds
+            with self._counter_lock:
+                self.rotations_deferred += 1
+            logger.warning("Journal d'audit de sécurité : rotation de %s reportée de %g s (%s)", self.path, self.retry_after_seconds, error)
+        finally:
+            self._stream = self.path.open("ab")
+
+    def _close_stream(self) -> None:
+        if self._stream is not None:
+            stream, self._stream = self._stream, None
+            stream.close()
+
+    def _discard_stream(self) -> None:
+        """Ferme le flux après un échec ; une erreur de fermeture ne doit pas terminer le fil d'écriture."""
+        try:
+            self._close_stream()
+        except Exception:
+            logger.exception("Journal d'audit de sécurité : fermeture impossible de %s", self.path)
+
+
 class SessionRegistry:
     def __init__(self, policy: SecurityPolicy, audit_path: Path | None = None, clock=time.time):
         self.policy, self.audit_path, self.clock = policy, audit_path, clock
+        self.audit_log = AuditLog(audit_path) if audit_path is not None else None
         self._lock = threading.Lock()
-        self._audit_lock = threading.Lock()
         self._sessions: dict[str, Session] = {}
         self._links: dict[str, float] = {}
         # Motif d'expiration des sessions purgées, pour ne pas les présenter comme inconnues (borné).
@@ -195,13 +372,22 @@ class SessionRegistry:
             return len(self._sessions)
 
     def audit(self, event: str, **fields: Any) -> None:
-        """Journal JSONL des événements de sécurité : empreintes tronquées, jamais de secret ni de texte de document."""
-        if self.audit_path is None:
+        """Journal JSONL des événements de sécurité : empreintes tronquées, jamais de secret ni de texte de document.
+
+        L'enregistrement est remis au fil d'écriture du journal borné (`AuditLog`) : aucune E/S dans l'appelant.
+        """
+        if self.audit_log is None:
             return
-        record = {"utc": dt.datetime.now(dt.UTC).isoformat(), "event": event, **fields}
-        self.audit_path.parent.mkdir(parents=True, exist_ok=True)
-        with self._audit_lock, self.audit_path.open("a", encoding="utf-8", newline="\n") as stream:
-            stream.write(json.dumps(record, ensure_ascii=False) + "\n")
+        self.audit_log.write({"utc": dt.datetime.now(dt.UTC).isoformat(), "event": event, **fields})
+
+    def audit_state(self) -> dict[str, Any]:
+        """Compteurs du journal d'audit pour les diagnostics ; aucun contenu d'événement."""
+        return self.audit_log.state() if self.audit_log is not None else {"status": "not_configured"}
+
+    def close(self) -> None:
+        """Écrit les événements d'audit encore en file ; appelé à l'arrêt de l'API."""
+        if self.audit_log is not None:
+            self.audit_log.close()
 
 
 def cookie_attributes(policy: SecurityPolicy, max_age: int, *, http_only: bool) -> dict[str, Any]:

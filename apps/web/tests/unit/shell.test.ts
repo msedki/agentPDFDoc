@@ -65,7 +65,8 @@ test("native dialogs follow a closure decided by the browser (Escape repeated wi
   assert.match(code("components/ui/sheet.tsx"), /if \(openRef\.current\) onClose\(\);/);
   assert.match(code("components/ui/confirm-dialog.tsx"), /onClose=\{\(\) => \{ if \(openRef\.current\) onCancel\(\); \}\}/);
   // Un retrait qui échoue après une fermeture forcée rouvre le dialogue, seul endroit où son erreur s'affiche.
-  assert.match(code("components/document-tools.tsx"), /catch \(failure\) \{\s*setRemoveError\(errorMessage\(failure\)\);\s*setConfirming\(true\);\s*\}/);
+  // L'échec est gardé tel quel ; son texte se calcule au rendu du dialogue (error-text.test.ts).
+  assert.match(code("components/document-tools.tsx"), /catch \(failure\) \{\s*setRemoveError\(\{ error: failure \}\);\s*setConfirming\(true\);\s*\}/);
 });
 
 test("media queries use Tailwind breakpoints only; the former 1100 and 760 px thresholds are gone", () => {

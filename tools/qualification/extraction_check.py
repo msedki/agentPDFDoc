@@ -11,6 +11,7 @@ Chaque contrôle porte le critère qu'il étaye ; le rapport conserve, page par 
 résolues et méthodes d'extraction, sans texte de corpus privé (toutes les fixtures sont synthétiques).
 
     .venv\\Scripts\\python.exe tools/qualification/extraction_check.py --instance <etat.json> --report <rapport.json>
+    .venv/bin/python tools/qualification/extraction_check.py --instance <etat.json> --report <rapport.json>
 """
 
 from __future__ import annotations

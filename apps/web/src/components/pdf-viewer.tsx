@@ -6,7 +6,6 @@ import type { PDFDocumentProxy, PDFPageProxy, RenderTask } from "pdfjs-dist";
 import { api } from "@/lib/api";
 import { useWorkspace } from "@/lib/store";
 import { boundedCanvasSize, reconcileSelection, visiblePageWindow, wholeBlockSpan } from "@/lib/selection";
-import { errorMessage } from "@/lib/utils";
 import { ocrOverlays, pageTextCaption } from "@/lib/ocr-overlay";
 import { hasPublishedExtraction } from "@/lib/publication";
 import { groupedWarningTexts } from "@/lib/warnings";
@@ -16,6 +15,7 @@ import { sourcePrecisionLabel, sourceRegionBoxes } from "@/lib/source-location";
 import type { Bbox, Source } from "@/lib/types";
 import { Button } from "./ui/button";
 import { DocumentTools } from "./document-tools";
+import { useErrorText, type Failure } from "./ui/error-text";
 import { PanelEmpty, PanelError, PanelHeader, PanelLoading } from "./ui/panel";
 
 const GLOBAL_PIXEL_BUDGET = 24_000_000;
@@ -35,7 +35,9 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
   const canvas = useRef<HTMLCanvasElement>(null);
   const textLayer = useRef<HTMLDivElement>(null);
   const [viewport, setViewport] = useState<Viewport | null>(null);
-  const [failure, setFailure] = useState("");
+  // Limite de sélection rédigée ici, ou échec de rendu gardé tel quel (texte calculé au rendu).
+  const [failure, setFailure] = useState<string | Failure>("");
+  const errorText = useErrorText();
   const [nativeText, setNativeText] = useState<boolean | null>(null);
   const binding = citedRevision(versionId, source);
   const blocks = useQuery({ queryKey: blocksKey(versionId, pageIndex, binding.revision), queryFn: ({ signal }) => api.blocks(versionId, pageIndex, signal, binding.revision), enabled: provenanceReady && !binding.error, staleTime: 30000 });
@@ -82,7 +84,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
       // Subscribe to cancellation immediately while text/fonts are still loading.
       await Promise.all([render.promise, renderText()]);
     };
-    renderPage().catch(error => { if (!disposed && error?.name !== "RenderingCancelledException") setFailure(errorMessage(error)); });
+    renderPage().catch(error => { if (!disposed && error?.name !== "RenderingCancelledException") setFailure({ error }); });
     return () => {
       disposed = true;
       render?.cancel();
@@ -120,8 +122,8 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
       </div>}
       {viewport && sourceBoxes.map((bbox, index) => <div key={index} className="source-highlight" data-testid="source-highlight" style={viewportRectangle(viewport, bbox)} />)}
     </div>
-    {failure && <p className="inline-warning" role="status">{failure}</p>}
-    {blocks.isError && <p className="inline-error" role="alert"><CircleAlert size={14} aria-hidden="true" />Provenance indisponible : {errorMessage(blocks.error)}</p>}
+    {failure && <p className="inline-warning" role="status">{typeof failure === "string" ? failure : errorText(failure.error)}</p>}
+    {blocks.isError && <p className="inline-error" role="alert"><CircleAlert size={14} aria-hidden="true" />Provenance indisponible : {errorText(blocks.error)}</p>}
   </section>;
 }
 
@@ -133,12 +135,14 @@ export function PdfViewer() {
   const provenanceReady = !binding.error && hasPublishedExtraction(metadata.data, opened?.versionId);
   const outline = useQuery({ queryKey: ["outline", opened?.versionId, binding.revision], queryFn: ({ signal }) => api.outline(opened!.versionId, signal, binding.revision), enabled: Boolean(opened) && provenanceReady, staleTime: 30000 });
   const [document, setDocument] = useState<PDFDocumentProxy | null>(null);
-  const [loadError, setLoadError] = useState("");
+  const [loadError, setLoadError] = useState<Failure | null>(null);
   const [center, setCenter] = useState(0);
   const [width, setWidth] = useState(600);
   const [search, setSearch] = useState("");
   const [searching, setSearching] = useState(false);
-  const [searchStatus, setSearchStatus] = useState("");
+  // Avancement de la recherche rédigé ici, ou échec gardé tel quel (texte calculé au rendu).
+  const [searchStatus, setSearchStatus] = useState<string | Failure>("");
+  const errorText = useErrorText();
   const [outlineVisible, setOutlineVisible] = useState(false);
   const [extractedVisible, setExtractedVisible] = useState(false);
   const [heights, setHeights] = useState<Record<number, number>>({});
@@ -156,7 +160,7 @@ export function PdfViewer() {
   }, [opened?.versionId]);
 
   useEffect(() => {
-    setDocument(null); setLoadError(""); setHeights({}); setSearchStatus("");
+    setDocument(null); setLoadError(null); setHeights({}); setSearchStatus("");
     searchGeneration.current++;
     if (!opened) return;
     let disposed = false;
@@ -175,7 +179,7 @@ export function PdfViewer() {
       setCenter(pageIndex);
       if (pageIndex !== opened.pageIndex) useWorkspace.getState().page(pageIndex);
     };
-    load().catch(error => { if (!disposed) setLoadError(errorMessage(error)); });
+    load().catch(error => { if (!disposed) setLoadError({ error }); });
     return () => { disposed = true; searchGeneration.current++; void task?.destroy(); };
     // Page changes keep the PDF instance and do not change scope.
   }, [opened?.versionId]);
@@ -218,7 +222,7 @@ export function PdfViewer() {
         if (text.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())) { state.page(index); setSearchStatus(`Expression trouvée page ${index + 1}`); return; }
       }
       setSearchStatus("Expression absente du texte disponible de ce document. Le contenu des images sans texte extrait n'est pas lu.");
-    } catch (error) { setSearchStatus(errorMessage(error)); }
+    } catch (error) { setSearchStatus({ error }); }
     finally { if (searchGeneration.current === generation) setSearching(false); }
   };
   const setPageScope = () => {
@@ -229,7 +233,7 @@ export function PdfViewer() {
   const version = metadata.data?.versions.find(value => value.id === opened.versionId);
   return <section className="viewer-panel">
     <div className="viewer-title"><div><p className="eyebrow">Lecture de l'original</p><h2 title={metadata.data?.name}>{metadata.data?.name ?? (metadata.isError ? "Document sans informations" : "Chargement du document…")}</h2></div>{metadata.data && <DocumentTools key={metadata.data.id} document={metadata.data} />}<Button variant="ghost" size="icon" onClick={state.back} disabled={!state.previous} title="Revenir au passage précédent" aria-label="Revenir au passage précédent"><ArrowLeft size={16} /></Button></div>
-    {metadata.isError && <PanelError title="Informations du document indisponibles" message={`${errorMessage(metadata.error)} Sans ces informations, les versions et l'état d'extraction de ce document ne sont pas vérifiés.`} onRetry={() => void metadata.refetch()} />}
+    {metadata.isError && <PanelError title="Informations du document indisponibles" message={`${errorText(metadata.error)} Sans ces informations, les versions et l'état d'extraction de ce document ne sont pas vérifiés.`} onRetry={() => void metadata.refetch()} />}
     <div className="viewer-toolbar">
       <Button variant="ghost" size="icon" onClick={() => setOutlineVisible(value => !value)} aria-label="Afficher le sommaire" aria-pressed={outlineVisible}><List size={16} /></Button>
       <Button variant="ghost" size="icon" onClick={() => state.page(Math.max(0, opened.pageIndex - 1))} disabled={opened.pageIndex === 0} aria-label="Page précédente"><ChevronLeft size={16} /></Button>
@@ -241,19 +245,19 @@ export function PdfViewer() {
       <Button variant="secondary" size="sm" onClick={setPageScope} disabled={!provenanceReady || !binding.actions.allowed} title={binding.actions.reason ?? undefined}>Analyser cette page</Button>
     </div>
     <form className="viewer-search" onSubmit={event => { event.preventDefault(); void localSearch(); }}><Search size={14} aria-hidden="true" /><input aria-label="Rechercher dans ce document" placeholder="Rechercher dans ce document" value={search} onChange={event => setSearch(event.target.value)} /><Button variant="ghost" size="sm" disabled={searching || !search.trim()} type="submit" title="Aller à la page suivante qui contient l'expression">{searching ? "Recherche…" : "Chercher plus loin"}</Button></form>
-    {searchStatus && <p className="viewer-notice" role="status">{searchStatus}</p>}
+    {searchStatus && <p className="viewer-notice" role="status">{typeof searchStatus === "string" ? searchStatus : errorText(searchStatus.error)}</p>}
     {binding.error ? <p className="viewer-notice inline-warning" role="status">{binding.error}</p> : !provenanceReady && <p className="viewer-notice" role="status">Original consultable ; son extraction n'est pas encore publiée. Les passages, le sommaire et l'analyse de page s'activeront à la fin de l'indexation, visible dans le Suivi.</p>}
     {binding.actions.reason && !binding.error && <p className="viewer-notice" role="status">{binding.actions.reason}</p>}
     {state.source && <div className="source-navigation" role="status"><strong>{state.source.source_id ?? "Passage retrouvé"}</strong><span>{sourcePrecisionLabel(state.source)} · version <span className="mono">{opened.versionId.slice(0, 8)}</span>{binding.revision ? <> · révision <span className="mono">{binding.revision.slice(0, 8)}</span></> : null}</span></div>}
-    {outlineVisible && <nav className="outline" aria-label="Sommaire"><h3>Sommaire</h3>{outline.isLoading ? <p role="status">Chargement du sommaire…</p> : outline.isError ? <p role="alert" className="inline-error">Sommaire indisponible : {errorMessage(outline.error)}</p> : !outline.data?.sections.length ? <p>{provenanceReady ? "Aucune section extraite pour cette version." : "Le sommaire sera disponible après publication de l'extraction."}</p> :outline.data.sections.map(section => <div key={section.id}><button onClick={() => state.page(section.page_index)}>{section.title}<span>p. {section.page_index + 1}</span></button><Button variant="ghost" size="sm" aria-label={`Analyser la section ${section.title}`} disabled={!binding.actions.allowed} title={binding.actions.reason ?? undefined} onClick={() => { if (binding.actions.allowed) state.setScope({ kind: "section", versionId: opened.versionId, sectionId: section.id }, section.title); }}>Analyser</Button></div>)}</nav>}
+    {outlineVisible && <nav className="outline" aria-label="Sommaire"><h3>Sommaire</h3>{outline.isLoading ? <p role="status">Chargement du sommaire…</p> : outline.isError ? <p role="alert" className="inline-error">Sommaire indisponible : {errorText(outline.error)}</p> : !outline.data?.sections.length ? <p>{provenanceReady ? "Aucune section extraite pour cette version." : "Le sommaire sera disponible après publication de l'extraction."}</p> :outline.data.sections.map(section => <div key={section.id}><button onClick={() => state.page(section.page_index)}>{section.title}<span>p. {section.page_index + 1}</span></button><Button variant="ghost" size="sm" aria-label={`Analyser la section ${section.title}`} disabled={!binding.actions.allowed} title={binding.actions.reason ?? undefined} onClick={() => { if (binding.actions.allowed) state.setScope({ kind: "section", versionId: opened.versionId, sectionId: section.id }, section.title); }}>Analyser</Button></div>)}</nav>}
     <div className="pdf-scroll" ref={scroll} onScroll={onScroll} data-testid="pdf-scroll">
-      {loadError ? <PanelError title="Lecture de l'original impossible" message={loadError} onRetry={() => window.location.reload()} retryLabel="Recharger la page" /> : !document ? <PanelLoading label="Chargement de l'original PDF…" /> : <>
+      {loadError ? <PanelError title="Lecture de l'original impossible" message={errorText(loadError.error)} onRetry={() => window.location.reload()} retryLabel="Recharger la page" /> : !document ? <PanelLoading label="Chargement de l'original PDF…" /> : <>
         <div aria-hidden="true" style={{ height: offsets[visible[0] ?? 0] }} />
         {visible.map(index => <PdfPage key={`${opened.versionId}:${index}`} document={document} versionId={opened.versionId} pageIndex={index} width={width} zoom={state.zoom} rotation={state.rotation} source={state.source} search={search} provenanceReady={provenanceReady} onHeight={heightHandler.current} />)}
         <div aria-hidden="true" style={{ height: (offsets[pageCount] ?? 0) - (offsets[(visible.at(-1) ?? -1) + 1] ?? 0) }} />
       </>}
     </div>
     <div className="reader-footer"><button onClick={() => setExtractedVisible(value => !value)} aria-expanded={extractedVisible}>Texte extrait & provenance <ChevronDown size={14} aria-hidden="true" /></button><span title={version?.sha256}>Version <span className="mono">{opened.versionId.slice(0, 8)}</span></span></div>
-    {extractedVisible && <div className="extracted-text"><p className="eyebrow">Page {opened.pageIndex + 1} · blocs extraits</p>{currentBlocks.isLoading ? <p role="status">Chargement des blocs extraits…</p> : currentBlocks.isError ? <p role="alert" className="inline-error">Blocs extraits indisponibles : {errorMessage(currentBlocks.error)}</p> : !currentBlocks.data?.blocks.length ? <p>{provenanceReady ? "Aucun texte extrait pour cette page." : "Les blocs extraits seront disponibles après publication de l'extraction."}</p> :currentBlocks.data.blocks.map(block => <div key={block.id}><p>{block.text}</p><Button variant="secondary" size="sm" disabled={!block.text.trim() || !wholeBlockSpan(block)} title={!wholeBlockSpan(block) ? "Ce bloc n'a pas de révision ou d'empreinte vérifiable : il ne peut pas servir de périmètre." : undefined} onClick={() => { const span = wholeBlockSpan(block); if (span) state.setScope({ kind: "selection", versionId: opened.versionId, spans: [span] }, `Bloc source · page ${opened.pageIndex + 1}`); }}>Analyser ce bloc</Button></div>)}{groupedWarningTexts(currentBlocks.data?.warnings).map(text => <p key={text} className="inline-warning">{text}</p>)}</div>}
+    {extractedVisible && <div className="extracted-text"><p className="eyebrow">Page {opened.pageIndex + 1} · blocs extraits</p>{currentBlocks.isLoading ? <p role="status">Chargement des blocs extraits…</p> : currentBlocks.isError ? <p role="alert" className="inline-error">Blocs extraits indisponibles : {errorText(currentBlocks.error)}</p> : !currentBlocks.data?.blocks.length ? <p>{provenanceReady ? "Aucun texte extrait pour cette page." : "Les blocs extraits seront disponibles après publication de l'extraction."}</p> :currentBlocks.data.blocks.map(block => <div key={block.id}><p>{block.text}</p><Button variant="secondary" size="sm" disabled={!block.text.trim() || !wholeBlockSpan(block)} title={!wholeBlockSpan(block) ? "Ce bloc n'a pas de révision ou d'empreinte vérifiable : il ne peut pas servir de périmètre." : undefined} onClick={() => { const span = wholeBlockSpan(block); if (span) state.setScope({ kind: "selection", versionId: opened.versionId, spans: [span] }, `Bloc source · page ${opened.pageIndex + 1}`); }}>Analyser ce bloc</Button></div>)}{groupedWarningTexts(currentBlocks.data?.warnings).map(text => <p key={text} className="inline-warning">{text}</p>)}</div>}
   </section>;
 }

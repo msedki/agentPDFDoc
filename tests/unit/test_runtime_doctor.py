@@ -118,7 +118,7 @@ def doctor_profile(tmp_path, monkeypatch, store):
     monkeypatch.setattr(cli, "OLLAMA_MODELS_DIR", root)
     monkeypatch.setattr(cli, "MODELS_LOCK", lock)
     monkeypatch.setattr(cli, "native_paths", lambda: (_ for _ in ()).throw(FileNotFoundError("double de test")))
-    monkeypatch.setattr(cli.shutil, "which", lambda name: None)
+    monkeypatch.setattr(cli.shutil, "which", lambda name, *args, **kwargs: None)
     profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
     profile["app"]["data_dir"] = str(tmp_path / "données")
     profile["app"]["port"] = _free_port()

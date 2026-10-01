@@ -1,12 +1,13 @@
 "use client";
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { Copy, KeyRound } from "lucide-react";
-import { api, ApiError } from "@/lib/api";
-import { isSessionFailure, linkInvalidFromSearch, OPEN_COMMAND, SESSION_ENDED_EVENT, sessionScreen, type SessionEndReason } from "@/lib/session";
+import { api } from "@/lib/api";
+import { openCommandChoices, retryLauncherCommands } from "@/lib/launcher";
+import { linkInvalidFromSearch, SESSION_ENDED_EVENT, sessionScreen, type SessionEndReason } from "@/lib/session";
+import { checkSession, readLauncherCommands, unreachableText, type GateState } from "@/lib/session-check";
+import { useLauncherCommands } from "@/lib/use-launcher-commands";
 import { Button } from "./ui/button";
 import { PanelError, PanelLoading } from "./ui/panel";
-
-type GateState = { kind: "checking" } | { kind: "open" } | { kind: "ended"; reason: SessionEndReason } | { kind: "unreachable"; message: string };
 
 const SessionContext = createContext<{ logout: () => Promise<void> } | null>(null);
 
@@ -21,30 +22,39 @@ export function useSessionControls() {
  */
 export function SessionGate({ children }: { children: ReactNode }) {
   const [state, setState] = useState<GateState>({ kind: "checking" });
+  // Les textes qui citent le lanceur se recalculent quand /health annonce les commandes du poste.
+  const commands = useLauncherCommands();
+  const stopRetry = useRef<(() => void) | null>(null);
+  const mounted = useRef(false);
+  // Service muet ou /health en échec : nouvelles lectures espacées et bornées, aucune si les commandes sont
+  // connues ; la série précédente est arrêtée, et aucune ne part après le démontage.
+  const retryCommands = useCallback(() => {
+    stopRetry.current?.();
+    stopRetry.current = mounted.current ? retryLauncherCommands(() => api.health()) : null;
+  }, []);
 
   const check = useCallback(async () => {
     setState({ kind: "checking" });
-    try {
-      await api.session();
-      setState({ kind: "open" });
-    } catch (error) {
-      if (error instanceof ApiError && isSessionFailure(error.code)) setState({ kind: "ended", reason: error.code });
-      else setState({ kind: "unreachable", message: error instanceof Error ? error.message : "Le service local ne répond pas." });
-    }
-  }, []);
+    // Session et commandes du lanceur (lecture publique de /health, W018) : l'état garde l'échec, pas son texte.
+    setState(await checkSession(api));
+    retryCommands();
+  }, [retryCommands]);
 
   useEffect(() => {
+    mounted.current = true;
     if (linkInvalidFromSearch(window.location.search)) {
       // Le paramètre ne sert qu'à cet affichage : il ne reste pas dans l'adresse ni l'historique.
       window.history.replaceState(null, "", window.location.pathname);
       setState({ kind: "ended", reason: "link_invalid" });
+      // Sans vérification de session, les commandes du lanceur sont lues ici pour l'écran du lien refusé.
+      void readLauncherCommands(api).then(retryCommands);
     } else {
       void check();
     }
     const ended = (event: Event) => setState({ kind: "ended", reason: (event as CustomEvent<SessionEndReason>).detail });
     window.addEventListener(SESSION_ENDED_EVENT, ended);
-    return () => window.removeEventListener(SESSION_ENDED_EVENT, ended);
-  }, [check]);
+    return () => { mounted.current = false; window.removeEventListener(SESSION_ENDED_EVENT, ended); stopRetry.current?.(); };
+  }, [check, retryCommands]);
 
   const logout = useCallback(async () => {
     // Les cookies sont effacés par le serveur même si la révocation échoue ; l'écran reflète la fermeture.
@@ -58,30 +68,33 @@ export function SessionGate({ children }: { children: ReactNode }) {
       <p className="eyebrow">Atelier documentaire</p>
       {state.kind === "checking" && <><h1 id="session-title">Ouverture de l'atelier</h1><PanelLoading label="Vérification de la session…" /></>}
       {state.kind === "unreachable" && <><h1 id="session-title">Service local injoignable</h1>
-        <PanelError message={state.message} onRetry={() => void check()} retryLabel="Vérifier de nouveau" /></>}
+        <PanelError message={unreachableText(state.failure, commands)} onRetry={() => void check()} retryLabel="Vérifier de nouveau" /></>}
       {state.kind === "ended" && <SessionEnded reason={state.reason} onRetry={() => void check()} />}
     </div>
   </main>;
 }
 
 function SessionEnded({ reason, onRetry }: { reason: SessionEndReason; onRetry: () => void }) {
-  const screen = sessionScreen(reason);
-  const [copied, setCopied] = useState(false);
-  const copy = async () => {
+  const commands = useLauncherCommands();
+  const screen = sessionScreen(reason, commands);
+  const [copied, setCopied] = useState<string | null>(null);
+  const copy = async (command: string) => {
     try {
-      await navigator.clipboard.writeText(OPEN_COMMAND);
-      setCopied(true);
+      await navigator.clipboard.writeText(command);
+      setCopied(command);
     } catch {
-      setCopied(false);
+      setCopied(null);
     }
   };
   return <>
     <h1 id="session-title"><KeyRound size={16} aria-hidden="true" />{screen.title}</h1>
     <p>{screen.body}</p>
-    <div className="session-command">
-      <code className="mono">{OPEN_COMMAND}</code>
-      <Button type="button" variant="secondary" size="sm" onClick={() => void copy()}><Copy size={14} aria-hidden="true" />{copied ? "Commande copiée" : "Copier la commande"}</Button>
-    </div>
+    {/* Commande du poste ; tant que la plateforme est inconnue, une ligne par lanceur livré. */}
+    {openCommandChoices(commands).map(({ system, command }) => <div className="session-command" key={command}>
+      {system && <span className="session-system">{system}</span>}
+      <code className="mono">{command}</code>
+      <Button type="button" variant="secondary" size="sm" onClick={() => void copy(command)}><Copy size={14} aria-hidden="true" />{copied === command ? "Commande copiée" : system ? `Copier la commande ${system}` : "Copier la commande"}</Button>
+    </div>)}
     <p className="session-hint">Si la session a été ouverte dans un autre onglet de ce navigateur, vérifiez de nouveau.</p>
     <Button type="button" variant="secondary" size="sm" onClick={onRetry}>Vérifier de nouveau</Button>
     <span className="sr-only" aria-live="polite">{copied ? "Commande copiée dans le presse-papiers." : ""}</span>

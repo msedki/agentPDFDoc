@@ -1,21 +1,55 @@
 # Poste documentaire web
 
 Application Next.js exportée statiquement sur `/workspace/`, servie par l'API
-Windows native sur la même origine. Les originaux, bibliothèques, jobs, recherches
-et questions viennent uniquement de `/api/v1`. Le build livré ne comporte aucune
-réponse simulée, fixture embarquée, requête de fonte/CDN ou route serveur Next.
+native sur la même origine, sous Windows x86-64 ou Linux aarch64 et x86-64
+([W018](../../RAG_Local_Agents/DECISIONS.md#w018-double-plateforme--windows-11-x86-64-et-linux-aarch64-natifs)
+et son complément du 01/10/2026). Les constats datés ci-dessous nomment le poste
+où ils ont été faits : le poste Windows 11 x86-64 de qualification ou le poste
+Linux aarch64 de développement ; aucun n'a été fait sur Linux x86-64.
+Les originaux, bibliothèques, jobs, recherches et questions viennent uniquement
+de `/api/v1`. Le build livré ne comporte aucune réponse simulée, fixture
+embarquée, requête de fonte/CDN ou route serveur Next.
 
 Le skill appliqué est [pdf-workspace-web](../../.agents/skills/pdf-workspace-web/SKILL.md),
 avec frontend-design et les références React/general web security locales.
 Les parcours réels suivent le skill `RAG_Local_Agents/skills/pdf-workspace-e2e`.
 
-Versions résolues : Node 22.17.0, pnpm 10.34.1, Next 16.3.7, React 19.3.0,
-PDF.js 6.3.289, TanStack Query 5.104.0, Zustand 5.0.15, TypeScript 5.9.3 et
-Playwright 1.63.0. Les versions exactes et dépendances sont dans `package.json`
-et `pnpm-lock.yaml`. Le cache Playwright local contient déjà Chromium requis ;
-aucun téléchargement navigateur n'a été exécuté par ce lot.
+Versions résolues : Next 16.3.7, React 19.3.0, PDF.js 6.3.289, TanStack Query
+5.104.0, Zustand 5.0.15, TypeScript 5.9.3 et Playwright 1.63.0. Les versions
+exactes et dépendances sont dans `package.json` et `pnpm-lock.yaml`. Les états,
+événements et champs partagés avec l'API sont comparés au contrat
+`packages/contracts/contracts.json` par `tests/unit/contracts.test.ts`. pnpm est
+fixé à 10.34.1 par le champ `packageManager` de `package.json`, avec l'empreinte
+SHA-512 du paquet publiée par le [registre npm](https://registry.npmjs.org/pnpm/10.34.1)
+(`dist.integrity`, convertie en hexadécimal). Node doit satisfaire `engines.node`
+(22.13.0 au moins) : 22.17.0 sur le poste Windows, 24.16.0 (nvm) sur le poste
+Linux aarch64. La commande `pnpm` dépend du poste :
 
-Depuis ce dossier, sous un créneau de build accordé par le superviseur :
+| Poste | `pnpm` employé | Condition pour obtenir 10.34.1 |
+|---|---|---|
+| Windows | `pnpm.cmd` du PATH, celui que cherche `services/runtime/cli.py` (`pnpm_command`) ; `scripts/build-monitored.py` passe toujours par le `pnpm.js` du Corepack livré avec Node | `pnpm.cmd` en 10.34.1, ou, pour Corepack, la version 10.34.1 dans son cache (`%LOCALAPPDATA%\node\corepack` par défaut), le build se faisant sans réseau |
+| Linux | shim `pnpm` de Corepack livré avec Node (sur le poste Linux aarch64, celui de Node 24.16.0 installé par nvm) | Corepack télécharge la version de `packageManager` et vérifie son empreinte au premier appel avec réseau, puis la garde dans son cache (`~/.cache/node/corepack` par défaut) |
+
+Sans réseau (`COREPACK_ENABLE_NETWORK=0`), Corepack refuse de lancer une version
+absente de son cache (« Network access disabled by the environment; can't reach
+https://registry.npmjs.org/pnpm/-/pnpm-10.34.1.tgz », constaté le 01/10/2026 sur
+le poste Linux avec un cache vide). La [documentation de Corepack](https://github.com/nodejs/corepack) (section « corepack install »)
+prévoit `corepack install`, qui télécharge et met en cache la version fixée par le
+projet : exécutée une fois avec réseau depuis ce dossier, elle a ajouté 10.34.1 à
+un cache vide en 8 s, après quoi `pnpm --version` hors ligne répond `10.34.1`
+(poste Linux, Corepack 0.35.0, 01/10/2026). Node 22.17.0 livre Corepack 0.33.0,
+dont la documentation décrit la même commande ; elle n'a pas été exécutée sur le
+poste Windows.
+
+Navigateurs Playwright : sur le poste Windows, le cache local contenait le
+Chromium requis lors des recettes du 30/09/2026. Sur le poste Linux aarch64,
+aucun navigateur Playwright n'est installé au 01/10/2026 (`~/.cache/ms-playwright`
+ne contient qu'un lien vers un autre projet) ; `playwright install` n'y a pas été
+exécuté et aucune recette E2E n'y a tourné.
+
+Depuis ce dossier, sous un créneau de build accordé par le superviseur, sur le
+poste Windows (si `pnpm` y est le shim Corepack, `corepack install` doit avoir été
+exécuté une fois avec réseau, voir ci-dessus) :
 
 ```powershell
 $env:NEXT_TELEMETRY_DISABLED='1'
@@ -26,10 +60,118 @@ pnpm test:unit
 pnpm build
 ```
 
-Le build copie worker, cmaps, wasm, fontes standard et profils ICC de la version
-locale PDF.js, avec un manifeste de SHA, puis exporte vers `out/`. Next utilise
+Sous Linux, depuis ce dossier :
+
+```bash
+export NEXT_TELEMETRY_DISABLED=1 COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+pnpm install --frozen-lockfile
+pnpm typecheck
+pnpm test:unit
+NODE_OPTIONS=--max-old-space-size=2048 nice -n 10 pnpm build
+```
+
+Exemple propre au poste Linux aarch64 de développement, et non étape du produit :
+sa partition système n'ayant que quelques gigaoctets libres, le store pnpm y est
+placé sur une carte microSD en ajoutant `--store-dir /media/safae/devsave1/agentPDFDoc-runtime/pnpm-store`
+à `pnpm install` ; `node_modules` et `.next` restent dans ce dossier. Sans cette
+option, pnpm emploie son store par défaut.
+
+`scripts/build-monitored.py --tag <étiquette>`, lancé avec l'interpréteur du
+projet (`.venv/Scripts/python.exe` sous Windows, `.venv/bin/python` sous Linux),
+exécute le même build en relevant toutes les deux secondes la mémoire et le CPU
+de l'hôte et de l'arbre de processus du build, puis écrit le journal, les relevés
+et le manifeste SHA-256 de `out/` dans `reports/`. Node est choisi dans cet ordre :
+
+1. l'exécutable désigné par la variable `RAG_WEB_NODE`, sur tout poste ; s'il
+   n'existe pas, le script s'arrête au lieu de chercher ailleurs ;
+2. sous Windows seulement, `D:/node/node-v22.17.0-win-x64/node.exe` s'il existe :
+   repli historique propre au poste Windows de qualification, conservé pour que
+   la commande qualifiée sur ce poste reste inchangée ; aucun autre poste n'a
+   besoin de ce dossier ;
+3. le `node` du PATH.
+
+pnpm passe par le Corepack livré avec ce Node (`dist/pnpm.js`), sans réseau
+(`COREPACK_ENABLE_NETWORK=0`). Avant d'écrire la moindre preuve, le script
+vérifie que ce Corepack lance hors ligne la version de `packageManager` (10.34.1) ;
+sinon il s'arrête, sans rien écrire dans `reports/`, en citant la sortie de
+Corepack et la commande unique à exécuter une fois avec réseau, `corepack install`
+du même Node depuis ce dossier :
+
+```powershell
+Set-Location -LiteralPath "<dépôt>\apps\web"; & "<dossier de node>\node.exe" "<dossier de node>\node_modules\corepack\dist\corepack.js" install
+```
+
+```bash
+cd "<dépôt>/apps/web" && "<node>" "<préfixe de node>/lib/node_modules/corepack/dist/corepack.js" install
+```
+
+Corepack télécharge alors pnpm 10.34.1, vérifie son empreinte et le garde dans
+son cache (`COREPACK_HOME`, par défaut `%LOCALAPPDATA%\node\corepack` sous
+Windows et `~/.cache/node/corepack` sous Linux). Le résumé JSON final donne la
+version de pnpm employée (`pnpm`). L'arrêt sur cache vide, sans fichier écrit
+dans `reports/`, et la commande affichée ont été constatés le 01/10/2026 sur le
+poste Linux aarch64 en lançant le script avec un `COREPACK_HOME` vide. Rien n'a
+été exécuté sur le poste Windows : la présence de 10.34.1 dans le cache de
+Corepack y reste à vérifier avant le prochain build surveillé.
+
+`pnpm dev` lance le serveur de développement Next (Turbopack) sur
+`127.0.0.1:3000`. Aucune réécriture ni proxy vers l'API n'est configuré
+(`next.config.mjs`) : les appels relatifs à `/api/v1` aboutissent au serveur de
+développement, qui répond 404, et l'atelier s'arrête sur l'écran « Service local
+injoignable » (« Le service local a refusé la demande (HTTP 404). », constaté le
+01/10/2026 sur le poste Linux). Ce mode ne sert qu'à examiner une mise en page ; tout
+parcours passe par l'export servi par l'API. Effets de bord constatés : `next dev`
+réécrit `next-env.d.ts` vers `.next/dev/types` (le build le rétablit) et, lancé
+depuis un agent de code, crée `AGENTS.md` et `CLAUDE.md` dans ce dossier
+(`node_modules/next/dist/server/lib/generate-agent-files.js`) ; ces fichiers ne
+sont pas des sources du projet.
+
+Les textes qui citent le lanceur (écran de session, info-bulle « Fermer la
+session », service injoignable, échec HTTP 5xx, échec sans message, avis de
+préparation) emploient les commandes que le poste annonce dans la réponse publique
+de `GET /api/v1/health` (`commands.open`, `status`, `logs` et `doctor`), lue au
+chargement de l'atelier, y compris sur l'écran « Lien d'ouverture expiré », et
+gardée en mémoire : `.\rag.ps1 open` sous Windows, `./rag.sh open` sous Linux
+(`src/lib/launcher.ts`, `tests/unit/launcher.test.ts`). Une commande annoncée est
+citée telle quelle. Une commande absente de la réponse prend le lanceur livré
+qu'emploient toutes les commandes annoncées : la plateforme est alors connue, et
+un service qui n'annoncerait pas encore `doctor` fait tout de même afficher
+`.\rag.ps1 doctor` sous Windows. Tant que la plateforme est inconnue (`/health`
+sans réponse ou en échec, lanceurs mêlés, autre chemin), le texte donne les deux
+formes ; l'écran de session affiche une ligne par système et parle de « la commande
+de votre système ». La plateforme du navigateur ne sert pas à choisir :
+`navigator.platform` est documenté comme peu fiable et `navigator.userAgentData`
+est expérimental et absent de plusieurs navigateurs (MDN).
+
+Sous Windows, dès que la plateforme est connue, chaque texte est identique mot
+pour mot à celui d'avant W018 : `tests/unit/windows-texts.test.ts` les compare
+aux sources du commit 26fa7a5 lues par `git show` (ignoré, avec son motif, sans
+git ou sans ce commit). Un échec n'est jamais gardé sous forme de texte : chaque
+composant garde l'erreur et calcule son texte au rendu avec les commandes connues
+à cet instant (`src/components/ui/error-text.tsx`, `tests/unit/error-text.test.ts`),
+si bien qu'une réponse de `/health` arrivée après l'échec remplace les deux formes
+par la commande du poste. La vérification de session attend la réponse de
+`/health` au plus 1 s (`src/lib/session-check.ts`,
+`tests/unit/session-check.test.ts`) ; tant qu'aucune commande n'est connue,
+l'atelier relit `/health` après des attentes de 2, 5, 15, 30 puis 60 secondes,
+chacune comptée depuis la réponse précédente, une lecture à la fois, et s'arrête
+dès qu'il les connaît ou après la cinquième ; « Vérifier de nouveau » relance la
+série.
+
+Le build vide `public/pdfjs/`, y copie worker, cmaps, wasm, fontes standard et
+profils ICC de la version locale PDF.js, avec un manifeste de SHA (aucun fichier
+d'une copie précédente n'est exporté ni inventorié), puis exporte vers `out/`.
+Seules les règles TextLayer de PDF.js sont chargées, depuis
+`src/app/pdf-text-layer.css`, copie cantonnée à `.pdf-paper` et comparée à la
+version installée par `tests/unit/pdf-styles.test.ts` : la feuille complète
+`web/pdf_viewer.css` n'est plus importée, car elle imposait `color-scheme: light dark`
+à `:root` et ajoutait au build 32 icônes et les styles du visualiseur et de
+l'éditeur PDF.js (163 832 octets en source dans pdfjs-dist 6.3.289), inutilisés
+ici. Le premier build Linux du 01/10/2026
+([manifeste](reports/export-manifest-2026-10-01-linux-aarch64.json)) exporte
+243 fichiers pour 6 514 529 octets, dont une feuille CSS de 44 642 octets. Next utilise
 un seul worker. Ne pas lancer de build en concurrence avec OCR/LLM lourd sur le
-poste de 16 Go.
+poste Windows de 16 Go.
 
 Les trois panneaux partagent un scope explicite gelé par requête. Lire un PDF,
 tourner une page ou ouvrir une citation ne change pas ce scope. Les recherches
@@ -54,8 +196,32 @@ Ligature/césure ambiguë ou hash/révision manquante produit une limite visible
 les actions page/bloc disponibles.
 
 Le suivi appelle les vraies routes pause/reprise, priorité questions/imports et
-publication partielle. Cette dernière nécessite l'action explicite « Utiliser
-cette extraction partielle ». La couverture et les limites restent visibles.
+publication partielle. La publication partielle nécessite l'action explicite
+« Utiliser cette extraction partielle ». La couverture et les limites restent
+visibles.
+
+« Réindexer ce document » suit la réponse du service, décrite pour chaque état du
+dernier traitement par `reindex_outcomes` dans le contrat (`src/lib/reindex.ts`,
+`tests/unit/reindex.test.ts`) :
+
+| Dernier traitement | Réponse du service | Affiché sous le bouton |
+|---|---|---|
+| `queued`, `extracting`, `indexing` | 202, traitement en cours renvoyé (`reused`) | « Un traitement de ce document est déjà en cours : aucune nouvelle réindexation n'a été lancée. Sa progression s'affiche dans le Suivi. » |
+| `paused` | 202, ce traitement renvoyé avec `resume_required` | avis de pause et bouton « Reprendre le traitement », qui appelle `POST /jobs/{job_id}/resume` |
+| `pausing` | 409 `job_pausing`, aucun traitement créé | message du service, tel quel : « Mise en pause en cours pour ce document : attendre qu'elle aboutisse, puis reprendre ce travail depuis le Suivi. » |
+| `cancelling`, `cancelled`, `error`, `ready`, `ready_partial` | 202, traitement neuf mis en file ; pendant `cancelling`, l'annulation reste définitive et le nouveau traitement démarre après elle | « Réindexation demandée : sa progression s'affiche dans le Suivi. » |
+
+Le bouton n'est actif que pour un document `ready`, `ready_partial` ou `error`
+(comportement antérieur inchangé). Un `resume_required` avec un autre état que
+`paused`, que ce service ne renvoie pas, renvoie au Suivi sans proposer de reprise.
+
+À l'import, un fichier identique déjà importé au même chemin dont le traitement
+est `paused`, `pausing` ou `cancelling` ne relance rien : le service renvoie ce
+traitement avec `job_state` et `resume_required` (`Database.import_original`).
+L'avis de la bibliothèque le dit pour chaque cas et propose « Reprendre le
+traitement » pour les traitements en pause seulement, les deux autres états étant
+refusés par `POST /jobs/{job_id}/resume` (`src/lib/import-outcome.ts`,
+`tests/unit/import-outcome.test.ts`).
 Le SSE reprend le query ID et dernier event ID sans nouvelle génération ; seules
 les références enregistrées deviennent des citations cliquables.
 
@@ -110,7 +276,7 @@ ne transforme pas un succès de navigation en réussite de la chaîne question.
 La première exécution réelle conserve une coquille/API PASS à 1366×768 et
 1920×1080, puis l'échec d'ouverture de l'original et la dépendance de sélection :
 [sortie initiale](reports/e2e-2026-09-30-native-dev-first.log),
-[traces/captures initiales](test-results/2026-09-30-native-dev-first/results.json).
+traces et captures conservées hors Git sur le poste Windows (`test-results/2026-09-30-native-dev-first/`).
 Le job importé a d'abord été mis en pause par le contrôle mémoire, puis repris
 explicitement via UI et publié avec 2/2 pages. La reprise garde un échec de
 locator ambigu (bouton du périmètre au lieu de celui de l'arborescence) ; son
@@ -122,7 +288,7 @@ retour, puis échoué sur une RenderingCancelledException non gérée :
 La cause est corrigée dans le build courant. Une reprise conserve un échec de
 locator de warning devenu multiple, puis le parcours recherche→source a passé
 en 11,4 s : [sortie](reports/e2e-2026-09-30-native-dev-source-final.log),
-[trace/captures](test-results/2026-09-30-native-dev-source-final/results.json).
+traces et captures conservées hors Git sur le poste Windows (`test-results/2026-09-30-native-dev-source-final/`).
 Le nom et la page proviennent de l'API ; rotation 90°/zoom 125 %, ancre native
 dans la bbox réelle, retour page 2 et warnings structurés sont exercés, sans
 erreur de page ni requête externe. Ce cas ne prouve pas les 95 % d'ancres ni
@@ -133,7 +299,7 @@ La première question réelle a échoué avant génération : POST 202 puis SSE
 `model_called=false`. Huit sources réelles ont été reçues, aucun delta ni texte
 de réponse : [sortie](reports/e2e-2026-09-30-qwen-question-first.log),
 [preuves décodées](reports/e2e-2026-09-30-qwen-question-first-evidence.json),
-[trace/capture](test-results/2026-09-30-qwen-question-first/results.json).
+traces et captures conservées hors Git sur le poste Windows (`test-results/2026-09-30-qwen-question-first/`).
 La durée de recette 43,9 s inclut l'assertion de réponse après le refus ; elle
 ne mesure aucun TTFT. Le test termine désormais immédiatement sur un statut
 terminal d'échec, tout en conservant le SSE. La chaîne question→réponse du
@@ -147,7 +313,7 @@ modèle n'est observé ; la recette termine immédiatement en 17,9 s :
 [sortie](reports/e2e-2026-09-30-qwen-question-second.log),
 [SSE exact](reports/e2e-2026-09-30-qwen-question-second-events.sse),
 [cache/RAM/CPU et navigateur propres](reports/e2e-2026-09-30-qwen-question-second-evidence.json),
-[trace/capture](test-results/2026-09-30-qwen-question-second/results.json).
+traces et captures conservées hors Git sur le poste Windows (`test-results/2026-09-30-qwen-question-second/`).
 Cette API expose maintenant des compteurs d'inférence d'embedding limités au
 processus courant ; ce seul essai ne qualifie pas les cycles réimport/réindex.
 
@@ -160,20 +326,30 @@ pnpm exec playwright test --grep 'three panels|real import|immutable block'
 ```
 
 Le superviseur confirme d'abord que cette cible correspond aux services/données
-isolés prévus. Depuis le 01/10, `tools/qualification/e2e_instance.py start --state <etat.json>`
-fournit cette cible : instance neuve dans une racine et des ports temporaires, dont
+isolés prévus. Depuis le 01/10, sur le poste Windows,
+`tools/qualification/e2e_instance.py start --state <etat.json>` fournit cette cible : instance neuve dans une racine et des ports temporaires, dont
 l'état donne l'origine (`RAG_E2E_BASE_URL`) et le fichier de jeton
 (`RAG_E2E_CONTROL_TOKEN_FILE`) ; `stop` l'arrête et supprime sa racine. Les scénarios
 de géométrie, de balisage hostile, de canvas, d'import et de sélection y sont passés
 le 01/10 ([géométrie](reports/e2e-2026-10-01-import-isole-geometrie-evidence.json),
 [parcours](reports/e2e-2026-10-01-import-isole-parcours-evidence.json)), ainsi que la sélection Unicode de
 `unicode-selection.spec.ts` (hors BMP, accent combinant, ligature, césure, sélection ambiguë refusée ;
-[rapport](reports/e2e-2026-10-01-unicode-selection-evidence.json)).
+[rapport](reports/e2e-2026-10-01-unicode-selection-evidence.json)). Ces exécutions ont
+toutes eu lieu sur le poste Windows, et l'outil y est documenté avec
+`.venv\Scripts\python.exe` et les mécanismes de `rag.ps1 selftest` : c'est le seul
+poste où cette cible est utilisable aujourd'hui. Sous Linux, ni l'outil ni la
+recette E2E n'ont été exécutés ; leur prise en charge reste à établir.
 Une reprise fournit `RAG_E2E_REUSE_DOCUMENT_ID` et vérifie le SHA
 de la même fixture DEV, sans nouvel import. La question réelle exige un créneau
-distinct et `RAG_E2E_GENERATION_ALLOWED=1`. La sonde mémoire utilise la venv du
-projet et psutil : PID propre du worker Node, descendants Chromium récursifs,
-RSS, private Windows (mémoire privée engagée) et USS séparés par processus.
+distinct et `RAG_E2E_GENERATION_ALLOWED=1`. La sonde mémoire (`tests/e2e/resources.ts`,
+plateforme résolue par `tests/e2e/host.ts`) utilise la venv du projet et psutil :
+PID propre du worker Node, vérifié par son nom `node.exe` sous Windows et, sous
+Linux, par son exécutable (`/proc/<pid>/exe` égal à `process.execPath`, Node 24
+nommant son thread principal « MainThread »), descendants Chromium récursifs,
+valeurs séparées par processus. Sous Windows :
+RSS, private Windows (mémoire privée engagée) et USS. Sous Linux, où psutil
+n'expose pas de mémoire privée Windows : RSS lu dans `/proc/<pid>/statm` et USS
+calculé sur `/proc/<pid>/smaps` ; chaque relevé nomme sa méthode (champ `method`).
 Elle ne lit aucun autre navigateur et ferme uniquement ce navigateur de test
 si la RAM disponible passe sous 1,5 GiB. Les anciens snapshots ne disposaient
 pas de private/USS ; ces valeurs ne sont pas reconstituées après coup. Le test

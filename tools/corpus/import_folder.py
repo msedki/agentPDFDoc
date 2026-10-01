@@ -25,6 +25,7 @@ import httpx
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
+from services.runtime.platforms import launcher_command  # noqa: E402
 from services.runtime.supervisor import app_origin, control_headers, data_path, load_profile  # noqa: E402
 
 
@@ -79,7 +80,7 @@ def main() -> int:
     profile = load_profile(args.profile)
     headers = control_headers(data_path(profile))
     if not headers:
-        raise SystemExit("Jeton de contrôle absent : l'instance du profil doit être démarrée (.\\rag.ps1 up)")
+        raise SystemExit(f"Jeton de contrôle absent : l'instance du profil doit être démarrée ({launcher_command('up')})")
     origin, verify = app_origin(profile)
     report = import_folder(args.source.resolve(), origin, headers=headers, verify=verify)
     output.parent.mkdir(parents=True, exist_ok=True)

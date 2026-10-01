@@ -197,3 +197,54 @@ async def test_generation_admission_without_wait_refuses_immediately(tmp_path, m
 
 async def _instant_sleep(_seconds):
     return None
+
+
+def test_memory_measures_are_labelled_by_platform(tmp_path):
+    import sys
+
+    import psutil
+
+    from services.runtime.resources import host_sample, linux_memory_mib
+
+    sample = host_sample(tmp_path)
+    assert sample["process_rss_mib"] > 0
+    if sys.platform == "win32":
+        assert sample["memory_method"].startswith("Windows working set and private bytes")
+        assert "process_pss_mib" not in sample and "process_uss_mib" not in sample
+    else:
+        # Aucune « private bytes » sous Linux : RSS, USS, et PSS quand le noyau fournit smaps_rollup (4.14 ou plus récent).
+        assert sample["process_private_mib"] is None
+        assert sample["memory_method"] == ("Linux RSS/USS/PSS" if sample["process_pss_mib"] is not None else "Linux RSS/USS")
+        assert 0 < sample["process_uss_mib"] <= sample["process_rss_mib"]
+        measured = linux_memory_mib(psutil.Process())
+        assert set(measured) == {"rss_mib", "uss_mib", "pss_mib"}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("unload", [True, False])
+async def test_llm_unload_before_ingestion_follows_the_profile_key(tmp_path, unload):
+    # C6 : resources.unload_llm_before_ingestion (vrai dans le profil livré) commande le déchargement d'Ollama.
+    item = ResourceGovernor({"app": {"data_dir": str(tmp_path)}, "resources": {"unload_llm_before_ingestion": unload}},
+                            host_lock_path=tmp_path / "host-heavy.lock")
+    item._admit = lambda *args: None
+    calls = []
+
+    async def unload_llm():
+        calls.append("unload")
+
+    item.before_ingestion = unload_llm
+    async with item.ingestion():
+        pass
+    assert calls == (["unload"] if unload else [])
+
+
+def test_delivered_profile_unloads_llm_and_starts_interactive(tmp_path):
+    import yaml
+
+    from services.runtime.artifacts import ROOT
+
+    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    item = ResourceGovernor({**profile, "app": {**profile["app"], "data_dir": str(tmp_path)}}, host_lock_path=tmp_path / "l")
+    assert item.unload_llm_before_ingestion is True and item.snapshot()["mode"] == "interactive"
+    with pytest.raises(ValueError, match="initial_mode doit valoir interactive"):
+        ResourceGovernor({"app": {"data_dir": str(tmp_path)}, "resources": {"scheduling": {"initial_mode": "ingestion"}}})

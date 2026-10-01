@@ -35,6 +35,8 @@ FORBIDDEN_PREFIXES = ("PDF/", ".runtime/data/", ".runtime/qa/", ".runtime/evals/
 GPU_DIRECTORIES = ("cuda_v12", "cuda_v13", "vulkan")  # P3 : sous lib/ollama, inutiles avec num_gpu 0 si H1 est vérifiée.
 TEXT_SUFFIXES = {".json", ".yaml", ".yml", ".md", ".py", ".ps1", ".txt", ".toml", ".lock", ".cfg"}
 TEXT_SCAN_LIMIT = 32 * 1024 * 1024
+# Le kit hors ligne est celui du poste Windows (W001, DIST-04) : binaires, CPython et roues Windows x86-64.
+KIT_PLATFORM = "windows-x86_64"
 LAUNCHER = "Installer l'atelier.cmd"
 NOTICES = "THIRD_PARTY_NOTICES.md"
 LAUNCHER_CONTENT = (b"@echo off\r\n"
@@ -142,7 +144,7 @@ def build_kit(output: Path, *, root: Path = ROOT, version: str, without_gpu: boo
     # Avis de tiers (DIST-07) : composants, licences déclarées, textes présents et manques connus.
     from tools.dist.notices import third_party_notices
 
-    notices = third_party_notices(root, files, version).encode("utf-8")
+    notices = third_party_notices(root, files, version, KIT_PLATFORM).encode("utf-8")
     (output / NOTICES).write_bytes(notices)
     sums.append(f"{hashlib.sha256(notices).hexdigest()}  {NOTICES}")
     # Lanceur à double-cliquer : Bypass ne vaut que pour cette session et ne touche pas la politique du poste.
@@ -225,6 +227,9 @@ def main() -> int:
             result = install_copy(args.kit, args.target)
         except ValueError as error:
             result = {"status": "failed", "message": str(error)}
+    elif sys.platform != "win32":
+        # .runtime contient ici les binaires, CPython et roues de ce poste, pas ceux de Windows : aucun kit n'est fabriqué.
+        result = {"status": "failed", "message": f"Le kit hors ligne vise {KIT_PLATFORM} : le fabriquer sur le poste Windows"}
     else:
         import subprocess
         import tomllib

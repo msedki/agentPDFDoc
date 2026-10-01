@@ -255,6 +255,8 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 
 **Décision remplacée :** aucune ; W001 est étendue. Retour arrière : retirer l'environnement Linux de `[tool.uv] environments` et relancer `uv lock` ; la partie Windows du verrou reste identique.
 
+**Complément W018 (1er octobre 2026, 16:37 UTC) :** précision de l'utilisateur vers 16:34 : « je ne veux pas une implémentation ou installation qui ne fonctionne qu'ici ; je dois pouvoir le faire dans n'importe quelle machine Windows tel qu'avant, et aussi Linux ». Conséquences : (1) la plateforme Linux couvre aarch64 et x86-64 : `uv.lock` résout trois environnements (`win32`/`AMD64`, `linux`/`aarch64`, `linux`/`x86_64`), les résolutions Windows et aarch64 restant identiques après l'ajout (comparaison scriptée du 01/10 à 16:36) ; `config/artifacts.lock.json` verrouille pour chacune ses binaires officiels (Qdrant 1.19.1 musl statique, Ollama 0.35.0 `linux-arm64` et `linux-amd64`), les sources de Leptonica et Tesseract valant pour les deux architectures Linux ; (2) aucun chemin, réglage ni prérequis propre au Jetson n'entre dans le code, les lanceurs ou le verrou : le placement de `.runtime/` et `.venv/` sur la carte microSD, par liens symboliques non versionnés, et le préchargement du modèle sont des aménagements locaux de ce poste, pas des étapes du produit ; (3) l'installation Windows reste celle qualifiée (`bootstrap.ps1`, `rag.ps1`, mêmes artefacts et mêmes empreintes) ; (4) la preuve d'installation Linux (D01) passe par `bootstrap.sh` puis `rag.sh provision` sur une racine neuve, sans édition manuelle. Les prérequis système de Linux (compilateur, CMake et en-têtes d'images pour Tesseract 5.4.0, ou un Tesseract 5.4.0 déjà installé) sont documentés comme l'est l'installation de Tesseract sous Windows.
+
 ## W019 Espace documentaire : `docs/` stabilisé, `RAG_Local_Agents/` vivant
 
 **Date :** consignée le 1er octobre 2026 à 16:45 UTC ; organisation livrée le 30 septembre à 18:33 UTC (`10b5dd9`). **Statut :** acquise (demande utilisateur R14 reçue le 30/09 vers 09:34 UTC) ; décision consignée a posteriori, l'inspection du 01/10 ayant constaté qu'aucune entrée de ce registre ne portait l'arborescence (le lot R14 renvoyait à tort à W008).
@@ -266,3 +268,35 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 **Justification :** charte du dépôt ; l'outillage existant interdit de déplacer `RAG_Local_Agents/`.
 
 **Conséquences :** un document stabilisé ne change qu'après un changement réel et vérifié du système ; `tools/docs/check_docs.py` contrôle liens, en-têtes, statuts et schémas. Les documents de `docs/` restent référencés sur `e4c7caf` tant qu'ils n'ont pas été mis à jour pour W016, W017 et W018 (lot J9).
+
+## W020 Évaluation question-réponse sur le corpus réel du poste Linux (`PDF/MGV`, `PDF/TEST`)
+
+**Date :** 1er octobre 2026, 18:13 UTC. **Statut :** acquise (demande de l'utilisateur reçue vers 18:10 UTC : « je t'ai mis un dossier PDF afin de faire des evals avec question réponse attendue et en se basant sur de vrais documents ») ; réalisation en cours (lot J10 du plan).
+
+**Contexte :** l'utilisateur dépose sur le poste Linux un dossier `PDF/` (ignoré par Git) de 4 documents réels, 208 pages avec couche texte : `MGV/MGV-CMD0002933794-B.1.pdf` (56 pages), `MGV/MGV-CMD0002933796-D.0.pdf` (140 pages), `TEST/ePMO.pdf` (2 pages A3, 236 images) et `TEST/modelcards.pdf` (10 pages). Les décisions W013 (protocole sans juge, agrégats seuls versionnés) et W014 (jeu de référence établi par lecture intégrale par l'assistant) fixent déjà la méthode sur le corpus du poste Windows.
+
+**Choix retenu :** (1) même méthode que W014, appliquée à ce corpus : l'assistant et des agents de lecture du même service lisent les 4 documents en entier sur les PDF originaux, sur demande explicite de l'utilisateur, et rédigent des questions de métier avec réponse attendue, valeurs, unités, pages et extraits exacts (schéma lu par `tools/qualification/annotated_eval.py`), y compris des questions sans réponse vérifiées sur tout le document ; chaque question est relue par un second agent contre le PDF ; état `ASSISTANT_READ_NOT_EXPERT_VALIDATED` ; (2) séparation par document d'après les dossiers fournis : `MGV/` en développement, `TEST/` tenu à l'écart ; (3) les jeux et réponses contiennent du texte du corpus : ils restent sous `.runtime/evals/annotated-linux-v1/` et `.runtime/qa/`, hors Git ; seuls des agrégats, des comptes et des identifiants sont versionnés ; (4) import, extraction, recherche et génération passent par l'instance Linux réelle (`rag.sh`), modèle `qwen3.5:4b-text` sur CPU.
+
+**Conséquences :** premier corpus réel qualifiable sur la plateforme Linux ; les mesures de ce poste ne remplacent pas celles du corpus du poste Windows (W013, W014) ; la validité métier reste limitée tant qu'un expert n'a pas relu le jeu (point à trancher n° 2).
+
+## W021 Invariants du profil contrôlés au chargement, communs aux deux plateformes
+
+**Date :** 1er octobre 2026, 18:59 UTC. **Statut :** acquise (traitement du constat C6 de l'inspection : une trentaine de clés du profil n'avaient aucun effet) ; réalisée et testée sous Linux ; comportement Windows identique avec le profil livré (`test_runtime_windows_profile_invariants.py`, plateforme simulée) ; suite Windows à rejouer sur le poste Windows.
+
+**Contexte :** le profil `local16` portait des clés que le code ignorait (valeurs codées en dur) : modifier ces clés ne changeait rien, ce que le profil laissait croire.
+
+**Choix retenu :** une clé dont la valeur livrée égale la valeur codée est désormais lue (`sqlite.busy_timeout_ms`, `sqlite.cache_size_kib`, `llm.connect_timeout_seconds`, `llm.keep_alive`, `app.asgi_workers`, `resources.unload_llm_before_ingestion`, `resources.scheduling.initial_mode`) ; une clé qui n'a qu'une valeur mise en œuvre est vérifiée au chargement et toute autre valeur refusée au démarrage avec la liste des clés en cause (29 clés de `FIXED_PROFILE_VALUES`, `services/api/settings.py`, plus `app.offline: true`, `app.telemetry: false`, `app.asgi_workers: 1`, `scheduling.initial_mode: interactive` côté runtime). Trois clés lues par `embedding.py` sont contrôlées plutôt que lues, pour ne pas changer l'identité `selector_sha256` des évaluations.
+
+**Conséquences :** avec `config/local16.yaml`, comportement inchangé sur les deux plateformes ; un profil modifié sur une de ces clés est refusé au lieu d'être ignoré en silence. Les clés sans lecteur ni contrôle sont déclarées informatives dans `CONFIGURATION.md`. Retour arrière : retirer les contrôles de `settings.py`, `supervisor.py`, `api_entry.py` et `resources.py`.
+
+## W022 Gel de `services/ingestion` pendant le chantier Linux
+
+**Date :** 1er octobre 2026, 18:59 UTC. **Statut :** acquise (choix technique de l'intégrateur, conséquence de W018) ; à lever avec la prochaine évolution décidée de l'ingestion (point à trancher 8).
+
+**Contexte :** l'empreinte d'extraction (`services/ingestion/config.py`, `fingerprint`) hache les sources de `services/ingestion/*.py`. Modifier un de ces fichiers, même un commentaire, rend caduques sous Windows le cache d'extraction et les points de reprise des traitements en pause (61 documents du corpus Windows).
+
+**Choix retenu :** aucune modification de `services/ingestion/*.py` ni de `config/local16.yaml` pendant le portage Linux ; les adaptations passent par le runtime et l'API (commande Tesseract sans `.exe` hors Windows par `platforms.native_executable`, transmise au worker) et par les tests. Exception constatée et acceptée jusqu'à la levée du gel : `mypy` sous Linux signale 3 erreurs `attr-defined` dans `services/ingestion/checkpoint.py:44` (branche `msvcrt` choisie par `os.name`, que mypy ne relie pas à la plateforme) ; `mypy --platform win32` est propre et le code est exercé par les tests sur les deux plateformes. La levée remplacera `os.name == "nt"` par `sys.platform == "win32"` dans le même changement que l'évolution d'ingestion, qui invalidera de toute façon l'empreinte.
+
+**Conséquences :** l'empreinte change quand même sous Linux avec le binaire Tesseract (`tesseract_executable_sha256`), propre à chaque poste ; aucune extraction Windows n'est rendue caduque par le portage.
+
+**Complément W018 (1er octobre 2026, 18:59 UTC) :** sous Linux, arrêt de Qdrant et d'Ollama par SIGTERM au groupe de processus (Qdrant : « graceful shutdown », alors que SIGINT donne « forced » ; Ollama : SIGINT et SIGTERM traités de la même façon d'après `server/routes.go` v0.35.0, quatre essais réels avec le modèle chargé), Windows inchangé (CTRL+C console) ; un processus n'est tenu pour orphelin d'une instance que si son appartenance est prouvée (`RAG_DATA_DIR` initial égal à la racine de l'instance et exécutable du programme), `up` refusant de démarrer tant qu'il en reste, sans rien arrêter de lui-même.

@@ -18,11 +18,18 @@ async function openingLink(request: APIRequestContext): Promise<string> {
 test.describe("sans session", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
-  test("l'atelier affiche la commande d'ouverture au lieu de l'espace de travail", async ({ page }) => {
+  test("l'atelier affiche la commande d'ouverture au lieu de l'espace de travail", async ({ page, request }) => {
+    // Le service annonce la commande de son poste (W018) : rag.ps1 sous Windows, rag.sh sous Linux.
+    const health = await request.get("/api/v1/health");
+    expect(health.ok()).toBe(true);
+    const announced = (await health.json() as { commands?: { open?: unknown } }).commands?.open;
+    expect(announced).toBe(process.platform === "win32" ? ".\\rag.ps1 open" : "./rag.sh open");
     await page.goto("/workspace/");
     await expect(page.getByRole("heading", { level: 1, name: "Session requise" })).toBeVisible();
-    await expect(page.getByText(".\\rag.ps1 open", { exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Copier la commande" })).toBeVisible();
+    await expect(page.getByText(String(announced), { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Copier la commande", exact: true })).toBeVisible();
+    // Commande connue : une seule ligne, sans la variante de l'autre plateforme.
+    await expect(page.locator(".session-command")).toHaveCount(1);
     await expect(page.getByRole("heading", { name: "Bibliothèque" })).toHaveCount(0);
   });
 

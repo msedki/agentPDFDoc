@@ -13,7 +13,8 @@ class OllamaGateway:
     def __init__(self, settings):
         self.settings = settings
         self.base_url = settings.value("llm", "base_url", "http://127.0.0.1:11434")
-        self.client = httpx.AsyncClient(base_url=self.base_url, timeout=httpx.Timeout(settings.value("llm", "idle_read_timeout_seconds", 300), connect=5), trust_env=False)
+        self.client = httpx.AsyncClient(base_url=self.base_url, timeout=httpx.Timeout(settings.value("llm", "idle_read_timeout_seconds", 300),
+                                                                                    connect=settings.value("llm", "connect_timeout_seconds", 5)), trust_env=False)
 
     async def close(self):
         await self.client.aclose()

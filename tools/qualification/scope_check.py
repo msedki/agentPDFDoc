@@ -15,6 +15,7 @@ Contrôles :
   `rest_responses_total` de Qdrant inchangé ; une recherche témoin sur le document l'incrémente, ce qui valide la mesure.
 
     .venv\\Scripts\\python.exe tools/qualification/scope_check.py --instance <etat.json> --report <rapport.json>
+    .venv/bin/python tools/qualification/scope_check.py --instance <etat.json> --report <rapport.json>
 """
 
 from __future__ import annotations

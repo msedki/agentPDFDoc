@@ -3,6 +3,7 @@ import { CircleAlert, X } from "lucide-react";
 import type { LibraryTree, Scope } from "@/lib/types";
 import { coverageSentence, scopeCoverage, scopeKindLabel } from "@/lib/panel-state";
 import { readinessSentence } from "@/lib/warnings";
+import { useLauncherCommands } from "@/lib/use-launcher-commands";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { StatusIndicator } from "./ui/status-indicator";
@@ -21,6 +22,7 @@ export function ContextBand({ scope, tree, treeFailed, blockers, error, onDismis
   treeFailed: boolean;
   blockers: string[]; error: string; onDismissError: () => void; service: ServiceSummary;
 }) {
+  const commands = useLauncherCommands();
   const coverage = tree ? scopeCoverage(scope, tree) : null;
   const message = error ? "error" : blockers.length ? "readiness" : null;
   const scoped = Boolean(coverage) || treeFailed;
@@ -29,6 +31,6 @@ export function ContextBand({ scope, tree, treeFailed, blockers, error, onDismis
     {/* La nature du périmètre ne s'affiche que si elle précise le libellé de la barre supérieure (pas pour toute la bibliothèque). */}
     {scoped && <p className="context-scope">{scope.kind !== "library" && <Badge tone="neutral">{scopeKindLabel(scope.kind)}</Badge>}<span>{coverage ? coverageSentence(coverage) : "Couverture inconnue : la bibliothèque n'a pas pu être lue"}</span></p>}
     {message === "error" && <div className="context-message workspace-error" role="alert"><CircleAlert size={14} aria-hidden="true" /><span>{error}</span><button type="button" onClick={onDismissError} aria-label="Fermer le message"><X size={16} /></button></div>}
-    {message === "readiness" && <p className="context-message readiness-notice" role="status" title={`Contrôles non satisfaits : ${blockers.join(", ")}`}>{readinessSentence(blockers)}</p>}
+    {message === "readiness" && <p className="context-message readiness-notice" role="status" title={`Contrôles non satisfaits : ${blockers.join(", ")}`}>{readinessSentence(blockers, commands)}</p>}
   </div>;
 }

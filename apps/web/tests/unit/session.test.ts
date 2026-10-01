@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { csrfFromCookies, isSessionFailure, linkInvalidFromSearch, OPEN_COMMAND, sessionScreen, type SessionEndReason } from "../../src/lib/session.ts";
+import { csrfFromCookies, isSessionFailure, linkInvalidFromSearch, sessionScreen, type SessionEndReason } from "../../src/lib/session.ts";
+import { openCommandChoices } from "../../src/lib/launcher.ts";
 
 test("le jeton CSRF est lu dans le cookie lisible, nom préfixé de production d'abord", () => {
   assert.equal(csrfFromCookies("rag_csrf=abc-123; autre=1"), "abc-123");
@@ -27,11 +28,23 @@ test("chaque écran de session dit la cause et renvoie à la commande d'ouvertur
   const reasons: SessionEndReason[] = ["session_required", "session_expired", "session_closed", "link_invalid"];
   const titles = new Set<string>();
   for (const reason of reasons) {
-    const screen = sessionScreen(reason);
+    const screen = sessionScreen(reason, { open: ".\\rag.ps1 open" });
     assert.ok(screen.title.length > 0 && screen.body.length > 40, reason);
-    assert.match(screen.body, /commande ci-dessous/, reason);
+    assert.match(screen.body, /la commande ci-dessous/, reason);
+    // Commande d'ouverture inconnue : deux lignes, une par système, et le texte le dit.
+    assert.match(sessionScreen(reason, null).body, /la commande de votre système ci-dessous/, reason);
     titles.add(screen.title);
   }
   assert.equal(titles.size, reasons.length);
-  assert.equal(OPEN_COMMAND, ".\\rag.ps1 open");
+});
+
+test("the opening command shown is the one of this host, or one line per delivered launcher while unknown", () => {
+  assert.deepEqual(openCommandChoices({ open: ".\\rag.ps1 open" }), [{ system: null, command: ".\\rag.ps1 open" }]);
+  assert.deepEqual(openCommandChoices({ open: "./rag.sh open" }), [{ system: null, command: "./rag.sh open" }]);
+  assert.deepEqual(openCommandChoices(null), [{ system: "Windows", command: ".\\rag.ps1 open" }, { system: "Linux", command: "./rag.sh open" }]);
+  // Plateforme connue par une autre commande annoncée : le lanceur livré qu'elle emploie.
+  assert.deepEqual(openCommandChoices({ status: "./rag.sh status" }), [{ system: null, command: "./rag.sh open" }]);
+  // Lanceurs mêlés ou autre chemin : plateforme inconnue, une ligne par lanceur livré.
+  assert.deepEqual(openCommandChoices({ status: "./rag.sh status", logs: ".\\rag.ps1 logs" }), openCommandChoices(null));
+  assert.deepEqual(openCommandChoices({ status: "/opt/rag/rag.sh status" }), openCommandChoices(null));
 });

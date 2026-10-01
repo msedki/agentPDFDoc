@@ -4,6 +4,58 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from .errors import ApiError
+from .security import scheme_for
+
+# Clés du profil dont le code ne met en œuvre qu'une valeur (constat C6 de l'inspection du 1er octobre 2026) :
+# lues au chargement, toute autre valeur est refusée au démarrage au lieu d'être ignorée en silence.
+# Une clé absente garde la valeur mise en œuvre.
+FIXED_PROFILE_VALUES: dict[tuple[str, ...], object] = {
+    ("app", "log_document_text"): False,
+    ("llm", "provider"): "ollama",
+    ("llm", "max_active_generations"): 1,
+    ("embedding", "backend"): "onnxruntime",
+    ("embedding", "provider"): "CPUExecutionProvider",
+    ("embedding", "weights_precision"): "int8",
+    ("embedding", "dimensions"): 384,
+    ("embedding", "query_prefix"): "query: ",
+    ("embedding", "passage_prefix"): "passage: ",
+    ("embedding", "normalize_l2"): True,
+    # Bornes et réglage de la session E5 codés dans embedding.py, fichier haché par l'identité du sélecteur
+    # (`selector_sha256` des évaluations) : contrôlés ici pour ne pas changer cette identité.
+    ("embedding", "max_model_tokens"): 512,
+    ("embedding", "allow_spinning"): False,
+    ("chunking", "max_prefixed_tokens"): 448,
+    ("chunking", "tokenizer"): "embedding",
+    ("chunking", "respect_section_boundaries"): True,
+    ("retrieval", "reranker"): False,
+    ("retrieval", "history_is_evidence"): False,
+    ("retrieval", "exact_identifier_final_coverage_required"): True,
+    ("retrieval", "context_coverage_check_required"): True,
+    ("qdrant", "distance"): "Cosine",
+    ("qdrant", "vector_dimensions"): 384,
+    ("qdrant", "wait_for_upserts"): True,
+    ("qdrant", "collection_api_contract_check_required"): True,
+    ("qdrant", "model_identity_in_collection_name_required"): True,
+    ("sqlite", "journal_mode"): "WAL",
+    ("sqlite", "foreign_keys"): True,
+    ("sqlite", "fts_tokenizer"): "unicode61 remove_diacritics 2",
+    ("resources", "scheduling", "pause_policy"): "cooperative_checkpoint",
+    ("resources", "scheduling", "kill_on_interactive_request"): False,
+}
+
+_MISSING = object()
+
+
+def unsupported_profile_values(config: dict) -> list[str]:
+    """Clés de `FIXED_PROFILE_VALUES` présentes avec une autre valeur que celle mise en œuvre (types compris)."""
+    refused = []
+    for path, expected in FIXED_PROFILE_VALUES.items():
+        node: object = config
+        for name in path:
+            node = node.get(name, _MISSING) if isinstance(node, dict) else _MISSING
+        if node is not _MISSING and (type(node) is not type(expected) or node != expected):
+            refused.append(".".join(path))
+    return refused
 
 
 @dataclass
@@ -29,6 +81,10 @@ class Settings:
                 raise ApiError("invalid_profile", "Les services doivent rester sur loopback.")
         if config.get("llm", {}).get("num_gpu", 0) != 0:
             raise ApiError("invalid_profile", "Le profil exige un calcul CPU.")
+        refused = unsupported_profile_values(config)
+        if refused:
+            raise ApiError("invalid_profile", "Valeurs du profil non prises en charge par cette version : " + ", ".join(refused)
+                           + ". Rétablir les valeurs du profil livré (config/local16.yaml).", 400, {"keys": refused})
         return settings
 
     def value(self, section, key, default=None):
@@ -58,7 +114,16 @@ class Settings:
 
     @property
     def origin(self):
-        return f"http://127.0.0.1:{self.value('app', 'port', 8785)}"
+        """Origine servie par l'API locale : HTTPS en production (W011), HTTP en développement."""
+        return f"{scheme_for(self.value('security', 'environment', 'development'))}://127.0.0.1:{self.value('app', 'port', 8785)}"
+
+    @property
+    def origin_certificate(self):
+        """Certificat du profil qu'un client de l'API locale vérifie en production ; None en développement (HTTP)."""
+        security = self.profile.get("security") or {}
+        if security.get("environment") == "production" and security.get("tls_cert_file"):
+            return self.path(security["tls_cert_file"])
+        return None
 
     @property
     def embedding_dir(self):

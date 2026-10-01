@@ -1,14 +1,15 @@
-"""Supervision persistante du poste Windows, avec propriété et stockage explicites."""
+"""Supervision persistante du poste (Windows natif, Linux natif aarch64 ou x86-64), avec propriété et stockage explicites."""
 
 from __future__ import annotations
 
 import json
-import msvcrt
 import os
 import secrets
+import signal
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 import uuid
 from pathlib import Path
@@ -18,8 +19,19 @@ import psutil
 import yaml
 
 from .artifacts import ROOT, file_hash, read_json_atomic, runtime_location, write_json_atomic
-from .resources import host_sample
-from .windows_process import OwnedProcess, WindowsJob
+from .platforms import entries_for_platform, executable_name, platform_id
+from .resources import host_sample, linux_memory_mib
+
+if sys.platform == "win32":
+    import msvcrt
+
+    from .windows_process import OwnedProcess
+    from .windows_process import WindowsJob as ProcessJob
+else:
+    import fcntl
+
+    from .posix_process import OwnedProcess
+    from .posix_process import PosixJob as ProcessJob
 
 
 def load_profile(path: Path) -> dict:
@@ -30,6 +42,9 @@ def load_profile(path: Path) -> dict:
         raise ValueError("Profil version2 requis")
     if config["app"]["host"] != "127.0.0.1" or config["llm"]["num_gpu"] != 0:
         raise ValueError("Le runtime exige loopback et CPU")
+    # Invariants du runtime, lus plutôt que supposés : aucun accès réseau ni télémétrie hors `provision`.
+    if config["app"].get("offline", True) is not True or config["app"].get("telemetry", False) is not False:
+        raise ValueError("Le runtime exige app.offline: true et app.telemetry: false")
     for value in (config["llm"]["base_url"], config["qdrant"]["url"]):
         url = urlsplit(value)
         if (url.scheme != "http" or url.hostname != "127.0.0.1" or not url.port
@@ -58,6 +73,59 @@ def process_identity_valid(identity: dict) -> bool:
                 and Path(process.exe()).resolve() == Path(identity["executable"]).resolve())
     except (psutil.Error, KeyError, OSError):
         return False
+
+
+def program_executable(path: str | Path) -> bool:
+    """Vrai si l'exécutable appartient au programme : binaires et interpréteur gérés sous `.runtime`, environnement
+    isolé `.venv`, ou interpréteur du projet. Chemins comparés résolus (`.runtime` peut désigner un autre volume)."""
+    resolved = Path(path).resolve()
+    if resolved == Path(sys.executable).resolve():
+        return True
+    return any(resolved.is_relative_to((ROOT / folder).resolve()) for folder in (".runtime", ".venv"))
+
+
+def orphan_processes(state: dict) -> dict[str, list[int]]:
+    """Linux : processus de l'instance encore vivants dans ses groupes alors que son superviseur a disparu.
+
+    PR_SET_PDEATHSIG arrête chaque enfant à la mort du superviseur, pas ses descendants (runner d'Ollama), qui restent
+    dans le groupe enregistré. Un groupe vidé libère son numéro, qu'un processus étranger né plus tard peut reprendre
+    (shell, démon setsid) : un membre n'est retenu que s'il appartient à l'instance de façon prouvée, à la fois par la
+    racine de données de son environnement initial (RAG_DATA_DIR, transmis à tous les enfants et hérité par leurs
+    descendants) et par un exécutable du programme. Le processus qui inspecte n'est jamais retenu. Observation seule.
+    """
+    if sys.platform == "win32":
+        return {}
+    else:
+        # Branche entière sous la garde de plateforme : mypy --platform win32 n'analyse pas l'import POSIX.
+        from .posix_process import group_members, initial_environment
+
+        if process_identity_valid(state.get("supervisor", {})):
+            return {}
+        data_dir = state.get("data_dir")
+        if not data_dir:
+            # État sans racine de données enregistrée : aucune appartenance ne peut être prouvée.
+            return {}
+
+        def owned(pid: int, created: float) -> bool:
+            if pid == os.getpid():
+                return False
+            try:
+                process = psutil.Process(pid)
+                return (process.create_time() >= created - 0.01
+                        and initial_environment(pid).get("RAG_DATA_DIR") == data_dir
+                        and program_executable(process.exe()))
+            except (psutil.Error, OSError):
+                return False
+
+        found: dict[str, list[int]] = {}
+        for name, identity in state.get("services", {}).items():
+            group, created = identity.get("process_group"), identity.get("created_at")
+            if not group or created is None:
+                continue
+            members = [pid for pid in group_members(group) if owned(pid, created)]
+            if members:
+                found[name] = members
+        return found
 
 
 def check_ports(ports: list[int]) -> None:
@@ -121,14 +189,47 @@ def port_states(ports: dict[str, int], owned: set[int]) -> dict[str, dict]:
     return result
 
 
+# Répertoires système des enfants Linux : ni CUDA ni outils du profil shell (nvm, ~/.local/bin), ni /usr/local/bin
+# où un autre Ollama peut être installé ; l'interpréteur du projet passe en tête.
+POSIX_SYSTEM_PATH = ("/usr/bin", "/bin")
+POSIX_ENVIRONMENT_NAMES = {"LANG", "LANGUAGE", "TZ", "USER", "LOGNAME"}
+
+
+def instance_home(directory: Path) -> Path:
+    """HOME des enfants Linux, propre à la racine de données de l'instance.
+
+    `ollama serve` y crée `.ollama/id_ed25519` et y lit `.ollama/server.json` ($HOME, os.UserHomeDir) : la clé et les
+    réglages restent ceux de l'instance, jamais ceux du compte ; les caches implicites d'autres bibliothèques y restent aussi.
+    """
+    return directory / "home"
+
+
+def posix_environment(directory: Path) -> dict[str, str]:
+    """Liste blanche Linux : locale, fuseau, identité du compte, PATH assaini, TMPDIR et HOME explicites.
+
+    LD_LIBRARY_PATH n'est jamais transmis : un élément vide, comme le « : » final qu'ajoutent certains profils shell,
+    désigne le répertoire courant pour le chargeur dynamique (ld.so(8)).
+    """
+    env = {key: value for key, value in os.environ.items()
+           if key in POSIX_ENVIRONMENT_NAMES or key.startswith("LC_")}
+    env.setdefault("LANG", "C.UTF-8")
+    env["PATH"] = os.pathsep.join([str(Path(sys.executable).parent), *POSIX_SYSTEM_PATH])
+    env["TMPDIR"] = tempfile.gettempdir()
+    env["HOME"] = str(instance_home(directory))
+    return env
+
+
 def environment(profile: dict, directory: Path, profile_path: Path) -> dict[str, str]:
-    # Les enfants reçoivent les variables Windows utiles, pas les identifiants
-    # de services ni les réglages Python/Ollama d'autres projets du poste.
-    names = {"systemroot", "windir", "systemdrive", "comspec", "path", "pathext",
-             "temp", "tmp", "userprofile", "appdata", "localappdata", "programdata",
-             "programfiles", "programfiles(x86)", "number_of_processors",
-             "processor_architecture", "processor_identifier"}
-    env = {key: value for key, value in os.environ.items() if key.lower() in names}
+    if sys.platform == "win32":
+        # Les enfants reçoivent les variables Windows utiles, pas les identifiants
+        # de services ni les réglages Python/Ollama d'autres projets du poste.
+        names = {"systemroot", "windir", "systemdrive", "comspec", "path", "pathext",
+                 "temp", "tmp", "userprofile", "appdata", "localappdata", "programdata",
+                 "programfiles", "programfiles(x86)", "number_of_processors",
+                 "processor_architecture", "processor_identifier"}
+        env = {key: value for key, value in os.environ.items() if key.lower() in names}
+    else:
+        env = posix_environment(directory)
     env.update({
         "PYTHONUTF8": "1", "PYTHONUNBUFFERED": "1", "RAG_PROFILE": str(profile_path.resolve()),
         "RAG_DATA_DIR": str(directory), "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1",
@@ -140,7 +241,7 @@ def environment(profile: dict, directory: Path, profile_path: Path) -> dict[str,
         "OLLAMA_HOST": profile["llm"]["base_url"].removeprefix("http://"),
         "OLLAMA_MODELS": str(ROOT / ".runtime/models/ollama"), "OLLAMA_NO_CLOUD": "1",
         "OLLAMA_NUM_PARALLEL": "1", "OLLAMA_MAX_LOADED_MODELS": "1", "OLLAMA_MAX_QUEUE": "2",
-        "OLLAMA_CONTEXT_LENGTH": str(profile["llm"]["num_ctx"]), "OLLAMA_KEEP_ALIVE": "10m",
+        "OLLAMA_CONTEXT_LENGTH": str(profile["llm"]["num_ctx"]), "OLLAMA_KEEP_ALIVE": str(profile["llm"].get("keep_alive", "10m")),
         "LLAMA_ARG_CACHE_RAM": str(profile["llm"].get("prompt_cache_mib", 256)),
         "LLAMA_ARG_CTX_CHECKPOINTS": str(profile["llm"].get("context_checkpoints_max", 2)),
     })
@@ -188,26 +289,44 @@ def wait_http(url: str, child: OwnedProcess, expected_version: str | None = None
     raise TimeoutError(f"Disponibilité non atteinte : {url} ({last})")
 
 
-def native_paths() -> dict[str, Path]:
+def native_paths(names: tuple[str, ...] = ("qdrant", "ollama")) -> dict[str, Path]:
+    """Binaires natifs de ce poste, vérifiés contre le manifeste local de leur extraction."""
     lock = json.loads((ROOT / "config/artifacts.lock.json").read_text(encoding="utf-8"))
     manifest = ROOT / ".runtime/manifests/artifacts.json"
     if not manifest.exists():
-        raise FileNotFoundError("Artefacts non provisionnés ; exécuter rag.ps1 provision")
+        raise FileNotFoundError("Artefacts non provisionnés ; exécuter "
+                                + ("rag.ps1 provision" if sys.platform == "win32" else "./rag.sh provision"))
     records = json.loads(manifest.read_text(encoding="utf-8"))
     paths = {}
-    for name in ["qdrant", "ollama"]:
-        entry = lock["groups"][name][0]
+    for name in names:
+        entries = entries_for_platform(lock["groups"][name])
+        if len(entries) != 1:
+            raise FileNotFoundError(f"Verrou d'artefacts : une entrée {name} attendue pour {platform_id()}, {len(entries)} trouvée(s)")
+        entry = entries[0]
         folder = ROOT / entry["extract_to"]
-        matches = list(folder.rglob(name + ".exe"))
+        # Fichiers seulement : l'archive Linux d'Ollama contient aussi le dossier lib/ollama.
+        matches = [path for path in folder.rglob(executable_name(name)) if path.is_file()]
         if len(matches) != 1:
-            raise FileNotFoundError(f"Binaire {name} Windows non provisionné ou ambigu")
+            raise FileNotFoundError(f"Binaire {name} {'Windows' if sys.platform == 'win32' else platform_id()} non provisionné ou ambigu")
+        # Enregistrement du manifeste local issu de cette entrée du verrou (même URL), pas d'une autre plateforme.
+        record: dict[str, Any] = next((item for item in records.get(name, []) if item.get("url") == entry.get("url")), {})
         expected = {str((ROOT / item["path"]).resolve()): item["sha256"]
-                    for item in records.get(name, [{}])[0].get("extracted_files", [])}
+                    for item in record.get("extracted_files", [])}
         binary = matches[0].resolve()
         if str(binary) not in expected or file_hash(binary) != expected[str(binary)]:
             raise ValueError(f"Empreinte du binaire {name} non conforme au manifeste local")
         paths[name] = matches[0]
     return paths
+
+
+def ollama_working_directory(binary: Path) -> Path:
+    """Répertoire courant d'Ollama.
+
+    Sous Linux, Ollama 0.35.0 cherche ses bibliothèques à côté de l'exécutable, puis dans `build/` et
+    `dist/linux-<architecture>/` relatifs au répertoire courant (ml/path.go) : le dossier `bin/` de l'archive extraite
+    n'en contient aucun. Windows garde la racine du programme.
+    """
+    return ROOT if sys.platform == "win32" else binary.resolve().parent
 
 
 def qdrant_data_path(profile: dict, directory: Path) -> Path:
@@ -228,7 +347,11 @@ def acquire_qdrant_lock(directory: Path):
         handle.flush()
     handle.seek(0)
     try:
-        msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+        if sys.platform == "win32":
+            msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            # Verrou de description de fichier (flock, pas lockf) : relâché seulement par la fermeture de ce handle.
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
     except OSError:
         handle.close()
         raise RuntimeError("Une instance possède déjà ce stockage Qdrant") from None
@@ -320,15 +443,36 @@ def supervisor_sample(supervisor: psutil.Process, disk_root: Path) -> dict:
     sample = {**host_sample(disk_root, supervisor), "source": "supervisor", "owned_processes": []}
     for child in supervisor.children(recursive=True):
         try:
-            memory = child.memory_info()
-            sample["owned_processes"].append({"pid": child.pid, "working_set_mib": round(memory.rss / 1048576, 2),
-                                              "private_mib": round(getattr(memory, "private", memory.rss) / 1048576, 2)})
+            if sys.platform == "win32":
+                memory = child.memory_info()
+                sample["owned_processes"].append({"pid": child.pid, "working_set_mib": round(memory.rss / 1048576, 2),
+                                                  "private_mib": round(getattr(memory, "private", memory.rss) / 1048576, 2)})
+            else:
+                sample["owned_processes"].append({"pid": child.pid, **linux_memory_mib(child)})
         except psutil.Error:
             continue
     return sample
 
 
-def send_owned_console_interrupt(child: OwnedProcess) -> bool:
+# Arrêt coopératif sous Linux : signal envoyé au groupe de chaque service, choisi d'après les versions verrouillées.
+# Qdrant 1.19.1 : SIGTERM déclenche l'arrêt « graceful », SIGINT l'arrêt « forced » (journal du binaire, 01/10/2026).
+# Ollama 0.35.0 traite SIGINT et SIGTERM de la même façon (server/routes.go : fermeture HTTP, déchargement des runners) ;
+# quatre essais réels, modèle chargé, donnent le code 0 en 0,1 s et un groupe vide : SIGTERM est retenu, comme pour
+# Qdrant et PR_SET_PDEATHSIG. Un enfant sans service nommé reçoit SIGINT. Windows : CTRL+C de la console dédiée.
+POSIX_STOP_SIGNALS = {"qdrant": signal.SIGTERM, "ollama": signal.SIGTERM}
+
+
+def cooperative_stop_mode(service: str | None) -> str:
+    """Mode d'arrêt consigné dans `stop_results` : CTRL+C console sous Windows, signal au groupe sous Linux."""
+    if sys.platform == "win32":
+        return "console_sigint"
+    return "group_" + POSIX_STOP_SIGNALS.get(service or "", signal.SIGINT).name.lower()
+
+
+def send_owned_console_interrupt(child: OwnedProcess, service: str | None = None) -> bool:
+    """Demande d'arrêt coopératif à un enfant possédé ; `service` choisit le signal sous Linux (POSIX_STOP_SIGNALS)."""
+    if sys.platform != "win32":
+        return child.interrupt(POSIX_STOP_SIGNALS.get(service or "", signal.SIGINT))
     if not child.still_owned():
         return child.poll() is not None
     result = subprocess.run([sys.executable, "-m", "services.runtime.console_signal", str(child.pid)],
@@ -344,14 +488,17 @@ def supervise(profile_path: Path) -> int:
     directory = data_path(profile)
     control = directory / "control"
     control.mkdir(parents=True, exist_ok=True)
-    # Byte-lock Windows conservé durant toute la vie du superviseur.
+    # Byte-lock Windows (flock sous Linux) conservé durant toute la vie du superviseur.
     lock = (control / "runtime.lock").open("a+b")
     if lock.tell() == 0:
         lock.write(b"0")
         lock.flush()
     lock.seek(0)
     try:
-        msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+        if sys.platform == "win32":
+            msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
     except OSError:
         lock.close()
         raise RuntimeError("Une instance possède déjà cette racine de données") from None
@@ -364,22 +511,27 @@ def supervise(profile_path: Path) -> int:
         origin = app_origin(profile)[0]
     except ValueError:
         lock.seek(0)
-        msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+        if sys.platform == "win32":
+            msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
         lock.close()
         raise
     secret_path = control / "admin-token"
-    secret_path.write_text(secrets.token_urlsafe(32), encoding="ascii")
     log_root = directory / "logs" / instance
-    log_root.mkdir(parents=True, exist_ok=True)
     state: dict[str, Any] = {"instance_id": instance, "status": "starting", "profile_path": str(profile_path.resolve()),
                              "profile_sha256": file_hash(profile_path), "data_dir": str(directory),
                              "supervisor": {"pid": os.getpid(), "created_at": self_process.create_time(),
                                             "executable": self_process.exe()}, "services": {}, "shutdown_marker": str(stop_path),
                              "app_url": origin, "stop_results": []}
     state_path = control / "runtime.json"
-    job = WindowsJob()
+    job = None
     qdrant_lock = None
     try:
+        # Jeton, journaux et Job dans le try (C11) : un échec à ce stade passe aussi par le nettoyage du finally.
+        secret_path.write_text(secrets.token_urlsafe(32), encoding="ascii")
+        log_root.mkdir(parents=True, exist_ok=True)
+        job = ProcessJob()
         ports = [profile["app"]["port"], urlsplit(profile["qdrant"]["url"]).port,
                  urlsplit(profile["llm"]["base_url"]).port]
         check_ports(ports)
@@ -404,7 +556,7 @@ def supervise(profile_path: Path) -> int:
         state["services"]["qdrant"] = qdrant.identity()
         write_json_atomic(state_path, state)
         wait_http(profile["qdrant"]["url"] + "/healthz", qdrant)
-        ollama = job.launch([str(binaries["ollama"]), "serve"], cwd=ROOT, env=env,
+        ollama = job.launch([str(binaries["ollama"]), "serve"], cwd=ollama_working_directory(binaries["ollama"]), env=env,
                             log_path=log_root / "ollama.log")
         state["services"]["ollama"] = ollama.identity()
         write_json_atomic(state_path, state)
@@ -435,10 +587,11 @@ def supervise(profile_path: Path) -> int:
         except TimeoutError:
             state["stop_results"].append({"service": "api", "mode": "forced_job_close_after_stop_timeout"})
         for name, child in [("ollama", ollama), ("qdrant", qdrant)]:
-            sent = send_owned_console_interrupt(child)
+            sent = send_owned_console_interrupt(child, name)
             try:
                 code = child.wait(timeout=30)
-                state["stop_results"].append({"service": name, "mode": "console_sigint" if sent else "already_exited", "exit_code": code})
+                state["stop_results"].append({"service": name, "mode": cooperative_stop_mode(name) if sent else "already_exited",
+                                              "exit_code": code})
             except TimeoutError:
                 state["stop_results"].append({"service": name, "mode": "forced_job_close_after_stop_timeout"})
         state["status"] = "stopped"
@@ -449,14 +602,18 @@ def supervise(profile_path: Path) -> int:
         print(state["error"], flush=True)
         return 1
     finally:
-        job.close()
+        if job is not None:
+            job.close()
         if qdrant_lock is not None:
             qdrant_lock.close()
         write_json_atomic(state_path, state)
         secret_path.unlink(missing_ok=True)
         (control / "qdrant-api-key").unlink(missing_ok=True)
         lock.seek(0)
-        msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+        if sys.platform == "win32":
+            msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
         lock.close()
 
 
@@ -470,15 +627,27 @@ def start(profile_path: Path) -> dict:
         if previous.get("profile_sha256") != file_hash(profile_path):
             raise RuntimeError("Instance existante avec profil différent : down puis up pour appliquer la configuration")
         return previous
+    orphans = orphan_processes(previous)
+    if orphans:
+        listed = " ; ".join(f"{name} : PID {', '.join(map(str, pids))}" for name, pids in sorted(orphans.items()))
+        raise RuntimeError(f"Processus de l'instance précédente encore actifs ({listed}) ; aucun n'est arrêté "
+                           "automatiquement : les arrêter, puis relancer up")
     control = directory / "control"
     control.mkdir(parents=True, exist_ok=True)
     log = (control / "supervisor-start.log").open("ab")
     try:
-        supervisor_process = subprocess.Popen(
-            [sys.executable, "-m", "services.runtime.cli", "_serve", "--profile", str(profile_path.resolve())],
-            cwd=ROOT, env=environment(profile, directory, profile_path),
-            stdout=log, stderr=log, stdin=subprocess.DEVNULL,
-            creationflags=subprocess.CREATE_NO_WINDOW)
+        if sys.platform == "win32":
+            supervisor_process = subprocess.Popen(
+                [sys.executable, "-m", "services.runtime.cli", "_serve", "--profile", str(profile_path.resolve())],
+                cwd=ROOT, env=environment(profile, directory, profile_path),
+                stdout=log, stderr=log, stdin=subprocess.DEVNULL,
+                creationflags=subprocess.CREATE_NO_WINDOW)
+        else:
+            # Superviseur détaché : session propre, sans terminal de contrôle ; il survit au lanceur, qui rend la main.
+            supervisor_process = subprocess.Popen(
+                [sys.executable, "-m", "services.runtime.cli", "_serve", "--profile", str(profile_path.resolve())],
+                cwd=ROOT, env=environment(profile, directory, profile_path),
+                stdout=log, stderr=log, stdin=subprocess.DEVNULL, start_new_session=True)
     finally:
         log.close()
     deadline = time.monotonic() + 150
@@ -525,4 +694,7 @@ def status(profile_path: Path) -> dict:
     state["profile_matches_current"] = state.get("profile_sha256") == file_hash(profile_path)
     for identity in state.get("services", {}).values():
         identity["identity_valid"] = process_identity_valid(identity)
+    orphans = orphan_processes(state)
+    if orphans:
+        state["orphan_processes"] = orphans
     return state

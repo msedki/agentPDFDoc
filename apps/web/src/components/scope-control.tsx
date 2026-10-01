@@ -4,12 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
 import { api } from "@/lib/api";
 import { useWorkspace } from "@/lib/store";
-import { errorMessage } from "@/lib/utils";
 import { useCitationRevision } from "@/lib/use-citation-revision";
 import { pageRangeError, versionPageCount } from "@/lib/page-range";
 import { selectedDocumentsSentence } from "@/lib/panel-state";
 import type { Scope } from "@/lib/types";
 import { Button } from "./ui/button";
+import { useErrorText } from "./ui/error-text";
 
 /** Choix explicite du périmètre des recherches et des questions, au centre de la barre supérieure. */
 export function ScopeControl() {
@@ -22,6 +22,7 @@ export function ScopeControl() {
   const [folderId, setFolderId] = useState("");
   const [sectionId, setSectionId] = useState("");
   const [failure, setFailure] = useState("");
+  const errorText = useErrorText();
   const trigger = useRef<HTMLButtonElement>(null);
   const popoverId = useId();
   const titleId = useId();
@@ -55,7 +56,7 @@ export function ScopeControl() {
     } else { setFailure("Ouvrez d'abord un document dans le lecteur."); return; }
     close(false);
   };
-  const unavailable = (what: string, error: unknown) => `${what} : ${errorMessage(error)}`;
+  const unavailable = (what: string, error: unknown) => `${what} : ${errorText(error)}`;
   return <div className="scope-control" onKeyDown={event => { if (visible && event.key === "Escape") { event.preventDefault(); close(true); } }}>
     <button ref={trigger} type="button" className="scope-trigger" aria-expanded={visible} aria-controls={visible ? popoverId : undefined} onClick={() => { setVisible(value => !value); setKind(state.scope.kind); setFailure(""); setPageStart((state.opened?.pageIndex ?? 0) + 1); setPageEnd((state.opened?.pageIndex ?? 0) + 1); }}><span className="eyebrow">Périmètre</span><strong>{state.scopeLabel}</strong><ChevronDown size={14} aria-hidden="true" /></button>
     {visible && <div className="scope-popover" id={popoverId} role="region" aria-labelledby={titleId}>
