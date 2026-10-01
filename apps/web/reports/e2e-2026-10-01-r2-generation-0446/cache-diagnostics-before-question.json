@@ -1,0 +1,79 @@
+{
+  "phase": "before-question",
+  "profile_sha256": "0916594646f4768c941788e57e5c5578619b7794fe8855de66f1b5ab5912e686",
+  "active_queries": 0,
+  "embedding_session": {
+    "session_loaded": true,
+    "load_count": 1,
+    "last_load": {
+      "elapsed_ms": 1328.46,
+      "before": {
+        "available_mib": 5514.93,
+        "process_rss_mib": 340.5
+      },
+      "after": {
+        "available_mib": 5370.71,
+        "process_rss_mib": 472.66
+      },
+      "providers": [
+        "CPUExecutionProvider"
+      ],
+      "reload_after_release": false
+    },
+    "last_release": null,
+    "tokenizer_loaded": true,
+    "tokenizer_load_count": 1,
+    "last_tokenizer_load": {
+      "elapsed_ms": 2019.14,
+      "before": {
+        "available_mib": 5714.67,
+        "process_rss_mib": 75.75
+      },
+      "after": {
+        "available_mib": 5527.31,
+        "process_rss_mib": 324.79
+      },
+      "reload_after_release": false
+    },
+    "last_tokenizer_release": null,
+    "last_token_count": {
+      "prefixed_input_sha256": "5f713f13c7b08babaeef53a7891c90d7225ef595c460b8b1b88c0f2931eab6f5",
+      "tokens": 22
+    },
+    "inference": {
+      "run_calls": 1,
+      "run_completed": 1,
+      "run_failed": 0,
+      "inputs_submitted": 1,
+      "inputs_completed": 1,
+      "passage_inputs_completed": 0,
+      "query_inputs_completed": 1,
+      "scope": "current_process",
+      "batch_definition": "One session.run invocation"
+    },
+    "measurement_limit": "Point samples of host available RAM and API RSS; no peak or isolated allocation attribution."
+  },
+  "llm_tokenizer_cache": {
+    "tokenizer_loaded": true,
+    "load_count": 1,
+    "last_load": {
+      "elapsed_ms": 1994.57,
+      "before": {
+        "available_mib": 5368.71,
+        "process_rss_mib": 475.11
+      },
+      "after": {
+        "available_mib": 5291,
+        "process_rss_mib": 542.5
+      },
+      "reload_after_release": false
+    },
+    "last_release": null,
+    "last_message_count": {
+      "serialized_sha256": "efd7407df4655169ba6d787737958a9dbb87ac9ebe957e0dfed1bbe18295c73e",
+      "tokens": 763
+    },
+    "measurement_limit": "Point samples of host available RAM and API RSS; no peak or isolated allocation attribution."
+  },
+  "method": "Real read-only lifecycle telemetry; loads/releases/reloads do not count inference calls."
+}

@@ -1,0 +1,50 @@
+{
+  "phase": "question-terminal",
+  "timestamp_utc": "2026-10-01T04:50:00.261635+00:00",
+  "available_gib": 2.258,
+  "host_cpu_percent": 5.1,
+  "worker": {
+    "id": 29452,
+    "parent_id": 16004,
+    "name": "node.exe",
+    "working_set_mib": 126.6,
+    "private_mib": 136.2,
+    "unique_set_mib": 95.7
+  },
+  "chromium": [
+    {
+      "id": 29172,
+      "parent_id": 29452,
+      "name": "chrome-headless-shell.exe",
+      "working_set_mib": 51,
+      "private_mib": 18.8,
+      "unique_set_mib": 12.8
+    },
+    {
+      "id": 30640,
+      "parent_id": 29172,
+      "name": "chrome-headless-shell.exe",
+      "working_set_mib": 61.6,
+      "private_mib": 27.2,
+      "unique_set_mib": 21
+    },
+    {
+      "id": 31492,
+      "parent_id": 29172,
+      "name": "chrome-headless-shell.exe",
+      "working_set_mib": 33.2,
+      "private_mib": 14.3,
+      "unique_set_mib": 8.9
+    },
+    {
+      "id": 19284,
+      "parent_id": 29172,
+      "name": "chrome-headless-shell.exe",
+      "working_set_mib": 145.7,
+      "private_mib": 72.5,
+      "unique_set_mib": 63.1
+    }
+  ],
+  "errors": [],
+  "method": "psutil available host RAM; RSS/Windows committed private/USS per process of this Node worker and its Chromium descendants only. No summed RSS or host-peak claim."
+}

@@ -1,0 +1,19 @@
+{
+  "status": 202,
+  "request": {
+    "question": "Quelle est la pression nominale de DA-P01 ? Citez sa source.",
+    "scope": {
+      "kind": "documents",
+      "documentIds": [
+        "e01b0666-ae93-40e5-9403-35decf00ae84"
+      ]
+    },
+    "mode": "question",
+    "conversation_id": null
+  },
+  "response": {
+    "query_id": "7803f233-6582-4096-b21a-899d5c06fa2a",
+    "conversation_id": "c30a7a26-c5a7-4d25-8a7c-1db0a99bfc82",
+    "events_url": "/api/v1/queries/7803f233-6582-4096-b21a-899d5c06fa2a/events"
+  }
+}

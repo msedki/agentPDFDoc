@@ -1,0 +1,8 @@
+{
+  "timings": {
+    "started_at_ms": 1790830034746,
+    "first_answer_text_at_ms": 1790830147954
+  },
+  "completed_at_ms": 1790830204787,
+  "method": "DOM observation of first displayed answer text; server TTFT remains separate in actual SSE metrics."
+}

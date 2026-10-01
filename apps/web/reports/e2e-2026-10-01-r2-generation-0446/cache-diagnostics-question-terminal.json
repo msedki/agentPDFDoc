@@ -1,0 +1,135 @@
+{
+  "phase": "question-terminal",
+  "profile_sha256": "0916594646f4768c941788e57e5c5578619b7794fe8855de66f1b5ab5912e686",
+  "active_queries": 0,
+  "embedding_session": {
+    "session_loaded": false,
+    "load_count": 1,
+    "last_load": {
+      "elapsed_ms": 1328.46,
+      "before": {
+        "available_mib": 5514.93,
+        "process_rss_mib": 340.5
+      },
+      "after": {
+        "available_mib": 5370.71,
+        "process_rss_mib": 472.66
+      },
+      "providers": [
+        "CPUExecutionProvider"
+      ],
+      "reload_after_release": false
+    },
+    "last_release": {
+      "state": "released",
+      "before": {
+        "available_mib": 4783.23,
+        "process_rss_mib": 541.12
+      },
+      "after": {
+        "available_mib": 4894.47,
+        "process_rss_mib": 421.29
+      },
+      "rss_decrease_mib": 119.83,
+      "available_increase_mib": 111.24,
+      "elapsed_ms": 147.43,
+      "next_reload_measurement": "pending"
+    },
+    "tokenizer_loaded": false,
+    "tokenizer_load_count": 1,
+    "last_tokenizer_load": {
+      "elapsed_ms": 2019.14,
+      "before": {
+        "available_mib": 5714.67,
+        "process_rss_mib": 75.75
+      },
+      "after": {
+        "available_mib": 5527.31,
+        "process_rss_mib": 324.79
+      },
+      "reload_after_release": false
+    },
+    "last_tokenizer_release": {
+      "state": "released",
+      "before": {
+        "available_mib": 4892.45,
+        "process_rss_mib": 421.38
+      },
+      "after": {
+        "available_mib": 5157.04,
+        "process_rss_mib": 164.65
+      },
+      "rss_decrease_mib": 256.73,
+      "available_increase_mib": 264.59,
+      "elapsed_ms": 689.21,
+      "next_reload_measurement": "pending",
+      "count_parity": {
+        "state": "pending_same_prefixed_input",
+        "reference": {
+          "prefixed_input_sha256": "5f713f13c7b08babaeef53a7891c90d7225ef595c460b8b1b88c0f2931eab6f5",
+          "tokens": 22
+        }
+      }
+    },
+    "last_token_count": {
+      "prefixed_input_sha256": "5f713f13c7b08babaeef53a7891c90d7225ef595c460b8b1b88c0f2931eab6f5",
+      "tokens": 22
+    },
+    "inference": {
+      "run_calls": 2,
+      "run_completed": 2,
+      "run_failed": 0,
+      "inputs_submitted": 2,
+      "inputs_completed": 2,
+      "passage_inputs_completed": 0,
+      "query_inputs_completed": 2,
+      "scope": "current_process",
+      "batch_definition": "One session.run invocation"
+    },
+    "measurement_limit": "Point samples of host available RAM and API RSS; no peak or isolated allocation attribution."
+  },
+  "llm_tokenizer_cache": {
+    "tokenizer_loaded": false,
+    "load_count": 1,
+    "last_load": {
+      "elapsed_ms": 1994.57,
+      "before": {
+        "available_mib": 5368.71,
+        "process_rss_mib": 475.11
+      },
+      "after": {
+        "available_mib": 5291,
+        "process_rss_mib": 542.5
+      },
+      "reload_after_release": false
+    },
+    "last_release": {
+      "state": "released",
+      "before": {
+        "available_mib": 5152.07,
+        "process_rss_mib": 164.73
+      },
+      "after": {
+        "available_mib": 5208.99,
+        "process_rss_mib": 111.13
+      },
+      "rss_decrease_mib": 53.6,
+      "available_increase_mib": 56.92,
+      "elapsed_ms": 233.44,
+      "next_reload_measurement": "pending",
+      "message_count_parity": {
+        "state": "pending_same_serialized_input",
+        "reference": {
+          "serialized_sha256": "efd7407df4655169ba6d787737958a9dbb87ac9ebe957e0dfed1bbe18295c73e",
+          "tokens": 763
+        }
+      }
+    },
+    "last_message_count": {
+      "serialized_sha256": "efd7407df4655169ba6d787737958a9dbb87ac9ebe957e0dfed1bbe18295c73e",
+      "tokens": 763
+    },
+    "measurement_limit": "Point samples of host available RAM and API RSS; no peak or isolated allocation attribution."
+  },
+  "method": "Real read-only lifecycle telemetry; loads/releases/reloads do not count inference calls."
+}

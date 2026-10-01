@@ -1,0 +1,25 @@
+{
+  "run": "R2 : question réelle dans l'atelier, réponse citée, clic sur la citation enregistrée (instance principale, fixture synthétique DA-P01)",
+  "utc_start": "2026-10-01T04:47:04.768Z",
+  "environment": {
+    "RAG_E2E_GENERATION_ALLOWED": "1"
+  },
+  "tests": [
+    {
+      "title": "real local model answers with registered citations and preserves scope",
+      "status": "passed",
+      "duration_ms": 182639,
+      "attachments": {
+        "resources-before-question": "resources-before-question.json",
+        "cache-diagnostics-before-question": "cache-diagnostics-before-question.json",
+        "query-created": "query-created.json",
+        "resources-question-terminal": "resources-question-terminal.json",
+        "cache-diagnostics-question-terminal": "cache-diagnostics-question-terminal.json",
+        "clicked-registered-citation": "clicked-registered-citation.json",
+        "actual-sse-replay": "actual-sse-replay.sse",
+        "ui-observed-latency": "ui-observed-latency.json"
+      }
+    }
+  ],
+  "screenshot": "import-question-citation.png"
+}
