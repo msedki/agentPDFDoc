@@ -664,7 +664,25 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
                 "llm_tokenizer_cache": tokenizer.lifecycle() if hasattr(tokenizer, "lifecycle") else {"status": "explicit_test_substitute"},
                 "cold_cache_release": cache_release_state["last"],
                 "profile_sha256": hashlib.sha256(json.dumps(settings.profile, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest(),
-                "reconciliation": {"staged": reconciler.inspect(), "pending_cleanup": db.one("SELECT count(*) AS n FROM vector_cleanup WHERE state='pending'")["n"]}}
+                "reconciliation": {"staged": reconciler.inspect(), "pending_cleanup": db.one("SELECT count(*) AS n FROM vector_cleanup WHERE state='pending'")["n"]},
+                "index_consistency": await index_consistency()}
+
+    async def index_consistency():
+        """Chaque génération active doit avoir dans Qdrant exactement autant de points que de fragments dans SQLite."""
+        if not hasattr(vectors, "count_generation"):
+            return {"status": "explicit_test_substitute"}
+        rows = db.rows("SELECT g.id, d.id AS document_id, (SELECT count(*) FROM chunks c WHERE c.generation_id=g.id) AS chunks FROM index_generations g "
+                       "JOIN documents d ON d.active_generation_id=g.id WHERE d.deleted_at IS NULL")
+        mismatches = []
+        try:
+            for row in rows:
+                points = await vectors.count_generation(row["id"])
+                if points != row["chunks"]:
+                    mismatches.append({"generation_id": row["id"], "document_id": row["document_id"], "sqlite_chunks": row["chunks"], "qdrant_points": points})
+        except ApiError as error:
+            return {"status": "unverifiable", "code": error.code, "active_generations": len(rows)}
+        return {"status": "inconsistent" if mismatches else "consistent", "active_generations": len(rows),
+                "sqlite_chunks": sum(row["chunks"] for row in rows), "mismatches": mismatches}
 
     static_root = settings.root / "apps/web/out"
     if static_root.is_dir():

@@ -174,6 +174,12 @@ class QdrantStore:
     async def delete_generation(self, generation_id):
         await self.request("POST", f"/collections/{self.collection}/points/delete", params={"wait": "true"}, json={"filter": {"must": [{"key": "generation_id", "match": {"value": generation_id}}]}})
 
+    async def count_generation(self, generation_id):
+        """Comptage exact des points d'une génération, pour le diagnostic de cohérence avec les fragments SQLite."""
+        result = await self.request("POST", f"/collections/{self.collection}/points/count",
+                                    json={"filter": {"must": [{"key": "generation_id", "match": {"value": generation_id}}]}, "exact": True})
+        return int(result["count"])
+
 
 class SearchService:
     def __init__(self, db, resolver, embedding, vectors, settings):

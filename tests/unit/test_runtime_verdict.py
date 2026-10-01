@@ -32,6 +32,7 @@ def healthy() -> dict:
             "python312": True, "dependencies_locked": True, "static_export": True, "native_binaries": {"qdrant": "q", "ollama": "o"},
             "embedding_files": True, "llm_tokenizer": True, "ocr_languages": {"fra": True, "eng": True, "osd": True},
             "ocr_tsv_config": True, "tesseract_binary": True,
+            "index_consistency": {"status": "consistent", "active_generations": 0, "sqlite_chunks": 0, "mismatches": []},
         },
     }
 
@@ -147,6 +148,18 @@ def test_provoked_altered_native_binary_is_red_program_files(tmp_path, monkeypat
     assert program["message"] == ("Fichiers du programme absents ou incomplets : Tesseract, binaires Qdrant et Ollama "
                                   "(Empreinte du binaire qdrant non conforme au manifeste local).")
     assert "Réinstallez l'atelier depuis le kit" in program["action"]
+
+
+def test_index_points_differing_from_sqlite_fragments_are_red_and_unverified_index_is_orange():
+    result = healthy()
+    result["checks"]["index_consistency"] = {"status": "inconsistent", "active_generations": 3, "sqlite_chunks": 40,
+                                             "mismatches": [{"generation_id": "g1", "document_id": "d1", "sqlite_chunks": 12, "qdrant_points": 9}]}
+    index = rubric(doctor_verdict(result), "index")
+    assert index["level"] == "rouge" and index["message"] == "Index incohérent pour 1 document(s) : points Qdrant et fragments SQLite diffèrent."
+    assert "Réindexez" in index["action"]
+    result["checks"]["index_consistency"] = {"status": "api_unavailable"}
+    assert rubric(doctor_verdict(result), "index") == {"rubric": "index", "level": "orange", "message": "Cohérence de l'index non vérifiée (atelier arrêté).",
+                                                      "action": r"Démarrez l'atelier puis relancez .\rag.ps1 doctor."}
 
 
 def test_profile_storage_refused_or_restart_required():

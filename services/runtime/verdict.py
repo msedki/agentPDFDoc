@@ -118,6 +118,20 @@ def services_rubric(result: dict[str, Any]) -> dict[str, Any]:
     return rubric("services", GREEN, f"Services démarrés et prêts ({library_state(result)}).")
 
 
+def index_rubric(checks: dict[str, Any]) -> dict[str, Any]:
+    consistency = checks.get("index_consistency", {})
+    state = consistency.get("status")
+    if state == "consistent":
+        active = consistency.get("active_generations", 0)
+        return rubric("index", GREEN, "Index cohérent : " + (f"{active} document(s) indexé(s), autant de points Qdrant que de fragments SQLite."
+                                                             if active else "aucun document indexé."))
+    if state == "inconsistent":
+        return rubric("index", RED, f"Index incohérent pour {len(consistency.get('mismatches', []))} document(s) : points Qdrant et fragments SQLite diffèrent.",
+                      "Réindexez les documents concernés depuis l'atelier ; si l'écart persiste, restaurez une sauvegarde dans une racine neuve.")
+    reason = "atelier arrêté" if state == "api_unavailable" else f"état {state or 'inconnu'}"
+    return rubric("index", ORANGE, f"Cohérence de l'index non vérifiée ({reason}).", r"Démarrez l'atelier puis relancez .\rag.ps1 doctor.")
+
+
 def memory_rubric(checks: dict[str, Any]) -> dict[str, Any]:
     refused = [(ADMISSION_OWNERS[owner], value) for owner, value in checks.get("cold_admission", {}).items()
                if owner in ADMISSION_OWNERS and isinstance(value, dict) and not value.get("admissible_now")]
@@ -132,7 +146,7 @@ def memory_rubric(checks: dict[str, Any]) -> dict[str, Any]:
 def doctor_verdict(result: dict[str, Any]) -> dict[str, Any]:
     checks = result.get("checks", {})
     rubrics = [program_rubric(checks), model_rubric(checks), profile_rubric(checks), ports_rubric(checks),
-               services_rubric(result), memory_rubric(checks)]
+               services_rubric(result), index_rubric(checks), memory_rubric(checks)]
     level = max((item["level"] for item in rubrics), key=SEVERITY.__getitem__)
     if level == GREEN:
         summary = f"Tout est prêt : services démarrés, {library_state(result)}, modèle vérifié."

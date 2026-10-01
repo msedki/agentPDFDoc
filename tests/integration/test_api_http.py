@@ -29,6 +29,8 @@ class FakeVectors:
         assert len(expected) <= len(self.points)
     async def query(self, vector, snapshot, limit=24):
         return [key for key, point in self.points.items() if point["payload"]["generation_id"] in snapshot.generations][:limit]
+    async def count_generation(self, generation_id):
+        return sum(point["payload"]["generation_id"] == generation_id for point in self.points.values())
     async def close(self):
         pass
 
@@ -118,6 +120,23 @@ def publish_two_extraction_revisions(client, app):
     assert old["generation_id"] != latest["generation_id"] and old["extraction_revision_id"] != latest["extraction_revision_id"]
     assert old["blocks"][0]["source_text_hash"] != latest["blocks"][0]["source_text_hash"]
     return imported, old, latest
+
+
+def test_api_diagnostics_compares_active_generation_points_with_sqlite_chunks(tmp_path):
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+    with browser_client(app) as client:
+        assert client.get("/api/v1/diagnostics").json()["index_consistency"] == {"status": "consistent", "active_generations": 0, "sqlite_chunks": 0, "mismatches": []}
+        _, _, latest = publish_two_extraction_revisions(client, app)
+        consistency = client.get("/api/v1/diagnostics").json()["index_consistency"]
+        assert consistency["status"] == "consistent" and consistency["active_generations"] == 1 and consistency["sqlite_chunks"] > 0
+        # Un point perdu de la génération active est signalé, avec les deux comptes.
+        lost = next(key for key, point in app.state.vectors.points.items() if point["payload"]["generation_id"] == latest["generation_id"])
+        del app.state.vectors.points[lost]
+        consistency = client.get("/api/v1/diagnostics").json()["index_consistency"]
+        assert consistency["status"] == "inconsistent"
+        [mismatch] = consistency["mismatches"]
+        assert mismatch["generation_id"] == latest["generation_id"] and mismatch["qdrant_points"] == mismatch["sqlite_chunks"] - 1
 
 
 @pytest.mark.parametrize("route", ["blocks", "outline", "selection"])
