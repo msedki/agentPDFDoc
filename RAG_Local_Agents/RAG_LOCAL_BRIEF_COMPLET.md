@@ -1359,8 +1359,10 @@ Une duplication massive d'un même texte pour atteindre 25 000 chunks ne suffit 
 - [ ] Les trois contrôles précoces ont des preuves ou des blocages explicites ; l’environnement de développement n’est pas présenté comme la machine cible.
 - [ ] Embedding choisi : essai ciblé et décision enregistrés, ou candidat officiellement non vérifiable/incompatible documenté et E5 qualifié sans prétendre avoir gagné un A/B.
 - [x] Placement mémoire Qdrant et paramètres effectifs relus après création ; dépréciations traitées à la version installée.
-- [ ] Sources canoniques, configuration et brief complet synchronisés ; contrôles documentaires rejouables.
+- [x] Sources canoniques, configuration et brief complet synchronisés ; contrôles documentaires rejouables.
 - [ ] Les seuls résultats annoncés correspondent à des exécutions effectives ; résultats documentaires et applicatifs restent séparés.
+
+Preuve01/10/2026 (D10.4) : contrôles documentaires rejoués au commit `449504f` : `RAG_Local_Agents/tools/verify_pack.py` PASS sur ses 11 contrôles ([CONTROLES_DOSSIER.json](CONTROLES_DOSSIER.json) : liens locaux, syntaxe, cohérence de configuration, copie octet pour octet du profil livré et de la configuration de collection, référence SQLite FTS5, format et registre des skills, propagation des règles, exemples déterministes, brief consolidé) et `build_brief.py --check` PASS (brief synchronisé). Chaque modification de documentation canonique de ce jour a été suivie de la régénération du brief et d'un `verify_pack` vert avant commit. Limite déclarée par l'outil : inférence, OCR, serveur Qdrant, E2E et accessibilité des liens externes non exécutés par ce contrôle ; ils relèvent des autres critères.
 
 Preuve01/10/2026 (D10.3) : schéma OpenAPI officiel du tag Qdrant v1.19.1 consulté ([QDR05](SOURCES.md)) : `on_disk` et `on_disk_payload` dépréciés au profit de `memory` ; configuration de collection migrée (vecteurs et payload `cold`, HNSW `cached`) et placement relu après création par `placement_matches`, qui accepte encore l'ancienne forme pour la collection existante de l'instance principale (W017). Sur instance isolée : collection de sondage créée avec la nouvelle forme et relue, autocontrôle complet avec une collection créée par le code courant ; aucune option dépréciée dans la configuration serveur ; tests unitaires 473/473 ([rapport](reports/qdrant-memory-2026-10-01.json)). La collection existante n'est pas migrée : décision séparée sur l'index de l'utilisateur.
 
@@ -1804,6 +1806,9 @@ Restent ouverts en D08 : D08.1 (décision utilisateur), D08.2 (observation rése
 Constat (incohérence, prouvé par le schéma officiel) : la collection Qdrant était créée avec `on_disk` et `on_disk_payload`, dépréciés en 1.19.1, contrairement à `CONFIGURATION.md` §6. Corrigé (W017) : placement par `memory`, contrôle effectif `placement_matches` acceptant les deux formes, test unitaire, collection de sondage et autocontrôle sur instance isolée ([rapport](reports/qdrant-memory-2026-10-01.json)). D10.3 coché. La collection existante de l'instance principale garde l'ancienne forme : sa migration est une décision à prendre (Points à trancher).
 
 Push : toujours bloqué (github.com injoignable) ; commits locaux depuis `6e1f9be`.
+## Point à 10:54 UTC (1er octobre) — D10.4
+
+Réalisé : D10.4 coché : `verify_pack.py` 11/11 et `build_brief.py --check` PASS au commit `449504f`, rejoués après chaque modification de documentation canonique du jour. Le statut FAIL du 30/09 à 09:30 n'avait pas de motif consigné ; il est remplacé par cette preuve. D10.1, D10.2 et D10.5 restent ouverts (contrôles précoces Q-PDF et Q-CPU, essai d'embedding, rapport final).
 
 ---
 
