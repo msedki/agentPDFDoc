@@ -27,6 +27,7 @@ sys.path.insert(0, str(ROOT))
 import httpx  # noqa: E402
 
 from services.runtime.backup import restore_backup  # noqa: E402
+from services.runtime.selftest import read_events  # noqa: E402
 from services.runtime.supervisor import (  # noqa: E402
     app_origin,
     control_headers,
@@ -81,7 +82,7 @@ def wait_jobs(client: httpx.Client, job_ids: list[str], timeout: float) -> dict[
     return final
 
 
-def check(backup: Path, target: Path, job_timeout: float) -> dict[str, Any]:
+def check(backup: Path, target: Path, job_timeout: float, question: str | None = None, answer_timeout: float = 900) -> dict[str, Any]:
     report: dict[str, Any] = {"started_utc": datetime.now(UTC).isoformat(), "backup": str(backup), "target": str(target), "checks": {}}
     before = database(backup / "data" / "app.sqlite3")
     report["before"] = {key: before[key] for key in ("schema_version", "counts")}
@@ -122,6 +123,20 @@ def check(backup: Path, target: Path, job_timeout: float) -> dict[str, Any]:
                                                            and [row.get("extraction_revision_id") for row in pinned] == [row.get("extraction_revision_id") for row in old])
             search = client.post("/api/v1/search", json={"question": "pression nominale", "scope": {"kind": "library"}})
             checks["search_after_reindex"] = search.status_code == 200 and bool(search.json().get("top10"))
+            if question:
+                # Critère D09.3 : une question réelle sur l'instance restaurée, réponse terminée et citations enregistrées relues.
+                created = client.post("/api/v1/queries", json={"question": question, "scope": {"kind": "library"}})
+                created.raise_for_status()
+                query_id = created.json()["query_id"]
+                events = read_events(client, query_id, answer_timeout)
+                kind, data = events[-1] if events else ("", {})
+                cited = [item if isinstance(item, str) else item.get("source_id") for item in data.get("citations") or []]
+                opened = [client.get(f"/api/v1/citations/{query_id}/{source_id}").status_code for source_id in cited]
+                report["question"] = {"text": question, "terminal": kind, "status": data.get("status"), "code": data.get("code"),
+                                      "message": data.get("message") if kind != "done" else None, "answer_text": data.get("text"),
+                                      "citations": cited, "citations_http": opened,
+                                      "metrics": {key: (data.get("metrics") or {}).get(key) for key in ("model_called", "ttft_ms", "elapsed_ms")}}
+                checks["question_answered_with_citations"] = kind == "done" and bool(cited) and all(code == 200 for code in opened)
     finally:
         if status(profile_path).get("status") in {"starting", "running", "stopping"}:
             report["stop"] = stop(profile_path).get("status")
@@ -136,9 +151,11 @@ def main() -> int:
     parser.add_argument("--target", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--job-timeout", type=float, default=900)
+    parser.add_argument("--question", help="question réelle posée à l'instance restaurée (critère D09.3)")
+    parser.add_argument("--answer-timeout", type=float, default=900)
     parser.add_argument("--cleanup", action="store_true", help="retirer la cible et son stockage Qdrant court après l'arrêt")
     args = parser.parse_args()
-    report = check(args.backup.resolve(), args.target.resolve(), args.job_timeout)
+    report = check(args.backup.resolve(), args.target.resolve(), args.job_timeout, args.question, args.answer_timeout)
     if args.cleanup:
         restore = report.get("restore") or {}
         # Le stockage court n'est retiré que s'il a été alloué par cette restauration sous .runtime\q (W004).

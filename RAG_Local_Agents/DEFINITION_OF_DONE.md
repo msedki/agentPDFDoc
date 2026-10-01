@@ -133,11 +133,11 @@ Si la cible CPU ne passe pas une mesure, conserver `FAIL`, identifier la phase d
 
 - [x] Snapshot cohérent de SQLite, Qdrant, originaux, extractions et manifests.
 - [x] Restauration dans un autre dossier avec vérification de hashes et comptes.
-- [ ] Une question et une ancienne citation fonctionnent après restauration.
+- [x] Une question et une ancienne citation fonctionnent après restauration.
 - [x] Une migration de schéma/pipeline produit une nouvelle génération contrôlée ; retour arrière documenté.
 - [ ] Registre des licences/avis de redistribution de tous les artefacts réellement livrés.
 
-Preuves30/09/2026 : [backup peuplé21fichiers](reports/backup-first-published.json), [restore Unicode longue avec stockage Qdrant court](reports/restore-first-published-long-root-short-store-rerun.json). Dix fichiers copiés sont hashés avant rebasing ; SQLite intègre/comptes conservés et11points restaurés. Requête/ancienne citation applicatives encore NOT_RUN, provenance Tesseract limitée ; D09 global reste ouvert. Preuve01/10/2026 (D09.4) : [migration d'une sauvegarde au schéma2](reports/migration-2026-10-01-0414.json) par le code courant (schéma3), 8 anciennes citations ouvertes avant et après réindexation, révision d'extraction conservée, nouvelle génération active ; retour arrière dans [SAUVEGARDE-RESTAURATION.md §6](../docs/exploitation/SAUVEGARDE-RESTAURATION.md#6-retour-arrière-et-relocalisation). Ancienne citation après restauration : PASS ; question après restauration toujours non aboutie (D09.3 ouvert).
+Preuves30/09/2026 : [backup peuplé21fichiers](reports/backup-first-published.json), [restore Unicode longue avec stockage Qdrant court](reports/restore-first-published-long-root-short-store-rerun.json). Dix fichiers copiés sont hashés avant rebasing ; SQLite intègre/comptes conservés et11points restaurés. Requête/ancienne citation applicatives encore NOT_RUN, provenance Tesseract limitée ; D09 global reste ouvert. Preuve01/10/2026 (D09.4) : [migration d'une sauvegarde au schéma2](reports/migration-2026-10-01-0414.json) par le code courant (schéma3), 8 anciennes citations ouvertes avant et après réindexation, révision d'extraction conservée, nouvelle génération active ; retour arrière dans [SAUVEGARDE-RESTAURATION.md §6](../docs/exploitation/SAUVEGARDE-RESTAURATION.md#6-retour-arrière-et-relocalisation). Preuve01/10/2026 (D09.3) : [question et ancienne citation après restauration](reports/restore-question-2026-10-01-0525.json) d'une sauvegarde au format courant : citation relue à l'identique, nouvelle question terminée avec citation.
 
 ## Jeu d'évaluation minimal
 
