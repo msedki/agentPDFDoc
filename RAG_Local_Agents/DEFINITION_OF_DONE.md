@@ -141,13 +141,15 @@ Si la cible CPU ne passe pas une mesure, conserver `FAIL`, identifier la phase d
 
 - [ ] Après provisionnement, bloquer toutes les sorties non-loopback et exécuter import, OCR, embeddings, recherche, génération et lecture.
 - [ ] Zéro requête externe nécessaire et aucune tentative inexpliquée de DNS/télémétrie/CDN/modèle manquant dans le scénario applicatif.
-- [ ] Origines/Host non autorisés rejetés ; pas de bind LAN involontaire ; pas de CORS wildcard.
+- [x] Origines/Host non autorisés rejetés ; pas de bind LAN involontaire ; pas de CORS wildcard.
 - [ ] Traversal, symlink sortant de la racine et fichiers malformés traités sans lecture arbitraire ou crash du serveur API.
 - [ ] Instructions malveillantes insérées dans une fixture PDF ne provoquent ni exécution, ni exfiltration, ni élargissement du scope.
 - [x] Markdown/HTML actif et liens d'images distantes ne sont pas exécutés/chargés automatiquement.
 - [ ] Logs normaux sans texte privé ; originaux et modèles exclus du Git par défaut.
 
 Preuve01/10/2026 (D08.6) : texte de document hostile rendu littéral, sans élément actif ni requête distante ni changement de périmètre (Playwright sur instance isolée, [rapport](../apps/web/reports/e2e-2026-10-01-import-isole-parcours-evidence.json)) ; côté serveur, balises retirées et images Markdown remplacées avant affichage (`validate_answer`, `services/api/context.py`, testé avec `<script>` et une image distante dans `tests/unit/test_retrieval.py`) ; côté interface, réponse rendue en éléments React sans interprétation de balise (`apps/web/src/lib/answer-format.ts`, `tests/unit/answer-format.test.ts`). Instruction hostile dans une fixture (D08.5) : sans effet sur la réponse ([rapport](reports/injection-2026-10-01-0441.json)), exfiltration et élargissement du périmètre non mesurés : critère laissé ouvert.
+
+Preuve01/10/2026 (D08.3) : `tools/qualification/http_guards_check.py` sur l'instance principale en marche, en lecture seule ([rapport](reports/http-guards-live-20261001T0943.json)) : 18/18 contrôles conformes. API : Host étranger ou port différent refusés (400 `invalid_host`), Origin étrangère ou `null` et requête inter-sites refusées (403), préflight CORS étranger refusé ; Ollama : Host et Origin étrangers refusés (403) ; Qdrant : sans clé 401, y compris avec Host et Origin étrangers ; aucune réponse ne porte `Access-Control-Allow-Origin`. Sockets en écoute de l'instance relevés par processus : API, Qdrant et Ollama sur 127.0.0.1 uniquement. Limites : contrôle applicatif, sans blocage réseau du système (D08.1) ; modèle non chargé pendant la mesure, le processus d'inférence lancé par Ollama n'a pas été observé. Même résultat que le contrôle du 30/09 ([rapport](reports/http-guards-live-20260930T1636.json)), rejoué après l'ajout des sessions (W011).
 
 ## D09 — Sauvegarde, restauration et maintien
 

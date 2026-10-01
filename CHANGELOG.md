@@ -8,6 +8,7 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 ### Ajouté
 
+- `tools/qualification/http_guards_check.py` : contrôle en lecture seule d'une instance en marche (Host et Origin étrangers, requêtes inter-sites, préflight CORS, Qdrant sans clé, sockets en écoute limités au bouclage) ; 18/18 le 01/10 ([rapport](RAG_Local_Agents/reports/http-guards-live-20261001T0943.json)).
 - `tools/qualification/scope_check.py` : sur une instance isolée, vérifie avec Qdrant et E5 réels que les périmètres dossier récursif, documents, pages et section filtrent avant la coupe top-k, et qu'une sélection courte n'envoie aucune requête dense ; PASS le 01/10 ([rapport](RAG_Local_Agents/reports/scope-2026-10-01.json)).
 - `tools/qualification/library_check.py` et `fault_check.py` : bibliothèque (import d'un dossier, réimport, déplacement, versions, retrait, erreurs) et fautes injectées (arrêts forcés pendant l'import, panne de Qdrant) sur instance isolée ; PASS le 01/10 (`5fa22ae`, `f9c48da`, [rapports](RAG_Local_Agents/reports/)).
 - `tools/qualification/e2e_instance.py` : instance isolée temporaire pour les scénarios Playwright qui importent des fixtures ; géométrie 4/4 et parcours d'import 5/5 le 01/10 (`8186162`, [géométrie](apps/web/reports/e2e-2026-10-01-import-isole-geometrie-evidence.json), [parcours](apps/web/reports/e2e-2026-10-01-import-isole-parcours-evidence.json)).

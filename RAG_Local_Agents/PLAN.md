@@ -372,8 +372,13 @@ Réalisé : `tools/qualification/extraction_check.py` écrit (vérité terrain d
 Blocage : premier essai lancé à 09:18 sur instance isolée, arrêté vers 09:21 par Claude Code faute de mémoire sur le poste (campagne Playwright d'un autre projet en cours, laissée intacte) ; aucun résultat. Instance isolée arrêtée à 09:22, racine supprimée, aucun processus survivant, instance principale intacte. L'essai n'est pas relancé sans l'accord de l'utilisateur. D02.3 à D02.7, D02.9 et D02.10 restent ouverts.
 
 Prochaine action : sur accord, rejouer `extraction_check.py` sur instance isolée quand la mémoire libre le permet ; sinon, poursuivre les travaux sans traitement lourd.
-## Point à 09:55 UTC (1er octobre) — D06.10
+## Point à 09:39 UTC (1er octobre) — D06.10
 
 Réalisé : D06.10 coché (`DEFINITION_OF_DONE.md`) : deux gardes statiques ajoutées à `ui-guards.test.ts` (aucun bouton sans action, aucune donnée simulée ni adresse étrangère dans les sources livrées) ; 138 tests unitaires web et `tsc --noEmit` au vert. D03.7 examiné : purge signalée `source_removed` et message affiché tel quel ; l'ouverture d'une ancienne citation après une nouvelle version n'a de preuve qu'en test d'intégration (modèle simulé pour produire la citation) : reste ouvert jusqu'à un essai réel avec génération.
 
 Toujours en attente de l'accord de l'utilisateur : rejeu de `extraction_check.py` (D02), puis essais avec génération (R7, D03.7, D05) qui demandent l'arrêt de l'instance principale. Mémoire libre du poste observée entre 2,6 et 5,4 Gio depuis 08:30 (campagne Playwright d'un autre projet).
+## Point à 09:46 UTC (1er octobre) — D08.3
+
+Réalisé : D08.3 coché (`DEFINITION_OF_DONE.md`) : `tools/qualification/http_guards_check.py` rend rejouable le contrôle des gardes HTTP du 30/09, qui n'avait pas d'outil versionné, et y ajoute le préflight CORS et le relevé des sockets en écoute ; 18/18 sur l'instance principale, écoute sur 127.0.0.1 seulement ([rapport](reports/http-guards-live-20261001T0943.json)). Correction : le point précédent portait « 09:55 », heure en avance sur l'horloge ; le commit `fcce2b0` date de 09:40.
+
+Restent ouverts en D08 : D08.1 (blocage réseau du système, décision utilisateur), D08.2, D08.4, D08.5 (exfiltration et élargissement de périmètre), D08.7.

@@ -1316,13 +1316,15 @@ Si la cible CPU ne passe pas une mesure, conserver `FAIL`, identifier la phase d
 
 - [ ] Après provisionnement, bloquer toutes les sorties non-loopback et exécuter import, OCR, embeddings, recherche, génération et lecture.
 - [ ] Zéro requête externe nécessaire et aucune tentative inexpliquée de DNS/télémétrie/CDN/modèle manquant dans le scénario applicatif.
-- [ ] Origines/Host non autorisés rejetés ; pas de bind LAN involontaire ; pas de CORS wildcard.
+- [x] Origines/Host non autorisés rejetés ; pas de bind LAN involontaire ; pas de CORS wildcard.
 - [ ] Traversal, symlink sortant de la racine et fichiers malformés traités sans lecture arbitraire ou crash du serveur API.
 - [ ] Instructions malveillantes insérées dans une fixture PDF ne provoquent ni exécution, ni exfiltration, ni élargissement du scope.
 - [x] Markdown/HTML actif et liens d'images distantes ne sont pas exécutés/chargés automatiquement.
 - [ ] Logs normaux sans texte privé ; originaux et modèles exclus du Git par défaut.
 
 Preuve01/10/2026 (D08.6) : texte de document hostile rendu littéral, sans élément actif ni requête distante ni changement de périmètre (Playwright sur instance isolée, [rapport](../apps/web/reports/e2e-2026-10-01-import-isole-parcours-evidence.json)) ; côté serveur, balises retirées et images Markdown remplacées avant affichage (`validate_answer`, `services/api/context.py`, testé avec `<script>` et une image distante dans `tests/unit/test_retrieval.py`) ; côté interface, réponse rendue en éléments React sans interprétation de balise (`apps/web/src/lib/answer-format.ts`, `tests/unit/answer-format.test.ts`). Instruction hostile dans une fixture (D08.5) : sans effet sur la réponse ([rapport](reports/injection-2026-10-01-0441.json)), exfiltration et élargissement du périmètre non mesurés : critère laissé ouvert.
+
+Preuve01/10/2026 (D08.3) : `tools/qualification/http_guards_check.py` sur l'instance principale en marche, en lecture seule ([rapport](reports/http-guards-live-20261001T0943.json)) : 18/18 contrôles conformes. API : Host étranger ou port différent refusés (400 `invalid_host`), Origin étrangère ou `null` et requête inter-sites refusées (403), préflight CORS étranger refusé ; Ollama : Host et Origin étrangers refusés (403) ; Qdrant : sans clé 401, y compris avec Host et Origin étrangers ; aucune réponse ne porte `Access-Control-Allow-Origin`. Sockets en écoute de l'instance relevés par processus : API, Qdrant et Ollama sur 127.0.0.1 uniquement. Limites : contrôle applicatif, sans blocage réseau du système (D08.1) ; modèle non chargé pendant la mesure, le processus d'inférence lancé par Ollama n'a pas été observé. Même résultat que le contrôle du 30/09 ([rapport](reports/http-guards-live-20260930T1636.json)), rejoué après l'ajout des sessions (W011).
 
 ## D09 — Sauvegarde, restauration et maintien
 
@@ -1749,11 +1751,16 @@ Réalisé : `tools/qualification/extraction_check.py` écrit (vérité terrain d
 Blocage : premier essai lancé à 09:18 sur instance isolée, arrêté vers 09:21 par Claude Code faute de mémoire sur le poste (campagne Playwright d'un autre projet en cours, laissée intacte) ; aucun résultat. Instance isolée arrêtée à 09:22, racine supprimée, aucun processus survivant, instance principale intacte. L'essai n'est pas relancé sans l'accord de l'utilisateur. D02.3 à D02.7, D02.9 et D02.10 restent ouverts.
 
 Prochaine action : sur accord, rejouer `extraction_check.py` sur instance isolée quand la mémoire libre le permet ; sinon, poursuivre les travaux sans traitement lourd.
-## Point à 09:55 UTC (1er octobre) — D06.10
+## Point à 09:39 UTC (1er octobre) — D06.10
 
 Réalisé : D06.10 coché (`DEFINITION_OF_DONE.md`) : deux gardes statiques ajoutées à `ui-guards.test.ts` (aucun bouton sans action, aucune donnée simulée ni adresse étrangère dans les sources livrées) ; 138 tests unitaires web et `tsc --noEmit` au vert. D03.7 examiné : purge signalée `source_removed` et message affiché tel quel ; l'ouverture d'une ancienne citation après une nouvelle version n'a de preuve qu'en test d'intégration (modèle simulé pour produire la citation) : reste ouvert jusqu'à un essai réel avec génération.
 
 Toujours en attente de l'accord de l'utilisateur : rejeu de `extraction_check.py` (D02), puis essais avec génération (R7, D03.7, D05) qui demandent l'arrêt de l'instance principale. Mémoire libre du poste observée entre 2,6 et 5,4 Gio depuis 08:30 (campagne Playwright d'un autre projet).
+## Point à 09:46 UTC (1er octobre) — D08.3
+
+Réalisé : D08.3 coché (`DEFINITION_OF_DONE.md`) : `tools/qualification/http_guards_check.py` rend rejouable le contrôle des gardes HTTP du 30/09, qui n'avait pas d'outil versionné, et y ajoute le préflight CORS et le relevé des sockets en écoute ; 18/18 sur l'instance principale, écoute sur 127.0.0.1 seulement ([rapport](reports/http-guards-live-20261001T0943.json)). Correction : le point précédent portait « 09:55 », heure en avance sur l'horloge ; le commit `fcce2b0` date de 09:40.
+
+Restent ouverts en D08 : D08.1 (blocage réseau du système, décision utilisateur), D08.2, D08.4, D08.5 (exfiltration et élargissement de périmètre), D08.7.
 
 ---
 
