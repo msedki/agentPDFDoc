@@ -30,24 +30,26 @@ Preuve (D01.21) : un second `up` rend l'instance existante sans en lancer une au
 
 ## D02 — Import, bibliothèque et extraction
 
-- [ ] Import d'un dossier et de sous-dossiers, noms Unicode/espaces et fichiers homonymes dans des dossiers distincts.
-- [ ] Original copié sans modification ; SHA-256 vérifié ; version et chemin documentaire conservés.
+- [x] Import d'un dossier et de sous-dossiers, noms Unicode/espaces et fichiers homonymes dans des dossiers distincts.
+- [x] Original copié sans modification ; SHA-256 vérifié ; version et chemin documentaire conservés.
 - [ ] PDF FR/EN natifs, multi-colonnes, scan et mixte traités avec couverture par page visible.
 - [ ] OCR absent des régions natives fiables ; régions/pages réellement OCRisées comptées et traçables.
 - [ ] PDF simple traité par la voie native qualifiée ; page mixte « paragraphe natif + tableau scanné » couverte sans double texte.
 - [ ] Régions non résolues visibles ; un schéma non interprété ne devient pas une preuve textuelle inventée.
 - [ ] Section/table traversant les pages 4/5 conservée correctement ; fenêtres de checkpoint non utilisées comme frontières sémantiques.
-- [ ] PDF blanc, corrompu, chiffré et trop volumineux produisent un état explicite, pas un succès silencieux.
+- [x] PDF blanc, corrompu, chiffré et trop volumineux produisent un état explicite, pas un succès silencieux.
 - [ ] Extraction partielle signalée dans bibliothèque, résultats et réponses ; les pages manquantes ne sont pas déclarées lues.
 - [ ] Table et unités du corpus contrôlé restent interprétables ; aucun texte de colonne mélangé non signalé.
 
 **Preuves :** inventaire de fixtures, hashes, JSON d'extraction, compteurs de couverture et contrôles visuels sur les cas difficiles.
 
+Preuve01/10/2026, API réelle d'une instance isolée (`tools/qualification/library_check.py`, `5fa22ae`, [rapport](reports/library-2026-10-01.json)) : import de `Unité hiver/Commun.pdf` et `Unité été/Commun.pdf` : deux documents distincts, chemins Unicode avec espaces conservés à l'identique, extraction prête (D02.33) ; original relu par `GET /versions/{id}/file`, SHA-256 identique à celui de la fixture et de la version (D02.34) ; PDF chiffré : traitement en erreur `PDF_ENCRYPTED` ; structure invalide : `PDF_INVALID` ; page blanche : prête, page `blank`, aucun bloc ; fichier de 112 085 octets sur une instance limitée à 64 Kio : refus 413 `file_too_large`, aucun document créé (D02.40).
+
 ## D03 — Indexation et cohérence
 
-- [ ] Un réimport identique n'ajoute pas de version inutile ni de calcul d'embedding redondant.
-- [ ] Le déplacement d'un PDF dans l'arborescence ne recalcule pas ses embeddings.
-- [ ] Une nouvelle version reste invisible en recherche jusqu'à publication de sa génération complète.
+- [x] Un réimport identique n'ajoute pas de version inutile ni de calcul d'embedding redondant.
+- [x] Le déplacement d'un PDF dans l'arborescence ne recalcule pas ses embeddings.
+- [x] Une nouvelle version reste invisible en recherche jusqu'à publication de sa génération complète.
 - [ ] Un retrait est immédiatement exclu des scopes ; les deux index actifs sont nettoyés/réconciliés.
 - [ ] Arrêt forcé pendant parsing, embedding, upsert et publication : reprise sans doubles chunks ni génération fantôme.
 - [ ] Une panne Qdrant au milieu d'un import ne fait pas apparaître le document comme complètement prêt.
@@ -56,6 +58,8 @@ Preuve (D01.21) : un second `up` rend l'instance existante sans en lancer une au
 - [ ] Les générations épinglées par une requête en cours ne sont pas nettoyées prématurément ; retrait explicite réévalué avant fourniture de nouveau contexte.
 
 **Preuves :** compteurs avant/après, scénarios de fault injection, journal des transitions et recherche sur versions différentes.
+
+Preuve01/10/2026, même instance isolée et même [rapport](reports/library-2026-10-01.json) : réimport identique : même document, `reused`, aucun traitement ni version ajoutés, compteurs `embedding_requests`, `embedding_texts_submitted` et `native_worker_launches` inchangés (D03.48) ; déplacement vers `Archives/Commun été.pdf` : aucun traitement, compteurs inchangés, document retrouvé par la recherche à son nouveau chemin (D03.49) ; seconde version de `Procédure QV-01.pdf` au même chemin : 52 recherches pendant sa file d'attente et son extraction ne rendent que la valeur de la première (2.7 bar), la version active reste la première, puis la seconde (4.9 bar) seule après publication (D03.50 ; l'étape d'indexation, brève, n'a pas été saisie par le sondage). Retrait (D03.51, laissé ouvert) : document exclu des recherches aussitôt, ses 2 points Qdrant supprimés par la réconciliation, index restant cohérent ; le nettoyage de l'index plein texte SQLite n'a pas été contrôlé directement.
 
 ## D04 — Recherche et périmètre
 
