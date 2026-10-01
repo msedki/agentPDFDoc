@@ -109,7 +109,7 @@ Preuve01/10/2026 (D04.2 à D04.6, D04.8) : filtres avant la coupe top-k : `test_
 - [ ] Aller-retour des offsets UTF-16/points de code, ligatures, césures, caractères hors BMP et accents combinants ; hash source vérifié ; fallback de granularité explicite.
 - [x] Nombre de canvases ET budget cumulé de pixels respectés pendant zoom/scroll ; allocations obsolètes libérées.
 - [ ] Réponse progressive, statut d'indexation, annulation et reconnexion SSE observables.
-- [ ] Aucun bouton factice et aucun écran dépendant de données mockées dans le build de livraison.
+- [x] Aucun bouton factice et aucun écran dépendant de données mockées dans le build de livraison.
 - [x] Navigation clavier, focus visible, labels accessibles et contraste vérifiés sur les composants essentiels.
 
 **Preuves :** Playwright utilisant l'API réelle, traces et captures annotées par nom de scénario. Un test avec Qdrant/Ollama mockés reste un test UI isolé et n'est pas compté comme E2E réel.
@@ -117,6 +117,8 @@ Preuve01/10/2026 (D04.2 à D04.6, D04.8) : filtres avant la coupe top-k : `test_
 Disposition aux deux résolutions vérifiée contre l'API native : [rapport et captures](../apps/web/reports/QUALIFICATION_UI_NATIVE_2026-09-30.md). Ce résultat ne clôt pas navigation de toutes géométries, réponse progressive ou anciennes révisions.
 
 Preuves01/10/2026, Playwright sur l'API réelle (Qdrant et Ollama réels) : clic sur une citation, page et surlignage ([question réelle, instance principale](../apps/web/reports/e2e-2026-10-01-r2-generation-0446/evidence.json)) et retour au passage précédent ([import réel et navigation, instance isolée](../apps/web/reports/e2e-2026-10-01-import-isole-parcours-evidence.json)) ; rotations 0/90/180/270 avec CropBox et folios romains ([géométrie, 4/4](../apps/web/reports/e2e-2026-10-01-import-isole-geometrie-evidence.json)) ; zoom à 300 % dans le budget de canvases et de pixels, canvases détachés libérés (même rapport que l'import) ; clavier, focus visible, libellés et contrastes ([E2E lecture seule](../apps/web/reports/e2e-2026-10-01-reponse-mise-en-forme-0457-evidence.json), tests unitaires `accessibility.test.ts` et `ui-guards.test.ts`, [recette](reports/ui-recette-2026-09-30.md#second-passage--1er-octobre-2026)). Traces Playwright conservées localement sous `apps/web/test-results/`, hors Git. Restent ouverts : état partagé (D06.2), ancres de région (D06.5), sélection OCR (D06.6), offsets (D06.7), annulation et reconnexion SSE (D06.9), absence de bouton factice (D06.10).
+
+Preuve01/10/2026 (D06.10) : gardes statiques sur les sources de l'interface livrée (`apps/web/tests/unit/ui-guards.test.ts`) : chacun des boutons de `src/` (`button`, `Button`, `ActionButton`, plus de 30) porte une action (`onClick`, `onAction`), soumet un formulaire ou transmet les props de l'appelant ; aucune source ne contient de donnée simulée (`mock`, `fake`, `demo`, `dummy`) ; tous les appels passent par `/api/v1` de même origine, la seule adresse absolue étant la base de résolution hors navigateur du contrôle de même origine. Les écrans et leurs actions sont exercés sur l'API réelle par les parcours Playwright cités ci-dessus (import, navigation, géométrie, citation). Contrôles : 138 tests unitaires web, `tsc --noEmit` sans erreur.
 
 ## D07 — RAM, CPU et latence
 

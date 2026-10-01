@@ -280,6 +280,25 @@ test("a failed query or mutation is never rendered as an empty state", () => {
   assert.doesNotMatch(reasons, /unavailable|error|failure/);
 });
 
+test("every button triggers a real action: no inert button in the delivered interface (D06.10)", () => {
+  const buttons = components.flatMap(file => jsxElements(code.get(file)!, ["button", "Button", "ActionButton"]).map(element => ({ file, element })));
+  assert.ok(buttons.length >= 30, `${buttons.length} boutons examinés`);
+  // Action directe, soumission de formulaire, ou définition d'un composant qui transmet les props de l'appelant.
+  const inert = buttons.filter(({ element }) => !/\bon(?:Click|Action)=|\btype="submit"|\{\s*\.\.\.\w+\s*\}/.test(element.attributes))
+    .map(({ file, element }) => `${file} <${element.name}${element.attributes.slice(0, 80)}…>`);
+  assert.deepEqual(inert, []);
+});
+
+test("the delivered screens read the real API only: no mock, fake or demo data source (D06.10)", () => {
+  assert.ok(code.size >= 25);
+  for (const [file, source] of code) assert.doesNotMatch(source, /\b(?:mock|fake|demo|dummy)\w*/i, file);
+  const api = code.get("lib/api.ts")!;
+  assert.match(api, /fetch\(sameOriginPath\(prefix \+ path\)/);
+  assert.match(api, /xhr\.open\("POST", prefix \+ "\/documents\/import"\)/);
+  // Seule adresse absolue : la base de résolution hors navigateur du contrôle de même origine.
+  assert.deepEqual([...api.matchAll(/https?:\/\/[^"'`\s)]+/g)].map(match => match[0]), ["http://127.0.0.1"]);
+});
+
 test("no browser confirm or alert box: consequences and failures stay in the page", () => {
   assert.ok(code.size >= 25);
   for (const [file, source] of code) assert.doesNotMatch(source, /\b(?:window\.)?(?:confirm|alert)\(/, file);
