@@ -8,6 +8,7 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 ### Ajouté
 
+- Scénario Playwright `apps/web/tests/e2e/unicode-selection.spec.ts` : sélection native dans la couche texte de la fixture Unicode, aller-retour par l'API en points de code avec hash du bloc (hors BMP, accent combinant, ligature, césure) et refus explicite d'une sélection ambiguë ; PASS le 01/10 sur instance isolée ([rapport](apps/web/reports/e2e-2026-10-01-unicode-selection-evidence.json)).
 - `tools/qualification/log_privacy_check.py` : vérifie en lecture seule que les journaux d'une instance ne contiennent ni texte extrait des documents, ni question, ni réponse (témoin positif sur les checkpoints d'extraction), et que originaux, corpus et modèles restent hors de Git ; PASS le 01/10 ([rapport](RAG_Local_Agents/reports/log-privacy-20261001T0949.json)).
 - `tools/qualification/http_guards_check.py` : contrôle en lecture seule d'une instance en marche (Host et Origin étrangers, requêtes inter-sites, préflight CORS, Qdrant sans clé, sockets en écoute limités au bouclage) ; 18/18 le 01/10 ([rapport](RAG_Local_Agents/reports/http-guards-live-20261001T0943.json)).
 - `tools/qualification/scope_check.py` : sur une instance isolée, vérifie avec Qdrant et E5 réels que les périmètres dossier récursif, documents, pages et section filtrent avant la coupe top-k, et qu'une sélection courte n'envoie aucune requête dense ; PASS le 01/10 ([rapport](RAG_Local_Agents/reports/scope-2026-10-01.json)).

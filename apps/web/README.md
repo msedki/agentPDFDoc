@@ -166,7 +166,9 @@ l'état donne l'origine (`RAG_E2E_BASE_URL`) et le fichier de jeton
 (`RAG_E2E_CONTROL_TOKEN_FILE`) ; `stop` l'arrête et supprime sa racine. Les scénarios
 de géométrie, de balisage hostile, de canvas, d'import et de sélection y sont passés
 le 01/10 ([géométrie](reports/e2e-2026-10-01-import-isole-geometrie-evidence.json),
-[parcours](reports/e2e-2026-10-01-import-isole-parcours-evidence.json)).
+[parcours](reports/e2e-2026-10-01-import-isole-parcours-evidence.json)), ainsi que la sélection Unicode de
+`unicode-selection.spec.ts` (hors BMP, accent combinant, ligature, césure, sélection ambiguë refusée ;
+[rapport](reports/e2e-2026-10-01-unicode-selection-evidence.json)).
 Une reprise fournit `RAG_E2E_REUSE_DOCUMENT_ID` et vérifie le SHA
 de la même fixture DEV, sans nouvel import. La question réelle exige un créneau
 distinct et `RAG_E2E_GENERATION_ALLOWED=1`. La sonde mémoire utilise la venv du

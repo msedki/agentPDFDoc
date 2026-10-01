@@ -400,3 +400,8 @@ Relecture complète de `scope-control.tsx` avant correction : la raison est déj
 ## Point à 10:04 UTC (1er octobre) — D06.2
 
 Réalisé : D06.2 coché sur preuves existantes, après vérification que les sources de l'interface n'ont changé depuis les parcours que pour le rendu du texte des réponses (`0c7fd84`, 05:01, antérieur au parcours isolé de 05:42). Aucun nouvel essai lancé. Restent en D06 : 5, 6, 7, 9 (ancres de région sur le corpus contrôlé, sélection OCR, offsets, réponse progressive et reconnexion SSE), qui demandent extraction ou génération.
+## Point à 10:20 UTC (1er octobre) — D06.7
+
+Réalisé : D06.7 coché (`DEFINITION_OF_DONE.md`) : nouveau scénario Playwright `unicode-selection.spec.ts`, joué sur une instance isolée (aucun OCR ni génération) : aller-retour exact en points de code pour hors BMP, accent combinant, ligature et césure, refus explicite d'une sélection ambiguë ([rapport](../apps/web/reports/e2e-2026-10-01-unicode-selection-evidence.json)). Limite consignée : la ligature U+FB01 est développée en « fi » par l'extraction comme par PDF.js. Instance arrêtée, racine supprimée.
+
+Restent en D06 : 5, 6 et 9 (ancres de région sur le corpus contrôlé, sélection sur régions OCR, réponse progressive et reconnexion SSE), qui demandent extraction OCR ou génération.
