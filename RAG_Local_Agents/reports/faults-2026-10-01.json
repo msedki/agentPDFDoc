@@ -1,0 +1,167 @@
+{
+  "cases": {
+    "kill-extracting": {
+      "killed_at": {
+        "state": "extracting",
+        "stage": "extracting"
+      },
+      "survivors_after_supervisor_kill": [],
+      "checks": {
+        "killed_in_target_stage": true,
+        "resumed_to_ready": true,
+        "single_published_generation": true,
+        "no_duplicate_chunks": true,
+        "no_orphan_points": true,
+        "no_pending_cleanup": true
+      },
+      "restart": "running",
+      "after_restart": {
+        "state": "paused",
+        "stage": "interrupted",
+        "error_code": "interrupted"
+      },
+      "resume_http": 200,
+      "final_job": {
+        "state": "ready",
+        "error_code": null,
+        "active": true
+      },
+      "consistency": {
+        "generations": [
+          {
+            "id": "f0ea44f5-ad2d-4bf5-a0bd-4b55a1e7c7e8",
+            "state": "ready",
+            "published_at": "2026-10-01T07:15:22.557423+00:00"
+          }
+        ],
+        "published_generations": 1,
+        "active_chunks": 19,
+        "all_chunks": 19,
+        "duplicate_chunks": 0,
+        "qdrant_points": 19,
+        "index_consistency": "consistent",
+        "pending_cleanup": 0
+      },
+      "fixture": "long-document-14p.pdf",
+      "started_utc": "2026-10-01T07:11:47.314443+00:00",
+      "seconds": 216.7,
+      "result": "PASS"
+    },
+    "kill-embedding": {
+      "killed_at": {
+        "state": "indexing",
+        "stage": "embedding"
+      },
+      "survivors_after_supervisor_kill": [],
+      "checks": {
+        "killed_in_target_stage": true,
+        "resumed_to_ready": true,
+        "single_published_generation": true,
+        "no_duplicate_chunks": true,
+        "no_orphan_points": true,
+        "no_pending_cleanup": true
+      },
+      "restart": "running",
+      "after_restart": {
+        "state": "paused",
+        "stage": "interrupted",
+        "error_code": "interrupted"
+      },
+      "resume_http": 200,
+      "final_job": {
+        "state": "ready",
+        "error_code": null,
+        "active": true
+      },
+      "consistency": {
+        "generations": [
+          {
+            "id": "045e1b3a-9eb6-4450-b40b-749aa8f02673",
+            "state": "ready",
+            "published_at": "2026-10-01T07:18:06.386604+00:00"
+          }
+        ],
+        "published_generations": 1,
+        "active_chunks": 30,
+        "all_chunks": 30,
+        "duplicate_chunks": 0,
+        "qdrant_points": 30,
+        "index_consistency": "consistent",
+        "pending_cleanup": 0
+      },
+      "fixture": "Section et tableau pages 4-5.pdf",
+      "started_utc": "2026-10-01T07:15:37.099873+00:00",
+      "seconds": 150.3,
+      "result": "PASS",
+      "note": "joué sous le nom kill-indexing (état indexing, étape embedding)"
+    },
+    "kill-vectors": {
+      "error": "RuntimeError: traitement terminé (ready) avant l'étape visée ['vectors']",
+      "checks": {
+        "completed": false
+      },
+      "fixture": "long-document-14p.pdf",
+      "started_utc": "2026-10-01T07:23:07.315744+00:00",
+      "seconds": 212.4,
+      "result": "FAIL"
+    },
+    "qdrant-down": {
+      "killed_at": {
+        "state": "indexing",
+        "stage": "embedding"
+      },
+      "job_after_qdrant_loss": {
+        "state": "error",
+        "stage": "error",
+        "error_code": "qdrant_unavailable"
+      },
+      "document_after_qdrant_loss": {
+        "state": "error",
+        "active_generation_id": null
+      },
+      "instance_after_qdrant_loss": "running",
+      "checks": {
+        "never_shown_ready": true,
+        "resumed_to_ready": true,
+        "single_published_generation": true,
+        "no_duplicate_chunks": true,
+        "no_orphan_points": true,
+        "no_pending_cleanup": true
+      },
+      "stop": "stopped",
+      "restart": "running",
+      "after_restart": {
+        "state": "error",
+        "stage": "error",
+        "error_code": "qdrant_unavailable"
+      },
+      "resume_http": 200,
+      "final_job": {
+        "state": "ready",
+        "error_code": null,
+        "active": true
+      },
+      "consistency": {
+        "generations": [
+          {
+            "id": "1c83ee28-845b-497f-bc51-24deb29290fc",
+            "state": "ready",
+            "published_at": "2026-10-01T07:34:05.727404+00:00"
+          }
+        ],
+        "published_generations": 1,
+        "active_chunks": 5,
+        "all_chunks": 5,
+        "duplicate_chunks": 0,
+        "qdrant_points": 5,
+        "index_consistency": "consistent",
+        "pending_cleanup": 0
+      },
+      "fixture": "Atelier 6 - Banc pneumatique DA-P06.pdf",
+      "started_utc": "2026-10-01T07:32:00.003607+00:00",
+      "seconds": 126.5,
+      "result": "PASS"
+    }
+  },
+  "note": "Chaque cas sur une instance isolée neuve ou saine ; kill-vectors : étape d'écriture des points trop brève pour être saisie par sondage HTTP (deux essais, documents de 2 et 14 pages), échec d'observation et non défaut ; essais antérieurs de qdrant-down en échec d'outil (jeton lu après l'arrêt de l'instance, relance limitée aux traitements en pause), corrigés avant l'essai conservé."
+}
