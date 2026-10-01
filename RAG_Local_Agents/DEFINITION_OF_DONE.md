@@ -17,12 +17,16 @@ Baseline documentaire 2.1. Les objectifs conservés et ajoutés ci-dessous sont 
 - [ ] Un environnement neuf peut être provisionné par le lanceur documenté, sans édition manuelle de code.
 - [ ] Une installation provisionnée redémarre sans Internet et sans téléchargement implicite.
 - [x] Les lockfiles de paquets et manifests de runtimes/modèles contiennent des versions/hashes réels ; aucun `latest` comme identité finale.
-- [ ] `doctor` distingue modèle absent, service indisponible, configuration ignorée, CPU/GPU utilisé et stockage incohérent.
-- [ ] Start/stop ne créent pas d'instances doublées et ne détruisent pas les données.
+- [x] `doctor` distingue modèle absent, service indisponible, configuration ignorée, CPU/GPU utilisé et stockage incohérent.
+- [x] Start/stop ne créent pas d'instances doublées et ne détruisent pas les données.
 
 **Preuves :** logs de provisionnement/restart, manifests, sortie doctor, commandes exactes et versions des exécutables.
 
 Preuve01/10/2026 (D01.19), contrôle relu sur le dépôt au commit `d52834f` : aucune occurrence de `latest` dans `config/artifacts.lock.json`, `config/models.lock.json`, `config/embedding-comparison.lock.json`, `uv.lock`, `apps/web/pnpm-lock.yaml` ni dans les manifestes de `.runtime/manifests/` ; chaque entrée de `artifacts.lock.json` porte une empreinte ou une révision ; `models.lock.json` fixe l'empreinte du manifeste et des couches de `qwen3.5:4b` et `qwen3.5:4b-text` ; `uv.lock` : 127 paquets, aucun paquet de registre sans empreinte SHA-256 ; `pnpm-lock.yaml` : 126 résolutions avec intégrité sha512. Le contrôle `doctor` (`model_lock`) vérifie hors ligne la conformité du stockage au verrou.
+
+Preuve01/10/2026 (D01.20) : `doctor` distingue modèle absent (`model_lock` à `absent`, rubrique `modèle` rouge) et fichiers altérés, service arrêté ou muet (`llm_model_diagnosis` : `service_unavailable_model_files_present`), configuration non appliquée (`profile_application` à `restart_required`), usage GPU (`loaded_models[].size_vram`, et `up` refuse un profil où `llm.num_gpu` n'est pas nul) et stockage incohérent (`index_consistency` : points Qdrant et fragments SQLite par génération active, depuis `e4c7caf`) ; tests `test_runtime_doctor.py`, `test_runtime_verdict.py` (pannes provoquées) et essai d'intégration HTTP ; relevé réel du 01/10 à 06:02 : 5 générations actives, 322 fragments, cohérent, verdict vert.
+
+Preuve (D01.21) : un second `up` rend l'instance existante sans en lancer une autre ([30/09](reports/runtime-first-duplicate-up.json)) ; le 01/10, six cycles `down` puis `up` de l'instance principale (04:29, 05:04, 05:11, 05:25, 06:02, chacun après contrôle d'absence de question et de traitement actifs) ont laissé ses données intactes : mêmes comptes de traitements avant et après (61 en pause, 12 partiels, 4 prêts, 1 en erreur), `readiness` 200, index cohérent après le dernier ([journal](journal/2026-10-01.md)).
 
 ## D02 — Import, bibliothèque et extraction
 
