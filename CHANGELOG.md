@@ -27,6 +27,7 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 ### Modifié
 
+- Découpage `section-pack-v1` : les blocs courts d'une même section sont regroupés jusqu'à la cible de 320 jetons E5 au lieu d'un fragment par bloc ; sur le jeu de référence, le bloc attendu atteint le contexte plus souvent (46 → 53 sur 68 dans le document), avec une perte localisée sur le document italien en recherche sur toute la bibliothèque (`e96c11a`, [W015](RAG_Local_Agents/DECISIONS.md#w015-découpage-section-pack-v1--blocs-courts-dune-même-section-regroupés-jusquà-la-cible), [mesures](RAG_Local_Agents/reports/evaluation/corpus-reel-2026-09-30.md)).
 - La disponibilité est prête sur une base neuve dont la collection Qdrant n'existe pas encore ; elle reste bloquée si des générations publiées ont perdu leur collection, et indique l'état de la collection (`dfb8dbd`, `test_api_http.py`).
 - Section facultative `runtime` du profil : verrou lourd du poste, dossier des sauvegardes par défaut, stockages Qdrant courts de restauration et cache Hugging Face peuvent sortir du dossier programme, préalable à une installation par utilisateur ; sans elle, rien ne change (`eeaf646`, tests unitaires ; [exploitation](docs/exploitation/EXPLOITATION.md)).
 - La configuration de collection Qdrant est lue sous `config/qdrant.collection.json`, et non plus dans le dossier de chantier ; sa copie documentaire est contrôlée octet pour octet par `verify_pack` (`050f2c2`, étape DIST-02 de l'[analyse de distribution](RAG_Local_Agents/reports/distribution-analysis-2026-09-30.md)).
