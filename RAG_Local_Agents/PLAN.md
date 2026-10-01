@@ -397,3 +397,6 @@ Push : `6e1f9be` et `52801b3` toujours locaux (quatre essais entre 09:46 et 09:5
 ## Point à 10:00 UTC (1er octobre) — C-UI-01 infirmé
 
 Relecture complète de `scope-control.tsx` avant correction : la raison est déjà affichée dans la fenêtre du périmètre (`binding.actions.reason` rendu en `role="status"` sous le sélecteur) et les options page et section sont elles-mêmes désactivées ; le constat reposait sur la seule lecture de `apply`. Les autres contrôles désactivés montrent leur état à côté d'eux : compteur « N / total » des pages, pourcentage de zoom, « Retrait en cours… » dans la confirmation, avertissement de comparaison. C-UI-01 est classé infirmé ; reste une amélioration facultative (raison en info-bulle sur ces boutons), sans priorité, à reconsidérer avec la relecture des textes de l'interface (R15).
+## Point à 10:04 UTC (1er octobre) — D06.2
+
+Réalisé : D06.2 coché sur preuves existantes, après vérification que les sources de l'interface n'ont changé depuis les parcours que pour le rendu du texte des réponses (`0c7fd84`, 05:01, antérieur au parcours isolé de 05:42). Aucun nouvel essai lancé. Restent en D06 : 5, 6, 7, 9 (ancres de région sur le corpus contrôlé, sélection OCR, offsets, réponse progressive et reconnexion SSE), qui demandent extraction ou génération.
