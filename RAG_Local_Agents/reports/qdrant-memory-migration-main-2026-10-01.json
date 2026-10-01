@@ -1,0 +1,76 @@
+{
+  "criterion": "D10.3",
+  "decision": "W017",
+  "authorized_utc": "2026-10-01T12:15Z",
+  "collection": "pdf_chunks_e5small_v1_53cac40518d0dec0",
+  "started_utc": "2026-10-01T12:16:55.800991+00:00",
+  "before": {
+    "status": "green",
+    "points": 724,
+    "dense": {
+      "size": 384,
+      "distance": "Cosine",
+      "on_disk": true
+    },
+    "payload": null,
+    "on_disk_payload": true,
+    "hnsw_on_disk": false,
+    "hnsw_memory": null,
+    "placement_matches": true,
+    "index_consistency": "consistent"
+  },
+  "patch_body": {
+    "vectors": {
+      "dense": {
+        "memory": "cold"
+      }
+    },
+    "hnsw_config": {
+      "memory": "cached"
+    },
+    "params": {
+      "payload": {
+        "memory": "cold"
+      }
+    }
+  },
+  "patch_status": 200,
+  "patch_response": {
+    "result": true,
+    "status": "ok",
+    "time": 0.0494475
+  },
+  "after": {
+    "status": "green",
+    "points": 724,
+    "dense": {
+      "size": 384,
+      "distance": "Cosine",
+      "on_disk": true,
+      "memory": "cold"
+    },
+    "payload": {
+      "memory": "cold"
+    },
+    "on_disk_payload": true,
+    "hnsw_on_disk": false,
+    "hnsw_memory": "cached",
+    "placement_matches": true,
+    "index_consistency": "consistent"
+  },
+  "search_after": {
+    "status": 200,
+    "results": 6
+  },
+  "checks": {
+    "patch_accepted": true,
+    "collection_green": true,
+    "points_unchanged": true,
+    "new_form_present": true,
+    "placement_matches": true,
+    "index_consistent": true,
+    "search_works": true
+  },
+  "result": "PASS",
+  "finished_utc": "2026-10-01T12:17:05.897032+00:00"
+}
