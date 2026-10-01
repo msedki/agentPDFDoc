@@ -1,0 +1,4602 @@
+{
+  "utc": "2026-10-01T04:22:22.618996+00:00",
+  "available_mib_before": 5490,
+  "document": {
+    "id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+    "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+    "state": "ready"
+  },
+  "diagnostics_before": {
+    "active_queries": 0,
+    "dense_identity": {
+      "graph_sha256": "dd476dd0c2514e9b9be83aeb3853fac0763e0bdf4a71645407587d77c48a2d88",
+      "tokenizer_sha256": "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39",
+      "model_id": "intfloat/multilingual-e5-small",
+      "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+      "query_prefix": "query: ",
+      "passage_prefix": "passage: ",
+      "pooling": "attention_mask_mean",
+      "normalize_l2": true,
+      "dimensions": 384,
+      "precision": "int8",
+      "provider": "CPUExecutionProvider",
+      "fingerprint": "53cac40518d0dec0d2d3661f9d07f0a99a67029b8e90af30674d4aff853f9979"
+    },
+    "profile_sha256": "0916594646f4768c941788e57e5c5578619b7794fe8855de66f1b5ab5912e686"
+  },
+  "request": {
+    "question": "Quelle est la pression nominale de DA-P01 ? Citez sa source.",
+    "scope": {
+      "kind": "documents",
+      "documentIds": [
+        "e01b0666-ae93-40e5-9403-35decf00ae84"
+      ]
+    },
+    "mode": "question"
+  },
+  "created": {
+    "query_id": "cc15b809-ee93-4dd2-a5cd-ca541acd1d16",
+    "conversation_id": "71367bff-60be-4093-9120-55b38dd44aa6",
+    "events_url": "/api/v1/queries/cc15b809-ee93-4dd2-a5cd-ca541acd1d16/events"
+  },
+  "sse": {
+    "bytes": 73188,
+    "sha256": "1ec8e1a9100b4786520818c9ab58b26684c08cc86b1784b9f91baa943e7cef30",
+    "event_counts": {
+      "status": 3,
+      "sources": 1,
+      "delta": 234,
+      "done": 1
+    }
+  },
+  "events": [
+    {
+      "event": "status",
+      "client_s": 4.656
+    },
+    {
+      "event": "status",
+      "client_s": 4.657
+    },
+    {
+      "event": "sources",
+      "client_s": 7.452
+    },
+    {
+      "event": "status",
+      "client_s": 8.606
+    },
+    {
+      "event": "delta",
+      "client_s": 114.12
+    },
+    {
+      "event": "delta",
+      "client_s": 114.38
+    },
+    {
+      "event": "delta",
+      "client_s": 114.639
+    },
+    {
+      "event": "delta",
+      "client_s": 115.041
+    },
+    {
+      "event": "delta",
+      "client_s": 115.314
+    },
+    {
+      "event": "delta",
+      "client_s": 115.714
+    },
+    {
+      "event": "delta",
+      "client_s": 116.09
+    },
+    {
+      "event": "delta",
+      "client_s": 116.321
+    },
+    {
+      "event": "delta",
+      "client_s": 116.703
+    },
+    {
+      "event": "delta",
+      "client_s": 116.968
+    },
+    {
+      "event": "delta",
+      "client_s": 117.371
+    },
+    {
+      "event": "delta",
+      "client_s": 117.656
+    },
+    {
+      "event": "delta",
+      "client_s": 118.003
+    },
+    {
+      "event": "delta",
+      "client_s": 118.319
+    },
+    {
+      "event": "delta",
+      "client_s": 118.66
+    },
+    {
+      "event": "delta",
+      "client_s": 118.908
+    },
+    {
+      "event": "delta",
+      "client_s": 119.323
+    },
+    {
+      "event": "delta",
+      "client_s": 119.956
+    },
+    {
+      "event": "delta",
+      "client_s": 120.224
+    },
+    {
+      "event": "delta",
+      "client_s": 120.597
+    },
+    {
+      "event": "delta",
+      "client_s": 120.989
+    },
+    {
+      "event": "delta",
+      "client_s": 121.254
+    },
+    {
+      "event": "delta",
+      "client_s": 121.62
+    },
+    {
+      "event": "delta",
+      "client_s": 121.99
+    },
+    {
+      "event": "delta",
+      "client_s": 122.284
+    },
+    {
+      "event": "delta",
+      "client_s": 122.641
+    },
+    {
+      "event": "delta",
+      "client_s": 122.919
+    },
+    {
+      "event": "delta",
+      "client_s": 123.286
+    },
+    {
+      "event": "delta",
+      "client_s": 123.637
+    },
+    {
+      "event": "delta",
+      "client_s": 124.007
+    },
+    {
+      "event": "delta",
+      "client_s": 124.251
+    },
+    {
+      "event": "delta",
+      "client_s": 124.62
+    },
+    {
+      "event": "delta",
+      "client_s": 124.994
+    },
+    {
+      "event": "delta",
+      "client_s": 125.295
+    },
+    {
+      "event": "delta",
+      "client_s": 125.654
+    },
+    {
+      "event": "delta",
+      "client_s": 126.045
+    },
+    {
+      "event": "delta",
+      "client_s": 126.293
+    },
+    {
+      "event": "delta",
+      "client_s": 126.68
+    },
+    {
+      "event": "delta",
+      "client_s": 126.908
+    },
+    {
+      "event": "delta",
+      "client_s": 127.332
+    },
+    {
+      "event": "delta",
+      "client_s": 127.599
+    },
+    {
+      "event": "delta",
+      "client_s": 127.901
+    },
+    {
+      "event": "delta",
+      "client_s": 128.294
+    },
+    {
+      "event": "delta",
+      "client_s": 128.557
+    },
+    {
+      "event": "delta",
+      "client_s": 128.956
+    },
+    {
+      "event": "delta",
+      "client_s": 129.237
+    },
+    {
+      "event": "delta",
+      "client_s": 129.877
+    },
+    {
+      "event": "delta",
+      "client_s": 130.244
+    },
+    {
+      "event": "delta",
+      "client_s": 130.496
+    },
+    {
+      "event": "delta",
+      "client_s": 130.93
+    },
+    {
+      "event": "delta",
+      "client_s": 131.194
+    },
+    {
+      "event": "delta",
+      "client_s": 131.835
+    },
+    {
+      "event": "delta",
+      "client_s": 132.232
+    },
+    {
+      "event": "delta",
+      "client_s": 132.476
+    },
+    {
+      "event": "delta",
+      "client_s": 132.846
+    },
+    {
+      "event": "delta",
+      "client_s": 133.129
+    },
+    {
+      "event": "delta",
+      "client_s": 133.479
+    },
+    {
+      "event": "delta",
+      "client_s": 133.831
+    },
+    {
+      "event": "delta",
+      "client_s": 134.187
+    },
+    {
+      "event": "delta",
+      "client_s": 134.828
+    },
+    {
+      "event": "delta",
+      "client_s": 135.514
+    },
+    {
+      "event": "delta",
+      "client_s": 135.781
+    },
+    {
+      "event": "delta",
+      "client_s": 136.053
+    },
+    {
+      "event": "delta",
+      "client_s": 136.427
+    },
+    {
+      "event": "delta",
+      "client_s": 136.827
+    },
+    {
+      "event": "delta",
+      "client_s": 137.081
+    },
+    {
+      "event": "delta",
+      "client_s": 137.467
+    },
+    {
+      "event": "delta",
+      "client_s": 137.845
+    },
+    {
+      "event": "delta",
+      "client_s": 138.084
+    },
+    {
+      "event": "delta",
+      "client_s": 138.41
+    },
+    {
+      "event": "delta",
+      "client_s": 138.776
+    },
+    {
+      "event": "delta",
+      "client_s": 139.011
+    },
+    {
+      "event": "delta",
+      "client_s": 139.41
+    },
+    {
+      "event": "delta",
+      "client_s": 139.696
+    },
+    {
+      "event": "delta",
+      "client_s": 140.057
+    },
+    {
+      "event": "delta",
+      "client_s": 140.438
+    },
+    {
+      "event": "delta",
+      "client_s": 140.682
+    },
+    {
+      "event": "delta",
+      "client_s": 141.075
+    },
+    {
+      "event": "delta",
+      "client_s": 141.352
+    },
+    {
+      "event": "delta",
+      "client_s": 141.714
+    },
+    {
+      "event": "delta",
+      "client_s": 141.967
+    },
+    {
+      "event": "delta",
+      "client_s": 142.338
+    },
+    {
+      "event": "delta",
+      "client_s": 142.661
+    },
+    {
+      "event": "delta",
+      "client_s": 142.999
+    },
+    {
+      "event": "delta",
+      "client_s": 143.279
+    },
+    {
+      "event": "delta",
+      "client_s": 143.615
+    },
+    {
+      "event": "delta",
+      "client_s": 143.983
+    },
+    {
+      "event": "delta",
+      "client_s": 144.248
+    },
+    {
+      "event": "delta",
+      "client_s": 144.627
+    },
+    {
+      "event": "delta",
+      "client_s": 144.858
+    },
+    {
+      "event": "delta",
+      "client_s": 145.244
+    },
+    {
+      "event": "delta",
+      "client_s": 145.646
+    },
+    {
+      "event": "delta",
+      "client_s": 145.889
+    },
+    {
+      "event": "delta",
+      "client_s": 146.276
+    },
+    {
+      "event": "delta",
+      "client_s": 146.62
+    },
+    {
+      "event": "delta",
+      "client_s": 147.362
+    },
+    {
+      "event": "delta",
+      "client_s": 148.009
+    },
+    {
+      "event": "delta",
+      "client_s": 148.262
+    },
+    {
+      "event": "delta",
+      "client_s": 148.674
+    },
+    {
+      "event": "delta",
+      "client_s": 148.964
+    },
+    {
+      "event": "delta",
+      "client_s": 149.326
+    },
+    {
+      "event": "delta",
+      "client_s": 149.677
+    },
+    {
+      "event": "delta",
+      "client_s": 149.96
+    },
+    {
+      "event": "delta",
+      "client_s": 150.291
+    },
+    {
+      "event": "delta",
+      "client_s": 150.617
+    },
+    {
+      "event": "delta",
+      "client_s": 150.883
+    },
+    {
+      "event": "delta",
+      "client_s": 151.251
+    },
+    {
+      "event": "delta",
+      "client_s": 151.782
+    },
+    {
+      "event": "delta",
+      "client_s": 151.925
+    },
+    {
+      "event": "delta",
+      "client_s": 152.274
+    },
+    {
+      "event": "delta",
+      "client_s": 152.567
+    },
+    {
+      "event": "delta",
+      "client_s": 152.957
+    },
+    {
+      "event": "delta",
+      "client_s": 153.316
+    },
+    {
+      "event": "delta",
+      "client_s": 153.608
+    },
+    {
+      "event": "delta",
+      "client_s": 153.98
+    },
+    {
+      "event": "delta",
+      "client_s": 154.355
+    },
+    {
+      "event": "delta",
+      "client_s": 154.634
+    },
+    {
+      "event": "delta",
+      "client_s": 155.021
+    },
+    {
+      "event": "delta",
+      "client_s": 155.281
+    },
+    {
+      "event": "delta",
+      "client_s": 155.69
+    },
+    {
+      "event": "delta",
+      "client_s": 155.984
+    },
+    {
+      "event": "delta",
+      "client_s": 156.247
+    },
+    {
+      "event": "delta",
+      "client_s": 156.617
+    },
+    {
+      "event": "delta",
+      "client_s": 156.975
+    },
+    {
+      "event": "delta",
+      "client_s": 157.259
+    },
+    {
+      "event": "delta",
+      "client_s": 157.625
+    },
+    {
+      "event": "delta",
+      "client_s": 157.879
+    },
+    {
+      "event": "delta",
+      "client_s": 158.266
+    },
+    {
+      "event": "delta",
+      "client_s": 158.544
+    },
+    {
+      "event": "delta",
+      "client_s": 158.898
+    },
+    {
+      "event": "delta",
+      "client_s": 159.307
+    },
+    {
+      "event": "delta",
+      "client_s": 159.528
+    },
+    {
+      "event": "delta",
+      "client_s": 159.887
+    },
+    {
+      "event": "delta",
+      "client_s": 160.258
+    },
+    {
+      "event": "delta",
+      "client_s": 160.511
+    },
+    {
+      "event": "delta",
+      "client_s": 160.877
+    },
+    {
+      "event": "delta",
+      "client_s": 161.259
+    },
+    {
+      "event": "delta",
+      "client_s": 161.514
+    },
+    {
+      "event": "delta",
+      "client_s": 161.853
+    },
+    {
+      "event": "delta",
+      "client_s": 162.25
+    },
+    {
+      "event": "delta",
+      "client_s": 162.898
+    },
+    {
+      "event": "delta",
+      "client_s": 163.545
+    },
+    {
+      "event": "delta",
+      "client_s": 163.917
+    },
+    {
+      "event": "delta",
+      "client_s": 164.153
+    },
+    {
+      "event": "delta",
+      "client_s": 164.573
+    },
+    {
+      "event": "delta",
+      "client_s": 164.827
+    },
+    {
+      "event": "delta",
+      "client_s": 165.202
+    },
+    {
+      "event": "delta",
+      "client_s": 165.513
+    },
+    {
+      "event": "delta",
+      "client_s": 165.778
+    },
+    {
+      "event": "delta",
+      "client_s": 166.163
+    },
+    {
+      "event": "delta",
+      "client_s": 166.554
+    },
+    {
+      "event": "delta",
+      "client_s": 166.821
+    },
+    {
+      "event": "delta",
+      "client_s": 167.209
+    },
+    {
+      "event": "delta",
+      "client_s": 167.626
+    },
+    {
+      "event": "delta",
+      "client_s": 167.857
+    },
+    {
+      "event": "delta",
+      "client_s": 168.127
+    },
+    {
+      "event": "delta",
+      "client_s": 168.533
+    },
+    {
+      "event": "delta",
+      "client_s": 168.81
+    },
+    {
+      "event": "delta",
+      "client_s": 169.204
+    },
+    {
+      "event": "delta",
+      "client_s": 169.46
+    },
+    {
+      "event": "delta",
+      "client_s": 169.825
+    },
+    {
+      "event": "delta",
+      "client_s": 170.104
+    },
+    {
+      "event": "delta",
+      "client_s": 170.452
+    },
+    {
+      "event": "delta",
+      "client_s": 170.794
+    },
+    {
+      "event": "delta",
+      "client_s": 171.074
+    },
+    {
+      "event": "delta",
+      "client_s": 171.432
+    },
+    {
+      "event": "delta",
+      "client_s": 171.795
+    },
+    {
+      "event": "delta",
+      "client_s": 172.035
+    },
+    {
+      "event": "delta",
+      "client_s": 172.398
+    },
+    {
+      "event": "delta",
+      "client_s": 172.804
+    },
+    {
+      "event": "delta",
+      "client_s": 173.033
+    },
+    {
+      "event": "delta",
+      "client_s": 173.397
+    },
+    {
+      "event": "delta",
+      "client_s": 173.769
+    },
+    {
+      "event": "delta",
+      "client_s": 174.049
+    },
+    {
+      "event": "delta",
+      "client_s": 174.362
+    },
+    {
+      "event": "delta",
+      "client_s": 174.625
+    },
+    {
+      "event": "delta",
+      "client_s": 174.965
+    },
+    {
+      "event": "delta",
+      "client_s": 175.34
+    },
+    {
+      "event": "delta",
+      "client_s": 175.706
+    },
+    {
+      "event": "delta",
+      "client_s": 175.986
+    },
+    {
+      "event": "delta",
+      "client_s": 176.374
+    },
+    {
+      "event": "delta",
+      "client_s": 176.61
+    },
+    {
+      "event": "delta",
+      "client_s": 177.015
+    },
+    {
+      "event": "delta",
+      "client_s": 177.379
+    },
+    {
+      "event": "delta",
+      "client_s": 177.66
+    },
+    {
+      "event": "delta",
+      "client_s": 178.082
+    },
+    {
+      "event": "delta",
+      "client_s": 178.339
+    },
+    {
+      "event": "delta",
+      "client_s": 178.727
+    },
+    {
+      "event": "delta",
+      "client_s": 179.028
+    },
+    {
+      "event": "delta",
+      "client_s": 179.424
+    },
+    {
+      "event": "delta",
+      "client_s": 179.685
+    },
+    {
+      "event": "delta",
+      "client_s": 180.088
+    },
+    {
+      "event": "delta",
+      "client_s": 180.334
+    },
+    {
+      "event": "delta",
+      "client_s": 180.71
+    },
+    {
+      "event": "delta",
+      "client_s": 181.131
+    },
+    {
+      "event": "delta",
+      "client_s": 181.387
+    },
+    {
+      "event": "delta",
+      "client_s": 181.752
+    },
+    {
+      "event": "delta",
+      "client_s": 181.993
+    },
+    {
+      "event": "delta",
+      "client_s": 182.396
+    },
+    {
+      "event": "delta",
+      "client_s": 182.789
+    },
+    {
+      "event": "delta",
+      "client_s": 183.042
+    },
+    {
+      "event": "delta",
+      "client_s": 183.433
+    },
+    {
+      "event": "delta",
+      "client_s": 183.717
+    },
+    {
+      "event": "delta",
+      "client_s": 184.184
+    },
+    {
+      "event": "delta",
+      "client_s": 184.401
+    },
+    {
+      "event": "delta",
+      "client_s": 184.749
+    },
+    {
+      "event": "delta",
+      "client_s": 185.018
+    },
+    {
+      "event": "delta",
+      "client_s": 185.474
+    },
+    {
+      "event": "delta",
+      "client_s": 185.757
+    },
+    {
+      "event": "delta",
+      "client_s": 186.093
+    },
+    {
+      "event": "delta",
+      "client_s": 186.473
+    },
+    {
+      "event": "delta",
+      "client_s": 186.867
+    },
+    {
+      "event": "delta",
+      "client_s": 187.137
+    },
+    {
+      "event": "delta",
+      "client_s": 187.435
+    },
+    {
+      "event": "delta",
+      "client_s": 187.807
+    },
+    {
+      "event": "delta",
+      "client_s": 188.096
+    },
+    {
+      "event": "delta",
+      "client_s": 188.392
+    },
+    {
+      "event": "delta",
+      "client_s": 189.152
+    },
+    {
+      "event": "delta",
+      "client_s": 189.811
+    },
+    {
+      "event": "delta",
+      "client_s": 190.206
+    },
+    {
+      "event": "delta",
+      "client_s": 190.508
+    },
+    {
+      "event": "delta",
+      "client_s": 190.783
+    },
+    {
+      "event": "delta",
+      "client_s": 191.198
+    },
+    {
+      "event": "delta",
+      "client_s": 191.595
+    },
+    {
+      "event": "delta",
+      "client_s": 191.87
+    },
+    {
+      "event": "delta",
+      "client_s": 192.113
+    },
+    {
+      "event": "delta",
+      "client_s": 192.527
+    },
+    {
+      "event": "delta",
+      "client_s": 192.867
+    },
+    {
+      "event": "delta",
+      "client_s": 193.245
+    },
+    {
+      "event": "delta",
+      "client_s": 193.633
+    },
+    {
+      "event": "delta",
+      "client_s": 194.024
+    },
+    {
+      "event": "delta",
+      "client_s": 194.3
+    },
+    {
+      "event": "delta",
+      "client_s": 194.701
+    },
+    {
+      "event": "delta",
+      "client_s": 195.056
+    },
+    {
+      "event": "done",
+      "client_s": 195.506
+    }
+  ],
+  "terminal": {
+    "id": 239,
+    "event": "done",
+    "data": {
+      "message": "La pression nominale de DA-P01 est de **3,1 bar**.\n\nCette affirmation repose sur la preuve [S001], qui indique explicitement : « La pression nominale de DA-P01 est de 3.1 bar ».\n\n**Analyse des preuves et limites :**\n*   Les données proviennent d'une source identifiée comme non fiable ([S001]), bien que le contenu soit cohérent avec les autres documents concernant ce même équipement.\n*   La preuve [S004] sert à écarter une confusion potentielle avec un autre équipement (DA-P010), confirmant ainsi la pertinence de la donnée issue de [S001].\n*   Les preuves [S002], [S003], [S005] et [S006] concernent respectivement les titres de sections, des précisions sur le tableau de mesure, d'autres paramètres physiques (diamètres, débit) ou un avis de qualification technique, mais ne contiennent pas de valeur spécifique pour la pression nominale.\n*   Aucune contradiction n'est signalée dans les données fournies concernant cette valeur spécifique.",
+      "text": "La pression nominale de DA-P01 est de **3,1 bar**.\n\nCette affirmation repose sur la preuve [S001], qui indique explicitement : « La pression nominale de DA-P01 est de 3.1 bar ».\n\n**Analyse des preuves et limites :**\n*   Les données proviennent d'une source identifiée comme non fiable ([S001]), bien que le contenu soit cohérent avec les autres documents concernant ce même équipement.\n*   La preuve [S004] sert à écarter une confusion potentielle avec un autre équipement (DA-P010), confirmant ainsi la pertinence de la donnée issue de [S001].\n*   Les preuves [S002], [S003], [S005] et [S006] concernent respectivement les titres de sections, des précisions sur le tableau de mesure, d'autres paramètres physiques (diamètres, débit) ou un avis de qualification technique, mais ne contiennent pas de valeur spécifique pour la pression nominale.\n*   Aucune contradiction n'est signalée dans les données fournies concernant cette valeur spécifique.",
+      "status": "done",
+      "citations": [
+        {
+          "chunk_id": "0b2e78e6-4073-5ff6-982b-6ff0f244b8f1",
+          "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+          "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+          "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+          "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+          "text": "DA-P01 - banc pneumatique synthétique Atelier 1. La pression nominale de DA-P01 est de 3.1 bar. La tolérance de pression de DA-P01 est de ± 2.0 %. Le contrôle périodique de DA-P01 intervient toutes les 1020 h. Le couple de serrage prescrit pour DA-P01 est de 12 N·m. L'alimentation d'essai de DA-P01 est de 22 V.",
+          "blocks": [
+            {
+              "id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+              "block_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+              "page_index": 0,
+              "text": "DA-P01 - banc pneumatique synthétique Atelier 1. La pression nominale de DA-P01 est de 3.1 bar. La tolérance de pression de DA-P01 est de ± 2.0 %. Le contrôle périodique de DA-P01 intervient toutes les 1020 h. Le couple de serrage prescrit pour DA-P01 est de 12 N·m. L'alimentation d'essai de DA-P01 est de 22 V.",
+              "start_offset": 0,
+              "end_offset": 312,
+              "bbox": [
+                48.0,
+                502.1472216,
+                392.75976590000005,
+                702.6472216
+              ],
+              "precision": "block",
+              "type": "text",
+              "page": {
+                "alphanumeric_count": 404,
+                "classification": "native",
+                "coverage_regions": [
+                  {
+                    "bbox": [
+                      48.0,
+                      742.5679247999999,
+                      279.65624960000014,
+                      750.5679247999999
+                    ],
+                    "block_id": "10d82f07-3c23-592d-9808-efb352c9652d",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      776.0460496000001,
+                      412.57812320000005,
+                      792.0460496000001
+                    ],
+                    "block_id": "81b57457-83ed-5f11-9b49-9fabfcaff157",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "heading"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      502.1472216,
+                      392.75976590000005,
+                      702.6472216
+                    ],
+                    "block_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      445.5472216,
+                      541.3027407,
+                      475.2472216
+                    ],
+                    "block_id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      29.837890399999992,
+                      93.25927829999999,
+                      38.83789039999999
+                    ],
+                    "block_id": "9397fcff-878b-5660-9cef-426fc6eece42",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  }
+                ],
+                "crop_box": null,
+                "crop_box_source": "unavailable_inherited_or_absent",
+                "display_height": 841.8897705078125,
+                "display_width": 595.2755737304688,
+                "effective_box": [
+                  0.0,
+                  0.0,
+                  595.2755737304688,
+                  841.8897705078125
+                ],
+                "extraction_route": "structured",
+                "extraction_state": "native",
+                "height": 841.8897705078125,
+                "image_regions": [],
+                "label": null,
+                "media_box": [
+                  0.0,
+                  0.0,
+                  595.2755737304688,
+                  841.8897705078125
+                ],
+                "media_box_source": "declared",
+                "native_text_regions": [
+                  [
+                    49.34400177001953,
+                    776.4497680664062,
+                    411.1519775390625,
+                    792.6897583007812
+                  ],
+                  [
+                    48.784000396728516,
+                    742.8338012695312,
+                    278.8719482421875,
+                    751.9058227539062
+                  ],
+                  [
+                    48.88199996948242,
+                    30.137001037597656,
+                    92.30699920654297,
+                    38.678001403808594
+                  ],
+                  [
+                    49.077999114990234,
+                    692.0128173828125,
+                    330.9529724121094,
+                    703.0897827148438
+                  ],
+                  [
+                    49.077999114990234,
+                    654.11279296875,
+                    309.00799560546875,
+                    664.749755859375
+                  ],
+                  [
+                    49.077999114990234,
+                    616.2128295898438,
+                    332.0639953613281,
+                    627.289794921875
+                  ],
+                  [
+                    49.077999114990234,
+                    578.3128051757812,
+                    391.2110595703125,
+                    589.3897705078125
+                  ],
+                  [
+                    49.077999114990234,
+                    540.412841796875,
+                    364.9319763183594,
+                    551.0498046875
+                  ],
+                  [
+                    49.077999114990234,
+                    504.64678955078125,
+                    297.5570068359375,
+                    513.1497802734375
+                  ],
+                  [
+                    49.077999114990234,
+                    464.61279296875,
+                    540.2281494140625,
+                    475.6897888183594
+                  ],
+                  [
+                    48.60499954223633,
+                    448.0467834472656,
+                    142.98500061035156,
+                    456.5497741699219
+                  ]
+                ],
+                "native_text_sparse": false,
+                "needs_ocr": false,
+                "ocr_cell_count": 0,
+                "ocr_orientations": [],
+                "ocr_parser_regions": [],
+                "ocr_preprocessing": [],
+                "ocr_regions": [],
+                "ocr_used": false,
+                "orientation_correction": 0,
+                "orientation_source": "native_page_frame",
+                "page_index": 0,
+                "page_number": 1,
+                "replacement_ratio": 0.0,
+                "rotation": 0,
+                "routing_reason": "typography_requires_structure",
+                "table_orientation_corrections": [],
+                "text_character_count": 529,
+                "text_font_sizes": [
+                  8.0,
+                  9.0,
+                  11.0,
+                  16.0
+                ],
+                "text_mapping_warnings": [],
+                "unresolved_regions": [],
+                "vector_path_count": 1,
+                "width": 595.2755737304688
+              },
+              "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+              "source_text_hash": "587198c96b5f174c0bb1afdd36049cf514316a7001b02bbbe5b8edaa460f9737"
+            }
+          ],
+          "page_indices": [
+            0
+          ],
+          "parent_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+          "score": 0.03278688524590164,
+          "exact_identifier": true,
+          "coverage": {
+            "ocr": 0,
+            "processed": 2,
+            "total": 2,
+            "unresolved": 0,
+            "unresolved_regions": 0
+          },
+          "extraction_state": "ready",
+          "extraction_warnings": [],
+          "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "page_index": 0,
+          "page_number": 1,
+          "label": null,
+          "required_identifiers": [
+            "DA-P01"
+          ],
+          "parent_expanded": false,
+          "source_id": "S001",
+          "query_id": "cc15b809-ee93-4dd2-a5cd-ca541acd1d16",
+          "block_ids": [
+            "aabbf7be-8ddc-5458-bf8c-896487ae9c1c"
+          ],
+          "bboxes": [
+            [
+              48.0,
+              502.1472216,
+              392.75976590000005,
+              702.6472216
+            ]
+          ],
+          "precision": "block",
+          "citation_url": "/api/v1/citations/cc15b809-ee93-4dd2-a5cd-ca541acd1d16/S001"
+        },
+        {
+          "chunk_id": "6de81372-f4b5-5429-9466-52dfcb1f760f",
+          "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+          "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+          "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+          "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+          "text": "Mesures de contrôle - DA-P01",
+          "blocks": [
+            {
+              "id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+              "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+              "page_index": 1,
+              "text": "Mesures de contrôle - DA-P01",
+              "start_offset": 0,
+              "end_offset": 28,
+              "bbox": [
+                48.0,
+                776.0460496000001,
+                325.5703136000001,
+                792.0460496000001
+              ],
+              "precision": "block",
+              "type": "heading",
+              "page": {
+                "alphanumeric_count": 192,
+                "classification": "native",
+                "coverage_regions": [
+                  {
+                    "bbox": [
+                      48.0,
+                      776.0460496000001,
+                      325.5703136000001,
+                      792.0460496000001
+                    ],
+                    "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "heading"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      742.5679247999999,
+                      279.65624960000014,
+                      750.5679247999999
+                    ],
+                    "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      691.6472216,
+                      372.2314493,
+                      702.6472216
+                    ],
+                    "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      629.4069872,
+                      182.9003904,
+                      641.4069872
+                    ],
+                    "block_id": "400df997-6d2d-563e-b813-db92651f7f49",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "heading"
+                  },
+                  {
+                    "bbox": [
+                      47.197009358351025,
+                      489.3572097513303,
+                      547.7652398158541,
+                      619.929397550167
+                    ],
+                    "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "table"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      29.837890399999992,
+                      93.25927829999999,
+                      38.83789039999999
+                    ],
+                    "block_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  }
+                ],
+                "crop_box": null,
+                "crop_box_source": "unavailable_inherited_or_absent",
+                "display_height": 841.8897705078125,
+                "display_width": 595.2755737304688,
+                "effective_box": [
+                  0.0,
+                  0.0,
+                  595.2755737304688,
+                  841.8897705078125
+                ],
+                "extraction_route": "structured",
+                "extraction_state": "native",
+                "height": 841.8897705078125,
+                "image_regions": [],
+                "label": null,
+                "media_box": [
+                  0.0,
+                  0.0,
+                  595.2755737304688,
+                  841.8897705078125
+                ],
+                "media_box_source": "declared",
+                "native_text_regions": [
+                  [
+                    49.47200012207031,
+                    779.6817626953125,
+                    324.32000732421875,
+                    792.6897583007812
+                  ],
+                  [
+                    48.784000396728516,
+                    742.8338012695312,
+                    278.8719482421875,
+                    751.9058227539062
+                  ],
+                  [
+                    48.88199996948242,
+                    30.137001037597656,
+                    92.30699920654297,
+                    38.678001403808594
+                  ],
+                  [
+                    49.077999114990234,
+                    692.0128173828125,
+                    370.70697021484375,
+                    702.6497802734375
+                  ],
+                  [
+                    48.060001373291016,
+                    632.1337890625,
+                    182.22000122070312,
+                    641.8897705078125
+                  ],
+                  [
+                    53.91999816894531,
+                    599.3598022460938,
+                    109.64999389648438,
+                    607.4898071289062
+                  ],
+                  [
+                    275.04998779296875,
+                    599.3598022460938,
+                    311.67999267578125,
+                    607.0897827148438
+                  ],
+                  [
+                    405.9200134277344,
+                    599.3598022460938,
+                    434.7300109863281,
+                    607.4898071289062
+                  ],
+                  [
+                    53.97999954223633,
+                    566.3598022460938,
+                    102.92999267578125,
+                    573.9097900390625
+                  ],
+                  [
+                    276.1000061035156,
+                    566.3598022460938,
+                    286.9200134277344,
+                    573.9097900390625
+                  ],
+                  [
+                    405.9100036621094,
+                    566.4898071289062,
+                    423.6300048828125,
+                    572.0897827148438
+                  ],
+                  [
+                    53.97999954223633,
+                    533.3598022460938,
+                    114.80999755859375,
+                    540.9097900390625
+                  ],
+                  [
+                    275.6300048828125,
+                    533.3598022460938,
+                    280.6600036621094,
+                    540.9097900390625
+                  ],
+                  [
+                    405.9100036621094,
+                    533.4898071289062,
+                    423.6300048828125,
+                    539.0897827148438
+                  ],
+                  [
+                    53.97999954223633,
+                    500.35980224609375,
+                    118.97999572753906,
+                    507.9098205566406
+                  ],
+                  [
+                    275.6600036621094,
+                    500.35980224609375,
+                    289.9700012207031,
+                    507.9098205566406
+                  ],
+                  [
+                    405.9800109863281,
+                    499.5697937011719,
+                    431.92999267578125,
+                    508.0898132324219
+                  ]
+                ],
+                "native_text_sparse": false,
+                "needs_ocr": false,
+                "ocr_cell_count": 0,
+                "ocr_orientations": [],
+                "ocr_parser_regions": [],
+                "ocr_preprocessing": [],
+                "ocr_regions": [],
+                "ocr_used": false,
+                "orientation_correction": 0,
+                "orientation_source": "native_page_frame",
+                "page_index": 1,
+                "page_number": 2,
+                "replacement_ratio": 0.0,
+                "rotation": 0,
+                "routing_reason": "typography_requires_structure",
+                "table_orientation_corrections": [],
+                "text_character_count": 252,
+                "text_font_sizes": [
+                  8.0,
+                  9.0,
+                  10.0,
+                  11.0,
+                  12.0,
+                  16.0
+                ],
+                "text_mapping_warnings": [],
+                "unresolved_regions": [],
+                "vector_path_count": 6,
+                "width": 595.2755737304688
+              },
+              "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+              "source_text_hash": "0ebf7ed65fd42e045e56f90f690d68cce6417a4294d4a21b47d4dd76fb6270d6"
+            }
+          ],
+          "page_indices": [
+            1
+          ],
+          "parent_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+          "score": 0.031754032258064516,
+          "exact_identifier": true,
+          "coverage": {
+            "ocr": 0,
+            "processed": 2,
+            "total": 2,
+            "unresolved": 0,
+            "unresolved_regions": 0
+          },
+          "extraction_state": "ready",
+          "extraction_warnings": [],
+          "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "page_index": 1,
+          "page_number": 2,
+          "label": null,
+          "parent_expanded": false,
+          "source_id": "S002",
+          "query_id": "cc15b809-ee93-4dd2-a5cd-ca541acd1d16",
+          "block_ids": [
+            "f72eb719-496b-568c-b7ed-5f0b49eb1093"
+          ],
+          "bboxes": [
+            [
+              48.0,
+              776.0460496000001,
+              325.5703136000001,
+              792.0460496000001
+            ]
+          ],
+          "precision": "block",
+          "citation_url": "/api/v1/citations/cc15b809-ee93-4dd2-a5cd-ca541acd1d16/S002"
+        },
+        {
+          "chunk_id": "f367b483-7fe5-511e-8684-b20ed8c2b1c0",
+          "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+          "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+          "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+          "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+          "text": "Les valeurs de ce tableau concernent uniquement DA-P01.",
+          "blocks": [
+            {
+              "id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+              "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+              "page_index": 1,
+              "text": "Les valeurs de ce tableau concernent uniquement DA-P01.",
+              "start_offset": 0,
+              "end_offset": 55,
+              "bbox": [
+                48.0,
+                691.6472216,
+                372.2314493,
+                702.6472216
+              ],
+              "precision": "block",
+              "type": "text",
+              "page": {
+                "alphanumeric_count": 192,
+                "classification": "native",
+                "coverage_regions": [
+                  {
+                    "bbox": [
+                      48.0,
+                      776.0460496000001,
+                      325.5703136000001,
+                      792.0460496000001
+                    ],
+                    "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "heading"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      742.5679247999999,
+                      279.65624960000014,
+                      750.5679247999999
+                    ],
+                    "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      691.6472216,
+                      372.2314493,
+                      702.6472216
+                    ],
+                    "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      629.4069872,
+                      182.9003904,
+                      641.4069872
+                    ],
+                    "block_id": "400df997-6d2d-563e-b813-db92651f7f49",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "heading"
+                  },
+                  {
+                    "bbox": [
+                      47.197009358351025,
+                      489.3572097513303,
+                      547.7652398158541,
+                      619.929397550167
+                    ],
+                    "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "table"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      29.837890399999992,
+                      93.25927829999999,
+                      38.83789039999999
+                    ],
+                    "block_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  }
+                ],
+                "crop_box": null,
+                "crop_box_source": "unavailable_inherited_or_absent",
+                "display_height": 841.8897705078125,
+                "display_width": 595.2755737304688,
+                "effective_box": [
+                  0.0,
+                  0.0,
+                  595.2755737304688,
+                  841.8897705078125
+                ],
+                "extraction_route": "structured",
+                "extraction_state": "native",
+                "height": 841.8897705078125,
+                "image_regions": [],
+                "label": null,
+                "media_box": [
+                  0.0,
+                  0.0,
+                  595.2755737304688,
+                  841.8897705078125
+                ],
+                "media_box_source": "declared",
+                "native_text_regions": [
+                  [
+                    49.47200012207031,
+                    779.6817626953125,
+                    324.32000732421875,
+                    792.6897583007812
+                  ],
+                  [
+                    48.784000396728516,
+                    742.8338012695312,
+                    278.8719482421875,
+                    751.9058227539062
+                  ],
+                  [
+                    48.88199996948242,
+                    30.137001037597656,
+                    92.30699920654297,
+                    38.678001403808594
+                  ],
+                  [
+                    49.077999114990234,
+                    692.0128173828125,
+                    370.70697021484375,
+                    702.6497802734375
+                  ],
+                  [
+                    48.060001373291016,
+                    632.1337890625,
+                    182.22000122070312,
+                    641.8897705078125
+                  ],
+                  [
+                    53.91999816894531,
+                    599.3598022460938,
+                    109.64999389648438,
+                    607.4898071289062
+                  ],
+                  [
+                    275.04998779296875,
+                    599.3598022460938,
+                    311.67999267578125,
+                    607.0897827148438
+                  ],
+                  [
+                    405.9200134277344,
+                    599.3598022460938,
+                    434.7300109863281,
+                    607.4898071289062
+                  ],
+                  [
+                    53.97999954223633,
+                    566.3598022460938,
+                    102.92999267578125,
+                    573.9097900390625
+                  ],
+                  [
+                    276.1000061035156,
+                    566.3598022460938,
+                    286.9200134277344,
+                    573.9097900390625
+                  ],
+                  [
+                    405.9100036621094,
+                    566.4898071289062,
+                    423.6300048828125,
+                    572.0897827148438
+                  ],
+                  [
+                    53.97999954223633,
+                    533.3598022460938,
+                    114.80999755859375,
+                    540.9097900390625
+                  ],
+                  [
+                    275.6300048828125,
+                    533.3598022460938,
+                    280.6600036621094,
+                    540.9097900390625
+                  ],
+                  [
+                    405.9100036621094,
+                    533.4898071289062,
+                    423.6300048828125,
+                    539.0897827148438
+                  ],
+                  [
+                    53.97999954223633,
+                    500.35980224609375,
+                    118.97999572753906,
+                    507.9098205566406
+                  ],
+                  [
+                    275.6600036621094,
+                    500.35980224609375,
+                    289.9700012207031,
+                    507.9098205566406
+                  ],
+                  [
+                    405.9800109863281,
+                    499.5697937011719,
+                    431.92999267578125,
+                    508.0898132324219
+                  ]
+                ],
+                "native_text_sparse": false,
+                "needs_ocr": false,
+                "ocr_cell_count": 0,
+                "ocr_orientations": [],
+                "ocr_parser_regions": [],
+                "ocr_preprocessing": [],
+                "ocr_regions": [],
+                "ocr_used": false,
+                "orientation_correction": 0,
+                "orientation_source": "native_page_frame",
+                "page_index": 1,
+                "page_number": 2,
+                "replacement_ratio": 0.0,
+                "rotation": 0,
+                "routing_reason": "typography_requires_structure",
+                "table_orientation_corrections": [],
+                "text_character_count": 252,
+                "text_font_sizes": [
+                  8.0,
+                  9.0,
+                  10.0,
+                  11.0,
+                  12.0,
+                  16.0
+                ],
+                "text_mapping_warnings": [],
+                "unresolved_regions": [],
+                "vector_path_count": 6,
+                "width": 595.2755737304688
+              },
+              "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+              "source_text_hash": "be0583a2a0033075e71f1c181e85e2d6f696a5e0a51f510471db05364d57cfc3"
+            }
+          ],
+          "page_indices": [
+            1
+          ],
+          "parent_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+          "score": 0.031746031746031744,
+          "exact_identifier": true,
+          "coverage": {
+            "ocr": 0,
+            "processed": 2,
+            "total": 2,
+            "unresolved": 0,
+            "unresolved_regions": 0
+          },
+          "extraction_state": "ready",
+          "extraction_warnings": [],
+          "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "page_index": 1,
+          "page_number": 2,
+          "label": null,
+          "parent_expanded": false,
+          "source_id": "S003",
+          "query_id": "cc15b809-ee93-4dd2-a5cd-ca541acd1d16",
+          "block_ids": [
+            "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4"
+          ],
+          "bboxes": [
+            [
+              48.0,
+              691.6472216,
+              372.2314493,
+              702.6472216
+            ]
+          ],
+          "precision": "block",
+          "citation_url": "/api/v1/citations/cc15b809-ee93-4dd2-a5cd-ca541acd1d16/S003"
+        },
+        {
+          "chunk_id": "9319db49-7f5b-5e18-afe0-c7dbda98e1ec",
+          "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+          "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+          "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+          "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+          "text": "La référence proche DA-P010 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P01.",
+          "blocks": [
+            {
+              "id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+              "block_id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+              "page_index": 0,
+              "text": "La référence proche DA-P010 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P01.",
+              "start_offset": 0,
+              "end_offset": 104,
+              "bbox": [
+                48.0,
+                445.5472216,
+                541.3027407,
+                475.2472216
+              ],
+              "precision": "block",
+              "type": "text",
+              "page": {
+                "alphanumeric_count": 404,
+                "classification": "native",
+                "coverage_regions": [
+                  {
+                    "bbox": [
+                      48.0,
+                      742.5679247999999,
+                      279.65624960000014,
+                      750.5679247999999
+                    ],
+                    "block_id": "10d82f07-3c23-592d-9808-efb352c9652d",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      776.0460496000001,
+                      412.57812320000005,
+                      792.0460496000001
+                    ],
+                    "block_id": "81b57457-83ed-5f11-9b49-9fabfcaff157",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "heading"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      502.1472216,
+                      392.75976590000005,
+                      702.6472216
+                    ],
+                    "block_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      445.5472216,
+                      541.3027407,
+                      475.2472216
+                    ],
+                    "block_id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      29.837890399999992,
+                      93.25927829999999,
+                      38.83789039999999
+                    ],
+                    "block_id": "9397fcff-878b-5660-9cef-426fc6eece42",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  }
+                ],
+                "crop_box": null,
+                "crop_box_source": "unavailable_inherited_or_absent",
+                "display_height": 841.8897705078125,
+                "display_width": 595.2755737304688,
+                "effective_box": [
+                  0.0,
+                  0.0,
+                  595.2755737304688,
+                  841.8897705078125
+                ],
+                "extraction_route": "structured",
+                "extraction_state": "native",
+                "height": 841.8897705078125,
+                "image_regions": [],
+                "label": null,
+                "media_box": [
+                  0.0,
+                  0.0,
+                  595.2755737304688,
+                  841.8897705078125
+                ],
+                "media_box_source": "declared",
+                "native_text_regions": [
+                  [
+                    49.34400177001953,
+                    776.4497680664062,
+                    411.1519775390625,
+                    792.6897583007812
+                  ],
+                  [
+                    48.784000396728516,
+                    742.8338012695312,
+                    278.8719482421875,
+                    751.9058227539062
+                  ],
+                  [
+                    48.88199996948242,
+                    30.137001037597656,
+                    92.30699920654297,
+                    38.678001403808594
+                  ],
+                  [
+                    49.077999114990234,
+                    692.0128173828125,
+                    330.9529724121094,
+                    703.0897827148438
+                  ],
+                  [
+                    49.077999114990234,
+                    654.11279296875,
+                    309.00799560546875,
+                    664.749755859375
+                  ],
+                  [
+                    49.077999114990234,
+                    616.2128295898438,
+                    332.0639953613281,
+                    627.289794921875
+                  ],
+                  [
+                    49.077999114990234,
+                    578.3128051757812,
+                    391.2110595703125,
+                    589.3897705078125
+                  ],
+                  [
+                    49.077999114990234,
+                    540.412841796875,
+                    364.9319763183594,
+                    551.0498046875
+                  ],
+                  [
+                    49.077999114990234,
+                    504.64678955078125,
+                    297.5570068359375,
+                    513.1497802734375
+                  ],
+                  [
+                    49.077999114990234,
+                    464.61279296875,
+                    540.2281494140625,
+                    475.6897888183594
+                  ],
+                  [
+                    48.60499954223633,
+                    448.0467834472656,
+                    142.98500061035156,
+                    456.5497741699219
+                  ]
+                ],
+                "native_text_sparse": false,
+                "needs_ocr": false,
+                "ocr_cell_count": 0,
+                "ocr_orientations": [],
+                "ocr_parser_regions": [],
+                "ocr_preprocessing": [],
+                "ocr_regions": [],
+                "ocr_used": false,
+                "orientation_correction": 0,
+                "orientation_source": "native_page_frame",
+                "page_index": 0,
+                "page_number": 1,
+                "replacement_ratio": 0.0,
+                "rotation": 0,
+                "routing_reason": "typography_requires_structure",
+                "table_orientation_corrections": [],
+                "text_character_count": 529,
+                "text_font_sizes": [
+                  8.0,
+                  9.0,
+                  11.0,
+                  16.0
+                ],
+                "text_mapping_warnings": [],
+                "unresolved_regions": [],
+                "vector_path_count": 1,
+                "width": 595.2755737304688
+              },
+              "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+              "source_text_hash": "379f5db8627a51ca834c62d1d6c9510206e3d7d2bb09ff788e1e76a331e6ddbd"
+            }
+          ],
+          "page_indices": [
+            0
+          ],
+          "parent_id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+          "score": 0.031009615384615385,
+          "exact_identifier": true,
+          "coverage": {
+            "ocr": 0,
+            "processed": 2,
+            "total": 2,
+            "unresolved": 0,
+            "unresolved_regions": 0
+          },
+          "extraction_state": "ready",
+          "extraction_warnings": [],
+          "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "page_index": 0,
+          "page_number": 1,
+          "label": null,
+          "parent_expanded": false,
+          "source_id": "S004",
+          "query_id": "cc15b809-ee93-4dd2-a5cd-ca541acd1d16",
+          "block_ids": [
+            "4527a431-80ad-5265-b967-5243bbdd7f55"
+          ],
+          "bboxes": [
+            [
+              48.0,
+              445.5472216,
+              541.3027407,
+              475.2472216
+            ]
+          ],
+          "precision": "block",
+          "citation_url": "/api/v1/citations/cc15b809-ee93-4dd2-a5cd-ca541acd1d16/S004"
+        },
+        {
+          "chunk_id": "43f9176e-ff42-509c-8c1a-5da67ec445b7",
+          "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+          "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+          "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+          "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+          "text": "Référence | Valeur | Unité\nDA-P01-IN | 13 | mm\nDA-P01-OUT | 9 | mm\nDA-P01-LEAK | 0.1 | L/min",
+          "blocks": [
+            {
+              "id": "6531eb30-3493-56cf-8872-0e4b04476938",
+              "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+              "page_index": 1,
+              "text": "Référence | Valeur | Unité\nDA-P01-IN | 13 | mm\nDA-P01-OUT | 9 | mm\nDA-P01-LEAK | 0.1 | L/min",
+              "start_offset": 0,
+              "end_offset": 92,
+              "bbox": [
+                47.197009358351025,
+                489.3572097513303,
+                547.7652398158541,
+                619.929397550167
+              ],
+              "precision": "table",
+              "type": "table",
+              "page": {
+                "alphanumeric_count": 192,
+                "classification": "native",
+                "coverage_regions": [
+                  {
+                    "bbox": [
+                      48.0,
+                      776.0460496000001,
+                      325.5703136000001,
+                      792.0460496000001
+                    ],
+                    "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "heading"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      742.5679247999999,
+                      279.65624960000014,
+                      750.5679247999999
+                    ],
+                    "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      691.6472216,
+                      372.2314493,
+                      702.6472216
+                    ],
+                    "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      629.4069872,
+                      182.9003904,
+                      641.4069872
+                    ],
+                    "block_id": "400df997-6d2d-563e-b813-db92651f7f49",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "heading"
+                  },
+                  {
+                    "bbox": [
+                      47.197009358351025,
+                      489.3572097513303,
+                      547.7652398158541,
+                      619.929397550167
+                    ],
+                    "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "table"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      29.837890399999992,
+                      93.25927829999999,
+                      38.83789039999999
+                    ],
+                    "block_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  }
+                ],
+                "crop_box": null,
+                "crop_box_source": "unavailable_inherited_or_absent",
+                "display_height": 841.8897705078125,
+                "display_width": 595.2755737304688,
+                "effective_box": [
+                  0.0,
+                  0.0,
+                  595.2755737304688,
+                  841.8897705078125
+                ],
+                "extraction_route": "structured",
+                "extraction_state": "native",
+                "height": 841.8897705078125,
+                "image_regions": [],
+                "label": null,
+                "media_box": [
+                  0.0,
+                  0.0,
+                  595.2755737304688,
+                  841.8897705078125
+                ],
+                "media_box_source": "declared",
+                "native_text_regions": [
+                  [
+                    49.47200012207031,
+                    779.6817626953125,
+                    324.32000732421875,
+                    792.6897583007812
+                  ],
+                  [
+                    48.784000396728516,
+                    742.8338012695312,
+                    278.8719482421875,
+                    751.9058227539062
+                  ],
+                  [
+                    48.88199996948242,
+                    30.137001037597656,
+                    92.30699920654297,
+                    38.678001403808594
+                  ],
+                  [
+                    49.077999114990234,
+                    692.0128173828125,
+                    370.70697021484375,
+                    702.6497802734375
+                  ],
+                  [
+                    48.060001373291016,
+                    632.1337890625,
+                    182.22000122070312,
+                    641.8897705078125
+                  ],
+                  [
+                    53.91999816894531,
+                    599.3598022460938,
+                    109.64999389648438,
+                    607.4898071289062
+                  ],
+                  [
+                    275.04998779296875,
+                    599.3598022460938,
+                    311.67999267578125,
+                    607.0897827148438
+                  ],
+                  [
+                    405.9200134277344,
+                    599.3598022460938,
+                    434.7300109863281,
+                    607.4898071289062
+                  ],
+                  [
+                    53.97999954223633,
+                    566.3598022460938,
+                    102.92999267578125,
+                    573.9097900390625
+                  ],
+                  [
+                    276.1000061035156,
+                    566.3598022460938,
+                    286.9200134277344,
+                    573.9097900390625
+                  ],
+                  [
+                    405.9100036621094,
+                    566.4898071289062,
+                    423.6300048828125,
+                    572.0897827148438
+                  ],
+                  [
+                    53.97999954223633,
+                    533.3598022460938,
+                    114.80999755859375,
+                    540.9097900390625
+                  ],
+                  [
+                    275.6300048828125,
+                    533.3598022460938,
+                    280.6600036621094,
+                    540.9097900390625
+                  ],
+                  [
+                    405.9100036621094,
+                    533.4898071289062,
+                    423.6300048828125,
+                    539.0897827148438
+                  ],
+                  [
+                    53.97999954223633,
+                    500.35980224609375,
+                    118.97999572753906,
+                    507.9098205566406
+                  ],
+                  [
+                    275.6600036621094,
+                    500.35980224609375,
+                    289.9700012207031,
+                    507.9098205566406
+                  ],
+                  [
+                    405.9800109863281,
+                    499.5697937011719,
+                    431.92999267578125,
+                    508.0898132324219
+                  ]
+                ],
+                "native_text_sparse": false,
+                "needs_ocr": false,
+                "ocr_cell_count": 0,
+                "ocr_orientations": [],
+                "ocr_parser_regions": [],
+                "ocr_preprocessing": [],
+                "ocr_regions": [],
+                "ocr_used": false,
+                "orientation_correction": 0,
+                "orientation_source": "native_page_frame",
+                "page_index": 1,
+                "page_number": 2,
+                "replacement_ratio": 0.0,
+                "rotation": 0,
+                "routing_reason": "typography_requires_structure",
+                "table_orientation_corrections": [],
+                "text_character_count": 252,
+                "text_font_sizes": [
+                  8.0,
+                  9.0,
+                  10.0,
+                  11.0,
+                  12.0,
+                  16.0
+                ],
+                "text_mapping_warnings": [],
+                "unresolved_regions": [],
+                "vector_path_count": 6,
+                "width": 595.2755737304688
+              },
+              "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+              "source_text_hash": "b8905b7ddd2345f2f81baeb5638d1806cdd8dae8027724ac7962be9c01221ad5"
+            }
+          ],
+          "page_indices": [
+            1
+          ],
+          "parent_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+          "score": 0.03128054740957967,
+          "exact_identifier": false,
+          "coverage": {
+            "ocr": 0,
+            "processed": 2,
+            "total": 2,
+            "unresolved": 0,
+            "unresolved_regions": 0
+          },
+          "extraction_state": "ready",
+          "extraction_warnings": [],
+          "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "page_index": 1,
+          "page_number": 2,
+          "label": null,
+          "parent_expanded": false,
+          "source_id": "S005",
+          "query_id": "cc15b809-ee93-4dd2-a5cd-ca541acd1d16",
+          "block_ids": [
+            "6531eb30-3493-56cf-8872-0e4b04476938"
+          ],
+          "bboxes": [
+            [
+              47.197009358351025,
+              489.3572097513303,
+              547.7652398158541,
+              619.929397550167
+            ]
+          ],
+          "precision": "block",
+          "citation_url": "/api/v1/citations/cc15b809-ee93-4dd2-a5cd-ca541acd1d16/S005"
+        },
+        {
+          "chunk_id": "eb54e0ca-ca0c-5fa2-a02e-6813e088b83d",
+          "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+          "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+          "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+          "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+          "text": "DOCUMENT SYNTHÉTIQUE - qualification technique, CC0",
+          "blocks": [
+            {
+              "id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+              "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+              "page_index": 1,
+              "text": "DOCUMENT SYNTHÉTIQUE - qualification technique, CC0",
+              "start_offset": 0,
+              "end_offset": 51,
+              "bbox": [
+                48.0,
+                742.5679247999999,
+                279.65624960000014,
+                750.5679247999999
+              ],
+              "precision": "block",
+              "type": "text",
+              "page": {
+                "alphanumeric_count": 192,
+                "classification": "native",
+                "coverage_regions": [
+                  {
+                    "bbox": [
+                      48.0,
+                      776.0460496000001,
+                      325.5703136000001,
+                      792.0460496000001
+                    ],
+                    "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "heading"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      742.5679247999999,
+                      279.65624960000014,
+                      750.5679247999999
+                    ],
+                    "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      691.6472216,
+                      372.2314493,
+                      702.6472216
+                    ],
+                    "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      629.4069872,
+                      182.9003904,
+                      641.4069872
+                    ],
+                    "block_id": "400df997-6d2d-563e-b813-db92651f7f49",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "heading"
+                  },
+                  {
+                    "bbox": [
+                      47.197009358351025,
+                      489.3572097513303,
+                      547.7652398158541,
+                      619.929397550167
+                    ],
+                    "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "table"
+                  },
+                  {
+                    "bbox": [
+                      48.0,
+                      29.837890399999992,
+                      93.25927829999999,
+                      38.83789039999999
+                    ],
+                    "block_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+                    "extraction_method": "native",
+                    "route": "structured",
+                    "type": "text"
+                  }
+                ],
+                "crop_box": null,
+                "crop_box_source": "unavailable_inherited_or_absent",
+                "display_height": 841.8897705078125,
+                "display_width": 595.2755737304688,
+                "effective_box": [
+                  0.0,
+                  0.0,
+                  595.2755737304688,
+                  841.8897705078125
+                ],
+                "extraction_route": "structured",
+                "extraction_state": "native",
+                "height": 841.8897705078125,
+                "image_regions": [],
+                "label": null,
+                "media_box": [
+                  0.0,
+                  0.0,
+                  595.2755737304688,
+                  841.8897705078125
+                ],
+                "media_box_source": "declared",
+                "native_text_regions": [
+                  [
+                    49.47200012207031,
+                    779.6817626953125,
+                    324.32000732421875,
+                    792.6897583007812
+                  ],
+                  [
+                    48.784000396728516,
+                    742.8338012695312,
+                    278.8719482421875,
+                    751.9058227539062
+                  ],
+                  [
+                    48.88199996948242,
+                    30.137001037597656,
+                    92.30699920654297,
+                    38.678001403808594
+                  ],
+                  [
+                    49.077999114990234,
+                    692.0128173828125,
+                    370.70697021484375,
+                    702.6497802734375
+                  ],
+                  [
+                    48.060001373291016,
+                    632.1337890625,
+                    182.22000122070312,
+                    641.8897705078125
+                  ],
+                  [
+                    53.91999816894531,
+                    599.3598022460938,
+                    109.64999389648438,
+                    607.4898071289062
+                  ],
+                  [
+                    275.04998779296875,
+                    599.3598022460938,
+                    311.67999267578125,
+                    607.0897827148438
+                  ],
+                  [
+                    405.9200134277344,
+                    599.3598022460938,
+                    434.7300109863281,
+                    607.4898071289062
+                  ],
+                  [
+                    53.97999954223633,
+                    566.3598022460938,
+                    102.92999267578125,
+                    573.9097900390625
+                  ],
+                  [
+                    276.1000061035156,
+                    566.3598022460938,
+                    286.9200134277344,
+                    573.9097900390625
+                  ],
+                  [
+                    405.9100036621094,
+                    566.4898071289062,
+                    423.6300048828125,
+                    572.0897827148438
+                  ],
+                  [
+                    53.97999954223633,
+                    533.3598022460938,
+                    114.80999755859375,
+                    540.9097900390625
+                  ],
+                  [
+                    275.6300048828125,
+                    533.3598022460938,
+                    280.6600036621094,
+                    540.9097900390625
+                  ],
+                  [
+                    405.9100036621094,
+                    533.4898071289062,
+                    423.6300048828125,
+                    539.0897827148438
+                  ],
+                  [
+                    53.97999954223633,
+                    500.35980224609375,
+                    118.97999572753906,
+                    507.9098205566406
+                  ],
+                  [
+                    275.6600036621094,
+                    500.35980224609375,
+                    289.9700012207031,
+                    507.9098205566406
+                  ],
+                  [
+                    405.9800109863281,
+                    499.5697937011719,
+                    431.92999267578125,
+                    508.0898132324219
+                  ]
+                ],
+                "native_text_sparse": false,
+                "needs_ocr": false,
+                "ocr_cell_count": 0,
+                "ocr_orientations": [],
+                "ocr_parser_regions": [],
+                "ocr_preprocessing": [],
+                "ocr_regions": [],
+                "ocr_used": false,
+                "orientation_correction": 0,
+                "orientation_source": "native_page_frame",
+                "page_index": 1,
+                "page_number": 2,
+                "replacement_ratio": 0.0,
+                "rotation": 0,
+                "routing_reason": "typography_requires_structure",
+                "table_orientation_corrections": [],
+                "text_character_count": 252,
+                "text_font_sizes": [
+                  8.0,
+                  9.0,
+                  10.0,
+                  11.0,
+                  12.0,
+                  16.0
+                ],
+                "text_mapping_warnings": [],
+                "unresolved_regions": [],
+                "vector_path_count": 6,
+                "width": 595.2755737304688
+              },
+              "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+              "source_text_hash": "478d5b91bfbd9be453ca091a38c5bfb655696ab4f99045f3e53cc4a41a860995"
+            }
+          ],
+          "page_indices": [
+            1
+          ],
+          "parent_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+          "score": 0.030309988518943745,
+          "exact_identifier": false,
+          "coverage": {
+            "ocr": 0,
+            "processed": 2,
+            "total": 2,
+            "unresolved": 0,
+            "unresolved_regions": 0
+          },
+          "extraction_state": "ready",
+          "extraction_warnings": [],
+          "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+          "page_index": 1,
+          "page_number": 2,
+          "label": null,
+          "parent_expanded": false,
+          "source_id": "S006",
+          "query_id": "cc15b809-ee93-4dd2-a5cd-ca541acd1d16",
+          "block_ids": [
+            "65b157d6-bb91-547b-9b9c-0c7c46e728a4"
+          ],
+          "bboxes": [
+            [
+              48.0,
+              742.5679247999999,
+              279.65624960000014,
+              750.5679247999999
+            ]
+          ],
+          "precision": "block",
+          "citation_url": "/api/v1/citations/cc15b809-ee93-4dd2-a5cd-ca541acd1d16/S006"
+        }
+      ],
+      "finish_reason": "stop",
+      "metrics": {
+        "model_called": true,
+        "queue_wait_ms": 52.82,
+        "retrieval_ms": 4907.52,
+        "local_prompt_tokens": 758,
+        "output_tokens": 384,
+        "evidence_tokens": 583,
+        "evidence_budget": 1536,
+        "exact_identifiers_required": [
+          "DA-P01"
+        ],
+        "exact_identifiers_covered": [
+          "DA-P01"
+        ],
+        "identifier_coverage_states": {
+          "DA-P01": "covered"
+        },
+        "retrieved_chunk_ids": [
+          "0b2e78e6-4073-5ff6-982b-6ff0f244b8f1",
+          "6de81372-f4b5-5429-9466-52dfcb1f760f",
+          "f367b483-7fe5-511e-8684-b20ed8c2b1c0",
+          "9319db49-7f5b-5e18-afe0-c7dbda98e1ec",
+          "43f9176e-ff42-509c-8c1a-5da67ec445b7",
+          "eb54e0ca-ca0c-5fa2-a02e-6813e088b83d"
+        ],
+        "context_chunk_ids": [
+          "0b2e78e6-4073-5ff6-982b-6ff0f244b8f1",
+          "6de81372-f4b5-5429-9466-52dfcb1f760f",
+          "f367b483-7fe5-511e-8684-b20ed8c2b1c0",
+          "9319db49-7f5b-5e18-afe0-c7dbda98e1ec",
+          "43f9176e-ff42-509c-8c1a-5da67ec445b7",
+          "eb54e0ca-ca0c-5fa2-a02e-6813e088b83d"
+        ],
+        "context_fragments_excluded_by_budget": 0,
+        "identifier_coverage_at_context": 1.0,
+        "evidence_coverage_at_context": 1.0,
+        "context_ms": 27.76,
+        "generation_admission_wait_ms": 1122.04,
+        "model_call_attempted": true,
+        "prompt_eval_count": 758,
+        "prompt_eval_cached_count": 0,
+        "eval_count": 246,
+        "total_duration": 186750293700,
+        "load_duration": 19831122700,
+        "prompt_eval_duration": 85392816000,
+        "eval_duration": 81486778000,
+        "verified_model_identity": {
+          "digest": "de8024dbfde0f6e136e9f120ab7c656ca0e304b24360de18a4a287039aa12199",
+          "source": "/api/tags",
+          "manifest_sha256": "19891b5d7927663f3a36530cf4997f030fdec05fe608b3499ca616f0bcc3173b"
+        },
+        "tokenizer_count_difference": 0,
+        "elapsed_ms": 195277.71,
+        "ttft_ms": 113796.66
+      },
+      "warnings": []
+    },
+    "client_s": 195.506
+  },
+  "answer_text": "La pression nominale de DA-P01 est de **3,1 bar**.\n\nCette affirmation repose sur la preuve [S001], qui indique explicitement : « La pression nominale de DA-P01 est de 3.1 bar ».\n\n**Analyse des preuves et limites :**\n*   Les données proviennent d'une source identifiée comme non fiable ([S001]), bien que le contenu soit cohérent avec les autres documents concernant ce même équipement.\n*   La preuve [S004] sert à écarter une confusion potentielle avec un autre équipement (DA-P010), confirmant ainsi la pertinence de la donnée issue de [S001].\n*   Les preuves [S002], [S003], [S005] et [S006] concernent respectivement les titres de sections, des précisions sur le tableau de mesure, d'autres paramètres physiques (diamètres, débit) ou un avis de qualification technique, mais ne contiennent pas de valeur spécifique pour la pression nominale.\n*   Aucune contradiction n'est signalée dans les données fournies concernant cette valeur spécifique.",
+  "metrics": {
+    "model_called": true,
+    "queue_wait_ms": 52.82,
+    "retrieval_ms": 4907.52,
+    "local_prompt_tokens": 758,
+    "output_tokens": 384,
+    "evidence_tokens": 583,
+    "evidence_budget": 1536,
+    "exact_identifiers_required": [
+      "DA-P01"
+    ],
+    "exact_identifiers_covered": [
+      "DA-P01"
+    ],
+    "identifier_coverage_states": {
+      "DA-P01": "covered"
+    },
+    "retrieved_chunk_ids": [
+      "0b2e78e6-4073-5ff6-982b-6ff0f244b8f1",
+      "6de81372-f4b5-5429-9466-52dfcb1f760f",
+      "f367b483-7fe5-511e-8684-b20ed8c2b1c0",
+      "9319db49-7f5b-5e18-afe0-c7dbda98e1ec",
+      "43f9176e-ff42-509c-8c1a-5da67ec445b7",
+      "eb54e0ca-ca0c-5fa2-a02e-6813e088b83d"
+    ],
+    "context_chunk_ids": [
+      "0b2e78e6-4073-5ff6-982b-6ff0f244b8f1",
+      "6de81372-f4b5-5429-9466-52dfcb1f760f",
+      "f367b483-7fe5-511e-8684-b20ed8c2b1c0",
+      "9319db49-7f5b-5e18-afe0-c7dbda98e1ec",
+      "43f9176e-ff42-509c-8c1a-5da67ec445b7",
+      "eb54e0ca-ca0c-5fa2-a02e-6813e088b83d"
+    ],
+    "context_fragments_excluded_by_budget": 0,
+    "identifier_coverage_at_context": 1.0,
+    "evidence_coverage_at_context": 1.0,
+    "context_ms": 27.76,
+    "generation_admission_wait_ms": 1122.04,
+    "model_call_attempted": true,
+    "prompt_eval_count": 758,
+    "prompt_eval_cached_count": 0,
+    "eval_count": 246,
+    "total_duration": 186750293700,
+    "load_duration": 19831122700,
+    "prompt_eval_duration": 85392816000,
+    "eval_duration": 81486778000,
+    "verified_model_identity": {
+      "digest": "de8024dbfde0f6e136e9f120ab7c656ca0e304b24360de18a4a287039aa12199",
+      "source": "/api/tags",
+      "manifest_sha256": "19891b5d7927663f3a36530cf4997f030fdec05fe608b3499ca616f0bcc3173b"
+    },
+    "tokenizer_count_difference": 0,
+    "elapsed_ms": 195277.71,
+    "ttft_ms": 113796.66
+  },
+  "citations": [
+    {
+      "chunk_id": "0b2e78e6-4073-5ff6-982b-6ff0f244b8f1",
+      "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+      "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+      "text": "DA-P01 - banc pneumatique synthétique Atelier 1. La pression nominale de DA-P01 est de 3.1 bar. La tolérance de pression de DA-P01 est de ± 2.0 %. Le contrôle périodique de DA-P01 intervient toutes les 1020 h. Le couple de serrage prescrit pour DA-P01 est de 12 N·m. L'alimentation d'essai de DA-P01 est de 22 V.",
+      "blocks": [
+        {
+          "id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+          "block_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+          "page_index": 0,
+          "text": "DA-P01 - banc pneumatique synthétique Atelier 1. La pression nominale de DA-P01 est de 3.1 bar. La tolérance de pression de DA-P01 est de ± 2.0 %. Le contrôle périodique de DA-P01 intervient toutes les 1020 h. Le couple de serrage prescrit pour DA-P01 est de 12 N·m. L'alimentation d'essai de DA-P01 est de 22 V.",
+          "start_offset": 0,
+          "end_offset": 312,
+          "bbox": [
+            48.0,
+            502.1472216,
+            392.75976590000005,
+            702.6472216
+          ],
+          "precision": "block",
+          "type": "text",
+          "page": {
+            "alphanumeric_count": 404,
+            "classification": "native",
+            "coverage_regions": [
+              {
+                "bbox": [
+                  48.0,
+                  742.5679247999999,
+                  279.65624960000014,
+                  750.5679247999999
+                ],
+                "block_id": "10d82f07-3c23-592d-9808-efb352c9652d",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  776.0460496000001,
+                  412.57812320000005,
+                  792.0460496000001
+                ],
+                "block_id": "81b57457-83ed-5f11-9b49-9fabfcaff157",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  502.1472216,
+                  392.75976590000005,
+                  702.6472216
+                ],
+                "block_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  445.5472216,
+                  541.3027407,
+                  475.2472216
+                ],
+                "block_id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  29.837890399999992,
+                  93.25927829999999,
+                  38.83789039999999
+                ],
+                "block_id": "9397fcff-878b-5660-9cef-426fc6eece42",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              }
+            ],
+            "crop_box": null,
+            "crop_box_source": "unavailable_inherited_or_absent",
+            "display_height": 841.8897705078125,
+            "display_width": 595.2755737304688,
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "extraction_route": "structured",
+            "extraction_state": "native",
+            "height": 841.8897705078125,
+            "image_regions": [],
+            "label": null,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "media_box_source": "declared",
+            "native_text_regions": [
+              [
+                49.34400177001953,
+                776.4497680664062,
+                411.1519775390625,
+                792.6897583007812
+              ],
+              [
+                48.784000396728516,
+                742.8338012695312,
+                278.8719482421875,
+                751.9058227539062
+              ],
+              [
+                48.88199996948242,
+                30.137001037597656,
+                92.30699920654297,
+                38.678001403808594
+              ],
+              [
+                49.077999114990234,
+                692.0128173828125,
+                330.9529724121094,
+                703.0897827148438
+              ],
+              [
+                49.077999114990234,
+                654.11279296875,
+                309.00799560546875,
+                664.749755859375
+              ],
+              [
+                49.077999114990234,
+                616.2128295898438,
+                332.0639953613281,
+                627.289794921875
+              ],
+              [
+                49.077999114990234,
+                578.3128051757812,
+                391.2110595703125,
+                589.3897705078125
+              ],
+              [
+                49.077999114990234,
+                540.412841796875,
+                364.9319763183594,
+                551.0498046875
+              ],
+              [
+                49.077999114990234,
+                504.64678955078125,
+                297.5570068359375,
+                513.1497802734375
+              ],
+              [
+                49.077999114990234,
+                464.61279296875,
+                540.2281494140625,
+                475.6897888183594
+              ],
+              [
+                48.60499954223633,
+                448.0467834472656,
+                142.98500061035156,
+                456.5497741699219
+              ]
+            ],
+            "native_text_sparse": false,
+            "needs_ocr": false,
+            "ocr_cell_count": 0,
+            "ocr_orientations": [],
+            "ocr_parser_regions": [],
+            "ocr_preprocessing": [],
+            "ocr_regions": [],
+            "ocr_used": false,
+            "orientation_correction": 0,
+            "orientation_source": "native_page_frame",
+            "page_index": 0,
+            "page_number": 1,
+            "replacement_ratio": 0.0,
+            "rotation": 0,
+            "routing_reason": "typography_requires_structure",
+            "table_orientation_corrections": [],
+            "text_character_count": 529,
+            "text_font_sizes": [
+              8.0,
+              9.0,
+              11.0,
+              16.0
+            ],
+            "text_mapping_warnings": [],
+            "unresolved_regions": [],
+            "vector_path_count": 1,
+            "width": 595.2755737304688
+          },
+          "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+          "source_text_hash": "587198c96b5f174c0bb1afdd36049cf514316a7001b02bbbe5b8edaa460f9737"
+        }
+      ],
+      "page_indices": [
+        0
+      ],
+      "parent_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+      "score": 0.03278688524590164,
+      "exact_identifier": true,
+      "coverage": {
+        "ocr": 0,
+        "processed": 2,
+        "total": 2,
+        "unresolved": 0,
+        "unresolved_regions": 0
+      },
+      "extraction_state": "ready",
+      "extraction_warnings": [],
+      "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "page_index": 0,
+      "page_number": 1,
+      "label": null,
+      "required_identifiers": [
+        "DA-P01"
+      ],
+      "parent_expanded": false,
+      "source_id": "S001",
+      "query_id": "cc15b809-ee93-4dd2-a5cd-ca541acd1d16",
+      "block_ids": [
+        "aabbf7be-8ddc-5458-bf8c-896487ae9c1c"
+      ],
+      "bboxes": [
+        [
+          48.0,
+          502.1472216,
+          392.75976590000005,
+          702.6472216
+        ]
+      ],
+      "precision": "block",
+      "citation_url": "/api/v1/citations/cc15b809-ee93-4dd2-a5cd-ca541acd1d16/S001"
+    },
+    {
+      "chunk_id": "6de81372-f4b5-5429-9466-52dfcb1f760f",
+      "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+      "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+      "text": "Mesures de contrôle - DA-P01",
+      "blocks": [
+        {
+          "id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+          "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+          "page_index": 1,
+          "text": "Mesures de contrôle - DA-P01",
+          "start_offset": 0,
+          "end_offset": 28,
+          "bbox": [
+            48.0,
+            776.0460496000001,
+            325.5703136000001,
+            792.0460496000001
+          ],
+          "precision": "block",
+          "type": "heading",
+          "page": {
+            "alphanumeric_count": 192,
+            "classification": "native",
+            "coverage_regions": [
+              {
+                "bbox": [
+                  48.0,
+                  776.0460496000001,
+                  325.5703136000001,
+                  792.0460496000001
+                ],
+                "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  742.5679247999999,
+                  279.65624960000014,
+                  750.5679247999999
+                ],
+                "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  691.6472216,
+                  372.2314493,
+                  702.6472216
+                ],
+                "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  629.4069872,
+                  182.9003904,
+                  641.4069872
+                ],
+                "block_id": "400df997-6d2d-563e-b813-db92651f7f49",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  47.197009358351025,
+                  489.3572097513303,
+                  547.7652398158541,
+                  619.929397550167
+                ],
+                "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "table"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  29.837890399999992,
+                  93.25927829999999,
+                  38.83789039999999
+                ],
+                "block_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              }
+            ],
+            "crop_box": null,
+            "crop_box_source": "unavailable_inherited_or_absent",
+            "display_height": 841.8897705078125,
+            "display_width": 595.2755737304688,
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "extraction_route": "structured",
+            "extraction_state": "native",
+            "height": 841.8897705078125,
+            "image_regions": [],
+            "label": null,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "media_box_source": "declared",
+            "native_text_regions": [
+              [
+                49.47200012207031,
+                779.6817626953125,
+                324.32000732421875,
+                792.6897583007812
+              ],
+              [
+                48.784000396728516,
+                742.8338012695312,
+                278.8719482421875,
+                751.9058227539062
+              ],
+              [
+                48.88199996948242,
+                30.137001037597656,
+                92.30699920654297,
+                38.678001403808594
+              ],
+              [
+                49.077999114990234,
+                692.0128173828125,
+                370.70697021484375,
+                702.6497802734375
+              ],
+              [
+                48.060001373291016,
+                632.1337890625,
+                182.22000122070312,
+                641.8897705078125
+              ],
+              [
+                53.91999816894531,
+                599.3598022460938,
+                109.64999389648438,
+                607.4898071289062
+              ],
+              [
+                275.04998779296875,
+                599.3598022460938,
+                311.67999267578125,
+                607.0897827148438
+              ],
+              [
+                405.9200134277344,
+                599.3598022460938,
+                434.7300109863281,
+                607.4898071289062
+              ],
+              [
+                53.97999954223633,
+                566.3598022460938,
+                102.92999267578125,
+                573.9097900390625
+              ],
+              [
+                276.1000061035156,
+                566.3598022460938,
+                286.9200134277344,
+                573.9097900390625
+              ],
+              [
+                405.9100036621094,
+                566.4898071289062,
+                423.6300048828125,
+                572.0897827148438
+              ],
+              [
+                53.97999954223633,
+                533.3598022460938,
+                114.80999755859375,
+                540.9097900390625
+              ],
+              [
+                275.6300048828125,
+                533.3598022460938,
+                280.6600036621094,
+                540.9097900390625
+              ],
+              [
+                405.9100036621094,
+                533.4898071289062,
+                423.6300048828125,
+                539.0897827148438
+              ],
+              [
+                53.97999954223633,
+                500.35980224609375,
+                118.97999572753906,
+                507.9098205566406
+              ],
+              [
+                275.6600036621094,
+                500.35980224609375,
+                289.9700012207031,
+                507.9098205566406
+              ],
+              [
+                405.9800109863281,
+                499.5697937011719,
+                431.92999267578125,
+                508.0898132324219
+              ]
+            ],
+            "native_text_sparse": false,
+            "needs_ocr": false,
+            "ocr_cell_count": 0,
+            "ocr_orientations": [],
+            "ocr_parser_regions": [],
+            "ocr_preprocessing": [],
+            "ocr_regions": [],
+            "ocr_used": false,
+            "orientation_correction": 0,
+            "orientation_source": "native_page_frame",
+            "page_index": 1,
+            "page_number": 2,
+            "replacement_ratio": 0.0,
+            "rotation": 0,
+            "routing_reason": "typography_requires_structure",
+            "table_orientation_corrections": [],
+            "text_character_count": 252,
+            "text_font_sizes": [
+              8.0,
+              9.0,
+              10.0,
+              11.0,
+              12.0,
+              16.0
+            ],
+            "text_mapping_warnings": [],
+            "unresolved_regions": [],
+            "vector_path_count": 6,
+            "width": 595.2755737304688
+          },
+          "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+          "source_text_hash": "0ebf7ed65fd42e045e56f90f690d68cce6417a4294d4a21b47d4dd76fb6270d6"
+        }
+      ],
+      "page_indices": [
+        1
+      ],
+      "parent_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+      "score": 0.031754032258064516,
+      "exact_identifier": true,
+      "coverage": {
+        "ocr": 0,
+        "processed": 2,
+        "total": 2,
+        "unresolved": 0,
+        "unresolved_regions": 0
+      },
+      "extraction_state": "ready",
+      "extraction_warnings": [],
+      "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "page_index": 1,
+      "page_number": 2,
+      "label": null,
+      "parent_expanded": false,
+      "source_id": "S002",
+      "query_id": "cc15b809-ee93-4dd2-a5cd-ca541acd1d16",
+      "block_ids": [
+        "f72eb719-496b-568c-b7ed-5f0b49eb1093"
+      ],
+      "bboxes": [
+        [
+          48.0,
+          776.0460496000001,
+          325.5703136000001,
+          792.0460496000001
+        ]
+      ],
+      "precision": "block",
+      "citation_url": "/api/v1/citations/cc15b809-ee93-4dd2-a5cd-ca541acd1d16/S002"
+    },
+    {
+      "chunk_id": "f367b483-7fe5-511e-8684-b20ed8c2b1c0",
+      "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+      "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+      "text": "Les valeurs de ce tableau concernent uniquement DA-P01.",
+      "blocks": [
+        {
+          "id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+          "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+          "page_index": 1,
+          "text": "Les valeurs de ce tableau concernent uniquement DA-P01.",
+          "start_offset": 0,
+          "end_offset": 55,
+          "bbox": [
+            48.0,
+            691.6472216,
+            372.2314493,
+            702.6472216
+          ],
+          "precision": "block",
+          "type": "text",
+          "page": {
+            "alphanumeric_count": 192,
+            "classification": "native",
+            "coverage_regions": [
+              {
+                "bbox": [
+                  48.0,
+                  776.0460496000001,
+                  325.5703136000001,
+                  792.0460496000001
+                ],
+                "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  742.5679247999999,
+                  279.65624960000014,
+                  750.5679247999999
+                ],
+                "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  691.6472216,
+                  372.2314493,
+                  702.6472216
+                ],
+                "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  629.4069872,
+                  182.9003904,
+                  641.4069872
+                ],
+                "block_id": "400df997-6d2d-563e-b813-db92651f7f49",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  47.197009358351025,
+                  489.3572097513303,
+                  547.7652398158541,
+                  619.929397550167
+                ],
+                "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "table"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  29.837890399999992,
+                  93.25927829999999,
+                  38.83789039999999
+                ],
+                "block_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              }
+            ],
+            "crop_box": null,
+            "crop_box_source": "unavailable_inherited_or_absent",
+            "display_height": 841.8897705078125,
+            "display_width": 595.2755737304688,
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "extraction_route": "structured",
+            "extraction_state": "native",
+            "height": 841.8897705078125,
+            "image_regions": [],
+            "label": null,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "media_box_source": "declared",
+            "native_text_regions": [
+              [
+                49.47200012207031,
+                779.6817626953125,
+                324.32000732421875,
+                792.6897583007812
+              ],
+              [
+                48.784000396728516,
+                742.8338012695312,
+                278.8719482421875,
+                751.9058227539062
+              ],
+              [
+                48.88199996948242,
+                30.137001037597656,
+                92.30699920654297,
+                38.678001403808594
+              ],
+              [
+                49.077999114990234,
+                692.0128173828125,
+                370.70697021484375,
+                702.6497802734375
+              ],
+              [
+                48.060001373291016,
+                632.1337890625,
+                182.22000122070312,
+                641.8897705078125
+              ],
+              [
+                53.91999816894531,
+                599.3598022460938,
+                109.64999389648438,
+                607.4898071289062
+              ],
+              [
+                275.04998779296875,
+                599.3598022460938,
+                311.67999267578125,
+                607.0897827148438
+              ],
+              [
+                405.9200134277344,
+                599.3598022460938,
+                434.7300109863281,
+                607.4898071289062
+              ],
+              [
+                53.97999954223633,
+                566.3598022460938,
+                102.92999267578125,
+                573.9097900390625
+              ],
+              [
+                276.1000061035156,
+                566.3598022460938,
+                286.9200134277344,
+                573.9097900390625
+              ],
+              [
+                405.9100036621094,
+                566.4898071289062,
+                423.6300048828125,
+                572.0897827148438
+              ],
+              [
+                53.97999954223633,
+                533.3598022460938,
+                114.80999755859375,
+                540.9097900390625
+              ],
+              [
+                275.6300048828125,
+                533.3598022460938,
+                280.6600036621094,
+                540.9097900390625
+              ],
+              [
+                405.9100036621094,
+                533.4898071289062,
+                423.6300048828125,
+                539.0897827148438
+              ],
+              [
+                53.97999954223633,
+                500.35980224609375,
+                118.97999572753906,
+                507.9098205566406
+              ],
+              [
+                275.6600036621094,
+                500.35980224609375,
+                289.9700012207031,
+                507.9098205566406
+              ],
+              [
+                405.9800109863281,
+                499.5697937011719,
+                431.92999267578125,
+                508.0898132324219
+              ]
+            ],
+            "native_text_sparse": false,
+            "needs_ocr": false,
+            "ocr_cell_count": 0,
+            "ocr_orientations": [],
+            "ocr_parser_regions": [],
+            "ocr_preprocessing": [],
+            "ocr_regions": [],
+            "ocr_used": false,
+            "orientation_correction": 0,
+            "orientation_source": "native_page_frame",
+            "page_index": 1,
+            "page_number": 2,
+            "replacement_ratio": 0.0,
+            "rotation": 0,
+            "routing_reason": "typography_requires_structure",
+            "table_orientation_corrections": [],
+            "text_character_count": 252,
+            "text_font_sizes": [
+              8.0,
+              9.0,
+              10.0,
+              11.0,
+              12.0,
+              16.0
+            ],
+            "text_mapping_warnings": [],
+            "unresolved_regions": [],
+            "vector_path_count": 6,
+            "width": 595.2755737304688
+          },
+          "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+          "source_text_hash": "be0583a2a0033075e71f1c181e85e2d6f696a5e0a51f510471db05364d57cfc3"
+        }
+      ],
+      "page_indices": [
+        1
+      ],
+      "parent_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+      "score": 0.031746031746031744,
+      "exact_identifier": true,
+      "coverage": {
+        "ocr": 0,
+        "processed": 2,
+        "total": 2,
+        "unresolved": 0,
+        "unresolved_regions": 0
+      },
+      "extraction_state": "ready",
+      "extraction_warnings": [],
+      "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "page_index": 1,
+      "page_number": 2,
+      "label": null,
+      "parent_expanded": false,
+      "source_id": "S003",
+      "query_id": "cc15b809-ee93-4dd2-a5cd-ca541acd1d16",
+      "block_ids": [
+        "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4"
+      ],
+      "bboxes": [
+        [
+          48.0,
+          691.6472216,
+          372.2314493,
+          702.6472216
+        ]
+      ],
+      "precision": "block",
+      "citation_url": "/api/v1/citations/cc15b809-ee93-4dd2-a5cd-ca541acd1d16/S003"
+    },
+    {
+      "chunk_id": "9319db49-7f5b-5e18-afe0-c7dbda98e1ec",
+      "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+      "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+      "text": "La référence proche DA-P010 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P01.",
+      "blocks": [
+        {
+          "id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+          "block_id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+          "page_index": 0,
+          "text": "La référence proche DA-P010 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P01.",
+          "start_offset": 0,
+          "end_offset": 104,
+          "bbox": [
+            48.0,
+            445.5472216,
+            541.3027407,
+            475.2472216
+          ],
+          "precision": "block",
+          "type": "text",
+          "page": {
+            "alphanumeric_count": 404,
+            "classification": "native",
+            "coverage_regions": [
+              {
+                "bbox": [
+                  48.0,
+                  742.5679247999999,
+                  279.65624960000014,
+                  750.5679247999999
+                ],
+                "block_id": "10d82f07-3c23-592d-9808-efb352c9652d",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  776.0460496000001,
+                  412.57812320000005,
+                  792.0460496000001
+                ],
+                "block_id": "81b57457-83ed-5f11-9b49-9fabfcaff157",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  502.1472216,
+                  392.75976590000005,
+                  702.6472216
+                ],
+                "block_id": "aabbf7be-8ddc-5458-bf8c-896487ae9c1c",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  445.5472216,
+                  541.3027407,
+                  475.2472216
+                ],
+                "block_id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  29.837890399999992,
+                  93.25927829999999,
+                  38.83789039999999
+                ],
+                "block_id": "9397fcff-878b-5660-9cef-426fc6eece42",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              }
+            ],
+            "crop_box": null,
+            "crop_box_source": "unavailable_inherited_or_absent",
+            "display_height": 841.8897705078125,
+            "display_width": 595.2755737304688,
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "extraction_route": "structured",
+            "extraction_state": "native",
+            "height": 841.8897705078125,
+            "image_regions": [],
+            "label": null,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "media_box_source": "declared",
+            "native_text_regions": [
+              [
+                49.34400177001953,
+                776.4497680664062,
+                411.1519775390625,
+                792.6897583007812
+              ],
+              [
+                48.784000396728516,
+                742.8338012695312,
+                278.8719482421875,
+                751.9058227539062
+              ],
+              [
+                48.88199996948242,
+                30.137001037597656,
+                92.30699920654297,
+                38.678001403808594
+              ],
+              [
+                49.077999114990234,
+                692.0128173828125,
+                330.9529724121094,
+                703.0897827148438
+              ],
+              [
+                49.077999114990234,
+                654.11279296875,
+                309.00799560546875,
+                664.749755859375
+              ],
+              [
+                49.077999114990234,
+                616.2128295898438,
+                332.0639953613281,
+                627.289794921875
+              ],
+              [
+                49.077999114990234,
+                578.3128051757812,
+                391.2110595703125,
+                589.3897705078125
+              ],
+              [
+                49.077999114990234,
+                540.412841796875,
+                364.9319763183594,
+                551.0498046875
+              ],
+              [
+                49.077999114990234,
+                504.64678955078125,
+                297.5570068359375,
+                513.1497802734375
+              ],
+              [
+                49.077999114990234,
+                464.61279296875,
+                540.2281494140625,
+                475.6897888183594
+              ],
+              [
+                48.60499954223633,
+                448.0467834472656,
+                142.98500061035156,
+                456.5497741699219
+              ]
+            ],
+            "native_text_sparse": false,
+            "needs_ocr": false,
+            "ocr_cell_count": 0,
+            "ocr_orientations": [],
+            "ocr_parser_regions": [],
+            "ocr_preprocessing": [],
+            "ocr_regions": [],
+            "ocr_used": false,
+            "orientation_correction": 0,
+            "orientation_source": "native_page_frame",
+            "page_index": 0,
+            "page_number": 1,
+            "replacement_ratio": 0.0,
+            "rotation": 0,
+            "routing_reason": "typography_requires_structure",
+            "table_orientation_corrections": [],
+            "text_character_count": 529,
+            "text_font_sizes": [
+              8.0,
+              9.0,
+              11.0,
+              16.0
+            ],
+            "text_mapping_warnings": [],
+            "unresolved_regions": [],
+            "vector_path_count": 1,
+            "width": 595.2755737304688
+          },
+          "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+          "source_text_hash": "379f5db8627a51ca834c62d1d6c9510206e3d7d2bb09ff788e1e76a331e6ddbd"
+        }
+      ],
+      "page_indices": [
+        0
+      ],
+      "parent_id": "4527a431-80ad-5265-b967-5243bbdd7f55",
+      "score": 0.031009615384615385,
+      "exact_identifier": true,
+      "coverage": {
+        "ocr": 0,
+        "processed": 2,
+        "total": 2,
+        "unresolved": 0,
+        "unresolved_regions": 0
+      },
+      "extraction_state": "ready",
+      "extraction_warnings": [],
+      "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "page_index": 0,
+      "page_number": 1,
+      "label": null,
+      "parent_expanded": false,
+      "source_id": "S004",
+      "query_id": "cc15b809-ee93-4dd2-a5cd-ca541acd1d16",
+      "block_ids": [
+        "4527a431-80ad-5265-b967-5243bbdd7f55"
+      ],
+      "bboxes": [
+        [
+          48.0,
+          445.5472216,
+          541.3027407,
+          475.2472216
+        ]
+      ],
+      "precision": "block",
+      "citation_url": "/api/v1/citations/cc15b809-ee93-4dd2-a5cd-ca541acd1d16/S004"
+    },
+    {
+      "chunk_id": "43f9176e-ff42-509c-8c1a-5da67ec445b7",
+      "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+      "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+      "text": "Référence | Valeur | Unité\nDA-P01-IN | 13 | mm\nDA-P01-OUT | 9 | mm\nDA-P01-LEAK | 0.1 | L/min",
+      "blocks": [
+        {
+          "id": "6531eb30-3493-56cf-8872-0e4b04476938",
+          "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+          "page_index": 1,
+          "text": "Référence | Valeur | Unité\nDA-P01-IN | 13 | mm\nDA-P01-OUT | 9 | mm\nDA-P01-LEAK | 0.1 | L/min",
+          "start_offset": 0,
+          "end_offset": 92,
+          "bbox": [
+            47.197009358351025,
+            489.3572097513303,
+            547.7652398158541,
+            619.929397550167
+          ],
+          "precision": "table",
+          "type": "table",
+          "page": {
+            "alphanumeric_count": 192,
+            "classification": "native",
+            "coverage_regions": [
+              {
+                "bbox": [
+                  48.0,
+                  776.0460496000001,
+                  325.5703136000001,
+                  792.0460496000001
+                ],
+                "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  742.5679247999999,
+                  279.65624960000014,
+                  750.5679247999999
+                ],
+                "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  691.6472216,
+                  372.2314493,
+                  702.6472216
+                ],
+                "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  629.4069872,
+                  182.9003904,
+                  641.4069872
+                ],
+                "block_id": "400df997-6d2d-563e-b813-db92651f7f49",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  47.197009358351025,
+                  489.3572097513303,
+                  547.7652398158541,
+                  619.929397550167
+                ],
+                "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "table"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  29.837890399999992,
+                  93.25927829999999,
+                  38.83789039999999
+                ],
+                "block_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              }
+            ],
+            "crop_box": null,
+            "crop_box_source": "unavailable_inherited_or_absent",
+            "display_height": 841.8897705078125,
+            "display_width": 595.2755737304688,
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "extraction_route": "structured",
+            "extraction_state": "native",
+            "height": 841.8897705078125,
+            "image_regions": [],
+            "label": null,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "media_box_source": "declared",
+            "native_text_regions": [
+              [
+                49.47200012207031,
+                779.6817626953125,
+                324.32000732421875,
+                792.6897583007812
+              ],
+              [
+                48.784000396728516,
+                742.8338012695312,
+                278.8719482421875,
+                751.9058227539062
+              ],
+              [
+                48.88199996948242,
+                30.137001037597656,
+                92.30699920654297,
+                38.678001403808594
+              ],
+              [
+                49.077999114990234,
+                692.0128173828125,
+                370.70697021484375,
+                702.6497802734375
+              ],
+              [
+                48.060001373291016,
+                632.1337890625,
+                182.22000122070312,
+                641.8897705078125
+              ],
+              [
+                53.91999816894531,
+                599.3598022460938,
+                109.64999389648438,
+                607.4898071289062
+              ],
+              [
+                275.04998779296875,
+                599.3598022460938,
+                311.67999267578125,
+                607.0897827148438
+              ],
+              [
+                405.9200134277344,
+                599.3598022460938,
+                434.7300109863281,
+                607.4898071289062
+              ],
+              [
+                53.97999954223633,
+                566.3598022460938,
+                102.92999267578125,
+                573.9097900390625
+              ],
+              [
+                276.1000061035156,
+                566.3598022460938,
+                286.9200134277344,
+                573.9097900390625
+              ],
+              [
+                405.9100036621094,
+                566.4898071289062,
+                423.6300048828125,
+                572.0897827148438
+              ],
+              [
+                53.97999954223633,
+                533.3598022460938,
+                114.80999755859375,
+                540.9097900390625
+              ],
+              [
+                275.6300048828125,
+                533.3598022460938,
+                280.6600036621094,
+                540.9097900390625
+              ],
+              [
+                405.9100036621094,
+                533.4898071289062,
+                423.6300048828125,
+                539.0897827148438
+              ],
+              [
+                53.97999954223633,
+                500.35980224609375,
+                118.97999572753906,
+                507.9098205566406
+              ],
+              [
+                275.6600036621094,
+                500.35980224609375,
+                289.9700012207031,
+                507.9098205566406
+              ],
+              [
+                405.9800109863281,
+                499.5697937011719,
+                431.92999267578125,
+                508.0898132324219
+              ]
+            ],
+            "native_text_sparse": false,
+            "needs_ocr": false,
+            "ocr_cell_count": 0,
+            "ocr_orientations": [],
+            "ocr_parser_regions": [],
+            "ocr_preprocessing": [],
+            "ocr_regions": [],
+            "ocr_used": false,
+            "orientation_correction": 0,
+            "orientation_source": "native_page_frame",
+            "page_index": 1,
+            "page_number": 2,
+            "replacement_ratio": 0.0,
+            "rotation": 0,
+            "routing_reason": "typography_requires_structure",
+            "table_orientation_corrections": [],
+            "text_character_count": 252,
+            "text_font_sizes": [
+              8.0,
+              9.0,
+              10.0,
+              11.0,
+              12.0,
+              16.0
+            ],
+            "text_mapping_warnings": [],
+            "unresolved_regions": [],
+            "vector_path_count": 6,
+            "width": 595.2755737304688
+          },
+          "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+          "source_text_hash": "b8905b7ddd2345f2f81baeb5638d1806cdd8dae8027724ac7962be9c01221ad5"
+        }
+      ],
+      "page_indices": [
+        1
+      ],
+      "parent_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+      "score": 0.03128054740957967,
+      "exact_identifier": false,
+      "coverage": {
+        "ocr": 0,
+        "processed": 2,
+        "total": 2,
+        "unresolved": 0,
+        "unresolved_regions": 0
+      },
+      "extraction_state": "ready",
+      "extraction_warnings": [],
+      "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "page_index": 1,
+      "page_number": 2,
+      "label": null,
+      "parent_expanded": false,
+      "source_id": "S005",
+      "query_id": "cc15b809-ee93-4dd2-a5cd-ca541acd1d16",
+      "block_ids": [
+        "6531eb30-3493-56cf-8872-0e4b04476938"
+      ],
+      "bboxes": [
+        [
+          47.197009358351025,
+          489.3572097513303,
+          547.7652398158541,
+          619.929397550167
+        ]
+      ],
+      "precision": "block",
+      "citation_url": "/api/v1/citations/cc15b809-ee93-4dd2-a5cd-ca541acd1d16/S005"
+    },
+    {
+      "chunk_id": "eb54e0ca-ca0c-5fa2-a02e-6813e088b83d",
+      "generation_id": "57ffa153-0f74-429b-82a8-72579b163e22",
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+      "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+      "text": "DOCUMENT SYNTHÉTIQUE - qualification technique, CC0",
+      "blocks": [
+        {
+          "id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+          "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+          "page_index": 1,
+          "text": "DOCUMENT SYNTHÉTIQUE - qualification technique, CC0",
+          "start_offset": 0,
+          "end_offset": 51,
+          "bbox": [
+            48.0,
+            742.5679247999999,
+            279.65624960000014,
+            750.5679247999999
+          ],
+          "precision": "block",
+          "type": "text",
+          "page": {
+            "alphanumeric_count": 192,
+            "classification": "native",
+            "coverage_regions": [
+              {
+                "bbox": [
+                  48.0,
+                  776.0460496000001,
+                  325.5703136000001,
+                  792.0460496000001
+                ],
+                "block_id": "f72eb719-496b-568c-b7ed-5f0b49eb1093",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  742.5679247999999,
+                  279.65624960000014,
+                  750.5679247999999
+                ],
+                "block_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  691.6472216,
+                  372.2314493,
+                  702.6472216
+                ],
+                "block_id": "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  629.4069872,
+                  182.9003904,
+                  641.4069872
+                ],
+                "block_id": "400df997-6d2d-563e-b813-db92651f7f49",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  47.197009358351025,
+                  489.3572097513303,
+                  547.7652398158541,
+                  619.929397550167
+                ],
+                "block_id": "6531eb30-3493-56cf-8872-0e4b04476938",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "table"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  29.837890399999992,
+                  93.25927829999999,
+                  38.83789039999999
+                ],
+                "block_id": "6ce49513-fd6d-55fc-9c4c-df67b51e8627",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              }
+            ],
+            "crop_box": null,
+            "crop_box_source": "unavailable_inherited_or_absent",
+            "display_height": 841.8897705078125,
+            "display_width": 595.2755737304688,
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "extraction_route": "structured",
+            "extraction_state": "native",
+            "height": 841.8897705078125,
+            "image_regions": [],
+            "label": null,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "media_box_source": "declared",
+            "native_text_regions": [
+              [
+                49.47200012207031,
+                779.6817626953125,
+                324.32000732421875,
+                792.6897583007812
+              ],
+              [
+                48.784000396728516,
+                742.8338012695312,
+                278.8719482421875,
+                751.9058227539062
+              ],
+              [
+                48.88199996948242,
+                30.137001037597656,
+                92.30699920654297,
+                38.678001403808594
+              ],
+              [
+                49.077999114990234,
+                692.0128173828125,
+                370.70697021484375,
+                702.6497802734375
+              ],
+              [
+                48.060001373291016,
+                632.1337890625,
+                182.22000122070312,
+                641.8897705078125
+              ],
+              [
+                53.91999816894531,
+                599.3598022460938,
+                109.64999389648438,
+                607.4898071289062
+              ],
+              [
+                275.04998779296875,
+                599.3598022460938,
+                311.67999267578125,
+                607.0897827148438
+              ],
+              [
+                405.9200134277344,
+                599.3598022460938,
+                434.7300109863281,
+                607.4898071289062
+              ],
+              [
+                53.97999954223633,
+                566.3598022460938,
+                102.92999267578125,
+                573.9097900390625
+              ],
+              [
+                276.1000061035156,
+                566.3598022460938,
+                286.9200134277344,
+                573.9097900390625
+              ],
+              [
+                405.9100036621094,
+                566.4898071289062,
+                423.6300048828125,
+                572.0897827148438
+              ],
+              [
+                53.97999954223633,
+                533.3598022460938,
+                114.80999755859375,
+                540.9097900390625
+              ],
+              [
+                275.6300048828125,
+                533.3598022460938,
+                280.6600036621094,
+                540.9097900390625
+              ],
+              [
+                405.9100036621094,
+                533.4898071289062,
+                423.6300048828125,
+                539.0897827148438
+              ],
+              [
+                53.97999954223633,
+                500.35980224609375,
+                118.97999572753906,
+                507.9098205566406
+              ],
+              [
+                275.6600036621094,
+                500.35980224609375,
+                289.9700012207031,
+                507.9098205566406
+              ],
+              [
+                405.9800109863281,
+                499.5697937011719,
+                431.92999267578125,
+                508.0898132324219
+              ]
+            ],
+            "native_text_sparse": false,
+            "needs_ocr": false,
+            "ocr_cell_count": 0,
+            "ocr_orientations": [],
+            "ocr_parser_regions": [],
+            "ocr_preprocessing": [],
+            "ocr_regions": [],
+            "ocr_used": false,
+            "orientation_correction": 0,
+            "orientation_source": "native_page_frame",
+            "page_index": 1,
+            "page_number": 2,
+            "replacement_ratio": 0.0,
+            "rotation": 0,
+            "routing_reason": "typography_requires_structure",
+            "table_orientation_corrections": [],
+            "text_character_count": 252,
+            "text_font_sizes": [
+              8.0,
+              9.0,
+              10.0,
+              11.0,
+              12.0,
+              16.0
+            ],
+            "text_mapping_warnings": [],
+            "unresolved_regions": [],
+            "vector_path_count": 6,
+            "width": 595.2755737304688
+          },
+          "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+          "source_text_hash": "478d5b91bfbd9be453ca091a38c5bfb655696ab4f99045f3e53cc4a41a860995"
+        }
+      ],
+      "page_indices": [
+        1
+      ],
+      "parent_id": "65b157d6-bb91-547b-9b9c-0c7c46e728a4",
+      "score": 0.030309988518943745,
+      "exact_identifier": false,
+      "coverage": {
+        "ocr": 0,
+        "processed": 2,
+        "total": 2,
+        "unresolved": 0,
+        "unresolved_regions": 0
+      },
+      "extraction_state": "ready",
+      "extraction_warnings": [],
+      "name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "document_name": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "relative_path": "Atelier 1 - Banc pneumatique DA-P01.pdf",
+      "page_index": 1,
+      "page_number": 2,
+      "label": null,
+      "parent_expanded": false,
+      "source_id": "S006",
+      "query_id": "cc15b809-ee93-4dd2-a5cd-ca541acd1d16",
+      "block_ids": [
+        "65b157d6-bb91-547b-9b9c-0c7c46e728a4"
+      ],
+      "bboxes": [
+        [
+          48.0,
+          742.5679247999999,
+          279.65624960000014,
+          750.5679247999999
+        ]
+      ],
+      "precision": "block",
+      "citation_url": "/api/v1/citations/cc15b809-ee93-4dd2-a5cd-ca541acd1d16/S006"
+    }
+  ],
+  "citations_resolved": [
+    {
+      "source_id": "S001",
+      "http_status": 200,
+      "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+      "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "page_index": 0,
+      "page_number": 1,
+      "blocks": [
+        "aabbf7be-8ddc-5458-bf8c-896487ae9c1c"
+      ],
+      "text": "DA-P01 - banc pneumatique synthétique Atelier 1. La pression nominale de DA-P01 est de 3.1 bar. La tolérance de pression de DA-P01 est de ± 2.0 %. Le contrôle périodique de DA-P01 intervient toutes les 1020 h. Le couple de serrage prescrit pour DA-P01 est de 12 N·m. L'alimentation d'essai de DA-P01 est de 22 V."
+    },
+    {
+      "source_id": "S002",
+      "http_status": 200,
+      "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+      "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "page_index": 1,
+      "page_number": 2,
+      "blocks": [
+        "f72eb719-496b-568c-b7ed-5f0b49eb1093"
+      ],
+      "text": "Mesures de contrôle - DA-P01"
+    },
+    {
+      "source_id": "S003",
+      "http_status": 200,
+      "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+      "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "page_index": 1,
+      "page_number": 2,
+      "blocks": [
+        "8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4"
+      ],
+      "text": "Les valeurs de ce tableau concernent uniquement DA-P01."
+    },
+    {
+      "source_id": "S004",
+      "http_status": 200,
+      "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+      "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "page_index": 0,
+      "page_number": 1,
+      "blocks": [
+        "4527a431-80ad-5265-b967-5243bbdd7f55"
+      ],
+      "text": "La référence proche DA-P010 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P01."
+    },
+    {
+      "source_id": "S005",
+      "http_status": 200,
+      "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+      "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "page_index": 1,
+      "page_number": 2,
+      "blocks": [
+        "6531eb30-3493-56cf-8872-0e4b04476938"
+      ],
+      "text": "Référence | Valeur | Unité\nDA-P01-IN | 13 | mm\nDA-P01-OUT | 9 | mm\nDA-P01-LEAK | 0.1 | L/min"
+    },
+    {
+      "source_id": "S006",
+      "http_status": 200,
+      "document_id": "e01b0666-ae93-40e5-9403-35decf00ae84",
+      "version_id": "11debf6d-6e3c-4874-9ea4-395c1ad6661c",
+      "extraction_revision_id": "5c6d7395-f3c9-5da8-baee-d7ca8615dfb5",
+      "page_index": 1,
+      "page_number": 2,
+      "blocks": [
+        "65b157d6-bb91-547b-9b9c-0c7c46e728a4"
+      ],
+      "text": "DOCUMENT SYNTHÉTIQUE - qualification technique, CC0"
+    }
+  ],
+  "available_mib_after": 2714,
+  "client_terminal_ms": 195506.0,
+  "client_first_delta_ms": 114120.0
+}

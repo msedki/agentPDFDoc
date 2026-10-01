@@ -1,0 +1,1018 @@
+id: 1
+event: status
+data: {"state":"queued"}
+
+id: 2
+event: status
+data: {"state":"searching"}
+
+id: 3
+event: sources
+data: {"sources":[{"chunk_id":"0b2e78e6-4073-5ff6-982b-6ff0f244b8f1","generation_id":"57ffa153-0f74-429b-82a8-72579b163e22","extraction_revision_id":"5c6d7395-f3c9-5da8-baee-d7ca8615dfb5","version_id":"11debf6d-6e3c-4874-9ea4-395c1ad6661c","document_id":"e01b0666-ae93-40e5-9403-35decf00ae84","text":"DA-P01 - banc pneumatique synthétique Atelier 1. La pression nominale de DA-P01 est de 3.1 bar. La tolérance de pression de DA-P01 est de ± 2.0 %. Le contrôle périodique de DA-P01 intervient toutes les 1020 h. Le couple de serrage prescrit pour DA-P01 est de 12 N·m. L'alimentation d'essai de DA-P01 est de 22 V.","blocks":[{"id":"aabbf7be-8ddc-5458-bf8c-896487ae9c1c","block_id":"aabbf7be-8ddc-5458-bf8c-896487ae9c1c","page_index":0,"text":"DA-P01 - banc pneumatique synthétique Atelier 1. La pression nominale de DA-P01 est de 3.1 bar. La tolérance de pression de DA-P01 est de ± 2.0 %. Le contrôle périodique de DA-P01 intervient toutes les 1020 h. Le couple de serrage prescrit pour DA-P01 est de 12 N·m. L'alimentation d'essai de DA-P01 est de 22 V.","start_offset":0,"end_offset":312,"bbox":[48.0,502.1472216,392.75976590000005,702.6472216],"precision":"block","type":"text","page":{"alphanumeric_count":404,"classification":"native","coverage_regions":[{"bbox":[48.0,742.5679247999999,279.65624960000014,750.5679247999999],"block_id":"10d82f07-3c23-592d-9808-efb352c9652d","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,776.0460496000001,412.57812320000005,792.0460496000001],"block_id":"81b57457-83ed-5f11-9b49-9fabfcaff157","extraction_method":"native","route":"structured","type":"heading"},{"bbox":[48.0,502.1472216,392.75976590000005,702.6472216],"block_id":"aabbf7be-8ddc-5458-bf8c-896487ae9c1c","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,445.5472216,541.3027407,475.2472216],"block_id":"4527a431-80ad-5265-b967-5243bbdd7f55","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,29.837890399999992,93.25927829999999,38.83789039999999],"block_id":"9397fcff-878b-5660-9cef-426fc6eece42","extraction_method":"native","route":"structured","type":"text"}],"crop_box":null,"crop_box_source":"unavailable_inherited_or_absent","display_height":841.8897705078125,"display_width":595.2755737304688,"effective_box":[0.0,0.0,595.2755737304688,841.8897705078125],"extraction_route":"structured","extraction_state":"native","height":841.8897705078125,"image_regions":[],"label":null,"media_box":[0.0,0.0,595.2755737304688,841.8897705078125],"media_box_source":"declared","native_text_regions":[[49.34400177001953,776.4497680664062,411.1519775390625,792.6897583007812],[48.784000396728516,742.8338012695312,278.8719482421875,751.9058227539062],[48.88199996948242,30.137001037597656,92.30699920654297,38.678001403808594],[49.077999114990234,692.0128173828125,330.9529724121094,703.0897827148438],[49.077999114990234,654.11279296875,309.00799560546875,664.749755859375],[49.077999114990234,616.2128295898438,332.0639953613281,627.289794921875],[49.077999114990234,578.3128051757812,391.2110595703125,589.3897705078125],[49.077999114990234,540.412841796875,364.9319763183594,551.0498046875],[49.077999114990234,504.64678955078125,297.5570068359375,513.1497802734375],[49.077999114990234,464.61279296875,540.2281494140625,475.6897888183594],[48.60499954223633,448.0467834472656,142.98500061035156,456.5497741699219]],"native_text_sparse":false,"needs_ocr":false,"ocr_cell_count":0,"ocr_orientations":[],"ocr_parser_regions":[],"ocr_preprocessing":[],"ocr_regions":[],"ocr_used":false,"orientation_correction":0,"orientation_source":"native_page_frame","page_index":0,"page_number":1,"replacement_ratio":0.0,"rotation":0,"routing_reason":"typography_requires_structure","table_orientation_corrections":[],"text_character_count":529,"text_font_sizes":[8.0,9.0,11.0,16.0],"text_mapping_warnings":[],"unresolved_regions":[],"vector_path_count":1,"width":595.2755737304688},"extraction_revision_id":"5c6d7395-f3c9-5da8-baee-d7ca8615dfb5","source_text_hash":"587198c96b5f174c0bb1afdd36049cf514316a7001b02bbbe5b8edaa460f9737"}],"page_indices":[0],"parent_id":"aabbf7be-8ddc-5458-bf8c-896487ae9c1c","score":0.03278688524590164,"exact_identifier":true,"coverage":{"ocr":0,"processed":2,"total":2,"unresolved":0,"unresolved_regions":0},"extraction_state":"ready","extraction_warnings":[],"name":"Atelier 1 - Banc pneumatique DA-P01.pdf","document_name":"Atelier 1 - Banc pneumatique DA-P01.pdf","relative_path":"Atelier 1 - Banc pneumatique DA-P01.pdf","page_index":0,"page_number":1,"label":null,"required_identifiers":["DA-P01"],"parent_expanded":false,"source_id":"S001","query_id":"3a69320b-12b5-45fc-a260-e4590cc7ec1f","block_ids":["aabbf7be-8ddc-5458-bf8c-896487ae9c1c"],"bboxes":[[48.0,502.1472216,392.75976590000005,702.6472216]],"precision":"block","citation_url":"/api/v1/citations/3a69320b-12b5-45fc-a260-e4590cc7ec1f/S001"},{"chunk_id":"6de81372-f4b5-5429-9466-52dfcb1f760f","generation_id":"57ffa153-0f74-429b-82a8-72579b163e22","extraction_revision_id":"5c6d7395-f3c9-5da8-baee-d7ca8615dfb5","version_id":"11debf6d-6e3c-4874-9ea4-395c1ad6661c","document_id":"e01b0666-ae93-40e5-9403-35decf00ae84","text":"Mesures de contrôle - DA-P01","blocks":[{"id":"f72eb719-496b-568c-b7ed-5f0b49eb1093","block_id":"f72eb719-496b-568c-b7ed-5f0b49eb1093","page_index":1,"text":"Mesures de contrôle - DA-P01","start_offset":0,"end_offset":28,"bbox":[48.0,776.0460496000001,325.5703136000001,792.0460496000001],"precision":"block","type":"heading","page":{"alphanumeric_count":192,"classification":"native","coverage_regions":[{"bbox":[48.0,776.0460496000001,325.5703136000001,792.0460496000001],"block_id":"f72eb719-496b-568c-b7ed-5f0b49eb1093","extraction_method":"native","route":"structured","type":"heading"},{"bbox":[48.0,742.5679247999999,279.65624960000014,750.5679247999999],"block_id":"65b157d6-bb91-547b-9b9c-0c7c46e728a4","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,691.6472216,372.2314493,702.6472216],"block_id":"8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,629.4069872,182.9003904,641.4069872],"block_id":"400df997-6d2d-563e-b813-db92651f7f49","extraction_method":"native","route":"structured","type":"heading"},{"bbox":[47.197009358351025,489.3572097513303,547.7652398158541,619.929397550167],"block_id":"6531eb30-3493-56cf-8872-0e4b04476938","extraction_method":"native","route":"structured","type":"table"},{"bbox":[48.0,29.837890399999992,93.25927829999999,38.83789039999999],"block_id":"6ce49513-fd6d-55fc-9c4c-df67b51e8627","extraction_method":"native","route":"structured","type":"text"}],"crop_box":null,"crop_box_source":"unavailable_inherited_or_absent","display_height":841.8897705078125,"display_width":595.2755737304688,"effective_box":[0.0,0.0,595.2755737304688,841.8897705078125],"extraction_route":"structured","extraction_state":"native","height":841.8897705078125,"image_regions":[],"label":null,"media_box":[0.0,0.0,595.2755737304688,841.8897705078125],"media_box_source":"declared","native_text_regions":[[49.47200012207031,779.6817626953125,324.32000732421875,792.6897583007812],[48.784000396728516,742.8338012695312,278.8719482421875,751.9058227539062],[48.88199996948242,30.137001037597656,92.30699920654297,38.678001403808594],[49.077999114990234,692.0128173828125,370.70697021484375,702.6497802734375],[48.060001373291016,632.1337890625,182.22000122070312,641.8897705078125],[53.91999816894531,599.3598022460938,109.64999389648438,607.4898071289062],[275.04998779296875,599.3598022460938,311.67999267578125,607.0897827148438],[405.9200134277344,599.3598022460938,434.7300109863281,607.4898071289062],[53.97999954223633,566.3598022460938,102.92999267578125,573.9097900390625],[276.1000061035156,566.3598022460938,286.9200134277344,573.9097900390625],[405.9100036621094,566.4898071289062,423.6300048828125,572.0897827148438],[53.97999954223633,533.3598022460938,114.80999755859375,540.9097900390625],[275.6300048828125,533.3598022460938,280.6600036621094,540.9097900390625],[405.9100036621094,533.4898071289062,423.6300048828125,539.0897827148438],[53.97999954223633,500.35980224609375,118.97999572753906,507.9098205566406],[275.6600036621094,500.35980224609375,289.9700012207031,507.9098205566406],[405.9800109863281,499.5697937011719,431.92999267578125,508.0898132324219]],"native_text_sparse":false,"needs_ocr":false,"ocr_cell_count":0,"ocr_orientations":[],"ocr_parser_regions":[],"ocr_preprocessing":[],"ocr_regions":[],"ocr_used":false,"orientation_correction":0,"orientation_source":"native_page_frame","page_index":1,"page_number":2,"replacement_ratio":0.0,"rotation":0,"routing_reason":"typography_requires_structure","table_orientation_corrections":[],"text_character_count":252,"text_font_sizes":[8.0,9.0,10.0,11.0,12.0,16.0],"text_mapping_warnings":[],"unresolved_regions":[],"vector_path_count":6,"width":595.2755737304688},"extraction_revision_id":"5c6d7395-f3c9-5da8-baee-d7ca8615dfb5","source_text_hash":"0ebf7ed65fd42e045e56f90f690d68cce6417a4294d4a21b47d4dd76fb6270d6"}],"page_indices":[1],"parent_id":"f72eb719-496b-568c-b7ed-5f0b49eb1093","score":0.031754032258064516,"exact_identifier":true,"coverage":{"ocr":0,"processed":2,"total":2,"unresolved":0,"unresolved_regions":0},"extraction_state":"ready","extraction_warnings":[],"name":"Atelier 1 - Banc pneumatique DA-P01.pdf","document_name":"Atelier 1 - Banc pneumatique DA-P01.pdf","relative_path":"Atelier 1 - Banc pneumatique DA-P01.pdf","page_index":1,"page_number":2,"label":null,"parent_expanded":false,"source_id":"S002","query_id":"3a69320b-12b5-45fc-a260-e4590cc7ec1f","block_ids":["f72eb719-496b-568c-b7ed-5f0b49eb1093"],"bboxes":[[48.0,776.0460496000001,325.5703136000001,792.0460496000001]],"precision":"block","citation_url":"/api/v1/citations/3a69320b-12b5-45fc-a260-e4590cc7ec1f/S002"},{"chunk_id":"f367b483-7fe5-511e-8684-b20ed8c2b1c0","generation_id":"57ffa153-0f74-429b-82a8-72579b163e22","extraction_revision_id":"5c6d7395-f3c9-5da8-baee-d7ca8615dfb5","version_id":"11debf6d-6e3c-4874-9ea4-395c1ad6661c","document_id":"e01b0666-ae93-40e5-9403-35decf00ae84","text":"Les valeurs de ce tableau concernent uniquement DA-P01.","blocks":[{"id":"8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4","block_id":"8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4","page_index":1,"text":"Les valeurs de ce tableau concernent uniquement DA-P01.","start_offset":0,"end_offset":55,"bbox":[48.0,691.6472216,372.2314493,702.6472216],"precision":"block","type":"text","page":{"alphanumeric_count":192,"classification":"native","coverage_regions":[{"bbox":[48.0,776.0460496000001,325.5703136000001,792.0460496000001],"block_id":"f72eb719-496b-568c-b7ed-5f0b49eb1093","extraction_method":"native","route":"structured","type":"heading"},{"bbox":[48.0,742.5679247999999,279.65624960000014,750.5679247999999],"block_id":"65b157d6-bb91-547b-9b9c-0c7c46e728a4","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,691.6472216,372.2314493,702.6472216],"block_id":"8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,629.4069872,182.9003904,641.4069872],"block_id":"400df997-6d2d-563e-b813-db92651f7f49","extraction_method":"native","route":"structured","type":"heading"},{"bbox":[47.197009358351025,489.3572097513303,547.7652398158541,619.929397550167],"block_id":"6531eb30-3493-56cf-8872-0e4b04476938","extraction_method":"native","route":"structured","type":"table"},{"bbox":[48.0,29.837890399999992,93.25927829999999,38.83789039999999],"block_id":"6ce49513-fd6d-55fc-9c4c-df67b51e8627","extraction_method":"native","route":"structured","type":"text"}],"crop_box":null,"crop_box_source":"unavailable_inherited_or_absent","display_height":841.8897705078125,"display_width":595.2755737304688,"effective_box":[0.0,0.0,595.2755737304688,841.8897705078125],"extraction_route":"structured","extraction_state":"native","height":841.8897705078125,"image_regions":[],"label":null,"media_box":[0.0,0.0,595.2755737304688,841.8897705078125],"media_box_source":"declared","native_text_regions":[[49.47200012207031,779.6817626953125,324.32000732421875,792.6897583007812],[48.784000396728516,742.8338012695312,278.8719482421875,751.9058227539062],[48.88199996948242,30.137001037597656,92.30699920654297,38.678001403808594],[49.077999114990234,692.0128173828125,370.70697021484375,702.6497802734375],[48.060001373291016,632.1337890625,182.22000122070312,641.8897705078125],[53.91999816894531,599.3598022460938,109.64999389648438,607.4898071289062],[275.04998779296875,599.3598022460938,311.67999267578125,607.0897827148438],[405.9200134277344,599.3598022460938,434.7300109863281,607.4898071289062],[53.97999954223633,566.3598022460938,102.92999267578125,573.9097900390625],[276.1000061035156,566.3598022460938,286.9200134277344,573.9097900390625],[405.9100036621094,566.4898071289062,423.6300048828125,572.0897827148438],[53.97999954223633,533.3598022460938,114.80999755859375,540.9097900390625],[275.6300048828125,533.3598022460938,280.6600036621094,540.9097900390625],[405.9100036621094,533.4898071289062,423.6300048828125,539.0897827148438],[53.97999954223633,500.35980224609375,118.97999572753906,507.9098205566406],[275.6600036621094,500.35980224609375,289.9700012207031,507.9098205566406],[405.9800109863281,499.5697937011719,431.92999267578125,508.0898132324219]],"native_text_sparse":false,"needs_ocr":false,"ocr_cell_count":0,"ocr_orientations":[],"ocr_parser_regions":[],"ocr_preprocessing":[],"ocr_regions":[],"ocr_used":false,"orientation_correction":0,"orientation_source":"native_page_frame","page_index":1,"page_number":2,"replacement_ratio":0.0,"rotation":0,"routing_reason":"typography_requires_structure","table_orientation_corrections":[],"text_character_count":252,"text_font_sizes":[8.0,9.0,10.0,11.0,12.0,16.0],"text_mapping_warnings":[],"unresolved_regions":[],"vector_path_count":6,"width":595.2755737304688},"extraction_revision_id":"5c6d7395-f3c9-5da8-baee-d7ca8615dfb5","source_text_hash":"be0583a2a0033075e71f1c181e85e2d6f696a5e0a51f510471db05364d57cfc3"}],"page_indices":[1],"parent_id":"8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4","score":0.031746031746031744,"exact_identifier":true,"coverage":{"ocr":0,"processed":2,"total":2,"unresolved":0,"unresolved_regions":0},"extraction_state":"ready","extraction_warnings":[],"name":"Atelier 1 - Banc pneumatique DA-P01.pdf","document_name":"Atelier 1 - Banc pneumatique DA-P01.pdf","relative_path":"Atelier 1 - Banc pneumatique DA-P01.pdf","page_index":1,"page_number":2,"label":null,"parent_expanded":false,"source_id":"S003","query_id":"3a69320b-12b5-45fc-a260-e4590cc7ec1f","block_ids":["8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4"],"bboxes":[[48.0,691.6472216,372.2314493,702.6472216]],"precision":"block","citation_url":"/api/v1/citations/3a69320b-12b5-45fc-a260-e4590cc7ec1f/S003"},{"chunk_id":"9319db49-7f5b-5e18-afe0-c7dbda98e1ec","generation_id":"57ffa153-0f74-429b-82a8-72579b163e22","extraction_revision_id":"5c6d7395-f3c9-5da8-baee-d7ca8615dfb5","version_id":"11debf6d-6e3c-4874-9ea4-395c1ad6661c","document_id":"e01b0666-ae93-40e5-9403-35decf00ae84","text":"La référence proche DA-P010 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P01.","blocks":[{"id":"4527a431-80ad-5265-b967-5243bbdd7f55","block_id":"4527a431-80ad-5265-b967-5243bbdd7f55","page_index":0,"text":"La référence proche DA-P010 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P01.","start_offset":0,"end_offset":104,"bbox":[48.0,445.5472216,541.3027407,475.2472216],"precision":"block","type":"text","page":{"alphanumeric_count":404,"classification":"native","coverage_regions":[{"bbox":[48.0,742.5679247999999,279.65624960000014,750.5679247999999],"block_id":"10d82f07-3c23-592d-9808-efb352c9652d","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,776.0460496000001,412.57812320000005,792.0460496000001],"block_id":"81b57457-83ed-5f11-9b49-9fabfcaff157","extraction_method":"native","route":"structured","type":"heading"},{"bbox":[48.0,502.1472216,392.75976590000005,702.6472216],"block_id":"aabbf7be-8ddc-5458-bf8c-896487ae9c1c","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,445.5472216,541.3027407,475.2472216],"block_id":"4527a431-80ad-5265-b967-5243bbdd7f55","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,29.837890399999992,93.25927829999999,38.83789039999999],"block_id":"9397fcff-878b-5660-9cef-426fc6eece42","extraction_method":"native","route":"structured","type":"text"}],"crop_box":null,"crop_box_source":"unavailable_inherited_or_absent","display_height":841.8897705078125,"display_width":595.2755737304688,"effective_box":[0.0,0.0,595.2755737304688,841.8897705078125],"extraction_route":"structured","extraction_state":"native","height":841.8897705078125,"image_regions":[],"label":null,"media_box":[0.0,0.0,595.2755737304688,841.8897705078125],"media_box_source":"declared","native_text_regions":[[49.34400177001953,776.4497680664062,411.1519775390625,792.6897583007812],[48.784000396728516,742.8338012695312,278.8719482421875,751.9058227539062],[48.88199996948242,30.137001037597656,92.30699920654297,38.678001403808594],[49.077999114990234,692.0128173828125,330.9529724121094,703.0897827148438],[49.077999114990234,654.11279296875,309.00799560546875,664.749755859375],[49.077999114990234,616.2128295898438,332.0639953613281,627.289794921875],[49.077999114990234,578.3128051757812,391.2110595703125,589.3897705078125],[49.077999114990234,540.412841796875,364.9319763183594,551.0498046875],[49.077999114990234,504.64678955078125,297.5570068359375,513.1497802734375],[49.077999114990234,464.61279296875,540.2281494140625,475.6897888183594],[48.60499954223633,448.0467834472656,142.98500061035156,456.5497741699219]],"native_text_sparse":false,"needs_ocr":false,"ocr_cell_count":0,"ocr_orientations":[],"ocr_parser_regions":[],"ocr_preprocessing":[],"ocr_regions":[],"ocr_used":false,"orientation_correction":0,"orientation_source":"native_page_frame","page_index":0,"page_number":1,"replacement_ratio":0.0,"rotation":0,"routing_reason":"typography_requires_structure","table_orientation_corrections":[],"text_character_count":529,"text_font_sizes":[8.0,9.0,11.0,16.0],"text_mapping_warnings":[],"unresolved_regions":[],"vector_path_count":1,"width":595.2755737304688},"extraction_revision_id":"5c6d7395-f3c9-5da8-baee-d7ca8615dfb5","source_text_hash":"379f5db8627a51ca834c62d1d6c9510206e3d7d2bb09ff788e1e76a331e6ddbd"}],"page_indices":[0],"parent_id":"4527a431-80ad-5265-b967-5243bbdd7f55","score":0.031009615384615385,"exact_identifier":true,"coverage":{"ocr":0,"processed":2,"total":2,"unresolved":0,"unresolved_regions":0},"extraction_state":"ready","extraction_warnings":[],"name":"Atelier 1 - Banc pneumatique DA-P01.pdf","document_name":"Atelier 1 - Banc pneumatique DA-P01.pdf","relative_path":"Atelier 1 - Banc pneumatique DA-P01.pdf","page_index":0,"page_number":1,"label":null,"parent_expanded":false,"source_id":"S004","query_id":"3a69320b-12b5-45fc-a260-e4590cc7ec1f","block_ids":["4527a431-80ad-5265-b967-5243bbdd7f55"],"bboxes":[[48.0,445.5472216,541.3027407,475.2472216]],"precision":"block","citation_url":"/api/v1/citations/3a69320b-12b5-45fc-a260-e4590cc7ec1f/S004"},{"chunk_id":"43f9176e-ff42-509c-8c1a-5da67ec445b7","generation_id":"57ffa153-0f74-429b-82a8-72579b163e22","extraction_revision_id":"5c6d7395-f3c9-5da8-baee-d7ca8615dfb5","version_id":"11debf6d-6e3c-4874-9ea4-395c1ad6661c","document_id":"e01b0666-ae93-40e5-9403-35decf00ae84","text":"Référence | Valeur | Unité\nDA-P01-IN | 13 | mm\nDA-P01-OUT | 9 | mm\nDA-P01-LEAK | 0.1 | L/min","blocks":[{"id":"6531eb30-3493-56cf-8872-0e4b04476938","block_id":"6531eb30-3493-56cf-8872-0e4b04476938","page_index":1,"text":"Référence | Valeur | Unité\nDA-P01-IN | 13 | mm\nDA-P01-OUT | 9 | mm\nDA-P01-LEAK | 0.1 | L/min","start_offset":0,"end_offset":92,"bbox":[47.197009358351025,489.3572097513303,547.7652398158541,619.929397550167],"precision":"table","type":"table","page":{"alphanumeric_count":192,"classification":"native","coverage_regions":[{"bbox":[48.0,776.0460496000001,325.5703136000001,792.0460496000001],"block_id":"f72eb719-496b-568c-b7ed-5f0b49eb1093","extraction_method":"native","route":"structured","type":"heading"},{"bbox":[48.0,742.5679247999999,279.65624960000014,750.5679247999999],"block_id":"65b157d6-bb91-547b-9b9c-0c7c46e728a4","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,691.6472216,372.2314493,702.6472216],"block_id":"8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,629.4069872,182.9003904,641.4069872],"block_id":"400df997-6d2d-563e-b813-db92651f7f49","extraction_method":"native","route":"structured","type":"heading"},{"bbox":[47.197009358351025,489.3572097513303,547.7652398158541,619.929397550167],"block_id":"6531eb30-3493-56cf-8872-0e4b04476938","extraction_method":"native","route":"structured","type":"table"},{"bbox":[48.0,29.837890399999992,93.25927829999999,38.83789039999999],"block_id":"6ce49513-fd6d-55fc-9c4c-df67b51e8627","extraction_method":"native","route":"structured","type":"text"}],"crop_box":null,"crop_box_source":"unavailable_inherited_or_absent","display_height":841.8897705078125,"display_width":595.2755737304688,"effective_box":[0.0,0.0,595.2755737304688,841.8897705078125],"extraction_route":"structured","extraction_state":"native","height":841.8897705078125,"image_regions":[],"label":null,"media_box":[0.0,0.0,595.2755737304688,841.8897705078125],"media_box_source":"declared","native_text_regions":[[49.47200012207031,779.6817626953125,324.32000732421875,792.6897583007812],[48.784000396728516,742.8338012695312,278.8719482421875,751.9058227539062],[48.88199996948242,30.137001037597656,92.30699920654297,38.678001403808594],[49.077999114990234,692.0128173828125,370.70697021484375,702.6497802734375],[48.060001373291016,632.1337890625,182.22000122070312,641.8897705078125],[53.91999816894531,599.3598022460938,109.64999389648438,607.4898071289062],[275.04998779296875,599.3598022460938,311.67999267578125,607.0897827148438],[405.9200134277344,599.3598022460938,434.7300109863281,607.4898071289062],[53.97999954223633,566.3598022460938,102.92999267578125,573.9097900390625],[276.1000061035156,566.3598022460938,286.9200134277344,573.9097900390625],[405.9100036621094,566.4898071289062,423.6300048828125,572.0897827148438],[53.97999954223633,533.3598022460938,114.80999755859375,540.9097900390625],[275.6300048828125,533.3598022460938,280.6600036621094,540.9097900390625],[405.9100036621094,533.4898071289062,423.6300048828125,539.0897827148438],[53.97999954223633,500.35980224609375,118.97999572753906,507.9098205566406],[275.6600036621094,500.35980224609375,289.9700012207031,507.9098205566406],[405.9800109863281,499.5697937011719,431.92999267578125,508.0898132324219]],"native_text_sparse":false,"needs_ocr":false,"ocr_cell_count":0,"ocr_orientations":[],"ocr_parser_regions":[],"ocr_preprocessing":[],"ocr_regions":[],"ocr_used":false,"orientation_correction":0,"orientation_source":"native_page_frame","page_index":1,"page_number":2,"replacement_ratio":0.0,"rotation":0,"routing_reason":"typography_requires_structure","table_orientation_corrections":[],"text_character_count":252,"text_font_sizes":[8.0,9.0,10.0,11.0,12.0,16.0],"text_mapping_warnings":[],"unresolved_regions":[],"vector_path_count":6,"width":595.2755737304688},"extraction_revision_id":"5c6d7395-f3c9-5da8-baee-d7ca8615dfb5","source_text_hash":"b8905b7ddd2345f2f81baeb5638d1806cdd8dae8027724ac7962be9c01221ad5"}],"page_indices":[1],"parent_id":"6531eb30-3493-56cf-8872-0e4b04476938","score":0.03128054740957967,"exact_identifier":false,"coverage":{"ocr":0,"processed":2,"total":2,"unresolved":0,"unresolved_regions":0},"extraction_state":"ready","extraction_warnings":[],"name":"Atelier 1 - Banc pneumatique DA-P01.pdf","document_name":"Atelier 1 - Banc pneumatique DA-P01.pdf","relative_path":"Atelier 1 - Banc pneumatique DA-P01.pdf","page_index":1,"page_number":2,"label":null,"parent_expanded":false,"source_id":"S005","query_id":"3a69320b-12b5-45fc-a260-e4590cc7ec1f","block_ids":["6531eb30-3493-56cf-8872-0e4b04476938"],"bboxes":[[47.197009358351025,489.3572097513303,547.7652398158541,619.929397550167]],"precision":"block","citation_url":"/api/v1/citations/3a69320b-12b5-45fc-a260-e4590cc7ec1f/S005"},{"chunk_id":"eb54e0ca-ca0c-5fa2-a02e-6813e088b83d","generation_id":"57ffa153-0f74-429b-82a8-72579b163e22","extraction_revision_id":"5c6d7395-f3c9-5da8-baee-d7ca8615dfb5","version_id":"11debf6d-6e3c-4874-9ea4-395c1ad6661c","document_id":"e01b0666-ae93-40e5-9403-35decf00ae84","text":"DOCUMENT SYNTHÉTIQUE - qualification technique, CC0","blocks":[{"id":"65b157d6-bb91-547b-9b9c-0c7c46e728a4","block_id":"65b157d6-bb91-547b-9b9c-0c7c46e728a4","page_index":1,"text":"DOCUMENT SYNTHÉTIQUE - qualification technique, CC0","start_offset":0,"end_offset":51,"bbox":[48.0,742.5679247999999,279.65624960000014,750.5679247999999],"precision":"block","type":"text","page":{"alphanumeric_count":192,"classification":"native","coverage_regions":[{"bbox":[48.0,776.0460496000001,325.5703136000001,792.0460496000001],"block_id":"f72eb719-496b-568c-b7ed-5f0b49eb1093","extraction_method":"native","route":"structured","type":"heading"},{"bbox":[48.0,742.5679247999999,279.65624960000014,750.5679247999999],"block_id":"65b157d6-bb91-547b-9b9c-0c7c46e728a4","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,691.6472216,372.2314493,702.6472216],"block_id":"8bdcc9a8-b2b5-5d67-ad49-2b441e0285b4","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,629.4069872,182.9003904,641.4069872],"block_id":"400df997-6d2d-563e-b813-db92651f7f49","extraction_method":"native","route":"structured","type":"heading"},{"bbox":[47.197009358351025,489.3572097513303,547.7652398158541,619.929397550167],"block_id":"6531eb30-3493-56cf-8872-0e4b04476938","extraction_method":"native","route":"structured","type":"table"},{"bbox":[48.0,29.837890399999992,93.25927829999999,38.83789039999999],"block_id":"6ce49513-fd6d-55fc-9c4c-df67b51e8627","extraction_method":"native","route":"structured","type":"text"}],"crop_box":null,"crop_box_source":"unavailable_inherited_or_absent","display_height":841.8897705078125,"display_width":595.2755737304688,"effective_box":[0.0,0.0,595.2755737304688,841.8897705078125],"extraction_route":"structured","extraction_state":"native","height":841.8897705078125,"image_regions":[],"label":null,"media_box":[0.0,0.0,595.2755737304688,841.8897705078125],"media_box_source":"declared","native_text_regions":[[49.47200012207031,779.6817626953125,324.32000732421875,792.6897583007812],[48.784000396728516,742.8338012695312,278.8719482421875,751.9058227539062],[48.88199996948242,30.137001037597656,92.30699920654297,38.678001403808594],[49.077999114990234,692.0128173828125,370.70697021484375,702.6497802734375],[48.060001373291016,632.1337890625,182.22000122070312,641.8897705078125],[53.91999816894531,599.3598022460938,109.64999389648438,607.4898071289062],[275.04998779296875,599.3598022460938,311.67999267578125,607.0897827148438],[405.9200134277344,599.3598022460938,434.7300109863281,607.4898071289062],[53.97999954223633,566.3598022460938,102.92999267578125,573.9097900390625],[276.1000061035156,566.3598022460938,286.9200134277344,573.9097900390625],[405.9100036621094,566.4898071289062,423.6300048828125,572.0897827148438],[53.97999954223633,533.3598022460938,114.80999755859375,540.9097900390625],[275.6300048828125,533.3598022460938,280.6600036621094,540.9097900390625],[405.9100036621094,533.4898071289062,423.6300048828125,539.0897827148438],[53.97999954223633,500.35980224609375,118.97999572753906,507.9098205566406],[275.6600036621094,500.35980224609375,289.9700012207031,507.9098205566406],[405.9800109863281,499.5697937011719,431.92999267578125,508.0898132324219]],"native_text_sparse":false,"needs_ocr":false,"ocr_cell_count":0,"ocr_orientations":[],"ocr_parser_regions":[],"ocr_preprocessing":[],"ocr_regions":[],"ocr_used":false,"orientation_correction":0,"orientation_source":"native_page_frame","page_index":1,"page_number":2,"replacement_ratio":0.0,"rotation":0,"routing_reason":"typography_requires_structure","table_orientation_corrections":[],"text_character_count":252,"text_font_sizes":[8.0,9.0,10.0,11.0,12.0,16.0],"text_mapping_warnings":[],"unresolved_regions":[],"vector_path_count":6,"width":595.2755737304688},"extraction_revision_id":"5c6d7395-f3c9-5da8-baee-d7ca8615dfb5","source_text_hash":"478d5b91bfbd9be453ca091a38c5bfb655696ab4f99045f3e53cc4a41a860995"}],"page_indices":[1],"parent_id":"65b157d6-bb91-547b-9b9c-0c7c46e728a4","score":0.030309988518943745,"exact_identifier":false,"coverage":{"ocr":0,"processed":2,"total":2,"unresolved":0,"unresolved_regions":0},"extraction_state":"ready","extraction_warnings":[],"name":"Atelier 1 - Banc pneumatique DA-P01.pdf","document_name":"Atelier 1 - Banc pneumatique DA-P01.pdf","relative_path":"Atelier 1 - Banc pneumatique DA-P01.pdf","page_index":1,"page_number":2,"label":null,"parent_expanded":false,"source_id":"S006","query_id":"3a69320b-12b5-45fc-a260-e4590cc7ec1f","block_ids":["65b157d6-bb91-547b-9b9c-0c7c46e728a4"],"bboxes":[[48.0,742.5679247999999,279.65624960000014,750.5679247999999]],"precision":"block","citation_url":"/api/v1/citations/3a69320b-12b5-45fc-a260-e4590cc7ec1f/S006"}]}
+
+id: 4
+event: status
+data: {"state":"generating"}
+
+: heartbeat
+
+: heartbeat
+
+: heartbeat
+
+: heartbeat
+
+: heartbeat
+
+: heartbeat
+
+: heartbeat
+
+: heartbeat
+
+: heartbeat
+
+: heartbeat
+
+: heartbeat
+
+id: 5
+event: delta
+data: {"text":"La"}
+
+id: 6
+event: delta
+data: {"text":" pression"}
+
+id: 7
+event: delta
+data: {"text":" nomin"}
+
+id: 8
+event: delta
+data: {"text":"ale"}
+
+id: 9
+event: delta
+data: {"text":" de"}
+
+id: 10
+event: delta
+data: {"text":" DA"}
+
+id: 11
+event: delta
+data: {"text":"-P"}
+
+id: 12
+event: delta
+data: {"text":"0"}
+
+id: 13
+event: delta
+data: {"text":"1"}
+
+id: 14
+event: delta
+data: {"text":" est"}
+
+id: 15
+event: delta
+data: {"text":" de"}
+
+id: 16
+event: delta
+data: {"text":" **"}
+
+id: 17
+event: delta
+data: {"text":"3"}
+
+id: 18
+event: delta
+data: {"text":"."}
+
+id: 19
+event: delta
+data: {"text":"1"}
+
+id: 20
+event: delta
+data: {"text":" bar"}
+
+id: 21
+event: delta
+data: {"text":"**."}
+
+id: 22
+event: delta
+data: {"text":"\n\nCette"}
+
+id: 23
+event: delta
+data: {"text":" information"}
+
+id: 24
+event: delta
+data: {"text":" prov"}
+
+id: 25
+event: delta
+data: {"text":"ient"}
+
+id: 26
+event: delta
+data: {"text":" directement"}
+
+id: 27
+event: delta
+data: {"text":" du"}
+
+id: 28
+event: delta
+data: {"text":" document"}
+
+id: 29
+event: delta
+data: {"text":" S"}
+
+id: 30
+event: delta
+data: {"text":"0"}
+
+: heartbeat
+
+id: 31
+event: delta
+data: {"text":"0"}
+
+id: 32
+event: delta
+data: {"text":"1"}
+
+id: 33
+event: delta
+data: {"text":","}
+
+id: 34
+event: delta
+data: {"text":" qui"}
+
+id: 35
+event: delta
+data: {"text":" spéc"}
+
+id: 36
+event: delta
+data: {"text":"ifie"}
+
+id: 37
+event: delta
+data: {"text":" que"}
+
+id: 38
+event: delta
+data: {"text":" «"}
+
+id: 39
+event: delta
+data: {"text":" La"}
+
+id: 40
+event: delta
+data: {"text":" pression"}
+
+id: 41
+event: delta
+data: {"text":" nomin"}
+
+id: 42
+event: delta
+data: {"text":"ale"}
+
+id: 43
+event: delta
+data: {"text":" de"}
+
+id: 44
+event: delta
+data: {"text":" DA"}
+
+id: 45
+event: delta
+data: {"text":"-P"}
+
+id: 46
+event: delta
+data: {"text":"0"}
+
+id: 47
+event: delta
+data: {"text":"1"}
+
+id: 48
+event: delta
+data: {"text":" est"}
+
+id: 49
+event: delta
+data: {"text":" de"}
+
+id: 50
+event: delta
+data: {"text":" 3"}
+
+id: 51
+event: delta
+data: {"text":"."}
+
+id: 52
+event: delta
+data: {"text":"1"}
+
+id: 53
+event: delta
+data: {"text":" bar"}
+
+id: 54
+event: delta
+data: {"text":" »"}
+
+id: 55
+event: delta
+data: {"text":" ["}
+
+id: 56
+event: delta
+data: {"text":"S"}
+
+id: 57
+event: delta
+data: {"text":"0"}
+
+id: 58
+event: delta
+data: {"text":"0"}
+
+id: 59
+event: delta
+data: {"text":"1"}
+
+: heartbeat
+
+id: 60
+event: delta
+data: {"text":"]."}
+
+id: 61
+event: delta
+data: {"text":"\n\nLes"}
+
+id: 62
+event: delta
+data: {"text":" autres"}
+
+id: 63
+event: delta
+data: {"text":" documents"}
+
+id: 64
+event: delta
+data: {"text":" fournis"}
+
+id: 65
+event: delta
+data: {"text":" ne"}
+
+id: 66
+event: delta
+data: {"text":" conti"}
+
+id: 67
+event: delta
+data: {"text":"ennent"}
+
+id: 68
+event: delta
+data: {"text":" pas"}
+
+id: 69
+event: delta
+data: {"text":" d"}
+
+id: 70
+event: delta
+data: {"text":"'"}
+
+id: 71
+event: delta
+data: {"text":"information"}
+
+id: 72
+event: delta
+data: {"text":" contradict"}
+
+id: 73
+event: delta
+data: {"text":"oire"}
+
+id: 74
+event: delta
+data: {"text":" sur"}
+
+id: 75
+event: delta
+data: {"text":" ce"}
+
+id: 76
+event: delta
+data: {"text":" param"}
+
+id: 77
+event: delta
+data: {"text":"ètre"}
+
+id: 78
+event: delta
+data: {"text":" spécifique"}
+
+id: 79
+event: delta
+data: {"text":" :"}
+
+id: 80
+event: delta
+data: {"text":"\n*"}
+
+id: 81
+event: delta
+data: {"text":"   Le"}
+
+id: 82
+event: delta
+data: {"text":" document"}
+
+id: 83
+event: delta
+data: {"text":" S"}
+
+id: 84
+event: delta
+data: {"text":"0"}
+
+id: 85
+event: delta
+data: {"text":"0"}
+
+id: 86
+event: delta
+data: {"text":"2"}
+
+id: 87
+event: delta
+data: {"text":" sert"}
+
+: heartbeat
+
+id: 88
+event: delta
+data: {"text":" uniquement"}
+
+id: 89
+event: delta
+data: {"text":" de"}
+
+id: 90
+event: delta
+data: {"text":" titre"}
+
+id: 91
+event: delta
+data: {"text":" pour"}
+
+id: 92
+event: delta
+data: {"text":" les"}
+
+id: 93
+event: delta
+data: {"text":" mesures"}
+
+id: 94
+event: delta
+data: {"text":" de"}
+
+id: 95
+event: delta
+data: {"text":" contrôle"}
+
+id: 96
+event: delta
+data: {"text":"."}
+
+id: 97
+event: delta
+data: {"text":"\n*"}
+
+id: 98
+event: delta
+data: {"text":"   Le"}
+
+id: 99
+event: delta
+data: {"text":" document"}
+
+id: 100
+event: delta
+data: {"text":" S"}
+
+id: 101
+event: delta
+data: {"text":"0"}
+
+id: 102
+event: delta
+data: {"text":"0"}
+
+id: 103
+event: delta
+data: {"text":"3"}
+
+id: 104
+event: delta
+data: {"text":" confirme"}
+
+id: 105
+event: delta
+data: {"text":" que"}
+
+id: 106
+event: delta
+data: {"text":" les"}
+
+id: 107
+event: delta
+data: {"text":" valeurs"}
+
+id: 108
+event: delta
+data: {"text":" du"}
+
+id: 109
+event: delta
+data: {"text":" tableau"}
+
+id: 110
+event: delta
+data: {"text":" dans"}
+
+: heartbeat
+
+id: 111
+event: delta
+data: {"text":" S"}
+
+id: 112
+event: delta
+data: {"text":"0"}
+
+id: 113
+event: delta
+data: {"text":"0"}
+
+id: 114
+event: delta
+data: {"text":"5"}
+
+id: 115
+event: delta
+data: {"text":" concern"}
+
+id: 116
+event: delta
+data: {"text":"ent"}
+
+id: 117
+event: delta
+data: {"text":" uniquement"}
+
+id: 118
+event: delta
+data: {"text":" DA"}
+
+id: 119
+event: delta
+data: {"text":"-P"}
+
+id: 120
+event: delta
+data: {"text":"0"}
+
+id: 121
+event: delta
+data: {"text":"1"}
+
+id: 122
+event: delta
+data: {"text":","}
+
+id: 123
+event: delta
+data: {"text":" mais"}
+
+id: 124
+event: delta
+data: {"text":" ce"}
+
+id: 125
+event: delta
+data: {"text":" tableau"}
+
+id: 126
+event: delta
+data: {"text":" ne"}
+
+id: 127
+event: delta
+data: {"text":" liste"}
+
+id: 128
+event: delta
+data: {"text":" que"}
+
+id: 129
+event: delta
+data: {"text":" des"}
+
+id: 130
+event: delta
+data: {"text":" dimensions"}
+
+id: 131
+event: delta
+data: {"text":" et"}
+
+id: 132
+event: delta
+data: {"text":" un"}
+
+id: 133
+event: delta
+data: {"text":" débit"}
+
+id: 134
+event: delta
+data: {"text":" de"}
+
+id: 135
+event: delta
+data: {"text":" fuite"}
+
+id: 136
+event: delta
+data: {"text":" ("}
+
+id: 137
+event: delta
+data: {"text":"S"}
+
+id: 138
+event: delta
+data: {"text":"0"}
+
+id: 139
+event: delta
+data: {"text":"0"}
+
+: heartbeat
+
+id: 140
+event: delta
+data: {"text":"5"}
+
+id: 141
+event: delta
+data: {"text":"),"}
+
+id: 142
+event: delta
+data: {"text":" pas"}
+
+id: 143
+event: delta
+data: {"text":" la"}
+
+id: 144
+event: delta
+data: {"text":" pression"}
+
+id: 145
+event: delta
+data: {"text":" nomin"}
+
+id: 146
+event: delta
+data: {"text":"ale"}
+
+id: 147
+event: delta
+data: {"text":"."}
+
+id: 148
+event: delta
+data: {"text":"\n*"}
+
+id: 149
+event: delta
+data: {"text":"   Le"}
+
+id: 150
+event: delta
+data: {"text":" document"}
+
+id: 151
+event: delta
+data: {"text":" S"}
+
+id: 152
+event: delta
+data: {"text":"0"}
+
+id: 153
+event: delta
+data: {"text":"0"}
+
+id: 154
+event: delta
+data: {"text":"4"}
+
+id: 155
+event: delta
+data: {"text":" sert"}
+
+id: 156
+event: delta
+data: {"text":" à"}
+
+id: 157
+event: delta
+data: {"text":" éc"}
+
+id: 158
+event: delta
+data: {"text":"arter"}
+
+id: 159
+event: delta
+data: {"text":" une"}
+
+id: 160
+event: delta
+data: {"text":" référence"}
+
+id: 161
+event: delta
+data: {"text":" proche"}
+
+id: 162
+event: delta
+data: {"text":" ("}
+
+id: 163
+event: delta
+data: {"text":"DA"}
+
+id: 164
+event: delta
+data: {"text":"-P"}
+
+id: 165
+event: delta
+data: {"text":"0"}
+
+id: 166
+event: delta
+data: {"text":"1"}
+
+id: 167
+event: delta
+data: {"text":"0"}
+
+id: 168
+event: delta
+data: {"text":")"}
+
+: heartbeat
+
+id: 169
+event: delta
+data: {"text":" dont"}
+
+id: 170
+event: delta
+data: {"text":" les"}
+
+id: 171
+event: delta
+data: {"text":" valeurs"}
+
+id: 172
+event: delta
+data: {"text":" ne"}
+
+id: 173
+event: delta
+data: {"text":" sont"}
+
+id: 174
+event: delta
+data: {"text":" pas"}
+
+id: 175
+event: delta
+data: {"text":" celles"}
+
+id: 176
+event: delta
+data: {"text":" de"}
+
+id: 177
+event: delta
+data: {"text":" DA"}
+
+id: 178
+event: delta
+data: {"text":"-P"}
+
+id: 179
+event: delta
+data: {"text":"0"}
+
+id: 180
+event: delta
+data: {"text":"1"}
+
+id: 181
+event: delta
+data: {"text":","}
+
+id: 182
+event: delta
+data: {"text":" renfor"}
+
+id: 183
+event: delta
+data: {"text":"çant"}
+
+id: 184
+event: delta
+data: {"text":" ainsi"}
+
+id: 185
+event: delta
+data: {"text":" l"}
+
+id: 186
+event: delta
+data: {"text":"'"}
+
+id: 187
+event: delta
+data: {"text":"unic"}
+
+id: 188
+event: delta
+data: {"text":"ité"}
+
+id: 189
+event: delta
+data: {"text":" des"}
+
+id: 190
+event: delta
+data: {"text":" données"}
+
+id: 191
+event: delta
+data: {"text":" fourn"}
+
+id: 192
+event: delta
+data: {"text":"ies"}
+
+id: 193
+event: delta
+data: {"text":" pour"}
+
+id: 194
+event: delta
+data: {"text":" DA"}
+
+id: 195
+event: delta
+data: {"text":"-P"}
+
+id: 196
+event: delta
+data: {"text":"0"}
+
+id: 197
+event: delta
+data: {"text":"1"}
+
+id: 198
+event: delta
+data: {"text":" dans"}
+
+: heartbeat
+
+id: 199
+event: delta
+data: {"text":" ce"}
+
+id: 200
+event: delta
+data: {"text":" contexte"}
+
+id: 201
+event: delta
+data: {"text":"."}
+
+id: 202
+event: delta
+data: {"text":"\n*"}
+
+id: 203
+event: delta
+data: {"text":"   Le"}
+
+id: 204
+event: delta
+data: {"text":" document"}
+
+id: 205
+event: delta
+data: {"text":" S"}
+
+id: 206
+event: delta
+data: {"text":"0"}
+
+id: 207
+event: delta
+data: {"text":"0"}
+
+id: 208
+event: delta
+data: {"text":"6"}
+
+id: 209
+event: delta
+data: {"text":" est"}
+
+id: 210
+event: delta
+data: {"text":" un"}
+
+id: 211
+event: delta
+data: {"text":" avis"}
+
+id: 212
+event: delta
+data: {"text":" de"}
+
+id: 213
+event: delta
+data: {"text":" qualification"}
+
+id: 214
+event: delta
+data: {"text":" technique"}
+
+id: 215
+event: delta
+data: {"text":" et"}
+
+id: 216
+event: delta
+data: {"text":" ne"}
+
+id: 217
+event: delta
+data: {"text":" contient"}
+
+id: 218
+event: delta
+data: {"text":" pas"}
+
+id: 219
+event: delta
+data: {"text":" de"}
+
+id: 220
+event: delta
+data: {"text":" données"}
+
+id: 221
+event: delta
+data: {"text":" fact"}
+
+id: 222
+event: delta
+data: {"text":"uelles"}
+
+id: 223
+event: delta
+data: {"text":" sur"}
+
+id: 224
+event: delta
+data: {"text":" la"}
+
+id: 225
+event: delta
+data: {"text":" pression"}
+
+id: 226
+event: delta
+data: {"text":"."}
+
+: heartbeat
+
+id: 227
+event: delta
+data: {"text":"\n\nA"}
+
+id: 228
+event: delta
+data: {"text":"uc"}
+
+id: 229
+event: delta
+data: {"text":"une"}
+
+id: 230
+event: delta
+data: {"text":" contradiction"}
+
+id: 231
+event: delta
+data: {"text":" n"}
+
+id: 232
+event: delta
+data: {"text":"'est"}
+
+id: 233
+event: delta
+data: {"text":" signal"}
+
+id: 234
+event: delta
+data: {"text":"ée"}
+
+id: 235
+event: delta
+data: {"text":" dans"}
+
+id: 236
+event: delta
+data: {"text":" les"}
+
+id: 237
+event: delta
+data: {"text":" preuves"}
+
+id: 238
+event: delta
+data: {"text":" fourn"}
+
+id: 239
+event: delta
+data: {"text":"ies"}
+
+id: 240
+event: delta
+data: {"text":" concernant"}
+
+id: 241
+event: delta
+data: {"text":" cette"}
+
+id: 242
+event: delta
+data: {"text":" valeur"}
+
+id: 243
+event: delta
+data: {"text":" spécifique"}
+
+id: 244
+event: delta
+data: {"text":"."}
+
+id: 245
+event: done
+data: {"message":"La pression nominale de DA-P01 est de **3.1 bar**.\n\nCette information provient directement du document S001, qui spécifie que « La pression nominale de DA-P01 est de 3.1 bar » [S001].\n\nLes autres documents fournis ne contiennent pas d'information contradictoire sur ce paramètre spécifique :\n*   Le document S002 sert uniquement de titre pour les mesures de contrôle.\n*   Le document S003 confirme que les valeurs du tableau dans S005 concernent uniquement DA-P01, mais ce tableau ne liste que des dimensions et un débit de fuite (S005), pas la pression nominale.\n*   Le document S004 sert à écarter une référence proche (DA-P010) dont les valeurs ne sont pas celles de DA-P01, renforçant ainsi l'unicité des données fournies pour DA-P01 dans ce contexte.\n*   Le document S006 est un avis de qualification technique et ne contient pas de données factuelles sur la pression.\n\nAucune contradiction n'est signalée dans les preuves fournies concernant cette valeur spécifique.","text":"La pression nominale de DA-P01 est de **3.1 bar**.\n\nCette information provient directement du document S001, qui spécifie que « La pression nominale de DA-P01 est de 3.1 bar » [S001].\n\nLes autres documents fournis ne contiennent pas d'information contradictoire sur ce paramètre spécifique :\n*   Le document S002 sert uniquement de titre pour les mesures de contrôle.\n*   Le document S003 confirme que les valeurs du tableau dans S005 concernent uniquement DA-P01, mais ce tableau ne liste que des dimensions et un débit de fuite (S005), pas la pression nominale.\n*   Le document S004 sert à écarter une référence proche (DA-P010) dont les valeurs ne sont pas celles de DA-P01, renforçant ainsi l'unicité des données fournies pour DA-P01 dans ce contexte.\n*   Le document S006 est un avis de qualification technique et ne contient pas de données factuelles sur la pression.\n\nAucune contradiction n'est signalée dans les preuves fournies concernant cette valeur spécifique.","status":"done","citations":[{"chunk_id":"0b2e78e6-4073-5ff6-982b-6ff0f244b8f1","generation_id":"57ffa153-0f74-429b-82a8-72579b163e22","extraction_revision_id":"5c6d7395-f3c9-5da8-baee-d7ca8615dfb5","version_id":"11debf6d-6e3c-4874-9ea4-395c1ad6661c","document_id":"e01b0666-ae93-40e5-9403-35decf00ae84","text":"DA-P01 - banc pneumatique synthétique Atelier 1. La pression nominale de DA-P01 est de 3.1 bar. La tolérance de pression de DA-P01 est de ± 2.0 %. Le contrôle périodique de DA-P01 intervient toutes les 1020 h. Le couple de serrage prescrit pour DA-P01 est de 12 N·m. L'alimentation d'essai de DA-P01 est de 22 V.","blocks":[{"id":"aabbf7be-8ddc-5458-bf8c-896487ae9c1c","block_id":"aabbf7be-8ddc-5458-bf8c-896487ae9c1c","page_index":0,"text":"DA-P01 - banc pneumatique synthétique Atelier 1. La pression nominale de DA-P01 est de 3.1 bar. La tolérance de pression de DA-P01 est de ± 2.0 %. Le contrôle périodique de DA-P01 intervient toutes les 1020 h. Le couple de serrage prescrit pour DA-P01 est de 12 N·m. L'alimentation d'essai de DA-P01 est de 22 V.","start_offset":0,"end_offset":312,"bbox":[48.0,502.1472216,392.75976590000005,702.6472216],"precision":"block","type":"text","page":{"alphanumeric_count":404,"classification":"native","coverage_regions":[{"bbox":[48.0,742.5679247999999,279.65624960000014,750.5679247999999],"block_id":"10d82f07-3c23-592d-9808-efb352c9652d","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,776.0460496000001,412.57812320000005,792.0460496000001],"block_id":"81b57457-83ed-5f11-9b49-9fabfcaff157","extraction_method":"native","route":"structured","type":"heading"},{"bbox":[48.0,502.1472216,392.75976590000005,702.6472216],"block_id":"aabbf7be-8ddc-5458-bf8c-896487ae9c1c","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,445.5472216,541.3027407,475.2472216],"block_id":"4527a431-80ad-5265-b967-5243bbdd7f55","extraction_method":"native","route":"structured","type":"text"},{"bbox":[48.0,29.837890399999992,93.25927829999999,38.83789039999999],"block_id":"9397fcff-878b-5660-9cef-426fc6eece42","extraction_method":"native","route":"structured","type":"text"}],"crop_box":null,"crop_box_source":"unavailable_inherited_or_absent","display_height":841.8897705078125,"display_width":595.2755737304688,"effective_box":[0.0,0.0,595.2755737304688,841.8897705078125],"extraction_route":"structured","extraction_state":"native","height":841.8897705078125,"image_regions":[],"label":null,"media_box":[0.0,0.0,595.2755737304688,841.8897705078125],"media_box_source":"declared","native_text_regions":[[49.34400177001953,776.4497680664062,411.1519775390625,792.6897583007812],[48.784000396728516,742.8338012695312,278.8719482421875,751.9058227539062],[48.88199996948242,30.137001037597656,92.30699920654297,38.678001403808594],[49.077999114990234,692.0128173828125,330.9529724121094,703.0897827148438],[49.077999114990234,654.11279296875,309.00799560546875,664.749755859375],[49.077999114990234,616.2128295898438,332.0639953613281,627.289794921875],[49.077999114990234,578.3128051757812,391.2110595703125,589.3897705078125],[49.077999114990234,540.412841796875,364.9319763183594,551.0498046875],[49.077999114990234,504.64678955078125,297.5570068359375,513.1497802734375],[49.077999114990234,464.61279296875,540.2281494140625,475.6897888183594],[48.60499954223633,448.0467834472656,142.98500061035156,456.5497741699219]],"native_text_sparse":false,"needs_ocr":false,"ocr_cell_count":0,"ocr_orientations":[],"ocr_parser_regions":[],"ocr_preprocessing":[],"ocr_regions":[],"ocr_used":false,"orientation_correction":0,"orientation_source":"native_page_frame","page_index":0,"page_number":1,"replacement_ratio":0.0,"rotation":0,"routing_reason":"typography_requires_structure","table_orientation_corrections":[],"text_character_count":529,"text_font_sizes":[8.0,9.0,11.0,16.0],"text_mapping_warnings":[],"unresolved_regions":[],"vector_path_count":1,"width":595.2755737304688},"extraction_revision_id":"5c6d7395-f3c9-5da8-baee-d7ca8615dfb5","source_text_hash":"587198c96b5f174c0bb1afdd36049cf514316a7001b02bbbe5b8edaa460f9737"}],"page_indices":[0],"parent_id":"aabbf7be-8ddc-5458-bf8c-896487ae9c1c","score":0.03278688524590164,"exact_identifier":true,"coverage":{"ocr":0,"processed":2,"total":2,"unresolved":0,"unresolved_regions":0},"extraction_state":"ready","extraction_warnings":[],"name":"Atelier 1 - Banc pneumatique DA-P01.pdf","document_name":"Atelier 1 - Banc pneumatique DA-P01.pdf","relative_path":"Atelier 1 - Banc pneumatique DA-P01.pdf","page_index":0,"page_number":1,"label":null,"required_identifiers":["DA-P01"],"parent_expanded":false,"source_id":"S001","query_id":"3a69320b-12b5-45fc-a260-e4590cc7ec1f","block_ids":["aabbf7be-8ddc-5458-bf8c-896487ae9c1c"],"bboxes":[[48.0,502.1472216,392.75976590000005,702.6472216]],"precision":"block","citation_url":"/api/v1/citations/3a69320b-12b5-45fc-a260-e4590cc7ec1f/S001"}],"finish_reason":"stop","metrics":{"model_called":true,"queue_wait_ms":66.67,"retrieval_ms":4292.18,"local_prompt_tokens":763,"output_tokens":384,"evidence_tokens":583,"evidence_budget":1536,"exact_identifiers_required":["DA-P01"],"exact_identifiers_covered":["DA-P01"],"identifier_coverage_states":{"DA-P01":"covered"},"retrieved_chunk_ids":["0b2e78e6-4073-5ff6-982b-6ff0f244b8f1","6de81372-f4b5-5429-9466-52dfcb1f760f","f367b483-7fe5-511e-8684-b20ed8c2b1c0","9319db49-7f5b-5e18-afe0-c7dbda98e1ec","43f9176e-ff42-509c-8c1a-5da67ec445b7","eb54e0ca-ca0c-5fa2-a02e-6813e088b83d"],"context_chunk_ids":["0b2e78e6-4073-5ff6-982b-6ff0f244b8f1","6de81372-f4b5-5429-9466-52dfcb1f760f","f367b483-7fe5-511e-8684-b20ed8c2b1c0","9319db49-7f5b-5e18-afe0-c7dbda98e1ec","43f9176e-ff42-509c-8c1a-5da67ec445b7","eb54e0ca-ca0c-5fa2-a02e-6813e088b83d"],"context_fragments_excluded_by_budget":0,"identifier_coverage_at_context":1.0,"evidence_coverage_at_context":1.0,"context_ms":27.84,"generation_admission_wait_ms":90.75,"model_call_attempted":true,"prompt_eval_count":763,"prompt_eval_cached_count":0,"eval_count":253,"total_duration":190745803500,"load_duration":17588894700,"prompt_eval_duration":87282411000,"eval_duration":85806278000,"verified_model_identity":{"digest":"de8024dbfde0f6e136e9f120ab7c656ca0e304b24360de18a4a287039aa12199","source":"/api/tags","manifest_sha256":"19891b5d7927663f3a36530cf4997f030fdec05fe608b3499ca616f0bcc3173b"},"tokenizer_count_difference":0,"elapsed_ms":197827.71,"ttft_ms":111996.79},"warnings":[]}
+
