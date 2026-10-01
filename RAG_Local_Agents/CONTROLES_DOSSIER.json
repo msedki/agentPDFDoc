@@ -1,6 +1,6 @@
 {
   "pack": "RAG-LOCAL-16-v2.1",
-  "checked_at_utc": "2026-10-01T05:52:17.175210+00:00",
+  "checked_at_utc": "2026-10-01T05:55:01.250748+00:00",
   "overall_status": "PASS",
   "scope": "Documentation, configuration syntax, runtime profile copy, skill format/registry, SQLite reference and deterministic examples ONLY",
   "python_version": "3.12.14",
