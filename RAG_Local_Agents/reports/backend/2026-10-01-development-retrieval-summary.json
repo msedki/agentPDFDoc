@@ -1,0 +1,2607 @@
+{
+ "full_report": {
+  "path": ".runtime/evals/qualification-v2.1/2026-10-01-development-retrieval-full.json",
+  "bytes": 72835259,
+  "sha256": "32e9fee1ad8c3f27fdf5834fcb9034c8accd3d380b1a4ec4c214c5fc104c514d",
+  "note": "Rapport complet (réponses de contexte par question) conservé hors Git : 72,8 Mo. Ce résumé en reprend les mesures et une ligne par question."
+ },
+ "date_utc": "2026-10-01T07:06:26.755899+00:00",
+ "split": "development",
+ "phase": "retrieval_and_final_context_no_generation",
+ "status": "INCOMPLETE",
+ "source_dataset_sha256": "29d51419d6c320ae93b64de1e5b6e5cff246eb2a7f9f7947a92321c7680c8116",
+ "resolved_annotations_sha256": "19cfee27663aa1a95b8c2c32d57a373e87233ef8c8dba0d789602d3c98b87ebe",
+ "identity": {
+  "profile_sha256": "f769f455aefa865cc38eda58d70c324a2c146667a529da21168e0e3c8b5c4496",
+  "selector_sha256": "d84bbb299148931f3285cef6ba098907cc0867f1745d71fa237aa09e21b38023",
+  "dense_identity": {
+   "graph_sha256": "dd476dd0c2514e9b9be83aeb3853fac0763e0bdf4a71645407587d77c48a2d88",
+   "tokenizer_sha256": "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39",
+   "model_id": "intfloat/multilingual-e5-small",
+   "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+   "query_prefix": "query: ",
+   "passage_prefix": "passage: ",
+   "pooling": "attention_mask_mean",
+   "normalize_l2": true,
+   "dimensions": 384,
+   "precision": "int8",
+   "provider": "CPUExecutionProvider",
+   "fingerprint": "53cac40518d0dec0d2d3661f9d07f0a99a67029b8e90af30674d4aff853f9979"
+  },
+  "llm_tokenizer_identity": {
+   "files": {
+    "tokenizer.json": "5f9e4d4901a92b997e463c1f46055088b6cca5ca61a6522d1b9f64c4bb81cb42",
+    "tokenizer_config.json": "316230d6a809701f4db5ea8f8fc862bc3a6f3229c937c174e674ff3ca0a64ac8",
+    "chat_template.jinja": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715"
+   },
+   "enable_thinking": false,
+   "add_generation_prompt": true,
+   "fingerprint": "7ffda296e7d6e564951fe86965da7ce2e0e5928c05eb5a0da9bf2fb159dbbd29"
+  },
+  "qdrant_collection": "pdf_chunks_e5small_v1_53cac40518d0dec0"
+ },
+ "metrics": {
+  "requested_questions": 100,
+  "evaluated_questions": 94,
+  "unresolved_questions": 6,
+  "error_questions": 0,
+  "answerable_evaluated_questions": 74,
+  "recall_at_5": {
+   "covered_units": 83,
+   "expected_units": 83,
+   "rate": 1.0,
+   "interval_95": [
+    1.0,
+    1.0
+   ],
+   "method": "bootstrap by question; units of one question stay grouped",
+   "seed": 20260930,
+   "iterations": 2000,
+   "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+  },
+  "recall_at_10": {
+   "covered_units": 83,
+   "expected_units": 83,
+   "rate": 1.0,
+   "interval_95": [
+    1.0,
+    1.0
+   ],
+   "method": "bootstrap by question; units of one question stay grouped",
+   "seed": 20260930,
+   "iterations": 2000,
+   "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+  },
+  "evidence_coverage_at_context": {
+   "covered_units": 83,
+   "expected_units": 83,
+   "rate": 1.0,
+   "interval_95": [
+    1.0,
+    1.0
+   ],
+   "method": "bootstrap by question; units of one question stay grouped",
+   "seed": 20260930,
+   "iterations": 2000,
+   "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+  },
+  "per_question_means": {
+   "recall_at_5": {
+    "denominator_questions": 74,
+    "mean": 1.0,
+    "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+   },
+   "recall_at_10": {
+    "denominator_questions": 74,
+    "mean": 1.0,
+    "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+   },
+   "evidence_coverage_at_context": {
+    "denominator_questions": 74,
+    "mean": 1.0,
+    "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+   }
+  },
+  "mrr_at_10": {
+   "denominator_questions": 74,
+   "mean": 0.954954954954955,
+   "method": "Reciprocal rank of the first individual top10 candidate covering every span of any required evidence unit or admitted alternative; zero if none"
+  },
+  "all_units_recalled_at_5_questions": {
+   "successes": 74,
+   "denominator": 74,
+   "rate": 1.0,
+   "interval_95": [
+    0.950650220603614,
+    1
+   ],
+   "method": "Wilson per question"
+  },
+  "all_units_recalled_questions": {
+   "successes": 74,
+   "denominator": 74,
+   "rate": 1.0,
+   "interval_95": [
+    0.950650220603614,
+    1
+   ],
+   "method": "Wilson per question"
+  },
+  "all_units_in_context_questions": {
+   "successes": 74,
+   "denominator": 74,
+   "rate": 1.0,
+   "interval_95": [
+    0.950650220603614,
+    1
+   ],
+   "method": "Wilson per question"
+  },
+  "scope_safe_questions": {
+   "successes": 94,
+   "denominator": 94,
+   "rate": 1.0,
+   "interval_95": [
+    0.9607379237084551,
+    0.9999999999999999
+   ],
+   "method": "Wilson per question"
+  },
+  "scope_leakage_count": 0,
+  "generation_metrics": {
+   "answer_correctness": "NOT_RUN",
+   "supported_claim_ratio": "NOT_RUN",
+   "correct_abstention": "NOT_RUN",
+   "model_called": false
+  },
+  "by_category": {
+   "comparison": {
+    "requested_questions": 10,
+    "evaluated_questions": 9,
+    "unresolved_questions": 1,
+    "error_questions": 0,
+    "answerable_evaluated_questions": 9,
+    "recall_at_5": {
+     "covered_units": 18,
+     "expected_units": 18,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "recall_at_10": {
+     "covered_units": 18,
+     "expected_units": 18,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "evidence_coverage_at_context": {
+     "covered_units": 18,
+     "expected_units": 18,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "per_question_means": {
+     "recall_at_5": {
+      "denominator_questions": 9,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "recall_at_10": {
+      "denominator_questions": 9,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "evidence_coverage_at_context": {
+      "denominator_questions": 9,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     }
+    },
+    "mrr_at_10": {
+     "denominator_questions": 9,
+     "mean": 0.8518518518518519,
+     "method": "Reciprocal rank of the first individual top10 candidate covering every span of any required evidence unit or admitted alternative; zero if none"
+    },
+    "all_units_recalled_at_5_questions": {
+     "successes": 9,
+     "denominator": 9,
+     "rate": 1.0,
+     "interval_95": [
+      0.7008549515804559,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "all_units_recalled_questions": {
+     "successes": 9,
+     "denominator": 9,
+     "rate": 1.0,
+     "interval_95": [
+      0.7008549515804559,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "all_units_in_context_questions": {
+     "successes": 9,
+     "denominator": 9,
+     "rate": 1.0,
+     "interval_95": [
+      0.7008549515804559,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "scope_safe_questions": {
+     "successes": 9,
+     "denominator": 9,
+     "rate": 1.0,
+     "interval_95": [
+      0.7008549515804559,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "scope_leakage_count": 0,
+    "generation_metrics": {
+     "answer_correctness": "NOT_RUN",
+     "supported_claim_ratio": "NOT_RUN",
+     "correct_abstention": "NOT_RUN",
+     "model_called": false
+    }
+   },
+   "conversation_followup": {
+    "requested_questions": 8,
+    "evaluated_questions": 7,
+    "unresolved_questions": 1,
+    "error_questions": 0,
+    "answerable_evaluated_questions": 7,
+    "recall_at_5": {
+     "covered_units": 7,
+     "expected_units": 7,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "recall_at_10": {
+     "covered_units": 7,
+     "expected_units": 7,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "evidence_coverage_at_context": {
+     "covered_units": 7,
+     "expected_units": 7,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "per_question_means": {
+     "recall_at_5": {
+      "denominator_questions": 7,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "recall_at_10": {
+      "denominator_questions": 7,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "evidence_coverage_at_context": {
+      "denominator_questions": 7,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     }
+    },
+    "mrr_at_10": {
+     "denominator_questions": 7,
+     "mean": 1.0,
+     "method": "Reciprocal rank of the first individual top10 candidate covering every span of any required evidence unit or admitted alternative; zero if none"
+    },
+    "all_units_recalled_at_5_questions": {
+     "successes": 7,
+     "denominator": 7,
+     "rate": 1.0,
+     "interval_95": [
+      0.6456695649333126,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "all_units_recalled_questions": {
+     "successes": 7,
+     "denominator": 7,
+     "rate": 1.0,
+     "interval_95": [
+      0.6456695649333126,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "all_units_in_context_questions": {
+     "successes": 7,
+     "denominator": 7,
+     "rate": 1.0,
+     "interval_95": [
+      0.6456695649333126,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "scope_safe_questions": {
+     "successes": 7,
+     "denominator": 7,
+     "rate": 1.0,
+     "interval_95": [
+      0.6456695649333126,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "scope_leakage_count": 0,
+    "generation_metrics": {
+     "answer_correctness": "NOT_RUN",
+     "supported_claim_ratio": "NOT_RUN",
+     "correct_abstention": "NOT_RUN",
+     "model_called": false
+    }
+   },
+   "factual_fr_en": {
+    "requested_questions": 35,
+    "evaluated_questions": 33,
+    "unresolved_questions": 2,
+    "error_questions": 0,
+    "answerable_evaluated_questions": 33,
+    "recall_at_5": {
+     "covered_units": 33,
+     "expected_units": 33,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "recall_at_10": {
+     "covered_units": 33,
+     "expected_units": 33,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "evidence_coverage_at_context": {
+     "covered_units": 33,
+     "expected_units": 33,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "per_question_means": {
+     "recall_at_5": {
+      "denominator_questions": 33,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "recall_at_10": {
+      "denominator_questions": 33,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "evidence_coverage_at_context": {
+      "denominator_questions": 33,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     }
+    },
+    "mrr_at_10": {
+     "denominator_questions": 33,
+     "mean": 0.9545454545454546,
+     "method": "Reciprocal rank of the first individual top10 candidate covering every span of any required evidence unit or admitted alternative; zero if none"
+    },
+    "all_units_recalled_at_5_questions": {
+     "successes": 33,
+     "denominator": 33,
+     "rate": 1.0,
+     "interval_95": [
+      0.895730002457548,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "all_units_recalled_questions": {
+     "successes": 33,
+     "denominator": 33,
+     "rate": 1.0,
+     "interval_95": [
+      0.895730002457548,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "all_units_in_context_questions": {
+     "successes": 33,
+     "denominator": 33,
+     "rate": 1.0,
+     "interval_95": [
+      0.895730002457548,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "scope_safe_questions": {
+     "successes": 33,
+     "denominator": 33,
+     "rate": 1.0,
+     "interval_95": [
+      0.895730002457548,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "scope_leakage_count": 0,
+    "generation_metrics": {
+     "answer_correctness": "NOT_RUN",
+     "supported_claim_ratio": "NOT_RUN",
+     "correct_abstention": "NOT_RUN",
+     "model_called": false
+    }
+   },
+   "tables_units": {
+    "requested_questions": 12,
+    "evaluated_questions": 11,
+    "unresolved_questions": 1,
+    "error_questions": 0,
+    "answerable_evaluated_questions": 11,
+    "recall_at_5": {
+     "covered_units": 11,
+     "expected_units": 11,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "recall_at_10": {
+     "covered_units": 11,
+     "expected_units": 11,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "evidence_coverage_at_context": {
+     "covered_units": 11,
+     "expected_units": 11,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "per_question_means": {
+     "recall_at_5": {
+      "denominator_questions": 11,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "recall_at_10": {
+      "denominator_questions": 11,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "evidence_coverage_at_context": {
+      "denominator_questions": 11,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     }
+    },
+    "mrr_at_10": {
+     "denominator_questions": 11,
+     "mean": 1.0,
+     "method": "Reciprocal rank of the first individual top10 candidate covering every span of any required evidence unit or admitted alternative; zero if none"
+    },
+    "all_units_recalled_at_5_questions": {
+     "successes": 11,
+     "denominator": 11,
+     "rate": 1.0,
+     "interval_95": [
+      0.7411670330319684,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "all_units_recalled_questions": {
+     "successes": 11,
+     "denominator": 11,
+     "rate": 1.0,
+     "interval_95": [
+      0.7411670330319684,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "all_units_in_context_questions": {
+     "successes": 11,
+     "denominator": 11,
+     "rate": 1.0,
+     "interval_95": [
+      0.7411670330319684,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "scope_safe_questions": {
+     "successes": 11,
+     "denominator": 11,
+     "rate": 1.0,
+     "interval_95": [
+      0.7411670330319684,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "scope_leakage_count": 0,
+    "generation_metrics": {
+     "answer_correctness": "NOT_RUN",
+     "supported_claim_ratio": "NOT_RUN",
+     "correct_abstention": "NOT_RUN",
+     "model_called": false
+    }
+   },
+   "technical_identifiers": {
+    "requested_questions": 15,
+    "evaluated_questions": 14,
+    "unresolved_questions": 1,
+    "error_questions": 0,
+    "answerable_evaluated_questions": 14,
+    "recall_at_5": {
+     "covered_units": 14,
+     "expected_units": 14,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "recall_at_10": {
+     "covered_units": 14,
+     "expected_units": 14,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "evidence_coverage_at_context": {
+     "covered_units": 14,
+     "expected_units": 14,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "per_question_means": {
+     "recall_at_5": {
+      "denominator_questions": 14,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "recall_at_10": {
+      "denominator_questions": 14,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "evidence_coverage_at_context": {
+      "denominator_questions": 14,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     }
+    },
+    "mrr_at_10": {
+     "denominator_questions": 14,
+     "mean": 0.9642857142857143,
+     "method": "Reciprocal rank of the first individual top10 candidate covering every span of any required evidence unit or admitted alternative; zero if none"
+    },
+    "all_units_recalled_at_5_questions": {
+     "successes": 14,
+     "denominator": 14,
+     "rate": 1.0,
+     "interval_95": [
+      0.7846891972623643,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "all_units_recalled_questions": {
+     "successes": 14,
+     "denominator": 14,
+     "rate": 1.0,
+     "interval_95": [
+      0.7846891972623643,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "all_units_in_context_questions": {
+     "successes": 14,
+     "denominator": 14,
+     "rate": 1.0,
+     "interval_95": [
+      0.7846891972623643,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "scope_safe_questions": {
+     "successes": 14,
+     "denominator": 14,
+     "rate": 1.0,
+     "interval_95": [
+      0.7846891972623643,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "scope_leakage_count": 0,
+    "generation_metrics": {
+     "answer_correctness": "NOT_RUN",
+     "supported_claim_ratio": "NOT_RUN",
+     "correct_abstention": "NOT_RUN",
+     "model_called": false
+    }
+   },
+   "unanswerable_in_scope": {
+    "requested_questions": 20,
+    "evaluated_questions": 20,
+    "unresolved_questions": 0,
+    "error_questions": 0,
+    "answerable_evaluated_questions": 0,
+    "recall_at_5": {
+     "covered_units": 0,
+     "expected_units": 0,
+     "rate": null,
+     "interval_95": null,
+     "method": "bootstrap by question",
+     "seed": 20260930,
+     "iterations": 2000
+    },
+    "recall_at_10": {
+     "covered_units": 0,
+     "expected_units": 0,
+     "rate": null,
+     "interval_95": null,
+     "method": "bootstrap by question",
+     "seed": 20260930,
+     "iterations": 2000
+    },
+    "evidence_coverage_at_context": {
+     "covered_units": 0,
+     "expected_units": 0,
+     "rate": null,
+     "interval_95": null,
+     "method": "bootstrap by question",
+     "seed": 20260930,
+     "iterations": 2000
+    },
+    "per_question_means": {
+     "recall_at_5": {
+      "denominator_questions": 0,
+      "mean": null,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "recall_at_10": {
+      "denominator_questions": 0,
+      "mean": null,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "evidence_coverage_at_context": {
+      "denominator_questions": 0,
+      "mean": null,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     }
+    },
+    "mrr_at_10": {
+     "denominator_questions": 0,
+     "mean": null,
+     "method": "Reciprocal rank of the first individual top10 candidate covering every span of any required evidence unit or admitted alternative; zero if none"
+    },
+    "all_units_recalled_at_5_questions": {
+     "successes": 0,
+     "denominator": 0,
+     "rate": null,
+     "interval_95": null,
+     "method": "Wilson per question"
+    },
+    "all_units_recalled_questions": {
+     "successes": 0,
+     "denominator": 0,
+     "rate": null,
+     "interval_95": null,
+     "method": "Wilson per question"
+    },
+    "all_units_in_context_questions": {
+     "successes": 0,
+     "denominator": 0,
+     "rate": null,
+     "interval_95": null,
+     "method": "Wilson per question"
+    },
+    "scope_safe_questions": {
+     "successes": 20,
+     "denominator": 20,
+     "rate": 1.0,
+     "interval_95": [
+      0.8388748419471806,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "scope_leakage_count": 0,
+    "generation_metrics": {
+     "answer_correctness": "NOT_RUN",
+     "supported_claim_ratio": "NOT_RUN",
+     "correct_abstention": "NOT_RUN",
+     "model_called": false
+    }
+   }
+  },
+  "by_language": {
+   "en": {
+    "requested_questions": 17,
+    "evaluated_questions": 17,
+    "unresolved_questions": 0,
+    "error_questions": 0,
+    "answerable_evaluated_questions": 17,
+    "recall_at_5": {
+     "covered_units": 17,
+     "expected_units": 17,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "recall_at_10": {
+     "covered_units": 17,
+     "expected_units": 17,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "evidence_coverage_at_context": {
+     "covered_units": 17,
+     "expected_units": 17,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "per_question_means": {
+     "recall_at_5": {
+      "denominator_questions": 17,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "recall_at_10": {
+      "denominator_questions": 17,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "evidence_coverage_at_context": {
+      "denominator_questions": 17,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     }
+    },
+    "mrr_at_10": {
+     "denominator_questions": 17,
+     "mean": 0.9117647058823529,
+     "method": "Reciprocal rank of the first individual top10 candidate covering every span of any required evidence unit or admitted alternative; zero if none"
+    },
+    "all_units_recalled_at_5_questions": {
+     "successes": 17,
+     "denominator": 17,
+     "rate": 1.0,
+     "interval_95": [
+      0.8156818649911483,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "all_units_recalled_questions": {
+     "successes": 17,
+     "denominator": 17,
+     "rate": 1.0,
+     "interval_95": [
+      0.8156818649911483,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "all_units_in_context_questions": {
+     "successes": 17,
+     "denominator": 17,
+     "rate": 1.0,
+     "interval_95": [
+      0.8156818649911483,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "scope_safe_questions": {
+     "successes": 17,
+     "denominator": 17,
+     "rate": 1.0,
+     "interval_95": [
+      0.8156818649911483,
+      1
+     ],
+     "method": "Wilson per question"
+    },
+    "scope_leakage_count": 0,
+    "generation_metrics": {
+     "answer_correctness": "NOT_RUN",
+     "supported_claim_ratio": "NOT_RUN",
+     "correct_abstention": "NOT_RUN",
+     "model_called": false
+    }
+   },
+   "fr": {
+    "requested_questions": 83,
+    "evaluated_questions": 77,
+    "unresolved_questions": 6,
+    "error_questions": 0,
+    "answerable_evaluated_questions": 57,
+    "recall_at_5": {
+     "covered_units": 66,
+     "expected_units": 66,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "recall_at_10": {
+     "covered_units": 66,
+     "expected_units": 66,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "evidence_coverage_at_context": {
+     "covered_units": 66,
+     "expected_units": 66,
+     "rate": 1.0,
+     "interval_95": [
+      1.0,
+      1.0
+     ],
+     "method": "bootstrap by question; units of one question stay grouped",
+     "seed": 20260930,
+     "iterations": 2000,
+     "limit": "Question bootstrap does not model additional dependence between questions of one documentary family."
+    },
+    "per_question_means": {
+     "recall_at_5": {
+      "denominator_questions": 57,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "recall_at_10": {
+      "denominator_questions": 57,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     },
+     "evidence_coverage_at_context": {
+      "denominator_questions": 57,
+      "mean": 1.0,
+      "method": "Mean of per-question evidence-unit coverage; micro aggregate controls the acceptance threshold"
+     }
+    },
+    "mrr_at_10": {
+     "denominator_questions": 57,
+     "mean": 0.9678362573099415,
+     "method": "Reciprocal rank of the first individual top10 candidate covering every span of any required evidence unit or admitted alternative; zero if none"
+    },
+    "all_units_recalled_at_5_questions": {
+     "successes": 57,
+     "denominator": 57,
+     "rate": 1.0,
+     "interval_95": [
+      0.9368611651470209,
+      0.9999999999999998
+     ],
+     "method": "Wilson per question"
+    },
+    "all_units_recalled_questions": {
+     "successes": 57,
+     "denominator": 57,
+     "rate": 1.0,
+     "interval_95": [
+      0.9368611651470209,
+      0.9999999999999998
+     ],
+     "method": "Wilson per question"
+    },
+    "all_units_in_context_questions": {
+     "successes": 57,
+     "denominator": 57,
+     "rate": 1.0,
+     "interval_95": [
+      0.9368611651470209,
+      0.9999999999999998
+     ],
+     "method": "Wilson per question"
+    },
+    "scope_safe_questions": {
+     "successes": 77,
+     "denominator": 77,
+     "rate": 1.0,
+     "interval_95": [
+      0.9524815747175658,
+      0.9999999999999999
+     ],
+     "method": "Wilson per question"
+    },
+    "scope_leakage_count": 0,
+    "generation_metrics": {
+     "answer_correctness": "NOT_RUN",
+     "supported_claim_ratio": "NOT_RUN",
+     "correct_abstention": "NOT_RUN",
+     "model_called": false
+    }
+   }
+  }
+ },
+ "limits": [
+  "This result does not qualify answers, correct abstention, real LLM token counts or performance on 25000 chunks.",
+  "Unresolved annotations and runtime errors remain explicit; percentages exclude unavailable gold units and cannot produce PASS."
+ ],
+ "questions": [
+  {
+   "question_id": "DEV-001",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-002",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-003",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-004",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-005",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-006",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 2,
+   "reciprocal_rank": 0.5,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-007",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "status": "UNRESOLVED"
+  },
+  {
+   "question_id": "DEV-008",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 2,
+   "reciprocal_rank": 0.5,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-009",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "status": "UNRESOLVED"
+  },
+  {
+   "question_id": "DEV-010",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 2,
+   "reciprocal_rank": 0.5,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-011",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-012",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-013",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-014",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-015",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-016",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-017",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-018",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-019",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-020",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-021",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-022",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-023",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-024",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-025",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-026",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-027",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-028",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-029",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-030",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-031",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-032",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-033",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-034",
+   "category": "factual_fr_en",
+   "language": "en",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-035",
+   "category": "factual_fr_en",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-036",
+   "category": "technical_identifiers",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-037",
+   "category": "technical_identifiers",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-038",
+   "category": "technical_identifiers",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-039",
+   "category": "technical_identifiers",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-040",
+   "category": "technical_identifiers",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-041",
+   "category": "technical_identifiers",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-042",
+   "category": "technical_identifiers",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-043",
+   "category": "technical_identifiers",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-044",
+   "category": "technical_identifiers",
+   "language": "fr",
+   "status": "UNRESOLVED"
+  },
+  {
+   "question_id": "DEV-045",
+   "category": "technical_identifiers",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-046",
+   "category": "technical_identifiers",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-047",
+   "category": "technical_identifiers",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-048",
+   "category": "technical_identifiers",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-049",
+   "category": "technical_identifiers",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-050",
+   "category": "technical_identifiers",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 2,
+   "reciprocal_rank": 0.5,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-051",
+   "category": "tables_units",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-052",
+   "category": "tables_units",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-053",
+   "category": "tables_units",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-054",
+   "category": "tables_units",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-055",
+   "category": "tables_units",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-056",
+   "category": "tables_units",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-057",
+   "category": "tables_units",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-058",
+   "category": "tables_units",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-059",
+   "category": "tables_units",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-060",
+   "category": "tables_units",
+   "language": "fr",
+   "status": "UNRESOLVED"
+  },
+  {
+   "question_id": "DEV-061",
+   "category": "tables_units",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-062",
+   "category": "tables_units",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-063",
+   "category": "comparison",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 2,
+   "top5_covered_units": 2,
+   "top10_covered_units": 2,
+   "context_covered_units": 2,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-064",
+   "category": "comparison",
+   "language": "fr",
+   "status": "UNRESOLVED"
+  },
+  {
+   "question_id": "DEV-065",
+   "category": "comparison",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 2,
+   "top5_covered_units": 2,
+   "top10_covered_units": 2,
+   "context_covered_units": 2,
+   "first_evidence_rank": 3,
+   "reciprocal_rank": 0.3333333333333333,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-066",
+   "category": "comparison",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 2,
+   "top5_covered_units": 2,
+   "top10_covered_units": 2,
+   "context_covered_units": 2,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-067",
+   "category": "comparison",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 2,
+   "top5_covered_units": 2,
+   "top10_covered_units": 2,
+   "context_covered_units": 2,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-068",
+   "category": "comparison",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 2,
+   "top5_covered_units": 2,
+   "top10_covered_units": 2,
+   "context_covered_units": 2,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-069",
+   "category": "comparison",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 2,
+   "top5_covered_units": 2,
+   "top10_covered_units": 2,
+   "context_covered_units": 2,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-070",
+   "category": "comparison",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 2,
+   "top5_covered_units": 2,
+   "top10_covered_units": 2,
+   "context_covered_units": 2,
+   "first_evidence_rank": 3,
+   "reciprocal_rank": 0.3333333333333333,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-071",
+   "category": "comparison",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 2,
+   "top5_covered_units": 2,
+   "top10_covered_units": 2,
+   "context_covered_units": 2,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-072",
+   "category": "comparison",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 2,
+   "top5_covered_units": 2,
+   "top10_covered_units": 2,
+   "context_covered_units": 2,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-073",
+   "category": "conversation_followup",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-074",
+   "category": "conversation_followup",
+   "language": "fr",
+   "status": "UNRESOLVED"
+  },
+  {
+   "question_id": "DEV-075",
+   "category": "conversation_followup",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-076",
+   "category": "conversation_followup",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-077",
+   "category": "conversation_followup",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-078",
+   "category": "conversation_followup",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-079",
+   "category": "conversation_followup",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-080",
+   "category": "conversation_followup",
+   "language": "fr",
+   "answerable": true,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 1,
+   "top5_covered_units": 1,
+   "top10_covered_units": 1,
+   "context_covered_units": 1,
+   "first_evidence_rank": 1,
+   "reciprocal_rank": 1.0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-081",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-082",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-083",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-084",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-085",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-086",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-087",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-088",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-089",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-090",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-091",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-092",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-093",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-094",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-095",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-096",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-097",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-098",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-099",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  },
+  {
+   "question_id": "DEV-100",
+   "category": "unanswerable_in_scope",
+   "language": "fr",
+   "answerable": false,
+   "state": "context_ready",
+   "status": "EVALUATED",
+   "expected_unit_count": 0,
+   "top5_covered_units": 0,
+   "top10_covered_units": 0,
+   "context_covered_units": 0,
+   "first_evidence_rank": null,
+   "reciprocal_rank": 0,
+   "scope_leakage_count": 0,
+   "quality_limit": "Retrieval/context only: no answer accuracy, citation-use or correct-abstention claim without generation."
+  }
+ ]
+}

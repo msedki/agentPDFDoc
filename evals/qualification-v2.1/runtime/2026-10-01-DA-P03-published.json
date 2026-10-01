@@ -1,0 +1,3980 @@
+{
+  "captured_at_utc": "2026-10-01T07:03:40.241819+00:00",
+  "method": "Read-only loopback GET document detail and immutable version pages; UTF-8 JSON decoded explicitly; no retrieval/model/import.",
+  "documents": {
+    "development-DA-P03": {
+      "document_id": "9ec8f497-47bf-404c-b360-572171dbffd2",
+      "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+      "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+      "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+      "file_sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+      "document_state": "ready_partial",
+      "document": {
+        "id": "9ec8f497-47bf-404c-b360-572171dbffd2",
+        "folder_id": "ee132a48-81c3-447b-87c9-a50413af10a1",
+        "name": "Atelier 3 - Banc pneumatique DA-P03.pdf",
+        "relative_path": "Procédures/Atelier 3 - Banc pneumatique DA-P03.pdf",
+        "state": "ready_partial",
+        "active_generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+        "deleted_at": null,
+        "created_at": "2026-10-01T06:50:47.109835+00:00",
+        "updated_at": "2026-10-01T07:02:17.789433+00:00",
+        "active_version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+        "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+        "sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+        "page_count": 2,
+        "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+        "coverage": {
+          "ocr": 1,
+          "processed": 2,
+          "total": 2,
+          "unresolved": 1,
+          "unresolved_regions": 1
+        },
+        "versions": [
+          {
+            "id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+            "document_id": "9ec8f497-47bf-404c-b360-572171dbffd2",
+            "sha256": "bb0576c18a487d7b7bca0a9d2884de98051c12454301d5b25cc1ad8782a1a279",
+            "page_count": 2,
+            "created_at": "2026-10-01T06:50:47.109835+00:00",
+            "file_url": "/api/v1/versions/d99e8bda-dff2-49ed-8c4d-b5a29503d8ff/file"
+          }
+        ],
+        "jobs": [
+          {
+            "id": "f9b9177d-147e-4a18-a218-b1d70cbcb489",
+            "document_id": "9ec8f497-47bf-404c-b360-572171dbffd2",
+            "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+            "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+            "state": "ready_partial",
+            "stage": "complete",
+            "progress": 1.0,
+            "attempts": 1,
+            "error_code": null,
+            "error_message": null,
+            "created_at": "2026-10-01T06:50:47.109835+00:00",
+            "updated_at": "2026-10-01T07:02:17.789433+00:00",
+            "published_at": "2026-10-01T07:02:17.788871+00:00",
+            "active": true,
+            "coverage": {
+              "ocr": 1,
+              "processed": 2,
+              "total": 2,
+              "unresolved": 1,
+              "unresolved_regions": 1
+            },
+            "warnings": [
+              {
+                "code": "OCR_WORD_LOW_CONFIDENCE",
+                "count": 1,
+                "minimum_confidence_required": 0.8,
+                "page_index": 1
+              }
+            ],
+            "published": true
+          }
+        ]
+      },
+      "pages": [
+        {
+          "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+          "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+          "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+          "page": {
+            "alphanumeric_count": 404,
+            "classification": "native",
+            "coverage_regions": [
+              {
+                "bbox": [
+                  49.34400177001953,
+                  776.4497680664062,
+                  410.9759521484375,
+                  792.6897583007812
+                ],
+                "block_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                "block_id": "88e4309f-6d9b-5d30-aaa5-32604c788708",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  49.077999114990234,
+                  692.0128173828125,
+                  330.9529724121094,
+                  703.0897827148438
+                ],
+                "block_id": "ac7e5e4d-4a8a-5e3b-8061-37664c1ca50b",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  49.077999114990234,
+                  654.11279296875,
+                  309.00799560546875,
+                  664.749755859375
+                ],
+                "block_id": "a8330454-a43e-5fc9-87ed-bf23fdfae635",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  49.077999114990234,
+                  616.2128295898438,
+                  332.0639953613281,
+                  627.289794921875
+                ],
+                "block_id": "0443c528-786e-588c-b423-600f3194cf5f",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  49.077999114990234,
+                  578.3128051757812,
+                  391.2110595703125,
+                  589.3897705078125
+                ],
+                "block_id": "56ae2f57-ee17-5bde-8d5f-9539b090618e",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  49.077999114990234,
+                  540.412841796875,
+                  364.9319763183594,
+                  551.0498046875
+                ],
+                "block_id": "f0866a87-fcb1-5bc4-9e46-9c8a1bd4d9ef",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  49.077999114990234,
+                  504.64678955078125,
+                  297.5570068359375,
+                  513.1497802734375
+                ],
+                "block_id": "a9af8bed-a0b3-56fc-9348-a60b216dfc37",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.60499954223633,
+                  448.0467834472656,
+                  540.2281494140625,
+                  475.6897888183594
+                ],
+                "block_id": "cc69496c-e04d-59d6-b3cc-b6ea5756d0b6",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                "block_id": "9b8e2b96-bf74-5fda-be82-6d2b4d9aba7b",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              }
+            ],
+            "crop_box": null,
+            "crop_box_source": "unavailable_inherited_or_absent",
+            "display_height": 841.8897705078125,
+            "display_width": 595.2755737304688,
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "extraction_route": "structured",
+            "extraction_state": "native",
+            "height": 841.8897705078125,
+            "image_regions": [],
+            "label": null,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "media_box_source": "declared",
+            "native_text_regions": [
+              [
+                49.34400177001953,
+                776.4497680664062,
+                410.9759521484375,
+                792.6897583007812
+              ],
+              [
+                48.784000396728516,
+                742.8338012695312,
+                278.8719482421875,
+                751.9058227539062
+              ],
+              [
+                48.88199996948242,
+                30.137001037597656,
+                92.30699920654297,
+                38.678001403808594
+              ],
+              [
+                49.077999114990234,
+                692.0128173828125,
+                330.9529724121094,
+                703.0897827148438
+              ],
+              [
+                49.077999114990234,
+                654.11279296875,
+                309.00799560546875,
+                664.749755859375
+              ],
+              [
+                49.077999114990234,
+                616.2128295898438,
+                332.0639953613281,
+                627.289794921875
+              ],
+              [
+                49.077999114990234,
+                578.3128051757812,
+                391.2110595703125,
+                589.3897705078125
+              ],
+              [
+                49.077999114990234,
+                540.412841796875,
+                364.9319763183594,
+                551.0498046875
+              ],
+              [
+                49.077999114990234,
+                504.64678955078125,
+                297.5570068359375,
+                513.1497802734375
+              ],
+              [
+                49.077999114990234,
+                464.61279296875,
+                540.2281494140625,
+                475.6897888183594
+              ],
+              [
+                48.60499954223633,
+                448.0467834472656,
+                142.98500061035156,
+                456.5497741699219
+              ]
+            ],
+            "native_text_sparse": false,
+            "needs_ocr": false,
+            "ocr_cell_count": 0,
+            "ocr_orientations": [],
+            "ocr_parser_regions": [],
+            "ocr_preprocessing": [],
+            "ocr_regions": [],
+            "ocr_used": false,
+            "orientation_correction": 0,
+            "orientation_source": "native_page_frame",
+            "page_index": 0,
+            "page_number": 1,
+            "replacement_ratio": 0.0,
+            "rotation": 0,
+            "routing_reason": "typography_requires_structure",
+            "table_orientation_corrections": [],
+            "text_character_count": 529,
+            "text_font_sizes": [
+              8.0,
+              9.0,
+              11.0,
+              16.0
+            ],
+            "text_mapping_warnings": [],
+            "unresolved_regions": [],
+            "vector_path_count": 1,
+            "width": 595.2755737304688,
+            "blocks": [
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+                "page_index": 0,
+                "text": "banc pneumatique synthétique Atelier 3",
+                "precision": "block",
+                "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "c55de3548ea826893dee7e1268915b375560b684062d3e7837ae7a47ab4bf41c",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "section_header",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/0",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 776.4497680664062,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.34400177001953,
+                    "r": 410.9759521484375,
+                    "t": 792.6897583007812
+                  },
+                  "charspan": [
+                    0,
+                    38
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.34400177001953,
+                      776.4497680664062,
+                      410.9759521484375,
+                      792.6897583007812
+                    ],
+                    "end_offset": 38,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "c55de3548ea826893dee7e1268915b375560b684062d3e7837ae7a47ab4bf41c",
+                "type": "heading",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  49.34400177001953,
+                  776.4497680664062,
+                  410.9759521484375,
+                  792.6897583007812
+                ],
+                "raw_text": "banc pneumatique synthétique Atelier 3"
+              },
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "88e4309f-6d9b-5d30-aaa5-32604c788708",
+                "page_index": 0,
+                "text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0",
+                "precision": "block",
+                "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/1",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 742.8338012695312,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 48.784000396728516,
+                    "r": 278.8719482421875,
+                    "t": 751.9058227539062
+                  },
+                  "charspan": [
+                    0,
+                    51
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      48.784000396728516,
+                      742.8338012695312,
+                      278.8719482421875,
+                      751.9058227539062
+                    ],
+                    "end_offset": 51,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+                "type": "text",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                "raw_text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0"
+              },
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "ac7e5e4d-4a8a-5e3b-8061-37664c1ca50b",
+                "page_index": 0,
+                "text": "DA-P03 — banc pneumatique synthétique Atelier 3.",
+                "precision": "block",
+                "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "38fe955d71bb4c55ba650b973306dabd3e87e9485ef1b8579ec3cfd583327168",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/2",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 692.0128173828125,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.077999114990234,
+                    "r": 330.9529724121094,
+                    "t": 703.0897827148438
+                  },
+                  "charspan": [
+                    0,
+                    48
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.077999114990234,
+                      692.0128173828125,
+                      330.9529724121094,
+                      703.0897827148438
+                    ],
+                    "end_offset": 48,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "38fe955d71bb4c55ba650b973306dabd3e87e9485ef1b8579ec3cfd583327168",
+                "type": "text",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  49.077999114990234,
+                  692.0128173828125,
+                  330.9529724121094,
+                  703.0897827148438
+                ],
+                "raw_text": "DA-P03 — banc pneumatique synthétique Atelier 3."
+              },
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "a8330454-a43e-5fc9-87ed-bf23fdfae635",
+                "page_index": 0,
+                "text": "La pression nominale de DA-P03 est de 3.3 bar.",
+                "precision": "block",
+                "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "a37c4b685511ce18fd56c10b462dfc2f3de5ac36c6c529a0060ef68b52d8c854",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/3",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 654.11279296875,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.077999114990234,
+                    "r": 309.00799560546875,
+                    "t": 664.749755859375
+                  },
+                  "charspan": [
+                    0,
+                    46
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.077999114990234,
+                      654.11279296875,
+                      309.00799560546875,
+                      664.749755859375
+                    ],
+                    "end_offset": 46,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "a37c4b685511ce18fd56c10b462dfc2f3de5ac36c6c529a0060ef68b52d8c854",
+                "type": "text",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  49.077999114990234,
+                  654.11279296875,
+                  309.00799560546875,
+                  664.749755859375
+                ],
+                "raw_text": "La pression nominale de DA-P03 est de 3.3 bar."
+              },
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "0443c528-786e-588c-b423-600f3194cf5f",
+                "page_index": 0,
+                "text": "La tolérance de pression de DA-P03 est de ± 4.0 %.",
+                "precision": "block",
+                "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "457ea735c6d74928fe0a40932a5cb83c031c6ef408d8f9090d783bd2d0844626",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/4",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 616.2128295898438,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.077999114990234,
+                    "r": 332.0639953613281,
+                    "t": 627.289794921875
+                  },
+                  "charspan": [
+                    0,
+                    50
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.077999114990234,
+                      616.2128295898438,
+                      332.0639953613281,
+                      627.289794921875
+                    ],
+                    "end_offset": 50,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "457ea735c6d74928fe0a40932a5cb83c031c6ef408d8f9090d783bd2d0844626",
+                "type": "text",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  49.077999114990234,
+                  616.2128295898438,
+                  332.0639953613281,
+                  627.289794921875
+                ],
+                "raw_text": "La tolérance de pression de DA-P03 est de ± 4.0 %."
+              },
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "56ae2f57-ee17-5bde-8d5f-9539b090618e",
+                "page_index": 0,
+                "text": "Le contrôle périodique de DA-P03 intervient toutes les 1260 h.",
+                "precision": "block",
+                "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "40869820127b1f1b238c98aa6be9d22088ddcd887457a73bd5376d3310386b06",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/5",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 578.3128051757812,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.077999114990234,
+                    "r": 391.2110595703125,
+                    "t": 589.3897705078125
+                  },
+                  "charspan": [
+                    0,
+                    62
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.077999114990234,
+                      578.3128051757812,
+                      391.2110595703125,
+                      589.3897705078125
+                    ],
+                    "end_offset": 62,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "40869820127b1f1b238c98aa6be9d22088ddcd887457a73bd5376d3310386b06",
+                "type": "text",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  49.077999114990234,
+                  578.3128051757812,
+                  391.2110595703125,
+                  589.3897705078125
+                ],
+                "raw_text": "Le contrôle périodique de DA-P03 intervient toutes les 1260 h."
+              },
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "f0866a87-fcb1-5bc4-9e46-9c8a1bd4d9ef",
+                "page_index": 0,
+                "text": "Le couple de serrage prescrit pour DA-P03 est de 16 N·m.",
+                "precision": "block",
+                "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "e27d2cd9f445b2cccd096c7f2a68dae3e4fef60fa16f4fa85d247973eee0f712",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/6",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 540.412841796875,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.077999114990234,
+                    "r": 364.9319763183594,
+                    "t": 551.0498046875
+                  },
+                  "charspan": [
+                    0,
+                    56
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.077999114990234,
+                      540.412841796875,
+                      364.9319763183594,
+                      551.0498046875
+                    ],
+                    "end_offset": 56,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "e27d2cd9f445b2cccd096c7f2a68dae3e4fef60fa16f4fa85d247973eee0f712",
+                "type": "text",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  49.077999114990234,
+                  540.412841796875,
+                  364.9319763183594,
+                  551.0498046875
+                ],
+                "raw_text": "Le couple de serrage prescrit pour DA-P03 est de 16 N·m."
+              },
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "a9af8bed-a0b3-56fc-9348-a60b216dfc37",
+                "page_index": 0,
+                "text": "L'alimentation d'essai de DA-P03 est de 26 V.",
+                "precision": "block",
+                "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "22f81f8fafac3340c4ba61a15305cbe5ba10015b4eb5ee9ecb3cf57f3de219ca",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/7",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 504.64678955078125,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.077999114990234,
+                    "r": 297.5570068359375,
+                    "t": 513.1497802734375
+                  },
+                  "charspan": [
+                    0,
+                    45
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.077999114990234,
+                      504.64678955078125,
+                      297.5570068359375,
+                      513.1497802734375
+                    ],
+                    "end_offset": 45,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "22f81f8fafac3340c4ba61a15305cbe5ba10015b4eb5ee9ecb3cf57f3de219ca",
+                "type": "text",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  49.077999114990234,
+                  504.64678955078125,
+                  297.5570068359375,
+                  513.1497802734375
+                ],
+                "raw_text": "L'alimentation d'essai de DA-P03 est de 26 V."
+              },
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "cc69496c-e04d-59d6-b3cc-b6ea5756d0b6",
+                "page_index": 0,
+                "text": "La référence proche DA-P030 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P03.",
+                "precision": "block",
+                "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "8958a3f5226df154e4f7a5010fc0b46dd7a8e6f06397a0e70386bd937a62c16b",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/8",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 448.0467834472656,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 48.60499954223633,
+                    "r": 540.2281494140625,
+                    "t": 475.6897888183594
+                  },
+                  "charspan": [
+                    0,
+                    104
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      48.60499954223633,
+                      448.0467834472656,
+                      540.2281494140625,
+                      475.6897888183594
+                    ],
+                    "end_offset": 104,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "8958a3f5226df154e4f7a5010fc0b46dd7a8e6f06397a0e70386bd937a62c16b",
+                "type": "text",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  48.60499954223633,
+                  448.0467834472656,
+                  540.2281494140625,
+                  475.6897888183594
+                ],
+                "raw_text": "La référence proche DA-P030 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P03."
+              },
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "9b8e2b96-bf74-5fda-be82-6d2b4d9aba7b",
+                "page_index": 0,
+                "text": "Page 1 / 2",
+                "precision": "block",
+                "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "2eb6067619eae2f3359382b87644168bb3af6a6c004ad8638e9afda7c8382431",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "page_footer",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/9",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 30.137001037597656,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 48.88199996948242,
+                    "r": 92.30699920654297,
+                    "t": 38.678001403808594
+                  },
+                  "charspan": [
+                    0,
+                    10
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      48.88199996948242,
+                      30.137001037597656,
+                      92.30699920654297,
+                      38.678001403808594
+                    ],
+                    "end_offset": 10,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "2eb6067619eae2f3359382b87644168bb3af6a6c004ad8638e9afda7c8382431",
+                "type": "text",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                "raw_text": "Page 1 / 2"
+              }
+            ]
+          },
+          "blocks": [
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+              "page_index": 0,
+              "text": "banc pneumatique synthétique Atelier 3",
+              "precision": "block",
+              "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "c55de3548ea826893dee7e1268915b375560b684062d3e7837ae7a47ab4bf41c",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "section_header",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/0",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 776.4497680664062,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.34400177001953,
+                  "r": 410.9759521484375,
+                  "t": 792.6897583007812
+                },
+                "charspan": [
+                  0,
+                  38
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.34400177001953,
+                    776.4497680664062,
+                    410.9759521484375,
+                    792.6897583007812
+                  ],
+                  "end_offset": 38,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "c55de3548ea826893dee7e1268915b375560b684062d3e7837ae7a47ab4bf41c",
+              "type": "heading",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                49.34400177001953,
+                776.4497680664062,
+                410.9759521484375,
+                792.6897583007812
+              ],
+              "raw_text": "banc pneumatique synthétique Atelier 3"
+            },
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "88e4309f-6d9b-5d30-aaa5-32604c788708",
+              "page_index": 0,
+              "text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0",
+              "precision": "block",
+              "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/1",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 742.8338012695312,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 48.784000396728516,
+                  "r": 278.8719482421875,
+                  "t": 751.9058227539062
+                },
+                "charspan": [
+                  0,
+                  51
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    48.784000396728516,
+                    742.8338012695312,
+                    278.8719482421875,
+                    751.9058227539062
+                  ],
+                  "end_offset": 51,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+              "type": "text",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                48.784000396728516,
+                742.8338012695312,
+                278.8719482421875,
+                751.9058227539062
+              ],
+              "raw_text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0"
+            },
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "ac7e5e4d-4a8a-5e3b-8061-37664c1ca50b",
+              "page_index": 0,
+              "text": "DA-P03 — banc pneumatique synthétique Atelier 3.",
+              "precision": "block",
+              "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "38fe955d71bb4c55ba650b973306dabd3e87e9485ef1b8579ec3cfd583327168",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/2",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 692.0128173828125,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.077999114990234,
+                  "r": 330.9529724121094,
+                  "t": 703.0897827148438
+                },
+                "charspan": [
+                  0,
+                  48
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.077999114990234,
+                    692.0128173828125,
+                    330.9529724121094,
+                    703.0897827148438
+                  ],
+                  "end_offset": 48,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "38fe955d71bb4c55ba650b973306dabd3e87e9485ef1b8579ec3cfd583327168",
+              "type": "text",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                49.077999114990234,
+                692.0128173828125,
+                330.9529724121094,
+                703.0897827148438
+              ],
+              "raw_text": "DA-P03 — banc pneumatique synthétique Atelier 3."
+            },
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "a8330454-a43e-5fc9-87ed-bf23fdfae635",
+              "page_index": 0,
+              "text": "La pression nominale de DA-P03 est de 3.3 bar.",
+              "precision": "block",
+              "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "a37c4b685511ce18fd56c10b462dfc2f3de5ac36c6c529a0060ef68b52d8c854",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/3",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 654.11279296875,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.077999114990234,
+                  "r": 309.00799560546875,
+                  "t": 664.749755859375
+                },
+                "charspan": [
+                  0,
+                  46
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.077999114990234,
+                    654.11279296875,
+                    309.00799560546875,
+                    664.749755859375
+                  ],
+                  "end_offset": 46,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "a37c4b685511ce18fd56c10b462dfc2f3de5ac36c6c529a0060ef68b52d8c854",
+              "type": "text",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                49.077999114990234,
+                654.11279296875,
+                309.00799560546875,
+                664.749755859375
+              ],
+              "raw_text": "La pression nominale de DA-P03 est de 3.3 bar."
+            },
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "0443c528-786e-588c-b423-600f3194cf5f",
+              "page_index": 0,
+              "text": "La tolérance de pression de DA-P03 est de ± 4.0 %.",
+              "precision": "block",
+              "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "457ea735c6d74928fe0a40932a5cb83c031c6ef408d8f9090d783bd2d0844626",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/4",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 616.2128295898438,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.077999114990234,
+                  "r": 332.0639953613281,
+                  "t": 627.289794921875
+                },
+                "charspan": [
+                  0,
+                  50
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.077999114990234,
+                    616.2128295898438,
+                    332.0639953613281,
+                    627.289794921875
+                  ],
+                  "end_offset": 50,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "457ea735c6d74928fe0a40932a5cb83c031c6ef408d8f9090d783bd2d0844626",
+              "type": "text",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                49.077999114990234,
+                616.2128295898438,
+                332.0639953613281,
+                627.289794921875
+              ],
+              "raw_text": "La tolérance de pression de DA-P03 est de ± 4.0 %."
+            },
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "56ae2f57-ee17-5bde-8d5f-9539b090618e",
+              "page_index": 0,
+              "text": "Le contrôle périodique de DA-P03 intervient toutes les 1260 h.",
+              "precision": "block",
+              "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "40869820127b1f1b238c98aa6be9d22088ddcd887457a73bd5376d3310386b06",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/5",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 578.3128051757812,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.077999114990234,
+                  "r": 391.2110595703125,
+                  "t": 589.3897705078125
+                },
+                "charspan": [
+                  0,
+                  62
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.077999114990234,
+                    578.3128051757812,
+                    391.2110595703125,
+                    589.3897705078125
+                  ],
+                  "end_offset": 62,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "40869820127b1f1b238c98aa6be9d22088ddcd887457a73bd5376d3310386b06",
+              "type": "text",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                49.077999114990234,
+                578.3128051757812,
+                391.2110595703125,
+                589.3897705078125
+              ],
+              "raw_text": "Le contrôle périodique de DA-P03 intervient toutes les 1260 h."
+            },
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "f0866a87-fcb1-5bc4-9e46-9c8a1bd4d9ef",
+              "page_index": 0,
+              "text": "Le couple de serrage prescrit pour DA-P03 est de 16 N·m.",
+              "precision": "block",
+              "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "e27d2cd9f445b2cccd096c7f2a68dae3e4fef60fa16f4fa85d247973eee0f712",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/6",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 540.412841796875,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.077999114990234,
+                  "r": 364.9319763183594,
+                  "t": 551.0498046875
+                },
+                "charspan": [
+                  0,
+                  56
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.077999114990234,
+                    540.412841796875,
+                    364.9319763183594,
+                    551.0498046875
+                  ],
+                  "end_offset": 56,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "e27d2cd9f445b2cccd096c7f2a68dae3e4fef60fa16f4fa85d247973eee0f712",
+              "type": "text",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                49.077999114990234,
+                540.412841796875,
+                364.9319763183594,
+                551.0498046875
+              ],
+              "raw_text": "Le couple de serrage prescrit pour DA-P03 est de 16 N·m."
+            },
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "a9af8bed-a0b3-56fc-9348-a60b216dfc37",
+              "page_index": 0,
+              "text": "L'alimentation d'essai de DA-P03 est de 26 V.",
+              "precision": "block",
+              "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "22f81f8fafac3340c4ba61a15305cbe5ba10015b4eb5ee9ecb3cf57f3de219ca",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/7",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 504.64678955078125,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.077999114990234,
+                  "r": 297.5570068359375,
+                  "t": 513.1497802734375
+                },
+                "charspan": [
+                  0,
+                  45
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.077999114990234,
+                    504.64678955078125,
+                    297.5570068359375,
+                    513.1497802734375
+                  ],
+                  "end_offset": 45,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "22f81f8fafac3340c4ba61a15305cbe5ba10015b4eb5ee9ecb3cf57f3de219ca",
+              "type": "text",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                49.077999114990234,
+                504.64678955078125,
+                297.5570068359375,
+                513.1497802734375
+              ],
+              "raw_text": "L'alimentation d'essai de DA-P03 est de 26 V."
+            },
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "cc69496c-e04d-59d6-b3cc-b6ea5756d0b6",
+              "page_index": 0,
+              "text": "La référence proche DA-P030 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P03.",
+              "precision": "block",
+              "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "8958a3f5226df154e4f7a5010fc0b46dd7a8e6f06397a0e70386bd937a62c16b",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/8",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 448.0467834472656,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 48.60499954223633,
+                  "r": 540.2281494140625,
+                  "t": 475.6897888183594
+                },
+                "charspan": [
+                  0,
+                  104
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    48.60499954223633,
+                    448.0467834472656,
+                    540.2281494140625,
+                    475.6897888183594
+                  ],
+                  "end_offset": 104,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "8958a3f5226df154e4f7a5010fc0b46dd7a8e6f06397a0e70386bd937a62c16b",
+              "type": "text",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                48.60499954223633,
+                448.0467834472656,
+                540.2281494140625,
+                475.6897888183594
+              ],
+              "raw_text": "La référence proche DA-P030 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P03."
+            },
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "9b8e2b96-bf74-5fda-be82-6d2b4d9aba7b",
+              "page_index": 0,
+              "text": "Page 1 / 2",
+              "precision": "block",
+              "section_id": "bfc35662-5f84-559a-8fa7-027cc36cb94e",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "2eb6067619eae2f3359382b87644168bb3af6a6c004ad8638e9afda7c8382431",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "page_footer",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/9",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 30.137001037597656,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 48.88199996948242,
+                  "r": 92.30699920654297,
+                  "t": 38.678001403808594
+                },
+                "charspan": [
+                  0,
+                  10
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    48.88199996948242,
+                    30.137001037597656,
+                    92.30699920654297,
+                    38.678001403808594
+                  ],
+                  "end_offset": 10,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "2eb6067619eae2f3359382b87644168bb3af6a6c004ad8638e9afda7c8382431",
+              "type": "text",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                48.88199996948242,
+                30.137001037597656,
+                92.30699920654297,
+                38.678001403808594
+              ],
+              "raw_text": "Page 1 / 2"
+            }
+          ],
+          "warnings": [
+            {
+              "code": "OCR_WORD_LOW_CONFIDENCE",
+              "count": 1,
+              "minimum_confidence_required": 0.8,
+              "page_index": 1
+            }
+          ]
+        },
+        {
+          "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+          "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+          "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+          "page": {
+            "alphanumeric_count": 118,
+            "classification": "mixed",
+            "coverage_regions": [
+              {
+                "bbox": [
+                  49.47200012207031,
+                  779.6817626953125,
+                  324.14398193359375,
+                  792.6897583007812
+                ],
+                "block_id": "3d70ea51-cb91-5890-972d-a2f435166c4f",
+                "extraction_method": "native",
+                "route": "regional_ocr",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                "block_id": "ea2c812b-1147-54e7-bcca-55bdfa236a92",
+                "extraction_method": "native",
+                "route": "regional_ocr",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  49.077999114990234,
+                  692.0128173828125,
+                  370.70697021484375,
+                  702.6497802734375
+                ],
+                "block_id": "f03301d3-2be9-50e9-b29a-8cd66abdd219",
+                "extraction_method": "native",
+                "route": "regional_ocr",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.0,
+                  603.9564615885417,
+                  182.33333333333334,
+                  613.9564615885416
+                ],
+                "block_id": "b539fdcd-1f41-5d16-b30b-a4582ae5833b",
+                "extraction_method": "ocr",
+                "route": "regional_ocr",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  47.07709910460365,
+                  461.12269968257647,
+                  547.8023027597982,
+                  592.3302214747458
+                ],
+                "block_id": "0b923ba5-e177-5d3a-9eb0-2cef632169f9",
+                "extraction_method": "ocr",
+                "route": "regional_ocr",
+                "type": "table"
+              },
+              {
+                "bbox": [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                "block_id": "f3f85e97-a3c1-5ee4-b8a6-43672f9feea5",
+                "extraction_method": "native",
+                "route": "regional_ocr",
+                "type": "text"
+              }
+            ],
+            "crop_box": null,
+            "crop_box_source": "unavailable_inherited_or_absent",
+            "display_height": 841.8897705078125,
+            "display_width": 595.2755737304688,
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "extraction_route": "regional_ocr",
+            "extraction_state": "ocr",
+            "height": 841.8897705078125,
+            "image_regions": [
+              {
+                "area_ratio": 0.2613168703395695,
+                "bbox": [
+                  0.0,
+                  449.289794921875,
+                  595.2755737304688,
+                  669.289794921875
+                ],
+                "matrix": [
+                  595.2755737304688,
+                  0.0,
+                  0.0,
+                  220.0,
+                  0.0,
+                  449.289794921875
+                ],
+                "object_level": 0,
+                "pixel_size": [
+                  1489,
+                  550
+                ]
+              }
+            ],
+            "label": null,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "media_box_source": "declared",
+            "native_text_regions": [
+              [
+                49.47200012207031,
+                779.6817626953125,
+                324.14398193359375,
+                792.6897583007812
+              ],
+              [
+                48.784000396728516,
+                742.8338012695312,
+                278.8719482421875,
+                751.9058227539062
+              ],
+              [
+                48.88199996948242,
+                30.137001037597656,
+                92.30699920654297,
+                38.678001403808594
+              ],
+              [
+                49.077999114990234,
+                692.0128173828125,
+                370.70697021484375,
+                702.6497802734375
+              ]
+            ],
+            "native_text_sparse": false,
+            "needs_ocr": true,
+            "ocr_cell_count": 13,
+            "ocr_orientations": [
+              {
+                "correction_degrees_pil": 0,
+                "derivative_raster_size": [
+                  1786,
+                  660
+                ],
+                "intrinsic_pixel_size": [
+                  1489,
+                  550
+                ],
+                "orientation_convention": "counterclockwise_from_upright",
+                "orientation_degrees": 0,
+                "osd_raster_sha256": "5d01012ae6be0b6f608b0ec736642c7345d06d57baa50bb1adde74df9d060e82",
+                "parser_bbox": {
+                  "b": 392.5999755859375,
+                  "coord_origin": "TOPLEFT",
+                  "l": 0.0,
+                  "r": 595.2655737304688,
+                  "t": 172.5999755859375
+                },
+                "resolved": true,
+                "source_raster_size": [
+                  1786,
+                  660
+                ]
+              }
+            ],
+            "ocr_parser_regions": [
+              {
+                "b": 237.93330891927081,
+                "coord_origin": "TOPLEFT",
+                "l": 48.0,
+                "r": 101.0,
+                "t": 228.26664225260416
+              },
+              {
+                "b": 237.93330891927081,
+                "coord_origin": "TOPLEFT",
+                "l": 106.33333333333333,
+                "r": 122.0,
+                "t": 228.26664225260416
+              },
+              {
+                "b": 237.93330891927081,
+                "coord_origin": "TOPLEFT",
+                "l": 127.33333333333333,
+                "r": 182.33333333333334,
+                "t": 227.93330891927084
+              },
+              {
+                "b": 270.5999755859375,
+                "coord_origin": "TOPLEFT",
+                "l": 53.666666666666664,
+                "r": 109.66666666666667,
+                "t": 262.5999755859375
+              },
+              {
+                "b": 303.5999755859375,
+                "coord_origin": "TOPLEFT",
+                "l": 54.0,
+                "r": 103.0,
+                "t": 295.5999755859375
+              },
+              {
+                "b": 336.5999755859375,
+                "coord_origin": "TOPLEFT",
+                "l": 54.0,
+                "r": 114.66666666666667,
+                "t": 328.93330891927087
+              },
+              {
+                "b": 369.5999755859375,
+                "coord_origin": "TOPLEFT",
+                "l": 54.0,
+                "r": 118.66666666666667,
+                "t": 361.93330891927087
+              },
+              {
+                "b": 270.5999755859375,
+                "coord_origin": "TOPLEFT",
+                "l": 275.0,
+                "r": 312.0,
+                "t": 262.5999755859375
+              },
+              {
+                "b": 303.5999755859375,
+                "coord_origin": "TOPLEFT",
+                "l": 276.0,
+                "r": 287.0,
+                "t": 295.9333089192708
+              },
+              {
+                "b": 336.5999755859375,
+                "coord_origin": "TOPLEFT",
+                "l": 276.0,
+                "r": 287.0,
+                "t": 329.26664225260413
+              },
+              {
+                "b": 369.5999755859375,
+                "coord_origin": "TOPLEFT",
+                "l": 275.6666666666667,
+                "r": 290.3333333333333,
+                "t": 361.93330891927087
+              },
+              {
+                "b": 270.5999755859375,
+                "coord_origin": "TOPLEFT",
+                "l": 406.0,
+                "r": 435.0,
+                "t": 262.5999755859375
+              },
+              {
+                "b": 370.26664225260413,
+                "coord_origin": "TOPLEFT",
+                "l": 406.0,
+                "r": 432.3333333333333,
+                "t": 361.5999755859375
+              }
+            ],
+            "ocr_preprocessing": [
+              {
+                "algorithm": "unchanged-raster",
+                "coordinate_frame": "oriented_ocr_region_pixels",
+                "derived_oriented_raster_size": [
+                  1786,
+                  660
+                ],
+                "derived_raster_sha256": "5d01012ae6be0b6f608b0ec736642c7345d06d57baa50bb1adde74df9d060e82",
+                "grid_cells": [],
+                "height": 660,
+                "ocr_region_index": 0,
+                "orientation_degrees": 0,
+                "orientation_resolved": true,
+                "parser_bbox": {
+                  "b": 392.5999755859375,
+                  "coord_origin": "TOPLEFT",
+                  "l": 0.0,
+                  "r": 595.2655737304688,
+                  "t": 172.5999755859375
+                },
+                "render_allocation_scale": 4.5,
+                "resize_inverse_factors": [
+                  1.0,
+                  1.0
+                ],
+                "scale": 3.0,
+                "source_oriented_raster_size": [
+                  1786,
+                  660
+                ],
+                "source_raster_sha256": "5d01012ae6be0b6f608b0ec736642c7345d06d57baa50bb1adde74df9d060e82",
+                "width": 1786
+              }
+            ],
+            "ocr_regions": [
+              [
+                48.0,
+                603.9564615885417,
+                101.0,
+                613.6231282552084
+              ],
+              [
+                106.33333333333333,
+                603.9564615885417,
+                122.0,
+                613.6231282552084
+              ],
+              [
+                127.33333333333333,
+                603.9564615885417,
+                182.33333333333334,
+                613.9564615885416
+              ],
+              [
+                53.666666666666664,
+                571.289794921875,
+                109.66666666666667,
+                579.289794921875
+              ],
+              [
+                54.0,
+                538.289794921875,
+                103.0,
+                546.289794921875
+              ],
+              [
+                54.0,
+                505.289794921875,
+                114.66666666666667,
+                512.9564615885416
+              ],
+              [
+                54.0,
+                472.289794921875,
+                118.66666666666667,
+                479.95646158854163
+              ],
+              [
+                275.0,
+                571.289794921875,
+                312.0,
+                579.289794921875
+              ],
+              [
+                276.0,
+                538.289794921875,
+                287.0,
+                545.9564615885417
+              ],
+              [
+                276.0,
+                505.289794921875,
+                287.0,
+                512.6231282552084
+              ],
+              [
+                275.6666666666667,
+                472.289794921875,
+                290.3333333333333,
+                479.95646158854163
+              ],
+              [
+                406.0,
+                571.289794921875,
+                435.0,
+                579.289794921875
+              ],
+              [
+                406.0,
+                471.62312825520837,
+                432.3333333333333,
+                480.289794921875
+              ]
+            ],
+            "ocr_used": true,
+            "orientation_correction": 0,
+            "orientation_source": "native_page_frame",
+            "page_index": 1,
+            "page_number": 2,
+            "replacement_ratio": 0.0,
+            "rotation": 0,
+            "routing_reason": "uncovered_image_regions",
+            "table_orientation_corrections": [],
+            "text_character_count": 150,
+            "text_font_sizes": [
+              8.0,
+              9.0,
+              11.0,
+              16.0
+            ],
+            "text_mapping_warnings": [],
+            "unresolved_regions": [
+              {
+                "bbox": [
+                  54.0,
+                  538.289794921875,
+                  103.0,
+                  546.289794921875
+                ],
+                "confidence": 0.60582203,
+                "precision": "block",
+                "reason": "OCR_WORD_LOW_CONFIDENCE"
+              }
+            ],
+            "vector_path_count": 1,
+            "width": 595.2755737304688,
+            "blocks": [
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "3d70ea51-cb91-5890-972d-a2f435166c4f",
+                "page_index": 1,
+                "text": "Mesures de contrôle — DA-P03",
+                "precision": "block",
+                "section_id": "3d70ea51-cb91-5890-972d-a2f435166c4f",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "a7ab510e572b49744c34a07b5d59633fcba04ef49444ce1f51dc5f281f5bbba6",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "section_header",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/0",
+                  "route": "regional_ocr"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 779.6817626953125,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.47200012207031,
+                    "r": 324.14398193359375,
+                    "t": 792.6897583007812
+                  },
+                  "charspan": [
+                    0,
+                    28
+                  ],
+                  "page_no": 2
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.47200012207031,
+                      779.6817626953125,
+                      324.14398193359375,
+                      792.6897583007812
+                    ],
+                    "end_offset": 28,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "a7ab510e572b49744c34a07b5d59633fcba04ef49444ce1f51dc5f281f5bbba6",
+                "type": "heading",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  49.47200012207031,
+                  779.6817626953125,
+                  324.14398193359375,
+                  792.6897583007812
+                ],
+                "raw_text": "Mesures de contrôle — DA-P03"
+              },
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "ea2c812b-1147-54e7-bcca-55bdfa236a92",
+                "page_index": 1,
+                "text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0",
+                "precision": "block",
+                "section_id": "3d70ea51-cb91-5890-972d-a2f435166c4f",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/1",
+                  "route": "regional_ocr"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 742.8338012695312,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 48.784000396728516,
+                    "r": 278.8719482421875,
+                    "t": 751.9058227539062
+                  },
+                  "charspan": [
+                    0,
+                    51
+                  ],
+                  "page_no": 2
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      48.784000396728516,
+                      742.8338012695312,
+                      278.8719482421875,
+                      751.9058227539062
+                    ],
+                    "end_offset": 51,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+                "type": "text",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                "raw_text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0"
+              },
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "f03301d3-2be9-50e9-b29a-8cd66abdd219",
+                "page_index": 1,
+                "text": "Les valeurs de ce tableau concernent uniquement DA-P03.",
+                "precision": "block",
+                "section_id": "3d70ea51-cb91-5890-972d-a2f435166c4f",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "7da3dc41bdc32550dc28e2714f58d188a62ea63099ecb73002954cb847337d47",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/2",
+                  "route": "regional_ocr"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 692.0128173828125,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.077999114990234,
+                    "r": 370.70697021484375,
+                    "t": 702.6497802734375
+                  },
+                  "charspan": [
+                    0,
+                    55
+                  ],
+                  "page_no": 2
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.077999114990234,
+                      692.0128173828125,
+                      370.70697021484375,
+                      702.6497802734375
+                    ],
+                    "end_offset": 55,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "7da3dc41bdc32550dc28e2714f58d188a62ea63099ecb73002954cb847337d47",
+                "type": "text",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  49.077999114990234,
+                  692.0128173828125,
+                  370.70697021484375,
+                  702.6497802734375
+                ],
+                "raw_text": "Les valeurs de ce tableau concernent uniquement DA-P03."
+              },
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "b539fdcd-1f41-5d16-b30b-a4582ae5833b",
+                "page_index": 1,
+                "text": "Tableau de contrôle",
+                "precision": "block",
+                "section_id": "b539fdcd-1f41-5d16-b30b-a4582ae5833b",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "10185d1e82a5a6c4bc54bf3e8ce3d166c568899993bfe904f991a288f324d273",
+                "metadata": {
+                  "extraction_method": "ocr",
+                  "label": "section_header",
+                  "ocr_spans": [
+                    {
+                      "bbox": [
+                        48.0,
+                        603.9564615885417,
+                        101.0,
+                        613.6231282552084
+                      ],
+                      "end_offset": 7,
+                      "precision": "span",
+                      "start_offset": 0
+                    },
+                    {
+                      "bbox": [
+                        106.33333333333333,
+                        603.9564615885417,
+                        122.0,
+                        613.6231282552084
+                      ],
+                      "end_offset": 10,
+                      "precision": "span",
+                      "start_offset": 8
+                    },
+                    {
+                      "bbox": [
+                        127.33333333333333,
+                        603.9564615885417,
+                        182.33333333333334,
+                        613.9564615885416
+                      ],
+                      "end_offset": 19,
+                      "precision": "span",
+                      "start_offset": 11
+                    }
+                  ],
+                  "ocr_used": true,
+                  "parser_ref": "#/texts/3",
+                  "route": "regional_ocr"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 603.9564615885417,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 48.0,
+                    "r": 182.33333333333334,
+                    "t": 613.9564615885416
+                  },
+                  "charspan": [
+                    0,
+                    19
+                  ],
+                  "page_no": 2
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      48.0,
+                      603.9564615885417,
+                      182.33333333333334,
+                      613.9564615885416
+                    ],
+                    "end_offset": 19,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "10185d1e82a5a6c4bc54bf3e8ce3d166c568899993bfe904f991a288f324d273",
+                "type": "heading",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  48.0,
+                  603.9564615885417,
+                  182.33333333333334,
+                  613.9564615885416
+                ],
+                "raw_text": "Tableau de contrôle"
+              },
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "0b923ba5-e177-5d3a-9eb0-2cef632169f9",
+                "page_index": 1,
+                "text": "Référence | Valeur | Unité\nDA-PO3-IN | 15\nDA-P03-OUT | 11\nDA-P03-LEAK | 0.3 | L/min",
+                "precision": "table",
+                "section_id": "b539fdcd-1f41-5d16-b30b-a4582ae5833b",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "397252a4b0c72b6613303bd487e13d05674ec06ff04e4b3b195d25f69d35bd6d",
+                "metadata": {
+                  "extraction_method": "ocr",
+                  "label": "table",
+                  "ocr_spans": [
+                    {
+                      "bbox": [
+                        53.666666666666664,
+                        571.289794921875,
+                        109.66666666666667,
+                        579.289794921875
+                      ],
+                      "end_offset": 9,
+                      "precision": "span",
+                      "start_offset": 0
+                    },
+                    {
+                      "bbox": [
+                        275.0,
+                        571.289794921875,
+                        312.0,
+                        579.289794921875
+                      ],
+                      "end_offset": 18,
+                      "precision": "span",
+                      "start_offset": 12
+                    },
+                    {
+                      "bbox": [
+                        406.0,
+                        571.289794921875,
+                        435.0,
+                        579.289794921875
+                      ],
+                      "end_offset": 26,
+                      "precision": "span",
+                      "start_offset": 21
+                    },
+                    {
+                      "bbox": [
+                        54.0,
+                        538.289794921875,
+                        103.0,
+                        546.289794921875
+                      ],
+                      "end_offset": 36,
+                      "precision": "span",
+                      "start_offset": 27
+                    },
+                    {
+                      "bbox": [
+                        276.0,
+                        538.289794921875,
+                        287.0,
+                        545.9564615885417
+                      ],
+                      "end_offset": 41,
+                      "precision": "span",
+                      "start_offset": 39
+                    },
+                    {
+                      "bbox": [
+                        54.0,
+                        505.289794921875,
+                        114.66666666666667,
+                        512.9564615885416
+                      ],
+                      "end_offset": 52,
+                      "precision": "span",
+                      "start_offset": 42
+                    },
+                    {
+                      "bbox": [
+                        276.0,
+                        505.289794921875,
+                        287.0,
+                        512.6231282552084
+                      ],
+                      "end_offset": 57,
+                      "precision": "span",
+                      "start_offset": 55
+                    },
+                    {
+                      "bbox": [
+                        54.0,
+                        472.289794921875,
+                        118.66666666666667,
+                        479.95646158854163
+                      ],
+                      "end_offset": 69,
+                      "precision": "span",
+                      "start_offset": 58
+                    },
+                    {
+                      "bbox": [
+                        275.6666666666667,
+                        472.289794921875,
+                        290.3333333333333,
+                        479.95646158854163
+                      ],
+                      "end_offset": 75,
+                      "precision": "span",
+                      "start_offset": 72
+                    },
+                    {
+                      "bbox": [
+                        406.0,
+                        471.62312825520837,
+                        432.3333333333333,
+                        480.289794921875
+                      ],
+                      "end_offset": 83,
+                      "precision": "span",
+                      "start_offset": 78
+                    }
+                  ],
+                  "ocr_used": true,
+                  "parser_ref": "#/tables/0",
+                  "route": "regional_ocr",
+                  "table_cell_regions": [
+                    {
+                      "bbox": [
+                        53.666666666666664,
+                        571.289794921875,
+                        109.66666666666667,
+                        579.289794921875
+                      ],
+                      "col_span": 1,
+                      "column": 0,
+                      "row": 0,
+                      "row_span": 1,
+                      "text": "Référence"
+                    },
+                    {
+                      "bbox": [
+                        54.0,
+                        538.289794921875,
+                        103.0,
+                        546.289794921875
+                      ],
+                      "col_span": 1,
+                      "column": 0,
+                      "row": 1,
+                      "row_span": 1,
+                      "text": "DA-PO3-IN"
+                    },
+                    {
+                      "bbox": [
+                        54.0,
+                        505.289794921875,
+                        114.66666666666667,
+                        512.9564615885416
+                      ],
+                      "col_span": 1,
+                      "column": 0,
+                      "row": 2,
+                      "row_span": 1,
+                      "text": "DA-P03-OUT"
+                    },
+                    {
+                      "bbox": [
+                        54.0,
+                        472.289794921875,
+                        118.66666666666667,
+                        479.95646158854163
+                      ],
+                      "col_span": 1,
+                      "column": 0,
+                      "row": 3,
+                      "row_span": 1,
+                      "text": "DA-P03-LEAK"
+                    },
+                    {
+                      "bbox": [
+                        275.0,
+                        571.289794921875,
+                        312.0,
+                        579.289794921875
+                      ],
+                      "col_span": 1,
+                      "column": 1,
+                      "row": 0,
+                      "row_span": 1,
+                      "text": "Valeur"
+                    },
+                    {
+                      "bbox": [
+                        276.0,
+                        538.289794921875,
+                        287.0,
+                        545.9564615885417
+                      ],
+                      "col_span": 1,
+                      "column": 1,
+                      "row": 1,
+                      "row_span": 1,
+                      "text": "15"
+                    },
+                    {
+                      "bbox": [
+                        276.0,
+                        505.289794921875,
+                        287.0,
+                        512.6231282552084
+                      ],
+                      "col_span": 1,
+                      "column": 1,
+                      "row": 2,
+                      "row_span": 1,
+                      "text": "11"
+                    },
+                    {
+                      "bbox": [
+                        275.6666666666667,
+                        472.289794921875,
+                        290.3333333333333,
+                        479.95646158854163
+                      ],
+                      "col_span": 1,
+                      "column": 1,
+                      "row": 3,
+                      "row_span": 1,
+                      "text": "0.3"
+                    },
+                    {
+                      "bbox": [
+                        406.0,
+                        571.289794921875,
+                        435.0,
+                        579.289794921875
+                      ],
+                      "col_span": 1,
+                      "column": 2,
+                      "row": 0,
+                      "row_span": 1,
+                      "text": "Unité"
+                    },
+                    {
+                      "bbox": [
+                        406.0,
+                        471.62312825520837,
+                        432.3333333333333,
+                        480.289794921875
+                      ],
+                      "col_span": 1,
+                      "column": 2,
+                      "row": 3,
+                      "row_span": 1,
+                      "text": "L/min"
+                    }
+                  ],
+                  "table_data": {
+                    "grid": [
+                      [
+                        {
+                          "bbox": {
+                            "b": 270.5999755859375,
+                            "coord_origin": "TOPLEFT",
+                            "l": 53.666666666666664,
+                            "r": 109.66666666666667,
+                            "t": 262.5999755859375
+                          },
+                          "col_span": 1,
+                          "column_header": true,
+                          "end_col_offset_idx": 1,
+                          "end_row_offset_idx": 1,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 0,
+                          "start_row_offset_idx": 0,
+                          "text": "Référence"
+                        },
+                        {
+                          "bbox": {
+                            "b": 270.5999755859375,
+                            "coord_origin": "TOPLEFT",
+                            "l": 275.0,
+                            "r": 312.0,
+                            "t": 262.5999755859375
+                          },
+                          "col_span": 1,
+                          "column_header": true,
+                          "end_col_offset_idx": 2,
+                          "end_row_offset_idx": 1,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 1,
+                          "start_row_offset_idx": 0,
+                          "text": "Valeur"
+                        },
+                        {
+                          "bbox": {
+                            "b": 270.5999755859375,
+                            "coord_origin": "TOPLEFT",
+                            "l": 406.0,
+                            "r": 435.0,
+                            "t": 262.5999755859375
+                          },
+                          "col_span": 1,
+                          "column_header": true,
+                          "end_col_offset_idx": 3,
+                          "end_row_offset_idx": 1,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 2,
+                          "start_row_offset_idx": 0,
+                          "text": "Unité"
+                        }
+                      ],
+                      [
+                        {
+                          "bbox": {
+                            "b": 303.5999755859375,
+                            "coord_origin": "TOPLEFT",
+                            "l": 54.0,
+                            "r": 103.0,
+                            "t": 295.5999755859375
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 1,
+                          "end_row_offset_idx": 2,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 0,
+                          "start_row_offset_idx": 1,
+                          "text": "DA-PO3-IN"
+                        },
+                        {
+                          "bbox": {
+                            "b": 303.5999755859375,
+                            "coord_origin": "TOPLEFT",
+                            "l": 276.0,
+                            "r": 287.0,
+                            "t": 295.9333089192708
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 2,
+                          "end_row_offset_idx": 2,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 1,
+                          "start_row_offset_idx": 1,
+                          "text": "15"
+                        },
+                        {
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 3,
+                          "end_row_offset_idx": 2,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 2,
+                          "start_row_offset_idx": 1,
+                          "text": ""
+                        }
+                      ],
+                      [
+                        {
+                          "bbox": {
+                            "b": 336.5999755859375,
+                            "coord_origin": "TOPLEFT",
+                            "l": 54.0,
+                            "r": 114.66666666666667,
+                            "t": 328.93330891927087
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 1,
+                          "end_row_offset_idx": 3,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 0,
+                          "start_row_offset_idx": 2,
+                          "text": "DA-P03-OUT"
+                        },
+                        {
+                          "bbox": {
+                            "b": 336.5999755859375,
+                            "coord_origin": "TOPLEFT",
+                            "l": 276.0,
+                            "r": 287.0,
+                            "t": 329.26664225260413
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 2,
+                          "end_row_offset_idx": 3,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 1,
+                          "start_row_offset_idx": 2,
+                          "text": "11"
+                        },
+                        {
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 3,
+                          "end_row_offset_idx": 3,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 2,
+                          "start_row_offset_idx": 2,
+                          "text": ""
+                        }
+                      ],
+                      [
+                        {
+                          "bbox": {
+                            "b": 369.5999755859375,
+                            "coord_origin": "TOPLEFT",
+                            "l": 54.0,
+                            "r": 118.66666666666667,
+                            "t": 361.93330891927087
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 1,
+                          "end_row_offset_idx": 4,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 0,
+                          "start_row_offset_idx": 3,
+                          "text": "DA-P03-LEAK"
+                        },
+                        {
+                          "bbox": {
+                            "b": 369.5999755859375,
+                            "coord_origin": "TOPLEFT",
+                            "l": 275.6666666666667,
+                            "r": 290.3333333333333,
+                            "t": 361.93330891927087
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 2,
+                          "end_row_offset_idx": 4,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 1,
+                          "start_row_offset_idx": 3,
+                          "text": "0.3"
+                        },
+                        {
+                          "bbox": {
+                            "b": 370.26664225260413,
+                            "coord_origin": "TOPLEFT",
+                            "l": 406.0,
+                            "r": 432.3333333333333,
+                            "t": 361.5999755859375
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 3,
+                          "end_row_offset_idx": 4,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 2,
+                          "start_row_offset_idx": 3,
+                          "text": "L/min"
+                        }
+                      ]
+                    ],
+                    "num_cols": 3,
+                    "num_rows": 4,
+                    "orientation": "rot_0",
+                    "table_cells": [
+                      {
+                        "bbox": {
+                          "b": 270.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 53.666666666666664,
+                          "r": 109.66666666666667,
+                          "t": 262.5999755859375
+                        },
+                        "col_span": 1,
+                        "column_header": true,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 1,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 0,
+                        "text": "Référence"
+                      },
+                      {
+                        "bbox": {
+                          "b": 303.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 54.0,
+                          "r": 103.0,
+                          "t": 295.5999755859375
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 2,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 1,
+                        "text": "DA-PO3-IN"
+                      },
+                      {
+                        "bbox": {
+                          "b": 336.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 54.0,
+                          "r": 114.66666666666667,
+                          "t": 328.93330891927087
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 3,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 2,
+                        "text": "DA-P03-OUT"
+                      },
+                      {
+                        "bbox": {
+                          "b": 369.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 54.0,
+                          "r": 118.66666666666667,
+                          "t": 361.93330891927087
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 4,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 3,
+                        "text": "DA-P03-LEAK"
+                      },
+                      {
+                        "bbox": {
+                          "b": 270.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 275.0,
+                          "r": 312.0,
+                          "t": 262.5999755859375
+                        },
+                        "col_span": 1,
+                        "column_header": true,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 1,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 0,
+                        "text": "Valeur"
+                      },
+                      {
+                        "bbox": {
+                          "b": 303.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 276.0,
+                          "r": 287.0,
+                          "t": 295.9333089192708
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 2,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 1,
+                        "text": "15"
+                      },
+                      {
+                        "bbox": {
+                          "b": 336.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 276.0,
+                          "r": 287.0,
+                          "t": 329.26664225260413
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 3,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 2,
+                        "text": "11"
+                      },
+                      {
+                        "bbox": {
+                          "b": 369.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 275.6666666666667,
+                          "r": 290.3333333333333,
+                          "t": 361.93330891927087
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 4,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 3,
+                        "text": "0.3"
+                      },
+                      {
+                        "bbox": {
+                          "b": 270.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 406.0,
+                          "r": 435.0,
+                          "t": 262.5999755859375
+                        },
+                        "col_span": 1,
+                        "column_header": true,
+                        "end_col_offset_idx": 3,
+                        "end_row_offset_idx": 1,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 2,
+                        "start_row_offset_idx": 0,
+                        "text": "Unité"
+                      },
+                      {
+                        "bbox": {
+                          "b": 370.26664225260413,
+                          "coord_origin": "TOPLEFT",
+                          "l": 406.0,
+                          "r": 432.3333333333333,
+                          "t": 361.5999755859375
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 3,
+                        "end_row_offset_idx": 4,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 2,
+                        "start_row_offset_idx": 3,
+                        "text": "L/min"
+                      }
+                    ]
+                  }
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 461.12269968257647,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 47.07709910460365,
+                    "r": 547.8023027597982,
+                    "t": 592.3302214747458
+                  },
+                  "charspan": [
+                    0,
+                    0
+                  ],
+                  "page_no": 2
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      47.07709910460365,
+                      461.12269968257647,
+                      547.8023027597982,
+                      592.3302214747458
+                    ],
+                    "end_offset": 83,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "397252a4b0c72b6613303bd487e13d05674ec06ff04e4b3b195d25f69d35bd6d",
+                "type": "table",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  47.07709910460365,
+                  461.12269968257647,
+                  547.8023027597982,
+                  592.3302214747458
+                ],
+                "raw_text": "Référence | Valeur | Unité\nDA-PO3-IN | 15\nDA-P03-OUT | 11\nDA-P03-LEAK | 0.3 | L/min"
+              },
+              {
+                "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+                "id": "f3f85e97-a3c1-5ee4-b8a6-43672f9feea5",
+                "page_index": 1,
+                "text": "Page 2 / 2",
+                "precision": "block",
+                "section_id": "b539fdcd-1f41-5d16-b30b-a4582ae5833b",
+                "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+                "source_text_hash": "234f1841e83c69fea6f9482fd4aa0c51bdbf34af0a545d3b8483cb24c17a228f",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "page_footer",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/4",
+                  "route": "regional_ocr"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 30.137001037597656,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 48.88199996948242,
+                    "r": 92.30699920654297,
+                    "t": 38.678001403808594
+                  },
+                  "charspan": [
+                    0,
+                    10
+                  ],
+                  "page_no": 2
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      48.88199996948242,
+                      30.137001037597656,
+                      92.30699920654297,
+                      38.678001403808594
+                    ],
+                    "end_offset": 10,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "234f1841e83c69fea6f9482fd4aa0c51bdbf34af0a545d3b8483cb24c17a228f",
+                "type": "text",
+                "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+                "bbox": [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                "raw_text": "Page 2 / 2"
+              }
+            ]
+          },
+          "blocks": [
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "3d70ea51-cb91-5890-972d-a2f435166c4f",
+              "page_index": 1,
+              "text": "Mesures de contrôle — DA-P03",
+              "precision": "block",
+              "section_id": "3d70ea51-cb91-5890-972d-a2f435166c4f",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "a7ab510e572b49744c34a07b5d59633fcba04ef49444ce1f51dc5f281f5bbba6",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "section_header",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/0",
+                "route": "regional_ocr"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 779.6817626953125,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.47200012207031,
+                  "r": 324.14398193359375,
+                  "t": 792.6897583007812
+                },
+                "charspan": [
+                  0,
+                  28
+                ],
+                "page_no": 2
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.47200012207031,
+                    779.6817626953125,
+                    324.14398193359375,
+                    792.6897583007812
+                  ],
+                  "end_offset": 28,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "a7ab510e572b49744c34a07b5d59633fcba04ef49444ce1f51dc5f281f5bbba6",
+              "type": "heading",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                49.47200012207031,
+                779.6817626953125,
+                324.14398193359375,
+                792.6897583007812
+              ],
+              "raw_text": "Mesures de contrôle — DA-P03"
+            },
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "ea2c812b-1147-54e7-bcca-55bdfa236a92",
+              "page_index": 1,
+              "text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0",
+              "precision": "block",
+              "section_id": "3d70ea51-cb91-5890-972d-a2f435166c4f",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/1",
+                "route": "regional_ocr"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 742.8338012695312,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 48.784000396728516,
+                  "r": 278.8719482421875,
+                  "t": 751.9058227539062
+                },
+                "charspan": [
+                  0,
+                  51
+                ],
+                "page_no": 2
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    48.784000396728516,
+                    742.8338012695312,
+                    278.8719482421875,
+                    751.9058227539062
+                  ],
+                  "end_offset": 51,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+              "type": "text",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                48.784000396728516,
+                742.8338012695312,
+                278.8719482421875,
+                751.9058227539062
+              ],
+              "raw_text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0"
+            },
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "f03301d3-2be9-50e9-b29a-8cd66abdd219",
+              "page_index": 1,
+              "text": "Les valeurs de ce tableau concernent uniquement DA-P03.",
+              "precision": "block",
+              "section_id": "3d70ea51-cb91-5890-972d-a2f435166c4f",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "7da3dc41bdc32550dc28e2714f58d188a62ea63099ecb73002954cb847337d47",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/2",
+                "route": "regional_ocr"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 692.0128173828125,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.077999114990234,
+                  "r": 370.70697021484375,
+                  "t": 702.6497802734375
+                },
+                "charspan": [
+                  0,
+                  55
+                ],
+                "page_no": 2
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.077999114990234,
+                    692.0128173828125,
+                    370.70697021484375,
+                    702.6497802734375
+                  ],
+                  "end_offset": 55,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "7da3dc41bdc32550dc28e2714f58d188a62ea63099ecb73002954cb847337d47",
+              "type": "text",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                49.077999114990234,
+                692.0128173828125,
+                370.70697021484375,
+                702.6497802734375
+              ],
+              "raw_text": "Les valeurs de ce tableau concernent uniquement DA-P03."
+            },
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "b539fdcd-1f41-5d16-b30b-a4582ae5833b",
+              "page_index": 1,
+              "text": "Tableau de contrôle",
+              "precision": "block",
+              "section_id": "b539fdcd-1f41-5d16-b30b-a4582ae5833b",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "10185d1e82a5a6c4bc54bf3e8ce3d166c568899993bfe904f991a288f324d273",
+              "metadata": {
+                "extraction_method": "ocr",
+                "label": "section_header",
+                "ocr_spans": [
+                  {
+                    "bbox": [
+                      48.0,
+                      603.9564615885417,
+                      101.0,
+                      613.6231282552084
+                    ],
+                    "end_offset": 7,
+                    "precision": "span",
+                    "start_offset": 0
+                  },
+                  {
+                    "bbox": [
+                      106.33333333333333,
+                      603.9564615885417,
+                      122.0,
+                      613.6231282552084
+                    ],
+                    "end_offset": 10,
+                    "precision": "span",
+                    "start_offset": 8
+                  },
+                  {
+                    "bbox": [
+                      127.33333333333333,
+                      603.9564615885417,
+                      182.33333333333334,
+                      613.9564615885416
+                    ],
+                    "end_offset": 19,
+                    "precision": "span",
+                    "start_offset": 11
+                  }
+                ],
+                "ocr_used": true,
+                "parser_ref": "#/texts/3",
+                "route": "regional_ocr"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 603.9564615885417,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 48.0,
+                  "r": 182.33333333333334,
+                  "t": 613.9564615885416
+                },
+                "charspan": [
+                  0,
+                  19
+                ],
+                "page_no": 2
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    48.0,
+                    603.9564615885417,
+                    182.33333333333334,
+                    613.9564615885416
+                  ],
+                  "end_offset": 19,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "10185d1e82a5a6c4bc54bf3e8ce3d166c568899993bfe904f991a288f324d273",
+              "type": "heading",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                48.0,
+                603.9564615885417,
+                182.33333333333334,
+                613.9564615885416
+              ],
+              "raw_text": "Tableau de contrôle"
+            },
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "0b923ba5-e177-5d3a-9eb0-2cef632169f9",
+              "page_index": 1,
+              "text": "Référence | Valeur | Unité\nDA-PO3-IN | 15\nDA-P03-OUT | 11\nDA-P03-LEAK | 0.3 | L/min",
+              "precision": "table",
+              "section_id": "b539fdcd-1f41-5d16-b30b-a4582ae5833b",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "397252a4b0c72b6613303bd487e13d05674ec06ff04e4b3b195d25f69d35bd6d",
+              "metadata": {
+                "extraction_method": "ocr",
+                "label": "table",
+                "ocr_spans": [
+                  {
+                    "bbox": [
+                      53.666666666666664,
+                      571.289794921875,
+                      109.66666666666667,
+                      579.289794921875
+                    ],
+                    "end_offset": 9,
+                    "precision": "span",
+                    "start_offset": 0
+                  },
+                  {
+                    "bbox": [
+                      275.0,
+                      571.289794921875,
+                      312.0,
+                      579.289794921875
+                    ],
+                    "end_offset": 18,
+                    "precision": "span",
+                    "start_offset": 12
+                  },
+                  {
+                    "bbox": [
+                      406.0,
+                      571.289794921875,
+                      435.0,
+                      579.289794921875
+                    ],
+                    "end_offset": 26,
+                    "precision": "span",
+                    "start_offset": 21
+                  },
+                  {
+                    "bbox": [
+                      54.0,
+                      538.289794921875,
+                      103.0,
+                      546.289794921875
+                    ],
+                    "end_offset": 36,
+                    "precision": "span",
+                    "start_offset": 27
+                  },
+                  {
+                    "bbox": [
+                      276.0,
+                      538.289794921875,
+                      287.0,
+                      545.9564615885417
+                    ],
+                    "end_offset": 41,
+                    "precision": "span",
+                    "start_offset": 39
+                  },
+                  {
+                    "bbox": [
+                      54.0,
+                      505.289794921875,
+                      114.66666666666667,
+                      512.9564615885416
+                    ],
+                    "end_offset": 52,
+                    "precision": "span",
+                    "start_offset": 42
+                  },
+                  {
+                    "bbox": [
+                      276.0,
+                      505.289794921875,
+                      287.0,
+                      512.6231282552084
+                    ],
+                    "end_offset": 57,
+                    "precision": "span",
+                    "start_offset": 55
+                  },
+                  {
+                    "bbox": [
+                      54.0,
+                      472.289794921875,
+                      118.66666666666667,
+                      479.95646158854163
+                    ],
+                    "end_offset": 69,
+                    "precision": "span",
+                    "start_offset": 58
+                  },
+                  {
+                    "bbox": [
+                      275.6666666666667,
+                      472.289794921875,
+                      290.3333333333333,
+                      479.95646158854163
+                    ],
+                    "end_offset": 75,
+                    "precision": "span",
+                    "start_offset": 72
+                  },
+                  {
+                    "bbox": [
+                      406.0,
+                      471.62312825520837,
+                      432.3333333333333,
+                      480.289794921875
+                    ],
+                    "end_offset": 83,
+                    "precision": "span",
+                    "start_offset": 78
+                  }
+                ],
+                "ocr_used": true,
+                "parser_ref": "#/tables/0",
+                "route": "regional_ocr",
+                "table_cell_regions": [
+                  {
+                    "bbox": [
+                      53.666666666666664,
+                      571.289794921875,
+                      109.66666666666667,
+                      579.289794921875
+                    ],
+                    "col_span": 1,
+                    "column": 0,
+                    "row": 0,
+                    "row_span": 1,
+                    "text": "Référence"
+                  },
+                  {
+                    "bbox": [
+                      54.0,
+                      538.289794921875,
+                      103.0,
+                      546.289794921875
+                    ],
+                    "col_span": 1,
+                    "column": 0,
+                    "row": 1,
+                    "row_span": 1,
+                    "text": "DA-PO3-IN"
+                  },
+                  {
+                    "bbox": [
+                      54.0,
+                      505.289794921875,
+                      114.66666666666667,
+                      512.9564615885416
+                    ],
+                    "col_span": 1,
+                    "column": 0,
+                    "row": 2,
+                    "row_span": 1,
+                    "text": "DA-P03-OUT"
+                  },
+                  {
+                    "bbox": [
+                      54.0,
+                      472.289794921875,
+                      118.66666666666667,
+                      479.95646158854163
+                    ],
+                    "col_span": 1,
+                    "column": 0,
+                    "row": 3,
+                    "row_span": 1,
+                    "text": "DA-P03-LEAK"
+                  },
+                  {
+                    "bbox": [
+                      275.0,
+                      571.289794921875,
+                      312.0,
+                      579.289794921875
+                    ],
+                    "col_span": 1,
+                    "column": 1,
+                    "row": 0,
+                    "row_span": 1,
+                    "text": "Valeur"
+                  },
+                  {
+                    "bbox": [
+                      276.0,
+                      538.289794921875,
+                      287.0,
+                      545.9564615885417
+                    ],
+                    "col_span": 1,
+                    "column": 1,
+                    "row": 1,
+                    "row_span": 1,
+                    "text": "15"
+                  },
+                  {
+                    "bbox": [
+                      276.0,
+                      505.289794921875,
+                      287.0,
+                      512.6231282552084
+                    ],
+                    "col_span": 1,
+                    "column": 1,
+                    "row": 2,
+                    "row_span": 1,
+                    "text": "11"
+                  },
+                  {
+                    "bbox": [
+                      275.6666666666667,
+                      472.289794921875,
+                      290.3333333333333,
+                      479.95646158854163
+                    ],
+                    "col_span": 1,
+                    "column": 1,
+                    "row": 3,
+                    "row_span": 1,
+                    "text": "0.3"
+                  },
+                  {
+                    "bbox": [
+                      406.0,
+                      571.289794921875,
+                      435.0,
+                      579.289794921875
+                    ],
+                    "col_span": 1,
+                    "column": 2,
+                    "row": 0,
+                    "row_span": 1,
+                    "text": "Unité"
+                  },
+                  {
+                    "bbox": [
+                      406.0,
+                      471.62312825520837,
+                      432.3333333333333,
+                      480.289794921875
+                    ],
+                    "col_span": 1,
+                    "column": 2,
+                    "row": 3,
+                    "row_span": 1,
+                    "text": "L/min"
+                  }
+                ],
+                "table_data": {
+                  "grid": [
+                    [
+                      {
+                        "bbox": {
+                          "b": 270.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 53.666666666666664,
+                          "r": 109.66666666666667,
+                          "t": 262.5999755859375
+                        },
+                        "col_span": 1,
+                        "column_header": true,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 1,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 0,
+                        "text": "Référence"
+                      },
+                      {
+                        "bbox": {
+                          "b": 270.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 275.0,
+                          "r": 312.0,
+                          "t": 262.5999755859375
+                        },
+                        "col_span": 1,
+                        "column_header": true,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 1,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 0,
+                        "text": "Valeur"
+                      },
+                      {
+                        "bbox": {
+                          "b": 270.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 406.0,
+                          "r": 435.0,
+                          "t": 262.5999755859375
+                        },
+                        "col_span": 1,
+                        "column_header": true,
+                        "end_col_offset_idx": 3,
+                        "end_row_offset_idx": 1,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 2,
+                        "start_row_offset_idx": 0,
+                        "text": "Unité"
+                      }
+                    ],
+                    [
+                      {
+                        "bbox": {
+                          "b": 303.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 54.0,
+                          "r": 103.0,
+                          "t": 295.5999755859375
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 2,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 1,
+                        "text": "DA-PO3-IN"
+                      },
+                      {
+                        "bbox": {
+                          "b": 303.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 276.0,
+                          "r": 287.0,
+                          "t": 295.9333089192708
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 2,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 1,
+                        "text": "15"
+                      },
+                      {
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 3,
+                        "end_row_offset_idx": 2,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 2,
+                        "start_row_offset_idx": 1,
+                        "text": ""
+                      }
+                    ],
+                    [
+                      {
+                        "bbox": {
+                          "b": 336.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 54.0,
+                          "r": 114.66666666666667,
+                          "t": 328.93330891927087
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 3,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 2,
+                        "text": "DA-P03-OUT"
+                      },
+                      {
+                        "bbox": {
+                          "b": 336.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 276.0,
+                          "r": 287.0,
+                          "t": 329.26664225260413
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 3,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 2,
+                        "text": "11"
+                      },
+                      {
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 3,
+                        "end_row_offset_idx": 3,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 2,
+                        "start_row_offset_idx": 2,
+                        "text": ""
+                      }
+                    ],
+                    [
+                      {
+                        "bbox": {
+                          "b": 369.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 54.0,
+                          "r": 118.66666666666667,
+                          "t": 361.93330891927087
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 4,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 3,
+                        "text": "DA-P03-LEAK"
+                      },
+                      {
+                        "bbox": {
+                          "b": 369.5999755859375,
+                          "coord_origin": "TOPLEFT",
+                          "l": 275.6666666666667,
+                          "r": 290.3333333333333,
+                          "t": 361.93330891927087
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 4,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 3,
+                        "text": "0.3"
+                      },
+                      {
+                        "bbox": {
+                          "b": 370.26664225260413,
+                          "coord_origin": "TOPLEFT",
+                          "l": 406.0,
+                          "r": 432.3333333333333,
+                          "t": 361.5999755859375
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 3,
+                        "end_row_offset_idx": 4,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 2,
+                        "start_row_offset_idx": 3,
+                        "text": "L/min"
+                      }
+                    ]
+                  ],
+                  "num_cols": 3,
+                  "num_rows": 4,
+                  "orientation": "rot_0",
+                  "table_cells": [
+                    {
+                      "bbox": {
+                        "b": 270.5999755859375,
+                        "coord_origin": "TOPLEFT",
+                        "l": 53.666666666666664,
+                        "r": 109.66666666666667,
+                        "t": 262.5999755859375
+                      },
+                      "col_span": 1,
+                      "column_header": true,
+                      "end_col_offset_idx": 1,
+                      "end_row_offset_idx": 1,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 0,
+                      "start_row_offset_idx": 0,
+                      "text": "Référence"
+                    },
+                    {
+                      "bbox": {
+                        "b": 303.5999755859375,
+                        "coord_origin": "TOPLEFT",
+                        "l": 54.0,
+                        "r": 103.0,
+                        "t": 295.5999755859375
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 1,
+                      "end_row_offset_idx": 2,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 0,
+                      "start_row_offset_idx": 1,
+                      "text": "DA-PO3-IN"
+                    },
+                    {
+                      "bbox": {
+                        "b": 336.5999755859375,
+                        "coord_origin": "TOPLEFT",
+                        "l": 54.0,
+                        "r": 114.66666666666667,
+                        "t": 328.93330891927087
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 1,
+                      "end_row_offset_idx": 3,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 0,
+                      "start_row_offset_idx": 2,
+                      "text": "DA-P03-OUT"
+                    },
+                    {
+                      "bbox": {
+                        "b": 369.5999755859375,
+                        "coord_origin": "TOPLEFT",
+                        "l": 54.0,
+                        "r": 118.66666666666667,
+                        "t": 361.93330891927087
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 1,
+                      "end_row_offset_idx": 4,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 0,
+                      "start_row_offset_idx": 3,
+                      "text": "DA-P03-LEAK"
+                    },
+                    {
+                      "bbox": {
+                        "b": 270.5999755859375,
+                        "coord_origin": "TOPLEFT",
+                        "l": 275.0,
+                        "r": 312.0,
+                        "t": 262.5999755859375
+                      },
+                      "col_span": 1,
+                      "column_header": true,
+                      "end_col_offset_idx": 2,
+                      "end_row_offset_idx": 1,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 1,
+                      "start_row_offset_idx": 0,
+                      "text": "Valeur"
+                    },
+                    {
+                      "bbox": {
+                        "b": 303.5999755859375,
+                        "coord_origin": "TOPLEFT",
+                        "l": 276.0,
+                        "r": 287.0,
+                        "t": 295.9333089192708
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 2,
+                      "end_row_offset_idx": 2,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 1,
+                      "start_row_offset_idx": 1,
+                      "text": "15"
+                    },
+                    {
+                      "bbox": {
+                        "b": 336.5999755859375,
+                        "coord_origin": "TOPLEFT",
+                        "l": 276.0,
+                        "r": 287.0,
+                        "t": 329.26664225260413
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 2,
+                      "end_row_offset_idx": 3,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 1,
+                      "start_row_offset_idx": 2,
+                      "text": "11"
+                    },
+                    {
+                      "bbox": {
+                        "b": 369.5999755859375,
+                        "coord_origin": "TOPLEFT",
+                        "l": 275.6666666666667,
+                        "r": 290.3333333333333,
+                        "t": 361.93330891927087
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 2,
+                      "end_row_offset_idx": 4,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 1,
+                      "start_row_offset_idx": 3,
+                      "text": "0.3"
+                    },
+                    {
+                      "bbox": {
+                        "b": 270.5999755859375,
+                        "coord_origin": "TOPLEFT",
+                        "l": 406.0,
+                        "r": 435.0,
+                        "t": 262.5999755859375
+                      },
+                      "col_span": 1,
+                      "column_header": true,
+                      "end_col_offset_idx": 3,
+                      "end_row_offset_idx": 1,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 2,
+                      "start_row_offset_idx": 0,
+                      "text": "Unité"
+                    },
+                    {
+                      "bbox": {
+                        "b": 370.26664225260413,
+                        "coord_origin": "TOPLEFT",
+                        "l": 406.0,
+                        "r": 432.3333333333333,
+                        "t": 361.5999755859375
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 3,
+                      "end_row_offset_idx": 4,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 2,
+                      "start_row_offset_idx": 3,
+                      "text": "L/min"
+                    }
+                  ]
+                }
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 461.12269968257647,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 47.07709910460365,
+                  "r": 547.8023027597982,
+                  "t": 592.3302214747458
+                },
+                "charspan": [
+                  0,
+                  0
+                ],
+                "page_no": 2
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    47.07709910460365,
+                    461.12269968257647,
+                    547.8023027597982,
+                    592.3302214747458
+                  ],
+                  "end_offset": 83,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "397252a4b0c72b6613303bd487e13d05674ec06ff04e4b3b195d25f69d35bd6d",
+              "type": "table",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                47.07709910460365,
+                461.12269968257647,
+                547.8023027597982,
+                592.3302214747458
+              ],
+              "raw_text": "Référence | Valeur | Unité\nDA-PO3-IN | 15\nDA-P03-OUT | 11\nDA-P03-LEAK | 0.3 | L/min"
+            },
+            {
+              "generation_id": "90e12be0-e42a-4502-a24f-6d0129d05264",
+              "id": "f3f85e97-a3c1-5ee4-b8a6-43672f9feea5",
+              "page_index": 1,
+              "text": "Page 2 / 2",
+              "precision": "block",
+              "section_id": "b539fdcd-1f41-5d16-b30b-a4582ae5833b",
+              "extraction_revision_id": "be3651cf-ede8-5c98-9a07-a4cc79eab84e",
+              "source_text_hash": "234f1841e83c69fea6f9482fd4aa0c51bdbf34af0a545d3b8483cb24c17a228f",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "page_footer",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/4",
+                "route": "regional_ocr"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 30.137001037597656,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 48.88199996948242,
+                  "r": 92.30699920654297,
+                  "t": 38.678001403808594
+                },
+                "charspan": [
+                  0,
+                  10
+                ],
+                "page_no": 2
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    48.88199996948242,
+                    30.137001037597656,
+                    92.30699920654297,
+                    38.678001403808594
+                  ],
+                  "end_offset": 10,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "234f1841e83c69fea6f9482fd4aa0c51bdbf34af0a545d3b8483cb24c17a228f",
+              "type": "text",
+              "version_id": "d99e8bda-dff2-49ed-8c4d-b5a29503d8ff",
+              "bbox": [
+                48.88199996948242,
+                30.137001037597656,
+                92.30699920654297,
+                38.678001403808594
+              ],
+              "raw_text": "Page 2 / 2"
+            }
+          ],
+          "warnings": [
+            {
+              "code": "OCR_WORD_LOW_CONFIDENCE",
+              "count": 1,
+              "minimum_confidence_required": 0.8,
+              "page_index": 1
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,3642 @@
+{
+  "captured_at_utc": "2026-10-01T07:03:46.944624+00:00",
+  "method": "Read-only loopback GET document detail and immutable version pages; UTF-8 JSON decoded explicitly; no retrieval/model/import.",
+  "documents": {
+    "development-DA-P07": {
+      "document_id": "63898745-3477-4f47-92ca-001943b30798",
+      "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+      "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+      "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+      "file_sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+      "document_state": "ready",
+      "document": {
+        "id": "63898745-3477-4f47-92ca-001943b30798",
+        "folder_id": "ee132a48-81c3-447b-87c9-a50413af10a1",
+        "name": "Atelier 7 - Banc pneumatique DA-P07.pdf",
+        "relative_path": "Procédures/Atelier 7 - Banc pneumatique DA-P07.pdf",
+        "state": "ready",
+        "active_generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+        "deleted_at": null,
+        "created_at": "2026-10-01T06:50:46.558818+00:00",
+        "updated_at": "2026-10-01T06:56:46.774579+00:00",
+        "active_version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+        "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+        "sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+        "page_count": 2,
+        "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+        "coverage": {
+          "ocr": 0,
+          "processed": 2,
+          "total": 2,
+          "unresolved": 0,
+          "unresolved_regions": 0
+        },
+        "versions": [
+          {
+            "id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+            "document_id": "63898745-3477-4f47-92ca-001943b30798",
+            "sha256": "38a5d91edfd44a86029922865d5d61ae26ea266e4df6aeb5702dba1defb5e568",
+            "page_count": 2,
+            "created_at": "2026-10-01T06:50:46.558818+00:00",
+            "file_url": "/api/v1/versions/52e16377-d416-4ec2-af63-92ec9290c04d/file"
+          }
+        ],
+        "jobs": [
+          {
+            "id": "ce2f1db7-19c2-41f9-9fab-672ba4d3447f",
+            "document_id": "63898745-3477-4f47-92ca-001943b30798",
+            "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+            "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+            "state": "ready",
+            "stage": "complete",
+            "progress": 1.0,
+            "attempts": 1,
+            "error_code": null,
+            "error_message": null,
+            "created_at": "2026-10-01T06:50:46.558818+00:00",
+            "updated_at": "2026-10-01T06:56:46.774579+00:00",
+            "published_at": "2026-10-01T06:56:46.774579+00:00",
+            "active": true,
+            "coverage": {
+              "ocr": 0,
+              "processed": 2,
+              "total": 2,
+              "unresolved": 0,
+              "unresolved_regions": 0
+            },
+            "warnings": [],
+            "published": true
+          }
+        ]
+      },
+      "pages": [
+        {
+          "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+          "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+          "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+          "page": {
+            "alphanumeric_count": 404,
+            "classification": "native",
+            "coverage_regions": [
+              {
+                "bbox": [
+                  49.34400177001953,
+                  776.4497680664062,
+                  410.9759521484375,
+                  792.6897583007812
+                ],
+                "block_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                "block_id": "0b6b10be-3e92-5b16-ad8e-32d849013dae",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  49.077999114990234,
+                  692.0128173828125,
+                  330.9529724121094,
+                  703.0897827148438
+                ],
+                "block_id": "c0e3836d-731e-5ab4-a95b-92b2b6905ff0",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  49.077999114990234,
+                  654.11279296875,
+                  309.00799560546875,
+                  664.749755859375
+                ],
+                "block_id": "ada5b943-ad75-558c-9ae2-235e30d4ec7e",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  49.077999114990234,
+                  616.2128295898438,
+                  332.0639953613281,
+                  627.289794921875
+                ],
+                "block_id": "23a01312-d250-5caf-a0b8-9a599b4fbc32",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  49.077999114990234,
+                  578.3128051757812,
+                  391.2110595703125,
+                  589.3897705078125
+                ],
+                "block_id": "fc38625c-07de-5262-addf-75244095f435",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  49.077999114990234,
+                  540.412841796875,
+                  364.9319763183594,
+                  551.0498046875
+                ],
+                "block_id": "3d210588-2584-5e44-9dbf-763c41231177",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  49.077999114990234,
+                  504.64678955078125,
+                  297.5570068359375,
+                  513.1497802734375
+                ],
+                "block_id": "df72799f-820f-5181-9cef-32381890104b",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.60499954223633,
+                  448.0467834472656,
+                  540.2281494140625,
+                  475.6897888183594
+                ],
+                "block_id": "98a18436-1122-5bc3-a91f-50e92701338c",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                "block_id": "0e092f0c-3e78-5e69-90c3-0cb7d22ef098",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              }
+            ],
+            "crop_box": null,
+            "crop_box_source": "unavailable_inherited_or_absent",
+            "display_height": 841.8897705078125,
+            "display_width": 595.2755737304688,
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "extraction_route": "structured",
+            "extraction_state": "native",
+            "height": 841.8897705078125,
+            "image_regions": [],
+            "label": null,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "media_box_source": "declared",
+            "native_text_regions": [
+              [
+                49.34400177001953,
+                776.4497680664062,
+                410.9759521484375,
+                792.6897583007812
+              ],
+              [
+                48.784000396728516,
+                742.8338012695312,
+                278.8719482421875,
+                751.9058227539062
+              ],
+              [
+                48.88199996948242,
+                30.137001037597656,
+                92.30699920654297,
+                38.678001403808594
+              ],
+              [
+                49.077999114990234,
+                692.0128173828125,
+                330.9529724121094,
+                703.0897827148438
+              ],
+              [
+                49.077999114990234,
+                654.11279296875,
+                309.00799560546875,
+                664.749755859375
+              ],
+              [
+                49.077999114990234,
+                616.2128295898438,
+                332.0639953613281,
+                627.289794921875
+              ],
+              [
+                49.077999114990234,
+                578.3128051757812,
+                391.2110595703125,
+                589.3897705078125
+              ],
+              [
+                49.077999114990234,
+                540.412841796875,
+                364.9319763183594,
+                551.0498046875
+              ],
+              [
+                49.077999114990234,
+                504.64678955078125,
+                297.5570068359375,
+                513.1497802734375
+              ],
+              [
+                49.077999114990234,
+                464.61279296875,
+                540.2281494140625,
+                475.6897888183594
+              ],
+              [
+                48.60499954223633,
+                448.0467834472656,
+                142.98500061035156,
+                456.5497741699219
+              ]
+            ],
+            "native_text_sparse": false,
+            "needs_ocr": false,
+            "ocr_cell_count": 0,
+            "ocr_orientations": [],
+            "ocr_parser_regions": [],
+            "ocr_preprocessing": [],
+            "ocr_regions": [],
+            "ocr_used": false,
+            "orientation_correction": 0,
+            "orientation_source": "native_page_frame",
+            "page_index": 0,
+            "page_number": 1,
+            "replacement_ratio": 0.0,
+            "rotation": 0,
+            "routing_reason": "typography_requires_structure",
+            "table_orientation_corrections": [],
+            "text_character_count": 529,
+            "text_font_sizes": [
+              8.0,
+              9.0,
+              11.0,
+              16.0
+            ],
+            "text_mapping_warnings": [],
+            "unresolved_regions": [],
+            "vector_path_count": 1,
+            "width": 595.2755737304688,
+            "blocks": [
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+                "page_index": 0,
+                "text": "banc pneumatique synthétique Atelier 7",
+                "precision": "block",
+                "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "665bcf7704b9046865e141b12cefede51a8188ea780b0543bb26979d1b3f61e0",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "section_header",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/0",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 776.4497680664062,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.34400177001953,
+                    "r": 410.9759521484375,
+                    "t": 792.6897583007812
+                  },
+                  "charspan": [
+                    0,
+                    38
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.34400177001953,
+                      776.4497680664062,
+                      410.9759521484375,
+                      792.6897583007812
+                    ],
+                    "end_offset": 38,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "665bcf7704b9046865e141b12cefede51a8188ea780b0543bb26979d1b3f61e0",
+                "type": "heading",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  49.34400177001953,
+                  776.4497680664062,
+                  410.9759521484375,
+                  792.6897583007812
+                ],
+                "raw_text": "banc pneumatique synthétique Atelier 7"
+              },
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "0b6b10be-3e92-5b16-ad8e-32d849013dae",
+                "page_index": 0,
+                "text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0",
+                "precision": "block",
+                "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/1",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 742.8338012695312,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 48.784000396728516,
+                    "r": 278.8719482421875,
+                    "t": 751.9058227539062
+                  },
+                  "charspan": [
+                    0,
+                    51
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      48.784000396728516,
+                      742.8338012695312,
+                      278.8719482421875,
+                      751.9058227539062
+                    ],
+                    "end_offset": 51,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+                "type": "text",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                "raw_text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0"
+              },
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "c0e3836d-731e-5ab4-a95b-92b2b6905ff0",
+                "page_index": 0,
+                "text": "DA-P07 — banc pneumatique synthétique Atelier 7.",
+                "precision": "block",
+                "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "be49da53a18e9c7b78bc848bdb9b2b51217b65c6d3bbf8e5b1c2adca7f3fe91c",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/2",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 692.0128173828125,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.077999114990234,
+                    "r": 330.9529724121094,
+                    "t": 703.0897827148438
+                  },
+                  "charspan": [
+                    0,
+                    48
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.077999114990234,
+                      692.0128173828125,
+                      330.9529724121094,
+                      703.0897827148438
+                    ],
+                    "end_offset": 48,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "be49da53a18e9c7b78bc848bdb9b2b51217b65c6d3bbf8e5b1c2adca7f3fe91c",
+                "type": "text",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  49.077999114990234,
+                  692.0128173828125,
+                  330.9529724121094,
+                  703.0897827148438
+                ],
+                "raw_text": "DA-P07 — banc pneumatique synthétique Atelier 7."
+              },
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "ada5b943-ad75-558c-9ae2-235e30d4ec7e",
+                "page_index": 0,
+                "text": "La pression nominale de DA-P07 est de 3.7 bar.",
+                "precision": "block",
+                "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "17b904993e3522ef3565117b3cb0094c75fc98e0010c36c99fda5e8787f1aef2",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/3",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 654.11279296875,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.077999114990234,
+                    "r": 309.00799560546875,
+                    "t": 664.749755859375
+                  },
+                  "charspan": [
+                    0,
+                    46
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.077999114990234,
+                      654.11279296875,
+                      309.00799560546875,
+                      664.749755859375
+                    ],
+                    "end_offset": 46,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "17b904993e3522ef3565117b3cb0094c75fc98e0010c36c99fda5e8787f1aef2",
+                "type": "text",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  49.077999114990234,
+                  654.11279296875,
+                  309.00799560546875,
+                  664.749755859375
+                ],
+                "raw_text": "La pression nominale de DA-P07 est de 3.7 bar."
+              },
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "23a01312-d250-5caf-a0b8-9a599b4fbc32",
+                "page_index": 0,
+                "text": "La tolérance de pression de DA-P07 est de ± 8.0 %.",
+                "precision": "block",
+                "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "44972dd9469710efd5f3fe223f8d3d478cd0e564ddc7f7c2cb38ea0f5875f1fe",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/4",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 616.2128295898438,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.077999114990234,
+                    "r": 332.0639953613281,
+                    "t": 627.289794921875
+                  },
+                  "charspan": [
+                    0,
+                    50
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.077999114990234,
+                      616.2128295898438,
+                      332.0639953613281,
+                      627.289794921875
+                    ],
+                    "end_offset": 50,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "44972dd9469710efd5f3fe223f8d3d478cd0e564ddc7f7c2cb38ea0f5875f1fe",
+                "type": "text",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  49.077999114990234,
+                  616.2128295898438,
+                  332.0639953613281,
+                  627.289794921875
+                ],
+                "raw_text": "La tolérance de pression de DA-P07 est de ± 8.0 %."
+              },
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "fc38625c-07de-5262-addf-75244095f435",
+                "page_index": 0,
+                "text": "Le contrôle périodique de DA-P07 intervient toutes les 1740 h.",
+                "precision": "block",
+                "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "cdb350fa19b439225b3fddeb9a6ec70fd1c02a21936d17eaa1000579a32056cd",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/5",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 578.3128051757812,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.077999114990234,
+                    "r": 391.2110595703125,
+                    "t": 589.3897705078125
+                  },
+                  "charspan": [
+                    0,
+                    62
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.077999114990234,
+                      578.3128051757812,
+                      391.2110595703125,
+                      589.3897705078125
+                    ],
+                    "end_offset": 62,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "cdb350fa19b439225b3fddeb9a6ec70fd1c02a21936d17eaa1000579a32056cd",
+                "type": "text",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  49.077999114990234,
+                  578.3128051757812,
+                  391.2110595703125,
+                  589.3897705078125
+                ],
+                "raw_text": "Le contrôle périodique de DA-P07 intervient toutes les 1740 h."
+              },
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "3d210588-2584-5e44-9dbf-763c41231177",
+                "page_index": 0,
+                "text": "Le couple de serrage prescrit pour DA-P07 est de 24 N·m.",
+                "precision": "block",
+                "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "89afc97b439cdf8bdc44c2536c14fcddeb6577fecbbb603aedb60ef89abf674d",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/6",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 540.412841796875,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.077999114990234,
+                    "r": 364.9319763183594,
+                    "t": 551.0498046875
+                  },
+                  "charspan": [
+                    0,
+                    56
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.077999114990234,
+                      540.412841796875,
+                      364.9319763183594,
+                      551.0498046875
+                    ],
+                    "end_offset": 56,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "89afc97b439cdf8bdc44c2536c14fcddeb6577fecbbb603aedb60ef89abf674d",
+                "type": "text",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  49.077999114990234,
+                  540.412841796875,
+                  364.9319763183594,
+                  551.0498046875
+                ],
+                "raw_text": "Le couple de serrage prescrit pour DA-P07 est de 24 N·m."
+              },
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "df72799f-820f-5181-9cef-32381890104b",
+                "page_index": 0,
+                "text": "L'alimentation d'essai de DA-P07 est de 34 V.",
+                "precision": "block",
+                "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "21f671a528afa9099026688be677d84bbb112c8d704c941f11e02afc5eb6b69b",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/7",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 504.64678955078125,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.077999114990234,
+                    "r": 297.5570068359375,
+                    "t": 513.1497802734375
+                  },
+                  "charspan": [
+                    0,
+                    45
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.077999114990234,
+                      504.64678955078125,
+                      297.5570068359375,
+                      513.1497802734375
+                    ],
+                    "end_offset": 45,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "21f671a528afa9099026688be677d84bbb112c8d704c941f11e02afc5eb6b69b",
+                "type": "text",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  49.077999114990234,
+                  504.64678955078125,
+                  297.5570068359375,
+                  513.1497802734375
+                ],
+                "raw_text": "L'alimentation d'essai de DA-P07 est de 34 V."
+              },
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "98a18436-1122-5bc3-a91f-50e92701338c",
+                "page_index": 0,
+                "text": "La référence proche DA-P070 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P07.",
+                "precision": "block",
+                "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "08f811b268b963f6073ecb70a53597335a3f4237c0bead34a06f3cfd5c6ac21c",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/8",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 448.0467834472656,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 48.60499954223633,
+                    "r": 540.2281494140625,
+                    "t": 475.6897888183594
+                  },
+                  "charspan": [
+                    0,
+                    104
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      48.60499954223633,
+                      448.0467834472656,
+                      540.2281494140625,
+                      475.6897888183594
+                    ],
+                    "end_offset": 104,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "08f811b268b963f6073ecb70a53597335a3f4237c0bead34a06f3cfd5c6ac21c",
+                "type": "text",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  48.60499954223633,
+                  448.0467834472656,
+                  540.2281494140625,
+                  475.6897888183594
+                ],
+                "raw_text": "La référence proche DA-P070 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P07."
+              },
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "0e092f0c-3e78-5e69-90c3-0cb7d22ef098",
+                "page_index": 0,
+                "text": "Page 1 / 2",
+                "precision": "block",
+                "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "2eb6067619eae2f3359382b87644168bb3af6a6c004ad8638e9afda7c8382431",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "page_footer",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/9",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 30.137001037597656,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 48.88199996948242,
+                    "r": 92.30699920654297,
+                    "t": 38.678001403808594
+                  },
+                  "charspan": [
+                    0,
+                    10
+                  ],
+                  "page_no": 1
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      48.88199996948242,
+                      30.137001037597656,
+                      92.30699920654297,
+                      38.678001403808594
+                    ],
+                    "end_offset": 10,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "2eb6067619eae2f3359382b87644168bb3af6a6c004ad8638e9afda7c8382431",
+                "type": "text",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                "raw_text": "Page 1 / 2"
+              }
+            ]
+          },
+          "blocks": [
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+              "page_index": 0,
+              "text": "banc pneumatique synthétique Atelier 7",
+              "precision": "block",
+              "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "665bcf7704b9046865e141b12cefede51a8188ea780b0543bb26979d1b3f61e0",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "section_header",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/0",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 776.4497680664062,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.34400177001953,
+                  "r": 410.9759521484375,
+                  "t": 792.6897583007812
+                },
+                "charspan": [
+                  0,
+                  38
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.34400177001953,
+                    776.4497680664062,
+                    410.9759521484375,
+                    792.6897583007812
+                  ],
+                  "end_offset": 38,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "665bcf7704b9046865e141b12cefede51a8188ea780b0543bb26979d1b3f61e0",
+              "type": "heading",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                49.34400177001953,
+                776.4497680664062,
+                410.9759521484375,
+                792.6897583007812
+              ],
+              "raw_text": "banc pneumatique synthétique Atelier 7"
+            },
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "0b6b10be-3e92-5b16-ad8e-32d849013dae",
+              "page_index": 0,
+              "text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0",
+              "precision": "block",
+              "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/1",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 742.8338012695312,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 48.784000396728516,
+                  "r": 278.8719482421875,
+                  "t": 751.9058227539062
+                },
+                "charspan": [
+                  0,
+                  51
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    48.784000396728516,
+                    742.8338012695312,
+                    278.8719482421875,
+                    751.9058227539062
+                  ],
+                  "end_offset": 51,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+              "type": "text",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                48.784000396728516,
+                742.8338012695312,
+                278.8719482421875,
+                751.9058227539062
+              ],
+              "raw_text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0"
+            },
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "c0e3836d-731e-5ab4-a95b-92b2b6905ff0",
+              "page_index": 0,
+              "text": "DA-P07 — banc pneumatique synthétique Atelier 7.",
+              "precision": "block",
+              "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "be49da53a18e9c7b78bc848bdb9b2b51217b65c6d3bbf8e5b1c2adca7f3fe91c",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/2",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 692.0128173828125,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.077999114990234,
+                  "r": 330.9529724121094,
+                  "t": 703.0897827148438
+                },
+                "charspan": [
+                  0,
+                  48
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.077999114990234,
+                    692.0128173828125,
+                    330.9529724121094,
+                    703.0897827148438
+                  ],
+                  "end_offset": 48,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "be49da53a18e9c7b78bc848bdb9b2b51217b65c6d3bbf8e5b1c2adca7f3fe91c",
+              "type": "text",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                49.077999114990234,
+                692.0128173828125,
+                330.9529724121094,
+                703.0897827148438
+              ],
+              "raw_text": "DA-P07 — banc pneumatique synthétique Atelier 7."
+            },
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "ada5b943-ad75-558c-9ae2-235e30d4ec7e",
+              "page_index": 0,
+              "text": "La pression nominale de DA-P07 est de 3.7 bar.",
+              "precision": "block",
+              "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "17b904993e3522ef3565117b3cb0094c75fc98e0010c36c99fda5e8787f1aef2",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/3",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 654.11279296875,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.077999114990234,
+                  "r": 309.00799560546875,
+                  "t": 664.749755859375
+                },
+                "charspan": [
+                  0,
+                  46
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.077999114990234,
+                    654.11279296875,
+                    309.00799560546875,
+                    664.749755859375
+                  ],
+                  "end_offset": 46,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "17b904993e3522ef3565117b3cb0094c75fc98e0010c36c99fda5e8787f1aef2",
+              "type": "text",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                49.077999114990234,
+                654.11279296875,
+                309.00799560546875,
+                664.749755859375
+              ],
+              "raw_text": "La pression nominale de DA-P07 est de 3.7 bar."
+            },
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "23a01312-d250-5caf-a0b8-9a599b4fbc32",
+              "page_index": 0,
+              "text": "La tolérance de pression de DA-P07 est de ± 8.0 %.",
+              "precision": "block",
+              "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "44972dd9469710efd5f3fe223f8d3d478cd0e564ddc7f7c2cb38ea0f5875f1fe",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/4",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 616.2128295898438,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.077999114990234,
+                  "r": 332.0639953613281,
+                  "t": 627.289794921875
+                },
+                "charspan": [
+                  0,
+                  50
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.077999114990234,
+                    616.2128295898438,
+                    332.0639953613281,
+                    627.289794921875
+                  ],
+                  "end_offset": 50,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "44972dd9469710efd5f3fe223f8d3d478cd0e564ddc7f7c2cb38ea0f5875f1fe",
+              "type": "text",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                49.077999114990234,
+                616.2128295898438,
+                332.0639953613281,
+                627.289794921875
+              ],
+              "raw_text": "La tolérance de pression de DA-P07 est de ± 8.0 %."
+            },
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "fc38625c-07de-5262-addf-75244095f435",
+              "page_index": 0,
+              "text": "Le contrôle périodique de DA-P07 intervient toutes les 1740 h.",
+              "precision": "block",
+              "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "cdb350fa19b439225b3fddeb9a6ec70fd1c02a21936d17eaa1000579a32056cd",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/5",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 578.3128051757812,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.077999114990234,
+                  "r": 391.2110595703125,
+                  "t": 589.3897705078125
+                },
+                "charspan": [
+                  0,
+                  62
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.077999114990234,
+                    578.3128051757812,
+                    391.2110595703125,
+                    589.3897705078125
+                  ],
+                  "end_offset": 62,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "cdb350fa19b439225b3fddeb9a6ec70fd1c02a21936d17eaa1000579a32056cd",
+              "type": "text",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                49.077999114990234,
+                578.3128051757812,
+                391.2110595703125,
+                589.3897705078125
+              ],
+              "raw_text": "Le contrôle périodique de DA-P07 intervient toutes les 1740 h."
+            },
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "3d210588-2584-5e44-9dbf-763c41231177",
+              "page_index": 0,
+              "text": "Le couple de serrage prescrit pour DA-P07 est de 24 N·m.",
+              "precision": "block",
+              "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "89afc97b439cdf8bdc44c2536c14fcddeb6577fecbbb603aedb60ef89abf674d",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/6",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 540.412841796875,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.077999114990234,
+                  "r": 364.9319763183594,
+                  "t": 551.0498046875
+                },
+                "charspan": [
+                  0,
+                  56
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.077999114990234,
+                    540.412841796875,
+                    364.9319763183594,
+                    551.0498046875
+                  ],
+                  "end_offset": 56,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "89afc97b439cdf8bdc44c2536c14fcddeb6577fecbbb603aedb60ef89abf674d",
+              "type": "text",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                49.077999114990234,
+                540.412841796875,
+                364.9319763183594,
+                551.0498046875
+              ],
+              "raw_text": "Le couple de serrage prescrit pour DA-P07 est de 24 N·m."
+            },
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "df72799f-820f-5181-9cef-32381890104b",
+              "page_index": 0,
+              "text": "L'alimentation d'essai de DA-P07 est de 34 V.",
+              "precision": "block",
+              "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "21f671a528afa9099026688be677d84bbb112c8d704c941f11e02afc5eb6b69b",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/7",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 504.64678955078125,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.077999114990234,
+                  "r": 297.5570068359375,
+                  "t": 513.1497802734375
+                },
+                "charspan": [
+                  0,
+                  45
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.077999114990234,
+                    504.64678955078125,
+                    297.5570068359375,
+                    513.1497802734375
+                  ],
+                  "end_offset": 45,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "21f671a528afa9099026688be677d84bbb112c8d704c941f11e02afc5eb6b69b",
+              "type": "text",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                49.077999114990234,
+                504.64678955078125,
+                297.5570068359375,
+                513.1497802734375
+              ],
+              "raw_text": "L'alimentation d'essai de DA-P07 est de 34 V."
+            },
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "98a18436-1122-5bc3-a91f-50e92701338c",
+              "page_index": 0,
+              "text": "La référence proche DA-P070 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P07.",
+              "precision": "block",
+              "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "08f811b268b963f6073ecb70a53597335a3f4237c0bead34a06f3cfd5c6ac21c",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/8",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 448.0467834472656,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 48.60499954223633,
+                  "r": 540.2281494140625,
+                  "t": 475.6897888183594
+                },
+                "charspan": [
+                  0,
+                  104
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    48.60499954223633,
+                    448.0467834472656,
+                    540.2281494140625,
+                    475.6897888183594
+                  ],
+                  "end_offset": 104,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "08f811b268b963f6073ecb70a53597335a3f4237c0bead34a06f3cfd5c6ac21c",
+              "type": "text",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                48.60499954223633,
+                448.0467834472656,
+                540.2281494140625,
+                475.6897888183594
+              ],
+              "raw_text": "La référence proche DA-P070 appartient à un autre équipement ; ses valeurs ne sont pas celles de DA-P07."
+            },
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "0e092f0c-3e78-5e69-90c3-0cb7d22ef098",
+              "page_index": 0,
+              "text": "Page 1 / 2",
+              "precision": "block",
+              "section_id": "019dacbe-a75d-53a4-a155-a9fce5f6a7aa",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "2eb6067619eae2f3359382b87644168bb3af6a6c004ad8638e9afda7c8382431",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "page_footer",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/9",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 30.137001037597656,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 48.88199996948242,
+                  "r": 92.30699920654297,
+                  "t": 38.678001403808594
+                },
+                "charspan": [
+                  0,
+                  10
+                ],
+                "page_no": 1
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    48.88199996948242,
+                    30.137001037597656,
+                    92.30699920654297,
+                    38.678001403808594
+                  ],
+                  "end_offset": 10,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "2eb6067619eae2f3359382b87644168bb3af6a6c004ad8638e9afda7c8382431",
+              "type": "text",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                48.88199996948242,
+                30.137001037597656,
+                92.30699920654297,
+                38.678001403808594
+              ],
+              "raw_text": "Page 1 / 2"
+            }
+          ],
+          "warnings": []
+        },
+        {
+          "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+          "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+          "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+          "page": {
+            "alphanumeric_count": 193,
+            "classification": "native",
+            "coverage_regions": [
+              {
+                "bbox": [
+                  49.47200012207031,
+                  779.6817626953125,
+                  324.14398193359375,
+                  792.6897583007812
+                ],
+                "block_id": "c985c61b-6dd4-5f61-b95c-98dae3779cc6",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                "block_id": "05d5c2fa-a0c6-5893-8f12-8e8663fca5b1",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  49.077999114990234,
+                  692.0128173828125,
+                  370.70697021484375,
+                  702.6497802734375
+                ],
+                "block_id": "e5d1a8b7-6106-5386-a154-30aff80e1d6f",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              },
+              {
+                "bbox": [
+                  48.060001373291016,
+                  632.1337890625,
+                  182.22000122070312,
+                  641.8897705078125
+                ],
+                "block_id": "b617852a-8250-50ad-8bfc-ffdfdcb3420c",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "heading"
+              },
+              {
+                "bbox": [
+                  47.144761195556974,
+                  489.2700458157834,
+                  547.7845943666557,
+                  620.3765371348045
+                ],
+                "block_id": "7baa7972-d71b-5785-af49-46ed8d40a7e9",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "table"
+              },
+              {
+                "bbox": [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                "block_id": "e53b1dcf-0898-5fe1-b897-6f5274b3bd25",
+                "extraction_method": "native",
+                "route": "structured",
+                "type": "text"
+              }
+            ],
+            "crop_box": null,
+            "crop_box_source": "unavailable_inherited_or_absent",
+            "display_height": 841.8897705078125,
+            "display_width": 595.2755737304688,
+            "effective_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "extraction_route": "structured",
+            "extraction_state": "native",
+            "height": 841.8897705078125,
+            "image_regions": [],
+            "label": null,
+            "media_box": [
+              0.0,
+              0.0,
+              595.2755737304688,
+              841.8897705078125
+            ],
+            "media_box_source": "declared",
+            "native_text_regions": [
+              [
+                49.47200012207031,
+                779.6817626953125,
+                324.14398193359375,
+                792.6897583007812
+              ],
+              [
+                48.784000396728516,
+                742.8338012695312,
+                278.8719482421875,
+                751.9058227539062
+              ],
+              [
+                48.88199996948242,
+                30.137001037597656,
+                92.30699920654297,
+                38.678001403808594
+              ],
+              [
+                49.077999114990234,
+                692.0128173828125,
+                370.70697021484375,
+                702.6497802734375
+              ],
+              [
+                48.060001373291016,
+                632.1337890625,
+                182.22000122070312,
+                641.8897705078125
+              ],
+              [
+                53.91999816894531,
+                599.3598022460938,
+                109.64999389648438,
+                607.4898071289062
+              ],
+              [
+                275.04998779296875,
+                599.3598022460938,
+                311.67999267578125,
+                607.0897827148438
+              ],
+              [
+                405.9200134277344,
+                599.3598022460938,
+                434.7300109863281,
+                607.4898071289062
+              ],
+              [
+                53.97999954223633,
+                566.3598022460938,
+                102.92999267578125,
+                573.9097900390625
+              ],
+              [
+                276.1000061035156,
+                566.3598022460938,
+                287.0199890136719,
+                573.9097900390625
+              ],
+              [
+                405.9100036621094,
+                566.4898071289062,
+                423.6300048828125,
+                572.0897827148438
+              ],
+              [
+                53.97999954223633,
+                533.3598022460938,
+                114.80999755859375,
+                540.9097900390625
+              ],
+              [
+                276.1000061035156,
+                533.3598022460938,
+                286.8500061035156,
+                540.77978515625
+              ],
+              [
+                405.9100036621094,
+                533.4898071289062,
+                423.6300048828125,
+                539.0897827148438
+              ],
+              [
+                53.97999954223633,
+                500.35980224609375,
+                118.97999572753906,
+                507.9098205566406
+              ],
+              [
+                275.6600036621094,
+                500.35980224609375,
+                290.0400085449219,
+                507.9098205566406
+              ],
+              [
+                405.9800109863281,
+                499.5697937011719,
+                431.92999267578125,
+                508.0898132324219
+              ]
+            ],
+            "native_text_sparse": false,
+            "needs_ocr": false,
+            "ocr_cell_count": 0,
+            "ocr_orientations": [],
+            "ocr_parser_regions": [],
+            "ocr_preprocessing": [],
+            "ocr_regions": [],
+            "ocr_used": false,
+            "orientation_correction": 0,
+            "orientation_source": "native_page_frame",
+            "page_index": 1,
+            "page_number": 2,
+            "replacement_ratio": 0.0,
+            "rotation": 0,
+            "routing_reason": "typography_requires_structure",
+            "table_orientation_corrections": [],
+            "text_character_count": 253,
+            "text_font_sizes": [
+              8.0,
+              9.0,
+              10.0,
+              11.0,
+              12.0,
+              16.0
+            ],
+            "text_mapping_warnings": [],
+            "unresolved_regions": [],
+            "vector_path_count": 6,
+            "width": 595.2755737304688,
+            "blocks": [
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "c985c61b-6dd4-5f61-b95c-98dae3779cc6",
+                "page_index": 1,
+                "text": "Mesures de contrôle — DA-P07",
+                "precision": "block",
+                "section_id": "c985c61b-6dd4-5f61-b95c-98dae3779cc6",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "832926af55b9fce05872e743e7935a7ee1cb4104655ff2df39b56299a61e35f4",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "section_header",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/10",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 779.6817626953125,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.47200012207031,
+                    "r": 324.14398193359375,
+                    "t": 792.6897583007812
+                  },
+                  "charspan": [
+                    0,
+                    28
+                  ],
+                  "page_no": 2
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.47200012207031,
+                      779.6817626953125,
+                      324.14398193359375,
+                      792.6897583007812
+                    ],
+                    "end_offset": 28,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "832926af55b9fce05872e743e7935a7ee1cb4104655ff2df39b56299a61e35f4",
+                "type": "heading",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  49.47200012207031,
+                  779.6817626953125,
+                  324.14398193359375,
+                  792.6897583007812
+                ],
+                "raw_text": "Mesures de contrôle — DA-P07"
+              },
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "05d5c2fa-a0c6-5893-8f12-8e8663fca5b1",
+                "page_index": 1,
+                "text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0",
+                "precision": "block",
+                "section_id": "c985c61b-6dd4-5f61-b95c-98dae3779cc6",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/11",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 742.8338012695312,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 48.784000396728516,
+                    "r": 278.8719482421875,
+                    "t": 751.9058227539062
+                  },
+                  "charspan": [
+                    0,
+                    51
+                  ],
+                  "page_no": 2
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      48.784000396728516,
+                      742.8338012695312,
+                      278.8719482421875,
+                      751.9058227539062
+                    ],
+                    "end_offset": 51,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+                "type": "text",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  48.784000396728516,
+                  742.8338012695312,
+                  278.8719482421875,
+                  751.9058227539062
+                ],
+                "raw_text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0"
+              },
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "e5d1a8b7-6106-5386-a154-30aff80e1d6f",
+                "page_index": 1,
+                "text": "Les valeurs de ce tableau concernent uniquement DA-P07.",
+                "precision": "block",
+                "section_id": "c985c61b-6dd4-5f61-b95c-98dae3779cc6",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "5b7bbd03642dfe18a271d2404d07a8ccbf21dd51182f4bc894a5df48f8220669",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "text",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/12",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 692.0128173828125,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 49.077999114990234,
+                    "r": 370.70697021484375,
+                    "t": 702.6497802734375
+                  },
+                  "charspan": [
+                    0,
+                    55
+                  ],
+                  "page_no": 2
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      49.077999114990234,
+                      692.0128173828125,
+                      370.70697021484375,
+                      702.6497802734375
+                    ],
+                    "end_offset": 55,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "5b7bbd03642dfe18a271d2404d07a8ccbf21dd51182f4bc894a5df48f8220669",
+                "type": "text",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  49.077999114990234,
+                  692.0128173828125,
+                  370.70697021484375,
+                  702.6497802734375
+                ],
+                "raw_text": "Les valeurs de ce tableau concernent uniquement DA-P07."
+              },
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "b617852a-8250-50ad-8bfc-ffdfdcb3420c",
+                "page_index": 1,
+                "text": "Tableau de contrôle",
+                "precision": "block",
+                "section_id": "b617852a-8250-50ad-8bfc-ffdfdcb3420c",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "10185d1e82a5a6c4bc54bf3e8ce3d166c568899993bfe904f991a288f324d273",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "section_header",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/13",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 632.1337890625,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 48.060001373291016,
+                    "r": 182.22000122070312,
+                    "t": 641.8897705078125
+                  },
+                  "charspan": [
+                    0,
+                    19
+                  ],
+                  "page_no": 2
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      48.060001373291016,
+                      632.1337890625,
+                      182.22000122070312,
+                      641.8897705078125
+                    ],
+                    "end_offset": 19,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "10185d1e82a5a6c4bc54bf3e8ce3d166c568899993bfe904f991a288f324d273",
+                "type": "heading",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  48.060001373291016,
+                  632.1337890625,
+                  182.22000122070312,
+                  641.8897705078125
+                ],
+                "raw_text": "Tableau de contrôle"
+              },
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "7baa7972-d71b-5785-af49-46ed8d40a7e9",
+                "page_index": 1,
+                "text": "Référence  | Valeur  | Unité\nDA-P07-IN  | 19  | mm\nDA-P07-OUT  | 15  | mm\nDA-P07-LEAK  | 0.7  | L/min",
+                "precision": "table",
+                "section_id": "b617852a-8250-50ad-8bfc-ffdfdcb3420c",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "04dfcc599cfb127377c9de8a9f9b1d2571622bf74fc7f4d6ef37127be6a7060f",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "table",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/tables/0",
+                  "route": "structured",
+                  "table_cell_regions": [
+                    {
+                      "bbox": [
+                        53.91999816894531,
+                        599.3598022460938,
+                        109.64999389648438,
+                        607.4898071289062
+                      ],
+                      "col_span": 1,
+                      "column": 0,
+                      "row": 0,
+                      "row_span": 1,
+                      "text": "Référence "
+                    },
+                    {
+                      "bbox": [
+                        275.04998779296875,
+                        599.3598022460938,
+                        311.67999267578125,
+                        607.0897827148438
+                      ],
+                      "col_span": 1,
+                      "column": 1,
+                      "row": 0,
+                      "row_span": 1,
+                      "text": "Valeur "
+                    },
+                    {
+                      "bbox": [
+                        405.9200134277344,
+                        599.3598022460938,
+                        434.7300109863281,
+                        607.4898071289062
+                      ],
+                      "col_span": 1,
+                      "column": 2,
+                      "row": 0,
+                      "row_span": 1,
+                      "text": "Unité"
+                    },
+                    {
+                      "bbox": [
+                        53.97999954223633,
+                        566.3598022460938,
+                        102.92999267578125,
+                        573.9097900390625
+                      ],
+                      "col_span": 1,
+                      "column": 0,
+                      "row": 1,
+                      "row_span": 1,
+                      "text": "DA-P07-IN "
+                    },
+                    {
+                      "bbox": [
+                        276.1000061035156,
+                        566.3598022460938,
+                        287.0199890136719,
+                        573.9097900390625
+                      ],
+                      "col_span": 1,
+                      "column": 1,
+                      "row": 1,
+                      "row_span": 1,
+                      "text": "19 "
+                    },
+                    {
+                      "bbox": [
+                        405.9100036621094,
+                        566.4898071289062,
+                        423.6300048828125,
+                        572.0897827148438
+                      ],
+                      "col_span": 1,
+                      "column": 2,
+                      "row": 1,
+                      "row_span": 1,
+                      "text": "mm"
+                    },
+                    {
+                      "bbox": [
+                        53.97999954223633,
+                        533.3598022460938,
+                        114.80999755859375,
+                        540.9097900390625
+                      ],
+                      "col_span": 1,
+                      "column": 0,
+                      "row": 2,
+                      "row_span": 1,
+                      "text": "DA-P07-OUT "
+                    },
+                    {
+                      "bbox": [
+                        276.1000061035156,
+                        533.3598022460938,
+                        286.8500061035156,
+                        540.77978515625
+                      ],
+                      "col_span": 1,
+                      "column": 1,
+                      "row": 2,
+                      "row_span": 1,
+                      "text": "15 "
+                    },
+                    {
+                      "bbox": [
+                        405.9100036621094,
+                        533.4898071289062,
+                        423.6300048828125,
+                        539.0897827148438
+                      ],
+                      "col_span": 1,
+                      "column": 2,
+                      "row": 2,
+                      "row_span": 1,
+                      "text": "mm"
+                    },
+                    {
+                      "bbox": [
+                        53.97999954223633,
+                        500.35980224609375,
+                        118.97999572753906,
+                        507.9098205566406
+                      ],
+                      "col_span": 1,
+                      "column": 0,
+                      "row": 3,
+                      "row_span": 1,
+                      "text": "DA-P07-LEAK "
+                    },
+                    {
+                      "bbox": [
+                        275.6600036621094,
+                        500.35980224609375,
+                        290.0400085449219,
+                        507.9098205566406
+                      ],
+                      "col_span": 1,
+                      "column": 1,
+                      "row": 3,
+                      "row_span": 1,
+                      "text": "0.7 "
+                    },
+                    {
+                      "bbox": [
+                        405.9800109863281,
+                        499.5697937011719,
+                        431.92999267578125,
+                        508.0898132324219
+                      ],
+                      "col_span": 1,
+                      "column": 2,
+                      "row": 3,
+                      "row_span": 1,
+                      "text": "L/min"
+                    }
+                  ],
+                  "table_data": {
+                    "grid": [
+                      [
+                        {
+                          "bbox": {
+                            "b": 242.52996826171875,
+                            "coord_origin": "TOPLEFT",
+                            "l": 53.91999816894531,
+                            "r": 109.64999389648438,
+                            "t": 234.39996337890625
+                          },
+                          "col_span": 1,
+                          "column_header": true,
+                          "end_col_offset_idx": 1,
+                          "end_row_offset_idx": 1,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 0,
+                          "start_row_offset_idx": 0,
+                          "text": "Référence "
+                        },
+                        {
+                          "bbox": {
+                            "b": 242.52996826171875,
+                            "coord_origin": "TOPLEFT",
+                            "l": 275.04998779296875,
+                            "r": 311.67999267578125,
+                            "t": 234.79998779296875
+                          },
+                          "col_span": 1,
+                          "column_header": true,
+                          "end_col_offset_idx": 2,
+                          "end_row_offset_idx": 1,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 1,
+                          "start_row_offset_idx": 0,
+                          "text": "Valeur "
+                        },
+                        {
+                          "bbox": {
+                            "b": 242.52996826171875,
+                            "coord_origin": "TOPLEFT",
+                            "l": 405.9200134277344,
+                            "r": 434.7300109863281,
+                            "t": 234.39996337890625
+                          },
+                          "col_span": 1,
+                          "column_header": true,
+                          "end_col_offset_idx": 3,
+                          "end_row_offset_idx": 1,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 2,
+                          "start_row_offset_idx": 0,
+                          "text": "Unité"
+                        }
+                      ],
+                      [
+                        {
+                          "bbox": {
+                            "b": 275.52996826171875,
+                            "coord_origin": "TOPLEFT",
+                            "l": 53.97999954223633,
+                            "r": 102.92999267578125,
+                            "t": 267.97998046875
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 1,
+                          "end_row_offset_idx": 2,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 0,
+                          "start_row_offset_idx": 1,
+                          "text": "DA-P07-IN "
+                        },
+                        {
+                          "bbox": {
+                            "b": 275.52996826171875,
+                            "coord_origin": "TOPLEFT",
+                            "l": 276.1000061035156,
+                            "r": 287.0199890136719,
+                            "t": 267.97998046875
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 2,
+                          "end_row_offset_idx": 2,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 1,
+                          "start_row_offset_idx": 1,
+                          "text": "19 "
+                        },
+                        {
+                          "bbox": {
+                            "b": 275.39996337890625,
+                            "coord_origin": "TOPLEFT",
+                            "l": 405.9100036621094,
+                            "r": 423.6300048828125,
+                            "t": 269.79998779296875
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 3,
+                          "end_row_offset_idx": 2,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 2,
+                          "start_row_offset_idx": 1,
+                          "text": "mm"
+                        }
+                      ],
+                      [
+                        {
+                          "bbox": {
+                            "b": 308.52996826171875,
+                            "coord_origin": "TOPLEFT",
+                            "l": 53.97999954223633,
+                            "r": 114.80999755859375,
+                            "t": 300.97998046875
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 1,
+                          "end_row_offset_idx": 3,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 0,
+                          "start_row_offset_idx": 2,
+                          "text": "DA-P07-OUT "
+                        },
+                        {
+                          "bbox": {
+                            "b": 308.52996826171875,
+                            "coord_origin": "TOPLEFT",
+                            "l": 276.1000061035156,
+                            "r": 286.8500061035156,
+                            "t": 301.1099853515625
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 2,
+                          "end_row_offset_idx": 3,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 1,
+                          "start_row_offset_idx": 2,
+                          "text": "15 "
+                        },
+                        {
+                          "bbox": {
+                            "b": 308.39996337890625,
+                            "coord_origin": "TOPLEFT",
+                            "l": 405.9100036621094,
+                            "r": 423.6300048828125,
+                            "t": 302.79998779296875
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 3,
+                          "end_row_offset_idx": 3,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 2,
+                          "start_row_offset_idx": 2,
+                          "text": "mm"
+                        }
+                      ],
+                      [
+                        {
+                          "bbox": {
+                            "b": 341.52996826171875,
+                            "coord_origin": "TOPLEFT",
+                            "l": 53.97999954223633,
+                            "r": 118.97999572753906,
+                            "t": 333.9799499511719
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 1,
+                          "end_row_offset_idx": 4,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 0,
+                          "start_row_offset_idx": 3,
+                          "text": "DA-P07-LEAK "
+                        },
+                        {
+                          "bbox": {
+                            "b": 341.52996826171875,
+                            "coord_origin": "TOPLEFT",
+                            "l": 275.6600036621094,
+                            "r": 290.0400085449219,
+                            "t": 333.9799499511719
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 2,
+                          "end_row_offset_idx": 4,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 1,
+                          "start_row_offset_idx": 3,
+                          "text": "0.7 "
+                        },
+                        {
+                          "bbox": {
+                            "b": 342.3199768066406,
+                            "coord_origin": "TOPLEFT",
+                            "l": 405.9800109863281,
+                            "r": 431.92999267578125,
+                            "t": 333.7999572753906
+                          },
+                          "col_span": 1,
+                          "column_header": false,
+                          "end_col_offset_idx": 3,
+                          "end_row_offset_idx": 4,
+                          "fillable": false,
+                          "row_header": false,
+                          "row_section": false,
+                          "row_span": 1,
+                          "start_col_offset_idx": 2,
+                          "start_row_offset_idx": 3,
+                          "text": "L/min"
+                        }
+                      ]
+                    ],
+                    "num_cols": 3,
+                    "num_rows": 4,
+                    "orientation": "rot_0",
+                    "table_cells": [
+                      {
+                        "bbox": {
+                          "b": 242.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 53.91999816894531,
+                          "r": 109.64999389648438,
+                          "t": 234.39996337890625
+                        },
+                        "col_span": 1,
+                        "column_header": true,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 1,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 0,
+                        "text": "Référence "
+                      },
+                      {
+                        "bbox": {
+                          "b": 242.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 275.04998779296875,
+                          "r": 311.67999267578125,
+                          "t": 234.79998779296875
+                        },
+                        "col_span": 1,
+                        "column_header": true,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 1,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 0,
+                        "text": "Valeur "
+                      },
+                      {
+                        "bbox": {
+                          "b": 242.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 405.9200134277344,
+                          "r": 434.7300109863281,
+                          "t": 234.39996337890625
+                        },
+                        "col_span": 1,
+                        "column_header": true,
+                        "end_col_offset_idx": 3,
+                        "end_row_offset_idx": 1,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 2,
+                        "start_row_offset_idx": 0,
+                        "text": "Unité"
+                      },
+                      {
+                        "bbox": {
+                          "b": 275.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 53.97999954223633,
+                          "r": 102.92999267578125,
+                          "t": 267.97998046875
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 2,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 1,
+                        "text": "DA-P07-IN "
+                      },
+                      {
+                        "bbox": {
+                          "b": 275.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 276.1000061035156,
+                          "r": 287.0199890136719,
+                          "t": 267.97998046875
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 2,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 1,
+                        "text": "19 "
+                      },
+                      {
+                        "bbox": {
+                          "b": 275.39996337890625,
+                          "coord_origin": "TOPLEFT",
+                          "l": 405.9100036621094,
+                          "r": 423.6300048828125,
+                          "t": 269.79998779296875
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 3,
+                        "end_row_offset_idx": 2,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 2,
+                        "start_row_offset_idx": 1,
+                        "text": "mm"
+                      },
+                      {
+                        "bbox": {
+                          "b": 308.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 53.97999954223633,
+                          "r": 114.80999755859375,
+                          "t": 300.97998046875
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 3,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 2,
+                        "text": "DA-P07-OUT "
+                      },
+                      {
+                        "bbox": {
+                          "b": 308.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 276.1000061035156,
+                          "r": 286.8500061035156,
+                          "t": 301.1099853515625
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 3,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 2,
+                        "text": "15 "
+                      },
+                      {
+                        "bbox": {
+                          "b": 308.39996337890625,
+                          "coord_origin": "TOPLEFT",
+                          "l": 405.9100036621094,
+                          "r": 423.6300048828125,
+                          "t": 302.79998779296875
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 3,
+                        "end_row_offset_idx": 3,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 2,
+                        "start_row_offset_idx": 2,
+                        "text": "mm"
+                      },
+                      {
+                        "bbox": {
+                          "b": 341.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 53.97999954223633,
+                          "r": 118.97999572753906,
+                          "t": 333.9799499511719
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 4,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 3,
+                        "text": "DA-P07-LEAK "
+                      },
+                      {
+                        "bbox": {
+                          "b": 341.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 275.6600036621094,
+                          "r": 290.0400085449219,
+                          "t": 333.9799499511719
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 4,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 3,
+                        "text": "0.7 "
+                      },
+                      {
+                        "bbox": {
+                          "b": 342.3199768066406,
+                          "coord_origin": "TOPLEFT",
+                          "l": 405.9800109863281,
+                          "r": 431.92999267578125,
+                          "t": 333.7999572753906
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 3,
+                        "end_row_offset_idx": 4,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 2,
+                        "start_row_offset_idx": 3,
+                        "text": "L/min"
+                      }
+                    ]
+                  }
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 489.2700458157834,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 47.144761195556974,
+                    "r": 547.7845943666557,
+                    "t": 620.3765371348045
+                  },
+                  "charspan": [
+                    0,
+                    0
+                  ],
+                  "page_no": 2
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      47.144761195556974,
+                      489.2700458157834,
+                      547.7845943666557,
+                      620.3765371348045
+                    ],
+                    "end_offset": 101,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "04dfcc599cfb127377c9de8a9f9b1d2571622bf74fc7f4d6ef37127be6a7060f",
+                "type": "table",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  47.144761195556974,
+                  489.2700458157834,
+                  547.7845943666557,
+                  620.3765371348045
+                ],
+                "raw_text": "Référence  | Valeur  | Unité\nDA-P07-IN  | 19  | mm\nDA-P07-OUT  | 15  | mm\nDA-P07-LEAK  | 0.7  | L/min"
+              },
+              {
+                "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+                "id": "e53b1dcf-0898-5fe1-b897-6f5274b3bd25",
+                "page_index": 1,
+                "text": "Page 2 / 2",
+                "precision": "block",
+                "section_id": "b617852a-8250-50ad-8bfc-ffdfdcb3420c",
+                "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+                "source_text_hash": "234f1841e83c69fea6f9482fd4aa0c51bdbf34af0a545d3b8483cb24c17a228f",
+                "metadata": {
+                  "extraction_method": "native",
+                  "label": "page_footer",
+                  "ocr_spans": [],
+                  "ocr_used": false,
+                  "parser_ref": "#/texts/14",
+                  "route": "structured"
+                },
+                "parser_provenance": {
+                  "bbox": {
+                    "b": 30.137001037597656,
+                    "coord_origin": "BOTTOMLEFT",
+                    "l": 48.88199996948242,
+                    "r": 92.30699920654297,
+                    "t": 38.678001403808594
+                  },
+                  "charspan": [
+                    0,
+                    10
+                  ],
+                  "page_no": 2
+                },
+                "spans": [
+                  {
+                    "bbox": [
+                      48.88199996948242,
+                      30.137001037597656,
+                      92.30699920654297,
+                      38.678001403808594
+                    ],
+                    "end_offset": 10,
+                    "precision": "block",
+                    "start_offset": 0
+                  }
+                ],
+                "text_hash": "234f1841e83c69fea6f9482fd4aa0c51bdbf34af0a545d3b8483cb24c17a228f",
+                "type": "text",
+                "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+                "bbox": [
+                  48.88199996948242,
+                  30.137001037597656,
+                  92.30699920654297,
+                  38.678001403808594
+                ],
+                "raw_text": "Page 2 / 2"
+              }
+            ]
+          },
+          "blocks": [
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "c985c61b-6dd4-5f61-b95c-98dae3779cc6",
+              "page_index": 1,
+              "text": "Mesures de contrôle — DA-P07",
+              "precision": "block",
+              "section_id": "c985c61b-6dd4-5f61-b95c-98dae3779cc6",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "832926af55b9fce05872e743e7935a7ee1cb4104655ff2df39b56299a61e35f4",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "section_header",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/10",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 779.6817626953125,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.47200012207031,
+                  "r": 324.14398193359375,
+                  "t": 792.6897583007812
+                },
+                "charspan": [
+                  0,
+                  28
+                ],
+                "page_no": 2
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.47200012207031,
+                    779.6817626953125,
+                    324.14398193359375,
+                    792.6897583007812
+                  ],
+                  "end_offset": 28,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "832926af55b9fce05872e743e7935a7ee1cb4104655ff2df39b56299a61e35f4",
+              "type": "heading",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                49.47200012207031,
+                779.6817626953125,
+                324.14398193359375,
+                792.6897583007812
+              ],
+              "raw_text": "Mesures de contrôle — DA-P07"
+            },
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "05d5c2fa-a0c6-5893-8f12-8e8663fca5b1",
+              "page_index": 1,
+              "text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0",
+              "precision": "block",
+              "section_id": "c985c61b-6dd4-5f61-b95c-98dae3779cc6",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/11",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 742.8338012695312,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 48.784000396728516,
+                  "r": 278.8719482421875,
+                  "t": 751.9058227539062
+                },
+                "charspan": [
+                  0,
+                  51
+                ],
+                "page_no": 2
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    48.784000396728516,
+                    742.8338012695312,
+                    278.8719482421875,
+                    751.9058227539062
+                  ],
+                  "end_offset": 51,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "b1ffe21120c2aad2e1eb605cf8a3c1004f910b5bef0558643f09341877ac484e",
+              "type": "text",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                48.784000396728516,
+                742.8338012695312,
+                278.8719482421875,
+                751.9058227539062
+              ],
+              "raw_text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0"
+            },
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "e5d1a8b7-6106-5386-a154-30aff80e1d6f",
+              "page_index": 1,
+              "text": "Les valeurs de ce tableau concernent uniquement DA-P07.",
+              "precision": "block",
+              "section_id": "c985c61b-6dd4-5f61-b95c-98dae3779cc6",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "5b7bbd03642dfe18a271d2404d07a8ccbf21dd51182f4bc894a5df48f8220669",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "text",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/12",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 692.0128173828125,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 49.077999114990234,
+                  "r": 370.70697021484375,
+                  "t": 702.6497802734375
+                },
+                "charspan": [
+                  0,
+                  55
+                ],
+                "page_no": 2
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    49.077999114990234,
+                    692.0128173828125,
+                    370.70697021484375,
+                    702.6497802734375
+                  ],
+                  "end_offset": 55,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "5b7bbd03642dfe18a271d2404d07a8ccbf21dd51182f4bc894a5df48f8220669",
+              "type": "text",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                49.077999114990234,
+                692.0128173828125,
+                370.70697021484375,
+                702.6497802734375
+              ],
+              "raw_text": "Les valeurs de ce tableau concernent uniquement DA-P07."
+            },
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "b617852a-8250-50ad-8bfc-ffdfdcb3420c",
+              "page_index": 1,
+              "text": "Tableau de contrôle",
+              "precision": "block",
+              "section_id": "b617852a-8250-50ad-8bfc-ffdfdcb3420c",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "10185d1e82a5a6c4bc54bf3e8ce3d166c568899993bfe904f991a288f324d273",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "section_header",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/13",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 632.1337890625,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 48.060001373291016,
+                  "r": 182.22000122070312,
+                  "t": 641.8897705078125
+                },
+                "charspan": [
+                  0,
+                  19
+                ],
+                "page_no": 2
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    48.060001373291016,
+                    632.1337890625,
+                    182.22000122070312,
+                    641.8897705078125
+                  ],
+                  "end_offset": 19,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "10185d1e82a5a6c4bc54bf3e8ce3d166c568899993bfe904f991a288f324d273",
+              "type": "heading",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                48.060001373291016,
+                632.1337890625,
+                182.22000122070312,
+                641.8897705078125
+              ],
+              "raw_text": "Tableau de contrôle"
+            },
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "7baa7972-d71b-5785-af49-46ed8d40a7e9",
+              "page_index": 1,
+              "text": "Référence  | Valeur  | Unité\nDA-P07-IN  | 19  | mm\nDA-P07-OUT  | 15  | mm\nDA-P07-LEAK  | 0.7  | L/min",
+              "precision": "table",
+              "section_id": "b617852a-8250-50ad-8bfc-ffdfdcb3420c",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "04dfcc599cfb127377c9de8a9f9b1d2571622bf74fc7f4d6ef37127be6a7060f",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "table",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/tables/0",
+                "route": "structured",
+                "table_cell_regions": [
+                  {
+                    "bbox": [
+                      53.91999816894531,
+                      599.3598022460938,
+                      109.64999389648438,
+                      607.4898071289062
+                    ],
+                    "col_span": 1,
+                    "column": 0,
+                    "row": 0,
+                    "row_span": 1,
+                    "text": "Référence "
+                  },
+                  {
+                    "bbox": [
+                      275.04998779296875,
+                      599.3598022460938,
+                      311.67999267578125,
+                      607.0897827148438
+                    ],
+                    "col_span": 1,
+                    "column": 1,
+                    "row": 0,
+                    "row_span": 1,
+                    "text": "Valeur "
+                  },
+                  {
+                    "bbox": [
+                      405.9200134277344,
+                      599.3598022460938,
+                      434.7300109863281,
+                      607.4898071289062
+                    ],
+                    "col_span": 1,
+                    "column": 2,
+                    "row": 0,
+                    "row_span": 1,
+                    "text": "Unité"
+                  },
+                  {
+                    "bbox": [
+                      53.97999954223633,
+                      566.3598022460938,
+                      102.92999267578125,
+                      573.9097900390625
+                    ],
+                    "col_span": 1,
+                    "column": 0,
+                    "row": 1,
+                    "row_span": 1,
+                    "text": "DA-P07-IN "
+                  },
+                  {
+                    "bbox": [
+                      276.1000061035156,
+                      566.3598022460938,
+                      287.0199890136719,
+                      573.9097900390625
+                    ],
+                    "col_span": 1,
+                    "column": 1,
+                    "row": 1,
+                    "row_span": 1,
+                    "text": "19 "
+                  },
+                  {
+                    "bbox": [
+                      405.9100036621094,
+                      566.4898071289062,
+                      423.6300048828125,
+                      572.0897827148438
+                    ],
+                    "col_span": 1,
+                    "column": 2,
+                    "row": 1,
+                    "row_span": 1,
+                    "text": "mm"
+                  },
+                  {
+                    "bbox": [
+                      53.97999954223633,
+                      533.3598022460938,
+                      114.80999755859375,
+                      540.9097900390625
+                    ],
+                    "col_span": 1,
+                    "column": 0,
+                    "row": 2,
+                    "row_span": 1,
+                    "text": "DA-P07-OUT "
+                  },
+                  {
+                    "bbox": [
+                      276.1000061035156,
+                      533.3598022460938,
+                      286.8500061035156,
+                      540.77978515625
+                    ],
+                    "col_span": 1,
+                    "column": 1,
+                    "row": 2,
+                    "row_span": 1,
+                    "text": "15 "
+                  },
+                  {
+                    "bbox": [
+                      405.9100036621094,
+                      533.4898071289062,
+                      423.6300048828125,
+                      539.0897827148438
+                    ],
+                    "col_span": 1,
+                    "column": 2,
+                    "row": 2,
+                    "row_span": 1,
+                    "text": "mm"
+                  },
+                  {
+                    "bbox": [
+                      53.97999954223633,
+                      500.35980224609375,
+                      118.97999572753906,
+                      507.9098205566406
+                    ],
+                    "col_span": 1,
+                    "column": 0,
+                    "row": 3,
+                    "row_span": 1,
+                    "text": "DA-P07-LEAK "
+                  },
+                  {
+                    "bbox": [
+                      275.6600036621094,
+                      500.35980224609375,
+                      290.0400085449219,
+                      507.9098205566406
+                    ],
+                    "col_span": 1,
+                    "column": 1,
+                    "row": 3,
+                    "row_span": 1,
+                    "text": "0.7 "
+                  },
+                  {
+                    "bbox": [
+                      405.9800109863281,
+                      499.5697937011719,
+                      431.92999267578125,
+                      508.0898132324219
+                    ],
+                    "col_span": 1,
+                    "column": 2,
+                    "row": 3,
+                    "row_span": 1,
+                    "text": "L/min"
+                  }
+                ],
+                "table_data": {
+                  "grid": [
+                    [
+                      {
+                        "bbox": {
+                          "b": 242.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 53.91999816894531,
+                          "r": 109.64999389648438,
+                          "t": 234.39996337890625
+                        },
+                        "col_span": 1,
+                        "column_header": true,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 1,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 0,
+                        "text": "Référence "
+                      },
+                      {
+                        "bbox": {
+                          "b": 242.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 275.04998779296875,
+                          "r": 311.67999267578125,
+                          "t": 234.79998779296875
+                        },
+                        "col_span": 1,
+                        "column_header": true,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 1,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 0,
+                        "text": "Valeur "
+                      },
+                      {
+                        "bbox": {
+                          "b": 242.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 405.9200134277344,
+                          "r": 434.7300109863281,
+                          "t": 234.39996337890625
+                        },
+                        "col_span": 1,
+                        "column_header": true,
+                        "end_col_offset_idx": 3,
+                        "end_row_offset_idx": 1,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 2,
+                        "start_row_offset_idx": 0,
+                        "text": "Unité"
+                      }
+                    ],
+                    [
+                      {
+                        "bbox": {
+                          "b": 275.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 53.97999954223633,
+                          "r": 102.92999267578125,
+                          "t": 267.97998046875
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 2,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 1,
+                        "text": "DA-P07-IN "
+                      },
+                      {
+                        "bbox": {
+                          "b": 275.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 276.1000061035156,
+                          "r": 287.0199890136719,
+                          "t": 267.97998046875
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 2,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 1,
+                        "text": "19 "
+                      },
+                      {
+                        "bbox": {
+                          "b": 275.39996337890625,
+                          "coord_origin": "TOPLEFT",
+                          "l": 405.9100036621094,
+                          "r": 423.6300048828125,
+                          "t": 269.79998779296875
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 3,
+                        "end_row_offset_idx": 2,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 2,
+                        "start_row_offset_idx": 1,
+                        "text": "mm"
+                      }
+                    ],
+                    [
+                      {
+                        "bbox": {
+                          "b": 308.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 53.97999954223633,
+                          "r": 114.80999755859375,
+                          "t": 300.97998046875
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 3,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 2,
+                        "text": "DA-P07-OUT "
+                      },
+                      {
+                        "bbox": {
+                          "b": 308.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 276.1000061035156,
+                          "r": 286.8500061035156,
+                          "t": 301.1099853515625
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 3,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 2,
+                        "text": "15 "
+                      },
+                      {
+                        "bbox": {
+                          "b": 308.39996337890625,
+                          "coord_origin": "TOPLEFT",
+                          "l": 405.9100036621094,
+                          "r": 423.6300048828125,
+                          "t": 302.79998779296875
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 3,
+                        "end_row_offset_idx": 3,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 2,
+                        "start_row_offset_idx": 2,
+                        "text": "mm"
+                      }
+                    ],
+                    [
+                      {
+                        "bbox": {
+                          "b": 341.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 53.97999954223633,
+                          "r": 118.97999572753906,
+                          "t": 333.9799499511719
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 1,
+                        "end_row_offset_idx": 4,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 0,
+                        "start_row_offset_idx": 3,
+                        "text": "DA-P07-LEAK "
+                      },
+                      {
+                        "bbox": {
+                          "b": 341.52996826171875,
+                          "coord_origin": "TOPLEFT",
+                          "l": 275.6600036621094,
+                          "r": 290.0400085449219,
+                          "t": 333.9799499511719
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 2,
+                        "end_row_offset_idx": 4,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 1,
+                        "start_row_offset_idx": 3,
+                        "text": "0.7 "
+                      },
+                      {
+                        "bbox": {
+                          "b": 342.3199768066406,
+                          "coord_origin": "TOPLEFT",
+                          "l": 405.9800109863281,
+                          "r": 431.92999267578125,
+                          "t": 333.7999572753906
+                        },
+                        "col_span": 1,
+                        "column_header": false,
+                        "end_col_offset_idx": 3,
+                        "end_row_offset_idx": 4,
+                        "fillable": false,
+                        "row_header": false,
+                        "row_section": false,
+                        "row_span": 1,
+                        "start_col_offset_idx": 2,
+                        "start_row_offset_idx": 3,
+                        "text": "L/min"
+                      }
+                    ]
+                  ],
+                  "num_cols": 3,
+                  "num_rows": 4,
+                  "orientation": "rot_0",
+                  "table_cells": [
+                    {
+                      "bbox": {
+                        "b": 242.52996826171875,
+                        "coord_origin": "TOPLEFT",
+                        "l": 53.91999816894531,
+                        "r": 109.64999389648438,
+                        "t": 234.39996337890625
+                      },
+                      "col_span": 1,
+                      "column_header": true,
+                      "end_col_offset_idx": 1,
+                      "end_row_offset_idx": 1,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 0,
+                      "start_row_offset_idx": 0,
+                      "text": "Référence "
+                    },
+                    {
+                      "bbox": {
+                        "b": 242.52996826171875,
+                        "coord_origin": "TOPLEFT",
+                        "l": 275.04998779296875,
+                        "r": 311.67999267578125,
+                        "t": 234.79998779296875
+                      },
+                      "col_span": 1,
+                      "column_header": true,
+                      "end_col_offset_idx": 2,
+                      "end_row_offset_idx": 1,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 1,
+                      "start_row_offset_idx": 0,
+                      "text": "Valeur "
+                    },
+                    {
+                      "bbox": {
+                        "b": 242.52996826171875,
+                        "coord_origin": "TOPLEFT",
+                        "l": 405.9200134277344,
+                        "r": 434.7300109863281,
+                        "t": 234.39996337890625
+                      },
+                      "col_span": 1,
+                      "column_header": true,
+                      "end_col_offset_idx": 3,
+                      "end_row_offset_idx": 1,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 2,
+                      "start_row_offset_idx": 0,
+                      "text": "Unité"
+                    },
+                    {
+                      "bbox": {
+                        "b": 275.52996826171875,
+                        "coord_origin": "TOPLEFT",
+                        "l": 53.97999954223633,
+                        "r": 102.92999267578125,
+                        "t": 267.97998046875
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 1,
+                      "end_row_offset_idx": 2,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 0,
+                      "start_row_offset_idx": 1,
+                      "text": "DA-P07-IN "
+                    },
+                    {
+                      "bbox": {
+                        "b": 275.52996826171875,
+                        "coord_origin": "TOPLEFT",
+                        "l": 276.1000061035156,
+                        "r": 287.0199890136719,
+                        "t": 267.97998046875
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 2,
+                      "end_row_offset_idx": 2,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 1,
+                      "start_row_offset_idx": 1,
+                      "text": "19 "
+                    },
+                    {
+                      "bbox": {
+                        "b": 275.39996337890625,
+                        "coord_origin": "TOPLEFT",
+                        "l": 405.9100036621094,
+                        "r": 423.6300048828125,
+                        "t": 269.79998779296875
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 3,
+                      "end_row_offset_idx": 2,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 2,
+                      "start_row_offset_idx": 1,
+                      "text": "mm"
+                    },
+                    {
+                      "bbox": {
+                        "b": 308.52996826171875,
+                        "coord_origin": "TOPLEFT",
+                        "l": 53.97999954223633,
+                        "r": 114.80999755859375,
+                        "t": 300.97998046875
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 1,
+                      "end_row_offset_idx": 3,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 0,
+                      "start_row_offset_idx": 2,
+                      "text": "DA-P07-OUT "
+                    },
+                    {
+                      "bbox": {
+                        "b": 308.52996826171875,
+                        "coord_origin": "TOPLEFT",
+                        "l": 276.1000061035156,
+                        "r": 286.8500061035156,
+                        "t": 301.1099853515625
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 2,
+                      "end_row_offset_idx": 3,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 1,
+                      "start_row_offset_idx": 2,
+                      "text": "15 "
+                    },
+                    {
+                      "bbox": {
+                        "b": 308.39996337890625,
+                        "coord_origin": "TOPLEFT",
+                        "l": 405.9100036621094,
+                        "r": 423.6300048828125,
+                        "t": 302.79998779296875
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 3,
+                      "end_row_offset_idx": 3,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 2,
+                      "start_row_offset_idx": 2,
+                      "text": "mm"
+                    },
+                    {
+                      "bbox": {
+                        "b": 341.52996826171875,
+                        "coord_origin": "TOPLEFT",
+                        "l": 53.97999954223633,
+                        "r": 118.97999572753906,
+                        "t": 333.9799499511719
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 1,
+                      "end_row_offset_idx": 4,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 0,
+                      "start_row_offset_idx": 3,
+                      "text": "DA-P07-LEAK "
+                    },
+                    {
+                      "bbox": {
+                        "b": 341.52996826171875,
+                        "coord_origin": "TOPLEFT",
+                        "l": 275.6600036621094,
+                        "r": 290.0400085449219,
+                        "t": 333.9799499511719
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 2,
+                      "end_row_offset_idx": 4,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 1,
+                      "start_row_offset_idx": 3,
+                      "text": "0.7 "
+                    },
+                    {
+                      "bbox": {
+                        "b": 342.3199768066406,
+                        "coord_origin": "TOPLEFT",
+                        "l": 405.9800109863281,
+                        "r": 431.92999267578125,
+                        "t": 333.7999572753906
+                      },
+                      "col_span": 1,
+                      "column_header": false,
+                      "end_col_offset_idx": 3,
+                      "end_row_offset_idx": 4,
+                      "fillable": false,
+                      "row_header": false,
+                      "row_section": false,
+                      "row_span": 1,
+                      "start_col_offset_idx": 2,
+                      "start_row_offset_idx": 3,
+                      "text": "L/min"
+                    }
+                  ]
+                }
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 489.2700458157834,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 47.144761195556974,
+                  "r": 547.7845943666557,
+                  "t": 620.3765371348045
+                },
+                "charspan": [
+                  0,
+                  0
+                ],
+                "page_no": 2
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    47.144761195556974,
+                    489.2700458157834,
+                    547.7845943666557,
+                    620.3765371348045
+                  ],
+                  "end_offset": 101,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "04dfcc599cfb127377c9de8a9f9b1d2571622bf74fc7f4d6ef37127be6a7060f",
+              "type": "table",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                47.144761195556974,
+                489.2700458157834,
+                547.7845943666557,
+                620.3765371348045
+              ],
+              "raw_text": "Référence  | Valeur  | Unité\nDA-P07-IN  | 19  | mm\nDA-P07-OUT  | 15  | mm\nDA-P07-LEAK  | 0.7  | L/min"
+            },
+            {
+              "generation_id": "8f8e5c39-1355-4370-b93f-3248af766ddf",
+              "id": "e53b1dcf-0898-5fe1-b897-6f5274b3bd25",
+              "page_index": 1,
+              "text": "Page 2 / 2",
+              "precision": "block",
+              "section_id": "b617852a-8250-50ad-8bfc-ffdfdcb3420c",
+              "extraction_revision_id": "9f93750b-54ba-585f-b7a9-0e7a126f0057",
+              "source_text_hash": "234f1841e83c69fea6f9482fd4aa0c51bdbf34af0a545d3b8483cb24c17a228f",
+              "metadata": {
+                "extraction_method": "native",
+                "label": "page_footer",
+                "ocr_spans": [],
+                "ocr_used": false,
+                "parser_ref": "#/texts/14",
+                "route": "structured"
+              },
+              "parser_provenance": {
+                "bbox": {
+                  "b": 30.137001037597656,
+                  "coord_origin": "BOTTOMLEFT",
+                  "l": 48.88199996948242,
+                  "r": 92.30699920654297,
+                  "t": 38.678001403808594
+                },
+                "charspan": [
+                  0,
+                  10
+                ],
+                "page_no": 2
+              },
+              "spans": [
+                {
+                  "bbox": [
+                    48.88199996948242,
+                    30.137001037597656,
+                    92.30699920654297,
+                    38.678001403808594
+                  ],
+                  "end_offset": 10,
+                  "precision": "block",
+                  "start_offset": 0
+                }
+              ],
+              "text_hash": "234f1841e83c69fea6f9482fd4aa0c51bdbf34af0a545d3b8483cb24c17a228f",
+              "type": "text",
+              "version_id": "52e16377-d416-4ec2-af63-92ec9290c04d",
+              "bbox": [
+                48.88199996948242,
+                30.137001037597656,
+                92.30699920654297,
+                38.678001403808594
+              ],
+              "raw_text": "Page 2 / 2"
+            }
+          ],
+          "warnings": []
+        }
+      ]
+    }
+  }
+}

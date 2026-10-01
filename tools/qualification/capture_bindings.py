@@ -4,10 +4,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urlparse
-from urllib.request import HTTPRedirectHandler, ProxyHandler, build_opener
+from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 from uuid import UUID
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -24,6 +25,8 @@ def main() -> None:
     parser.add_argument("--document-id", type=UUID, required=True)
     parser.add_argument("--document-key", required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--allow-published-partial", action="store_true",
+                        help="accepter une extraction partielle publiée explicitement ; son état est consigné dans la capture")
     args = parser.parse_args()
     origin = urlparse(args.base_url)
     if origin.scheme != "http" or origin.hostname not in {"127.0.0.1", "localhost"} or origin.username or origin.password or origin.path not in {"", "/"} or origin.query or origin.fragment:
@@ -40,13 +43,18 @@ def main() -> None:
         raise ValueError("Controlled original diverges from the existing frozen manifest")
     opener = build_opener(ProxyHandler({}), NoRedirect())
 
+    # Session locale (W011) : jeton de contrôle de l'instance transmis par l'environnement, jamais en argument.
+    token = os.environ.get("RAG_CONTROL_TOKEN")
+
     def read(route: str) -> dict:
-        with opener.open(args.base_url.rstrip("/") + "/api/v1" + route, timeout=30) as response:
+        request = Request(args.base_url.rstrip("/") + "/api/v1" + route, headers={"x-rag-control-token": token} if token else {})
+        with opener.open(request, timeout=30) as response:
             return json.loads(response.read().decode("utf-8"))
 
     document = read(f"/documents/{args.document_id}")
     version_id = document.get("active_version_id")
-    if document.get("state") != "ready" or not version_id or not document.get("active_generation_id") or not document.get("extraction_revision_id"):
+    accepted = {"ready", "ready_partial"} if args.allow_published_partial else {"ready"}
+    if document.get("state") not in accepted or not version_id or not document.get("active_generation_id") or not document.get("extraction_revision_id"):
         raise ValueError("A fully ready published generation with real version and revision is required")
     version_id = str(UUID(version_id))
     version = next((value for value in document.get("versions", []) if value["id"] == version_id), None)
@@ -69,7 +77,7 @@ def main() -> None:
             "document_id": document["id"], "version_id": version_id,
             "extraction_revision_id": document["extraction_revision_id"],
             "generation_id": document["active_generation_id"],
-            "file_sha256": version["sha256"], "document": document, "pages": pages,
+            "file_sha256": version["sha256"], "document_state": document.get("state"), "document": document, "pages": pages,
         }},
     }
     output.parent.mkdir(parents=True, exist_ok=True)
