@@ -33,9 +33,12 @@ JOB_DONE = {"ready", "ready_partial", "error", "cancelled"}
 
 
 def synthetic_pdf(code: str) -> bytes:
+    return text_pdf(["Contrôle de l'atelier documentaire.", f"La pression nominale du banc {code} est de 3,1 bar.",
+                     f"Le couple de serrage du banc {code} est de 12 N.m."])
+
+
+def text_pdf(lines: list[str]) -> bytes:
     """Une page de texte natif (Helvetica, WinAnsi) sans second analyseur PDF, comme les essais d'extraction réelle."""
-    lines = ["Contrôle de l'atelier documentaire.", f"La pression nominale du banc {code} est de 3,1 bar.",
-             f"Le couple de serrage du banc {code} est de 12 N.m."]
     content = "BT /F1 14 Tf 50 700 Td 22 TL " + " ".join(f"<{line.encode('cp1252').hex()}> Tj T*" for line in lines) + " ET"
     objects = [b"<< /Type /Catalog /Pages 2 0 R >>", b"<< /Type /Pages /Count 1 /Kids [4 0 R] >>",
                b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>",
