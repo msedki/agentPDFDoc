@@ -1,6 +1,6 @@
 # Recette visuelle et ergonomique de l'atelier — 30 septembre 2026
 
-**Rôle :** rapport de recette du lot R20 (documentation vivante) : défauts relevés sur captures du corpus réel, principe enfreint, source officielle, correction et preuve. **Statut :** premier passage clos ; points ouverts en fin de document. **Date :** 30 septembre 2026, 22:53 UTC. **Base :** captures avant `apps/web/reports/visual-qa-20260930T1849/` (build du commit `10b5dd9`), après `apps/web/reports/visual-qa-20260930T2015/` (contenu du commit `6935e13`) ; E2E [lecture seule et recette visuelle 12/12](../../apps/web/reports/e2e-2026-09-30-r20-final-2015-evidence.json).
+**Rôle :** rapport de recette du lot R20 (documentation vivante) : défauts relevés sur captures du corpus réel, principe enfreint, source officielle, correction et preuve. **Statut :** premier passage clos ; second passage du 1er octobre (03:10 UTC, commit `49a2a1a`) : points B, C et E examinés, deux défauts corrigés ; restent ouverts A et D. **Date :** 30 septembre 2026, 22:53 UTC. **Base :** captures avant `apps/web/reports/visual-qa-20260930T1849/` (build du commit `10b5dd9`), après `apps/web/reports/visual-qa-20260930T2015/` (contenu du commit `6935e13`) ; E2E [lecture seule et recette visuelle 12/12](../../apps/web/reports/e2e-2026-09-30-r20-final-2015-evidence.json).
 
 ## Méthode
 
@@ -17,6 +17,7 @@ Parcours réels de l'atelier sur l'instance principale, avec les documents du co
 | UX07 | [GOV.UK Design System, Tag](https://design-system.service.gov.uk/components/tag/) | Non datée sur la page | Statuts par adjectifs, jamais par la couleur seule ; un tag n'a pas l'air cliquable |
 | UX08 | [GOV.UK Design System, Error message](https://design-system.service.gov.uk/components/error-message/) | Non datée sur la page | Dire ce qui s'est passé et comment corriger, sans jargon ni code |
 | UX09 | [Nielsen Norman Group, 10 heuristiques](https://www.nngroup.com/articles/ten-usability-heuristics/) | J. Nielsen, mise à jour du 30/01/2024 | 1 visibilité de l'état, 2 langage de l'utilisateur, 8 design minimaliste, 9 erreurs en langage clair sans code |
+| UX10 | [Understanding 1.4.11 Non-text Contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html) | WCAG 2.2, consulté le 01/10/2026 | « Where a text-input has a visual indicator to show it is an input, such as a bottom border […], that indicator must meet 3:1 contrast ratio » ; un contrôle porteur d'un texte ou d'une icône assez contrastée n'a pas besoin de bordure ; l'indicateur de focus reste exigé |
 
 ## Défauts corrigés
 
@@ -41,10 +42,27 @@ Contrôles associés : 130 tests unitaires web, `tsc`, build, E2E en lecture seu
 | Id | Observation sur les captures d'après | Classement | Suite proposée |
 |---|---|---|---|
 | A | Sur-titres encore présents : « Lecture de l'original » au-dessus du nom du document, « Périmètre actif » dans l'analyse, « Poste documentaire local » dans l'en-tête | Amélioration : « Lecture de l'original » distingue l'original du texte extrait, mais le libellé du bas (« Texte extrait & provenance ») porte déjà cette distinction | Trancher par panneau ; garder seulement les sur-titres qui portent une information |
-| B | Arborescence défilée : la ligne fixe « Toute la bibliothèque » recouvre en partie l'élément suivant | Hypothèse à vérifier : un élément de l'arbre qui prend le focus au clavier pourrait être entièrement masqué par la ligne fixe (UX01 2.4.11) | Test clavier sur une arborescence longue ; `scroll-padding-top` si le masquage est reproduit |
-| C | Noms de documents tronqués dans l'arborescence | Inconnue : nom complet non vérifié au survol ni au lecteur d'écran | Vérifier le nom accessible et l'info-bulle |
+| B | Arborescence défilée : la ligne fixe « Toute la bibliothèque » recouvre en partie l'élément suivant | Hypothèse à vérifier : un élément de l'arbre qui prend le focus au clavier pourrait être entièrement masqué par la ligne fixe (UX01 2.4.11) | Clos le 01/10 : hypothèse infirmée, voir le second passage |
+| C | Noms de documents tronqués dans l'arborescence | Inconnue : nom complet non vérifié au survol ni au lecteur d'écran | Clos le 01/10 : nom complet vérifié, voir le second passage |
 | D | Aucun contrôle automatique d'accessibilité (axe ou équivalent) ni essai avec un lecteur d'écran | Limite de la recette | Ajouter un contrôle automatique aux E2E ; un passage NVDA sur les parcours principaux |
-| E | Contrastes non mesurés par outil (lecture visuelle seulement) | Limite de la recette | Mesurer les jetons de couleur contre 4,5:1 (texte) et 3:1 (composants) |
+| E | Contrastes non mesurés par outil (lecture visuelle seulement) | Limite de la recette | Clos le 01/10 : contrastes mesurés, bordures de champ corrigées (défaut 12) |
+
+## Second passage — 1er octobre 2026
+
+Examen des points B, C et E, de 02:46 à 03:10 UTC, sur l'instance principale. Contrôles : 133 tests unitaires web, `tsc`, build ([journal](../../apps/web/reports/build-2026-10-01-contrastes-legende.log)), E2E en lecture seule 11 réussis et 20 non autorisés (import, génération, cycle de vie, sonde mémoire ; [preuve](../../apps/web/reports/e2e-2026-10-01-contrastes-legende-0304-evidence.json)), recette visuelle 4/4 après correction de son attente ([preuve](../../apps/web/reports/e2e-2026-10-01-recette-visuelle-0307-evidence.json), [captures](../../apps/web/reports/visual-qa-20261001T0307/)). Captures intermédiaires conservées : [visual-qa-20261001T0258](../../apps/web/reports/visual-qa-20261001T0258/) (bordures corrigées, défaut 13 visible sur `02-document-ouvert-1920x1080.png`).
+
+**Point B, infirmé par le code et les captures.** La ligne « Toute la bibliothèque » n'est pas superposée à l'arbre : elle est un élément de flux (`.library-all`, `flex: none`, [globals.css:166](../../apps/web/src/app/globals.css#L166)) placé au-dessus du conteneur défilant de l'arbre (`.tree`, `flex: 1; min-height: 0; overflow: auto`, [globals.css:169](../../apps/web/src/app/globals.css#L169) ; structure [library-panel.tsx:129-130](../../apps/web/src/components/library-panel.tsx#L129-L130)). La ligne coupée sur les captures est rognée par le bord haut du conteneur défilant, pas recouverte ; un élément qui prend le focus est ramené dans la zone visible de ce conteneur par le navigateur. Le parcours clavier de `a11y.spec.ts` (focus visible à chaque arrêt) reste vert.
+
+**Point C, vérifié.** Le bouton d'un document porte le nom complet en texte, l'info-bulle donne le chemin relatif (`title={document.relative_path}`) et la case porte « Sélectionner <nom> » ([library-panel.tsx:104-106](../../apps/web/src/components/library-panel.tsx#L104-L106)) : la troncature est seulement visuelle. Essai au lecteur d'écran non fait (point D).
+
+**Point E, mesuré.** Les contrastes sont calculés à partir des jetons de [theme.css](../../apps/web/src/app/theme.css) par `tests/unit/accessibility.test.ts` et `ui-guards.test.ts` : textes, placeholders, badges, boutons au repos et au survol, pastilles d'état et indicateur de focus étaient déjà couverts. Valeurs relevées : encre 11,8 à 14,6:1 et texte secondaire 4,75 à 5,9:1 sur toutes les surfaces ; anneau de focus 4,8 à 5,9:1. Seules les bordures de champ n'étaient pas mesurées, et elles échouaient (défaut 12).
+
+| # | Constat | Principe (source) | Correction | Preuve |
+|---|---|---|---|---|
+| 12 | Bordure des champs (`--input` #C9CFC9) à 1,27–1,57:1 ; le filtre de bibliothèque et le numéro de page utilisaient même le filet décoratif `--border` (1,17–1,41:1). Pour la zone de question, les listes de portée et le numéro de page, cette bordure est le seul repère de l'emplacement du champ | Indicateur d'un champ de saisie à 3:1 (UX10, UX01 1.4.11) | `--input` porté à #788778 ; filtre et numéro de page passés sur `--input` ; mesure : 3,45:1 sur le fond, 3,76:1 sur les cartes et popovers, 3,57:1 sur la bibliothèque, au moins 3,05:1 sur toutes les surfaces | Test « field borders keep 3:1… » (`accessibility.test.ts`), rouge avant correction (1,57:1) ; captures 01 et 03 de [0307](../../apps/web/reports/visual-qa-20261001T0307/) |
+| 13 | Pendant le rendu d'une page, la légende affichait « Aucun texte extrait » sur une page à texte natif (capture 02 à 1920×1080 de [0258](../../apps/web/reports/visual-qa-20261001T0258/)) : l'état initial « pas de texte » était affiché comme un résultat | Visibilité de l'état réel (UX09 n° 1) | Légende « Lecture de la page… » tant que la couche texte de PDF.js ou les blocs sont en lecture (`pageTextCaption`, [ocr-overlay.ts](../../apps/web/src/lib/ocr-overlay.ts)) ; la recette visuelle attend la légende finale au lieu d'une attente fixe de 1,5 s | Test « the page caption states no text only once… » (`ocr-overlay.test.ts`) ; capture 02 de [0307](../../apps/web/reports/visual-qa-20261001T0307/) avec « Texte natif ». L'état intermédiaire n'a pas été capturé : le rendu a été plus rapide lors de la seconde exécution |
+
+La recherche dans le lecteur (`.viewer-search`) n'a pas de bordure : son icône de loupe (5,9:1) et son texte l'identifient, ce que UX10 admet ; elle n'est pas modifiée.
 
 ## Limites
 
