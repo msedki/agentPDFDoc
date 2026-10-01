@@ -96,14 +96,51 @@
       "note": "joué sous le nom kill-indexing (état indexing, étape embedding)"
     },
     "kill-vectors": {
-      "error": "RuntimeError: traitement terminé (ready) avant l'étape visée ['vectors']",
-      "checks": {
-        "completed": false
+      "killed_at": {
+        "state": "indexing",
+        "stage": "vectors"
       },
-      "fixture": "long-document-14p.pdf",
-      "started_utc": "2026-10-01T07:23:07.315744+00:00",
-      "seconds": 212.4,
-      "result": "FAIL"
+      "survivors_after_supervisor_kill": [],
+      "checks": {
+        "killed_in_target_stage": true,
+        "resumed_to_ready": true,
+        "single_published_generation": true,
+        "no_duplicate_chunks": true,
+        "no_orphan_points": true,
+        "no_pending_cleanup": true
+      },
+      "restart": "running",
+      "after_restart": {
+        "state": "paused",
+        "stage": "interrupted",
+        "error_code": "interrupted"
+      },
+      "resume_http": 200,
+      "final_job": {
+        "state": "ready",
+        "error_code": null,
+        "active": true
+      },
+      "consistency": {
+        "generations": [
+          {
+            "id": "daef2bb3-8dbc-4b54-a715-5dd840b1a224",
+            "state": "ready",
+            "published_at": "2026-10-01T07:39:26.897532+00:00"
+          }
+        ],
+        "published_generations": 1,
+        "active_chunks": 1800,
+        "all_chunks": 1800,
+        "duplicate_chunks": 0,
+        "qdrant_points": 1800,
+        "index_consistency": "consistent",
+        "pending_cleanup": 0
+      },
+      "fixture": "synthetique-200p.pdf",
+      "started_utc": "2026-10-01T07:36:24.875693+00:00",
+      "seconds": 183.0,
+      "result": "PASS"
     },
     "qdrant-down": {
       "killed_at": {
@@ -163,5 +200,5 @@
       "result": "PASS"
     }
   },
-  "note": "Chaque cas sur une instance isolée neuve ou saine ; kill-vectors : étape d'écriture des points trop brève pour être saisie par sondage HTTP (deux essais, documents de 2 et 14 pages), échec d'observation et non défaut ; essais antérieurs de qdrant-down en échec d'outil (jeton lu après l'arrêt de l'instance, relance limitée aux traitements en pause), corrigés avant l'essai conservé."
+  "note": "Chaque cas sur une instance isolée neuve ou saine. kill-vectors : manqué deux fois par le sondage (documents de 2 et 14 pages, échec d'observation et non défaut), puis visé avec un document synthétique de 200 pages produit par l'outil (--pages) : PASS. Essais antérieurs de qdrant-down en échec d'outil (jeton lu après l'arrêt de l'instance, relance limitée aux traitements en pause), corrigés avant l'essai conservé. La publication n'est pas visée par un arrêt réel : elle tient en une transaction SQLite (publish, services/api/indexing.py), si bien qu'un arrêt pendant celle-ci laisse l'état du cas kill-vectors ou l'état publié."
 }

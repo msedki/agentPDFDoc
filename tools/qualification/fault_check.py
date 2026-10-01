@@ -185,14 +185,44 @@ def case_qdrant_down(instance: Isolated, fixture: Path) -> dict[str, Any]:
     return result
 
 
+def long_pdf(pages: int) -> bytes:
+    """Document de texte natif de `pages` pages, chacune avec des phrases distinctes (structure de selftest.text_pdf)."""
+    objects = [b"<< /Type /Catalog /Pages 2 0 R >>", b"", b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>"]
+    kids = []
+    for index in range(pages):
+        lines = [f"Fiche de contrôle {index + 1} sur {pages}."] + [f"Le relevé {index + 1}.{row} du banc FAUTE-{index + 1:03d} vaut {row * 3 + index} unités." for row in range(1, 9)]
+        content = "BT /F1 12 Tf 50 740 Td 20 TL " + " ".join(f"<{line.encode('cp1252').hex()}> Tj T*" for line in lines) + " ET"
+        page_id, stream_id = len(objects) + 1, len(objects) + 2
+        kids.append(f"{page_id} 0 R")
+        objects += [f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 600 800] /Resources << /Font << /F1 3 0 R >> >> /Contents {stream_id} 0 R >>".encode(),
+                    b"<< /Length " + str(len(content)).encode() + b" >>\nstream\n" + content.encode() + b"\nendstream"]
+    objects[1] = f"<< /Type /Pages /Count {pages} /Kids [{' '.join(kids)}] >>".encode()
+    output = bytearray(b"%PDF-1.7\n%\xe2\xe3\xcf\xd3\n")
+    offsets = []
+    for index, body in enumerate(objects, 1):
+        offsets.append(len(output))
+        output.extend(f"{index} 0 obj\n".encode() + body + b"\nendobj\n")
+    xref = len(output)
+    output.extend(f"xref\n0 {len(objects) + 1}\n0000000000 65535 f \n".encode() + b"".join(f"{offset:010d} 00000 n \n".encode() for offset in offsets))
+    output.extend(f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n".encode())
+    return bytes(output)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("case", choices=["kill-extracting", "kill-embedding", "kill-vectors", "qdrant-down"])
     parser.add_argument("--instance", type=Path, required=True)
-    parser.add_argument("--fixture", type=Path, required=True)
+    parser.add_argument("--fixture", type=Path)
+    parser.add_argument("--pages", type=int, help="document synthétique de N pages produit sur place, à la place de --fixture")
     parser.add_argument("--report", type=Path, required=True)
     args = parser.parse_args()
     instance = Isolated(json.loads(args.instance.read_text(encoding="utf-8")))
+    if args.pages:
+        # Assez de pages pour que l'écriture des points dure plus que l'intervalle de sondage.
+        args.fixture = Path(instance.state["root"]) / f"synthetique-{args.pages}p.pdf"
+        args.fixture.write_bytes(long_pdf(args.pages))
+    if not args.fixture:
+        parser.error("--fixture ou --pages requis")
     report = json.loads(args.report.read_text(encoding="utf-8")) if args.report.exists() else {"cases": {}}
     started = datetime.now(UTC)
     try:
