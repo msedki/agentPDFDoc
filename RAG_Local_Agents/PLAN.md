@@ -580,4 +580,6 @@ Prochaine action : commit, puis lot de corrections de l'ingestion (W029), avec r
 Point à trancher ajouté :
 - (18) Passer le Chromium snap de ce poste en GTK 4 (`CHROMIUM_FLAGS="$CHROMIUM_FLAGS --gtk-version=4"` dans `~/.chromium-browser.init`, puis redémarrage du navigateur) pour réparer le bouton. Ce choix modifie l'environnement de l'utilisateur et peut réintroduire les régressions GTK 4 sous GNOME (LP:2106312, LP:2106342) ; il appartient à l'utilisateur.
 
+Décision de l'utilisateur à 16:20 UTC sur le point 18 : Chromium reste tel quel ; l'import se fait par glisser-déposer sur la bibliothèque. Point 18 clos.
+
 Prochaine action : sans changement, lot W029 (corrections de l'ingestion) en cours, puis réextraction du corpus de ce poste.
