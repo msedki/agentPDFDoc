@@ -1,0 +1,21 @@
+{
+  "role": "Relevé de lecture et usage des skills pour la continuation W029-6",
+  "owner": "intégration du chantier",
+  "status": "Vivante, opérations W029-6 en cours",
+  "reference": "main, code 635d74a et suivi 5801926 ; 2026-10-02 UTC",
+  "scope": "Fichiers sélectionnés relus entièrement avant les opérations de cette continuation ; ne reconstitue pas les lectures historiques",
+  "previous_record": "RAG_Local_Agents/reports/skills-usage-2026-10-02-w029.json",
+  "skills_read": [
+    {"name": "linux-rag-runtime", "path": ".agents/skills/linux-rag-runtime/SKILL.md", "origin": "projet", "version": null, "sha256": "29e50be8c1c5ccd42e577448e9d77ab2dacb4520525a1343ad7d658007e931d2", "task": "Cible Linux native, identités, verrou lourd, ressources et sauvegarde du poste"},
+    {"name": "windows-rag-runtime", "path": ".agents/skills/windows-rag-runtime/SKILL.md", "origin": "projet", "version": null, "sha256": "538f75c2cbee38453f192d4db8cd311d1787fdfd13316bc81b677df65851acab", "task": "Invariants partagés de sauvegarde cohérente et préservation des versions ; aucune exécution Windows"},
+    {"name": "pdf-ingestion-windows", "path": ".agents/skills/pdf-ingestion-windows/SKILL.md", "origin": "projet", "version": null, "sha256": "49fc8d0272096f59d5bbf74bbc89120b5043bb514aedc2a81c998032ec4ec227", "task": "Réextraction réelle autorisée, original immuable, empreinte et limites explicites ; invariants partagés sous Linux"},
+    {"name": "hybrid-rag-api", "path": ".agents/skills/hybrid-rag-api/SKILL.md", "origin": "projet", "version": null, "sha256": "6209a83fb48310f4823f6b6d17687530a1f3ee695e38f373d5f3dea435123cac", "task": "Réindexation par routes livrées, générations et anciennes citations, sans publication partielle explicite"},
+    {"name": "rag-pdf-provenance", "path": "RAG_Local_Agents/skills/rag-pdf-provenance/SKILL.md", "origin": "pack, project-authored", "version": "2.1", "sha256": "7f0204cd95f63494f15706fbb94f06a0ddb2340926aa3da2a1b92ee24a691ddf", "task": "Conservation des versions, révisions, régions et citations"},
+    {"name": "project-documentation", "path": ".agents/skills/project-documentation/SKILL.md", "origin": "projet, project-authored", "version": "1.0", "sha256": "aa4292bc629ec12e00ed3fde2143afaae6f898dc6ab2cffc45e6d0e44aded6dd", "task": "Suivi factuel canonique, journal, sources et preuves sans clôture anticipée"},
+    {"name": "official-source-review", "path": "RAG_Local_Agents/skills/official-source-review/SKILL.md", "origin": "pack, project-authored", "version": "2.1", "sha256": "c7ac562eeae9150016259a17cb3b671355ceba289ebcb649f0de1fbe173554bd", "task": "Complément D11.2 confié à un agent, sources officielles exclusivement et versions réelles"}
+  ],
+  "adaptation": "Aucun skill modifié ou installé ; contrôles de sélection par SHA et conservation étendus avant POST, sans nouveau contrat externe ni modification produit",
+  "evidence": [".runtime/qa/w029-corpus-20261002T184300Z/", "RAG_Local_Agents/PLAN.md", "RAG_Local_Agents/journal/2026-10-02.md"],
+  "behavioral_validation": "NOT_RUN : aucun test formel de découverte/invocation native du client",
+  "limits": ["Une lecture explicite ne prouve pas le déclenchement natif", "Le corpus Windows et la cible de 16 Gio restent distincts", "Réextraction et vérification finale en cours à la date du relevé"]
+}
