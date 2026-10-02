@@ -123,6 +123,201 @@ def test_port_states_distinguish_free_owned_and_foreign():
     assert theirs["app"]["state"] == "foreign"
 
 
+def _server_side_time_wait(*, listener_reuse: bool) -> int:
+    """Port loopback sans écouteur dont il ne reste qu'une socket TIME-WAIT côté serveur (J8, L2 et L4).
+
+    Le serveur ferme d'abord la connexion acceptée, comme Qdrant ou Ollama à l'arrêt ; le client ferme ensuite.
+    Avec `listener_reuse`, l'écouteur pose SO_REUSEADDR comme les serveurs POSIX de l'atelier (Go pour Ollama,
+    asyncio pour l'API) ; la connexion acceptée, puis sa socket TIME-WAIT, en héritent.
+    """
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+        if listener_reuse:
+            listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        listener.bind(("127.0.0.1", 0))
+        listener.listen()
+        port = listener.getsockname()[1]
+        with socket.create_connection(("127.0.0.1", port), timeout=5) as client:
+            accepted, _ = listener.accept()
+            accepted.close()
+            assert client.recv(1) == b""
+    deadline = time.monotonic() + 5
+    states: set[str] = set()
+    while time.monotonic() < deadline:
+        states = {item.status for item in psutil.net_connections(kind="tcp") if item.laddr and item.laddr.port == port}
+        if states == {psutil.CONN_TIME_WAIT}:
+            return port
+        time.sleep(0.02)
+    pytest.fail(f"TIME-WAIT côté serveur non obtenu sur {port} : {states}")
+
+
+def _plain_bind_refused(port: int) -> bool:
+    """Sonde d'avant la correction : bind sans option."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        try:
+            probe.bind(("127.0.0.1", port))
+        except OSError:
+            return True
+    return False
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="TIME-WAIT côté serveur sous POSIX ; la sonde Windows reste sans option")
+def test_port_left_in_server_side_time_wait_is_free_for_the_restart():
+    from services.runtime.supervisor import check_ports
+
+    port = _server_side_time_wait(listener_reuse=True)
+    # Cas réel de J8 : le bind sans option échoue (EADDRINUSE) alors qu'aucun processus n'écoute.
+    assert _plain_bind_refused(port)
+    check_ports([port])
+    assert port_states({"qdrant": port}, set())["qdrant"]["state"] == "free"
+    # Le service redémarré lie bien ce port, avec la même option que la sonde : le verdict « libre » est exact.
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as restarted:
+        restarted.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        restarted.bind(("127.0.0.1", port))
+        restarted.listen()
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="TIME-WAIT côté serveur sous POSIX ; la sonde Windows reste sans option")
+def test_time_wait_left_by_a_server_without_reuse_stays_refused_as_for_the_service_itself():
+    from services.runtime.supervisor import check_ports
+
+    port = _server_side_time_wait(listener_reuse=False)
+    with pytest.raises(RuntimeError, match=f"^Port {port} occupé ; aucun service existant ne sera arrêté.$"):
+        check_ports([port])
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as restarted:
+        restarted.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        with pytest.raises(OSError):
+            restarted.bind(("127.0.0.1", port))
+
+
+@pytest.mark.parametrize("address", ["127.0.0.1", "0.0.0.0"])
+@pytest.mark.parametrize("listener_reuse", [False, True])
+def test_listening_port_stays_refused_by_the_probe(monkeypatch, address, listener_reuse):
+    from services.runtime import supervisor
+
+    if address == "0.0.0.0" and sys.platform == "win32":
+        pytest.skip("Windows : un écouteur sur toutes les interfaces n'empêche pas un bind loopback du même compte")
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+        if listener_reuse:
+            listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        listener.bind((address, 0))
+        listener.listen()
+        port = listener.getsockname()[1]
+        with pytest.raises(RuntimeError, match=f"^Port {port} occupé ; aucun service existant ne sera arrêté.$"):
+            supervisor.check_ports([port])
+        # Écouteur invisible dans la liste des connexions : seule la sonde par bind décide.
+        monkeypatch.setattr(supervisor.psutil, "net_connections", lambda kind: [])
+        assert supervisor.port_states({"app": port}, set())["app"]["state"] == "occupied_unknown_owner"
+
+
+class RecordingSocket:
+    """Socket simulée : options et adresse demandées par la sonde, sans réseau."""
+
+    calls: list = []
+
+    def __init__(self, family, kind):
+        self.calls.append(("socket", family, kind))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.calls.append(("close",))
+
+    def setsockopt(self, level, option, value):
+        self.calls.append(("setsockopt", level, option, value))
+
+    def bind(self, address):
+        self.calls.append(("bind", address))
+
+
+@pytest.mark.parametrize(("platform", "options"), [
+    ("win32", []),
+    ("linux", [("setsockopt", socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)]),
+])
+def test_probe_options_per_platform(monkeypatch, platform, options):
+    """Windows simulé : aucune option, comme avant (SO_REUSEADDR y permettrait de lier un port déjà tenu).
+    POSIX : SO_REUSEADDR avant le bind, qui refuse toujours un port en écoute."""
+    from services.runtime import supervisor
+
+    monkeypatch.setattr(sys, "platform", platform)
+    monkeypatch.setattr(supervisor.socket, "socket", RecordingSocket)
+    monkeypatch.setattr(supervisor.psutil, "net_connections", lambda kind: [])
+    expected = [("socket", socket.AF_INET, socket.SOCK_STREAM), *options, ("bind", ("127.0.0.1", 6333)), ("close",)]
+    RecordingSocket.calls = []
+    supervisor.check_ports([6333])
+    assert RecordingSocket.calls == expected
+    RecordingSocket.calls = []
+    assert supervisor.port_states({"qdrant": 6333}, set())["qdrant"]["state"] == "free"
+    assert RecordingSocket.calls == expected
+
+
+class ProbeDone(Exception):
+    """Arrêt du test juste après la sonde de port, avant tout lancement de service."""
+
+
+def _stop(*args, **kwargs):
+    raise ProbeDone
+
+
+def _probe_of_pull_model(monkeypatch, tmp_path):
+    from services.runtime import cli
+
+    monkeypatch.setattr(cli, "load_profile", lambda path: {"llm": {"model": "qwen3.5:4b", "required_quantization": "Q4_K_M"}})
+    monkeypatch.setattr(cli, "native_paths", _stop)
+    with pytest.raises(ProbeDone):
+        cli.pull_model(tmp_path / "profil.yaml")
+    return 11444
+
+
+def _probe_of_calibration(monkeypatch, tmp_path):
+    from services.api.settings import Settings
+    from services.runtime import calibration
+
+    monkeypatch.setattr(calibration, "load_profile", lambda path: {})
+    monkeypatch.setattr(Settings, "load", classmethod(_stop))
+    with pytest.raises(ProbeDone):
+        calibration.calibrate(tmp_path / "profil.yaml", tmp_path / "pilote.json")
+    return 11444
+
+
+def _probe_of_discovery(monkeypatch, tmp_path):
+    from services.runtime import accelerator, supervisor
+
+    monkeypatch.setattr(supervisor, "native_paths", _stop)
+    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    with pytest.raises(ProbeDone):
+        accelerator.probe_discovery(profile, ROOT / "config/local16.yaml", tmp_path, tmp_path / "sonde.log",
+                                    version="0.35.0", port=11464)
+    return 11464
+
+
+def _probe_of_profile_setup(monkeypatch, tmp_path):
+    from services.runtime import profile_setup
+
+    assert profile_setup.port_free(18785) is True
+    return 18785
+
+
+@pytest.mark.parametrize("call", [_probe_of_pull_model, _probe_of_calibration, _probe_of_discovery, _probe_of_profile_setup],
+                         ids=["pull-model", "calibration", "sonde-decouverte", "init-profile"])
+@pytest.mark.parametrize(("platform", "options"), [
+    ("win32", []),
+    ("linux", [("setsockopt", socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)]),
+])
+def test_every_runtime_port_probe_follows_the_supervisor_rule(monkeypatch, tmp_path, call, platform, options):
+    """Revue runtime J8 : pull-model, le pilote, la sonde de découverte et init-profile sondent leur port comme
+    check_ports (port_probe) : SO_REUSEADDR sous POSIX, aucune option sous Windows (appels inchangés)."""
+    import services.api.context  # noqa: F401  (importé avant la plateforme simulée)
+    import services.api.settings  # noqa: F401
+
+    monkeypatch.setattr(sys, "platform", platform)
+    monkeypatch.setattr(socket, "socket", RecordingSocket)
+    RecordingSocket.calls = []
+    port = call(monkeypatch, tmp_path)
+    assert RecordingSocket.calls == [("socket", socket.AF_INET, socket.SOCK_STREAM), *options,
+                                     ("bind", ("127.0.0.1", port)), ("close",)]
+
+
 def test_qdrant_key_is_long_reserved_to_the_qdrant_child_and_never_written_in_config(tmp_path, monkeypatch):
     monkeypatch.setenv("QDRANT__SERVICE__API_KEY", "variable-heritee-du-poste")
     profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))

@@ -42,3 +42,49 @@ test("la perte de texte de l'analyse de mise en page et sa reprise sont décrite
   assert.match(texts[1], /^Pages reprises depuis le texte intégré au PDF, page 7 : .*ordre de lecture/);
   for (const text of texts) assert.doesNotMatch(text, /STRUCTURED_/);
 });
+
+test("le préflight qui repère des caractères incertains dans le texte intégré au PDF est décrit, avec l'action possible", () => {
+  // J8, L9 : avertissement émis par services/ingestion/preflight.py et docling_adapter.py (composant preflight_text)
+  // pour la fixture « Unicode ligatures césures.pdf » ; le Suivi n'affichait que le code.
+  const texts = groupedWarningTexts([
+    { code: "PREFLIGHT_TEXT_MAPPING_UNCERTAIN", page_index: 0, component: "preflight_text" },
+    { code: "PREFLIGHT_TEXT_MAPPING_UNCERTAIN", page_index: 2, component: "preflight_text" },
+  ]);
+  assert.deepEqual(texts, ["Caractères incertains dans le texte intégré au PDF, pages 1, 3 : des mots coupés en fin de ligne ou des caractères non reconnus y ont été repérés ; ces mots peuvent être mal indexés et échapper à la recherche. Vérifiez le passage dans le lecteur."]);
+  assert.doesNotMatch(texts[0], /PREFLIGHT_|sans description/);
+});
+
+test("les deux limites de structure des tableaux sont décrites avec leur conséquence et l'action possible", () => {
+  // Codes émis par table_coverage (services/ingestion/docling_adapter.py) pour un bloc de tableau, avec page et bloc,
+  // sans message : le Suivi n'affichait que « sans description (code …) ».
+  const texts = groupedWarningTexts([
+    { code: "TABLE_CONTENT_COVERAGE_UNCERTAIN", page_index: 3, block_id: "t-1" },
+    { code: "TABLE_WITHOUT_RELIABLE_CELLS", page_index: 0, block_id: "t-2" },
+    { code: "TABLE_WITHOUT_RELIABLE_CELLS", page_index: 0, block_id: "t-3" },
+    { code: "TABLE_WITHOUT_RELIABLE_CELLS", page_index: 4, block_id: "t-4" },
+  ]);
+  assert.deepEqual(texts, [
+    "Tableaux réduits à leurs intitulés de lignes, page 4 : l'analyse de mise en page n'a reconnu qu'une colonne d'intitulés à gauche d'un tableau plus large ; les valeurs des autres colonnes peuvent manquer à la recherche et aux citations. Consultez le tableau dans le lecteur.",
+    "Tableaux sans cellules reconnues, pages 1, 5 (3 zones) : l'analyse de mise en page a repéré un tableau sans en reconnaître les cellules ; son contenu peut manquer à la recherche et aux citations. Consultez le tableau dans le lecteur.",
+  ]);
+  for (const text of texts) assert.doesNotMatch(text, /TABLE_|sans description/);
+});
+
+test("les positions incohérentes avec le repère de la page sont décrites, avec leur conséquence et l'action possible", () => {
+  // Codes de services/ingestion/geometry.py repris en avertissements par page (docling_adapter.py, conversion des
+  // boîtes du parseur) : l'élément reste indexé sans position fiable, ou une cellule OCR est écartée.
+  const texts = groupedWarningTexts([
+    { code: "GEOMETRY_FRAME_MISMATCH", page_index: 1 },
+    { code: "GEOMETRY_OUTSIDE_PAGE", page_index: 2, component: "parser_cell" },
+    { code: "GEOMETRY_OUTSIDE_PAGE", page_index: 2, component: "parser_cell" },
+    { code: "UNKNOWN_COORDINATE_ORIGIN", page_index: 0 },
+  ]);
+  assert.equal(texts.length, 3);
+  assert.match(texts[0], /^Repère de page incohérent, page 2 : /);
+  assert.match(texts[1], /^Éléments placés hors de la page, page 3 \(2 zones\) : /);
+  assert.match(texts[2], /^Origine des coordonnées inconnue, page 1 : /);
+  for (const text of texts) {
+    assert.match(text, /Vérifiez le passage dans le lecteur\.$/);
+    assert.doesNotMatch(text, /GEOMETRY_|COORDINATE_|sans description/);
+  }
+});

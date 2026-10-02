@@ -86,9 +86,11 @@ kbd { display: inline-block; min-width: 20px; padding: 0 4px; border: 1px solid 
 .status-indicator[data-tone="destructive"] .status-dot { background: hsl(var(--destructive)); }
 .status-dot.is-active { animation: pulse 1.3s infinite; }
 
-/* Périmètre : déclencheur au centre de la barre supérieure. */
-.scope-control { position: relative; min-width: 0; max-width: 100%; }
-.scope-trigger { display: flex; align-items: center; gap: 8px; max-width: 480px; min-width: 0; height: 40px; padding: 0 12px; border: 1px solid hsl(var(--border)); border-radius: var(--radius); background: hsl(var(--background)); color: inherit; text-align: left; }
+/* Périmètre : déclencheur au centre de la barre supérieure. Le conteneur flexible laisse le bouton se réduire avec
+   la colonne centrale (libellé en ellipse) ; dans un bloc, il gardait la largeur de son libellé et recouvrait Suivi.
+   Quand la colonne est plus étroite que « Périmètre » et la flèche, le bouton coupe son contenu au lieu de déborder. */
+.scope-control { position: relative; display: flex; min-width: 0; max-width: 100%; }
+.scope-trigger { display: flex; align-items: center; gap: 8px; max-width: 480px; min-width: 0; height: 40px; overflow: hidden; padding: 0 12px; border: 1px solid hsl(var(--border)); border-radius: var(--radius); background: hsl(var(--background)); color: inherit; text-align: left; }
 .scope-trigger:hover { background: hsl(var(--muted)); }
 .scope-trigger > svg { flex: none; }
 .scope-trigger strong { min-width: 0; font-size: 12px; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
@@ -362,6 +364,12 @@ progress { display: block; width: 100%; height: 4px; margin-top: 8px; accent-col
   .app-topbar button, .panel-heading button, .import-actions button, .library-resume button, .job-actions button, .job-mode-actions button, .job-bulk-actions button { min-height: 44px; }
   .app-topbar button, .panel-heading button { min-width: 44px; }
   .scope-trigger { height: 44px; }
+  /* Le déclencheur est alors le seul endroit qui montre le périmètre actif : sa place va au libellé ; « Périmètre »
+     reste dans le nom accessible du bouton (masquage visuel, pas display: none). */
+  .scope-trigger .eyebrow { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  /* Même raison : le nom de l'atelier et les libellés des boutons laissent leur place au périmètre ; les boutons gardent
+     leur icône et leur nom accessible, le titre reste lu par les lecteurs d'écran. */
+  .app-brand > div, .topbar-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
   .scope-popover { top: 48px; }
 }
 @media (width < 48rem) {

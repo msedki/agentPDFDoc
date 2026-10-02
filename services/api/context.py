@@ -7,7 +7,14 @@ import time
 from typing import Any
 
 from .errors import ApiError
-from .retrieval import answer_terms, contains_identifier, has_answer_terms, identifiers, normalized_identifier
+from .retrieval import (
+    answer_terms,
+    answer_terms_comparable,
+    contains_identifier,
+    has_answer_terms,
+    identifiers,
+    normalized_identifier,
+)
 
 SYSTEM_INSTRUCTION = (
     "Tu es un assistant documentaire local. Réponds en français sauf demande contraire. "
@@ -225,7 +232,15 @@ class ContextBuilder:
         for identifier in required:
             holders = [source for source in retained if contains_identifier(source["text"], identifier)]
             if holders:
-                states[identifier] = "covered" if any(has_answer_terms(source["text"], terms) for source in holders) else "identifier_present_no_answer_evidence"
+                # Sans terme commun, l'absence de réponse n'est conclue que si aucune preuve n'est dans une autre langue
+                # reconnue que la question : sinon l'état dit seulement que la comparaison lexicale n'a pas eu lieu, sans
+                # affirmer de réponse ni l'avertissement « ne pas en déduire de réponse » (D04.7, J8, revue C1).
+                if any(has_answer_terms(source["text"], terms) for source in holders):
+                    states[identifier] = "covered"
+                elif any(not answer_terms_comparable(question, source["text"]) for source in holders):
+                    states[identifier] = "identifier_present_languages_differ"
+                else:
+                    states[identifier] = "identifier_present_no_answer_evidence"
             else:
                 states[identifier] = "not_covered_due_to_budget" if any(contains_identifier(source["text"], identifier) for source in sources) else "not_found_in_scope"
         no_answer = sorted(identifier for identifier, state in states.items() if state == "identifier_present_no_answer_evidence")
@@ -249,7 +264,9 @@ class ContextBuilder:
 
     @staticmethod
     def evidence(source):
-        return json.dumps({"source_id": source["source_id"], "version_id": source["version_id"], "pages_zero_based": source["page_indices"], "text": source["text"]}, ensure_ascii=False)
+        # Pages physiques numérotées à partir de 1, comme les citations et la visionneuse : avec les index (pages_zero_based),
+        # le modèle écrivait « page 0 » (J8, L9). Les sources rendues gardent page_indices.
+        return json.dumps({"source_id": source["source_id"], "version_id": source["version_id"], "pages": [index + 1 for index in source["page_indices"]], "text": source["text"]}, ensure_ascii=False)
 
 
 def validate_answer(text, known_ids):

@@ -7,7 +7,6 @@ import importlib.metadata
 import json
 import os
 import shutil
-import socket
 import subprocess
 import sys
 from datetime import UTC, datetime
@@ -52,6 +51,7 @@ from .supervisor import (
     native_paths,
     ollama_working_directory,
     owned_pids,
+    port_probe,
     port_states,
     qdrant_data_path,
     send_owned_console_interrupt,
@@ -652,7 +652,7 @@ def pull_model(profile_path: Path, offline: bool = False) -> dict:
     profile = {**profile, "llm": {**profile["llm"], "base_url": "http://127.0.0.1:11444"}}
     llm = profile["llm"]
     source_name = llm.get("source_model", llm["model"])
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+    with port_probe() as probe:
         probe.bind(("127.0.0.1", 11444))
     paths = native_paths()
     directory = ROOT / ".runtime/provision-service"

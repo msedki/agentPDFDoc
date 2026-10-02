@@ -132,9 +132,26 @@ def orphan_processes(state: dict) -> dict[str, list[int]]:
         return found
 
 
+def port_probe() -> socket.socket:
+    """Socket de sonde d'un port loopback, liée comme le service qui le prendra.
+
+    Seule sonde de port du runtime : check_ports, port_states, init-profile (port_free), pull-model, la sonde de
+    découverte d'Ollama et le pilote de calibration.
+
+    POSIX : SO_REUSEADDR, comme les écouteurs d'Ollama (Go) et de l'API (asyncio), et de Qdrant d'après J8. Le bind
+    reste refusé tant qu'un écouteur existe ; une socket TIME-WAIT laissée par l'arrêt d'un service ne bloque plus le
+    redémarrage pendant environ 60 s (J8, L2 et L4). Windows : aucune option, car SO_REUSEADDR y laisserait lier un
+    port déjà tenu.
+    """
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    if sys.platform != "win32":
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    return sock
+
+
 def check_ports(ports: list[int]) -> None:
     for port in ports:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        with port_probe() as sock:
             try:
                 sock.bind(("127.0.0.1", port))
             except OSError as exc:
@@ -175,7 +192,7 @@ def port_states(ports: dict[str, int], owned: set[int]) -> dict[str, dict]:
         pids = listeners.get(port, set())
         known = {pid for pid in pids if pid}
         if not pids:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            with port_probe() as sock:
                 try:
                     sock.bind(("127.0.0.1", port))
                     state = "free"

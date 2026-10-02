@@ -14,6 +14,7 @@ from services.runtime.platforms import native_executable
 
 from .background import FailureLog, finish, log_unexpected_end
 from .db import json_dump, now
+from .embedding import ONNXRUNTIME_ENVIRONMENT
 from .errors import ApiError
 from .indexing import INDEXING_PROGRESS_START, extraction_content_hash
 from .query import empty_lease
@@ -26,7 +27,7 @@ logger = logging.getLogger("rag.jobs")
 # `<data_dir>/control/admin-token` et `<data_dir>/control/qdrant-api-key` (écrits par le superviseur) ; aucune
 # isolation par compte ou par ACL n'est en place.
 WORKER_WITHHELD_ENVIRONMENT = frozenset({"RAG_CONTROL_TOKEN", "RAG_QDRANT_API_KEY", "QDRANT__SERVICE__API_KEY"})
-WORKER_FIXED_ENVIRONMENT = {"HF_HUB_OFFLINE": "1", "HF_HUB_DISABLE_TELEMETRY": "1", "TOKENIZERS_PARALLELISM": "false",
+WORKER_FIXED_ENVIRONMENT = {"HF_HUB_OFFLINE": "1", "HF_HUB_DISABLE_TELEMETRY": "1", **ONNXRUNTIME_ENVIRONMENT, "TOKENIZERS_PARALLELISM": "false",
                             "OMP_NUM_THREADS": "2", "MKL_NUM_THREADS": "2", "OPENBLAS_NUM_THREADS": "2"}
 
 WATCHDOG_MESSAGES = {

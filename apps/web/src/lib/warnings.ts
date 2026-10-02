@@ -33,10 +33,22 @@ const ingestionWarnings: Record<string, { title: string; consequence: string }> 
   OCR_PRINTED_CELL_UNRESOLVED: { title: "Cellules de tableau non lues", consequence: "leur contenu manque dans l'index ; consultez le tableau dans le lecteur." },
   OCR_NO_RECOGNIZED_CELLS: { title: "Aucun texte reconnu par l'OCR", consequence: "la zone numérisée n'apporte pas de texte recherchable." },
   OCR_ORIENTATION_UNRESOLVED: { title: "Orientation de page non déterminée", consequence: "l'OCR n'a pas pu redresser la page ; son texte peut manquer." },
+  // Structure d'un bloc de tableau (table_coverage, docling_adapter.py) : une seule colonne d'intitulés de lignes, à
+  // gauche d'un cadre nettement plus large ; ou un tableau sans cellule (son bloc reste alors sans texte) ou sans colonne.
+  TABLE_CONTENT_COVERAGE_UNCERTAIN: { title: "Tableaux réduits à leurs intitulés de lignes", consequence: "l'analyse de mise en page n'a reconnu qu'une colonne d'intitulés à gauche d'un tableau plus large ; les valeurs des autres colonnes peuvent manquer à la recherche et aux citations. Consultez le tableau dans le lecteur." },
+  TABLE_WITHOUT_RELIABLE_CELLS: { title: "Tableaux sans cellules reconnues", consequence: "l'analyse de mise en page a repéré un tableau sans en reconnaître les cellules ; son contenu peut manquer à la recherche et aux citations. Consultez le tableau dans le lecteur." },
   OCR_REGION_ISOLATION_LIMIT: { title: "Zones numérisées non isolées", consequence: "une partie de la page n'a pas été soumise à l'OCR." },
   ITEM_WITHOUT_PROVENANCE: { title: "Éléments sans position dans la page", consequence: "leur texte est indexé sans surlignage précis." },
   INVALID_SOURCE_CHARSPAN: { title: "Positions de texte incohérentes", consequence: "certains passages s'ouvrent à la page, sans surlignage." },
   INGESTION_NATIVE_FAULT: { title: "Arrêt du composant d'extraction", consequence: "le traitement a été interrompu ; reprenez-le ou réindexez le document." },
+  // Repère géométrique (services/ingestion/geometry.py), repris en avertissement par page à la conversion des boîtes
+  // du parseur (docling_adapter.py) : l'élément reste indexé sans position fiable, ou une cellule OCR est écartée.
+  GEOMETRY_FRAME_MISMATCH: { title: "Repère de page incohérent", consequence: "les positions données par l'analyse de mise en page ne correspondent pas aux dimensions de la page ; des passages s'ouvrent sans surlignage précis et une cellule de tableau lue par OCR peut manquer. Vérifiez le passage dans le lecteur." },
+  GEOMETRY_OUTSIDE_PAGE: { title: "Éléments placés hors de la page", consequence: "des positions données par l'analyse de mise en page sortent du cadre de la page ; ces passages s'ouvrent sans surlignage précis et une cellule de tableau lue par OCR peut manquer. Vérifiez le passage dans le lecteur." },
+  UNKNOWN_COORDINATE_ORIGIN: { title: "Origine des coordonnées inconnue", consequence: "l'analyse de mise en page n'a pas indiqué comment placer ses éléments sur la page ; des passages s'ouvrent sans surlignage précis et une cellule de tableau lue par OCR peut manquer. Vérifiez le passage dans le lecteur." },
+  // Préflight PDFium (preflight.py) : texte de page contenant \x02 ou les non-caractères U+FFFE, U+FFFF. Sur la fixture
+  // « Unicode ligatures césures.pdf », get_text_range() (pypdfium2 5.13.0) rend U+FFFE à la césure, sans \x02.
+  PREFLIGHT_TEXT_MAPPING_UNCERTAIN: { title: "Caractères incertains dans le texte intégré au PDF", consequence: "des mots coupés en fin de ligne ou des caractères non reconnus y ont été repérés ; ces mots peuvent être mal indexés et échapper à la recherche. Vérifiez le passage dans le lecteur." },
 };
 
 function pagesPhrase(pages: number[]): string {

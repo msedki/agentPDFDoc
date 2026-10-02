@@ -11,6 +11,8 @@ from urllib.parse import urlparse
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 from uuid import UUID
 
+from evidence_io import EVALS, LOCAL_QA, checked_output
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -24,16 +26,18 @@ def main() -> None:
     parser.add_argument("--base-url", default="http://127.0.0.1:8785")
     parser.add_argument("--document-id", type=UUID, required=True)
     parser.add_argument("--document-key", required=True)
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True,
+                        help="Nouveau fichier sous evals/qualification-v2.1/runtime/ ou, hors Git, sous .runtime/qa/")
     parser.add_argument("--allow-published-partial", action="store_true",
                         help="accepter une extraction partielle publiée explicitement ; son état est consigné dans la capture")
     args = parser.parse_args()
     origin = urlparse(args.base_url)
     if origin.scheme != "http" or origin.hostname not in {"127.0.0.1", "localhost"} or origin.username or origin.password or origin.path not in {"", "/"} or origin.query or origin.fragment:
         parser.error("Only the supervisor-authorized HTTP loopback API origin is accepted")
-    output = args.output.resolve()
-    if not output.is_relative_to(ROOT / "evals" / "qualification-v2.1" / "runtime") or output.exists():
-        parser.error("Use a new file under evals/qualification-v2.1/runtime; evidence is never overwritten")
+    try:
+        output = checked_output(args.output, [EVALS / "runtime", LOCAL_QA])
+    except ValueError as error:
+        parser.error(str(error))
     manifest = json.loads((ROOT / "evals/qualification-v2.1/manifest.json").read_text(encoding="utf-8"))
     descriptor = next((entry for entry in manifest["entries"] if entry["key"] == args.document_key), None)
     if not descriptor:

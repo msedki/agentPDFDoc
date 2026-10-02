@@ -8,6 +8,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 EVALS = ROOT / "evals" / "qualification-v2.1"
+# Preuves locales hors Git, acceptées en plus des dossiers versionnés de chaque outil. `.runtime` peut être un lien vers
+# un autre volume (W018) : checked_output compare des chemins résolus.
+LOCAL_QA = ROOT / ".runtime" / "qa"
 # Jeux sources, gel et manifeste : jamais une sortie d'outil, quel que soit le dossier.
 PROTECTED_NAMES = frozenset({"final.json", "final.freeze.json", "questions.json", "development.json", "manifest.json"})
 

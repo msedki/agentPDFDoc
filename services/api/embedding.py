@@ -1,12 +1,31 @@
 import gc
 import hashlib
 import json
+import os
 import threading
 import time
 
 import numpy as np
 
 from .errors import ApiError
+
+# D08.2 (J8, L10) : hors Windows, les roues officielles d'ONNX Runtime activent par défaut une télémétrie 1DS qui met ses
+# événements en file sous ~/.cache/Microsoft et les envoie à mobile.events.data.microsoft.com. ORT_DISABLE_TELEMETRY=1,
+# lue une seule fois quand le module natif crée son environnement (à l'import), coupe pour tout le processus le client
+# d'envoi, les événements et l'identifiant d'appareil ; disable_telemetry_events() ne retire que les événements non
+# essentiels et laisse le client actif (essai A/B de L10). La télémétrie Windows (ETW) ne lit pas cette variable.
+# Source : Privacy.md d'onnxruntime 1.30.0, « Disabling Telemetry » ; core/platform/telemetry_environment.h.
+# La variable est posée ici, à l'import du module (démarrage de l'API, avant tout thread de travail), et non au chargement
+# de la session, qui tourne dans un thread (asyncio.to_thread) où modifier l'environnement du processus n'est pas sûr.
+ONNXRUNTIME_ENVIRONMENT = {"ORT_DISABLE_TELEMETRY": "1"}
+os.environ.update(ONNXRUNTIME_ENVIRONMENT)
+
+
+def import_onnxruntime():
+    """Seul import d'ONNX Runtime du produit (test_api_onnxruntime_is_imported_only_through_import_onnxruntime) : la
+    variable posée à l'import de ce module n'agit qu'au premier import d'ONNX Runtime dans le processus."""
+    import onnxruntime
+    return onnxruntime
 
 
 class EmbeddingService:
@@ -167,7 +186,7 @@ class EmbeddingService:
                 if available_mib < reserve_mib + load_estimate_mib:
                     raise ApiError("embedding_admission_denied", "Réserve hôte insuffisante avant chargement E5 CPU.", 503,
                                    {"available_mib": round(available_mib, 2), "reserve_mib": reserve_mib, "load_estimate_mib": load_estimate_mib})
-                import onnxruntime as ort
+                ort = import_onnxruntime()
                 options = ort.SessionOptions()
                 options.intra_op_num_threads = self.settings.value("embedding", "intra_op_threads", 2)
                 options.inter_op_num_threads = self.settings.value("embedding", "inter_op_threads", 1)

@@ -17,7 +17,6 @@ import json
 import math
 import os
 import re
-import socket
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -538,6 +537,7 @@ def probe_discovery(profile: dict, profile_path: Path, directory: Path, log_path
         environment,
         native_paths,
         ollama_working_directory,
+        port_probe,
         send_owned_console_interrupt,
         wait_http,
     )
@@ -547,7 +547,7 @@ def probe_discovery(profile: dict, profile_path: Path, directory: Path, log_path
             raise ValueError(f"Sonde de découverte : chemin absolu exigé pour le {label} ({value})")
     base_url = f"http://127.0.0.1:{port}"
     probe_profile = {**profile, "llm": {**profile["llm"], "base_url": base_url}}
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+    with port_probe() as probe:
         probe.bind(("127.0.0.1", port))
     binary = native_paths(("ollama",))["ollama"]
     env = environment(probe_profile, Path(directory), Path(profile_path))

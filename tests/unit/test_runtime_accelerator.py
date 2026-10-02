@@ -741,6 +741,20 @@ def test_probe_refuses_a_busy_port(tmp_path, probe_service):
     assert launched == []
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="TIME-WAIT côté serveur sous POSIX ; sonde Windows sans option")
+def test_probe_starts_on_a_port_left_in_time_wait_by_a_previous_ollama(tmp_path, probe_service):
+    """Revue runtime J8 : la sonde de découverte sondait sans SO_REUSEADDR, que pose l'écouteur Go d'Ollama ; une sonde
+    relancée sur un port encore en TIME-WAIT échouait (EADDRINUSE) alors qu'Ollama aurait pu le reprendre."""
+    from tests.unit.test_runtime_supervisor import _server_side_time_wait
+
+    profile, launched, _, _ = probe_service
+    port = _server_side_time_wait(listener_reuse=True)
+    discovery = accelerator.probe_discovery(profile, ROOT / "config/local16.yaml", tmp_path / "service",
+                                            tmp_path / "service/ollama-probe.log", version="0.35.0", port=port)
+    assert discovery["status"] == "gpu" and len(launched) == 1
+    assert launched[0]["url"] == f"http://127.0.0.1:{port}/api/version"
+
+
 
 def test_a_probe_whose_console_stop_times_out_under_windows_still_reads_its_discovery(tmp_path, probe_service,
                                                                                       monkeypatch, capsys):

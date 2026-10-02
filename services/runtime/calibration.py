@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import concurrent.futures
 import json
-import socket
 import sys
 import time
 from datetime import UTC, datetime
@@ -33,6 +32,7 @@ from .supervisor import (
     load_profile,
     native_paths,
     ollama_working_directory,
+    port_probe,
     send_owned_console_interrupt,
     wait_http,
 )
@@ -102,7 +102,7 @@ def calibrate(profile_path: Path, output: Path, *, input_target: int = 2950,
     if output.exists():
         raise FileExistsError(f"Rapport pilote déjà présent, aucune réécriture : {output}")
     profile = load_profile(profile_path)
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+    with port_probe() as probe:
         probe.bind(("127.0.0.1", 11444))
     settings = Settings.load(profile_path)
     tokenizer = LlmTokenizer(settings)

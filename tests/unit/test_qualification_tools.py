@@ -18,6 +18,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools" / "qualification"))
 import answers  # noqa: E402
+import capture_bindings  # noqa: E402
 import check_reproducibility  # noqa: E402
 import evidence_io  # noqa: E402
 import extra_fixtures  # noqa: E402
@@ -157,6 +158,36 @@ def test_reproducibility_report_is_exclusive_under_reports(tmp_path, monkeypatch
     check_reproducibility.main(["--output", str(output)])
     with pytest.raises(SystemExit):
         check_reproducibility.main(["--output", str(output)])
+
+
+def test_generated_datasets_have_the_delivered_bytes_whatever_the_platform(tmp_path):
+    # Jeux livrés générés sous Windows, en CRLF, conservés tels quels par « * -text » : sous Linux, write_text sans
+    # newline= écrivait LF et check_reproducibility échouait sur les seules fins de ligne (J8, L0, 02/10/2026).
+    generate.generate(tmp_path)
+    for name in generate.EVAL_FILES:
+        regenerated, delivered = (tmp_path / "evals/qualification-v2.1" / name).read_bytes(), (evidence_io.EVALS / name).read_bytes()
+        assert b"\n" not in regenerated.replace(b"\r\n", b""), f"{name} : fin de ligne LF seule"
+        if name == "manifest.json":
+            # Le manifeste consigne les versions de Python, ReportLab et pypdfium2 du poste qui génère.
+            assert {**json.loads(regenerated), "versions": None} == {**json.loads(delivered), "versions": None}
+        else:
+            assert regenerated == delivered, name
+
+
+def test_reproducibility_report_may_stay_out_of_git_under_runtime_qa(tmp_path, monkeypatch):
+    qa = tmp_path / "qa"
+    monkeypatch.setattr(check_reproducibility, "EVALS", tmp_path / "evals")
+    monkeypatch.setattr(check_reproducibility, "LOCAL_QA", qa, raising=False)
+    monkeypatch.setattr(check_reproducibility, "compare", lambda: {"status": "PASS", "files_compared": 1, "changed_paths": [], "final_json_identical_bytes": True,
+                                                                    "regenerated_final_matches_freeze": True})
+    output = qa / "j8-linux" / "reproducibility.json"
+    check_reproducibility.main(["--output", str(output)])
+    assert json.loads(output.read_text(encoding="utf-8"))["status"] == "PASS"
+    for target in (output, qa, qa / "final.freeze.json", tmp_path / "reproducibility.json"):
+        with pytest.raises(SystemExit):
+            check_reproducibility.main(["--output", str(target)])
+    # Défaut inchangé : un rapport versionné sous evals/qualification-v2.1/reports/ reste accepté.
+    check_reproducibility.main(["--output", str(tmp_path / "evals" / "reports" / "reproducibility-unit.json")])
 
 
 # --- 3. merge_bindings.py ----------------------------------------------------------------------------------------
@@ -429,13 +460,71 @@ def test_grade_value_unit_precheck_is_numeric_and_unit_exact():
     error = grade.value_check("DA-P01 : 31 bar ou 3 bar.", "3.1", "bar")
     assert error["status"] == "VALUE_ABSENT" and error["other_values_with_unit"] == ["31", "3"]
     check = grade.precheck(question("DEV-001"), "DA-P01-IN et DA-P010 : 3.1 bar")
-    assert check["required_identifiers_missing"] == ["DA-P01"] and check["forbidden_identifiers_present"] == ["DA-P010"]
+    assert check["required_identifiers_missing"] == ["DA-P01"] and check["forbidden_identifiers_without_value_in_sentence"] == []
+    assert check["forbidden_identifiers_with_value"] == [{"identifier": "DA-P010", "sentence": "DA-P01-IN et DA-P010 : 3.1 bar"}]
     assert check["annotation_values_in_expected_answer"] is True and check["all_values_with_unit"] is True
     assert grade.precheck(question("DEV-003", answerable=False), grade.API_ABSTENTION)["api_fixed_abstention"] is True
     assert grade.value_check("Tension : 230V.", "230", "V")["status"] == "VALUE_AND_UNIT"
     assert grade.value_check("Pression 3.1bar", "3.1", "bar")["status"] == "VALUE_AND_UNIT"
     thousands = grade.value_check("Révision à 1 020 h ou 1 740 h.", "1020", "h")
     assert thousands["status"] == "VALUE_AND_UNIT" and thousands["other_values_with_unit"] == ["1740"]
+
+
+# Réponses réelles du jeu DEV (J8, L8, Linux, 02/10/2026) : l'identifiant voisin n'y est cité que pour l'écarter.
+DEV_036 = ("La pression nominale exacte pour la référence **DA-P01** est de **3.1 bar**.\n\nCette information provient directement du document S001, qui "
+           "stipule : « La pression nominale de DA-P01 est de 3.1 bar. » [S001]\n\nIl est important de noter que le même document précise explicitement "
+           "que la référence proche **DA-P010** appartient à un autre équipement et que ses valeurs ne sont pas celles de DA-P01, confirmant ainsi "
+           "l'exactitude de cette donnée pour la référence spécifique demandée. [S001]")
+DEV_050 = ("Sur la base des preuves fournies, il est impossible de déterminer l'intervalle de contrôle (valeur nominale et tolérance) pour la référence "
+           "**DA-P01**.\n\nVoici les éléments documentaires disponibles et leurs implications :\n\n*   **Identification du document :** La preuve [S002] "
+           "confirme que le document concerne bien DA-P01 et non DA-P010, en précisant explicitement que \"La référence proche DA-P010 appartient à un autre "
+           "équipement ; ses valeurs ne sont pas celles de DA-P01\" [S002].\n*   **Données disponibles pour DA-P01 :** La preuve [S002] fournit des paramètres "
+           "techniques spécifiques (pression nominale : 3.1 bar, tolérance : ± 2.0 %, couple de serrage : 12 N·m, alimentation d'essai : 22 V) mais ne "
+           "mentionne pas un \"intervalle de contrôle\" au sens d'un tableau de mesure ou de limites de tolérance pour une grandeur physique spécifique "
+           "(comme la pression).\n*   **Données manquantes :** La preuve [S003] liste des valeurs mesurées (DA-P01-IN : 13 mm, DA-P01-OUT : 9 mm, "
+           "DA-P01-LEAK : 0.1 L/min) mais ne fournit pas les intervalles de contrôle associés à ces mesures ni l'unité d'un éventuel \"intervalle\" global. "
+           "La preuve [S004] mentionne un \"Tableau de contrôle\", mais le contenu de ce tableau n'est pas extrait dans les données fournies.\n\n"
+           "**Conclusion :**\nIl n'existe aucune donnée dans les preuves [S001] à [S005] permettant de définir l'intervalle de contrôle avec son unité pour "
+           "DA-P01. Les seules valeurs numériques disponibles sont des paramètres d'opération (pression nominale, couple, tension) ou des mesures "
+           "ponctuelles, sans indication des limites de tolérance ou des intervalles de contrôle demandés.")
+
+
+def test_grade_precheck_flags_a_forbidden_identifier_only_in_a_sentence_carrying_a_value():
+    asked = question("DEV-036")  # 3.1 bar attendu, DA-P01 exigé, DA-P010 interdit
+    # Défaut J8 (L8) : 14 réponses sur 15 signalées alors qu'elles citent DA-P0x0 pour l'écarter ; la phrase reste listée, sans alerte.
+    for text in (DEV_036, DEV_050):
+        check = grade.precheck(asked, text)
+        assert check["forbidden_identifiers_with_value"] == []
+        [mention] = check["forbidden_identifiers_without_value_in_sentence"]
+        assert mention["identifier"] == "DA-P010" and "appartient à un autre équipement" in mention["sentence"]
+    # Confusion d'identifiant : la valeur attendue, ou une autre valeur suivie de l'unité annotée, dans la même phrase.
+    confused = grade.precheck(asked, "Selon S001, la pression nominale de DA-P010 est de 3,1 bar. Celle de DA-P01 n'est pas indiquée.")
+    assert confused["forbidden_identifiers_with_value"] == [{"identifier": "DA-P010", "sentence": "Selon S001, la pression nominale de DA-P010 est de 3,1 bar."}]
+    other = grade.precheck(asked, "DA-P01 : 3,1 bar ; DA-P010 : 4,1 bar.")
+    assert other["forbidden_identifiers_with_value"] == [{"identifier": "DA-P010", "sentence": "DA-P010 : 4,1 bar."}]
+    table = grade.precheck(asked, "| Référence | Pression |\n|---|---|\n| DA-P010 | 3,1 bar |")
+    assert table["forbidden_identifiers_with_value"] == [{"identifier": "DA-P010", "sentence": "| DA-P010 | 3,1 bar |"}]
+    # Chaque phrase qui nomme l'identifiant figure dans l'une des deux listes : aucune mention n'est perdue.
+    both = grade.precheck(asked, "La référence DA-P010 est un autre équipement.\nDA-P010 vaut 3.1 bar.")
+    assert both["forbidden_identifiers_with_value"] == [{"identifier": "DA-P010", "sentence": "DA-P010 vaut 3.1 bar."}]
+    assert both["forbidden_identifiers_without_value_in_sentence"] == [{"identifier": "DA-P010", "sentence": "La référence DA-P010 est un autre équipement."}]
+    absent = grade.precheck(asked, "La pression nominale de DA-P01 est de 3,1 bar [S001].")
+    assert absent["forbidden_identifiers_with_value"] == [] and absent["forbidden_identifiers_without_value_in_sentence"] == []
+    # Limite du découpage par phrase (revue J8) : ces confusions ne lèvent pas d'alerte, la phrase qui nomme l'identifiant
+    # reste listée sans valeur ; INSTRUCTIONS et le README demandent de la relire dans la réponse complète.
+    missed = {
+        "Pour **DA-P010**, la documentation indique :\n\n- Pression nominale : 3,1 bar": "Pour **DA-P010**, la documentation indique :",
+        "La référence demandée correspond à DA-P010. Sa pression nominale est de 3,1 bar [S001].": "La référence demandée correspond à DA-P010.",
+        "DA-P010 (p. 2) : 3,1 bar.": "DA-P010 (p.",
+        "La pression de DA-P010 est d'env. 3,1 bar.": "La pression de DA-P010 est d'env.",
+        "| DA-P010 |\n|---|\n| 3,1 bar |": "| DA-P010 |",
+    }
+    for text, sentence in missed.items():
+        check = grade.precheck(asked, text)
+        assert check["forbidden_identifiers_with_value"] == []
+        assert check["forbidden_identifiers_without_value_in_sentence"] == [{"identifier": "DA-P010", "sentence": sentence}]
+    notice = " ".join(grade.INSTRUCTIONS)
+    assert "forbidden_identifiers_without_value_in_sentence" in notice and "deux phrases" in notice and "« env. »" in notice
 
 
 def graded_run(tmp_path, split="development"):
@@ -676,3 +765,86 @@ def test_resume_reasks_questions_refused_before_any_model_call():
     submitted, results = answers.journal_state(records)
     assert "DEV-001" not in results and "DEV-001" not in submitted
     assert results["DEV-002"]["model_called"] is True
+
+
+# --- 9. Chaîne [EVAL] : sorties hors Git sous .runtime/qa/ ---------------------------------------------------------
+# evals/qualification-v2.1/runtime/ est suivi par Git : la campagne Linux J8 (L8) a dû rejouer la chaîne depuis une
+# copie du dépôt. Chaque outil accepte aussi .runtime/qa/ ; ses autres règles de sortie restent les mêmes.
+
+def test_eval_chain_tools_default_to_the_runtime_qa_folder():
+    assert evidence_io.LOCAL_QA == ROOT / ".runtime" / "qa"
+    for module in (check_reproducibility, capture_bindings, merge_bindings, resolve, answers, grade):
+        assert module.LOCAL_QA == evidence_io.LOCAL_QA, module.__name__
+
+
+def test_capture_bindings_accepts_a_new_output_under_runtime_qa(tmp_path, monkeypatch, capsys):
+    qa = tmp_path / "qa"
+    monkeypatch.setattr(capture_bindings, "LOCAL_QA", qa, raising=False)
+    argv = ["capture_bindings.py", "--document-id", "6f1e1c7a-0c6e-4f43-9b52-1d8f3a3e2b10", "--document-key", "cle-absente", "--output"]
+    # Sortie acceptée : l'outil passe au contrôle suivant (clé absente du manifeste), avant tout appel HTTP.
+    monkeypatch.setattr(sys, "argv", [*argv, str(qa / "2026-10-02-linux-DA-P01-published.json")])
+    with pytest.raises(SystemExit):
+        capture_bindings.main()
+    assert "absent from the controlled manifest" in capsys.readouterr().err
+    existing = qa / "deja-capture.json"
+    existing.parent.mkdir(parents=True)
+    existing.write_bytes(b"{}")
+    for refused in (tmp_path / "ailleurs.json", qa / "manifest.json", existing):
+        monkeypatch.setattr(sys, "argv", [*argv, str(refused)])
+        with pytest.raises(SystemExit):
+            capture_bindings.main()
+        assert "absent from the controlled manifest" not in capsys.readouterr().err
+    assert existing.read_bytes() == b"{}"
+
+
+def test_merge_bindings_accepts_snapshots_and_output_under_runtime_qa(tmp_path, monkeypatch):
+    qa = tmp_path / "qa"
+    qa.mkdir()
+    (tmp_path / "manifest.json").write_text(json.dumps({"entries": [{"key": "k1", "sha256": "a" * 64}]}), encoding="utf-8")
+    monkeypatch.setattr(merge_bindings, "EVALS", tmp_path)
+    monkeypatch.setattr(merge_bindings, "LOCAL_QA", qa, raising=False)
+    path, digest = write_snapshot(qa, "k1-published.json", binding_snapshot("k1", "a" * 64))
+    outside, outside_digest = write_snapshot(tmp_path, "outside-published.json", binding_snapshot("k1", "a" * 64))
+    with pytest.raises(SystemExit):
+        merge_bindings.main(["--input", str(outside), outside_digest, "--output", str(qa / "merged.json")])
+    output = qa / "2026-10-02-linux-development-bindings.json"
+    assert merge_bindings.main(["--input", str(path), digest, "--output", str(output)])["documents"] == ["k1"]
+    # La source est désignée par son chemin dans le projet, même quand .runtime est un lien vers un autre volume.
+    assert json.loads(output.read_text(encoding="utf-8"))["sources"][0]["path"] == ".runtime/qa/k1-published.json"
+
+
+def test_resolve_accepts_a_new_output_under_runtime_qa(tmp_path, monkeypatch):
+    qa = tmp_path / "qa"
+    dataset, bindings = tmp_path / "development.json", tmp_path / "bindings.json"
+    dataset.write_text(json.dumps({"questions": []}), encoding="utf-8")
+    bindings.write_text(json.dumps({"documents": {}}), encoding="utf-8")
+    monkeypatch.setattr(resolve, "EVALS", tmp_path / "evals")
+    monkeypatch.setattr(resolve, "LOCAL_QA", qa, raising=False)
+    argv = ["--dataset", str(dataset), "--bindings", str(bindings), "--output"]
+    output = qa / "2026-10-02-linux-development-resolved.json"
+    assert resolve.main([*argv, str(output)])["resolved_questions"] == 0 and output.is_file()
+    for refused in (output, qa / "final.json", tmp_path / "resolved.json"):
+        with pytest.raises(SystemExit):
+            resolve.main([*argv, str(refused)])
+
+
+def test_answers_and_grade_accept_outputs_under_runtime_qa(tmp_path, monkeypatch):
+    qa = tmp_path / "qa"
+    items = [question("DEV-001")]
+    source, resolved = datasets(tmp_path, items)
+    api = FakeApi({"Question DEV-001 ?": answered("La pression de DA-P01 est de 3,1 bar [S1].")})
+    for module in (answers, grade):
+        monkeypatch.setattr(module, "EVALS", tmp_path / "evals")
+        monkeypatch.setattr(module, "LOCAL_QA", qa, raising=False)
+    journal_path = qa / "2026-10-02-linux-development-answers.jsonl"
+    result = answers.run(resolved, source, journal_path, BASE, "development", transport=httpx.MockTransport(api))
+    assert result["complete"] and journal(journal_path)[0]["record"] == "header"
+    with pytest.raises(ValueError, match="hors des dossiers"):
+        answers.run(resolved, source, tmp_path / "answers.jsonl", BASE, "development", transport=httpx.MockTransport(api))
+    grid = qa / "2026-10-02-linux-development-grid.json"
+    grade.main(["grid", "--dataset", str(resolved), "--answers", str(journal_path), "--output", str(grid)])
+    assert json.loads(grid.read_text(encoding="utf-8"))["rows"][0]["question_id"] == "DEV-001"
+    for refused in (grid, tmp_path / "grid.json", qa / "development.json"):
+        with pytest.raises(SystemExit):
+            grade.main(["grid", "--dataset", str(resolved), "--answers", str(journal_path), "--output", str(refused)])
+    assert len(api.posts) == 1

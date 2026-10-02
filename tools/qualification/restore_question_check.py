@@ -116,6 +116,14 @@ def prepare(state_path: Path, job_timeout: float, answer_timeout: float, base_pr
     return state
 
 
+def restore_report(target: Path) -> dict[str, Any] | None:
+    """restore-report.json écrit dans la cible par restore_backup, y compris en échec ; None s'il n'a pas été écrit."""
+    try:
+        return json.loads((target / "restore-report.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
 def restore(state_path: Path, report_path: Path, answer_timeout: float) -> dict[str, Any]:
     state = json.loads(state_path.read_text(encoding="utf-8"))
     report: dict[str, Any] = {"prepared": {key: state.get(key) for key in ("started_utc", "code", "base_profile", "extraction", "backup_state", "question_before_backup", "citations_before_backup")},
@@ -128,7 +136,9 @@ def restore(state_path: Path, report_path: Path, answer_timeout: float) -> dict[
     checks = report["checks"]
     try:
         restored = restore_backup(Path(state["backup"]), target)
-        report["restore"] = {key: restored.get(key) for key in ("state", "qdrant_data_dir", "qdrant_storage_relocated_for_windows_path_limit", "error")}
+        # Rapport complet (D09.2) : données copiées vérifiées par empreinte, comptes SQLite, points Qdrant par collection ;
+        # sa copie restore-report.json disparaît avec la cible.
+        report["restore"] = restored
         checks["restored"] = restored.get("state") == "restored_storage_verified"
         report["start"] = start(profile_path).get("status")
         with client_for(profile_path) as client:
@@ -141,7 +151,13 @@ def restore(state_path: Path, report_path: Path, answer_timeout: float) -> dict[
             opened = [citation(client, query["query_id"], source_id)["http_status"] for source_id in query["citations"]]
             checks["question_answered_with_citations"] = query["terminal"] == "done" and bool(query["citations"]) and all(code == 200 for code in opened)
             checks["answer_gives_document_value"] = "3,1" in (query["answer_text"] or "") or "3.1" in (query["answer_text"] or "")
+    except Exception as error:  # noqa: BLE001 - l'échec est conservé dans le rapport avec ce qui a été observé
+        report["error"] = f"{type(error).__name__}: {error}"
+        checks["completed"] = False
     finally:
+        if "restore" not in report:
+            # Échec de restore_backup : son rapport (état failed, étapes déjà vérifiées, erreur) n'existe que dans la cible.
+            report["restore"] = restore_report(target)
         if profile_path.exists() and status(profile_path).get("status") in {"starting", "running", "stopping"}:
             report["stop"] = stop(profile_path).get("status")
         report["removed"] = {str(target): remove_root(target), state["source_root"]: remove_root(Path(state["source_root"]))}
@@ -173,7 +189,7 @@ def main() -> int:
     if args.profile:
         parser.error("--profile ne sert qu'à prepare : restore reprend le profil enregistré dans la sauvegarde")
     report = restore(args.state, args.report, args.answer_timeout)
-    print(json.dumps({key: report.get(key) for key in ("result", "checks", "removed")}, ensure_ascii=False, indent=2))
+    print(json.dumps({key: report[key] for key in ("result", "checks", "removed", "error") if key in report}, ensure_ascii=False, indent=2))
     return 0 if report["result"] == "PASS" else 1
 
 

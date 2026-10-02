@@ -5,6 +5,10 @@
 /.runtime
 /.venv
 node_modules/
+# node_modules et .next déportés sur un autre volume par un lien symbolique (poste Linux) : un motif finissant par / ne
+# désigne que des dossiers.
+node_modules
+apps/web/.next
 .qdrant-initialized
 
 # Builds et caches

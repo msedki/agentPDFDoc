@@ -360,6 +360,98 @@ def test_api_embedding_admission_reads_profile_load_estimate(tmp_path, monkeypat
         assert caught.value.code == "embedding_admission_denied" and caught.value.details["load_estimate_mib"] == estimate and not loads
 
 
+def test_api_embedding_disables_onnxruntime_telemetry_before_its_first_import(tmp_path, monkeypatch):
+    """D08.2 (J8, L10) : les roues officielles d'ONNX Runtime lisent ORT_DISABLE_TELEMETRY une seule fois, quand le module
+    natif crée son environnement à l'import ; posée plus tard, elle laisse actif le client d'envoi qui résout
+    mobile.events.data.microsoft.com. Le double d'import relève la variable au moment exact de l'import, déclenché comme
+    en production depuis un thread (asyncio.to_thread) ; ce chargement n'écrit plus dans l'environnement du processus
+    (revue C5 : setenv concurrent d'autres threads), la variable étant posée à l'import de services.api.embedding."""
+    import importlib.abc
+    import importlib.machinery
+    import os
+    import sys
+    from types import SimpleNamespace
+
+    import psutil
+
+    from services.api.embedding import EmbeddingService
+    observed, writes = [], []
+    class Options:
+        def add_session_config_entry(self, *args):
+            pass
+    class Session:
+        def __init__(self, *args, **kwargs):
+            pass
+        def get_providers(self):
+            return ["CPUExecutionProvider"]
+    class ControlledOnnxRuntime(importlib.abc.MetaPathFinder, importlib.abc.Loader):
+        def find_spec(self, name, path=None, target=None):
+            return importlib.machinery.ModuleSpec(name, self) if name == "onnxruntime" else None
+        def create_module(self, spec):
+            return None
+        def exec_module(self, module):
+            observed.append(os.environ.get("ORT_DISABLE_TELEMETRY"))
+            module.SessionOptions, module.InferenceSession = Options, Session
+    # setitem et setattr rétablissent l'état initial (module absent compris) en fin de test.
+    monkeypatch.setitem(sys.modules, "onnxruntime", None)
+    del sys.modules["onnxruntime"]
+    monkeypatch.setattr(sys, "meta_path", [ControlledOnnxRuntime(), *sys.meta_path])
+    monkeypatch.setattr(os, "putenv", lambda key, value: writes.append(("putenv", key)))
+    monkeypatch.setattr(os, "unsetenv", lambda key: writes.append(("unsetenv", key)))
+    embedding = EmbeddingService(Settings(tmp_path))
+    embedding._identity = {"fingerprint": "controlled-identity"}
+    monkeypatch.setattr(psutil, "virtual_memory", lambda: SimpleNamespace(available=8000 * 1048576))
+    monkeypatch.setattr(embedding, "model_path", lambda: tmp_path / "controlled-model.onnx")
+    asyncio.run(asyncio.to_thread(embedding.session))
+    assert observed == ["1"] and writes == []
+
+
+def test_api_embedding_module_import_sets_onnxruntime_telemetry_off_for_the_whole_process():
+    """D08.2, revue C5 : la variable est posée à l'import de services.api.embedding (fil principal, au démarrage de l'API),
+    avant tout chargement d'ONNX Runtime, et l'emporte sur une valeur contraire héritée du compte. Processus neuf : l'état
+    d'import du processus de test ne peut pas servir de preuve."""
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    probe = ("import os, sys\n"
+             "import services.api.embedding\n"
+             "print(os.environ.get('ORT_DISABLE_TELEMETRY'), 'onnxruntime' in sys.modules)\n")
+    result = subprocess.run([sys.executable, "-c", probe], cwd=Path(__file__).resolve().parents[2], capture_output=True, text=True,
+                            env={**os.environ, "ORT_DISABLE_TELEMETRY": "0"}, timeout=120, check=False)
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.split() == ["1", "False"]
+
+
+def test_api_onnxruntime_is_imported_only_through_import_onnxruntime():
+    """D08.2, revue C5 : un autre import d'ONNX Runtime dans le code du produit pourrait précéder le chargement de
+    services.api.embedding et créer l'environnement natif télémétrie active. Seule import_onnxruntime() l'importe."""
+    import ast
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[2]
+    found = []
+    for source in sorted([*root.glob("services/**/*.py"), *root.glob("tools/**/*.py")]):
+        tree = ast.parse(source.read_text(encoding="utf-8"), filename=str(source))
+        functions = {}
+        for function in ast.walk(tree):
+            if isinstance(function, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                for child in ast.walk(function):
+                    functions[child] = function.name  # parcours en largeur : la fonction la plus interne l'emporte
+        for node in ast.walk(tree):
+            names = []
+            if isinstance(node, ast.Import):
+                names = [alias.name for alias in node.names]
+            elif isinstance(node, ast.ImportFrom) and node.level == 0:
+                names = [node.module or ""]
+            elif isinstance(node, ast.Call) and (getattr(node.func, "attr", None) == "import_module" or getattr(node.func, "id", None) == "__import__"):
+                names = [argument.value for argument in node.args[:1] if isinstance(argument, ast.Constant) and isinstance(argument.value, str)]
+            if any(name == "onnxruntime" or name.startswith("onnxruntime.") for name in names):
+                found.append((source.relative_to(root).as_posix(), functions.get(node)))
+    assert found == [("services/api/embedding.py", "import_onnxruntime")]
+
+
 # --- Accélération GPU de la génération (W024, W025) ----------------------------------------------------------------
 # Doubles explicites d'Ollama 0.35.0 (MockTransport) : aucune preuve d'un GPU réel, qui relève de l'essai J11.8.
 

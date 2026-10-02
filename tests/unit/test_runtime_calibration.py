@@ -100,7 +100,8 @@ def pilot(tmp_path, monkeypatch):
         def bind(self, address):
             assert address == ("127.0.0.1", 11444)
 
-    monkeypatch.setattr(calibration, "socket", SimpleNamespace(socket=Socket, AF_INET=0, SOCK_STREAM=0))
+    # Sonde du port 11444 par port_probe (règle de check_ports), sans réseau.
+    monkeypatch.setattr(calibration, "port_probe", Socket)
     monkeypatch.setattr(calibration, "acquire_host_heavy_lock", lambda *args: nullcontext())
     monkeypatch.setattr(calibration, "native_paths", lambda: {"ollama": tmp_path / "ollama"})
     monkeypatch.setattr(calibration, "wait_http", lambda *args, **kwargs: {"version": "0.35.0"})

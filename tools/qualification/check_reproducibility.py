@@ -7,7 +7,7 @@ import json
 import tempfile
 from pathlib import Path
 
-from evidence_io import EVALS, checked_output, write_json_exclusive
+from evidence_io import EVALS, LOCAL_QA, checked_output, write_json_exclusive
 from generate import EVAL_FILES, ROOT, generate
 
 
@@ -36,10 +36,11 @@ def compare(root: Path = ROOT) -> dict:
 
 def main(argv=None) -> dict:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, required=True, help="Nouveau rapport sous evals/qualification-v2.1/reports/")
+    parser.add_argument("--output", type=Path, required=True,
+                        help="Nouveau rapport sous evals/qualification-v2.1/reports/ ou, hors Git, sous .runtime/qa/")
     args = parser.parse_args(argv)
     try:
-        output = checked_output(args.output, [EVALS / "reports"])
+        output = checked_output(args.output, [EVALS / "reports", LOCAL_QA])
     except ValueError as error:
         parser.error(str(error))
     result = compare()

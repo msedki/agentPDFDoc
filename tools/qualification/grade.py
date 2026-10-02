@@ -22,7 +22,7 @@ from typing import Any
 
 import yaml
 from answers import journal_state
-from evidence_io import EVALS, ROOT, checked_output, file_sha256, read_jsonl, write_json_exclusive
+from evidence_io import EVALS, LOCAL_QA, ROOT, checked_output, file_sha256, read_jsonl, write_json_exclusive
 
 sys.path.insert(0, str(ROOT))
 from services.api.qualification import canonical_sha, wilson  # noqa: E402
@@ -35,6 +35,8 @@ API_ABSTENTION = "Les preuves disponibles dans ce périmètre ne suffisent pas p
 # Un nombre peut être suivi directement de son unité (« 230V ») ; pas d'un autre chiffre.
 NUMBER = re.compile(r"(?<![\w.,])\d+(?:[.,]\d+)?(?![.,]?\d)")
 THOUSANDS = re.compile(r"(?<=\d)[ \u00a0\u202f](?=\d{3}(?!\d))")
+# Fin de phrase ou de proposition (« ; »), suivie d'un blanc, ou saut de ligne ; « 3.1 » ne coupe pas.
+SENTENCE = re.compile(r"(?<=[.!?;])\s+|\n+")
 TARGET_KEYS = {"answer_correctness": "answer_correctness_on_answerable_min", "supported_claim_ratio": "supported_claim_ratio_min",
                "correct_abstention": "no_answer_correct_ratio_min", "citation_id_integrity": "citation_integrity_ratio",
                "citation_version_page": "citation_integrity_ratio"}
@@ -44,6 +46,11 @@ INSTRUCTIONS = [
     "Chaque assertion documentaire : texte, citations [Sx] affichées, support supported/partially_supported/unsupported ; un soutien exige une citation.",
     "page_ok : la citation désigne la bonne page physique de la bonne version ; location_ok seulement si la précision n'est pas `page`.",
     "Le pré-contrôle numérique aide la relecture ; il ne remplace ni le verdict ni la vérification des preuves citées.",
+    "Identifiant voisin interdit : `forbidden_identifiers_with_value` cite chaque phrase où il côtoie la valeur annotée ou un nombre suivi "
+    "d'une unité annotée (confusion possible, à vérifier) ; `forbidden_identifiers_without_value_in_sentence` cite toutes les autres phrases qui le nomment.",
+    "Ce découpage par phrase ne détecte pas une confusion répartie sur deux phrases, placée sous un intitulé suivi d'une liste de valeurs ou "
+    "coupée par une abréviation (« p. », « env. ») : relire chaque phrase de la seconde liste dans la réponse complète, car une mention sans "
+    "valeur n'est pas forcément une référence écartée.",
 ]
 
 
@@ -67,14 +74,43 @@ def identifier_in(text: str, identifier: str) -> bool:
     return re.search(r"(?<![\w-])" + re.escape(identifier) + r"(?![\w-])", text) is not None
 
 
+def carries_value(sentence: str, important_values: list[dict]) -> bool:
+    """Valeur annotée (avec ou sans unité) ou autre nombre suivi d'une unité annotée ; sans valeur annotée, tout nombre."""
+    if not important_values:
+        return NUMBER.search(THOUSANDS.sub("", sentence)) is not None
+    checks = [value_check(sentence, item["value"], item["unit"]) for item in important_values]
+    return any(check["status"] != "VALUE_ABSENT" or check["other_values_with_unit"] for check in checks)
+
+
+def forbidden_mentions(text: str, identifiers: list[str], important_values: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Range chaque phrase qui nomme un identifiant interdit : avec une valeur (confusion possible) ou sans valeur.
+
+    Une réponse juste peut citer la référence voisine pour l'écarter (« DA-P010 appartient à un autre équipement »),
+    mais le découpage reste local : une confusion répartie sur deux phrases, sous un intitulé ou après une abréviation
+    (« p. », « env. ») tombe dans la seconde liste. Les identifiants des jeux ne contiennent ni blanc ni ponctuation
+    de fin de phrase : chaque mention se retrouve dans l'une des deux listes."""
+    sentences = [part.strip() for part in SENTENCE.split(text) if part.strip()]
+    with_value: list[dict] = []
+    without_value: list[dict] = []
+    for code in identifiers:
+        for sentence in sentences:
+            if identifier_in(sentence, code):
+                (with_value if carries_value(sentence, important_values) else without_value).append({"identifier": code, "sentence": sentence})
+    return with_value, without_value
+
+
 def precheck(question: dict, answer_text: str | None) -> dict:
     text, expected = answer_text or "", question.get("expected_answer") or ""
     values = [{"key": item["key"], **value_check(text, item["value"], item["unit"])} for item in question.get("important_values", [])]
     annotation = [value_check(expected, item["value"], item["unit"])["status"] == "VALUE_AND_UNIT" for item in question.get("important_values", [])]
-    return {"method": "Deterministic numeric match with '.' or ',' decimal separator followed by the exact annotated unit; not a verdict",
+    with_value, without_value = forbidden_mentions(text, question.get("forbidden_identifiers") or [], question.get("important_values", []))
+    return {"method": "Deterministic numeric match with '.' or ',' decimal separator followed by the exact annotated unit; every sentence naming "
+                      "a forbidden identifier is listed, flagged when it also carries the annotated value or a number followed by an annotated "
+                      "unit; sentence-local, so a confusion spread over two sentences, under a heading or after an abbreviation is not flagged; "
+                      "not a verdict",
             "values": values, "all_values_with_unit": all(item["status"] == "VALUE_AND_UNIT" for item in values) if values else None,
             "required_identifiers_missing": [code for code in question.get("required_identifiers") or [] if not identifier_in(text, code)],
-            "forbidden_identifiers_present": [code for code in question.get("forbidden_identifiers") or [] if identifier_in(text, code)],
+            "forbidden_identifiers_with_value": with_value, "forbidden_identifiers_without_value_in_sentence": without_value,
             "annotation_values_in_expected_answer": all(annotation) if annotation else None, "api_fixed_abstention": text.strip() == API_ABSTENTION}
 
 
@@ -233,12 +269,12 @@ def main(argv=None) -> dict:
         command = commands.add_parser(name)
         command.add_argument("--dataset", type=Path, required=True)
         command.add_argument("--answers", type=Path, required=True, help="Journal JSONL d'answers.py")
-        command.add_argument("--output", type=Path, required=True, help="Nouveau fichier sous evals/qualification-v2.1/runtime/")
+        command.add_argument("--output", type=Path, required=True, help="Nouveau fichier sous evals/qualification-v2.1/runtime/ ou, hors Git, sous .runtime/qa/")
     commands.choices["metrics"].add_argument("--grid", type=Path, required=True, help="Grille relue et remplie")
     commands.choices["metrics"].add_argument("--profile", type=Path, default=ROOT / "config/local16.yaml")
     args = parser.parse_args(argv)
     try:
-        output = checked_output(args.output, [EVALS / "runtime"], sources=(args.dataset, args.answers, getattr(args, "grid", args.answers)))
+        output = checked_output(args.output, [EVALS / "runtime", LOCAL_QA], sources=(args.dataset, args.answers, getattr(args, "grid", args.answers)))
         dataset = json.loads(args.dataset.read_text(encoding="utf-8"))
         if args.command == "grid":
             result = build_grid(dataset, args.answers)

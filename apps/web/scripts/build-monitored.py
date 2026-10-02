@@ -9,6 +9,8 @@ et sinon s'arrête en donnant la commande `corepack install` à exécuter une fo
 La version de ce Node (`node --version`, lancé comme la sonde pnpm) est lue avant toute preuve, puis consignée
 dans le premier relevé de ressources et dans le résumé JSON (`node_version`) ; si elle manque, le message d'arrêt
 nomme la provenance de ce Node (RAG_WEB_NODE, repli Windows du poste de qualification ou PATH) et l'action à mener.
+Preuves (journal, relevés de ressources, manifeste de l'export) dans reports/, suivi par Git, ou dans le dossier donné
+par --evidence-dir, créé après les sondes, pour garder hors de Git les preuves d'une campagne.
 Lancer avec l'interpréteur du projet (Python 3.12).
 """
 import argparse
@@ -117,10 +119,12 @@ def node_origin_advice(origin: NodeOrigin) -> str:
 
 
 def probe_node_version(node: Path, web: Path, environment: Mapping[str, str],
-                       run: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run, *, origin: NodeOrigin) -> str:
+                       run: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run, *, origin: NodeOrigin,
+                       evidence: str = "reports/") -> str:
     """Version de Node rendue par `node --version`, ou SystemExit avant toute preuve écrite.
 
     `origin` est la provenance rendue par resolve_toolchain : le message d'arrêt donne l'action qui lui correspond.
+    `evidence` est le dossier des preuves que cite ce message.
     """
     code: int | None = None
     try:
@@ -138,14 +142,18 @@ def probe_node_version(node: Path, web: Path, environment: Mapping[str, str],
                   else (lines[-1] if lines else "aucune sortie"))
     raise SystemExit(
         f"{node} --version n'a pas donné la version de Node{f' (code {code})' if code is not None else ''} : {reason}\n"
-        "La preuve du build consigne cette version ; rien n'a été écrit dans reports/.\n"
+        f"La preuve du build consigne cette version ; rien n'a été écrit dans {evidence}.\n"
         + node_origin_advice(origin)
     )
 
 
 def check_offline_pnpm(node: Path, corepack: Path, web: Path, environment: Mapping[str, str],
-                       platform: str = sys.platform, run: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run) -> str:
-    """Version de pnpm lancée sans réseau par Corepack, ou SystemExit qui donne la commande à exécuter."""
+                       platform: str = sys.platform, run: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
+                       *, evidence: str = "reports/") -> str:
+    """Version de pnpm lancée sans réseau par Corepack, ou SystemExit qui donne la commande à exécuter.
+
+    `evidence` est le dossier des preuves que cite le message d'arrêt.
+    """
     expected = pinned_pnpm(web)
     code: int | None = None
     try:
@@ -161,7 +169,7 @@ def check_offline_pnpm(node: Path, corepack: Path, web: Path, environment: Mappi
     raise SystemExit(
         f"pnpm {expected}, fixé par packageManager dans {web / 'package.json'}, n'a pas pu être lancé sans réseau par Corepack"
         f"{f' (code {code})' if code is not None else ''} : {reason}\n"
-        "Le build s'exécute hors ligne (COREPACK_ENABLE_NETWORK=0) ; rien n'a été écrit dans reports/.\n"
+        f"Le build s'exécute hors ligne (COREPACK_ENABLE_NETWORK=0) ; rien n'a été écrit dans {evidence}.\n"
         "Exécuter une fois, avec accès réseau :\n"
         f"    {corepack_install_command(node, corepack, web, platform)}\n"
         f"Corepack télécharge alors pnpm {expected}, vérifie son empreinte et le garde dans son cache (COREPACK_HOME, par défaut "
@@ -172,14 +180,31 @@ def check_offline_pnpm(node: Path, corepack: Path, web: Path, environment: Mappi
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--tag", required=True)
+    parser.add_argument("--evidence-dir", type=Path,
+                        help="dossier des preuves du build, créé après les sondes de Node et de pnpm s'il manque ; "
+                             "par défaut apps/web/reports/, suivi par Git")
     args = parser.parse_args()
     if not re.fullmatch(r"[A-Za-z0-9-]{1,90}", args.tag):
         parser.error("Use a unique simple evidence tag")
     web = Path(__file__).resolve().parents[1]
+    if args.evidence_dir is None:
+        evidence, shown = web / "reports", "reports/"
+    else:
+        evidence = args.evidence_dir.resolve()
+        shown = str(evidence)
+        # Le manifeste parcourt out/ et le build le régénère : des preuves placées dessous s'y mêleraient.
+        if evidence.is_relative_to(web / "out"):
+            parser.error(f"--evidence-dir {evidence} : dossier dans out/, que le build régénère ; choisir un dossier hors de "
+                         f"{web / 'out'}")
+        # Refus avant les sondes : mkdir, après elles, échouerait sur un fichier (le dossier lui-même ou un parent).
+        existing = next((path for path in (evidence, *evidence.parents) if path.exists()), None)
+        if existing is not None and not existing.is_dir():
+            parser.error(f"--evidence-dir {evidence} : {existing} existe et n'est pas un dossier ; choisir un dossier existant "
+                         "ou à créer")
     node, corepack, origin = resolve_toolchain()
-    log = web / "reports" / f"build-{args.tag}.log"
-    resources = web / "reports" / f"build-{args.tag}-resources.jsonl"
-    manifest = web / "reports" / f"export-manifest-{args.tag}.json"
+    log = evidence / f"build-{args.tag}.log"
+    resources = evidence / f"build-{args.tag}-resources.jsonl"
+    manifest = evidence / f"export-manifest-{args.tag}.json"
     if any(path.exists() for path in (log, resources, manifest)):
         raise SystemExit("Preserve the existing evidence; choose a new tag")
     environment = os.environ.copy()
@@ -188,8 +213,9 @@ def main():
     environment["PATH"] = str(node.parent) + os.pathsep + environment.get("PATH", "")
     # Avant toute preuve : la version de Node consignée, puis pnpm, dont l'absence du cache de Corepack
     # ferait échouer le build hors ligne.
-    node_version = probe_node_version(node, web, environment, origin=origin)
-    pnpm_version = check_offline_pnpm(node, corepack, web, environment)
+    node_version = probe_node_version(node, web, environment, origin=origin, evidence=shown)
+    pnpm_version = check_offline_pnpm(node, corepack, web, environment, evidence=shown)
+    evidence.mkdir(parents=True, exist_ok=True)
     psutil.cpu_percent(interval=0.2)
 
     def sample(phase, process=None):

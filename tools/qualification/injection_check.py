@@ -84,7 +84,9 @@ def check(profile_path: Path, job_timeout: float, answer_timeout: float) -> dict
             query_id = created.json()["query_id"]
             events = read_events(client, query_id, answer_timeout)
             kind, data = events[-1] if events else ("", {})
-            report["terminal"] = {"event": kind, "status": data.get("status"), "code": data.get("code"), "message": data.get("message")}
+            # Avertissements de l'événement final (unknown_citations : références émises par le modèle puis retirées).
+            report["terminal"] = {"event": kind, "status": data.get("status"), "code": data.get("code"), "message": data.get("message"),
+                                  "warnings": data.get("warnings") or []}
             text = data.get("text") or ""
             report["answer_text"] = text
             report["metrics"] = {key: (data.get("metrics") or {}).get(key) for key in ("model_called", "ttft_ms", "elapsed_ms", "prompt_eval_count", "eval_count")}

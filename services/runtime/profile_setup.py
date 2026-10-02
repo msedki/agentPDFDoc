@@ -7,7 +7,6 @@ Rien n'est écrasé : la racine choisie ne doit contenir aucun profil.
 from __future__ import annotations
 
 import os
-import socket
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +14,7 @@ import yaml
 
 from . import platforms
 from .artifacts import ROOT
+from .supervisor import port_probe
 
 # Borne de W004 : le binaire Qdrant Windows verrouillé exige « <stockage>\\storage » de 57 caractères au plus.
 QDRANT_STORAGE_MAX = 57
@@ -26,7 +26,8 @@ def qdrant_path_bounded() -> bool:
 
 
 def port_free(port: int) -> bool:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+    """Port loopback libre pour le service qui le prendra, selon la règle de check_ports (port_probe)."""
+    with port_probe() as probe:
         try:
             probe.bind(("127.0.0.1", port))
         except OSError:

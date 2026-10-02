@@ -75,12 +75,26 @@ def figure_pdf() -> bytes:
     return bytes(output)
 
 
-def table_rows(block: dict[str, Any]) -> list[tuple[str, ...]]:
-    cells = block.get("table_data", {}).get("table_cells", [])
+def block_metadata(block: dict[str, Any]) -> dict[str, Any]:
+    """Métadonnées d'extraction d'un bloc rendu par GET /versions/{id}/pages/{i}/blocks : méthode, OCR, tableau et
+    continuation sont sous `metadata` (services/api/main.py, page_blocks), comme les lit l'interface (Block.metadata)."""
+    metadata = block.get("metadata")
+    return metadata if isinstance(metadata, dict) else {}
+
+
+def table_rows(metadata: dict[str, Any]) -> list[tuple[str, ...]]:
+    cells = (metadata.get("table_data") or {}).get("table_cells", [])
     rows: dict[int, dict[int, str]] = {}
     for cell in cells:
         rows.setdefault(cell["start_row_offset_idx"], {})[cell["start_col_offset_idx"]] = normalized(cell["text"])
     return [tuple(row[column] for column in sorted(row)) for _, row in sorted(rows.items())]
+
+
+def block_facts(block: dict[str, Any]) -> dict[str, Any]:
+    metadata = block_metadata(block)
+    return {"id": block["id"], "type": block["type"], "method": metadata.get("extraction_method"), "ocr_used": bool(metadata.get("ocr_used")),
+            "section_id": block.get("section_id"), "continuation_of": metadata.get("continuation_of"), "text": normalized(block["text"]),
+            "rows": table_rows(metadata) if block["type"] == "table" else []}
 
 
 def page_facts(client: Any, version_id: str, page_count: int) -> list[dict[str, Any]]:
@@ -91,9 +105,7 @@ def page_facts(client: Any, version_id: str, page_count: int) -> list[dict[str, 
         pages.append({"page_index": index, "classification": page.get("classification"), "extraction_state": page.get("extraction_state"),
                       "ocr_used": bool(page.get("ocr_used")), "ocr_regions": len(page.get("ocr_regions") or []),
                       "unresolved_regions": [{"reason": region.get("reason"), "has_bbox": region.get("bbox") is not None} for region in page.get("unresolved_regions") or []],
-                      "blocks": [{"id": block["id"], "type": block["type"], "method": block.get("extraction_method"), "ocr_used": bool(block.get("ocr_used")),
-                                  "section_id": block.get("section_id"), "continuation_of": block.get("continuation_of"), "text": normalized(block["text"]),
-                                  "rows": table_rows(block) if block["type"] == "table" else []} for block in payload["blocks"]]})
+                      "blocks": [block_facts(block) for block in payload["blocks"]]})
     return pages
 
 

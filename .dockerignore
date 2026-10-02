@@ -5,8 +5,10 @@
 .runtime/
 .venv/
 **/node_modules/
+**/node_modules
 .qdrant-initialized
 apps/web/.next/
+apps/web/.next
 apps/web/out/
 **/__pycache__/
 **/*.py[cod]

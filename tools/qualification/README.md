@@ -36,8 +36,15 @@ Sous Linux (W018), les mêmes commandes s'exécutent depuis la racine du projet 
 inverse en fin de ligne à la place de l'accent grave de PowerShell, et
 `export NOM=valeur` pour les variables d'environnement ; l'en-tête de chaque outil
 donne sa commande pour les deux plateformes. Le 1er octobre 2026, l'import et l'aide
-(`--help`) de chaque outil ont été vérifiés sous Linux aarch64 ; aucune campagne de
-qualification n'y a encore été exécutée.
+(`--help`) de chaque outil ont été vérifiés sous Linux aarch64. La campagne J8 du
+2 octobre 2026 y a ensuite exécuté `check_reproducibility.py` (qui régénère par
+`generate.py` dans un dossier temporaire), `extra_fixtures.py --check`, `log_privacy_check.py`, `http_guards_check.py`,
+`library_check.py`, `fault_check.py`, `scope_check.py`, `extraction_check.py`,
+`restore_question_check.py`, `injection_check.py`, la chaîne d'évaluation
+(`capture_bindings.py`, `merge_bindings.py`, `resolve.py`, `answers.py` et
+`grade.py grid` ; `grade.py metrics` attend la grille relue) et `e2e_instance.py`.
+Les autres outils, dont `migration_check.py`, `perf.py` et `corpus_eval.py`, n'y
+ont pas été lancés. Les preuves sont hors Git, sous `.runtime/qa/j8-linux/`.
 
 La génération écrit d'abord dans un dossier temporaire, puis copie seulement les
 fichiers synthétiques identifiés dans `fixtures/qualification-v2.1/` et les jeux de
@@ -48,11 +55,22 @@ un final régénéré différent du gel (empreinte canonique documentée
 explicite `--regenerate-final` remplace le final et son gel ; elle n'est pas prévue
 après le début de la qualification. `check_reproducibility.py` régénère dans un
 dossier temporaire, compare les octets des 32 PDF et des 5 jeux livrés et écrit un
-nouveau rapport exclusif : il ne réécrit jamais les fixtures ni le final.
+nouveau rapport exclusif, sous `evals/qualification-v2.1/reports/` ou, hors Git, sous
+`.runtime/qa/` : il ne réécrit jamais les fixtures ni le final. Les 5 jeux sont
+écrits en CRLF sur toutes les plateformes : les fichiers livrés ont été générés sous
+Windows et Git les garde tels quels (`* -text`), si bien qu'une régénération sous
+Linux produit les mêmes octets.
 
 Les sorties d'outils sont des créations exclusives (`evidence_io.py`) : un fichier
 existant n'est jamais remplacé et les noms `final.json`, `final.freeze.json`,
 `questions.json`, `development.json` et `manifest.json` sont refusés partout.
+
+La chaîne d'évaluation (`capture_bindings.py`, `merge_bindings.py`, `resolve.py`,
+`answers.py`, `grade.py`) écrit par défaut sous `evals/qualification-v2.1/runtime/`,
+dossier suivi par Git. Chaque outil accepte aussi un nouveau fichier sous
+`.runtime/qa/`, hors Git, pour une campagne dont seuls les résumés sont versionnés ;
+`merge_bindings.py` y lit aussi ses snapshots et désigne chacun par son chemin dans
+le projet (`.runtime/qa/…`), même quand `.runtime` est un lien vers un autre volume.
 
 `corpus_data.py` définit 7 documents pneumatiques côté développement et 7 documents
 thermiques côté final. Dans chaque famille, le document 2 est un scan sans couche
@@ -214,7 +232,16 @@ dont une donnée automatique a changé, puis calcule exactitude, abstention, fau
 refus, soutien des assertions (bootstrap par question, graine 20260930), intégrité
 des IDs et version/page des citations, avec dénominateurs, par catégorie et par
 langue ; les seuils viennent de `evaluation_targets` du profil. Le pré-contrôle
-n'est pas un verdict et aucun modèle ne juge les réponses.
+n'est pas un verdict et aucun modèle ne juge les réponses. Chaque phrase qui nomme
+un identifiant voisin interdit figure dans le pré-contrôle avec son texte : dans
+`forbidden_identifiers_with_value` si elle contient aussi la valeur annotée ou un
+nombre suivi d'une unité annotée (confusion possible, à vérifier), sinon dans
+`forbidden_identifiers_without_value_in_sentence`. La seconde liste ne signifie pas
+que la référence voisine est seulement écartée : le découpage par phrase ne détecte
+pas une confusion répartie sur deux phrases, placée sous un intitulé suivi d'une
+liste de valeurs ou coupée par une abréviation (« p. », « env. »). Ces phrases sont
+à relire dans la réponse complète. `metrics` recalcule le pré-contrôle : une grille
+se termine avec la version de `grade.py` qui l'a produite.
 
 ```powershell
 .\.venv\Scripts\python.exe tools/qualification/grade.py grid --dataset <jeu-résolu> `
@@ -246,12 +273,12 @@ Une génération réelle demande la mémoire d'une instance complète : sur un p
 |---|---|---|
 | `e2e_instance.py start` / `stop` | Instance isolée pour Playwright ou pour les outils ci-dessous ; `--max-file-mib` règle la limite de taille ; `--profile` choisit le profil de base (`config/local16.yaml` par défaut), par exemple une copie en `llm.accelerator: cpu` ou le profil d'une instance créée par `init-profile`, dont le verrou lourd est alors partagé | — |
 | `library_check.py <cas>` | Import d'un dossier Unicode avec homonymes, originaux intacts, réimport et déplacement sans calcul, seconde version invisible avant publication, retrait nettoyé, fichiers en erreur et trop volumineux | D02.1, D02.2, D02.8, D03.1 à D03.4 |
-| `fault_check.py <cas>` | Arrêts forcés pendant l'extraction, les embeddings ou l'écriture des points (`--pages` produit un document long), panne de Qdrant pendant un import | D03.5, D03.6 |
+| `fault_check.py <cas>` | Arrêts forcés pendant l'extraction, les embeddings ou l'écriture des points (`--pages` produit un document long), panne de Qdrant pendant un import ; un cas interrompu par une erreur garde dans le rapport les observations déjà faites, avec l'erreur et `completed: false` | D03.5, D03.6 |
 | `scope_check.py` | Filtres de périmètre (dossier récursif, documents, pages, section) appliqués avant la coupe top-k avec Qdrant et E5 réels ; sélection courte sans requête dense, mesurée par le compteur `rest_responses_total` de Qdrant | D04.2, D04.8 |
-| `extraction_check.py` | Extraction confrontée à la vérité terrain des fixtures : couverture par page, OCR compté, page mixte sans double texte, schéma sans texte inventé, frontière pages 4/5, extraction partielle signalée, tableaux et deux colonnes. Écrit le 01/10, pas encore exécuté jusqu'au bout (premier essai interrompu faute de mémoire sur le poste) | D02.3 à D02.10 |
+| `extraction_check.py` | Extraction confrontée à la vérité terrain des fixtures : couverture par page, OCR compté, page mixte sans double texte, schéma sans texte inventé, frontière pages 4/5, extraction partielle signalée, tableaux et deux colonnes. Méthode, OCR, tableau et continuation se lisent sous `metadata` du bloc rendu par l'API ; le premier passage complet (Linux, 02/10) les cherchait au premier niveau, d'où des faux négatifs sur D02.5, D02.7 et D02.10 : lecture corrigée, passage à rejouer | D02.3 à D02.10 |
 | `migration_check.py` | Sauvegarde d'un schéma antérieur restaurée et migrée, anciennes citations, réindexation, `--question` pour une question réelle | D09.4 |
-| `restore_question_check.py prepare` / `restore` | Question et ancienne citation après restauration d'une sauvegarde au format courant ; `prepare --profile` choisit le profil de base, `restore` reprend celui de la sauvegarde | D09.3 |
-| `injection_check.py` | Instruction hostile placée dans un PDF sans effet sur la réponse | D08.5 (en partie) |
+| `restore_question_check.py prepare` / `restore` | Question et ancienne citation après restauration d'une sauvegarde au format courant ; `prepare --profile` choisit le profil de base, `restore` reprend celui de la sauvegarde ; le rapport garde celui de `restore_backup` (données vérifiées par empreinte, comptes SQLite, points Qdrant : détail de D09.2), y compris en échec | D09.3 |
+| `injection_check.py` | Instruction hostile placée dans un PDF sans effet sur la réponse ; le rapport garde les avertissements de l'événement final (`unknown_citations` : références émises par le modèle puis retirées) | D08.5 (en partie) |
 | `log_privacy_check.py` | Lecture seule : texte extrait, questions et réponses de l'instance cherchés dans tous ses journaux (témoin positif sur les checkpoints), exclusions Git des originaux, du corpus et des modèles | D08.7 |
 | `http_guards_check.py` | Lecture seule sur une instance en marche (par défaut l'instance principale) : Host et Origin étrangers, requêtes inter-sites, préflight CORS, Qdrant sans clé, traversées encodées vers le profil, la base et les jetons, sockets en écoute limités au bouclage | D08.3, D08.4 |
 

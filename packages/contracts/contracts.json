@@ -372,6 +372,10 @@
           "mode": "gpu|cpu",
           "fallback": "boolean: true when this answer was regenerated on CPU after a GPU load failure of the same request (W025)",
           "rule": "present only when the model was called (model_called true), absent from the done of an abstention; mode is the execution mode requested from Ollama for this answer (num_gpu omitted in gpu mode, num_gpu: 0 in cpu mode), not the observed placement of the model, which jobs_response.generation.processor and doctor report"
+        },
+        "identifier_coverage_states": {
+          "<identifier>": "covered|identifier_present_no_answer_evidence|identifier_present_languages_differ|not_covered_due_to_budget|not_found_in_scope",
+          "rule": "one entry per exact identifier of the question (normalized); present once the search returned passages and the context was built ({} for a question without identifier), absent otherwise; covered: a passage of the final context carries the identifier and a term of the question; identifier_present_no_answer_evidence: the identifier is in the context without any term of the question, reported by the warning of the same code; identifier_present_languages_differ: no shared term, but question and at least one passage carrying the identifier are written in two different recognised languages (fr, en), so the lexical check asserts neither an answer nor its absence and adds no warning; not_covered_due_to_budget: found but cut from the context; not_found_in_scope: absent from the passages retrieved in the scope"
         }
       },
       "warnings": []

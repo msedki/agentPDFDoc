@@ -8,7 +8,7 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readSource, sourceFiles, stripCssComments, stripScriptComments } from "./theme-support.ts";
+import { allRules, readSource, sourceFiles, stripCssComments, stripScriptComments, topLevelRules } from "./theme-support.ts";
 
 const code = (file: string) => stripScriptComments(readSource(file));
 const workspace = code("components/workspace.tsx");
@@ -125,6 +125,64 @@ test("the Suivi counter is capped, announced politely, and the button keeps its 
   assert.match(topbar, /<span className="topbar-label">Suivi<\/span>/);
   assert.match(topbar, /activeJobsBadge\(count\)/);
   assert.match(topbar, /<span className="sr-only" aria-live="polite">\{announcement\}<\/span>/);
+});
+
+test("the scope trigger shrinks with the centre column of the top bar instead of covering Suivi", () => {
+  // J8, L9 : entre 768 et ~915 px, le déclencheur gardait la largeur de son libellé (bouton dans un bloc : jamais sous
+  // sa largeur min-content) et recouvrait « Suivi ». Dans une boîte flexible, le bouton (min-width: 0) suit sa colonne
+  // et le libellé passe en ellipse ; le plafond fixe de 480 px garde le déclencheur centré aux grandes largeurs.
+  const rules = topLevelRules(readSource("app/globals.css"));
+  const rule = (selector: string) => rules.get(selector) ?? new Map<string, string>();
+  assert.equal(rule(".app-topbar").get("grid-template-columns"), "auto minmax(0, 1fr) auto");
+  assert.equal(rule(".topbar-center").get("min-width"), "0");
+  assert.equal(rule(".scope-control").get("display"), "flex");
+  assert.equal(rule(".scope-control").get("min-width"), "0");
+  assert.equal(rule(".scope-control").get("max-width"), "100%");
+  assert.equal(rule(".scope-trigger").get("min-width"), "0");
+  assert.equal(rule(".scope-trigger").get("max-width"), "480px");
+  assert.equal(rule(".scope-trigger").get("overflow"), "hidden", "rien ne déborde du bouton sur la zone de droite");
+  assert.equal(rule(".scope-trigger strong").get("min-width"), "0");
+  assert.equal(rule(".scope-trigger strong").get("text-overflow"), "ellipsis");
+  // Aucune règle, même sous @media, ne rend au déclencheur ou à son conteneur une largeur fixée par le contenu.
+  for (const { selector, declarations } of allRules(readSource("app/globals.css")).filter(({ selector }) => /^\.(?:scope-control|scope-trigger|topbar-center)$/.test(selector))) {
+    for (const property of ["display", "min-width", "width", "flex", "flex-shrink"]) {
+      const value = declarations.get(property);
+      if (value !== undefined) assert.ok(rule(selector).get(property) === value, `${selector} { ${property}: ${value} } sous @media`);
+    }
+  }
+});
+
+test("below 64rem the scope trigger keeps its width for the scope label and « Périmètre » only in its accessible name", () => {
+  // Revue C2 (J8) : entre 768 et ~960 px, la colonne centrale ne laissait au libellé que quelques pixels (« PÉRIMÈTRE T… ») ;
+  // sous lg, le déclencheur est pourtant le seul endroit qui affiche le périmètre actif. Masquage visuel seulement : un
+  // display: none ou une visibility: hidden retireraient « Périmètre » du nom accessible du bouton.
+  const scope = code("components/scope-control.tsx");
+  assert.match(scope, /className="scope-trigger"[^\n]*?\}\}><span className="eyebrow">Périmètre<\/span><strong>\{state\.scopeLabel\}<\/strong>/);
+  const css = stripCssComments(readSource("app/globals.css"));
+  const compact = /@media \(width < 64rem\) \{([\s\S]*?)\n\}/.exec(css)?.[1] ?? "";
+  const hidden = /\.scope-trigger \.eyebrow \{([^}]*)\}/.exec(compact)?.[1] ?? "";
+  const declarations = new Map(hidden.split(";").map(part => part.split(":").map(value => value.trim())).filter(([name]) => name).map(([name, ...value]) => [name, value.join(":")]));
+  assert.deepEqual(Object.fromEntries(declarations), { position: "absolute", width: "1px", height: "1px", padding: "0", margin: "-1px", overflow: "hidden", clip: "rect(0, 0, 0, 0)", "white-space": "nowrap", border: "0" });
+  // Aux autres largeurs, aucune règle ne masque ni ne réduit l'intitulé du déclencheur.
+  for (const { selector, declarations: other } of allRules(readSource("app/globals.css")).filter(({ selector }) => /\.scope-trigger \.eyebrow|\.scope-trigger > \.eyebrow/.test(selector))) {
+    assert.ok(other.get("position") === "absolute" && other.get("clip") === "rect(0, 0, 0, 0)", `${selector} : seule la règle sous 64rem touche l'intitulé`);
+  }
+  assert.ok(!topLevelRules(readSource("app/globals.css")).has(".scope-trigger .eyebrow"));
+});
+
+test("below 64rem the brand text and the top bar labels leave their room to the scope label, names kept for assistive technologies", () => {
+  // Contre-vérification J8 : entre 768 et ~960 px, le libellé du périmètre restait tronqué (0 px à 768, 95 px à 900) ;
+  // sous 64rem, le nom de l'atelier et les libellés « Suivi » et « Fermer la session » passent en masquage visuel :
+  // les boutons gardent leur icône et leur nom accessible, le titre reste lisible par les lecteurs d'écran.
+  const css = stripCssComments(readSource("app/globals.css"));
+  const compact = /@media \(width < 64rem\) \{([\s\S]*?)\n\}/.exec(css)?.[1] ?? "";
+  for (const selector of [".app-brand > div", ".topbar-label"]) {
+    const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const body = new RegExp(`(?:^|[,}\\s])${escaped}[^{]*\\{([^}]*)\\}`).exec(compact)?.[1] ?? "";
+    assert.match(body, /position:\s*absolute/, `${selector} : masquage visuel sous 64rem`);
+    assert.match(body, /clip:\s*rect\(0, 0, 0, 0\)/, `${selector} : masquage visuel sous 64rem`);
+    assert.doesNotMatch(body, /display:\s*none|visibility:\s*hidden/, `${selector} : le nom reste dans l'arbre d'accessibilité`);
+  }
 });
 
 test("service availability is always spelled out in text, in the top bar or in the context band", () => {

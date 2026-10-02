@@ -1,7 +1,8 @@
 """Runner headless de génération : une question d'un split résolu = une génération réelle (POST /api/v1/queries + SSE).
 
-Journal JSONL en ajout seul sous evals/qualification-v2.1/runtime/. La reprise saute les questions terminées et
-relit le SSE d'une question déjà créée sans la soumettre une seconde fois. Aucun jugement de qualité ici.
+Journal JSONL en ajout seul sous evals/qualification-v2.1/runtime/ ou, hors Git, sous .runtime/qa/. La reprise saute
+les questions terminées et relit le SSE d'une question déjà créée sans la soumettre une seconde fois. Aucun jugement de
+qualité ici.
 """
 from __future__ import annotations
 
@@ -24,7 +25,7 @@ from api_client import (
     http_error,
     submit_query,
 )
-from evidence_io import EVALS, ROOT, append_jsonl, checked_output, file_sha256, read_jsonl
+from evidence_io import EVALS, LOCAL_QA, ROOT, append_jsonl, checked_output, file_sha256, read_jsonl
 
 sys.path.insert(0, str(ROOT))
 from services.api.qualification import canonical_sha, verify_annotations  # noqa: E402
@@ -130,7 +131,7 @@ def run(dataset_path: Path, source_path: Path, output: Path, base_url: str, spli
     if split == "final" and limit is not None:
         raise ValueError("Le split final ne se limite pas : reprendre le même journal jusqu'au bout")
     dataset, source, frozen = load_split(dataset_path, source_path, split, freeze_path)
-    output = checked_output(output, [runtime_root or EVALS / "runtime"], sources=(dataset_path, source_path), must_exist=resume)
+    output = checked_output(output, [runtime_root] if runtime_root else [EVALS / "runtime", LOCAL_QA], sources=(dataset_path, source_path), must_exist=resume)
     with api_client(base_url, transport=transport) as client:
         header = {"record": "header", "schema_version": 1, "tool": "tools/qualification/answers.py", "split": split, "base_url": base_url,
                   "dataset_sha256": canonical_sha(dataset), "source_dataset_sha256": canonical_sha(source), "final_freeze_sha256": frozen,
@@ -199,7 +200,7 @@ def main(argv=None) -> dict:
     parser.add_argument("--dataset", type=Path, required=True, help="Jeu résolu (runtime/…) du split")
     parser.add_argument("--source-dataset", type=Path, required=True, help="Jeu source gelé correspondant (development.json ou final.json)")
     parser.add_argument("--split", choices=["development", "final"], required=True)
-    parser.add_argument("--output", type=Path, required=True, help="Journal JSONL sous evals/qualification-v2.1/runtime/")
+    parser.add_argument("--output", type=Path, required=True, help="Journal JSONL sous evals/qualification-v2.1/runtime/ ou, hors Git, sous .runtime/qa/")
     parser.add_argument("--base-url", default="http://127.0.0.1:8785", help="Origine loopback de l'instance cible (port explicite)")
     parser.add_argument("--final-freeze", type=Path, help="final.freeze.json : obligatoire pour le split final")
     parser.add_argument("--resume", action="store_true", help="Reprendre un journal existant de la même exécution")

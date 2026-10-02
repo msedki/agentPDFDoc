@@ -8,7 +8,7 @@ import json
 import re
 from pathlib import Path
 
-from evidence_io import EVALS, checked_output, write_json_exclusive
+from evidence_io import EVALS, LOCAL_QA, checked_output, write_json_exclusive
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -205,10 +205,11 @@ def main(argv=None) -> dict:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dataset", type=Path, required=True)
     parser.add_argument("--bindings", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True, help="Nouveau fichier sous evals/qualification-v2.1/runtime/ ou resolved/")
+    parser.add_argument("--output", type=Path, required=True,
+                        help="Nouveau fichier sous evals/qualification-v2.1/runtime/ ou resolved/, ou, hors Git, sous .runtime/qa/")
     args = parser.parse_args(argv)
     try:
-        output = checked_output(args.output, [EVALS / "runtime", EVALS / "resolved"], sources=(args.dataset, args.bindings))
+        output = checked_output(args.output, [EVALS / "runtime", EVALS / "resolved", LOCAL_QA], sources=(args.dataset, args.bindings))
     except ValueError as error:
         parser.error(str(error))
     result = resolve_dataset(json.loads(args.dataset.read_text(encoding="utf-8")), json.loads(args.bindings.read_text(encoding="utf-8")))

@@ -276,13 +276,15 @@ def test_build_evidence_records_the_node_version(monkeypatch, tmp_path, capsys):
     node = Path(sys.executable)
     probes = []
 
-    def node_probe(probed, probed_web, environment, *rest, origin):
+    def node_probe(probed, probed_web, environment, *rest, origin, evidence):
         assert list(reports.iterdir()) == [], "la version de Node est lue avant toute preuve"
         assert origin == "variable", "la sonde reçoit la provenance rendue par resolve_toolchain"
+        assert evidence == "reports/", "sans --evidence-dir, le message d'arrêt cite reports/ comme avant"
         probes.append(("node", probed, probed_web, dict(environment)))
         return "v24.16.0"
 
-    def pnpm_probe(probed, corepack, probed_web, environment, *rest):
+    def pnpm_probe(probed, corepack, probed_web, environment, *rest, evidence):
+        assert evidence == "reports/"
         probes.append(("pnpm", probed, probed_web, dict(environment)))
         return "10.34.1"
 
@@ -303,6 +305,106 @@ def test_build_evidence_records_the_node_version(monkeypatch, tmp_path, capsys):
     assert lines[0]["phase"] == "before" and lines[0]["node_version"] == "v24.16.0"
     assert lines[-1]["phase"] == "after" and lines[-1]["exit_code"] == 0
     assert json.loads((reports / "export-manifest-version-node.json").read_text(encoding="utf-8"))["files"] == 1
+
+
+# --- Dossier des preuves choisi (--evidence-dir) : preuves d'une campagne gardées hors de reports/, suivi par Git ---
+
+def copied_main(monkeypatch, tmp_path):
+    """Copie du script sous web/scripts, build factice (l'interpréteur courant tient le rôle de node), sondes simulées."""
+    web = tmp_path / "web"
+    (web / "scripts").mkdir(parents=True)
+    (web / "reports").mkdir()
+    copy = web / "scripts" / SCRIPT.name
+    shutil.copy2(SCRIPT, copy)
+    spec = importlib.util.spec_from_file_location("build_monitored_evidence", copy)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    fake_pnpm = tmp_path / "fake-pnpm.py"
+    fake_pnpm.write_text(
+        "import pathlib\n"
+        "out = pathlib.Path('out')\n"
+        "out.mkdir()\n"
+        "(out / 'index.html').write_text('<!doctype html>', encoding='utf-8')\n",
+        encoding="utf-8")
+    monkeypatch.setattr(module, "resolve_toolchain", lambda: module.Toolchain(Path(sys.executable), fake_pnpm, "variable"))
+    return module, web, copy
+
+
+def test_evidence_dir_keeps_the_campaign_evidence_out_of_reports(monkeypatch, tmp_path, capsys):
+    module, web, copy = copied_main(monkeypatch, tmp_path)
+    campaign = tmp_path / "qa" / "j8-linux" / "web-build"
+    seen = []
+
+    def node_probe(probed, probed_web, environment, *rest, origin, evidence):
+        assert not campaign.exists(), "le dossier des preuves n'est créé qu'après les sondes"
+        seen.append(evidence)
+        return "v24.16.0"
+
+    def pnpm_probe(probed, corepack, probed_web, environment, *rest, evidence):
+        seen.append(evidence)
+        return "10.34.1"
+
+    monkeypatch.setattr(module, "probe_node_version", node_probe)
+    monkeypatch.setattr(module, "check_offline_pnpm", pnpm_probe)
+    monkeypatch.setattr(sys, "argv", [str(copy), "--tag", "linux-j8", "--evidence-dir", str(campaign)])
+    assert module.main() == 0
+    assert seen == [str(campaign.resolve())] * 2
+    assert list((web / "reports").iterdir()) == []
+    assert sorted(path.name for path in campaign.iterdir()) == [
+        "build-linux-j8-resources.jsonl", "build-linux-j8.log", "export-manifest-linux-j8.json"]
+    summary = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert summary["exit_code"] == 0
+    assert [Path(summary[key]).parent for key in ("log", "resources", "manifest")] == [campaign.resolve()] * 3
+    assert json.loads((campaign / "export-manifest-linux-j8.json").read_text(encoding="utf-8"))["files"] == 1
+
+
+def test_existing_evidence_in_the_chosen_dir_is_preserved(monkeypatch, tmp_path):
+    module, web, copy = copied_main(monkeypatch, tmp_path)
+    campaign = tmp_path / "qa"
+    campaign.mkdir()
+    (campaign / "build-linux-j8.log").write_text("preuve antérieure", encoding="utf-8")
+    monkeypatch.setattr(sys, "argv", [str(copy), "--tag", "linux-j8", "--evidence-dir", str(campaign)])
+    with pytest.raises(SystemExit, match="Preserve the existing evidence; choose a new tag"):
+        module.main()
+    assert (campaign / "build-linux-j8.log").read_text(encoding="utf-8") == "preuve antérieure"
+    assert sorted(path.name for path in campaign.iterdir()) == ["build-linux-j8.log"]
+
+
+def test_evidence_dir_inside_the_export_is_refused(monkeypatch, tmp_path, capsys):
+    module, web, copy = copied_main(monkeypatch, tmp_path)
+    monkeypatch.setattr(sys, "argv", [str(copy), "--tag", "linux-j8", "--evidence-dir", str(web / "out" / "preuves")])
+    with pytest.raises(SystemExit) as stopped:
+        module.main()
+    assert stopped.value.code == 2
+    assert "dans out/, que le build régénère" in capsys.readouterr().err
+    assert not (web / "out").exists()
+
+
+@pytest.mark.parametrize("chosen", ["preuves.txt", "preuves.txt/web-build"])
+def test_evidence_dir_on_a_file_is_refused_before_the_probes(monkeypatch, tmp_path, capsys, chosen):
+    """Revue runtime J8 : un --evidence-dir qui désigne un fichier, ou un dossier sous un fichier, faisait lever mkdir
+    après les sondes avec une trace brute ; il est refusé comme un dossier sous out/ (code 2), avant toute sonde."""
+    module, web, copy = copied_main(monkeypatch, tmp_path)
+    (tmp_path / "preuves.txt").write_text("fichier existant", encoding="utf-8")
+    probes = []
+    monkeypatch.setattr(module, "probe_node_version", lambda *args, **kwargs: probes.append("node"))
+    monkeypatch.setattr(module, "check_offline_pnpm", lambda *args, **kwargs: probes.append("pnpm"))
+    monkeypatch.setattr(sys, "argv", [str(copy), "--tag", "linux-j8", "--evidence-dir", str(tmp_path / chosen)])
+    with pytest.raises(SystemExit) as stopped:
+        module.main()
+    assert stopped.value.code == 2 and probes == []
+    assert f"{(tmp_path / 'preuves.txt').resolve()} existe et n'est pas un dossier" in capsys.readouterr().err
+    assert (tmp_path / "preuves.txt").read_text(encoding="utf-8") == "fichier existant"
+
+
+def test_probe_failures_name_the_chosen_evidence_dir(script, tmp_path):
+    web = web_with(tmp_path / "web", PINNED)
+    run, _ = fake_run(1, "", "node: bad option\n")
+    with pytest.raises(SystemExit, match=r"consigne cette version ; rien n'a été écrit dans /qa/web-build\.\n"):
+        script.probe_node_version(Path("/n/bin/node"), web, {}, run, origin="path", evidence="/qa/web-build")
+    with pytest.raises(SystemExit, match=r"\(COREPACK_ENABLE_NETWORK=0\) ; rien n'a été écrit dans /qa/web-build\."):
+        script.check_offline_pnpm(Path("/n/bin/node"), Path("/n/lib/node_modules/corepack/dist/pnpm.js"), web, {}, "linux", run,
+                                  evidence="/qa/web-build")
 
 
 # --- Provenance du Node retenu, citée par l'échec de la sonde Node ---

@@ -89,7 +89,12 @@ option, pnpm emploie son store par défaut.
 projet (`.venv/Scripts/python.exe` sous Windows, `.venv/bin/python` sous Linux),
 exécute le même build en relevant toutes les deux secondes la mémoire et le CPU
 de l'hôte et de l'arbre de processus du build, puis écrit le journal, les relevés
-et le manifeste SHA-256 de `out/` dans `reports/`. Node est choisi dans cet ordre :
+et le manifeste SHA-256 de `out/` dans `reports/`, suivi par Git, ou dans le
+dossier donné par `--evidence-dir <dossier>`, pour garder hors de Git les preuves
+d'une campagne. Ce dossier est créé après les sondes de Node et de pnpm s'il
+manque, et les messages d'arrêt des sondes le citent à la place de `reports/` ;
+un dossier sous `out/`, que le build régénère, ou un chemin qui désigne un
+fichier sont refusés avant toute sonde. Node est choisi dans cet ordre :
 
 1. l'exécutable désigné par la variable `RAG_WEB_NODE`, sur tout poste ; s'il
    n'existe pas, le script s'arrête au lieu de chercher ailleurs ;

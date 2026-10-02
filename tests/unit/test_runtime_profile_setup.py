@@ -1,5 +1,6 @@
 """Profil par utilisateur (DIST-02) : données, stockage Qdrant et écritures d'exécution hors du programme, ports libres."""
 import socket
+import sys
 
 import pytest
 import yaml
@@ -80,3 +81,15 @@ def test_profile_refuses_a_root_inside_the_program_a_long_qdrant_path_and_busy_o
         busy = {**ports(), "app": held.getsockname()[1]}
         with pytest.raises(ValueError, match="Port déjà occupé"):
             user_profile(base, tmp_path / "u", ports=busy, program_root=tmp_path / "programme", storage_max=1000)
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="TIME-WAIT côté serveur sous POSIX ; sonde Windows sans option")
+def test_port_left_in_time_wait_by_a_stopped_service_stays_available_for_a_new_profile(tmp_path):
+    """Revue runtime J8 : init-profile sondait sans SO_REUSEADDR ; un port qu'un service arrêté laisse en TIME-WAIT, que
+    ce service reprendrait, était déclaré occupé. Un port en écoute reste refusé (test précédent)."""
+    from tests.unit.test_runtime_supervisor import _server_side_time_wait
+
+    base = yaml.safe_load(BASE.read_text(encoding="utf-8"))
+    chosen = {**ports(), "app": _server_side_time_wait(listener_reuse=True)}
+    profile = user_profile(base, tmp_path / "u", ports=chosen, program_root=tmp_path / "programme", storage_max=1000)
+    assert profile["app"]["port"] == chosen["app"]

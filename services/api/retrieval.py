@@ -28,6 +28,16 @@ STOPWORDS = frozenset("""a au aux avec ce ces cet cette comment dans de des donn
     precise preciser quand que quel quelle quelles quels qui quoi reference references sa sans selon ses son sont sous sur ta tes ton tous tout
     toute toutes tres un une valeur valeurs vos votre combien about and are does for from how many much number of the these this those value
     values what which with""".split())
+# Mots qui désignent le périmètre ou le support de la question (« dans le document sélectionné », « in the selected file ») :
+# présents dans presque tout contexte (« DOCUMENT SYNTHÉTIQUE », « Page 1 / 2 »), ils ne signalent aucune réponse (J8, L8).
+# « section » reste un terme : c'est aussi une grandeur (section d'un câble).
+SCOPE_WORDS = frozenset("""document documents dossier dossiers fichier fichiers page pages pdf perimetre selection selectionne
+    selectionnee selectionnes selectionnees file files folder folders scope selected""".split())
+# Mots-outils propres à chaque langue ; les formes ambiguës entre les deux (« a », « an », « on », « or ») sont écartées.
+LANGUAGE_MARKERS = {
+    "fr": frozenset("au aux avec ce ces cette dans de des du elle est et il la le les leur leurs ne nous par pas pour quel quelle quelles quels qui sont sur une vous".split()),
+    "en": frozenset("and are be by does for from has have how in into is it its not of that the their there these this those to was were what when where which who why with".split()),
+}
 
 
 def normalized_identifier(value):
@@ -66,23 +76,43 @@ def identifiers(text):
     return sorted({text[start:end] for start, end in identifier_spans(text)})
 
 
-def _term_keys(text):
-    folded = "".join(char for char in unicodedata.normalize("NFKD", text.casefold()) if not unicodedata.combining(char))
-    return {word[:5] for word in re.findall(r"[^\W_]+", folded) if len(word) >= 3 and word not in STOPWORDS}
+def _folded_words(text):
+    return re.findall(r"[^\W_]+", "".join(char for char in unicodedata.normalize("NFKD", text.casefold()) if not unicodedata.combining(char)))
+
+
+def _term_keys(text, excluded=STOPWORDS):
+    return {word[:5] for word in _folded_words(text) if len(word) >= 3 and word not in excluded}
 
 
 def answer_terms(question):
-    """Termes contextuels de la question : hors identifiants et mots-outils, réduits à 5 caractères (heuristique lexicale)."""
+    """Termes contextuels de la question : hors identifiants, mots-outils et mots du périmètre, réduits à 5 caractères
+    (heuristique lexicale)."""
     parts, cursor = [], 0
     for start, end in identifier_spans(question):
         parts.append(question[cursor:start])
         cursor = max(cursor, end)
-    return _term_keys(" ".join(parts + [question[cursor:]]))
+    return _term_keys(" ".join(parts + [question[cursor:]]), STOPWORDS | SCOPE_WORDS)
 
 
 def has_answer_terms(text, terms):
     # Sans terme contextuel (« Quelle valeur pour DA-P01 ? »), l'occurrence de l'identifiant suffit.
     return not terms or bool(terms & _term_keys(text))
+
+
+def text_language(text):
+    """« fr » ou « en » quand les mots-outils d'une langue dominent nettement le texte ; None pour un texte court, mixte
+    ou dans une autre langue."""
+    words = _folded_words(text)
+    counts = {language: sum(word in markers for word in words) for language, markers in LANGUAGE_MARKERS.items()}
+    (language, high), (_, low) = sorted(counts.items(), key=lambda item: item[1], reverse=True)
+    return language if high >= 2 and high > 2 * low else None
+
+
+def answer_terms_comparable(question, text):
+    """Faux quand la question et le texte ont chacun une langue reconnue et qu'elles diffèrent : l'absence de termes
+    communs ne dit alors rien de la réponse (question anglaise sur une preuve française, J8, L8)."""
+    asked, written = text_language(question), text_language(text)
+    return asked is None or written is None or asked == written
 
 
 def match_expression(text):

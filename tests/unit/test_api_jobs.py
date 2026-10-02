@@ -386,6 +386,14 @@ def test_api_worker_environment_withholds_instance_secrets(storage, monkeypatch)
     assert db.one("SELECT state FROM jobs WHERE id=?", (job_id,))["state"] == "ready"
 
 
+def test_api_worker_environment_disables_onnxruntime_telemetry():
+    """D08.2 (J8, L10) : le worker reçoit ORT_DISABLE_TELEMETRY=1 dès son lancement, même si l'API hérite d'une autre
+    valeur ; une dépendance d'extraction qui chargerait ONNX Runtime ne démarre donc pas son client de télémétrie."""
+    from services.api.jobs import worker_environment
+    assert worker_environment({})["ORT_DISABLE_TELEMETRY"] == "1"
+    assert worker_environment({"ORT_DISABLE_TELEMETRY": "0", "PATH": "/usr/bin"}) == {**worker_environment({}), "PATH": "/usr/bin"}
+
+
 def test_api_worker_receives_the_native_tesseract_command_of_this_platform(storage, monkeypatch):
     """W018 : `.exe` retiré hors Windows dans la requête du worker et dans l'empreinte du cache ; profil Windows inchangé."""
     import sys

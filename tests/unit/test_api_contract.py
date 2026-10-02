@@ -390,6 +390,25 @@ def test_contract_llm_execution_is_absent_from_an_abstention_that_calls_no_model
     assert "only when the model was called (model_called true)" in rule
 
 
+def test_contract_identifier_coverage_states_are_those_the_context_builder_assigns():
+    """États de `metrics.identifier_coverage_states` : valeurs littérales affectées par ContextBuilder.build (D04.7)."""
+    described = CONTRACT["query_events"]["done_data"]["metrics"]["identifier_coverage_states"]
+    tree = ast.parse((ROOT / "services/api/context.py").read_text(encoding="utf-8"))
+
+    def outcomes(value):
+        """Valeurs possibles d'une affectation : littéral, ou branches d'une expression conditionnelle."""
+        if isinstance(value, ast.IfExp):
+            return outcomes(value.body) | outcomes(value.orelse)
+        assert isinstance(value, ast.Constant) and isinstance(value.value, str), f"état non littéral à la ligne {value.lineno} de context.py"
+        return {value.value}
+    assigned = set().union(*(outcomes(node.value) for node in ast.walk(tree) if isinstance(node, ast.Assign) and any(
+        isinstance(target, ast.Subscript) and isinstance(target.value, ast.Name) and target.value.id == "states" for target in node.targets)))
+    assert alternatives(described["<identifier>"]) == assigned
+    assert {"covered", "identifier_present_no_answer_evidence", "identifier_present_languages_differ"} <= assigned
+    # L'état des langues différentes n'affirme ni réponse ni absence : aucun avertissement ne l'accompagne.
+    assert "neither an answer nor its absence" in described["rule"] and "no warning" in described["rule"]
+
+
 def test_contract_accelerator_reason_without_the_supervisor_decision_matches_the_api(tmp_path, monkeypatch):
     """Sans décision du superviseur, un profil en CPU imposé garde la raison tirée du profil ; auto et gpu donnent null."""
     monkeypatch.delenv("RAG_LLM_ACCELERATOR", raising=False)

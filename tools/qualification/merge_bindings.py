@@ -1,7 +1,8 @@
 """Fusionne des snapshots de bindings publiés par document après contrôle du SHA-256 de chaque fichier.
 
 Chaque snapshot vient de capture_bindings.py. Doublons de document, IDs réels partagés entre clés, SHA original
-divergent du manifeste ou texte de bloc altéré sont refusés ; la sortie est un nouveau fichier sous runtime/.
+divergent du manifeste ou texte de bloc altéré sont refusés ; la sortie est un nouveau fichier sous runtime/ ou, hors
+Git, sous .runtime/qa/.
 """
 from __future__ import annotations
 
@@ -13,7 +14,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from evidence_io import EVALS, ROOT, checked_output, write_json_exclusive
+from evidence_io import EVALS, LOCAL_QA, ROOT, checked_output, write_json_exclusive
 
 REQUIRED = ("document_id", "version_id", "extraction_revision_id", "generation_id", "file_sha256", "pages")
 
@@ -61,8 +62,11 @@ def merge(inputs: list[tuple[Path, str]], manifest: dict, root: Path = ROOT) -> 
                 if other != key:
                     raise ValueError(f"{field} {binding[field]} lié à la fois à {other} et {key}")
             documents[key] = copy.deepcopy(binding)
-        resolved = Path(path).resolve()
-        sources.append({"path": resolved.relative_to(root).as_posix() if resolved.is_relative_to(root) else str(resolved), "sha256": actual,
+        resolved, local = Path(path).resolve(), LOCAL_QA.resolve()
+        # Sous Linux, `.runtime` peut être un lien vers un autre volume (W018) : le chemin reste désigné dans le projet.
+        label = (resolved.relative_to(root).as_posix() if resolved.is_relative_to(root)
+                 else (Path(".runtime/qa") / resolved.relative_to(local)).as_posix() if resolved.is_relative_to(local) else str(resolved))
+        sources.append({"path": label, "sha256": actual,
                         "captured_at_utc": snapshot.get("captured_at_utc"), "method": snapshot.get("method"), "document_keys": sorted(entries)})
     return {"merged_at_utc": datetime.now(UTC).isoformat(),
             "method": "Merge of per-document published snapshots after SHA-256 check of each file, manifest file SHA and exact block text hashes; no API call.",
@@ -72,15 +76,16 @@ def merge(inputs: list[tuple[Path, str]], manifest: dict, root: Path = ROOT) -> 
 def main(argv=None) -> dict:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--input", nargs=2, action="append", metavar=("SNAPSHOT", "SHA256"), required=True,
-                        help="Snapshot evals/qualification-v2.1/runtime/*-published.json et son SHA-256 attendu")
-    parser.add_argument("--output", type=Path, required=True, help="Nouveau fichier sous evals/qualification-v2.1/runtime/")
+                        help="Snapshot *-published.json (evals/qualification-v2.1/runtime/ ou .runtime/qa/) et son SHA-256 attendu")
+    parser.add_argument("--output", type=Path, required=True,
+                        help="Nouveau fichier sous evals/qualification-v2.1/runtime/ ou, hors Git, sous .runtime/qa/")
     args = parser.parse_args(argv)
-    runtime = (EVALS / "runtime").resolve()
+    folders = [(EVALS / "runtime").resolve(), LOCAL_QA.resolve()]
     inputs = [(Path(path), sha) for path, sha in args.input]
-    if any(not path.resolve().is_relative_to(runtime) for path, _ in inputs):
-        parser.error("Les snapshots doivent provenir de evals/qualification-v2.1/runtime/")
+    if any(not any(path.resolve().is_relative_to(folder) for folder in folders) for path, _ in inputs):
+        parser.error("Les snapshots doivent provenir de evals/qualification-v2.1/runtime/ ou de .runtime/qa/")
     try:
-        output = checked_output(args.output, [runtime], sources=tuple(path for path, _ in inputs))
+        output = checked_output(args.output, folders, sources=tuple(path for path, _ in inputs))
         merged = merge(inputs, json.loads((EVALS / "manifest.json").read_text(encoding="utf-8")))
     except (ValueError, OSError) as error:
         parser.error(str(error))

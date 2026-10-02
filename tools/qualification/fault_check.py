@@ -191,7 +191,8 @@ def resume_and_check(instance: Isolated, item: dict[str, Any], result: dict[str,
         "no_pending_cleanup": state["pending_cleanup"] == 0})
 
 
-def case_kill(instance: Isolated, fixture: Path, stages: set[str]) -> dict[str, Any]:
+def case_kill(instance: Isolated, fixture: Path, stages: set[str], result: dict[str, Any]) -> None:
+    """Remplit `result` au fil du cas : une exception laisse dans le rapport les observations déjà faites."""
     item = import_fixture(instance, fixture, f"Fautes/{'-'.join(sorted(stages))}/{fixture.name}")
     job = wait_stage(instance, item["job_id"], stages)
     runtime = instance.runtime()
@@ -201,18 +202,19 @@ def case_kill(instance: Isolated, fixture: Path, stages: set[str]) -> dict[str, 
     survivors = [pid for pid in pids if psutil.pid_exists(pid)]
     for pid in survivors:
         instance.kill_tree(pid)
-    result: dict[str, Any] = {"killed_at": {"state": job["state"], "stage": job.get("stage")}, "survivors_after_supervisor_kill": survivors, "checks": {}}
+    result.update({"killed_at": {"state": job["state"], "stage": job.get("stage")}, "survivors_after_supervisor_kill": survivors,
+                   "checks": {"killed_in_target_stage": job.get("stage") in stages or job["state"] in stages}})
     result["restart"] = instance.restart()
-    result["checks"]["killed_in_target_stage"] = (job.get("stage") in stages or job["state"] in stages)
     resume_and_check(instance, item, result)
-    return result
 
 
-def case_qdrant_down(instance: Isolated, fixture: Path) -> dict[str, Any]:
+def case_qdrant_down(instance: Isolated, fixture: Path, result: dict[str, Any]) -> None:
+    """Remplit `result` au fil du cas, comme `case_kill`."""
     item = import_fixture(instance, fixture, f"Fautes/qdrant/{fixture.name}")
     job = wait_stage(instance, item["job_id"], {"indexing"})
     qdrant_pid = instance.runtime()["services"]["qdrant"]["pid"]
     instance.kill_tree(qdrant_pid)
+    result["killed_at"] = {"state": job["state"], "stage": job.get("stage")}
     from services.runtime.supervisor import status, stop
     # Le superviseur peut arrêter toute l'instance à la perte d'un service : l'état se lit alors dans la base, en lecture seule.
     deadline = time.monotonic() + 120
@@ -224,14 +226,14 @@ def case_qdrant_down(instance: Isolated, fixture: Path) -> dict[str, Any]:
     with instance.database() as connection:
         failed = dict(connection.execute("SELECT state, stage, error_code FROM jobs WHERE id=?", (item["job_id"],)).fetchone())
         document = dict(connection.execute("SELECT state, active_generation_id FROM documents WHERE id=?", (item["document_id"],)).fetchone())
-    result: dict[str, Any] = {"killed_at": {"state": job["state"], "stage": job.get("stage")}, "job_after_qdrant_loss": failed,
-                              "document_after_qdrant_loss": document, "instance_after_qdrant_loss": status(instance.profile_path).get("status"), "checks": {}}
-    result["checks"]["never_shown_ready"] = failed["state"] not in {"ready", "ready_partial"} and not document.get("active_generation_id") and document.get("state") != "ready"
+    result.update({"job_after_qdrant_loss": failed,
+                   "document_after_qdrant_loss": document, "instance_after_qdrant_loss": status(instance.profile_path).get("status"),
+                   "checks": {"never_shown_ready": failed["state"] not in {"ready", "ready_partial"} and not document.get("active_generation_id")
+                              and document.get("state") != "ready"}})
     if status(instance.profile_path).get("status") in {"starting", "running", "stopping"}:
         result["stop"] = stop(instance.profile_path).get("status")
     result["restart"] = instance.restart()
     resume_and_check(instance, item, result)
-    return result
 
 
 def long_pdf(pages: int) -> bytes:
@@ -274,13 +276,16 @@ def main() -> int:
         parser.error("--fixture ou --pages requis")
     report = json.loads(args.report.read_text(encoding="utf-8")) if args.report.exists() else {"cases": {}}
     started = datetime.now(UTC)
+    result: dict[str, Any] = {}
     try:
         if args.case == "qdrant-down":
-            result = case_qdrant_down(instance, args.fixture)
+            case_qdrant_down(instance, args.fixture, result)
         else:
-            result = case_kill(instance, args.fixture, {args.case.removeprefix("kill-")})
+            case_kill(instance, args.fixture, {args.case.removeprefix("kill-")}, result)
     except Exception as error:  # noqa: BLE001 - l'échec du cas est conservé dans le rapport
-        result = {"error": f"{type(error).__name__}: {error}", "checks": {"completed": False}}
+        # Les observations déjà faites (arrêt, état après la perte, contrôles évalués) restent ; le cas échoue.
+        result["error"] = f"{type(error).__name__}: {error}"
+        result.setdefault("checks", {})["completed"] = False
     result.update(fixture=args.fixture.name, started_utc=started.isoformat(), seconds=round((datetime.now(UTC) - started).total_seconds(), 1),
                   result="PASS" if result["checks"] and all(result["checks"].values()) else "FAIL")
     report["cases"][args.case] = result
