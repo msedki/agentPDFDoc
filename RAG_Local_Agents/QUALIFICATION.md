@@ -113,6 +113,54 @@ Pour chaque essai : objectif, hypothèse, données, commit, versions, machine, c
 
 Garder un tableau des critères DoD avec leur preuve. Les résultats de `tools/verify_pack.py` restent dans la catégorie **contrôles documentaires/de référence**, jamais parmi les essais applicatifs Q-CPU/Q-PDF/Q-SEARCH.
 
+## 10. Qualification sous Linux
+
+Procédure employée le 2 octobre 2026 pour la qualification Linux (lot J8 du [plan](PLAN.md)) sur le poste Linux aarch64 du chantier : Jetson AGX Orin, Jetson Linux R35.4.1, Ubuntu 20.04.6, glibc 2.31. Les critères et les seuils sont ceux de la DoD, sans adaptation. Le statut et la preuve de chaque critère sont dans le tableau « Qualification Linux » de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md#qualification-linux-w018) ; le déroulé, les échecs et les rejeux sont dans le [journal du 2 octobre](journal/2026-10-02.md). Cette section ne décrit que les conditions d'exécution propres à Linux et ne reprend aucun résultat. Linux x86-64 n'a pas été qualifié.
+
+### 10.1 Conditions communes
+
+- Chaque commande part de la racine du projet avec `LD_LIBRARY_PATH` retiré et `PYTHONUTF8=1`, comme `rag.sh` le fait pour Python, y compris pour les outils lancés directement par `.venv/bin/python`.
+- Un seul traitement lourd à la fois (génération, extraction, build, essais d'intégration), avec la mémoire et le disque relevés avant et après chaque lot.
+- L'instance principale du chantier n'est jamais la cible d'un essai : les outils démarrent leurs propres instances (`selftest`, [`e2e_instance.py`](../tools/qualification/e2e_instance.py), `injection_check.py`, `restore_question_check.py`) et les comptes de l'instance principale sont relevés en lecture avant et après.
+- Les preuves complètes restent hors Git, sous `.runtime/qa/j8-linux/` ; seuls des résumés sans texte de document sont versionnés.
+
+### 10.2 Dossier temporaire court, sur un autre volume
+
+`TMPDIR` désigne un dossier court de la carte microSD du poste : `/media/safae/devsave1/j8-tmp` pendant les lots L3 à L10 (valeur relevée dans `l10/tools/l10_run.sh` et dans `l4/vec-procs-after-start.json`, sous `.runtime/qa/j8-linux/`), puis `/media/safae/devsave1/tmp` à partir des rejeux. Deux raisons distinctes :
+
+- **Volume.** Les racines des instances de contrôle (`apst…`, `ape…`, `apr…`), les dossiers temporaires de pytest et les profils temporaires du navigateur lancé par Playwright s'écrivent dans le dossier temporaire. La partition système du poste étant presque pleine, l'utilisateur a demandé le 2 octobre que les fichiers temporaires et les artefacts lourds aillent sur la carte microSD ([journal](journal/2026-10-02.md), entrées de 07:47 et 09:20). Le cache des navigateurs de Playwright (`~/.cache/ms-playwright`) ne dépend pas de `TMPDIR` : il a été déplacé sur la carte par un lien symbolique, à la même demande. Ce sont des aménagements de ce poste, pas des étapes du produit.
+- **Longueur.** `short_root` ([selftest.py](../services/runtime/selftest.py)) crée chaque racine de contrôle sous la forme `<dossier temporaire>/apst<4 caractères hexadécimaux>`, et le test `test_control_profile_isolates_data_and_ports_but_shares_the_host_heavy_lock` ([test_runtime_selftest.py](../tests/unit/test_runtime_selftest.py)) exige que `<racine>/q/storage` compte 57 caractères au plus, borne du binaire Qdrant Windows ([W004](DECISIONS.md#w004-stockage-qdrant-natif-et-chemins-de-restauration)) qu'il vérifie sur toutes les plateformes. Pour que ce test passe sous Linux, `TMPDIR` doit donc compter 38 caractères au plus (38, plus `/apst` et 4 caractères, plus `/q/storage` : 57). Le produit, lui, n'applique pas cette borne sous Linux : `qdrant_path_bounded` ([profile_setup.py](../services/runtime/profile_setup.py)) et la restauration ([backup.py](../services/runtime/backup.py)) ne la contrôlent que sous Windows. La contrainte vient donc d'un défaut du test, dont l'assertion devrait se limiter à Windows (proposition du lot J9 du [plan](PLAN.md)), et non d'une exigence du produit.
+
+### 10.3 Navigateur des scénarios Playwright
+
+Playwright 1.63.0 ne prend plus en charge Ubuntu 20.04 (notes de version citées en LNX15 de [SOURCES.md](SOURCES.md)). Les scénarios exécutés pour D06 et D08.6 ont tourné dans Chrome Headless Shell, sur des instances isolées, avec la variable `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE` posée pour l'installation et pour chaque commande : elle fait retenir à Playwright les navigateurs d'une plateforme prise en charge, la sienne restant marquée comme non prise en charge officiellement. Version du navigateur, commandes et limites : [apps/web/README.md](../apps/web/README.md), section « Scénarios Playwright sous Linux aarch64 » ; provenance et empreinte : TOOL02 de [SOURCES.md](SOURCES.md). L'acceptation de cette méthode comme preuve D06 reste à décider par l'utilisateur.
+
+### 10.4 Session hors ligne
+
+Les critères D01.2, D08.1, D08.2 et l'observation de l'exfiltration pour D08.5 se jugent dans une session sans réseau, ouverte sans droits d'administration par `unshare -rn` : espace de noms utilisateur et réseau où le compte a l'identifiant 0 et où seule `lo` existe (LNX04 de [SOURCES.md](SOURCES.md)). La boucle locale y est distincte de celle de l'hôte : les services du poste n'y sont pas joignables.
+
+- **Interface piège.** Dans l'espace de noms, une interface `dummy` (`j8out`, adresses de documentation `192.0.2.1/24` et `2001:db8:8::1/64`) porte les routes par défaut IPv4 et IPv6. Une tentative de sortie y est émise, donc observable, au lieu d'échouer aussitôt sur « Network is unreachable ». La première session (D01.2, à 02:49) n'avait que `lo` ; la session complète du lot L10 et son rejeu R4 ont ajouté l'interface piège et l'observateur.
+- **Observateur réseau et DNS.** Un processus lancé dans l'espace de noms avant tout traitement écoute sur `127.0.0.53:53`, le résolveur nommé par `/etc/resolv.conf` de l'hôte, injoignable dans l'espace : il décode chaque requête DNS, l'attribue au processus émetteur et répond `SERVFAIL`, ce qui est une substitution déclarée du résolveur de l'hôte. Il capture aussi les trames émises sur l'interface piège, les refus sur `lo` (RST, ICMP) et relève toutes les 0,25 s les sockets non loopback. Il ne journalise aucun contenu applicatif.
+- **Témoins positifs.** Avant le scénario, une requête DNS, des connexions TCP IPv4 et IPv6, un envoi UDP et une connexion à un port local fermé doivent être vus par l'observateur ; sans eux, l'absence d'événement ne prouverait rien.
+- **Scénario.** `selftest`, `injection_check.py`, puis une instance isolée : `status`, `doctor`, scénarios Playwright d'import et de génération, lecture de documents, `doctor` final et arrêt ; l'environnement initial des processus de l'API et du worker est relevé pour la télémétrie d'ONNX Runtime (D08.2).
+
+**Outils hors dépôt.** La mise en place de l'interface piège, l'observateur, l'enchaînement du scénario et l'analyse sont des scripts écrits pour ce lot. Ceux de la session hors ligne sont conservés avec les preuves, hors Git, sous `.runtime/qa/j8-linux/l10/tools/` et `.runtime/qa/j8-linux/rejeu-2026-10-02/r4/tools/`, sans être versionnés ni maintenus. L'outil versionné [`netwatch.py`](../tools/qualification/netwatch.py) ne les remplace pas : il relève les sockets d'un processus, sans les requêtes DNS ni les tentatives bloquées avant l'ouverture d'un socket. Rejouer cette session sur un autre poste demande de reprendre ou de réécrire ces scripts.
+
+### 10.5 `injection_check` et relecture humaine (D08.5)
+
+[`injection_check.py`](../tools/qualification/injection_check.py) éprouve deux branches dans une instance de contrôle : l'exécution d'une consigne hostile et l'élargissement du périmètre demandé par un PDF hostile. Les statuts, les codes de sortie, la règle de verdict et les limites de l'outil sont décrits dans le [README des outils](../tools/qualification/README.md#injection_checkpy--déroulement-statuts-règle-de-verdict-et-limites) et dans sa docstring. Propre à cette procédure : un `TO_REVIEW` n'est jamais compté comme réussi ; les phrases à relire du rapport sont classées à la main, et le verdict de D08.5 reprend ce classement manuel, consigné dans le tableau de la DoD.
+
+La génération n'étant pas déterministe, l'outil a été lancé plusieurs fois, sur GPU avec le profil livré et sur CPU avec une copie du profil en `llm.accelerator: cpu` (`--profile`). Il n'observe pas le réseau : l'exfiltration se juge sur les passages lancés dans la session hors ligne (10.4).
+
+### 10.6 Grille D05 jugée par l'assistant, sans expert
+
+Les réponses du jeu DEV sont produites par `answers.py`, puis `grade.py grid` prépare la grille et `grade.py metrics` en calcule les mesures (section 7, [README des outils](../tools/qualification/README.md#génération-grille-d05-et-performance-d07)). Pendant J8, les champs manuels de la grille (verdict, assertions, soutien par citation) ont été remplis séparément par deux juges, puis arbitrés : juges et arbitre sont l'assistant, et aucun expert du domaine n'a revu leurs verdicts (tableau de la DoD, ligne D05). Les mesures obtenues sont un diagnostic du jeu de développement ; elles ne valident pas D05, qui se mesure une seule fois sur le jeu final, non exécuté sous Linux (point à trancher 12 du [plan](PLAN.md)).
+
+### 10.7 Limites propres au poste
+
+- D07 exige un hôte de 16 Go physiques au plus, en calcul CPU imposé (section 8) ; ce poste a 61 Gio, et sa hiérarchie cgroup v1 ne permet pas de borner la mémoire sans droits d'administration ([W018](DECISIONS.md#w018-double-plateforme--windows-11-x86-64-et-linux-aarch64-natifs), conséquences). Ses mesures de génération restent des pilotes, jamais des mesures D07.
+- La qualification porte sur ce seul poste aarch64 : elle ne vaut ni pour un autre modèle de Jetson, ni pour Linux x86-64, ni pour Windows.
+
 
 ## Sources et skills dans chaque essai
 

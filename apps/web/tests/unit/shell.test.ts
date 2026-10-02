@@ -17,7 +17,7 @@ const components = sourceFiles(/\.tsx$/).filter(file => file.startsWith("compone
 
 test("named zones: aside Bibliothèque, main Lecteur, aside Analyse", () => {
   const library = code("components/library-panel.tsx");
-  assert.match(library, /<aside className="library-panel" aria-labelledby="library-heading">/);
+  assert.match(library, /<aside className=\{`library-panel\$\{dropping \? " is-dropping" : ""\}`\} aria-labelledby="library-heading"/);
   assert.match(library, /<PanelHeader title="Bibliothèque" id="library-heading">/);
   const analysis = code("components/analysis-panel.tsx");
   assert.match(analysis, /<aside className="analysis-panel" aria-labelledby="analysis-heading">/);

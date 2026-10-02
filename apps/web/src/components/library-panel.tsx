@@ -19,6 +19,9 @@ function documentsLabel(documents: DocumentRecord[]) { return documents.length =
 /** Actions de la bibliothèque déclenchées depuis le rail, alors que le panneau est replié. */
 export type LibraryController = { importFiles: () => void; focusFilter: () => void; focusSelection: () => void };
 
+/** Boîte de choix refermée sans fichier (événement « cancel ») : choix annulé, ou fichier non transmis par le navigateur. */
+export const NO_FILE_NOTICE = "Aucun fichier n'a été transmis par la boîte de choix. Si vous en aviez choisi un, faites-le glisser depuis votre gestionnaire de fichiers et déposez-le sur la bibliothèque.";
+
 /**
  * Rail de 64 px de la bibliothèque repliée : importer, filtrer et rejoindre la
  * sélection. Chaque action rouvre le panneau, où s'affichent transfert et résultats.
@@ -49,6 +52,10 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
   const errorText = useErrorText();
   const [importIssue, setImportIssue] = useState("");
   const [importOrigin, setImportOrigin] = useState<"files" | "folder">("files");
+  // PDF déposés depuis le gestionnaire de fichiers : voie d'import qui ne dépend pas de la boîte de choix du navigateur
+  // (sous Chromium installé en snap, elle peut se refermer sans transmettre de fichier).
+  const [dropping, setDropping] = useState(false);
+  const dragDepth = useRef(0);
   const ignored = useRef(0);
   const openRequest = useRef(0);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -97,6 +104,24 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
     setUploadProgress(0); importMutation.mutate(pdfs);
   };
   const chooseFiles = (origin: "files" | "folder") => { setImportOrigin(origin); (origin === "files" ? fileInput : folderInput).current?.click(); };
+  const carriesFiles = (event: React.DragEvent) => event.dataTransfer.types.includes("Files");
+  const dragEnter = (event: React.DragEvent) => { if (!carriesFiles(event)) return; event.preventDefault(); dragDepth.current += 1; setDropping(true); };
+  const dragOver = (event: React.DragEvent) => { if (!carriesFiles(event)) return; event.preventDefault(); event.dataTransfer.dropEffect = importMutation.isPending ? "none" : "copy"; };
+  const dragLeave = (event: React.DragEvent) => { if (!carriesFiles(event)) return; dragDepth.current = Math.max(0, dragDepth.current - 1); if (!dragDepth.current) setDropping(false); };
+  const drop = (event: React.DragEvent) => {
+    if (!carriesFiles(event)) return;
+    event.preventDefault(); dragDepth.current = 0; setDropping(false);
+    if (importMutation.isPending) return;
+    setImportOrigin("files"); imported(event.dataTransfer.files);
+  };
+  // Boîte de choix refermée sans fichier : le navigateur émet « cancel » (Chromium, Firefox) ; l'atelier le dit au lieu
+  // de rester muet, et propose le dépôt, qui ne passe pas par cette boîte.
+  useEffect(() => {
+    const inputs = [fileInput.current, folderInput.current].filter((input): input is HTMLInputElement => input !== null);
+    const cancelled = () => { setImportIssue(""); setNotice(NO_FILE_NOTICE); };
+    for (const input of inputs) input.addEventListener("cancel", cancelled);
+    return () => { for (const input of inputs) input.removeEventListener("cancel", cancelled); };
+  }, []);
   useEffect(() => {
     if (!controller) return;
     controller.current = {
@@ -125,7 +150,8 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
     return <div key={folder.id}><div className="tree-folder" style={{ paddingLeft: depth * 16 + 12 }}><button onClick={() => toggleFolder(folder.id)} aria-expanded={Boolean(expanded)} title={folder.path}>{expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}<FolderIcon size={16} /><span>{folder.name}</span></button><button className="folder-scope" title={`Périmètre : ${folder.path} et ses sous-dossiers`} aria-label={`Définir le périmètre sur le dossier ${folder.name}`} onClick={() => state.setScope({ kind: "folder", folderId: folder.id, recursive: true }, `${folder.path} · sous-dossiers inclus`)}><Crosshair size={14} /></button></div>{expanded && <div>{data.folders.filter(child => child.parent_id === folder.id).map(child => renderFolder(child, depth + 1, [...ancestors, folder.id]))}{data.documents.filter(document => document.folder_id === folder.id && document.state !== "deleted" && matches(document)).map(document => renderDocument(document, depth + 1))}</div>}</div>;
   };
   const selectedDocuments = live.filter(document => state.selectedIds.includes(document.id));
-  return <aside className="library-panel" aria-labelledby="library-heading">
+  return <aside className={`library-panel${dropping ? " is-dropping" : ""}`} aria-labelledby="library-heading" onDragEnter={dragEnter} onDragOver={dragOver} onDragLeave={dragLeave} onDrop={drop}>
+    {dropping && <div className="library-drop" role="status">{importMutation.isPending ? "Un import est déjà en cours : attendez sa fin pour déposer d'autres PDF." : "Déposez les PDF pour les importer dans la bibliothèque."}</div>}
     <PanelHeader title="Bibliothèque" id="library-heading"><div className="panel-heading-actions">{tree.data && <span className="count-pill" title="Documents présents dans la bibliothèque"><span className="sr-only">Documents présents : </span>{data.total_documents ?? live.length}</span>}{headerAction}</div></PanelHeader>
     {tree.isError && <PanelError title={isServiceUnavailable(tree.error) ? "Service local indisponible" : "Lecture de la bibliothèque impossible"} message={view === "unavailable" ? errorText(tree.error) : `${errorText(tree.error)} La liste affichée date de la dernière lecture réussie.`} onRetry={() => void tree.refetch()} />}
     {view === "loading" && <PanelLoading label="Chargement de la bibliothèque…" />}
@@ -143,7 +169,7 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
     <label className="library-filter"><Search size={14} aria-hidden="true" /><input ref={filterInput} aria-label="Filtrer les fichiers" placeholder="Nom ou chemin de fichier…" value={filter} onChange={event => setFilter(event.target.value)} /></label>
     <button className={`library-all ${state.scope.kind === "library" ? "is-active" : ""}`} title="Définir le périmètre sur toute la bibliothèque" aria-pressed={state.scope.kind === "library"} onClick={() => state.setScope({ kind: "library" }, "Toute la bibliothèque")}><FolderIcon size={16} /><span>Toute la bibliothèque</span>{state.scope.kind === "library" && <Check size={14} aria-hidden="true" />}</button>
     <div className="tree" role="navigation" aria-label="Arborescence documentaire">
-      {view === "no-documents" ? <PanelEmpty reason="no-documents" title="Aucun document dans la bibliothèque" description="Importez des fichiers avec « Importer des PDF » ou tout un dossier avec « Importer un dossier ». Les fichiers originaux sont conservés tels quels." />
+      {view === "no-documents" ? <PanelEmpty reason="no-documents" title="Aucun document dans la bibliothèque" description="Importez des fichiers avec « Importer des PDF », tout un dossier avec « Importer un dossier », ou déposez des PDF sur ce panneau depuis votre gestionnaire de fichiers. Les fichiers originaux sont conservés tels quels." />
         : view === "no-match" ? <PanelEmpty reason="no-match" title={`Aucun fichier ne correspond à « ${filter} »`} description="Le filtre porte sur le nom et le chemin relatif des fichiers." action={<Button variant="secondary" size="sm" onClick={() => setFilter("")}>Effacer le filtre</Button>} />
         : view === "content" ? <>{data.folders.filter(folder => !folder.parent_id || !data.folders.some(parent => parent.id === folder.parent_id)).map(folder => renderFolder(folder, 0))}{data.documents.filter(document => !document.folder_id && document.state !== "deleted" && matches(document)).map(document => renderDocument(document, 0))}</> : null}
     </div>

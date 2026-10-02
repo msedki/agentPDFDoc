@@ -51,9 +51,8 @@ poste Windows.
 
 Navigateurs Playwright : sur le poste Windows, le cache local contenait le
 Chromium requis lors des recettes du 30/09/2026. Sur le poste Linux aarch64,
-aucun navigateur Playwright n'est installé au 01/10/2026 (`~/.cache/ms-playwright`
-ne contient qu'un lien vers un autre projet) ; `playwright install` n'y a pas été
-exécuté et aucune recette E2E n'y a tourné.
+Chrome Headless Shell a été installé le 02/10/2026, avec une variable propre à
+ce système (section « Scénarios Playwright sous Linux aarch64 » plus bas).
 
 Depuis ce dossier, sous un créneau de build accordé par le superviseur, sous
 Windows, une fois les dépendances installées (`rag.ps1 provision` exécute
@@ -375,8 +374,9 @@ le 01/10 ([géométrie](reports/e2e-2026-10-01-import-isole-geometrie-evidence.j
 [rapport](reports/e2e-2026-10-01-unicode-selection-evidence.json)). Ces exécutions ont
 toutes eu lieu sur le poste Windows de qualification, avec `.venv\Scripts\python.exe`
 et les mécanismes de `rag.ps1 selftest`. L'en-tête de `e2e_instance.py` documente
-aussi une commande Linux, sur les mécanismes de `rag.sh selftest`, mais sous Linux
-ni l'outil ni la recette E2E n'ont été exécutés : leur prise en charge reste à établir.
+aussi une commande Linux, sur les mécanismes de `rag.sh selftest` ; l'outil et les
+scénarios ont été exécutés sous Linux aarch64 le 02/10/2026 (section « Scénarios
+Playwright sous Linux aarch64 » plus bas).
 Une reprise fournit `RAG_E2E_REUSE_DOCUMENT_ID` et vérifie le SHA
 de la même fixture DEV, sans nouvel import. La question réelle exige un créneau
 distinct et `RAG_E2E_GENERATION_ALLOWED=1`. La sonde mémoire (`tests/e2e/resources.ts`,
@@ -438,6 +438,75 @@ requièrent des bindings réels, une cible isolée vérifiée et un permis par c
 Ils ne soumettent aucune question au modèle. Les métriques disponibles ne
 permettent pas encore de certifier zéro calcul d'embedding redondant.
 
+## Scénarios Playwright sous Linux aarch64
+
+Exécution employée le 02/10/2026 sur le poste Linux aarch64 du chantier (Jetson AGX
+Orin, Ubuntu 20.04.6, glibc 2.31) pour la qualification Linux J8 ; aucun essai n'a
+été fait sous Linux x86-64. Playwright 1.63.0 ne prend plus en charge Ubuntu 20.04
+(notes de version, source LNX15 de `RAG_Local_Agents/SOURCES.md`) et classe ce poste
+`ubuntu20.04-arm64` (`calculatePlatform` de `playwright-core`). La variable
+`PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu22.04-arm64`, lue par la même fonction, lui
+fait retenir les navigateurs prévus pour Ubuntu 22.04 arm64, en déclarant la
+plateforme non prise en charge officiellement. Seul Chrome Headless Shell est
+installé, depuis ce dossier et avec réseau ; `--dry-run` affiche d'abord le
+navigateur retenu et son adresse de téléchargement. Le journal ne consigne que les
+options employées (`--dry-run`, puis `--only-shell`, avec la variable) : la forme
+`pnpm exec` ci-dessous, équivalente, n'est pas attestée telle quelle.
+
+```bash
+export PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu22.04-arm64
+pnpm exec playwright install --dry-run --only-shell chromium
+pnpm exec playwright install --only-shell chromium
+```
+
+Le navigateur retenu est Chrome for Testing 153.0.8010.12 `linux-arm64`, téléchargé
+depuis le CDN officiel ; son binaire n'exige que `GLIBC_2.25`, et
+`browser.version()` répond 153.0.8010.12
+([journal du 02/10](../../RAG_Local_Agents/journal/2026-10-02.md), entrée de
+01:44–01:46). Il est rangé dans `~/.cache/ms-playwright`, qui est, sur ce poste,
+un lien vers la carte microSD (aménagement local). Aucune somme de contrôle
+officielle du binaire n'a été comparée ; sa provenance et l'empreinte relevée le
+02/10 sont consignées en TOOL02 de `RAG_Local_Agents/SOURCES.md`. Les scénarios se
+lancent depuis ce dossier sur une instance isolée démarrée par
+`tools/qualification/e2e_instance.py` (voir plus haut), avec la même variable posée
+pour chaque commande, par exemple pour l'import (forme employée au lot L9 ; la
+session hors ligne du lot L10 et du rejeu R4 a lancé le même binaire par
+`./node_modules/.bin/playwright test`) :
+
+```bash
+export PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu22.04-arm64 COREPACK_ENABLE_NETWORK=0 NEXT_TELEMETRY_DISABLED=1
+export RAG_E2E_BASE_URL=<origin> RAG_E2E_CONTROL_TOKEN_FILE=<token_file> RAG_E2E_OUTPUT_DIR=<dossier-neuf>
+RAG_E2E_IMPORT_ALLOWED=1 RAG_E2E_GENERATION_ALLOWED=0 pnpm exec playwright test workspace hostile-markup
+```
+
+`<origin>` et `<token_file>` viennent de l'état écrit par `e2e_instance.py start`.
+Les autres passages ont employé les autorisations décrites plus haut
+(`RAG_E2E_READONLY_ALLOWED=1` pour `a11y` et `negative-deeplink`,
+`RAG_E2E_VISUAL_QA=1` avec `RAG_E2E_VISUAL_QA_DIR` pour `visual-qa`,
+`RAG_E2E_GENERATION_ALLOWED=1` pour la question réelle ; `session` sans autorisation
+propre). L'import et la question réelle ont aussi été rejoués dans la session hors
+ligne décrite dans
+[QUALIFICATION.md, section 10](../../RAG_Local_Agents/QUALIFICATION.md#10-qualification-sous-linux).
+Statut de chaque critère : tableau « Qualification Linux » de la
+[DoD](../../RAG_Local_Agents/DEFINITION_OF_DONE.md#qualification-linux-w018) ;
+sorties, traces et captures hors Git, sous `.runtime/qa/j8-linux/`.
+
+Limites :
+
+- plateforme hors de celles que Playwright 1.63 prend en charge officiellement : un
+  écart de comportement propre à ce système n'est pas exclu, et l'acceptation de
+  cette méthode comme preuve D06 reste à décider par l'utilisateur ;
+- navigateur headless seulement : aucun scénario n'a tourné dans un navigateur avec
+  interface, et l'ouverture de l'atelier par `./rag.sh open` dans le navigateur de
+  la session graphique n'a pas été essayée ;
+- `playwright install --with-deps` passe par le gestionnaire de paquets du système,
+  donc par des droits d'administration (LNX15), et n'a pas été employé : le shell
+  headless a démarré avec les bibliothèques déjà présentes sur ce poste, ce qui ne
+  vaut pas pour un autre ;
+- au rejeu R6, le premier passage de `visual-qa` a échoué sur une erreur de capture
+  du navigateur, puis le second est passé
+  ([journal du 02/10](../../RAG_Local_Agents/journal/2026-10-02.md)).
+
 ## Charte, composants et gardes (lot R16, étape A)
 
 État au 30/09/2026 UTC : sources modifiées, tests unitaires et typecheck PASS ;
@@ -486,11 +555,12 @@ dans le navigateur.
 | État des services en quatre états écrits : service local injoignable (ou en erreur s'il répond mal), modèle ou worker non prêt, index en retard, services prêts ; détail en info-bulle | `serviceStatus` (`src/lib/status.ts`), `pendingIndexCount` (`panel-state.ts`), `serviceDetail` (`warnings.ts`) | `status.test.ts`, `panel-state.test.ts`, `warnings.test.ts` |
 | Suivi : compteur des traitements non terminés (en cours, en pause, mis en point de reprise, interrompus ou en extraction partielle), dits « à suivre » et non « actifs » ; plafonné à « 99+ », changement annoncé par une région `aria-live="polite"`, échec de lecture dit dans le nom accessible | `app-topbar.tsx`, `activeJobsBadge`, `activeJobsSentence` | `panel-state.test.ts`, `shell.test.ts` ; annonce : lecteur d'écran à vérifier |
 | Bandeau de contexte : puce de périmètre, documents interrogeables et exclus par motif (traitement, pause, erreur, état inconnu), un seul emplacement de message (erreur de l'espace de travail, sinon avis de préparation, sinon avis de repli du GPU sur le processeur) ; sous 768 px, l'état des services quitte la barre supérieure pour ce bandeau. À droite, le matériel de la génération (toujours sous 768 px ; au-delà, dès que l'arborescence est lue, ou reconnue illisible, ou qu'un message est affiché), lu dans `generation` de `GET /jobs` (W025, ajout du 02/10/2026) : « Réponses calculées sur le GPU » (modèle vu entièrement sur le GPU), « Génération prévue sur le GPU » (modèle pas encore vu chargé, ou répartition inconnue), « Réponses calculées en partie sur le processeur » et « GPU retenu, réponses calculées sur le processeur » (avertissement), « Réponses calculées sur le processeur », ou, après un repli, « GPU en échec : réponses calculées sur le processeur » (avertissement) ; libellé dans une région `role="status"`, explication ouverte par le bouton « Explication du matériel de génération », fermée par Échap ou un clic extérieur ; rien si le champ manque, est mal formé ou si la dernière lecture du suivi a échoué | `src/components/context-band.tsx` (`GenerationIndicator`), `scopeCoverage`, `coverageSentence`, `readinessSentence`, `readGeneration` et `generationView` (`src/lib/generation.ts`) | `panel-state.test.ts`, `warnings.test.ts`, `shell.test.ts`, `generation.test.ts`, `contracts.test.ts`, `accessibility.test.ts` ; indicateur : tests unitaires (217/217) et typecheck PASS le 02/10/2026 sur le poste Linux aarch64, build, E2E et rendu non relancés, état de repli jamais affiché sur une instance réelle |
-| Bibliothèque en trois états (étendue et redimensionnable, rail de 64 px avec Importer, Filtrer et Sélection (n), masquée) ; bouton cyclique dont le libellé annonce l'action suivante ; Ctrl+B ou ⌘+B, ignoré dans la zone de question ; analyse en deux états | `workspace.tsx`, `LibraryRail` (`library-panel.tsx`), `src/lib/panel-preferences.ts` | `panel-preferences.test.ts` (cycle, libellés, raccourci) ; effet clavier et rail : au rendu |
+| Bibliothèque en trois états (étendue et redimensionnable, rail de 64 px avec Importer, Filtrer et Sélection (n), masquée) ; import par « Importer des PDF », « Importer un dossier » ou dépôt de PDF sur le panneau (cadre « Déposez les PDF pour les importer dans la bibliothèque. »), et message explicite quand la boîte de choix se referme sans fichier (événement `cancel`) ; bouton cyclique dont le libellé annonce l'action suivante ; Ctrl+B ou ⌘+B, ignoré dans la zone de question ; analyse en deux états | `workspace.tsx`, `LibraryRail` (`library-panel.tsx`), `src/lib/panel-preferences.ts` | `panel-preferences.test.ts` (cycle, libellés, raccourci) ; effet clavier et rail : au rendu |
 | Grille des panneaux à cinq pistes fixes (bibliothèque, séparateur, lecteur, séparateur, analyse), chaque enfant placé sur la sienne : un enfant `[hidden]`, que le preflight Tailwind retire de la grille (`display: none !important`), ne décale plus le lecteur dans une piste de 0 px en mode rail, bibliothèque masquée ou sous 1 024 px | `panelGridColumns` (`panel-preferences.ts`), `workspace.tsx`, `src/app/globals.css` | `panel-preferences.test.ts` (cinq pistes, lecteur sur la troisième), `shell.test.ts` (piste explicite de chaque enfant) ; largeur réelle du lecteur : au rendu, dans chaque mode |
 | Préférences locales `rag-local-panels-v2`, lecture champ par champ, migration de `rag-local-panels-v1` (la clé v1 n'est ni modifiée ni effacée) | `panel-preferences.ts`, `src/lib/panel-storage.ts` | `panel-preferences.test.ts` |
 | Sous 1 024 px (`lg` de Tailwind) : bibliothèque et analyse en panneaux latéraux `<dialog>` modaux ouverts depuis la barre, avec Échap, fond inerte, retour du focus et bouton « Fermer » ; le Suivi devient un panneau latéral droit à toutes les largeurs. Chaque panneau est rendu une seule fois par portail et déplacé sans démontage : historique des questions, flux en cours et filtre survivent au franchissement de 1 024 px | `src/components/ui/sheet.tsx`, `workspace.tsx`, `jobs-panel.tsx` | `shell.test.ts` (structure) ; focus, Échap et conservation d'état : au rendu |
 | Points de rupture Tailwind (80, 64, 48 et 40 rem) à la place des seuils codés 1 100 et 760 px ; cibles de 44 px sous 1 024 px dans la barre et les en-têtes | `src/app/globals.css` | `shell.test.ts` ; rendu aux six largeurs de QA à faire |
+| Barre supérieure sous 1 024 px (ajout du 02/10/2026, qualification Linux J8) : nom de l'atelier et libellés des boutons masqués à l'écran, chaque bouton gardant son icône et son nom accessible ; déclencheur du périmètre réduit avec la colonne centrale, libellé abrégé par des points de suspension ; nom accessible « Suivi, … » porté par le bouton | `src/app/globals.css`, `app-topbar.tsx` | `shell.test.ts` ; rendu de 768 à 1 366 px examiné le 02/10 dans Chromium headless sous Linux, sans recouvrement (rejeu R6 du [journal du 02/10](../../RAG_Local_Agents/journal/2026-10-02.md)) |
 | Liens d'évitement « Aller au lecteur » et « Aller à la zone de question » (hors de `.workspace-shell`) ; zones `aside` Bibliothèque, `main` Lecteur, `aside` Analyse ; anneau de focus sur `--ring`, y compris sur le lecteur atteint par le lien | `workspace.tsx`, `library-panel.tsx`, `analysis-panel.tsx` | `shell.test.ts`, `accessibility.test.ts` |
 | Menu Aide : raccourcis en `<kbd>`, chacun relié à son câblage dans le code ; signature « version {package.json} · révision non tracée », la révision n'étant lue que si `NEXT_PUBLIC_BUILD_REVISION` est injectée au build (aucun script ne le fait aujourd'hui) | `src/components/help-menu.tsx`, `src/lib/build-info.ts` | `shell.test.ts` (raccourci annoncé = raccourci câblé), `build-info.test.ts` |
 | Textes : inventaire complet, réécritures et motifs ; vocabulaire document, version, page, bloc, périmètre, source, extraction, indexation ; aucun code brut affiché seul | [`reports/ui-text-inventory-2026-09-30.md`](reports/ui-text-inventory-2026-09-30.md) | `warnings.test.ts`, `status.test.ts` ; relecture au rendu |

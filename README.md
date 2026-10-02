@@ -2,9 +2,13 @@
 
 Poste de lecture et d'analyse de PDF qui fonctionne entièrement sur un PC Windows 11 de 16 Gio, sur CPU, sans WSL, Docker ni service distant ; le même code tourne aussi sous Linux natif aarch64 (poste Jetson du chantier ; x86-64 prévu par [W018](RAG_Local_Agents/DECISIONS.md#w018-double-plateforme--windows-11-x86-64-et-linux-aarch64-natifs), non essayé), et la génération des réponses peut passer sur un GPU NVIDIA là où cette voie est qualifiée. Les réponses du modèle local ne citent que des passages enregistrés pour la question, et chaque citation s'ouvre dans le PDF à sa version, sa page et son bloc d'origine.
 
-**État au 30 septembre 2026 (commit `13d865f`) :** import, extraction, recherche, génération et ouverture des citations exercés sur une instance réelle ; 4 documents du corpus du poste extraits et publiés, 61 en pause jusqu'au feu vert de l'utilisateur ; accès à l'atelier par une session locale ouverte avec `.\rag.ps1 open` ; interface refondue et relue sur captures ; recherche évaluée sur ce corpus (157 blocs attendus sur 160 au top 10, [rapport](RAG_Local_Agents/reports/evaluation/corpus-reel-2026-09-30.md)) ; une réponse réelle complète en 298 s, dont 175 s avant le premier mot, loin de la cible D07 ([preuve](RAG_Local_Agents/reports/backend/2026-09-30-real-corpus-question-20260930T2029.json)) ; recette D01–D11 non close. Détail et prochaines actions dans le [plan du chantier](RAG_Local_Agents/PLAN.md).
+**État au 2 octobre 2026 (commit `36824e2`).** La recette D01–D11 n'est close sur aucune plateforme. Depuis [W018](RAG_Local_Agents/DECISIONS.md#w018-double-plateforme--windows-11-x86-64-et-linux-aarch64-natifs), chaque critère se qualifie par plateforme et une preuve ne vaut que pour la machine qu'elle déclare ([DEFINITION_OF_DONE.md](RAG_Local_Agents/DEFINITION_OF_DONE.md), règle de clôture) ; détail et prochaines actions dans le [plan du chantier](RAG_Local_Agents/PLAN.md).
 
-**Accélération GPU de la génération, état au 2 octobre 2026 (commit `4d8ba68`) :** livrée selon [W024](RAG_Local_Agents/DECISIONS.md#w024-accélération-gpu-détectée-proposée-et-utilisée-automatiquement-quand-elle-est-disponible) et [W025](RAG_Local_Agents/DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024). Seul le modèle de réponse change de matériel ; extraction, OCR et embeddings restent sur CPU. Le GPU n'est employé d'office que sur une voie qualifiée par un essai réel : aujourd'hui un Jetson sous Jetson Linux R35 (JetPack 5) avec le complément officiel d'Ollama, essayé le 2 octobre sur le Jetson AGX Orin du poste Linux aarch64 de développement (provisionnement du complément, démarrage, `doctor`, `selftest` sur GPU puis en CPU imposé, calibration ; [résultats et limites](docs/architecture/ARCHITECTURE.md#51-accélération-gpu-de-la-génération)). Un Jetson de 16 Go en mode GPU n'est pas qualifié : en `auto`, un Jetson de 16 Gio de mémoire totale ou moins, ou dont la mémoire est illisible, reste sur CPU, et `doctor` y propose un essai par `llm.accelerator: gpu`. L'essai suggère qu'une partie de la mémoire prise par le GPU échappe à `MemAvailable`, sur laquelle repose le gouverneur (hypothèse H-GPU-2, non mesurable sans droits root sous Jetson Linux R35.4.1). Sur un Jetson R36 et sur un poste Linux ou Windows doté d'un GPU NVIDIA que découvre Ollama, voies jamais essayées, `doctor` propose un essai par `llm.accelerator: gpu` sans employer le GPU d'office. Un poste sans GPU utilisable, dont le poste Windows de qualification, reste sur CPU avec des requêtes inchangées, ce que vérifient des tests sur plateforme simulée ; son rejeu réel reste à faire. La recette D07 se mesure en calcul CPU imposé ([QUALIFICATION.md, section 8](RAG_Local_Agents/QUALIFICATION.md#8-performance-et-ressources)).
+- **Windows 11 x86-64, cible d'origine ([W001](RAG_Local_Agents/DECISIONS.md#w001-plateforme-windows-native)).** État de la qualification au 1er octobre 2026 sur le poste de 16 Gio : cases et preuves des sections D01 à D11 de la DoD. Import, extraction, recherche, génération et ouverture des citations y ont été exercés sur une instance réelle ; 4 documents du corpus du poste sont extraits et publiés, 61 en pause jusqu'au feu vert de l'utilisateur ; recherche évaluée sur ce corpus (157 blocs attendus sur 160 au top 10, [rapport](RAG_Local_Agents/reports/evaluation/corpus-reel-2026-09-30.md)) ; une réponse réelle complète a pris 298 s, dont 175 s avant le premier mot, loin de la cible D07 ([preuve](RAG_Local_Agents/reports/backend/2026-09-30-real-corpus-question-20260930T2029.json)). Aucun essai n'y a été refait depuis le passage au poste Linux (clone du 1er octobre à 12:42 UTC) : les évolutions suivantes, dont l'accélération GPU et les corrections de la qualification Linux, n'y sont couvertes que par des tests en plateforme simulée, par `mypy --platform win32` et par l'analyse syntaxique et quelques exécutions ciblées des scripts PowerShell du dépôt sous PowerShell 7.4.15 (`test_powershell_syntax.py`), jamais sous Windows PowerShell 5.1 ([journal du 2 octobre](RAG_Local_Agents/journal/2026-10-02.md)).
+- **Linux aarch64.** Qualification exécutée en partie le 2 octobre 2026 sur un Jetson AGX Orin de 61 Gio (lot J8), qui ne représente pas l'hôte de 16 Go visé par D07 : installation sur clone neuf et démarrage hors ligne (D01) et sécurité hors ligne (D08) réussis ; extraction (D02.6, D02.7, D02.10) et textes de licence (D09.5) en échec ; D07 bloqué ; jeu final non exécuté. Le statut et la preuve de chaque critère sont dans le tableau « Qualification Linux » de la [DoD](RAG_Local_Agents/DEFINITION_OF_DONE.md#qualification-linux-w018), la procédure employée dans [QUALIFICATION.md, section 10](RAG_Local_Agents/QUALIFICATION.md#10-qualification-sous-linux), les corrections qui en sont issues dans le [CHANGELOG](CHANGELOG.md). Les critères restés ouverts et les décisions attendues de l'utilisateur sont tenus par le plan (lot J8 et points à trancher 11 à 13).
+- **Linux x86-64.** Verrou uv et artefacts résolus ; jamais exécuté, faute de machine de qualification (même tableau de la DoD).
+
+**Accélération GPU de la génération, état au 2 octobre 2026 (commits `4d8ba68` et `c32b759`) :** livrée selon [W024](RAG_Local_Agents/DECISIONS.md#w024-accélération-gpu-détectée-proposée-et-utilisée-automatiquement-quand-elle-est-disponible) et [W025](RAG_Local_Agents/DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024). Seul le modèle de réponse change de matériel ; extraction, OCR et embeddings restent sur CPU. Le GPU n'est employé d'office que sur une voie qualifiée par un essai réel : aujourd'hui un Jetson sous Jetson Linux R35 (JetPack 5) avec le complément officiel d'Ollama, essayé le 2 octobre sur le Jetson AGX Orin du poste Linux aarch64 de développement (provisionnement du complément, démarrage, `doctor`, `selftest` sur GPU puis en CPU imposé, calibration ; [résultats et limites](docs/architecture/ARCHITECTURE.md#51-accélération-gpu-de-la-génération)). Un Jetson de 16 Go en mode GPU n'est pas qualifié : en `auto`, un Jetson de 16 Gio de mémoire totale ou moins, ou dont la mémoire est illisible, reste sur CPU, et `doctor` y propose un essai par `llm.accelerator: gpu`. L'essai suggère qu'une partie de la mémoire prise par le GPU échappe à `MemAvailable`, sur laquelle repose le gouverneur (hypothèse H-GPU-2, non mesurable sans droits root sous Jetson Linux R35.4.1). Sur un Jetson R36 et sur un poste Linux ou Windows doté d'un GPU NVIDIA que découvre Ollama, voies jamais essayées, `doctor` propose un essai par `llm.accelerator: gpu` sans employer le GPU d'office. Un poste sans GPU utilisable, dont le poste Windows de qualification, reste sur CPU avec des requêtes inchangées, ce que vérifient des tests sur plateforme simulée ; son rejeu réel reste à faire. La recette D07 se mesure en calcul CPU imposé ([QUALIFICATION.md, section 8](RAG_Local_Agents/QUALIFICATION.md#8-performance-et-ressources)).
 
 ---
 
@@ -39,14 +43,14 @@ La documentation stabilisée (architecture, interface HTTP, exploitation) est in
 
 ## 1. Vue d'ensemble
 
-Le poste importe des PDF natifs, scannés ou mixtes, en extrait le texte avec sa géométrie, l'indexe deux fois (plein texte SQLite FTS5 et vecteurs Qdrant) et répond aux questions avec un modèle Qwen exécuté par Ollama. Tout tourne en processus Windows natifs supervisés par un lanceur PowerShell unique, `rag.ps1`, sur l'adresse de bouclage 127.0.0.1.
+Le poste importe des PDF natifs, scannés ou mixtes, en extrait le texte avec sa géométrie, l'indexe deux fois (plein texte SQLite FTS5 et vecteurs Qdrant) et répond aux questions avec un modèle Qwen exécuté par Ollama. Tout tourne en processus natifs supervisés par un lanceur unique, `rag.ps1` (PowerShell, Windows) ou `rag.sh` (shell POSIX, Linux), sur l'adresse de bouclage 127.0.0.1.
 
 | Composant | Rôle | Racine |
 |---|---|---|
 | Interface web | Trois panneaux (bibliothèque, lecteur PDF, analyse) ; export statique Next.js servi par l'API | [`apps/web/`](apps/web/) |
 | API locale | FastAPI : bibliothèque, import, recherche hybride, questions en flux SSE, citations, travaux | [`services/api/`](services/api/) |
 | Ingestion PDF | Worker isolé : préflight PDFium, routage Docling natif / structuré / OCR régional, fenêtres reprenables | [`services/ingestion/`](services/ingestion/) |
-| Exploitation | Lanceur, superviseur, gouverneur de ressources, sauvegarde et restauration | [`services/runtime/`](services/runtime/), [`rag.ps1`](rag.ps1), [`bootstrap.ps1`](bootstrap.ps1) |
+| Exploitation | Lanceur, superviseur, gouverneur de ressources, sauvegarde et restauration | [`services/runtime/`](services/runtime/), [`rag.ps1`](rag.ps1), [`bootstrap.ps1`](bootstrap.ps1), [`rag.sh`](rag.sh), [`bootstrap.sh`](bootstrap.sh) |
 | Contrats | Périmètre, page, bloc, fragment, source, événements SSE, erreurs | [`packages/contracts/contracts.json`](packages/contracts/contracts.json) |
 | Configuration | Profil `local16` et verrous d'artefacts et de modèles | [`config/`](config/) |
 | Qualification | PDF synthétiques, jeux de questions, outils de capture et de notation | [`fixtures/`](fixtures/), [`evals/`](evals/), [`tools/qualification/`](tools/qualification/) |
@@ -71,14 +75,14 @@ Ces invariants sont appliqués par le code ; un écart produit un refus explicit
 
 ## 2. Parcours utilisateur
 
-1. Après `.\rag.ps1 up`, lancer `.\rag.ps1 open` : l'atelier s'ouvre dans le navigateur par défaut sur `http://127.0.0.1:8785/workspace/`, avec une session de 12 h au plus, fermée après 2 h sans activité. Une adresse tapée ou un signet sans session affiche « Session requise » et la commande à copier ; le bouton « Fermer la session » de la barre supérieure ferme la session du navigateur.
+1. Après `.\rag.ps1 up`, lancer `.\rag.ps1 open` (sous Linux, `./rag.sh up` puis `./rag.sh open`, ouverture qui n'a pas encore été essayée dans le navigateur d'une session graphique : lot J7 du [plan](RAG_Local_Agents/PLAN.md)) : l'atelier s'ouvre dans le navigateur par défaut sur `http://127.0.0.1:8785/workspace/`, avec une session de 12 h au plus, fermée après 2 h sans activité. Une adresse tapée ou un signet sans session affiche « Session requise » et la commande à copier ; le bouton « Fermer la session » de la barre supérieure ferme la session du navigateur.
 2. Importer un ou plusieurs PDF (« Importer des PDF »), ou un dossier entier (« Importer un dossier ») : les chemins relatifs forment l'arborescence de la bibliothèque, l'original est copié et haché, et le suivi des traitements affiche l'étape réellement en cours (file, extraction, indexation, pause).
 3. Ouvrir un document dans le lecteur PDF.js : zoom, rotation, sommaire extrait, blocs de texte sélectionnables. L'original reste consultable avant la fin de l'indexation.
 4. Choisir le périmètre de travail : toute la bibliothèque, un dossier et ses sous-dossiers, des documents sélectionnés, une section, une plage de pages ou une sélection de texte.
 5. Lancer une recherche, poser une question ou comparer deux à quatre documents. Les sources retenues arrivent avant le texte de la réponse, qui s'affiche en flux.
 6. Cliquer une citation `[S001]` : le lecteur ouvre la version, la page et le bloc enregistrés, surligne la région quand sa géométrie est connue et permet de revenir au passage précédent.
 
-Parcours vérifiés dans un navigateur réel : trois panneaux sans requête externe à 1366 × 768 et 1920 × 1080, clavier et focus, liens de citation invalides refusés, écran « Session requise », lien d'ouverture refusé à sa deuxième présentation et fermeture de session, sur le build de l'interface refondue ([E2E du 30/09 à 18:30, 8 PASS](apps/web/reports/e2e-2026-09-30-r17-readonly-1830-evidence.json)) ; ancienne citation restaurée ouverte à l'identique, avant la session ([ancienne citation](apps/web/reports/e2e-2026-09-30-restored-source-newcode-1412.log)). La réponse complète du modèle suivie d'un clic de citation n'a pas encore passé sa recette (section [15](#15-qualification)). La coquille (barre supérieure, bibliothèque repliable en rail, panneaux latéraux sous 1 024 px, suivi, aide) et les textes de l'interface ont été refondus (lots R15 et R16, détail dans [apps/web/README.md](apps/web/README.md)) ; leur recette visuelle avec captures (lot R20 du [plan](RAG_Local_Agents/PLAN.md)) reste à faire.
+Parcours vérifiés dans un navigateur réel : trois panneaux sans requête externe à 1366 × 768 et 1920 × 1080, clavier et focus, liens de citation invalides refusés, écran « Session requise », lien d'ouverture refusé à sa deuxième présentation et fermeture de session, sur le build de l'interface refondue ([E2E du 30/09 à 18:30, 8 PASS](apps/web/reports/e2e-2026-09-30-r17-readonly-1830-evidence.json)) ; ancienne citation restaurée ouverte à l'identique, avant la session ([ancienne citation](apps/web/reports/e2e-2026-09-30-restored-source-newcode-1412.log)). La réponse réelle du modèle suivie d'un clic sur sa citation est passée le 1er octobre sur le poste Windows ([preuves](apps/web/reports/e2e-2026-10-01-r2-generation-0446/evidence.json)) ; la qualité des réponses (D05) reste à mesurer sur le jeu final (section [15](#15-qualification)). La coquille (barre supérieure, bibliothèque repliable en rail, panneaux latéraux sous 1 024 px, suivi, aide) et les textes de l'interface ont été refondus (lots R15 et R16, détail dans [apps/web/README.md](apps/web/README.md)) ; leur recette visuelle avec captures (lot R20 du [plan](RAG_Local_Agents/PLAN.md)) a fait l'objet de deux passages, le 30 septembre et le 1er octobre ([rapport de recette](RAG_Local_Agents/reports/ui-recette-2026-09-30.md)), ses points A (sur-titres) et D (contrôle d'accessibilité automatique, lecteur d'écran) restant ouverts (plan, point du 1er octobre à 03:13). Sous Linux aarch64, les scénarios Playwright ont été rejoués le 2 octobre dans Chromium headless (critères D06 du tableau « Qualification Linux » de la [DoD](RAG_Local_Agents/DEFINITION_OF_DONE.md#qualification-linux-w018) ; mode d'exécution dans [apps/web/README.md](apps/web/README.md)).
 
 ---
 
@@ -102,8 +106,8 @@ Parcours vérifiés dans un navigateur réel : trois panneaux sans requête exte
 
 | Couche | Responsabilité | Source |
 |---|---|---|
-| Lanceur | Valide le profil, démarre le superviseur sans fenêtre, attend l'état `running`, ouvre l'atelier avec un lien de session (`open`), arrête sur demande | [`rag.ps1`](rag.ps1), [`services/runtime/cli.py`](services/runtime/cli.py), [`supervisor.py`](services/runtime/supervisor.py) |
-| Superviseur | Verrous de racine et de stockage, contrôle des ports et des binaires, lancement de Qdrant, Ollama et de l'API dans un Job Object Windows, choix du mode de génération (GPU ou CPU) d'après la découverte journalisée par Ollama, trace `resources.jsonl` | [`services/runtime/supervisor.py`](services/runtime/supervisor.py), [`windows_process.py`](services/runtime/windows_process.py) |
+| Lanceur | Valide le profil, démarre le superviseur sans fenêtre, attend l'état `running`, ouvre l'atelier avec un lien de session (`open`), arrête sur demande | [`rag.ps1`](rag.ps1), [`rag.sh`](rag.sh), [`services/runtime/cli.py`](services/runtime/cli.py), [`supervisor.py`](services/runtime/supervisor.py) |
+| Superviseur | Verrous de racine et de stockage, contrôle des ports et des binaires, lancement de Qdrant, Ollama et de l'API dans un Job Object sous Windows ou un groupe de processus sous Linux, choix du mode de génération (GPU ou CPU) d'après la découverte journalisée par Ollama, trace `resources.jsonl` | [`services/runtime/supervisor.py`](services/runtime/supervisor.py), [`windows_process.py`](services/runtime/windows_process.py), [`posix_process.py`](services/runtime/posix_process.py) |
 | API | Frontière locale (Host, Origin, CSP), session et jeton CSRF, routes `/api/v1`, SSE, file de travaux, réconciliation vectorielle | [`services/api/main.py`](services/api/main.py), [`security.py`](services/api/security.py) |
 | Gouverneur | Admission mémoire, verrou lourd du poste, pause coopérative de l'ingestion, surveillance de la réserve pendant la génération | [`services/runtime/resources.py`](services/runtime/resources.py) |
 | Ingestion | Worker séparé : préflight, fenêtres de pages, routage Docling et Tesseract, assemblage | [`services/ingestion/`](services/ingestion/) |
@@ -133,7 +137,8 @@ Description complète, flux, interfaces internes, sécurité et points d'observa
 | `docs/` | Documentation stabilisée et schémas générés | Oui |
 | `RAG_Local_Agents/` | Dossier vivant du chantier et référentiel d'exigences V2.1 | Oui |
 | `.agents/skills/` | Compétences projet et références de sécurité utilisées par les agents | Oui |
-| `rag.ps1`, `bootstrap.ps1` | Entrées PowerShell du poste | Oui |
+| `rag.ps1`, `bootstrap.ps1` | Entrées PowerShell du poste Windows | Oui |
+| `rag.sh`, `bootstrap.sh` | Entrées shell POSIX du poste Linux | Oui |
 | `pyproject.toml`, `uv.lock` | Dépendances Python verrouillées | Oui |
 | `RAG_Local_V2_1_Complet.zip`, `SHA256SUMS_COMPLET.txt` | Archive du brief V2.1 telle que reçue ; une fois extraite, son `RAG_Local_V2_1/SHA256SUMS.txt` vérifie ses 34 fichiers. `SHA256SUMS_COMPLET.txt` et `RAG_Local_Agents/SHA256SUMS.txt` sont les empreintes fournies avec le dossier inspecté les 29 et 30 septembre 2026, conformes lors de l'inspection (I01 : 20/20 et 18/18) : ils ne vérifient plus l'arbre courant et ne sont pas le manifeste de l'archive | Oui |
 | `.runtime/` | Python géré, binaires, modèles, caches, données, essais de recette | Non |
@@ -152,16 +157,17 @@ Chaque version est lue dans le fichier cité ; un changement de version passe pa
 | Couche | Technologie | Version | Source d'autorité |
 |---|---|---|---|
 | Système | Windows 11 x86-64, PowerShell | 5.1 | [W001](RAG_Local_Agents/DECISIONS.md#w001-plateforme-windows-native), [`EXPLOITATION_WINDOWS.md`](RAG_Local_Agents/EXPLOITATION_WINDOWS.md) |
-| Outil Python | uv | 0.12.21 | [`bootstrap.ps1`](bootstrap.ps1) (archive et SHA-256) |
-| Interpréteur | CPython géré dans `.runtime/python` | 3.12.14 | [`bootstrap.ps1`](bootstrap.ps1) ; plage `>=3.12,<3.13` dans [`pyproject.toml`](pyproject.toml) |
+| Système | Linux aarch64 ou x86-64, glibc, shell POSIX | glibc 2.28 au moins | [W018](RAG_Local_Agents/DECISIONS.md#w018-double-plateforme--windows-11-x86-64-et-linux-aarch64-natifs), [`bootstrap.sh`](bootstrap.sh) |
+| Outil Python | uv | 0.12.21 | [`bootstrap.ps1`](bootstrap.ps1) et [`bootstrap.sh`](bootstrap.sh) (archive et SHA-256 par plateforme) |
+| Interpréteur | CPython géré dans `.runtime/python` | 3.12.14 | [`bootstrap.ps1`](bootstrap.ps1) et [`bootstrap.sh`](bootstrap.sh) ; plage `>=3.12,<3.13` dans [`pyproject.toml`](pyproject.toml) |
 | API | FastAPI, uvicorn, Pydantic | 0.142.1, 0.54.0, 2.13.5 | [`pyproject.toml`](pyproject.toml), [`uv.lock`](uv.lock) |
 | Ingestion | Docling, pypdfium2 | 2.131.0, 5.13.0 | [`pyproject.toml`](pyproject.toml) |
 | Modèles Docling | Heron (mise en page), TableFormer accurate | révisions `8f39ad3c`, `fc0f2d45` | [`config/artifacts.lock.json`](config/artifacts.lock.json) |
-| OCR | Tesseract CLI, données `tessdata_fast` fra, eng, osd | 5.4.0, commit `87416418` | [`config/local16.yaml`](config/local16.yaml) (`pdf.tesseract_cmd`), [`config/artifacts.lock.json`](config/artifacts.lock.json) |
+| OCR | Tesseract CLI (sous Linux, compilé avec Leptonica 1.87.0 depuis les sources), données `tessdata_fast` fra, eng, osd | 5.4.0, commit `87416418` | [`config/local16.yaml`](config/local16.yaml) (`pdf.tesseract_cmd`), [`config/artifacts.lock.json`](config/artifacts.lock.json) |
 | Embeddings | multilingual-e5-small ONNX int8, onnxruntime | révision `614241f6`, 1.30.0 | [`config/artifacts.lock.json`](config/artifacts.lock.json), [`pyproject.toml`](pyproject.toml) |
-| Index vectoriel | Qdrant serveur Windows | 1.19.1 | [`config/artifacts.lock.json`](config/artifacts.lock.json) |
+| Index vectoriel | Qdrant serveur (archive Windows, archives Linux musl) | 1.19.1 | [`config/artifacts.lock.json`](config/artifacts.lock.json) |
 | Index plein texte | SQLite FTS5 (`unicode61 remove_diacritics 2`) | Bibliothèque embarquée par CPython, lue dans `GET /api/v1/diagnostics` (champ `sqlite`) | [`config/local16.yaml`](config/local16.yaml) (`sqlite`) |
-| Serveur de modèle | Ollama Windows | 0.35.0 | [`config/artifacts.lock.json`](config/artifacts.lock.json), contrôlé par `/api/version` au lancement |
+| Serveur de modèle | Ollama (archives Windows et Linux) | 0.35.0 | [`config/artifacts.lock.json`](config/artifacts.lock.json), contrôlé par `/api/version` au lancement |
 | Bibliothèques GPU d'Ollama pour Jetson | Compléments officiels `ollama-linux-arm64-jetpack5` (Jetson Linux R35) et `-jetpack6` (R36), extraits par-dessus l'archive de base | 0.35.0 | [`config/artifacts.lock.json`](config/artifacts.lock.json), groupe `ollama-gpu` |
 | Modèle de langue | Qwen3.5 4B Q4_K_M dérivé texte seul (`qwen3.5:4b-text`) | manifeste `de8024db…` | [`config/models.lock.json`](config/models.lock.json), [W006](RAG_Local_Agents/DECISIONS.md#w006-modèle-qwen-texte-seul-dérivé-localement-sans-encodeur-vision) |
 | Build web | Node.js, pnpm | 22.17.0, 10.34.1 | [`EXPLOITATION_WINDOWS.md`](RAG_Local_Agents/EXPLOITATION_WINDOWS.md) ; `engines` de [`apps/web/package.json`](apps/web/package.json) |
@@ -203,7 +209,7 @@ Toute erreur a la forme `{code, message, details, request_id}`. La référence c
 
 ## 8. Confidentialité et périmètre réseau
 
-- **Réseau réservé à la préparation.** Seuls `bootstrap.ps1` (uv, Python, dépendances), `rag.ps1 provision` (artefacts verrouillés, dépendances npm, modèle) et `rag.ps1 pull-model` accèdent à Internet ; l'option `-Offline` réutilise les caches. `up`, `open`, `status`, `logs`, `down`, `doctor`, `backup`, `verify` et `restore` ne téléchargent rien.
+- **Réseau réservé à la préparation.** Seuls `bootstrap.ps1` (uv, Python, dépendances), `rag.ps1 provision` (artefacts verrouillés, dépendances npm, modèle) et `rag.ps1 pull-model` accèdent à Internet ; l'option `-Offline` réutilise les caches. Sous Linux, il s'agit de `bootstrap.sh`, `rag.sh provision` et `rag.sh pull-model`, avec `--offline`. `up`, `open`, `status`, `logs`, `down`, `doctor`, `backup`, `verify` et `restore` ne téléchargent rien.
 - **Services en boucle locale.** API, Qdrant et Ollama écoutent sur 127.0.0.1 ; les processus du projet n'ont été observés qu'en écoute locale ([relevé du 30/09](RAG_Local_Agents/reports/listening-sockets-20260930T0930.json)). L'API rejette un `Host` ou une `Origin` étrangers et les requêtes intersites et envoie une politique CSP `default-src 'self'` ; Ollama refuse aussi un `Host` ou une `Origin` étrangers ([essai sur serveur réel](RAG_Local_Agents/reports/host-origin-live-20260930T0930.json)).
 - **Session locale.** Pas de compte : `.\rag.ps1 open` obtient avec le jeton de contrôle un lien à usage unique de 5 min, que le navigateur échange contre un cookie `HttpOnly` et `SameSite=Strict` ; registre en mémoire de l'API, inactivité 120 min, durée absolue 12 h, jeton CSRF sur les modifications, relectures périodiques de l'atelier sans effet sur l'inactivité, journal `security-audit.jsonl` sans secret ([W011](RAG_Local_Agents/DECISIONS.md#w011-session-locale-du-poste-ouverte-par-un-lien-à-usage-unique), [gardes réelles 19/19](RAG_Local_Agents/reports/http-guards-live-20260930T1829.json), [API.md, section 2](docs/interfaces/API.md#2-session-et-autorisation)).
 - **Qdrant sous clé d'API.** Le superviseur tire une clé à chaque démarrage et ne la transmet qu'à Qdrant et à l'API ; sans elle, Qdrant répond 401 hors de ses sondes de santé, y compris avec un `Host` étranger ([W010](RAG_Local_Agents/DECISIONS.md#w010-clé-dapi-qdrant-propre-à-chaque-vie-du-serveur), [gardes HTTP réelles, 15/15](RAG_Local_Agents/reports/http-guards-live-20260930T1636.json)).
@@ -217,7 +223,7 @@ Limites connues, non corrigées à ce jour :
 | Une instance lancée avant l'introduction de la clé Qdrant (commit `e0be4ac`) reste sans clé | [W010](RAG_Local_Agents/DECISIONS.md#w010-clé-dapi-qdrant-propre-à-chaque-vie-du-serveur), conséquences | `.\rag.ps1 down` puis `.\rag.ps1 up` |
 | La clé Qdrant circule en clair sur la boucle locale (pas de TLS) | [W010](RAG_Local_Agents/DECISIONS.md#w010-clé-dapi-qdrant-propre-à-chaque-vie-du-serveur) | Choix documenté : trafic limité à 127.0.0.1 |
 | En développement, cookie de session, jeton CSRF et jeton de contrôle circulent en clair sur la boucle locale (HTTP) | [W011](RAG_Local_Agents/DECISIONS.md#w011-session-locale-du-poste-ouverte-par-un-lien-à-usage-unique) | Choix documenté ; le profil `production` sert HTTPS, vérifié seulement par un test d'intégration avec certificat de test |
-| Blocage des sorties réseau au niveau du système non exécuté (D08.1) | [plan](RAG_Local_Agents/PLAN.md), points à trancher ; [journal du 30/09](RAG_Local_Agents/journal/2026-09-30.md), vers 18:17 | Une règle de pare-feu exigerait des droits administrateur, exclus depuis le 30/09 ; seule une coupure physique du réseau pendant la recette reste possible |
+| Sous Windows, blocage des sorties réseau au niveau du système non exécuté (D08.1) | [plan](RAG_Local_Agents/PLAN.md), points à trancher ; [journal du 30/09](RAG_Local_Agents/journal/2026-09-30.md), vers 18:17 | Une règle de pare-feu exigerait des droits administrateur, exclus depuis le 30/09 ; seule une coupure physique du réseau pendant la recette reste possible. Sous Linux, l'essai s'est fait sans droits d'administration, dans un espace de noms réseau utilisateur ([QUALIFICATION.md, section 10](RAG_Local_Agents/QUALIFICATION.md#10-qualification-sous-linux)) : D08.1 PASS le 2 octobre 2026 (tableau « Qualification Linux » de la [DoD](RAG_Local_Agents/DEFINITION_OF_DONE.md#qualification-linux-w018)) |
 | Sous Windows, le produit ne coupe pas la télémétrie d'ONNX Runtime : elle passe par ETW (TraceLogging), qui ne lit pas `ORT_DISABLE_TELEMETRY`. D'après l'éditeur, ses événements ne sont enregistrés que si une session de traces externe les collecte, et le système ne les transmet à Microsoft que selon le consentement de l'utilisateur | [Privacy.md d'ONNX Runtime 1.30.0](https://github.com/microsoft/onnxruntime/blob/v1.30.0/docs/Privacy.md#disabling-telemetry), section « Disabling Telemetry » ; [telemetry_environment.h](https://github.com/microsoft/onnxruntime/blob/v1.30.0/onnxruntime/core/platform/telemetry_environment.h), `IsTelemetryDisabledByEnvironment` ; comportement non observé sous Windows | À trancher : aucune désactivation propre à Windows n'est en place ; l'effet de l'API qui retire les événements non essentiels n'y a pas été vérifié |
 | `GET /api/docs`, en développement seulement, sert l'interface Swagger de FastAPI, dont les scripts viennent d'un CDN que la CSP bloque | `docs_url` dans [`services/api/main.py`](services/api/main.py) | Page non examinée au rendu ; `GET /openapi.json` reste local ; les deux sont désactivés en production |
 
@@ -234,9 +240,9 @@ Limites connues, non corrigées à ce jour :
 | Tesseract | Tesseract 5.4.0 Windows déjà installé, de préférence dans le profil de l'utilisateur (`%LOCALAPPDATA%\Programs\Tesseract-OCR`, emplacement du poste de référence) : une installation sous `%PROGRAMFILES%` demanderait des droits administrateur ; `provision` en copie l'exécutable, les DLL et les licences dans `.runtime/bin/` avec leurs empreintes | message « Prérequis Tesseract5.4.0 Windows absent » ([`provisioning.py`](services/runtime/provisioning.py)) |
 | GPU | Facultatif : seule la génération l'emploie, d'office sur une voie qualifiée (pour un GPU intégré de Jetson, sur un poste de plus de 16 Gio de mémoire) ; le projet n'installe aucun pilote ([architecture, section 5.1](docs/architecture/ARCHITECTURE.md#51-accélération-gpu-de-la-génération)) | `.\rag.ps1 doctor`, rubrique `calcul` |
 | Ports | Libres sur 127.0.0.1 : 8785 (API), 6333 (Qdrant), 11434 (Ollama) ; 11444 pendant `pull-model`, la sonde de découverte de `provision` et la calibration ; 6343 pendant `restore` ; 8795, 6343, 11445 pour un profil restauré | `.\rag.ps1 doctor`, rubrique `ports` |
-| Internet | Uniquement pour `bootstrap.ps1`, `provision` et `pull-model` sans `-Offline` | — |
+| Internet | Uniquement pour `bootstrap.ps1`, `provision` et `pull-model` sans `-Offline` ; sous Linux, `bootstrap.sh`, `rag.sh provision` et `rag.sh pull-model` sans `--offline` | — |
 
-La provenance de l'installateur Tesseract n'est pas authentifiée indépendamment ; seule la copie locale est hachée.
+La provenance de l'installateur Tesseract n'est pas authentifiée indépendamment ; seule la copie locale est hachée. Sous Linux, les prérequis propres à la plateforme (architecture, glibc, outils de compilation de Tesseract, Corepack) sont décrits dans [EXPLOITATION.md, section 2](docs/exploitation/EXPLOITATION.md#2-préparer-le-poste) ; mémoire, disque, ports et GPU suivent le tableau ci-dessus, avec `./rag.sh doctor`.
 
 ---
 
@@ -250,6 +256,8 @@ Depuis la racine du dépôt, dans PowerShell 5.1 :
 .\rag.ps1 doctor
 ```
 
+Sous Linux, depuis un shell POSIX : `./bootstrap.sh`, `./rag.sh provision`, puis `./rag.sh doctor` ([EXPLOITATION.md, section 2](docs/exploitation/EXPLOITATION.md#2-préparer-le-poste) ; les options s'écrivent `--offline`, `--skip-model`, `--only <groupe>`).
+
 `bootstrap.ps1` télécharge uv 0.12.21 (SHA-256 vérifié), installe CPython 3.12.14 dans `.runtime/python` et synchronise `.venv` depuis `uv.lock`. `provision` synchronise de nouveau les dépendances Python, installe les dépendances web (`pnpm install --frozen-lockfile`), télécharge et vérifie les artefacts verrouillés (Qdrant, Ollama, E5, tokenizer Qwen, tessdata, modèles Docling, et, sur un Jetson Linux R35 ou R36, le complément GPU d'Ollama sauf profil en calcul CPU), copie Tesseract, construit l'interface, tire le modèle source et dérive le modèle texte seul, puis consigne la découverte des GPU par Ollama ([`cli.py`](services/runtime/cli.py), fonction `provision` ; [exploitation, section 2](docs/exploitation/EXPLOITATION.md#2-préparer-le-poste)).
 
 | Variante | Commande |
@@ -259,7 +267,7 @@ Depuis la racine du dépôt, dans PowerShell 5.1 :
 | Un seul groupe d'artefacts (`qdrant`, `ollama`, `ollama-gpu`, `e5`, `qwen-tokenizer`, `tessdata`, `docling`) ; `ollama-gpu` n'a d'objet que sur un Jetson Linux R35 ou R36, où il est téléchargé quel que soit le profil | `.\rag.ps1 provision -Only qdrant` ; sous Linux, `./rag.sh provision --only ollama-gpu` |
 | Modèle seul, idempotent | `.\rag.ps1 pull-model` ou `.\rag.ps1 pull-model -Offline` |
 
-Le provisionnement complet d'une racine neuve sans intervention (critère D01) n'a pas encore été rejoué : lot R10 du [plan](RAG_Local_Agents/PLAN.md).
+Sous Windows, le provisionnement complet d'une racine neuve sans intervention (critère D01) n'a pas encore été rejoué : lot R10 du [plan](RAG_Local_Agents/PLAN.md). Sous Linux aarch64, il l'a été le 2 octobre 2026 sur un clone neuf du commit `4d8ba68` ; les modifications ultérieures de `services/runtime/cli.py` (commits `c32b759` et `419b526`) n'ont pas été rejouées en provisionnement neuf (tableau « Qualification Linux » de la [DoD](RAG_Local_Agents/DEFINITION_OF_DONE.md#qualification-linux-w018)).
 
 ---
 
@@ -278,7 +286,7 @@ Le provisionnement complet d'une racine neuve sans intervention (critère D01) n
 
 *Ordre des contrôles de `rag.ps1 up`, demande du lien d'ouverture par `rag.ps1 open` et message de chaque refus bloquant.*
 
-Procédure détaillée, sessions, supervision et reprise : [docs/exploitation/EXPLOITATION.md](docs/exploitation/EXPLOITATION.md).
+Sous Linux : `./rag.sh up`, `./rag.sh open` (ou `./rag.sh open --no-browser`, qui affiche le lien au lieu d'ouvrir un navigateur), `./rag.sh status` et `./rag.sh down` ; Qdrant et Ollama y sont arrêtés par SIGTERM à leur groupe de processus. Procédure détaillée, correspondance des options entre les deux lanceurs, sessions, supervision et reprise : [docs/exploitation/EXPLOITATION.md](docs/exploitation/EXPLOITATION.md).
 
 ---
 
@@ -334,11 +342,14 @@ pnpm typecheck
 pnpm test:unit
 ```
 
+Sous Linux, les commandes Python sont les mêmes avec `.venv/bin/python`, depuis un shell POSIX ; celles de l'interface sous Linux sont dans [apps/web/README.md](apps/web/README.md). Le test `test_control_profile_isolates_data_and_ports_but_shares_the_host_heavy_lock` borne à 57 caractères le chemin du stockage Qdrant d'une racine de contrôle créée dans le dossier temporaire, sur toutes les plateformes, alors que cette borne ne tient qu'au binaire Qdrant de Windows et que le produit ne l'applique pas sous Linux : tant que ce défaut du test n'est pas corrigé, il échoue sous Linux si `TMPDIR` dépasse 38 caractères ([QUALIFICATION.md, section 10](RAG_Local_Agents/QUALIFICATION.md#10-qualification-sous-linux)).
+
 | Contrôle | Dernier résultat conservé | Limite |
 |---|---|---|
 | Suite pytest entière (unitaires et toute l'intégration : session, HTTPS réel, OCR et rendu réels) | 480 tests le 30/09 de 21:46 à 22:02 UTC sur le contenu du commit `13d865f` avant ses deux corrections de tests : 477 PASS, 3 échecs analysés ([junit](RAG_Local_Agents/reports/backend/2026-09-30-r19-r21-full.xml)) ; reprise des fichiers corrigés : 7 PASS, 2 XFAIL ([junit](RAG_Local_Agents/reports/backend/2026-09-30-r19-r21-rerun.xml)) | Les 2 XFAIL reproduisent le défaut tiers W-PDF01 de `docling_parse` avec Torch, que la voie nominale n'emploie plus ([W009](RAG_Local_Agents/DECISIONS.md#w009-backend-pdf-nominal-pypdfium2-avec-repère-cropbox-corrigé)) |
 | Build de l'interface | Exit 0, 278 fichiers exportés, le 01/10 de 03:02 à 03:04 UTC sur le contenu du commit `49a2a1a` ([journal](apps/web/reports/build-2026-10-01-contrastes-legende.log)) ; dernier build surveillé avec manifeste : 30/09 ([journal](apps/web/reports/build-2026-09-30-r15-r17-integrated.log), [manifeste](apps/web/reports/export-manifest-2026-09-30-r15-r17-integrated.json)) | Mesures ponctuelles de mémoire, pas un pic continu |
 | Playwright | Lecture seule et recette visuelle : 11 PASS le 01/10 à 03:04 sur l'instance principale, recette visuelle 4/4 à 03:07 ([preuves](apps/web/reports/e2e-2026-10-01-contrastes-legende-0304-evidence.json), [captures](apps/web/reports/visual-qa-20261001T0307/)) ; question réelle et clic sur la citation : PASS à 04:46 et 04:57 ([preuves](apps/web/reports/e2e-2026-10-01-r2-generation-0446/evidence.json)) ; scénarios d'import sur instance isolée (`tools/qualification/e2e_instance.py`) : géométrie 4/4, parcours d'import 5/5 ([géométrie](apps/web/reports/e2e-2026-10-01-import-isole-geometrie-evidence.json), [parcours](apps/web/reports/e2e-2026-10-01-import-isole-parcours-evidence.json)) | Cycle de vie (versions, réimport, réindexation, erreurs de fichier) non rejoué |
+| Playwright sous Linux aarch64 | Scénarios de lecture seule, d'import, de session, de recette visuelle et de génération rejoués le 2 octobre 2026 dans Chromium headless 153, sur instance isolée et en session hors ligne ; statuts par critère dans le tableau « Qualification Linux » de la [DoD](RAG_Local_Agents/DEFINITION_OF_DONE.md#qualification-linux-w018) | Preuves hors Git (`.runtime/qa/j8-linux/`) ; plateforme hors de celles que Playwright 1.63 prend en charge officiellement ([apps/web/README.md](apps/web/README.md)) |
 
 Le build surveillé écrit ses preuves dans `apps/web/reports/`, suivi par Git, ou dans le dossier donné par `--evidence-dir <dossier>` pour garder hors de Git celles d'une campagne (dossier créé après les sondes de Node et de pnpm ; un dossier sous `apps/web/out/` ou un chemin qui désigne un fichier sont refusés avant elles) : `.\.venv\Scripts\python.exe apps/web/scripts/build-monitored.py --tag <etiquette-neuve>` sous Windows, `.venv/bin/python apps/web/scripts/build-monitored.py --tag <etiquette-neuve>` sous Linux ; il retient Node dans l'ordre `RAG_WEB_NODE`, puis, sous Windows seulement, le repli `D:\node\node-v22.17.0-win-x64\node.exe` propre au poste de qualification, puis le `node` du PATH ([apps/web/README.md](apps/web/README.md)). Les scénarios Playwright exigent une cible isolée et des autorisations explicites par variable (`RAG_E2E_IMPORT_ALLOWED`, `RAG_E2E_GENERATION_ALLOWED`, `RAG_E2E_READONLY_ALLOWED`) : voir [apps/web/README.md](apps/web/README.md). Leur préparation ouvre une session avec le jeton de contrôle de l'instance visée, lu dans `.runtime/data/control/admin-token` ou dans le fichier désigné par `RAG_E2E_CONTROL_TOKEN_FILE` ([global-setup.ts](apps/web/tests/global-setup.ts)).
 
@@ -359,11 +370,13 @@ Sur le corpus réel du poste, `tools/qualification/corpus_eval.py` mesure la rec
 
 L'instance doit être démarrée et sans extraction en cours (`409 ingestion_active` sinon).
 
-Blocages actuels, détaillés dans le [plan](RAG_Local_Agents/PLAN.md) :
+Sous Linux, la qualification reprend les mêmes critères et les mêmes seuils, dans le tableau « Qualification Linux » de la [DoD](RAG_Local_Agents/DEFINITION_OF_DONE.md#qualification-linux-w018) ; la procédure employée le 2 octobre 2026 sur le Jetson AGX Orin (dossier temporaire, navigateur de Playwright, session hors ligne, relecture des résultats d'`injection_check`, grille D05 jugée par l'assistant) est décrite dans [QUALIFICATION.md, section 10](RAG_Local_Agents/QUALIFICATION.md#10-qualification-sous-linux). Le jeu de questions rédigé par l'assistant sur les documents de `PDF/` ([W020](RAG_Local_Agents/DECISIONS.md#w020-évaluation-question-réponse-sur-le-corpus-réel-du-poste-linux-pdfmgv-pdftest)) et le jugement de ses réponses n'ont pas été relus par un expert : point à trancher 2 du plan.
+
+Blocages actuels sur le poste Windows, détaillés dans le [plan](RAG_Local_Agents/PLAN.md) :
 
 - génération : admise ou refusée selon la mémoire laissée par les autres applications du poste ; refus à 14:05 après 120 s d'attente à 4 709 Mio disponibles pour 4 992 requis ([preuve](RAG_Local_Agents/reports/backend/2026-09-30-restored-question-w008-20260930T1405.json)) ; admission après 67 s d'attente à 20:29, réponse complète dont les 6 citations renvoient au registre de la question ([preuve](RAG_Local_Agents/reports/backend/2026-09-30-real-corpus-question-20260930T2029.json)) ;
 - D08.1 : pas de blocage réseau système sans droits administrateur, exclus depuis le 30/09 ; seule une coupure physique du réseau pendant la recette reste possible ;
-- qualification métier : aucun jeu de questions annotées sur les PDF métier ;
+- qualification métier : le jeu de questions établi par l'assistant sur le corpus du poste ([W014](RAG_Local_Agents/DECISIONS.md#w014-jeu-de-questions-de-référence-établi-par-lecture-intégrale-des-documents), 85 questions) n'a pas été relu par un expert : point à trancher 2 du plan ;
 - D07 : le préremplissage mesuré (environ 8,6 jetons/s) rend très improbable la cible de 45 s pour 3 000 jetons ; le seuil ne sera pas abaissé sans décision. Les mesures D07 se font avec un profil en `llm.accelerator: cpu`, contrôlé par `tools/qualification/perf.py` (`d07_eligible`) ; une mesure sur GPU est rapportée à part et ne coche aucun critère D07 ([QUALIFICATION.md, section 8](RAG_Local_Agents/QUALIFICATION.md#8-performance-et-ressources)).
 
 ---
@@ -399,7 +412,7 @@ Variables d'environnement lues par le code : `RAG_PROFILE` (profil de l'API), `R
 | `.\rag.ps1 logs` | Chemins des journaux de Qdrant, Ollama et de l'API de l'instance | — |
 | `-Report <fichier.json>` | Écrit le résultat JSON de n'importe quelle commande ; un fichier existant est remplacé, choisir un nom neuf pour garder une preuve | — |
 
-Procédures complètes, supervision des ressources et reprise d'un travail : [docs/exploitation/EXPLOITATION.md](docs/exploitation/EXPLOITATION.md). Le contrat d'exploitation d'origine reste [EXPLOITATION_WINDOWS.md](RAG_Local_Agents/EXPLOITATION_WINDOWS.md).
+Sous Linux, les mêmes commandes passent par `./rag.sh`, et `-Report` s'écrit `--report`. Procédures complètes, supervision des ressources et reprise d'un travail : [docs/exploitation/EXPLOITATION.md](docs/exploitation/EXPLOITATION.md). Le contrat d'exploitation d'origine reste [EXPLOITATION_WINDOWS.md](RAG_Local_Agents/EXPLOITATION_WINDOWS.md).
 
 ---
 
@@ -414,13 +427,13 @@ Procédures complètes, supervision des ressources et reprise d'un travail : [do
 
 La sauvegarde exige une instance démarrée, suspend les mutations, copie la base SQLite par son API de sauvegarde, les originaux, les extractions, les manifestes et la configuration, télécharge un snapshot Qdrant par collection, puis relance les mutations. La restauration refuse toute racine existante, vérifie chaque copie avant de réécrire les chemins, restaure les snapshots dans un Qdrant temporaire sur le port 6343 et produit un profil distinct (API 8795, Qdrant 6343, Ollama 11445).
 
-Procédure, contrôles et retour arrière : [docs/exploitation/SAUVEGARDE-RESTAURATION.md](docs/exploitation/SAUVEGARDE-RESTAURATION.md).
+Sous Linux : `./rag.sh backup --path <dossier-neuf>`, `./rag.sh verify --path <snapshot>`, `./rag.sh restore --path <snapshot> --target <racine-neuve>`, puis `./rag.sh up --profile <racine-neuve>/restored-profile.yaml`. Procédure, contrôles et retour arrière : [docs/exploitation/SAUVEGARDE-RESTAURATION.md](docs/exploitation/SAUVEGARDE-RESTAURATION.md).
 
 ---
 
 ## 19. Dépannage
 
-Les messages cités sont ceux du code ; la liste complète est dans [docs/exploitation/DEPANNAGE.md](docs/exploitation/DEPANNAGE.md).
+Les messages cités sont ceux du code ; la liste complète, avec les messages propres à Linux (`bootstrap.sh`, compilation de Tesseract, processus d'une instance précédente), est dans [docs/exploitation/DEPANNAGE.md](docs/exploitation/DEPANNAGE.md).
 
 | Symptôme | Cause | Commande |
 |---|---|---|
@@ -478,6 +491,32 @@ Les messages cités sont ceux du code ; la liste complète est dans [docs/exploi
 .\.venv\Scripts\python.exe tools/docs/check_docs.py
 .\.venv\Scripts\python.exe tools/docs/diagrams.py --check
 .\.venv\Scripts\ruff.exe check tools/docs tests/unit/test_docs_space.py
+```
+
+Sous Linux, depuis un shell POSIX à la racine du dépôt :
+
+```bash
+# Préparation (réseau)
+./bootstrap.sh
+./rag.sh provision
+
+# Exploitation
+./rag.sh doctor
+./rag.sh up
+./rag.sh open
+./rag.sh open --no-browser
+./rag.sh status
+./rag.sh down
+
+# Sauvegarde et restauration
+./rag.sh backup --path <dossier-neuf>
+./rag.sh verify --path <snapshot>
+./rag.sh restore --path <snapshot> --target <racine-neuve>
+./rag.sh up --profile <racine-neuve>/restored-profile.yaml
+
+# Contrôles
+.venv/bin/python -m pytest tests -q -p no:cacheprovider -m "not integration and not slow and not acceptance"
+.venv/bin/python tools/docs/check_docs.py
 ```
 
 ---
