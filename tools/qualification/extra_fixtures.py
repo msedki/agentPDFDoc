@@ -2,6 +2,7 @@
 
 Deux PDF déterministes (Canvas invariant=1, aucune date d'horloge) et un sidecar JSON chacun : SHA-256, pages,
 marquage SYNTHETIQUE. Un fichier existant identique est conservé ; un fichier existant différent est refusé.
+`--check` régénère en dossier temporaire et sort avec le code 1 si une fixture livrée est absente ou différente.
 """
 from __future__ import annotations
 
@@ -135,11 +136,20 @@ def check(root: Path = ROOT) -> dict:
     return {"status": "PASS" if all(compared.values()) else "FAIL", "identical": compared}
 
 
-if __name__ == "__main__":
+def main(argv: list[str] | None = None) -> int:
+    """Code 0 si la génération ou le contrôle réussit, 1 si `--check` trouve une fixture livrée absente ou différente, 2 si
+    l'écriture refuse un fichier existant différent (argparse)."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--check", action="store_true", help="Contrôle de reproductibilité en dossier temporaire, sans écriture")
-    args = parser.parse_args()
+    parser.add_argument("--check", action="store_true",
+                        help="Contrôle de reproductibilité en dossier temporaire, sans écriture ; code 1 si une fixture livrée diffère")
+    args = parser.parse_args(argv)
     try:
-        print(json.dumps(check() if args.check else write(ROOT), ensure_ascii=False))
+        result = check(ROOT) if args.check else write(ROOT)
     except ValueError as error:
         parser.error(str(error))
+    print(json.dumps(result, ensure_ascii=False))
+    return 1 if args.check and result["status"] != "PASS" else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -49,6 +49,9 @@ export function AppTopbar({ compact, libraryMode, analysisMode, librarySheetOpen
     previousJobs.current = activeJobs;
   }, [activeJobs]);
   const count = activeJobs ?? 0;
+  // Nom complet du bouton Suivi : un complément .sr-only (position absolue, traité comme un bloc) ajoutait une espace
+  // avant la virgule dans le nom calculé (« Suivi , … », rejeu R6 de J8).
+  const jobsName = jobsFailed ? "Suivi, lecture du suivi en échec" : activeJobs === null ? "Suivi" : `Suivi, ${activeJobsSentence(count).toLocaleLowerCase("fr")}`;
   const libraryClosed = compact || libraryMode !== "expanded";
   const analysisClosed = compact || analysisMode === "hidden";
   return <header className="app-topbar">
@@ -60,10 +63,9 @@ export function AppTopbar({ compact, libraryMode, analysisMode, librarySheetOpen
     <div className="topbar-center"><ScopeControl /></div>
     <div className="topbar-end">
       <StatusIndicator className="topbar-service" status={service.status} title={service.detail} />
-      <Button variant="ghost" size="sm" onClick={onJobsOpen} aria-haspopup="dialog" aria-expanded={jobsOpen} title={jobsFailed ? "La dernière lecture du suivi a échoué : ouvrez-le pour voir l'erreur." : undefined}>
+      <Button variant="ghost" size="sm" onClick={onJobsOpen} aria-label={jobsName} aria-haspopup="dialog" aria-expanded={jobsOpen} title={jobsFailed ? "La dernière lecture du suivi a échoué : ouvrez-le pour voir l'erreur." : undefined}>
         <Activity size={16} aria-hidden="true" /><span className="topbar-label">Suivi</span>
         {count > 0 && <span className="count-pill" aria-hidden="true">{activeJobsBadge(count)}</span>}
-        <span className="sr-only">{jobsFailed ? ", lecture du suivi en échec" : activeJobs === null ? "" : `, ${activeJobsSentence(count).toLocaleLowerCase("fr")}`}</span>
       </Button>
       <span className="sr-only" aria-live="polite">{announcement}</span>
       <HelpMenu />

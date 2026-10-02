@@ -9,6 +9,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { allRules, readSource, sourceFiles, stripCssComments, stripScriptComments, topLevelRules } from "./theme-support.ts";
+import { activeJobsSentence } from "../../src/lib/panel-state.ts";
 
 const code = (file: string) => stripScriptComments(readSource(file));
 const workspace = code("components/workspace.tsx");
@@ -125,6 +126,33 @@ test("the Suivi counter is capped, announced politely, and the button keeps its 
   assert.match(topbar, /<span className="topbar-label">Suivi<\/span>/);
   assert.match(topbar, /activeJobsBadge\(count\)/);
   assert.match(topbar, /<span className="sr-only" aria-live="polite">\{announcement\}<\/span>/);
+});
+
+test("the Suivi button is named « Suivi, … » without a space before the comma, its visible label unchanged", () => {
+  // Rejeu R6 (J8) : Chromium calculait « Suivi , aucun traitement à suivre ». Le complément était un span .sr-only en
+  // position absolue, traité comme un bloc par le calcul du nom, d'où une espace avant la virgule. Le nom complet est
+  // désormais porté par aria-label ; le texte visible reste « Suivi » et le compteur reste masqué aux technologies d'assistance.
+  const topbar = code("components/app-topbar.tsx");
+  const button = /<Button\b[^>]*onClick=\{onJobsOpen\}[^>]*>([\s\S]*?)<\/Button>/.exec(topbar);
+  assert.ok(button, "bouton Suivi trouvé");
+  assert.match(button[0], /aria-label=\{jobsName\}/);
+  assert.match(button[1], /<span className="topbar-label">Suivi<\/span>/);
+  assert.match(button[1], /<span className="count-pill" aria-hidden="true">\{activeJobsBadge\(count\)\}<\/span>/);
+  assert.doesNotMatch(button[1], /sr-only/, "aucun complément masqué dans le contenu du bouton");
+  const expression = /const jobsName = ([^;]+);/.exec(topbar)?.[1];
+  assert.ok(expression, "nom accessible calculé dans le composant");
+  const jobsName = new Function("jobsFailed", "activeJobs", "count", "activeJobsSentence", `return ${expression};`) as
+    (jobsFailed: boolean, activeJobs: number | null, count: number, sentence: typeof activeJobsSentence) => string;
+  const cases: Array<[boolean, number | null, string]> = [
+    [false, 0, "Suivi, aucun traitement à suivre"], [false, 1, "Suivi, 1 traitement à suivre"], [false, 3, "Suivi, 3 traitements à suivre"],
+    [true, 2, "Suivi, lecture du suivi en échec"], [false, null, "Suivi"],
+  ];
+  for (const [failed, active, expected] of cases) {
+    const name = jobsName(failed, active, active ?? 0, activeJobsSentence);
+    assert.equal(name, expected);
+    assert.doesNotMatch(name, /\s,/);
+    assert.ok(name.startsWith("Suivi"), "le nom commence par le libellé visible (WCAG 2.5.3)");
+  }
 });
 
 test("the scope trigger shrinks with the centre column of the top bar instead of covering Suivi", () => {

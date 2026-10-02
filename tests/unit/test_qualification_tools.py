@@ -9,6 +9,7 @@ import copy
 import hashlib
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -732,6 +733,39 @@ def test_extra_fixtures_are_reproducible_in_temporary_directories_and_match_deli
     pdf.write_bytes(pdf.read_bytes() + b"\n")
     with pytest.raises(ValueError, match="autres octets"):
         extra_fixtures.write(first)
+
+
+def _extra_fixtures_copy(tmp_path):
+    """Copie autonome de l'outil (extra_fixtures, generate, corpus_data) et des quatre fichiers livrés : son ROOT est la copie."""
+    copy_root = tmp_path / "copie"
+    for name in ("extra_fixtures.py", "generate.py", "corpus_data.py"):
+        target = copy_root / "tools/qualification" / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((ROOT / "tools/qualification" / name).read_bytes())
+    for fixture in extra_fixtures.FIXTURES:
+        for relative in (fixture["path"], fixture["path"].removesuffix(".pdf") + ".sidecar.json"):
+            target = copy_root / "fixtures" / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes((ROOT / "fixtures" / relative).read_bytes())
+    return copy_root
+
+
+@pytest.mark.parametrize(("change", "code", "status"), [(None, 0, "PASS"), ("altered", 1, "FAIL"), ("missing", 1, "FAIL")])
+def test_extra_fixtures_check_exit_code_follows_its_status(tmp_path, change, code, status):
+    """Rejeu R3 (J8) : `--check` sortait avec le code 0 même quand une fixture livrée ne se reproduisait plus."""
+    copy_root = _extra_fixtures_copy(tmp_path)
+    pdf = copy_root / "fixtures/qualification-v2.1/hostile/markup-injection.pdf"
+    if change == "altered":
+        pdf.write_bytes(pdf.read_bytes() + b"\n")
+    elif change == "missing":
+        pdf.unlink()
+    completed = subprocess.run([sys.executable, str(copy_root / "tools/qualification/extra_fixtures.py"), "--check"], cwd=copy_root,
+                               capture_output=True, text=True, encoding="utf-8", timeout=300, check=False)
+    report = json.loads(completed.stdout)
+    assert (completed.returncode, report["status"]) == (code, status), completed.stderr
+    assert report["identical"]["qualification-v2.1/hostile/markup-injection.pdf"] is (change is None)
+    assert report["identical"]["qualification-v2.1/layouts/long-document-14p.pdf"] is True
+    assert not pdf.exists() or change != "missing", "--check n'écrit jamais dans le dossier contrôlé"
 
 
 @pytest.mark.parametrize(("name", "pages"), [("hostile/markup-injection", 1), ("layouts/long-document-14p", 14)])

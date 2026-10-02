@@ -16,8 +16,9 @@ from .accelerator import GPU_GROUP, entries_for_host, host_signals
 from .artifacts import ROOT, file_hash, write_json_atomic
 from .platforms import WINDOWS, entries_for_platform, executable_name, platform_id
 
-# Dossiers que la disposition W018 peut placer sur un autre volume par un lien (comme program_executable du superviseur).
-LINKED_ROOTS = (".runtime", ".venv")
+# Dossiers que la disposition W018 peut placer sur un autre volume par un lien (comme program_executable du superviseur) :
+# `.runtime`, `.venv`, et `apps/web/node_modules`, que .gitignore admet aussi en lien (poste J8 depuis 419b526).
+LINKED_ROOTS = (".runtime", ".venv", "apps/web/node_modules")
 # Racine du projet et cibles résolues de LINKED_ROOTS, chacune avec le préfixe du chemin rendu (project_roots).
 Roots = list[tuple[Path, Path]]
 # Archives officielles de uv 0.12.21 que vérifient bootstrap.sh (Linux aarch64 et x86-64) et bootstrap.ps1 (Windows).
@@ -45,11 +46,29 @@ OPENMP_RUNTIMES = {
 }
 # Avis rattachés à un runtime OpenMP : fichiers d'avis du même dossier dont le nom cite le runtime ou son projet.
 OPENMP_NOTICE_NAMES = {"libgomp": ("gomp", "gcc"), "libomp": ("libomp", "openmp", "llvm")}
-NOTICE_TERMS = ("license", "copying", "notice")
+# Noms d'avis : l'expression du kit (tools/dist/notices.py, LICENSE_FILE : licence ou license, notice, copying, copyright,
+# third-party notices, comme élément distinct du nom), plus les termes cherchés dans tout le nom depuis l'origine de
+# l'inventaire, qui retiennent CopyrightNotice.txt (tslib) et ThirdPartyNoticeText.txt (typescript) que l'expression
+# seule perdrait (rejeu R3 de J8).
+NOTICE_FILE = re.compile(r"(?i)(^|[-_.])(licen[cs]es?|notices?|copying|copyright|third[-_ ]?party[-_ ]?notices?)([-_.]|$)")
+NOTICE_TERMS = ("license", "licence", "copying", "notice")
+
+
+def notice_name(name: str) -> bool:
+    """Nom de fichier d'avis (NOTICE_FILE ou un terme de NOTICE_TERMS dans le nom)."""
+    lowered = name.lower()
+    return bool(NOTICE_FILE.search(name)) or any(term in lowered for term in NOTICE_TERMS)
+
+
+def in_license_folder(path: Path) -> bool:
+    """Fichier sous le dossier licenses/ d'un *.dist-info : PEP 639 y range les fichiers déclarés par License-File, quel
+    que soit leur nom (pypdfium2 : licenses/LICENSES/Apache-2.0.txt, licenses/data/<plateforme>/BUILD_LICENSES/*.txt)."""
+    parts = path.parts
+    return any(parts[index] == "licenses" and parts[index - 1].endswith(".dist-info") for index in range(1, len(parts) - 1))
 
 
 def project_roots() -> Roots:
-    """Racine du projet, puis cibles résolues des liens `.runtime` et `.venv` (W018), avec le préfixe rendu pour chacune.
+    """Racine du projet, puis cibles résolues des liens de LINKED_ROOTS (W018), avec le préfixe rendu pour chacune.
 
     license_inventory les résout une fois et les passe à chaque localisation : le poste J8 compte 31 366 fichiers de
     distributions Python, dont 267 seulement portent un nom d'avis (revue runtime, constat 4).
@@ -60,7 +79,7 @@ def project_roots() -> Roots:
 def project_path(path: Path, roots: Roots | None = None) -> Path | None:
     """Chemin relatif au projet, ou None si le fichier résolu sort du projet.
 
-    Un fichier derrière le lien `.runtime` ou `.venv` (W018) appartient au projet : il est jugé d'après la cible résolue
+    Un fichier derrière un lien de LINKED_ROOTS (W018) appartient au projet : il est jugé d'après la cible résolue
     de ces dossiers, non d'après celle de chaque fichier ; le chemin rendu garde les liens du projet non résolus.
     `roots` (project_roots) évite de résoudre ces liens à chaque appel.
     """
@@ -127,8 +146,7 @@ def nvidia_cuda_libraries(lock: dict, signals: dict, roots: Roots | None = None)
             continue
         for folder in sorted(item for item in library_root.iterdir() if item.is_dir() and item.name.startswith("cuda_")):
             files = sorted(item for item in folder.iterdir() if item.is_file() and not item.is_symlink())
-            notices = [notice(item, roots) for item in files
-                       if any(term in item.name.lower() for term in (*NOTICE_TERMS, "eula"))]
+            notices = [notice(item, roots) for item in files if notice_name(item.name) or "eula" in item.name.lower()]
             for path in files:
                 match = NVIDIA_CUDA_LIBRARY.match(path.name)
                 if not match:
@@ -162,8 +180,7 @@ def openmp_runtime_libraries(lock: dict, signals: dict, roots: Roots | None = No
             runtime = match.group(1)
             names = OPENMP_NOTICE_NAMES[runtime]
             notices = [notice(item, roots) for item in sorted(path.parent.iterdir()) if item.is_file()
-                       and any(term in item.name.lower() for term in NOTICE_TERMS)
-                       and any(name in item.name.lower() for name in names)]
+                       and notice_name(item.name) and any(name in item.name.lower() for name in names)]
             location = project_path(path, roots)
             result.append({**OPENMP_RUNTIMES[runtime], "path": str(location if location is not None else path.resolve()),
                            "bytes": path.stat().st_size,
@@ -182,8 +199,11 @@ def license_inventory(output: Path) -> dict:
     # Windows : LICENSE.txt à la racine de l'installation ; Linux (python-build-standalone) : dans lib/python3.x.
     python_licenses = [python_root / "LICENSE.txt",
                        python_root / "lib" / f"python{sys.version_info.major}.{sys.version_info.minor}" / "LICENSE.txt"]
+    # Interpréteur du projet (.runtime/python, W018) : chemin relatif, comme ses avis ; un interpréteur du système garde le sien.
+    python_location = project_path(python_root, roots)
     result["runtime_prerequisites"].append({"name": "CPython", "version": sys.version.split()[0],
-        "path": str(python_root), "redistributed_in_project": project_path(python_root, roots) is not None,
+        "path": str(python_location if python_location is not None else python_root),
+        "redistributed_in_project": python_location is not None,
         "notices": [notice(path, roots) for path in python_licenses if path.is_file()]})
     uv = {"name": "uv", "version": "0.12.21", "redistributed_in_project": True, "notices": [notice(path, roots) for path in
           sorted((ROOT / ".runtime/bootstrap").glob("uv-*.dist-info/licenses/*")) if path.is_file()]}
@@ -201,8 +221,8 @@ def license_inventory(output: Path) -> dict:
     for distribution in sorted(importlib.metadata.distributions(), key=lambda d: d.metadata.get("Name", "")):
         # Distributions installées sur disque : locate_file rend un pathlib.Path (resolve() l'exige déjà).
         files = [cast(Path, distribution.locate_file(file)) for file in distribution.files or []]
-        # Nom d'avis d'abord : seuls ces fichiers sont localisés (constat 4).
-        notices = [notice(path, roots) for path in files if any(key in path.name.lower() for key in NOTICE_TERMS)
+        # Nom d'avis ou dossier licenses/ de PEP 639 d'abord : seuls ces fichiers sont localisés (constat 4).
+        notices = [notice(path, roots) for path in files if (notice_name(path.name) or in_license_folder(path))
                    and path.is_file() and project_path(path, roots) is not None]
         metadata = distribution.metadata
         result["python"].append({"name": metadata.get("Name"), "version": distribution.version,
@@ -223,8 +243,7 @@ def license_inventory(output: Path) -> dict:
         if not all(identity) or identity in seen:
             continue
         seen.add(identity)
-        notices = [notice(p, roots) for p in path.parent.iterdir() if p.is_file() and
-                   any(term in p.name.lower() for term in ("license", "copying", "notice"))]
+        notices = [notice(p, roots) for p in sorted(path.parent.iterdir()) if p.is_file() and notice_name(p.name)]
         result["npm"].append({"name": identity[0], "version": identity[1], "license": package.get("license"),
                               "metadata_sha256": file_hash(path), "notices": notices})
     lock = json.loads((ROOT / "config/artifacts.lock.json").read_text(encoding="utf-8"))
@@ -242,7 +261,7 @@ def license_inventory(output: Path) -> dict:
                 "file": notice(path, roots) if path.is_file() else None, "provisioned": path.is_file()})
     for parent in (ROOT / ".runtime/bin", ROOT / ".runtime/models"):
         for path in sorted(parent.rglob("*")):
-            if path.is_file() and any(term in path.name.lower() for term in NOTICE_TERMS):
+            if path.is_file() and notice_name(path.name):
                 result["native_notices"].append(notice(path, roots))
     result["nvidia_cuda_libraries"] = nvidia_cuda_libraries(lock, signals, roots)
     if result["nvidia_cuda_libraries"]:
@@ -296,6 +315,9 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "RAG_Local_Agents/reports/licenses.json")
+    parser.add_argument("--output", type=Path, default=ROOT / "RAG_Local_Agents/reports/licenses.json", metavar="FICHIER",
+                        help="inventaire JSON écrit, remplacé de façon atomique s'il existe ; par défaut "
+                             "RAG_Local_Agents/reports/licenses.json, dans un dossier suivi par Git. Pour un essai, "
+                             "choisir un fichier hors Git, par exemple sous .runtime/qa/")
     args = parser.parse_args()
     print(json.dumps(license_inventory(args.output), ensure_ascii=False, indent=2))

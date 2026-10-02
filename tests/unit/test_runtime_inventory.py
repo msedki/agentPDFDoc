@@ -4,6 +4,7 @@ Racine de programme temporaire ; ni distribution Python ni paquet npm n'est parc
 """
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -338,7 +339,7 @@ def test_link_targets_are_resolved_once_and_only_notice_names_are_located(progra
     assert [item["path"] for item in report["python"][0]["notices"]] == [
         str(Path(".venv/lib/python3.12/site-packages/paquet-1.0.dist-info/LICENSE"))]
     # Hors avis, seul le dossier de l'interpréteur est localisé (redistributed_in_project de CPython).
-    assert all(any(term in name.lower() for term in inventory.NOTICE_TERMS) or name == Path(sys.base_prefix).name
+    assert all(inventory.notice_name(name) or name == Path(sys.base_prefix).name
                for name in located), "seuls les noms d'avis sont localisés"
     assert sorted(link_resolutions) == [".runtime", ".venv"]
 
@@ -399,3 +400,94 @@ def test_windows_archive_without_openmp_runtime_adds_no_entry(program, monkeypat
     inventory.license_inventory(program / "licences.json")
     report = json.loads((program / "licences.json").read_text(encoding="utf-8"))
     assert report["openmp_runtime_libraries"] == [] and not any("OpenMP" in limit for limit in report["limits"])
+
+
+# --- Rejeu R3 (J8) : orthographe « licence », dossier licenses/ de PEP 639, lien node_modules, aide de --output ---
+
+def _site_distribution(program, name, files):
+    """Distribution installée sous .venv du programme (sans lien) : chaque fichier listé existe."""
+    site = program / ".venv/lib/python3.12/site-packages"
+    for relative in files:
+        (site / relative).parent.mkdir(parents=True, exist_ok=True)
+        (site / relative).write_text(relative, encoding="utf-8")
+    distribution = Distribution(site, files)
+    distribution.metadata = Metadata(Name=name)
+    return distribution
+
+
+def test_licence_spelling_and_the_pep_639_license_folder_hold_notices(program, monkeypatch):
+    """R3 : et_xmlfile, openpyxl, semchunk, tqdm (LICENCE) et pypdfium2 (dist-info/licenses/LICENSES/Apache-2.0.txt…)
+    étaient rapportés sans avis alors que leur texte est installé ; tools/dist/notices.py reconnaît déjà « licen[cs]e »."""
+    monkeypatch.setattr(inventory, "host_signals", lambda: {"platform": "linux-aarch64", "l4t_major": None, "jetpack": None})
+    files = ["et_xmlfile-2.0.0.dist-info/LICENCE.rst", "et_xmlfile-2.0.0.dist-info/LICENCE.python",
+             "et_xmlfile-2.0.0.dist-info/licenses/LICENCE", "et_xmlfile-2.0.0.dist-info/licenses/LICENSES/Apache-2.0.txt",
+             "et_xmlfile-2.0.0.dist-info/licenses/data/linux_arm64/BUILD_LICENSES/abseil.txt",
+             "et_xmlfile-2.0.0.dist-info/licenses/AUTHORS", "et_xmlfile-2.0.0.dist-info/METADATA", "et_xmlfile-2.0.0.dist-info/RECORD",
+             "et_xmlfile/COPYRIGHT", "et_xmlfile/Apache-2.0.txt", "et_xmlfile/licenses/README", "et_xmlfile/module.py"]
+    distribution = _site_distribution(program, "et_xmlfile", files)
+    monkeypatch.setattr(inventory.importlib.metadata, "distributions", lambda: [distribution])
+    inventory.license_inventory(program / "licences.json")
+    notices = json.loads((program / "licences.json").read_text(encoding="utf-8"))["python"][0]["notices"]
+    site = Path(".venv/lib/python3.12/site-packages")
+    # Hors du dossier licenses/ d'un *.dist-info, un nom sans terme d'avis n'en est pas un (Apache-2.0.txt, README).
+    assert [item["path"] for item in notices] == [str(site / name) for name in files[:6]] + [str(site / "et_xmlfile/COPYRIGHT")]
+
+
+def test_notice_names_follow_the_kit_rule_and_keep_the_former_terms():
+    from tools.dist.notices import LICENSE_FILE
+
+    # Même expression que le kit Windows (une seule règle de nom pour les deux composants).
+    assert inventory.NOTICE_FILE.pattern == LICENSE_FILE.pattern
+    for name in ("LICENSE", "LICENCE.rst", "LICENSES.txt", "COPYING", "NOTICE.md", "COPYRIGHT", "ThirdPartyNotices.txt",
+                 "MIT-LICENSE", "LLAMA_CPP_LICENSE",
+                 # Termes cherchés dans tout le nom depuis l'origine : avis réels de tslib et de typescript (pnpm, J8).
+                 "CopyrightNotice.txt", "ThirdPartyNoticeText.txt", "COPYING3", "UNLICENSE"):
+        assert inventory.notice_name(name), name
+    for name in ("README.md", "Apache-2.0.txt", "package.json", "AUTHORS", "libcudart.so.11.4.298"):
+        assert not inventory.notice_name(name), name
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="lien apps/web/node_modules posé sous Linux (W018)")
+def test_npm_notices_behind_a_node_modules_link_and_cpython_inside_the_project_have_project_paths(program, monkeypatch, tmp_path_factory):
+    """R3 : depuis 419b526, apps/web/node_modules est un lien vers un autre volume ; les 70 chemins d'avis npm et celui de
+    CPython sortaient absolus (/media/…) dans un rapport dont la sortie par défaut est versionnée."""
+    monkeypatch.setattr(inventory, "host_signals", lambda: {"platform": "linux-aarch64", "l4t_major": None, "jetpack": None})
+    volume = tmp_path_factory.mktemp("volume")
+    package = volume / "web/node_modules/.pnpm/paquet@1.0.0/node_modules/paquet"
+    package.mkdir(parents=True)
+    (package / "package.json").write_text(json.dumps({"name": "paquet", "version": "1.0.0", "license": "MIT"}), encoding="utf-8")
+    for name in ("LICENCE", "CopyrightNotice.txt", "index.js"):
+        (package / name).write_text(name, encoding="utf-8")
+    (program / "apps/web").mkdir(parents=True)
+    (program / "apps/web/node_modules").symlink_to(volume / "web/node_modules", target_is_directory=True)
+    python_root = program / ".runtime/python/cpython-3.12.14-linux-aarch64-gnu"
+    (python_root / "lib/python3.12").mkdir(parents=True)
+    (python_root / "lib/python3.12/LICENSE.txt").write_text("PSF", encoding="utf-8")
+    monkeypatch.setattr(inventory, "sys", SimpleNamespace(base_prefix=str(python_root), version_info=sys.version_info, version="3.12.14 (simulé)"))
+    inventory.license_inventory(program / "licences.json")
+    report = json.loads((program / "licences.json").read_text(encoding="utf-8"))
+    pnpm = Path("apps/web/node_modules/.pnpm/paquet@1.0.0/node_modules/paquet")
+    assert sorted(item["path"] for item in report["npm"][0]["notices"]) == [str(pnpm / "CopyrightNotice.txt"), str(pnpm / "LICENCE")]
+    cpython = report["runtime_prerequisites"][0]
+    assert cpython["path"] == str(Path(".runtime/python/cpython-3.12.14-linux-aarch64-gnu")) and cpython["redistributed_in_project"] is True
+    assert str(volume) not in (program / "licences.json").read_text(encoding="utf-8")
+
+
+def test_cpython_outside_the_project_keeps_its_absolute_path(program, monkeypatch, tmp_path_factory):
+    monkeypatch.setattr(inventory, "host_signals", lambda: {"platform": "linux-aarch64", "l4t_major": None, "jetpack": None})
+    python_root = tmp_path_factory.mktemp("systeme") / "python3.12"
+    python_root.mkdir()
+    monkeypatch.setattr(inventory, "sys", SimpleNamespace(base_prefix=str(python_root), version_info=sys.version_info, version="3.12.14 (simulé)"))
+    inventory.license_inventory(program / "licences.json")
+    cpython = json.loads((program / "licences.json").read_text(encoding="utf-8"))["runtime_prerequisites"][0]
+    assert cpython["path"] == str(python_root) and cpython["redistributed_in_project"] is False
+
+
+def test_output_option_help_names_the_default_tracked_file():
+    """R3 : l'aide affichait « --output OUTPUT » sans texte, alors que la sortie par défaut est un dossier suivi par Git."""
+    completed = subprocess.run([sys.executable, "-m", "services.runtime.inventory", "--help"], cwd=inventory.ROOT, capture_output=True,
+                               text=True, encoding="utf-8", timeout=120, check=False)
+    assert completed.returncode == 0, completed.stderr
+    help_text = " ".join(completed.stdout.split())
+    assert "--output" in help_text and "RAG_Local_Agents/reports/licenses.json" in help_text and "Git" in help_text
+    assert "remplacé" in help_text and ".runtime/qa/" in help_text
