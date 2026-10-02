@@ -40,7 +40,7 @@ export async function checkSession(client: SessionClient, healthWaitMs: number =
   return state;
 }
 
-/** Texte de l'écran « Service local injoignable », recalculé à chaque affichage. */
+/** Texte de l'échec d'ouverture (réseau ou réponse HTTP), recalculé à chaque affichage. */
 export function unreachableText(failure: unknown, commands: LauncherCommands | null): string {
   return failure instanceof Error ? errorMessage(failure, commands) : "Le service local ne répond pas.";
 }

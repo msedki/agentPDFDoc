@@ -14,6 +14,15 @@ import type { ReindexResponse } from "./types.ts";
 /** États suspendus que la réindexation renvoie avec `resume_required` (`reindex_response.job_state`). */
 export const SUSPENDED_REINDEX_STATES = ["paused"] as const;
 
+/** Aide d'un bouton déjà désactivé ; ne change pas les états autorisés à la réindexation. */
+export function reindexUnavailableReason(state: string): string {
+  if (state === "paused") return "Ce traitement est en pause : reprenez l'indexation dans le Suivi.";
+  if (state === "cancelled") return "Le traitement de ce document a été annulé ; importez de nouveau le fichier pour demander une nouvelle indexation.";
+  if (state === "deleted") return "Ce document a été retiré de la bibliothèque.";
+  if (["queued", "extracting", "indexing"].includes(state)) return "Réindexation possible une fois le traitement en cours terminé.";
+  return "La réindexation n'est pas proposée pour l'état actuel de ce document. Consultez le Suivi.";
+}
+
 export type ReindexOutcome =
   | { kind: "started"; message: string }
   | { kind: "running"; message: string }

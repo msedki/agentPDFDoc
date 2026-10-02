@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { Copy, KeyRound } from "lucide-react";
 import { api } from "@/lib/api";
 import { openCommandChoices, retryLauncherCommands } from "@/lib/launcher";
-import { linkInvalidFromSearch, SESSION_ENDED_EVENT, sessionScreen, type SessionEndReason } from "@/lib/session";
+import { copySessionCommand, linkInvalidFromSearch, SESSION_ENDED_EVENT, sessionScreen, type SessionEndReason } from "@/lib/session";
 import { checkSession, readLauncherCommands, unreachableText, type GateState } from "@/lib/session-check";
 import { useLauncherCommands } from "@/lib/use-launcher-commands";
 import { Button } from "./ui/button";
@@ -67,8 +67,8 @@ export function SessionGate({ children }: { children: ReactNode }) {
     <div className="session-card">
       <p className="eyebrow">Atelier documentaire</p>
       {state.kind === "checking" && <><h1 id="session-title">Ouverture de l'atelier</h1><PanelLoading label="Vérification de la session…" /></>}
-      {state.kind === "unreachable" && <><h1 id="session-title">Service local injoignable</h1>
-        <PanelError message={unreachableText(state.failure, commands)} onRetry={() => void check()} retryLabel="Vérifier de nouveau" /></>}
+      {state.kind === "unreachable" && <><h1 id="session-title">Ouverture de l'atelier impossible</h1>
+        <PanelError title="Vérification de la session impossible" message={unreachableText(state.failure, commands)} onRetry={() => void check()} retryLabel="Vérifier de nouveau" /></>}
       {state.kind === "ended" && <SessionEnded reason={state.reason} onRetry={() => void check()} />}
     </div>
   </main>;
@@ -78,13 +78,12 @@ function SessionEnded({ reason, onRetry }: { reason: SessionEndReason; onRetry: 
   const commands = useLauncherCommands();
   const screen = sessionScreen(reason, commands);
   const [copied, setCopied] = useState<string | null>(null);
+  const [copyError, setCopyError] = useState("");
   const copy = async (command: string) => {
-    try {
-      await navigator.clipboard.writeText(command);
-      setCopied(command);
-    } catch {
-      setCopied(null);
-    }
+    setCopyError("");
+    const result = await copySessionCommand(command, navigator.clipboard);
+    setCopied(result.copied);
+    setCopyError(result.error);
   };
   return <>
     <h1 id="session-title"><KeyRound size={16} aria-hidden="true" />{screen.title}</h1>
@@ -95,6 +94,7 @@ function SessionEnded({ reason, onRetry }: { reason: SessionEndReason; onRetry: 
       <code className="mono">{command}</code>
       <Button type="button" variant="secondary" size="sm" onClick={() => void copy(command)}><Copy size={14} aria-hidden="true" />{copied === command ? "Commande copiée" : system ? `Copier la commande ${system}` : "Copier la commande"}</Button>
     </div>)}
+    {copyError && <p className="inline-error" role="alert">{copyError}</p>}
     <p className="session-hint">Si la session a été ouverte dans un autre onglet de ce navigateur, vérifiez de nouveau.</p>
     <Button type="button" variant="secondary" size="sm" onClick={onRetry}>Vérifier de nouveau</Button>
     <span className="sr-only" aria-live="polite">{copied ? "Commande copiée dans le presse-papiers." : ""}</span>

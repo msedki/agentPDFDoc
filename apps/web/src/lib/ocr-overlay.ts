@@ -19,11 +19,18 @@ function extractionMetadata(block: Block): Record<string, unknown> {
 }
 
 /** Nature du texte annoncée sous une page : rien n'est affirmé tant que la couche texte de PDF.js ou les blocs extraits sont en lecture. */
-export function pageTextCaption(page: { extractionState?: string; nativeText: boolean | null; blocksLoading: boolean; ocrRegions: number }): string {
+export function pageTextCaption(page: { extractionState?: string; nativeText: boolean | null; blocksLoading: boolean; ocrRegions: number; extractedTextAvailable?: boolean; blocksUnavailable?: boolean }): string {
   if (page.extractionState === "blank") return "Page blanche";
   if (page.nativeText === null || page.blocksLoading) return "Lecture de la page…";
   if (page.ocrRegions) return page.nativeText ? "Texte natif et régions OCR" : "Texte OCR";
-  return page.nativeText ? "Texte natif" : "Aucun texte extrait";
+  if (page.nativeText) return "Texte natif";
+  if (page.blocksUnavailable) return "Texte extrait non vérifié";
+  return page.extractedTextAvailable ? "Texte extrait disponible" : "Aucun texte extrait";
+}
+
+/** Le texte conservé prouve sa disponibilité, pas sa méthode OCR ni une position sur la page. */
+export function hasExtractedText(blocks: Block[]): boolean {
+  return blocks.some(block => (block.raw_text ?? block.text).trim().length > 0);
 }
 
 /** Only block or span provenance establishes OCR. A global parser route does not. */

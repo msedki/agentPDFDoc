@@ -1,4 +1,5 @@
 import { knownLauncherCommands, launcherText, type LauncherCommands } from "./launcher.ts";
+import type { ApiWarning } from "./types.ts";
 
 /**
  * Texte d'un avertissement du service : son message, sinon une phrase qui
@@ -14,6 +15,29 @@ export function warningText(value: unknown): string {
   return "Limite signalée par le service, sans description.";
 }
 
+/** Identité d'un avertissement JSON : l'ordre des clés ne distingue pas deux copies du même événement. */
+function warningKey(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(warningKey).join(",")}]`;
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return `{${Object.keys(record).sort().map(key => `${JSON.stringify(key)}:${warningKey(record[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value) ?? String(value);
+}
+
+/** Le SSE puis `done` peuvent livrer le même avertissement ; ses données distinctes restent conservées. */
+export function mergeQueryWarnings(previous: ApiWarning[], incoming: unknown[]): ApiWarning[] {
+  const result: ApiWarning[] = [];
+  const seen = new Set<string>();
+  for (const value of [...previous, ...incoming]) {
+    const warning = typeof value === "string" || value && typeof value === "object" && !Array.isArray(value)
+      ? value as ApiWarning : warningText(value);
+    const key = warningKey(warning);
+    if (!seen.has(key)) { seen.add(key); result.push(warning); }
+  }
+  return result;
+}
+
 /**
  * Limites d'extraction (codes de `services/ingestion`) : intitulé et conséquence pour
  * l'utilisateur. Un même code répété par zone est regroupé avec ses pages.
@@ -27,20 +51,23 @@ const ingestionWarnings: Record<string, { title: string; consequence: string }> 
   NATIVE_QUALITY_FAILED: { title: "Couche texte native peu fiable", consequence: "le texte intégré au PDF ne passait pas le contrôle de qualité." },
   NATIVE_ESCALATED_TO_STRUCTURED: { title: "Pages relues par l'analyse de mise en page", consequence: "leur couche texte native ne passait pas le contrôle de qualité." },
   STRUCTURED_TEXT_LOSS: { title: "Texte écarté par l'analyse de mise en page", consequence: "une partie du texte intégré au PDF manquait après l'analyse ; si la relecture directe n'a pas pu le reprendre, ce texte n'est ni recherché ni cité." },
-  STRUCTURED_FELL_BACK_TO_NATIVE: { title: "Pages reprises depuis le texte intégré au PDF", consequence: "l'analyse de mise en page perdait leur texte ; il a été repris en entier, mais l'ordre de lecture des colonnes ou des tableaux peut différer de la page." },
+  STRUCTURED_FELL_BACK_TO_NATIVE: { title: "Pages reprises depuis le texte intégré au PDF", consequence: "une partie du texte intégré au PDF manquait après l'analyse ; la couche texte native a été utilisée pour cette page. L'ordre de lecture des colonnes ou tableaux peut différer ; vérifiez les passages dans le lecteur." },
   OCR_WORD_LOW_CONFIDENCE: { title: "Mots lus par OCR avec une faible confiance", consequence: "vérifiez les valeurs dans le lecteur avant de les utiliser." },
   OCR_CELL_LOW_CONFIDENCE: { title: "Cellules de tableau lues par OCR avec une faible confiance", consequence: "vérifiez les valeurs dans le lecteur avant de les utiliser." },
   OCR_PRINTED_CELL_UNRESOLVED: { title: "Cellules de tableau non lues", consequence: "leur contenu manque dans l'index ; consultez le tableau dans le lecteur." },
   OCR_NO_RECOGNIZED_CELLS: { title: "Aucun texte reconnu par l'OCR", consequence: "la zone numérisée n'apporte pas de texte recherchable." },
-  OCR_ORIENTATION_UNRESOLVED: { title: "Orientation de page non déterminée", consequence: "l'OCR n'a pas pu redresser la page ; son texte peut manquer." },
+  OCR_ORIENTATION_UNRESOLVED: { title: "Orientation OCR non déterminée", consequence: "la lecture OCR n'a pas été lancée dans les zones dont l'orientation reste indéterminée ; consultez la page originale dans le lecteur." },
   // Structure d'un bloc de tableau (table_coverage, docling_adapter.py) : une seule colonne d'intitulés de lignes, à
   // gauche d'un cadre nettement plus large ; ou un tableau sans cellule (son bloc reste alors sans texte) ou sans colonne.
   TABLE_CONTENT_COVERAGE_UNCERTAIN: { title: "Tableaux réduits à leurs intitulés de lignes", consequence: "l'analyse de mise en page n'a reconnu qu'une colonne d'intitulés à gauche d'un tableau plus large ; les valeurs des autres colonnes peuvent manquer à la recherche et aux citations. Consultez le tableau dans le lecteur." },
   TABLE_WITHOUT_RELIABLE_CELLS: { title: "Tableaux sans cellules reconnues", consequence: "l'analyse de mise en page a repéré un tableau sans en reconnaître les cellules ; son contenu peut manquer à la recherche et aux citations. Consultez le tableau dans le lecteur." },
   OCR_REGION_ISOLATION_LIMIT: { title: "Zones numérisées non isolées", consequence: "une partie de la page n'a pas été soumise à l'OCR." },
-  ITEM_WITHOUT_PROVENANCE: { title: "Éléments sans position dans la page", consequence: "leur texte est indexé sans surlignage précis." },
-  INVALID_SOURCE_CHARSPAN: { title: "Positions de texte incohérentes", consequence: "certains passages s'ouvrent à la page, sans surlignage." },
-  INGESTION_NATIVE_FAULT: { title: "Arrêt du composant d'extraction", consequence: "le traitement a été interrompu ; reprenez-le ou réindexez le document." },
+  ITEM_WITHOUT_PROVENANCE: { title: "Éléments sans provenance vérifiable", consequence: "leur texte n'est pas disponible pour la recherche et les citations. Consultez la page originale dans le lecteur." },
+  INVALID_SOURCE_CHARSPAN: { title: "Positions de texte incohérentes", consequence: "certains passages ont été écartés parce que leurs positions dans le texte sont incohérentes ; ils ne sont ni recherchés ni cités. Consultez la page originale dans le lecteur." },
+  PDF_RENDER_LIMIT: { title: "Rendu d'extraction limité", consequence: "le budget de pixels a limité le rendu et certaines zones n'ont pas été lues. Les recherches utilisent uniquement le texte extrait disponible. Consultez la page originale dans le lecteur." },
+  OCR_RENDER_LIMIT: { title: "Rendu OCR limité", consequence: "une région dépasse le plafond de pixels réservé à l'OCR ; sa lecture n'a pas été effectuée. Les recherches utilisent uniquement le texte extrait disponible. Consultez la page originale dans le lecteur." },
+  INGESTION_NATIVE_FAULT: { title: "Arrêt du composant d'extraction", consequence: "cette extraction ne peut pas être publiée ni réutilisée après une erreur native. Consultez le diagnostic du poste pour corriger la cause, puis réindexez le document." },
+  EXTRACTION_QUARANTINED: { title: "Extraction mise en quarantaine", consequence: "ses preuves sont conservées mais ne peuvent pas être réutilisées après une erreur native. Consultez le diagnostic du poste pour corriger la cause, puis réindexez le document." },
   // Repère géométrique (services/ingestion/geometry.py), repris en avertissement par page à la conversion des boîtes
   // du parseur (docling_adapter.py) : l'élément reste indexé sans position fiable, ou une cellule OCR est écartée.
   GEOMETRY_FRAME_MISMATCH: { title: "Repère de page incohérent", consequence: "les positions données par l'analyse de mise en page ne correspondent pas aux dimensions de la page ; des passages s'ouvrent sans surlignage précis et une cellule de tableau lue par OCR peut manquer. Vérifiez le passage dans le lecteur." },

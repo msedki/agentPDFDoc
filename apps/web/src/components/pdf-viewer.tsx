@@ -6,7 +6,7 @@ import type { PDFDocumentProxy, PDFPageProxy, RenderTask } from "pdfjs-dist";
 import { api } from "@/lib/api";
 import { useWorkspace } from "@/lib/store";
 import { boundedCanvasSize, reconcileSelection, visiblePageWindow, wholeBlockSpan } from "@/lib/selection";
-import { ocrOverlays, pageTextCaption } from "@/lib/ocr-overlay";
+import { hasExtractedText, ocrOverlays, pageTextCaption } from "@/lib/ocr-overlay";
 import { hasPublishedExtraction } from "@/lib/publication";
 import { groupedWarningTexts } from "@/lib/warnings";
 import { blocksKey, citedRevision } from "@/lib/provenance-revision";
@@ -113,7 +113,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
     if (!spans) setFailure("Cette sélection ne correspond pas de façon unique aux blocs extraits. Utilisez « Analyser cette page » ou choisissez un bloc dans « Texte extrait & provenance ».");
   };
   return <section className="pdf-page-slot" aria-label={`Page ${pageIndex + 1}`} data-page-index={pageIndex}>
-    <div className="page-caption"><span>Page {pageIndex + 1}{blocks.data?.page.label && blocks.data.page.label !== String(pageIndex + 1) ? ` · folio ${blocks.data.page.label}` : ""}</span><span>{pageTextCaption({ extractionState: blocks.data?.page.extraction_state, nativeText, blocksLoading: blocks.isLoading, ocrRegions: overlays.length })}</span></div>
+    <div className="page-caption"><span>Page {pageIndex + 1}{blocks.data?.page.label && blocks.data.page.label !== String(pageIndex + 1) ? ` · folio ${blocks.data.page.label}` : ""}</span><span>{pageTextCaption({ extractionState: blocks.data?.page.extraction_state, nativeText, blocksLoading: blocks.isLoading, ocrRegions: overlays.length, extractedTextAvailable: hasExtractedText(blocks.data?.blocks ?? []), blocksUnavailable: blocks.isError || !provenanceReady || Boolean(binding.error) })}</span></div>
     <div className="pdf-paper" style={{ width: viewport?.width ?? width - 48, height: viewport?.height ?? (width - 48) * 1.414 }} onMouseUp={selectText} onKeyUp={selectText}>
       <canvas ref={canvas} aria-label={`Page ${pageIndex + 1} de l'original PDF`} style={{ width: "100%", height: "100%" }} />
       <div ref={textLayer} className="textLayer" style={{ "--total-scale-factor": viewport ? viewport.scale * viewport.userUnit : 1, "--scale-round-x": "1px", "--scale-round-y": "1px" } as React.CSSProperties} />
@@ -228,7 +228,7 @@ export function PdfViewer() {
   const setPageScope = () => {
     if (opened && binding.actions.allowed) state.setScope({ kind: "pages", versionId: opened.versionId, pageStart: opened.pageIndex, pageEnd: opened.pageIndex }, `${metadata.data?.name ?? "Document"} · page ${opened.pageIndex + 1}`);
   };
-  if (!opened) return <section className="viewer-panel"><PanelHeader title="Lecteur" /><PanelEmpty reason="not-started" icon={<FileText size={40} strokeWidth={1} aria-hidden="true" />} title="Aucun document ouvert" description="Ouvrez un document depuis la bibliothèque ou importez un PDF. Une source citée dans une réponse s'ouvre ici, à la page et au passage utilisés." /></section>;
+  if (!opened) return <section className="viewer-panel"><PanelHeader title="Lecteur" /><PanelEmpty reason="not-started" icon={<FileText size={40} strokeWidth={1} aria-hidden="true" />} title="Aucun document ouvert" description="Ouvrez un document depuis la bibliothèque ou importez un PDF. Une source consultable s'ouvre ici à la page concernée ; le passage est surligné lorsque sa position est connue." /></section>;
   const visible = visiblePageWindow(center, pageCount);
   const version = metadata.data?.versions.find(value => value.id === opened.versionId);
   return <section className="viewer-panel">
@@ -244,6 +244,7 @@ export function PdfViewer() {
       <Button variant="ghost" size="icon" onClick={state.rotate} aria-label="Pivoter de 90 degrés" title={`Rotation ${state.rotation}°`}><RotateCw size={16} /></Button>
       <Button variant="secondary" size="sm" onClick={setPageScope} disabled={!provenanceReady || !binding.actions.allowed} title={binding.actions.reason ?? undefined}>Analyser cette page</Button>
     </div>
+    <p className="viewer-notice">« Analyser » définit le périmètre de la prochaine recherche ou question, sans lancer de traitement.</p>
     <form className="viewer-search" onSubmit={event => { event.preventDefault(); void localSearch(); }}><Search size={14} aria-hidden="true" /><input aria-label="Rechercher dans ce document" placeholder="Rechercher dans ce document" value={search} onChange={event => setSearch(event.target.value)} /><Button variant="ghost" size="sm" disabled={searching || !search.trim()} type="submit" title="Aller à la page suivante qui contient l'expression">{searching ? "Recherche…" : "Chercher plus loin"}</Button></form>
     {searchStatus && <p className="viewer-notice" role="status">{typeof searchStatus === "string" ? searchStatus : errorText(searchStatus.error)}</p>}
     {binding.error ? <p className="viewer-notice inline-warning" role="status">{binding.error}</p> : !provenanceReady && <p className="viewer-notice" role="status">Original consultable ; son extraction n'est pas encore publiée. Les passages, le sommaire et l'analyse de page s'activeront à la fin de l'indexation, visible dans le Suivi.</p>}

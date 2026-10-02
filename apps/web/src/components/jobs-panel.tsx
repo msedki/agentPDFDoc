@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import { groupedWarningTexts } from "@/lib/warnings";
 import { isActiveJobState, jobStageLabel, jobStatus } from "@/lib/status";
 import { isServiceUnavailable } from "@/lib/panel-state";
-import { jobGroup, jobsSummary, latestJobIds, showsProgress, sortJobsForAttention } from "@/lib/jobs-view";
+import { jobGroup, jobsSummary, latestJobIds, partialExtractionNotice, resumePausedNotice, showsProgress, sortJobsForAttention } from "@/lib/jobs-view";
 import type { Job, JobsResponse, LibraryTree } from "@/lib/types";
 import { Button } from "./ui/button";
 import { ActionButton } from "./ui/action-button";
@@ -52,7 +52,10 @@ export function JobsPanel({ jobs, tree, onClose }: { jobs: UseQueryResult<JobsRe
     </div>
     {summary && <p className="jobs-summary" aria-live="polite">{summary}</p>}
     {pausedCount > 0 && <div className="job-bulk-actions">
-      <ActionButton variant="secondary" size="sm" disabled={Boolean(pendingJob)} pendingLabel="Reprise…" onAction={() => jobAction("resume-paused", () => api.resumePaused(), `${pausedCount === 1 ? "1 indexation relancée" : `${pausedCount} indexations relancées`} : elles reprennent une à une, dans leur ordre d'import.`)}>{pausedCount === 1 ? "Reprendre l'indexation en pause" : `Reprendre les ${pausedCount} indexations en pause`}</ActionButton>
+      <ActionButton variant="secondary" size="sm" disabled={Boolean(pendingJob)} pendingLabel="Reprise…" onAction={() => jobAction("resume-paused", async () => {
+        const response = await api.resumePaused();
+        setModeNotice(resumePausedNotice(response.resumed));
+      })}>{pausedCount === 1 ? "Reprendre l'indexation en pause" : `Reprendre les ${pausedCount} indexations en pause`}</ActionButton>
     </div>}
     {modeNotice && <p role="status" className="library-notice">{modeNotice}</p>}
     {!jobs.data ? jobs.isLoading && <PanelLoading label="Chargement des traitements…" /> : !jobs.data.jobs.length ? <PanelEmpty reason="not-started" title="Aucun traitement enregistré" description="Les imports et les réindexations apparaissent ici avec leur étape, leur couverture et leurs limites." /> : ordered.map(job => {
@@ -62,7 +65,7 @@ export function JobsPanel({ jobs, tree, onClose }: { jobs: UseQueryResult<JobsRe
       const published = isPublished(job);
       const superseded = !latest.has(job.id);
       // « complete » désigne la fin du calcul ; un partiel non publié attend encore une décision.
-      const stage = superseded ? "remplacé par un traitement plus récent" : jobState === "ready_partial" && !published ? "vérifiée, publication à décider" : jobStageLabel(job.stage, jobState);
+      const stage = superseded ? "remplacé par un traitement plus récent" : jobState === "ready_partial" && !published ? "terminée, publication à décider" : jobStageLabel(job.stage, jobState);
       const coverage = job.coverage ?? document?.coverage;
       const name = document?.name ?? (tree.data ? "Document absent de la bibliothèque" : tree.isError ? "Document non identifié : la bibliothèque n'a pas pu être lue" : "Identification du document…");
       return <article key={job.id}>
@@ -71,7 +74,7 @@ export function JobsPanel({ jobs, tree, onClose }: { jobs: UseQueryResult<JobsRe
         {coverage && typeof coverage.processed === "number" && typeof coverage.total === "number" && <p className="tabular">{coverage.processed}/{coverage.total} pages traitées{typeof coverage.ocr === "number" && coverage.ocr > 0 ? ` · ${ocrPagesSentence(coverage.ocr)}` : ""}</p>}
         {(job.error || job.error_message) && <p className="inline-error">{job.error ?? job.error_message}</p>}
         {groupedWarningTexts(job.warnings).map(text => <p key={text} className="inline-warning">{text}</p>)}
-        {jobState === "ready_partial" && !superseded && <p className="inline-warning">{published ? "Extraction partielle publiée : les réponses restent limitées aux pages traitées." : "Extraction partielle vérifiée, non publiée. Les pages manquantes ne seront pas recherchées ; publiez-la pour interroger les pages traitées."}</p>}
+        {jobState === "ready_partial" && !superseded && <p className="inline-warning">{partialExtractionNotice(published)}</p>}
         <div className="job-actions">
           {jobState === "ready_partial" && !published && !superseded && <ActionButton variant="secondary" size="sm" disabled={Boolean(pendingJob)} pendingLabel="Publication…" onAction={() => jobAction(job.id, () => api.publishPartial(job.id))}>Utiliser cette extraction partielle</ActionButton>}
           {["queued", "running", "extracting", "ocr", "indexing"].includes(jobState) && <ActionButton variant="secondary" size="sm" disabled={Boolean(pendingJob)} pendingLabel="Mise en pause…" onAction={() => jobAction(job.id, () => api.pauseJob(job.id))}>Mettre en pause</ActionButton>}

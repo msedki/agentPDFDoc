@@ -78,5 +78,5 @@ export type StreamEvent = { id: string; type: string; data: Record<string, unkno
 export type QueryState = {
   id: string; question: string; scope: Scope; scopeLabel: string; mode: string; text: string;
   status: string; connection: "connecting" | "connected" | "reconnecting" | "closed";
-  sources: Source[]; warnings: string[]; error?: string; lastEventId: string; finishReason?: string;
+  sources: Source[]; warnings: ApiWarning[]; error?: string; lastEventId: string; finishReason?: string;
 };

@@ -74,3 +74,18 @@ export function jobsSummary(groups: JobGroup[]): string {
     return `${count} ${groupLabels[group][count === 1 ? 0 : 1]}`;
   }).join(" · ");
 }
+
+/** Nombre de reprises effectivement mises en file par le service, pas le compteur avant le clic. */
+export function resumePausedNotice(count: number): string {
+  if (count === 0) return "Aucune reprise d'indexation mise en file. Vérifiez les états dans le Suivi.";
+  return count === 1
+    ? "1 reprise d'indexation mise en file ; son état s'affiche dans le Suivi."
+    : `${count} reprises d'indexation mises en file ; leur état s'affiche dans le Suivi.`;
+}
+
+/** Une extraction partielle peut manquer de régions ou de texte, même avec toutes ses pages traitées. */
+export function partialExtractionNotice(published: boolean): string {
+  return published
+    ? "Extraction partielle publiée : pour ce document, les recherches et les réponses utilisent seulement le texte extrait disponible. Consultez les limites signalées."
+    : "Extraction partielle terminée, non publiée : seul le texte extrait deviendra interrogeable si vous la publiez. Consultez les limites signalées avant de décider.";
+}

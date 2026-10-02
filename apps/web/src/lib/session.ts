@@ -14,6 +14,17 @@ export type SessionState = {
 export const SESSION_ENDED_EVENT = "rag:session-ended";
 const CSRF_COOKIES = ["__Host-rag_csrf", "rag_csrf"];
 
+/** Retour utilisateur de la copie ; aucun lancement de commande et aucune cause de refus supposée. */
+export async function copySessionCommand(command: string, clipboard?: Pick<Clipboard, "writeText">): Promise<{ copied: string | null; error: string }> {
+  try {
+    if (!clipboard) throw new Error("clipboard unavailable");
+    await clipboard.writeText(command);
+    return { copied: command, error: "" };
+  } catch {
+    return { copied: null, error: "Copie impossible : sélectionnez la commande voulue et copiez-la manuellement." };
+  }
+}
+
 /** Jeton CSRF lu dans une chaîne `document.cookie` ; le nom préfixé de la production l'emporte. */
 export function csrfFromCookies(cookies: string): string | null {
   const values = new Map<string, string>();

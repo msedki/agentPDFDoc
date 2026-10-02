@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import { connectQueryStream } from "@/lib/stream";
 import { sourcePage } from "@/lib/selection";
 import { useWorkspace } from "@/lib/store";
-import { warningText } from "@/lib/warnings";
+import { mergeQueryWarnings, warningText } from "@/lib/warnings";
 import { answerBlocks, type Inline } from "@/lib/answer-format";
 import { citationParts, citedSourceIds } from "@/lib/citations";
 import { tabKeyTarget } from "@/lib/keyboard";
@@ -82,14 +82,14 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
       case "status": next.status = textValue(event.data.status ?? event.data.state ?? event.data.stage, query.status); break;
       case "sources": if (Array.isArray(event.data.sources)) next.sources = event.data.sources.filter(source => source && typeof source.source_id === "string" && typeof source.version_id === "string") as Source[]; break;
       case "delta": next.text += textValue(event.data.text); next.status = "generating"; break;
-      case "warning": next.warnings = [...query.warnings, warningText(event.data.warning ?? event.data)]; break;
+      case "warning": next.warnings = mergeQueryWarnings(query.warnings, [event.data.warning ?? event.data]); break;
       case "done": {
         next.text = textValue(event.data.text, textValue(event.data.message, query.text)) || query.text;
         next.status = textValue(event.data.status, "done"); next.connection = "closed";
         next.finishReason = textValue(event.data.finish_reason, "stop");
-        if (Array.isArray(event.data.warnings)) next.warnings = [...query.warnings, ...event.data.warnings.map(warningText)];
+        if (Array.isArray(event.data.warnings)) next.warnings = mergeQueryWarnings(query.warnings, event.data.warnings);
         const mentioned = citedSourceIds(next.text);
-        if (mentioned.some(sourceId => !next.sources.some(source => source.source_id === sourceId))) next.warnings.push("Une référence non enregistrée dans les sources a été signalée et reste non cliquable.");
+        if (mentioned.some(sourceId => !next.sources.some(source => source.source_id === sourceId))) next.warnings = mergeQueryWarnings(next.warnings, ["Une référence non enregistrée dans les sources a été signalée et reste non cliquable."]);
         break;
       }
       case "cancelled": next.status = "cancelled"; next.connection = "closed"; break;
@@ -159,9 +159,9 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
       {tab === "search" && search && searchScope && <p className="result-count">Périmètre de cette recherche : {searchScope.label}</p>}
       {tab === "search" ? search ? <div className="search-results"><p className="result-count tabular">{passagesFound(search.results.length)} · {Math.round(search.elapsed_ms)} ms</p>{search.warnings?.map((warning, index) => <p className="inline-warning" key={index}>{warningText(warning)}</p>)}{!search.results.length && (searchScope?.unindexed
         ? <PanelEmpty reason="index-incomplete" title="Index incomplet pour ce périmètre" description={`Aucun passage retrouvé dans les documents déjà indexés. ${unindexedSentence(searchScope.unindexed)} : relancez la recherche une fois leur traitement terminé dans le Suivi.`} />
-        : <PanelEmpty reason="no-match" title="Aucun passage retrouvé" description="Aucun passage indexé de ce périmètre ne contient ces termes. Une recherche sans résultat ne prouve pas l'absence de l'information : reformulez ou élargissez le périmètre." />)}{search.results.map((result, index) => { const source = ("source" in result && result.source ? result.source : result) as Source; return source.version_id ? <SourceCard key={`${source.source_id}:${index}`} source={source} onOpen={() => openSource(source, source.query_id)} /> : <p key={index} className="inline-warning">Ce résultat ne désigne aucune version de document : il ne peut pas être ouvert dans le lecteur.</p>; })}</div>
+        : <PanelEmpty reason="no-match" title="Aucun passage retrouvé" description="La recherche n'a retrouvé aucun passage dans ce périmètre. Une recherche sans résultat ne prouve pas l'absence de l'information : reformulez ou élargissez le périmètre." />)}{search.results.map((result, index) => { const source = ("source" in result && result.source ? result.source : result) as Source; return source.version_id ? <SourceCard key={`${source.source_id}:${index}`} source={source} onOpen={() => openSource(source, source.query_id)} /> : <p key={index} className="inline-warning">Ce résultat ne désigne aucune version de document : il ne peut pas être ouvert dans le lecteur.</p>; })}</div>
         : <PanelEmpty reason="not-started" icon={<Search size={32} strokeWidth={1.5} aria-hidden="true" />} title="Retrouver un passage" description="Recherchez un code, une expression ou une notion dans le périmètre actif. La recherche lit l'index sans appeler le modèle de réponse." />
-        : !queries.length ? <PanelEmpty reason="not-started" icon={<BookOpen size={32} strokeWidth={1.5} aria-hidden="true" />} title={tab === "comparison" ? "Comparer des documents" : "Aucune question posée"} description={tab === "comparison" ? "Définissez un périmètre de deux à quatre documents, puis posez votre question de comparaison. Chaque source indique son document et sa page." : "Posez une question sur le périmètre actif. La réponse cite ses passages : ouvrez chaque source pour vérifier la page et le texte utilisés."} /> : queries.map(query => <article className="query-turn" key={query.id} data-testid="query-turn">
+        : !queries.length ? <PanelEmpty reason="not-started" icon={<BookOpen size={32} strokeWidth={1.5} aria-hidden="true" />} title={tab === "comparison" ? "Comparer des documents" : "Aucune question posée"} description={tab === "comparison" ? "Définissez un périmètre de deux à quatre documents, puis posez votre question de comparaison. Chaque source indique son document et sa page." : "Posez une question sur le périmètre actif. Si la réponse cite des sources, ouvrez-les pour vérifier la page et le texte utilisés."} /> : queries.map(query => <article className="query-turn" key={query.id} data-testid="query-turn">
         <div className="question-message"><p>{query.question}</p><small>{query.scopeLabel}</small></div>
         <div className="query-status" role="status"><StatusIndicator status={queryStatus(query.status)} active={query.connection !== "closed"} />{query.connection === "reconnecting" && <Button variant="ghost" size="sm" onClick={() => connect(query.id, `/api/v1/queries/${encodeURIComponent(query.id)}/events`, query.lastEventId)}><RefreshCw size={16} />Reconnecter</Button>}</div>
         {query.text && <CitationText text={query.text} sources={query.sources} onCitation={source => openSource(source, query.id)} />}
@@ -174,6 +174,7 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
     </div>
     <div className="composer-area">
       {state.selection && <div className="selection-action"><span>{state.selection.text.slice(0, 95)}{state.selection.text.length > 95 ? "…" : ""}</span><Button size="sm" variant="secondary" onClick={() => state.setScope({ kind: "selection", versionId: state.selection!.versionId, spans: state.selection!.spans }, "Texte sélectionné dans le document")}>Analyser la sélection</Button></div>}
+      {state.selection && <p className="inline-warning">Le bouton « Analyser la sélection » définit le périmètre de la prochaine recherche ou question, sans lancer de traitement.</p>}
       {tab === "comparison" && !compareAllowed && <p className="inline-warning">Définissez un périmètre de deux à quatre documents pour comparer.</p>}
       {error && <p className="inline-error" role="alert"><CircleAlert size={14} aria-hidden="true" /><ErrorText error={error.error} /></p>}
       <form onSubmit={event => { event.preventDefault(); submit(); }}><label className="sr-only" htmlFor="question-input">{tab === "search" ? "Votre recherche" : "Votre question"}</label><textarea id="question-input" value={question} onChange={event => setQuestion(event.target.value)} placeholder={tab === "search" ? "Expression ou référence à retrouver…" : tab === "comparison" ? "Quels points comparer entre ces documents ?" : "Posez une question sur ce périmètre…"} rows={3} maxLength={12000} onKeyDown={event => { if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) { event.preventDefault(); submit(); } }} /><div className="composer-footer"><span><kbd>Ctrl</kbd> + <kbd>Entrée</kbd> {tab === "search" ? "pour rechercher" : "pour envoyer"}</span>{active ? <Button variant="danger" size="sm" onClick={() => void cancel()} disabled={cancelBusy} type="button"><Ban size={16} />{cancelBusy ? "Annulation…" : "Annuler"}</Button> : <Button size="sm" type="submit" disabled={!question.trim() || emptyScope || submission.isPending || searchMutation.isPending || tab === "comparison" && !compareAllowed}>{tab === "search" ? <Search size={16} /> : <Send size={16} />}{searchMutation.isPending ? "Recherche…" : submission.isPending ? "Envoi…" : tab === "search" ? "Rechercher" : "Envoyer"}</Button>}</div></form>

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Ellipsis, Play, RefreshCw, Trash2 } from "lucide-react";
 import { api } from "@/lib/api";
-import { reindexOutcome } from "@/lib/reindex";
+import { reindexOutcome, reindexUnavailableReason } from "@/lib/reindex";
 import { useWorkspace } from "@/lib/store";
 import type { DocumentDetail } from "@/lib/types";
 import { Button } from "./ui/button";
@@ -66,7 +66,7 @@ export function DocumentTools({ document }: { document: DocumentDetail }) {
           if (version) state.open({ documentId: document.id, versionId: version.id, pageIndex: typeof version.page_count === "number" ? Math.max(0, Math.min(state.opened?.pageIndex ?? 0, version.page_count - 1)) : state.opened?.pageIndex ?? 0 });
         }}>{document.versions.map(version => <option key={version.id} value={version.id}>{version.id.slice(0, 8)} · {typeof version.page_count === "number" ? `${version.page_count} p.` : "nombre de pages inconnu"}{version.id === (document.active_version_id ?? document.version_id) ? " · version active" : ""}</option>)}</select></label>
         <p className="document-tools-hash" title={shown?.sha256}>Empreinte SHA-256 <span className="mono">{shown?.sha256?.slice(0, 16) ?? "non communiquée"}</span></p>
-        <ActionButton variant="secondary" size="sm" disabled={removing || !reindexable} title={reindexable ? undefined : "Réindexation possible une fois le traitement en cours terminé."} onAction={reindex} pendingLabel="Demande de réindexation…"><RefreshCw size={16} />Réindexer ce document</ActionButton>
+        <ActionButton variant="secondary" size="sm" disabled={removing || !reindexable} title={reindexable ? undefined : reindexUnavailableReason(document.state)} onAction={reindex} pendingLabel="Demande de réindexation…"><RefreshCw size={16} />Réindexer ce document</ActionButton>
         <Button variant="danger" size="sm" disabled={removing || document.state === "deleted"} onClick={() => { setRemoveError(null); setConfirming(true); }}><Trash2 size={16} />Retirer de la bibliothèque</Button>
         {notice && <p role="status">{notice}</p>}
         {resumeJob && <ActionButton variant="secondary" size="sm" disabled={removing} onAction={resume} pendingLabel="Reprise…"><Play size={16} />Reprendre le traitement</ActionButton>}
