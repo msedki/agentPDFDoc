@@ -8,6 +8,8 @@ sont pas examinés. Le rapport ne contient que des comptes et des noms de fichie
 
 Contrôle Git : les chemins des originaux, du corpus `PDF/`, des modèles et des journaux sont ignorés ; aucun fichier
 suivi sous `PDF/` ou `.runtime/`, aucun poids de modèle suivi, et les seuls PDF suivis sont des fixtures synthétiques.
+Quand `.runtime` est un lien vers un autre volume (poste Linux, W018), un chemin situé au-delà est jugé sur le lien,
+que Git doit ignorer lui-même (`ignored_through_link` du rapport).
 
     .venv\\Scripts\\python.exe tools/qualification/log_privacy_check.py [--profile config/local16.yaml] --report <rapport.json>
     .venv/bin/python tools/qualification/log_privacy_check.py [--profile config/local16.yaml] --report <rapport.json>
@@ -23,7 +25,7 @@ import subprocess
 import sys
 from collections import Counter
 from datetime import UTC, datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -32,6 +34,7 @@ from services.runtime.supervisor import data_path, load_profile  # noqa: E402
 
 MODEL_SUFFIXES = (".onnx", ".gguf", ".safetensors", ".pt", ".bin", ".traineddata")
 SYNTHETIC_PDF_ROOTS = ("fixtures/", "evals/", "apps/web/tests/")
+PRIVATE_PATHS = ("PDF/exemple.pdf", ".runtime/data/originals/exemple.pdf", ".runtime/models/e5/model.onnx", ".runtime/data/logs/x/api.log", ".runtime/data/app.sqlite3")
 
 
 def window(text: str, size: int) -> str | None:
@@ -62,8 +65,37 @@ def log_files(data: Path) -> list[Path]:
     return sorted(set(files))
 
 
+def git_exclusion(path: str, repository: Path = ROOT) -> str | None:
+    """Chemin dont Git confirme l'exclusion : `path` lui-même, ou le lien symbolique du dépôt qui le contient ; None sinon.
+
+    Git ne suit pas les liens symboliques : au-delà d'un lien (`.runtime` déporté sur un autre volume, W018),
+    `check-ignore` refuse le chemin (code 128, « beyond a symbolic link ») et rien n'y peut être suivi. Le verdict porte
+    alors sur le premier lien du chemin, que Git évalue comme un fichier : un lien non ignoré serait versionné et le
+    contrôle échoue. Tout autre refus de Git compte comme non ignoré.
+    """
+    def code(candidate: str) -> int:
+        return subprocess.run(["git", "check-ignore", "-q", "--no-index", candidate], cwd=repository, capture_output=True, check=False).returncode
+
+    result = code(path)
+    if result != 128:
+        return path if result == 0 else None
+    parts = PurePosixPath(path).parts
+    for depth in range(1, len(parts)):
+        link = PurePosixPath(*parts[:depth]).as_posix()
+        if (repository / link).is_symlink():
+            return link if code(link) == 0 else None
+    return None
+
+
 def git(*arguments: str) -> str:
     return subprocess.run(["git", *arguments], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", check=False).stdout
+
+
+def tracked_private_paths(tracked: list[str], exclusions: dict[str, str | None]) -> list[str]:
+    """Chemins privés suivis par Git : sous PDF/ ou .runtime/, et aussi le lien lui-même (`.runtime` ou celui sur lequel
+    un chemin a été jugé) : un lien versionné de force (`git add -f`) passerait sinon le contrôle d'exclusion."""
+    roots = {"PDF", ".runtime", *(rule for rule in exclusions.values() if rule)}
+    return [path for path in tracked if path.startswith(("PDF/", ".runtime/")) or path in roots]
 
 
 def main() -> int:
@@ -90,10 +122,10 @@ def main() -> int:
     controls = sorted(data.glob("extractions/**/window-*.json"))[:20]
     control_text = "\n".join(path.read_text(encoding="utf-8", errors="replace") for path in controls)
     control_hits = sum(1 for part in wanted["document_text"] if part in control_text or json.dumps(part)[1:-1] in control_text)
-    ignored = {path: subprocess.run(["git", "check-ignore", "-q", "--no-index", path], cwd=ROOT, check=False).returncode == 0
-               for path in ("PDF/exemple.pdf", ".runtime/data/originals/exemple.pdf", ".runtime/models/e5/model.onnx", ".runtime/data/logs/x/api.log", ".runtime/data/app.sqlite3")}
+    exclusions = {path: git_exclusion(path) for path in PRIVATE_PATHS}
+    ignored = {path: rule is not None for path, rule in exclusions.items()}
     tracked = git("ls-files").splitlines()
-    tracked_private = [path for path in tracked if path.startswith(("PDF/", ".runtime/"))]
+    tracked_private = tracked_private_paths(tracked, exclusions)
     tracked_models = [path for path in tracked if path.lower().endswith(MODEL_SUFFIXES)]
     tracked_pdfs = [path for path in tracked if path.lower().endswith(".pdf")]
     pdf_outside_fixtures = [path for path in tracked_pdfs if not path.startswith(SYNTHETIC_PDF_ROOTS)]
@@ -105,7 +137,7 @@ def main() -> int:
               "samples": {kind: len(parts) for kind, parts in wanted.items()}, "log_files": len(files), "log_bytes": scanned_bytes,
               "log_kinds": dict(Counter(path.name if path.parent.name != "control" else "control/" + path.name for path in files)),
               "hits": dict(hits), "files_with_hits": files_with_hits, "detector_control": {"checkpoint_files": len(controls), "samples_found": control_hits},
-              "ignored_paths": ignored,
+              "ignored_paths": ignored, "ignored_through_link": {path: rule for path, rule in exclusions.items() if rule not in (None, path)},
               "tracked": {"private": tracked_private, "model_weights": tracked_models, "pdfs": len(tracked_pdfs), "pdfs_outside_fixtures": pdf_outside_fixtures},
               "method": "Extraits centraux de 32 caractères (24 pour les questions) cherchés en clair et échappés JSON ; blocs distincts d'au moins 48 caractères (tirage à graine fixe au-delà de --samples), toutes les questions et réponses enregistrées",
               "limit": "Un texte reformulé, tronqué autrement ou plus court que les seuils ne serait pas détecté",

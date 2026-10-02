@@ -11,15 +11,19 @@ Deux phases, chacune sous quelques minutes, sans toucher à la bibliothèque de 
 Chaque génération demande la mémoire d'une instance complète : sur un poste de 16 Gio, l'instance principale est arrêtée
 pendant l'essai.
 
-    .venv\\Scripts\\python.exe tools/qualification/restore_question_check.py prepare --state <etat.json>
+`prepare --profile` choisit le profil de base de l'instance temporaire (par défaut `config/local16.yaml`), par exemple
+une copie en `llm.accelerator: cpu` ; `restore` reprend le profil enregistré dans la sauvegarde.
+
+    .venv\\Scripts\\python.exe tools/qualification/restore_question_check.py prepare --state <etat.json> [--profile <profil.yaml>]
     .venv\\Scripts\\python.exe tools/qualification/restore_question_check.py restore --state <etat.json> --report <rapport.json>
-    .venv/bin/python tools/qualification/restore_question_check.py prepare --state <etat.json>
+    .venv/bin/python tools/qualification/restore_question_check.py prepare --state <etat.json> [--profile <profil.yaml>]
     .venv/bin/python tools/qualification/restore_question_check.py restore --state <etat.json> --report <rapport.json>
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 import time
@@ -52,6 +56,7 @@ from services.runtime.supervisor import (  # noqa: E402
 )
 
 QUESTION = "Quelle est la pression nominale du banc {code} ?"
+DELIVERED_PROFILE = ROOT / "config/local16.yaml"
 
 
 def client_for(profile_path: Path) -> httpx.Client:
@@ -80,11 +85,12 @@ def citation(client: httpx.Client, query_id: str, source_id: str) -> dict[str, A
             "pages": sorted({block["page_index"] for block in source.get("blocks", [])}), "blocks": sorted(block["id"] for block in source.get("blocks", []))}
 
 
-def prepare(state_path: Path, job_timeout: float, answer_timeout: float) -> dict[str, Any]:
+def prepare(state_path: Path, job_timeout: float, answer_timeout: float, base_profile: Path = DELIVERED_PROFILE) -> dict[str, Any]:
     code = "RESTAURE-" + datetime.now(UTC).strftime("%H%M%S")
+    base = {"file": base_profile.name, "sha256": hashlib.sha256(base_profile.read_bytes()).hexdigest()}
     root = short_root()
-    state: dict[str, Any] = {"started_utc": datetime.now(UTC).isoformat(), "code": code, "source_root": str(root)}
-    profile_path = control_profile(ROOT / "config/local16.yaml", root)
+    state: dict[str, Any] = {"started_utc": datetime.now(UTC).isoformat(), "code": code, "source_root": str(root), "base_profile": base}
+    profile_path = control_profile(base_profile, root)
     try:
         state["start"] = start(profile_path).get("status")
         with client_for(profile_path) as client:
@@ -112,7 +118,7 @@ def prepare(state_path: Path, job_timeout: float, answer_timeout: float) -> dict
 
 def restore(state_path: Path, report_path: Path, answer_timeout: float) -> dict[str, Any]:
     state = json.loads(state_path.read_text(encoding="utf-8"))
-    report: dict[str, Any] = {"prepared": {key: state.get(key) for key in ("started_utc", "code", "extraction", "backup_state", "question_before_backup", "citations_before_backup")},
+    report: dict[str, Any] = {"prepared": {key: state.get(key) for key in ("started_utc", "code", "base_profile", "extraction", "backup_state", "question_before_backup", "citations_before_backup")},
                               "started_utc": datetime.now(UTC).isoformat(), "checks": {}}
     # Cible de 42 caractères au plus sous %TEMP% : « <cible>\qdrant\storage » tient sous la borne, sans relocalisation.
     target = short_root("apr")
@@ -153,13 +159,19 @@ def main() -> int:
     parser.add_argument("--report", type=Path)
     parser.add_argument("--job-timeout", type=float, default=600)
     parser.add_argument("--answer-timeout", type=float, default=480)
+    parser.add_argument("--profile", type=Path, help="prepare : profil de base de l'instance temporaire (config/local16.yaml par défaut)")
     args = parser.parse_args()
     if args.phase == "prepare":
-        state = prepare(args.state, args.job_timeout, args.answer_timeout)
+        base = args.profile or DELIVERED_PROFILE
+        if not base.is_file():
+            parser.error(f"Profil de base introuvable : {base}")
+        state = prepare(args.state, args.job_timeout, args.answer_timeout, base)
         print(json.dumps({key: state.get(key) for key in ("prepared", "extraction", "backup_state", "stop")}, ensure_ascii=False))
         return 0 if state["prepared"] else 1
     if not args.report:
         parser.error("restore exige --report")
+    if args.profile:
+        parser.error("--profile ne sert qu'à prepare : restore reprend le profil enregistré dans la sauvegarde")
     report = restore(args.state, args.report, args.answer_timeout)
     print(json.dumps({key: report.get(key) for key in ("result", "checks", "removed")}, ensure_ascii=False, indent=2))
     return 0 if report["result"] == "PASS" else 1

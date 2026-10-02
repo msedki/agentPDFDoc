@@ -158,6 +158,28 @@ cellules structurées de la même ligne réelle. Le seul bon nom de document ne
 valide aucune unité. Une résolution ne calcule pas Recall, exactitude ou qualité
 des réponses ; le statut reste explicitement « non qualifié RAG ».
 
+L'évaluation de la recherche et du contexte (`python -m services.api.qualification`,
+sans appel au modèle, jeton de contrôle lu dans `RAG_CONTROL_TOKEN`) écrit un rapport
+complet qui garde la réponse de contexte de chaque question : 72,8 Mo pour les 100
+questions DEV du 01/10/2026. Ce rapport se place hors Git, sous `.runtime/qa/` ou
+`.runtime/evals/`, et `--summary` écrit son résumé versionnable sous
+`RAG_Local_Agents/reports/backend/` : mesures, une ligne par question, taille et
+SHA-256 du rapport complet, sans texte de document ni diagnostics de l'instance.
+Un rapport complet sous `RAG_Local_Agents/reports/backend/` reste accepté, sans
+résumé. Le sceau d'identité du split final (`final-retrieval-identity-receipt.json`)
+reste à la racine de ce dossier versionné, quel que soit l'emplacement du rapport
+complet, sous-dossier compris ; il est commun aux deux plateformes : un final lancé
+d'abord sous Linux fixe l'identité que la recette Windows devra reproduire.
+
+```powershell
+.\.venv\Scripts\python.exe -m services.api.qualification --split development `
+  --dataset evals/qualification-v2.1/runtime/<date>-development-resolved.json `
+  --source-dataset evals/qualification-v2.1/development.json `
+  --base-url http://127.0.0.1:8785 `
+  --output .runtime/qa/<date>-development-retrieval-full.json `
+  --summary RAG_Local_Agents/reports/backend/<date>-development-retrieval-summary.json
+```
+
 ## Génération, grille D05 et performance D07
 
 Ces runners parlent à l'API loopback réelle déjà démarrée (en-têtes `Host`/`Origin`
@@ -222,13 +244,13 @@ Une génération réelle demande la mémoire d'une instance complète : sur un p
 
 | Outil | Ce qu'il établit | Critères |
 |---|---|---|
-| `e2e_instance.py start` / `stop` | Instance isolée pour Playwright ou pour les outils ci-dessous ; `--max-file-mib` règle la limite de taille | — |
+| `e2e_instance.py start` / `stop` | Instance isolée pour Playwright ou pour les outils ci-dessous ; `--max-file-mib` règle la limite de taille ; `--profile` choisit le profil de base (`config/local16.yaml` par défaut), par exemple une copie en `llm.accelerator: cpu` ou le profil d'une instance créée par `init-profile`, dont le verrou lourd est alors partagé | — |
 | `library_check.py <cas>` | Import d'un dossier Unicode avec homonymes, originaux intacts, réimport et déplacement sans calcul, seconde version invisible avant publication, retrait nettoyé, fichiers en erreur et trop volumineux | D02.1, D02.2, D02.8, D03.1 à D03.4 |
 | `fault_check.py <cas>` | Arrêts forcés pendant l'extraction, les embeddings ou l'écriture des points (`--pages` produit un document long), panne de Qdrant pendant un import | D03.5, D03.6 |
 | `scope_check.py` | Filtres de périmètre (dossier récursif, documents, pages, section) appliqués avant la coupe top-k avec Qdrant et E5 réels ; sélection courte sans requête dense, mesurée par le compteur `rest_responses_total` de Qdrant | D04.2, D04.8 |
 | `extraction_check.py` | Extraction confrontée à la vérité terrain des fixtures : couverture par page, OCR compté, page mixte sans double texte, schéma sans texte inventé, frontière pages 4/5, extraction partielle signalée, tableaux et deux colonnes. Écrit le 01/10, pas encore exécuté jusqu'au bout (premier essai interrompu faute de mémoire sur le poste) | D02.3 à D02.10 |
 | `migration_check.py` | Sauvegarde d'un schéma antérieur restaurée et migrée, anciennes citations, réindexation, `--question` pour une question réelle | D09.4 |
-| `restore_question_check.py prepare` / `restore` | Question et ancienne citation après restauration d'une sauvegarde au format courant | D09.3 |
+| `restore_question_check.py prepare` / `restore` | Question et ancienne citation après restauration d'une sauvegarde au format courant ; `prepare --profile` choisit le profil de base, `restore` reprend celui de la sauvegarde | D09.3 |
 | `injection_check.py` | Instruction hostile placée dans un PDF sans effet sur la réponse | D08.5 (en partie) |
 | `log_privacy_check.py` | Lecture seule : texte extrait, questions et réponses de l'instance cherchés dans tous ses journaux (témoin positif sur les checkpoints), exclusions Git des originaux, du corpus et des modèles | D08.7 |
 | `http_guards_check.py` | Lecture seule sur une instance en marche (par défaut l'instance principale) : Host et Origin étrangers, requêtes inter-sites, préflight CORS, Qdrant sans clé, traversées encodées vers le profil, la base et les jetons, sockets en écoute limités au bouclage | D08.3, D08.4 |

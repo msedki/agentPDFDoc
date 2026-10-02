@@ -17,6 +17,13 @@ from urllib.parse import urlparse
 
 import httpx
 
+ROOT = Path(__file__).resolve().parents[2]
+BACKEND_REPORTS = "RAG_Local_Agents/reports/backend"
+# Preuves locales hors Git : le rapport complet garde les réponses de contexte de chaque question (72,8 Mo pour les
+# 100 questions DEV du 01/10/2026) ; seul son résumé est versionné, sous BACKEND_REPORTS.
+LOCAL_EVIDENCE = (".runtime/qa", ".runtime/evals")
+RECEIPT_NAME = "final-retrieval-identity-receipt.json"
+
 
 def canonical_sha(value):
     return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
@@ -183,7 +190,7 @@ def summary(rows, include_categories=True):
     return result
 
 
-def run(dataset_path, source_path, output_path, base_url, split, freeze_path=None, limit=None):
+def run(dataset_path, source_path, output_path, base_url, split, freeze_path=None, limit=None, receipt_dir=None):
     parsed = urlparse(base_url)
     if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"} or parsed.username or parsed.password:
         raise ValueError("Only a credential-free local loopback API is authorized")
@@ -214,7 +221,7 @@ def run(dataset_path, source_path, output_path, base_url, split, freeze_path=Non
         diagnostics = diagnostics_response.json()
         identity = {key: diagnostics.get(key) for key in ("profile_sha256", "selector_sha256", "dense_identity", "llm_tokenizer_identity", "qdrant_collection")}
         identity_sha = canonical_sha(identity)
-        receipt_path = output_path.parent / "final-retrieval-identity-receipt.json"
+        receipt_path = (output_path.parent if receipt_dir is None else Path(receipt_dir)) / RECEIPT_NAME
         if split == "final" and receipt_path.exists():
             receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
             if receipt["identity_sha256"] != identity_sha or receipt["source_sha256"] != canonical_sha(source):
@@ -252,22 +259,53 @@ def run(dataset_path, source_path, output_path, base_url, split, freeze_path=Non
     return report
 
 
+def local_summary(report, full_path, label):
+    """Résumé versionnable d'un rapport complet conservé hors Git (forme du résumé DEV du 01/10/2026).
+
+    Il garde les mesures et une ligne par question, sans les réponses de contexte (texte des documents) ni les
+    diagnostics de l'instance (état et chemins du poste) ; l'empreinte relie le résumé au rapport complet.
+    """
+    content = full_path.read_bytes()
+    size = f"{len(content) / 1e6:.1f}".replace(".", ",")
+    reference = {"path": label, "bytes": len(content), "sha256": hashlib.sha256(content).hexdigest(),
+                 "note": f"Rapport complet (réponses de contexte par question) conservé hors Git : {size} Mo. "
+                         "Ce résumé en reprend les mesures et une ligne par question, sans les réponses de contexte ni les diagnostics de l'instance."}
+    rows = [{key: value for key, value in row.items() if key != "response"} for row in report["questions"]]
+    return {"full_report": reference, **{key: (rows if key == "questions" else value) for key, value in report.items() if key != "diagnostics"}}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dataset", type=Path, required=True)
     parser.add_argument("--source-dataset", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True,
+                        help=f"rapport complet, nouveau fichier sous {BACKEND_REPORTS}/ ou, hors Git, sous {' ou '.join(f'{folder}/' for folder in LOCAL_EVIDENCE)}")
+    parser.add_argument("--summary", type=Path,
+                        help=f"résumé versionnable d'un rapport complet conservé hors Git, nouveau fichier sous {BACKEND_REPORTS}/")
     parser.add_argument("--base-url", default="http://127.0.0.1:8785")
     parser.add_argument("--split", choices=["development", "final"], required=True)
     parser.add_argument("--freeze", type=Path)
     parser.add_argument("--limit", type=int)
     args = parser.parse_args()
-    root = Path(__file__).resolve().parents[2]
-    evidence_root = root / "RAG_Local_Agents/reports/backend"
-    if not args.output.resolve().is_relative_to(evidence_root) or (args.limit is not None and args.limit < 1):
-        parser.error("Output must be a new backend report; positive limit applies only to development")
+    backend = (ROOT / BACKEND_REPORTS).resolve()
+    output = args.output.resolve()
+    # `.runtime` peut être un lien vers un autre volume (W018) : la comparaison porte sur les chemins résolus.
+    local = next((folder for folder in LOCAL_EVIDENCE if output.is_relative_to((ROOT / folder).resolve())), None)
+    if not (output.is_relative_to(backend) or local) or (args.limit is not None and args.limit < 1):
+        parser.error(f"Sortie : nouveau rapport sous {BACKEND_REPORTS}/ ou, hors Git, sous {' ou '.join(f'{folder}/' for folder in LOCAL_EVIDENCE)} ; "
+                     "--limit, s'il est donné, est un entier positif (développement seulement)")
+    if args.summary and (local is None or not args.summary.resolve().is_relative_to(backend) or args.summary.exists()):
+        parser.error(f"--summary accompagne un rapport complet conservé hors Git et désigne un nouveau fichier sous {BACKEND_REPORTS}/")
     try:
-        result = run(args.dataset, args.source_dataset, args.output, args.base_url, args.split, args.freeze, args.limit)
+        # Le sceau d'identité du final reste à la racine du dossier versionné, quel que soit l'emplacement du rapport
+        # complet : un sous-dossier ou un dossier hors Git ne permet pas de rejouer le final sous une autre identité.
+        result = run(args.dataset, args.source_dataset, args.output, args.base_url, args.split, args.freeze, args.limit,
+                     receipt_dir=backend)
+        if args.summary and local:
+            label = (Path(local) / output.relative_to((ROOT / local).resolve())).as_posix()
+            args.summary.parent.mkdir(parents=True, exist_ok=True)
+            with args.summary.open("x", encoding="utf-8") as summary_file:
+                json.dump(local_summary(result, args.output, label), summary_file, ensure_ascii=False, indent=1)
     except (ValueError, OSError, httpx.HTTPError, KeyError) as error:
         parser.error(str(error) if isinstance(error, ValueError) else type(error).__name__)
     print(json.dumps({"status": result["status"], "split": result["split"], "metrics": result["metrics"]}, ensure_ascii=False))

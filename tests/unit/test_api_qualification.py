@@ -1,6 +1,11 @@
-"""Evaluation mathematics and immutable gold checks; no HTTP engine calls."""
+"""Evaluation mathematics, immutable gold checks and report locations; no engine call (the local API is an explicit httpx.MockTransport double)."""
+import hashlib
+import json
+import sys
 from copy import deepcopy
+from pathlib import Path
 
+import httpx
 import pytest
 
 from services.api.qualification import evaluate_question, span_covered, summary, verify_annotations, wilson
@@ -116,3 +121,124 @@ def test_api_qualification_summary_reports_by_language_with_own_denominators():
     assert metrics["by_language"]["fr"]["requested_questions"] == 2 and metrics["by_language"]["fr"]["evaluated_questions"] == 0
     assert metrics["by_language"]["fr"]["recall_at_10"]["rate"] is None and "by_language" not in metrics["by_language"]["fr"]
     assert "by_language" in summary([row]) and summary([{"status": "UNRESOLVED", "category": "x"}])["by_language"] == {}
+
+
+# --- Emplacement des rapports : rapport complet hors Git, résumé versionné, sceau du final ---------------------------
+# API locale simulée par httpx.MockTransport (double explicite) ; racine du dépôt temporaire, `.runtime` en lien.
+REPOSITORY = Path(__file__).resolve().parents[2]
+BACKEND = "RAG_Local_Agents/reports/backend"
+
+def evaluation_repository(tmp_path, monkeypatch, split="development"):
+    import services.api.qualification as qualification
+
+    root, outside = tmp_path / "depot", tmp_path / "volume" / "runtime"
+    (root / "RAG_Local_Agents/reports/backend").mkdir(parents=True)
+    (outside / "qa").mkdir(parents=True)
+    try:
+        (root / ".runtime").symlink_to(outside, target_is_directory=True)
+    except OSError:  # Windows sans droit de créer un lien : dossier réel, même règle
+        (root / ".runtime").mkdir()
+        (root / ".runtime" / "qa").mkdir()
+    monkeypatch.setattr(qualification, "ROOT", root, raising=False)
+    monkeypatch.setenv("RAG_CONTROL_TOKEN", "jeton-de-test")
+    span, source = evidence()
+    frozen = {"id": f"{split}-1", "split": split, "question": "Tension ?", "category": "factual_fr_en", "language": "fr", "answerable": True,
+              "expected_units": [{"document_key": "fixture", "required_texts": ["😀éV"]}]}
+    resolved = deepcopy(frozen)
+    resolved.update(annotation_state="RESOLVED", scope_resolved={"kind": "documents", "documentIds": ["d1"]})
+    resolved["expected_units"][0].update(version_id="v1", resolved_spans=[span], resolution_status="RESOLVED")
+    files = {name: tmp_path / f"{name}.json" for name in ("source", "resolved", "freeze")}
+    files["source"].write_text(json.dumps({"questions": [frozen]}, ensure_ascii=False), encoding="utf-8")
+    files["resolved"].write_text(json.dumps({"questions": [resolved]}, ensure_ascii=False), encoding="utf-8")
+    files["freeze"].write_text(json.dumps({"canonical_sha256": qualification.canonical_sha({"questions": [frozen]}), "questions": 1}), encoding="utf-8")
+    identity = {"profile_sha256": "p" * 64, "selector_sha256": "s" * 64, "dense_identity": {"model": "e5"}, "llm_tokenizer_identity": {"model": "qwen"}, "qdrant_collection": "c"}
+    calls = []
+
+    def api(request):
+        calls.append(request.url.path)
+        if request.url.path == "/api/v1/diagnostics":
+            return httpx.Response(200, json={**identity, "resources": {"data_dir": "/home/poste/donnees"}})
+        return httpx.Response(200, json={**identity, "model_called": False, "state": "context_ready", "retrieval_top10": [source], "context_sources": [source],
+                                         "scope_snapshot": {"generations": ["g1"], "versions": {"g1": "v1"}, "documents": {"g1": "d1"}}})
+
+    real_client = httpx.Client
+    monkeypatch.setattr(httpx, "Client", lambda **options: real_client(transport=httpx.MockTransport(api), **options))
+    return qualification, root, files, identity, calls
+
+
+def run_cli(monkeypatch, qualification, files, *arguments, split="development"):
+    argv = ["qualification", "--dataset", str(files["resolved"]), "--source-dataset", str(files["source"]), "--split", split,
+            "--base-url", "http://127.0.0.1:9", *arguments]
+    if split == "final":
+        argv += ["--freeze", str(files["freeze"])]
+    monkeypatch.setattr(sys, "argv", argv)
+    qualification.main()
+
+
+def test_full_report_kept_outside_git_with_a_versioned_summary(tmp_path, monkeypatch):
+    qualification, root, files, identity, calls = evaluation_repository(tmp_path, monkeypatch)
+    full = root / ".runtime/qa/j8-linux/development-retrieval-full.json"
+    summary_path = root / "RAG_Local_Agents/reports/backend/development-retrieval-summary.json"
+    run_cli(monkeypatch, qualification, files, "--output", str(full), "--summary", str(summary_path))
+    assert calls == ["/api/v1/diagnostics", "/api/v1/admin/evaluation/context"]
+    report = json.loads(full.read_text(encoding="utf-8"))
+    assert full.resolve().is_relative_to((tmp_path / "volume").resolve()) or not (root / ".runtime").is_symlink()
+    assert "response" in report["questions"][0] and "diagnostics" in report
+    written = json.loads(summary_path.read_text(encoding="utf-8"))
+    # Même forme que le résumé versionné du 1er octobre : référence du rapport complet, puis le rapport allégé.
+    assert list(written)[:2] == ["full_report", "date_utc"]
+    assert written["full_report"]["path"] == ".runtime/qa/j8-linux/development-retrieval-full.json"
+    assert written["full_report"]["bytes"] == full.stat().st_size
+    assert written["full_report"]["sha256"] == hashlib.sha256(full.read_bytes()).hexdigest()
+    assert "hors Git" in written["full_report"]["note"]
+    assert "diagnostics" not in written and "/home/poste" not in summary_path.read_text(encoding="utf-8")
+    assert written["metrics"] == report["metrics"] and written["identity"] == identity and written["status"] == report["status"]
+    assert [row["question_id"] for row in written["questions"]] == ["development-1"]
+    assert written["questions"][0] == {key: value for key, value in report["questions"][0].items() if key != "response"}
+    assert "😀éV" not in summary_path.read_text(encoding="utf-8")  # texte du document absent du résumé
+    delivered = json.loads((REPOSITORY / BACKEND / "2026-10-01-development-retrieval-summary.json").read_text(encoding="utf-8"))
+    assert set(written) == set(delivered) and set(written["full_report"]) == set(delivered["full_report"])
+    # Le résumé garde en plus les indices d'unités couvertes et le détail des fuites : quelques octets par question.
+    assert set(delivered["questions"][0]) <= set(written["questions"][0])
+    assert set(written["questions"][0]) - set(delivered["questions"][0]) == {"top5_covered_unit_indices", "top10_covered_unit_indices", "context_covered_unit_indices", "scope_leaks"}
+
+
+def test_backend_output_unchanged_and_misplaced_outputs_refused_before_any_call(tmp_path, monkeypatch):
+    qualification, root, files, identity, calls = evaluation_repository(tmp_path, monkeypatch)
+    backend = root / "RAG_Local_Agents/reports/backend"
+    run_cli(monkeypatch, qualification, files, "--output", str(backend / "development-retrieval.json"))
+    assert "response" in json.loads((backend / "development-retrieval.json").read_text(encoding="utf-8"))["questions"][0]
+    calls.clear()
+    (backend / "existant.json").write_text("{}", encoding="utf-8")
+    for arguments in (["--output", str(root / "autre/rapport.json")],
+                      ["--output", str(root / ".runtime/data/rapport.json")],
+                      ["--output", str(root / ".runtime/qa/rapport.json"), "--summary", str(root / ".runtime/qa/resume.json")],
+                      ["--output", str(root / ".runtime/qa/rapport.json"), "--summary", str(backend / "existant.json")],
+                      ["--output", str(backend / "complet.json"), "--summary", str(backend / "resume.json")],
+                      ["--output", str(root / ".runtime/qa/rapport.json"), "--limit", "0"]):
+        with pytest.raises(SystemExit) as refused:
+            run_cli(monkeypatch, qualification, files, *arguments)
+        assert refused.value.code == 2, arguments
+    assert calls == [] and not (root / ".runtime/qa/rapport.json").exists() and not (backend / "complet.json").exists()
+
+
+def test_final_seal_stays_in_the_versioned_folder_when_the_full_report_is_outside_git(tmp_path, monkeypatch, capsys):
+    qualification, root, files, identity, calls = evaluation_repository(tmp_path, monkeypatch, split="final")
+    backend = root / "RAG_Local_Agents/reports/backend"
+    run_cli(monkeypatch, qualification, files, "--output", str(root / ".runtime/qa/final-1.json"), split="final")
+    receipt = backend / "final-retrieval-identity-receipt.json"
+    assert json.loads(receipt.read_text(encoding="utf-8"))["identity"] == identity
+    assert not (root / ".runtime/qa/final-retrieval-identity-receipt.json").exists()
+    # Une autre identité ne contourne pas le sceau en changeant de dossier de sortie.
+    sealed = json.loads(receipt.read_text(encoding="utf-8"))
+    receipt.write_text(json.dumps({**sealed, "identity_sha256": "0" * 64}), encoding="utf-8")
+    (root / ".runtime/qa/autre").mkdir()
+    with pytest.raises(SystemExit):
+        run_cli(monkeypatch, qualification, files, "--output", str(root / ".runtime/qa/autre/final-2.json"), split="final")
+    assert not (root / ".runtime/qa/autre/final-2.json").exists()
+    assert "Final identity already sealed; tuning against held-out results is forbidden" in capsys.readouterr().err
+    # Revue J8 : un sous-dossier du dossier versionné ne contourne pas non plus le sceau.
+    (backend / "autre").mkdir()
+    with pytest.raises(SystemExit):
+        run_cli(monkeypatch, qualification, files, "--output", str(backend / "autre/final-3.json"), split="final")
+    assert not (backend / "autre/final-3.json").exists() and not (backend / "autre/final-retrieval-identity-receipt.json").exists()
