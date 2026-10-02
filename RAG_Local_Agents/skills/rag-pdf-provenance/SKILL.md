@@ -1,7 +1,7 @@
 ---
 name: rag-pdf-provenance
 description: "Implémente et vérifie extraction PDF, OCR régional, provenance, géométrie et citations versionnées du RAG local ; utile pour pages mixtes, rotations et reprises."
-compatibility: "Agents de développement avec lecture du dépôt ; réseau officiel pour les vérifications externes autorisées ; application locale CPU uniquement."
+compatibility: "Agents de développement avec lecture du dépôt ; réseau officiel pour les vérifications externes autorisées ; application locale : extraction et OCR sur CPU, seule la génération pouvant passer sur GPU (W024, W025)."
 metadata:
   origin: "project-authored"
   version: "2.1"

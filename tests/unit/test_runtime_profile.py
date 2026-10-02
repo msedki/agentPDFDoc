@@ -62,7 +62,7 @@ def test_each_accelerator_form_is_admitted(tmp_path, llm):
 
 
 @pytest.mark.parametrize(("llm", "message"), [
-    ({"accelerator": "cuda"}, "llm.accelerator accepte auto (GPU utilisé s'il est détecté sur une voie qualifiée, CPU "
+    ({"accelerator": "cuda"}, "llm.accelerator accepte auto (GPU utilisé s'il est détecté sur un poste qualifié, CPU "
                               "sinon), cpu (calcul CPU imposé) ou gpu (essai du GPU sur un poste non qualifié)."),
     ({"num_gpu": 1}, "llm.num_gpu n'accepte que 0 (profil antérieur à l'accélération GPU) ; pour utiliser le GPU, remplacez-le par "
                      "llm.accelerator: auto, ou gpu pour l'essayer sur un poste non qualifié."),

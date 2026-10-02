@@ -1,6 +1,6 @@
 # Qualification ciblée — RAG-LOCAL-16 V2.1
 
-**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
+**Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)). **W024 et W025 (01/10/2026) : le CPU reste le socle, le repli et la référence de la recette D07 ; seule la génération par Ollama peut passer sur GPU, automatiquement sur les voies qualifiées par un essai réel** ([W025](DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024)). Les mesures D07 se font en calcul CPU imposé (section 8).
 
 ## 1. Objet et limites
 
@@ -12,7 +12,7 @@ Trois vérifications sont indépendantes : Q-CPU (LLM et machine), Q-PDF (extrac
 
 Enregistrer CPU, cœurs physiques/logiques, instructions disponibles, OS, RAM physique/utilisable, SSD, swap, navigateur, runtime et digest du modèle. Mesurer l’hôte Windows natif et les processus du projet. Un container limité à 10 Gio sur un gros serveur ne remplace pas une qualification du PC de 16 Go.
 
-Exécuter d'abord un smoke avec le vrai modèle Q4_K_M, CPU uniquement, non-thinking. Mesurer ensuite des entrées distinctes autour de 1 500, 3 000 et 5 000 tokens réels avec une sortie autorisée à 768. Ce sont trois points diagnostiques, pas une grille de tuning. Capturer temps de chargement, attente, prompt, génération, durée totale, tokens réels et mémoire globale.
+Exécuter d'abord un smoke avec le vrai modèle Q4_K_M, CPU uniquement (`num_gpu: 0` dans la requête du smoke ; profil `llm.accelerator: cpu` pour toute mesure par l'application, section 8), non-thinking. Mesurer ensuite des entrées distinctes autour de 1 500, 3 000 et 5 000 tokens réels avec une sortie autorisée à 768. Ce sont trois points diagnostiques, pas une grille de tuning. Capturer temps de chargement, attente, prompt, génération, durée totale, tokens réels et mémoire globale.
 
 Distinguer :
 
@@ -105,7 +105,7 @@ Sous Linux, PSS lorsque disponible ; conserver mémoire globale hôte et swap. S
 
 Le scénario chat/import mesure chargements par transition, travail non validé rejoué, délai de checkpoint et progression après reprise explicite. Il vérifie absence de boucle de rechargement ; il n'exige pas une ingestion infiniment prioritaire pendant un chat continu. La reprise automatique n'est activée qu'après cette qualification.
 
-Mesures D07 en calcul CPU imposé (W024, W025) : démarrer l'instance mesurée avec un profil `llm.accelerator: cpu` ; la forme antérieure `llm.num_gpu: 0` impose aussi le CPU, le profil livré en `auto` ne convient pas. Lancer la série avec `tools/qualification/perf.py`, qui relit `llm_accelerator` dans `/diagnostics` au début et à la fin de la série. Un rapport ne peut servir de preuve D07 que s'il porte `d07_eligible: true`, les autres conditions de la recette restant à remplir ; un rapport `d07_eligible: false` est invalide pour la recette et `d07_ineligible_reason` en donne le motif. Les mesures sur GPU, dont le pilote `services/runtime/calibration.py --accelerator auto`, sont rapportées à part et ne cochent aucun critère D07.
+Mesures D07 en calcul CPU imposé (W024, W025) : démarrer l'instance mesurée avec un profil `llm.accelerator: cpu` ; la forme antérieure `llm.num_gpu: 0` impose aussi le CPU, le profil livré en `auto` ne convient pas. Lancer la série avec `tools/qualification/perf.py`, qui relit `llm_accelerator` dans `/diagnostics` au début et à la fin de la série. Un rapport ne peut servir de preuve D07 que s'il porte `d07_eligible: true`, les autres conditions de la recette restant à remplir ; un rapport `d07_eligible: false` est invalide pour la recette et `d07_ineligible_reason` en donne le motif. Les mesures sur GPU, dont le pilote `python -m services.runtime.calibration --accelerator auto`, sont rapportées à part et ne cochent aucun critère D07.
 
 ## 9. Rapport et décisions
 

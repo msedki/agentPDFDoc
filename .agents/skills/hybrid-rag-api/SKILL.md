@@ -36,7 +36,11 @@ suivantes décrivent des APIs ; elles ne certifient pas une performance sur ce p
   toujours autorisées. Une ancienne réponse n'est jamais une preuve.
 - Compter le contexte avec le tokenizer local correspondant au LLM/template,
   réserver sortie et marge, contrôler `prompt_eval_count` réel. Ollama reçoit
-  `think=false`, `num_gpu=0`, un seul appel actif et des preuves délimitées.
+  `think=false`, `num_gpu: 0` en mode CPU (option omise en mode GPU, W025),
+  un seul appel actif et des preuves délimitées. Le mode est fixé au démarrage
+  de l'instance ; en mode GPU, seul un statut 500 reçu avant le flux déclenche
+  un repli unique sur CPU, après déchargement et nouvelle admission à froid
+  (règles : `docs/interfaces/API.md`, section 5).
 - Persistences SSE : IDs monotones, reprise sans régénération, tampon borné,
   annulation du transport HTTP, redémarrage marqué interrupted. Sources avant
   deltas, citations inconnues refusées. Une limite de sortie reste visible.

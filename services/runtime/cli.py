@@ -331,7 +331,8 @@ def accelerator_state(check: dict) -> str:
         # GPU NVIDIA écarté par CUDA (pilote, capacité) et vu seulement par Vulkan, actif par défaut dans Ollama 0.35.0.
         return "nvidia_not_retained"
     return {"gpu_library_not_retained": "gpu_not_retained", "gpu_mixed_libraries": "gpu_mixed_libraries",
-            "gpu_path_not_qualified": "gpu_path_not_qualified"}.get(str(reason), "cpu_no_gpu")
+            "gpu_path_not_qualified": "gpu_path_not_qualified",
+            "gpu_unified_memory_not_qualified": "gpu_unified_memory_not_qualified"}.get(str(reason), "cpu_no_gpu")
 
 
 def accelerator_check(profile: dict, runtime: dict, loaded_models: list[dict] | None,
@@ -346,6 +347,8 @@ def accelerator_check(profile: dict, runtime: dict, loaded_models: list[dict] | 
     calcule sur CPU et reste surveillée (résidence du modèle), son mode se décidant à son redémarrage.
     """
     signals = host_signals()
+    # Mémoire totale du poste, qui décide d'un GPU intégré : la même valeur fonde la décision et le message.
+    memory = signals.get("memory_total_mib")
     recorded = runtime.get("accelerator") if isinstance(runtime.get("accelerator"), dict) else None
     running = bool(recorded) and runtime.get("status") in RUNNING_STATES
     # Instance en marche démarrée avant l'accélération GPU (runtime.json sans clé accelerator) : son API envoie
@@ -380,21 +383,22 @@ def accelerator_check(profile: dict, runtime: dict, loaded_models: list[dict] | 
         decision = {key: recorded.get(key) for key in ("mode", "reason", "device", "variant", "qualified")}
         latest = latest_discovery(runtime, provision_record, keep_running=False, libraries=libraries)
         if latest:
-            next_start = resolve_mode(profile_accelerator(profile), latest, libraries, signals.get("platform"))
+            next_start = resolve_mode(profile_accelerator(profile), latest, libraries, signals.get("platform"),
+                                      memory_total_mib=memory)
         stale = (isinstance(recorded.get("libraries"), dict)
                  and libraries_signature(recorded["libraries"]) != libraries_signature(libraries))
     elif predates:
         decision = {"mode": "cpu", "reason": "legacy_profile_cpu", "device": None, "variant": None, "qualified": False}
         latest = latest_discovery(runtime, provision_record, keep_running=False, libraries=libraries)
         if latest:
-            next_start = resolve_mode(requested, latest, libraries, signals.get("platform"))
+            next_start = resolve_mode(requested, latest, libraries, signals.get("platform"), memory_total_mib=memory)
     elif discovery:
-        decision = resolve_mode(requested, discovery, libraries, signals.get("platform"))
+        decision = resolve_mode(requested, discovery, libraries, signals.get("platform"), memory_total_mib=memory)
     preview = None
     if requested["requested"] == "cpu" and discovery:
         # Ce que donnerait llm.accelerator: auto : fonde la proposition faite à un profil antérieur (W025 P5).
         preview = resolve_mode({"requested": "auto", "requested_source": "profile"}, discovery, libraries,
-                               signals.get("platform"))
+                               signals.get("platform"), memory_total_mib=memory)
     usage = None if loaded_models is None else [
         {"model": item.get("name"), "size": item.get("size") or 0, "size_vram": item.get("size_vram") or 0,
          "processor": processor_label(int(item.get("size") or 0), int(item.get("size_vram") or 0))}
@@ -779,7 +783,8 @@ def record_provision_discovery(profile: dict, profile_path: Path, signals: dict,
         print(f"Découverte d'Ollama : {found}.", flush=True)
     else:
         print("Découverte d'Ollama : aucun GPU utilisable, calcul sur CPU.", flush=True)
-    decision = resolve_mode(profile_accelerator(profile), discovery, libraries, signals.get("platform"))
+    decision = resolve_mode(profile_accelerator(profile), discovery, libraries, signals.get("platform"),
+                            memory_total_mib=signals.get("memory_total_mib"))
     if decision["mode"] == "gpu":
         print(f"Génération attendue au prochain démarrage : GPU, {describe_device(decision['device'], decision['variant'])} "
               f"; {reason_text(decision)}.", flush=True)

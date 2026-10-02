@@ -3,7 +3,8 @@
 Seule la génération passe sur GPU (W025 P1). Le mode d'une instance est décidé une fois, au démarrage, d'après la
 découverte qu'Ollama 0.35.0 journalise avant de servir HTTP (`server/routes.go` : `GPUDevices`, `LogDetails`, puis
 `Serve`). Seul CUDA est retenu (P3) et le GPU n'est employé d'office que sur un couple (plateforme, bibliothèques)
-qualifié par un essai réel (P4). Le format du journal n'est pas un contrat d'Ollama : il se revérifie à chaque montée
+qualifié par un essai réel (P4) ; un GPU intégré à mémoire unifiée (Jetson) l'est en plus seulement sur un poste de
+plus de 16 Gio de mémoire totale. Le format du journal n'est pas un contrat d'Ollama : il se revérifie à chaque montée
 de version, et une découverte illisible laisse l'instance sur CPU.
 
 Le module ne dépend que de la bibliothèque standard et de `platforms` : le runtime et l'API l'importent sans dépendance
@@ -34,6 +35,12 @@ ACCELERATOR_VALUES = ("auto", "cpu", "gpu")
 JETPACK_BY_L4T = {35: "jetpack5", 36: "jetpack6"}
 TEGRA_RELEASE = Path("/etc/nv_tegra_release")
 NVIDIA_DRIVER_VERSION = Path("/proc/driver/nvidia/version")
+MEMINFO = Path("/proc/meminfo")
+# GPU intégré à mémoire unifiée (type « iGPU » de la découverte d'Ollama, cas des Jetson) : qualifié en auto seulement
+# au-delà de la taille de l'hôte de référence de D-01 (16 Gio). L'essai réel du 02/10/2026 suggère que la mémoire prise
+# par le GPU n'apparaît qu'en partie dans MemAvailable (hypothèse H-GPU-2, non mesurable sans root) : la réserve
+# d'admission n'y est pas fiable.
+UNIFIED_MEMORY_MIN_MIB = 16384
 # Nœuds d'un GPU NVIDIA dédié (nvidia0) ou intégré Jetson (nvhost-gpu, nvgpu) ; le compte doit pouvoir les ouvrir.
 GPU_DEVICE_NODES = ("/dev/nvidia0", "/dev/nvhost-gpu", "/dev/nvgpu/igpu0/ctrl")
 # Découverte confirmée par `provision`, relative à la racine du programme ; jamais livrée dans le kit (poste de fabrication).
@@ -41,9 +48,10 @@ DISCOVERY_MANIFEST = Path(".runtime/manifests/ollama-discovery.json")
 # Même port de boucle locale que le service de provisionnement de pull-model, jamais employé en même temps.
 PROBE_PORT = 11444
 
-VALUE_MESSAGE = ("llm.accelerator accepte auto (GPU utilisé s'il est détecté sur une voie qualifiée, CPU sinon), "
+VALUE_MESSAGE = ("llm.accelerator accepte auto (GPU utilisé s'il est détecté sur un poste qualifié, CPU sinon), "
                  "cpu (calcul CPU imposé) ou gpu (essai du GPU sur un poste non qualifié).")
 BOTH_KEYS_MESSAGE = "llm.num_gpu est remplacé par llm.accelerator : retirez llm.num_gpu du profil."
+LLM_SECTION_MESSAGE = "La section llm du profil est absente ou n'est pas une table."
 LEGACY_NUM_GPU_MESSAGE = ("llm.num_gpu n'accepte que 0 (profil antérieur à l'accélération GPU) ; pour utiliser le GPU, "
                           "remplacez-le par llm.accelerator: auto, ou gpu pour l'essayer sur un poste non qualifié.")
 
@@ -58,7 +66,9 @@ REASON_TEXTS = {
     "gpu_mixed_libraries": "GPU NVIDIA et GPU d'une autre bibliothèque présents ensemble, Ollama choisirait lui-même",
     "gpu_libraries_unverified": "bibliothèques GPU d'Ollama différentes du manifeste vérifié",
     "gpu_path_not_qualified": "GPU NVIDIA détecté, voie non qualifiée par un essai réel sur ce type de poste",
-    "gpu_trial": "essai demandé par le profil (llm.accelerator: gpu), voie non qualifiée",
+    "gpu_unified_memory_not_qualified": ("GPU intégré à mémoire partagée avec le CPU, qualifié seulement au-delà de "
+                                         f"{UNIFIED_MEMORY_MIN_MIB // 1024} Gio de mémoire totale"),
+    "gpu_trial": "essai demandé par le profil (llm.accelerator: gpu) sur une voie ou un poste non qualifiés",
     "gpu_discovered": "GPU découvert, bibliothèques vérifiées, voie qualifiée",
 }
 
@@ -86,7 +96,7 @@ def profile_accelerator(config: dict) -> dict[str, str]:
     """Accélération demandée par le profil : `llm.accelerator`, sinon la forme antérieure `llm.num_gpu: 0`, sinon auto."""
     llm = config.get("llm") if isinstance(config, dict) else None
     if not isinstance(llm, dict):
-        raise AcceleratorProfileError("La section llm du profil est absente ou n'est pas une table.", ("llm",))
+        raise AcceleratorProfileError(LLM_SECTION_MESSAGE, ("llm",))
     if "accelerator" in llm and "num_gpu" in llm:
         raise AcceleratorProfileError(BOTH_KEYS_MESSAGE, ("llm.accelerator", "llm.num_gpu"))
     if "accelerator" in llm:
@@ -122,6 +132,34 @@ def _first_line(path: Path) -> str | None:
         return None
 
 
+def read_memory_total_mib(path: Path | None = None) -> int | None:
+    """Mémoire physique totale du poste en Mio, d'après le champ MemTotal de /proc/meminfo (en kB, soit des Kio).
+
+    None si le fichier est absent ou illisible, ou si le champ manque ou a une autre forme : la mémoire reste inconnue.
+    """
+    try:
+        with Path(path or MEMINFO).open("r", encoding="ascii", errors="replace") as stream:
+            for line in stream:
+                name, _, value = line.partition(":")
+                if name == "MemTotal":
+                    fields = value.split()
+                    if len(fields) == 2 and fields[1] == "kB" and fields[0].isdigit():
+                        return int(fields[0]) // 1024
+                    return None
+    except OSError:
+        return None
+    return None
+
+
+def unified_memory_qualified(memory_total_mib: object) -> bool:
+    """Mémoire totale suffisante pour employer d'office un GPU intégré à mémoire unifiée : plus de 16 Gio.
+
+    Une mémoire inconnue, ou une valeur qui n'est pas un entier (runtime.json altéré), ne qualifie jamais le poste.
+    """
+    return (isinstance(memory_total_mib, int) and not isinstance(memory_total_mib, bool)
+            and memory_total_mib > UNIFIED_MEMORY_MIN_MIB)
+
+
 def _node_state(node: str) -> dict[str, bool]:
     try:
         return {"exists": os.path.exists(node), "access": os.access(node, os.R_OK | os.W_OK)}
@@ -132,11 +170,11 @@ def _node_state(node: str) -> dict[str, bool]:
 def host_signals() -> dict[str, Any]:
     """Indices matériels du poste, sans jamais lever : seule la découverte d'Ollama fait foi pour le mode.
 
-    Sous Windows, seul `nvcuda.dll` est cherché ; sous Linux, la version de Jetson Linux, le pilote noyau NVIDIA et
-    l'accès aux nœuds GPU.
+    Sous Windows, seul `nvcuda.dll` est cherché ; sous Linux, la version de Jetson Linux, le pilote noyau NVIDIA,
+    l'accès aux nœuds GPU et la mémoire totale (`memory_total_mib`, qui décide d'un GPU intégré ; None ailleurs).
     """
     signals: dict[str, Any] = {"platform": None, "l4t_major": None, "jetpack": None, "nvidia_kernel_driver": None,
-                               "gpu_nodes": {}, "windows_nvcuda": None}
+                               "gpu_nodes": {}, "windows_nvcuda": None, "memory_total_mib": None}
     try:
         current = platform_id()
     except Exception:  # indices facultatifs : le poste reste décrit sans eux
@@ -149,6 +187,7 @@ def host_signals() -> dict[str, Any]:
         signals["jetpack"] = JETPACK_BY_L4T.get(major) if current == "linux-aarch64" and major is not None else None
         signals["nvidia_kernel_driver"] = _first_line(NVIDIA_DRIVER_VERSION)
         signals["gpu_nodes"] = {node: _node_state(node) for node in GPU_DEVICE_NODES}
+        signals["memory_total_mib"] = read_memory_total_mib(MEMINFO)
     elif current.startswith("windows-"):
         try:
             system_root = Path(os.environ.get("SystemRoot") or r"C:\Windows")
@@ -376,14 +415,22 @@ def cuda_libraries_removed(libraries: dict[str, Any]) -> bool:
     return bool(cuda) and not any(variant_verified(libraries, name) for name in cuda)
 
 
+_READ_HOST_MEMORY = object()
+
+
 def resolve_mode(requested: dict[str, Any], discovery: dict[str, Any], libraries: dict[str, Any],
-                 platform: str | None = None) -> dict[str, Any]:
+                 platform: str | None = None, *, memory_total_mib: object = _READ_HOST_MEMORY) -> dict[str, Any]:
     """Mode de génération d'une instance (W025), règles appliquées dans l'ordre.
 
     CPU imposé par le profil ; découverte illisible ; aucun GPU ; aucun GPU CUDA ; CUDA avec un GPU d'une autre
     bibliothèque (Ollama choisirait lui-même, `sched.go`) ; bibliothèques non vérifiées ; voie non qualifiée (CPU en
-    auto, essai GPU en `gpu`) ; sinon GPU. `device` est le GPU concerné par la décision (CUDA de préférence), même en
-    mode CPU ; `qualified` dit si sa voie figure dans QUALIFIED_GPU_PATHS.
+    auto, essai GPU en `gpu`) ; GPU intégré à mémoire unifiée sur un poste de 16 Gio ou moins, ou de mémoire inconnue
+    (CPU en auto, essai GPU en `gpu`) ; sinon GPU. `device` est le GPU concerné par la décision (CUDA de préférence),
+    même en mode CPU ; `qualified` dit si sa voie figure dans QUALIFIED_GPU_PATHS, quelle que soit la mémoire.
+
+    `memory_total_mib` vient de `host_signals` ; sans valeur transmise (superviseur, calibration), la mémoire totale
+    est lue sur le poste, et seulement pour un GPU intégré sur une voie qualifiée. Un GPU dédié n'a aucune condition
+    de mémoire.
     """
     platform = platform or platform_id()
     status = discovery.get("status")
@@ -414,6 +461,12 @@ def resolve_mode(requested: dict[str, Any], discovery: dict[str, Any], libraries
         if requested.get("requested") == "gpu":
             return decision("gpu", "gpu_trial")
         return decision("cpu", "gpu_path_not_qualified")
+    if any(item.get("type") == "iGPU" for item in retained):
+        memory = read_memory_total_mib() if memory_total_mib is _READ_HOST_MEMORY else memory_total_mib
+        if not unified_memory_qualified(memory):
+            if requested.get("requested") == "gpu":
+                return decision("gpu", "gpu_trial")
+            return decision("cpu", "gpu_unified_memory_not_qualified")
     return decision("gpu", "gpu_discovered")
 
 

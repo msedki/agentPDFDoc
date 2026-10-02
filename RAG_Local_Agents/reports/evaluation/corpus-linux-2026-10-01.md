@@ -1,6 +1,6 @@
 # Évaluation question-réponse sur le corpus réel du poste Linux — recherche et contexte
 
-**Rôle :** rapport de mesure du lot J10 (documentation vivante, décision [W020](../../DECISIONS.md#w020-évaluation-question-réponse-sur-le-corpus-réel-du-poste-linux-pdfmgv-pdftest)). **Statut :** recherche et contexte mesurés le 1er octobre 2026 à 20:36 UTC ; génération par le modèle non encore mesurée. **Poste :** Jetson AGX Orin Developer Kit, Linux aarch64 (Ubuntu 20.04.6, `MODE_30W`), instance réelle lancée par `./rag.sh up`, code de l'arbre de travail postérieur au commit `4ec5592`. **Annotation :** `ASSISTANT_READ_NOT_EXPERT_VALIDATED`.
+**Rôle :** rapport de mesure du lot J10 (documentation vivante, décision [W020](../../DECISIONS.md#w020-évaluation-question-réponse-sur-le-corpus-réel-du-poste-linux-pdfmgv-pdftest)). **Statut :** recherche et contexte mesurés le 1er octobre 2026 à 20:36 UTC ; génération par le modèle et jugement des réponses le 2 octobre 2026 entre 01:15 et 02:56 UTC (section « Génération et jugement »). **Poste :** Jetson AGX Orin Developer Kit, Linux aarch64 (Ubuntu 20.04.6, `MODE_30W`), instance réelle lancée par `./rag.sh up`, code de l'arbre de travail postérieur au commit `4ec5592`. **Annotation :** `ASSISTANT_READ_NOT_EXPERT_VALIDATED`.
 
 ## Ce qui a été mesuré
 
@@ -53,4 +53,36 @@ Questions manquées au top 10 (développement) : `mgv-b1-q19` (tableau), `mgv-d0
 
 ## Limites
 
-Petits effectifs (52 et 17 questions rattachées) ; jeu rédigé et vérifié par l'assistant, non relu par un expert métier (point à trancher 2) ; deux documents publiés en extraction partielle ; une seule exécution ; mesures sur ce poste aarch64, qui ne valent pas pour le poste Windows. La génération (justesse des réponses, citations, abstention) est mesurée séparément.
+Petits effectifs (52 et 17 questions rattachées) ; jeu rédigé et vérifié par l'assistant, non relu par un expert métier (point à trancher 2) ; deux documents publiés en extraction partielle ; une seule exécution ; mesures sur ce poste aarch64, qui ne valent pas pour le poste Windows. La génération (justesse des réponses, citations, abstention) est mesurée dans la section suivante.
+
+## Génération et jugement (2 octobre 2026)
+
+**Conditions :** instance du chantier redémarrée en `llm.accelerator: auto` à 01:15 UTC, génération sur le GPU du Jetson (`cuda_jetpack5`, voie qualifiée, [W025](../../DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024)) ; W020 prévoyait le CPU : l'écart est consigné en complément de W020 ; les résultats de justesse peuvent différer légèrement d'un mode à l'autre (risque 3 de la conception J11), aucun appariement CPU/GPU n'a été mesuré. Outil : `annotated_eval.py answer` puis `grade-answers` ; l'outil exclut les questions de suivi (9 : 5 en développement, 4 tenues à l'écart). Les 13 questions sur `ePMO` sont refusées par le service (`no_document_in_scope`, document non publié) et ne figurent pas au jugement. Jugement : deux juges indépendants par document, avec les verdicts et le support de la grille D05 ([`grade.py`](../../../tools/qualification/grade.py)), désaccords arbitrés contre le PDF original ; état `ASSISTANT_JUDGED_NOT_EXPERT_VALIDATED`. Réponses et motifs restent hors Git ; rapports versionnés : [jugement](corpus-linux-2026-10-02-jugement.json), contrôles automatiques [développement](corpus-linux-2026-10-02-reponses-dev.json) et [tenu à l'écart](corpus-linux-2026-10-02-reponses-test.json).
+
+| Jeu | Questions répondables | Réponse exacte | Exacte ou partielle | Sans réponse : abstention justifiée | Accord des juges |
+|---|---:|---|---|---|---|
+| Développement (`MGV-B.1`, `MGV-D.0`) | 47 | 27/47 = 0,574 [0,433 ; 0,705] | 32/47 = 0,681 [0,538 ; 0,796] | 14/14 [0,785 ; 1] | 55/61, 6 arbitrées |
+| Tenu à l'écart (`modelcards`) | 17 | 11/17 = 0,647 [0,413 ; 0,827] | 15/17 = 0,882 [0,657 ; 0,967] | 5/5 [0,566 ; 1] | 21/22, 1 arbitrée |
+
+Verdicts des réponses inexactes, développement : 7 incorrectes, 5 partielles, 5 abstentions injustifiées, 3 erreurs de valeur ou d'unité ; tenu à l'écart : 4 partielles, 1 incorrecte, 1 erreur de valeur. Toutes les citations désignent une source enregistrée (contrôle automatique 47/47 et 17/17) ; affirmations principales soutenues par les pages citées : 31/47 et 15/17, partiellement : 15/47 et 1/17.
+
+### Par catégorie (réponses exactes)
+
+| Catégorie | Développement | Tenu à l'écart |
+|---|---|---|
+| `factual_fr_en` | 20/21 | 7/8 |
+| `comparison` | 2/7 | 2/3 |
+| `tables_units` | 2/9 | 2/3 |
+| `technical_identifiers` | 3/10 | 0/3 |
+
+### Lecture
+
+- **La recherche commande la justesse.** Quand le bloc attendu figure dans le contexte transmis au modèle, la réponse est exacte 27 fois sur 37 (développement) et 10 fois sur 14 (tenu à l'écart) ; quand il n'y figure pas, aucune des 10 réponses de développement n'est exacte (5 incorrectes, 4 abstentions injustifiées, 1 partielle). Les points faibles de la recherche relevés plus haut (tableaux et unités, identifiants) se retrouvent donc dans les réponses.
+- **Abstention :** 19 questions sans réponse sur 19 reçoivent une abstention justifiée, sans valeur inventée.
+- **Longueur des réponses :** 43 réponses sur 61 en développement et 8 sur 22 tenues à l'écart s'arrêtent à la limite de sortie (`length_limited`, 384 ou 768 tokens selon le mode), comme sous Windows le 30/09 (EV-5) ; les juges n'y voient une perte de contenu utile que 2 fois : la verbosité coûte du temps plus que de la justesse.
+- **Temps de réponse (GPU, ce poste) :** premier mot en 9,8 s en médiane (62,7 s pour la première question, chargement du modèle compris), réponse complète en 49,7 s en médiane en développement.
+- **Objectif D05 :** la cible d'exactitude (85 % des questions répondables du test final) se mesure sur le jeu final de qualification ; sur ce corpus réel, le développement est à 0,574 et l'intervalle du jeu tenu à l'écart (17 questions) reste large. Pistes, à décider : recherche dans les tableaux et sur les identifiants (diagnostic bloc par bloc des 10 échecs « bloc absent du contexte »), consigne de génération plus concise.
+
+### Limites
+
+Jugement par l'assistant, non relu par un expert métier ; petits effectifs ; une seule exécution, en mode GPU seulement ; `ePMO` non évalué (aucun texte extrait) ; deux documents en extraction partielle.

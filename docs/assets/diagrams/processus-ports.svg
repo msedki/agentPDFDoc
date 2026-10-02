@@ -46,7 +46,7 @@
 <text x="322" y="502" font-size="13" fill="#172B33">127.0.0.1:11434</text>
 <text x="322" y="520" font-size="13" fill="#172B33">llama-server : port loopback</text>
 <text x="322" y="538" font-size="13" fill="#172B33">attribué par Ollama</text>
-<text x="322" y="556" font-size="13" fill="#172B33" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">qwen3.5:4b-text, CPU</text>
+<text x="322" y="556" font-size="13" fill="#172B33" font-family="Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace">qwen3.5:4b-text, CPU ou GPU</text>
 <rect x="586" y="462" width="246" height="112" rx="6" fill="#E4F0EA" stroke="#2D6950" stroke-width="1.4"/>
 <text x="596" y="483" font-size="14" fill="#172B33" font-weight="600">Worker Docling/Tesseract</text>
 <text x="596" y="502" font-size="13" fill="#172B33">processus Python à la demande</text>

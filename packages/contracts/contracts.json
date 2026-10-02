@@ -395,7 +395,7 @@
     "requested": "auto|cpu|gpu",
     "requested_source": "profile|legacy_num_gpu|default",
     "mode": "gpu|cpu",
-    "reason": "imposed_by_profile|legacy_profile_cpu|discovery_unreadable|no_gpu_discovered|gpu_library_not_retained|gpu_mixed_libraries|gpu_libraries_unverified|gpu_path_not_qualified|gpu_trial|gpu_discovered|null",
+    "reason": "imposed_by_profile|legacy_profile_cpu|discovery_unreadable|no_gpu_discovered|gpu_library_not_retained|gpu_mixed_libraries|gpu_libraries_unverified|gpu_path_not_qualified|gpu_unified_memory_not_qualified|gpu_trial|gpu_discovered|null",
     "fallback": {
       "utc": "iso8601",
       "http_status": 500,

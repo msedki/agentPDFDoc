@@ -1,7 +1,7 @@
 ---
 name: rag-retrieval-evaluation
 description: "Implémente et évalue recherche hybride, embeddings, identifiants exacts, scopes et conservation des preuves dans le contexte final avant réponse du RAG."
-compatibility: "Agents de développement avec lecture du dépôt ; réseau officiel pour les vérifications externes autorisées ; application locale CPU uniquement."
+compatibility: "Agents de développement avec lecture du dépôt ; réseau officiel pour les vérifications externes autorisées ; application locale : recherche et embeddings sur CPU, seule la génération pouvant passer sur GPU (W024, W025)."
 metadata:
   origin: "project-authored"
   version: "2.1"

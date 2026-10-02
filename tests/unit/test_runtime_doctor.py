@@ -349,8 +349,9 @@ def program(jetson_libraries, monkeypatch):  # noqa: F811
     (root / "config/artifacts.lock.json").write_text(json.dumps(_lock_with_sizes()), encoding="utf-8")
     write_json_atomic(root / ".runtime/manifests/artifacts.json", manifest)
     monkeypatch.setattr(cli, "ROOT", root)
+    # Mémoire totale du poste de l'essai réel du 02/10 : GPU intégré qualifié.
     monkeypatch.setattr(cli, "host_signals", lambda: dict(JETSON, nvidia_kernel_driver="NVRM", gpu_nodes={},
-                                                          windows_nvcuda=None))
+                                                          windows_nvcuda=None, memory_total_mib=62800))
     return root, manifest
 
 
@@ -611,6 +612,71 @@ def test_an_instance_started_before_the_gpu_acceleration_is_restarted_and_still_
     # Démarrage en cours (le superviseur n'a pas encore consigné le mode) : rien n'est supposé de l'instance.
     starting = cli.accelerator_check(PROFILE, {"status": "starting", "services": {}}, None, None)
     assert starting["running"] is False and "instance_predates_accelerator" not in starting
+
+
+# --- GPU intégré d'un Jetson de 16 Go : CPU en auto, essai proposé ---------------------------------------------------
+
+def _jetson_with_memory(monkeypatch, memory):
+    from tests.unit.test_runtime_accelerator import JETSON
+
+    monkeypatch.setattr(cli, "host_signals", lambda: dict(JETSON, nvidia_kernel_driver="NVRM", gpu_nodes={},
+                                                          windows_nvcuda=None, memory_total_mib=memory))
+
+
+@pytest.mark.parametrize(("memory", "requested", "state", "mode", "reason"), [
+    (15600, "auto", "gpu_unified_memory_not_qualified", "cpu", "gpu_unified_memory_not_qualified"),
+    (None, "auto", "gpu_unified_memory_not_qualified", "cpu", "gpu_unified_memory_not_qualified"),
+    (30600, "auto", "gpu_pending", "gpu", "gpu_discovered"),
+    (15600, "gpu", "gpu_pending", "gpu", "gpu_trial"),
+], ids=["16go-auto", "inconnue-auto", "32go-auto", "16go-gpu"])
+def test_the_next_start_of_a_jetson_follows_its_total_memory(program, monkeypatch, memory, requested, state, mode,
+                                                              reason):
+    from services.runtime.verdict import INFORMATIVE_PROPOSALS, calcul_rubric
+    from tests.unit.test_runtime_accelerator import JETSON_JETPACK5
+
+    root, _ = program
+    _jetson_with_memory(monkeypatch, memory)
+    _provision_record(root, JETSON_JETPACK5, "2026-10-01T22:00:00+00:00")
+    profile = {"llm": {**PROFILE["llm"], "accelerator": requested}}
+    check = cli.accelerator_check(profile, {"status": "stopped"}, None, None)
+    assert (check["state"], check["mode"], check["reason"], check["qualified"]) == (state, mode, reason, True)
+    assert check["host"]["memory_total_mib"] == memory
+    item, proposal = calcul_rubric(check)
+    assert item["level"] == "vert"
+    # Proposition d'essai annoncée par le résumé (elle mène au GPU) seulement en auto sous le seuil.
+    assert (proposal is not None) is (state == "gpu_unified_memory_not_qualified")
+    assert state not in INFORMATIVE_PROPOSALS
+
+
+def test_a_running_jetson_of_16_gb_keeps_its_cpu_decision_and_a_legacy_profile_is_offered_a_trial(program, monkeypatch):
+    from tests.unit.test_runtime_accelerator import JETSON_JETPACK5
+
+    root, _ = program
+    _jetson_with_memory(monkeypatch, 15600)
+    instance = _recorded(JETSON_JETPACK5, "2026-10-01T21:49:30+00:00", "cpu", "gpu_unified_memory_not_qualified")
+    check = cli.accelerator_check(PROFILE, {"status": "running", "instance_id": "jetson-16", "accelerator": instance},
+                                  [], None)
+    assert (check["state"], check["running"], check["next_start"]["reason"]) == (
+        "gpu_unified_memory_not_qualified", True, "gpu_unified_memory_not_qualified")
+    _provision_record(root, JETSON_JETPACK5, "2026-10-01T22:00:00+00:00")
+    legacy = cli.accelerator_check({"llm": {"model": "qwen3.5:4b-text", "num_gpu": 0}}, {"status": "stopped"}, None, None)
+    assert (legacy["state"], legacy["if_auto"]["mode"], legacy["if_auto"]["reason"]) == (
+        "cpu_legacy", "cpu", "gpu_unified_memory_not_qualified")
+
+
+def test_a_jetson_of_16_gb_without_complement_is_not_promised_the_gpu(program, monkeypatch):
+    from services.runtime import platforms
+    from services.runtime.verdict import calcul_rubric
+
+    monkeypatch.setattr(platforms, "WINDOWS", False)
+    monkeypatch.setattr(platforms, "LAUNCHER", "./rag.sh")
+    root, manifest = program
+    _jetson_with_memory(monkeypatch, 15600)
+    write_json_atomic(root / ".runtime/manifests/artifacts.json", {"ollama": manifest["ollama"]})
+    check = cli.accelerator_check(PROFILE, {"status": "stopped"}, None, None)
+    assert check["state"] == "gpu_libraries_missing" and check["complement"]["qualified"] is True
+    assert calcul_rubric(check)[1].startswith("Pour essayer le GPU de ce Jetson, qualifié seulement au-delà de 16 Gio "
+                                              "de mémoire totale")
 
 
 def test_a_jetson_r36_complement_is_not_a_qualified_path(program, monkeypatch):

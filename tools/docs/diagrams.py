@@ -241,7 +241,7 @@ def processes() -> Diagram:
            "pdf_chunks_e5small_v1"], mono=(3,))
     d.box(312, 462, 250, 112, "model", "Ollama 0.35.0",
           ["127.0.0.1:11434", "llama-server : port loopback", "attribué par Ollama",
-           "qwen3.5:4b-text, CPU"], mono=(3,))
+           "qwen3.5:4b-text, CPU ou GPU"], mono=(3,))
     d.box(586, 462, 246, 112, "process", "Worker Docling/Tesseract",
           ["processus Python à la demande", "aucun port réseau", "échanges par fichiers JSON",
            "(requête, résultat, fenêtres)"])
@@ -270,8 +270,9 @@ def processes() -> Diagram:
 
 def startup() -> Diagram:
     d = Sequence("sequence-up", 860, "rag.ps1 up puis open : démarrage, ouverture de l'atelier et refus",
-                 "Contrôles exécutés par rag.ps1 up dans l'ordre du code, lancement de Qdrant, Ollama et de l'API, "
-                 "puis demande du lien d'ouverture par rag.ps1 open, et message renvoyé par chaque refus.")
+                 "Contrôles exécutés par rag.ps1 up dans l'ordre du code, lancement de Qdrant et d'Ollama, décision du "
+                 "mode de génération (GPU ou CPU), lancement de l'API, puis demande du lien d'ouverture par rag.ps1 "
+                 "open, et message renvoyé par chaque refus.")
     d.heading("Sources : rag.ps1, services/runtime/cli.py (open_workspace), "
               "services/runtime/supervisor.py (start, supervise).")
     right = 524
@@ -285,8 +286,13 @@ def startup() -> Diagram:
     steps = [
         ("self", "user", "Environnement .venv du projet présent",
          ["Environnement isolé absent. Exécuter", "bootstrap.ps1 (…), puis rag.ps1 provision."]),
-        ("self", "user", "Profil v2 : URL 127.0.0.1 à port explicite, num_gpu 0",
-         ["Profil version2 requis", "Le runtime exige loopback et CPU"]),
+        ("self", "user", "Profil v2 : app.host 127.0.0.1",
+         ["Profil version2 requis", "Le runtime exige loopback"]),
+        ("self", "user", "llm.accelerator auto, cpu ou gpu ; ancien num_gpu 0",
+         ["llm.accelerator accepte auto (…), cpu (…) ou…", "llm.num_gpu est remplacé par llm.accelerator…",
+          "llm.num_gpu n'accepte que 0 (…) ; …"]),
+        ("self", "user", "URL de Qdrant et d'Ollama : 127.0.0.1, port explicite",
+         ["Les services natifs exigent une URL HTTP", "loopback avec port explicite"]),
         ("self", "user", "Chemin …\\qdrant\\storage de 57 caractères au plus",
          ["Chemin Qdrant trop long pour le binaire", "Windows verrouillé : définir",
           "qdrant.storage_dir vers un dossier court…"]),
@@ -308,6 +314,7 @@ def startup() -> Diagram:
          ["Disponibilité non atteinte : …/healthz", "Enfant terminé (…) avant disponibilité"]),
         ("msg", ("sup", "ollama"), "lance Ollama, attend /api/version 0.35.0",
          ["Version du service différente de l'artefact", "verrouillé"]),
+        ("self", "sup", "Mode GPU ou CPU décidé d'après ollama.log", None),
         ("msg", ("sup", "api"), "lance l'API, attend /api/v1/health (120 s)", "note"),
         ("back", ("sup", "user"), "runtime.json : running ; la CLI imprime l'état JSON", None),
         ("self", "user", "open : instance running, jeton de contrôle lu",
@@ -343,10 +350,12 @@ def startup() -> Diagram:
     d.lifelines(y - 20)
     d.legend(y + 8, ["Trait plein : lancement ou requête · tirets : réponse. Un second up (même racine, "
                      "même profil) renvoie l'instance.",
+                     "Mode de génération : découverte des GPU journalisée par Ollama, mode écrit dans runtime.json "
+                     "et transmis à l'API.",
                      "open est une commande distincte, lancée après up ; le navigateur échange le lien contre "
                      "les cookies de session.",
                      "Les messages tronqués (…) sont complets dans docs/exploitation/DEPANNAGE.md."])
-    d.height = int(y + 62)
+    d.height = int(y + 80)
     return d
 
 

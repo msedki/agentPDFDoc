@@ -242,13 +242,16 @@ def test_every_windows_action_text_is_unchanged_and_linux_names_rag_sh(host):
 # Chaque contrôle passe par cli.accelerator_state (état) puis par doctor_verdict (textes) : deux fonctions pures du
 # résultat de doctor. Les découvertes sont les extraits réels ou synthétiques de test_runtime_accelerator.
 
+# Mémoire totale du poste de l'essai réel du 02/10 (62 800 Mio) ; un Jetson de 16 Go est simulé à part.
 JETSON_HOST = {"platform": "linux-aarch64", "l4t_major": 35, "jetpack": "jetpack5",
                "nvidia_kernel_driver": "NVRM version: NVIDIA UNIX Open Kernel Module for aarch64  35.4.1",
-               "gpu_nodes": {"/dev/nvhost-gpu": {"exists": True, "access": True}}, "windows_nvcuda": None}
+               "gpu_nodes": {"/dev/nvhost-gpu": {"exists": True, "access": True}}, "windows_nvcuda": None,
+               "memory_total_mib": 62800}
+JETSON_16_HOST = {**JETSON_HOST, "memory_total_mib": 15600}
 JETSON_R36_HOST = {**JETSON_HOST, "l4t_major": 36, "jetpack": "jetpack6",
                    "nvidia_kernel_driver": "NVRM version: NVIDIA UNIX Open Kernel Module for aarch64  540.4.0"}
 WINDOWS_HOST = {"platform": "windows-x86_64", "l4t_major": None, "jetpack": None, "nvidia_kernel_driver": None,
-                "gpu_nodes": {}, "windows_nvcuda": False}
+                "gpu_nodes": {}, "windows_nvcuda": False, "memory_total_mib": None}
 LIBRARIES_OK = {"entry": "ollama-linux-arm64-jetpack5.tar.zst", "required": True, "provisioned": True,
                 "variants": {"cuda_jetpack5": {"group": "ollama-gpu", "files": 2, "links": 1, "sizes_ok": True,
                                                "links_ok": True}}}
@@ -404,6 +407,16 @@ LINUX_CASES = {
     "discovery_unreadable": (accelerator(**cpu_decision("", "discovery_unreadable")), "orange",
                              "Calcul sur CPU : la découverte des GPU par Ollama n'a pas pu être lue dans son journal.",
                              "Consultez le journal d'Ollama (./rag.sh logs) ; l'atelier fonctionne sur CPU.", None),
+    # Jetson R35 de 16 Go, complément vérifié : GPU intégré non qualifié pour la mémoire du poste, essai proposé.
+    "gpu_unified_memory_not_qualified": (accelerator(host=JETSON_16_HOST, **cpu_decision(
+                                             JETSON_JETPACK5, "gpu_unified_memory_not_qualified", ORIN, "cuda_jetpack5")),
+                                         "vert", f"Calcul sur CPU : GPU NVIDIA détecté, {ORIN_TEXT}, qui partage la "
+                                         "mémoire du poste avec le CPU ; le calcul sur ce GPU n'est qualifié qu'au-delà "
+                                         "de 16 Gio de mémoire totale, et ce poste en a 15 600 Mio.", None,
+                                         "La mémoire que ce GPU partage avec le CPU n'est pas mesurable de façon fiable "
+                                         "sur ce poste : pour essayer tout de même le GPU, indiquez llm.accelerator: gpu "
+                                         "dans le profil, redémarrez (./rag.sh down puis ./rag.sh up) puis lancez "
+                                         "./rag.sh selftest."),
 }
 
 WINDOWS_CASES = {
@@ -502,7 +515,7 @@ def test_every_state_is_covered():
               "nvidia_not_retained", "gpu_not_retained", "gpu_mixed_libraries", "gpu_path_not_qualified", "gpu_trial",
               "gpu_requested_unavailable", "gpu_libraries_unverified", "gpu_pending", "gpu_ready", "gpu_in_use",
               "gpu_partial", "gpu_mode_on_cpu", "gpu_fallback", "anomaly_gpu_in_cpu_mode", "discovery_unreadable",
-              "discovery_pending", "gpu_rejected_by_ollama", "cuda_libraries_absent"}
+              "discovery_pending", "gpu_rejected_by_ollama", "cuda_libraries_absent", "gpu_unified_memory_not_qualified"}
     assert set(LINUX_CASES) | set(WINDOWS_CASES) == states
 
 
@@ -628,6 +641,71 @@ def test_legacy_profile_proposals_follow_what_auto_would_do(linux_launcher):
                         **cpu_decision(WINDOWS_IRIS_XE, "legacy_profile_cpu"))
     assert calcul(plain) == ({"rubric": "calcul", "level": "vert", "message": "Calcul sur CPU : le profil est antérieur à "
                               "l'accélération GPU (llm.num_gpu: 0)."}, None, [])
+
+
+# --- GPU intégré d'un Jetson de 16 Go ou de mémoire inconnue : CPU en auto, essai proposé ------------------------------
+
+UNIFIED = ("qualifié seulement au-delà de 16 Gio de mémoire totale, car la mémoire qu'il partage avec le CPU n'est pas "
+           "mesurable de façon fiable")
+
+
+def test_a_jetson_of_16_gb_is_offered_a_trial_announced_by_the_summary(linux_launcher):
+    check = LINUX_CASES["gpu_unified_memory_not_qualified"][0]
+    item, proposal, announced = calcul(check)
+    assert item["level"] == "vert" and announced == [{"rubric": "calcul", "text": proposal}]
+    assert verdict_of(check)["summary"] == ("Tout est prêt : services démarrés, index vide, prêt à importer, modèle "
+                                            "vérifié. " + PROPOSAL_SUFFIX)
+
+
+def test_an_unknown_total_memory_keeps_the_integrated_gpu_unqualified(linux_launcher):
+    check = accelerator(host={**JETSON_HOST, "memory_total_mib": None}, **cpu_decision(
+        JETSON_JETPACK5, "gpu_unified_memory_not_qualified", ORIN, "cuda_jetpack5"))
+    assert check["state"] == "gpu_unified_memory_not_qualified"
+    item, proposal, _ = calcul(check)
+    assert item["message"] == (f"Calcul sur CPU : GPU NVIDIA détecté, {ORIN_TEXT}, qui partage la mémoire du poste avec "
+                               "le CPU ; le calcul sur ce GPU n'est qualifié qu'au-delà de 16 Gio de mémoire totale, et "
+                               "celle de ce poste n'a pas pu être lue.")
+    assert proposal == LINUX_CASES["gpu_unified_memory_not_qualified"][4]
+
+
+def test_a_jetson_of_16_gb_without_complement_is_offered_a_trial_not_the_gpu_in_auto(linux_launcher):
+    # Voie qualifiée (R35), mais auto resterait sur CPU une fois le complément extrait : aucune promesse.
+    check = accelerator(host=JETSON_16_HOST, libraries=LIBRARIES_MISSING, **cpu_decision(JETSON_BASE_ONLY,
+                                                                                         "no_gpu_discovered"))
+    assert check["state"] == "gpu_libraries_missing"
+    trial = ("lancez ./rag.sh provision --only ollama-gpu (283 Mio à télécharger, 825 Mio une fois extraits), indiquez "
+             "llm.accelerator: gpu dans le profil, puis ./rag.sh down et ./rag.sh up, et vérifiez la réponse avec "
+             "./rag.sh selftest.")
+    assert calcul(check)[1] == (f"Pour essayer le GPU de ce Jetson, {UNIFIED} : {trial} Pour rester sur CPU sans cette "
+                                "proposition, indiquez llm.accelerator: cpu dans le profil.")
+    unreadable = accelerator(host={**JETSON_HOST, "memory_total_mib": None}, libraries=LIBRARIES_MISSING,
+                             **cpu_decision("", "discovery_unreadable"))
+    assert calcul(unreadable)[1] == f"Pour essayer le GPU de ce Jetson, {UNIFIED} : {trial}"
+
+
+def test_a_legacy_profile_on_a_jetson_of_16_gb_is_offered_a_trial(linux_launcher):
+    missing = accelerator(requested="cpu", requested_source="legacy_num_gpu", host=JETSON_16_HOST,
+                          libraries=LIBRARIES_MISSING, if_auto={"mode": "cpu", "reason": "no_gpu_discovered"},
+                          **cpu_decision(JETSON_BASE_ONLY, "legacy_profile_cpu"))
+    assert calcul(missing)[1] == (
+        f"Un GPU NVIDIA Jetson est présent (Jetson Linux R35, JetPack 5), {UNIFIED} : pour l'essayer, remplacez "
+        "llm.num_gpu: 0 par llm.accelerator: gpu dans le profil, lancez ./rag.sh provision --only ollama-gpu (283 Mio "
+        "à télécharger, 825 Mio une fois extraits), puis ./rag.sh down et ./rag.sh up, et vérifiez la réponse avec "
+        "./rag.sh selftest.")
+    provisioned = accelerator(requested="cpu", requested_source="legacy_num_gpu", host=JETSON_16_HOST,
+                              if_auto={"mode": "cpu", "reason": "gpu_unified_memory_not_qualified", "device": ORIN,
+                                       "variant": "cuda_jetpack5"},
+                              **cpu_decision(JETSON_JETPACK5, "legacy_profile_cpu", ORIN, "cuda_jetpack5"))
+    assert calcul(provisioned)[1] == (
+        f"GPU NVIDIA détecté, {ORIN_TEXT}, {UNIFIED}. Pour l'essayer, remplacez llm.num_gpu: 0 par llm.accelerator: gpu "
+        "dans le profil, redémarrez (./rag.sh down puis ./rag.sh up) puis lancez ./rag.sh selftest.")
+
+
+def test_a_jetson_of_16_gb_on_trial_runs_on_its_gpu(linux_launcher):
+    check = gpu_instance(host=JETSON_16_HOST, requested="gpu", reason="gpu_trial", usage=loaded(3107811491, 3107811491))
+    assert check["state"] == "gpu_trial"
+    assert calcul(check)[0]["message"] == (f"Génération sur GPU, essai sur un poste non qualifié : {ORIN_TEXT} ; modèle "
+                                           "chargé à 100 % sur le GPU.")
 
 
 def test_gpu_requested_on_a_jetson_without_complement_points_to_provision(linux_launcher):
@@ -850,7 +928,7 @@ def test_generation_text_for_selftest_and_status():
         f"génération sur GPU, {ORIN_TEXT}")
     rtx = parse_discovery(DISCOVERING + CUDA_DISCRETE)["devices"][0]
     assert generation_text({"mode": "gpu", "reason": "gpu_trial", "device": rtx, "variant": "cuda_v13"}) == (
-        f"génération sur GPU, {RTX_TEXT} ; essai demandé par le profil (llm.accelerator: gpu), voie non qualifiée")
+        f"génération sur GPU, {RTX_TEXT} ; essai demandé par le profil (llm.accelerator: gpu) sur une voie ou un poste non qualifiés")
     assert generation_text({"mode": "cpu", "reason": "no_gpu_discovered"}) == (
         "génération sur CPU, aucun GPU utilisable découvert par Ollama")
     assert generation_text({"mode": "cpu", "reason": "legacy_profile_cpu"}) == (

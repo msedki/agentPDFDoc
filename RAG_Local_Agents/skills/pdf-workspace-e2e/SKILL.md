@@ -1,7 +1,7 @@
 ---
 name: pdf-workspace-e2e
 description: "Développe et teste le poste documentaire arborescence-PDF-chat : navigation de citations, sélection Unicode, périmètre explicite, streaming et budget de rendu."
-compatibility: "Agents de développement avec lecture du dépôt ; réseau officiel pour les vérifications externes autorisées ; application locale CPU uniquement."
+compatibility: "Agents de développement avec lecture du dépôt ; réseau officiel pour les vérifications externes autorisées ; application locale : CPU de référence, génération sur GPU selon W024 et W025."
 metadata:
   origin: "project-authored"
   version: "2.1"

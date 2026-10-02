@@ -1,6 +1,6 @@
 # Documentation du poste documentaire local
 
-**Rôle :** index de la documentation stabilisée, règle de séparation entre documents vivants et stabilisés, en-tête obligatoire · **Statut :** Stabilisé · **Référence :** commit `6935e13` · **Mis à jour :** 2026-09-30 19:59 (UTC) · **Source de vérité :** ce fichier pour l'organisation de `docs/` ; chaque document pour son sujet · **Remplace :** aucun document
+**Rôle :** index de la documentation stabilisée, règle de séparation entre documents vivants et stabilisés, en-tête obligatoire · **Statut :** Stabilisé · **Référence :** commit `6935e13` ; lignes Architecture, Exploitation et Dépannage et description des deux premiers schémas au commit `4d8ba68` (accélération GPU de la génération) · **Mis à jour :** 2026-10-02 01:45 (UTC) · **Source de vérité :** ce fichier pour l'organisation de `docs/` ; chaque document pour son sujet · **Remplace :** aucun document
 
 `docs/` décrit le système tel qu'il est livré à la référence citée en tête de chaque document. Le suivi du chantier (plan, journal, décisions, sources, rapports de preuve) et le référentiel d'exigences V2.1 restent dans [`RAG_Local_Agents/`](../RAG_Local_Agents/), dossier vivant qui n'est pas déplacé : ses outils `build_brief.py` et `verify_pack.py` dépendent de son emplacement. Le point d'entrée général est le [README racine](../README.md).
 
@@ -8,11 +8,11 @@
 
 | Document | Rôle | Statut | Source de vérité |
 |---|---|---|---|
-| [Architecture technique](architecture/ARCHITECTURE.md) | Composants, processus et ports, flux (démarrage, ouverture de l'atelier, arrêt), ingestion, recherche et génération, interfaces internes, données et identités, sécurité et session locale, déploiement, observabilité ; écarts avec l'exigence V2.1 | Stabilisé | Code de `services/`, `apps/web/`, `rag.ps1`, profil `config/local16.yaml` |
+| [Architecture technique](architecture/ARCHITECTURE.md) | Composants, processus et ports, flux (démarrage, ouverture de l'atelier, arrêt), ingestion, recherche et génération, accélération GPU de la génération (mode par instance, voies qualifiées, repli sur CPU, essai réel), interfaces internes, données et identités, sécurité et session locale, déploiement, observabilité ; écarts avec l'exigence V2.1 | Stabilisé | Code de `services/`, `apps/web/`, `rag.ps1`, profil `config/local16.yaml` |
 | [Interface HTTP et SSE](interfaces/API.md) | Routes `/api/v1` déclarées, session locale, cookies, CSRF et jeton de contrôle, erreurs, flux SSE des questions, en-têtes, corps de requête | Stabilisé | `services/api/main.py`, `services/api/security.py`, `services/api/schemas.py`, `packages/contracts/contracts.json` |
-| [Exploitation](exploitation/EXPLOITATION.md) | Préparer, démarrer, ouvrir l'atelier (`open`), gérer et révoquer les sessions, superviser, importer un dossier, arrêter, reprendre ; portée de `doctor` et `status` | Stabilisé | `rag.ps1`, `services/runtime/`, `services/api/security.py`, `tools/corpus/import_folder.py` ; contrat W001 dans `RAG_Local_Agents/EXPLOITATION_WINDOWS.md` |
+| [Exploitation](exploitation/EXPLOITATION.md) | Préparer, démarrer, ouvrir l'atelier (`open`), gérer et révoquer les sessions, superviser, importer un dossier, arrêter, reprendre ; portée de `doctor` et `status` ; complément GPU d'un Jetson, rubrique `calcul` de `doctor`, calibration | Stabilisé | `rag.ps1`, `services/runtime/`, `services/api/security.py`, `tools/corpus/import_folder.py` ; contrat W001 dans `RAG_Local_Agents/EXPLOITATION_WINDOWS.md` |
 | [Sauvegarde et restauration](exploitation/SAUVEGARDE-RESTAURATION.md) | Snapshot cohérent, vérification, restauration dans une racine neuve, retour arrière, preuves | Stabilisé | `services/runtime/backup.py` |
-| [Dépannage](exploitation/DEPANNAGE.md) | Symptôme, cause et commande, avec le message exact du code ou de l'écran de session | Stabilisé | Messages de `rag.ps1`, `bootstrap.ps1`, `services/`, `tools/` et de `apps/web/src/lib/session.ts` |
+| [Dépannage](exploitation/DEPANNAGE.md) | Symptôme, cause et commande, avec le message exact du code ou de l'écran de session | Stabilisé | Messages de `rag.ps1`, `bootstrap.ps1`, `services/`, `tools/` et de `apps/web/src/lib/session.ts` et `generation.ts` |
 
 ## Schémas
 
@@ -20,8 +20,8 @@ Les schémas sont des SVG en couleur produits par [`tools/docs/diagrams.py`](../
 
 | Schéma | Ce qu'il montre | Statut | Source de vérité |
 |---|---|---|---|
-| [Processus et ports](assets/diagrams/processus-ports.svg) | Navigateur, superviseur, API et interface (8785) avec session ou jeton exigés, Qdrant (6333), Ollama (11434), worker PDF à la demande, dossiers de `.runtime/` | Généré | `tools/docs/diagrams.py`, fonction `processes` |
-| [Séquence de rag.ps1 up puis open](assets/diagrams/sequence-up.svg) | Ordre des contrôles au démarrage, demande du lien d'ouverture de session et message de chaque refus bloquant | Généré | `tools/docs/diagrams.py`, fonction `startup` |
+| [Processus et ports](assets/diagrams/processus-ports.svg) | Navigateur, superviseur, API et interface (8785) avec session ou jeton exigés, Qdrant (6333), Ollama (11434, modèle sur CPU ou GPU), worker PDF à la demande, dossiers de `.runtime/` | Généré | `tools/docs/diagrams.py`, fonction `processes` |
+| [Séquence de rag.ps1 up puis open](assets/diagrams/sequence-up.svg) | Ordre des contrôles au démarrage, dont `llm.accelerator`, décision du mode de génération après le démarrage d'Ollama, demande du lien d'ouverture de session et message de chaque refus bloquant | Généré | `tools/docs/diagrams.py`, fonction `startup` |
 | [Chaîne d'ingestion](assets/diagrams/ingestion.svg) | Import, file, admission, worker, fenêtres, routage par page, assemblage, indexation, publication d'office ou explicite (W012), révisions | Généré | `tools/docs/diagrams.py`, fonction `ingestion` |
 | [Séquence d'une question](assets/diagrams/sequence-question.svg) | Requête avec cookie de session et jeton CSRF, recherche hybride, sélection, contexte, admission mémoire, génération, validation et ouverture d'une citation | Généré | `tools/docs/diagrams.py`, fonction `question` |
 | [Sauvegarde et restauration](assets/diagrams/sauvegarde-restauration.svg) | Étapes de `backup` et de `restore`, contenu du snapshot, démarrage du profil restauré | Généré | `tools/docs/diagrams.py`, fonction `backup` |

@@ -109,6 +109,10 @@ def pilot(tmp_path, monkeypatch):
     swap = iter([2048, 2048, 1900, 1900, 1950] + [2000] * 1000)
     monkeypatch.setattr(psutil, "swap_memory", lambda: SimpleNamespace(free=next(swap) * 1048576))
     monkeypatch.setattr(calibration, "host_signals", lambda: JETSON)
+    # Mémoire totale lue par la décision : celle du poste de l'essai réel du 02/10 (62 800 Mio).
+    meminfo = tmp_path / "meminfo"
+    meminfo.write_bytes(b"MemTotal:       64307708 kB\n")
+    monkeypatch.setattr("services.runtime.accelerator.MEMINFO", meminfo)
     monkeypatch.setattr(calibration, "gpu_libraries", lambda signals: _verified("cuda_jetpack5"))
 
     def run(accelerator: str, log: str, size_vram: int):

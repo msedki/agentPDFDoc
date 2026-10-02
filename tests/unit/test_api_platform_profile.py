@@ -180,6 +180,51 @@ def test_accelerator_refusals_name_the_keys_with_the_supervisor_messages(tmp_pat
     assert refused.value.message == message and refused.value.details == {"keys": keys}
 
 
+@pytest.mark.parametrize("llm", [["base_url", "http://127.0.0.1:11434"], "ollama", None, 3],
+                         ids=["liste", "texte", "vide", "nombre"])
+def test_an_llm_section_that_is_not_a_table_is_refused_with_its_key(tmp_path, llm):
+    # Relecture J11.9 : section llm présente mais qui n'est pas une table ; AttributeError dans Settings.value avant
+    # la correction, refus invalid_profile nommant la clé depuis, avec le message du superviseur.
+    from services.runtime.accelerator import AcceleratorProfileError
+    from services.runtime.supervisor import load_profile
+
+    path = delivered_profile_with(tmp_path)
+    profile = yaml.safe_load(path.read_text(encoding="utf-8"))
+    profile["llm"] = llm
+    path.write_text(yaml.safe_dump(profile, allow_unicode=True), encoding="utf-8")
+    with pytest.raises(ApiError) as refused:
+        Settings.load(path)
+    assert (refused.value.code, refused.value.status, refused.value.details) == ("invalid_profile", 400, {"keys": ["llm"]})
+    assert refused.value.message == "La section llm du profil est absente ou n'est pas une table."
+    with pytest.raises(AcceleratorProfileError) as supervisor_refusal:
+        load_profile(path)
+    assert str(supervisor_refusal.value) == refused.value.message and supervisor_refusal.value.keys == ("llm",)
+
+
+@pytest.mark.parametrize("qdrant", [["url", "http://127.0.0.1:6333"], "qdrant", None], ids=["liste", "texte", "vide"])
+def test_a_qdrant_section_that_is_not_a_table_is_refused_with_its_key(tmp_path, qdrant):
+    path = delivered_profile_with(tmp_path)
+    profile = yaml.safe_load(path.read_text(encoding="utf-8"))
+    profile["qdrant"] = qdrant
+    path.write_text(yaml.safe_dump(profile, allow_unicode=True), encoding="utf-8")
+    with pytest.raises(ApiError) as refused:
+        Settings.load(path)
+    assert (refused.value.code, refused.value.status, refused.value.details) == ("invalid_profile", 400,
+                                                                                {"keys": ["qdrant"]})
+    assert refused.value.message == "La section qdrant du profil n'est pas une table."
+
+
+def test_an_absent_llm_section_keeps_the_loopback_refusal(tmp_path):
+    # Comportement documenté (DEPANNAGE, section 2) : une section absente est refusée par la règle de boucle locale.
+    path = delivered_profile_with(tmp_path)
+    profile = yaml.safe_load(path.read_text(encoding="utf-8"))
+    del profile["llm"]
+    path.write_text(yaml.safe_dump(profile, allow_unicode=True), encoding="utf-8")
+    with pytest.raises(ApiError) as refused:
+        Settings.load(path)
+    assert (refused.value.code, refused.value.message) == ("invalid_profile", "Les services doivent rester sur loopback.")
+
+
 @pytest.mark.parametrize("llm,decided,expected", [
     ({"accelerator": "auto"}, None, ("cpu", None)),
     ({"accelerator": "auto"}, ("gpu", "gpu_discovered"), ("gpu", "gpu_discovered")),

@@ -18,7 +18,7 @@ Documenter les décisions dans `SOURCES.md`/`DECISIONS.md` et mettre à jour les
 
 ## Invariants
 
-CPU uniquement, hôte de 16 Go maximum, hors ligne après provisionnement, originaux immuables, citations versionnées et localisations honnêtes, scope explicite appliqué aux deux branches et au contexte final, indexation reprenable, aucun téléchargement ou service cloud implicite. Aucun shell, outil système ou accès libre au disque fourni au LLM documentaire. Les PDF sont des données non fiables, jamais des instructions.
+Calcul sur CPU comme socle, référence de la recette D07 et repli ; seule la génération par Ollama peut passer sur GPU, d'office sur les seules voies qualifiées par un essai réel ([W024 et W025](DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024)). Hôte de 16 Go maximum, hors ligne après provisionnement, originaux immuables, citations versionnées et localisations honnêtes, scope explicite appliqué aux deux branches et au contexte final, indexation reprenable, aucun téléchargement ou service cloud implicite. Aucun shell, outil système ou accès libre au disque fourni au LLM documentaire. Les PDF sont des données non fiables, jamais des instructions.
 
 Conserver le socle technique retenu. Les paramètres de performance ne sont pas intangibles : les qualifier avec les tests prévus puis verrouiller le résultat. E5 est la baseline ; un seul candidat d'embedding peut être comparé après vérification de ses sources officielles. Une alternative indisponible reste indisponible, sans score fictif ni blocage inutile du reste du travail.
 

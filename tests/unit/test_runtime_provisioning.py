@@ -1333,7 +1333,7 @@ WINDOWS_DISCOVERY_IRIS_XE = (
     'time=2026-09-30T01:19:15.478Z level=INFO source=types.go:50 msg="inference compute" id=cpu library=cpu compute="" '
     'name=cpu description=cpu libdirs=ollama driver="" pci_id="" type="" total="15.7 GiB" available="6.0 GiB"\n')
 JETSON_R35 = {"platform": "linux-aarch64", "l4t_major": 35, "jetpack": "jetpack5", "nvidia_kernel_driver": None,
-              "gpu_nodes": {}, "windows_nvcuda": None}
+              "gpu_nodes": {}, "windows_nvcuda": None, "memory_total_mib": 62800}
 
 
 def _tar_zst(members) -> bytes:
@@ -1538,6 +1538,17 @@ def test_full_provision_skips_the_complement_only_when_the_profile_imposes_the_c
     # Découverte confirmée par le journal du service de pull-model (dernier bloc), sans sonde supplémentaire.
     assert run.state["probes"] == [] and _discovery_manifest(root)["method"] == "pull_model"
     assert _discovery_manifest(root)["log"] == ".runtime/provision-service/ollama-pull.log"
+
+
+@POSIX
+def test_a_jetson_of_16_gb_is_announced_on_cpu_after_the_complement(gpu_provision, capsys):
+    run = gpu_provision
+    run.state["signals"] = {**JETSON_R35, "memory_total_mib": 15600}
+    run.cli.provision(run.write_profile(), only="ollama-gpu")
+    out = capsys.readouterr().out
+    assert "Découverte d'Ollama : Orin (CUDA, GPU intégré, bibliothèques cuda_jetpack5).\n" in out
+    assert ("Génération attendue au prochain démarrage : CPU, GPU intégré à mémoire partagée avec le CPU, qualifié "
+            "seulement au-delà de 16 Gio de mémoire totale.\n") in out
 
 
 @POSIX

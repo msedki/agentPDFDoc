@@ -3,7 +3,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.parse import urlparse
 
-from services.runtime.accelerator import REASON_TEXTS, AcceleratorProfileError, profile_accelerator
+from services.runtime.accelerator import (
+    LLM_SECTION_MESSAGE,
+    REASON_TEXTS,
+    AcceleratorProfileError,
+    profile_accelerator,
+)
 
 from .errors import ApiError
 from .security import scheme_for
@@ -80,6 +85,12 @@ class Settings:
         if not isinstance(config, dict) or config.get("schema_version") not in {1, 2}:
             raise ApiError("invalid_profile", "Profil de configuration invalide.")
         settings = cls(root, config)
+        # Sections lues dès le chargement : présentes, elles doivent être des tables (relecture J11.9 : une section llm
+        # en liste levait AttributeError dans `value`). Absentes, la règle de boucle locale ci-dessous les refuse.
+        for section, message in (("qdrant", "La section qdrant du profil n'est pas une table."),
+                                 ("llm", LLM_SECTION_MESSAGE)):
+            if section in config and not isinstance(config[section], dict):
+                raise ApiError("invalid_profile", message, 400, {"keys": [section]})
         for domain, field_name in (("qdrant", "url"), ("llm", "base_url")):
             parsed = urlparse(settings.value(domain, field_name, ""))
             if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:

@@ -13,7 +13,15 @@ from datetime import UTC, datetime
 from typing import Any
 
 from . import platforms
-from .accelerator import REASON_TEXTS, describe_device, device_variant, is_nvidia, reason_text
+from .accelerator import (
+    REASON_TEXTS,
+    UNIFIED_MEMORY_MIN_MIB,
+    describe_device,
+    device_variant,
+    is_nvidia,
+    reason_text,
+    unified_memory_qualified,
+)
 
 GREEN, ORANGE, RED = "vert", "orange", "rouge"
 SEVERITY = {GREEN: 0, ORANGE: 1, RED: 2}
@@ -189,6 +197,10 @@ PROPOSAL_SUFFIX = "Proposition : accélération GPU disponible, voir la rubrique
 # ne l'annonce pas.
 INFORMATIVE_PROPOSALS = frozenset({"nvidia_not_retained", "gpu_mixed_libraries", "cuda_libraries_absent"})
 UNQUALIFIED = "sur une voie non qualifiée par un essai réel"
+UNIFIED_GIB = f"{UNIFIED_MEMORY_MIN_MIB // 1024} Gio"
+# GPU intégré d'un Jetson sur une voie qualifiée, mais sur un poste de 16 Gio ou moins, ou de mémoire inconnue.
+UNIFIED_MEMORY = (f"qualifié seulement au-delà de {UNIFIED_GIB} de mémoire totale, car la mémoire qu'il partage avec le "
+                  "CPU n'est pas mesurable de façon fiable")
 UNKNOWN_SHARE = "répartition du modèle entre GPU et CPU non déterminée par Ollama"
 CUDA_NOT_RETAINED = "CUDA ne l'a pas retenu, à cause du pilote ou de la capacité de calcul du GPU"
 
@@ -233,10 +245,22 @@ def _complement_sizes(check: dict[str, Any]) -> str:
     return f" ({sizes})"
 
 
+def _memory_unqualified(check: dict[str, Any]) -> bool:
+    """Voie du complément qualifiée, mais GPU intégré du Jetson non qualifié pour la mémoire totale du poste."""
+    return (bool((check.get("complement") or {}).get("qualified"))
+            and not unified_memory_qualified((check.get("host") or {}).get("memory_total_mib")))
+
+
 def _complement_qualified(check: dict[str, Any]) -> bool:
-    """Voie du complément de ce poste qualifiée par un essai réel (QUALIFIED_GPU_PATHS) : seul cas où le mode auto
-    calculera sur le GPU une fois le complément extrait. Sans cette information, rien n'est promis."""
-    return bool((check.get("complement") or {}).get("qualified"))
+    """Voie du complément de ce poste qualifiée par un essai réel (QUALIFIED_GPU_PATHS), sur un poste dont la mémoire
+    qualifie le GPU intégré d'un Jetson : seul cas où le mode auto calculera sur le GPU une fois le complément extrait.
+    Sans cette information, rien n'est promis."""
+    return bool((check.get("complement") or {}).get("qualified")) and not _memory_unqualified(check)
+
+
+def _trial_reason(check: dict[str, Any]) -> str:
+    """Pourquoi le GPU d'un Jetson n'est qu'essayé : mémoire du poste sur une voie qualifiée, sinon voie non qualifiée."""
+    return UNIFIED_MEMORY if _memory_unqualified(check) else UNQUALIFIED
 
 
 def _trial_steps(check: dict[str, Any]) -> str:
@@ -251,7 +275,7 @@ def _complement_proposal(check: dict[str, Any], qualified_text: str) -> str:
     """Proposition d'extraire le complément du poste : calcul sur GPU sur une voie qualifiée, essai ailleurs."""
     if _complement_qualified(check):
         return f"{qualified_text} : {_provision_gpu()}{_complement_sizes(check)}, puis {_down_up()}."
-    return f"Pour essayer le GPU de ce Jetson, {UNQUALIFIED} : {_trial_steps(check)}."
+    return f"Pour essayer le GPU de ce Jetson, {_trial_reason(check)} : {_trial_steps(check)}."
 
 
 def _hour(utc: Any) -> str:
@@ -334,14 +358,17 @@ def _legacy_proposal(check: dict[str, Any]) -> str | None:
         complement = f"lancez {_provision_gpu()}{_complement_sizes(check)}, puis {_down_up()}"
         if _complement_qualified(check):
             return f"{present} : {replace.format('auto')}, {complement}."
-        return (f"{present}, {UNQUALIFIED} : pour l'essayer, {replace.format('gpu')}, {complement}, et vérifiez la "
-                f"réponse avec {run('selftest')}.")
+        return (f"{present}, {_trial_reason(check)} : pour l'essayer, {replace.format('gpu')}, {complement}, et "
+                f"vérifiez la réponse avec {run('selftest')}.")
     if preview.get("mode") == "gpu":
         return (f"Un GPU utilisable est présent : {_gpu(preview.get('device'), preview.get('variant'))}. Remplacez "
                 f"llm.num_gpu: 0 par llm.accelerator: auto dans le profil, puis redémarrez ({_restart()}).")
     if preview.get("reason") == "gpu_path_not_qualified":
         return (f"GPU NVIDIA détecté sur une voie non qualifiée : {_gpu(preview.get('device'), preview.get('variant'))}. "
                 f"Pour l'essayer, {replace.format('gpu')}, redémarrez ({_restart()}) puis lancez {run('selftest')}.")
+    if preview.get("reason") == "gpu_unified_memory_not_qualified":
+        return (f"GPU NVIDIA détecté, {_gpu(preview.get('device'), preview.get('variant'))}, {UNIFIED_MEMORY}. Pour "
+                f"l'essayer, {replace.format('gpu')}, redémarrez ({_restart()}) puis lancez {run('selftest')}.")
     return None
 
 
@@ -474,6 +501,16 @@ def _calcul_state(check: dict[str, Any]) -> tuple[dict[str, Any], str | None]:
                    "poste.")
         proposal = (f"GPU NVIDIA détecté, voie non qualifiée : pour l'essayer, indiquez llm.accelerator: gpu dans le "
                     f"profil, redémarrez ({_restart()}) puis lancez {run('selftest')}.")
+        return rubric("calcul", GREEN, message), proposal
+    if state == "gpu_unified_memory_not_qualified":
+        memory = host.get("memory_total_mib")
+        size = (f"ce poste en a {mib(memory)}" if isinstance(memory, int) and not isinstance(memory, bool)
+                else "celle de ce poste n'a pas pu être lue")
+        message = (f"Calcul sur CPU : GPU NVIDIA détecté, {_gpu(device, variant)}, qui partage la mémoire du poste avec le "
+                   f"CPU ; le calcul sur ce GPU n'est qualifié qu'au-delà de {UNIFIED_GIB} de mémoire totale, et {size}.")
+        proposal = ("La mémoire que ce GPU partage avec le CPU n'est pas mesurable de façon fiable sur ce poste : pour "
+                    "essayer tout de même le GPU, indiquez llm.accelerator: gpu dans le profil, redémarrez "
+                    f"({_restart()}) puis lancez {run('selftest')}.")
         return rubric("calcul", GREEN, message), proposal
     if state == "gpu_requested_unavailable":
         message, action = _requested_unavailable(check)

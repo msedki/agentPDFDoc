@@ -1,7 +1,7 @@
 ---
 name: official-source-review
 description: "Vérifie les sources officielles et les contrats de version avant une étude, une décision technique, une mise à jour ou une affirmation SOTA concernant le RAG local."
-compatibility: "Agents de développement avec lecture du dépôt ; réseau officiel pour les vérifications externes autorisées ; application locale CPU uniquement."
+compatibility: "Agents de développement avec lecture du dépôt ; réseau officiel pour les vérifications externes autorisées ; application locale : CPU de référence, génération sur GPU selon W024 et W025."
 metadata:
   origin: "project-authored"
   version: "2.1"
@@ -12,7 +12,7 @@ metadata:
 
 ## Entrée et périmètre
 
-Une question technique précise, le composant et sa version constatée, la décision à prendre et les contraintes CPU/16 Go/offline. Ne pas activer pour une correction purement typographique sans fait nouveau.
+Une question technique précise, le composant et sa version constatée, la décision à prendre et les contraintes (CPU de référence, génération sur GPU selon W024 et W025, 16 Go, hors ligne). Ne pas activer pour une correction purement typographique sans fait nouveau.
 
 ## Exécution
 

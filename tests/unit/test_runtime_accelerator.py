@@ -96,7 +96,12 @@ ORIN = {"id": "0", "library": "CUDA", "compute": "8.7", "name": "CUDA0", "descri
 
 REASONS = ("imposed_by_profile", "legacy_profile_cpu", "discovery_unreadable", "no_gpu_discovered",
            "gpu_library_not_retained", "gpu_mixed_libraries", "gpu_libraries_unverified", "gpu_path_not_qualified",
-           "gpu_trial", "gpu_discovered")
+           "gpu_unified_memory_not_qualified", "gpu_trial", "gpu_discovered")
+
+# Mémoire totale du poste de l'essai réel du 02/10 (MemTotal 64 307 708 kB), en Mio ; Jetson de 16 Go et de 32 Go simulés.
+TRIAL_HOST_MIB = 62800
+JETSON_16_MIB = 15600
+JETSON_32_MIB = 30600
 
 
 # --- Découverte journalisée -------------------------------------------------------------------------------------------
@@ -207,7 +212,7 @@ def test_invalid_profile_forms_are_refused_with_their_message(llm, message, keys
 
 
 def test_refusal_messages_name_the_three_values_and_the_replacement():
-    assert VALUE_MESSAGE == ("llm.accelerator accepte auto (GPU utilisé s'il est détecté sur une voie qualifiée, CPU "
+    assert VALUE_MESSAGE == ("llm.accelerator accepte auto (GPU utilisé s'il est détecté sur un poste qualifié, CPU "
                              "sinon), cpu (calcul CPU imposé) ou gpu (essai du GPU sur un poste non qualifié).")
     assert BOTH_KEYS_MESSAGE == "llm.num_gpu est remplacé par llm.accelerator : retirez llm.num_gpu du profil."
     # Message lu par l'utilisateur (refus de up, erreur invalid_profile de l'API) : aucun identifiant de décision.
@@ -259,6 +264,9 @@ def _linux_host(tmp_path, monkeypatch, platform="linux-aarch64", release=TEGRA_R
                       encoding="utf-8")
     node = tmp_path / "nvhost-gpu"
     node.write_bytes(b"")
+    meminfo = tmp_path / "meminfo"
+    meminfo.write_bytes(b"MemTotal:       64307708 kB\nMemFree:          748956 kB\nMemAvailable:   46284820 kB\n")
+    monkeypatch.setattr(accelerator, "MEMINFO", meminfo)
     monkeypatch.setattr(accelerator, "TEGRA_RELEASE", tegra)
     monkeypatch.setattr(accelerator, "NVIDIA_DRIVER_VERSION", driver)
     monkeypatch.setattr(accelerator, "GPU_DEVICE_NODES", (str(node), str(tmp_path / "nvidia0")))
@@ -272,7 +280,7 @@ def test_jetson_signals_name_the_jetpack_variant_and_the_device_nodes(tmp_path, 
                        "nvidia_kernel_driver": "NVRM version: NVIDIA UNIX Open Kernel Module for aarch64  35.4.1  Release Build",
                        "gpu_nodes": {str(node): {"exists": True, "access": True},
                                      str(tmp_path / "nvidia0"): {"exists": False, "access": False}},
-                       "windows_nvcuda": None}
+                       "windows_nvcuda": None, "memory_total_mib": TRIAL_HOST_MIB}
 
 
 @pytest.mark.parametrize(("platform", "release", "l4t", "jetpack"), [
@@ -291,12 +299,14 @@ def test_signals_without_a_published_jetpack_variant(tmp_path, monkeypatch, plat
 def test_windows_signals_only_look_for_nvcuda(tmp_path, monkeypatch, nvcuda):
     monkeypatch.setattr(accelerator, "platform_id", lambda: "windows-x86_64")
     monkeypatch.setattr(accelerator, "TEGRA_RELEASE", tmp_path / "ne-doit-pas-etre-lu")
+    monkeypatch.setattr(accelerator, "read_memory_total_mib", lambda path=None: pytest.fail("mémoire lue sous Windows"))
     monkeypatch.setenv("SystemRoot", str(tmp_path))
     if nvcuda:
         (tmp_path / "System32").mkdir()
         (tmp_path / "System32/nvcuda.dll").write_bytes(b"MZ")
     assert accelerator.host_signals() == {"platform": "windows-x86_64", "l4t_major": None, "jetpack": None,
-                                          "nvidia_kernel_driver": None, "gpu_nodes": {}, "windows_nvcuda": nvcuda}
+                                          "nvidia_kernel_driver": None, "gpu_nodes": {}, "windows_nvcuda": nvcuda,
+                                          "memory_total_mib": None}
 
 
 def test_host_signals_never_raise(monkeypatch):
@@ -305,6 +315,30 @@ def test_host_signals_never_raise(monkeypatch):
 
     monkeypatch.setattr(accelerator, "platform_id", broken)
     assert accelerator.host_signals()["platform"] is None
+    assert accelerator.host_signals()["memory_total_mib"] is None
+
+
+@pytest.mark.parametrize(("content", "expected"), [
+    (b"MemTotal:       64307708 kB\nMemFree:          748956 kB\n", TRIAL_HOST_MIB),
+    (b"MemFree:          748956 kB\nMemTotal:       15974400 kB\n", JETSON_16_MIB),
+    (b"MemTotal:       31334400 kB\n", JETSON_32_MIB),
+    (b"MemTotal:       illisible kB\n", None),
+    (b"MemTotal:       1024 MB\n", None),
+    (b"MemFree:          748956 kB\n", None),
+    (b"", None),
+])
+def test_the_total_memory_is_read_in_meminfo(tmp_path, content, expected):
+    # Champ MemTotal de /proc/meminfo, en kB (Kio) ; toute autre forme laisse la mémoire inconnue.
+    meminfo = tmp_path / "meminfo"
+    meminfo.write_bytes(content)
+    assert accelerator.read_memory_total_mib(meminfo) == expected
+
+
+def test_a_missing_meminfo_leaves_the_memory_unknown(tmp_path, monkeypatch):
+    assert accelerator.read_memory_total_mib(tmp_path / "absent") is None
+    _linux_host(tmp_path, monkeypatch)
+    monkeypatch.setattr(accelerator, "MEMINFO", tmp_path / "absent")
+    assert accelerator.host_signals()["memory_total_mib"] is None
 
 
 # --- Entrées du verrou par poste ---------------------------------------------------------------------------------------
@@ -454,13 +488,14 @@ JETPACK5 = parse_discovery(JETSON_JETPACK5)
      "gpu", "gpu_discovered"),
 ])
 def test_each_rule_of_the_resolution_table(requested, discovery, libraries, platform, mode, reason):
-    decision = resolve_mode(requested, discovery, libraries, platform)
+    # Mémoire du poste de l'essai réel : la règle du GPU intégré est couverte à part.
+    decision = resolve_mode(requested, discovery, libraries, platform, memory_total_mib=TRIAL_HOST_MIB)
     assert (decision["mode"], decision["reason"]) == (mode, reason)
     assert reason in REASON_TEXTS
 
 
 def test_the_decision_names_the_cuda_device_its_variant_and_its_qualification():
-    decision = resolve_mode(AUTO, JETPACK5, _verified("cuda_jetpack5"), "linux-aarch64")
+    decision = resolve_mode(AUTO, JETPACK5, _verified("cuda_jetpack5"), "linux-aarch64", memory_total_mib=TRIAL_HOST_MIB)
     assert decision == {"mode": "gpu", "reason": "gpu_discovered", "device": ORIN, "variant": "cuda_jetpack5",
                         "qualified": True}
     mixed = resolve_mode(AUTO, parse_discovery(DISCOVERING + VULKAN_DISCRETE + CUDA_DISCRETE),
@@ -476,6 +511,69 @@ def test_the_windows_reference_host_resolves_to_cpu_whatever_the_request():
         decision = resolve_mode(requested, parse_discovery(WINDOWS_IRIS_XE), _verified("cuda_v12", "cuda_v13", "vulkan"),
                                 "windows-x86_64")
         assert (decision["mode"], decision["reason"]) == ("cpu", "no_gpu_discovered")
+
+
+# --- GPU intégré à mémoire unifiée (Jetson) : qualifié au-delà de 16 Gio de mémoire totale -------------------------------
+# Essai réel du 02/10 : MemAvailable n'a baissé que de 1,0 à 1,6 Gio pour un modèle de 3,1 Go chargé sur le GPU ; la
+# mémoire prise par le GPU n'y est pas mesurable de façon fiable. Qualifié au-delà de 16 Gio ; seul le poste de l'essai (62 800 Mio) a été essayé.
+
+@pytest.mark.parametrize(("requested", "memory", "mode", "reason"), [
+    (AUTO, JETSON_16_MIB, "cpu", "gpu_unified_memory_not_qualified"),
+    (AUTO, 16384, "cpu", "gpu_unified_memory_not_qualified"),
+    (AUTO, None, "cpu", "gpu_unified_memory_not_qualified"),
+    ({"requested": "auto", "requested_source": "default"}, JETSON_16_MIB, "cpu", "gpu_unified_memory_not_qualified"),
+    (AUTO, 16385, "gpu", "gpu_discovered"),
+    (AUTO, JETSON_32_MIB, "gpu", "gpu_discovered"),
+    (AUTO, TRIAL_HOST_MIB, "gpu", "gpu_discovered"),
+    (GPU, JETSON_16_MIB, "gpu", "gpu_trial"),
+    (GPU, None, "gpu", "gpu_trial"),
+    (GPU, JETSON_32_MIB, "gpu", "gpu_discovered"),
+    ({"requested": "cpu", "requested_source": "profile"}, JETSON_16_MIB, "cpu", "imposed_by_profile"),
+], ids=["auto-16go", "auto-16gio-pile", "auto-inconnue", "defaut-16go", "auto-16gio-plus-1", "auto-32go",
+        "auto-poste-essai", "gpu-16go", "gpu-inconnue", "gpu-32go", "cpu-16go"])
+def test_an_integrated_gpu_is_qualified_only_above_16_gib_of_total_memory(requested, memory, mode, reason):
+    decision = resolve_mode(requested, JETPACK5, _verified("cuda_jetpack5"), "linux-aarch64", memory_total_mib=memory)
+    assert (decision["mode"], decision["reason"]) == (mode, reason)
+    # La voie reste qualifiée et le GPU nommé : seule la mémoire du poste écarte le GPU en auto.
+    assert (decision["device"], decision["variant"], decision["qualified"]) == (ORIN, "cuda_jetpack5", True)
+
+
+def test_without_a_given_memory_the_decision_reads_the_host(tmp_path, monkeypatch):
+    # Superviseur et calibration ne transmettent pas la mémoire : elle est lue sur le poste, pour un GPU intégré.
+    meminfo = tmp_path / "meminfo"
+    monkeypatch.setattr(accelerator, "MEMINFO", meminfo)
+    meminfo.write_bytes(b"MemTotal:       15974400 kB\n")
+    assert resolve_mode(AUTO, JETPACK5, _verified("cuda_jetpack5"), "linux-aarch64")["reason"] == (
+        "gpu_unified_memory_not_qualified")
+    meminfo.write_bytes(b"MemTotal:       31334400 kB\n")
+    assert resolve_mode(AUTO, JETPACK5, _verified("cuda_jetpack5"), "linux-aarch64")["reason"] == "gpu_discovered"
+    meminfo.unlink()
+    assert resolve_mode(AUTO, JETPACK5, _verified("cuda_jetpack5"), "linux-aarch64")["reason"] == (
+        "gpu_unified_memory_not_qualified")
+
+
+def test_a_dedicated_gpu_has_no_memory_condition(monkeypatch):
+    # GPU NVIDIA dédié sur un poste de 8 Gio : règle inchangée, la mémoire du poste n'est même pas lue.
+    monkeypatch.setattr(accelerator, "read_memory_total_mib", lambda path=None: pytest.fail("mémoire lue, GPU dédié"))
+    rtx = parse_discovery(DISCOVERING + CUDA_DISCRETE)
+    assert rtx["devices"][0]["type"] == "discrete"
+    for memory in ({}, {"memory_total_mib": 8192}, {"memory_total_mib": None}):
+        assert resolve_mode(AUTO, rtx, _verified("cuda_v13"), "windows-x86_64", **memory)["reason"] == (
+            "gpu_path_not_qualified")
+        assert resolve_mode(GPU, rtx, _verified("cuda_v13"), "windows-x86_64", **memory)["reason"] == "gpu_trial"
+    # Voie supposée qualifiée : un GPU dédié passe sur GPU en auto, quelle que soit la mémoire du poste.
+    monkeypatch.setattr(accelerator, "QUALIFIED_GPU_PATHS", frozenset({("windows-x86_64", "cuda_v13")}))
+    for memory in ({}, {"memory_total_mib": 8192}, {"memory_total_mib": None}):
+        decision = resolve_mode(AUTO, rtx, _verified("cuda_v13"), "windows-x86_64", **memory)
+        assert (decision["mode"], decision["reason"]) == ("gpu", "gpu_discovered")
+
+
+def test_the_unified_memory_threshold():
+    assert accelerator.UNIFIED_MEMORY_MIN_MIB == 16384
+    assert [accelerator.unified_memory_qualified(value) for value in (None, 15600, 16384, 16385, 62800)] == [
+        False, False, False, True, True]
+    # Valeur d'un runtime.json altéré : jamais qualifiée.
+    assert [accelerator.unified_memory_qualified(value) for value in ("62800", True, 62800.0)] == [False, False, False]
 
 
 def test_every_reason_has_a_short_text():

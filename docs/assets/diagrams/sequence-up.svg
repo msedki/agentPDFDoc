@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Généré par tools/docs/diagrams.py : modifier le script puis régénérer. -->
-<svg xmlns="http://www.w3.org/2000/svg" width="880" height="1142" viewBox="0 0 880 1142" role="img" aria-labelledby="sequence-up-title sequence-up-desc" font-family="'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="1320" viewBox="0 0 880 1320" role="img" aria-labelledby="sequence-up-title sequence-up-desc" font-family="'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif">
 <title id="sequence-up-title">rag.ps1 up puis open : démarrage, ouverture de l'atelier et refus</title>
-<desc id="sequence-up-desc">Contrôles exécutés par rag.ps1 up dans l'ordre du code, lancement de Qdrant, Ollama et de l'API, puis demande du lien d'ouverture par rag.ps1 open, et message renvoyé par chaque refus.</desc>
+<desc id="sequence-up-desc">Contrôles exécutés par rag.ps1 up dans l'ordre du code, lancement de Qdrant et d'Ollama, décision du mode de génération (GPU ou CPU), lancement de l'API, puis demande du lien d'ouverture par rag.ps1 open, et message renvoyé par chaque refus.</desc>
 <defs><marker id="sequence-up-head-172b33" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#172B33"/></marker></defs>
-<rect x="0" y="0" width="880" height="1142" rx="10" fill="#F6F4EE" stroke="#D9D9D1"/>
-<line x1="470" y1="116" x2="470" y2="1060" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
-<line x1="384" y1="116" x2="384" y2="1060" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
-<line x1="296" y1="116" x2="296" y2="1060" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
-<line x1="196" y1="116" x2="196" y2="1060" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
-<line x1="80" y1="116" x2="80" y2="1060" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
+<rect x="0" y="0" width="880" height="1320" rx="10" fill="#F6F4EE" stroke="#D9D9D1"/>
+<line x1="470" y1="116" x2="470" y2="1220" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="384" y1="116" x2="384" y2="1220" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="296" y1="116" x2="296" y2="1220" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="196" y1="116" x2="196" y2="1220" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="80" y1="116" x2="80" y2="1220" stroke="#8E989D" stroke-width="1" stroke-dasharray="4 4"/>
 <text x="24" y="34" font-size="18" fill="#172B33" font-weight="600">rag.ps1 up puis open : démarrage, ouverture de l'atelier et refus</text>
 <text x="24" y="54" font-size="12" fill="#4A5961">Sources : rag.ps1, services/runtime/cli.py (open_workspace), services/runtime/supervisor.py (start, supervise).</text>
 <rect x="24" y="70" width="112" height="46" rx="6" fill="#FFFEFA" stroke="#172B33" stroke-width="1.4"/>
@@ -37,106 +37,125 @@
 <text x="534" y="148" font-size="12" fill="#172B33">Environnement isolé absent. Exécuter</text>
 <text x="534" y="164" font-size="12" fill="#172B33">bootstrap.ps1 (…), puis rag.ps1 provision.</text>
 <rect x="75" y="191" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
-<rect x="89" y="191" width="368.52" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="92" y="203" font-size="12" fill="#172B33">Profil v2 : URL 127.0.0.1 à port explicite, num_gpu 0</text>
-<polyline points="460.52,198 522,198" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
+<rect x="89" y="191" width="211.2" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="92" y="203" font-size="12" fill="#172B33">Profil v2 : app.host 127.0.0.1</text>
+<polyline points="303.2,198 522,198" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
 <rect x="524" y="186" width="332" height="42" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
 <text x="534" y="200" font-size="12" fill="#172B33">Profil version2 requis</text>
-<text x="534" y="216" font-size="12" fill="#172B33">Le runtime exige loopback et CPU</text>
+<text x="534" y="216" font-size="12" fill="#172B33">Le runtime exige loopback</text>
 <rect x="75" y="243" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
-<rect x="89" y="243" width="334.32" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="92" y="255" font-size="12" fill="#172B33">Chemin …\qdrant\storage de 57 caractères au plus</text>
-<polyline points="426.32,250 522,250" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
+<rect x="89" y="243" width="354.84" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="92" y="255" font-size="12" fill="#172B33">llm.accelerator auto, cpu ou gpu ; ancien num_gpu 0</text>
+<polyline points="446.84,250 522,250" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
 <rect x="524" y="238" width="332" height="58" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
-<text x="534" y="252" font-size="12" fill="#172B33">Chemin Qdrant trop long pour le binaire</text>
-<text x="534" y="268" font-size="12" fill="#172B33">Windows verrouillé : définir</text>
-<text x="534" y="284" font-size="12" fill="#172B33">qdrant.storage_dir vers un dossier court…</text>
+<text x="534" y="252" font-size="12" fill="#172B33">llm.accelerator accepte auto (…), cpu (…) ou…</text>
+<text x="534" y="268" font-size="12" fill="#172B33">llm.num_gpu est remplacé par llm.accelerator…</text>
+<text x="534" y="284" font-size="12" fill="#172B33">llm.num_gpu n'accepte que 0 (…) ; …</text>
 <rect x="75" y="311" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
-<rect x="89" y="311" width="382.2" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="92" y="323" font-size="12" fill="#172B33">Superviseur vivant : même profil, état renvoyé tel quel</text>
-<polyline points="474.2,318 522,318" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
+<rect x="89" y="311" width="368.52" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="92" y="323" font-size="12" fill="#172B33">URL de Qdrant et d'Ollama : 127.0.0.1, port explicite</text>
+<polyline points="460.52,318 522,318" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
 <rect x="524" y="306" width="332" height="42" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
-<text x="534" y="320" font-size="12" fill="#172B33">Instance existante avec profil différent :</text>
-<text x="534" y="336" font-size="12" fill="#172B33">down puis up pour appliquer la configuration</text>
-<polyline points="86,374 190,374" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sequence-up-head-172b33)"/>
-<rect x="87" y="356" width="368.52" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="90" y="368" font-size="12" fill="#172B33">lance cli _serve sans fenêtre, attend running (150 s)</text>
-<polyline points="458.52,370 522,370" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
+<text x="534" y="320" font-size="12" fill="#172B33">Les services natifs exigent une URL HTTP</text>
+<text x="534" y="336" font-size="12" fill="#172B33">loopback avec port explicite</text>
+<rect x="75" y="363" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
+<rect x="89" y="363" width="334.32" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="92" y="375" font-size="12" fill="#172B33">Chemin …\qdrant\storage de 57 caractères au plus</text>
+<polyline points="426.32,370 522,370" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
 <rect x="524" y="358" width="332" height="58" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
-<text x="534" y="372" font-size="12" fill="#172B33">Superviseur terminé (code) avant</text>
-<text x="534" y="388" font-size="12" fill="#172B33">disponibilité ; log</text>
-<text x="534" y="404" font-size="12" fill="#172B33">control\supervisor-start.log</text>
-<rect x="191" y="431" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
-<rect x="205" y="431" width="279.6" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="208" y="443" font-size="12" fill="#172B33">Verrou control\runtime.lock de la racine</text>
-<polyline points="487.6,438 522,438" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
+<text x="534" y="372" font-size="12" fill="#172B33">Chemin Qdrant trop long pour le binaire</text>
+<text x="534" y="388" font-size="12" fill="#172B33">Windows verrouillé : définir</text>
+<text x="534" y="404" font-size="12" fill="#172B33">qdrant.storage_dir vers un dossier court…</text>
+<rect x="75" y="431" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
+<rect x="89" y="431" width="382.2" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="92" y="443" font-size="12" fill="#172B33">Superviseur vivant : même profil, état renvoyé tel quel</text>
+<polyline points="474.2,438 522,438" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
 <rect x="524" y="426" width="332" height="42" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
-<text x="534" y="440" font-size="12" fill="#172B33">Une instance possède déjà cette racine de</text>
-<text x="534" y="456" font-size="12" fill="#172B33">données</text>
-<rect x="191" y="483" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
-<rect x="205" y="483" width="306.96" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="208" y="495" font-size="12" fill="#172B33">Ports app, Qdrant, Ollama libres (127.0.0.1)</text>
-<polyline points="514.96,490 522,490" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
-<rect x="524" y="478" width="332" height="42" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
-<text x="534" y="492" font-size="12" fill="#172B33">Port 8785 occupé ; aucun service existant</text>
-<text x="534" y="508" font-size="12" fill="#172B33">ne sera arrêté.</text>
-<rect x="191" y="535" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
-<rect x="205" y="535" width="177" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="208" y="547" font-size="12" fill="#172B33">Verrou du stockage Qdrant</text>
-<polyline points="385,542 522,542" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
-<rect x="524" y="530" width="332" height="26" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
-<text x="534" y="544" font-size="12" fill="#172B33">Une instance possède déjà ce stockage Qdrant</text>
-<rect x="191" y="575" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
-<rect x="205" y="575" width="259.08" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="208" y="587" font-size="12" fill="#172B33">Binaires conformes au manifeste local</text>
-<polyline points="467.08,582 522,582" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
-<rect x="524" y="570" width="332" height="58" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
-<text x="534" y="584" font-size="12" fill="#172B33">Artefacts non provisionnés ; exécuter</text>
-<text x="534" y="600" font-size="12" fill="#172B33">rag.ps1 provision · Empreinte du binaire …</text>
-<text x="534" y="616" font-size="12" fill="#172B33">non conforme au manifeste local</text>
-<polyline points="202,654 290,654" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sequence-up-head-172b33)"/>
-<rect x="203" y="636" width="286.44" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="206" y="648" font-size="12" fill="#172B33">lance Qdrant avec sa clé, attend /healthz</text>
-<polyline points="492.44,650 522,650" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
-<rect x="524" y="638" width="332" height="42" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
-<text x="534" y="652" font-size="12" fill="#172B33">Disponibilité non atteinte : …/healthz</text>
-<text x="534" y="668" font-size="12" fill="#172B33">Enfant terminé (…) avant disponibilité</text>
-<polyline points="202,706 378,706" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sequence-up-head-172b33)"/>
-<rect x="203" y="688" width="279.6" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="206" y="700" font-size="12" fill="#172B33">lance Ollama, attend /api/version 0.35.0</text>
-<polyline points="485.6,702 522,702" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
-<rect x="524" y="690" width="332" height="42" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
-<text x="534" y="704" font-size="12" fill="#172B33">Version du service différente de l'artefact</text>
-<text x="534" y="720" font-size="12" fill="#172B33">verrouillé</text>
-<polyline points="202,758 464,758" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sequence-up-head-172b33)"/>
-<rect x="203" y="740" width="293.28" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="206" y="752" font-size="12" fill="#172B33">lance l'API, attend /api/v1/health (120 s)</text>
-<rect x="524" y="742" width="332" height="68" rx="6" fill="#FFF6D9" stroke="#8A6D1F" stroke-width="1.4"/>
-<text x="534" y="763" font-size="12" fill="#172B33">Échec d'une phase : enfants de la tentative</text>
-<text x="534" y="780" font-size="12" fill="#172B33">arrêtés par le Job Object, état failed,</text>
-<text x="534" y="797" font-size="12" fill="#172B33">journaux conservés.</text>
-<polyline points="190,836 86,836" fill="none" stroke="#172B33" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#sequence-up-head-172b33)"/>
-<rect x="87" y="818" width="354.84" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="90" y="830" font-size="12" fill="#172B33">runtime.json : running ; la CLI imprime l'état JSON</text>
-<rect x="75" y="865" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
-<rect x="89" y="865" width="313.8" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="92" y="877" font-size="12" fill="#172B33">open : instance running, jeton de contrôle lu</text>
-<polyline points="405.8,872 522,872" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
-<rect x="524" y="860" width="332" height="74" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
-<text x="534" y="874" font-size="12" fill="#172B33">Instance non démarrée : lancer d'abord</text>
-<text x="534" y="890" font-size="12" fill="#172B33">.\rag.ps1 up</text>
-<text x="534" y="906" font-size="12" fill="#172B33">Jeton de contrôle de l'instance absent :</text>
-<text x="534" y="922" font-size="12" fill="#172B33">redémarrer avec .\rag.ps1 down puis up</text>
-<polyline points="86,960 464,960" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sequence-up-head-172b33)"/>
-<rect x="87" y="942" width="375.36" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="90" y="954" font-size="12" fill="#172B33">POST /api/v1/admin/session-links (X-RAG-Control-Token)</text>
-<polyline points="464,1000 86,1000" fill="none" stroke="#172B33" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#sequence-up-head-172b33)"/>
-<rect x="87" y="982" width="375.36" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="90" y="994" font-size="12" fill="#172B33">lien /api/v1/session/open?link=… (5 min, usage unique)</text>
-<rect x="75" y="1029" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
-<rect x="89" y="1029" width="375.36" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="92" y="1041" font-size="12" fill="#172B33">lien ouvert dans le navigateur par défaut, non affiché</text>
-<text x="24" y="1088" font-size="12" fill="#4A5961">Trait plein : lancement ou requête · tirets : réponse. Un second up (même racine, même profil) renvoie l'instance.</text>
-<text x="24" y="1106" font-size="12" fill="#4A5961">open est une commande distincte, lancée après up ; le navigateur échange le lien contre les cookies de session.</text>
-<text x="24" y="1124" font-size="12" fill="#4A5961">Les messages tronqués (…) sont complets dans docs/exploitation/DEPANNAGE.md.</text>
+<text x="534" y="440" font-size="12" fill="#172B33">Instance existante avec profil différent :</text>
+<text x="534" y="456" font-size="12" fill="#172B33">down puis up pour appliquer la configuration</text>
+<polyline points="86,494 190,494" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sequence-up-head-172b33)"/>
+<rect x="87" y="476" width="368.52" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="90" y="488" font-size="12" fill="#172B33">lance cli _serve sans fenêtre, attend running (150 s)</text>
+<polyline points="458.52,490 522,490" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
+<rect x="524" y="478" width="332" height="58" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
+<text x="534" y="492" font-size="12" fill="#172B33">Superviseur terminé (code) avant</text>
+<text x="534" y="508" font-size="12" fill="#172B33">disponibilité ; log</text>
+<text x="534" y="524" font-size="12" fill="#172B33">control\supervisor-start.log</text>
+<rect x="191" y="551" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
+<rect x="205" y="551" width="279.6" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="208" y="563" font-size="12" fill="#172B33">Verrou control\runtime.lock de la racine</text>
+<polyline points="487.6,558 522,558" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
+<rect x="524" y="546" width="332" height="42" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
+<text x="534" y="560" font-size="12" fill="#172B33">Une instance possède déjà cette racine de</text>
+<text x="534" y="576" font-size="12" fill="#172B33">données</text>
+<rect x="191" y="603" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
+<rect x="205" y="603" width="306.96" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="208" y="615" font-size="12" fill="#172B33">Ports app, Qdrant, Ollama libres (127.0.0.1)</text>
+<polyline points="514.96,610 522,610" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
+<rect x="524" y="598" width="332" height="42" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
+<text x="534" y="612" font-size="12" fill="#172B33">Port 8785 occupé ; aucun service existant</text>
+<text x="534" y="628" font-size="12" fill="#172B33">ne sera arrêté.</text>
+<rect x="191" y="655" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
+<rect x="205" y="655" width="177" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="208" y="667" font-size="12" fill="#172B33">Verrou du stockage Qdrant</text>
+<polyline points="385,662 522,662" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
+<rect x="524" y="650" width="332" height="26" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
+<text x="534" y="664" font-size="12" fill="#172B33">Une instance possède déjà ce stockage Qdrant</text>
+<rect x="191" y="695" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
+<rect x="205" y="695" width="259.08" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="208" y="707" font-size="12" fill="#172B33">Binaires conformes au manifeste local</text>
+<polyline points="467.08,702 522,702" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
+<rect x="524" y="690" width="332" height="58" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
+<text x="534" y="704" font-size="12" fill="#172B33">Artefacts non provisionnés ; exécuter</text>
+<text x="534" y="720" font-size="12" fill="#172B33">rag.ps1 provision · Empreinte du binaire …</text>
+<text x="534" y="736" font-size="12" fill="#172B33">non conforme au manifeste local</text>
+<polyline points="202,774 290,774" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sequence-up-head-172b33)"/>
+<rect x="203" y="756" width="286.44" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="206" y="768" font-size="12" fill="#172B33">lance Qdrant avec sa clé, attend /healthz</text>
+<polyline points="492.44,770 522,770" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
+<rect x="524" y="758" width="332" height="42" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
+<text x="534" y="772" font-size="12" fill="#172B33">Disponibilité non atteinte : …/healthz</text>
+<text x="534" y="788" font-size="12" fill="#172B33">Enfant terminé (…) avant disponibilité</text>
+<polyline points="202,826 378,826" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sequence-up-head-172b33)"/>
+<rect x="203" y="808" width="279.6" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="206" y="820" font-size="12" fill="#172B33">lance Ollama, attend /api/version 0.35.0</text>
+<polyline points="485.6,822 522,822" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
+<rect x="524" y="810" width="332" height="42" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
+<text x="534" y="824" font-size="12" fill="#172B33">Version du service différente de l'artefact</text>
+<text x="534" y="840" font-size="12" fill="#172B33">verrouillé</text>
+<rect x="191" y="867" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
+<rect x="205" y="867" width="286.44" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="208" y="879" font-size="12" fill="#172B33">Mode GPU ou CPU décidé d'après ollama.log</text>
+<polyline points="202,918 464,918" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sequence-up-head-172b33)"/>
+<rect x="203" y="900" width="293.28" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="206" y="912" font-size="12" fill="#172B33">lance l'API, attend /api/v1/health (120 s)</text>
+<rect x="524" y="902" width="332" height="68" rx="6" fill="#FFF6D9" stroke="#8A6D1F" stroke-width="1.4"/>
+<text x="534" y="923" font-size="12" fill="#172B33">Échec d'une phase : enfants de la tentative</text>
+<text x="534" y="940" font-size="12" fill="#172B33">arrêtés par le Job Object, état failed,</text>
+<text x="534" y="957" font-size="12" fill="#172B33">journaux conservés.</text>
+<polyline points="190,996 86,996" fill="none" stroke="#172B33" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#sequence-up-head-172b33)"/>
+<rect x="87" y="978" width="354.84" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="90" y="990" font-size="12" fill="#172B33">runtime.json : running ; la CLI imprime l'état JSON</text>
+<rect x="75" y="1025" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
+<rect x="89" y="1025" width="313.8" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="92" y="1037" font-size="12" fill="#172B33">open : instance running, jeton de contrôle lu</text>
+<polyline points="405.8,1032 522,1032" fill="none" stroke="#A94324" stroke-width="1.2" stroke-dasharray="2 4" stroke-linecap="round"/>
+<rect x="524" y="1020" width="332" height="74" rx="6" fill="#F8E9DF" stroke="#A94324" stroke-width="1.4"/>
+<text x="534" y="1034" font-size="12" fill="#172B33">Instance non démarrée : lancer d'abord</text>
+<text x="534" y="1050" font-size="12" fill="#172B33">.\rag.ps1 up</text>
+<text x="534" y="1066" font-size="12" fill="#172B33">Jeton de contrôle de l'instance absent :</text>
+<text x="534" y="1082" font-size="12" fill="#172B33">redémarrer avec .\rag.ps1 down puis up</text>
+<polyline points="86,1120 464,1120" fill="none" stroke="#172B33" stroke-width="1.6" marker-end="url(#sequence-up-head-172b33)"/>
+<rect x="87" y="1102" width="375.36" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="90" y="1114" font-size="12" fill="#172B33">POST /api/v1/admin/session-links (X-RAG-Control-Token)</text>
+<polyline points="464,1160 86,1160" fill="none" stroke="#172B33" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#sequence-up-head-172b33)"/>
+<rect x="87" y="1142" width="375.36" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="90" y="1154" font-size="12" fill="#172B33">lien /api/v1/session/open?link=… (5 min, usage unique)</text>
+<rect x="75" y="1189" width="10" height="16" rx="2" fill="#FFFEFA" stroke="#172B33" stroke-width="1.2"/>
+<rect x="89" y="1189" width="375.36" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="92" y="1201" font-size="12" fill="#172B33">lien ouvert dans le navigateur par défaut, non affiché</text>
+<text x="24" y="1248" font-size="12" fill="#4A5961">Trait plein : lancement ou requête · tirets : réponse. Un second up (même racine, même profil) renvoie l'instance.</text>
+<text x="24" y="1266" font-size="12" fill="#4A5961">Mode de génération : découverte des GPU journalisée par Ollama, mode écrit dans runtime.json et transmis à l'API.</text>
+<text x="24" y="1284" font-size="12" fill="#4A5961">open est une commande distincte, lancée après up ; le navigateur échange le lien contre les cookies de session.</text>
+<text x="24" y="1302" font-size="12" fill="#4A5961">Les messages tronqués (…) sont complets dans docs/exploitation/DEPANNAGE.md.</text>
 </svg>

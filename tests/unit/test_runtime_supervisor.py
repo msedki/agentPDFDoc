@@ -482,12 +482,16 @@ def _program_root(root: Path, manifest: dict) -> None:
 
 @pytest.fixture
 def accelerator_cases(jetson_libraries, monkeypatch):  # noqa: F811
-    from services.runtime import supervisor
+    from services.runtime import accelerator, supervisor
     from tests.unit.test_runtime_accelerator import JETSON, JETSON_JETPACK5, WINDOWS_IRIS_XE
 
     root, manifest = jetson_libraries
     _program_root(root, manifest)
     monkeypatch.setattr(supervisor, "ROOT", root)
+    # Mémoire totale lue par la décision : celle du poste de l'essai réel du 02/10 (62 800 Mio).
+    meminfo = root / "meminfo"
+    meminfo.write_bytes(b"MemTotal:       64307708 kB\n")
+    monkeypatch.setattr(accelerator, "MEMINFO", meminfo)
     windows = {"platform": "windows-x86_64", "l4t_major": None, "jetpack": None, "nvidia_kernel_driver": None,
                "gpu_nodes": {}, "windows_nvcuda": False}
     return {"windows_iris_xe": (WINDOWS_IRIS_XE, windows, "cpu", "no_gpu_discovered"),
@@ -508,6 +512,28 @@ def test_instance_accelerator_records_the_decision_of_the_instance(tmp_path, mon
     # Forme antérieure (profil livré avant W024) : CPU quelle que soit la découverte.
     legacy = supervisor.instance_accelerator({"llm": {"num_gpu": 0}}, tmp_path / "ollama.log")
     assert (legacy["mode"], legacy["reason"], legacy["requested_source"]) == ("cpu", "legacy_profile_cpu", "legacy_num_gpu")
+
+
+@pytest.mark.parametrize(("kb", "requested", "mode", "reason"), [
+    (b"15974400", "auto", "cpu", "gpu_unified_memory_not_qualified"),
+    (b"31334400", "auto", "gpu", "gpu_discovered"),
+    (None, "auto", "cpu", "gpu_unified_memory_not_qualified"),
+    (b"15974400", "gpu", "gpu", "gpu_trial"),
+], ids=["16go-auto", "32go-auto", "inconnue-auto", "16go-gpu"])
+def test_the_instance_of_a_jetson_follows_its_total_memory(tmp_path, monkeypatch, accelerator_cases, kb, requested, mode,
+                                                           reason):
+    from services.runtime import accelerator, supervisor
+
+    log, signals, _, _ = accelerator_cases["jetson_jetpack5"]
+    # Fichier distinct de celui du jeu d'essai (même dossier temporaire) : absent, la mémoire est inconnue.
+    meminfo = tmp_path / "meminfo-poste"
+    if kb is not None:
+        meminfo.write_bytes(b"MemTotal:       " + kb + b" kB\n")
+    monkeypatch.setattr(accelerator, "MEMINFO", meminfo)
+    monkeypatch.setattr(supervisor, "host_signals", lambda: signals)
+    (tmp_path / "ollama.log").write_text(log, encoding="utf-8")
+    decision = supervisor.instance_accelerator({"llm": {"accelerator": requested}}, tmp_path / "ollama.log")
+    assert (decision["mode"], decision["reason"], decision["qualified"]) == (mode, reason, True)
 
 
 def test_an_unreadable_artifact_manifest_verifies_no_library_and_keeps_the_cpu(tmp_path, monkeypatch, accelerator_cases):

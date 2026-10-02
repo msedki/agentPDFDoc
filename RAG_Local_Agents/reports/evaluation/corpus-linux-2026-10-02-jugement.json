@@ -1,0 +1,1014 @@
+{
+ "format": "j10-answer-judgments-aggregate-v1",
+ "utc": "2026-10-02",
+ "annotation_state": "ASSISTANT_READ_NOT_EXPERT_VALIDATED",
+ "judgment_state": "ASSISTANT_JUDGED_NOT_EXPERT_VALIDATED",
+ "method": "Deux juges indépendants par document (verdicts et support de la grille D05, tools/qualification/grade.py), désaccords arbitrés contre le PDF original ; génération qwen3.5:4b-text en mode GPU (Jetson AGX Orin, cuda_jetpack5) ; textes des réponses et motifs conservés hors Git",
+ "judgments_sha256": "78a805c7f99281619ccf51b4e5d7b15dc0ba469336acee4da01737b581a8caee",
+ "answers_sha256": {
+  "dev": "0bb10fef245d5c45517e358f70b3ad2309aae3e381724787903483b009f3ab4f",
+  "final": "6f7b02424834345591d264eec2001400c50356240c0436b0a90d889bfa8f8c87"
+ },
+ "sets": {
+  "development": {
+   "documents": [
+    "mgv-b1",
+    "mgv-d0"
+   ],
+   "answerable": {
+    "correct": {
+     "numerator": 27,
+     "denominator": 47,
+     "rate": 0.574,
+     "wilson95": [
+      0.433,
+      0.705
+     ]
+    },
+    "correct_or_partial": {
+     "numerator": 32,
+     "denominator": 47,
+     "rate": 0.681,
+     "wilson95": [
+      0.538,
+      0.796
+     ]
+    },
+    "verdicts": {
+     "correct": 27,
+     "partial": 5,
+     "incorrect": 7,
+     "unjustified_abstention": 5,
+     "value_unit_error": 3
+    },
+    "support": {
+     "supported": 31,
+     "partially_supported": 15,
+     "unsupported": 1
+    },
+    "truncation_impact": {
+     "not_truncated": 15,
+     "none": 30,
+     "lost_content": 2
+    },
+    "by_category": {
+     "comparison": {
+      "correct": 2,
+      "incorrect": 1,
+      "unjustified_abstention": 2,
+      "partial": 1,
+      "value_unit_error": 1
+     },
+     "factual_fr_en": {
+      "correct": 20,
+      "incorrect": 1
+     },
+     "tables_units": {
+      "correct": 2,
+      "incorrect": 3,
+      "partial": 1,
+      "unjustified_abstention": 2,
+      "value_unit_error": 1
+     },
+     "technical_identifiers": {
+      "partial": 3,
+      "incorrect": 2,
+      "correct": 3,
+      "unjustified_abstention": 1,
+      "value_unit_error": 1
+     }
+    }
+   },
+   "unanswerable": {
+    "justified_abstention": {
+     "numerator": 14,
+     "denominator": 14,
+     "rate": 1.0,
+     "wilson95": [
+      0.785,
+      1.0
+     ]
+    },
+    "verdicts": {
+     "justified_abstention": 14
+    }
+   },
+   "judge_agreement": {
+    "agreed": 55,
+    "total": 61,
+    "arbitrated": 6
+   },
+   "rows": [
+    {
+     "id": "a001",
+     "source_id": "mgv-b1-q01",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a003",
+     "source_id": "mgv-b1-q02",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a005",
+     "source_id": "mgv-b1-q03",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a007",
+     "source_id": "mgv-b1-q04",
+     "category": "tables_units",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a009",
+     "source_id": "mgv-b1-q05",
+     "category": "technical_identifiers",
+     "answerable": true,
+     "verdict": "partial",
+     "support": "partially_supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a011",
+     "source_id": "mgv-b1-q06",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a013",
+     "source_id": "mgv-b1-q07",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a015",
+     "source_id": "mgv-b1-q08",
+     "category": "comparison",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "lost_content",
+     "arbitrated": false
+    },
+    {
+     "id": "a017",
+     "source_id": "mgv-b1-q09",
+     "category": "technical_identifiers",
+     "answerable": true,
+     "verdict": "partial",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a019",
+     "source_id": "mgv-b1-q10",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a023",
+     "source_id": "mgv-b1-q12",
+     "category": "technical_identifiers",
+     "answerable": true,
+     "verdict": "incorrect",
+     "support": "partially_supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a025",
+     "source_id": "mgv-b1-q13",
+     "category": "comparison",
+     "answerable": true,
+     "verdict": "incorrect",
+     "support": "partially_supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a027",
+     "source_id": "mgv-b1-q14",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a031",
+     "source_id": "mgv-b1-q16",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a033",
+     "source_id": "mgv-b1-q17",
+     "category": "comparison",
+     "answerable": true,
+     "verdict": "unjustified_abstention",
+     "support": "partially_supported",
+     "truncation_impact": "lost_content",
+     "arbitrated": false
+    },
+    {
+     "id": "a035",
+     "source_id": "mgv-b1-q18",
+     "category": "tables_units",
+     "answerable": true,
+     "verdict": "incorrect",
+     "support": "partially_supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a037",
+     "source_id": "mgv-b1-q19",
+     "category": "tables_units",
+     "answerable": true,
+     "verdict": "partial",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a039",
+     "source_id": "mgv-b1-q20",
+     "category": "technical_identifiers",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a041",
+     "source_id": "mgv-b1-q21",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a043",
+     "source_id": "mgv-b1-q22",
+     "category": "tables_units",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a045",
+     "source_id": "mgv-b1-q23",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a047",
+     "source_id": "mgv-b1-q24",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a049",
+     "source_id": "mgv-b1-q25",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a051",
+     "source_id": "mgv-b1-q26",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a053",
+     "source_id": "mgv-b1-q27",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a055",
+     "source_id": "mgv-b1-q28",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a057",
+     "source_id": "mgv-d0-q01",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a059",
+     "source_id": "mgv-d0-q02",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a061",
+     "source_id": "mgv-d0-q03",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a063",
+     "source_id": "mgv-d0-q04",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a065",
+     "source_id": "mgv-d0-q05",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a067",
+     "source_id": "mgv-d0-q06",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a069",
+     "source_id": "mgv-d0-q07",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a071",
+     "source_id": "mgv-d0-q08",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a073",
+     "source_id": "mgv-d0-q09",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "incorrect",
+     "support": "partially_supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a075",
+     "source_id": "mgv-d0-q10",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a077",
+     "source_id": "mgv-d0-q11",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a079",
+     "source_id": "mgv-d0-q12",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a081",
+     "source_id": "mgv-d0-q13",
+     "category": "technical_identifiers",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "partially_supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a083",
+     "source_id": "mgv-d0-q14",
+     "category": "technical_identifiers",
+     "answerable": true,
+     "verdict": "unjustified_abstention",
+     "support": "partially_supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a085",
+     "source_id": "mgv-d0-q15",
+     "category": "technical_identifiers",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "partially_supported",
+     "truncation_impact": "none",
+     "arbitrated": true
+    },
+    {
+     "id": "a087",
+     "source_id": "mgv-d0-q16",
+     "category": "technical_identifiers",
+     "answerable": true,
+     "verdict": "value_unit_error",
+     "support": "partially_supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a089",
+     "source_id": "mgv-d0-q17",
+     "category": "technical_identifiers",
+     "answerable": true,
+     "verdict": "incorrect",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a091",
+     "source_id": "mgv-d0-q18",
+     "category": "technical_identifiers",
+     "answerable": true,
+     "verdict": "partial",
+     "support": "partially_supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a093",
+     "source_id": "mgv-d0-q19",
+     "category": "tables_units",
+     "answerable": true,
+     "verdict": "unjustified_abstention",
+     "support": "partially_supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": true
+    },
+    {
+     "id": "a095",
+     "source_id": "mgv-d0-q20",
+     "category": "tables_units",
+     "answerable": true,
+     "verdict": "incorrect",
+     "support": "unsupported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": true
+    },
+    {
+     "id": "a097",
+     "source_id": "mgv-d0-q21",
+     "category": "tables_units",
+     "answerable": true,
+     "verdict": "unjustified_abstention",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": true
+    },
+    {
+     "id": "a099",
+     "source_id": "mgv-d0-q22",
+     "category": "tables_units",
+     "answerable": true,
+     "verdict": "incorrect",
+     "support": "partially_supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a101",
+     "source_id": "mgv-d0-q23",
+     "category": "tables_units",
+     "answerable": true,
+     "verdict": "value_unit_error",
+     "support": "partially_supported",
+     "truncation_impact": "none",
+     "arbitrated": true
+    },
+    {
+     "id": "a103",
+     "source_id": "mgv-d0-q24",
+     "category": "comparison",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a105",
+     "source_id": "mgv-d0-q25",
+     "category": "comparison",
+     "answerable": true,
+     "verdict": "partial",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a107",
+     "source_id": "mgv-d0-q26",
+     "category": "comparison",
+     "answerable": true,
+     "verdict": "unjustified_abstention",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a109",
+     "source_id": "mgv-d0-q27",
+     "category": "comparison",
+     "answerable": true,
+     "verdict": "value_unit_error",
+     "support": "partially_supported",
+     "truncation_impact": "none",
+     "arbitrated": true
+    },
+    {
+     "id": "a117",
+     "source_id": "mgv-d0-q31",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a119",
+     "source_id": "mgv-d0-q32",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a121",
+     "source_id": "mgv-d0-q33",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a123",
+     "source_id": "mgv-d0-q34",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a125",
+     "source_id": "mgv-d0-q35",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a127",
+     "source_id": "mgv-d0-q36",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a129",
+     "source_id": "mgv-d0-q37",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a131",
+     "source_id": "mgv-d0-q38",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "partially_supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    }
+   ]
+  },
+  "held_out": {
+   "documents": [
+    "modelcards"
+   ],
+   "answerable": {
+    "correct": {
+     "numerator": 11,
+     "denominator": 17,
+     "rate": 0.647,
+     "wilson95": [
+      0.413,
+      0.827
+     ]
+    },
+    "correct_or_partial": {
+     "numerator": 15,
+     "denominator": 17,
+     "rate": 0.882,
+     "wilson95": [
+      0.657,
+      0.967
+     ]
+    },
+    "verdicts": {
+     "correct": 11,
+     "incorrect": 1,
+     "value_unit_error": 1,
+     "partial": 4
+    },
+    "support": {
+     "supported": 15,
+     "partially_supported": 1,
+     "unsupported": 1
+    },
+    "truncation_impact": {
+     "not_truncated": 10,
+     "none": 7
+    },
+    "by_category": {
+     "comparison": {
+      "correct": 2,
+      "partial": 1
+     },
+     "factual_fr_en": {
+      "correct": 7,
+      "incorrect": 1
+     },
+     "tables_units": {
+      "correct": 2,
+      "partial": 1
+     },
+     "technical_identifiers": {
+      "value_unit_error": 1,
+      "partial": 2
+     }
+    }
+   },
+   "unanswerable": {
+    "justified_abstention": {
+     "numerator": 5,
+     "denominator": 5,
+     "rate": 1.0,
+     "wilson95": [
+      0.566,
+      1.0
+     ]
+    },
+    "verdicts": {
+     "justified_abstention": 5
+    }
+   },
+   "judge_agreement": {
+    "agreed": 21,
+    "total": 22,
+    "arbitrated": 1
+   },
+   "rows": [
+    {
+     "id": "a031",
+     "source_id": "modelcards-q01",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a033",
+     "source_id": "modelcards-q02",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a035",
+     "source_id": "modelcards-q03",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "incorrect",
+     "support": "partially_supported",
+     "truncation_impact": "none",
+     "arbitrated": true
+    },
+    {
+     "id": "a037",
+     "source_id": "modelcards-q04",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a039",
+     "source_id": "modelcards-q05",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a041",
+     "source_id": "modelcards-q06",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a043",
+     "source_id": "modelcards-q07",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a045",
+     "source_id": "modelcards-q08",
+     "category": "factual_fr_en",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a047",
+     "source_id": "modelcards-q09",
+     "category": "technical_identifiers",
+     "answerable": true,
+     "verdict": "value_unit_error",
+     "support": "unsupported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a049",
+     "source_id": "modelcards-q10",
+     "category": "technical_identifiers",
+     "answerable": true,
+     "verdict": "partial",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a051",
+     "source_id": "modelcards-q11",
+     "category": "technical_identifiers",
+     "answerable": true,
+     "verdict": "partial",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a053",
+     "source_id": "modelcards-q12",
+     "category": "tables_units",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a055",
+     "source_id": "modelcards-q13",
+     "category": "tables_units",
+     "answerable": true,
+     "verdict": "partial",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a057",
+     "source_id": "modelcards-q14",
+     "category": "tables_units",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a059",
+     "source_id": "modelcards-q15",
+     "category": "comparison",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a061",
+     "source_id": "modelcards-q16",
+     "category": "comparison",
+     "answerable": true,
+     "verdict": "partial",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    },
+    {
+     "id": "a063",
+     "source_id": "modelcards-q17",
+     "category": "comparison",
+     "answerable": true,
+     "verdict": "correct",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a069",
+     "source_id": "modelcards-q20",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a071",
+     "source_id": "modelcards-q21",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a073",
+     "source_id": "modelcards-q22",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a075",
+     "source_id": "modelcards-q23",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "not_truncated",
+     "arbitrated": false
+    },
+    {
+     "id": "a077",
+     "source_id": "modelcards-q24",
+     "category": "unanswerable_in_scope",
+     "answerable": false,
+     "verdict": "justified_abstention",
+     "support": "supported",
+     "truncation_impact": "none",
+     "arbitrated": false
+    }
+   ]
+  }
+ }
+}
