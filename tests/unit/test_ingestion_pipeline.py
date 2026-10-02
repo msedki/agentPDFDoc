@@ -52,7 +52,10 @@ class SessionDouble:
             text = f"Page {index} : tension 24 V"
             texts.append({"self_ref": f"#/texts/{index}", "label": "text", "text": text, "orig": text,
                           "prov": [{"page_no": index + 1, "charspan": [0, len(text)], "bbox": TEXT_BOX}]})
-        document = {"texts": texts, "pages": {str(index + 1): {"size": {"width": 600, "height": 800}} for index in range(first, last + 1)}}
+        document = {"texts": texts, "pages": {str(index + 1): {"size": {
+            "width": self.page_metadata.get(index, {}).get("display_width", 600),
+            "height": self.page_metadata.get(index, {}).get("display_height", 800),
+        }} for index in range(first, last + 1)}}
         observed = {index: {"cell_count": len(cells), "cells": cells} for index, cells in self.ocr_cells.items() if first <= index <= last}
         return document, True, observed
 
@@ -67,13 +70,13 @@ def test_render_limit_isolates_one_page_and_never_spans_it(tmp_path):
     pages = [preflight_page(0), preflight_page(1, width=4000, height=4000), preflight_page(2)]
     session = SessionDouble()
     result = window(tmp_path, pages, session)
-    assert session.calls == [(0, 0, "structured"), (2, 2, "structured")]
+    assert session.calls == [(0, 0, "structured"), (1, 1, "native"), (2, 2, "structured")]
     states = [page["extraction_state"] for page in result["pages"]]
-    assert states == ["native", "error", "native"]
+    assert states == ["native", "native", "native"]
     assert [page["blocks"][0]["raw_text"] for page in (result["pages"][0], result["pages"][2])] == ["Page 0 : tension 24 V", "Page 2 : tension 24 V"]
     failed = result["pages"][1]
     assert failed["unresolved_regions"] == [{"bbox": None, "reason": "PDF_RENDER_LIMIT", "precision": "page"}]
-    assert failed["blocks"] == [] and failed["extraction_route"] == "structured"
+    assert failed["blocks"][0]["raw_text"] == "Page 1 : tension 24 V" and failed["extraction_route"] == "native"
     warning = next(item for item in result["warnings"] if item["code"] == "PDF_RENDER_LIMIT")
     assert warning["page_index"] == 1 and warning["render_pixels"] > warning["pixel_limit"]
     assert result["complete"] is False
@@ -122,7 +125,7 @@ def test_page_local_failure_publishes_other_pages_as_ready_partial(tmp_path, mon
     result = isolated_extract(tmp_path, monkeypatch, pages, SessionDouble())
     assert result["status"] == "ready_partial"
     assert result["coverage"]["processed"] == 3 and result["coverage"]["unresolved"] == 1
-    assert sum(bool(page["blocks"]) for page in result["pages"]) == 2
+    assert sum(bool(page["blocks"]) for page in result["pages"]) == 3
     assert not any(item["code"] == "DOCUMENT_WITHOUT_TEXT" for item in result["warnings"])
     # Plafond de rendu : déterministe pour une même empreinte, la fenêtre reste réutilisable.
     assert (tmp_path / "out" / "window-000000-000002.json").is_file()
@@ -175,7 +178,7 @@ def test_blank_document_is_not_a_silent_success(tmp_path, monkeypatch):
 
 def test_document_without_text_distinguishes_error_pages_from_blank_pages(tmp_path, monkeypatch):
     session = SessionDouble()
-    result = isolated_extract(tmp_path, monkeypatch, [preflight_page(0, width=4000, height=4000), preflight_page(1, "blank")], session)
+    result = isolated_extract(tmp_path, monkeypatch, [preflight_page(0, "regional_ocr", width=4000, height=4000), preflight_page(1, "blank")], session)
     assert session.calls == []
     assert {"code": "DOCUMENT_WITHOUT_TEXT", "page_count": 2, "blank_pages": 1, "error_pages": 1} in result["warnings"]
     assert result["status"] == "ready_partial" and result["coverage"]["unresolved"] == 1
@@ -286,3 +289,119 @@ def test_text_layer_is_not_a_reference_for_scans_or_sparse_pages():
     assert pipeline.text_layer_coverage(blocks, {"classification": "native", "alphanumeric_count": 3, "native_text_sparse": False}) == 1.0
     assert pipeline.text_layer_coverage(blocks, {"classification": "scan_candidate", "alphanumeric_count": 3}) is None
     assert pipeline.text_layer_coverage(blocks, {"classification": "native", "alphanumeric_count": 3, "native_text_sparse": True}) is None
+
+
+@pytest.mark.parametrize("route", ["structured", "regional_ocr"])
+def test_render_limit_preserves_native_text_but_not_full_coverage(tmp_path, route):
+    # A3, plafond livré : le rendu à l'échelle 3 dépasse 8 M pixels. La couche texte reste fiable.
+    source = preflight_page(0, route, width=841.89, height=1190.55)
+    if route == "regional_ocr":
+        source.update(classification="mixed", native_text_sparse=False)
+    session = SessionDouble()
+    result = window(tmp_path, [source], session, IngestionConfig(pdf_backend="pypdfium2"))
+    assert session.calls == [(0, 0, "native")]
+    page = result["pages"][0]
+    assert page["blocks"][0]["raw_text"] == "Page 0 : tension 24 V"
+    assert page["blocks"][0]["bbox"] is not None
+    assert page["blocks"][0]["source_text_hash"] == hashlib.sha256(b"Page 0 : tension 24 V").hexdigest()
+    assert page["extraction_route"] == "native" and page["routing_reason"] == "render_limit_native_fallback"
+    assert page["native_quality"]["alphanumeric_coverage_ratio"] == 1.0
+    assert not page["ocr_used"] and page["ocr_cell_count"] == 0
+    assert all(block["metadata"]["extraction_method"] == "native" and not block["metadata"]["ocr_used"] for block in page["blocks"])
+    assert page["unresolved_regions"] == [{"bbox": None, "reason": "PDF_RENDER_LIMIT", "precision": "page"}]
+    assert result["complete"] is False
+    warning = next(warning for warning in result["warnings"] if warning["code"] == "PDF_RENDER_LIMIT")
+    assert warning["route"] == route and warning["render_pixels"] > warning["pixel_limit"] == 8_000_000
+
+
+@pytest.mark.parametrize("source_changes", [
+    {"classification": "scan_candidate"},
+    {"classification": "degraded"},
+    {"native_text_sparse": True},
+    {"alphanumeric_count": 0},
+    {"text_mapping_warnings": ["PREFLIGHT_TEXT_MAPPING_UNCERTAIN"]},
+])
+def test_render_limit_never_promotes_an_unreliable_text_layer(tmp_path, source_changes):
+    source = preflight_page(0, "regional_ocr", width=841.89, height=1190.55)
+    source.update(classification="mixed", native_text_sparse=False)
+    source.update(source_changes)
+    session = SessionDouble()
+    result = window(tmp_path, [source], session, IngestionConfig(pdf_backend="pypdfium2"))
+    assert session.calls == [] and result["pages"][0]["blocks"] == []
+    assert result["pages"][0]["extraction_state"] == "error" and result["complete"] is False
+
+
+def test_render_limit_native_fallback_is_checkpointed_as_partial(tmp_path, monkeypatch):
+    source = preflight_page(0, "regional_ocr", width=841.89, height=1190.55)
+    source.update(classification="mixed", native_text_sparse=False)
+    session = SessionDouble()
+    result = isolated_extract(tmp_path, monkeypatch, [source], session, {"pdf": {"pdf_backend": "pypdfium2"}})
+    assert result["status"] == "ready_partial" and result["coverage"]["unresolved"] == 1
+    assert result["pages"][0]["blocks"][0]["raw_text"] == "Page 0 : tension 24 V"
+    assert result["windows"][0]["complete"] is False and result["windows"][0]["parser_complete"] is True
+    assert not any(warning["code"] == "DOCUMENT_WITHOUT_TEXT" for warning in result["warnings"])
+    resumed_session = SessionDouble()
+    resumed = isolated_extract(tmp_path, monkeypatch, [source], resumed_session, {"pdf": {"pdf_backend": "pypdfium2"}})
+    assert resumed_session.calls == [] and resumed["windows"][0]["reused"] is True
+    assert resumed["status"] == "ready_partial" and resumed["pages"] == result["pages"]
+    assert resumed["warnings"] == result["warnings"]
+
+
+def test_render_limit_fallback_cannot_escalate_back_to_a_refused_render(tmp_path):
+    source = preflight_page(0, width=841.89, height=1190.55)
+    session = LossySession(native_loses=True)
+    result = window(tmp_path, [source], session, IngestionConfig(pdf_backend="pypdfium2"))
+    assert session.calls == [(0, 0, "native")]
+    assert result["pages"][0]["extraction_state"] == "error" and result["complete"] is False
+    assert {warning["code"] for warning in result["warnings"]} >= {"PDF_RENDER_LIMIT", "NATIVE_QUALITY_FAILED"}
+
+
+def test_render_limit_native_fallback_keeps_native_faults_fatal(tmp_path):
+    source = preflight_page(0, width=841.89, height=1190.55)
+    session = SessionDouble(failing={0}, code="INGESTION_NATIVE_FAULT")
+    with pytest.raises(IngestionError) as caught:
+        window(tmp_path, [source], session, IngestionConfig(pdf_backend="pypdfium2"))
+    assert caught.value.code == "INGESTION_NATIVE_FAULT" and session.calls == [(0, 0, "native")]
+
+
+def test_render_limit_native_parse_failure_keeps_both_limit_and_failure(tmp_path):
+    source = preflight_page(0, width=841.89, height=1190.55)
+    session = SessionDouble(failing={0})
+    result = window(tmp_path, [source], session, IngestionConfig(pdf_backend="pypdfium2"))
+    assert session.calls == [(0, 0, "native")] and result["complete"] is False
+    page = result["pages"][0]
+    assert page["extraction_state"] == "error" and page["blocks"] == []
+    assert {region["reason"] for region in page["unresolved_regions"]} == {"PDF_RENDER_LIMIT", "DOCLING_CONVERSION_FAILED"}
+    assert {warning["code"] for warning in result["warnings"]} == {"PDF_RENDER_LIMIT", "DOCLING_CONVERSION_FAILED"}
+
+
+@pytest.mark.parametrize("route", ["structured", "regional_ocr"])
+def test_explicit_route_does_not_silently_fall_back_after_render_limit(tmp_path, route):
+    source = preflight_page(0, width=841.89, height=1190.55)
+    session = SessionDouble()
+    result = window(tmp_path, [source], session, IngestionConfig(pdf_backend="pypdfium2", pipeline_route=route))
+    assert session.calls == [] and result["pages"][0]["blocks"] == []
+    assert result["pages"][0]["extraction_route"] == route and result["complete"] is False
+
+
+def test_render_limit_native_fallback_does_not_require_single_column_order(tmp_path):
+    class ColumnSession(SessionDouble):
+        def convert(self, path, first, last, route):
+            document, complete, observed = super().convert(path, first, last, route)
+            item = document["texts"][0]
+            document["texts"] = []
+            for position, text in enumerate(("Page 0 : tension ", "24 V")):
+                box = dict(TEXT_BOX, b=100 + position * 100, t=150 + position * 100)
+                document["texts"].append({**item, "self_ref": f"#/texts/{position}", "orig": text, "text": text,
+                                          "prov": [{"page_no": 1, "charspan": [0, len(text)], "bbox": box}]})
+            return document, complete, observed
+
+    source = preflight_page(0, width=841.89, height=1190.55)
+    session = ColumnSession()
+    result = window(tmp_path, [source], session, IngestionConfig(pdf_backend="pypdfium2"))
+    page = result["pages"][0]
+    assert session.calls == [(0, 0, "native")] and page["extraction_state"] == "native"
+    assert page["native_quality"]["alphanumeric_coverage_ratio"] == 1.0 and page["native_quality"]["localized"]
+    assert page["native_quality"]["monotonic_vertical_order"] is False
+    assert "".join(block["raw_text"] for block in page["blocks"]) == "Page 0 : tension 24 V"
+    assert result["complete"] is False and page["unresolved_regions"][0]["reason"] == "PDF_RENDER_LIMIT"

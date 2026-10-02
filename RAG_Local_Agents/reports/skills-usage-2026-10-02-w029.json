@@ -1,0 +1,25 @@
+{
+  "utc": "2026-10-02T17:40:55Z",
+  "reference": "main, base 5ca3685 et modifications locales W029/R14-1/R15-1",
+  "scope": "Lectures explicites et usage de cette reprise seulement. Ne reconstitue pas les lectures J0-J11/J8.",
+  "read_interval_utc": "2026-10-02, 16:38-17:40 ; fichiers sélectionnés lus entièrement avant leur application",
+  "behavioral_validation": "NOT_RUN : aucun essai formel de découverte/invocation native ou de non-déclenchement dans le client",
+  "skills_read": [
+    {"name": "rag-pdf-provenance", "path": "RAG_Local_Agents/skills/rag-pdf-provenance/SKILL.md", "origin": "pack, project-authored", "version": "2.1", "sha256": "7f0204cd95f63494f15706fbb94f06a0ddb2340926aa3da2a1b92ee24a691ddf", "task": "W029 : originaux, régions, coordonnées, limites et fenêtres"},
+    {"name": "pdf-ingestion-windows", "path": ".agents/skills/pdf-ingestion-windows/SKILL.md", "origin": "projet", "version": null, "sha256": "8b7e465de24b44542e66090268f2cd6a38d7b1eb3074148b319346c693018503", "task": "W029 : Docling/Tesseract/pypdfium2 réels ; invariants partagés, aucune qualification Windows déduite de Linux", "adaptation": "Gardes orientation, tableaux horizontaux et repli natif ajoutées avant le delta de densité W029-7"},
+    {"name": "linux-rag-runtime", "path": ".agents/skills/linux-rag-runtime/SKILL.md", "origin": "projet", "version": null, "sha256": "29e50be8c1c5ccd42e577448e9d77ab2dacb4520525a1343ad7d658007e931d2", "task": "Instances isolées, verrou lourd, ressources, supervision et contrats POSIX"},
+    {"name": "windows-rag-runtime", "path": ".agents/skills/windows-rag-runtime/SKILL.md", "origin": "projet", "version": null, "sha256": "538f75c2cbee38453f192d4db8cd311d1787fdfd13316bc81b677df65851acab", "task": "Vérification des contrats des procédures et de la portée Win32 du test de chemin ; Windows non exécuté"},
+    {"name": "hybrid-rag-api", "path": ".agents/skills/hybrid-rag-api/SKILL.md", "origin": "projet", "version": null, "sha256": "6209a83fb48310f4823f6b6d17687530a1f3ee695e38f373d5f3dea435123cac", "task": "Qualification ingestion/publication sur vraie API isolée, sans données privées"},
+    {"name": "pdf-workspace-web", "path": ".agents/skills/pdf-workspace-web/SKILL.md", "origin": "projet", "version": null, "sha256": "a96ca71a8b7a622ed1276ef95147dc422c43f54f9a64b3e777d5e3a4cf4e6b3a", "task": "R15-1 : texte de disponibilité, export, tests et rendu"},
+    {"name": "pdf-workspace-e2e", "path": "RAG_Local_Agents/skills/pdf-workspace-e2e/SKILL.md", "origin": "pack, project-authored", "version": "2.1", "sha256": "120cef3d15854856e0b77d5237cbd35dae28a7eacbf968540de86e712ee78119", "task": "Lecture/recherche/passage et scopes réels ; état négatif intercepté distinct des E2E réels"},
+    {"name": "official-source-review", "path": "RAG_Local_Agents/skills/official-source-review/SKILL.md", "origin": "pack, project-authored", "version": "2.1", "sha256": "c7ac562eeae9150016259a17cb3b671355ceba289ebcb649f0de1fbe173554bd", "task": "Sources W029S01/W029S02, DOCS01/DOCS02 et complément J8S02 ; source officielle séparée de preuve d'exécution"},
+    {"name": "project-documentation", "path": ".agents/skills/project-documentation/SKILL.md", "origin": "projet, project-authored", "version": "1.0", "sha256": "aa4292bc629ec12e00ed3fde2143afaae6f898dc6ab2cffc45e6d0e44aded6dd", "task": "R14-1 : propriétaires, références et procédures confrontées aux scripts, revue indépendante", "adaptation": "Créé avant le lot après consultation officielle DOCS01/DOCS02 ; pas un skill du mainteneur ni une certification native"}
+  ],
+  "external_skill_used": {"name": "skill-creator", "path": "/home/safae/.codex/skills/.system/skill-creator/SKILL.md", "origin": "skill système fourni par l'environnement", "sha256": "6656e54755638e8efcf275a472b9672eaa8a9a1b9e59dc210e275b03b59e1e66", "task": "Création et validation syntaxique de project-documentation ; aucun skill tiers installé"},
+  "inspected_not_applied": ["frontend-design : vérification du rendu sans modification de charte ou de CSS ; pdf-workspace-web reste la compétence appliquée"],
+  "evidence": ["RAG_Local_Agents/journal/2026-10-02.md", "RAG_Local_Agents/PLAN.md", ".runtime/qa/w029-20261002T165030Z/", ".runtime/qa/r14-1-20261002T165006Z/"],
+  "limits": ["Empreintes constatées à cette date, pas celles d'un commit futur", "La syntaxe, l'usage explicite et la réussite du produit ne prouvent pas la découverte native", "Revalidation W029-7 en cours à la date du relevé"],
+  "subsequent_reads": [
+    {"read_interval_utc": "2026-10-02, 18:01-18:04", "name": "pdf-ingestion-windows", "path": ".agents/skills/pdf-ingestion-windows/SKILL.md", "sha256": "49fc8d0272096f59d5bbf74bbc89120b5043bb514aedc2a81c998032ec4ec227", "task": "Lecture intégrale après précision des gardes de reprise OCR validées par 62 tests purs et 9 tests réels ; aucune qualification comportementale native déduite", "supersedes_hash_in_current_registry_only": true}
+  ]
+}

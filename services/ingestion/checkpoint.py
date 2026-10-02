@@ -3,6 +3,7 @@
 import hashlib
 import json
 import os
+import sys
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
@@ -39,13 +40,12 @@ def extraction_lock(output_dir):
         stream.write(b"0")
         stream.flush()
         stream.seek(0)
-        if os.name == "nt":
+        if sys.platform == "win32":
             import msvcrt
             lock, unlock = lambda: msvcrt.locking(stream.fileno(), msvcrt.LK_NBLCK, 1), lambda: msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
         else:
             import fcntl
-            # typeshed ne déclare flock et LOCK_* que hors win32 ; mypy ne lie pas cette branche à os.name.
-            lock, unlock = lambda: fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB), lambda: fcntl.flock(stream, fcntl.LOCK_UN)  # type: ignore[attr-defined]
+            lock, unlock = lambda: fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB), lambda: fcntl.flock(stream, fcntl.LOCK_UN)
         try:
             lock()
         except OSError:

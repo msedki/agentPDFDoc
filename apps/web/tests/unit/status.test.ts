@@ -54,8 +54,8 @@ test("service availability names its four states in text: unreachable, not ready
   assert.deepEqual(view({ loading: true, failed: false }), ["Connexion au service local…", "neutral", "connecting"]);
   assert.deepEqual(view({ loading: false, failed: true }), ["Service local injoignable", "destructive", "unreachable"]);
   assert.deepEqual(view({ loading: false, failed: true, unreachable: false }), ["Service local en erreur", "destructive", "error"], "une réponse en erreur n'est pas une coupure");
-  assert.deepEqual(view({ loading: false, failed: false, ready: false }), ["Modèle ou worker non prêt", "warning", "not_ready"]);
-  assert.deepEqual(view({ loading: false, failed: false }), ["Modèle ou worker non prêt", "warning", "not_ready"], "sans confirmation, le service n'est pas présenté comme prêt");
+  assert.deepEqual(view({ loading: false, failed: false, ready: false }), ["Service local pas encore prêt", "warning", "not_ready"]);
+  assert.deepEqual(view({ loading: false, failed: false }), ["Service local pas encore prêt", "warning", "not_ready"], "sans confirmation, le service n'est pas présenté comme prêt");
   assert.deepEqual(view({ loading: false, failed: false, ready: true, pendingDocuments: 2 }), ["Index incomplet", "warning", "index_lagging"]);
   assert.deepEqual(view({ loading: false, failed: false, ready: true, pendingDocuments: 0 }), ["Services prêts", "success", "ready"]);
   // Un service non prêt reste signalé comme tel, même si des documents attendent aussi leur indexation.

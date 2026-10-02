@@ -92,7 +92,7 @@ def table_rows(metadata: dict[str, Any]) -> list[tuple[str, ...]]:
 
 def block_facts(block: dict[str, Any]) -> dict[str, Any]:
     metadata = block_metadata(block)
-    return {"id": block["id"], "type": block["type"], "method": metadata.get("extraction_method"), "ocr_used": bool(metadata.get("ocr_used")),
+    return {"id": block["id"], "type": block["type"], "bbox": block.get("bbox"), "method": metadata.get("extraction_method"), "ocr_used": bool(metadata.get("ocr_used")),
             "section_id": block.get("section_id"), "continuation_of": metadata.get("continuation_of"), "text": normalized(block["text"]),
             "rows": table_rows(metadata) if block["type"] == "table" else []}
 
@@ -104,13 +104,37 @@ def page_facts(client: Any, version_id: str, page_count: int) -> list[dict[str, 
         page = payload["page"]
         pages.append({"page_index": index, "classification": page.get("classification"), "extraction_state": page.get("extraction_state"),
                       "ocr_used": bool(page.get("ocr_used")), "ocr_regions": len(page.get("ocr_regions") or []),
-                      "unresolved_regions": [{"reason": region.get("reason"), "has_bbox": region.get("bbox") is not None} for region in page.get("unresolved_regions") or []],
+                      "unresolved_regions": [{"reason": region.get("reason"), "bbox": region.get("bbox"), "has_bbox": region.get("bbox") is not None} for region in page.get("unresolved_regions") or []],
                       "blocks": [block_facts(block) for block in payload["blocks"]]})
     return pages
 
 
 def page_text(page: dict[str, Any]) -> str:
     return " ".join(block["text"] for block in page["blocks"])
+
+
+def scanned_table_evidence(page: dict[str, Any], expected_rows: tuple[tuple[str, ...], ...]) -> dict[str, Any]:
+    """Des unités absentes ne sont signalées que par une limite OCR/table localisée sur le tableau.
+
+    Une figure non interprétée ailleurs sur la page ne justifie pas une cellule
+    perdue. Le compte exact reste distinct du cas partiel explicitement signalé.
+    """
+    tables = [block for block in page["blocks"] if block["type"] == "table"]
+    rows = {row for block in tables for row in block["rows"]}
+    exact = sum(row in rows for row in expected_rows)
+    reasons = {"TABLE_CONTENT_COVERAGE_UNCERTAIN", "TABLE_WITHOUT_RELIABLE_CELLS", "OCR_WORD_LOW_CONFIDENCE",
+               "OCR_CELL_LOW_CONFIDENCE", "OCR_PRINTED_CELL_UNRESOLVED", "OCR_ORIENTATION_UNRESOLVED"}
+
+    def overlaps(first, second):
+        return (first is not None and second is not None
+                and min(first[2], second[2]) > max(first[0], second[0])
+                and min(first[3], second[3]) > max(first[1], second[1]))
+
+    related = sum(region["reason"] in reasons and any(overlaps(region.get("bbox"), table.get("bbox")) for table in tables)
+                  for region in page["unresolved_regions"])
+    return {"exact_rows": exact, "expected_rows": len(expected_rows), "unresolved_regions": len(page["unresolved_regions"]),
+            "related_unresolved_regions": related, "exact": exact == len(expected_rows),
+            "accepted": exact == len(expected_rows) or related > 0}
 
 
 def summary(pages: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -231,10 +255,10 @@ def evaluate(documents: dict[str, Any], partial: dict[str, Any], before: dict[st
     checks["D02.10_two_columns_not_mixed"] = not mixed_blocks and all(position >= 0 for position in order) and max(order[:4]) < min(order[4:])
     scanned = {}
     for key, index in (("DA-P02", 2), ("DA-P03", 3)):
-        page = documents[key]["pages"][1]
-        rows = {row for block in page["blocks"] for row in block["rows"]}
-        scanned[key] = {"exact_rows": sum(row in rows for row in dev[index].rows), "expected_rows": 3, "unresolved_regions": len(page["unresolved_regions"])}
-    checks["D02.10_scanned_tables_exact_or_flagged"] = all(value["exact_rows"] == 3 or value["unresolved_regions"] for value in scanned.values())
+        scanned[key] = scanned_table_evidence(documents[key]["pages"][1], dev[index].rows)
+    checks["D02.10_scanned_tables_exact_or_flagged"] = all(value["accepted"] for value in scanned.values())
+    # Les tableaux contrôlés doivent réussir : une limite honnête ne remplace pas leurs cellules/unités attendues.
+    checks["D02.10_controlled_scanned_tables_exact"] = all(value["exact"] for value in scanned.values())
     scan_text = page_text(documents["scan-fr-en"]["pages"][0])
     scan_terms = {term: term in scan_text for term in SCAN_FR_EN}
     checks["D02.3_bilingual_scan_read"] = all(scan_terms.values())

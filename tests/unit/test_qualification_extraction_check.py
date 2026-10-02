@@ -92,3 +92,28 @@ def test_table_continuation_is_read_under_block_metadata():
     result = facts(1, pages)
     assert next(block for block in result[1]["blocks"] if block["type"] == "table")["continuation_of"] == "table-de-la-page-precedente"
     assert all(block["continuation_of"] is None for block in result[0]["blocks"])
+
+
+@pytest.mark.parametrize("reason,bbox,accepted", [
+    ("GRAPHIC_INTERPRETATION_UNAVAILABLE", [10, 10, 90, 90], False),
+    ("OCR_WORD_LOW_CONFIDENCE", [110, 10, 150, 90], False),
+    ("OCR_WORD_LOW_CONFIDENCE", None, False),
+    ("OCR_WORD_LOW_CONFIDENCE", [20, 20, 40, 40], True),
+    ("TABLE_CONTENT_COVERAGE_UNCERTAIN", [10, 10, 90, 90], True),
+])
+def test_scanned_table_missing_units_need_a_related_localized_warning(reason, bbox, accepted):
+    page = {"blocks": [{"id": "table", "type": "table", "bbox": [10, 10, 90, 90],
+                        "rows": [("IN", "15", ""), ("OUT", "11", "mm")]}],
+            "unresolved_regions": [{"reason": reason, "bbox": bbox, "has_bbox": bbox is not None}]}
+    result = extraction_check.scanned_table_evidence(page, (("IN", "15", "mm"), ("OUT", "11", "mm")))
+    assert result["exact_rows"] == 1 and result["expected_rows"] == 2
+    assert result["exact"] is False
+    assert result["accepted"] is accepted
+
+
+def test_scanned_table_exact_cells_do_not_require_an_unresolved_region():
+    expected = (("IN", "15", "mm"), ("OUT", "11", "mm"))
+    page = {"blocks": [{"id": "table", "type": "table", "bbox": [10, 10, 90, 90], "rows": list(expected)}],
+            "unresolved_regions": []}
+    result = extraction_check.scanned_table_evidence(page, expected)
+    assert result["accepted"] and result["exact"] and result["exact_rows"] == 2

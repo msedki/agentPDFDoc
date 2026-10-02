@@ -277,6 +277,8 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 
 **Conséquences :** un document stabilisé ne change qu'après un changement réel et vérifié du système ; `tools/docs/check_docs.py` contrôle liens, en-têtes, statuts et schémas. Les documents de `docs/` restent référencés sur `e4c7caf` tant qu'ils n'ont pas été mis à jour pour W016, W017 et W018 (lot J9).
 
+**Complément R14-1 du 02/10/2026 (16:49–17:32 UTC) :** les références stabilisées ont été confrontées au code courant, avec propriétaire logique exigé par le contrôle d'en-tête. Les rôles manquants deviennent `docs/specifications/SPECIFICATIONS.md` (comportements, cas limites et acceptation, sans recopier les exigences V2.1) et `docs/deploiement/DEPLOIEMENT.md` (commandes des scripts, effets persistants et limites des voies non exécutées). Le plan reste unique et à son emplacement. Revue indépendante des procédures contre leurs scripts et des affirmations contre le code ; 58 tests documentaires et `check_docs` 7/7 PASS. Référence : `5ca3685` avec modifications locales R14-1 datées, pas un commit de livraison inventé. Les installateurs, retours arrière et désinstallateurs non rejoués restent non qualifiés ; R14/R22 ne sont pas clos. Sources de méthode DOCS01/DOCS02 ; skill projet `project-documentation` créé avant ce travail. Preuves et limites au [journal](journal/2026-10-02.md).
+
 ## W020 Évaluation question-réponse sur le corpus réel du poste Linux (`PDF/MGV`, `PDF/TEST`)
 
 **Date :** 1er octobre 2026, 18:13 UTC. **Statut :** acquise (demande de l'utilisateur reçue vers 18:10 UTC : « je t'ai mis un dossier PDF afin de faire des evals avec question réponse attendue et en se basant sur de vrais documents ») ; réalisée (lot J10 : recherche et contexte le 01/10, génération et jugement le 02/10 ; [rapport](reports/evaluation/corpus-linux-2026-10-01.md)).
@@ -383,19 +385,27 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 
 **Choix retenu :** (1) sous POSIX, les sondes de port (`port_probe`, `services/runtime/supervisor.py`) posent `SO_REUSEADDR` : un port en écoute reste refusé, une socket `TIME-WAIT` ne bloque plus le redémarrage ; Windows sans option. (2) `ORT_DISABLE_TELEMETRY=1` est posé avant tout chargement d'ONNX Runtime dans l'API (`ONNXRUNTIME_ENVIRONMENT`, `services/api/embedding.py`) et transmis au worker (`WORKER_FIXED_ENVIRONMENT`, `services/api/jobs.py`) ; sous Windows, la variable n'est pas lue (ETW) : limite déclarée, point à trancher 14.
 
-**Sources :** J8S01 (ONNX Runtime v1.30.0) ; `SO_REUSEADDR` : J8S02, aucune source officielle consultée à ce jour.
+**Sources :** J8S01 (ONNX Runtime v1.30.0) ; `SO_REUSEADDR` : J8S02, complétée le 02/10 à 17:36 UTC par Python, Linux man-pages et Microsoft. Ces sources ont été consultées après le correctif, non à sa date.
 
 **Conséquences et preuves :** D03.5 et D03.6 PASS (rejeu R1, `fault_check` 4/4) ; D08.2 PASS (rejeu R4, aucune requête DNS de télémétrie hors ligne). **Retour arrière :** retirer `setsockopt` de `port_probe` et `ONNXRUNTIME_ENVIRONMENT` ; les défauts de J8 réapparaissent.
 
 ## W029 Levée du gel de l'ingestion (W022)
 
-**Date :** 2 octobre 2026, 15:33 UTC. **Statut :** acquise (décision de l'utilisateur, réponse au point à trancher 11 : lever le gel) ; réalisation à venir.
+**Date :** 2 octobre 2026, 15:33 UTC. **Statut :** acquise (décision de l'utilisateur, réponse au point à trancher 11 : lever le gel) ; corrections locales vérifiées sur fixtures Linux, y compris la reprise du petit glyphe à 90° (campagne finale 9/9, API neuve 19/19) ; régression Python et relectures indépendantes validées sur ce périmètre, corpus et cible Windows non réextraits.
 
 **Contexte :** la qualification Linux J8 a établi trois défauts d'extraction dans `services/ingestion` (D02.6 : schéma converti en texte OCR malgré `OCR_ORIENTATION_UNRESOLVED` ; D02.7 : tableau des pages 4 et 5 non rattaché ; D02.10 : unités d'un tableau scanné perdues), plus la perte du texte natif des pages au-delà du plafond de rendu (`ePMO`, point 8). W022 gelait ces fichiers pour ne pas rendre caduc le cache d'extraction du poste Windows.
 
 **Choix retenu :** le gel est levé pour corriger ces défauts, avec tests rouges puis verts et rejeu de `extraction_check`. Remplacement de `os.name == "nt"` par `sys.platform == "win32"` dans `checkpoint.py` dans le même changement, comme prévu par W022.
 
 **Conséquences :** l'empreinte d'extraction change. Les documents sont réextraits : ici à la suite de la correction, sous Windows au prochain passage, y compris les 61 documents en pause. L'utilisateur a demandé si l'extraction pouvait passer sur le GPU de ce poste pour aller plus vite. W025 (P1) établit que non avec des composants officiels : la seule roue PyTorch de NVIDIA pour JetPack 5.1.x vise Python 3.8, et onnxruntime-gpu exige CUDA 12.8 ou 13. L'extraction reste donc sur CPU. Durée observée le 01/10 pour les 4 documents de `PDF/` (208 pages, OCR compris, `MODE_30W`) : environ 2 h 20, soit environ 40 s par page, dominée par `MGV-D.0` (140 pages). Le jeu final (point 12) passe après ces corrections et le gel du code.
+
+**Réalisation locale vérifiée avant W029-7 (02/10/2026, 16:49–17:32 UTC) :** aucune reconnaissance à 0° si l'orientation reste indéterminée ; section et tableau reconstruits entre fenêtres avec gardes d'en-tête courant ; dérivation des tableaux à séparateurs horizontaux et cellules séparées par de vrais espaces d'encre, avec négatifs ; repli sur le convertisseur natif existant en route auto, seulement si la couche native/mixte est fiable après refus de rendu. Le refus reste une limite non résolue et un état partiel, pas un contournement du budget. Les originaux et seuils sont conservés. Source W029S01/W029S02, unitaires, API réelle et revue indépendante au [journal](journal/2026-10-02.md). Cette campagne comptait 8 PASS / 1 FAIL sur le petit glyphe à 90° ; elle reste conservée comme preuve antérieure au correctif W029-7. La réextraction du corpus n'a pas commencé. Retour arrière éventuel : revenir au code antérieur dans un nouveau changement autorisé, conserver les révisions d'extraction et citations déjà publiées ; ne jamais supprimer le stockage pour retrouver une empreinte.
+
+**Complément du 02/10/2026 à 18:01 UTC — W029-7 :** reprise de densité limitée aux petits glyphes non admissibles, un seul dérivé ×2 ; cellules admissibles et confiances non finies non remplacées, mêmes moteur/langues/PSM/seuil, budget régional et coordonnées inverses contrôlés. La variante systématique est écartée car elle dégrade une cellule DA-P03. Les bornes 24/64 pixels sont locales et testées, non prescrites par Tesseract (W029S01). Gel régional `6e9b6718…`, avis indépendant et 62 tests purs PASS ; neuf tests réels finaux PASS à 17:54 UTC, dont le scan à 90°, sans changer police, fixture ou seuil. Revalidation API sur instance neuve en cours ; aucun verdict sur le corpus ou Windows. Les traces et résultats détaillés restent au journal et au plan.
+
+**Complément du 02/10/2026 à 18:09 UTC :** API neuve terminée à 18:07:16 UTC : 19/19 contrôles PASS sur les mêmes treize empreintes d'ingestion. Régression Python isolée et revue finale encore en cours ; réextraction du corpus non démarrée.
+
+**Complément du 02/10/2026 à 18:25 UTC :** régression générale 1442 PASS/10 SKIP (cas Windows), corrections d'isolation des tests sans changement produit, avis indépendants favorables à l'intégration bornée. Les fenêtres de sauvegarde/réextraction du corpus et les anciennes citations restent à contrôler dans W029-6 ; aucune publication partielle automatique supplémentaire décidée.
 
 ## W030 Usage interne : registre des licences sans validation de redistribution
 
@@ -406,4 +416,3 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 **Choix retenu :** l'atelier est d'usage interne, sans redistribution hors de l'organisation. Aucune validation juridique n'est menée. Le registre produit par `services/runtime/inventory.py` (composants installés, licences déclarées, avis présents, manques signalés) suffit à D09.5 dans ce cadre. Le point P7 est clos.
 
 **Conséquences :** pas de collecte des textes de licence manquants ni de dossier `LICENSES/` à compléter pour ce cadre. Une distribution hors de l'organisation rouvrirait D09.5 et P7.
-

@@ -1,5 +1,6 @@
 """Windowed extraction and durable, versioned provenance manifests."""
 
+import re
 import time
 import uuid
 from pathlib import Path
@@ -141,6 +142,15 @@ def _extract_window(path, version_id, first, last, settings, output_dir, preflig
     complete = True
     while grouped:
         route, selected, error = grouped.pop(0)
+        render_limit = None
+        if (error is not None and error.code == "PDF_RENDER_LIMIT" and settings.pipeline_route == "auto"
+                and text_layer_coverage({"blocks": []}, selected[0]) is not None
+                and not selected[0].get("text_mapping_warnings")):
+            # Le rendu est refusé, pas la couche texte : la voie native sans modèles garde ses preuves localisées.
+            render_limit = error
+            _, warning = failed_page(selected[0], route, settings, error)
+            result["warnings"].append(warning)
+            route, error = "native", None
         if route == "blank" and error is None:
             result["pages"] += [dict(page, extraction_state="blank", ocr_used=False, ocr_cell_count=0, blocks=[], coverage_regions=[]) for page in selected]
             continue
@@ -161,6 +171,8 @@ def _extract_window(path, version_id, first, last, settings, output_dir, preflig
                 error = exc
         if error is not None:
             page, warning = failed_page(selected[0], route, settings, error)
+            if render_limit is not None:
+                page["unresolved_regions"].append({"bbox": None, "reason": render_limit.code, "precision": "page"})
             result["pages"].append(page)
             result["warnings"].append(warning)
             complete = False
@@ -173,10 +185,16 @@ def _extract_window(path, version_id, first, last, settings, output_dir, preflig
             page["routing_reason"] = routing_reason(page, route, settings)
             if route == "native":
                 page["native_quality"] = native_quality(page)
-                if not page["native_quality"]["passed"]:
+                quality_passed = page["native_quality"]["passed"]
+                if render_limit is not None:
+                    page["routing_reason"] = "render_limit_native_fallback"
+                    page["unresolved_regions"].append({"bbox": None, "reason": render_limit.code, "precision": "page"})
+                    # Les colonnes et tableaux peuvent rompre l'ordre vertical ; leur structure et l'OCR restent non résolus.
+                    quality_passed = page["native_quality"]["alphanumeric_coverage_ratio"] >= TEXT_COVERAGE_MIN and page["native_quality"]["localized"]
+                if not quality_passed:
                     page["extraction_state"] = "error"
                     warnings.append({"code": "NATIVE_QUALITY_FAILED", "page_index": page["page_index"]})
-                    if settings.pipeline_route == "auto" and not should_cancel(cancel_event):
+                    if render_limit is None and settings.pipeline_route == "auto" and not should_cancel(cancel_event):
                         index = page["page_index"]
                         try:
                             check_render_budget(preflight["pages"][index], "structured", settings)
@@ -248,17 +266,52 @@ def extract_window(path, version_id, page_start, page_end, config, output_dir, c
         return result
 
 
+# Écart de position des titres répétés et marges de page, en points PDF.
+REPEATED_HEADING_TOLERANCE = 3
+PAGE_EDGE_MARGIN = 100
+CONTINUED_TITLE = re.compile(r"\s*\((?:suite(?: et fin)?|continued|cont\.)\)\s*$", re.IGNORECASE)
+
+
+def running_header(block, page, previous_page):
+    """Titre répété dans la marge haute des deux cadres PDF, pas une nouvelle section."""
+    if previous_page is None or block["bbox"] is None:
+        return False
+    top, previous_top = page["effective_box"][3], previous_page["effective_box"][3]
+    return top - PAGE_EDGE_MARGIN <= block["bbox"][1] <= block["bbox"][3] <= top and any(
+        other["type"] == "heading" and other["bbox"] is not None and other["text"].split() == block["text"].split()
+        and previous_top - PAGE_EDGE_MARGIN <= other["bbox"][1] <= other["bbox"][3] <= previous_top
+        and all(abs(first - second) <= REPEATED_HEADING_TOLERANCE for first, second in zip(other["bbox"], block["bbox"], strict=True))
+        for other in previous_page["blocks"])
+
+
+def continues_section(block, section):
+    """« Titre (suite) » prolonge la section ouverte par « Titre » ; tout autre titre ouvre une section."""
+    marker = CONTINUED_TITLE.search(block["text"])
+    return marker is not None and block["text"][:marker.start()].split() == section["title"].split()
+
+
+def ends_page(block_id, page):
+    """Seule la marge basse de la page (folio, pied de page) suit ce bloc."""
+    following = page["blocks"][[block["id"] for block in page["blocks"]].index(block_id) + 1:]
+    return all(block["bbox"] is not None and block["bbox"][3] <= page["effective_box"][1] + PAGE_EDGE_MARGIN for block in following)
+
+
 def stitch_structure(pages):
     """Carry sections across checkpoints; table continuation stays evidenced."""
-    sections, tables = [], []
+    sections: list[dict[str, Any]] = []
+    tables: list[dict[str, Any]] = []
     page_by_index = {page["page_index"]: page for page in pages}
     current_section = None
     previous_table = None
     for page in sorted(pages, key=lambda value: value["page_index"]):
-        for block in page["blocks"]:
+        continued_title = None
+        for position, block in enumerate(page["blocks"]):
             if block["type"] == "heading":
-                current_section = block["id"]
-                sections.append({"id": current_section, "title": block["text"], "page_start": page["page_index"], "page_end": page["page_index"], "block_ids": []})
+                if sections and continues_section(block, sections[-1]):
+                    continued_title = block["id"]
+                elif not running_header(block, page, page_by_index.get(page["page_index"] - 1)):
+                    current_section = block["id"]
+                    sections.append({"id": current_section, "title": block["text"], "page_start": page["page_index"], "page_end": page["page_index"], "block_ids": []})
             block["section_id"] = current_section
             if sections and current_section:
                 sections[-1]["page_end"] = page["page_index"]
@@ -273,10 +326,12 @@ def stitch_structure(pages):
                 old_headers = [cell["text"] for cell in previous_table["data"].get("table_cells", []) if cell.get("column_header")]
                 prior_page = page_by_index.get(previous_table["page_index"])
                 prior_box, box = previous_table["bbox"], table["bbox"]
-                at_edges = prior_box and box and prior_page and prior_box[1] <= prior_page["effective_box"][1] + 100 and box[3] >= page["effective_box"][3] - 100
-                if headers and headers == old_headers and table["data"].get("num_cols") == previous_table["data"].get("num_cols") and table["page_index"] == previous_table["page_index"] + 1 and table["section_id"] == previous_table["section_id"] and at_edges:
+                at_edges = prior_box and box and prior_page and prior_box[1] <= prior_page["effective_box"][1] + PAGE_EDGE_MARGIN and box[3] >= page["effective_box"][3] - PAGE_EDGE_MARGIN
+                # Sans les bords de page : le tableau précédent finit sa page et « Titre (suite) » précède immédiatement celui-ci.
+                announced = position > 0 and page["blocks"][position - 1]["id"] == continued_title and prior_page and ends_page(previous_table["id"], prior_page)
+                if headers and headers == old_headers and table["data"].get("num_cols") == previous_table["data"].get("num_cols") and table["page_index"] == previous_table["page_index"] + 1 and table["section_id"] == previous_table["section_id"] and (at_edges or announced):
                     table["continuation_of"] = previous_table["id"]
-                    table["continuation_evidence"] = ["same_headers", "same_columns", "adjacent_pages", "same_section", "page_boundary_positions"]
+                    table["continuation_evidence"] = ["same_headers", "same_columns", "adjacent_pages", "same_section"] + (["page_boundary_positions"] if at_edges else ["previous_table_ends_page", "continued_title"])
                     block["metadata"]["continuation_of"] = previous_table["id"]
             tables.append(table)
             previous_table = table

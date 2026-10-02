@@ -8,6 +8,13 @@ from typing import Any
 # PDFium refuse une découpe qui dépasse la page (« Crop exceeds page dimensions ») : une zone OCR ou un
 # tableau dont la boîte déborde (image partiellement hors page) est ramené dans la page, avec une marge d'arrondi.
 PAGE_EDGE_MARGIN = 0.01
+# Deux extrémités rasterisées peuvent chacune être arrondies d'un pixel ; un chevauchement ne prouve pas l'alignement.
+HORIZONTAL_RULE_ALIGNMENT_TOLERANCE = 2
+# W029 : glyphes de 19 px ambigus à 0,96×, témoin nominal de 32 px. Bornes locales conservatrices,
+# pas des prescriptions Tesseract : un seul composant, hauteur ≤24 px et crop ≤64 px avant un unique ×2.
+CELL_DENSITY_MAX_INK_HEIGHT = 24
+CELL_DENSITY_MAX_CROP_SIDE = 64
+CELL_DENSITY_FACTOR = 2
 
 
 def clamp_box_values(left, top, right, bottom, width, height):
@@ -84,6 +91,92 @@ def bounded_cell_crop(image, bounds, border=10, edge=4):
     return patch, offset
 
 
+def _minimum_cell_confidence(frame):
+    if frame.empty:
+        return None
+    confidence = [float(value) for value in frame["conf"]]
+    return min(confidence) / 100 if all(math.isfinite(value) for value in confidence) else None
+
+
+def recognize_cell_patch(patch, recognize, minimum_confidence, max_region_pixels):
+    """One bounded density retry; returned TSV coordinates stay in the source patch.
+
+    `recognize` uses the same engine/languages/PSM for both rasters. A successful
+    baseline is never revisited; only the retry's recoverable subprocess errors
+    are contained. No recognized text or subprocess output enters provenance.
+    """
+    import subprocess
+
+    import numpy as np
+    from PIL import Image
+    from scipy.ndimage import label
+
+    baseline = recognize(patch)  # Baseline failure remains a real engine failure.
+    before = _minimum_cell_confidence(baseline)
+    trace = {"policy": "small_glyph_density_retry_v1", "selected": "baseline", "attempted": False,
+             "source_raster_size": list(patch.size), "source_raster_sha256": hashlib.sha256(patch.tobytes()).hexdigest(),
+             "factor": CELL_DENSITY_FACTOR, "baseline_minimum_word_confidence": before,
+             "minimum_confidence_required": minimum_confidence}
+    if before is None and not baseline.empty:
+        trace["reason"] = "invalid_baseline_confidence"
+        return baseline, trace
+    if minimum_confidence is None:
+        trace["reason"] = "threshold_not_configured"
+        return baseline, trace
+    if before is not None and before >= minimum_confidence:
+        trace["reason"] = "baseline_admissible"
+        return baseline, trace
+    ink = np.asarray(patch.convert("L")) < 128
+    rows = np.flatnonzero(ink.any(axis=1))
+    if not rows.size:
+        trace["reason"] = "no_ink"
+        return baseline, trace
+    trace["ink_height"] = int(rows[-1] - rows[0] + 1)
+    trace["ink_height_limit"] = CELL_DENSITY_MAX_INK_HEIGHT
+    if trace["ink_height"] > CELL_DENSITY_MAX_INK_HEIGHT:
+        trace["reason"] = "ink_height_limit"
+        return baseline, trace
+    trace["crop_side_limit"] = CELL_DENSITY_MAX_CROP_SIDE
+    if max(patch.size) > CELL_DENSITY_MAX_CROP_SIDE:
+        trace["reason"] = "crop_dimensions_limit"
+        return baseline, trace
+    _, components = label(ink, structure=np.ones((3, 3), dtype=bool))
+    trace["ink_components"] = int(components)
+    if components != 1:
+        trace["reason"] = "multiple_ink_components"
+        return baseline, trace
+    size = (patch.width * CELL_DENSITY_FACTOR, patch.height * CELL_DENSITY_FACTOR)
+    trace.update(derived_raster_size=list(size), derived_render_pixels=size[0] * size[1], pixel_limit=max_region_pixels)
+    if trace["derived_render_pixels"] > max_region_pixels:
+        trace["reason"] = "derivative_pixel_limit"
+        return baseline, trace
+    derived = patch.resize(size, Image.Resampling.LANCZOS)
+    trace.update(attempted=True, trigger="baseline_low_or_missing_confidence", resampling="LANCZOS",
+                 derived_raster_sha256=hashlib.sha256(derived.tobytes()).hexdigest(), retry_minimum_word_confidence=None)
+    try:
+        candidate = recognize(derived)
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError) as error:
+        trace.update(reason="retry_failed", retry_error=type(error).__name__)
+        if isinstance(error, subprocess.CalledProcessError):
+            trace["retry_returncode"] = error.returncode
+        return baseline, trace
+    after = _minimum_cell_confidence(candidate)
+    trace["retry_minimum_word_confidence"] = after
+    if after is None or after < minimum_confidence:
+        trace["reason"] = "retry_not_admissible"
+        return baseline, trace
+    boxes = candidate[["left", "top", "width", "height"]].to_numpy(dtype=float)
+    if not (np.isfinite(boxes).all() and (boxes[:, :2] >= 0).all() and (boxes[:, 2:] > 0).all()
+            and (boxes[:, 0] + boxes[:, 2] <= size[0]).all() and (boxes[:, 1] + boxes[:, 3] <= size[1]).all()):
+        trace["reason"] = "retry_invalid_geometry"
+        return baseline, trace
+    frame = candidate.copy()
+    for column in ("left", "top", "width", "height"):
+        frame[column] = frame[column] / CELL_DENSITY_FACTOR
+    trace.update(selected="derived", reason="retry_admissible", coordinate_inverse_factor=1 / CELL_DENSITY_FACTOR)
+    return frame, trace
+
+
 def subtract_native_regions(region, obstacles, limit=128):
     """Partition an OCR rectangle around reliable native ink in the same frame."""
     fragments = [region]
@@ -115,11 +208,68 @@ def _rule_positions(indices):
     return [group[len(group) // 2] for group in groups]
 
 
-def remove_ruled_grid(image):
-    """Remove only long crossing rules; preserve size and every text coordinate.
+def _horizontal_table_derivative(original):
+    """Segment aligned horizontal rules by the persistent blank gutters between columns.
 
-    Plain paragraphs, isolated underlines and charts without a rectangular grid
-    are left untouched. The result is an OCR derivative, never an original.
+    A shaded header is not a rule. At least three thin, continuous separators
+    with the same extent and two nonempty ink columns are required. Only the
+    data bands between separators are replaced by cell OCR; the header remains
+    in the ordinary regional OCR result.
+    """
+    import numpy as np
+    from PIL import Image
+    from scipy.ndimage import binary_opening, label
+
+    grey = np.asarray(original.convert("L"))
+    horizontal = binary_opening(grey < 224, structure=np.ones((1, max(80, original.width // 4)), dtype=bool))
+    selected = horizontal.sum(axis=1) >= max(80, original.width // 2)
+    groups, count = label(selected)
+    # Reject a filled band: it could be a chart or background, rather than a separator.
+    if any((groups == index).sum() > max(6, original.height // 100) for index in range(1, count + 1)):
+        return original, None
+    rows = _rule_positions(np.flatnonzero(selected))
+    if len(rows) < 3:
+        return original, None
+    extents = [(int(positions[0]), int(positions[-1])) for row in rows if (positions := np.flatnonzero(horizontal[row])).size]
+    if any(max(ends) - min(ends) > HORIZONTAL_RULE_ALIGNMENT_TOLERANCE for ends in zip(*extents, strict=True)):
+        return original, None
+    left, right = max(extent[0] for extent in extents), min(extent[1] for extent in extents)
+    width = right - left + 1
+    if width < max(80, original.width // 2) or any(horizontal[row, left:right + 1].mean() < .95 for row in rows):
+        return original, None
+    # Text uses the established ink threshold; the lighter table rules do not create false columns.
+    ink = grey[rows[0] + 2:rows[-1] - 1, left:right + 1] < 128
+    occupied = ink.any(axis=0)
+    empty_groups, empty_count = label(~occupied)
+    cuts = []
+    for index in range(1, empty_count + 1):
+        gap = np.flatnonzero(empty_groups == index)
+        if gap.size >= max(20, width // 12) and gap[0] > 0 and gap[-1] < width - 1:
+            cuts.append(left + int((gap[0] + gap[-1]) // 2))
+    columns = [left, *cuts, right]
+    if not 2 <= len(columns) - 1 <= 12:
+        return original, None
+    cells = [[x0 + 2, y0 + 2, x1 - 2, y1 - 2]
+             for y0, y1 in zip(rows, rows[1:], strict=False)
+             for x0, x1 in zip(columns, columns[1:], strict=False)]
+    if any(x1 <= x0 or y1 <= y0 for x0, y0, x1, y1 in cells):
+        return original, None
+    pixels = np.asarray(original).copy()
+    pixels[horizontal] = 255
+    derived = Image.fromarray(pixels)
+    return derived, {"algorithm": "horizontal-rules-columns-v1", "width": original.width, "height": original.height,
+                     "horizontal_rules": len(rows), "vertical_rules": 0, "rectangular_grid": False,
+                     "grid_cells": cells, "column_boundaries": columns, "row_boundaries": rows,
+                     "removed_pixels": int(horizontal.sum()), "source_raster_sha256": hashlib.sha256(original.tobytes()).hexdigest(),
+                     "derived_raster_sha256": hashlib.sha256(derived.tobytes()).hexdigest()}
+
+
+def remove_ruled_grid(image):
+    """Remove detected table rules; preserve size and every text coordinate.
+
+    Crossing grids and aligned horizontal separators with column gutters can
+    be segmented. Plain paragraphs and isolated underlines stay untouched.
+    The result is an OCR derivative, never an original.
     """
     import numpy as np
     from PIL import Image
@@ -134,7 +284,7 @@ def remove_ruled_grid(image):
     horizontal_count, vertical_count = len(row_lines), len(column_lines)
     intersections = int((horizontal & vertical).sum())
     if horizontal_count < 2 or vertical_count < 2 or intersections < 4:
-        return original, None
+        return _horizontal_table_derivative(original)
     pixels = np.asarray(original).copy()
     mask = horizontal | vertical
     pixels[mask] = 255
@@ -277,15 +427,27 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
                 self._last_cell_crop: dict[str, Any] = {"policy": "ink_border_10", "raster_offset": None, "raster_size": None, "ink": "edge_residue_only"}
                 return None
             self._last_cell_crop = {"policy": "ink_border_10" if cell_border else "full_grid_cell", "raster_offset": list(offset), "raster_size": list(patch.size)}
-            with temporary_raster(patch) as target:
-                frame = self._run_literal_tsv(target, psm=6)
-                frame["left"] += offset[0]
-                frame["top"] += offset[1]
-                return frame
+
+            def recognize(raster):
+                with temporary_raster(raster) as target:
+                    return self._run_literal_tsv(target, psm=6)
+
+            frame, trace = recognize_cell_patch(patch, recognize, minimum_confidence, max_region_pixels)
+            self._last_cell_crop["density_retry"] = trace
+            frame["left"] += offset[0]
+            frame["top"] += offset[1]
+            return frame
 
         def _run_tesseract(self, ifilename, osd):
             region_index = len(self._current_orientations) - 1
             orientation = self._current_orientations[region_index]
+            if not orientation["resolved"]:
+                # OSD en échec : Docling lirait la région à 0° et pourrait tirer du texte d'un schéma (D02.6, W029).
+                # Aucun mot n'en sort ; la région reste déclarée OCR_ORIENTATION_UNRESOLVED par l'adaptateur.
+                import pandas as pd
+
+                orientation["recognition_skipped"] = True
+                return pd.DataFrame(columns=["left", "top", "width", "height", "conf", "text"])
             angle = orientation.get("orientation_degrees", 0)
             with Image.open(ifilename) as image:
                 source_size = image.size
@@ -330,9 +492,7 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
                     evidence = {"raster_bbox": bounds, "printed": printed, "recognized_words": len(cell_frame)}
                     if printed:
                         evidence["crop"] = self._last_cell_crop
-                    confidence = float(cell_frame["conf"].min()) / 100 if not cell_frame.empty else None
-                    if confidence is not None and not math.isfinite(confidence):
-                        confidence = None
+                    confidence = _minimum_cell_confidence(cell_frame)
                     evidence["minimum_word_confidence"] = confidence
                     evidence["minimum_confidence_required"] = minimum_confidence
                     if printed and (cell_frame.empty or confidence is None or (minimum_confidence is not None and confidence < minimum_confidence)):

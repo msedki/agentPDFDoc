@@ -1,6 +1,6 @@
 # Inventaire des textes de l'interface (lot R15, étape B du lot R16)
 
-**Rôle :** inventaire de tous les textes visibles ou restitués par `apps/web/src/`, avec leur réécriture et son motif · **Propriétaire :** lots R15/R16 (frontend) · **Statut :** Vivant ; textes implémentés et couverts en partie par les tests unitaires, rendu et parcours E2E à vérifier · **Référence :** commit `ae387a9` et modifications non commitées des étapes A et B du lot R16, corrections de la relecture indépendante comprises · **Mis à jour :** 2026-09-30 (UTC), sections des commandes du lanceur, de la réindexation et de l'import d'un fichier identique le 2026-10-01 (UTC) · **Source de vérité :** `apps/web/src/` pour les textes livrés ; ce document pour les motifs.
+**Rôle :** inventaire des textes visibles ou restitués par `apps/web/src/`, avec leur réécriture et son motif · **Propriétaire :** frontend documentaire (R15/R16) · **Statut :** Vivant ; vérifications historiques identifiées ci-dessous, complément courant à valider au rendu · **Référence :** inventaire initial sur `ae387a9` et étapes A/B de R16 ; compléments relus sur `5ca3685` et modifications locales R15 du 02/10/2026 · **Mis à jour :** 2026-10-02 (UTC) · **Source de vérité :** `apps/web/src/` pour les textes livrés ; ce document pour les motifs ; journal pour les résultats d'exécution.
 
 « Avant » désigne l'état au début de l'étape B (après l'étape A, non commitée). Un texte marqué *inchangé* a été relu et gardé. « Nouveau » signale un texte introduit par l'étape B. Les textes produits par le service (message d'erreur d'API, `job.error_message`, avertissements structurés, noms de documents et de sections) sont affichés tels qu'ils arrivent et ne figurent pas ici ; seuls leurs textes de repli, écrits dans `src/`, sont inventoriés.
 
@@ -31,8 +31,8 @@
 | `app-topbar.tsx` / `panel-preferences.ts`, bascule de l'analyse | Replier l'analyse · Afficher l'analyse | *inchangé* ; sous 1 024 px : Ouvrir l'analyse | Panneau latéral sous 1 024 px |
 | `status.ts` `serviceStatus`, état des services | Connexion… | Connexion au service local… | Dit ce qui est attendu |
 | idem | Service indisponible | Service local injoignable · Service local en erreur | Coupure de connexion et réponse en erreur distinguées |
-| idem | Préparation requise | Modèle ou worker non prêt | « Préparation requise » ne disait pas quoi |
-| idem | — | Index en retard | Nouveau : documents importés que l'index ne couvre pas encore |
+| idem | Préparation requise, puis Modèle ou worker non prêt | Service local pas encore prêt | L'état global n'identifie pas une cause unique ; les composants concernés restent nommés dans l'info-bulle et le bandeau |
+| idem | — | Index incomplet | Documents importés que l'index ne couvre pas encore |
 | idem | Services prêts | *inchangé* | |
 | `warnings.ts` `serviceDetail`, info-bulle de l'état | Composants joints par « · », ou message d'erreur | Non prêts : {composants}. · Le service n'a pas confirmé que ses composants sont prêts. · 1 document attend son indexation : il n'est pas encore interrogeable. · {n} documents attendent leur indexation : ils ne sont pas encore interrogeables. · Base documentaire, modèles, index vectoriel et contrôle des ressources prêts. · message d'erreur | Explique chaque état |
 | `app-topbar.tsx`, bouton Suivi | Suivi | *inchangé* | Libellé lu par les E2E |
@@ -334,8 +334,25 @@ Le poste annonce ses commandes dans `GET /api/v1/health` (`commands.open`, `stat
 | idem, `cancelling` | idem | Ce fichier était déjà importé à l'identique et son traitement est en cours d'annulation : l'import n'en lance pas un second. Une fois l'annulation terminée, importez-le de nouveau pour lancer un nouveau traitement ; le Suivi indique quand elle l'est. | Un traitement annulé n'est plus renvoyé : le réimport en crée un nouveau |
 | idem, autre état | idem | Ce fichier était déjà importé à l'identique et son traitement est suspendu (état {code}) : l'import n'en lance pas un second. Consultez le Suivi pour le reprendre. | Repli ; aucune action proposée qui pourrait échouer |
 
+## Compléments du 2 octobre 2026
+
+Les commandes propres à Windows/Linux sont inventoriées dans leur section ci-dessus. Les nouveaux messages ci-dessous ont été relus dans le code ; les résultats des tests et les captures restent des preuves distinctes.
+
+| Emplacement | Texte ou famille de textes | Rôle et condition |
+|---|---|---|
+| `library-panel.tsx`, boîte fermée sans fichier | Aucun fichier n'a été transmis par la boîte de choix. Si vous en aviez choisi un, faites-le glisser depuis votre gestionnaire de fichiers et déposez-le sur la bibliothèque. | Décrit l'absence de fichier reçu sans affirmer que l'utilisateur en a choisi un ; propose le dépôt réellement disponible |
+| idem, dépôt de PDF | Déposez les PDF pour les importer dans la bibliothèque. | Action pendant le survol, pas promesse d'import déjà accepté |
+| idem, import déjà actif | Un import est déjà en cours : attendez sa fin pour déposer d'autres PDF. | Explique le refus temporaire d'un second dépôt |
+| `generation.ts`, mode CPU | Réponses calculées sur le processeur | Ne concerne que le modèle de réponse ; le détail renvoie à la rubrique « calcul » de `doctor` |
+| idem, modèle entièrement résident sur GPU | Réponses calculées sur le GPU | N'est affirmé qu'après observation de la résidence complète ; la recherche et l'import restent sur CPU |
+| idem, résidence partielle | Réponses calculées en partie sur le processeur | Distingue le GPU retenu et la répartition CPU/GPU réellement observée |
+| idem, GPU retenu mais modèle sur CPU | GPU retenu, réponses calculées sur le processeur | Un choix de mode ne prouve pas une résidence GPU |
+| idem, échec puis repli | GPU en échec : réponses calculées sur le processeur | Repli de l'instance après échec ; diagnostic et action au prochain démarrage, pas nouveau téléchargement implicite |
+
+Preuves historiques : les [journaux des 30 septembre et 1er octobre](../../../RAG_Local_Agents/journal/README.md) identifient les recettes R15/R16/R20 et leurs captures. Le [journal du 2 octobre](../../../RAG_Local_Agents/journal/2026-10-02.md) distingue la recette d'import avec l'API réelle, la boîte native du Chromium snap en échec et le dépôt réussi. Les tests `status`, `generation`, `launcher`, `windows-texts` et `import-outcome` couvrent les formulations et conditions ; leur réussite ne prouve pas un GPU Windows ni toutes les largeurs de rendu. Le 2 octobre, R15-1 a vérifié le nouveau libellé sur l'export courant aux deux tailles desktop, avec readiness interceptée explicitement (test UI isolé). Six scénarios séparés utilisent l'API réelle : clavier, panneaux, dépôt/cancel, lecture-recherche-passage et périmètres page/bloc. Le journal porte les commandes et preuves, sans étendre cette recette aux autres états.
+
 ## Limites
 
-- Relecture faite sur le code ; le rendu (longueur réelle des libellés dans la barre de 56 px, retours à la ligne, troncatures) reste à examiner aux largeurs de QA 320, 360, 768, 1 024, 1 280 et 1 440 px.
+- Les recettes historiques ont examiné les largeurs indiquées dans leurs rapports, notamment 1366×768 et 1920×1080. Les autres largeurs et les états non représentés dans ces captures ne sont pas déclarés validés ; longueur des libellés, retours à la ligne et troncatures restent à vérifier sur le build concerné.
 - Les messages rédigés par le service (`services/api`) ne sont pas réécrits ici ; plusieurs sont précis (« Référence non retrouvée dans les passages de ce périmètre. »), d'autres restent techniques (« Entrée invalide. »). Leur reprise relève du backend.
-- « Modèle ou worker non prêt » reprend la formulation demandée pour l'état des services ; le détail des composants en cause figure dans l'info-bulle et dans le bandeau de contexte.
+- Le libellé « Service local pas encore prêt » ne prétend pas identifier la cause ni garantir une préparation en cours ; les composants concernés restent dans l'info-bulle et le bandeau de contexte.

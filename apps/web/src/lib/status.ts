@@ -138,7 +138,7 @@ export function serviceStatus({ loading, failed, unreachable = true, ready, pend
   if (failed) return unreachable
     ? { label: "Service local injoignable", tone: "destructive", code: "unreachable", known: true }
     : { label: "Service local en erreur", tone: "destructive", code: "error", known: true };
-  if (ready !== true) return { label: "Modèle ou worker non prêt", tone: "warning", code: "not_ready", known: true };
+  if (ready !== true) return { label: "Service local pas encore prêt", tone: "warning", code: "not_ready", known: true };
   if (pendingDocuments > 0) return { label: "Index incomplet", tone: "warning", code: "index_lagging", known: true };
   return { label: "Services prêts", tone: "success", code: "ready", known: true };
 }

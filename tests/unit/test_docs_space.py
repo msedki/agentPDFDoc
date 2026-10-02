@@ -23,7 +23,7 @@ import diagrams  # noqa: E402
 
 GIT = shutil.which("git")
 
-HEADER = ("**Rôle :** exemple · **Statut :** Stabilisé · **Référence :** commit `abc1234` · "
+HEADER = ("**Rôle :** exemple · **Propriétaire :** documentation · **Statut :** Stabilisé · **Référence :** commit `abc1234` · "
           "**Mis à jour :** 2026-09-30 (UTC) · **Source de vérité :** code · **Remplace :** aucun document")
 
 SVG = """<?xml version="1.0" encoding="UTF-8"?>
@@ -164,6 +164,17 @@ def test_link_to_git_ignored_path_is_reported(space: Path):
 def test_missing_header_field_is_reported(space: Path):
     document = space / "docs/exploitation/A.md"
     write(document, document.read_text(encoding="utf-8").replace(" · **Source de vérité :** code", ""))
+    assert failing(space) == ["headers"]
+
+
+@pytest.mark.parametrize("replacement", ["", " · **Propriétaire :**   "])
+def test_missing_or_empty_owner_is_reported(space: Path, replacement: str):
+    document = space / "docs/exploitation/A.md"
+    write(document, document.read_text(encoding="utf-8").replace(" · **Propriétaire :** documentation", replacement))
+    result = check_docs.run(space)
+    headers = next(item for item in result["checks"] if item["id"] == "headers")
+    assert headers["status"] == "FAIL" and "proprietaire" in headers["detail"]
+    assert "docs/exploitation/A.md" in headers["detail"]
     assert failing(space) == ["headers"]
 
 

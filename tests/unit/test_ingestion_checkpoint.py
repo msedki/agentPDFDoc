@@ -1,4 +1,6 @@
 import json
+import sys
+import types
 
 import pytest
 
@@ -32,6 +34,17 @@ def test_process_lock_is_released_and_does_not_delete_extraction(tmp_path):
         assert caught.value.code == "INGESTION_ALREADY_RUNNING"
     with extraction_lock(tmp_path):
         assert (tmp_path / ".ingestion.lock").exists()
+
+
+def test_windows_lock_branch_follows_sys_platform(tmp_path, monkeypatch):
+    """Plateforme simulée : sous win32, le verrou passe par msvcrt (factice ici), choisi par sys.platform (W022, W029)."""
+    calls = []
+    msvcrt = types.SimpleNamespace(LK_NBLCK=2, LK_UNLCK=0, locking=lambda descriptor, mode, size: calls.append((mode, size)))
+    monkeypatch.setitem(sys.modules, "msvcrt", msvcrt)
+    monkeypatch.setattr(sys, "platform", "win32")
+    with extraction_lock(tmp_path):
+        assert calls == [(msvcrt.LK_NBLCK, 1)]
+    assert calls == [(msvcrt.LK_NBLCK, 1), (msvcrt.LK_UNLCK, 1)]
 
 
 def test_embedding_changes_do_not_change_parser_fingerprint():

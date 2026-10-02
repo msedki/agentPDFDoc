@@ -49,6 +49,8 @@ def test_resolve_refuses_frozen_names_foreign_folders_and_existing_evidence(tmp_
     sentinel = evals / "final.json"
     sentinel.write_bytes(b"SENTINEL-FINAL")
     monkeypatch.setattr(resolve, "EVALS", evals)
+    # tmp_path peut être sous la vraie QA : isoler les deux racines pour garder une cible réellement étrangère.
+    monkeypatch.setattr(resolve, "LOCAL_QA", tmp_path / "local-qa")
     argv = ["--dataset", str(dataset), "--bindings", str(bindings), "--output"]
     # Défaut reproduit sur l'ancien code : --output evals/qualification-v2.1/final.json écrasait le jeu gelé.
     for target in (sentinel, evals / "runtime" / "final.json", evals / "resolved" / "FINAL.FREEZE.JSON", evals / "runtime" / "manifest.json",
@@ -150,6 +152,7 @@ def test_reproducibility_compares_in_a_temporary_directory_without_touching_deli
 
 def test_reproducibility_report_is_exclusive_under_reports(tmp_path, monkeypatch):
     monkeypatch.setattr(check_reproducibility, "EVALS", tmp_path)
+    monkeypatch.setattr(check_reproducibility, "LOCAL_QA", tmp_path / "local-qa")
     monkeypatch.setattr(check_reproducibility, "compare", lambda: {"status": "PASS", "files_compared": 1, "changed_paths": [], "final_json_identical_bytes": True,
                                                                     "regenerated_final_matches_freeze": True})
     for target in (tmp_path / "reproducibility.json", tmp_path / "reports" / "final.freeze.json"):
@@ -249,6 +252,7 @@ def test_merge_bindings_cli_requires_runtime_inputs_and_exclusive_output(tmp_pat
     runtime.mkdir()
     (tmp_path / "manifest.json").write_text(json.dumps({"entries": [{"key": "k1", "sha256": "a" * 64}]}), encoding="utf-8")
     monkeypatch.setattr(merge_bindings, "EVALS", tmp_path)
+    monkeypatch.setattr(merge_bindings, "LOCAL_QA", tmp_path / "local-qa")
     path, digest = write_snapshot(runtime, "k1-published.json", binding_snapshot("k1", "a" * 64))
     outside, outside_digest = write_snapshot(tmp_path, "outside-published.json", binding_snapshot("k1", "a" * 64))
     with pytest.raises(SystemExit):

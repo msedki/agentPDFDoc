@@ -9,7 +9,7 @@ Contrôles, chacun PASS ou FAIL (code de sortie 1 si l'un échoue) :
 
 - links : liens Markdown relatifs résolus (fichier, puis ancre pour un .md), jamais vers .runtime/,
   .git/, hors du dépôt ni vers un chemin ignoré par Git ;
-- headers : en-tête de chaque document de docs/ (Rôle, Statut parmi Stabilisé, Vivant, Historique,
+- headers : en-tête de chaque document de docs/ (Rôle, Propriétaire, Statut parmi Stabilisé, Vivant, Historique,
   Généré, Référence, Mis à jour AAAA-MM-JJ UTC, Source de vérité, Remplace ou Remplacé par) ;
 - index : chaque document de docs/ figure dans docs/README.md avec le statut de son en-tête ;
 - ascii_art : aucun caractère de dessin de boîte hors blocs de code, aucune arborescence dessinée
@@ -40,7 +40,7 @@ from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[2]
 STATUSES = ("stabilise", "vivant", "historique", "genere")
-HEADER_FIELDS = ("role", "statut", "reference", "mis a jour", "source de verite")
+HEADER_FIELDS = ("role", "proprietaire", "statut", "reference", "mis a jour", "source de verite")
 DISPLAY_WIDTH = 880
 MIN_DISPLAY_FONT = 11.0
 SVG = "{http://www.w3.org/2000/svg}"
@@ -50,7 +50,7 @@ LINK = re.compile(r"(!?)\[([^\]]*)\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 HTML_IMAGE = re.compile(r"<img\b[^>]*\bsrc=[\"']([^\"']+)[\"']", re.IGNORECASE)
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})\s*([\w+-]*)")
 HEADING = re.compile(r"^(#{1,6})\s+(.*?)\s*#*\s*$")
-FIELD = re.compile(r"\*\*([^*]+?)\s*:\s*\*\*\s*(.*?)(?=\s+·\s+\*\*|$)")
+FIELD = re.compile(r"\*\*([^*]+?)\s*:\s*\*\*\s*?(.*?)(?=\s+·\s+\*\*|$)")
 
 
 class Fault(AssertionError):
@@ -245,6 +245,8 @@ def check_headers(root: Path) -> dict:
         if missing:
             faults.append(f"{name} : champ(s) d'en-tête absent(s) : {', '.join(missing)}")
             continue
+        if not fields["proprietaire"]:
+            faults.append(f"{name} : champ d'en-tête vide : proprietaire")
         status = re.sub(r"[^a-z]", " ", fold(fields["statut"])).split()
         if not status or status[0] not in STATUSES:
             faults.append(f"{name} : statut « {fields['statut']} » hors de Stabilisé, Vivant, Historique, Généré")

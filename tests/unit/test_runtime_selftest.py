@@ -1,5 +1,7 @@
 """Pièces du contrôle réel (DIST-05) : PDF synthétique, profil de l'instance de contrôle, racine temporaire courte."""
 
+import sys
+
 import pypdfium2 as pdfium
 import yaml
 
@@ -28,7 +30,8 @@ def test_control_profile_isolates_data_and_ports_but_shares_the_host_heavy_lock(
         profile = load_profile(path)
         base = load_profile(BASE)
         assert data_path(profile) == (root / "data").resolve() and qdrant_data_path(profile, data_path(profile)) == (root / "q").resolve()
-        assert len(str(root / "q" / "storage")) <= 57
+        if sys.platform == "win32":
+            assert len(str(root / "q" / "storage")) <= 57
         assert runtime_location(profile, "host_lock_path") == runtime_location(base, "host_lock_path")
         assert runtime_location(profile, "backups_dir") == root / "backups"
         ports = {profile["app"]["port"], yaml.safe_load(path.read_text(encoding="utf-8"))["qdrant"]["url"].rsplit(":", 1)[1], profile["llm"]["base_url"].rsplit(":", 1)[1]}

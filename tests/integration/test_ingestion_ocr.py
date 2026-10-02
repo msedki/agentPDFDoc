@@ -3,6 +3,7 @@
 import hashlib
 import json
 import os
+import re
 import struct
 import subprocess
 import sys
@@ -203,6 +204,29 @@ def assert_nominal_table(page, image_rotation=0):
         assert limit[1] - 3 <= region[1] <= region[3] <= limit[3] + 3
 
 
+def assert_cell_density_provenance(cells, pixel_limit):
+    """Every accepted retry retains its source frame and the unmodified profile threshold."""
+    for cell in cells:
+        trace = cell["crop"]["density_retry"]
+        assert trace["policy"] == "small_glyph_density_retry_v1"
+        assert len(trace["source_raster_sha256"]) == 64
+        assert trace["source_raster_size"] == cell["crop"]["raster_size"]
+        assert trace["minimum_confidence_required"] == cell["minimum_confidence_required"] == .8
+        baseline = trace["baseline_minimum_word_confidence"]
+        if baseline is not None and baseline >= .8:
+            assert trace["reason"] == "baseline_admissible"
+            assert not trace["attempted"] and trace["selected"] == "baseline"
+        if trace["attempted"]:
+            assert trace["derived_raster_size"] == [side * 2 for side in trace["source_raster_size"]]
+            assert trace["factor"] == 2 and trace["resampling"] == "LANCZOS"
+            assert trace["derived_raster_sha256"] != trace["source_raster_sha256"]
+            assert trace["derived_render_pixels"] <= trace["pixel_limit"] == pixel_limit
+        if trace["selected"] == "derived":
+            assert baseline is None or baseline < .8
+            assert trace["retry_minimum_word_confidence"] >= .8
+            assert trace["coordinate_inverse_factor"] == .5
+
+
 @pytest.mark.usefixtures("recorded_fixture_font")
 def test_real_mixed_native_and_scanned_table_without_duplicate(tmp_path, actual_profile):
     original = write_printed_pdf(tmp_path / "mixed.pdf")
@@ -235,13 +259,18 @@ def test_real_mixed_native_and_scanned_table_without_duplicate(tmp_path, actual_
 # dans un cadre permuté (320×500 pt), la cellule est lue « V » à 0,90, et à 0° dans un cadre réduit à la même densité,
 # « Vv » à 0,72. Une construction LSTM en double (FAST_FLOAT=OFF) lit les mêmes textes. L'écart avec Windows n'est pas
 # départagé entre la police et le binaire : le Tesseract Windows n'a pas encore lu l'image de cellule conservée.
-# Fixture, seuil et assertions restent ceux de W009 tant qu'aucune décision n'est consignée.
+# W029 : le diagnostic Linux reconstruit le même raster (hashes), PSM 10 seul reste à 0,74 ; un unique ×2 LANCZOS
+# du petit crop lit « V » à 0,89386497. L'upscale systématique corrompt DA-P03-IN ; le repli conserve strictement
+# toute baseline admissible, borne hauteur/composante/dimensions/pixels et inverse les quatre coordonnées du retry.
+# Fixture, police, seuil et assertions de table/localisation restent ceux de W009.
 @pytest.mark.usefixtures("recorded_fixture_font")
 @pytest.mark.parametrize("rotation", [0, 90])
 def test_real_french_scan_and_region_orientation(tmp_path, actual_profile, rotation):
     original = write_printed_pdf(tmp_path / "scan.pdf", native=False, image_rotation=rotation)
+    source_hash = hashlib.sha256(original.read_bytes()).hexdigest()
     result = extract_in_fresh_worker(original, tmp_path / "extraction", actual_profile, f"scan-{rotation}-version")
     assert result["status"] == "ready", result["warnings"]
+    assert result["sha256"] == source_hash == hashlib.sha256(original.read_bytes()).hexdigest()
     page = result["pages"][0]
     assert page["classification"] == "scan_candidate"
     assert page["orientation_correction"] == rotation
@@ -249,6 +278,88 @@ def test_real_french_scan_and_region_orientation(tmp_path, actual_profile, rotat
     text = "\n".join(block["raw_text"] for block in page["blocks"])
     assert "CCU-21" in text and "24" in text and "45" in text
     assert_nominal_table(page, rotation)
+    cells = page["ocr_preprocessing"][0]["cell_ocr"]
+    assert len(cells) == 12 and all(cell["recognized_words"] for cell in cells)
+    assert_cell_density_provenance(cells, actual_profile["pdf"]["max_ocr_region_pixels"])
+    assert all(block["source_text_hash"] == hashlib.sha256(block["raw_text"].encode()).hexdigest() for block in page["blocks"])
+
+
+# D02.6 (J8 L6, rejeu R2) : schéma raster sans texte de extraction_check.figure_pdf(), où l'OSD de Tesseract échoue.
+# Avant W029, la région était quand même lue à 0° : un bloc OCR « CD » [130, 519, 461, 670] devenait un fragment indexé.
+def test_real_raster_schema_with_unresolved_orientation_yields_no_ocr_text(tmp_path, actual_profile, monkeypatch):
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[2] / "tools" / "qualification"))
+    import extraction_check
+
+    original = tmp_path / "figure.pdf"
+    original.write_bytes(extraction_check.figure_pdf())
+    result = extract_in_fresh_worker(original, tmp_path / "extraction", actual_profile, "figure-version")
+    page = result["pages"][0]
+    assert page["classification"] == "mixed"
+    assert {"GRAPHIC_INTERPRETATION_UNAVAILABLE", "OCR_ORIENTATION_UNRESOLVED"} <= {region["reason"] for region in page["unresolved_regions"] if region["bbox"]}
+    assert result["status"] == "ready_partial"
+    text = "\n".join(block["raw_text"] for block in page["blocks"])
+    leftover = text
+    for line in extraction_check.FIGURE_LINES:
+        assert text.count(line) == 1
+        leftover = leftover.replace(line, " ")
+    assert not re.search(r"\w", leftover), leftover
+    assert not [block["id"] for block in page["blocks"] if block["metadata"]["ocr_used"] and block["raw_text"].strip()]
+
+
+# D02.7 (J8 L6, rejeu R2) : « Tableau 4A » continue de la page 4 à la page 5, de part et d'autre de la frontière des fenêtres de checkpoint.
+# Avant W029, l'en-tête courant ouvrait une section à chaque page et la suite du tableau restait sans continuation_of.
+def test_real_table_continued_across_checkpoint_pages_4_5(tmp_path, actual_profile, monkeypatch):
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[2] / "tools" / "qualification"))
+    import extraction_check
+
+    original = Path(__file__).resolve().parents[2] / "fixtures" / "qualification-v2.1" / "layouts" / "Section et tableau pages 4-5.pdf"
+    digest = hashlib.sha256(original.read_bytes()).hexdigest()
+    result = extract_in_fresh_worker(original, tmp_path / "extraction", actual_profile, "boundary-version")
+    assert result["status"] == "ready" and hashlib.sha256(original.read_bytes()).hexdigest() == digest
+    assert [(window["page_start"], window["page_end"]) for window in result["windows"]] == [(0, 3), (4, 4)]
+    first, second = ([block for block in result["pages"][index]["blocks"] if block["type"] == "table"] for index in (3, 4))
+    assert len(first) == len(second) == 1
+    rows = {row for block in first + second for row in extraction_check.table_rows(block["metadata"])}
+    assert set(extraction_check.BOUNDARY_ROWS) <= rows
+    assert second[0]["metadata"].get("continuation_of") == first[0]["id"]
+    assert first[0]["section_id"] == second[0]["section_id"] is not None
+    assert [section["title"] for section in result["sections"]] == ["Procédure de contrôle QB-45", "Tableau 4A — contrôle QB-45"]
+    assert result["tables"][1]["continuation_of"] == result["tables"][0]["id"]
+    # Reprise sur les checkpoints publiés : aucune reconversion, même assemblage.
+    resumed = extract_in_fresh_worker(original, tmp_path / "extraction", actual_profile, "boundary-version")
+    assert all(window["reused"] for window in resumed["windows"])
+    assert (resumed["sections"], resumed["tables"]) == (result["sections"], result["tables"])
+
+
+def test_real_mixed_scan_preserves_all_control_table_cells_and_units(tmp_path, actual_profile, monkeypatch):
+    # D02.10, DA-P03 synthétique immuable : l'OCR global omettait les deux « mm » (R2 : 1/3 lignes exactes).
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[2] / "tools" / "qualification"))
+    from corpus_data import records
+
+    record = next(item for item in records("development") if item.identifier == "DA-P03")
+    original = Path(__file__).resolve().parents[2] / "fixtures/qualification-v2.1/development/Procédures" / record.name
+    source_hash = hashlib.sha256(original.read_bytes()).hexdigest()
+    assert actual_profile["pdf"]["ocr_min_word_confidence"] == .8
+    result = extract_in_fresh_worker(original, tmp_path / "extraction", actual_profile, "mixed-units-version")
+    assert result["sha256"] == source_hash == hashlib.sha256(original.read_bytes()).hexdigest()
+    page = result["pages"][1]
+    assert page["classification"] == "mixed" and page["ocr_used"]
+    tables = [block for block in page["blocks"] if block["type"] == "table"]
+    assert len(tables) == 1
+    actual = {(cell["start_row_offset_idx"], cell["start_col_offset_idx"]): cell["text"]
+              for cell in tables[0]["metadata"]["table_data"]["table_cells"]}
+    expected = [("Référence", "Valeur", "Unité"), *record.rows]
+    assert actual == {(row, column): value for row, cells in enumerate(expected) for column, value in enumerate(cells)}
+    preprocessing = next(item for item in page["ocr_preprocessing"] if item["algorithm"] == "horizontal-rules-columns-v1")
+    assert len(preprocessing["cell_ocr"]) == 9
+    assert all(cell["recognized_words"] > 0 for cell in preprocessing["cell_ocr"])
+    assert_cell_density_provenance(preprocessing["cell_ocr"], actual_profile["pdf"]["max_ocr_region_pixels"])
+    # DA-P03-IN passe de justesse à .8 : le repli ×2 testé isolément donnerait DA-PO3-IN, donc aucun second appel ici.
+    first = preprocessing["cell_ocr"][0]["crop"]["density_retry"]
+    assert first["baseline_minimum_word_confidence"] >= .8
+    assert first["selected"] == "baseline" and not first["attempted"]
+    native = [block for block in page["blocks"] if "Les valeurs de ce tableau" in block["raw_text"]]
+    assert len(native) == 1 and not native[0]["metadata"]["ocr_used"]
     assert all(block["source_text_hash"] == hashlib.sha256(block["raw_text"].encode()).hexdigest() for block in page["blocks"])
 
 

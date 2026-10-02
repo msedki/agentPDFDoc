@@ -159,3 +159,81 @@ def test_table_continuation_needs_headers_positions_and_same_section():
     second["bbox"] = [10, 300, 500, 400]
     _, tables = stitch_structure(pages)
     assert tables[1]["continuation_of"] is None
+
+
+def boundary_pages(continued_title="Tableau 4A — contrôle QB-45 (suite)", after_first_table=None):
+    """Blocs relevés en J8 (L6, probe pages_4-5) sur « Section et tableau pages 4-5.pdf » : l'en-tête courant est classé titre
+    à chaque page et le tableau de la page 5 ne touche pas les bords de page (bas à y=519 en page 4, haut à y=617 en page 5)."""
+    data = {"num_cols": 3, "table_cells": [{"text": text, "column_header": True} for text in ("Référence", "Valeur", "Unité")]}
+    pages = []
+    for index in range(5):
+        blocks = [{"id": f"running-{index}", "type": "heading", "text": "Procédure de contrôle QB-45", "bbox": [49.47, 777.57, 307.71, 792.69], "metadata": {}},
+                  {"id": f"notice-{index}", "type": "text", "text": "DOCUMENT SYNTHÉTIQUE — qualification technique, CC0", "bbox": [48.78, 742.83, 278.87, 751.91], "metadata": {}},
+                  {"id": f"intro-{index}", "type": "text", "text": f"Paragraphe de la page {index + 1}.", "bbox": [48.73, 692.01, 457.92, 702.65], "metadata": {}}]
+        if index == 3:
+            blocks += [{"id": "title-4", "type": "heading", "text": "Tableau 4A — contrôle QB-45", "bbox": [48.06, 627.55, 244.22, 638.89], "metadata": {}},
+                       {"id": "table-4", "type": "table", "text": "QB-45-A | QB-45-B", "bbox": [47.04, 518.99, 547.85, 616.95], "metadata": {"table_data": data}}]
+            blocks += [after_first_table] if after_first_table else []
+        if index == 4:
+            blocks += [{"id": "title-5", "type": "heading", "text": continued_title, "bbox": [48.06, 627.55, 292.81, 638.89], "metadata": {}},
+                       {"id": "table-5", "type": "table", "text": "QB-45-C | QB-45-D", "bbox": [46.98, 519.09, 547.86, 616.87], "metadata": {"table_data": data}}]
+        blocks.append({"id": f"folio-{index}", "type": "text", "text": f"Page {index + 1} / 5", "bbox": [48.88, 30.14, 92.42, 38.56], "metadata": {}})
+        pages.append({"page_index": index, "blocks": blocks, "effective_box": [0, 0, 595, 842]})
+    return pages
+
+
+def test_running_header_and_continued_title_keep_table_across_pages_4_5():
+    pages = boundary_pages()
+    sections, tables = stitch_structure(pages)
+    # L'en-tête courant n'ouvre plus une section par page ; « (suite) » prolonge la section du tableau.
+    assert [(section["id"], section["page_start"], section["page_end"]) for section in sections] == [("running-0", 0, 3), ("title-4", 3, 4)]
+    assert [page["blocks"][0]["section_id"] for page in pages] == ["running-0"] * 4 + ["title-4"]
+    assert tables[0]["section_id"] == tables[1]["section_id"] == "title-4"
+    assert tables[1]["continuation_of"] == "table-4"
+    assert pages[4]["blocks"][4]["metadata"]["continuation_of"] == "table-4"
+    assert tables[1]["continuation_evidence"] == ["same_headers", "same_columns", "adjacent_pages", "same_section", "previous_table_ends_page", "continued_title"]
+    # Reprise depuis les checkpoints : le même assemblage, sans résidu de l'appel précédent.
+    assert stitch_structure(pages) == (sections, tables)
+
+
+def test_different_section_or_body_after_table_never_links_pages_4_5():
+    for title in ("Tableau 5B — contrôle QB-46", "Tableau 4B — contrôle QB-45 (suite)", "Tableau 4A — contrôle QB-45 révisé"):
+        sections, tables = stitch_structure(boundary_pages(continued_title=title))
+        assert [section["id"] for section in sections] == ["running-0", "title-4", "title-5"]
+        assert tables[1]["section_id"] == "title-5" and tables[1]["continuation_of"] is None
+    # Un paragraphe sous le tableau de la page 4 : ce tableau ne finit pas sa page, aucun lien malgré « (suite) ».
+    remark = {"id": "remark-4", "type": "text", "text": "Valeurs relevées à froid.", "bbox": [48.0, 300.0, 300.0, 312.0], "metadata": {}}
+    _, tables = stitch_structure(boundary_pages(after_first_table=remark))
+    assert tables[1]["section_id"] == "title-4" and tables[1]["continuation_of"] is None
+
+
+def test_heading_repeated_elsewhere_on_next_page_still_opens_a_section():
+    # Seule la page précédente sert de référence : le titre déplacé en page 2 ouvre une section, et celui de la page 3 aussi.
+    pages = boundary_pages()
+    pages[1]["blocks"][0]["bbox"] = [49.47, 600.0, 307.71, 615.12]
+    sections, _ = stitch_structure(pages)
+    assert [section["id"] for section in sections] == ["running-0", "running-1", "running-2", "title-4"]
+
+
+def test_same_title_at_same_body_position_opens_independent_sections():
+    pages = [{"page_index": index, "effective_box": [0, 0, 600, 842],
+              "blocks": [{"id": f"results-{index}", "type": "heading", "text": "Résultats",
+                          "bbox": [50, 300, 300, 315], "metadata": {}}]} for index in range(2)]
+    sections, _ = stitch_structure(pages)
+    assert [section["id"] for section in sections] == ["results-0", "results-1"]
+    assert [page["blocks"][0]["section_id"] for page in pages] == ["results-0", "results-1"]
+    assert [(section["page_start"], section["page_end"]) for section in sections] == [(0, 0), (1, 1)]
+
+
+def test_running_header_uses_upper_margin_of_each_effective_pdf_frame():
+    # Coordonnées PDF non tournées, CropBox décalée : le haut du cadre effectif est à 800, pas à 842.
+    pages = [{"page_index": index, "effective_box": [20, 100, 580, 800],
+              "blocks": [{"id": f"header-{index}", "type": "heading", "text": "Procédure de contrôle",
+                          "bbox": [50, 750, 300, 765], "metadata": {}}]} for index in range(2)]
+    sections, _ = stitch_structure(pages)
+    assert [section["id"] for section in sections] == ["header-0"]
+    assert sections[0]["page_start"] == 0 and sections[0]["page_end"] == 1
+    # La même boîte n'est pas dans la marge haute de la première page : ce n'est plus un en-tête courant.
+    pages[0]["effective_box"] = [20, 100, 580, 950]
+    sections, _ = stitch_structure(pages)
+    assert [section["id"] for section in sections] == ["header-0", "header-1"]
