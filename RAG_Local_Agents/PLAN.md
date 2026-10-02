@@ -570,3 +570,14 @@ Prochaine action : appliquer les textes restants (DoD D04 et D06, DECISIONS, jou
 - Essai de l'utilisateur : l'import par la boîte de choix du Chromium snap reste muet (fichier non transmis). Ajout du dépôt de PDF sur la bibliothèque et d'un message explicite ; E2E `library-drop.spec.ts` rouge puis vert, non-régression de `workspace` et `a11y` ([journal](journal/2026-10-02.md)).
 
 Prochaine action : commit, puis lot de corrections de l'ingestion (W029), avec relecture des skills `rag-pdf-provenance` et `pdf-ingestion-windows`, tests rouges puis verts, rejeu de `extraction_check` et réextraction du corpus de ce poste.
+
+## Point à 16:16 UTC (2 octobre) — import sous Chromium snap : cause établie
+
+- Constat (prouvé, [journal](journal/2026-10-02.md)) : sur ce poste, le bouton « Importer des PDF » ne transmet aucun fichier. La boîte GTK 3 du Chromium 153 snap renvoie « annulé » après le choix d'un fichier. Une page témoin réduite à un `<input type="file">` échoue de la même manière, alors qu'avec `--gtk-version=4` le fichier est transmis. Le défaut ne vient ni de l'atelier, ni de l'API, ni de CORS. Le portail de sélection de fichiers est en version 2, sous la version 3 que Chromium exige ([SOURCES IMP01 à IMP03](SOURCES.md#sources-du-diagnostic-de-limport-sous-chromium-snap-2-octobre-2026)).
+- Parcours vérifié dans ce même navigateur : glisser-déposer des PDF sur la bibliothèque (202, avis « déjà importé à l'identique » pour un fichier présent). [DEPANNAGE.md](../docs/exploitation/DEPANNAGE.md#5-import-et-ingestion), section 5, est mis à jour.
+- Le produit ne règle pas les options du navigateur de l'utilisateur. Le bouton reste en place, avec son message explicite quand la boîte se referme sans fichier.
+
+Point à trancher ajouté :
+- (18) Passer le Chromium snap de ce poste en GTK 4 (`CHROMIUM_FLAGS="$CHROMIUM_FLAGS --gtk-version=4"` dans `~/.chromium-browser.init`, puis redémarrage du navigateur) pour réparer le bouton. Ce choix modifie l'environnement de l'utilisateur et peut réintroduire les régressions GTK 4 sous GNOME (LP:2106312, LP:2106342) ; il appartient à l'utilisateur.
+
+Prochaine action : sans changement, lot W029 (corrections de l'ingestion) en cours, puis réextraction du corpus de ce poste.
