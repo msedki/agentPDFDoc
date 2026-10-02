@@ -11,6 +11,8 @@ from test_api_storage import storage as storage
 from services.api.db import now, uid
 from services.api.errors import ApiError
 from services.api.jobs import JobSupervisor
+from services.runtime.platforms import launcher_command
+from services.runtime.resources import ResourceAdmissionError, ResourceGovernor
 
 
 def test_api_job_pause_is_cooperative_and_resume_is_manual(storage):
@@ -47,8 +49,9 @@ def test_api_job_pause_is_cooperative_and_resume_is_manual(storage):
             if db.one("SELECT state FROM jobs WHERE id=?", (job_id,))["state"] == "paused":
                 break
             await asyncio.sleep(0.02)
-        paused = db.one("SELECT state,error_code,checkpoint_json FROM jobs WHERE id=?", (job_id,))
+        paused = db.one("SELECT state,error_code,error_message,checkpoint_json FROM jobs WHERE id=?", (job_id,))
         assert paused["state"] == "paused" and paused["error_code"] == "checkpointed"
+        assert paused["error_message"] == "Indexation mise en pause à un point de reprise enregistré. Utilisez « Reprendre l'indexation » dans le Suivi."
         assert supervisor.diagnostics()["injected_runner_calls"] == 1
         assert supervisor.diagnostics()["native_worker_launches"] == supervisor.diagnostics()["extraction_reuses"] == 0
         assert json.loads(paused["checkpoint_json"])["output_dir"]
@@ -88,8 +91,9 @@ def test_api_closing_checkpoints_the_active_job_instead_of_cancelling_it(storage
         await asyncio.sleep(0.05)
         release.set()
         await asyncio.wait_for(closing, 5)
-        row = db.one("SELECT state,error_code,cancel_requested FROM jobs WHERE id=?", (job_id,))
+        row = db.one("SELECT state,error_code,error_message,cancel_requested FROM jobs WHERE id=?", (job_id,))
         assert (row["state"], row["error_code"], row["cancel_requested"]) == ("paused", "checkpointed", 0)
+        assert row["error_message"] == "Indexation mise en pause à un point de reprise enregistré. Utilisez « Reprendre l'indexation » dans le Suivi."
         assert supervisor.resume(job_id)["state"] == "queued"
     asyncio.run(scenario())
 
@@ -347,6 +351,85 @@ def test_api_a_worker_that_leaves_no_result_is_not_mistaken_for_a_previous_run(s
     with pytest.raises(ApiError) as failed:
         asyncio.run(supervisor.run(db.one("SELECT * FROM jobs WHERE id=?", (job_id,))))
     assert failed.value.code == "worker_failed" and "code 3" in failed.value.message
+    assert failed.value.status == 503 and failed.value.details == {"worker_exit_code": 3}
+    assert failed.value.message == (
+        "Le processus d'extraction s'est arrêté sans résultat (code 3). Réindexez le document ; "
+        f"si l'échec persiste, exécutez « {launcher_command('logs')} » depuis le dossier du projet "
+        "pour trouver le journal du service local."
+    )
+
+
+@pytest.mark.parametrize("launcher", ["./rag.sh", r".\rag.ps1"])
+def test_api_generic_job_failure_message_keeps_private_error_in_logs_only(storage, monkeypatch, launcher, caplog):
+    """Erreur synthétique persistée par le superviseur réel ; aucun worker ni modèle lancé."""
+    monkeypatch.setattr("services.runtime.platforms.LAUNCHER", launcher)
+    settings, db, _, indexer = storage
+    pending = db.import_original("synthetic/error.pdf", "f" * 64, "error.pdf")
+    supervisor = JobSupervisor(db, indexer, settings)
+    job = db.one("SELECT * FROM jobs WHERE id=?", (pending["job_id"],))
+    assert supervisor.record_failure(job, RuntimeError("PRIVATE_JOB_SENTINEL")) is False
+    stored = db.one("SELECT * FROM jobs WHERE id=?", (pending["job_id"],))
+    assert (stored["state"], stored["stage"], stored["error_code"], stored["lease_pid"], stored["cancel_requested"]) == (
+        "error", "error", "ingestion_failed", None, 0,
+    )
+    assert document_state(db, pending["document_id"]) == "error"
+    assert stored["generation_id"] is None and db.rows("SELECT * FROM index_generations") == []
+    assert "PRIVATE_JOB_SENTINEL" not in stored["error_message"]
+    assert "PRIVATE_JOB_SENTINEL" in caplog.text
+    assert stored["error_message"] == (
+        "L'indexation a été interrompue. Réindexez le document ; si l'erreur se reproduit, "
+        f"exécutez « {launcher} logs » depuis le dossier du projet pour trouver le journal du service local."
+    )
+
+
+def test_api_memory_refusal_keeps_message_snapshot_and_manual_pause_without_worker(storage, monkeypatch):
+    """Mémoire synthétique, admission et persistance réelles ; aucun worker ou modèle."""
+    settings, db, _, indexer = storage
+    pending = db.import_original("synthetic/memory.pdf", "c" * 64, "memory.pdf")
+    governor = ResourceGovernor({"app": {"data_dir": str(settings.data_dir)}, "resources": {
+        "host_available_min_mib": 1536, "admit_heavy_min_available_mib": 3072,
+        "initial_parser_peak_estimate_mib": 2304,
+    }}, host_lock_path=settings.data_dir / "synthetic-host-heavy.lock")
+    monkeypatch.setattr(governor, "snapshot", lambda: {"available_mib": 3839})
+    with pytest.raises(ResourceAdmissionError) as refused:
+        governor._admit("ingestion")
+    before_snapshot = dict(refused.value.snapshot)
+    supervisor = JobSupervisor(db, indexer, settings)
+    before_job = db.one("SELECT * FROM jobs WHERE id=?", (pending["job_id"],))
+    assert supervisor.record_failure(before_job, refused.value) is True
+    row = db.one("SELECT * FROM jobs WHERE id=?", (pending["job_id"],))
+    assert (row["state"], row["stage"], row["error_code"], row["lease_pid"], row["cancel_requested"]) == (
+        "paused", "paused", "resource_admission_denied", None, 0,
+    )
+    assert document_state(db, pending["document_id"]) == "paused"
+    assert row["error_message"] == str(refused.value)
+    assert refused.value.snapshot == before_snapshot and before_snapshot["admission"]["owner"] == "ingestion"
+    assert row["generation_id"] is None and row["checkpoint_json"] == before_job["checkpoint_json"] == "{}"
+    assert not governor.host_lock_path.exists() and not governor.pause_path.exists()
+
+
+def test_api_indexing_checkpoint_message_keeps_manual_pause_contract_with_indexer_double(storage, monkeypatch):
+    """Double d'indexeur annulé au checkpoint : pas d'extraction ou de modèle réel."""
+    imported, extraction = import_fixture(storage)
+    settings, db, _, _ = storage
+    job_id = new_job(db, imported)
+
+    class CheckpointIndexer:
+        async def index(self, *args):
+            raise ApiError("cancelled", "Annulation synthétique de l'indexeur.", 409)
+
+    async def runner(request):
+        return extraction
+
+    supervisor = JobSupervisor(db, CheckpointIndexer(), settings, ingestion_runner=runner)
+    checkpoints = iter([False, True])
+    monkeypatch.setattr(supervisor, "checkpoint_requested", lambda: next(checkpoints))
+    with pytest.raises(ApiError) as paused:
+        asyncio.run(supervisor.run(db.one("SELECT * FROM jobs WHERE id=?", (job_id,))))
+    assert (paused.value.code, paused.value.status, paused.value.details) == ("checkpointed", 409, {})
+    assert paused.value.message == "Indexation mise en pause à un point de reprise enregistré. Utilisez « Reprendre l'indexation » dans le Suivi."
+    assert supervisor.record_failure(db.one("SELECT * FROM jobs WHERE id=?", (job_id,)), paused.value) is True
+    assert db.one("SELECT state,cancel_requested FROM jobs WHERE id=?", (job_id,)) == {"state": "paused", "cancel_requested": 0}
 
 
 
@@ -615,6 +698,8 @@ def test_api_watchdog_enforces_the_window_deadline_even_while_the_worker_progres
     with pytest.raises(ApiError) as stopped:
         run_with_worker_double(storage, monkeypatch, "trace", 8, no_progress=1, window=2)
     assert stopped.value.code == "interrupted" and "durée maximale" in stopped.value.message
+    assert stopped.value.status == 503 and stopped.value.details == {}
+    assert stopped.value.message == "Extraction arrêtée : un groupe de pages a dépassé sa durée maximale. Reprenez l'indexation depuis le Suivi."
     db = storage[1]
     checkpoint = json.loads(db.one("SELECT checkpoint_json FROM jobs ORDER BY created_at DESC, rowid DESC LIMIT 1")["checkpoint_json"])
     assert checkpoint["reason"] == "watchdog_window_deadline" and checkpoint["window_limit_seconds"] == 2
@@ -624,6 +709,8 @@ def test_api_watchdog_stops_an_idle_worker_after_the_no_progress_delay(storage, 
     with pytest.raises(ApiError) as stopped:
         run_with_worker_double(storage, monkeypatch, "idle", 8, no_progress=1, window=10)
     assert stopped.value.code == "interrupted" and "sans progrès" in stopped.value.message
+    assert stopped.value.status == 503 and stopped.value.details == {}
+    assert stopped.value.message == "Extraction arrêtée sans progrès observé pendant le délai prévu. Reprenez l'indexation depuis le Suivi."
     checkpoint = json.loads(storage[1].one("SELECT checkpoint_json FROM jobs ORDER BY created_at DESC, rowid DESC LIMIT 1")["checkpoint_json"])
     assert checkpoint["reason"] == "watchdog_no_progress" and checkpoint["seconds_since_progress"] > 1
 

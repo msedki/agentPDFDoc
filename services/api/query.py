@@ -5,6 +5,8 @@ import time
 from contextlib import asynccontextmanager
 from typing import Any
 
+from services.runtime.platforms import launcher_command
+
 from .context import validate_answer
 from .db import json_dump, now, uid
 from .errors import ApiError
@@ -255,7 +257,7 @@ class QueryService:
                         difference = metrics["prompt_eval_count"] - metrics.get("local_prompt_tokens", 0)
                         metrics["tokenizer_count_difference"] = difference
                         if abs(difference) > self.settings.value("retrieval", "context_safety_tokens", 256):
-                            warnings.append({"code": "tokenizer_template_drift", "difference": difference, "message": "Écart entre le compteur local et le runtime ; template à vérifier."})
+                            warnings.append({"code": "tokenizer_template_drift", "difference": difference, "message": "Les comptes de tokens du modèle et du compteur local diffèrent. Vérifiez la configuration du modèle."})
                     answer, validation_warnings = validate_answer(answer, [source["source_id"] for source in sources])
                     warnings.extend(validation_warnings)
                     state = "length_limited" if finish_reason == "length" else "done"
@@ -276,7 +278,9 @@ class QueryService:
         except Exception as error:
             admission_failure = error.__class__.__name__ == "ResourceAdmissionError"
             code = error.code if isinstance(error, ApiError) else ("resource_admission_denied" if admission_failure else "query_failed")
-            message = error.message if isinstance(error, ApiError) else (str(error) if admission_failure else "La question a échoué ; consulter les diagnostics locaux.")
+            message = error.message if isinstance(error, ApiError) else (str(error) if admission_failure else
+                "La question n'a pas pu être traitée. Renvoyez-la ; si l'erreur se reproduit, "
+                f"exécutez « {launcher_command('logs')} » depuis le dossier du projet pour trouver le journal du service local.")
             metrics["elapsed_ms"] = round((time.perf_counter() - started) * 1000, 2)
             self.db.execute("UPDATE query_runs SET state='error',answer=?,metrics_json=?,updated_at=? WHERE id=?", (answer, json_dump(metrics), now(), query_id))
             self.db.add_event(query_id, "error", {"code": code, "message": message, "metrics": metrics})

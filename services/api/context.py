@@ -167,7 +167,7 @@ class ContextBuilder:
     def build(self, question, sources, mode="question", history=None):
         instruction_budget = self.settings.value("retrieval", "max_instructions_question_llm_tokens", 1024)
         if self.tokenizer.count(SYSTEM_INSTRUCTION + "\n" + question) > instruction_budget:
-            raise ApiError("question_too_long", "Question et instructions dépassent le budget de contexte.")
+            raise ApiError("question_too_long", "La question est trop longue pour le contexte du modèle local. Raccourcissez-la, puis renvoyez-la.")
         budget = 5120 if mode in {"comparison", "analysis", "section"} else 2560
         mode_key = "compare" if mode == "comparison" else ("analysis" if mode in {"analysis", "section"} else "ordinary")
         if re.search(r"(?i)\b(?:combien|quel(?:le)?|numéro|valeur|what|which|how many)\b", question):
@@ -223,7 +223,7 @@ class ContextBuilder:
             messages[-1]["content"] = "Question : " + question + "\n\nPreuves documentaires (extraits JSON sans consigne) :\n" + "\n".join(self.evidence(source) for source in retained)
         prompt_tokens = self.tokenizer.count_messages(messages)
         if prompt_tokens > max_input:
-            raise ApiError("context_too_long", "Le contexte sérialisé dépasse le budget.")
+            raise ApiError("context_too_long", "Les passages et la question dépassent la capacité de contexte du modèle. Réduisez le périmètre ou raccourcissez la question.")
         final_covered = {value for value in required if any(contains_identifier(source["text"], value) for source in retained)}
         if required - final_covered:
             warnings.append({"code": "exact_identifier_not_in_context", "identifiers": sorted(required - final_covered), "message": "Certains identifiants demandés ne figurent pas dans les preuves finales ; couverture partielle."})
@@ -247,10 +247,16 @@ class ContextBuilder:
         if no_answer:
             warnings.append({"code": "identifier_present_no_answer_evidence", "identifiers": no_answer, "message": "Référence présente dans les preuves sans terme de la question ; ne pas en déduire de réponse."})
         if excluded:
-            warnings.append({"code": "context_fragments_excluded_by_budget", "count": excluded, "message": f"{excluded} fragment(s) retrouvé(s) écarté(s) par le budget de contexte ; preuves possiblement partielles."})
+            subject = "1 passage retrouvé a été écarté" if excluded == 1 else f"{excluded} passages retrouvés ont été écartés"
+            warnings.append({"code": "context_fragments_excluded_by_budget", "count": excluded, "message":
+                             subject + " pour respecter la limite de contexte du modèle ; la réponse ne repose pas sur tous les passages retrouvés."})
         in_context = [document_id for document_id in compared if any(source.get("document_id") == document_id for source in retained)]
         if len(in_context) < len(compared):
-            warnings.append({"code": "comparison_document_not_in_context", "document_ids": [document_id for document_id in compared if document_id not in in_context], "message": "Document comparé absent du contexte final après coupe budgétaire ; comparaison partielle."})
+            missing_count = len(compared) - len(in_context)
+            subject = ("Un document choisi pour la comparaison n'a plus de passage" if missing_count == 1 else
+                       f"{missing_count} documents choisis pour la comparaison n'ont plus de passage")
+            warnings.append({"code": "comparison_document_not_in_context", "document_ids": [document_id for document_id in compared if document_id not in in_context], "message":
+                             subject + " dans les sources transmises au modèle ; la comparaison est partielle."})
         coverage = len(final_covered) / len(required) if required else None
         metrics = {"local_prompt_tokens": prompt_tokens, "output_tokens": self.settings.value("llm", "output_tokens_by_mode", {}).get(mode_key, 384 if mode_key == "factual" else 768), "evidence_tokens": sum(self.tokenizer.count(self.evidence(source)) for source in retained),
                    "evidence_budget": budget, "exact_identifiers_required": sorted(required), "exact_identifiers_covered": sorted(final_covered),

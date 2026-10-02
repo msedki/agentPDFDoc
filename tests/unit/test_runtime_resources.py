@@ -159,6 +159,39 @@ def test_admission_requirement_matches_governor_refusal(tmp_path, monkeypatch):
     assert caught.value.snapshot["admission"]["required_available_mib"] == 4992
 
 
+@pytest.mark.parametrize("owner,loaded,required,estimated,label,action", [
+    ("generation", None, 4992, 3456, "la génération de la réponse", "relancez la question"),
+    ("ingestion", None, 3840, 2304, "l'indexation du document", "reprenez l'indexation depuis le Suivi"),
+    ("generation", {"loaded": True, "additional_peak_mib": 512}, 2048, 512,
+     "la génération de la réponse", "relancez la question"),
+])
+def test_admission_message_is_human_without_changing_snapshot_or_threshold(
+        tmp_path, monkeypatch, owner, loaded, required, estimated, label, action):
+    """Sonde mémoire synthétique : aucun bail, modèle ou processus hôte acquis."""
+    item = ResourceGovernor({"app": {"data_dir": str(tmp_path)}, "resources": {
+        "host_available_min_mib": 1536, "admit_heavy_min_available_mib": 3072,
+        "initial_llm_load_peak_estimate_mib": 3456, "initial_parser_peak_estimate_mib": 2304,
+    }}, host_lock_path=tmp_path / "host-heavy.lock")
+    snapshot = {"available_mib": required - 0.6, "synthetic_probe": "PRIVATE_SNAPSHOT_SENTINEL"}
+    monkeypatch.setattr(item, "snapshot", lambda: dict(snapshot))
+    with pytest.raises(ResourceAdmissionError) as refused:
+        item._admit(owner, loaded)
+    assert refused.value.code == "resource_admission_denied"
+    assert refused.value.snapshot == {**snapshot, "admission": {
+        "owner": owner, "resident_model": loaded is not None,
+        "additional_peak_estimate_mib": estimated, "required_available_mib": required,
+    }}
+    assert "PRIVATE_SNAPSHOT_SENTINEL" not in str(refused.value)
+    assert str(refused.value) == (
+        f"Impossible de démarrer {label} : {required - 1} Mio disponibles, {required} Mio requis "
+        f"(pic prévu {estimated} + réserve 1536). Libérez de la mémoire sur le poste, puis {action}."
+    )
+    snapshot["available_mib"] = required
+    assert item._admit(owner, loaded) is None
+    assert item._owner is None and not item._heavy.locked() and item._host_lock is None
+    assert not item.host_lock_path.exists() and not item.pause_path.exists()
+
+
 def _admission_governor(tmp_path, wait_seconds, monkeypatch, sleeps):
     item = ResourceGovernor({"app": {"data_dir": str(tmp_path)}, "resources": {
         "host_available_min_mib": 1536, "admit_heavy_min_available_mib": 3072,

@@ -237,7 +237,9 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
 
     @application.exception_handler(Exception)
     async def unexpected_error(request, error):
-        return JSONResponse({"code": "internal_error", "message": "Erreur interne ; consulter les diagnostics locaux.", "details": {}, "request_id": getattr(request.state, "request_id", uid())}, status_code=500)
+        return JSONResponse({"code": "internal_error", "message": "Le service a rencontré une erreur. Réessayez ; si elle se reproduit, "
+                             f"exécutez « {launcher_command('logs')} » depuis le dossier du projet pour trouver le journal du service local.",
+                             "details": {}, "request_id": getattr(request.state, "request_id", uid())}, status_code=500)
 
     prefix = "/api/v1"
 
@@ -666,7 +668,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         try:
             governor.resume_ingestion()
         except RuntimeError as error:
-            raise ApiError("interaction_active", "Une question est active ; reprise différée.", 409) from error
+            raise ApiError("interaction_active", "Une question est en cours. Attendez sa fin, puis choisissez à nouveau « Priorité aux imports ».", 409) from error
         jobs.resume_after_backup()
         return {"requested_mode": body.mode, "state": "ingestion", "resources": governor.snapshot(), "manual_jobs_require_resume": True}
 

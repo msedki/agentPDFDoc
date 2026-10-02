@@ -10,7 +10,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from services.runtime.platforms import native_executable
+from services.runtime.platforms import launcher_command, native_executable
 
 from .background import FailureLog, finish, log_unexpected_end
 from .db import json_dump, now
@@ -31,8 +31,8 @@ WORKER_FIXED_ENVIRONMENT = {"HF_HUB_OFFLINE": "1", "HF_HUB_DISABLE_TELEMETRY": "
                             "OMP_NUM_THREADS": "2", "MKL_NUM_THREADS": "2", "OPENBLAS_NUM_THREADS": "2"}
 
 WATCHDOG_MESSAGES = {
-    "watchdog_no_progress": "Worker arrêté par watchdog sans progrès ; reprise manuelle depuis les fenêtres durables.",
-    "watchdog_window_deadline": "Worker arrêté par watchdog : fenêtre de pages au-delà de sa durée maximale ; reprise manuelle depuis les fenêtres durables.",
+    "watchdog_no_progress": "Extraction arrêtée sans progrès observé pendant le délai prévu. Reprenez l'indexation depuis le Suivi.",
+    "watchdog_window_deadline": "Extraction arrêtée : un groupe de pages a dépassé sa durée maximale. Reprenez l'indexation depuis le Suivi.",
 }
 
 
@@ -337,7 +337,9 @@ class JobSupervisor:
             logger.error("Traitement %s interrompu par une erreur inattendue (%s)", job["id"], type(error).__name__, exc_info=error)
         admission_failure = error.__class__.__name__ == "ResourceAdmissionError"
         code = error.code if isinstance(error, ApiError) else ("resource_admission_denied" if admission_failure else "ingestion_failed")
-        message = error.message if isinstance(error, ApiError) else (str(error) if admission_failure else "Traitement interrompu ; consulter les diagnostics locaux.")
+        message = error.message if isinstance(error, ApiError) else (str(error) if admission_failure else
+            "L'indexation a été interrompue. Réindexez le document ; si l'erreur se reproduit, "
+            f"exécutez « {launcher_command('logs')} » depuis le dossier du projet pour trouver le journal du service local.")
         paused = code in {"checkpointed", "interrupted", "insufficient_memory", "resource_admission_denied"}
         state = "paused" if paused else ("cancelled" if self.cancelled(job["id"]) else "error")
         with self.db.transaction() as connection:
@@ -414,7 +416,9 @@ class JobSupervisor:
             if watchdog_error:
                 raise ApiError("interrupted", WATCHDOG_MESSAGES[watchdog_error["reason"]], 503)
             if not result_path.is_file():
-                raise ApiError("worker_failed", f"Le worker d'extraction s'est arrêté sans résultat (code {process.returncode}) ; reprendre le traitement ou consulter les diagnostics.", 503,
+                raise ApiError("worker_failed", f"Le processus d'extraction s'est arrêté sans résultat (code {process.returncode}). "
+                               "Réindexez le document ; si l'échec persiste, "
+                               f"exécutez « {launcher_command('logs')} » depuis le dossier du projet pour trouver le journal du service local.", 503,
                                {"worker_exit_code": process.returncode})
             envelope = json.loads(result_path.read_text(encoding="utf-8"))
             if not envelope.get("ok"):
@@ -427,12 +431,12 @@ class JobSupervisor:
             raise ApiError("cancelled", "Travail annulé.", 409)
         if result.get("status") in {"interrupted", "paused", "checkpointed"} or self.checkpoint_requested():
             self.db.execute("UPDATE jobs SET checkpoint_json=? WHERE id=?", (json_dump({"output_dir": str(directory)}), job["id"]))
-            raise ApiError("checkpointed", "Indexation mise en pause au checkpoint ; reprise manuelle.", 409)
+            raise ApiError("checkpointed", "Indexation mise en pause à un point de reprise enregistré. Utilisez « Reprendre l'indexation » dans le Suivi.", 409)
         try:
             await self.indexer.index(job["id"], result, extraction_path, lambda: self.cancelled(job["id"]) or self.checkpoint_requested())
         except ApiError as error:
             if error.code == "cancelled" and not self.cancelled(job["id"]) and self.checkpoint_requested():
-                raise ApiError("checkpointed", "Indexation mise en pause au checkpoint ; reprise manuelle.", 409) from error
+                raise ApiError("checkpointed", "Indexation mise en pause à un point de reprise enregistré. Utilisez « Reprendre l'indexation » dans le Suivi.", 409) from error
             raise
 
     def cached_extraction(self, version):

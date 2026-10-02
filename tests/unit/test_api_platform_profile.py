@@ -56,6 +56,73 @@ def test_refused_session_and_public_health_announce_the_launcher_commands(tmp_pa
         assert health.json()["commands"]["doctor"] == ".\\rag.ps1 doctor"
 
 
+@pytest.mark.parametrize("launcher", ["./rag.sh", r".\rag.ps1"])
+def test_api_generic_error_names_local_log_command_without_exposing_private_cause(tmp_path, monkeypatch, launcher):
+    """TestClient en mémoire avec dépendances synthétiques : aucune API réseau lancée."""
+    monkeypatch.setattr("services.runtime.platforms.LAUNCHER", launcher)
+    monkeypatch.setenv("RAG_CONTROL_TOKEN", "synthetic-editorial-token")
+    app = build(tmp_path)
+
+    @app.get("/api/v1/synthetic-editorial-error")
+    async def synthetic_failure():
+        raise RuntimeError("PRIVATE_SERVER_SENTINEL")
+
+    with TestClient(app, base_url="http://127.0.0.1:8785", raise_server_exceptions=False,
+                    headers={"X-RAG-Control-Token": "synthetic-editorial-token"}) as client:
+        response = client.get("/api/v1/synthetic-editorial-error")
+        assert response.status_code == 500
+        body = response.json()
+        assert set(body) == {"code", "message", "details", "request_id"}
+        assert body["code"] == "internal_error" and body["details"] == {} and body["request_id"]
+        assert "PRIVATE_SERVER_SENTINEL" not in response.text
+        assert body["message"] == (
+            "Le service a rencontré une erreur. Réessayez ; si elle se reproduit, "
+            f"exécutez « {launcher} logs » depuis le dossier du projet pour trouver le journal du service local."
+        )
+
+
+def test_api_refused_ingestion_priority_keeps_jobs_and_mode_unchanged_without_deferred_resume(tmp_path, monkeypatch):
+    """Question active simulée : le refus réel ne doit ni reprendre ni programmer des jobs."""
+    monkeypatch.setenv("RAG_CONTROL_TOKEN", "synthetic-editorial-token")
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+
+    class BusyGovernor:
+        attempts = 0
+
+        def resume_ingestion(self):
+            self.attempts += 1
+            raise RuntimeError("Une interaction est encore active ; reprise différée.")
+
+        def snapshot(self):
+            return {"mode": "interactive", "heavy_owner": "generation"}
+
+    governor = BusyGovernor()
+    # Le gouverneur est capturé à create_app : construire avec le double occupé, sans processus natif.
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(),
+                     tokenizer=FakeLlmTokenizer(), ollama=SilentOllama(), governor=governor, start_jobs=False)
+    calls = []
+    monkeypatch.setattr(app.state.jobs, "resume_after_backup", lambda: calls.append("resume"))
+    with TestClient(app, base_url="http://127.0.0.1:8785",
+                    headers={"X-RAG-Control-Token": "synthetic-editorial-token"}) as client:
+        db = app.state.db
+        pending = db.import_original("synthetic/paused.pdf", "e" * 64, "paused.pdf")
+        app.state.jobs.pause(pending["job_id"])
+        app.state.jobs._suspended = True
+        before_jobs = db.rows("SELECT * FROM jobs ORDER BY id")
+        before_documents = db.rows("SELECT * FROM documents ORDER BY id")
+        response = client.post("/api/v1/runtime/mode", json={"mode": "ingestion"})
+        assert response.status_code == 409
+        body = response.json()
+        assert body["code"] == "interaction_active" and body["details"] == {} and body["request_id"]
+        assert governor.attempts == 1 and governor.snapshot() == {"mode": "interactive", "heavy_owner": "generation"}
+        assert calls == [] and app.state.jobs._suspended is True
+        # Un second tour ASGI ne lance pas une reprise différée.
+        assert client.get("/api/v1/health").status_code == 200
+        assert calls == [] and db.rows("SELECT * FROM jobs ORDER BY id") == before_jobs
+        assert db.rows("SELECT * FROM documents ORDER BY id") == before_documents
+        assert body["message"] == "Une question est en cours. Attendez sa fin, puis choisissez à nouveau « Priorité aux imports »."
+
+
 def test_origin_follows_the_security_environment(tmp_path):
     """C16 : l'API passe en HTTPS en production ; l'origine utilisée par les outils doit suivre."""
     development = Settings(tmp_path, {"app": {"port": 8785}})

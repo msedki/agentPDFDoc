@@ -3,9 +3,11 @@ import json
 import re
 from pathlib import Path
 
+import pytest
 from test_retrieval import CharTokenizer
 
 from services.api.context import HISTORY_PREFIX, ContextBuilder, validate_answer
+from services.api.errors import ApiError
 from services.api.retrieval import answer_terms, text_language
 from services.api.settings import Settings
 
@@ -44,6 +46,10 @@ def test_context_reports_fragments_excluded_by_evidence_budget(tmp_path):
     _, retained, metrics, warnings = ContextBuilder(settings, CharTokenizer()).build("Décrire l'alimentation", sources)
     assert len(retained) == 1 and metrics["context_fragments_excluded_by_budget"] == 2
     assert [warning["count"] for warning in warnings if warning["code"] == "context_fragments_excluded_by_budget"] == [2]
+    assert next(warning["message"] for warning in warnings if warning["code"] == "context_fragments_excluded_by_budget") == (
+        "2 passages retrouvés ont été écartés pour respecter la limite de contexte du modèle ; "
+        "la réponse ne repose pas sur tous les passages retrouvés."
+    )
     _, retained, metrics, warnings = ContextBuilder(Settings(tmp_path), CharTokenizer()).build("Décrire l'alimentation", sources[:1])
     assert len(retained) == 1 and metrics["context_fragments_excluded_by_budget"] == 0
     assert not any(warning["code"] == "context_fragments_excluded_by_budget" for warning in warnings)
@@ -65,16 +71,60 @@ def test_context_comparison_reserves_each_compared_document(tmp_path):
     assert [source["document_id"] for source in retained] == ["A", "B"]
     assert metrics["required_documents"] == ["A", "B"] and metrics["required_documents_in_context"] == ["A", "B"]
     assert metrics["context_fragments_excluded_by_budget"] == 1
+    assert next(warning["message"] for warning in warnings if warning["code"] == "context_fragments_excluded_by_budget") == (
+        "1 passage retrouvé a été écarté pour respecter la limite de contexte du modèle ; "
+        "la réponse ne repose pas sur tous les passages retrouvés."
+    )
     assert not any(warning["code"] == "comparison_document_not_in_context" for warning in warnings)
 
 
-def test_context_comparison_warns_when_a_document_leaves_the_context(tmp_path):
+@pytest.mark.parametrize("document_ids", [["A", "B"], ["A", "B", "C"]])
+def test_context_comparison_warns_when_a_document_leaves_the_context(tmp_path, document_ids):
     settings = Settings(tmp_path, {"retrieval": {"evidence_tokens_by_mode": {"compare": 150}, "max_evidence_llm_tokens": 150}})
-    sources = [fragment("A", "tension " * 40), fragment("B", "tension " * 40)]
+    sources = [fragment(document_id, "tension " * 40) for document_id in document_ids]
     _, retained, metrics, warnings = ContextBuilder(settings, CharTokenizer()).build("Comparer la tension", sources, "comparison")
     assert [source["document_id"] for source in retained] == ["A"]
     assert metrics["required_documents_in_context"] == ["A"]
-    assert [warning["document_ids"] for warning in warnings if warning["code"] == "comparison_document_not_in_context"] == [["B"]]
+    assert metrics["required_documents"] == document_ids
+    assert [warning["document_ids"] for warning in warnings if warning["code"] == "comparison_document_not_in_context"] == [document_ids[1:]]
+    expected = (
+        "Un document choisi pour la comparaison n'a plus de passage dans les sources transmises au modèle ; la comparaison est partielle."
+        if len(document_ids) == 2 else
+        "2 documents choisis pour la comparaison n'ont plus de passage dans les sources transmises au modèle ; la comparaison est partielle."
+    )
+    assert next(warning["message"] for warning in warnings if warning["code"] == "comparison_document_not_in_context") == expected
+
+
+def test_context_question_budget_refusal_explains_how_to_retry_without_generation(tmp_path):
+    """Tokenizer caractères/4 explicite ; la question reste valide pour le contrat de saisie."""
+    settings = Settings(tmp_path, {"retrieval": {"max_instructions_question_llm_tokens": 200}})
+    question = "Question synthétique " * 50
+    assert len(question) < 12000
+    with pytest.raises(ApiError) as refused:
+        ContextBuilder(settings, CharTokenizer()).build(question, [])
+    assert (refused.value.code, refused.value.status, refused.value.details) == ("question_too_long", 400, {})
+    assert settings.value("retrieval", "max_instructions_question_llm_tokens", None) == 200
+    assert refused.value.message == "La question est trop longue pour le contexte du modèle local. Raccourcissez-la, puis renvoyez-la."
+
+
+def test_context_serialized_budget_refusal_preserves_limit_and_code_without_generation(tmp_path, monkeypatch):
+    """Compteur synthétique réel du test ; aucune génération ni source externe."""
+    settings = Settings(tmp_path, {"llm": {"num_ctx": 200, "num_predict": 100}, "retrieval": {"context_safety_tokens": 50}})
+    tokenizer = CharTokenizer()
+    counts = []
+    count_messages = tokenizer.count_messages
+
+    def observed_count(messages):
+        count = count_messages(messages)
+        counts.append(count)
+        return count
+
+    monkeypatch.setattr(tokenizer, "count_messages", observed_count)
+    with pytest.raises(ApiError) as refused:
+        ContextBuilder(settings, tokenizer).build("Quelle tension CCU-21 ?", [fragment("A", "CCU-21 tension 72 V")])
+    assert counts[-1] > 200 - 100 - 50
+    assert (refused.value.code, refused.value.status, refused.value.details) == ("context_too_long", 400, {})
+    assert refused.value.message == "Les passages et la question dépassent la capacité de contexte du modèle. Réduisez le périmètre ou raccourcissez la question."
 
 
 def test_context_serialized_cut_keeps_last_fragment_of_compared_document(tmp_path):

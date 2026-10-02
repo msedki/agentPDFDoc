@@ -1,0 +1,19 @@
+{
+  "role": "Relevé de lecture et usage des skills pour R15-2, D11-1 et le complément W023",
+  "owner": "intégration et validation du chantier",
+  "status": "Vivant, R15-2 et qualification globale encore ouverts",
+  "reference": "main, base 5cb2128 et modifications locales ; 2026-10-02 20:14 UTC",
+  "scope": "SKILL.md sélectionnés lus intégralement avant les actions de cette continuation ; aucune reconstitution des lectures historiques",
+  "previous_record": "RAG_Local_Agents/reports/skills-usage-2026-10-02-w029-corpus.json",
+  "skills_read": [
+    {"name": "hybrid-rag-api", "path": ".agents/skills/hybrid-rag-api/SKILL.md", "origin": "projet", "version": null, "sha256": "6209a83fb48310f4823f6b6d17687530a1f3ee695e38f373d5f3dea435123cac", "task": "Messages serveur, contrats préservés, assemblage de contexte et requête Ollama avec doubles explicites"},
+    {"name": "pdf-workspace-web", "path": ".agents/skills/pdf-workspace-web/SKILL.md", "origin": "projet", "version": null, "sha256": "a96ca71a8b7a622ed1276ef95147dc422c43f54f9a64b3e777d5e3a4cf4e6b3a", "task": "Textes UI, provenance, scopes, erreurs de session, inventaire, tests unitaires et typage ; rendu non exécuté à cette date"},
+    {"name": "project-documentation", "path": ".agents/skills/project-documentation/SKILL.md", "origin": "projet, project-authored", "version": "1.0", "sha256": "aa4292bc629ec12e00ed3fde2143afaae6f898dc6ab2cffc45e6d0e44aded6dd", "task": "Procédures confrontées au code, en-têtes, plan et DoD sans clôture déduite des doubles"},
+    {"name": "official-source-review", "path": "RAG_Local_Agents/skills/official-source-review/SKILL.md", "origin": "pack, project-authored", "version": "2.1", "sha256": "c7ac562eeae9150016259a17cb3b671355ceba289ebcb649f0de1fbe173554bd", "task": "Complément actuel CPython webbrowser/W023, version installée distincte de la documentation courante et recherche exclusivement officielle"},
+    {"name": "pdf-workspace-e2e", "path": "RAG_Local_Agents/skills/pdf-workspace-e2e/SKILL.md", "origin": "pack, project-authored", "version": "2.1", "sha256": "120cef3d15854856e0b77d5237cbd35dae28a7eacbf968540de86e712ee78119", "task": "Préparation et revue des scénarios R15-2, cible QA et version active contrôlées ; aucun navigateur lancé pour ce lot"}
+  ],
+  "adaptation": "Aucun skill modifié, installé ou exécuté comme script tiers ; aucun nouveau contrat externe adopté",
+  "evidence": [".runtime/qa/r15-editorial-20261002T191600Z/", ".runtime/qa/w029-20261002T165030Z/d11-instruction-isolation-final/", "RAG_Local_Agents/PLAN.md", "RAG_Local_Agents/journal/2026-10-02.md"],
+  "behavioral_validation": "NOT_RUN : aucune preuve de découverte/invocation native du client",
+  "limits": ["Une lecture explicite ne prouve pas le déclenchement natif", "Le test D11-1 porte sur cinq fichiers synthétiques temporaires et un transport HTTP doublé, pas toutes les lectures de disque ni un modèle réel", "Le rendu R15-2, Windows et le poste physique de 16 Go restent non qualifiés par ces contrôles"]
+}

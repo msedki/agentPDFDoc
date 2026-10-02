@@ -328,9 +328,14 @@ class ResourceGovernor:
         snapshot["admission"] = {key: requirement[key] for key in
                                  ("owner", "resident_model", "additional_peak_estimate_mib", "required_available_mib")}
         if snapshot["available_mib"] < required:
+            label, action = {
+                "generation": ("la génération de la réponse", "relancez la question"),
+                "ingestion": ("l'indexation du document", "reprenez l'indexation depuis le Suivi"),
+            }.get(owner, ("le traitement", "réessayez"))
             raise ResourceAdmissionError(
-                f"Admission {owner} refusée : {snapshot['available_mib']:.0f} Mio disponibles, "
-                f"{required} Mio requis (pic prévu {estimated} + réserve {self.reserve_mib}).",
+                f"Impossible de démarrer {label} : {snapshot['available_mib']:.0f} Mio disponibles, "
+                f"{required} Mio requis (pic prévu {estimated} + réserve {self.reserve_mib}). "
+                f"Libérez de la mémoire sur le poste, puis {action}.",
                 snapshot,
             )
 

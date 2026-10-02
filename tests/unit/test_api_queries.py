@@ -1,6 +1,7 @@
 import asyncio
 import json
 
+import pytest
 from test_api_storage import FakeEmbedding, import_fixture
 from test_api_storage import storage as storage
 from test_retrieval import CharTokenizer
@@ -11,6 +12,7 @@ from services.api.query import QueryService
 from services.api.retrieval import SearchService
 from services.api.schemas import QueryRequest, Scope
 from services.api.scope import ScopeResolver
+from services.runtime.resources import ResourceAdmissionError
 
 
 def previous_question(db, conversation, question, snapshot):
@@ -55,6 +57,89 @@ def test_api_named_reference_overrides_user_history(storage):
     service, _, conversation, snapshot = query_fixture(storage, "Quelle tension CCU-21 ?")
     question, resolution, choices = service.resolve_followup(QueryRequest(question="Et CCU-22 ?", scope=Scope(kind="library"), conversation_id=conversation), snapshot)
     assert question == "Et CCU-22 ?" and resolution["method"] == "explicit_question" and not choices
+
+
+@pytest.mark.parametrize("launcher", ["./rag.sh", r".\rag.ps1"])
+@pytest.mark.parametrize("memory_refusal", [False, True], ids=["private-error", "memory-refusal"])
+def test_api_query_error_message_preserves_sse_code_and_private_boundary_with_search_double(
+        storage, monkeypatch, launcher, memory_refusal):
+    """Double de recherche en échec : vrai QueryService/SQLite, aucun modèle ou service."""
+    monkeypatch.setattr("services.runtime.platforms.LAUNCHER", launcher)
+    service, db, conversation, _ = query_fixture(storage, "Quelle tension CCU-21 ?")
+    memory_message = (
+        "Impossible de démarrer la génération de la réponse : 4991 Mio disponibles, 4992 Mio requis "
+        "(pic prévu 3456 + réserve 1536). Libérez de la mémoire sur le poste, puis relancez la question."
+    )
+    error = (ResourceAdmissionError(memory_message, {"available_mib": 4991}) if memory_refusal else
+             RuntimeError("PRIVATE_QUERY_SENTINEL"))
+
+    class FailingSearch:
+        async def search(self, *args):
+            raise error
+
+    service.search = FailingSearch()
+
+    async def scenario():
+        query_id = service.create(QueryRequest(question="Quelle tension CCU-21 ?", scope=Scope(kind="library"),
+                                               conversation_id=conversation))["query_id"]
+        await service.tasks[query_id]
+        await asyncio.sleep(0)
+        query = db.one("SELECT state,answer,metrics_json FROM query_runs WHERE id=?", (query_id,))
+        assert query["state"] == "error" and query["answer"] == ""
+        events = db.rows("SELECT type,data_json FROM events WHERE query_id=? ORDER BY id", (query_id,))
+        assert [event["type"] for event in events] == ["status", "status", "error"]
+        event = json.loads(events[-1]["data_json"])
+        assert set(event) == {"code", "message", "metrics"}
+        assert event["code"] == ("resource_admission_denied" if memory_refusal else "query_failed")
+        assert event["metrics"]["model_called"] is False
+        assert json.loads(query["metrics_json"]) == event["metrics"]
+        assert "PRIVATE_QUERY_SENTINEL" not in event["message"]
+        assert event["message"] == (memory_message if memory_refusal else
+            "La question n'a pas pu être traitée. Renvoyez-la ; si l'erreur se reproduit, "
+            f"exécutez « {launcher} logs » depuis le dossier du projet pour trouver le journal du service local.")
+        assert not service.tasks and not service.cancel_events
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("difference", [256, 257])
+def test_api_token_count_warning_text_keeps_threshold_counts_and_citations_with_ollama_double(storage, difference):
+    """Ollama et tokenizer synthétiques explicites : aucun modèle ou appel réseau."""
+    service, db, conversation, _ = query_fixture(storage, "Quelle tension CCU-21 ?")
+
+    class CountingOllama:
+        calls = 0
+
+        async def stream(self, messages, cancelled, output_tokens):
+            self.calls += 1
+            yield {"type": "delta", "text": "72 V [S001]"}
+            yield {"type": "done", "finish_reason": "stop", "metrics": {
+                "prompt_eval_count": CharTokenizer().count_messages(messages) + difference, "eval_count": 2,
+            }}
+
+    gateway = CountingOllama()
+    service.ollama = gateway
+
+    async def scenario():
+        query_id = service.create(QueryRequest(question="Quelle tension CCU-21 ?", scope=Scope(kind="library"),
+                                               conversation_id=conversation))["query_id"]
+        await service.tasks[query_id]
+        done = json.loads(db.one("SELECT data_json FROM events WHERE query_id=? AND type='done'", (query_id,))["data_json"])
+        assert gateway.calls == 1 and done["status"] == "done" and done["finish_reason"] == "stop"
+        assert done["text"] == "72 V [S001]" and done["citations"][0]["source_id"] == "S001"
+        assert done["metrics"]["tokenizer_count_difference"] == difference
+        assert done["metrics"]["prompt_eval_count"] == done["metrics"]["local_prompt_tokens"] + difference
+        assert service.settings.value("retrieval", "context_safety_tokens", 256) == 256
+        drift = [warning for warning in done["warnings"] if warning["code"] == "tokenizer_template_drift"]
+        assert len(drift) == int(difference > 256)
+        if drift:
+            assert drift == [{"code": "tokenizer_template_drift", "difference": 257,
+                              "message": "Les comptes de tokens du modèle et du compteur local diffèrent. Vérifiez la configuration du modèle."}]
+        stored = db.one("SELECT state,warnings_json,metrics_json FROM query_runs WHERE id=?", (query_id,))
+        assert stored["state"] == "done" and json.loads(stored["warnings_json"]) == done["warnings"]
+        assert json.loads(stored["metrics_json"]) == done["metrics"]
+
+    asyncio.run(scenario())
 
 
 class BlockingSearch:
