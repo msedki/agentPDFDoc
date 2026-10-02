@@ -212,7 +212,11 @@ class QueryService:
                     else:
                         if self.governor and self.governor.snapshot().get("heavy_owner") == "ingestion":
                             self.db.add_event(query_id, "status", {"state": "waiting_for_ingestion_checkpoint"})
+                        awaited = False
                         def waiting(sample):
+                            # Appelée par l'admission du bail et par la nouvelle admission d'un repli sur CPU.
+                            nonlocal awaited
+                            awaited = True
                             admission = sample.get("admission") or {}
                             self.db.add_event(query_id, "status", {"state": "waiting_for_resources",
                                                                    "available_mib": sample.get("available_mib"),
@@ -225,8 +229,15 @@ class QueryService:
                             if set(snapshot.documents.values()) - allowed_ids:
                                 raise ApiError("scope_authorization_changed", "Un document a été retiré pendant l'attente ; nouveau contexte refusé.", 409)
                             self.db.add_event(query_id, "status", {"state": "generating"})
+                            awaited = False
                             metrics["model_call_attempted"] = True
                             async for event in self.ollama.stream(messages, cancelled, metrics.get("output_tokens")):
+                                if event["type"] == "cpu_fallback":
+                                    # Repli sur CPU admis : après une attente de mémoire, la génération reprend.
+                                    if awaited:
+                                        awaited = False
+                                        self.db.add_event(query_id, "status", {"state": "generating"})
+                                    continue
                                 metrics["model_called"] = True
                                 if cancelled.is_set():
                                     raise asyncio.CancelledError

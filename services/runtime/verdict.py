@@ -8,9 +8,12 @@ mémoire) ; vert : rien à faire. Le verdict ne remplace pas un contrôle réel 
 
 from __future__ import annotations
 
+import re
+from datetime import UTC, datetime
 from typing import Any
 
 from . import platforms
+from .accelerator import REASON_TEXTS, describe_device, device_variant, is_nvidia, reason_text
 
 GREEN, ORANGE, RED = "vert", "orange", "rouge"
 SEVERITY = {GREEN: 0, ORANGE: 1, RED: 2}
@@ -167,15 +170,421 @@ def memory_rubric(checks: dict[str, Any]) -> dict[str, Any]:
     return rubric("mémoire", GREEN, "Mémoire suffisante pour l'extraction et la génération.")
 
 
+def generation_text(accelerator: dict[str, Any]) -> str:
+    """Mode de génération d'une instance en une proposition (selftest, status) : « génération sur GPU, Orin (…) » ou
+    « génération sur CPU, aucun GPU utilisable découvert par Ollama »."""
+    reason = str(accelerator.get("reason") or "")
+    if accelerator.get("mode") == "gpu":
+        device = accelerator.get("device") or {}
+        text = "génération sur GPU, " + describe_device(device, accelerator.get("variant") or device_variant(device))
+        return text + (f" ; {REASON_TEXTS[reason]}" if reason == "gpu_trial" else "")
+    return f"génération sur CPU, {reason_text(accelerator)}"
+
+
+# --- Rubrique « calcul » (D01.4, W024, W025) ---------------------------------------------------------------------------
+
+PROPOSAL_SUFFIX = "Proposition : accélération GPU disponible, voir la rubrique calcul."
+# États dont la proposition n'ouvre aucun accès au GPU par une action dans l'atelier (pilote à mettre à jour par
+# l'administrateur, GPU de bibliothèques mêlées, kit sans bibliothèques CUDA) : elle reste dans la rubrique, le résumé
+# ne l'annonce pas.
+INFORMATIVE_PROPOSALS = frozenset({"nvidia_not_retained", "gpu_mixed_libraries", "cuda_libraries_absent"})
+UNQUALIFIED = "sur une voie non qualifiée par un essai réel"
+UNKNOWN_SHARE = "répartition du modèle entre GPU et CPU non déterminée par Ollama"
+CUDA_NOT_RETAINED = "CUDA ne l'a pas retenu, à cause du pilote ou de la capacité de calcul du GPU"
+
+
+def _first(devices: list[dict[str, Any]], cuda: bool) -> dict[str, Any] | None:
+    return next((item for item in devices if (item.get("library") == "CUDA") is cuda), None)
+
+
+def _gpu(device: dict[str, Any] | None, variant: str | None = None) -> str:
+    """« Orin (CUDA, GPU intégré, bibliothèques cuda_jetpack5) » : toujours hors parenthèses dans un message."""
+    return describe_device(device, variant or device_variant(device)) if device else "GPU"
+
+
+def _jetson(host: dict[str, Any]) -> str:
+    """« Jetson Linux R35, JetPack 5 » (notation de la conception J11, sans parenthèses imbriquées dans les messages)."""
+    jetpack = host.get("jetpack")
+    return f"Jetson Linux R{host.get('l4t_major')}" + (f", JetPack {jetpack.removeprefix('jetpack')}" if jetpack else "")
+
+
+def _restart() -> str:
+    """« ./rag.sh down puis ./rag.sh up », à placer entre parenthèses après « redémarrez »."""
+    return f"{run('down')} puis {run('up')}"
+
+
+def _down_up() -> str:
+    """« ./rag.sh down et ./rag.sh up », après une première commande (« lancez …, puis … »)."""
+    return f"{run('down')} et {run('up')}"
+
+
+def _provision_gpu() -> str:
+    return on_this_host(r".\rag.ps1 provision -Only ollama-gpu", run("provision --only ollama-gpu"))
+
+
+def _complement_sizes(check: dict[str, Any]) -> str:
+    """« 283 Mio à télécharger, 825 Mio une fois extraits », tailles lues dans le verrou ; vide sans complément."""
+    complement = check.get("complement") or {}
+    if not complement.get("size"):
+        return ""
+    sizes = f"{mib(complement['size'] / 1048576)} à télécharger"
+    if complement.get("extracted_size"):
+        sizes += f", {mib(complement['extracted_size'] / 1048576)} une fois extraits"
+    return f" ({sizes})"
+
+
+def _complement_qualified(check: dict[str, Any]) -> bool:
+    """Voie du complément de ce poste qualifiée par un essai réel (QUALIFIED_GPU_PATHS) : seul cas où le mode auto
+    calculera sur le GPU une fois le complément extrait. Sans cette information, rien n'est promis."""
+    return bool((check.get("complement") or {}).get("qualified"))
+
+
+def _trial_steps(check: dict[str, Any]) -> str:
+    """Essai du GPU d'un Jetson sur une voie non qualifiée : complément, profil en gpu (s'il ne l'est pas), redémarrage,
+    puis contrôle réel."""
+    profile = "" if check.get("requested") == "gpu" else "indiquez llm.accelerator: gpu dans le profil, "
+    return (f"lancez {_provision_gpu()}{_complement_sizes(check)}, {profile}puis {_down_up()}, et vérifiez la réponse "
+            f"avec {run('selftest')}")
+
+
+def _complement_proposal(check: dict[str, Any], qualified_text: str) -> str:
+    """Proposition d'extraire le complément du poste : calcul sur GPU sur une voie qualifiée, essai ailleurs."""
+    if _complement_qualified(check):
+        return f"{qualified_text} : {_provision_gpu()}{_complement_sizes(check)}, puis {_down_up()}."
+    return f"Pour essayer le GPU de ce Jetson, {UNQUALIFIED} : {_trial_steps(check)}."
+
+
+def _hour(utc: Any) -> str:
+    try:
+        moment = datetime.fromisoformat(str(utc))
+    except ValueError:
+        return str(utc or "heure inconnue")
+    return (moment.astimezone(UTC) if moment.tzinfo else moment).strftime("%d/%m/%Y %H:%M:%S UTC")
+
+
+def _usage(check: dict[str, Any]) -> dict[str, Any] | None:
+    """Occupation du modèle du profil dans /api/ps ; None s'il n'est pas chargé ou si Ollama n'a pas répondu."""
+    return next((item for item in check.get("usage") or [] if item.get("model") == check.get("model")), None)
+
+
+def _shares(processor: str) -> tuple[str, str] | None:
+    """Parts « CPU » et « GPU » de la colonne PROCESSOR (« 48%/52% CPU/GPU ») : ("48", "52") ; None pour « Unknown »,
+    qu'Ollama affiche quand size_vram dépasse size, et pour toute autre forme."""
+    match = re.fullmatch(r"(\d+)%/(\d+)% CPU/GPU", processor or "")
+    return (match[1], match[2]) if match else None
+
+
+def _loaded(check: dict[str, Any]) -> str:
+    usage = _usage(check)
+    if usage is None:
+        return ("le modèle n'est pas encore chargé" if check.get("usage") is not None
+                else "chargement du modèle non vérifié (Ollama n'a pas répondu à /api/ps)")
+    processor = usage.get("processor", "")
+    if processor in ("100% GPU", "100% CPU"):
+        return f"modèle chargé à 100 % sur le {processor.rsplit(' ', 1)[-1]}"
+    shares = _shares(processor)
+    return f"modèle chargé à {shares[1]} % sur le GPU et {shares[0]} % sur le CPU" if shares else UNKNOWN_SHARE
+
+
+def _discovered(check: dict[str, Any]) -> list[dict[str, Any]]:
+    discovery = check.get("discovery") or {}
+    return list(discovery.get("devices") or []) if discovery.get("status") == "gpu" else []
+
+
+def _gpu_hint(check: dict[str, Any]) -> bool:
+    """Indice d'un GPU NVIDIA sur le poste (Jetson Linux, pilote, nœud de périphérique, nvcuda.dll)."""
+    host = check.get("host") or {}
+    return bool(host.get("l4t_major") is not None or host.get("nvidia_kernel_driver") or host.get("windows_nvcuda")
+                or any(node.get("exists") for node in (host.get("gpu_nodes") or {}).values()))
+
+
+def _program_path(path: str) -> str:
+    """Chemin relatif à la racine du programme, avec le séparateur du poste."""
+    return on_this_host(path.replace("/", "\\"), path)
+
+
+def _discovery_log(check: dict[str, Any]) -> str:
+    """Journal où la découverte retenue a été lue : celui de l'instance (commande logs) ou celui de provision."""
+    discovery = check.get("discovery") or {}
+    if discovery.get("source") == "provision" and discovery.get("log"):
+        return f"le journal d'Ollama du provisionnement ({_program_path(str(discovery['log']))})"
+    return f"le journal d'Ollama ({run('logs')})"
+
+
+def _superseded(check: dict[str, Any]) -> str:
+    """Phrase sur une découverte plus récente mais illisible, écartée au profit de la précédente, lisible."""
+    later = (check.get("discovery") or {}).get("superseded")
+    if not isinstance(later, dict):
+        return ""
+    if later.get("source") == "provision":
+        failure = f"a échoué : {later['error']}" if later.get("error") else "n'a pas pu être lue"
+        text = f" La sonde de découverte du provisionnement du {_hour(later.get('utc'))} {failure}."
+    else:
+        text = f" La découverte de la dernière instance, du {_hour(later.get('utc'))}, est illisible."
+    return text + " La découverte précédente, lisible, reste retenue."
+
+
+def _legacy_proposal(check: dict[str, Any]) -> str | None:
+    """Proposition d'un profil antérieur (llm.num_gpu: 0, W025 P5), d'après ce que donnerait llm.accelerator: auto."""
+    preview = check.get("if_auto") or {}
+    replace = "remplacez llm.num_gpu: 0 par llm.accelerator: {} dans le profil"
+    libraries = check.get("libraries") or {}
+    if libraries.get("required") and not libraries.get("provisioned"):
+        present = f"Un GPU NVIDIA Jetson est présent ({_jetson(check.get('host') or {})})"
+        complement = f"lancez {_provision_gpu()}{_complement_sizes(check)}, puis {_down_up()}"
+        if _complement_qualified(check):
+            return f"{present} : {replace.format('auto')}, {complement}."
+        return (f"{present}, {UNQUALIFIED} : pour l'essayer, {replace.format('gpu')}, {complement}, et vérifiez la "
+                f"réponse avec {run('selftest')}.")
+    if preview.get("mode") == "gpu":
+        return (f"Un GPU utilisable est présent : {_gpu(preview.get('device'), preview.get('variant'))}. Remplacez "
+                f"llm.num_gpu: 0 par llm.accelerator: auto dans le profil, puis redémarrez ({_restart()}).")
+    if preview.get("reason") == "gpu_path_not_qualified":
+        return (f"GPU NVIDIA détecté sur une voie non qualifiée : {_gpu(preview.get('device'), preview.get('variant'))}. "
+                f"Pour l'essayer, {replace.format('gpu')}, redémarrez ({_restart()}) puis lancez {run('selftest')}.")
+    return None
+
+
+def _requested_unavailable(check: dict[str, Any]) -> tuple[str, str]:
+    """Message et action de `gpu_requested_unavailable` : GPU demandé par le profil, aucun GPU utilisable."""
+    devices = _discovered(check)
+    reason = check.get("reason")
+    libraries = check.get("libraries") or {}
+    missing = bool(libraries.get("required") and not libraries.get("provisioned"))
+    if missing:
+        detail = (f"les bibliothèques GPU d'Ollama pour ce Jetson ({_jetson(check.get('host') or {})}) ne sont pas "
+                  "installées")
+    elif reason == "gpu_library_not_retained":
+        other = _first(devices, False)
+        if is_nvidia(other):
+            detail = f"le GPU NVIDIA détecté, {_gpu(other)}, n'est vu par Ollama que par Vulkan : {CUDA_NOT_RETAINED}"
+        else:
+            detail = f"le seul GPU détecté, {_gpu(other)}, n'emploie pas CUDA, seule bibliothèque retenue par l'atelier"
+    elif reason == "gpu_mixed_libraries":
+        detail = (f"un GPU NVIDIA, {_gpu(_first(devices, True))}, côtoie un GPU d'une autre bibliothèque, "
+                  f"{_gpu(_first(devices, False))}, et Ollama choisirait lui-même entre les deux")
+    else:
+        detail = "Ollama n'a découvert aucun GPU utilisable"
+    message = f"Calcul sur CPU : le profil demande le GPU (llm.accelerator: gpu), mais {detail}."
+    if missing:
+        action = (f"Lancez {_provision_gpu()}{_complement_sizes(check)}, puis {_down_up()} ; sinon, indiquez "
+                  "llm.accelerator: auto ou cpu dans le profil.")
+    else:
+        action = (f"Consultez le journal d'Ollama ({run('logs')}) ; pour retirer cet avertissement, indiquez "
+                  f"llm.accelerator: auto ou cpu dans le profil, puis redémarrez ({_restart()}).")
+    return message, action
+
+
+def _discovery_pending(check: dict[str, Any]) -> str:
+    """Découverte à venir : au prochain démarrage (up), ou au redémarrage d'une instance en marche (down puis up)."""
+    if check.get("running"):
+        cause = ("l'instance en marche a démarré avant l'accélération GPU" if check.get("instance_predates_accelerator")
+                 else "les bibliothèques GPU d'Ollama ont changé depuis le démarrage de l'instance en marche")
+        return (f"Calcul sur CPU : {cause}. Le mode de calcul, GPU ou CPU, sera choisi à son redémarrage "
+                f"({_restart()}).")
+    if check.get("discovery_stale"):
+        return ("Les bibliothèques GPU d'Ollama ont changé depuis la dernière découverte des GPU : elle sera refaite au "
+                f"prochain démarrage, qui choisira le mode de calcul, GPU ou CPU ({run('up')}).")
+    return ("Découverte des GPU par Ollama au prochain démarrage : le mode de calcul (GPU ou CPU) sera choisi à ce "
+            f"moment ({run('up')}).")
+
+
+def calcul_rubric(check: dict[str, Any]) -> tuple[dict[str, Any], str | None]:
+    """Rubrique « calcul » et proposition éventuelle, d'après `checks["accelerator"]` (état établi par doctor).
+
+    Une proposition n'est jamais une réserve : elle ne change pas le niveau. Les commandes citées sont celles du lanceur
+    du poste (rag.ps1 ou rag.sh). Une découverte plus récente mais illisible, écartée, est signalée à la fin du message.
+    """
+    item, proposal = _calcul_state(check)
+    note = _superseded(check)
+    return ({**item, "message": item["message"] + note} if note else item), proposal
+
+
+def _calcul_state(check: dict[str, Any]) -> tuple[dict[str, Any], str | None]:
+    state = check.get("state")
+    device, variant = check.get("device"), check.get("variant")
+    devices = _discovered(check)
+    host = check.get("host") or {}
+    logs = run("logs")
+    version = check.get("ollama_version") or "0.35.0"
+    proposal: str | None = None
+    if state == "cpu_imposed":
+        message = "Calcul sur CPU, imposé par le profil (llm.accelerator: cpu)."
+        present = _first(devices, True) or (devices[0] if devices else None)
+        if present:
+            message += f" GPU présent, laissé inutilisé : {_gpu(present)}."
+        return rubric("calcul", GREEN, message), None
+    if state == "cpu_legacy":
+        return (rubric("calcul", GREEN, "Calcul sur CPU : le profil est antérieur à l'accélération GPU (llm.num_gpu: 0)."),
+                _legacy_proposal(check))
+    if state == "cpu_no_gpu":
+        message = "Calcul sur CPU : Ollama n'a découvert aucun GPU utilisable."
+        dropped = [item for item in (check.get("discovery") or {}).get("dropped") or []
+                   if item.get("reason") == "integrated_gpu"]
+        if dropped:
+            message += " GPU intégré ignoré par Ollama : " + " ; ".join(
+                f"{item.get('description') or item.get('name')} ({item.get('library')})" for item in dropped) + "."
+        return rubric("calcul", GREEN, message), None
+    if state == "gpu_libraries_missing":
+        message = (f"Calcul sur CPU : GPU NVIDIA Jetson présent ({_jetson(host)}), mais les bibliothèques GPU "
+                   "d'Ollama pour cette version ne sont pas installées.")
+        proposal = (_complement_proposal(check, "Pour calculer les réponses sur le GPU") + " Pour rester sur CPU sans "
+                    "cette proposition, indiquez llm.accelerator: cpu dans le profil.")
+        return rubric("calcul", GREEN, message), proposal
+    if state == "jetson_unsupported":
+        return rubric("calcul", GREEN, f"Calcul sur CPU : Jetson Linux R{host.get('l4t_major')} n'a pas de bibliothèques "
+                      f"GPU publiées pour Ollama {version} (seuls JetPack 5 et JetPack 6 en ont), et Ollama n'a découvert "
+                      "aucun GPU utilisable."), None
+    if state == "nvidia_not_retained":
+        # Bornes basses seulement (revue B1) : un pilote plus récent reste compatible.
+        proposal = (f"Ollama {version} exige une capacité de calcul 5.0 ou plus et un pilote NVIDIA 550 ou plus récent "
+                    "(570 ou plus récent pour une capacité de 5.0 à 6.2) : vérifiez la version du pilote, dont la mise à "
+                    f"jour relève de l'administrateur du poste, puis le journal d'Ollama ({logs}).")
+        vulkan = next((item for item in devices if item.get("library") != "CUDA" and is_nvidia(item)), None)
+        if vulkan:
+            # Vulkan, actif par défaut dans Ollama 0.35.0, voit encore un GPU NVIDIA que CUDA a écarté.
+            return rubric("calcul", GREEN, f"Calcul sur CPU : {_gpu(vulkan)} n'est vu par Ollama que par Vulkan ; "
+                          f"{CUDA_NOT_RETAINED}."), proposal
+        return rubric("calcul", GREEN, "Calcul sur CPU : un pilote NVIDIA est installé, mais Ollama n'a retenu aucun "
+                      "GPU."), proposal
+    if state == "cuda_libraries_absent":
+        # Kit construit avec --without-gpu (ou fichiers retirés) : la cause est l'installation, pas le pilote.
+        message = ("Calcul sur CPU : un pilote NVIDIA est installé, mais l'installation d'Ollama de ce poste ne contient "
+                   "pas les bibliothèques CUDA vérifiées " + on_this_host("(kit construit sans GPU, ou fichiers retirés depuis)",
+                                                             "(fichiers absents ou modifiés)")
+                   + " : Ollama ne peut retenir aucun GPU NVIDIA.")
+        proposal = on_this_host("Pour essayer ce GPU, réinstallez l'atelier depuis un kit complet, construit sans "
+                                r"l'option --without-gpu, puis suivez la proposition de .\rag.ps1 doctor.",
+                                f"Pour rétablir ces bibliothèques, relancez {run('provision --only ollama')}, puis "
+                                f"{_down_up()}.")
+        return rubric("calcul", GREEN, message), proposal
+    if state == "gpu_not_retained":
+        return rubric("calcul", GREEN, f"Calcul sur CPU : {_gpu(_first(devices, False))} détecté par Ollama, non retenu "
+                      "par l'atelier, qui n'emploie que les GPU NVIDIA (CUDA)."), None
+    if state == "gpu_mixed_libraries":
+        cuda, other = _gpu(_first(devices, True)), _gpu(_first(devices, False))
+        message = (f"Calcul sur CPU : Ollama a détecté ensemble {cuda} et {other} ; il choisirait lui-même la "
+                   "bibliothèque employée, l'atelier reste donc sur CPU.")
+        proposal = (f"Le GPU NVIDIA, {cuda}, serait utilisable seul, mais l'atelier ne réserve pas Ollama à CUDA faute "
+                    "d'un essai réel de cette configuration. Conservez ce diagnostic pour décider d'un essai sur ce "
+                    "poste, ou indiquez llm.accelerator: cpu dans le profil pour ne plus voir cette proposition.")
+        return rubric("calcul", GREEN, message), proposal
+    if state == "gpu_path_not_qualified":
+        message = (f"Calcul sur CPU : GPU NVIDIA détecté, {_gpu(device, variant)}, {UNQUALIFIED} sur ce type de "
+                   "poste.")
+        proposal = (f"GPU NVIDIA détecté, voie non qualifiée : pour l'essayer, indiquez llm.accelerator: gpu dans le "
+                    f"profil, redémarrez ({_restart()}) puis lancez {run('selftest')}.")
+        return rubric("calcul", GREEN, message), proposal
+    if state == "gpu_requested_unavailable":
+        message, action = _requested_unavailable(check)
+        return rubric("calcul", ORANGE, message, action), None
+    if state == "gpu_libraries_unverified":
+        group = ((check.get("libraries") or {}).get("variants") or {}).get(variant or "", {}).get("group")
+        provision = run(f"provision --only {group}" if group else "provision")
+        mismatch = ("ces bibliothèques ne correspondent pas" if variant
+                    else "ses bibliothèques, dans un dossier inconnu, ne correspondent pas")
+        return rubric("calcul", ORANGE, f"Calcul sur CPU : Ollama a trouvé un GPU, {_gpu(device, variant)}, mais "
+                      f"{mismatch} au manifeste vérifié.",
+                      on_this_host("Réinstallez l'atelier depuis le kit pour rétablir les fichiers vérifiés d'Ollama, "
+                                   f"puis redémarrez ({_restart()}).",
+                                   f"Relancez {provision} pour rétablir les fichiers vérifiés d'Ollama, puis "
+                                   f"{_down_up()}.")), None
+    if state == "gpu_rejected_by_ollama":
+        return rubric("calcul", ORANGE, f"Calcul sur CPU : les bibliothèques GPU d'Ollama pour ce Jetson "
+                      f"({_jetson(host)}) sont installées, mais Ollama n'a retenu aucun GPU.",
+                      f"Consultez {_discovery_log(check)} : il indique pourquoi le GPU a été écarté. Pour ne plus "
+                      "voir cet avertissement, indiquez llm.accelerator: cpu dans le profil."), None
+    trial = check.get("reason") == "gpu_trial"
+    if state == "gpu_pending":
+        upcoming = check.get("next_start") if check.get("running") else None
+        if upcoming:
+            # Instance démarrée avant le complément GPU : elle calcule sur CPU jusqu'à son redémarrage.
+            return rubric("calcul", GREEN, "Génération sur GPU au prochain démarrage de l'atelier "
+                          f"({_restart()}) : {_gpu(upcoming.get('device'), upcoming.get('variant'))} ; l'instance en "
+                          "marche calcule encore sur CPU."), None
+        return rubric("calcul", GREEN, f"Génération sur GPU attendue au prochain démarrage : {_gpu(device, variant)}"
+                      + (" ; essai sur un poste non qualifié (llm.accelerator: gpu)." if trial else ".")), None
+    if state == "gpu_trial":
+        return rubric("calcul", GREEN, f"Génération sur GPU, essai sur un poste non qualifié : {_gpu(device, variant)} ; "
+                      f"{_loaded(check)}."), None
+    if state == "gpu_ready":
+        return rubric("calcul", GREEN, f"Génération sur GPU : {_gpu(device, variant)} ; {_loaded(check)}."), None
+    if state == "gpu_in_use":
+        return rubric("calcul", GREEN, f"Génération sur GPU : {_gpu(device, variant)}, modèle chargé à 100 % sur le "
+                      "GPU."), None
+    if state == "gpu_partial":
+        shares = _shares((_usage(check) or {}).get("processor", ""))
+        if shares is None:
+            return rubric("calcul", GREEN, f"Génération sur GPU : {_gpu(device, variant)} ; {UNKNOWN_SHARE}."), None
+        return rubric("calcul", GREEN, f"Génération sur GPU et CPU : {_gpu(device, variant)}, modèle chargé à "
+                      f"{shares[1]} % sur le GPU et {shares[0]} % sur le CPU, selon la mémoire GPU libre au "
+                      "chargement."), None
+    if state == "gpu_mode_on_cpu":
+        # Revue B2 : un runner chargé sur CPU sert les requêtes sans num_gpu (needsReload) ; un déchargement suffit.
+        return rubric("calcul", ORANGE, f"GPU retenu, {_gpu(device, variant)}, mais le modèle est chargé entièrement "
+                      "sur le CPU.",
+                      f"Attendez la fin du maintien en mémoire du modèle (llm.keep_alive : {check.get('keep_alive')}) : "
+                      "la question suivante le rechargera sur le GPU, sans redémarrage. S'il revient sur le CPU, "
+                      f"libérez de la mémoire et consultez le journal d'Ollama ({logs})."), None
+    if state == "gpu_fallback":
+        fallback = check.get("fallback") or {}
+        return rubric("calcul", ORANGE, f"Le chargement du modèle sur le GPU a échoué ({_hour(fallback.get('utc'))}) : "
+                      "l'atelier répond sur CPU jusqu'au prochain redémarrage. Message d'Ollama (HTTP "
+                      f"{fallback.get('http_status')}) : « {fallback.get('error') or 'vide'} ».",
+                      f"Consultez le journal d'Ollama ({logs}), puis redémarrez ({_restart()}) pour réessayer le GPU ; "
+                      "pour ne plus l'essayer, indiquez llm.accelerator: cpu dans le profil."), None
+    if state == "anomaly_gpu_in_cpu_mode":
+        processor = next((item.get("processor") for item in check.get("usage") or [] if item.get("size_vram")), None)
+        split = f" ({processor})" if _shares(processor or "") or processor == "100% GPU" else ""
+        return rubric("calcul", ORANGE, f"Anomalie : le modèle est chargé sur le GPU{split} alors que l'atelier "
+                      "calcule sur CPU.",
+                      f"Redémarrez l'atelier ({_restart()}) ; si l'anomalie persiste, conservez le journal d'Ollama "
+                      f"({logs}). Aucune mesure de recette D07 n'est valable dans cet état."), None
+    libraries = check.get("libraries") or {}
+    missing = libraries.get("required") and not libraries.get("provisioned") and check.get("requested") != "cpu"
+    if state == "discovery_unreadable":
+        discovery = check.get("discovery") or {}
+        proposal = _complement_proposal(check, "Pour calculer les réponses sur le GPU de ce Jetson") if missing else None
+        if discovery.get("source") == "provision" and discovery.get("log"):
+            # Sonde ou service de pull-model de provision : son journal et son erreur, pas ceux de l'instance.
+            error = f" ; erreur consignée : {discovery['error']}." if discovery.get("error") else "."
+            message = ("Calcul sur CPU : la découverte des GPU n'a pas pu être lue dans le journal d'Ollama du "
+                       "provisionnement" + error)
+            action = (f"Consultez ce journal ({_program_path(str(discovery['log']))}) ; la découverte sera relevée au "
+                      f"prochain démarrage ({run('up')}), l'atelier fonctionne sur CPU d'ici là.")
+        else:
+            message = "Calcul sur CPU : la découverte des GPU par Ollama n'a pas pu être lue dans son journal."
+            action = f"Consultez le journal d'Ollama ({logs}) ; l'atelier fonctionne sur CPU."
+        if _gpu_hint(check):
+            return rubric("calcul", ORANGE, message, action), proposal
+        return rubric("calcul", GREEN, message), proposal
+    if state == "discovery_pending":
+        return rubric("calcul", GREEN, _discovery_pending(check)), None
+    return rubric("calcul", ORANGE, f"Mode de calcul non établi ({check.get('error') or state or 'état inconnu'}).",
+                  f"Relancez {run('doctor')} ; si l'état persiste, consultez le journal d'Ollama ({logs})."), None
+
+
 def doctor_verdict(result: dict[str, Any]) -> dict[str, Any]:
     checks = result.get("checks", {})
     rubrics = [program_rubric(checks), model_rubric(checks), profile_rubric(checks), ports_rubric(checks),
                services_rubric(result), index_rubric(checks), memory_rubric(checks)]
+    proposals: list[dict[str, str]] = []
+    # Rubrique « calcul » en dernière position ; absente d'un résultat de doctor antérieur à W024. Le résumé renvoie à la
+    # rubrique : elle porte aussi sa proposition.
+    if isinstance(checks.get("accelerator"), dict):
+        calcul, proposal = calcul_rubric(checks["accelerator"])
+        rubrics.append({**calcul, "proposal": proposal} if proposal else calcul)
+        # Seule une proposition qui mène au GPU par une action dans l'atelier est annoncée par le résumé.
+        if proposal and checks["accelerator"].get("state") not in INFORMATIVE_PROPOSALS:
+            proposals.append({"rubric": "calcul", "text": proposal})
     level = max((item["level"] for item in rubrics), key=SEVERITY.__getitem__)
     if level == GREEN:
         summary = f"Tout est prêt : services démarrés, {library_state(result)}, modèle vérifié."
     else:
         pending = [item["rubric"] for item in rubrics if item["level"] != GREEN]
         summary = ("Atelier inutilisable en l'état" if level == RED else "Atelier utilisable, avec réserve") + " : " + ", ".join(pending) + "."
-    return {"level": level, "summary": summary, "rubrics": rubrics,
+    # Une proposition ne change jamais le niveau ; elle est signalée dans le résumé vert ou orange.
+    if proposals and level != RED:
+        summary += " " + PROPOSAL_SUFFIX
+    return {"level": level, "summary": summary, "rubrics": rubrics, "proposals": proposals,
             "limit": "Verdict tiré des contrôles de doctor ; il ne prouve ni import, ni recherche, ni réponse réels."}

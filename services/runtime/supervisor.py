@@ -12,12 +12,14 @@ import sys
 import tempfile
 import time
 import uuid
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import psutil
 import yaml
 
+from .accelerator import host_signals, profile_accelerator, read_discovery, resolve_mode, verified_libraries
 from .artifacts import ROOT, file_hash, read_json_atomic, runtime_location, write_json_atomic
 from .platforms import entries_for_platform, executable_name, platform_id
 from .resources import host_sample, linux_memory_mib
@@ -40,8 +42,10 @@ def load_profile(path: Path) -> dict:
     config = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(config, dict) or config.get("schema_version") != 2:
         raise ValueError("Profil version2 requis")
-    if config["app"]["host"] != "127.0.0.1" or config["llm"]["num_gpu"] != 0:
-        raise ValueError("Le runtime exige loopback et CPU")
+    if config["app"]["host"] != "127.0.0.1":
+        raise ValueError("Le runtime exige loopback")
+    # W024, W025 : llm.accelerator (auto, cpu, gpu) ou forme antérieure llm.num_gpu: 0 ; mêmes messages que l'API.
+    profile_accelerator(config)
     # Invariants du runtime, lus plutôt que supposés : aucun accès réseau ni télémétrie hors `provision`.
     if config["app"].get("offline", True) is not True or config["app"].get("telemetry", False) is not False:
         raise ValueError("Le runtime exige app.offline: true et app.telemetry: false")
@@ -481,6 +485,38 @@ def send_owned_console_interrupt(child: OwnedProcess, service: str | None = None
     return result.returncode == 0
 
 
+def gpu_libraries(signals: dict[str, Any]) -> dict[str, Any]:
+    """Bibliothèques GPU d'Ollama de ce poste, comparées au manifeste local de leur extraction (`verified_libraries`).
+
+    Un verrou ou un manifeste illisible n'en vérifie aucune, erreur consignée : un GPU découvert laisse alors l'instance
+    sur CPU (`gpu_libraries_unverified`).
+    """
+    try:
+        lock = json.loads((ROOT / "config/artifacts.lock.json").read_text(encoding="utf-8"))
+        manifest_path = ROOT / ".runtime/manifests/artifacts.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.is_file() else {}
+        return verified_libraries(lock, manifest, signals, root=ROOT)
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        return {"entry": None, "required": False, "provisioned": False, "variants": {},
+                "error": f"{type(exc).__name__} : {exc}"[:300]}
+
+
+def instance_accelerator(profile: dict, log_path: Path) -> dict[str, Any]:
+    """Mode de génération de l'instance (W024, W025), décidé une fois, quand Ollama répond sur /api/version.
+
+    Ollama journalise sa découverte avant de servir HTTP : le journal de l'instance la contient déjà. Le mode vaut
+    jusqu'au redémarrage : une requête sans `num_gpu` réutiliserait un runner déjà chargé sur CPU (`needsReload`,
+    server/sched.go).
+    """
+    requested = profile_accelerator(profile)
+    signals = host_signals()
+    libraries = gpu_libraries(signals)
+    discovery = read_discovery(log_path)
+    decision = resolve_mode(requested, discovery, libraries, signals.get("platform"))
+    return {**requested, **decision, "discovery": discovery, "libraries": libraries, "host": signals,
+            "utc": datetime.now(UTC).isoformat()}
+
+
 def supervise(profile_path: Path) -> int:
     from urllib.parse import urlsplit
 
@@ -561,10 +597,13 @@ def supervise(profile_path: Path) -> int:
         state["services"]["ollama"] = ollama.identity()
         write_json_atomic(state_path, state)
         wait_http(profile["llm"]["base_url"] + "/api/version", ollama, "0.35.0")
-        env["RAG_SHUTDOWN_MARKER"] = str(api_stop)
-        env["RAG_CONTROL_TOKEN"] = secret_path.read_text(encoding="ascii")
-        env["RAG_QDRANT_API_KEY"] = qdrant_key
-        api = job.launch([sys.executable, "-m", "services.runtime.api_entry"], cwd=ROOT, env=env,
+        state["accelerator"] = instance_accelerator(profile, log_root / "ollama.log")
+        write_json_atomic(state_path, state)
+        # Variables réservées à l'API : Qdrant et Ollama ont déjà reçu leur propre copie de l'environnement.
+        api_env = {**env, "RAG_SHUTDOWN_MARKER": str(api_stop), "RAG_CONTROL_TOKEN": secret_path.read_text(encoding="ascii"),
+                   "RAG_QDRANT_API_KEY": qdrant_key, "RAG_LLM_ACCELERATOR": state["accelerator"]["mode"],
+                   "RAG_LLM_ACCELERATOR_REASON": state["accelerator"]["reason"]}
+        api = job.launch([sys.executable, "-m", "services.runtime.api_entry"], cwd=ROOT, env=api_env,
                          log_path=log_root / "api.log")
         state["services"]["api"] = api.identity()
         write_json_atomic(state_path, state)

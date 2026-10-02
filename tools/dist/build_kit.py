@@ -28,11 +28,25 @@ INCLUDED = ("services", "config", "apps/web/out", "apps/web/package.json", "apps
             ".runtime/bin", ".runtime/models", ".runtime/python", ".runtime/bootstrap", ".runtime/cache/uv", ".runtime/manifests",
             ".runtime/model-metadata")
 # Motifs exclus partout (fnmatch sur le chemin relatif en POSIX) ; la comparaison Granite n'appartient pas au produit.
-EXCLUDED = ("*/__pycache__/*", "*.pyc", ".runtime/models/granite-*", ".runtime/models/granite-*/*", "*/.git/*", "*/node_modules/*")
+# La découverte des GPU consignée par `provision` décrit le matériel du poste de fabrication : chaque poste relève la
+# sienne au démarrage de son instance (W025).
+EXCLUDED = ("*/__pycache__/*", "*.pyc", ".runtime/models/granite-*", ".runtime/models/granite-*/*", "*/.git/*", "*/node_modules/*",
+            ".runtime/manifests/ollama-discovery.json")
 # Ne doivent jamais apparaître dans le kit, quelle que soit la liste blanche.
 FORBIDDEN_PREFIXES = ("PDF/", ".runtime/data/", ".runtime/qa/", ".runtime/evals/", ".runtime/q/", "backups/", "tests/", "RAG_Local_Agents/",
                       ".git/", "evals/", "fixtures/")
-GPU_DIRECTORIES = ("cuda_v12", "cuda_v13", "vulkan")  # P3 : sous lib/ollama, inutiles avec num_gpu 0 si H1 est vérifiée.
+# Données d'exécution refusées aussi plus bas dans l'arborescence : un dossier de données relatif, résolu depuis le
+# répertoire courant d'Ollama (bin/), a laissé `.runtime/qa/…` et des clés `id_ed25519` sous `.runtime/bin` (revue J11, B5).
+NESTED_FORBIDDEN = tuple("/" + prefix for prefix in FORBIDDEN_PREFIXES if prefix.startswith(".runtime/"))
+# Bibliothèques GPU du zip Windows d'Ollama, sous lib/ollama. W024 et W025 : cuda_v12 et cuda_v13 servent à la découverte
+# d'un GPU NVIDIA, proposé par doctor et essayé avec llm.accelerator: gpu (voie Windows non qualifiée) ; Vulkan est
+# découvert mais jamais retenu. Les retirer (--without-gpu) laisse le poste en CPU : sans proposition GPU sur un poste
+# sans pilote NVIDIA ; sur un poste NVIDIA, doctor indique que l'installation ne contient pas les bibliothèques CUDA
+# (manifeste de l'archive de base, fichiers absents), au lieu d'incriminer le pilote.
+GPU_DIRECTORIES = ("cuda_v12", "cuda_v13", "vulkan")
+WITHOUT_GPU_HELP = ("retirer cuda_v12, cuda_v13 et vulkan d'Ollama, pour des postes sans GPU NVIDIA : calcul sur CPU, "
+                    "sans proposition GPU ; sur un poste NVIDIA, doctor signale que l'installation ne contient pas les "
+                    "bibliothèques CUDA")
 TEXT_SUFFIXES = {".json", ".yaml", ".yml", ".md", ".py", ".ps1", ".txt", ".toml", ".lock", ".cfg"}
 TEXT_SCAN_LIMIT = 32 * 1024 * 1024
 # Le kit hors ligne est celui du poste Windows (W001, DIST-04) : binaires, CPython et roues Windows x86-64.
@@ -94,7 +108,7 @@ def selected_files(root: Path, *, without_gpu: bool = False) -> list[str]:
             relative = item.relative_to(root).as_posix()
             if not excluded(relative, without_gpu=without_gpu):
                 files.add(relative)
-    leaked = sorted(name for name in files if name.startswith(FORBIDDEN_PREFIXES))
+    leaked = sorted(name for name in files if name.startswith(FORBIDDEN_PREFIXES) or any(part in name for part in NESTED_FORBIDDEN))
     if leaked:
         raise ValueError(f"Entrée interdite dans le kit : {leaked[:5]}")
     return sorted(files)
@@ -159,6 +173,7 @@ def build_kit(output: Path, *, root: Path = ROOT, version: str, without_gpu: boo
                 "files": len(files), "bytes": sum(sizes.values()), "bytes_by_group": dict(sorted(sizes.items())),
                 "options": {"gpu_libraries_removed": without_gpu, "qwen_source_model": "included"},
                 "excluded_patterns": list(EXCLUDED), "forbidden_prefixes": list(FORBIDDEN_PREFIXES),
+                "forbidden_nested": list(NESTED_FORBIDDEN),
                 "sha256sums_sha256": hashlib.sha256((output / "SHA256SUMS").read_bytes()).hexdigest()}
     (output / "kit-manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
     return manifest
@@ -213,7 +228,7 @@ def main() -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     build = sub.add_parser("build")
     build.add_argument("--output", type=Path, required=True)
-    build.add_argument("--without-gpu", action="store_true", help="P3 : retirer cuda_v12, cuda_v13 et vulkan d'Ollama (après vérification de H1)")
+    build.add_argument("--without-gpu", action="store_true", help=WITHOUT_GPU_HELP)
     check = sub.add_parser("verify")
     check.add_argument("--kit", type=Path, required=True)
     copy = sub.add_parser("install-copy", help="Copie vérifiée du kit vers le dossier programme, en un seul passage")

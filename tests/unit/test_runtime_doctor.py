@@ -3,6 +3,7 @@ import json
 import socket
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
 import psutil
 import pytest
@@ -10,6 +11,7 @@ import yaml
 
 from services.runtime import cli
 from services.runtime.artifacts import ROOT, file_hash, write_json_atomic
+from tests.unit.test_runtime_accelerator import jetson_libraries  # noqa: F401  (fixture réutilisée)
 
 
 def _blob(store, data: bytes, media: str) -> dict:
@@ -322,3 +324,325 @@ def test_pull_model_without_derivation_still_fails_when_its_own_model_differs_fr
     assert str(failure.value) == (f"Stockage Ollama différent du verrou {lock} après pull-model : qwen3.5:4b (absent). "
                                   "Contrôle limité aux modèles du profil, avec les critères de doctor ; les fichiers du "
                                   "stockage sont conservés pour diagnostic.")
+
+
+# --- Contrôle « calcul » (D01.4, W024, W025) ---------------------------------------------------------------------------
+
+def _lock_with_sizes() -> dict:
+    """Verrou de test (test_runtime_accelerator.LOCK) avec les tailles réelles du complément jetpack5."""
+    import copy
+
+    from tests.unit.test_runtime_accelerator import LOCK
+
+    lock = copy.deepcopy(LOCK)
+    lock["groups"]["ollama-gpu"][0].update(size=297201571, extracted_size=864658584)
+    return lock
+
+
+@pytest.fixture
+def program(jetson_libraries, monkeypatch):  # noqa: F811
+    """Racine de programme temporaire (verrou, manifeste, découverte de provision) et Jetson R35 simulé."""
+    from tests.unit.test_runtime_accelerator import JETSON
+
+    root, manifest = jetson_libraries
+    (root / "config").mkdir(exist_ok=True)
+    (root / "config/artifacts.lock.json").write_text(json.dumps(_lock_with_sizes()), encoding="utf-8")
+    write_json_atomic(root / ".runtime/manifests/artifacts.json", manifest)
+    monkeypatch.setattr(cli, "ROOT", root)
+    monkeypatch.setattr(cli, "host_signals", lambda: dict(JETSON, nvidia_kernel_driver="NVRM", gpu_nodes={},
+                                                          windows_nvcuda=None))
+    return root, manifest
+
+
+PROFILE = {"llm": {"model": "qwen3.5:4b-text", "accelerator": "auto", "keep_alive": "10m"}}
+
+
+def _recorded(log: str, utc: str, mode: str, reason: str) -> dict:
+    from services.runtime.accelerator import device_variant, parse_discovery
+
+    discovery = parse_discovery(log)
+    device = (discovery["devices"] or [None])[0]
+    return {"requested": "auto", "requested_source": "profile", "mode": mode, "reason": reason, "device": device,
+            "variant": device_variant(device), "qualified": mode == "gpu", "discovery": discovery, "utc": utc}
+
+
+def _provision_record(root, log: str, utc: str) -> None:
+    from services.runtime.accelerator import DISCOVERY_MANIFEST, discovery_record, parse_discovery
+
+    write_json_atomic(root / DISCOVERY_MANIFEST, discovery_record(
+        parse_discovery(log), source="provision", method="probe", log=".runtime/provision-service/ollama-probe.log",
+        version="0.35.0", signals={"platform": "linux-aarch64", "l4t_major": 35, "jetpack": "jetpack5"}, utc=utc))
+
+
+def test_a_running_instance_keeps_its_own_discovery_and_reports_usage_and_fallback(program):
+    from tests.unit.test_runtime_accelerator import JETSON_BASE_ONLY, JETSON_JETPACK5
+
+    root, _ = program
+    # Sonde de provisionnement plus récente que l'instance : l'instance garde la découverte qui a fixé son mode.
+    _provision_record(root, JETSON_BASE_ONLY, "2026-10-01T23:00:00+00:00")
+    runtime = {"status": "running", "instance_id": "instance-gpu",
+               "accelerator": _recorded(JETSON_JETPACK5, "2026-10-01T21:49:30+00:00", "gpu", "gpu_discovered")}
+    models = [{"name": "qwen3.5:4b-text", "digest": "d", "size": 3107811491, "size_vram": 3107811491}]
+    check = cli.accelerator_check(PROFILE, runtime, models, {"llm_accelerator": {"fallback": None}})
+    assert check["state"] == "gpu_in_use" and check["running"] is True
+    assert (check["discovery"]["source"], check["discovery"]["instance_id"]) == ("runtime", "instance-gpu")
+    assert check["usage"] == [{"model": "qwen3.5:4b-text", "size": 3107811491, "size_vram": 3107811491,
+                               "processor": "100% GPU"}]
+    fallback = {"utc": "2026-10-01T22:14:05+00:00", "http_status": 500, "error": "CUDA error"}
+    assert cli.accelerator_check(PROFILE, runtime, models, {"llm_accelerator": {"fallback": fallback}})["state"] == "gpu_fallback"
+    assert cli.accelerator_check(PROFILE, runtime, [], None)["state"] == "gpu_ready"
+    assert cli.accelerator_check(PROFILE, runtime, None, None)["usage"] is None
+
+
+def test_without_a_running_instance_the_most_recent_discovery_sets_the_next_start(program):
+    from tests.unit.test_runtime_accelerator import JETSON_BASE_ONLY, JETSON_JETPACK5
+
+    root, _ = program
+    stopped = {"status": "stopped", "instance_id": "ancienne",
+               "accelerator": _recorded(JETSON_BASE_ONLY, "2026-10-01T18:54:12+00:00", "cpu", "no_gpu_discovered")}
+    _provision_record(root, JETSON_JETPACK5, "2026-10-01T22:00:00+00:00")
+    check = cli.accelerator_check(PROFILE, stopped, None, None)
+    assert (check["discovery"]["source"], check["state"], check["mode"]) == ("provision", "gpu_pending", "gpu")
+    # Instance arrêtée plus récente que la sonde : sa découverte (aucun GPU, complément installé) fait foi.
+    stopped["accelerator"]["utc"] = "2026-10-01T23:30:00+00:00"
+    check = cli.accelerator_check(PROFILE, stopped, None, None)
+    assert (check["discovery"]["source"], check["state"]) == ("runtime", "gpu_rejected_by_ollama")
+
+
+def test_a_jetson_without_complement_gets_the_proposal_with_the_sizes_of_the_lock(program):
+    root, manifest = program
+    write_json_atomic(root / ".runtime/manifests/artifacts.json", {"ollama": manifest["ollama"]})
+    check = cli.accelerator_check(PROFILE, {"status": "stopped"}, None, None)
+    assert check["state"] == "gpu_libraries_missing" and check["discovery"] is None
+    assert check["complement"] == {"file": "ollama-linux-arm64-jetpack5.tar.zst", "size": 297201571,
+                                   "extracted_size": 864658584, "variant": "cuda_jetpack5", "qualified": True}
+    assert (check["libraries"]["required"], check["libraries"]["provisioned"]) == (True, False)
+
+
+def test_a_legacy_profile_carries_what_auto_would_do(program):
+    from tests.unit.test_runtime_accelerator import JETSON_JETPACK5
+
+    root, _ = program
+    _provision_record(root, JETSON_JETPACK5, "2026-10-01T22:00:00+00:00")
+    legacy = {"llm": {"model": "qwen3.5:4b-text", "num_gpu": 0}}
+    check = cli.accelerator_check(legacy, {"status": "stopped"}, None, None)
+    assert (check["state"], check["mode"], check["reason"]) == ("cpu_legacy", "cpu", "legacy_profile_cpu")
+    assert (check["if_auto"]["mode"], check["if_auto"]["reason"]) == ("gpu", "gpu_discovered")
+
+
+def test_doctor_adds_the_calcul_check_from_the_instance_and_the_api_diagnostics(doctor_profile, program):
+    from tests.unit.test_runtime_accelerator import JETSON_JETPACK5
+
+    path, profile, _ = doctor_profile
+    me = psutil.Process()
+    data = Path(profile["app"]["data_dir"])
+    write_json_atomic(data / "control/runtime.json", {
+        "status": "running", "instance_id": "instance-gpu", "services": {}, "profile_sha256": file_hash(path),
+        "data_dir": str(data), "supervisor": {"pid": me.pid, "created_at": me.create_time(), "executable": me.exe()},
+        "accelerator": _recorded(JETSON_JETPACK5, "2026-10-01T21:49:30+00:00", "gpu", "gpu_discovered")})
+    fallback = {"utc": "2026-10-01T22:14:05+00:00", "http_status": 500, "error": "CUDA error"}
+
+    class Api(BaseHTTPRequestHandler):
+        def do_GET(self):
+            body = {"/api/v1/health": {"status": "ok"},
+                    "/api/v1/diagnostics": {"index_consistency": {"status": "consistent", "active_generations": 0},
+                                            "llm_accelerator": {"requested": "auto", "requested_source": "profile",
+                                                                "mode": "cpu", "reason": "gpu_discovered",
+                                                                "fallback": fallback}}}.get(self.path)
+            payload = json.dumps(body or {"code": "not_found"}).encode()
+            self.send_response(200 if body else 404)
+            self.send_header("content-type", "application/json")
+            self.send_header("content-length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+
+        def log_message(self, *args):
+            pass
+
+    server = ThreadingHTTPServer(("127.0.0.1", profile["app"]["port"]), Api)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        result = cli.doctor(path)
+    finally:
+        server.shutdown()
+        server.server_close()
+    check = result["checks"]["accelerator"]
+    assert (check["state"], check["fallback"], check["usage"]) == ("gpu_fallback", fallback, None)
+    calcul = result["verdict"]["rubrics"][-1]
+    assert calcul["rubric"] == "calcul" and calcul["level"] == "orange"
+
+
+def test_status_adds_one_line_on_the_generation_mode(tmp_path, monkeypatch):
+    from tests.unit.test_runtime_accelerator import JETSON_JETPACK5, WINDOWS_IRIS_XE
+
+    monkeypatch.setattr(cli, "launcher_command", lambda command: f"./rag.sh {command}")
+    states = {"running": {"status": "running", "accelerator": _recorded(JETSON_JETPACK5, "u", "gpu", "gpu_discovered")},
+              "stopped": {"status": "stopped", "accelerator": _recorded(WINDOWS_IRIS_XE, "u", "cpu", "no_gpu_discovered")},
+              "before": {"status": "running"}}
+    lines = {}
+    for name, state in states.items():
+        monkeypatch.setattr(cli, "status", lambda path, state=state: dict(state))
+        lines[name] = cli.status_report(tmp_path / "profil.yaml").get("generation")
+    assert lines == {"running": "Génération sur GPU, Orin (CUDA, GPU intégré, bibliothèques cuda_jetpack5). Un repli sur "
+                                "CPU après un échec du GPU est signalé par ./rag.sh doctor.",
+                     "stopped": "Dernière instance : génération sur CPU, aucun GPU utilisable découvert par Ollama.",
+                     "before": None}
+
+
+def test_a_complement_provisioned_while_the_instance_runs_takes_effect_at_the_next_start(program, monkeypatch):
+    from services.runtime import platforms
+    from services.runtime.verdict import calcul_rubric
+    from tests.unit.test_runtime_accelerator import JETSON_BASE_ONLY, JETSON_JETPACK5
+
+    monkeypatch.setattr(platforms, "WINDOWS", False)
+    monkeypatch.setattr(platforms, "LAUNCHER", "./rag.sh")
+    root, _ = program
+    instance = _recorded(JETSON_BASE_ONLY, "2026-10-01T18:54:12+00:00", "cpu", "no_gpu_discovered")
+    instance["libraries"] = {"entry": "ollama-linux-arm64-jetpack5.tar.zst", "required": True, "provisioned": False,
+                             "variants": {}}
+    runtime = {"status": "running", "instance_id": "instance-cpu", "accelerator": instance}
+    # Avant la sonde : complément extrait depuis le démarrage de l'instance, aucune découverte faite avec lui ; le
+    # redémarrage la fera (revue J11 runtime-3), il n'y a plus de complément à provisionner.
+    check = cli.accelerator_check(PROFILE, runtime, [], None)
+    assert (check["state"], check["discovery_stale"], check["next_start"]) == ("discovery_pending", True, None)
+    assert calcul_rubric(check)[0]["message"] == (
+        "Calcul sur CPU : les bibliothèques GPU d'Ollama ont changé depuis le démarrage de l'instance en marche. Le mode "
+        "de calcul, GPU ou CPU, sera choisi à son redémarrage (./rag.sh down puis ./rag.sh up).")
+    # provision --only ollama-gpu, sonde comprise, pendant que l'instance tourne.
+    _provision_record(root, JETSON_JETPACK5, "2026-10-01T22:00:00+00:00")
+    check = cli.accelerator_check(PROFILE, runtime, [], None)
+    assert (check["state"], check["mode"], check["next_start"]["mode"]) == ("gpu_pending", "cpu", "gpu")
+    assert check["discovery"]["source"] == "runtime"
+    assert calcul_rubric(check)[0] == {"rubric": "calcul", "level": "vert", "message": (
+        "Génération sur GPU au prochain démarrage de l'atelier (./rag.sh down puis ./rag.sh up) : Orin (CUDA, GPU "
+        "intégré, bibliothèques cuda_jetpack5) ; l'instance en marche calcule encore sur CPU.")}
+
+
+# --- Découverte périmée, illisible ou absente (revue J11 runtime-3, invariants-03, invariants-09) ------------------------
+
+def _without_complement() -> dict:
+    return {"entry": "ollama-linux-arm64-jetpack5.tar.zst", "required": True, "provisioned": False, "variants": {}}
+
+
+def test_a_discovery_made_before_the_complement_was_extracted_waits_for_the_next_start(program, monkeypatch):
+    # Instance arrêtée sans complément (découverte cpu_only), puis complément extrait sans nouvelle découverte
+    # (provision --offline, modèle présent ; ou pull-model en échec après les artefacts).
+    from services.runtime import platforms
+    from services.runtime.verdict import calcul_rubric
+    from tests.unit.test_runtime_accelerator import JETSON_BASE_ONLY
+
+    monkeypatch.setattr(platforms, "WINDOWS", False)
+    monkeypatch.setattr(platforms, "LAUNCHER", "./rag.sh")
+    stopped = {"status": "stopped", "instance_id": "avant-complement",
+               "accelerator": {**_recorded(JETSON_BASE_ONLY, "2026-10-01T18:54:12+00:00", "cpu", "no_gpu_discovered"),
+                               "libraries": _without_complement()}}
+    check = cli.accelerator_check(PROFILE, stopped, None, None)
+    assert (check["state"], check["discovery"], check["discovery_stale"]) == ("discovery_pending", None, True)
+    assert calcul_rubric(check) == ({"rubric": "calcul", "level": "vert", "message": (
+        "Les bibliothèques GPU d'Ollama ont changé depuis la dernière découverte des GPU : elle sera refaite au "
+        "prochain démarrage, qui choisira le mode de calcul, GPU ou CPU (./rag.sh up).")}, None)
+    # Même découverte, bibliothèques inchangées depuis : elle fait foi (rejet par Ollama).
+    root, manifest = program
+    stopped["accelerator"]["libraries"] = verified(root, manifest)
+    assert cli.accelerator_check(PROFILE, stopped, None, None)["state"] == "gpu_rejected_by_ollama"
+
+
+def verified(root, manifest) -> dict:
+    from services.runtime.accelerator import verified_libraries
+    from tests.unit.test_runtime_accelerator import JETSON
+
+    return verified_libraries(_lock_with_sizes(), manifest, JETSON, root=root)
+
+
+def test_a_provision_discovery_made_with_other_libraries_is_stale_too(program):
+    from tests.unit.test_runtime_accelerator import JETSON_BASE_ONLY
+
+    root, _ = program
+    _provision_record(root, JETSON_BASE_ONLY, "2026-10-01T22:00:00+00:00")
+    record = json.loads((root / ".runtime/manifests/ollama-discovery.json").read_text(encoding="utf-8"))
+    write_json_atomic(root / ".runtime/manifests/ollama-discovery.json", {**record, "libraries": _without_complement()})
+    check = cli.accelerator_check(PROFILE, {"status": "stopped"}, None, None)
+    assert (check["state"], check["discovery_stale"]) == ("discovery_pending", True)
+
+
+def test_a_failed_probe_does_not_hide_the_readable_discovery_of_the_last_instance(program):
+    from tests.unit.test_runtime_accelerator import JETSON_JETPACK5
+
+    root, manifest = program
+    stopped = {"status": "stopped", "instance_id": "derniere",
+               "accelerator": {**_recorded(JETSON_JETPACK5, "2026-10-01T21:49:30+00:00", "gpu", "gpu_discovered"),
+                               "libraries": verified(root, manifest)}}
+    write_json_atomic(root / ".runtime/manifests/ollama-discovery.json", {
+        "schema_version": 1, "source": "provision", "method": "probe", "utc": "2026-10-02T09:00:00+00:00",
+        "log": ".runtime/provision-service/ollama-probe.log", "status": "unreadable", "devices": [], "dropped": [],
+        "error": "OSError : [Errno 98] Address already in use"})
+    check = cli.accelerator_check(PROFILE, stopped, None, None)
+    assert (check["state"], check["discovery"]["source"], check["discovery"]["status"]) == ("gpu_pending", "runtime", "gpu")
+    assert check["discovery"]["superseded"] == {"source": "provision", "utc": "2026-10-02T09:00:00+00:00",
+                                                "log": ".runtime/provision-service/ollama-probe.log",
+                                                "error": "OSError : [Errno 98] Address already in use"}
+    # Sans découverte lisible encore valable, l'échec de la sonde fait foi : son journal est cité par la rubrique.
+    stopped["accelerator"]["libraries"] = _without_complement()
+    check = cli.accelerator_check(PROFILE, stopped, None, None)
+    assert (check["state"], check["discovery"]["source"]) == ("discovery_unreadable", "provision")
+
+
+def test_an_instance_started_before_the_gpu_acceleration_is_restarted_and_still_watched(program, monkeypatch):
+    # Instance en marche démarrée avant J11 (runtime.json sans clé accelerator) : son API envoie num_gpu: 0. Profil
+    # devenu auto depuis : le mode se décide au redémarrage (down puis up) et l'anomalie de résidence reste détectée.
+    from services.runtime import platforms
+    from services.runtime.verdict import calcul_rubric
+
+    monkeypatch.setattr(platforms, "WINDOWS", False)
+    monkeypatch.setattr(platforms, "LAUNCHER", "./rag.sh")
+    before = {"status": "running", "instance_id": "avant-j11", "services": {}}
+    check = cli.accelerator_check(PROFILE, before, [], None)
+    assert (check["state"], check["running"], check["mode"]) == ("discovery_pending", True, "cpu")
+    assert check["instance_predates_accelerator"] is True
+    assert calcul_rubric(check)[0]["message"] == (
+        "Calcul sur CPU : l'instance en marche a démarré avant l'accélération GPU. Le mode de calcul, GPU ou CPU, sera "
+        "choisi à son redémarrage (./rag.sh down puis ./rag.sh up).")
+    resident = [{"name": "qwen3.5:4b-text", "digest": "d", "size": 3107811491, "size_vram": 3107811491}]
+    assert cli.accelerator_check(PROFILE, before, resident, None)["state"] == "anomaly_gpu_in_cpu_mode"
+    # Profil resté en forme antérieure : l'instance et le profil calculent sur CPU.
+    legacy = {"llm": {"model": "qwen3.5:4b-text", "num_gpu": 0}}
+    assert cli.accelerator_check(legacy, before, [], None)["state"] == "cpu_legacy"
+    # Démarrage en cours (le superviseur n'a pas encore consigné le mode) : rien n'est supposé de l'instance.
+    starting = cli.accelerator_check(PROFILE, {"status": "starting", "services": {}}, None, None)
+    assert starting["running"] is False and "instance_predates_accelerator" not in starting
+
+
+def test_a_jetson_r36_complement_is_not_a_qualified_path(program, monkeypatch):
+    from tests.unit.test_runtime_accelerator import LOCK
+
+    root, manifest = program
+    monkeypatch.setattr(cli, "host_signals", lambda: {"platform": "linux-aarch64", "l4t_major": 36, "jetpack": "jetpack6",
+                                                      "nvidia_kernel_driver": "NVRM", "gpu_nodes": {},
+                                                      "windows_nvcuda": None})
+    (root / "config/artifacts.lock.json").write_text(json.dumps(LOCK), encoding="utf-8")
+    check = cli.accelerator_check(PROFILE, {"status": "stopped"}, None, None)
+    assert check["complement"] == {"file": "ollama-linux-arm64-jetpack6.tar.zst", "size": None, "extracted_size": None,
+                                   "variant": "cuda_jetpack6", "qualified": False}
+    assert check["state"] == "gpu_libraries_missing"
+
+
+def test_a_windows_kit_without_gpu_libraries_is_named_on_an_nvidia_host(tmp_path, monkeypatch):
+    # Kit construit avec --without-gpu : le manifeste consigne cuda_v12, cuda_v13 et vulkan, absents du disque.
+    from services.runtime import accelerator
+    from tests.unit.test_runtime_accelerator import LOCK, WINDOWS_IRIS_XE
+
+    (tmp_path / "config").mkdir()
+    (tmp_path / "config/artifacts.lock.json").write_text(json.dumps(LOCK), encoding="utf-8")
+    write_json_atomic(tmp_path / ".runtime/manifests/artifacts.json", {"ollama": [{
+        "url": "https://ici/base.zip", "extracted_files": [
+            {"path": f".runtime/bin/ollama-0.35.0/lib/ollama/{name}/ggml.dll", "sha256": "0" * 64, "size": 1}
+            for name in ("cuda_v12", "cuda_v13", "vulkan")]}]})
+    monkeypatch.setattr(cli, "ROOT", tmp_path)
+    monkeypatch.setattr(accelerator, "platform_id", lambda: "windows-x86_64")
+    monkeypatch.setattr(cli, "host_signals", lambda: {"platform": "windows-x86_64", "l4t_major": None, "jetpack": None,
+                                                      "nvidia_kernel_driver": None, "gpu_nodes": {},
+                                                      "windows_nvcuda": True})
+    stopped = {"status": "stopped", "accelerator": {**_recorded(WINDOWS_IRIS_XE, "2026-10-01T09:00:00+00:00", "cpu",
+                                                                 "no_gpu_discovered")}}
+    assert cli.accelerator_check(PROFILE, stopped, None, None)["state"] == "cuda_libraries_absent"

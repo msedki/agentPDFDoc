@@ -10,8 +10,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
 
+from .accelerator import entries_for_host, host_signals
 from .artifacts import ROOT, file_hash, write_json_atomic
-from .platforms import WINDOWS, entries_for_platform, executable_name, platform_id
+from .platforms import WINDOWS, executable_name, platform_id
 
 
 def notice(path: Path) -> dict:
@@ -70,9 +71,12 @@ def license_inventory(output: Path) -> dict:
                               "metadata_sha256": file_hash(path), "notices": notices})
     lock = json.loads((ROOT / "config/artifacts.lock.json").read_text(encoding="utf-8"))
     result["platform"] = platform_id()
+    # Indices du poste (plateforme, version de Jetson Linux) : même règle que provision_artifacts.
+    signals = host_signals()
     for group, artifacts in lock["groups"].items():
-        # Artefacts de ce poste seulement : ceux de l'autre plateforme ne sont ni provisionnés ni livrés ici.
-        for artifact in entries_for_platform(artifacts):
+        # Artefacts de ce poste seulement, selon la règle de provision (plateforme, puis champ host) : ceux d'une autre
+        # plateforme ou d'un autre Jetson ne sont ni provisionnés ni livrés ici.
+        for artifact in entries_for_host(artifacts, signals):
             path = ROOT / artifact["target"]
             result["artifacts"].append({"group": group, "publisher": artifact.get("publisher"),
                 "version": artifact.get("version"), "revision": artifact.get("revision"),

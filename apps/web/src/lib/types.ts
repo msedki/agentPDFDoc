@@ -62,7 +62,17 @@ export interface QueryCreated { query_id: string; events_url: string; conversati
 /** `reindex_response` du contrat : `resume_required`, avec `job_state` `paused`, signale le traitement en pause de cette version, à reprendre. */
 export interface ReindexResponse { job_id: string; version_id?: string; reused: boolean; job_state?: string; resume_required?: boolean }
 export interface Job { id: string; document_id?: string; version_id?: string; generation_id?: string; state?: string; status?: string; stage?: string; progress?: number; coverage?: { total: number; processed: number; ocr?: number }; published?: boolean; published_at?: string | null; active?: boolean; warnings?: ApiWarning[]; error?: string; error_message?: string; message?: string }
-export interface JobsResponse { jobs: Job[]; total?: number; runtime_mode?: "interactive" | "ingestion" | null }
+/** `jobs_response.generation.device` du contrat (W025) : matériel retenu pour la génération des réponses. */
+export const GENERATION_DEVICES = ["gpu", "cpu"] as const;
+export type GenerationDevice = typeof GENERATION_DEVICES[number];
+/**
+ * `fallback` : un échec du chargement sur le GPU a fait passer l'instance sur le processeur jusqu'à son redémarrage.
+ * `processor` : dernière occupation du modèle relue par l'API, colonne PROCESSOR d'`ollama ps` (`100% GPU`,
+ * `100% CPU`, `25%/75% CPU/GPU` ou `Unknown`), null tant que le modèle n'a pas été vu chargé.
+ */
+export interface Generation { device: GenerationDevice; fallback: boolean; processor: string | null }
+/** `generation` est null quand l'API tourne avec un double de la passerelle Ollama, absent d'une API antérieure à W025. */
+export interface JobsResponse { jobs: Job[]; total?: number; runtime_mode?: "interactive" | "ingestion" | null; generation?: Generation | null }
 export interface Readiness { ready?: boolean; status?: string; blockers?: string[]; [key: string]: unknown }
 export type StreamEvent = { id: string; type: string; data: Record<string, unknown> };
 export type QueryState = {

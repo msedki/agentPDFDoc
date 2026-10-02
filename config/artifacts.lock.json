@@ -76,6 +76,43 @@
         "consulted_at_utc": "2026-10-01"
       }
     ],
+    "ollama-gpu": [
+      {
+        "version": "0.35.0",
+        "platform": "linux-aarch64",
+        "host": {
+          "l4t_major": 35
+        },
+        "variant": "cuda_jetpack5",
+        "publisher": "ollama/ollama",
+        "license": "MIT",
+        "url": "https://github.com/ollama/ollama/releases/download/v0.35.0/ollama-linux-arm64-jetpack5.tar.zst",
+        "size": 297201571,
+        "sha256": "f7f1a7e890f2a493014f01cf8de948b5aa4641f34c05d2cb61983649b9c20f5b",
+        "extracted_size": 864658584,
+        "target": ".runtime/cache/downloads/ollama-0.35.0-linux-arm64-jetpack5.tar.zst",
+        "extract_to": ".runtime/bin/ollama-0.35.0",
+        "consulted_at_utc": "2026-10-01",
+        "note": "Complément officiel extrait par-dessus l'archive de base, dans le même dossier (scripts/install.sh v0.35.0, l. 178-187) : 4 fichiers et 3 liens internes sous lib/ollama/cuda_jetpack5 ; CUDA 11.4, sm_72 et sm_87 ; essai réel du 01/10/2026 sur Jetson AGX Orin (L4T R35.4.1)."
+      },
+      {
+        "version": "0.35.0",
+        "platform": "linux-aarch64",
+        "host": {
+          "l4t_major": 36
+        },
+        "variant": "cuda_jetpack6",
+        "publisher": "ollama/ollama",
+        "license": "MIT",
+        "url": "https://github.com/ollama/ollama/releases/download/v0.35.0/ollama-linux-arm64-jetpack6.tar.zst",
+        "size": 269692742,
+        "sha256": "609be1fb0f0d28ea3b10df7194508562da431200568157eef36de5745edd2753",
+        "target": ".runtime/cache/downloads/ollama-0.35.0-linux-arm64-jetpack6.tar.zst",
+        "extract_to": ".runtime/bin/ollama-0.35.0",
+        "consulted_at_utc": "2026-10-01",
+        "note": "Taille et empreinte lues dans l'API des releases et dans sha256sum.txt de la release ; ni téléchargé ni essayé, taille extraite inconnue."
+      }
+    ],
     "e5": [
       {
         "model_id": "intfloat/multilingual-e5-small",

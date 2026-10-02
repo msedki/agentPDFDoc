@@ -105,6 +105,8 @@ Sous Linux, PSS lorsque disponible ; conserver mémoire globale hôte et swap. S
 
 Le scénario chat/import mesure chargements par transition, travail non validé rejoué, délai de checkpoint et progression après reprise explicite. Il vérifie absence de boucle de rechargement ; il n'exige pas une ingestion infiniment prioritaire pendant un chat continu. La reprise automatique n'est activée qu'après cette qualification.
 
+Mesures D07 en calcul CPU imposé (W024, W025) : démarrer l'instance mesurée avec un profil `llm.accelerator: cpu` ; la forme antérieure `llm.num_gpu: 0` impose aussi le CPU, le profil livré en `auto` ne convient pas. Lancer la série avec `tools/qualification/perf.py`, qui relit `llm_accelerator` dans `/diagnostics` au début et à la fin de la série. Un rapport ne peut servir de preuve D07 que s'il porte `d07_eligible: true`, les autres conditions de la recette restant à remplir ; un rapport `d07_eligible: false` est invalide pour la recette et `d07_ineligible_reason` en donne le motif. Les mesures sur GPU, dont le pilote `services/runtime/calibration.py --accelerator auto`, sont rapportées à part et ne cochent aucun critère D07.
+
 ## 9. Rapport et décisions
 
 Pour chaque essai : objectif, hypothèse, données, commit, versions, machine, commande, résultats bruts, interprétation et décision. Statuts `NOT_RUN`, `PASS`, `FAIL`, `BLOCKED`. Ne pas affirmer qu'un modèle est SOTA parce qu'il est récent, ni qu'une dépendance est compatible parce qu'elle est installable.

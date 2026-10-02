@@ -12,6 +12,7 @@ import { serviceDetail } from "@/lib/warnings";
 import { citationLinkIds, registeredCitationLocation } from "@/lib/citation-link";
 import { isActiveJobState, serviceStatus } from "@/lib/status";
 import { isServiceUnavailable, pendingIndexCount } from "@/lib/panel-state";
+import { readGeneration } from "@/lib/generation";
 import type { Source } from "@/lib/types";
 import { AnalysisPanel } from "./analysis-panel";
 import { AppTopbar, type ServiceSummary } from "./app-topbar";
@@ -185,7 +186,9 @@ function WorkspaceBody() {
     <div className="workspace-shell">
       <AppTopbar compact={compact} libraryMode={state.libraryMode} analysisMode={state.analysisMode} librarySheetOpen={sheet === "library"} analysisSheetOpen={sheet === "analysis"}
         onLibraryToggle={toggleLibrary} onAnalysisToggle={toggleAnalysis} service={service} activeJobs={activeJobs} jobsFailed={jobs.isError} jobsOpen={jobsVisible} onJobsOpen={() => setJobsVisible(true)} />
-      <ContextBand scope={state.scope} tree={tree.data} treeFailed={tree.isError && !tree.data} blockers={blockers} error={failure ? errorText(failure.error) : ""} onDismissError={() => setFailure(null)} service={service} />
+      {/* Matériel de la génération (W025) : après une lecture du suivi en échec, l'instance a pu redémarrer dans un autre mode. */}
+      <ContextBand scope={state.scope} tree={tree.data} treeFailed={tree.isError && !tree.data} blockers={blockers} error={failure ? errorText(failure.error) : ""} onDismissError={() => setFailure(null)} service={service}
+        generation={jobs.isError ? null : readGeneration(jobs.data?.generation)} />
       {comparisonDocuments.length > 0 && <nav className="comparison-documents" aria-label="Documents comparés"><span>Comparer {comparisonDocuments.length} documents</span>{comparisonDocuments.map(document => <button key={document.id} className={state.opened?.documentId === document.id ? "is-active" : ""} disabled={!document.active_version_id && !document.version_id} title={!document.active_version_id && !document.version_id ? "Ce document n'a pas encore de version consultable." : undefined} onClick={() => state.open({ documentId: document.id, versionId: document.active_version_id ?? document.version_id!, pageIndex: 0 })}><FileText size={14} aria-hidden="true" />{document.name}</button>)}</nav>}
       <div className="workspace-layout" ref={layout} style={{ gridTemplateColumns: panelGridColumns({ compact, library: state.libraryMode, analysis: state.analysisMode, widths: state.panelWidths }) }}>
         <div className="library-column" data-mode={compact ? "sheet" : state.libraryMode}>

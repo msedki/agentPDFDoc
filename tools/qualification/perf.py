@@ -3,6 +3,10 @@
 Rapporte latences client et API, p50/p95 (interpolation linéaire), TTFT, durée totale, longueurs réelles
 prompt_eval_count/eval_count et durées de chargement rapportées par l'API. Aucune extrapolation : un scénario
 non observé reste NOT_OBSERVED. Le split final est refusé (jeu tenu à l'écart).
+
+Recette D07 : seule une série valide, en calcul CPU imposé par le profil (`llm.accelerator: cpu`, ou la forme
+antérieure `llm.num_gpu: 0`), effectif et sans repli au début comme à la fin, est éligible (`d07_eligible`) ;
+l'accélération est lue dans `llm_accelerator` des diagnostics.
 """
 from __future__ import annotations
 
@@ -26,6 +30,8 @@ from api_client import (
 from evidence_io import EVALS, checked_output, file_sha256, write_json_exclusive
 
 NS_PER_MS = 1_000_000
+# Statuts d'une série invalidée et motif d'inéligibilité D07 correspondant.
+INVALID_SERIES_REASONS = {"INVALID_API_IDENTITY_DRIFT": "api_identity_drift", "INVALID_ACCELERATOR_DRIFT": "accelerator_drift"}
 
 
 def distribution(values: Sequence[float | None]) -> dict:
@@ -47,6 +53,27 @@ def eligible(dataset: dict) -> list[dict]:
 
 def ns_to_ms(value) -> float | None:
     return round(value / NS_PER_MS, 2) if isinstance(value, int | float) and not isinstance(value, bool) else None
+
+
+def accelerator_eligibility(before: dict | None, after: dict | None) -> tuple[bool, bool, str | None]:
+    """(dérive, éligibilité D07, motif d'inéligibilité) d'après `llm_accelerator` relu au début et à la fin de la série.
+
+    Dérive : le mode ou le repli a changé pendant la série, ou un seul des deux relevés le publie. Éligible : CPU demandé
+    par le profil et effectif, sans repli, aux deux relevés. Une API antérieure à W025 ne publie rien : inéligible.
+    """
+    first, last = (state if isinstance(state, dict) and "mode" in state else None for state in (before, after))
+    if first is None and last is None:
+        return False, False, "accelerator_unreported"
+    if first is None or last is None or (first["mode"], first.get("fallback")) != (last["mode"], last.get("fallback")):
+        return True, False, "accelerator_drift"
+    for state in (first, last):
+        if state.get("requested") != "cpu":
+            return False, False, "cpu_not_imposed_by_profile"
+        if state.get("mode") != "cpu":
+            return False, False, "generation_not_on_cpu"
+        if state.get("fallback") is not None:
+            return False, False, "gpu_fallback_recorded"
+    return False, True, None
 
 
 def search_row(client: httpx.Client, question: dict) -> dict:
@@ -87,6 +114,7 @@ def query_row(client: httpx.Client, question: dict, deadline_s: float, cold_load
             "prompt_eval_cached_count": metrics.get("prompt_eval_cached_count"), "eval_count": eval_count, "local_prompt_tokens": metrics.get("local_prompt_tokens"),
             "prefill_tokens_per_s": round(prompt_count / prompt_ms * 1000, 3) if isinstance(prompt_count, int) and prompt_ms else None,
             "decode_tokens_per_s": round(eval_count / eval_ms * 1000, 3) if isinstance(eval_count, int) and eval_ms else None,
+            "llm_execution": metrics.get("llm_execution"),
             "sse": {key: outcome["sse"][key] for key in ("bytes", "sha256", "event_counts")}}
 
 
@@ -124,14 +152,22 @@ def run(dataset_path: Path, output: Path, base_url: str, searches: int, queries:
         query_rows = [query_row(client, question, question_timeout, cold_load_ms) for question in candidates[searches:searches + queries]]
         last = fetch_diagnostics(client)
     identity, before, after = diagnostics_identity(first), first.get("resources"), last.get("resources")
-    # Une dérive d'identité pendant la mesure est conservée comme échec, jamais masquée.
-    status = "MEASURED_NOT_QUALIFIED" if diagnostics_identity(last) == identity else "INVALID_API_IDENTITY_DRIFT"
+    accelerator = {"before": first.get("llm_accelerator"), "after": last.get("llm_accelerator")}
+    accelerator_drift, d07_eligible, d07_ineligible_reason = accelerator_eligibility(accelerator["before"], accelerator["after"])
+    # Une dérive d'identité ou d'accélération pendant la mesure est conservée comme échec, jamais masquée.
+    status = ("INVALID_API_IDENTITY_DRIFT" if diagnostics_identity(last) != identity
+              else "INVALID_ACCELERATOR_DRIFT" if accelerator_drift else "MEASURED_NOT_QUALIFIED")
+    # Une série invalide n'est jamais éligible à D07 ; le motif suit la priorité du statut.
+    if status in INVALID_SERIES_REASONS:
+        d07_eligible, d07_ineligible_reason = False, INVALID_SERIES_REASONS[status]
     report = {"status": status, "tool": "tools/qualification/perf.py", "api_identity_after": diagnostics_identity(last), "runner_sha256": {name: file_sha256(Path(__file__).parent / name) for name in ("perf.py", "api_client.py")},
               "base_url": base_url, "dataset_sha256": file_sha256(dataset_path), "started_at_utc": started_at, "finished_at_utc": datetime.now(UTC).isoformat(),
-              "api_identity": identity, "resources_before": before, "resources_after": after, "sequential": True, "distinct_questions": True,
+              "api_identity": identity, "accelerator": accelerator, "d07_eligible": d07_eligible, "d07_ineligible_reason": d07_ineligible_reason,
+              "resources_before": before, "resources_after": after, "sequential": True, "distinct_questions": True,
               "summary": summarize(search_rows, query_rows, cold_load_ms), "searches": search_rows, "queries": query_rows,
               "limits": ["No extrapolation: unobserved scenarios stay NOT_OBSERVED; a shorter natural answer is not scaled to 400 tokens.",
                          "D07 thresholds require >=25000 chunks and a declared warm model; corpus size is not verified by this tool.",
+                         "D07 eligibility requires a valid series and a CPU imposed by the profile (llm.accelerator: cpu, or the legacy llm.num_gpu: 0), CPU generation and no GPU fallback at the start and at the end of the series; GPU measurements are reported separately and never meet a D07 criterion.",
                          "Client durations include loopback HTTP and SSE polling (100 ms server cadence); API durations come from the done event."]}
     write_json_exclusive(output, report)
     return report
@@ -151,7 +187,8 @@ def main(argv=None) -> dict:
         report = run(args.dataset, args.output, args.base_url, args.searches, args.queries, cold_load_ms=args.cold_load_ms, question_timeout=args.question_timeout)
     except (ValueError, OSError, httpx.HTTPError) as error:
         parser.error(str(error) or type(error).__name__)
-    print(json.dumps({"status": report["status"], "summary": report["summary"]}, ensure_ascii=False))
+    print(json.dumps({"status": report["status"], "d07_eligible": report["d07_eligible"], "d07_ineligible_reason": report["d07_ineligible_reason"],
+                      "summary": report["summary"]}, ensure_ascii=False))
     return report
 
 

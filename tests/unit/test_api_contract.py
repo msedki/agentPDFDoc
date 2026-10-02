@@ -301,3 +301,102 @@ def test_contract_integration_entry_matches_create_app_and_the_real_launcher():
     assert f'"{interface["asgi_application"]}"' in Path(module.origin).read_text(encoding="utf-8")
     assert "python -m uvicorn" not in CONTRACT["integration_entry"]
     assert interface["launch_module"] in CONTRACT["integration_entry"]
+
+
+def test_contract_generation_accelerator_fields_match_the_api(tmp_path, monkeypatch):
+    """W025 : `llm_accelerator` des diagnostics, champ `generation` de GET /jobs (P7) et `metrics.llm_execution`."""
+    import asyncio
+
+    import httpx
+    from fastapi.testclient import TestClient
+    from test_api_gateways import (
+        ANSWER,
+        GPU_RESIDENT,
+        REFERENCE_MESSAGES,
+        ScriptedOllama,
+        locked_running_model,
+        ndjson,
+    )
+
+    from services.api.ollama import OllamaGateway
+    from services.runtime.accelerator import ACCELERATOR_VALUES, REASON_TEXTS
+
+    (tmp_path / ".runtime/manifests").mkdir(parents=True)
+    (tmp_path / ".runtime/manifests/ollama-model.json").write_text(json.dumps({"model": locked_running_model()}), encoding="utf-8")
+    monkeypatch.setenv("RAG_CONTROL_TOKEN", "test-only-nonce")
+    monkeypatch.setenv("RAG_LLM_ACCELERATOR", "gpu")
+    monkeypatch.setenv("RAG_LLM_ACCELERATOR_REASON", "gpu_discovered")
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}, "llm": {"accelerator": "auto"}})
+    gateway = OllamaGateway(settings)
+    gateway.client = httpx.AsyncClient(base_url=gateway.base_url, transport=httpx.MockTransport(ScriptedOllama([ndjson(*ANSWER)], resident=GPU_RESIDENT)))
+    governor = types.SimpleNamespace(snapshot=lambda: {"available_mib": 8000, "pause_requested": False})
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeLlmTokenizer(),
+                     ollama=gateway, governor=governor, start_jobs=False)
+    control = {"X-RAG-Control-Token": "test-only-nonce"}
+    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+        accelerator = client.get("/api/v1/diagnostics", headers=control).json()["llm_accelerator"]
+        jobs = client.get("/api/v1/jobs", headers=control).json()
+
+        async def answer():
+            return [event async for event in gateway.stream(REFERENCE_MESSAGES, asyncio.Event(), 384)]
+        done = client.portal.call(answer)[-1]
+    described = CONTRACT["diagnostics_llm_accelerator"]
+    assert set(accelerator) == set(described) - {"rule"}
+    assert alternatives(described["requested"]) == set(ACCELERATOR_VALUES)
+    assert alternatives(described["reason"]) == set(REASON_TEXTS) | {"null"}
+    assert set(described["fallback"]) - {"null"} == {"utc", "http_status", "error"}
+    assert set(jobs) == set(CONTRACT["jobs_response"])
+    assert set(jobs["generation"]) == set(CONTRACT["jobs_response"]["generation"]) - {"null"}
+    assert alternatives(CONTRACT["jobs_response"]["generation"]["device"]) == {"gpu", "cpu"} == alternatives(described["mode"])
+    # Occupation observée du modèle : colonne PROCESSOR d'`ollama ps`, dont le contrat cite chaque forme.
+    processor = CONTRACT["jobs_response"]["generation"]["processor"]
+    assert processor.startswith("string|null:") and jobs["generation"]["processor"] in (None, "100% GPU")
+    for label in ("100% GPU", "100% CPU", "<cpu>%/<gpu>% CPU/GPU", "Unknown"):
+        assert label in processor, label
+    execution = CONTRACT["query_events"]["done_data"]["metrics"]["llm_execution"]
+    assert set(done["metrics"]["llm_execution"]) == set(execution) - {"rule"} and alternatives(execution["mode"]) == {"gpu", "cpu"}
+    # `mode` est le mode demandé à Ollama pour la réponse, pas l'occupation observée, publiée à part.
+    assert "requested from Ollama" in execution["rule"] and "jobs_response.generation.processor" in execution["rule"]
+
+
+def test_contract_llm_execution_is_absent_from_an_abstention_that_calls_no_model(tmp_path, monkeypatch):
+    """Question sans preuve dans le périmètre : `done` sans appel au modèle, donc sans `metrics.llm_execution`."""
+    import httpx
+    from fastapi.testclient import TestClient
+    from test_api_gateways import locked_running_model
+
+    from services.api.ollama import OllamaGateway
+
+    (tmp_path / ".runtime/manifests").mkdir(parents=True)
+    (tmp_path / ".runtime/manifests/ollama-model.json").write_text(json.dumps({"model": locked_running_model()}), encoding="utf-8")
+    monkeypatch.setenv("RAG_CONTROL_TOKEN", "test-only-nonce")
+    monkeypatch.setenv("RAG_LLM_ACCELERATOR", "gpu")
+    monkeypatch.setenv("RAG_LLM_ACCELERATOR_REASON", "gpu_discovered")
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}, "llm": {"accelerator": "auto"}})
+    gateway = OllamaGateway(settings)
+    gateway.client = httpx.AsyncClient(base_url=gateway.base_url, transport=httpx.MockTransport(lambda request: pytest.fail("aucun appel au modèle")))
+    governor = types.SimpleNamespace(begin_interactive=lambda: None, finish_interactive=lambda: None,
+                                     snapshot=lambda: {"available_mib": 8000, "heavy_owner": None, "pause_requested": False})
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeLlmTokenizer(),
+                     ollama=gateway, governor=governor, start_jobs=False)
+    control = {"X-RAG-Control-Token": "test-only-nonce", "Origin": "http://127.0.0.1:8785"}
+    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+        query = client.post("/api/v1/queries", headers=control, json={"question": "Quelle tension ?", "scope": {"kind": "library"}}).json()
+        client.get(query["events_url"], headers=control)
+        done = app.state.db.one("SELECT data_json FROM events WHERE query_id=? AND type='done'", (query["query_id"],))
+    metrics = json.loads(done["data_json"])["metrics"]
+    assert metrics["model_called"] is False and "llm_execution" not in metrics
+    rule = CONTRACT["query_events"]["done_data"]["metrics"]["llm_execution"]["rule"]
+    assert "only when the model was called (model_called true)" in rule
+
+
+def test_contract_accelerator_reason_without_the_supervisor_decision_matches_the_api(tmp_path, monkeypatch):
+    """Sans décision du superviseur, un profil en CPU imposé garde la raison tirée du profil ; auto et gpu donnent null."""
+    monkeypatch.delenv("RAG_LLM_ACCELERATOR", raising=False)
+    monkeypatch.delenv("RAG_LLM_ACCELERATOR_REASON", raising=False)
+    observed = {json.dumps(llm, sort_keys=True): Settings(tmp_path, {"llm": llm}).llm_accelerator["reason"]
+                for llm in ({"accelerator": "cpu"}, {"num_gpu": 0}, {"accelerator": "auto"}, {"accelerator": "gpu"}, {})}
+    assert observed == {'{"accelerator": "cpu"}': "imposed_by_profile", '{"num_gpu": 0}': "legacy_profile_cpu",
+                        '{"accelerator": "auto"}': None, '{"accelerator": "gpu"}': None, "{}": None}
+    rule = CONTRACT["diagnostics_llm_accelerator"]["rule"]
+    assert "reason is imposed_by_profile or legacy_profile_cpu" in rule and "null for an auto or gpu profile started without" in rule

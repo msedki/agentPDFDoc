@@ -16,6 +16,7 @@ import zipfile
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+from .accelerator import GPU_GROUP, entries_for_host, host_signals, no_complement_message
 from .platforms import entries_for_platform, launcher_command
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -246,12 +247,40 @@ def extract_verified_archive(archive_path: Path, destination: Path) -> dict[str,
     return extract_verified_tar(archive_path, destination)
 
 
-def provision_artifacts(only: str | None = None, *, offline: bool = False) -> dict[str, Any]:
+def _complement_unavailable(name: str, exc: Exception, *, offline: bool, extracted: bool) -> str:
+    """Complément GPU facultatif non obtenu : cause, effet sur la génération, commande pour l'ajouter."""
+    if offline and isinstance(exc, FileNotFoundError):
+        cause = f"complément {name} absent ou corrompu dans le cache hors ligne"
+    elif offline:
+        cause = f"complément {name} refusé, {type(exc).__name__} : {exc}"
+    else:
+        cause = f"téléchargement du complément {name} en échec, {type(exc).__name__} : {exc}"
+    if extracted:
+        return (f"Accélération GPU : {cause}. Le provisionnement continue ; les bibliothèques déjà extraites de ce "
+                "complément restent en place.")
+    return (f"Accélération GPU : {cause}. Le provisionnement continue sans lui : la génération restera sur CPU. Pour "
+            f"l'ajouter ensuite : {launcher_command('provision --only ' + GPU_GROUP)}"
+            + (", avec un accès réseau." if offline else "."))
+
+
+def provision_artifacts(only: str | None = None, *, offline: bool = False, skip_groups: frozenset[str] = frozenset(),
+                        signals: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Télécharge, vérifie et extrait les entrées du verrou valables sur ce poste, puis les consigne au manifeste local.
+
+    `skip_groups` écarte des groupes (complément GPU d'un profil en calcul CPU) ; `signals` (host_signals) choisit,
+    parmi les entrées de la plateforme, celles dont le champ `host` correspond au poste (complément JetPack). Sans
+    `--only ollama-gpu`, le complément GPU est facultatif (le CPU reste le socle, W024) : absent du cache hors ligne ou
+    en échec de téléchargement, il est signalé et le provisionnement continue avec les groupes suivants.
+    """
     lock = json.loads(ARTIFACT_LOCK.read_text(encoding="utf-8"))
     manifest_path = ROOT / ".runtime" / "manifests" / "artifacts.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
+    if only == GPU_GROUP and not entries_for_host(lock["groups"].get(GPU_GROUP, []), signals):
+        # Demande explicite sans objet ici (poste hors Jetson R35 ou R36) : rien à télécharger, ce n'est pas un échec.
+        print(no_complement_message(signals if signals is not None else host_signals()), flush=True)
+        return manifest
     for name, entries in lock["groups"].items():
-        if only and name != only:
+        if (only and name != only) or name in skip_groups:
             continue
         if name == TESSERACT_SOURCE_GROUP:
             # Un contrôle strict ici refuserait, avant build_tesseract, une archive régénérée de contenu conforme.
@@ -260,10 +289,19 @@ def provision_artifacts(only: str | None = None, *, offline: bool = False) -> di
                                  f"exécuter {launcher_command('provision')} sans --only")
             continue
         records = []
-        # Seules les entrées de ce poste (sans champ platform, ou avec le sien) sont téléchargées.
-        for entry in entries_for_platform(entries):
+        optional = name == GPU_GROUP and only != GPU_GROUP
+        # Seules les entrées de ce poste (sans champ platform, ou avec le sien, puis champ host éventuel) sont téléchargées.
+        for entry in entries_for_host(entries, signals):
             target = ROOT / entry["target"]
-            record = download(entry, target, offline=offline)
+            try:
+                record = download(entry, target, offline=offline)
+            except (OSError, ValueError, RuntimeError) as exc:
+                if not optional:
+                    raise
+                # Le manifeste garde l'extraction précédente de ce complément, s'il y en a une.
+                kept = any(item.get("url") == entry["url"] for item in manifest.get(name, []))
+                print(_complement_unavailable(target.name, exc, offline=offline, extracted=kept), flush=True)
+                break
             if entry.get("extract_to"):
                 extracted = extract_verified_archive(target, ROOT / entry["extract_to"])
                 record["extracted_files"] = extracted["files"]

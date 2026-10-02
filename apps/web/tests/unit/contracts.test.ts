@@ -1,13 +1,14 @@
 /**
  * Dérive entre le contrat de l'API (`packages/contracts/contracts.json`) et l'atelier : états de document
  * et de traitement, événements et statuts du flux de réponse, champs d'un span sélectionné, commandes
- * de `/health`. Le test lit le contrat versionné ; toute valeur ajoutée, retirée ou renommée d'un côté
- * seulement le fait échouer.
+ * de `/health` et matériel de la génération publié par `/jobs`. Le test lit le contrat versionné ; toute
+ * valeur ajoutée, retirée ou renommée d'un côté seulement le fait échouer.
  */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { DOCUMENT_STATES, JOB_STATES, QUERY_EVENT_TYPES, type Block } from "../../src/lib/types.ts";
+import { DOCUMENT_STATES, GENERATION_DEVICES, JOB_STATES, QUERY_EVENT_TYPES, type Block } from "../../src/lib/types.ts";
+import { readGeneration, readPlacement } from "../../src/lib/generation.ts";
 import { documentStates, documentStatus, jobStates, jobStatus, queryStates, queryStatus } from "../../src/lib/status.ts";
 import { scopeCoverage } from "../../src/lib/panel-state.ts";
 import { wholeBlockSpan } from "../../src/lib/selection.ts";
@@ -87,4 +88,25 @@ test("the launcher commands of the health contract are all read by the workspace
     const commands = Object.fromEntries(Object.keys(described).map(action => [action, `${launcher} ${action}`]));
     assert.deepEqual(launcherCommandsFrom({ commands }), commands);
   }
+});
+
+test("the generation hardware published by /jobs matches the contract and every described value is read (W025)", () => {
+  const described = contract.jobs_response.generation;
+  assert.deepEqual(Object.keys(described).sort(), ["device", "fallback", "null", "processor"]);
+  assert.deepEqual([...GENERATION_DEVICES], values(described.device));
+  assert.match(described.fallback, /^boolean/);
+  // Valeur null décrite par le contrat (API lancée avec un double de la passerelle) : rien n'est affiché.
+  assert.ok(Object.hasOwn(described, "null"));
+  assert.equal(readGeneration(null), null);
+  for (const device of GENERATION_DEVICES) assert.deepEqual(readGeneration({ device, fallback: false, processor: null }), { device, fallback: false, processor: null });
+  assert.deepEqual(readGeneration({ device: "cpu", fallback: true, processor: null }), { device: "cpu", fallback: true, processor: null });
+  // Chaque forme de la colonne PROCESSOR citée par le contrat est reconnue, la forme partielle avec ses deux parts.
+  assert.match(described.processor, /^string\|null:/);
+  const placements: [string, string][] = [["100% GPU", "gpu"], ["100% CPU", "cpu"], ["Unknown", "unknown"]];
+  for (const [label, kind] of placements) {
+    assert.ok(described.processor.includes(label), label);
+    assert.equal(readPlacement(label)?.kind, kind, label);
+  }
+  assert.ok(described.processor.includes("<cpu>%/<gpu>% CPU/GPU"));
+  assert.deepEqual(readPlacement("40%/60% CPU/GPU"), { kind: "partial", cpu: 40, gpu: 60 });
 });

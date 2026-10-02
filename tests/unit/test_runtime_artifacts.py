@@ -273,3 +273,172 @@ def test_provision_only_the_tesseract_sources_is_refused_with_the_command_to_run
     with pytest.raises(ValueError, match="tesseract-source.*construction de Tesseract.*provision"):
         artifacts.provision_artifacts("tesseract-source")
     assert not (root / ".runtime/manifests/artifacts.json").exists()
+
+
+# --- Complément GPU d'Ollama (W024, W025) ------------------------------------------------------------------------------
+
+REPOSITORY = __import__("pathlib").Path(__file__).resolve().parents[2]
+
+
+def _repository_lock() -> dict:
+    return json.loads((REPOSITORY / "config/artifacts.lock.json").read_text(encoding="utf-8"))
+
+
+def test_gpu_complements_share_version_and_folder_with_the_base_archive_of_their_platform():
+    import re
+
+    from services.runtime.accelerator import GPU_GROUP, JETPACK_BY_L4T
+    from services.runtime.platforms import entries_for_platform
+
+    groups = _repository_lock()["groups"]
+    complements = groups[GPU_GROUP]
+    # Valeurs de la release v0.35.0 (API des releases et sha256sum.txt, consultés le 01/10/2026).
+    assert [(entry["url"].rsplit("/", 1)[-1], entry["size"], entry["sha256"], entry.get("extracted_size"))
+            for entry in complements] == [
+        ("ollama-linux-arm64-jetpack5.tar.zst", 297201571,
+         "f7f1a7e890f2a493014f01cf8de948b5aa4641f34c05d2cb61983649b9c20f5b", 864658584),
+        ("ollama-linux-arm64-jetpack6.tar.zst", 269692742,
+         "609be1fb0f0d28ea3b10df7194508562da431200568157eef36de5745edd2753", None)]
+    for entry in complements:
+        (base,) = entries_for_platform(groups["ollama"], entry["platform"])
+        jetpack = JETPACK_BY_L4T[entry["host"]["l4t_major"]]
+        assert (entry["version"], entry["extract_to"]) == (base["version"], base["extract_to"])
+        assert entry["url"] == (f"https://github.com/ollama/ollama/releases/download/v{entry['version']}/"
+                                f"ollama-linux-arm64-{jetpack}.tar.zst")
+        assert re.fullmatch(r"[0-9a-f]{64}", entry["sha256"]) and entry["variant"] == f"cuda_{jetpack}"
+        assert entry["target"] == f".runtime/cache/downloads/ollama-{entry['version']}-linux-arm64-{jetpack}.tar.zst"
+        assert set(entry["host"]) == {"l4t_major"} and entry["license"] == base["license"]
+    # Aucun complément Windows ni Linux x86-64 : leurs archives de base portent déjà cuda_v12 et cuda_v13.
+    assert {entry["platform"] for entry in complements} == {"linux-aarch64"}
+    # Le champ host est propre à ce groupe ; le groupe ollama garde une seule entrée par plateforme (native_paths).
+    assert not [name for name, entries in groups.items() if name != GPU_GROUP for entry in entries if "host" in entry]
+    for platform in ("windows-x86_64", "linux-aarch64", "linux-x86_64"):
+        assert len(entries_for_platform(groups["ollama"], platform)) == 1
+
+
+def _lock_with_gpu_complements(root, monkeypatch) -> None:
+    lock = {"schema_version": 1, "groups": {
+        "ollama": [{"platform": "linux-aarch64", "url": "https://ici/ollama-linux-arm64.tar.zst",
+                    "target": "cache/base.tar.zst", "sha256": "1" * 64},
+                   {"platform": "windows-x86_64", "url": "https://ici/ollama-windows-amd64.zip",
+                    "target": "cache/base.zip", "sha256": "2" * 64}],
+        "ollama-gpu": [{"platform": "linux-aarch64", "host": {"l4t_major": 35}, "variant": "cuda_jetpack5",
+                        "url": "https://ici/ollama-linux-arm64-jetpack5.tar.zst", "target": "cache/jp5.tar.zst",
+                        "sha256": "3" * 64},
+                       {"platform": "linux-aarch64", "host": {"l4t_major": 36}, "variant": "cuda_jetpack6",
+                        "url": "https://ici/ollama-linux-arm64-jetpack6.tar.zst", "target": "cache/jp6.tar.zst",
+                        "sha256": "4" * 64}]}}
+    (root / "config").mkdir(exist_ok=True)
+    (root / "config/artifacts.lock.json").write_text(json.dumps(lock), encoding="utf-8")
+    monkeypatch.setattr(artifacts, "ARTIFACT_LOCK", root / "config/artifacts.lock.json")
+
+
+@pytest.fixture
+def downloads(root, monkeypatch):
+    _lock_with_gpu_complements(root, monkeypatch)
+    downloaded: list[str] = []
+
+    def fake_download(entry, target, *, offline=False):
+        downloaded.append(entry["url"].rsplit("/", 1)[-1])
+        return {**entry, "path": str(target.relative_to(root)), "cached": True}
+
+    monkeypatch.setattr(artifacts, "download", fake_download)
+    return downloaded
+
+
+@pytest.mark.parametrize(("signals", "skip", "expected"), [
+    ({"platform": "linux-aarch64", "l4t_major": 35}, frozenset(),
+     ["ollama-linux-arm64.tar.zst", "ollama-linux-arm64-jetpack5.tar.zst"]),
+    ({"platform": "linux-aarch64", "l4t_major": 36}, frozenset(),
+     ["ollama-linux-arm64.tar.zst", "ollama-linux-arm64-jetpack6.tar.zst"]),
+    ({"platform": "linux-aarch64", "l4t_major": 38}, frozenset(), ["ollama-linux-arm64.tar.zst"]),
+    ({"platform": "linux-aarch64", "l4t_major": None}, frozenset(), ["ollama-linux-arm64.tar.zst"]),
+    # Profil en calcul CPU : le complément est sauté.
+    ({"platform": "linux-aarch64", "l4t_major": 35}, frozenset({"ollama-gpu"}), ["ollama-linux-arm64.tar.zst"]),
+    ({"platform": "windows-x86_64", "l4t_major": None}, frozenset(), ["ollama-windows-amd64.zip"]),
+])
+def test_provision_takes_the_complement_of_this_host_only(downloads, signals, skip, expected):
+    manifest = artifacts.provision_artifacts(skip_groups=skip, signals=signals)
+    assert downloads == expected
+    assert [record["url"].rsplit("/", 1)[-1] for records in manifest.values() for record in records] == expected
+
+
+@pytest.mark.parametrize(("signals", "host"), [
+    ({"platform": "linux-x86_64", "l4t_major": None}, "linux-x86_64, hors Jetson"),
+    ({"platform": "linux-aarch64", "l4t_major": 38}, "linux-aarch64, Jetson Linux R38"),
+    ({"platform": "windows-x86_64", "l4t_major": None}, "windows-x86_64, hors Jetson"),
+])
+def test_only_the_gpu_complement_without_entry_for_this_host_downloads_nothing(root, downloads, capsys, signals, host):
+    assert artifacts.provision_artifacts("ollama-gpu", signals=signals) == {}
+    assert downloads == [] and not (root / ".runtime/manifests/artifacts.json").exists()
+    assert capsys.readouterr().out == (f"Aucun complément GPU d'Ollama ne correspond à ce poste ({host}) : "
+                                       "rien à télécharger.\n")
+
+
+def test_only_the_gpu_complement_of_a_jetson_downloads_its_own(downloads):
+    manifest = artifacts.provision_artifacts("ollama-gpu", signals={"platform": "linux-aarch64", "l4t_major": 36})
+    assert downloads == ["ollama-linux-arm64-jetpack6.tar.zst"] and list(manifest) == ["ollama-gpu"]
+
+
+def test_a_complement_missing_offline_does_not_stop_the_groups_after_it(root, monkeypatch, capsys):
+    # Revue J11 runtime-1 : sans --only, le complément GPU est facultatif ; e5, placé
+    # après lui dans le verrou réel et déjà en cache, est vérifié et consigné.
+    data = b"modele e5 en cache"
+    (root / "cache").mkdir()
+    (root / "cache/e5.onnx").write_bytes(data)
+    lock = {"schema_version": 1, "groups": {
+        "ollama-gpu": [{"platform": "linux-aarch64", "host": {"l4t_major": 35}, "variant": "cuda_jetpack5",
+                        "url": "https://ici/ollama-linux-arm64-jetpack5.tar.zst", "target": "cache/jp5.tar.zst",
+                        "size": 10, "sha256": "3" * 64}],
+        "e5": [{"url": "https://ici/e5.onnx", "target": "cache/e5.onnx", "size": len(data),
+                "sha256": hashlib.sha256(data).hexdigest()}]}}
+    (root / "config").mkdir()
+    (root / "config/artifacts.lock.json").write_text(json.dumps(lock), encoding="utf-8")
+    monkeypatch.setattr(artifacts, "ARTIFACT_LOCK", root / "config/artifacts.lock.json")
+    monkeypatch.setattr(artifacts, "launcher_command", lambda command: f"./rag.sh {command}")
+    jetson = {"platform": "linux-aarch64", "l4t_major": 35, "jetpack": "jetpack5"}
+    manifest = artifacts.provision_artifacts(offline=True, signals=jetson)
+    assert list(manifest) == ["e5"] and manifest["e5"][0]["cached"] is True
+    assert capsys.readouterr().out == (
+        "Accélération GPU : complément jp5.tar.zst absent ou corrompu dans le cache hors ligne. Le provisionnement "
+        "continue sans lui : la génération restera sur CPU. Pour l'ajouter ensuite : ./rag.sh provision --only "
+        "ollama-gpu, avec un accès réseau.\n")
+    # Demande explicite du complément : son absence reste une erreur.
+    with pytest.raises(FileNotFoundError, match="Artefact offline absent ou corrompu : jp5.tar.zst"):
+        artifacts.provision_artifacts("ollama-gpu", offline=True, signals=jetson)
+
+
+def test_extraction_fingerprint_ignores_the_gpu_group_and_the_llm_section(tmp_path):
+    # Méthode C5 de la conception J11, devenue test (W025 P8) : l'empreinte d'extraction (gel W022) ne lit ni la
+    # section llm du profil ni les entrées du verrou hors modèles Docling et tessdata ; contrôle positif sur la section pdf.
+    import yaml
+
+    from services.ingestion import extraction_fingerprint
+    from services.runtime.platforms import native_executable
+
+    profile = yaml.safe_load((REPOSITORY / "config/local16.yaml").read_text(encoding="utf-8"))
+    lock = _repository_lock()
+    assert "ollama-gpu" in lock["groups"]
+    without_gpu = {**lock, "groups": {name: entries for name, entries in lock["groups"].items() if name != "ollama-gpu"}}
+    lock_path = tmp_path / "artifacts.lock.json"
+
+    def fingerprint(changed_profile: dict, changed_lock: dict) -> str:
+        lock_path.write_text(json.dumps(changed_lock), encoding="utf-8")
+        # Même profil que celui du worker (services/api/jobs.worker_profile), verrou lu à un chemin fixe.
+        pdf = {**changed_profile["pdf"], "tesseract_cmd": native_executable(changed_profile["pdf"]["tesseract_cmd"]),
+               "artifacts_lock_path": str(lock_path)}
+        return extraction_fingerprint({**changed_profile, "pdf": pdf})
+
+    def with_llm(**changes) -> dict:
+        llm = {key: value for key, value in profile["llm"].items() if key not in ("num_gpu", "accelerator")}
+        return {**profile, "llm": {**llm, **changes}}
+
+    reference = fingerprint(profile, lock)
+    assert fingerprint(profile, without_gpu) == reference
+    for llm in ({"num_gpu": 0}, {"accelerator": "auto"}, {"accelerator": "cpu"}, {"accelerator": "gpu"}, {}):
+        assert fingerprint(with_llm(**llm), lock) == reference
+        assert fingerprint(with_llm(**llm), without_gpu) == reference
+    # Contrôles positifs : la section pdf et une entrée de modèle Docling du verrou entrent bien dans l'empreinte.
+    assert fingerprint({**profile, "pdf": {**profile["pdf"], "max_file_mib": 199}}, lock) != reference
+    docling = [{**entry, "sha256": "0" * 64} if "sha256" in entry else entry for entry in lock["groups"]["docling"]]
+    assert fingerprint(profile, {**lock, "groups": {**lock["groups"], "docling": docling}}) != reference

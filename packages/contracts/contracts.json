@@ -113,6 +113,17 @@
     "created_at": "iso8601",
     "updated_at": "iso8601"
   },
+  "jobs_response": {
+    "jobs": [],
+    "total": 0,
+    "runtime_mode": "interactive|ingestion|null",
+    "generation": {
+      "device": "gpu|cpu",
+      "fallback": "boolean: true once a GPU load failure has switched the instance to CPU until restart (W025)",
+      "processor": "string|null: placement of the model last read by the API in Ollama /api/ps, as the PROCESSOR column of ollama ps (100% GPU, 100% CPU, <cpu>%/<gpu>% CPU/GPU or Unknown); read before each question and, in gpu mode, after each answer, never by GET /jobs itself; null until the model has been seen loaded since the API started, and again after a GPU fallback, which unloads it",
+      "null": "when the API runs with a test double of the Ollama gateway"
+    }
+  },
   "library_tree_response": {
     "folders": [
       {
@@ -356,7 +367,13 @@
       "status": "done|length_limited",
       "citations": [],
       "finish_reason": "stop|length",
-      "metrics": {},
+      "metrics": {
+        "llm_execution": {
+          "mode": "gpu|cpu",
+          "fallback": "boolean: true when this answer was regenerated on CPU after a GPU load failure of the same request (W025)",
+          "rule": "present only when the model was called (model_called true), absent from the done of an abstention; mode is the execution mode requested from Ollama for this answer (num_gpu omitted in gpu mode, num_gpu: 0 in cpu mode), not the observed placement of the model, which jobs_response.generation.processor and doctor report"
+        }
+      },
       "warnings": []
     },
     "error_data": {
@@ -373,6 +390,19 @@
   },
   "query_run": {
     "states": "queued|running|needs_clarification|done|length_limited|cancelled|error|interrupted"
+  },
+  "diagnostics_llm_accelerator": {
+    "requested": "auto|cpu|gpu",
+    "requested_source": "profile|legacy_num_gpu|default",
+    "mode": "gpu|cpu",
+    "reason": "imposed_by_profile|legacy_profile_cpu|discovery_unreadable|no_gpu_discovered|gpu_library_not_retained|gpu_mixed_libraries|gpu_libraries_unverified|gpu_path_not_qualified|gpu_trial|gpu_discovered|null",
+    "fallback": {
+      "utc": "iso8601",
+      "http_status": 500,
+      "error": "Ollama error message, at most 300 characters, never the prompt",
+      "null": "until a GPU load failure; afterwards mode is cpu until restart and reason keeps the startup decision"
+    },
+    "rule": "published only by GET /diagnostics, never by a public route; with a cpu profile, reason is imposed_by_profile or legacy_profile_cpu (legacy llm.num_gpu: 0), with or without the supervisor decision; reason is null for an auto or gpu profile started without the supervisor decision (RAG_LLM_ACCELERATOR), or when the transmitted reason is unknown or contradicts the mode"
   },
   "error": {
     "code": "string",
@@ -407,7 +437,7 @@
     ],
     "worker_module": "services.ingestion.worker"
   },
-  "governor_boundary": "services.runtime.resources.ResourceGovernor(settings=None, host_lock_path=None) is built by services.api.main.create_app with the loaded profile (app.data_dir resolved) and runtime_location(profile, 'host_lock_path'), or injected into create_app(governor=...). It exposes snapshot(), begin_interactive(), finish_interactive(), should_checkpoint(), allow_ingestion(), resume_ingestion(), request_ingestion_pause() and the async context managers ingestion() and generation(on_wait=None); the API sets the hooks before_ingestion, after_resource_violation and before_generation. Generation and ingestion leases are mutually exclusive; heavy admission is enforced, failures are explicit.",
+  "governor_boundary": "services.runtime.resources.ResourceGovernor(settings=None, host_lock_path=None) is built by services.api.main.create_app with the loaded profile (app.data_dir resolved) and runtime_location(profile, 'host_lock_path'), or injected into create_app(governor=...). It exposes snapshot(), begin_interactive(), finish_interactive(), should_checkpoint(), allow_ingestion(), resume_ingestion(), request_ingestion_pause(), the async context managers ingestion() and generation(on_wait=None), and readmit_generation(loaded=None), a new admission inside the current generation lease that the API awaits before regenerating on CPU after a GPU load failure (W025); the API sets the hooks before_ingestion, after_resource_violation and before_generation. Generation and ingestion leases are mutually exclusive; heavy admission is enforced, failures are explicit.",
   "governor_interface": {
     "constructor": [
       "settings",
@@ -420,7 +450,8 @@
       "should_checkpoint",
       "allow_ingestion",
       "resume_ingestion",
-      "request_ingestion_pause"
+      "request_ingestion_pause",
+      "readmit_generation"
     ],
     "async_context_managers": [
       "ingestion",

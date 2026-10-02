@@ -21,7 +21,8 @@ llm:
   temperature: 0.2
   top_p: 0.9
   think: false
-  num_gpu: 0
+  # W024, W025 : auto = génération sur GPU pour un poste qualifié où Ollama en découvre un, CPU sinon ; cpu = calcul CPU imposé (recette D07) ; gpu = essai sur un poste non qualifié.
+  accelerator: auto
   threads_max: 4
   keep_alive: 10m
   prompt_cache_mib: 256

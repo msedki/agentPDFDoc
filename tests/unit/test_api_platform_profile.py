@@ -12,6 +12,7 @@ from services.api.main import create_app
 from services.api.ollama import OllamaGateway
 from services.api.security import LINK_HELP
 from services.api.settings import FIXED_PROFILE_VALUES, Settings, unsupported_profile_values
+from services.runtime.accelerator import BOTH_KEYS_MESSAGE, LEGACY_NUM_GPU_MESSAGE, VALUE_MESSAGE
 from services.runtime.platforms import launcher_command
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -121,3 +122,85 @@ def test_ollama_connect_timeout_is_read_from_the_profile(tmp_path):
         gateway = OllamaGateway(Settings(tmp_path, {"llm": llm}))
         assert gateway.client.timeout.connect == expected
         asyncio.run(gateway.close())
+
+
+# --- Accélération de la génération (W024, W025) ----------------------------------------------------------------------
+
+def delivered_profile_with(tmp_path, **llm_changes):
+    """Copie du profil livré, section llm sans clé d'accélération, qui reçoit `llm_changes` (None retire la clé) ;
+    chemin du fichier écrit."""
+    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    for key in ("accelerator", "num_gpu"):
+        profile["llm"].pop(key, None)
+    for key, value in llm_changes.items():
+        if value is None:
+            profile["llm"].pop(key, None)
+        else:
+            profile["llm"][key] = value
+    target = tmp_path / "profil.yaml"
+    target.write_text(yaml.safe_dump(profile, allow_unicode=True), encoding="utf-8")
+    return target
+
+
+def test_delivered_profile_requests_auto(monkeypatch):
+    monkeypatch.delenv("RAG_LLM_ACCELERATOR", raising=False)
+    monkeypatch.delenv("RAG_LLM_ACCELERATOR_REASON", raising=False)
+    state = Settings.load(ROOT / "config/local16.yaml").llm_accelerator
+    assert (state["requested"], state["requested_source"], state["mode"]) == ("auto", "profile", "cpu")
+
+
+@pytest.mark.parametrize("changes,requested", [
+    ({"num_gpu": 0}, ("cpu", "legacy_num_gpu")),
+    ({}, ("auto", "default")),
+    ({"accelerator": "auto"}, ("auto", "profile")),
+    ({"accelerator": "cpu"}, ("cpu", "profile")),
+    ({"accelerator": "gpu"}, ("gpu", "profile")),
+], ids=["forme-anterieure", "sans-cle", "auto", "cpu", "gpu"])
+def test_both_profile_forms_of_the_accelerator_are_accepted(tmp_path, monkeypatch, changes, requested):
+    monkeypatch.delenv("RAG_LLM_ACCELERATOR", raising=False)
+    monkeypatch.delenv("RAG_LLM_ACCELERATOR_REASON", raising=False)
+    settings = Settings.load(delivered_profile_with(tmp_path, **changes))
+    state = settings.llm_accelerator
+    assert (state["requested"], state["requested_source"]) == requested and state["mode"] == "cpu"
+
+
+@pytest.mark.parametrize("changes,message,keys", [
+    ({"accelerator": "turbo"}, VALUE_MESSAGE, ["llm.accelerator"]),
+    ({"accelerator": True}, VALUE_MESSAGE, ["llm.accelerator"]),
+    ({"accelerator": "GPU"}, VALUE_MESSAGE, ["llm.accelerator"]),
+    ({"accelerator": "auto", "num_gpu": 0}, BOTH_KEYS_MESSAGE, ["llm.accelerator", "llm.num_gpu"]),
+    ({"num_gpu": 1}, LEGACY_NUM_GPU_MESSAGE, ["llm.num_gpu"]),
+    ({"num_gpu": -1}, LEGACY_NUM_GPU_MESSAGE, ["llm.num_gpu"]),
+    ({"num_gpu": False}, LEGACY_NUM_GPU_MESSAGE, ["llm.num_gpu"]),
+], ids=["valeur-inconnue", "booleen", "majuscules", "deux-cles", "num-gpu-1", "num-gpu-auto-ollama", "num-gpu-false"])
+def test_accelerator_refusals_name_the_keys_with_the_supervisor_messages(tmp_path, changes, message, keys):
+    with pytest.raises(ApiError) as refused:
+        Settings.load(delivered_profile_with(tmp_path, **changes))
+    assert refused.value.code == "invalid_profile" and refused.value.status == 400
+    assert refused.value.message == message and refused.value.details == {"keys": keys}
+
+
+@pytest.mark.parametrize("llm,decided,expected", [
+    ({"accelerator": "auto"}, None, ("cpu", None)),
+    ({"accelerator": "auto"}, ("gpu", "gpu_discovered"), ("gpu", "gpu_discovered")),
+    ({"accelerator": "gpu"}, ("gpu", "gpu_trial"), ("gpu", "gpu_trial")),
+    ({}, ("gpu", "gpu_discovered"), ("gpu", "gpu_discovered")),
+    ({"accelerator": "auto"}, ("cpu", "no_gpu_discovered"), ("cpu", "no_gpu_discovered")),
+    ({"accelerator": "auto"}, ("cpu", "gpu_path_not_qualified"), ("cpu", "gpu_path_not_qualified")),
+    ({"accelerator": "cpu"}, ("gpu", "gpu_discovered"), ("cpu", "imposed_by_profile")),
+    ({"num_gpu": 0}, ("gpu", "gpu_discovered"), ("cpu", "legacy_profile_cpu")),
+    # Décision illisible ou raison contraire au mode : le mode suit la décision, la raison n'est pas inventée.
+    ({"accelerator": "auto"}, ("cuda", "gpu_discovered"), ("cpu", None)),
+    ({"accelerator": "auto"}, ("gpu", "no_gpu_discovered"), ("gpu", None)),
+    ({"accelerator": "auto"}, ("cpu", "gpu_discovered"), ("cpu", None)),
+    ({"accelerator": "auto"}, ("cpu", "raison-inconnue"), ("cpu", None)),
+])
+def test_generation_mode_follows_the_supervisor_decision_only_when_the_profile_allows_it(tmp_path, monkeypatch, llm, decided, expected):
+    for name, value in zip(("RAG_LLM_ACCELERATOR", "RAG_LLM_ACCELERATOR_REASON"), decided or (None, None), strict=True):
+        if value is None:
+            monkeypatch.delenv(name, raising=False)
+        else:
+            monkeypatch.setenv(name, value)
+    state = Settings(tmp_path, {"llm": llm}).llm_accelerator
+    assert (state["mode"], state["reason"]) == expected
+    assert set(state) == {"requested", "requested_source", "mode", "reason"}

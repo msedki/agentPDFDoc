@@ -106,9 +106,13 @@ kbd { display: inline-block; min-width: 20px; padding: 0 4px; border: 1px solid 
 .context-scope { display: flex; align-items: center; gap: 8px; min-width: 0; margin: 0; color: hsl(var(--muted-foreground)); }
 .context-scope > span { overflow-wrap: anywhere; }
 .context-service { display: none; font-size: 12px; color: hsl(var(--muted-foreground)); }
+/* Matériel de la génération (W025) : dernier élément, aligné à droite sous l'état des services, à toutes les largeurs ;
+   son explication s'ouvre sous le bandeau, alignée sur son bord droit. */
+.context-generation { position: relative; display: inline-flex; align-items: center; gap: 4px; min-width: 0; margin-left: auto; font-size: 12px; color: hsl(var(--muted-foreground)); }
+.generation-help-text { position: absolute; z-index: 24; top: calc(100% + 4px); right: 0; width: min(360px, calc(100vw - 32px)); margin: 0; padding: 12px 16px; background: hsl(var(--popover)); color: hsl(var(--popover-foreground)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); box-shadow: var(--elevation-2); font-size: 12px; line-height: 1.5; }
 .context-message { flex: 1 1 320px; display: flex; align-items: flex-start; gap: 8px; min-width: 0; max-height: 64px; overflow: auto; margin: 0; padding: 4px 8px; border-radius: var(--radius-small); font-size: 12px; line-height: 1.5; }
 .context-message > svg { flex: none; margin-top: 2px; }
-.readiness-notice { background: hsl(var(--warning-muted)); color: hsl(var(--warning)); }
+.readiness-notice, .generation-notice { background: hsl(var(--warning-muted)); color: hsl(var(--warning)); }
 .workspace-error { background: hsl(var(--destructive-muted)); color: hsl(var(--destructive)); }
 .workspace-error span { flex: 1; overflow-wrap: anywhere; }
 .workspace-error button { display: grid; place-items: center; flex: none; padding: 4px; border: 0; border-radius: var(--radius-small); background: none; color: inherit; }

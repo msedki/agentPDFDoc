@@ -212,6 +212,10 @@ def host_sample(disk_root: Path, process: psutil.Process | None = None) -> dict[
     else:
         # Aucun « private bytes » sous Linux : RSS, USS (pages propres au processus) et PSS si le noyau la fournit.
         measured = linux_memory_mib(process)
+        # Mémoire unifiée des Jetson (W025, M1) : la mémoire allouable par l'iGPU dépend aussi du swap libre (CUDA for
+        # Tegra, §3.3), et une allocation GPU peut repousser des pages de l'hôte vers le swap sans faire baisser
+        # MemAvailable d'autant. SwapFree est donc relevé au même instant que MemAvailable.
+        sample["swap_free_mib"] = round(psutil.swap_memory().free / 1048576, 2)
         sample.update({
             "process_rss_mib": measured["rss_mib"],
             "process_private_mib": None,
@@ -264,6 +268,7 @@ class ResourceGovernor:
         self.before_ingestion = None
         self.before_generation = None
         self.after_resource_violation = None
+        self._generation_on_wait = None
 
     def snapshot(self) -> dict[str, Any]:
         return {
@@ -389,6 +394,18 @@ class ResourceGovernor:
                     on_wait(refused.snapshot)
             await asyncio.sleep(2)
 
+    async def readmit_generation(self, loaded: dict[str, Any] | None = None) -> dict[str, Any]:
+        """Nouvelle admission dans le bail de génération en cours, avant un second chargement du modèle.
+
+        Repli sur CPU de l'API (W025, H1) : l'admission du bail a pu être « chaude » (modèle résident sur le GPU, pic
+        prévu de 512 Mio) alors que la relance charge le modèle à froid. Verrous lourds conservés ; même attente bornée
+        et même annonce que l'admission du bail ; ResourceAdmissionError si la réserve ne peut pas être préservée.
+        """
+        if self._owner != "generation":
+            raise RuntimeError("Nouvelle admission de génération demandée hors d'un bail de génération.")
+        await self._admit_generation(loaded, self._generation_on_wait)
+        return self.snapshot()
+
     @asynccontextmanager
     async def generation(self, on_wait=None):
         self._generation_requests += 1
@@ -401,6 +418,7 @@ class ResourceGovernor:
                     await self._admit_generation(loaded, on_wait)
                     self._owner = "generation"
                     self._mode = "generation"
+                    self._generation_on_wait = on_wait
                     # Ce corps s'exécute toujours dans la tâche asyncio de l'appelant : jamais None ici.
                     owner_task = cast("asyncio.Task[Any]", asyncio.current_task())
                     violation = None
@@ -430,6 +448,7 @@ class ResourceGovernor:
                             await monitor
                         self._owner = None
                         self._mode = "interactive"
+                        self._generation_on_wait = None
         finally:
             self._generation_requests -= 1
 

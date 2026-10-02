@@ -3,8 +3,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.parse import urlparse
 
+from services.runtime.accelerator import REASON_TEXTS, AcceleratorProfileError, profile_accelerator
+
 from .errors import ApiError
 from .security import scheme_for
+
+# Raisons de resolve_mode propres à chaque mode (W025) : une raison transmise qui contredit le mode est ignorée.
+GPU_REASONS = frozenset({"gpu_discovered", "gpu_trial"})
 
 # Clés du profil dont le code ne met en œuvre qu'une valeur (constat C6 de l'inspection du 1er octobre 2026) :
 # lues au chargement, toute autre valeur est refusée au démarrage au lieu d'être ignorée en silence.
@@ -79,8 +84,11 @@ class Settings:
             parsed = urlparse(settings.value(domain, field_name, ""))
             if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:
                 raise ApiError("invalid_profile", "Les services doivent rester sur loopback.")
-        if config.get("llm", {}).get("num_gpu", 0) != 0:
-            raise ApiError("invalid_profile", "Le profil exige un calcul CPU.")
+        try:
+            profile_accelerator(config)
+        except AcceleratorProfileError as error:
+            # Mêmes messages que le superviseur (services/runtime/accelerator.py).
+            raise ApiError("invalid_profile", str(error), 400, {"keys": list(error.keys)}) from error
         refused = unsupported_profile_values(config)
         if refused:
             raise ApiError("invalid_profile", "Valeurs du profil non prises en charge par cette version : " + ", ".join(refused)
@@ -93,6 +101,25 @@ class Settings:
     def path(self, value):
         path = Path(value)
         return path.resolve() if path.is_absolute() else (self.root / path).resolve()
+
+    @property
+    def llm_accelerator(self):
+        """Accélération demandée par le profil et mode de génération décidé par le superviseur au démarrage (W025).
+
+        Le superviseur transmet sa décision à l'API seule (`RAG_LLM_ACCELERATOR`, `RAG_LLM_ACCELERATOR_REASON`). Le GPU
+        n'est retenu que si le profil le permet (auto ou gpu) et que la décision vaut `gpu` ; sans décision (API lancée
+        hors superviseur, tests), la génération reste sur CPU comme avant W024, avec une raison nulle.
+        """
+        requested = profile_accelerator({**self.profile, "llm": self.profile.get("llm") or {}})
+        if requested["requested"] == "cpu":
+            legacy = requested["requested_source"] == "legacy_num_gpu"
+            return {**requested, "mode": "cpu", "reason": "legacy_profile_cpu" if legacy else "imposed_by_profile"}
+        decided = os.environ.get("RAG_LLM_ACCELERATOR")
+        mode = "gpu" if decided == "gpu" else "cpu"
+        reason = os.environ.get("RAG_LLM_ACCELERATOR_REASON")
+        if decided not in ("gpu", "cpu") or reason not in REASON_TEXTS or (reason in GPU_REASONS) != (mode == "gpu"):
+            reason = None
+        return {**requested, "mode": mode, "reason": reason}
 
     @property
     def data_dir(self):

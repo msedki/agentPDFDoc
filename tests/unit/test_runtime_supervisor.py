@@ -23,6 +23,7 @@ from services.runtime.supervisor import (
     supervisor_sample,
     write_qdrant_config,
 )
+from tests.unit.test_runtime_accelerator import jetson_libraries  # noqa: F401  (fixture réutilisée)
 
 
 def test_resource_trace_rotation_bounds_size_and_keeps_whole_lines(tmp_path):
@@ -380,3 +381,224 @@ def test_the_inspecting_process_is_never_reported_even_inside_a_recorded_group(t
                             text=True, timeout=60, env={**environment(load_profile(profile), data, profile)})
     observed = json.loads(result.stdout)
     assert observed["group"] == observed["pid"] and observed["orphans"] == {}, result.stderr
+
+
+# --- Accélération GPU (W024, W025) : environnement d'Ollama inchangé, mode décidé au démarrage ------------------------
+
+# Variables d'un poste qui ne doivent jamais atteindre Ollama : réglages GPU d'Ollama, de CUDA et du chargeur.
+GPU_NOISE = {"CUDA_VISIBLE_DEVICES": "0", "OLLAMA_VULKAN": "1", "OLLAMA_LLM_LIBRARY": "cuda_v12",
+             "LD_LIBRARY_PATH": "/usr/local/cuda/lib64:", "CUDA_PATH": "/usr/local/cuda", "OLLAMA_HOST": "0.0.0.0:11434"}
+
+
+def _only_environment(monkeypatch, values: dict[str, str]) -> None:
+    for key in list(os.environ):
+        monkeypatch.delenv(key)
+    for key, value in values.items():
+        monkeypatch.setenv(key, value)
+
+
+def _shipped_profile_forms() -> list[dict]:
+    """Profil livré, puis sa section llm sous chaque forme admise, construite explicitement : forme antérieure
+    `num_gpu: 0` (profils d'utilisateur existants, W025 P5), `accelerator` auto, cpu et gpu, aucune des deux clés."""
+    shipped = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    forms = [shipped]
+    for setting in ({"num_gpu": 0}, {"accelerator": "auto"}, {"accelerator": "cpu"}, {"accelerator": "gpu"}, {}):
+        changed = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+        changed["llm"] = {**{key: value for key, value in changed["llm"].items()
+                             if key not in ("num_gpu", "accelerator")}, **setting}
+        forms.append(changed)
+    return forms
+
+
+def test_the_profile_forms_cover_the_legacy_form_and_every_accelerator_value():
+    # Revue J11 runtime-9 : le profil livré est passé en auto ; la forme antérieure reste couverte explicitement.
+    from services.runtime.accelerator import profile_accelerator
+
+    forms = _shipped_profile_forms()[1:]
+    assert [(form["llm"].get("num_gpu"), form["llm"].get("accelerator")) for form in forms] == [
+        (0, None), (None, "auto"), (None, "cpu"), (None, "gpu"), (None, None)]
+    assert [profile_accelerator(form)["requested_source"] for form in forms] == [
+        "legacy_num_gpu", "profile", "profile", "profile", "default"]
+
+
+def _common_snapshot(directory: Path, profile_path: Path) -> dict[str, str]:
+    """Variables fixées par environment() avant W024 (révision ba945af), pour le profil livré sous chacune de ses formes."""
+    return {"PYTHONUTF8": "1", "PYTHONUNBUFFERED": "1", "RAG_PROFILE": str(profile_path.resolve()),
+            "RAG_DATA_DIR": str(directory), "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1",
+            "HF_HUB_DISABLE_TELEMETRY": "1", "HF_HOME": str((ROOT / ".runtime/cache/huggingface").resolve()),
+            "DOCLING_ARTIFACTS_PATH": str(ROOT / ".runtime/models/docling"),
+            "TESSDATA_PREFIX": str(ROOT / ".runtime/models/tessdata"), "TOKENIZERS_PARALLELISM": "false",
+            "OMP_NUM_THREADS": "2", "MKL_NUM_THREADS": "2", "OPENBLAS_NUM_THREADS": "2", "NEXT_TELEMETRY_DISABLED": "1",
+            "OLLAMA_HOST": "127.0.0.1:11434", "OLLAMA_MODELS": str(ROOT / ".runtime/models/ollama"),
+            "OLLAMA_NO_CLOUD": "1", "OLLAMA_NUM_PARALLEL": "1", "OLLAMA_MAX_LOADED_MODELS": "1",
+            "OLLAMA_MAX_QUEUE": "2", "OLLAMA_CONTEXT_LENGTH": "8192", "OLLAMA_KEEP_ALIVE": "10m",
+            "LLAMA_ARG_CACHE_RAM": "256", "LLAMA_ARG_CTX_CHECKPOINTS": "2"}
+
+
+def test_ollama_environment_under_simulated_windows_matches_the_reference_snapshot(tmp_path, monkeypatch):
+    # W025 : aucune variable OLLAMA_*, CUDA_* ni LD_LIBRARY_PATH ajoutée, quel que soit llm.accelerator.
+    windows = {"SystemRoot": r"C:\Windows", "windir": r"C:\Windows", "PATH": r"C:\Windows\system32;C:\Windows",
+               "PATHEXT": ".COM;.EXE;.BAT", "TEMP": r"C:\Users\poste\AppData\Local\Temp",
+               "TMP": r"C:\Users\poste\AppData\Local\Temp", "USERPROFILE": r"C:\Users\poste",
+               "APPDATA": r"C:\Users\poste\AppData\Roaming", "LOCALAPPDATA": r"C:\Users\poste\AppData\Local",
+               "ProgramData": r"C:\ProgramData", "ProgramFiles": r"C:\Program Files", "NUMBER_OF_PROCESSORS": "12",
+               "PROCESSOR_ARCHITECTURE": "AMD64", "HOME": "/home/poste", "QDRANT__SERVICE__API_KEY": "cle-du-poste"}
+    _only_environment(monkeypatch, {**windows, **GPU_NOISE})
+    monkeypatch.setattr(sys, "platform", "win32")
+    profile_path = ROOT / "config/local16.yaml"
+    expected = {**{key: value for key, value in windows.items() if key not in ("HOME", "QDRANT__SERVICE__API_KEY")},
+                **_common_snapshot(tmp_path, profile_path)}
+    for profile in _shipped_profile_forms():
+        assert environment(profile, tmp_path, profile_path) == expected
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="branche Linux de la liste blanche (W018)")
+def test_ollama_environment_under_linux_matches_the_reference_snapshot(tmp_path, monkeypatch):
+    import tempfile
+
+    linux = {"LANG": "fr_FR.UTF-8", "LC_ALL": "C.UTF-8", "TZ": "Europe/Paris", "USER": "compte", "LOGNAME": "compte",
+             "PATH": "/usr/local/cuda/bin:/usr/bin:/bin", "HOME": "/home/compte"}
+    _only_environment(monkeypatch, {**linux, **GPU_NOISE})
+    profile_path = ROOT / "config/local16.yaml"
+    expected = {"LANG": "fr_FR.UTF-8", "LC_ALL": "C.UTF-8", "TZ": "Europe/Paris", "USER": "compte", "LOGNAME": "compte",
+                "PATH": os.pathsep.join([str(Path(sys.executable).parent), "/usr/bin", "/bin"]),
+                "TMPDIR": tempfile.gettempdir(), "HOME": str(tmp_path / "home"), **_common_snapshot(tmp_path, profile_path)}
+    for profile in _shipped_profile_forms():
+        assert environment(profile, tmp_path, profile_path) == expected
+
+
+DECISION_KEYS = {"requested", "requested_source", "mode", "reason", "device", "variant", "qualified", "discovery",
+                 "libraries", "host", "utc"}
+
+
+def _program_root(root: Path, manifest: dict) -> None:
+    """Verrou et manifeste d'artefacts d'un programme de test (aucune écriture sous .runtime du dépôt)."""
+    from tests.unit.test_runtime_accelerator import LOCK
+
+    (root / "config").mkdir(exist_ok=True)
+    (root / "config/artifacts.lock.json").write_text(json.dumps(LOCK), encoding="utf-8")
+    write_json_atomic(root / ".runtime/manifests/artifacts.json", manifest)
+
+
+@pytest.fixture
+def accelerator_cases(jetson_libraries, monkeypatch):  # noqa: F811
+    from services.runtime import supervisor
+    from tests.unit.test_runtime_accelerator import JETSON, JETSON_JETPACK5, WINDOWS_IRIS_XE
+
+    root, manifest = jetson_libraries
+    _program_root(root, manifest)
+    monkeypatch.setattr(supervisor, "ROOT", root)
+    windows = {"platform": "windows-x86_64", "l4t_major": None, "jetpack": None, "nvidia_kernel_driver": None,
+               "gpu_nodes": {}, "windows_nvcuda": False}
+    return {"windows_iris_xe": (WINDOWS_IRIS_XE, windows, "cpu", "no_gpu_discovered"),
+            "jetson_jetpack5": (JETSON_JETPACK5, JETSON, "gpu", "gpu_discovered")}
+
+
+@pytest.mark.parametrize("case", ["windows_iris_xe", "jetson_jetpack5"])
+def test_instance_accelerator_records_the_decision_of_the_instance(tmp_path, monkeypatch, accelerator_cases, case):
+    from services.runtime import supervisor
+
+    log, signals, mode, reason = accelerator_cases[case]
+    monkeypatch.setattr(supervisor, "host_signals", lambda: signals)
+    (tmp_path / "ollama.log").write_text(log, encoding="utf-8")
+    profile = {"llm": {"accelerator": "auto"}}
+    decision = supervisor.instance_accelerator(profile, tmp_path / "ollama.log")
+    assert set(decision) == DECISION_KEYS and (decision["mode"], decision["reason"]) == (mode, reason)
+    assert decision["requested"] == "auto" and decision["host"] == signals
+    # Forme antérieure (profil livré avant W024) : CPU quelle que soit la découverte.
+    legacy = supervisor.instance_accelerator({"llm": {"num_gpu": 0}}, tmp_path / "ollama.log")
+    assert (legacy["mode"], legacy["reason"], legacy["requested_source"]) == ("cpu", "legacy_profile_cpu", "legacy_num_gpu")
+
+
+def test_an_unreadable_artifact_manifest_verifies_no_library_and_keeps_the_cpu(tmp_path, monkeypatch, accelerator_cases):
+    from services.runtime import supervisor
+
+    log, signals, _, _ = accelerator_cases["jetson_jetpack5"]
+    (supervisor.ROOT / ".runtime/manifests/artifacts.json").write_text("{tronqué", encoding="utf-8")
+    monkeypatch.setattr(supervisor, "host_signals", lambda: signals)
+    (tmp_path / "ollama.log").write_text(log, encoding="utf-8")
+    decision = supervisor.instance_accelerator({"llm": {"accelerator": "auto"}}, tmp_path / "ollama.log")
+    assert (decision["mode"], decision["reason"]) == ("cpu", "gpu_libraries_unverified")
+    assert decision["libraries"]["error"].startswith("JSONDecodeError")
+
+
+def _free_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        probe.bind(("127.0.0.1", 0))
+        return probe.getsockname()[1]
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="superviseur simulé avec les verrous POSIX de ce poste")
+@pytest.mark.parametrize("case", ["windows_iris_xe", "jetson_jetpack5"])
+def test_supervise_records_the_mode_and_passes_it_to_the_api_only(tmp_path, monkeypatch, accelerator_cases, case):
+    """Superviseur simulé (Job, binaires et disponibilité sont des doubles) : runtime.json reçoit state["accelerator"]
+    avant le lancement de l'API, seule destinataire de RAG_LLM_ACCELERATOR et RAG_LLM_ACCELERATOR_REASON."""
+    from types import SimpleNamespace
+
+    from services.runtime import source_manifest, supervisor
+
+    log, signals, mode, reason = accelerator_cases[case]
+    monkeypatch.delenv("RAG_DATA_DIR", raising=False)
+    monkeypatch.setattr(supervisor, "host_signals", lambda: signals)
+    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    profile["llm"].pop("num_gpu", None)
+    profile["llm"]["accelerator"] = "auto"
+    profile["app"].update(data_dir=str(tmp_path / "données"), port=_free_port())
+    profile["qdrant"]["url"] = f"http://127.0.0.1:{_free_port()}"
+    profile["llm"]["base_url"] = f"http://127.0.0.1:{_free_port()}"
+    profile_path = tmp_path / "profil.yaml"
+    profile_path.write_text(yaml.safe_dump(profile, allow_unicode=True), encoding="utf-8")
+    data = tmp_path / "données"
+    (data / "control").mkdir(parents=True)
+    # Marqueur d'arrêt posé d'avance : la boucle de surveillance n'est pas parcourue.
+    (data / "control/shutdown-essai0instance").touch()
+    monkeypatch.setattr(supervisor, "uuid", SimpleNamespace(uuid4=lambda: SimpleNamespace(hex="essai0instance")))
+    monkeypatch.setattr(source_manifest, "capture", lambda: {"source_fingerprint": "essai", "kind": "test"})
+    monkeypatch.setattr(supervisor, "native_paths", lambda: {"qdrant": tmp_path / "qdrant", "ollama": tmp_path / "ollama"})
+    monkeypatch.setattr(supervisor, "send_owned_console_interrupt", lambda child, service=None: True)
+    monkeypatch.setattr(supervisor, "wait_http", lambda url, child, *args, **kwargs:
+                        {"version": "0.35.0"} if url.endswith("/api/version") else {"status": "ok"})
+    launched: dict[str, dict] = {}
+
+    class Child:
+        def __init__(self, name, log_path):
+            self.name, self.log_path = name, log_path
+
+        def identity(self):
+            return {"pid": 4194000, "created_at": 1.0, "executable": f"/absent/{self.name}", "log_path": str(self.log_path)}
+
+        def poll(self):
+            return None
+
+        def wait(self, timeout=30):
+            return 0
+
+    class Job:
+        def launch(self, argv, *, cwd, env, log_path):
+            name = "api" if "services.runtime.api_entry" in argv else Path(argv[0]).name
+            recorded = json.loads((data / "control/runtime.json").read_text(encoding="utf-8"))
+            launched[name] = {"env": dict(env), "accelerator_recorded": "accelerator" in recorded}
+            if name == "ollama":
+                log_path.write_text(log, encoding="utf-8")
+            return Child(name, log_path)
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(supervisor, "ProcessJob", Job)
+    assert supervisor.supervise(profile_path) == 0
+    state = json.loads((data / "control/runtime.json").read_text(encoding="utf-8"))
+    assert state["status"] == "stopped" and set(state["accelerator"]) == DECISION_KEYS
+    assert (state["accelerator"]["mode"], state["accelerator"]["reason"]) == (mode, reason)
+    assert launched["api"]["accelerator_recorded"] and not launched["ollama"]["accelerator_recorded"]
+    assert launched["api"]["env"]["RAG_LLM_ACCELERATOR"] == mode
+    assert launched["api"]["env"]["RAG_LLM_ACCELERATOR_REASON"] == reason
+    for service in ("qdrant", "ollama"):
+        assert not {"RAG_LLM_ACCELERATOR", "RAG_LLM_ACCELERATOR_REASON"} & set(launched[service]["env"])
+    # Ollama reçoit exactement environment() ; Qdrant la même copie plus sa clé.
+    reference = environment(load_profile(profile_path), data, profile_path)
+    assert launched["ollama"]["env"] == reference
+    assert {key: value for key, value in launched["qdrant"]["env"].items() if key != "QDRANT__SERVICE__API_KEY"} == reference
+    api_only = set(launched["api"]["env"]) - set(reference)
+    assert api_only == {"RAG_SHUTDOWN_MARKER", "RAG_CONTROL_TOKEN", "RAG_QDRANT_API_KEY", "RAG_LLM_ACCELERATOR",
+                        "RAG_LLM_ACCELERATOR_REASON"}

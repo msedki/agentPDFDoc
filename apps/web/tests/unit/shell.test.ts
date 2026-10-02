@@ -140,10 +140,39 @@ test("service availability is always spelled out in text, in the top bar or in t
 
 test("one message slot replaces the former readiness notice and workspace error bars", () => {
   const band = code("components/context-band.tsx");
-  assert.match(band, /const message = error \? "error" : blockers\.length \? "readiness" : null;/);
-  assert.equal((band.match(/className="context-message /g) ?? []).length, 2);
+  // Erreur de l'espace de travail, puis avis de préparation, puis repli du GPU sur le processeur (W025).
+  assert.match(band, /const message = error \? "error" : blockers\.length \? "readiness" : notice \? "generation" : null;/);
+  assert.equal((band.match(/className="context-message /g) ?? []).length, 3);
   assert.match(band, /className="context-message workspace-error" role="alert"/);
   assert.match(band, /className="context-message readiness-notice" role="status"/);
+  assert.match(band, /className="context-message generation-notice" role="status"/);
   assert.doesNotMatch(workspace, /readiness-notice|workspace-error|workspace-scope-bar/);
   assert.doesNotMatch(stripCssComments(readSource("app/globals.css")), /\.workspace-scope-bar|\.jobs-drawer|\.app-header\b/);
+});
+
+test("the generation hardware read on /jobs closes the context band, and nothing is shown after a failed read", () => {
+  const band = code("components/context-band.tsx");
+  assert.match(band, /const computing = generationView\(generation, commands\);/);
+  assert.match(band, /\{computing && <GenerationIndicator view=\{computing\} \/>\}/);
+  // Dernier élément du bandeau, aligné à droite sous l'état des services de la barre supérieure.
+  assert.ok(band.indexOf("<GenerationIndicator view") > band.lastIndexOf('className="context-message '), "indicateur après l'emplacement de message");
+  assert.match(workspace, /generation=\{jobs\.isError \? null : readGeneration\(jobs\.data\?\.generation\)\}/);
+  const css = stripCssComments(readSource("app/globals.css"));
+  assert.match(css, /^\.context-generation \{[^}]*margin-left: auto;/m);
+  // Contrairement à l'état des services, l'indicateur reste dans le bandeau à toutes les largeurs.
+  assert.doesNotMatch(css, /\.context-generation \{[^}]*display: none/);
+});
+
+test("the generation indicator announces its changes politely and opens its explanation from the keyboard", () => {
+  const band = code("components/context-band.tsx");
+  // Région de statut polie : un passage en repli ou une nouvelle occupation du modèle est annoncé sans voler le focus.
+  assert.match(band, /<div className="context-generation" ref=\{container\}>\s*<span role="status"><StatusIndicator status=\{view\.status\} \/><\/span>/);
+  // Explication derrière un bouton : clavier, toucher et lecteurs d'écran, même quand l'emplacement de message est occupé.
+  assert.match(band, /<Button ref=\{trigger\} type="button" variant="ghost" size="icon" className="generation-help" aria-expanded=\{open\} aria-controls=\{open \? detailId : undefined\}\s+aria-label="Explication du matériel de génération"/);
+  assert.match(band, /\{open && <p className="generation-help-text" id=\{detailId\}>\{view\.detail\}<\/p>\}/);
+  assert.match(band, /useDismiss\(open, container, reason => \{ setOpen\(false\); if \(reason === "escape"\) trigger\.current\?\.focus\(\); \}\);/);
+  // L'explication n'est plus confiée au seul attribut title, illisible au clavier et au toucher.
+  assert.doesNotMatch(band, /title=\{(?:computing|view)\.detail\}/);
+  const css = stripCssComments(readSource("app/globals.css"));
+  assert.match(css, /^\.generation-help-text \{[^}]*position: absolute;/m);
 });

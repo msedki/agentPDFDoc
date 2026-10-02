@@ -24,11 +24,12 @@ from typing import Any
 import psutil
 import yaml
 
+from .accelerator import processor_label
 from .artifacts import runtime_location
 from .profile_setup import user_profile
 from .resources import admission_requirement
 from .supervisor import app_origin, control_headers, data_path, load_profile, start, status, stop
-from .verdict import mib
+from .verdict import generation_text, mib
 
 PASS, FAIL, SKIPPED = "PASS", "FAIL", "SKIPPED"
 JOB_DONE = {"ready", "ready_partial", "error", "cancelled"}
@@ -109,6 +110,35 @@ def remove_root(root: Path, attempts: int = 10) -> bool:
     return False
 
 
+def model_processor(profile: dict) -> str | None:
+    """Colonne PROCESSOR d'`ollama ps` (« 100% GPU », « 100% CPU »…) pour le modèle du profil, lue sur l'Ollama de
+    l'instance de contrôle (boucle locale) ; None si le modèle n'est plus chargé ou si Ollama ne répond pas."""
+    import httpx
+
+    try:
+        with httpx.Client(timeout=5, trust_env=False) as client:
+            response = client.get(profile["llm"]["base_url"] + "/api/ps")
+            response.raise_for_status()
+            models = response.json().get("models", [])
+    except (httpx.HTTPError, ValueError, AttributeError):
+        return None
+    model = next((item for item in models if item.get("name", item.get("model")) == profile["llm"]["model"]), None)
+    return processor_label(int(model.get("size") or 0), int(model.get("size_vram") or 0)) if model else None
+
+
+def execution_text(metrics: dict, processor: str | None) -> str:
+    """Matériel de la réponse : occupation du modèle (/api/ps) et exécution rapportée par l'API (W025)."""
+    execution = metrics.get("llm_execution") if isinstance(metrics, dict) else None
+    if processor == "Unknown":
+        # Colonne d'Ollama quand size_vram dépasse size : aucune répartition n'est lisible.
+        parts = ["répartition du modèle entre GPU et CPU non déterminée par Ollama"]
+    else:
+        parts = [f"modèle chargé : {processor}" if processor else "occupation du modèle non lue"]
+    if isinstance(execution, dict) and execution.get("fallback"):
+        parts.append("repli sur CPU après un échec du chargement sur le GPU")
+    return " ; ".join(parts)
+
+
 def read_events(client: Any, query_id: str, timeout: float) -> list[tuple[str, dict]]:
     events: list[tuple[str, dict]] = []
     kind = ""
@@ -152,7 +182,12 @@ def selftest(profile_path: Path, *, generation: bool = True, keep: bool = False,
             state = start(context["profile"])
             if state.get("status") != "running":
                 raise RuntimeError(f"instance de contrôle à l'état {state.get('status')}")
-            return f"instance {state.get('instance_id')} démarrée"
+            # Mode de génération décidé au démarrage (W024), consigné par le superviseur dans runtime.json.
+            accelerator = state.get("accelerator") if isinstance(state.get("accelerator"), dict) else None
+            report["generation_mode"] = ({key: accelerator.get(key) for key in ("requested", "mode", "reason", "variant")}
+                                         if accelerator else None)
+            mode = f", {generation_text(accelerator)}" if accelerator else ""
+            return f"instance {state.get('instance_id')} démarrée{mode}"
 
         if step("préparation", prepare) and step("démarrage", launch):
             profile = load_profile(context["profile"])
@@ -217,7 +252,11 @@ def selftest(profile_path: Path, *, generation: bool = True, keep: bool = False,
                     source_id = citations[0] if isinstance(citations[0], str) else citations[0].get("source_id")
                     cited = client.get(f"/api/v1/citations/{query_id}/{source_id}")
                     cited.raise_for_status()
-                    return f"réponse citée ({source_id}), citation enregistrée et relue"
+                    processor = model_processor(profile)
+                    report["answer_execution"] = {"processor": processor,
+                                                  "llm_execution": (done.get("metrics") or {}).get("llm_execution")}
+                    return (f"réponse citée ({source_id}), citation enregistrée et relue ; "
+                            f"{execution_text(done.get('metrics') or {}, processor)}")
 
                 step("import", import_pdf) and step("extraction", extract) and step("recherche", search) and step("provenance", provenance) and step("réponse", answer)
     finally:

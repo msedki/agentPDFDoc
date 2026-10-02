@@ -141,6 +141,10 @@ try {
     $red = @($doctor.verdict.rubrics | Where-Object { $_.level -eq 'rouge' })
     if ($red.Count) { throw ("Vérification refusée : " + (($red | ForEach-Object { "$($_.message) $($_.action)" }) -join ' ')) }
     Write-Step 'doctor' 'ok' $doctor.verdict.summary
+    # Sans démarrage, aucune rubrique n'est affichée plus bas : la proposition annoncée par le résumé s'affiche ici.
+    if ($NoStart) {
+        foreach ($item in @($doctor.verdict.rubrics | Where-Object { $_.proposal })) { Write-Output ("  Proposition, rubrique {0} : {1}" -f $item.rubric, $item.proposal) }
+    }
     $shortcuts = & (Join-Path $target 'tools\dist\shortcuts.ps1') -Program $target -Profile $profilePath -Menu $Menu | Out-String | ConvertFrom-Json
     $report.shortcuts = $shortcuts.shortcuts
     $switched = $true
@@ -151,7 +155,11 @@ try {
         Write-Step 'demarrage' 'ok' $up.instance_id
         $doctor = & (Join-Path $target 'rag.ps1') doctor -Profile $profilePath | Out-String | ConvertFrom-Json
         $report.verdict = $doctor.verdict
-        foreach ($item in $doctor.verdict.rubrics) { Write-Output ("  [{0}] {1} : {2}" -f $item.level, $item.rubric, $item.message) }
+        # Une proposition (calcul GPU) s'affiche sous sa rubrique : le résumé du verdict y renvoie.
+        foreach ($item in $doctor.verdict.rubrics) {
+            Write-Output ("  [{0}] {1} : {2}" -f $item.level, $item.rubric, $item.message)
+            if ($item.proposal) { Write-Output ("      Proposition : {0}" -f $item.proposal) }
+        }
         Write-Step 'verdict' $doctor.verdict.level $doctor.verdict.summary
         # Contrôle réel dans une racine et des ports temporaires : import, extraction, recherche, provenance, réponse si admise.
         $control = & (Join-Path $target 'rag.ps1') selftest -Profile $profilePath | Out-String | ConvertFrom-Json

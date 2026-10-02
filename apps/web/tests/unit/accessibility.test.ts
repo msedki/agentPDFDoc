@@ -42,14 +42,14 @@ test("essential text token pairs from theme.css reach WCAG AA 4.5:1", () => {
 
 test("current text rules keep WCAG AA 4.5:1 on their declared backgrounds", () => {
   const pairs: [string, string][] = [
-    [".eyebrow", ".app-topbar"], [".eyebrow", ".scope-trigger"], [".eyebrow", ".scope-trigger:hover"], [".topbar-service", ".app-topbar"], [".context-scope", ".context-band"], [".context-service", ".context-band"],
+    [".eyebrow", ".app-topbar"], [".eyebrow", ".scope-trigger"], [".eyebrow", ".scope-trigger:hover"], [".topbar-service", ".app-topbar"], [".context-scope", ".context-band"], [".context-service", ".context-band"], [".context-generation", ".context-band"],
     [".skip-links a", ".skip-links a"], [".shortcut-list dd", ".help-popover"], [".help-note", ".help-popover"], ["kbd", "kbd"], [".page-caption", ".viewer-panel"], [".panel-empty", ".viewer-panel"], [".panel-empty h3", ".viewer-panel"],
     [".tree-document small", ".library-panel"], [".tree-document small", ".tree-document:hover"], [".tree-document small", ".tree-document.is-open"],
     [".library-notice", ".library-panel"], [".library-notice.action-error", ".library-panel"], [".library-all.is-active", ".library-all.is-active"],
     [".analysis-tabs button", ".analysis-panel"], ['.analysis-tabs button[aria-selected="true"]', ".analysis-panel"], [".scope-summary > span:last-child:not(.eyebrow)", ".scope-summary"],
     [".composer-footer > span", ".composer-area form"], [".source-card-meta", ".source-card"], [".source-card-excerpt", ".source-card"], [".source-id", ".source-card"], [".source-card-footer", ".source-card"],
     [".inline-warning", ".viewer-notice"], [".inline-warning", ".analysis-panel"], [".inline-error", ".analysis-panel"], [".action-error", ".document-tools-menu"], [".invalid-citation", ".analysis-panel"], [".inline-citation", ".inline-citation"],
-    [".readiness-notice", ".readiness-notice"], [".workspace-error", ".workspace-error"], [".panel-message", ".panel-message"], [".panel-message-error", ".panel-message-error"], [".panel-message-error span", ".panel-message-error"],
+    [".readiness-notice", ".readiness-notice"], [".generation-notice", ".generation-notice"], [".generation-help-text", ".generation-help-text"], [".workspace-error", ".workspace-error"], [".panel-message", ".panel-message"], [".panel-message-error", ".panel-message-error"], [".panel-message-error span", ".panel-message-error"],
     [".source-navigation strong", ".source-navigation"], [".document-tools-menu .document-tools-hash", ".document-tools-menu"], [".reader-footer", ".reader-footer"], [".result-count", ".analysis-panel"],
     [".query-status", ".analysis-panel"], [".question-message small", ".analysis-panel"], [".job-heading > span", ".sheet"], [".scope-help", ".scope-popover"],
     [".session-command .session-system", ".session-command"],

@@ -140,7 +140,7 @@ def config_check():
     require(c['resources']['scheduling']['auto_resume_ingestion'] is False,'Reprise automatique non qualifiée')
     require(r['exact_identifier_final_coverage_required'] is True,'Contrainte exact absente')
     require(r['history_is_evidence'] is False,'Historique ne doit pas être preuve')
-    require(c['app']['offline'] and llm['num_gpu']==0,'Invariants local/CPU')
+    require(c['app']['offline'] and llm.get('accelerator') in ('auto','cpu','gpu') and 'num_gpu' not in llm,'Invariants local et accélération (W024, W025)')
     e=c['evaluation_targets']
     require(e['development_questions']+e['heldout_questions']==e['qualification_questions']==200,'Dataset counts')
     return {'embedding_dimensions':384,'max_declared_tokens_with_output':sum([r['max_evidence_llm_tokens'],r['max_history_llm_tokens'],r['max_instructions_question_llm_tokens'],r['context_safety_tokens'],llm['num_predict']]),'parameters_are_unqualified_design_targets':True}

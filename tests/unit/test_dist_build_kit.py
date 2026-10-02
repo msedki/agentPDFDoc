@@ -161,3 +161,62 @@ def test_kit_build_is_refused_outside_windows(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(sys, "argv", ["build_kit", "build", "--output", str(tmp_path / "kit")])
     assert module.main() == 1
     assert "windows-x86_64" in capsys.readouterr().out and not (tmp_path / "kit").exists()
+
+
+@pytest.mark.parametrize("residue", [".runtime/bin/ollama-0.35.0/bin/.runtime/qa/instance-1/home/.ollama/id_ed25519",
+                                     ".runtime/bin/ollama-0.35.0/bin/.runtime/data/home/.ollama/id_ed25519",
+                                     ".runtime/models/ollama/.runtime/evals/jeu.json"])
+def test_a_nested_runtime_residue_is_refused_wherever_it_lies(repository, residue):
+    # Revue J11 (B5) : un dossier de données relatif, résolu depuis bin/ d'Ollama, a laissé .runtime/qa/… (clés
+    # id_ed25519 comprises) sous .runtime/bin ; le préfixe seul ne l'attrapait pas.
+    write(repository, residue, "cle")
+    with pytest.raises(ValueError, match="Entrée interdite dans le kit"):
+        selected_files(repository)
+
+
+def test_the_gpu_discovery_of_the_build_host_is_not_shipped(repository):
+    # La découverte consignée par provision décrit le matériel du poste de fabrication, pas celui du poste installé.
+    write(repository, ".runtime/manifests/ollama-discovery.json", json.dumps({"platform": "windows-x86_64", "status": "gpu"}))
+    files = selected_files(repository)
+    assert ".runtime/manifests/ollama-discovery.json" not in files
+    assert ".runtime/manifests/tesseract-installed-copy.json" in files
+
+
+def test_the_windows_kit_lists_no_gpu_complement_of_ollama():
+    # Les compléments JetPack du verrou ne valent que pour Linux aarch64 : le kit Windows n'en porte aucun.
+    from tools.dist.build_kit import KIT_PLATFORM, ROOT
+    from tools.dist.notices import artifact_rows
+
+    lock = json.loads((ROOT / "config/artifacts.lock.json").read_text(encoding="utf-8"))
+    assert lock["groups"]["ollama-gpu"]
+    rows = artifact_rows(lock, [], KIT_PLATFORM)
+    assert {row["component"] for row in rows} >= {"ollama", "qdrant"}
+    assert not [row for row in rows if row["component"] == "ollama-gpu" or "jetpack" in row["source"]]
+
+
+# --- Kit sans bibliothèques GPU et proposition de la rubrique « calcul » (revue J11 runtime-4, runtime-6) ---------------
+
+def test_the_without_gpu_option_says_what_an_nvidia_host_gets(monkeypatch, capsys):
+    from tools.dist import build_kit as module
+
+    assert module.WITHOUT_GPU_HELP == (
+        "retirer cuda_v12, cuda_v13 et vulkan d'Ollama, pour des postes sans GPU NVIDIA : calcul sur CPU, sans "
+        "proposition GPU ; sur un poste NVIDIA, doctor signale que l'installation ne contient pas les bibliothèques CUDA")
+    monkeypatch.setattr(sys, "argv", ["build_kit", "build", "--help"])
+    with pytest.raises(SystemExit):
+        module.main()
+    assert " ".join(module.WITHOUT_GPU_HELP.split()) in " ".join(capsys.readouterr().out.split())
+
+
+@pytest.mark.parametrize(("script", "line"), [
+    ("tools/dist/raccourci.ps1", "if ($item.proposal) { Write-Output ('        Proposition : {0}' -f $item.proposal) }"),
+    ("tools/dist/install.ps1", 'if ($item.proposal) { Write-Output ("      Proposition : {0}" -f $item.proposal) }'),
+    ("tools/dist/install.ps1", "foreach ($item in @($doctor.verdict.rubrics | Where-Object { $_.proposal })) { "
+                               'Write-Output ("  Proposition, rubrique {0} : {1}" -f $item.rubric, $item.proposal) }'),
+])
+def test_windows_outputs_print_the_proposal_the_summary_points_to(script, line):
+    # Sans PowerShell sur le poste, au moins la ligne d'affichage ; son rendu réel est dans test_powershell_syntax.py.
+    from tools.dist.build_kit import ROOT
+
+    assert line in [item.strip() for item in (ROOT / script).read_text(encoding="utf-8-sig").splitlines()]
+

@@ -40,6 +40,8 @@ try {
             foreach ($item in $doctor.verdict.rubrics) {
                 Write-Output ('[{0}] {1} : {2}' -f $item.level, $item.rubric, $item.message)
                 if ($item.action) { Write-Output ('        {0}' -f $item.action) }
+                # Le résumé renvoie à la proposition de la rubrique (calcul GPU) : elle s'affiche sous sa rubrique.
+                if ($item.proposal) { Write-Output ('        Proposition : {0}' -f $item.proposal) }
             }
         }
         'sauvegarder' {

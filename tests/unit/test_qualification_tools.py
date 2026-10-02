@@ -577,6 +577,58 @@ def test_perf_reports_unobserved_long_answers_and_refuses_final_or_oversized_req
         perf.run(perf_dataset(tmp_path, "final"), tmp_path / "runtime" / "final-perf.json", BASE, 1, 0, transport=httpx.MockTransport(api), runtime_root=tmp_path / "runtime")
 
 
+# Accélération relue dans /api/v1/diagnostics (W025) : D07 exige le CPU imposé par le profil, effectif et sans repli.
+CPU_IMPOSED = {"requested": "cpu", "requested_source": "profile", "mode": "cpu", "reason": "imposed_by_profile", "fallback": None}
+GPU_AUTO = {"requested": "auto", "requested_source": "profile", "mode": "gpu", "reason": "gpu_discovered", "fallback": None}
+FALLEN_BACK = {**GPU_AUTO, "mode": "cpu", "fallback": {"utc": "2026-10-01T22:00:00+00:00", "http_status": 500, "error": "CUDA error"}}
+
+
+def with_accelerator(*states):
+    return [{**IDENTITY, **({"llm_accelerator": state} if state is not None else {})} for state in states]
+
+
+def test_perf_marks_a_cpu_imposed_series_d07_eligible_and_keeps_each_answer_execution(tmp_path):
+    events = answered("3.1 bar [S1].", eval_count=120)
+    events[-1][1]["metrics"]["llm_execution"] = {"mode": "cpu", "fallback": False}
+    api = FakeApi({"Question DEV-001 ?": events}, identity=with_accelerator(CPU_IMPOSED, CPU_IMPOSED))
+    report = perf.run(perf_dataset(tmp_path), tmp_path / "runtime" / "d07.json", BASE, 0, 1, transport=httpx.MockTransport(api), runtime_root=tmp_path / "runtime")
+    assert (report["status"], report["d07_eligible"], report["d07_ineligible_reason"]) == ("MEASURED_NOT_QUALIFIED", True, None)
+    assert report["accelerator"] == {"before": CPU_IMPOSED, "after": CPU_IMPOSED} and api.diagnostics_calls == 2
+    assert report["queries"][0]["llm_execution"] == {"mode": "cpu", "fallback": False}
+    assert perf.diagnostics_identity({**IDENTITY, "llm_accelerator": GPU_AUTO}) == IDENTITY
+
+
+@pytest.mark.parametrize("before,after,status,reason", [
+    (None, None, "MEASURED_NOT_QUALIFIED", "accelerator_unreported"),
+    (GPU_AUTO, GPU_AUTO, "MEASURED_NOT_QUALIFIED", "cpu_not_imposed_by_profile"),
+    ({**GPU_AUTO, "mode": "cpu", "reason": "no_gpu_discovered"},) * 2 + ("MEASURED_NOT_QUALIFIED", "cpu_not_imposed_by_profile"),
+    ({**CPU_IMPOSED, "requested_source": "legacy_num_gpu", "reason": "legacy_profile_cpu"},) * 2 + ("MEASURED_NOT_QUALIFIED", None),
+    (FALLEN_BACK, FALLEN_BACK, "MEASURED_NOT_QUALIFIED", "cpu_not_imposed_by_profile"),
+    ({**CPU_IMPOSED, "mode": "gpu"},) * 2 + ("MEASURED_NOT_QUALIFIED", "generation_not_on_cpu"),
+    ({**CPU_IMPOSED, "fallback": FALLEN_BACK["fallback"]},) * 2 + ("MEASURED_NOT_QUALIFIED", "gpu_fallback_recorded"),
+    (GPU_AUTO, FALLEN_BACK, "INVALID_ACCELERATOR_DRIFT", "accelerator_drift"),
+    (GPU_AUTO, {**GPU_AUTO, "mode": "cpu"}, "INVALID_ACCELERATOR_DRIFT", "accelerator_drift"),
+    (CPU_IMPOSED, None, "INVALID_ACCELERATOR_DRIFT", "accelerator_drift"),
+    (None, CPU_IMPOSED, "INVALID_ACCELERATOR_DRIFT", "accelerator_drift"),
+], ids=["api-anterieure", "gpu", "auto-sur-cpu", "forme-anterieure", "repli-avant-la-serie", "incoherent-gpu", "incoherent-repli",
+        "repli-pendant-la-serie", "mode-change", "publication-perdue", "publication-apparue"])
+def test_perf_d07_eligibility_and_accelerator_drift(tmp_path, before, after, status, reason):
+    api = FakeApi({"Question DEV-001 ?": answered("3.1 bar [S1].")}, identity=with_accelerator(before, after))
+    report = perf.run(perf_dataset(tmp_path), tmp_path / "runtime" / "series.json", BASE, 0, 1, transport=httpx.MockTransport(api), runtime_root=tmp_path / "runtime")
+    assert (report["status"], report["d07_ineligible_reason"], report["d07_eligible"]) == (status, reason, reason is None)
+    assert report["api_identity"] == report["api_identity_after"] == IDENTITY
+
+
+@pytest.mark.parametrize("before,after", [(GPU_AUTO, FALLEN_BACK), (CPU_IMPOSED, CPU_IMPOSED)], ids=["avec-derive-d-acceleration", "cpu-impose"])
+def test_perf_identity_drift_prevails_over_accelerator_drift_and_is_never_d07_eligible(tmp_path, before, after):
+    # Une série invalidée n'est jamais éligible, même en CPU imposé : le motif suit la priorité du statut.
+    identity = with_accelerator(before, after)
+    identity[1]["profile_sha256"] = "q" * 64
+    api = FakeApi({"Question DEV-001 ?": answered("3.1 bar [S1].")}, identity=identity)
+    report = perf.run(perf_dataset(tmp_path), tmp_path / "runtime" / "both.json", BASE, 0, 1, transport=httpx.MockTransport(api), runtime_root=tmp_path / "runtime")
+    assert (report["status"], report["d07_eligible"], report["d07_ineligible_reason"]) == ("INVALID_API_IDENTITY_DRIFT", False, "api_identity_drift")
+
+
 # --- 8. extra_fixtures.py ------------------------------------------------------------------------------------------
 
 def test_extra_fixtures_are_reproducible_in_temporary_directories_and_match_delivered_files(tmp_path):

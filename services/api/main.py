@@ -57,7 +57,9 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         governor.after_resource_violation = ollama.unload
     if governor is not None and hasattr(ollama, "loaded_state"):
         async def before_generation():
-            loaded = await ollama.loaded_state()
+            return await release_before_cold_load(await ollama.loaded_state())
+
+        async def release_before_cold_load(loaded):
             threshold = settings.value("resources", "initial_llm_load_peak_estimate_mib", 6144) + settings.value("resources", "host_available_min_mib", 1536)
             if loaded.get("resident") is False and governor.snapshot()["available_mib"] < threshold:
                 loaded["cold_cache_release_before"] = governor.snapshot()
@@ -73,6 +75,16 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
                     "embedding_tokenizer": loaded.get("embedding_tokenizer_release"), "llm_tokenizer": loaded.get("llm_tokenizer_release")}
             return loaded
         governor.before_generation = before_generation
+
+        if hasattr(ollama, "before_cpu_fallback"):
+            async def before_cpu_fallback():
+                """Repli CPU (W025, H1) : l'admission du bail a pu être « chaude » (modèle résident sur le GPU) ; la relance
+                charge le modèle sur CPU, à froid. Mêmes libérations de caches qu'avant un chargement à froid, puis nouvelle
+                admission dans le bail en cours ; un refus termine la question sans relance."""
+                cold = {"loaded": False, "resident": False, "model": settings.value("llm", "model", "qwen3.5:4b"),
+                        "additional_peak_mib": 0, "cpu_fallback": True}
+                await governor.readmit_generation(await release_before_cold_load(cold))
+            ollama.before_cpu_fallback = before_cpu_fallback
     resolver = ScopeResolver(db)
     search = SearchService(db, resolver, embedding, vectors, settings)
     indexer = Indexer(db, embedding, vectors, settings, tokenizer)
@@ -604,6 +616,15 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         db.version(row["version_id"])
         return json.loads(row["source_json"])
 
+    def generation_device():
+        """Matériel de la génération pour l'atelier (W025 P7), sur une route authentifiée relue toutes les 3 s :
+        `cpu` ou `gpu`, repli éventuel et dernière occupation observée du modèle (`processor`, déjà relue par la
+        passerelle, sans appel à Ollama), sans description du matériel (réservée à /diagnostics)."""
+        if not hasattr(ollama, "describe"):
+            return None
+        state = ollama.describe()
+        return {"device": state["mode"], "fallback": state["fallback"] is not None, "processor": getattr(ollama, "placement", None)}
+
     @application.get(prefix + "/jobs")
     async def job_list(limit: int = 100):
         if not 1 <= limit <= 200:
@@ -613,7 +634,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         # Le mode instantané du gouverneur repasse à « interactive » entre deux traitements : il ne la reflète pas.
         snapshot = governor.snapshot() if governor and hasattr(governor, "snapshot") else None
         mode = ("interactive" if snapshot.get("pause_requested") else "ingestion") if snapshot else None
-        return {"jobs": rows, "total": db.one("SELECT count(*) AS n FROM jobs")["n"], "runtime_mode": mode}
+        return {"jobs": rows, "total": db.one("SELECT count(*) AS n FROM jobs")["n"], "runtime_mode": mode, "generation": generation_device()}
 
     @application.post(prefix + "/jobs/resume-paused")
     async def resume_paused_jobs():
@@ -682,6 +703,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
                 "indexing_cache": indexer.diagnostics(), "ingestion_cache": jobs.diagnostics(),
                 "llm_tokenizer_cache": tokenizer.lifecycle() if hasattr(tokenizer, "lifecycle") else {"status": "explicit_test_substitute"},
                 "cold_cache_release": cache_release_state["last"],
+                "llm_accelerator": ollama.describe() if hasattr(ollama, "describe") else {"status": "explicit_test_substitute"},
                 "profile_sha256": hashlib.sha256(json.dumps(settings.profile, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest(),
                 "reconciliation": {"staged": reconciler.inspect(), "pending_cleanup": db.one("SELECT count(*) AS n FROM vector_cleanup WHERE state='pending'")["n"]},
                 "index_consistency": await index_consistency()}

@@ -1313,3 +1313,407 @@ def test_real_built_tesseract_matches_its_manifest_and_languages():
     listed = subprocess.run([str(binary), "--list-langs"], capture_output=True, text=True, check=True, timeout=30,
                             env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "TESSDATA_PREFIX": str(tessdata)})
     assert {"eng", "fra", "osd"} <= set(listed.stdout.splitlines()[1:])
+
+
+# --- Complément GPU d'Ollama (W024, W025) : provision de bout en bout sur archives synthétiques -----------------------
+
+JETSON_DISCOVERY_BASE = (
+    'time=2026-10-01T18:54:05.254+01:00 level=INFO source=runner.go:60 msg="discovering available GPUs..."\n'
+    'time=2026-10-01T18:54:12.291+01:00 level=INFO source=types.go:50 msg="inference compute" id=cpu library=cpu compute="" '
+    'name=cpu description=cpu libdirs=ollama driver="" pci_id="" type="" total="61.3 GiB" available="48.4 GiB"\n')
+JETSON_DISCOVERY_JETPACK5 = (
+    'time=2026-10-01T21:49:09.542+01:00 level=INFO source=runner.go:60 msg="discovering available GPUs..."\n'
+    'time=2026-10-01T21:49:26.663+01:00 level=INFO source=types.go:32 msg="inference compute" id=0 filter_id=0 library=CUDA '
+    "compute=8.7 name=CUDA0 description=Orin libdirs=ollama,cuda_jetpack5 driver=11.4 pci_id=0000:00:00.0 type=iGPU "
+    'total="61.3 GiB" available="45.1 GiB"\n')
+WINDOWS_DISCOVERY_IRIS_XE = (
+    'time=2026-09-30T01:19:12.269Z level=INFO source=runner.go:60 msg="discovering available GPUs..."\n'
+    'time=2026-09-30T01:19:15.477Z level=INFO source=runner.go:405 msg="dropping integrated GPU; to enable, set '
+    'OLLAMA_IGPU_ENABLE=1" id=0 library=Vulkan compute=0.0 name=Vulkan0 description="Intel(R) Iris(R) Xe Graphics" pci_id=""\n'
+    'time=2026-09-30T01:19:15.478Z level=INFO source=types.go:50 msg="inference compute" id=cpu library=cpu compute="" '
+    'name=cpu description=cpu libdirs=ollama driver="" pci_id="" type="" total="15.7 GiB" available="6.0 GiB"\n')
+JETSON_R35 = {"platform": "linux-aarch64", "l4t_major": 35, "jetpack": "jetpack5", "nvidia_kernel_driver": None,
+              "gpu_nodes": {}, "windows_nvcuda": None}
+
+
+def _tar_zst(members) -> bytes:
+    """Archive .tar.zst : (nom, contenu) pour un fichier, (nom, None) pour un dossier, (nom, '->cible') pour un lien."""
+    zstandard = pytest.importorskip("zstandard")
+    buffer = io.BytesIO()
+    with tarfile.open(fileobj=buffer, mode="w", format=tarfile.PAX_FORMAT) as archive:
+        for name, data in members:
+            info = tarfile.TarInfo(name)
+            info.mode = 0o755
+            if data is None:
+                info.type = tarfile.DIRTYPE
+                archive.addfile(info)
+            elif isinstance(data, str):
+                info.type, info.linkname = tarfile.SYMTYPE, data.removeprefix("->")
+                archive.addfile(info)
+            else:
+                info.size = len(data)
+                archive.addfile(info, io.BytesIO(data))
+    return zstandard.ZstdCompressor().compress(buffer.getvalue())
+
+
+def _zip(members) -> bytes:
+    import zipfile
+
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as archive:
+        for name, data in members:
+            archive.writestr(name, data)
+    return buffer.getvalue()
+
+
+@pytest.fixture
+def gpu_provision(tmp_path, monkeypatch):
+    """`provision` réel jusqu'à l'extraction, dans une racine temporaire : réseau, uv, pnpm, Tesseract, pull-model et
+    sonde d'Ollama sont des doubles ; archives synthétiques à la forme des archives officielles (base, puis complément
+    `jetpack5` limité à lib/ollama/cuda_jetpack5 avec un lien interne)."""
+    import yaml
+
+    from services.runtime import accelerator, cli, supervisor
+
+    program = (tmp_path / "programme").resolve()
+    (program / "config").mkdir(parents=True)
+    served = {
+        "ollama-linux-arm64.tar.zst": _tar_zst([
+            ("./bin/", None), ("./bin/ollama", b"\x7fELF ollama"), ("./lib/ollama/", None),
+            ("./lib/ollama/libggml-base.so", b"base"), ("./lib/ollama/cuda_v12/", None),
+            ("./lib/ollama/cuda_v12/libggml-cuda.so", b"cuda 12.8")]),
+        "ollama-linux-arm64-jetpack5.tar.zst": _tar_zst([
+            ("./lib/ollama/cuda_jetpack5/", None), ("./lib/ollama/cuda_jetpack5/libggml-cuda.so", b"cuda 11.4 sm_87"),
+            ("./lib/ollama/cuda_jetpack5/libcudart.so.11.0", "->libcudart.so.11.4.298"),
+            ("./lib/ollama/cuda_jetpack5/libcudart.so.11.4.298", b"cudart 11.4")]),
+        "ollama-linux-arm64-jetpack6.tar.zst": _tar_zst([
+            ("./lib/ollama/cuda_jetpack6/", None), ("./lib/ollama/cuda_jetpack6/libggml-cuda.so", b"cuda 12.6")]),
+        "ollama-windows-amd64.zip": _zip([("ollama.exe", b"MZ ollama"), ("lib/ollama/cuda_v12/ggml-cuda.dll", b"cuda"),
+                                          ("lib/ollama/vulkan/ggml-vulkan.dll", b"vulkan")]),
+    }
+
+    def entry(name, platform, **fields):
+        data = served[name]
+        return {"version": "0.35.0", "platform": platform, **fields, "publisher": "ollama/ollama", "license": "MIT",
+                "url": f"https://github.com/ollama/ollama/releases/download/v0.35.0/{name}", "size": len(data),
+                "sha256": hashlib.sha256(data).hexdigest(), "target": f".runtime/cache/downloads/{name}",
+                "extract_to": ".runtime/bin/ollama-0.35.0"}
+
+    lock = {"schema_version": 1, "groups": {
+        "ollama": [entry("ollama-windows-amd64.zip", "windows-x86_64"),
+                   entry("ollama-linux-arm64.tar.zst", "linux-aarch64")],
+        "ollama-gpu": [entry("ollama-linux-arm64-jetpack5.tar.zst", "linux-aarch64", host={"l4t_major": 35},
+                             variant="cuda_jetpack5"),
+                       entry("ollama-linux-arm64-jetpack6.tar.zst", "linux-aarch64", host={"l4t_major": 36},
+                             variant="cuda_jetpack6")]}}
+    (program / "config/artifacts.lock.json").write_text(json.dumps(lock), encoding="utf-8")
+    for module in (artifacts, cli, supervisor):
+        monkeypatch.setattr(module, "ROOT", program)
+    monkeypatch.setattr(artifacts, "ARTIFACT_LOCK", program / "config/artifacts.lock.json")
+    monkeypatch.setattr(artifacts.shutil, "disk_usage", lambda path: SimpleNamespace(total=1024**4, used=0, free=1024**4))
+    requests: list[str] = []
+
+    def serve(request, timeout=None):
+        requests.append(request.full_url.rsplit("/", 1)[-1])
+        return Served(served[requests[-1]])
+
+    monkeypatch.setattr(urllib.request, "urlopen", serve)
+    state = {"signals": dict(JETSON_R35), "discovery": JETSON_DISCOVERY_JETPACK5, "llm": {"accelerator": "auto"},
+             "probes": [], "pulls": [], "commands": [], "tesseract": []}
+    shipped = yaml.safe_load((REAL_ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    profile_path = program / "config/local16.yaml"
+
+    def write_profile():
+        llm = {key: value for key, value in shipped["llm"].items() if key not in ("num_gpu", "accelerator")}
+        profile_path.write_text(yaml.safe_dump({**shipped, "llm": {**llm, **state["llm"]}}, allow_unicode=True),
+                                encoding="utf-8")
+        return profile_path
+
+    # Profil validé par le vrai load_profile, qui accepte llm.accelerator et la forme antérieure llm.num_gpu: 0.
+    monkeypatch.setattr(cli, "host_signals", lambda: dict(state["signals"]))
+
+    def probe(profile, profile_path, directory, log_path, *, version, **kwargs):
+        state["probes"].append({"profile_path": profile_path, "directory": directory, "log": log_path, "version": version})
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        with log_path.open("a", encoding="utf-8") as log:
+            log.write(state["discovery"])
+        return accelerator.read_discovery(log_path)
+
+    def pull_model(profile_path, offline=False):
+        state["pulls"].append(offline)
+        log = program / ".runtime/provision-service/ollama-pull.log"
+        log.parent.mkdir(parents=True, exist_ok=True)
+        with log.open("a", encoding="utf-8") as stream:
+            stream.write(state["discovery"])
+        return {"name": "qwen3.5:4b-text", "digest": "derive"}
+
+    monkeypatch.setattr(cli, "probe_discovery", probe)
+    monkeypatch.setattr(cli, "pull_model", pull_model)
+    monkeypatch.setattr(cli.subprocess, "run", lambda command, **kwargs: state["commands"].append(command))
+    monkeypatch.setattr(cli, "pnpm_command", lambda: ["pnpm"])
+    monkeypatch.setattr(provisioning, "tesseract", lambda profile, offline=False: state["tesseract"].append(offline))
+    return SimpleNamespace(root=program, requests=requests, state=state, write_profile=write_profile, cli=cli)
+
+
+def _discovery_manifest(root) -> dict:
+    return json.loads((root / ".runtime/manifests/ollama-discovery.json").read_text(encoding="utf-8"))
+
+
+@POSIX
+def test_the_jetpack5_complement_is_extracted_over_the_base_and_confirmed_by_ollama(gpu_provision, capsys, monkeypatch):
+    from services.runtime import accelerator, platforms, supervisor
+
+    run, root = gpu_provision, gpu_provision.root
+    profile_path = run.write_profile()
+    run.state["discovery"] = JETSON_DISCOVERY_BASE
+    run.cli.provision(profile_path, only="ollama")
+    out = capsys.readouterr().out
+    assert "Accélération GPU" not in out
+    assert "Découverte d'Ollama : aucun GPU utilisable, calcul sur CPU.\n" in out
+    assert "Génération attendue au prochain démarrage : CPU, aucun GPU utilisable découvert par Ollama.\n" in out
+
+    run.state["discovery"] = JETSON_DISCOVERY_JETPACK5
+    assert run.cli.provision(profile_path, only="ollama-gpu") == {"artifacts": "verified", "model": "unchanged"}
+    out = capsys.readouterr().out
+    assert out.startswith("Accélération GPU : Jetson Linux R35 (JetPack 5) détecté ; complément officiel "
+                          "ollama-linux-arm64-jetpack5.tar.zst retenu (bibliothèques cuda_jetpack5).\n")
+    assert "Découverte d'Ollama : Orin (CUDA, GPU intégré, bibliothèques cuda_jetpack5).\n" in out
+    assert ("Génération attendue au prochain démarrage : GPU, Orin (CUDA, GPU intégré, bibliothèques cuda_jetpack5) ; "
+            "GPU découvert, bibliothèques vérifiées, voie qualifiée.\n") in out
+    # Seul le complément du poste est téléchargé ; il s'ajoute au dossier de la base sans rien en retirer.
+    assert run.requests == ["ollama-linux-arm64.tar.zst", "ollama-linux-arm64-jetpack5.tar.zst"]
+    lib = root / ".runtime/bin/ollama-0.35.0/lib/ollama"
+    assert sorted(path.name for path in lib.iterdir()) == ["cuda_jetpack5", "cuda_v12", "libggml-base.so"]
+    assert os.readlink(lib / "cuda_jetpack5/libcudart.so.11.0") == "libcudart.so.11.4.298"
+    manifest = json.loads((root / ".runtime/manifests/artifacts.json").read_text(encoding="utf-8"))
+    assert set(manifest) == {"ollama", "ollama-gpu"}
+    assert [record["url"].rsplit("/", 1)[-1] for record in manifest["ollama-gpu"]] == ["ollama-linux-arm64-jetpack5.tar.zst"]
+    assert manifest["ollama-gpu"][0]["extracted_links"] == [
+        {"path": ".runtime/bin/ollama-0.35.0/lib/ollama/cuda_jetpack5/libcudart.so.11.0", "target": "libcudart.so.11.4.298"}]
+    # native_paths trouve toujours un seul exécutable ollama, vérifié par le manifeste de la base.
+    monkeypatch.setattr(platforms, "platform_id", lambda: "linux-aarch64")
+    assert supervisor.native_paths(("ollama",)) == {"ollama": root / ".runtime/bin/ollama-0.35.0/bin/ollama"}
+    lock = json.loads((root / "config/artifacts.lock.json").read_text(encoding="utf-8"))
+    libraries = accelerator.verified_libraries(lock, manifest, JETSON_R35, root=root)
+    assert libraries["provisioned"] and libraries["variants"]["cuda_jetpack5"] == {
+        "group": "ollama-gpu", "files": 2, "links": 1, "sizes_ok": True, "links_ok": True}
+    # Sonde lancée avec des chemins absolus (B5) et la version verrouillée ; découverte consignée.
+    probe = run.state["probes"][-1]
+    assert probe["profile_path"].is_absolute() and probe["directory"] == root / ".runtime/provision-service"
+    assert probe["log"] == root / ".runtime/provision-service/ollama-probe.log" and probe["version"] == "0.35.0"
+    record = _discovery_manifest(root)
+    assert {key: record[key] for key in ("schema_version", "source", "method", "version", "platform", "l4t_major",
+                                         "jetpack", "log", "status")} == {
+        "schema_version": 1, "source": "provision", "method": "probe", "version": "0.35.0", "platform": "linux-aarch64",
+        "l4t_major": 35, "jetpack": "jetpack5", "log": ".runtime/provision-service/ollama-probe.log", "status": "gpu"}
+    assert [device["libdirs"] for device in record["devices"]] == [["ollama", "cuda_jetpack5"]]
+    # Bibliothèques avec lesquelles la découverte a été faite : doctor écarte une découverte faite avec d'autres.
+    assert record["libraries"] == libraries
+
+
+@POSIX
+@pytest.mark.parametrize(("llm", "skipped"), [
+    ({"accelerator": "cpu"}, "le profil impose le calcul CPU (llm.accelerator: cpu)."),
+    ({"num_gpu": 0}, "le profil impose le calcul CPU (llm.num_gpu: 0 ; remplacez cette ligne par "
+                     "llm.accelerator: auto pour utiliser le GPU)."),
+    ({"accelerator": "auto"}, None),
+    ({}, None),
+])
+def test_full_provision_skips_the_complement_only_when_the_profile_imposes_the_cpu(gpu_provision, capsys, llm, skipped):
+    run, root = gpu_provision, gpu_provision.root
+    run.state["llm"] = llm
+    run.state["discovery"] = JETSON_DISCOVERY_JETPACK5
+    model = run.cli.provision(run.write_profile())
+    out = capsys.readouterr().out
+    assert model == {"name": "qwen3.5:4b-text", "digest": "derive"} and run.state["pulls"] == [False]
+    if skipped:
+        assert ("Accélération GPU : complément ollama-linux-arm64-jetpack5.tar.zst non téléchargé, " + skipped) in out
+        assert run.requests == ["ollama-linux-arm64.tar.zst"]
+        assert not (root / ".runtime/bin/ollama-0.35.0/lib/ollama/cuda_jetpack5").exists()
+        assert "Génération attendue au prochain démarrage : CPU, " in out
+    else:
+        assert "complément officiel ollama-linux-arm64-jetpack5.tar.zst retenu (bibliothèques cuda_jetpack5)" in out
+        assert run.requests == ["ollama-linux-arm64.tar.zst", "ollama-linux-arm64-jetpack5.tar.zst"]
+        assert "Génération attendue au prochain démarrage : GPU, Orin" in out
+    # Découverte confirmée par le journal du service de pull-model (dernier bloc), sans sonde supplémentaire.
+    assert run.state["probes"] == [] and _discovery_manifest(root)["method"] == "pull_model"
+    assert _discovery_manifest(root)["log"] == ".runtime/provision-service/ollama-pull.log"
+
+
+@POSIX
+def test_explicit_only_downloads_the_complement_even_with_a_cpu_profile(gpu_provision, capsys):
+    run = gpu_provision
+    run.state["llm"] = {"accelerator": "cpu"}
+    run.cli.provision(run.write_profile(), only="ollama-gpu")
+    out = capsys.readouterr().out
+    assert run.requests == ["ollama-linux-arm64-jetpack5.tar.zst"] and "retenu (bibliothèques cuda_jetpack5)" in out
+    # Le profil garde la main au démarrage : GPU présent, calcul imposé sur CPU.
+    assert "Génération attendue au prochain démarrage : CPU, imposée par le profil (llm.accelerator: cpu).\n" in out
+
+
+@pytest.mark.parametrize(("signals", "host"), [
+    ({"platform": "linux-x86_64", "l4t_major": None}, "linux-x86_64, hors Jetson"),
+    ({"platform": "linux-aarch64", "l4t_major": 38}, "linux-aarch64, Jetson Linux R38"),
+    ({"platform": "windows-x86_64", "l4t_major": None}, "windows-x86_64, hors Jetson"),
+])
+def test_only_the_complement_on_a_host_without_one_exits_with_code_zero(gpu_provision, capsys, monkeypatch, signals, host):
+    run = gpu_provision
+    run.state["signals"] = signals
+    monkeypatch.setattr(sys, "argv", ["cli", "provision", "--only", "ollama-gpu", "--profile", str(run.write_profile())])
+    assert run.cli.main() == 0
+    out = capsys.readouterr().out
+    assert out.startswith(f"Aucun complément GPU d'Ollama ne correspond à ce poste ({host}) : rien à télécharger.\n")
+    assert json.loads(out.split("\n", 1)[1]) == {"artifacts": "verified", "model": "unchanged"}
+    assert run.requests == [] and run.state["probes"] == []
+    assert not (run.root / ".runtime/manifests/ollama-discovery.json").exists()
+
+
+def test_windows_host_without_usable_gpu_downloads_nothing_more_and_stays_on_cpu(gpu_provision, capsys):
+    # Invariant Windows (W025) : aucune entrée ollama-gpu, aucun message GPU ; Ollama écarte l'iGPU Intel (Vulkan).
+    run = gpu_provision
+    run.state["signals"] = {"platform": "windows-x86_64", "l4t_major": None, "jetpack": None, "windows_nvcuda": False}
+    run.state["discovery"] = WINDOWS_DISCOVERY_IRIS_XE
+    run.cli.provision(run.write_profile(), only="ollama")
+    out = capsys.readouterr().out
+    assert run.requests == ["ollama-windows-amd64.zip"] and "Accélération GPU" not in out
+    verified, rest = out.split("\n", 1)
+    assert verified.startswith("Vérifié : ollama-windows-amd64.zip (") and rest == (
+        "Découverte d'Ollama : aucun GPU utilisable, calcul sur CPU.\n"
+        "Génération attendue au prochain démarrage : CPU, aucun GPU utilisable découvert par Ollama.\n")
+    record = _discovery_manifest(run.root)
+    assert (record["platform"], record["status"], record["dropped"][0]["description"]) == (
+        "windows-x86_64", "cpu_only", "Intel(R) Iris(R) Xe Graphics")
+
+
+def test_skip_model_probes_ollama_and_a_failed_probe_does_not_fail_the_provision(gpu_provision, capsys, monkeypatch):
+    run = gpu_provision
+    profile_path = run.write_profile()
+    assert run.cli.provision(profile_path, skip_model=True) == {"artifacts": "verified", "model": "not_requested"}
+    assert run.state["pulls"] == [] and len(run.state["probes"]) == 1 and _discovery_manifest(run.root)["status"] == "gpu"
+    capsys.readouterr()
+
+    def unavailable(*args, **kwargs):
+        raise FileNotFoundError("Artefacts non provisionnés ; exécuter ./rag.sh provision")
+
+    monkeypatch.setattr(run.cli, "probe_discovery", unavailable)
+    run.cli.provision(profile_path, only="ollama")
+    out = capsys.readouterr().out
+    assert ("Découverte d'Ollama non lue dans son journal (.runtime/provision-service/ollama-probe.log ; "
+            "FileNotFoundError : Artefacts non provisionnés ; exécuter ./rag.sh provision) : elle sera relevée au "
+            "prochain démarrage (") in out
+    record = _discovery_manifest(run.root)
+    assert (record["status"], record["devices"], record["error"]) == (
+        "unreadable", [], "FileNotFoundError : Artefacts non provisionnés ; exécuter ./rag.sh provision")
+
+
+def test_offline_complement_requires_the_cached_archive(gpu_provision, monkeypatch):
+    run = gpu_provision
+    monkeypatch.setattr(urllib.request, "urlopen", lambda *args, **kwargs: pytest.fail("aucun accès réseau hors ligne"))
+    with pytest.raises(FileNotFoundError, match="Artefact offline absent ou corrompu : ollama-linux-arm64-jetpack5.tar.zst"):
+        run.cli.provision(run.write_profile(), only="ollama-gpu", offline=True)
+    assert not (run.root / ".runtime/manifests/ollama-discovery.json").exists()
+
+
+# --- Complément facultatif hors ligne ou en échec, sonde qui ne s'arrête pas (revue J11 runtime-1, runtime-3, ---------
+# invariants-04) ---------------------------------------------------------------------------------------------------------
+
+def _model_already_derived(root, profile_path) -> None:
+    import yaml
+
+    llm = yaml.safe_load(profile_path.read_text(encoding="utf-8"))["llm"]
+    for key in ("source_model_manifest", "model_manifest"):
+        (root / llm[key]).parent.mkdir(parents=True, exist_ok=True)
+        (root / llm[key]).write_text("{}", encoding="utf-8")
+
+
+@POSIX
+def test_a_full_offline_provision_continues_without_the_complement_missing_from_the_cache(gpu_provision, capsys,
+                                                                                         monkeypatch):
+    # Jetson R35, profil livré (auto), cache constitué avant J11 : archive de base et e5 en cache, complément absent.
+    run, root = gpu_provision, gpu_provision.root
+    profile_path = run.write_profile()
+    run.state["discovery"] = JETSON_DISCOVERY_BASE
+    run.cli.provision(profile_path, only="ollama")
+    # Groupe e5 placé après ollama-gpu, comme dans le verrou réel, déjà en cache.
+    lock = json.loads((root / "config/artifacts.lock.json").read_text(encoding="utf-8"))
+    data = b"modele e5 en cache"
+    lock["groups"]["e5"] = [{"publisher": "intfloat", "license": "MIT", "url": "https://huggingface.co/e5/model.onnx",
+                             "size": len(data), "sha256": hashlib.sha256(data).hexdigest(),
+                             "target": ".runtime/models/e5/model.onnx"}]
+    (root / "config/artifacts.lock.json").write_text(json.dumps(lock), encoding="utf-8")
+    (root / ".runtime/models/e5").mkdir(parents=True)
+    (root / ".runtime/models/e5/model.onnx").write_bytes(data)
+    _model_already_derived(root, profile_path)
+    monkeypatch.setattr(urllib.request, "urlopen", lambda *args, **kwargs: pytest.fail("aucun accès réseau hors ligne"))
+    capsys.readouterr()
+    run.state["probes"].clear()
+    assert run.cli.provision(profile_path, offline=True) == {"artifacts": "verified", "model": "unchanged"}
+    out = capsys.readouterr().out
+    assert ("Accélération GPU : complément ollama-linux-arm64-jetpack5.tar.zst absent ou corrompu dans le cache hors "
+            "ligne. Le provisionnement continue sans lui : la génération restera sur CPU. Pour l'ajouter ensuite : "
+            "./rag.sh provision --only ollama-gpu, avec un accès réseau.\n") in out
+    manifest = json.loads((root / ".runtime/manifests/artifacts.json").read_text(encoding="utf-8"))
+    assert set(manifest) == {"ollama", "e5"} and manifest["e5"][0]["cached"] is True
+    # Les étapes suivantes ont eu lieu : Tesseract, compilation de l'interface, puis la découverte.
+    assert run.state["tesseract"] == [True] and ["pnpm", "run", "build"] in run.state["commands"]
+    # Modèle déjà présent hors ligne : sans service de pull-model, la sonde consigne la découverte (runtime-3).
+    assert run.state["pulls"] == [] and len(run.state["probes"]) == 1
+    assert _discovery_manifest(root)["method"] == "probe" and _discovery_manifest(root)["status"] == "cpu_only"
+    assert "Génération attendue au prochain démarrage : CPU, aucun GPU utilisable découvert par Ollama.\n" in out
+
+
+@POSIX
+def test_a_failed_complement_download_does_not_stop_a_full_provision(gpu_provision, capsys, monkeypatch):
+    run, root = gpu_provision, gpu_provision.root
+    serve = urllib.request.urlopen
+
+    def unreachable_complement(request, timeout=None):
+        if request.full_url.endswith("-jetpack5.tar.zst"):
+            raise OSError("Network is unreachable")
+        return serve(request, timeout)
+
+    monkeypatch.setattr(urllib.request, "urlopen", unreachable_complement)
+    monkeypatch.setattr(artifacts.time, "sleep", lambda seconds: None)
+    run.state["discovery"] = JETSON_DISCOVERY_BASE
+    assert run.cli.provision(run.write_profile()) == {"name": "qwen3.5:4b-text", "digest": "derive"}
+    out = capsys.readouterr().out
+    assert ("Accélération GPU : téléchargement du complément ollama-linux-arm64-jetpack5.tar.zst en échec, OSError : "
+            "Network is unreachable. Le provisionnement continue sans lui : la génération restera sur CPU. Pour l'ajouter "
+            "ensuite : ./rag.sh provision --only ollama-gpu.\n") in out
+    assert set(json.loads((root / ".runtime/manifests/artifacts.json").read_text(encoding="utf-8"))) == {"ollama"}
+    assert run.state["pulls"] == [False] and _discovery_manifest(root)["method"] == "pull_model"
+    # Demande explicite : l'échec du complément reste une erreur.
+    with pytest.raises(OSError, match="Network is unreachable"):
+        run.cli.provision(run.write_profile(), only="ollama-gpu")
+
+
+@POSIX
+def test_an_unavailable_complement_already_extracted_keeps_its_libraries(gpu_provision, capsys, monkeypatch):
+    run, root = gpu_provision, gpu_provision.root
+    profile_path = run.write_profile()
+    run.cli.provision(profile_path, only="ollama")
+    run.cli.provision(profile_path, only="ollama-gpu")
+    (root / ".runtime/cache/downloads/ollama-linux-arm64-jetpack5.tar.zst").unlink()
+    capsys.readouterr()
+    run.cli.provision(profile_path, skip_model=True, offline=True)
+    out = capsys.readouterr().out
+    assert ("Accélération GPU : complément ollama-linux-arm64-jetpack5.tar.zst absent ou corrompu dans le cache hors "
+            "ligne. Le provisionnement continue ; les bibliothèques déjà extraites de ce complément restent en place.\n"
+            ) in out
+    manifest = json.loads((root / ".runtime/manifests/artifacts.json").read_text(encoding="utf-8"))
+    assert [record["url"].rsplit("/", 1)[-1] for record in manifest["ollama-gpu"]] == ["ollama-linux-arm64-jetpack5.tar.zst"]
+
+
+def test_a_probe_that_does_not_stop_in_time_does_not_fail_the_provision(gpu_provision, capsys, monkeypatch):
+    # Sous Windows, l'arrêt de la sonde passe par l'assistant console_signal (délai de 10 s) : son dépassement lève
+    # subprocess.TimeoutExpired, qui n'est ni OSError ni TimeoutError.
+    run = gpu_provision
+
+    def stuck(*args, **kwargs):
+        raise subprocess.TimeoutExpired(["python", "-m", "services.runtime.console_signal", "4242"], 10)
+
+    monkeypatch.setattr(run.cli, "probe_discovery", stuck)
+    assert run.cli.provision(run.write_profile(), only="ollama") == {"artifacts": "verified", "model": "unchanged"}
+    record = _discovery_manifest(run.root)
+    assert record["status"] == "unreadable" and record["error"].startswith("TimeoutExpired : Command ")
+    assert "Découverte d'Ollama non lue dans son journal" in capsys.readouterr().out
