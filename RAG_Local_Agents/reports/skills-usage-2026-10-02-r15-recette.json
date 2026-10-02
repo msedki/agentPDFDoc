@@ -1,0 +1,25 @@
+{
+  "role": "Relevé de lecture et usage des skills pour la préparation QA R15-2 et D03",
+  "owner": "intégration et validation du chantier",
+  "status": "Vivant, préparation seulement ; recettes natives non exécutées",
+  "reference": "main 955128fb95621acec4fc7b7c2644a8bea7fc2369 ; relevé du 2026-10-02 21:02 UTC",
+  "scope": "SKILL.md lus intégralement dans la continuation courante avant les actions concernées ; aucune heure individuelle historique reconstituée",
+  "previous_record": "RAG_Local_Agents/reports/skills-usage-2026-10-02-r15-d11.json",
+  "skills_read": [
+    {"name": "pdf-workspace-web", "path": ".agents/skills/pdf-workspace-web/SKILL.md", "sha256": "a96ca71a8b7a622ed1276ef95147dc422c43f54f9a64b3e777d5e3a4cf4e6b3a", "task": "Préflight du build physique QA, contrats frontend et version de fixture ; aucun rendu exécuté"},
+    {"name": "linux-rag-runtime", "path": ".agents/skills/linux-rag-runtime/SKILL.md", "sha256": "29e50be8c1c5ccd42e577448e9d77ab2dacb4520525a1343ad7d658007e931d2", "task": "ROOT physique, ressources, verrou partagé, séparation des chemins de stockage et supervision native à préparer"},
+    {"name": "windows-rag-runtime", "path": ".agents/skills/windows-rag-runtime/SKILL.md", "sha256": "538f75c2cbee38453f192d4db8cd311d1787fdfd13316bc81b677df65851acab", "task": "Invariants communs de control_profile et arrêt ciblé ; aucune exécution ou qualification Windows"},
+    {"name": "project-documentation", "path": ".agents/skills/project-documentation/SKILL.md", "sha256": "aa4292bc629ec12e00ed3fde2143afaae6f898dc6ab2cffc45e6d0e44aded6dd", "task": "Mise à jour du suivi vivant et des sources selon les préparatifs contrôlés, sans cocher les recettes"},
+    {"name": "pdf-workspace-e2e", "path": "RAG_Local_Agents/skills/pdf-workspace-e2e/SKILL.md", "sha256": "120cef3d15854856e0b77d5237cbd35dae28a7eacbf968540de86e712ee78119", "task": "Préconditions d'instance, URL et fichier jeton QA explicites avant le POST réel du setup ; traces privées"},
+    {"name": "official-source-review", "path": "RAG_Local_Agents/skills/official-source-review/SKILL.md", "sha256": "c7ac562eeae9150016259a17cb3b671355ceba289ebcb649f0de1fbe173554bd", "task": "Sources util-linux et Next officielles, version installée et guide courant distingués, R15S01/R15S02 consignés"},
+    {"name": "agent-introspection-debugging", "path": ".agents/skills/agent-introspection-debugging/SKILL.md", "sha256": "84f817fd626369280affe13883acb490c3856c0b108f9bb2ff78a59c7ce78aff", "origin_declared": "ECC", "origin_verified_in_this_work": false, "task": "Diagnostic des sorties tronquées et chemins présumés ; recherches exactes et lectures courtes, sans changement global"},
+    {"name": "hybrid-rag-api", "path": ".agents/skills/hybrid-rag-api/SKILL.md", "sha256": "6209a83fb48310f4823f6b6d17687530a1f3ee695e38f373d5f3dea435123cac", "task": "Contrats des versions/citations, publication et pins de générations, périmètre du futur pilote D03"},
+    {"name": "rag-qualification-fixtures", "path": ".agents/skills/rag-qualification-fixtures/SKILL.md", "sha256": "04dd992863315562c3910ab05fac6e353843fc70e11ce199b19df759fb8f2e7f", "task": "Fixtures techniques existantes DA-P01, DA-P02 et QV-01, hashes et séparation du jeu final ; aucune génération"},
+    {"name": "rag-retrieval-evaluation", "path": "RAG_Local_Agents/skills/rag-retrieval-evaluation/SKILL.md", "sha256": "952161de2f5f62855859623e217eed44817e01a86d6b699033f94d22ea2f4aa3", "task": "Distinction entre snapshot, sources effectivement fournies et réindex à identité constante ; aucune mesure de Recall"},
+    {"name": "local-cpu-qualification", "path": "RAG_Local_Agents/skills/local-cpu-qualification/SKILL.md", "sha256": "832be2196fd12fb85ab86020f64a4ab87def04c6c4aa96e0c20e7d53c6fca1b5", "task": "CPU imposé du futur profil QA, traitements lourds sérialisés, hôte 61 Gio distinct de la cible physique D07"}
+  ],
+  "adaptation": "Aucun SKILL.md modifié ou installé ; copie QA des sources, aucune invocation de script tiers",
+  "evidence": [".runtime/qa/r15-editorial-20261002T191600Z/build-preflight.json", ".runtime/qa/r15-editorial-20261002T191600Z/staging-check.json", ".runtime/qa/r15-editorial-20261002T191600Z/qualification-d03-preflight.md", "RAG_Local_Agents/SOURCES.md", "RAG_Local_Agents/PLAN.md", "RAG_Local_Agents/journal/2026-10-02.md"],
+  "behavioral_validation": "NOT_RUN : aucune preuve de découverte/invocation native du client",
+  "limits": ["Préparation de cible et contrôles purs seulement, aucun build/service/import/API/navigateur/modèle exécuté", "Le contrôle de staging ne prouve pas toutes les zones partagées conservées après le futur build", "Ni D03, ni R15/D06, ni Windows, ni D07 validés par ces préparatifs"]
+}
