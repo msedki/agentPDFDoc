@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `d1ab706` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-03 21:26 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `45e8482` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-03 22:54 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -21,7 +21,7 @@ et les cinq SVG passent. Les procédures non exécutées restent non qualifiées
 |---|---|---|
 | RB5 et sonde modale | `run-20261003T154834Z` : cinq cas stricts PASS sans retry, sonde FAILED à `nominal_1366`. Revue terminale indépendante B reçue et lue : quatorze captures examinées, 34 identités enregistrées strictement absentes, base et 96 fichiers immuables conservés. L'assertion refusée reste inconnue | Établir l'assertion modale refusée sans lire la trace sensible ni neutraliser un contrôle. Ces cinq PASS et les captures ne qualifient pas la modale |
 | R15-3-Q05 | Instrumentation et enveloppe relues favorablement sur preuves préparatoires. Le run1315 reste FAILED ; aucun nouveau parcours de peinture | Nouveau dernier arrêt indépendant et sources applicables requis avant recette. La correction frontend E03 invalide la comparaison avec les sources ROOT de l'ancien gel |
-| R15-3-F04 | Oracle du job courant corrigé et publié dans `d1ab706`. Nouvelle copie 249/697/971 conforme ; ses sept groupes donnent 31 cas stricts PASS, mais la clôture est FAILED_STOP_REQUIRES_OWNER. Runtime actuellement arrêté et 122 PID enregistrés strictement absents selon B. Variante des bindings F04 remise par C sur 28 témoins purs ; relecture en cours, aucune nouvelle carte native | Reproduire puis corriger le refus du census du launcher d'arrêt, conserver l'échec, relire le delta avant nouvelle copie/recette. Les onze F04 attendent une qualification source admissible ; aucun PASS global déduit des 31 résultats |
+| R15-3-F04 | Oracle publié dans `d1ab706` ; bindings des 249 sources relus sur 28 témoins purs. Recette `strict-final`, session `81325`, sortie 1 : quatre groupes qualifiés par le pilote et sept tests de géométrie stricts réussis, puis refus du lanceur dans le census. Arrêt ciblé, nouveau contrôle de schéma, 97 absences finales, restauration et verrous conformes ; recette refusée et préservée | Corriger la garde du lanceur pour les seuls argv figés de collecte et des sept groupes, avec mêmes exigences de Popen et d'absence. V5 en préparation ; nouvelle copie seule autorisée. Recette admissible des 31 cas toujours requise avant le miroir et les onze F04 |
 | R15-3-E03, incohérence rédactionnelle | VALIDÉ et publié dans `f8cd964` sur `origin/main` à 18:25 UTC : sept tests ciblés, 281 unités sans skip, typage/lint/build isolé conformes. V5 sortie 0, trois contextes UI et captures relus ; neuf processus absents, permissions et conservation vérifiées indépendamment. V1/V2 restent FAILED, cause V2 inconnue ; V4 conserve son wrapper EXIT1 | Aucune correction E03 restante dans cette portée. Session/API doublées : ni publication native, ni peinture PDF, ni recette RAG de bout en bout ; voir le journal pour les preuves |
 | R15-3-E04, incohérence rédactionnelle / frontend | VALIDÉ et publié dans `19f483f` sur `origin/main` à 20:09 UTC : aide vers les actions du Suivi et la disponibilité réelle, inverse de la seule phrase byte-exact ; calculs et gates conservés. Rouge préservé, 20 tests frontend ciblés puis 288 complets sans skip conformes ; typage, lint de 118 fichiers et build isolé sortie 0. Huit contextes UI et captures neuves relus par ROOT/C/A ; conservation et quinze absences actuelles vérifiées indépendamment par B | Aucun correctif E04 restant dans cette portée. API/session doublées : ni publication backend, ni peinture PDF, ni recette RAG native ou DoD globale ; aucun défaut visuel bloquant dans les huit captures |
 | R15-3-E05, amélioration rédactionnelle / API affichée dans le frontend | VALIDÉ et publié dans `19f483f` sur `origin/main` à 20:09 UTC : traduction fixe après S41, contrat conservé. Rouge ASGI préservé, 16 tests ciblés et 104 de régression PASS ; Ruff et mypy Linux/cible win32 conformes, revue B favorable. Référence API §3 réalignée ; vrai client frontend testé avec fetch doublé. Deux aides 422 lisibles aux deux tailles sur le nouvel export, revues ROOT/C/A et fermeture vérifiée B | Aucun correctif E05 restant dans cette portée. Le navigateur reçoit des 422 doublés sur une petite sélection : le refus de 1 001 éléments est exercé séparément par ASGI isolé avec services doublés, pas par un parcours natif |
@@ -83,6 +83,69 @@ scénarios synthétiques distincts. Delta QA ciblé en réalisation après
 consultation officielle R15S44, pas de relance automatique. La peinture
 à 300 % reste non qualifiée ; les réserves visuelles ne sont pas transformées
 en bugs non démontrés. [Terminal et limites](journal/2026-10-03.md#terminal-des-31-et-diagnostic-du-refus-darrêt-relevé-2126-utc).
+
+**Reprise à 21:52 UTC :** suivi publié dans `45e8482`, sans requalifier
+l'échec. Nouvelle copie `PROGRAM-E04-native31-terminalA-qualification`
+réalisée à 21:45:51 UTC puis contrôlée par ROOT et C : 249 sources,
+13 fichiers ingestion, 697 fichiers physiques, quatre liens et 971 références
+conformes ; état vierge, aucun build ou démarrage. Correctif privé du
+contrôleur d'arrêt en validation finale : V1 refusée sur les retours non
+entiers, V2 sur le chemin de verrou de la CLI ; aucune n'a été exécutée en
+natif. Prochaine action : gel corrigé et revue indépendante, clearance
+fraîche, puis nouvelle recette des 31 cas. La variante F04, vérifiée par
+28 témoins purs, est préparée et relue, pas exécutée ; elle attend une
+qualification admissible des 31 cas.
+[Copie et réserves du contrôleur](journal/2026-10-03.md#nouvelle-copie-isolée-et-relecture-du-contrôleur-arrêt-relevé-2152-utc).
+
+**Départ à 21:55 UTC, relevé à 21:57 :** gel A V3 contrôlé par ROOT et B,
+39 tests purs PASS, verrou initial/final cohérent ; versions refusées
+conservées. ROOT lance la recette des 31 cas, session `84419`, après une
+clearance HOST à 21:54:25 UTC attestant 0 job/question actif et un verrou
+lourd libre. La copie et le run sont ceux contrôlés ci-dessus ; nouvelle authentification
+QA et imports synthétiques autorisés, aucun état de l'hôte repris. En cours,
+sans verdict terminal. `EXIT0`, attestation terminale A, composition C, arrêt
+strict, conservation et revue du rendu restent requis avant qualification
+et miroir F04. Pas de clôture de F04, de la peinture à 300 % ou de la DoD globale.
+
+**Terminal à 22:05:53, relevé à 22:19 UTC :** session `84419`, sortie 1
+constatée à 22:06:28. Les 31 cas et l'arrêt ciblé passent, mais le contrôle
+C de fin demande un champ `instance_id` absent du vrai reçu de démarrage.
+Composition C et attestation A `FAILED` sur une `KeyError`, jamais requalifiées.
+Bug du dispositif QA prouvé par le code émetteur et le schéma fermé,
+référence [R15S45](SOURCES.md#r15s45--schéma-réel-du-reçu-de-démarrage-qa).
+Delta V4 minimal en validation, sans code produit ou build modifié ;
+nouvelle copie `strict-final` réalisée et contrôlée à 22:14/22:15, encore vierge.
+Prochaine action : finir/revoir le delta de schéma, clearance fraîche puis
+qualification intégrée des 31 cas. F04, peinture à 300 % et DoD globale restent ouverts.
+[Terminal, conservation et nouvelle copie](journal/2026-10-03.md#recette31-terminale-et-défaillance-du-contrôle-de-schéma-relevé-2219-utc).
+
+**Reprise à 22:36 UTC :** V4 scellée, 59 tests purs conformes ; ROOT et B
+confirment les 42 pièces, 47 références et la liaison au schéma réel.
+La preuve terminale B du run refusé est conservée : 119 absences strictes,
+249 sources et export inchangés, sans requalification. ROOT a lancé
+la nouvelle recette, session `81325`, après le contrôle de l'hôte à
+22:30:35 UTC : aucune tâche ou question active, verrou lourd disponible.
+Un seul traitement lourd ; ni nouveau build ni reprise des tâches en pause.
+Le résultat natif reste en attente. Les validations indépendantes de
+l'arrêt/conservation et du rendu précéderont tout miroir F04.
+[Gel, preuve indépendante et départ](journal/2026-10-03.md#gel-v4-et-nouvelle-recette-native-relevé-2236-utc).
+
+**Terminal et diagnostic à 22:49 UTC :** session `81325` sortie 1,
+observée à 22:42:35 ; fin réelle à 22:41:13. Le contrôle final du schéma
+fonctionne sur cette instance réelle, mais le census du lanceur de
+géométrie échoue après ses sept tests. ROOT et A localisent ce callsite
+dans une preuve fermée, sans déduire la valeur d'exécutable ou un zombie.
+Troisième essai refusé conservé. Incrément QA V5 autorisé sur les seules
+commandes collectées et sept groupes, sans changement produit ou build ;
+préparation et contre-tests en cours. Nouvelle copie isolée autorisée,
+aucun nouveau départ natif. B vérifie indépendamment arrêt et conservation.
+[Résultats, diagnostic et portée](journal/2026-10-03.md#refus-du-lanceur-de-géométrie-relevé-2249-utc).
+
+**Complément à 22:54 UTC :** B confirme les 97 absences et la conservation
+dans une nouvelle preuve scellée, sans promouvoir l'échec. Copie
+`owned-launcher` préparée par C et contrôlée par ROOT ; ses 971 références
+sont exactes, état vierge. V5 reste en correction et test, aucun GO natif.
+[Preuve et copie suivante](journal/2026-10-03.md#validation-indépendante-et-copie-suivante-relevé-2254-utc).
 
 ## R15-3 — reprise des contrôles QA, relevé du 3 octobre à 15:19 UTC
 

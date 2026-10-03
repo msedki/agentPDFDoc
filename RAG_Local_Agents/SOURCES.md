@@ -1,6 +1,6 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `d1ab706` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 21:21 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `45e8482` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 22:49 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 **Révision documentaire :** 29 septembre 2026, complétée par des sections datées ; relevé historique des ajouts au 2 octobre 2026 : sources de l'accélération GPU examinées le 1er octobre (W024, W025), puis sources et outils du chantier Linux consignés après l'audit D10/D11 (LNX21, LNX22, J8S01, J8S02, TOOL01 à TOOL03), et consultation actuelle des releases et avis de sécurité de trois dépendances Linux (D11S01–D11S08). Les décisions de ce dossier restent des choix de conception, non des résultats certifiés par les éditeurs. Les versions de production doivent être verrouillées séparément ; une documentation sur `main`/`master` ne constitue pas un verrou logiciel. Les consultations du 3 octobre (frontend, psutil, Linux, PSF, WHATWG, CSSWG et Node.js) figurent dans leurs sections datées ci-dessous.
 
@@ -33,6 +33,44 @@ NOT_STARTED de [R23](PLAN.md#r23--démarrage-optionnel-avec-qwen-35-2b-q4_k_m),
 pas une impossibilité du 2B. Aucun modèle téléchargé, profil modifié ou essai
 de génération effectué lors de cette inscription. Compatibilité tokenizer,
 template, dérivation texte, identité, admission et qualité restent à tester.
+
+### R15S46 — census du lanceur de géométrie
+
+Référence locale fermée : pilote gelé `frontend-pilot/pilot.py`, fonctions
+`command`, `remember_descendants` et `verified_owned`, et preuve Recorder
+`primary_exception-c197e2452a4d46b58ecdb07280177ad9.json` du run
+`strict-final`. Consultés le 3 octobre 2026 par ROOT et A après sa clôture ;
+versions et empreintes exactes dans le
+[journal du diagnostic](journal/2026-10-03.md#refus-du-lanceur-de-géométrie-relevé-2249-utc).
+Le relevé situe le refus sur le lanceur du groupe de géométrie, mais ne
+contient ni l'exécutable observé, ni le retour Popen, ni le statut zombie.
+Il ne prouve donc pas une course de terminaison. Les contrats officiels
+Popen et d'absence stricte restent ceux de R15S44 ; leur application aux
+argv collectés exige ses propres contre-tests et sa recette native.
+
+### R15S45 — schéma réel du reçu de démarrage QA
+
+Référence locale, pas publication externe :
+[émetteur du reçu d'instance](../tools/qualification/e2e_instance.py),
+lignes 64–66, SHA `222a5654dd404573db401f5c1eedb2382519ee15494f6b7689500c0c55e69939`,
+base publiée `45e8482`. Code relu directement par ROOT le 3 octobre 2026
+vers 22:12 UTC ; métadonnées fermées du run `terminalA` lues par ROOT/A/B
+après sa clôture à 22:05:53. L'émetteur écrit `status`, `root`, `profile`,
+`origin`, `token_file` et `base_profile` ; il n'écrit pas `instance_id`.
+Le chemin `token_file` est une métadonnée : aucune lecture du contenu du
+fichier dans ces revues.
+
+Le contrôleur C scellé `3ad5d233…`, fonction `strict_final` ligne 466,
+demande pourtant `saved.instance_id`. Une `KeyError` est effectivement
+levée après les 31 résultats stricts et l'arrêt ciblé réussis ; composition C
+et attestation A `FAILED` conservées.
+Le pin pidfd et le registre runtime fermé portent le même identifiant
+`88bc104487584a8187627d42f155d5f6`, le profil `5959730d…` et les quatre
+tuples PID/naissance/exécutable concordants. Ces records établissent la
+liaison à contrôler ; ils n'autorisent ni un champ inventé dans `saved`,
+ni l'appropriation d'une instance, ni la qualification rétroactive du run.
+Références privées exactes et contrôles postérieurs dans le
+[journal du terminal](journal/2026-10-03.md#recette31-terminale-et-défaillance-du-contrôle-de-schéma-relevé-2219-utc).
 
 ### R15S44 — terminaison du lanceur possédé et absence stricte
 

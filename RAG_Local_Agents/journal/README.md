@@ -1,6 +1,6 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `d1ab706` et entrées datées · **Mis à jour :** 2026-10-03 21:26 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `45e8482` et entrées datées · **Mis à jour :** 2026-10-03 22:54 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
@@ -68,6 +68,42 @@ Runtime actuellement arrêté et 122 PID enregistrés strictement absents
 selon une preuve B postérieure indépendante ; échec non requalifié.
 Refus du census launcher localisé, cause physique inconnue, delta QA en
 réalisation après source officielle. Peinture300 et onze F04 non qualifiés.
+
+Reprise à 21:52 UTC : [nouvelle copie isolée et relecture du contrôleur](2026-10-03.md#nouvelle-copie-isolée-et-relecture-du-contrôleur-arrêt-relevé-2152-utc).
+Suivi publié dans `45e8482` ; copie neuve de 249 sources, 697 fichiers et
+971 références contrôlée par ROOT/C, sans build ni démarrage.
+V1/V2 du correctif QA refusées avant toute recette,
+delta V3 en validation finale ; aucune qualification des 31 cas ou de F04 anticipée.
+
+Complément à 21:57 : [gel A V3 et départ natif](2026-10-03.md#gel-corrigé-et-départ-natif-relevé-2157-utc),
+39 témoins purs et relecture indépendante favorables ; session `84419`
+lancée après clearance fraîche, encore en cours. Aucun PASS terminal ni
+miroir F04 acquis ; aucune nouvelle génération exécutée à ce relevé.
+
+Terminal à 22:05:53 et [diagnostic à 22:19](2026-10-03.md#recette31-terminale-et-défaillance-du-contrôle-de-schéma-relevé-2219-utc) :
+31 cas stricts et arrêt ciblé réussis, mais contrôleurs C/A `FAILED` sur une
+`KeyError`, due à un champ absent du vrai reçu ; sortie 1, aucun GO F04.
+Correctif de schéma en validation ; copie `strict-final` de 249 sources,
+697 fichiers et 971 références conforme selon ROOT/C et encore vierge.
+Peinture à 300 % et DoD globale restent non qualifiées.
+
+Reprise à 22:36 : [gel V4 et nouvelle recette native](2026-10-03.md#gel-v4-et-nouvelle-recette-native-relevé-2236-utc).
+59 tests purs et revue indépendante conformes ; session `81325` lancée
+sur une copie neuve après contrôle de l'hôte, sans verdict terminal acquis.
+Le run précédent reste refusé malgré 119 absences et sa conservation
+confirmées indépendamment. Aucun miroir F04 encore exécuté.
+
+Terminal et [diagnostic à 22:49](2026-10-03.md#refus-du-lanceur-de-géométrie-relevé-2249-utc) :
+session `81325` sortie 1 après 28 tests stricts réussis ; seulement
+21 cas enregistrés au niveau du pilote. Refus du lanceur de géométrie,
+pas de cause physique déduite. Arrêt, nouveau contrôle du schéma et
+97 absences terminales conformes ; essai refusé. V5 et copie neuve en
+préparation, sans nouveau départ natif ni miroir F04.
+
+Complément à 22:54 : [validation indépendante et copie suivante](2026-10-03.md#validation-indépendante-et-copie-suivante-relevé-2254-utc).
+B confirme les 97 absences et la conservation ; nouvelle copie
+`owned-launcher` conforme ROOT/C et vierge, V5 en correction et test.
+Aucune qualification anticipée ni nouvelle authentification démarrée.
 
 | Date | Travail effectué |
 |---|---|
