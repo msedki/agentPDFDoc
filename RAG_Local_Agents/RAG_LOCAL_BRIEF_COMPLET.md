@@ -1612,7 +1612,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `19f483f` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-03 20:40 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `d1ab706` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-03 21:26 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1620,7 +1620,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
-## R14/R15 — relecture documentaire et reprise QA, relevé du 3 octobre à 20:40 UTC
+## R14/R15 — relecture documentaire et reprise QA, relevé du 3 octobre à 21:26 UTC
 
 La nouvelle demande documentaire reprend les exigences existantes de R14/R15.
 L'espace stabilisé reste dans `docs/`, le suivi vivant dans `RAG_Local_Agents/` ;
@@ -1633,7 +1633,7 @@ et les cinq SVG passent. Les procédures non exécutées restent non qualifiées
 |---|---|---|
 | RB5 et sonde modale | `run-20261003T154834Z` : cinq cas stricts PASS sans retry, sonde FAILED à `nominal_1366`. Revue terminale indépendante B reçue et lue : quatorze captures examinées, 34 identités enregistrées strictement absentes, base et 96 fichiers immuables conservés. L'assertion refusée reste inconnue | Établir l'assertion modale refusée sans lire la trace sensible ni neutraliser un contrôle. Ces cinq PASS et les captures ne qualifient pas la modale |
 | R15-3-Q05 | Instrumentation et enveloppe relues favorablement sur preuves préparatoires. Le run1315 reste FAILED ; aucun nouveau parcours de peinture | Nouveau dernier arrêt indépendant et sources applicables requis avant recette. La correction frontend E03 invalide la comparaison avec les sources ROOT de l'ancien gel |
-| R15-3-F04 | Adaptateur livré à 15:21:43, 34 tests Python et 9 Node PASS ; revue C favorable préparatoire reçue et lue. Les 231 preuves historiques différées et les deux cartes réelles restent à vérifier | Lier la cible F04 réellement courante, contrôler ses préconditions puis exécuter la lecture des deux cartes. Aucun résultat natif nouveau |
+| R15-3-F04 | Oracle du job courant corrigé et publié dans `d1ab706`. Nouvelle copie 249/697/971 conforme ; ses sept groupes donnent 31 cas stricts PASS, mais la clôture est FAILED_STOP_REQUIRES_OWNER. Runtime actuellement arrêté et 122 PID enregistrés strictement absents selon B. Variante des bindings F04 remise par C sur 28 témoins purs ; relecture en cours, aucune nouvelle carte native | Reproduire puis corriger le refus du census du launcher d'arrêt, conserver l'échec, relire le delta avant nouvelle copie/recette. Les onze F04 attendent une qualification source admissible ; aucun PASS global déduit des 31 résultats |
 | R15-3-E03, incohérence rédactionnelle | VALIDÉ et publié dans `f8cd964` sur `origin/main` à 18:25 UTC : sept tests ciblés, 281 unités sans skip, typage/lint/build isolé conformes. V5 sortie 0, trois contextes UI et captures relus ; neuf processus absents, permissions et conservation vérifiées indépendamment. V1/V2 restent FAILED, cause V2 inconnue ; V4 conserve son wrapper EXIT1 | Aucune correction E03 restante dans cette portée. Session/API doublées : ni publication native, ni peinture PDF, ni recette RAG de bout en bout ; voir le journal pour les preuves |
 | R15-3-E04, incohérence rédactionnelle / frontend | VALIDÉ et publié dans `19f483f` sur `origin/main` à 20:09 UTC : aide vers les actions du Suivi et la disponibilité réelle, inverse de la seule phrase byte-exact ; calculs et gates conservés. Rouge préservé, 20 tests frontend ciblés puis 288 complets sans skip conformes ; typage, lint de 118 fichiers et build isolé sortie 0. Huit contextes UI et captures neuves relus par ROOT/C/A ; conservation et quinze absences actuelles vérifiées indépendamment par B | Aucun correctif E04 restant dans cette portée. API/session doublées : ni publication backend, ni peinture PDF, ni recette RAG native ou DoD globale ; aucun défaut visuel bloquant dans les huit captures |
 | R15-3-E05, amélioration rédactionnelle / API affichée dans le frontend | VALIDÉ et publié dans `19f483f` sur `origin/main` à 20:09 UTC : traduction fixe après S41, contrat conservé. Rouge ASGI préservé, 16 tests ciblés et 104 de régression PASS ; Ruff et mypy Linux/cible win32 conformes, revue B favorable. Référence API §3 réalignée ; vrai client frontend testé avec fetch doublé. Deux aides 422 lisibles aux deux tailles sur le nouvel export, revues ROOT/C/A et fermeture vérifiée B | Aucun correctif E05 restant dans cette portée. Le navigateur reçoit des 422 doublés sur une petite sélection : le refus de 1 001 éléments est exercé séparément par ASGI isolé avec services doublés, pas par un parcours natif |
@@ -1670,6 +1670,31 @@ produit modifié et aucun nouveau build. La copie neuve doit intégrer ces deux
 seuls chemins de test par un delta explicite : 249 sources nommées, pas un
 changement silencieux du dénominateur. Les cartes natives restent non vérifiées ;
 F04 demeure en cours.
+
+**Qualification des 31 à 21:04 UTC :** correctif de test publié dans
+`d1ab706`, puis copie physique neuve exécutée et relue indépendamment.
+Gel de 249 sources, 697 fichiers exacts, quatre liens partagés autorisés,
+13 fichiers ingestion et export E04 de 243 fichiers conservés ; 971 références
+du verrou d'exécution concordent. Aucun build rejoué ni état utilisateur copié.
+Le pilote natif est en cours, session ROOT `53480`, après clearance fraîche
+attestant zéro job et zéro question actifs sur l'hôte. Aucun PASS des 31 ni
+nouveau rendu n'est acquis à ce relevé. Les gardes d'arrêt strict et les
+postcontrôles de conservation restent requis avant la relecture terminale.
+Le workflow historique des onze F04 contient encore deux empreintes sources
+antérieures ; un delta de binding distinct est en préparation, sans modifier
+les gels historiques ni leurs résultats. Voir les
+[preuves de copie et conditions de lancement](journal/2026-10-03.md#copie-qa-neuve-et-démarrage-des-31-relevé-2104-utc).
+
+**Terminal et diagnostic à 21:26 UTC :** session `53480` sortie 1,
+fin réelle à 21:12:37 UTC. Les 31 résultats sont chacun passed/retry0,
+sans skip/flaky/error, mais summary et composition demeurent FAILED.
+Refus localisé à la comparaison d'exécutable du launcherdown pendant
+son census, avant attente pidfd. Fin de vie, zombie ou changement physique
+d'exécutable restent inconnus ; le même chemin est reproduit avec deux
+scénarios synthétiques distincts. Delta QA ciblé en réalisation après
+consultation officielle R15S44, pas de relance automatique. La peinture
+à 300 % reste non qualifiée ; les réserves visuelles ne sont pas transformées
+en bugs non démontrés. [Terminal et limites](journal/2026-10-03.md#terminal-des-31-et-diagnostic-du-refus-darrêt-relevé-2126-utc).
 
 ## R15-3 — reprise des contrôles QA, relevé du 3 octobre à 15:19 UTC
 
@@ -2964,7 +2989,7 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `19f483f` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 20:27 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `d1ab706` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 21:21 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 **Révision documentaire :** 29 septembre 2026, complétée par des sections datées ; relevé historique des ajouts au 2 octobre 2026 : sources de l'accélération GPU examinées le 1er octobre (W024, W025), puis sources et outils du chantier Linux consignés après l'audit D10/D11 (LNX21, LNX22, J8S01, J8S02, TOOL01 à TOOL03), et consultation actuelle des releases et avis de sécurité de trois dépendances Linux (D11S01–D11S08). Les décisions de ce dossier restent des choix de conception, non des résultats certifiés par les éditeurs. Les versions de production doivent être verrouillées séparément ; une documentation sur `main`/`master` ne constitue pas un verrou logiciel. Les consultations du 3 octobre (frontend, psutil, Linux, PSF, WHATWG, CSSWG et Node.js) figurent dans leurs sections datées ci-dessous.
 
@@ -2997,6 +3022,28 @@ NOT_STARTED de [R23](PLAN.md#r23--démarrage-optionnel-avec-qwen-35-2b-q4_k_m),
 pas une impossibilité du 2B. Aucun modèle téléchargé, profil modifié ou essai
 de génération effectué lors de cette inscription. Compatibilité tokenizer,
 template, dérivation texte, identité, admission et qualité restent à tester.
+
+### R15S44 — terminaison du lanceur possédé et absence stricte
+
+Python Software Foundation : [Popen.poll et wait, documentation 3.12](https://docs.python.org/3.12/library/subprocess.html#subprocess.Popen.poll),
+[implémentation POSIX au tag v3.12.14](https://raw.githubusercontent.com/python/cpython/v3.12.14/Lib/subprocess.py).
+Sections lues par A entre 21:18 et 21:20 UTC puis directement par ROOT
+entre 21:20 et 21:21 UTC le 3 octobre 2026, avant tout correctif du refus
+d'arrêt de la nouvelle recette31. Le guide courant est en 3.12.15 ;
+l'interpréteur local reste 3.12.14. `subprocess.py` installé relu à
+1973–2005, SHA `85d29b2bf0249f5436838298c9a60ee93508b1102e9ac43b001f8a7e7ae8f375`.
+
+`poll()` vérifie la terminaison de l'enfant de son objet Popen et renseigne
+returncode ; la voie POSIX utilise waitpid sur ce PID et WNOHANG. Le cas
+ECHILD peut produire returncode 0 sans statut récupéré : ce seul code ne
+prouve donc pas une identité ni une absence stricte. Une proposition de
+correction doit rester liée au Popen original, puis exiger séparément un
+constructeur frais levant NoSuchProcess de type exact pour le même PID et
+`pid_exists(...) is False`, selon R15S26. Aucun signal, adoption ni décès
+déduit d'un exécutable vide ou différent. Ces références ne reconstituent
+pas l'état physique du launcherdown à 21:12:36 : la pile ne prouve que le
+refus de sa comparaison d'exécutable. Cause fin de vie/zombie/exec encore
+inconnue ; proposition, test reproduisant le callsite et revue restent requis.
 
 ### R15S43 — oracle de la carte du fichier en erreur
 

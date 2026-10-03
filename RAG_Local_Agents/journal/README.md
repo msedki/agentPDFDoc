@@ -1,6 +1,6 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `19f483f` et entrées datées · **Mis à jour :** 2026-10-03 20:40 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `d1ab706` et entrées datées · **Mis à jour :** 2026-10-03 21:26 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
@@ -55,6 +55,19 @@ Complément à 20:40 UTC : oracle F04 corrigé, 13 témoins ciblés puis
 301 unités web ROOT PASS sans skip ; lint/typecheck et relecture indépendante
 conformes, sans code produit ou build modifié. Delta explicite de deux tests
 prévu dans le gel de 249 sources ; copie et parcours natifs encore non exécutés.
+
+Reprise à 21:04 UTC : [copie neuve et démarrage des 31](2026-10-03.md#copie-qa-neuve-et-démarrage-des-31-relevé-2104-utc).
+Oracle publié dans `d1ab706` ; copie 249/697, quatre liens et 971 références
+conformes selon ROOT et A. Instance QA neuve en cours après clearance fraîche,
+aucun résultat terminal anticipé. Delta des anciens verrous F04 en préparation ;
+gels historiques conservés, F04 et DoD globale ouverts.
+
+Terminal à 21:12:37 et [diagnostic à 21:26](2026-10-03.md#terminal-des-31-et-diagnostic-du-refus-darrêt-relevé-2126-utc) :
+31 scénarios stricts PASS mais clôture FAILED_STOP_REQUIRES_OWNER.
+Runtime actuellement arrêté et 122 PID enregistrés strictement absents
+selon une preuve B postérieure indépendante ; échec non requalifié.
+Refus du census launcher localisé, cause physique inconnue, delta QA en
+réalisation après source officielle. Peinture300 et onze F04 non qualifiés.
 
 | Date | Travail effectué |
 |---|---|

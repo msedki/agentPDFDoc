@@ -1,6 +1,6 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `19f483f` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 20:27 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `d1ab706` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 21:21 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 **Révision documentaire :** 29 septembre 2026, complétée par des sections datées ; relevé historique des ajouts au 2 octobre 2026 : sources de l'accélération GPU examinées le 1er octobre (W024, W025), puis sources et outils du chantier Linux consignés après l'audit D10/D11 (LNX21, LNX22, J8S01, J8S02, TOOL01 à TOOL03), et consultation actuelle des releases et avis de sécurité de trois dépendances Linux (D11S01–D11S08). Les décisions de ce dossier restent des choix de conception, non des résultats certifiés par les éditeurs. Les versions de production doivent être verrouillées séparément ; une documentation sur `main`/`master` ne constitue pas un verrou logiciel. Les consultations du 3 octobre (frontend, psutil, Linux, PSF, WHATWG, CSSWG et Node.js) figurent dans leurs sections datées ci-dessous.
 
@@ -33,6 +33,28 @@ NOT_STARTED de [R23](PLAN.md#r23--démarrage-optionnel-avec-qwen-35-2b-q4_k_m),
 pas une impossibilité du 2B. Aucun modèle téléchargé, profil modifié ou essai
 de génération effectué lors de cette inscription. Compatibilité tokenizer,
 template, dérivation texte, identité, admission et qualité restent à tester.
+
+### R15S44 — terminaison du lanceur possédé et absence stricte
+
+Python Software Foundation : [Popen.poll et wait, documentation 3.12](https://docs.python.org/3.12/library/subprocess.html#subprocess.Popen.poll),
+[implémentation POSIX au tag v3.12.14](https://raw.githubusercontent.com/python/cpython/v3.12.14/Lib/subprocess.py).
+Sections lues par A entre 21:18 et 21:20 UTC puis directement par ROOT
+entre 21:20 et 21:21 UTC le 3 octobre 2026, avant tout correctif du refus
+d'arrêt de la nouvelle recette31. Le guide courant est en 3.12.15 ;
+l'interpréteur local reste 3.12.14. `subprocess.py` installé relu à
+1973–2005, SHA `85d29b2bf0249f5436838298c9a60ee93508b1102e9ac43b001f8a7e7ae8f375`.
+
+`poll()` vérifie la terminaison de l'enfant de son objet Popen et renseigne
+returncode ; la voie POSIX utilise waitpid sur ce PID et WNOHANG. Le cas
+ECHILD peut produire returncode 0 sans statut récupéré : ce seul code ne
+prouve donc pas une identité ni une absence stricte. Une proposition de
+correction doit rester liée au Popen original, puis exiger séparément un
+constructeur frais levant NoSuchProcess de type exact pour le même PID et
+`pid_exists(...) is False`, selon R15S26. Aucun signal, adoption ni décès
+déduit d'un exécutable vide ou différent. Ces références ne reconstituent
+pas l'état physique du launcherdown à 21:12:36 : la pile ne prouve que le
+refus de sa comparaison d'exécutable. Cause fin de vie/zombie/exec encore
+inconnue ; proposition, test reproduisant le callsite et revue restent requis.
 
 ### R15S43 — oracle de la carte du fichier en erreur
 
