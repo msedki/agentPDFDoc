@@ -1,5 +1,7 @@
 # Registre des décisions — V2.1
 
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et base publiée `05da85c`, décision locale W031 du 2026-10-03 · **Mis à jour :** 2026-10-03 01:04 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
 | ID | Décision | Statut et condition de révision |
@@ -418,3 +420,17 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 **Choix retenu :** l'atelier est d'usage interne, sans redistribution hors de l'organisation. Aucune validation juridique n'est menée. Le registre produit par `services/runtime/inventory.py` (composants installés, licences déclarées, avis présents, manques signalés) suffit à D09.5 dans ce cadre. Le point P7 est clos.
 
 **Conséquences :** pas de collecte des textes de licence manquants ni de dossier `LICENSES/` à compléter pour ce cadre. Une distribution hors de l'organisation rouvrirait D09.5 et P7.
+
+## W031 Contrôle lint frontend maintenu et explicite
+
+**Date :** 3 octobre 2026, 00:59 UTC. **Statut :** choix technique réalisé et contrôlé localement dans R15-3. À l'adoption à 00:59, nouveau build et recette navigateur encore requis ; résultats ultérieurs et travaux restants dans [PLAN.md](PLAN.md) et le [journal](journal/2026-10-03.md). Base publiée `05da85c`, modifications locales du manifeste, du verrou et de la configuration ESLint.
+
+**Contexte :** le frontend avait un typage, des unités et un build, mais aucune commande lint. Les sources officielles consignées [R15S03–R15S19](SOURCES.md#contrôles-de-qualité-frontend-r15-2-octobre-2026) distinguent ces contrôles. ESLint 9 est hors support ; les plugins React général, import et JSX accessibility du preset Next complet ne déclarent pas ESLint 10. Un peer large du preset ne suffit pas à qualifier cette combinaison.
+
+**Choix retenu :** `pnpm lint` exécute `eslint . --max-warnings 0`, avec une configuration flat versionnée. Six dépendances de développement sont fixées exactement : `eslint` 10.12.0, `@eslint/js` 10.0.1, `@next/eslint-plugin-next` 16.3.7, `eslint-plugin-react-hooks` 7.1.1, `typescript-eslint` 8.71.0 et `globals` 17.13.0. Conserver Next, React, TypeScript, PDF.js et pnpm aux versions existantes. Composition : recommandations JS et TypeScript, plugin Next direct avec Core Web Vitals, toutes les recommandations Hooks ; globals navigateur et Node selon les fichiers. Sources, scripts et tests sont inclus ; seuls les fichiers générés et l'authentification Playwright sont exclus. Aucun diagnostic ignoré, règle désactivée, correction automatique ou cache de lint pour obtenir le vert.
+
+**Preuves :** installation frozen dans un nouveau pool privé avec engines/peers stricts, contrôles sémantiques de configuration et conservation de l'ancien pool ; lint réel 116 fichiers zéro erreur/avertissement à 00:20, puis lint du seul test de garde modifié PASS ; 274 unités et typage configuré PASS à 00:24. Résultats, rouges, reprises et avis indépendant au [journal du 3 octobre](journal/2026-10-03.md). Ces preuves valident la commande de contrôle, pas les parcours navigateur des corrections Hooks/PDF ; leur qualification demeure dans [PLAN.md](PLAN.md), R15-3.
+
+**Conséquences :** les commandes de développement et les procédures de vérification doivent inclure le lint. Cette composition n'est pas le preset Next complet et n'ajoute pas les règles des trois plugins incompatibles : accessibilité, comportement et rendu restent contrôlés séparément. L'ajout de paquets a modifié le contexte peer Babel facultatif de Next/styled-jsx ; un build neuf sur ce graphe est nécessaire, même sans mise à jour du framework. Aucun changement de session, d'API ou de contrat métier n'est autorisé par le choix du linter.
+
+**Reprise/retour arrière :** conserver manifeste, verrou, configuration et receipt du pool correspondant ensemble ; ne pas supprimer ni réinstaller de force le pool partagé. La procédure de préparation compare les versions, les fichiers de paquet et les marqueurs pnpm avant de remplacer le seul lien local `node_modules`. Toute révision de ce choix se contrôle sur un pool distinct, puis sur le vrai code ; elle ne justifie pas de désactiver les règles pour masquer une régression.
