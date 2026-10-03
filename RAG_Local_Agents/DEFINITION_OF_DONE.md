@@ -1,6 +1,6 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `05da85c`, opérations W029-6, pilotes D03 et R15-3 Linux datés ci-dessous · **Mis à jour :** 2026-10-03 12:40 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `05da85c`, opérations W029-6, pilotes D03 et R15-3 Linux datés ci-dessous · **Mis à jour :** 2026-10-03 14:08 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -317,6 +317,27 @@ l'avis B favorable préparatoire. Aucun rejeu navigateur, nouveau rendu
 de carte terminale ou parcours pending/trois tailles prouvé par ces revues.
 F04, modale, Q05 et D06 restent ouverts dans leurs périmètres restants.
 [Revues, preuves et prochaine action](journal/2026-10-03.md#q05-rouge-et-arrêt-ciblé--relevé-1218-utc).
+
+Complément D06 du 03/10 à13:47 UTC : Q05/run1315 atteint l'authentification
+et produit deux PNG page11/zoom300. Les trois ancres natives sont réellement
+lisibles selon ROOT et C ; ce résultat visible ne prouve ni isolation du
+canvas ni fin de RenderTask. La recette reste FAILED : warning1 puis
+transportErrors3/guardErrors3 refusés ; phase exacte inconnue et samples/
+ROI/budget réel non persistés. Arrêt et conservation indépendants C
+conformes dans leur portée :20 tuples absents, neuf jobs ready/zéro query,
+96 originaux/extractions et sources243/13 conservés. Instrumentation en cours
+de préparation, pas de replay implicite ni de conversion des captures en PASS.
+
+La sonde F04 de lecture des deux cartes d'erreur est préparée :39 tests
+purs PASS au gel B, aucune nouvelle UI exécutée. Revue C achevée ensuite :
+réserve C01 confirmée, refus tardif correctement aborté mais ignoré par
+le verdict de qualification. Delta ROOT distinct :45 tests purs PASS après
+rouge discriminant, contrôles ciblés au vert et avis C favorable préparatoire ;
+aucun succès navigateur/API ou nouvelle carte réelle déduit de ces doubles.
+La modaleV2 reste également à qualifier sur sa chaîne native. Aucun seuil,
+critère global D06, Windows, D07 ou qualification finale modifié.
+[Preuves et prochaine action](journal/2026-10-03.md#q05--captures-réelles-et-refus-du-caller-relevé-1347-utc).
+[Correction QA et limites](journal/2026-10-03.md#f04--correction-du-refus-tardif-de-la-sonde-qa-relevé-1408-utc).
 
 ## Rapport final exigé
 

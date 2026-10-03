@@ -1,6 +1,6 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `05da85c` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 12:25 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `05da85c` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 13:30 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 **Révision documentaire :** 29 septembre 2026, complétée par des sections datées ; relevé historique des ajouts au 2 octobre 2026 : sources de l'accélération GPU examinées le 1er octobre (W024, W025), puis sources et outils du chantier Linux consignés après l'audit D10/D11 (LNX21, LNX22, J8S01, J8S02, TOOL01 à TOOL03), et consultation actuelle des releases et avis de sécurité de trois dépendances Linux (D11S01–D11S08). Les décisions de ce dossier restent des choix de conception, non des résultats certifiés par les éditeurs. Les versions de production doivent être verrouillées séparément ; une documentation sur `main`/`master` ne constitue pas un verrou logiciel. Les consultations frontend, psutil, Linux, PSF, WHATWG et CSSWG du 3 octobre sont datées séparément dans R15S18–R15S32 ci-dessous.
 
@@ -33,6 +33,32 @@ NOT_STARTED de [R23](PLAN.md#r23--démarrage-optionnel-avec-qwen-35-2b-q4_k_m),
 pas une impossibilité du 2B. Aucun modèle téléchargé, profil modifié ou essai
 de génération effectué lors de cette inscription. Compatibilité tokenizer,
 template, dérivation texte, identité, admission et qualité restent à tester.
+
+### R15S38 — observations console et fermeture du contexte Playwright
+
+Microsoft / mainteneurs Playwright : [ConsoleMessage, location et type](https://playwright.dev/docs/api/class-consolemessage#console-message-location),
+[Route.fetch](https://playwright.dev/docs/api/class-route#route-fetch),
+[BrowserContext.close](https://playwright.dev/docs/api/class-browsercontext#browser-context-close)
+et [types officiels au tag v1.63.0](https://raw.githubusercontent.com/microsoft/playwright/v1.63.0/packages/playwright-core/types/types.d.ts).
+Consultation directe ROOT le 03/10/2026, relevé à13:28 UTC ; pages courantes
+distinguées du tag installé1.63.0. Sections utiles du tag : ConsoleMessage
+location/type/timestamp, BrowserContext.close/isClosed ; aucune installation.
+
+Le type et la localisation d'un événement peuvent être observés séparément
+de son texte et de ses arguments. La fermeture du contexte ferme ses pages ;
+isClosed indique une fermeture commencée ou accomplie, pas une absence de PID.
+Ces contrats permettent une instrumentation confidentielle, mais ne donnent
+ni la cause d'un avertissement passé, ni celle d'une erreur de transport.
+
+Observation locale distincte : Q05/run1315 fournit deux captures candidates,
+puis un verdict caller FAILED : warning1 et transportErrors3/guardErrors3.
+Le code exige zéro violation avant de rendre le candidat ; ces trois erreurs
+ont donc été comptées entre ce contrôle et l'observation finale, fenêtre qui
+inclut vérification des captures et fermeture. Leur phase précise reste
+inconnue. Aucun texte console, corps, cookie, trace ou journal privé n'est lu.
+La préparation suivante doit conserver les refus, ajouter des phases et
+métadonnées fermées, puis vérifier sa cause avant toute correction de verdict.
+Ni un PNG lisible ni close résolu ne valide la recette ou l'arrêt natif.
 
 ### R15S37 — naissance psutil et comparaison temporelle QA
 
