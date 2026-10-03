@@ -1,8 +1,8 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `05da85c` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 13:30 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `f331421` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 17:31 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
-**Révision documentaire :** 29 septembre 2026, complétée par des sections datées ; relevé historique des ajouts au 2 octobre 2026 : sources de l'accélération GPU examinées le 1er octobre (W024, W025), puis sources et outils du chantier Linux consignés après l'audit D10/D11 (LNX21, LNX22, J8S01, J8S02, TOOL01 à TOOL03), et consultation actuelle des releases et avis de sécurité de trois dépendances Linux (D11S01–D11S08). Les décisions de ce dossier restent des choix de conception, non des résultats certifiés par les éditeurs. Les versions de production doivent être verrouillées séparément ; une documentation sur `main`/`master` ne constitue pas un verrou logiciel. Les consultations frontend, psutil, Linux, PSF, WHATWG et CSSWG du 3 octobre sont datées séparément dans R15S18–R15S32 ci-dessous.
+**Révision documentaire :** 29 septembre 2026, complétée par des sections datées ; relevé historique des ajouts au 2 octobre 2026 : sources de l'accélération GPU examinées le 1er octobre (W024, W025), puis sources et outils du chantier Linux consignés après l'audit D10/D11 (LNX21, LNX22, J8S01, J8S02, TOOL01 à TOOL03), et consultation actuelle des releases et avis de sécurité de trois dépendances Linux (D11S01–D11S08). Les décisions de ce dossier restent des choix de conception, non des résultats certifiés par les éditeurs. Les versions de production doivent être verrouillées séparément ; une documentation sur `main`/`master` ne constitue pas un verrou logiciel. Les consultations du 3 octobre (frontend, psutil, Linux, PSF, WHATWG, CSSWG et Node.js) figurent dans leurs sections datées ci-dessous.
 
 ## Références
 
@@ -33,6 +33,56 @@ NOT_STARTED de [R23](PLAN.md#r23--démarrage-optionnel-avec-qwen-35-2b-q4_k_m),
 pas une impossibilité du 2B. Aucun modèle téléchargé, profil modifié ou essai
 de génération effectué lors de cette inscription. Compatibilité tokenizer,
 template, dérivation texte, identité, admission et qualité restent à tester.
+
+### R15S40 — diagnostic fermé des assertions et rejets QA
+
+Node.js : [événement unhandledRejection, version 24.16.0](https://nodejs.org/download/release/v24.16.0/docs/api/process.html#event-unhandledrejection)
+et [retrait d'un listener, même version](https://nodejs.org/download/release/v24.16.0/docs/api/events.html#emitterremovelistenereventname-listener).
+Microsoft / Playwright : [assertions](https://playwright.dev/docs/test-assertions)
+et [source documentaire au tag installé v1.63.0](https://raw.githubusercontent.com/microsoft/playwright/v1.63.0/docs/src/test-assertions-js.md).
+Sections directement consultées par ROOT le 3 octobre 2026, entre 17:15 et
+17:17 UTC ; la page Playwright courante est distinguée du tag installé.
+Cette consultation complète celle de R15S39 ; elle ne précède pas l'essai V2.
+
+Node émet l'événement lorsqu'un rejet n'a pas reçu de gestionnaire dans un tour
+de boucle. Le retrait vise le callback enregistré ; il ne retire pas les
+listeners étrangers ni un événement déjà en cours. L'écouteur temporaire QA
+compte tout rejet observé comme fatal et est retiré après fermeture et drainage.
+Ces mécanismes ne prouvent ni l'absence de callbacks futurs ni l'arrêt des PID.
+Les assertions Playwright sur locators sont asynchrones et doivent être attendues ;
+le tag documente un délai par défaut de cinq secondes. Aucun délai ni critère
+de réussite n'est changé pour la reprise diagnostique E03.
+
+Observation locale distincte : V2 a conservé `primary=Error` sans sa frame
+initiale, avec zéro scénario achevé. Un nouveau helper privé doit consigner
+une phase constante avant chaque oracle et des métadonnées fermées, sans lire
+de trace, payload API ou fichier d'authentification. Cette préparation ne permet
+pas de déduire quel oracle a échoué, ni d'attribuer un défaut au produit.
+
+### R15S39 — contrôle final après fermeture de la sonde QA
+
+Mainteneurs Node.js : [setImmediate, documentation 24.16.0](https://nodejs.org/download/release/v24.16.0/docs/api/timers.html#setimmediatecallback-args)
+et [source documentaire au tag v24.16.0](https://raw.githubusercontent.com/nodejs/node/v24.16.0/doc/api/timers.md).
+Microsoft : [BrowserContext.close](https://playwright.dev/docs/api/class-browsercontext#browser-context-close).
+Sources directement ouvertes par ROOT le 3 octobre 2026 ; consignation canonique
+à 15:19 UTC. Node installé : 24.16.0 ; contrat Playwright 1.63.0 conservé et
+signatures installées déjà référencées dans R15S38. L'accès initial à
+latest-v24.x a échoué ; la page versionnée a ensuite été consultée.
+
+setImmediate programme un callback après les callbacks I/O du tour
+d'événements. La fermeture Playwright ferme les pages et peut interrompre
+des opérations ; elle n'est pas une preuve d'absence de PID. Le contrôle QA
+ajoute un tour Node entre deux drainages après les deux fermetures, puis
+revérifie les invariants fatals. Cela ne garantit pas l'absence de callbacks
+futurs arbitraires : l'enveloppe doit encore vérifier les identités et l'arrêt.
+
+Preuve locale distincte : C reproduit une requête DELETE tardive bloquée mais encore
+qualifiée PASS par l'ancien `execute` de la sonde modale. Correctif ROOT privé : un seul bloc
+après fermeture ; 33 contrôles conservés et 13 nouveaux, soit 46 PASS après 11 FAIL contre
+V2. Revue C favorable limitée à cette préparation. Aucun DELETE backend,
+navigateur ou comportement produit réel démontré par ces doubles. Le
+nouvel assemblage, ses préconditions et son rendu restent à qualifier ; voir
+le [journal](journal/2026-10-03.md#contrôles-qa-après-fermeture-et-compositions-relevé-1519-utc).
 
 ### R15S38 — observations console et fermeture du contexte Playwright
 

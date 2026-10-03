@@ -1,6 +1,6 @@
 # Inventaire des textes de l'interface (lot R15, étape B du lot R16)
 
-**Rôle :** inventaire des textes visibles ou restitués par `apps/web/src/`, avec leur réécriture et son motif · **Propriétaire :** frontend documentaire (R15/R16) · **Statut :** Vivant ; R15-2 vérifié en unités, types, export et rendu, sans clôture globale R15/D06 · **Référence :** inventaire initial sur `ae387a9` et étapes A/B de R16 ; compléments R15-1 relus sur `5ca3685` ; revue R15-2 du contenu `ee2341a` puis modifications locales du 02/10/2026, sur base publiée `c8bc410` · **Mis à jour :** 2026-10-02 23:14 (UTC) · **Source de vérité :** `apps/web/src/` pour les textes livrés ; ce document pour les motifs ; journal pour les résultats d'exécution.
+**Rôle :** inventaire des textes visibles ou restitués par `apps/web/src/`, avec leur réécriture et son motif · **Propriétaire :** frontend documentaire (R15/R16) · **Statut :** Vivant ; R15-2 vérifié dans sa portée, E03 validé sur recette UI doublée ; R15/D06 ouverts · **Référence :** inventaire initial sur `ae387a9`, compléments R15-1/R15-2 datés conservés ; base publiée `f331421` et correction locale E03 du 03/10/2026 · **Mis à jour :** 2026-10-03 18:09 (UTC) · **Source de vérité :** `apps/web/src/` pour les textes livrés ; ce document pour les motifs ; journal pour les résultats d'exécution.
 
 « Avant » désigne l'état au début de l'étape B (après l'étape A, non commitée). Un texte marqué *inchangé* a été relu et gardé. « Nouveau » signale un texte introduit par l'étape B. Ces tables gardent leur rôle historique : les compléments datés les remplacent lorsqu'un texte ou un contrat a évolué. Les messages rédigés par le service, `job.error_message`, noms, chemins, titres de sections, texte extrait, questions et réponses sont affichés tels qu'ils arrivent et ne sont pas réécrits ici. Les traductions frontend des codes d'avertissement sans message et les textes de repli sont en revanche inventoriés.
 
@@ -447,6 +447,28 @@ La présentation ajoute « page {n} » / « pages {n, …} », puis « et {k} au
 | `context-band.tsx`, explication du mode | Explication du matériel de génération | Bouton qui montre le détail, pas action de configuration |
 
 Les parties entre accolades sont les seules valeurs variables de ces familles. Les commandes suivent la section W018 ; questions, réponses, extraits, titres, noms, chemins et messages fournis par le serveur restent hors réécriture. Les tests unitaires ne qualifient ni le GPU Windows ni ces états dans un corpus réel.
+
+## E03 — aide sur la publication, complément du 3 octobre 2026
+
+Ce complément remplace uniquement l'« avis de publication » historique de la
+section Lecteur. Le texte courant reste dans
+[`pdf-viewer.tsx`](../src/components/pdf-viewer.tsx), paragraphe `viewer-notice`
+sous `!provenanceReady` : les fonctions dépendent de la publication de
+l'extraction, pas de la seule fin de l'indexation. L'aide renvoie au Suivi et
+précise qu'une extraction partielle peut demander un accord, sans prétendre
+que tous les résultats partiels imposent cette décision.
+
+Le contrat de `publication.ts` et `Indexer.publish` est inchangé. La ligne de
+texte seule est corrigée ; les conditions de disponibilité des passages,
+du sommaire et de l'analyse ne changent pas. Sept tests ciblés et 281 unités
+passent, ainsi que le typage, le lint et le build isolé. La recette V5 termine
+avec une sortie 0 : notice lisible aux deux tailles 1366×768 et 1920×1080
+avant publication ; notice absente et analyse activée dans un troisième
+contexte publié. Les trois captures nouvelles ont été examinées par ROOT et
+le vérificateur indépendant. Session et API sont doublées dans des contextes
+indépendants : ni transition native de publication ni dessin PDF qualifié. Le
+[plan canonique](../../../RAG_Local_Agents/PLAN.md) porte l'état de l'action E03,
+le journal ses commandes et preuves. Aucun état global R15/D06 n'est clos.
 
 ## Limites
 

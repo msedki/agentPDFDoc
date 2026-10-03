@@ -1,6 +1,6 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `05da85c`, opérations W029-6, pilotes D03 et R15-3 Linux datés ci-dessous · **Mis à jour :** 2026-10-03 14:08 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `f331421`, opérations W029-6, pilotes D03 et R15-3 Linux datés ci-dessous · **Mis à jour :** 2026-10-03 17:31 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -338,6 +338,24 @@ La modaleV2 reste également à qualifier sur sa chaîne native. Aucun seuil,
 critère global D06, Windows, D07 ou qualification finale modifié.
 [Preuves et prochaine action](journal/2026-10-03.md#q05--captures-réelles-et-refus-du-caller-relevé-1347-utc).
 [Correction QA et limites](journal/2026-10-03.md#f04--correction-du-refus-tardif-de-la-sonde-qa-relevé-1408-utc).
+
+Complément D06 du 3 octobre à 15:19 UTC : le défaut de qualification tardive
+est aussi reproduit dans la sonde modale historique ; la requête est bloquée,
+sans transmission au backend. Sonde corrigée revue sur tests purs ; nouvelle
+composition en revue, aucun parcours natif supplémentaire exécuté. Q05 a
+une instrumentation revue et une enveloppe en revue, pas un nouveau résultat
+de peinture. F04 attend encore sa lecture native des deux cartes. Critères,
+seuils, D06 global, Windows et D07 inchangés ; états et prochaines actions au
+[plan](PLAN.md#r15-3--reprise-des-contrôles-qa-relevé-du-3-octobre-à-1519-utc),
+preuves au journal relié par ce plan.
+
+Complément D06, relevé du 3 octobre à 16:02 UTC : la nouvelle exécution
+`run-20261003T154834Z` donne cinq cas stricts PASS, sans retry, skip ni flaky,
+mais la sonde modale échoue à `nominal_1366`. Le wrapper rapporte un arrêt
+ciblé et une conservation bornée ; la revue terminale indépendante reste en
+cours. L'aide frontend sur la publication fait l'objet d'une correction
+rédactionnelle distincte. Aucune case ou exigence globale n'est modifiée ;
+voir l'[état courant](PLAN.md).
 
 ## Rapport final exigé
 

@@ -438,6 +438,8 @@ Reprise W029/R14-1/R15-1 du 02/10 : [relevé des lectures et usages](reports/ski
 
 # Spécification et architecture — V2.1 corrigée
 
+**Rôle :** référentiel de conception et d'exigences V2.1, distinct de l'état livré · **Propriétaire :** architecture et spécification du chantier · **Statut :** Normatif ; décisions utilisateur datées applicables, aucune qualification d'exécution implicite · **Référence :** pack RAG-LOCAL-16 V2.1, décisions W001/W018/W024/W025 ; base `f331421`, clarification documentaire du 03/10/2026 · **Mis à jour :** 2026-10-03 17:57 (UTC) · **Source de vérité :** ce référentiel pour les exigences ; [architecture stabilisée](../docs/architecture/ARCHITECTURE.md) pour le système livré
+
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)). **W024 et W025 (01/10/2026) : le CPU reste le socle, le repli et la référence de la recette D07 ; seule la génération par Ollama peut passer sur GPU, automatiquement sur les voies qualifiées par un essai réel** ([W025](DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024)). L'objectif O4 garde sa formulation d'origine : aucun GPU n'est requis.
 
 **Baseline de conception :** RAG-LOCAL-16 v2.1. Les invariants sont obligatoires ; les paramètres initiaux sont qualifiés selon `QUALIFICATION.md` puis verrouillés. Voir `DECISIONS.md` et les références de `SOURCES.md`.
@@ -485,31 +487,27 @@ PyMuPDF n'est pas une dépendance nominale. Son projet documente AGPL/commercial
 
 ## 3. Architecture d'exécution
 
-```text
-NAVIGATEUR — http://127.0.0.1:8765
-  Next.js export statique / React / PDF.js
-  ├── bibliothèque et arborescence
-  ├── PDF, sommaire, texte sélectionnable, overlays
-  └── recherche, analyse et chat avec sources
-                         │ même origine ; REST + SSE
-                         ▼
-FASTAPI — un processus serveur, un worker ASGI
-  ├── LibraryService / VersionService
-  ├── SearchService / ScopeResolver / CitationService
-  ├── ContextBuilder / OllamaGateway
-  ├── EmbeddingService — une session ONNX CPU
-  └── JobSupervisor / ResourceGovernor
-       │                 │                   │
-       ▼                 ▼                   ▼
- SQLite + FTS5        Qdrant :6333        Ollama :11434
- source de vérité     vecteurs denses     Qwen3.5 4B Q4
-       │
-       └── Docling/Tesseract worker isolé, lancé et libéré à la demande
+Cette section décrit les responsabilités attendues, pas une liste de classes
+ou de processus dont la présence aurait été vérifiée. Les noms de services
+du schéma de conception initial désignaient ces responsabilités. Les adresses
+d'exploitation dépendent du profil choisi ; les ports dessinés dans ce schéma
+ne constituent pas une preuve de disponibilité.
 
-DISQUE LOCAL
-  originaux immuables / versions / extraction JSON / caches / modèles /
-  SQLite / Qdrant / logs limités / snapshots cohérents
-```
+| Émetteur | Destinataire | Interface attendue | Responsabilité |
+|---|---|---|---|
+| Navigateur : export Next.js, React et PDF.js | API FastAPI, un worker ASGI | HTTP de même origine, JSON et SSE ; route contrôlée pour le PDF | Bibliothèque, lecture de l'original, recherche, analyse et sources |
+| API et traitements applicatifs | SQLite et FTS5 | Requêtes SQL et transactions locales | Métadonnées, versions, périmètres, citations, lexical, jobs et publication |
+| Service d'embeddings | Session ONNX CPU unique | Appel d'inférence local | Calcul des vecteurs E5 |
+| Backend de recherche | Qdrant local | API HTTP loopback | Vecteurs denses et filtres documentaires |
+| Backend de génération | Ollama local | API HTTP loopback et flux de réponse | Transmission du contexte construit par le backend et génération Qwen 3.5 4B Q4 |
+| Supervision et admission des ressources | Worker Docling/Tesseract isolé | Lancement à la demande ; état et checkpoints persistés | Extraction et OCR, puis libération du worker |
+| Services et workers | Stockage local | Fichiers, bases et snapshots cohérents | Originaux immuables, versions, extraction JSON, caches, modèles et journaux bornés |
+
+L'[architecture du système livré](../docs/architecture/ARCHITECTURE.md#2-composants-et-processus)
+identifie les composants réellement implémentés. Son
+[schéma versionné des processus et ports](../docs/assets/diagrams/processus-ports.svg)
+décrit l'état livré de sa révision, sans qualifier toutes les plateformes ou
+les procédures encore ouvertes au plan.
 
 Pas de serveur Next.js en production, SSR, API routes Next ou Server Actions. Les mutations et données dynamiques passent toutes par FastAPI. L'export statique de Next.js est documenté en S09. Les fichiers PDF sont servis par une route contrôlée avec support HTTP Range, jamais par l'exposition brute d'un répertoire système.
 
@@ -1245,7 +1243,7 @@ Pour chaque skill retenu, vérifier une tâche pertinente et une tâche hors pé
 
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `05da85c`, opérations W029-6, pilotes D03 et R15-3 Linux datés ci-dessous · **Mis à jour :** 2026-10-03 14:08 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `f331421`, opérations W029-6, pilotes D03 et R15-3 Linux datés ci-dessous · **Mis à jour :** 2026-10-03 17:31 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -1584,6 +1582,24 @@ critère global D06, Windows, D07 ou qualification finale modifié.
 [Preuves et prochaine action](journal/2026-10-03.md#q05--captures-réelles-et-refus-du-caller-relevé-1347-utc).
 [Correction QA et limites](journal/2026-10-03.md#f04--correction-du-refus-tardif-de-la-sonde-qa-relevé-1408-utc).
 
+Complément D06 du 3 octobre à 15:19 UTC : le défaut de qualification tardive
+est aussi reproduit dans la sonde modale historique ; la requête est bloquée,
+sans transmission au backend. Sonde corrigée revue sur tests purs ; nouvelle
+composition en revue, aucun parcours natif supplémentaire exécuté. Q05 a
+une instrumentation revue et une enveloppe en revue, pas un nouveau résultat
+de peinture. F04 attend encore sa lecture native des deux cartes. Critères,
+seuils, D06 global, Windows et D07 inchangés ; états et prochaines actions au
+[plan](PLAN.md#r15-3--reprise-des-contrôles-qa-relevé-du-3-octobre-à-1519-utc),
+preuves au journal relié par ce plan.
+
+Complément D06, relevé du 3 octobre à 16:02 UTC : la nouvelle exécution
+`run-20261003T154834Z` donne cinq cas stricts PASS, sans retry, skip ni flaky,
+mais la sonde modale échoue à `nominal_1366`. Le wrapper rapporte un arrêt
+ciblé et une conservation bornée ; la revue terminale indépendante reste en
+cours. L'aide frontend sur la publication fait l'objet d'une correction
+rédactionnelle distincte. Aucune case ou exigence globale n'est modifiée ;
+voir l'[état courant](PLAN.md).
+
 ## Rapport final exigé
 
 Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, corpus, résultat et chemin de preuve. Ajouter un tableau des métriques avec dénominateurs, mesures chaud/froid, limitations et écarts. Résumer uniquement ce qui est réellement exécuté ; ne pas substituer un discours de conformité aux résultats.
@@ -1596,13 +1612,65 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `05da85c` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-03 14:08 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `f331421` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-03 18:09 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
 **Périmètre daté :** inspection des 29/30 septembre 2026 puis réalisation autorisée le 30 septembre, UTC. Brief actif RAG-LOCAL-16 V2.1 (archive vérifiée) et décision utilisateur W001 : **Windows natif, sans WSL ni Docker**, orchestration locale comparable à Docker Compose. Sources, configuration et corpus identifiés par empreintes ; aucun dépôt Git lors de l'inspection (dépôt créé à 08:50, W005). Provisionnement isolé, téléchargements officiels, services locaux, OCR, builds et tests du chantier sont désormais autorisés. Exclusions conservées : modification globale de configuration système, destruction des originaux ou données étrangères, arrêt de services étrangers et déploiement externe. Depuis 08:50 UTC (W005), Git est initialisé et commit/push sont autorisés uniquement vers le remote privé `origin` https://github.com/msedki/agentPDFDoc.git, après chaque travail substantiel vérifié ; corpus, runtimes, modèles, données et secrets restent exclus du dépôt. Résultat attendu : application réelle, preuves de recette et documentation fidèle.
 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
+
+## R14/R15 — relecture documentaire et reprise QA, relevé du 3 octobre à 18:09 UTC
+
+La nouvelle demande documentaire reprend les exigences existantes de R14/R15.
+L'espace stabilisé reste dans `docs/`, le suivi vivant dans `RAG_Local_Agents/` ;
+aucun second plan n'est créé. La revue éditoriale indépendante a confronté les
+ajouts récents aux preuves et les textes frontend concernés à leur consommateur.
+Les retouches de lisibilité sont appliquées ; les 58 tests documentaires, Ruff
+et les cinq SVG passent. Les procédures non exécutées restent non qualifiées.
+
+| Action existante ou constat | État au relevé | Validation restante |
+|---|---|---|
+| RB5 et sonde modale | `run-20261003T154834Z` : cinq cas stricts PASS sans retry, sonde FAILED à `nominal_1366`. Revue terminale indépendante B reçue et lue : quatorze captures examinées, 34 identités enregistrées strictement absentes, base et 96 fichiers immuables conservés. L'assertion refusée reste inconnue | Établir l'assertion modale refusée sans lire la trace sensible ni neutraliser un contrôle. Ces cinq PASS et les captures ne qualifient pas la modale |
+| R15-3-Q05 | Instrumentation et enveloppe relues favorablement sur preuves préparatoires. Le run1315 reste FAILED ; aucun nouveau parcours de peinture | Nouveau dernier arrêt indépendant et sources applicables requis avant recette. La correction frontend E03 invalide la comparaison avec les sources ROOT de l'ancien gel |
+| R15-3-F04 | Adaptateur livré à 15:21:43, 34 tests Python et 9 Node PASS ; revue C favorable préparatoire reçue et lue. Les 231 preuves historiques différées et les deux cartes réelles restent à vérifier | Lier la cible F04 réellement courante, contrôler ses préconditions puis exécuter la lecture des deux cartes. Aucun résultat natif nouveau |
+| R15-3-E03, incohérence rédactionnelle | VALIDÉ dans sa portée : texte corrigé, sept tests ciblés et 281 unités PASS sans skip, typage/lint/build isolé verts. V5 sortie 0, trois contextes UI conformes ; captures réellement vues, neuf processus absents, permissions et conservation vérifiées indépendamment par B. V1/V2 restent FAILED, cause V2 inconnue ; V4 conserve son wrapper EXIT1 | Publier le correctif et son suivi après les contrôles documentaires. Session/API doublées : ni publication native, ni peinture PDF, ni recette RAG de bout en bout ; voir le journal pour les preuves |
+| R15-3-E04, incohérence rédactionnelle / frontend | NOT_STARTED, correction autorisée par la demande sur les textes. `analysis-panel.tsx:160` conseille d'attendre la fin d'un traitement ; `unindexedInScope` et son test partiel non publié/annulé prouvent que cela ne suffit pas à rendre tous les documents interrogeables | Corriger cette seule aide vers les actions du Suivi et la disponibilité réelle, conserver le calcul métier ; témoin du scénario, unités/qualité puis rendu de la branche et revue indépendante |
+| R15-3-E05, amélioration rédactionnelle / API affichée dans le frontend | NOT_STARTED, correction autorisée par la demande sur les textes. `main.py:236` renvoie « Entrée invalide. », affiché directement par le client. Scénario statique : sélection de plus de 1 000 documents, refus 422 de `Scope.documentIds` sans explication visible ; non observé au runtime | Formuler un message contextualisé à partir des champs/codes autorisés, sans divulguer les valeurs reçues ; préserver code/status/détails, tester la vraie validation et l'affichage, puis revue indépendante |
+| R14-3, clarification du référentiel de conception / documentation | VERIFIED documentaire : rôle normatif explicite, sept flux/responsabilités sans schéma ASCII, renvois à l'architecture et au SVG livré. 58 tests, liens/pack/brief/SVG conformes ; avis final indépendant A favorable et responsabilités conservées | Publier cette clarification avec son suivi ; aucun comportement ou critère V2.1 modifié, aucune procédure qualifiée par ces contrôles |
+
+Les droits d'écriture E03 sont limités au texte de `pdf-viewer.tsx` et à son
+témoin `publication.test.ts`. Les autres modifications locales sont préservées.
+Les preuves et les commandes sont au
+[journal](journal/2026-10-03.md#relecture-documentaire-et-reprise-qa-relevé-1602-utc).
+Les preuves E03 sont dans `evidence-review/frontend-publication-copy-20261003C/`
+sous la racine QA privée du journal ; la [clôture E03](journal/2026-10-03.md#e03--validation-ciblée-et-clôture-v5-relevé-1809-utc)
+distingue le rendu validé des limites de cette recette. Les deux échecs de montage et quatre skips de la première
+suite sont conservés : deux supports de test ont été ajoutés à la copie physique,
+et quatre tests lisent la référence Git historique, sans mutation Git.
+R14, R15, R22, D06 et la DoD globale restent ouverts ; R23 reste NOT_STARTED.
+
+## R15-3 — reprise des contrôles QA, relevé du 3 octobre à 15:19 UTC
+
+Le point de suivi documentaire `f331421` a été publié sur `origin/main` à 14:27 UTC.
+Les sources produit du gel de 243 fichiers et des 13 fichiers du périmètre ingestion, ainsi que leurs tests, typage, lint et build, ne sont
+pas modifiés par cette reprise. Les travaux suivants corrigent ou composent
+les outils de qualification, sans anticiper leur réussite native.
+
+| Axe existant | État réel et preuve | Prochaine action autorisée |
+|---|---|---|
+| Modale, complément F01/F02 et RB5 | C01-RB confirmé : l'ancien `execute` ignore un refus tardif pendant la fermeture. Sonde ROOT v3 distincte : 46 tests purs PASS ; lint de 10 fichiers MJS sans erreur ni avertissement ; revue C favorable limitée à cette sonde. Composition ROOT V2 : 68 tests purs PASS ; Ruff sur quatre fichiers Python et lint du script verts ; avis indépendant de composition en cours | Après cet avis : vérifier la cible historique et le dernier arrêt explicite, préparer la suite neuve, contrôler les ressources et l'autorisation de charge (`clearance`), exécuter les cinq cas stricts puis la modale, examiner le rendu et faire relire l'arrêt et la conservation |
+| R15-3-Q05 | `run-20261003T1315` toujours FAILED. Instrumentation diagnostique : 83 tests purs PASS et revue C favorable préparatoire. Enveloppe B : 54 tests purs PASS, en revue C ; aucun nouveau navigateur lancé, phase réelle des trois erreurs historiques non établie | Relire l'enveloppe, contrôler le dernier arrêt applicable, puis ouvrir une fenêtre diagnostique isolée ; conserver les refus et les nouveaux échantillons, sans reconstruire ceux du run1315 |
+| R15-3-F04 | Correction ROOT de l'oracle tardif déjà revue ; adaptateur de lecture des deux cartes en finition, non livré ni revu à ce relevé. Aucune nouvelle carte réelle qualifiée | Revue complète de l'adaptateur, liaison à l'exécution nominale `run-20261003T1050` et préconditions réelles ; recette GET/UI, deux captures, arrêt propre et conservation |
+
+Les gels antérieurs restent immuables. Le premier assemblage ROOT conserve
+son rouge de montage et ses diagnostics de lint ; V2 les corrige sans masquer
+les contrôles. Un test pur ou un avis préparatoire ne valide pas D06. Le
+descripteur ROOT de l'arrêt lié au run1315 est une entrée attendue à revalider, pas une observation
+fraîche du runtime. Preuves, SHA complets et limites au
+[journal](journal/2026-10-03.md#contrôles-qa-après-fermeture-et-compositions-relevé-1519-utc).
+R23 reste inscrit et NOT_STARTED ; les autres critères globaux ouverts ne
+sont pas clôturés par ces préparations.
 
 ## R23 — démarrage optionnel avec Qwen 3.5 2B Q4_K_M
 
@@ -1667,24 +1735,27 @@ corrections R15-3-F03/F04 et la preuve de peinture R15-3-Q05.
 | I04 | Corpus caractérisé et diagnostic écrit | I01, I02, I03 | Comptes/hashes/pages, inspection structurelle et visuelle, rapport et journal reliés | VERIFIED | reports/INSPECTION_DOSSIER_MACHINE_2026-09-30.md, reports/preuves-inspection-2026-09-30/corpus-inspection.json ; 182 pages et 24 échantillons visuels |
 | I05 | Contrainte Windows native intégrée au référentiel | Décision utilisateur W001 | Documents actifs cohérents sans prérequis WSL/Docker ; voie native prouvée par sources officielles et contrat d'exploitation explicite | VERIFIED | DECISIONS.md, EXPLOITATION_WINDOWS.md ; les runtimes eux-mêmes ne sont pas encore qualifiés |
 
-Les lots applicatifs du graphe suivant sont désormais autorisés par le `/goal` utilisateur du 30 septembre. Le suivi ci-dessous distingue réalisation en cours et validation acquise ; aucune case de recette n'est cochée par anticipation.
+Les couches de réalisation ci-dessous sont autorisées par le `/goal` utilisateur du 30 septembre. Le suivi distingue réalisation en cours et validation acquise ; aucune case de recette n'est cochée par anticipation.
 
 ## Pilotage
 
 Mettre à jour après résultat, décision ou blocage significatif. Un résultat `VERIFIED` doit pointer vers sa preuve et les critères de recette associés. États de travail : `NOT_STARTED`, `READY`, `IN_PROGRESS`, `BLOCKED`, `VERIFIED`. Seul le propriétaire d'intégration modifie les contrats partagés et les lockfiles communs.
 
-## Graphe de dépendances, pas un plan en cascade
+## Dépendances entre les couches de réalisation
 
-```text
-A — inspection + précontrôles + contrats minimaux
-├── B — ingestion, versions, provenance et géométrie
-├── C — SQLite/Qdrant, embeddings, retrieval et API
-├── D — UI, PDF.js, état/scope et citations
-└── E — fixtures, outillage, offline, ressources et recette
+Les couches B, C et D peuvent avancer en parallèle après les précontrôles A,
+avec les moyens de qualification E. Leur intégration produit la chaîne réelle V ;
+la recette complète F s'appuie ensuite sur les résultats indépendants de chaque couche.
 
-B + C + D + appuis E -> V — première chaîne verticale réelle
-V + résultats indépendants B/C/D/E -> F — robustesse et recette complète
-```
+| Couche | Responsabilité | Dépendances |
+|---|---|---|
+| A | Inspection, précontrôles et contrats minimaux | Instructions et références applicables |
+| B | Ingestion, versions, provenance et géométrie | A ; appuis E |
+| C | SQLite, Qdrant, embeddings, recherche et API | A ; appuis E |
+| D | Interface, PDF.js, état, périmètre et citations | A ; appuis E |
+| E | Fixtures, outillage, fonctionnement hors ligne, ressources et recette | A |
+| V | Première chaîne verticale réelle | B, C, D et appuis E |
+| F | Robustesse et recette complète | V et résultats indépendants de B, C, D et E |
 
 Les branches B/C/D/E progressent en parallèle après leurs contrats minimaux, sans attendre qu'une branche entière soit achevée. V doit être intégré tôt, pas reporté après la finition de tous les écrans. La coordination ne doit pas saturer la machine avec plusieurs travaux lourds.
 
@@ -2872,9 +2943,9 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `05da85c` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 13:30 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `f331421` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 17:31 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
-**Révision documentaire :** 29 septembre 2026, complétée par des sections datées ; relevé historique des ajouts au 2 octobre 2026 : sources de l'accélération GPU examinées le 1er octobre (W024, W025), puis sources et outils du chantier Linux consignés après l'audit D10/D11 (LNX21, LNX22, J8S01, J8S02, TOOL01 à TOOL03), et consultation actuelle des releases et avis de sécurité de trois dépendances Linux (D11S01–D11S08). Les décisions de ce dossier restent des choix de conception, non des résultats certifiés par les éditeurs. Les versions de production doivent être verrouillées séparément ; une documentation sur `main`/`master` ne constitue pas un verrou logiciel. Les consultations frontend, psutil, Linux, PSF, WHATWG et CSSWG du 3 octobre sont datées séparément dans R15S18–R15S32 ci-dessous.
+**Révision documentaire :** 29 septembre 2026, complétée par des sections datées ; relevé historique des ajouts au 2 octobre 2026 : sources de l'accélération GPU examinées le 1er octobre (W024, W025), puis sources et outils du chantier Linux consignés après l'audit D10/D11 (LNX21, LNX22, J8S01, J8S02, TOOL01 à TOOL03), et consultation actuelle des releases et avis de sécurité de trois dépendances Linux (D11S01–D11S08). Les décisions de ce dossier restent des choix de conception, non des résultats certifiés par les éditeurs. Les versions de production doivent être verrouillées séparément ; une documentation sur `main`/`master` ne constitue pas un verrou logiciel. Les consultations du 3 octobre (frontend, psutil, Linux, PSF, WHATWG, CSSWG et Node.js) figurent dans leurs sections datées ci-dessous.
 
 ## Références
 
@@ -2905,6 +2976,56 @@ NOT_STARTED de [R23](PLAN.md#r23--démarrage-optionnel-avec-qwen-35-2b-q4_k_m),
 pas une impossibilité du 2B. Aucun modèle téléchargé, profil modifié ou essai
 de génération effectué lors de cette inscription. Compatibilité tokenizer,
 template, dérivation texte, identité, admission et qualité restent à tester.
+
+### R15S40 — diagnostic fermé des assertions et rejets QA
+
+Node.js : [événement unhandledRejection, version 24.16.0](https://nodejs.org/download/release/v24.16.0/docs/api/process.html#event-unhandledrejection)
+et [retrait d'un listener, même version](https://nodejs.org/download/release/v24.16.0/docs/api/events.html#emitterremovelistenereventname-listener).
+Microsoft / Playwright : [assertions](https://playwright.dev/docs/test-assertions)
+et [source documentaire au tag installé v1.63.0](https://raw.githubusercontent.com/microsoft/playwright/v1.63.0/docs/src/test-assertions-js.md).
+Sections directement consultées par ROOT le 3 octobre 2026, entre 17:15 et
+17:17 UTC ; la page Playwright courante est distinguée du tag installé.
+Cette consultation complète celle de R15S39 ; elle ne précède pas l'essai V2.
+
+Node émet l'événement lorsqu'un rejet n'a pas reçu de gestionnaire dans un tour
+de boucle. Le retrait vise le callback enregistré ; il ne retire pas les
+listeners étrangers ni un événement déjà en cours. L'écouteur temporaire QA
+compte tout rejet observé comme fatal et est retiré après fermeture et drainage.
+Ces mécanismes ne prouvent ni l'absence de callbacks futurs ni l'arrêt des PID.
+Les assertions Playwright sur locators sont asynchrones et doivent être attendues ;
+le tag documente un délai par défaut de cinq secondes. Aucun délai ni critère
+de réussite n'est changé pour la reprise diagnostique E03.
+
+Observation locale distincte : V2 a conservé `primary=Error` sans sa frame
+initiale, avec zéro scénario achevé. Un nouveau helper privé doit consigner
+une phase constante avant chaque oracle et des métadonnées fermées, sans lire
+de trace, payload API ou fichier d'authentification. Cette préparation ne permet
+pas de déduire quel oracle a échoué, ni d'attribuer un défaut au produit.
+
+### R15S39 — contrôle final après fermeture de la sonde QA
+
+Mainteneurs Node.js : [setImmediate, documentation 24.16.0](https://nodejs.org/download/release/v24.16.0/docs/api/timers.html#setimmediatecallback-args)
+et [source documentaire au tag v24.16.0](https://raw.githubusercontent.com/nodejs/node/v24.16.0/doc/api/timers.md).
+Microsoft : [BrowserContext.close](https://playwright.dev/docs/api/class-browsercontext#browser-context-close).
+Sources directement ouvertes par ROOT le 3 octobre 2026 ; consignation canonique
+à 15:19 UTC. Node installé : 24.16.0 ; contrat Playwright 1.63.0 conservé et
+signatures installées déjà référencées dans R15S38. L'accès initial à
+latest-v24.x a échoué ; la page versionnée a ensuite été consultée.
+
+setImmediate programme un callback après les callbacks I/O du tour
+d'événements. La fermeture Playwright ferme les pages et peut interrompre
+des opérations ; elle n'est pas une preuve d'absence de PID. Le contrôle QA
+ajoute un tour Node entre deux drainages après les deux fermetures, puis
+revérifie les invariants fatals. Cela ne garantit pas l'absence de callbacks
+futurs arbitraires : l'enveloppe doit encore vérifier les identités et l'arrêt.
+
+Preuve locale distincte : C reproduit une requête DELETE tardive bloquée mais encore
+qualifiée PASS par l'ancien `execute` de la sonde modale. Correctif ROOT privé : un seul bloc
+après fermeture ; 33 contrôles conservés et 13 nouveaux, soit 46 PASS après 11 FAIL contre
+V2. Revue C favorable limitée à cette préparation. Aucun DELETE backend,
+navigateur ou comportement produit réel démontré par ces doubles. Le
+nouvel assemblage, ses préconditions et son rendu restent à qualifier ; voir
+le [journal](journal/2026-10-03.md#contrôles-qa-après-fermeture-et-compositions-relevé-1519-utc).
 
 ### R15S38 — observations console et fermeture du contexte Playwright
 

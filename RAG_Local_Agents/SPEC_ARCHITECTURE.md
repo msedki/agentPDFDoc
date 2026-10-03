@@ -1,5 +1,7 @@
 # Spécification et architecture — V2.1 corrigée
 
+**Rôle :** référentiel de conception et d'exigences V2.1, distinct de l'état livré · **Propriétaire :** architecture et spécification du chantier · **Statut :** Normatif ; décisions utilisateur datées applicables, aucune qualification d'exécution implicite · **Référence :** pack RAG-LOCAL-16 V2.1, décisions W001/W018/W024/W025 ; base `f331421`, clarification documentaire du 03/10/2026 · **Mis à jour :** 2026-10-03 17:57 (UTC) · **Source de vérité :** ce référentiel pour les exigences ; [architecture stabilisée](../docs/architecture/ARCHITECTURE.md) pour le système livré
+
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)). **W024 et W025 (01/10/2026) : le CPU reste le socle, le repli et la référence de la recette D07 ; seule la génération par Ollama peut passer sur GPU, automatiquement sur les voies qualifiées par un essai réel** ([W025](DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024)). L'objectif O4 garde sa formulation d'origine : aucun GPU n'est requis.
 
 **Baseline de conception :** RAG-LOCAL-16 v2.1. Les invariants sont obligatoires ; les paramètres initiaux sont qualifiés selon `QUALIFICATION.md` puis verrouillés. Voir `DECISIONS.md` et les références de `SOURCES.md`.
@@ -47,31 +49,27 @@ PyMuPDF n'est pas une dépendance nominale. Son projet documente AGPL/commercial
 
 ## 3. Architecture d'exécution
 
-```text
-NAVIGATEUR — http://127.0.0.1:8765
-  Next.js export statique / React / PDF.js
-  ├── bibliothèque et arborescence
-  ├── PDF, sommaire, texte sélectionnable, overlays
-  └── recherche, analyse et chat avec sources
-                         │ même origine ; REST + SSE
-                         ▼
-FASTAPI — un processus serveur, un worker ASGI
-  ├── LibraryService / VersionService
-  ├── SearchService / ScopeResolver / CitationService
-  ├── ContextBuilder / OllamaGateway
-  ├── EmbeddingService — une session ONNX CPU
-  └── JobSupervisor / ResourceGovernor
-       │                 │                   │
-       ▼                 ▼                   ▼
- SQLite + FTS5        Qdrant :6333        Ollama :11434
- source de vérité     vecteurs denses     Qwen3.5 4B Q4
-       │
-       └── Docling/Tesseract worker isolé, lancé et libéré à la demande
+Cette section décrit les responsabilités attendues, pas une liste de classes
+ou de processus dont la présence aurait été vérifiée. Les noms de services
+du schéma de conception initial désignaient ces responsabilités. Les adresses
+d'exploitation dépendent du profil choisi ; les ports dessinés dans ce schéma
+ne constituent pas une preuve de disponibilité.
 
-DISQUE LOCAL
-  originaux immuables / versions / extraction JSON / caches / modèles /
-  SQLite / Qdrant / logs limités / snapshots cohérents
-```
+| Émetteur | Destinataire | Interface attendue | Responsabilité |
+|---|---|---|---|
+| Navigateur : export Next.js, React et PDF.js | API FastAPI, un worker ASGI | HTTP de même origine, JSON et SSE ; route contrôlée pour le PDF | Bibliothèque, lecture de l'original, recherche, analyse et sources |
+| API et traitements applicatifs | SQLite et FTS5 | Requêtes SQL et transactions locales | Métadonnées, versions, périmètres, citations, lexical, jobs et publication |
+| Service d'embeddings | Session ONNX CPU unique | Appel d'inférence local | Calcul des vecteurs E5 |
+| Backend de recherche | Qdrant local | API HTTP loopback | Vecteurs denses et filtres documentaires |
+| Backend de génération | Ollama local | API HTTP loopback et flux de réponse | Transmission du contexte construit par le backend et génération Qwen 3.5 4B Q4 |
+| Supervision et admission des ressources | Worker Docling/Tesseract isolé | Lancement à la demande ; état et checkpoints persistés | Extraction et OCR, puis libération du worker |
+| Services et workers | Stockage local | Fichiers, bases et snapshots cohérents | Originaux immuables, versions, extraction JSON, caches, modèles et journaux bornés |
+
+L'[architecture du système livré](../docs/architecture/ARCHITECTURE.md#2-composants-et-processus)
+identifie les composants réellement implémentés. Son
+[schéma versionné des processus et ports](../docs/assets/diagrams/processus-ports.svg)
+décrit l'état livré de sa révision, sans qualifier toutes les plateformes ou
+les procédures encore ouvertes au plan.
 
 Pas de serveur Next.js en production, SSR, API routes Next ou Server Actions. Les mutations et données dynamiques passent toutes par FastAPI. L'export statique de Next.js est documenté en S09. Les fichiers PDF sont servis par une route contrôlée avec support HTTP Range, jamais par l'exposition brute d'un répertoire système.
 

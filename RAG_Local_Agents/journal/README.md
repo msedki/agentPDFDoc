@@ -1,11 +1,25 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `05da85c` et entrées datées · **Mis à jour :** 2026-10-03 14:08 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `f331421` et entrées datées · **Mis à jour :** 2026-10-03 18:09 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
 Ajout du 3 octobre, relevé à 10:05 UTC : [R23, démarrage optionnel Qwen 2B Q4_K_M](../PLAN.md#r23--démarrage-optionnel-avec-qwen-35-2b-q4_k_m),
 inscrit au plan et non exécuté ; [trace de la demande et des lectures](2026-10-03.md#ajout-du-démarrage-qwen-2b-au-plan--relevé-1005-utc).
+
+Reprise à 15:19 UTC : [refus QA après fermeture et compositions distinctes](2026-10-03.md#contrôles-qa-après-fermeture-et-compositions-relevé-1519-utc).
+Correctif de la sonde modale revu sur 46 tests purs ; assemblage corrigé de 68 tests
+et enveloppe diagnostique Q05 en revue, sans nouvelle recette native à ce relevé.
+
+Relecture à 16:02 UTC : [documentation et nouvelle tentative QA](2026-10-03.md#relecture-documentaire-et-reprise-qa-relevé-1602-utc).
+58 tests documentaires PASS ; cinq cas navigateur stricts PASS mais sonde modale FAILED.
+Correction ciblée de l'aide sur la publication en cours ; revues et limites conservées.
+
+Clôture ciblée à 18:09 UTC : [E03 et recette V5](2026-10-03.md#e03--validation-ciblée-et-clôture-v5-relevé-1809-utc).
+Notice corrigée, 281 unités et qualité/build conformes ; trois contextes UI
+avec API doublées validés indépendamment, sans qualification du dessin PDF.
+E04/E05 restent non réalisés ; clarification SPEC et contrôles documentaires
+validés dans leur portée, relecture finale indépendante favorable.
 
 | Date | Travail effectué |
 |---|---|
