@@ -113,3 +113,18 @@ test("an unpublished partial extraction is not queryable and is counted apart", 
   assert.equal(coverageSentence(scopeCoverage({ kind: "library" }, partialTree)), "1 document interrogeable · 2 exclus : 1 extraction partielle à publier, 1 traitement annulé");
   assert.equal(unindexedInScope({ kind: "library" }, partialTree), 2);
 });
+
+test("publishing a partial makes only that document queryable; a cancelled treatment remains excluded", () => {
+  const partial = documentRecord("half", "ready_partial", null, "v-half", null);
+  const cancelled = documentRecord("stopped", "cancelled" as DocumentRecord["state"], null);
+  const before: LibraryTree = { folders: [], documents: [partial, cancelled] };
+  assert.equal(unindexedInScope({ kind: "library" }, before), 2);
+  assert.deepEqual(scopeCoverage({ kind: "library" }, before), { queryable: 0, excluded: [{ reason: "unpublished", count: 1 }, { reason: "cancelled", count: 1 }] });
+  const published = { ...partial, active_generation_id: "g-half" };
+  const after: LibraryTree = { ...before, documents: [published, cancelled] };
+  assert.equal(isQueryableDocument(published), true);
+  assert.equal(isQueryableDocument(cancelled), false);
+  assert.equal(unindexedInScope({ kind: "library" }, after), 1);
+  assert.equal(unindexedInScope({ kind: "documents", documentIds: ["half"] }, after), 0);
+  assert.deepEqual(scopeCoverage({ kind: "library" }, after), { queryable: 1, excluded: [{ reason: "cancelled", count: 1 }] });
+});

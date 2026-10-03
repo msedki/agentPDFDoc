@@ -1,6 +1,6 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `f331421` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 17:31 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `f8cd964` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 19:58 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 **Révision documentaire :** 29 septembre 2026, complétée par des sections datées ; relevé historique des ajouts au 2 octobre 2026 : sources de l'accélération GPU examinées le 1er octobre (W024, W025), puis sources et outils du chantier Linux consignés après l'audit D10/D11 (LNX21, LNX22, J8S01, J8S02, TOOL01 à TOOL03), et consultation actuelle des releases et avis de sécurité de trois dépendances Linux (D11S01–D11S08). Les décisions de ce dossier restent des choix de conception, non des résultats certifiés par les éditeurs. Les versions de production doivent être verrouillées séparément ; une documentation sur `main`/`master` ne constitue pas un verrou logiciel. Les consultations du 3 octobre (frontend, psutil, Linux, PSF, WHATWG, CSSWG et Node.js) figurent dans leurs sections datées ci-dessous.
 
@@ -33,6 +33,61 @@ NOT_STARTED de [R23](PLAN.md#r23--démarrage-optionnel-avec-qwen-35-2b-q4_k_m),
 pas une impossibilité du 2B. Aucun modèle téléchargé, profil modifié ou essai
 de génération effectué lors de cette inscription. Compatibilité tokenizer,
 template, dérivation texte, identité, admission et qualité restent à tester.
+
+### R15S42 — isolement réseau et fermeture du contrôle de rendu
+
+Consultation directe ROOT du 3 octobre 2026, entre 19:21 et 19:24 UTC,
+avant exécution du navigateur E04/E05. Versions locales vérifiées :
+Playwright et playwright-core 1.63.0, Node 24.16.0. Sources officielles :
+[BrowserContext.routeWebSocket](https://playwright.dev/docs/api/class-browsercontext#browser-context-route-web-socket),
+[WebSocketRoute.close et connectToServer](https://playwright.dev/docs/api/class-websocketroute),
+[déclarations au tag v1.63.0](https://raw.githubusercontent.com/microsoft/playwright/v1.63.0/packages/playwright-core/types/types.d.ts),
+[HTTP server.close, Node v24.16.0](https://nodejs.org/download/release/v24.16.0/docs/api/http.html#serverclosecallback)
+et [net.Server.close, même version](https://nodejs.org/download/release/v24.16.0/docs/api/net.html#serverclosecallback).
+
+Les routes WebSocket doivent être posées avant les pages ; elles ne se
+connectent pas au serveur sans appel explicite de connexion. La recette
+les refuse, sans `connectToServer`, en plus des routes HTTP. Les guides
+courants ne figent pas le paquet : signatures `routeWebSocket` et `close`
+confrontées aux déclarations installées du pool, SHA
+`2806f6d7810fba0306066d500cd716a6d1128d90af2c3cf71723e3ea0a8904c4`.
+Pas d'identité globale annoncée entre le fichier installé et le tag distant.
+`server.close` attend la fin des connexions ; son callback peut recevoir
+une erreur. La fermeture et les drains sont donc bornés et leurs échecs
+participent au verdict. Cette lecture ne prouve ni le navigateur futur,
+ni une fermeture native, ni une modification du produit ou de ses dépendances.
+
+### R15S41 — message de refus pour une sélection trop longue
+
+FastAPI, code au tag installé 0.142.1 :
+[RequestValidationError et errors()](https://raw.githubusercontent.com/fastapi/fastapi/0.142.1/fastapi/exceptions.py)
+et [handler de validation](https://raw.githubusercontent.com/fastapi/fastapi/0.142.1/fastapi/exception_handlers.py).
+Guide officiel courant : [remplacement du handler de validation](https://fastapi.tiangolo.com/tutorial/handling-errors/#override-request-validation-exceptions).
+Pydantic, documentation au tag installé v2.13.5 :
+[ErrorDetails et traduction](https://raw.githubusercontent.com/pydantic/pydantic/v2.13.5/docs/errors/errors.md)
+et [erreur too_long](https://raw.githubusercontent.com/pydantic/pydantic/v2.13.5/docs/errors/validation_errors.md).
+Sections ouvertes par B entre 18:14 et 18:20 UTC, puis directement par ROOT
+entre 18:21 et 18:23 UTC le 3 octobre 2026. Versions installées et verrouillées
+vérifiées : FastAPI 0.142.1, Pydantic 2.13.5, pydantic-core 2.46.5.
+L'accès B à docs.pydantic.dev/2.13 a échoué ; le tag officiel est la source
+effectivement lue, pas une consultation réussie de cette page.
+
+FastAPI expose les erreurs de validation et autorise un handler personnalisé ;
+son handler standard répond 422. Pydantic distingue type/loc des valeurs input,
+msg et ctx ; une liste dépassant max_length produit too_long. Le chemin
+imbriqué permet une traduction fermée, pas l'interprétation de tous les
+value_error. L'exemple de traduction de l'éditeur ne justifie pas de renvoyer
+les valeurs ou exceptions entrantes dans le texte affiché.
+
+Application E05 proposée avant test : traduire uniquement le couple
+body.scope.documentIds / too_long par une phrase fixe indiquant la limite
+et l'action de réduction ; repli fixe pour les autres erreurs, sans input,
+msg, ctx ni str(error). Conserver statut 422, code validation_error,
+details.fields et request_id. La limite du schéma concerne les 1 000 éléments
+de la liste, pas la capacité du corpus ni un nombre de documents uniques.
+Test discriminant à exécuter sur ASGI isolé : 1 000/1 001 éléments, vraie
+validation Pydantic, champ/type inconnus et absence des valeurs sensibles.
+Aucun refus runtime observé à cette consultation ; résultats au journal.
 
 ### R15S40 — diagnostic fermé des assertions et rejets QA
 

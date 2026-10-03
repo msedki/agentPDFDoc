@@ -1,6 +1,6 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `f331421` et entrées datées · **Mis à jour :** 2026-10-03 18:09 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `f8cd964` et entrées datées · **Mis à jour :** 2026-10-03 20:07 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
@@ -20,6 +20,31 @@ Notice corrigée, 281 unités et qualité/build conformes ; trois contextes UI
 avec API doublées validés indépendamment, sans qualification du dessin PDF.
 E04/E05 restent non réalisés ; clarification SPEC et contrôles documentaires
 validés dans leur portée, relecture finale indépendante favorable.
+
+Reprise à 18:48 UTC : [publication E01–E03 et corrections E04/E05](2026-10-03.md#publication-e01e03-et-reprise-e04e05--relevé-1848-utc).
+Lot précédent publié dans `f8cd964`. E05 : 16 tests ciblés et 104 de
+régression PASS, Ruff et mypy Linux/win32 conformes ; revue indépendante
+bornée. E04 : aide corrigée, vingt tests frontend et contrôles ciblés conformes ;
+gel/build/rendu neufs encore requis. Windows natif et DoD globale restent ouverts.
+
+Complément à 19:41 UTC dans la même entrée : copie E04/E05 neuve qualifiée
+sur 288 unités, typage et lint de 118 fichiers ; build isolé sortie 0,
+export et conservation relus indépendamment, treize PID nommés actuellement
+absents selon C et B. Programme navigateur remis et relu par ROOT,
+relecture A en cours ; rendu encore non exécuté, aucune clôture E04/E05 anticipée.
+
+Résultat du rendu à 19:45 UTC et revue à 19:56 :
+[huit contextes UI sur l'export E04/E05](2026-10-03.md#e04e05--rendu-isolé-du-nouvel-export-relevé-du-3-octobre-à-1949-utc),
+huit captures vues par ROOT/C/A, aides complètes aux deux tailles ; quinze PID
+nommés actuellement absents selon C et B, conservation conforme. Avis techniques
+indépendants favorables dans cette portée, contrôle documentaire final et
+publication en cours. Toutes les API/session sont doublées ; ce n'est pas
+une recette RAG native, ni la clôture de D06 ou du chantier.
+
+Finale à 20:06 UTC : contrôles documentaires 7/7 et dossier 11/11 conformes,
+brief synchronisé, cinq SVG conformes ; accord indépendant B pour publication
+sélective E04/E05. La reprise F04 prépare une qualification des 31 sur le
+nouveau gel et l'export réellement construit, sans rebuild ni recette anticipée.
 
 | Date | Travail effectué |
 |---|---|

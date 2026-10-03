@@ -1612,7 +1612,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `f331421` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-03 18:09 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `f8cd964` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-03 20:07 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1620,7 +1620,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
-## R14/R15 — relecture documentaire et reprise QA, relevé du 3 octobre à 18:09 UTC
+## R14/R15 — relecture documentaire et reprise QA, relevé du 3 octobre à 19:58 UTC
 
 La nouvelle demande documentaire reprend les exigences existantes de R14/R15.
 L'espace stabilisé reste dans `docs/`, le suivi vivant dans `RAG_Local_Agents/` ;
@@ -1634,10 +1634,10 @@ et les cinq SVG passent. Les procédures non exécutées restent non qualifiées
 | RB5 et sonde modale | `run-20261003T154834Z` : cinq cas stricts PASS sans retry, sonde FAILED à `nominal_1366`. Revue terminale indépendante B reçue et lue : quatorze captures examinées, 34 identités enregistrées strictement absentes, base et 96 fichiers immuables conservés. L'assertion refusée reste inconnue | Établir l'assertion modale refusée sans lire la trace sensible ni neutraliser un contrôle. Ces cinq PASS et les captures ne qualifient pas la modale |
 | R15-3-Q05 | Instrumentation et enveloppe relues favorablement sur preuves préparatoires. Le run1315 reste FAILED ; aucun nouveau parcours de peinture | Nouveau dernier arrêt indépendant et sources applicables requis avant recette. La correction frontend E03 invalide la comparaison avec les sources ROOT de l'ancien gel |
 | R15-3-F04 | Adaptateur livré à 15:21:43, 34 tests Python et 9 Node PASS ; revue C favorable préparatoire reçue et lue. Les 231 preuves historiques différées et les deux cartes réelles restent à vérifier | Lier la cible F04 réellement courante, contrôler ses préconditions puis exécuter la lecture des deux cartes. Aucun résultat natif nouveau |
-| R15-3-E03, incohérence rédactionnelle | VALIDÉ dans sa portée : texte corrigé, sept tests ciblés et 281 unités PASS sans skip, typage/lint/build isolé verts. V5 sortie 0, trois contextes UI conformes ; captures réellement vues, neuf processus absents, permissions et conservation vérifiées indépendamment par B. V1/V2 restent FAILED, cause V2 inconnue ; V4 conserve son wrapper EXIT1 | Publier le correctif et son suivi après les contrôles documentaires. Session/API doublées : ni publication native, ni peinture PDF, ni recette RAG de bout en bout ; voir le journal pour les preuves |
-| R15-3-E04, incohérence rédactionnelle / frontend | NOT_STARTED, correction autorisée par la demande sur les textes. `analysis-panel.tsx:160` conseille d'attendre la fin d'un traitement ; `unindexedInScope` et son test partiel non publié/annulé prouvent que cela ne suffit pas à rendre tous les documents interrogeables | Corriger cette seule aide vers les actions du Suivi et la disponibilité réelle, conserver le calcul métier ; témoin du scénario, unités/qualité puis rendu de la branche et revue indépendante |
-| R15-3-E05, amélioration rédactionnelle / API affichée dans le frontend | NOT_STARTED, correction autorisée par la demande sur les textes. `main.py:236` renvoie « Entrée invalide. », affiché directement par le client. Scénario statique : sélection de plus de 1 000 documents, refus 422 de `Scope.documentIds` sans explication visible ; non observé au runtime | Formuler un message contextualisé à partir des champs/codes autorisés, sans divulguer les valeurs reçues ; préserver code/status/détails, tester la vraie validation et l'affichage, puis revue indépendante |
-| R14-3, clarification du référentiel de conception / documentation | VERIFIED documentaire : rôle normatif explicite, sept flux/responsabilités sans schéma ASCII, renvois à l'architecture et au SVG livré. 58 tests, liens/pack/brief/SVG conformes ; avis final indépendant A favorable et responsabilités conservées | Publier cette clarification avec son suivi ; aucun comportement ou critère V2.1 modifié, aucune procédure qualifiée par ces contrôles |
+| R15-3-E03, incohérence rédactionnelle | VALIDÉ et publié dans `f8cd964` sur `origin/main` à 18:25 UTC : sept tests ciblés, 281 unités sans skip, typage/lint/build isolé conformes. V5 sortie 0, trois contextes UI et captures relus ; neuf processus absents, permissions et conservation vérifiées indépendamment. V1/V2 restent FAILED, cause V2 inconnue ; V4 conserve son wrapper EXIT1 | Aucune correction E03 restante dans cette portée. Session/API doublées : ni publication native, ni peinture PDF, ni recette RAG de bout en bout ; voir le journal pour les preuves |
+| R15-3-E04, incohérence rédactionnelle / frontend | VALIDÉ dans la portée du correctif : aide vers les actions du Suivi et la disponibilité réelle, inverse de la seule phrase byte-exact ; calculs et gates conservés. Rouge préservé, 20 tests frontend ciblés puis 288 complets sans skip conformes ; typage, lint de 118 fichiers et build isolé sortie 0. Huit contextes UI et captures neuves relus par ROOT/C/A ; conservation et quinze absences actuelles vérifiées indépendamment par B | Contrôles documentaires et relecture finale indépendants conformes ; publication sélective en cours. API/session doublées : ni publication backend, ni peinture PDF, ni recette RAG native ou DoD globale ; aucun défaut visuel bloquant dans les huit captures |
+| R15-3-E05, amélioration rédactionnelle / API affichée dans le frontend | VALIDÉ dans la portée du correctif : traduction fixe après S41, contrat conservé. Rouge ASGI préservé, 16 tests ciblés et 104 de régression PASS ; Ruff et mypy Linux/cible win32 conformes, revue B favorable. Référence API §3 réalignée ; vrai client frontend testé avec fetch doublé. Deux aides 422 lisibles aux deux tailles sur le nouvel export, revues ROOT/C/A et fermeture vérifiée B | Contrôles documentaires et relecture finale indépendants conformes ; publication sélective en cours. Le navigateur reçoit des 422 doublés sur une petite sélection : le refus de 1 001 éléments est exercé séparément par ASGI isolé avec services doublés, pas par un parcours natif |
+| R14-3, clarification du référentiel de conception / documentation | VERIFIED documentaire et publié dans `f8cd964` : rôle normatif explicite, sept flux/responsabilités sans schéma ASCII, renvois à l'architecture et au SVG livré. 58 tests, liens/pack/brief/SVG conformes ; avis final indépendant A favorable et responsabilités conservées | Aucun comportement ou critère V2.1 modifié, aucune procédure qualifiée par ces contrôles ; R14 global reste ouvert |
 
 Les droits d'écriture E03 sont limités au texte de `pdf-viewer.tsx` et à son
 témoin `publication.test.ts`. Les autres modifications locales sont préservées.
@@ -2943,7 +2943,7 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `f331421` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 17:31 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `f8cd964` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 19:58 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 **Révision documentaire :** 29 septembre 2026, complétée par des sections datées ; relevé historique des ajouts au 2 octobre 2026 : sources de l'accélération GPU examinées le 1er octobre (W024, W025), puis sources et outils du chantier Linux consignés après l'audit D10/D11 (LNX21, LNX22, J8S01, J8S02, TOOL01 à TOOL03), et consultation actuelle des releases et avis de sécurité de trois dépendances Linux (D11S01–D11S08). Les décisions de ce dossier restent des choix de conception, non des résultats certifiés par les éditeurs. Les versions de production doivent être verrouillées séparément ; une documentation sur `main`/`master` ne constitue pas un verrou logiciel. Les consultations du 3 octobre (frontend, psutil, Linux, PSF, WHATWG, CSSWG et Node.js) figurent dans leurs sections datées ci-dessous.
 
@@ -2976,6 +2976,61 @@ NOT_STARTED de [R23](PLAN.md#r23--démarrage-optionnel-avec-qwen-35-2b-q4_k_m),
 pas une impossibilité du 2B. Aucun modèle téléchargé, profil modifié ou essai
 de génération effectué lors de cette inscription. Compatibilité tokenizer,
 template, dérivation texte, identité, admission et qualité restent à tester.
+
+### R15S42 — isolement réseau et fermeture du contrôle de rendu
+
+Consultation directe ROOT du 3 octobre 2026, entre 19:21 et 19:24 UTC,
+avant exécution du navigateur E04/E05. Versions locales vérifiées :
+Playwright et playwright-core 1.63.0, Node 24.16.0. Sources officielles :
+[BrowserContext.routeWebSocket](https://playwright.dev/docs/api/class-browsercontext#browser-context-route-web-socket),
+[WebSocketRoute.close et connectToServer](https://playwright.dev/docs/api/class-websocketroute),
+[déclarations au tag v1.63.0](https://raw.githubusercontent.com/microsoft/playwright/v1.63.0/packages/playwright-core/types/types.d.ts),
+[HTTP server.close, Node v24.16.0](https://nodejs.org/download/release/v24.16.0/docs/api/http.html#serverclosecallback)
+et [net.Server.close, même version](https://nodejs.org/download/release/v24.16.0/docs/api/net.html#serverclosecallback).
+
+Les routes WebSocket doivent être posées avant les pages ; elles ne se
+connectent pas au serveur sans appel explicite de connexion. La recette
+les refuse, sans `connectToServer`, en plus des routes HTTP. Les guides
+courants ne figent pas le paquet : signatures `routeWebSocket` et `close`
+confrontées aux déclarations installées du pool, SHA
+`2806f6d7810fba0306066d500cd716a6d1128d90af2c3cf71723e3ea0a8904c4`.
+Pas d'identité globale annoncée entre le fichier installé et le tag distant.
+`server.close` attend la fin des connexions ; son callback peut recevoir
+une erreur. La fermeture et les drains sont donc bornés et leurs échecs
+participent au verdict. Cette lecture ne prouve ni le navigateur futur,
+ni une fermeture native, ni une modification du produit ou de ses dépendances.
+
+### R15S41 — message de refus pour une sélection trop longue
+
+FastAPI, code au tag installé 0.142.1 :
+[RequestValidationError et errors()](https://raw.githubusercontent.com/fastapi/fastapi/0.142.1/fastapi/exceptions.py)
+et [handler de validation](https://raw.githubusercontent.com/fastapi/fastapi/0.142.1/fastapi/exception_handlers.py).
+Guide officiel courant : [remplacement du handler de validation](https://fastapi.tiangolo.com/tutorial/handling-errors/#override-request-validation-exceptions).
+Pydantic, documentation au tag installé v2.13.5 :
+[ErrorDetails et traduction](https://raw.githubusercontent.com/pydantic/pydantic/v2.13.5/docs/errors/errors.md)
+et [erreur too_long](https://raw.githubusercontent.com/pydantic/pydantic/v2.13.5/docs/errors/validation_errors.md).
+Sections ouvertes par B entre 18:14 et 18:20 UTC, puis directement par ROOT
+entre 18:21 et 18:23 UTC le 3 octobre 2026. Versions installées et verrouillées
+vérifiées : FastAPI 0.142.1, Pydantic 2.13.5, pydantic-core 2.46.5.
+L'accès B à docs.pydantic.dev/2.13 a échoué ; le tag officiel est la source
+effectivement lue, pas une consultation réussie de cette page.
+
+FastAPI expose les erreurs de validation et autorise un handler personnalisé ;
+son handler standard répond 422. Pydantic distingue type/loc des valeurs input,
+msg et ctx ; une liste dépassant max_length produit too_long. Le chemin
+imbriqué permet une traduction fermée, pas l'interprétation de tous les
+value_error. L'exemple de traduction de l'éditeur ne justifie pas de renvoyer
+les valeurs ou exceptions entrantes dans le texte affiché.
+
+Application E05 proposée avant test : traduire uniquement le couple
+body.scope.documentIds / too_long par une phrase fixe indiquant la limite
+et l'action de réduction ; repli fixe pour les autres erreurs, sans input,
+msg, ctx ni str(error). Conserver statut 422, code validation_error,
+details.fields et request_id. La limite du schéma concerne les 1 000 éléments
+de la liste, pas la capacité du corpus ni un nombre de documents uniques.
+Test discriminant à exécuter sur ASGI isolé : 1 000/1 001 éléments, vraie
+validation Pydantic, champ/type inconnus et absence des valeurs sensibles.
+Aucun refus runtime observé à cette consultation ; résultats au journal.
 
 ### R15S40 — diagnostic fermé des assertions et rejets QA
 

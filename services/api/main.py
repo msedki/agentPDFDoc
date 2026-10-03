@@ -19,7 +19,7 @@ from services.runtime.platforms import launcher_command
 from .context import ContextBuilder, LlmTokenizer
 from .db import Database, json_dump, now, relative_pdf_path, uid
 from .embedding import EmbeddingService
-from .errors import ApiError
+from .errors import ApiError, request_validation_message
 from .indexing import Indexer
 from .jobs import JobSupervisor
 from .ollama import OllamaGateway
@@ -233,7 +233,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     @application.exception_handler(RequestValidationError)
     async def validation_error(request, error):
         details = [{"loc": list(item["loc"]), "type": item["type"]} for item in error.errors()]
-        return JSONResponse({"code": "validation_error", "message": "Entrée invalide.", "details": {"fields": details}, "request_id": getattr(request.state, "request_id", uid())}, status_code=422)
+        return JSONResponse({"code": "validation_error", "message": request_validation_message(details), "details": {"fields": details}, "request_id": getattr(request.state, "request_id", uid())}, status_code=422)
 
     @application.exception_handler(Exception)
     async def unexpected_error(request, error):
