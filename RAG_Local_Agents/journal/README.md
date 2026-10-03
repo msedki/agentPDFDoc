@@ -1,6 +1,6 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `f8cd964` et entrées datées · **Mis à jour :** 2026-10-03 20:07 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `19f483f` et entrées datées · **Mis à jour :** 2026-10-03 20:40 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
@@ -45,6 +45,16 @@ Finale à 20:06 UTC : contrôles documentaires 7/7 et dossier 11/11 conformes,
 brief synchronisé, cinq SVG conformes ; accord indépendant B pour publication
 sélective E04/E05. La reprise F04 prépare une qualification des 31 sur le
 nouveau gel et l'export réellement construit, sans rebuild ni recette anticipée.
+
+Publication à 20:09 UTC et [reprise F04 à 20:21](2026-10-03.md#publication-e04e05-et-reprise-f04--relevé-2021-utc) :
+E04/E05 sur `origin/main` dans `19f483f`, 23 chemins antérieurs préservés.
+Copie QA neuve et variante 31 en préparation ; oracle de la carte d'erreur
+courante à renforcer avant gel, sans nouvelle recette native à ce relevé.
+
+Complément à 20:40 UTC : oracle F04 corrigé, 13 témoins ciblés puis
+301 unités web ROOT PASS sans skip ; lint/typecheck et relecture indépendante
+conformes, sans code produit ou build modifié. Delta explicite de deux tests
+prévu dans le gel de 249 sources ; copie et parcours natifs encore non exécutés.
 
 | Date | Travail effectué |
 |---|---|

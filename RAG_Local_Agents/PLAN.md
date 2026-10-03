@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `f8cd964` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-03 20:07 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `19f483f` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-03 20:40 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -8,7 +8,7 @@
 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
-## R14/R15 — relecture documentaire et reprise QA, relevé du 3 octobre à 19:58 UTC
+## R14/R15 — relecture documentaire et reprise QA, relevé du 3 octobre à 20:40 UTC
 
 La nouvelle demande documentaire reprend les exigences existantes de R14/R15.
 L'espace stabilisé reste dans `docs/`, le suivi vivant dans `RAG_Local_Agents/` ;
@@ -23,8 +23,8 @@ et les cinq SVG passent. Les procédures non exécutées restent non qualifiées
 | R15-3-Q05 | Instrumentation et enveloppe relues favorablement sur preuves préparatoires. Le run1315 reste FAILED ; aucun nouveau parcours de peinture | Nouveau dernier arrêt indépendant et sources applicables requis avant recette. La correction frontend E03 invalide la comparaison avec les sources ROOT de l'ancien gel |
 | R15-3-F04 | Adaptateur livré à 15:21:43, 34 tests Python et 9 Node PASS ; revue C favorable préparatoire reçue et lue. Les 231 preuves historiques différées et les deux cartes réelles restent à vérifier | Lier la cible F04 réellement courante, contrôler ses préconditions puis exécuter la lecture des deux cartes. Aucun résultat natif nouveau |
 | R15-3-E03, incohérence rédactionnelle | VALIDÉ et publié dans `f8cd964` sur `origin/main` à 18:25 UTC : sept tests ciblés, 281 unités sans skip, typage/lint/build isolé conformes. V5 sortie 0, trois contextes UI et captures relus ; neuf processus absents, permissions et conservation vérifiées indépendamment. V1/V2 restent FAILED, cause V2 inconnue ; V4 conserve son wrapper EXIT1 | Aucune correction E03 restante dans cette portée. Session/API doublées : ni publication native, ni peinture PDF, ni recette RAG de bout en bout ; voir le journal pour les preuves |
-| R15-3-E04, incohérence rédactionnelle / frontend | VALIDÉ dans la portée du correctif : aide vers les actions du Suivi et la disponibilité réelle, inverse de la seule phrase byte-exact ; calculs et gates conservés. Rouge préservé, 20 tests frontend ciblés puis 288 complets sans skip conformes ; typage, lint de 118 fichiers et build isolé sortie 0. Huit contextes UI et captures neuves relus par ROOT/C/A ; conservation et quinze absences actuelles vérifiées indépendamment par B | Contrôles documentaires et relecture finale indépendants conformes ; publication sélective en cours. API/session doublées : ni publication backend, ni peinture PDF, ni recette RAG native ou DoD globale ; aucun défaut visuel bloquant dans les huit captures |
-| R15-3-E05, amélioration rédactionnelle / API affichée dans le frontend | VALIDÉ dans la portée du correctif : traduction fixe après S41, contrat conservé. Rouge ASGI préservé, 16 tests ciblés et 104 de régression PASS ; Ruff et mypy Linux/cible win32 conformes, revue B favorable. Référence API §3 réalignée ; vrai client frontend testé avec fetch doublé. Deux aides 422 lisibles aux deux tailles sur le nouvel export, revues ROOT/C/A et fermeture vérifiée B | Contrôles documentaires et relecture finale indépendants conformes ; publication sélective en cours. Le navigateur reçoit des 422 doublés sur une petite sélection : le refus de 1 001 éléments est exercé séparément par ASGI isolé avec services doublés, pas par un parcours natif |
+| R15-3-E04, incohérence rédactionnelle / frontend | VALIDÉ et publié dans `19f483f` sur `origin/main` à 20:09 UTC : aide vers les actions du Suivi et la disponibilité réelle, inverse de la seule phrase byte-exact ; calculs et gates conservés. Rouge préservé, 20 tests frontend ciblés puis 288 complets sans skip conformes ; typage, lint de 118 fichiers et build isolé sortie 0. Huit contextes UI et captures neuves relus par ROOT/C/A ; conservation et quinze absences actuelles vérifiées indépendamment par B | Aucun correctif E04 restant dans cette portée. API/session doublées : ni publication backend, ni peinture PDF, ni recette RAG native ou DoD globale ; aucun défaut visuel bloquant dans les huit captures |
+| R15-3-E05, amélioration rédactionnelle / API affichée dans le frontend | VALIDÉ et publié dans `19f483f` sur `origin/main` à 20:09 UTC : traduction fixe après S41, contrat conservé. Rouge ASGI préservé, 16 tests ciblés et 104 de régression PASS ; Ruff et mypy Linux/cible win32 conformes, revue B favorable. Référence API §3 réalignée ; vrai client frontend testé avec fetch doublé. Deux aides 422 lisibles aux deux tailles sur le nouvel export, revues ROOT/C/A et fermeture vérifiée B | Aucun correctif E05 restant dans cette portée. Le navigateur reçoit des 422 doublés sur une petite sélection : le refus de 1 001 éléments est exercé séparément par ASGI isolé avec services doublés, pas par un parcours natif |
 | R14-3, clarification du référentiel de conception / documentation | VERIFIED documentaire et publié dans `f8cd964` : rôle normatif explicite, sept flux/responsabilités sans schéma ASCII, renvois à l'architecture et au SVG livré. 58 tests, liens/pack/brief/SVG conformes ; avis final indépendant A favorable et responsabilités conservées | Aucun comportement ou critère V2.1 modifié, aucune procédure qualifiée par ces contrôles ; R14 global reste ouvert |
 
 Les droits d'écriture E03 sont limités au texte de `pdf-viewer.tsx` et à son
@@ -37,6 +37,27 @@ distingue le rendu validé des limites de cette recette. Les deux échecs de mon
 suite sont conservés : deux supports de test ont été ajoutés à la copie physique,
 et quatre tests lisent la référence Git historique, sans mutation Git.
 R14, R15, R22, D06 et la DoD globale restent ouverts ; R23 reste NOT_STARTED.
+
+**Reprise F04 à 20:21 UTC :** nouvelle copie QA et qualification des 31 en
+préparation sur les sources actuelles, sans nouvelle exécution à ce relevé.
+L'ancien programme, son export et ses preuves restent immuables. L'export
+E04 déjà construit sera réemployé après contrôle byte-exact et reçu explicite,
+pas présenté comme un nouveau build. Relecture indépendante : l'oracle
+`lifecycle.spec.ts` recherche encore globalement le message d'un job ; une
+carte précédente peut donc satisfaire l'assertion du fichier courant.
+Correction ciblée de cet oracle en cours avant fermeture du nouveau gel.
+Les gardes d'identité, d'arrêt et de restauration Q01/Q04 restent obligatoires.
+
+**Complément F04 à 20:40 UTC :** oracle corrigé et contrôlé isolément,
+relecture indépendante A favorable. Le test exige la carte unique du document
+courant, son état d'échec et son propre message visible ; IDs du job, du
+document et de la version liés à l'import. Treize témoins ROOT PASS sans skip,
+puis régression web complète ROOT : 301 PASS, zéro failure/error/skipped ;
+lint ciblé et typage conformes selon les sorties originales B. Aucun code
+produit modifié et aucun nouveau build. La copie neuve doit intégrer ces deux
+seuls chemins de test par un delta explicite : 249 sources nommées, pas un
+changement silencieux du dénominateur. Les cartes natives restent non vérifiées ;
+F04 demeure en cours.
 
 ## R15-3 — reprise des contrôles QA, relevé du 3 octobre à 15:19 UTC
 

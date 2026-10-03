@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { monitorBrowser } from "./resources";
 import { configuredUploadLimit, detail, fixture, guardTarget, readLifecycleTarget, sha256, uploadFromUi, waitJob } from "./lifecycle-target";
 
@@ -7,6 +7,22 @@ import { configuredUploadLimit, detail, fixture, guardTarget, readLifecycleTarge
 test.beforeEach(() => {
   test.skip(process.env.RAG_E2E_LIFECYCLE_ALLOWED !== "1", "Lifecycle windows are scheduled separately; NOT_RUN without explicit authorization.");
 });
+
+async function expectCurrentFileFailure(page: Page, name: string, errorMessage: unknown) {
+  expect(typeof errorMessage).toBe("string");
+  expect((errorMessage as string).trim()).not.toBe("");
+  const panel = page.locator(".jobs-panel");
+  await expect(panel).toHaveCount(1);
+  const exactName = new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`);
+  const card = panel.getByRole("article").filter({ has: page.locator(".job-heading > strong").filter({ hasText: exactName }) });
+  await expect(card).toHaveCount(1);
+  await expect(card.locator(".job-heading > strong")).toHaveText(name);
+  await expect(card.locator(".status-indicator")).toHaveText("Échec");
+  const error = card.locator(".inline-error");
+  await expect(error).toHaveCount(1);
+  await expect(error).toBeVisible();
+  await expect(error).toHaveText(errorMessage as string);
+}
 
 test("immutable original supports real ETag and byte ranges", async ({ request }, info) => {
   const target = readLifecycleTarget();
@@ -251,13 +267,16 @@ for (const [key, expectedCode] of [["encrypted", "PDF_ENCRYPTED"], ["corrupt", "
     const received = await uploadFromUi(page, input, info);
     expect(received.status).toBe(202);
     const job = await waitJob(request, target.origin, received.body.job_id, info);
+    expect(job.id).toBe(received.body.job_id);
+    expect(job.document_id).toBe(received.body.document_id);
+    expect(job.version_id).toBe(received.body.version_id);
     expect(job.state).toBe("error");
     expect(job.error_code).toBe(expectedCode);
     await page.getByRole("button", { name: "Actualiser la bibliothèque", exact: true }).click();
     const row = page.getByRole("navigation", { name: "Arborescence documentaire" }).getByRole("button", { name: new RegExp(input.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) }).first();
     await expect(row).toContainText("Erreur");
     await page.getByRole("button", { name: "Suivi", exact: false }).click();
-    await expect(page.getByText(String(job.error_message), { exact: true }).first()).toBeVisible();
+    await expectCurrentFileFailure(page, input.name, job.error_message);
     await monitorBrowser(browser, `actual-file-error-${key}`, info);
     await page.screenshot({ path: info.outputPath(`${key}-real-error.png`), fullPage: true });
   });

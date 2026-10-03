@@ -1,6 +1,6 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `f8cd964` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 19:58 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `19f483f` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 20:27 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 **Révision documentaire :** 29 septembre 2026, complétée par des sections datées ; relevé historique des ajouts au 2 octobre 2026 : sources de l'accélération GPU examinées le 1er octobre (W024, W025), puis sources et outils du chantier Linux consignés après l'audit D10/D11 (LNX21, LNX22, J8S01, J8S02, TOOL01 à TOOL03), et consultation actuelle des releases et avis de sécurité de trois dépendances Linux (D11S01–D11S08). Les décisions de ce dossier restent des choix de conception, non des résultats certifiés par les éditeurs. Les versions de production doivent être verrouillées séparément ; une documentation sur `main`/`master` ne constitue pas un verrou logiciel. Les consultations du 3 octobre (frontend, psutil, Linux, PSF, WHATWG, CSSWG et Node.js) figurent dans leurs sections datées ci-dessous.
 
@@ -33,6 +33,26 @@ NOT_STARTED de [R23](PLAN.md#r23--démarrage-optionnel-avec-qwen-35-2b-q4_k_m),
 pas une impossibilité du 2B. Aucun modèle téléchargé, profil modifié ou essai
 de génération effectué lors de cette inscription. Compatibilité tokenizer,
 template, dérivation texte, identité, admission et qualité restent à tester.
+
+### R15S43 — oracle de la carte du fichier en erreur
+
+Microsoft/mainteneurs Playwright :
+[filtrage par descendant](https://playwright.dev/docs/locators#filter-by-childdescendant)
+et [assertions automatiques](https://playwright.dev/docs/test-assertions#auto-retrying-assertions).
+Guides courants non versionnés lus par B à 20:23:48 UTC, puis sections
+directement lues par ROOT à 20:25 UTC le 3 octobre 2026. Signatures
+`Locator.filter`, `has`, `hasText` et `toHaveCount` confrontées aux types
+locaux Playwright 1.63.0 ; fichier `playwright-core/types/types.d.ts` du
+pool verrouillé, empreinte déjà consignée dans R15S42.
+
+Le locator `has` est évalué depuis l'élément extérieur, pas depuis la page ;
+il doit donc désigner un descendant relatif. La cardinalité et le texte
+doivent être attendus par des assertions asynchrones, sans `.first()` qui
+masquerait un doublon. Application à l'oracle F04 : carte du document
+courant dans le Suivi, nom exact, carte unique, propre message non vide et
+visible ; code d'erreur toujours contrôlé par l'API, sans imposer son
+affichage absent du produit. Un test avec doubles ne prouve ni le DOM
+réel ni le parcours natif ; ces contrôles restent à exécuter.
 
 ### R15S42 — isolement réseau et fermeture du contrôle de rendu
 
