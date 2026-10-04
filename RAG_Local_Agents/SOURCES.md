@@ -1,12 +1,13 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `3d5d10e` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 08:47 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `2f677b5` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 09:50 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R15S54 — nouveaux 31 sur F01 et frontières de liaison modale
 
-Sources internes relues ROOT le 4 octobre 2026 jusqu'à 08:39 UTC ; aucune
+Sources internes relues ROOT puis A le 4 octobre 2026 jusqu'à 09:39 UTC ; aucune
 nouvelle API externe ou montée de version. Les commandes, chemins et limites
-sont au [journal](journal/2026-10-04.md#recette-des-31-sur-f01-et-préparation-modale-relevé-0839-utc).
+sont au [journal des 31](journal/2026-10-04.md#recette-des-31-sur-f01-et-préparation-modale-relevé-0839-utc)
+et au [prepare modale réel](journal/2026-10-04.md#complément-modale-scellé-et-prepare-réel-relevé-0925-utc).
 
 | Source examinée | Apport vérifié | Limite |
 | --- | --- | --- |
@@ -15,7 +16,31 @@ sont au [journal](journal/2026-10-04.md#recette-des-31-sur-f01-et-préparation-m
 | Avis final C `7a2aa737…`, metadata `4c625d36…`, reçu ROOT `356c176e…` ; contrôle physique ROOT `372815 EXIT0` | Arrêt nommé118 QA/quatre HOST, SQL QA neuf ready/complete/attempts1/query0, conservation bornée, 47 originales vues par C/72 inventoriées ; dix vues ROOT. 72 SHA/dimensions PNG et31 records terminaux recontrôlés ROOT. | Les absences gardent leur date ; aucun rajeunissement de clearance. Descendants inconnus non inventoriés ; pas de raw auth/log/trace ou payload SQL. C ne requalifie pas indépendamment toutes les primitives historiques qu'il a écrites. |
 | Capture `canvas-budget-zoom-300.png` `7bb210ba…`, test `canvas-budget.spec.ts` et revue C | Test d'allocation/libération PASS ; capture page11/14, zoom300 et zone papier blanche visibles. | Ne prouve pas la peinture achevée ni les ancres Q05 ; pas de bug de peinture déduit d'une image isolée. |
 | Préparation modale A `579624f2…`, source_rebind `06af588c…`, probe `a408c4fc…`, avis B `6430c122…` / metadata `10793185…` | 16 témoins Python/10 Node, inverses exacts et guards maintenus ; sonde entière inchangée, nouvel attendu ConfirmDialog explicite. | Source-only PREPARED_NOT_BOUND : pas de cible, owner, execution-lock, clearance, copie ou appel natif. B relit l'incrément A, pas son propre produit ni son ancien C3. |
-| Ancien C3 `qualification/assembled`, replay `verify_target:118–130`, first `lockcheck:77–86` et `FIX:33–37` | Les19 captures liées sont sous `visual/`, scope/reviewer réels C ; le vrai verify_target charge encore le first historique qui compare eec6/98a6 sur ROOT et PROGRAM. Troisième frontière d'attendus source identifiée avant exécution, correction bornée autorisée. | Complément en cours, non qualifié ni exécuté. Locks historiques, SHA/read, CSS et autres pins doivent rester stricts ; aucun faux alias C→B ni déplacement de capture. |
+| Complément A `53e3c920…`, entry `4c682163…`, verrou `3bf79fe3…` ; vrais corps C3 `qualification/assembled`, replay `verify_target:118–130`, first `lockcheck:77–86` et `FIX:33–37` | Trois frontières dérivées/inversées : attestation C exacte à six champs, 19 paths/SHA sous `visual/` et deux pins F01 du module first frais. 36 tests purs verts et trois refus historiques attendus conservés ; 888 actifs/254 différés, deux seuls records ROOT remplacés. | Tests avec transports déclarés doublés, pas un PASS natif. Locks historiques, vrais SHA/read, CSS et autres pins inchangés ; aucune capture déplacée ni faux alias C→B. |
+| Revue non-auteur B `confirm-focus-modal-binding-review-B-20261004/REVIEW.md` `6c962b67…` / metadata `19db2c1b…`, acceptée ROOT `5a4700/f27da6` | Lecture complète et contrôles des 21 pièces privées, records/inverses/gate et XML ; avis favorable borné au nouveau complément A. | B est auteur du correctif produit et C3 historique : cet avis ne les requalifie pas indépendamment. Aucun appel natif, lecture DB/runtime ou image par B. |
+| Preuve ROOT `modal-source249-ROOT-20261004/MODAL_F01_PREPARATION.md` `4e9d4f65…` ; terminal prepare `4695/73833f EXIT0`, contrôle physique `96935c` | Prepare réel : baseline `12d4a834…` et cible `72d0c798…` liées à l'arrêt31 ; 17 copies (7 MJS, 1 README, 9 métadonnées historiques) plus cible, 18 fichiers physiques 0600/nlink1. | Pas 17 fichiers de code ni copie de storageState. Cette phase seule n'a lancé ni up, auth, HTTP, import ou build ; la recette ultérieure est distincte. |
+| Revue C postprepare `confirm-focus-modal-postprepare-C-20261004/REVIEW.md` `a3aea4cd…` / metadata `4a7393e3…`, acceptée ROOT `f9614c/31268b/4ae90f EXIT0` ; lancement ROOT `9a8763/session19964` | Copies/cible, état QA arrêté, 118 absences strictes fraîches et DB/source/export dans la portée C conformes. Recette lancée ; checkpoint rb-start à 09:27:11.078453, premier collecteur `266a77 EXIT0` après reach, reçu `a63faf7b…` et pointeur `c7f092…`. | Cette revue porte sur l'état avant up, pas sur le dernier arrêt après recette. Elle ne donne pas un PASS modal ; la clôture suivante est distincte. |
+| Preuve ROOT `modal-source249-ROOT-20261004/MODAL_F01_NATIVE_FAILURE.md` `4879be0c…`, relue et rehashée A ; terminal `19964/b88958 EXIT2` à 09:29:07, résumé `9267a58f…` et terminal-source249 `559a65fa…` | FAILED avant rb-browser/modal-probe après trois clearances postcheckpoint. Diagnostic source ROOT `c53791/43dc9e`, log lu seulement ROOT `49c304` : `guards.mjs:9` dérive QA depuis `HERE/../../..` ; la copie sous `evidence-review/…/complement-binding-20261004/regression-browser/` place cette racine dans `Q/evidence-review`, donc le PROGRAM sous `Q/frontend-quality` est refusé en ligne 71 : `program_outside_qa`. ROOT confirme 14 absences exactes fraîches à 09:33:51.175706, dernier owner arrêté `71104a2a…` / runtime `dc8d70b8…` et conservation `365cb9e0…` identique. | Bug d'implantation du harnais QA, pas un défaut produit ou un échec de cas navigateur. Auth QA neuve exécutée, aucune capture ; A n'a lu que le rapport sanitizé, pas le log, l'auth, le runtime ou SQL. Revue C du nouvel arrêt encore attendue ; ancien stop31 désormais historique. |
+
+Complément relu ROOT à 09:48 UTC : revue C du dernier arrêt
+`confirm-focus-modal-failed-stop-C-20261004/REVIEW.md` `caa6d436…` /
+metadata `142656fa…`, entièrement lus (`256032/444228`) et contrôlés
+physiquement (`d2d1cf EXIT0`). Arrêt711/runtime dc8d, union14 exacte,
+neuf jobs ready/complete/tentative1, zéro query et conservation bornée conformes.
+Le premier lecteur C a hashé en mémoire un cache déclaré metadata-only avant
+KeyError, sans digest retenu ou affiché ; le lecteur final reste stat-only pour
+les trois caches, sans garantie d'intégrité exhaustive. Écart conservé dans
+la revue, aucun FAILED transformé en PASS. Descriptor ROOT séparé format rb
+`modal-source249-ROOT-20261004/LATEST_STOP_MODAL_F01_20261004.json`
+`bb2fe63d…` : acceptation réelle de cette revue, aucune permission de prepare
+ou de recette. La cible31 historique reste b1, le dernier arrêt est711.
+
+Le vrai `options()` reproduit le refus sans natif (`2c2bdb EXIT0`). À profondeur
+canonique, il accepte le même PROGRAM/pool et une sortie enfant existante
+(`83fb76 EXIT0`), en collection-only sans exécuter la CLI ou lire l'auth.
+L'essai de lecteur `ec7557` avec sortie égale à HERE reste refusé : containment
+strict, aucun changement de garde. Ces observations ne qualifient pas le
+futur placement corrigé ni les cinq cas navigateur.
 
 Les références officielles déjà valides restent celles des skills web/E2E/Linux
 et de R15S49/R15S53. Cette reprise ne modifie ni le contrat du dialogue natif,
