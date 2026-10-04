@@ -1243,7 +1243,7 @@ Pour chaque skill retenu, vérifier une tâche pertinente et une tâche hors pé
 
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `f331421`, opérations W029-6, pilotes D03 et R15-3 Linux datés ci-dessous · **Mis à jour :** 2026-10-03 17:31 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `bebb8f2` et complément local F04 E2 daté ci-dessous, historique conservé · **Mis à jour :** 2026-10-04 01:59 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -1600,6 +1600,22 @@ cours. L'aide frontend sur la publication fait l'objet d'une correction
 rédactionnelle distincte. Aucune case ou exigence globale n'est modifiée ;
 voir l'[état courant](PLAN.md).
 
+Complément D06 du 4 octobre, relevé à 01:59 UTC : le chantier QA F04 E2
+termine à 01:33:59, sortie 0 observée par ROOT. Onze scénarios stricts
+sur l'API et le modèle réels, sans retry ni skip ; cartes d'échec liées à
+leur fichier, générations/versions et limite64KiB isolée exercées. Arrêt et
+conservation bornée vérifiés indépendamment B ; dix PNG vus par C, trois
+inclus vus par ROOT ; dix blocs synthétiques recomputés pour hash UTF-8,
+spans et provenance. Avis final A favorable au critère exact de l'action
+F04, désormais `VALIDATED_BOUNDED` au plan ; aucun seuil ni case globale
+modifié. Révision d'extraction réemployée, spans de bloc entier, pas R2
+archivée distincte ou sélection intra-bloc. Les données QA sont déclarées
+préservées par le CLI possédé et les contrôles du scénario ; B/A n'ont pas
+refait une inspection SQL ou de tous les blobs. Console exhaustive,
+peinture300, modale/pending/trois tailles, ancres, OCR sélection, SSE,
+Windows et qualification physique16Go restent ouverts. L'échec E est
+conservé, l'instance utilisateur reste arrêtée. [Preuves nouvelles et limites](journal/2026-10-04.md#terminal-f04-e2-et-relectures-relevé-0157-utc).
+
 ## Rapport final exigé
 
 Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, corpus, résultat et chemin de preuve. Ajouter un tableau des métriques avec dénominateurs, mesures chaud/froid, limitations et écarts. Résumer uniquement ce qui est réellement exécuté ; ne pas substituer un discours de conformité aux résultats.
@@ -1612,7 +1628,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `555382f` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 00:18 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `bebb8f2` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 01:59 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1620,7 +1636,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
-## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 00:18 UTC
+## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 01:59 UTC
 
 La nouvelle demande documentaire reprend les exigences existantes de R14/R15.
 L'espace stabilisé reste dans `docs/`, le suivi vivant dans `RAG_Local_Agents/` ;
@@ -1633,7 +1649,7 @@ et les cinq SVG passent. Les procédures non exécutées restent non qualifiées
 |---|---|---|
 | RB5 et sonde modale | `run-20261003T154834Z` : cinq cas stricts PASS sans retry, sonde FAILED à `nominal_1366`. Revue B : quatorze captures, 34 absences, base et 96 fichiers conservés. Diagnostic borné avant la capture nominale, assertion précise inconnue. Instrumentation C relue ROOT/B : 16 pièces et 11 pins exacts, inverse complet vers ROOTv3, 38 tests purs PASS ; protocole diagnostique fermé, primaire et cleanup distincts | Préparer le binding explicite d'une future sonde sur des sources actuelles et sa porte HOST arrêté. Aucun nouveau résultat modal ni défaut produit acquis ; doubles et placeholders ne qualifient pas le navigateur ou le rendu |
 | R15-3-Q05 | Instrumentation et enveloppe relues favorablement sur preuves préparatoires. Le run1315 reste FAILED ; aucun nouveau parcours de peinture | Nouveau dernier arrêt indépendant et sources applicables requis avant recette. La correction frontend E03 invalide la comparaison avec les sources ROOT de l'ancien gel |
-| R15-3-F04 | Prérequis 31 admissible après B, rendu C/ROOT et validation finale A : sortie 0, 118 absences fraîches, conservation bornée. Miroir physique de 703 fichiers créé. Préparateur C refusé avant permissions : six parents au lieu de sept. D relu ROOT/A, 44 tests purs puis 16 ciblés PASS ; préparation réelle session `88007` sortie 0. A confirme ensuite 703 fichiers intacts, sept parents scellés, 86 Python conformes, sources/export inchangés et miroir sans données/auth/cache | Variante QA E en préparation pour remplacer uniquement la porte HOST74 en fonctionnement par conservation historique et arrêt actuel explicitement liés. Revue indépendante et tests discriminants requis avant natif ; aucun nouveau F04 ou génération sur le miroir. Peinture, rotations exhaustives et DoD globale ouvertes |
+| R15-3-F04 | VALIDATED_BOUNDED après revue finale A : miroir703 qualifié, E2 terminal `22825 EXIT0`, onze cas stricts/retry0/skip0 ; génération réelle, carte corrompue liée au fichier, seuil64KiB isolé. B : 138 absences datées, trois tuples historiques incomplets conservés, sources/export/marqueurs nommés inchangés. C : dix PNG vus et dix blocs recomputés ; ROOT trois PNG inclus dans ces dix. Ancien E FAILED préservé | Aucun rejeu F04 requis dans ce critère d'action. Les preuves directes ne sont pas une exécution de l'ancien adaptateur GET/cards. Révision distincte non observée, peinture300, modale, ancres, SSE, Windows et DoD globale restent ouverts ; prochaines actions sur leurs lots existants |
 | R15-3-E03, incohérence rédactionnelle | VALIDÉ et publié dans `f8cd964` sur `origin/main` à 18:25 UTC : sept tests ciblés, 281 unités sans skip, typage/lint/build isolé conformes. V5 sortie 0, trois contextes UI et captures relus ; neuf processus absents, permissions et conservation vérifiées indépendamment. V1/V2 restent FAILED, cause V2 inconnue ; V4 conserve son wrapper EXIT1 | Aucune correction E03 restante dans cette portée. Session/API doublées : ni publication native, ni peinture PDF, ni recette RAG de bout en bout ; voir le journal pour les preuves |
 | R15-3-E04, incohérence rédactionnelle / frontend | VALIDÉ et publié dans `19f483f` sur `origin/main` à 20:09 UTC : aide vers les actions du Suivi et la disponibilité réelle, inverse de la seule phrase byte-exact ; calculs et gates conservés. Rouge préservé, 20 tests frontend ciblés puis 288 complets sans skip conformes ; typage, lint de 118 fichiers et build isolé sortie 0. Huit contextes UI et captures neuves relus par ROOT/C/A ; conservation et quinze absences actuelles vérifiées indépendamment par B | Aucun correctif E04 restant dans cette portée. API/session doublées : ni publication backend, ni peinture PDF, ni recette RAG native ou DoD globale ; aucun défaut visuel bloquant dans les huit captures |
 | R15-3-E05, amélioration rédactionnelle / API affichée dans le frontend | VALIDÉ et publié dans `19f483f` sur `origin/main` à 20:09 UTC : traduction fixe après S41, contrat conservé. Rouge ASGI préservé, 16 tests ciblés et 104 de régression PASS ; Ruff et mypy Linux/cible win32 conformes, revue B favorable. Référence API §3 réalignée ; vrai client frontend testé avec fetch doublé. Deux aides 422 lisibles aux deux tailles sur le nouvel export, revues ROOT/C/A et fermeture vérifiée B | Aucun correctif E05 restant dans cette portée. Le navigateur reçoit des 422 doublés sur une petite sélection : le refus de 1 001 éléments est exercé séparément par ASGI isolé avec services doublés, pas par un parcours natif |
@@ -1649,6 +1665,25 @@ distingue le rendu validé des limites de cette recette. Les deux échecs de mon
 suite sont conservés : deux supports de test ont été ajoutés à la copie physique,
 et quatre tests lisent la référence Git historique, sans mutation Git.
 R14, R15, R22, D06 et la DoD globale restent ouverts ; R23 reste NOT_STARTED.
+
+**Complément du 4 octobre à 01:01 UTC :** le suivi précédent est publié par
+`bebb8f2`. Le collecteur E a réellement refusé à `nominal-start`, alors que
+le contrôleur `32807` attend encore : aucune instance native démarrée.
+Cause acquise, défaut du préparateur QA : mode historique `664` non confronté
+au callsite `load_guard`. E2 en cours ; les preuves, limites et prochaines
+actions sont au [journal](journal/2026-10-04.md#publication-du-suivi-et-refus-du-collecteur-e-relevé-0101-utc).
+
+**Terminal qualifié F04, le 4 octobre à 01:59 UTC :** onze parcours réellement
+passés sur E2, arrêt et conservation bornée B, rendu/citation C et opérateur
+ROOT, validation finale indépendante A favorables. Le critère exact de
+l'action F04 est satisfait ; aucune case DoD globale cochée. L'ancien
+adaptateur GET reste non exécuté, remplacé pour la carte par la preuve directe
+du scénario canonique corrigé, pas par une réussite reconstruite.
+Les [preuves et limites](journal/2026-10-04.md#terminal-f04-e2-et-relectures-relevé-0157-utc)
+conservent E refusé et la révision réemployée. Prochaine action : préparer et
+faire relire la liaison modale source249/export actuel/HOST arrêté, puis
+replay5 nécessaire et sonde diagnostique après contrôles frais par ROOT.
+Pas de rebuild des mêmes entrées, de reprise de HOST ni d'activation 2B.
 
 **Reprise F04 à 20:21 UTC :** nouvelle copie QA et qualification des 31 en
 préparation sur les sources actuelles, sans nouvelle exécution à ce relevé.
@@ -2527,7 +2562,7 @@ L'utilisateur confirme lint, typage, build, QA/E2E, analyse critique indépendan
 | R15-3-Q05 | Incohérence de preuve : canvas alloué ne démontre pas une peinture PDF / R15-3 | Établir une attente bornée et une capture utile de PDF synthétique peint à 300 %, avec identité/version/page/zoom/budget explicites. Distinguer preuve de pixels, fin de RenderTask et contenu extrait ; revue indépendante et essai réel avant validation | IN_PROGRESS — rouge1155 et recovery12:14 conservés. Nouvelle enveloppe à cohorte causale :153 tests purs PASS, revue C10a2299d favorable bornée et vrai precheck ROOT douze absences avant GO. Recette1315 achevée13:22:03 FAILED/CALLER_FAILED, cleanup sans erreur secondaire ; owner2170 distinct. Deux PNG liées à page11/version/zoom300, trois ancres réellement lisibles selon ROOT/C ; ni isolation du canvas ni fin de RenderTask établie. Caller refusé : warning1, transportErrors3/guardErrors3 ; phase exacte inconnue, samples/ROI/budget réel non persistés et non reconstruits. Arrêt/conservation C17467169 :20 tuples frais absents, neuf ready/zéro query, 96 originaux/extractions et sources243/13 inchangés. Instrumentation privée en préparation, sans neutraliser les refus ; nouveau gel/revue puis recette nécessaires. [Preuves et suite](journal/2026-10-03.md#q05--captures-réelles-et-refus-du-caller-relevé-1347-utc) |
 | R15-3-F03 | Bug du test RB03 : sélecteur de titre ambigu / R15-3-Q01 | Cibler le seul titre du lecteur, sans modifier les assertions de fermeture, focus ou périmètre ; préserver la recette rouge et préparer un gel QA séparé. Validation : témoin discriminant du sélecteur, revue indépendante, cinq cas stricts puis modale relue sur le même export | IN_PROGRESS — sélecteur245 corrigé dans un gel QA distinct, cinq cas RB1032 stricts PASS/retry0. Arrêt des 27 identités des six labels et conservation contrôlés indépendamment ; premier périmètre incomplet conservé avec complément. La sonde V1 remplace un chemin binding par un objet : vrai execute/gardes avec doubles reproduisent la TypeError c589… avant launch, sans reconstruire la stack native historique. V2 séparée 7fbc554f, gardes inchangées, 33 tests purs PASS ; revue indépendante B1e4c467d favorable préparatoire, erratum9e3ef234 distinct ; nouveau replay/modal/rendu toujours requis. [Trace et source Node](journal/2026-10-03.md#recette-f04-terminale-et-diagnostic-modal--relevé-1146-utc) |
 
-| R15-3-F04 | Bug du contrôle QA des artefacts natifs / R15-3 | Vérifier les artefacts d'exécution précisément dérivés des sources gelées, sans effacer les preuves ni admettre les fichiers inconnus. Dépendances : miroir qualifié et R15S34. Livrable : enveloppe privée séparée, tests discriminants et revue indépendante ; validation : nouveau miroir, onze parcours réels, arrêt et conservation | IN_PROGRESS — run1050 : onze cas stricts/retry0, vraie génération et limite 64 KiB isolée ; dix PNG vus par ROOT/B. Revue C793161f0 : 132 tuples absents (130 exécutables connus/2 inconnus distingués), arrêt/SQL/conservation et citation dix blocs conformes dans leur portée ; R1 réemployée, deux artefacts runtime-before absents. Réserve de carte corrompue maintenue ; oracle QA V2 20 tests purs et avis préparatoire. Pilote B39 relu par C9640ef63 : refus tardif aborté sans fetch, mais compteur cleanup ignoré par le verdict, défaut QA confirmé. Delta ROOTv2 afbd8c83 : ajout unique de cleanup au verdict, inverse byte-exact et 39 assertions préservées ; rouge 40 PASS/5 FAIL, vert 45 PASS, lint six sources/contrat API typé/Ruff du scelleur PASS. Avis C9ffe75d7 favorable préparatoire lu et rehashé, réserve C01 levée uniquement sur ce delta ; adapter/bindings frais, deux cartes réelles, captures et arrêt/conservation encore requis. Aucun nouveau navigateur natif. [Trace actuelle](journal/2026-10-03.md#f04--correction-du-refus-tardif-de-la-sonde-qa-relevé-1408-utc) |
+| R15-3-F04 | Bug du contrôle QA des artefacts natifs / R15-3 | Vérifier les artefacts d'exécution précisément dérivés des sources gelées, sans effacer les preuves ni admettre les fichiers inconnus. Dépendances : miroir qualifié et R15S34. Livrable : enveloppe privée séparée, tests discriminants et revue indépendante ; validation : nouveau miroir, onze parcours réels, arrêt et conservation | VALIDATED_BOUNDED, 04/10 à 01:59 UTC — miroir703/249sources, sept parents/86Python qualifiés D/A puis conservés B ; E2 sortie0/11stricts. B f69fa52f :138 absences fraîches, trois exe historiques incomplets non réparés, sources/export/marqueurs conformes. C e277dc28 :10PNG vus, dix blocs de citation recomputés ; ROOT de9b1c2f :3PNG inclus. A a5f2feb9 : critère d'action exact satisfait. La carte corrompue est validée par le scénario canonique neuf, pas par une exécution de l'ancien adaptateur GET/cards. R1 réemployée, spans entiers, console exhaustive non qualifiée ; DoD globale inchangée. Refus E et préparations antérieures préservés au journal. [Terminal, preuves et limites](journal/2026-10-04.md#terminal-f04-e2-et-relectures-relevé-0157-utc) |
 
 Actualisation à 10:46 UTC : nouvel adaptateur F03 V3 relu indépendamment,
 85 tests purs PASS après un rouge discriminant sur le schéma réel des services.
@@ -3096,9 +3131,9 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `555382f` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 00:18 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `bebb8f2` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 01:57 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
-## R15S36 — préparation QA et continuité de l'hôte arrêté
+## R15S47 — préparation QA et continuité de l'hôte arrêté
 
 Sources internes lues le 4 octobre 2026 entre 00:09 et 00:18 UTC, sous la
 racine privée QA R15 ; aucun nouveau contrat externe ou téléchargement.
@@ -3113,6 +3148,19 @@ ni un résultat natif absent.
 | `frontend-focus-fix/modal-probe-oracle-diagnosticC/probe.mjs`, SHA `a408c4fc…`, diagnostic, tests, inverse et livraison `3e2738c3…`, relus ROOT/B | 26 oracles constants, projection fermée et primaire/cleanup distincts ; reconstruction complète du callee original `09686d5a…` | 38 tests sur doubles explicites, sans navigateur ; dernière assignation d'oracle, pas cause du FAILED historique |
 | `host_clearance.py`, `collect` 41–65 ; `frontend-pilot/pilot.py`, `gate_proofs` 83–106 ; F04 D `clearance_check` 176–195 et `checkpoint` 542–546 | La porte historique lie corpus et HOST74 en fonctionnement ; elle ne peut attester HOST81cb arrêté. Motive une variante QA distincte avec corpus historique conservé et état actuel honnête | Aucune nouvelle clearance ou recette délivrée par cette analyse ; ne pas modifier les faits historiques ou fabriquer une disponibilité |
 | Reçu d'arrêt ROOT `user-GPU-stop-result-20261004.json`, SHA `c7e89046…` ; preuve indépendante A `bfad6abc…` | Stop demandé, sortie 0 et quatre tuples strictement absents à leurs dates ; l'hôte doit rester arrêté | Preuve datée et bornée à quatre identités ; comptes/conservation lus par ROOT, sans deuxième SQL par A ; ni absence exhaustive future ni preuve DoD |
+| E `host_stopped_gate.py:233`, remise `0df2470c…` et pins D/E ; métadonnées physiques de `frontend-pilot/pilot.py`, contrôlées ROOT puis B à 00:59:20 UTC | Le chargeur exige `600`, alors que le fichier et les pins hérités indiquent `664` avec le même SHA `feba91af…` ; explique le refus réel du premier collecteur avant import et Process | Les 61 pures et les avis préparatoires avaient manqué cette contradiction. Correctif E2 requis, sans chmod historique ni acceptation permissive de deux modes ; aucun scénario natif commencé |
+| E2 `host_stopped_gate.py`, SHA `2fb59c2e…`, `test_guard_mode.py`, seal et remise `97981c81…`, relus ROOT/B/A | Seul mode GUARD changé en `664` strict ; vrai loader sur octets figés, onze témoins et inverses. Références E inchangées, correction sans chmod ancien | Preuves préparatoires distinctes de la première collecte réelle puis du parcours natif lancé par ROOT ; imports/génération ne se déduisent pas du code ou du vert pur |
+| E2 `run-F04-host-stopped-guard-mode-20261004/summary.json`, SHA `6c2a4081…` et ses onze résultats ; `evidence-review/F04-E2-B-20261004/terminal.json`, SHA `f69fa52f…`, lus ROOT/A après le terminal | Onze résultats stricts et deux arrêts, absence datée des PID consignés, conservation des sources et des fichiers nommés ; correction QA réellement traversée | Trois exécutables historiques vides non reconstitués ; B ne relit ni SQLite ni les originaux/extractions de la QA. Les déclarations CLI et les comparaisons fermées ne sont pas une deuxième inspection SQL |
+| `evidence-review/F04-E2-C-20261004/REVIEW.md`, SHA `e277dc28…`, dix PNG originaux et blocs synthétiques liés ; relecture ROOT de `lifecycle.spec.ts:207–260`, SHA `5fa69b8b…` | Carte corrompue propre au fichier ; citation enregistrée et spans recomputés ; deux captures de versions identiques expliquées par le véritable ordre des assertions | Spans de bloc entier, révision réemployée, pas de capture distincte de la nouvelle version. C a écrit le correctif de gate : indépendant du rendu natif, pas de son propre code |
+
+Le complément du 4 octobre à 00:59 UTC confronte le callsite neuf à la
+métadonnée physique et aux records hérités, pas à une supposition documentaire.
+Le numéro de cette section est `R15S47` : `R15S36` reste réservé à sa référence
+historique sur le binding et le contrat Node.js.
+
+La lecture post-exécution s'étend jusqu'au relevé du 4 octobre à 01:57 UTC.
+Les rapports de l'opérateur et des vérificateurs restent distincts ; les
+dates et les commandes effectivement exécutées appartiennent au journal.
 
 Les preuves et dates d'exécution sont au [journal du 4 octobre](journal/2026-10-04.md).
 Le registre conserve les sources ; il ne remplace ni le suivi canonique, ni les

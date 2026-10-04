@@ -1,6 +1,6 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `f331421`, opérations W029-6, pilotes D03 et R15-3 Linux datés ci-dessous · **Mis à jour :** 2026-10-03 17:31 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `bebb8f2` et complément local F04 E2 daté ci-dessous, historique conservé · **Mis à jour :** 2026-10-04 01:59 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -356,6 +356,22 @@ ciblé et une conservation bornée ; la revue terminale indépendante reste en
 cours. L'aide frontend sur la publication fait l'objet d'une correction
 rédactionnelle distincte. Aucune case ou exigence globale n'est modifiée ;
 voir l'[état courant](PLAN.md).
+
+Complément D06 du 4 octobre, relevé à 01:59 UTC : le chantier QA F04 E2
+termine à 01:33:59, sortie 0 observée par ROOT. Onze scénarios stricts
+sur l'API et le modèle réels, sans retry ni skip ; cartes d'échec liées à
+leur fichier, générations/versions et limite64KiB isolée exercées. Arrêt et
+conservation bornée vérifiés indépendamment B ; dix PNG vus par C, trois
+inclus vus par ROOT ; dix blocs synthétiques recomputés pour hash UTF-8,
+spans et provenance. Avis final A favorable au critère exact de l'action
+F04, désormais `VALIDATED_BOUNDED` au plan ; aucun seuil ni case globale
+modifié. Révision d'extraction réemployée, spans de bloc entier, pas R2
+archivée distincte ou sélection intra-bloc. Les données QA sont déclarées
+préservées par le CLI possédé et les contrôles du scénario ; B/A n'ont pas
+refait une inspection SQL ou de tous les blobs. Console exhaustive,
+peinture300, modale/pending/trois tailles, ancres, OCR sélection, SSE,
+Windows et qualification physique16Go restent ouverts. L'échec E est
+conservé, l'instance utilisateur reste arrêtée. [Preuves nouvelles et limites](journal/2026-10-04.md#terminal-f04-e2-et-relectures-relevé-0157-utc).
 
 ## Rapport final exigé
 

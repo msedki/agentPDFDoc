@@ -1,8 +1,8 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `555382f` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 00:18 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `bebb8f2` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 01:57 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
-## R15S36 — préparation QA et continuité de l'hôte arrêté
+## R15S47 — préparation QA et continuité de l'hôte arrêté
 
 Sources internes lues le 4 octobre 2026 entre 00:09 et 00:18 UTC, sous la
 racine privée QA R15 ; aucun nouveau contrat externe ou téléchargement.
@@ -17,6 +17,19 @@ ni un résultat natif absent.
 | `frontend-focus-fix/modal-probe-oracle-diagnosticC/probe.mjs`, SHA `a408c4fc…`, diagnostic, tests, inverse et livraison `3e2738c3…`, relus ROOT/B | 26 oracles constants, projection fermée et primaire/cleanup distincts ; reconstruction complète du callee original `09686d5a…` | 38 tests sur doubles explicites, sans navigateur ; dernière assignation d'oracle, pas cause du FAILED historique |
 | `host_clearance.py`, `collect` 41–65 ; `frontend-pilot/pilot.py`, `gate_proofs` 83–106 ; F04 D `clearance_check` 176–195 et `checkpoint` 542–546 | La porte historique lie corpus et HOST74 en fonctionnement ; elle ne peut attester HOST81cb arrêté. Motive une variante QA distincte avec corpus historique conservé et état actuel honnête | Aucune nouvelle clearance ou recette délivrée par cette analyse ; ne pas modifier les faits historiques ou fabriquer une disponibilité |
 | Reçu d'arrêt ROOT `user-GPU-stop-result-20261004.json`, SHA `c7e89046…` ; preuve indépendante A `bfad6abc…` | Stop demandé, sortie 0 et quatre tuples strictement absents à leurs dates ; l'hôte doit rester arrêté | Preuve datée et bornée à quatre identités ; comptes/conservation lus par ROOT, sans deuxième SQL par A ; ni absence exhaustive future ni preuve DoD |
+| E `host_stopped_gate.py:233`, remise `0df2470c…` et pins D/E ; métadonnées physiques de `frontend-pilot/pilot.py`, contrôlées ROOT puis B à 00:59:20 UTC | Le chargeur exige `600`, alors que le fichier et les pins hérités indiquent `664` avec le même SHA `feba91af…` ; explique le refus réel du premier collecteur avant import et Process | Les 61 pures et les avis préparatoires avaient manqué cette contradiction. Correctif E2 requis, sans chmod historique ni acceptation permissive de deux modes ; aucun scénario natif commencé |
+| E2 `host_stopped_gate.py`, SHA `2fb59c2e…`, `test_guard_mode.py`, seal et remise `97981c81…`, relus ROOT/B/A | Seul mode GUARD changé en `664` strict ; vrai loader sur octets figés, onze témoins et inverses. Références E inchangées, correction sans chmod ancien | Preuves préparatoires distinctes de la première collecte réelle puis du parcours natif lancé par ROOT ; imports/génération ne se déduisent pas du code ou du vert pur |
+| E2 `run-F04-host-stopped-guard-mode-20261004/summary.json`, SHA `6c2a4081…` et ses onze résultats ; `evidence-review/F04-E2-B-20261004/terminal.json`, SHA `f69fa52f…`, lus ROOT/A après le terminal | Onze résultats stricts et deux arrêts, absence datée des PID consignés, conservation des sources et des fichiers nommés ; correction QA réellement traversée | Trois exécutables historiques vides non reconstitués ; B ne relit ni SQLite ni les originaux/extractions de la QA. Les déclarations CLI et les comparaisons fermées ne sont pas une deuxième inspection SQL |
+| `evidence-review/F04-E2-C-20261004/REVIEW.md`, SHA `e277dc28…`, dix PNG originaux et blocs synthétiques liés ; relecture ROOT de `lifecycle.spec.ts:207–260`, SHA `5fa69b8b…` | Carte corrompue propre au fichier ; citation enregistrée et spans recomputés ; deux captures de versions identiques expliquées par le véritable ordre des assertions | Spans de bloc entier, révision réemployée, pas de capture distincte de la nouvelle version. C a écrit le correctif de gate : indépendant du rendu natif, pas de son propre code |
+
+Le complément du 4 octobre à 00:59 UTC confronte le callsite neuf à la
+métadonnée physique et aux records hérités, pas à une supposition documentaire.
+Le numéro de cette section est `R15S47` : `R15S36` reste réservé à sa référence
+historique sur le binding et le contrat Node.js.
+
+La lecture post-exécution s'étend jusqu'au relevé du 4 octobre à 01:57 UTC.
+Les rapports de l'opérateur et des vérificateurs restent distincts ; les
+dates et les commandes effectivement exécutées appartiennent au journal.
 
 Les preuves et dates d'exécution sont au [journal du 4 octobre](journal/2026-10-04.md).
 Le registre conserve les sources ; il ne remplace ni le suivi canonique, ni les
