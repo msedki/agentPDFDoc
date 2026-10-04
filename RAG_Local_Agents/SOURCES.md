@@ -1,6 +1,28 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `9f6c1bb` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 11:29 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `9ccfc68` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 12:52 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R15S56 — fermeture de la trace et du contexte de test
+
+Consultation ROOT le 4 octobre 2026 à 12:17–12:19 UTC, documentation
+actuelle et code officiel du tag installé Playwright 1.63.0 :
+[BrowserContext.close](https://playwright.dev/docs/api/class-browsercontext#browser-context-close),
+[Tracing.stop](https://playwright.dev/docs/api/class-tracing#tracing-stop),
+[client browserContext.ts](https://raw.githubusercontent.com/microsoft/playwright/v1.63.0/packages/playwright-core/src/client/browserContext.ts)
+(`close`, lignes 484–495 ; `unrouteAll`, 395–417) et
+[client tracing.ts](https://raw.githubusercontent.com/microsoft/playwright/v1.63.0/packages/playwright-core/src/client/tracing.ts)
+(`stop`, 87–94).
+
+Arrêter et exporter la trace ne ferme pas les pages. `close` ferme le
+contexte, mais son client attend d'abord la libération du contexte de requêtes
+et l'instrumentation : déplacer une annulation juste avant cet appel ne
+supprime donc pas toute fenêtre intermédiaire. Retirer les routes avec
+`unrouteAll` retire leur interception ; cette voie n'est pas retenue pour
+une sonde dont elles assurent le confinement. Hypothèse ciblée : laisser les
+GET autorisés passer pendant l'export de trace sur le parcours nominal,
+en conservant le déblocage immédiat d'une DELETE tenue sur échec ou interruption.
+Ces sources ne prouvent ni la cause des consoles observées ni le succès
+de ce changement ; tests discriminants et recette restent requis.
 
 ## R15S55 — diagnostic final de la sonde modale
 
