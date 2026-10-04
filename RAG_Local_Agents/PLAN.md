@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `a17819a` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 22:33 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `c27d673` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 23:07 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -10,7 +10,27 @@
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
 
-**Dernier relevé, 4 octobre à 22:33 UTC :** choix au lancement et défaut
+**Reprise DEV à 23:07 UTC :** QA conservée redémarrée avec le 2B en mode
+GPU ; sept imports synthétiques acceptés, zéro refus. Publications et captures
+en cours, aucune génération concurrente. Les 100 annotations et 90 unités
+devront être entièrement résolues avant comparaison. Le profil utilisateur
+et le corpus privé restent arrêtés. L'outillage documentaire passe 62 tests.
+[Exécution](journal/2026-10-04.md#r23--pilotes-gpu-et-préflight-dev-relevé-2258-utc).
+
+**Dernier relevé, 4 octobre à 22:58 UTC :** pilotes GPU séquentiels 2B et
+4B terminés, identités verrouillées et arrêts vérifiés puis relus indépendamment.
+Pour 2 959 tokens d'entrée : TTFT froid 53,35/67,68 s, prompt répété
+0,19/0,23 s, contenu nouveau 4,11/10,54 s. Limite de sortie 64 tokens ;
+le 4B s'arrête naturellement à 56 tokens sur le prompt répété. Un essai
+par condition seulement : ni p95, ni D07, ni qualification qualité.
+Profils et seuils inchangés ; la baisse de mémoire disponible ne mesure
+pas exhaustivement les allocations GPU et ne justifie pas de réduire
+l'estimation d'admission. Préflight DEV fermé : sept PDF synthétiques,
+une famille, cible QA conservée ; publications et 100 annotations à résoudre
+avant les deux bras. R23 reste IN_PROGRESS.
+[Mesures et limites](journal/2026-10-04.md#r23--pilotes-gpu-et-préflight-dev-relevé-2258-utc).
+
+**Relevé du 4 octobre à 22:33 UTC :** choix au lancement et défaut
 2B implémentés ; parcours natifs GPU 2B et 4B réussis sur le même index
 synthétique, tokens 466/466, citations, annulation et replay vérifiés.
 Cinq E2E Chromium passent par modèle, avec clic de citation et rendu examiné.
@@ -451,7 +471,7 @@ sont pas clôturés par ces préparations.
 
 ## R23 — choix du modèle de génération et défaut Qwen 3.5 2B
 
-**État réel au 4 octobre, 22:02 UTC :** choix au lancement confirmé par
+**État réel au 4 octobre, 22:58 UTC :** choix au lancement confirmé par
 l'utilisateur et implémenté. Tag exact `qwen3.5:2b` Q8_0 par défaut ; 4B
 sélectionnable, profil antérieur conservé. Tokenizer et poids vérifiés hors
 ligne, suite backend corrigée 1 510 PASS, 20 SKIP et deux exclusions natives
@@ -462,8 +482,9 @@ arrêt propriétaire et conservation. La consigne de citation est corrigée
 sans modifier le parseur ni les budgets ; échecs antérieurs conservés.
 Le pilote sans fabricant aboutit à une abstention, mais le 2B ajoute un
 jugement de fiabilité contraire à la consigne. Cette limite reste ouverte ;
-aucune qualité équivalente au 4B n'est annoncée. Calibration réelle,
-comparaison DEV 100 questions, plateformes non exercées et D07 restent
+aucune qualité équivalente au 4B n'est annoncée. Pilotes GPU exécutés
+à 22:43–22:49 UTC puis relus : mesures bornées, admission non recalibrée.
+Comparaison DEV 100 questions, plateformes non exercées et D07 restent
 à traiter. [Preuves](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc).
 
 **Relevé historique au 4 octobre, 20:02 UTC :** choix implémenté dans le lanceur,
@@ -513,7 +534,7 @@ de bascule de profil, de redémarrage ou d'exécution du lot futur.
 
 | ID | Couche, propriétaire et livrable attendu | Dépendances | Critère de validation | Statut et preuve |
 |---|---|---|---|---|
-| R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Sous-lot relu indépendamment et publié sur `origin/main` (`a17819a`). Restent calibration, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes et D07 non qualifiés. [Preuves](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [relecture](journal/2026-10-04.md#relecture-finale-r23-et-publication-du-sous-lot-relevé-2228-utc) |
+| R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Sous-lot publié sur `origin/main` (`a17819a`). Pilotes GPU exécutés et relus, sans réduction de seuil ni qualification D07. Restent admission réellement calibrée, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes non qualifiées. [Parcours](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [pilotes](journal/2026-10-04.md#r23--pilotes-gpu-et-préflight-dev-relevé-2258-utc) |
 
 Travail prévu, dans l'ordre utile :
 
@@ -540,11 +561,13 @@ Travail prévu, dans l'ordre utile :
   preuves, puis mettre à jour les procédures et références stabilisées seulement
   après validation réelle. Distinguer Windows, Linux aarch64 et Linux x86-64.
 
-**Prochaine action de ce lot :** le sous-lot vérifié est publié (`a17819a`).
-Contrôler la cible du pilote de calibration GPU, puis exécuter calibration
-séquentielle et comparaison sur les mêmes 100 questions DEV et extractions,
-sans utiliser les anciens 16/20 comme bras apparié ni ouvrir le jeu final.
-La procédure privée C est préparée, NOT_RUN. Tracer et traiter le jugement
+**Prochaine action de ce lot :** terminer la publication des sept fixtures DEV dans la QA
+isolée conservée, vérifier l'extraction/OCR et résoudre les 100 scopes et
+90 unités attendues avant la comparaison sur les mêmes questions et extractions.
+Les deux pilotes GPU sont terminés ; leurs mesures ne ferment pas l'admission.
+La procédure privée C reste une préparation, pas une preuve d'exécution DEV ;
+elle vise sept documents d'une famille, et non sept familles. Ne pas utiliser
+les anciens 16/20 comme bras apparié ni ouvrir le jeu final. Tracer et traiter le jugement
 injustifié du 2B sans retirer le texte synthétique des preuves. R15-3-F03/F04,
 Q05, les qualifications de plateforme et la DoD globale restent ouverts.
 
