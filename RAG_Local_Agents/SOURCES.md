@@ -1,6 +1,53 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `9b14e22` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 03:34 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `c9fc873` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 05:29 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R15S51 — refus Q05 V2 et récupération native ciblée
+
+Lectures internes ROOT du 4 octobre 2026, de 04:49 à 05:16 UTC. Sources
+versionnées et preuves privées fermées ; aucune nouvelle API externe employée.
+
+| Source | Apport constaté | Limite |
+| --- | --- | --- |
+| V2 `controller.py`, seul delta `Real.frozen_check` ; `delivery-v2.json` `a9a82863…` et revue C `b95e4676…` | Contrat 202 assets plus manifeste, inverse V1 exact, 95 tests purs et 72 pins ; vrai préflight ROOT PASS. | Tests synthétiques ; refus des extras dans l'export, pas inventaire public-only exhaustif. |
+| Run Q05 V2, `summary.json` `54ab9eaf…`, cohorte `a99e36a4…`, record start `7ad6873c…` | FAILED avant auth, quatre natifs liés au seul up et onze tuples enregistrés. | Phase/classe seulement : sous-prédicat exact inconnu, aucune capture. |
+| Cohorte `live/down`, diagnostic A `d720c861…` et métadonnées `2333cb0d…` | `live` levée laisse current=None ; le nettoyage exige la propriété partielle positive. | La phase d'entrée ne localise pas le refus dans la méthode ; pas de cause OS déduite. |
+| `services/runtime/cli.py` dispatch down et `supervisor.py` stop ; sources du PROGRAM vérifiées | Arrêt coopératif par profil/data possédés et marqueur borné au control ; CLI ROOT retour0. | Ce contrôle n'autorise aucune instance étrangère, suppression ou signal direct. |
+| Preuve ROOT `NATIVE_Q05_V2_FAILURE.md` `b436eb0d…`, revue C `7d29e8fb…`, métadonnées `38d6d2ae…` | Nouveau owner `c59e67…` réellement arrêté, 12 absences fraîches, DB/query et sources/export/marqueurs bornés conformes. | Original FAILED conservé ; inconnus non inventoriés, corps originals/extractions et caches complets non rehashés par C. |
+
+Les chemins des preuves sont au journal ; ce registre ne recopie pas leur
+suivi. Le descriptor `a747094a…` concerne désormais un arrêt antérieur,
+pas l'état courant. Aucun résultat Q05, Windows ou DoD déduit de la récupération.
+
+## R15S50 — manifeste PDF.js, assets et fichier de manifeste
+
+Contrat interne relu par ROOT le 4 octobre 2026 après le préflight réel Q05,
+jusqu'au relevé 04:36 UTC ; aucune recherche externe nécessaire pour ce schéma
+produit par le dépôt. Sources : `apps/web/scripts/prepare-assets.mjs`,
+`frontend-quality/run.py:105–127` (`export_check`), manifeste public du PROGRAM
+source249 et revue terminale indépendante C `92f54665…`.
+
+Le manifeste énumère 202 assets ; son propre fichier s'ajoute pour 203 fichiers
+PDF.js physiques. Le wrapper Q05 V1 exige erronément 203 entrées. Refus réel
+`EXPORT243_PDFJS203_REQUIRED`, avant toute action native : preuve ROOT
+`Q05_PREFLIGHT_REFUSAL.md`, SHA `47a6bba1…`, liée au journal. V2 doit distinguer
+les assets uniques du manifeste séparé sans diminuer les vérifications de SHA,
+version, ensemble exporté ou taille. Aucun nouveau rendu n'est prouvé par ce
+contrat ni par les anciens 72 tests purs.
+
+## R15S49 — focus initial de la confirmation, défaut observé
+
+Consultation ROOT le 4 octobre 2026, avant modification du composant :
+recette C3 terminée à 04:11:42 UTC, résultat fermé lu et capture d'échec
+examinée, puis sources officielles lues entre 04:14 et 04:16 UTC. La racine QA
+privée et les résultats seront rattachés au journal de cette journée.
+
+| Source et version examinée | Apport | Limite |
+|---|---|---|
+| C3 `regression-browser/run-root-modal-c3-20261004/modal-probe/result.json`, SHA `045b81cc…`, et `failure.png`, SHA `c3c28a6d…` ; `modal-probe-oracle-diagnosticC/probe.mjs`, `openConfirmation` | L'assertion réelle exige « Annuler » focalisé. Elle échoue à 1366×768 après visibilité du dialogue, avant Tab. Les cinq RB préalables ont franchi leur garde ; aucun DELETE n'a été intercepté ou transmis par la sonde | La cible de focus effectivement active n'est pas exposée dans ce résultat. Le titre est lisible sur la seule capture d'échec ; cela ne valide ni les trois largeurs ni le parcours pending. Échec conservé, pas de PASS modal |
+| `apps/web/src/components/ui/confirm-dialog.tsx` et même composant du PROGRAM source249 : effet `showModal`, titre `tabIndex=-1`, branche pending | Le composant ne désigne aucune action pour le focus à l'ouverture nominale ; il focalise explicitement le titre seulement en attente | L'absence de désignation explique un choix laissé au navigateur, pas l'identité de l'élément actif dans l'essai. La correction et sa recette restent à exécuter |
+| WHATWG, [HTML Living Standard, placement initial et dialog focusing steps](https://html.spec.whatwg.org/multipage/interactive-elements.html#dialog-focusing-steps), édition mise à jour le 03/10/2026 ; Mozilla, [dialog, accessibilité](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog#accessibility) | L'ouverture native applique les étapes de focus ; l'auteur doit choisir explicitement la cible adaptée à l'action. « Annuler » est la cible nominale retenue ici ; les actions désactivées gardent le titre comme cible statique | Standard courant et documentation, pas preuve de comportement du Chromium installé. Conserver le dialogue natif, la boucle clavier et le retour au déclencheur ; ajouter un témoin unitaire puis refaire le parcours sur un nouvel export qualifié |
+| Meta/React, [useRef et transmission au DOM](https://react.dev/reference/react/useRef), documentation 19.3 ; [ref comme prop depuis React 19](https://react.dev/blog/2024/12/05/react-19#ref-as-a-prop), publication du 05/12/2024. ROOT : sections lues à 04:40–04:41 UTC, avant application du correctif | Ref objet assignée par React au nœud DOM, utilisable dans l'effet et non pendant le rendu. `Button` transmet `...props` ; son `ComponentProps<"button">` inclut la ref selon les types 19.3.0 installés, lignes 293/1459/2352/4279 | Le témoin avec `Button="button"` ne prouve pas à lui seul la transmission par le composant réel : typage et recette sur le nouvel export restent requis. Aucun forwardRef, changement de version ou dépendance nouveau |
 
 ## R15S48 — cible QA arrêtée et séparation des identités
 
