@@ -1,6 +1,36 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `9ccfc68` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 12:52 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5092263` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 17:12 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R15S57 — lecture de pixels et drainage du harnais Q05
+
+Consultation ROOT le 4 octobre 2026 ; relevé à 17:12 UTC. Contrat navigateur
+actuel du WHATWG et APIs Playwright applicables à la version installée 1.63.0 :
+
+| Source officielle | Apport retenu | Limite |
+| --- | --- | --- |
+| [HTML Standard, Canvas 2D et optimisation de lecture](https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently) | `willReadFrequently` marque un contexte pour la lecture de pixels ; le contexte 2D reste lié au canvas. Une surface de lecture séparée évite de modifier le contexte utilisé par PDF.js. | Le standard ne prouve ni la cause du warning de la recette ni l'équivalence locale des pixels. Celle-ci exige un essai. |
+| [Playwright, Route.fetch](https://playwright.dev/docs/api/class-route#route-fetch) | La requête est effectuée avant son `fulfill` ; timeout et absence de retries peuvent rester explicites. | Une requête engagée n'est pas nécessairement terminée au retour d'une autre opération Playwright. |
+| [Playwright, BrowserContext.unrouteAll](https://playwright.dev/docs/api/class-browsercontext#browser-context-unroute-all), contrat de version déjà relié en [R15S56](#r15s56--fermeture-de-la-trace-et-du-contexte-de-test) | `wait` attend les handlers en cours mais retire les routes ; `ignoreErrors` masque leurs erreurs ultérieures. | Ces deux voies ne sont pas retenues : le confinement doit rester installé jusqu'à la fermeture, sans masquer les erreurs. |
+
+Source Chromium tentée sur `chromium.googlesource.com`, fichier
+`third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc`
+de la branche `main` : accès en erreur, aucun fait de version déduit.
+La référence WHATWG reste le contrat de canvas ; le test local fournit
+seulement une observation sur le navigateur installé.
+
+Essai ROOT isolé, sans application, API, authentification ou réseau :
+`evidence-review/modal-source249-ROOT-20261004/readback-discriminator-20261004.mjs`,
+Node 24.16.0 et Playwright 1.63.0, cache physique déjà provisionné.
+Commandes `984c7d` puis terminal `2e2bcd EXIT0` : neuf lectures directes
+produisent un warning du type Canvas2D recherché ; neuf copies ROI 1:1
+dans une surface `OffscreenCanvas` de lecture produisent les mêmes SHA,
+sans warning. Aucune requête ni erreur ; surface temporaire maximale de
+23 493 pixels, libérée ; attribut du contexte source inchangé.
+Cette preuve synthétique n'établit pas la cause du warning Q05 antérieur,
+ne qualifie pas le PDF et ne remplace pas une nouvelle recette native.
+Correction candidate confiée à C : lecture ROI bornée et drainage après
+les dernières opérations, avec tests discriminants et revue non-auteur.
 
 ## R15S56 — fermeture de la trace et du contexte de test
 
