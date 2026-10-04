@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `3e56c75` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 22:28 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `a17819a` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 22:33 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -10,14 +10,15 @@
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
 
-**Dernier relevé, 4 octobre à 22:28 UTC :** choix au lancement et défaut
+**Dernier relevé, 4 octobre à 22:33 UTC :** choix au lancement et défaut
 2B implémentés ; parcours natifs GPU 2B et 4B réussis sur le même index
 synthétique, tokens 466/466, citations, annulation et replay vérifiés.
 Cinq E2E Chromium passent par modèle, avec clic de citation et rendu examiné.
 Suite backend complète corrigée : 1 510 PASS, 20 SKIP ; deux tests natifs
 Tesseract passent séparément. Lint, typage, build et contrôles documentaires
 réussis. Instances QA arrêtées, données conservées. Relecture finale
-indépendante favorable pour ce sous-lot ; publication en cours.
+indépendante favorable pour ce sous-lot ; publié sur `origin/main` dans
+`a17819a`.
 R23 reste IN_PROGRESS pour calibration et qualité
 DEV. Le pilote d'abstention 2B ajoute un jugement de fiabilité injustifié,
 absent du pilote 4B : limite de qualité prouvée, aucun Done global.
@@ -512,7 +513,7 @@ de bascule de profil, de redémarrage ou d'exécution du lot futur.
 
 | ID | Couche, propriétaire et livrable attendu | Dépendances | Critère de validation | Statut et preuve |
 |---|---|---|---|---|
-| R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Relecture finale indépendante favorable au sous-lot, publication en cours. Restent calibration, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes et D07 non qualifiés. [Preuves](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [relecture](journal/2026-10-04.md#relecture-finale-r23-et-publication-du-sous-lot-relevé-2228-utc) |
+| R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Sous-lot relu indépendamment et publié sur `origin/main` (`a17819a`). Restent calibration, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes et D07 non qualifiés. [Preuves](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [relecture](journal/2026-10-04.md#relecture-finale-r23-et-publication-du-sous-lot-relevé-2228-utc) |
 
 Travail prévu, dans l'ordre utile :
 
@@ -539,8 +540,8 @@ Travail prévu, dans l'ordre utile :
   preuves, puis mettre à jour les procédures et références stabilisées seulement
   après validation réelle. Distinguer Windows, Linux aarch64 et Linux x86-64.
 
-**Prochaine action de ce lot :** publier le sous-lot vérifié après relecture
-finale indépendante favorable, puis calibration
+**Prochaine action de ce lot :** le sous-lot vérifié est publié (`a17819a`).
+Contrôler la cible du pilote de calibration GPU, puis exécuter calibration
 séquentielle et comparaison sur les mêmes 100 questions DEV et extractions,
 sans utiliser les anciens 16/20 comme bras apparié ni ouvrir le jeu final.
 La procédure privée C est préparée, NOT_RUN. Tracer et traiter le jugement
