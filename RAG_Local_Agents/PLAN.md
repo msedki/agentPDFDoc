@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `bebb8f2` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 01:59 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `9b14e22` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 03:28 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -8,7 +8,7 @@
 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
-## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 01:59 UTC
+## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 03:28 UTC
 
 La nouvelle demande documentaire reprend les exigences existantes de R14/R15.
 L'espace stabilisé reste dans `docs/`, le suivi vivant dans `RAG_Local_Agents/` ;
@@ -19,8 +19,8 @@ et les cinq SVG passent. Les procédures non exécutées restent non qualifiées
 
 | Action existante ou constat | État au relevé | Validation restante |
 |---|---|---|
-| RB5 et sonde modale | `run-20261003T154834Z` : cinq cas stricts PASS sans retry, sonde FAILED à `nominal_1366`. Revue B : quatorze captures, 34 absences, base et 96 fichiers conservés. Diagnostic borné avant la capture nominale, assertion précise inconnue. Instrumentation C relue ROOT/B : 16 pièces et 11 pins exacts, inverse complet vers ROOTv3, 38 tests purs PASS ; protocole diagnostique fermé, primaire et cleanup distincts | Préparer le binding explicite d'une future sonde sur des sources actuelles et sa porte HOST arrêté. Aucun nouveau résultat modal ni défaut produit acquis ; doubles et placeholders ne qualifient pas le navigateur ou le rendu |
-| R15-3-Q05 | Instrumentation et enveloppe relues favorablement sur preuves préparatoires. Le run1315 reste FAILED ; aucun nouveau parcours de peinture | Nouveau dernier arrêt indépendant et sources applicables requis avant recette. La correction frontend E03 invalide la comparaison avec les sources ROOT de l'ancien gel |
+| RB5 et sonde modale | Préparation source249/export actuel/HOST arrêté réalisée, relue ROOT/B. V1 refusée avant prepare sur deux liens pnpm différés ; V2 : treize tests purs PASS, vrai prepare EXIT0 et 118 absences, neuf jobs ready/query0, 17 copies fermées sans ancien état auth. Invocation V2 EXIT2 avant checkpoint/run/service : propriétaire arrêté légitime confondu avec les interdits de futur démarrage ; cause prouvée dans le vrai `target_contract`. Les anciens RB5 PASS et modal FAILED sont conservés | Correction privée C3 par B, revue indépendante C/ROOT puis nouvelle préparation et run explicites. Garder l'ancien owner interdit pour up/live, HOST arrêté et toutes les gardes ; cinq cas et sonde aux trois tailles/pending non encore rejoués sur ce nouveau binding. Aucun bug produit déduit du refus QA |
+| R15-3-Q05 | Nouveau gel A source249/HOST arrêté remis : 19 pièces, 55 pins actifs, 72 tests purs PASS ; revue indépendante C et relecture ROOT favorables seulement à la préparation. Le run1315 reste FAILED ; aucun nouveau parcours de peinture | Attendre le dernier arrêt modal réellement clos et sa revue indépendante acceptée, puis descriptor exact, run neuf et quatre reçus frais après checkpoints ; deux PNG à examiner. Aucun fallback vers l'ancien propriétaire, aucun résultat paint acquis |
 | R15-3-F04 | VALIDATED_BOUNDED après revue finale A : miroir703 qualifié, E2 terminal `22825 EXIT0`, onze cas stricts/retry0/skip0 ; génération réelle, carte corrompue liée au fichier, seuil64KiB isolé. B : 138 absences datées, trois tuples historiques incomplets conservés, sources/export/marqueurs nommés inchangés. C : dix PNG vus et dix blocs recomputés ; ROOT trois PNG inclus dans ces dix. Ancien E FAILED préservé | Aucun rejeu F04 requis dans ce critère d'action. Les preuves directes ne sont pas une exécution de l'ancien adaptateur GET/cards. Révision distincte non observée, peinture300, modale, ancres, SSE, Windows et DoD globale restent ouverts ; prochaines actions sur leurs lots existants |
 | R15-3-E03, incohérence rédactionnelle | VALIDÉ et publié dans `f8cd964` sur `origin/main` à 18:25 UTC : sept tests ciblés, 281 unités sans skip, typage/lint/build isolé conformes. V5 sortie 0, trois contextes UI et captures relus ; neuf processus absents, permissions et conservation vérifiées indépendamment. V1/V2 restent FAILED, cause V2 inconnue ; V4 conserve son wrapper EXIT1 | Aucune correction E03 restante dans cette portée. Session/API doublées : ni publication native, ni peinture PDF, ni recette RAG de bout en bout ; voir le journal pour les preuves |
 | R15-3-E04, incohérence rédactionnelle / frontend | VALIDÉ et publié dans `19f483f` sur `origin/main` à 20:09 UTC : aide vers les actions du Suivi et la disponibilité réelle, inverse de la seule phrase byte-exact ; calculs et gates conservés. Rouge préservé, 20 tests frontend ciblés puis 288 complets sans skip conformes ; typage, lint de 118 fichiers et build isolé sortie 0. Huit contextes UI et captures neuves relus par ROOT/C/A ; conservation et quinze absences actuelles vérifiées indépendamment par B | Aucun correctif E04 restant dans cette portée. API/session doublées : ni publication backend, ni peinture PDF, ni recette RAG native ou DoD globale ; aucun défaut visuel bloquant dans les huit captures |
@@ -56,6 +56,18 @@ conservent E refusé et la révision réemployée. Prochaine action : préparer 
 faire relire la liaison modale source249/export actuel/HOST arrêté, puis
 replay5 nécessaire et sonde diagnostique après contrôles frais par ROOT.
 Pas de rebuild des mêmes entrées, de reprise de HOST ni d'activation 2B.
+
+**Reprise modale et Q05, le 4 octobre à 03:28 UTC :** F04 et son suivi
+sont publiés par `9b14e22`, push EXIT0 observé à 02:09:18. La préparation
+modale V2 termine EXIT0, puis son premier run refuse avant toute action
+native : le contrôle metadata rejette l'identité arrêtée que la composition
+interdit à juste titre pour un futur owner. Diagnostic par appels réels
+`assembled`, `lockcheck`, `target_contract`, sans `execute` ni `g.command`.
+C3 est un correctif QA en cours, pas encore livré ou validé. Le gel Q05
+est préparé et relu, jamais exécuté ; il attend cette fermeture modale.
+Les [preuves, refus et prochaine frontière](journal/2026-10-04.md#préparation-modale-et-refus-précheckpoint-relevé-0328-utc)
+conservent les versions précédentes. Une seule charge native lourde sera
+autorisée par ROOT après revue ; aucun critère ou seuil DoD ne change.
 
 **Reprise F04 à 20:21 UTC :** nouvelle copie QA et qualification des 31 en
 préparation sur les sources actuelles, sans nouvelle exécution à ce relevé.

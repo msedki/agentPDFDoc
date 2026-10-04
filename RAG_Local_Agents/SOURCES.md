@@ -1,6 +1,26 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `bebb8f2` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 01:57 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `9b14e22` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 03:34 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R15S48 — cible QA arrêtée et séparation des identités
+
+Sources internes réellement lues pendant la reprise du 4 octobre 2026,
+jusqu'au relevé 03:28 UTC, sous la racine QA privée du journal. Les primitives
+versionnées PSF/psutil/Linux R15S24–R15S30 et les contrats navigateur déjà
+consignés sont réutilisés ; aucun téléchargement ni contrat produit nouveau.
+
+| Source et version examinée | Apport | Limite |
+|---|---|---|
+| Modale `modal-source249-host-stopped-deferred-pool-v2/controller.py`, SHA `7ef44632…`, verrou `3a46f94b…`, livraison `bca6dd4b…`, tests, delta et avis B | Deux seuls liens différés pnpm nommés exacts, inverse complet vers V1 ; préparation réelle source249 et arrêt31 lié, sans ancien état auth | Treize tests purs et prepare ne prouvent pas le précontrôle du run ; celui-ci a réellement refusé avant checkpoint |
+| `rb5-modal-root-v3-composition-v2/controller.py`, SHA `9b0a52ec…`, `composition` ; `replay/controller.py:68–84`, `target_contract` | La composition ajoute le dernier owner aux interdits live ; le contrat rejette aussi ce même owner dans la métadonnée historique arrêtée. ROOT a observé le refus exact `new31_stopped_identity_required` sous le vrai contexte | Bug du dispositif QA, pas du produit. Correction C3 en cours ; aucune garde ou réussite native retirée/reconstituée |
+| PSF, [`types.FunctionType`, documentation courante 3.12.15](https://docs.python.org/3.12/library/types.html#types.FunctionType) ; [`func_new_impl`, CPython au tag installé v3.12.14, lignes 669–758](https://raw.githubusercontent.com/python/cpython/v3.12.14/Objects/funcobject.c). B : première consultation 03:28 UTC ; ROOT : 03:32:35–03:32:45 UTC | Le constructeur reçoit code, dictionnaire de globals, defaults et closure ; nouvel objet de fonction avec le même code. Motive une copie locale de namespace pour le seul contrat metadata, sans réduire les globals du replay réel | Les signatures peuvent changer entre versions ; vérifier l'absence de closure/defaults du callee et les invariants du clone. L'événement d'audit n'est pas désactivé. Ce mécanisme reste à tester et relire ; aucune preuve native issue de la source |
+| Baseline V2 `9dbbb294…` et cible `9523b7de…`, preuve ROOT `RUN_V2_PRECHECK_REFUSAL.md`, SHA `b076c024…` | Identité historique `d7f13…` égale au propriétaire arrêté initial ; run inexistant et clearances vides après le refus | Pas de nouveau stop, session, rendu ou recette navigateur ; les observations metadata ne sont pas un nouvel inventaire de processus |
+| Q05 `paint300-source249-host-stopped/controller.py`, SHA `234bff07…`, README/SOURCES et livraison `0354035d…` ; revue C `490bc34f…`, avis ROOT `ac2a991d…` | Descriptor exact de futur dernier arrêt, six records/cleanup, quatre fenêtres après checkpoint, reprise des corps natifs et diagnostic inchangés ; 19 pièces et 55 pins contrôlés par ROOT | 72 verts sont des tests avec doubles explicites ; aucun dernier arrêt effectif, collector, auth ou PNG Q05 nouveau. Avis préparatoire sans GO |
+
+Les dates, commandes et résultats sont au
+[journal](journal/2026-10-04.md#préparation-modale-et-refus-précheckpoint-relevé-0328-utc).
+Les anciennes sources et échecs restent conservés ; les documents ne valent
+ni preuve d'exécution ni autorisation supplémentaire.
 
 ## R15S47 — préparation QA et continuité de l'hôte arrêté
 
