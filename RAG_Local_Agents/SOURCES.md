@@ -1,6 +1,26 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `142e734` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 07:19 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `3d5d10e` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 08:47 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R15S54 — nouveaux 31 sur F01 et frontières de liaison modale
+
+Sources internes relues ROOT le 4 octobre 2026 jusqu'à 08:39 UTC ; aucune
+nouvelle API externe ou montée de version. Les commandes, chemins et limites
+sont au [journal](journal/2026-10-04.md#recette-des-31-sur-f01-et-préparation-modale-relevé-0839-utc).
+
+| Source examinée | Apport vérifié | Limite |
+| --- | --- | --- |
+| Préparation31 A `83ba7e2b…`, contrôleur `ee4fb5b3…`, revue B `fd289aea…` ; copie réelle, freeze `e093c06b…`, verrou988refs `ab2a21cd…` et revue postcopie C `869b4270…` | Deux deltas F01 exacts, 249 sources/13 ingestion, 697 copies et quatre liens autorisés ; réemploi explicite de l'export réel243/6 537 094 octets, pas de build pendant native31. | Les tests purs et la copie ne donnent pas un PASS natif ; copies et marqueurs nommés seulement. |
+| Trois terminaux `bbd57a30…` / `15545290…` / `d7416718…`, retour réel ROOT `2701/d0aaa7 EXIT0` | 31 stricts parmi42 collectés, sept groupes/une tentative/retry0 ; primaire nul, restaurations et verrous PASS. | Onze génération/lifecycle NOT_RUN ; doubles éditoriaux/session/service distingués, pas31 intégrations complètes. |
+| Avis final C `7a2aa737…`, metadata `4c625d36…`, reçu ROOT `356c176e…` ; contrôle physique ROOT `372815 EXIT0` | Arrêt nommé118 QA/quatre HOST, SQL QA neuf ready/complete/attempts1/query0, conservation bornée, 47 originales vues par C/72 inventoriées ; dix vues ROOT. 72 SHA/dimensions PNG et31 records terminaux recontrôlés ROOT. | Les absences gardent leur date ; aucun rajeunissement de clearance. Descendants inconnus non inventoriés ; pas de raw auth/log/trace ou payload SQL. C ne requalifie pas indépendamment toutes les primitives historiques qu'il a écrites. |
+| Capture `canvas-budget-zoom-300.png` `7bb210ba…`, test `canvas-budget.spec.ts` et revue C | Test d'allocation/libération PASS ; capture page11/14, zoom300 et zone papier blanche visibles. | Ne prouve pas la peinture achevée ni les ancres Q05 ; pas de bug de peinture déduit d'une image isolée. |
+| Préparation modale A `579624f2…`, source_rebind `06af588c…`, probe `a408c4fc…`, avis B `6430c122…` / metadata `10793185…` | 16 témoins Python/10 Node, inverses exacts et guards maintenus ; sonde entière inchangée, nouvel attendu ConfirmDialog explicite. | Source-only PREPARED_NOT_BOUND : pas de cible, owner, execution-lock, clearance, copie ou appel natif. B relit l'incrément A, pas son propre produit ni son ancien C3. |
+| Ancien C3 `qualification/assembled`, replay `verify_target:118–130`, first `lockcheck:77–86` et `FIX:33–37` | Les19 captures liées sont sous `visual/`, scope/reviewer réels C ; le vrai verify_target charge encore le first historique qui compare eec6/98a6 sur ROOT et PROGRAM. Troisième frontière d'attendus source identifiée avant exécution, correction bornée autorisée. | Complément en cours, non qualifié ni exécuté. Locks historiques, SHA/read, CSS et autres pins doivent rester stricts ; aucun faux alias C→B ni déplacement de capture. |
+
+Les références officielles déjà valides restent celles des skills web/E2E/Linux
+et de R15S49/R15S53. Cette reprise ne modifie ni le contrat du dialogue natif,
+ni les seuils de la DoD. Les preuves d'exécution ne sont pas remplacées par
+les documents, les tests avec doubles ou l'acceptation d'une préparation.
 
 ## R15S53 — reprise qualité F01 et diagnostic préparatoire Q05
 
