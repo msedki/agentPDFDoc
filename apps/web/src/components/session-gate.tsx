@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { Copy, KeyRound } from "lucide-react";
 import { api } from "@/lib/api";
 import { openCommandChoices, retryLauncherCommands } from "@/lib/launcher";
@@ -10,6 +10,9 @@ import { Button } from "./ui/button";
 import { PanelError, PanelLoading } from "./ui/panel";
 
 const SessionContext = createContext<{ logout: () => Promise<void> } | null>(null);
+const subscribeHydration = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
 
 /** Commandes de session pour la barre supérieure ; null hors de l'atelier ouvert. */
 export function useSessionControls() {
@@ -21,7 +24,13 @@ export function useSessionControls() {
  * valide ; sinon l'écran dit pourquoi et comment la rouvrir depuis le poste.
  */
 export function SessionGate({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<GateState>({ kind: "checking" });
+  const hydrated = useSyncExternalStore(subscribeHydration, clientSnapshot, serverSnapshot);
+  return hydrated ? <SessionGateClient>{children}</SessionGateClient> : <SessionChecking />;
+}
+
+function SessionGateClient({ children }: { children: ReactNode }) {
+  const [invalidLink] = useState(() => linkInvalidFromSearch(window.location.search));
+  const [state, setState] = useState<GateState>(() => invalidLink ? { kind: "ended", reason: "link_invalid" } : { kind: "checking" });
   // Les textes qui citent le lanceur se recalculent quand /health annonce les commandes du poste.
   const commands = useLauncherCommands();
   const stopRetry = useRef<(() => void) | null>(null);
@@ -33,19 +42,22 @@ export function SessionGate({ children }: { children: ReactNode }) {
     stopRetry.current = mounted.current ? retryLauncherCommands(() => api.health()) : null;
   }, []);
 
-  const check = useCallback(async () => {
-    setState({ kind: "checking" });
+  const check = useCallback(() => checkSession(api).then(nextState => {
     // Session et commandes du lanceur (lecture publique de /health, W018) : l'état garde l'échec, pas son texte.
-    setState(await checkSession(api));
+    setState(nextState);
     retryCommands();
-  }, [retryCommands]);
+  }), [retryCommands]);
+  const retrySession = () => {
+    // Au montage, checking est déjà l'état initial ; une reprise utilisateur le rétablit immédiatement.
+    setState({ kind: "checking" });
+    void check();
+  };
 
   useEffect(() => {
     mounted.current = true;
-    if (linkInvalidFromSearch(window.location.search)) {
+    if (invalidLink) {
       // Le paramètre ne sert qu'à cet affichage : il ne reste pas dans l'adresse ni l'historique.
       window.history.replaceState(null, "", window.location.pathname);
-      setState({ kind: "ended", reason: "link_invalid" });
       // Sans vérification de session, les commandes du lanceur sont lues ici pour l'écran du lien refusé.
       void readLauncherCommands(api).then(retryCommands);
     } else {
@@ -54,7 +66,7 @@ export function SessionGate({ children }: { children: ReactNode }) {
     const ended = (event: Event) => setState({ kind: "ended", reason: (event as CustomEvent<SessionEndReason>).detail });
     window.addEventListener(SESSION_ENDED_EVENT, ended);
     return () => { mounted.current = false; window.removeEventListener(SESSION_ENDED_EVENT, ended); stopRetry.current?.(); };
-  }, [check, retryCommands]);
+  }, [check, retryCommands, invalidLink]);
 
   const logout = useCallback(async () => {
     // Les cookies sont effacés par le serveur même si la révocation échoue ; l'écran reflète la fermeture.
@@ -68,10 +80,16 @@ export function SessionGate({ children }: { children: ReactNode }) {
       <p className="eyebrow">Atelier documentaire</p>
       {state.kind === "checking" && <><h1 id="session-title">Ouverture de l'atelier</h1><PanelLoading label="Vérification de la session…" /></>}
       {state.kind === "unreachable" && <><h1 id="session-title">Ouverture de l'atelier impossible</h1>
-        <PanelError title="Vérification de la session impossible" message={unreachableText(state.failure, commands)} onRetry={() => void check()} retryLabel="Vérifier de nouveau" /></>}
-      {state.kind === "ended" && <SessionEnded reason={state.reason} onRetry={() => void check()} />}
+        <PanelError title="Vérification de la session impossible" message={unreachableText(state.failure, commands)} onRetry={retrySession} retryLabel="Vérifier de nouveau" /></>}
+      {state.kind === "ended" && <SessionEnded reason={state.reason} onRetry={retrySession} />}
     </div>
   </main>;
+}
+
+function SessionChecking() {
+  return <main className="session-screen" aria-labelledby="session-title"><div className="session-card">
+    <p className="eyebrow">Atelier documentaire</p><h1 id="session-title">Ouverture de l'atelier</h1><PanelLoading label="Vérification de la session…" />
+  </div></main>;
 }
 
 function SessionEnded({ reason, onRetry }: { reason: SessionEndReason; onRetry: () => void }) {

@@ -54,7 +54,7 @@ export const api = {
     const documents: LibraryTree["documents"] = [];
     let cursor: string | null | undefined = null;
     let offset = 0;
-    let total = 0;
+    let total: number;
     do {
       const page: LibraryTree = await request<LibraryTree>(`/library/tree?limit=100&offset=${offset}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`, { signal, headers: BACKGROUND });
       for (const folder of page.folders) folders.set(folder.id, folder);

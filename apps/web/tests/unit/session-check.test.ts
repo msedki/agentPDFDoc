@@ -125,11 +125,31 @@ test("a failing /health neither delays the gate nor forgets the commands already
   }
 });
 
-test("the gate keeps the failure, not its text, and computes the text when it renders", () => {
-  const gate = stripScriptComments(readSource("components/session-gate.tsx"));
-  assert.match(gate, /setState\(await checkSession\(api\)\)/);
+function assertGateFailureRendering(gate: string) {
+  assert.match(gate, /checkSession\(api\)\.then\(nextState => \{\s*setState\(nextState\);/);
   assert.match(gate, /const commands = useLauncherCommands\(\);/);
   assert.match(gate, /message=\{unreachableText\(state\.failure, commands\)\}/);
+  // Le hook de SessionEnded, après cet écran, ne prouve pas le câblage de l'échec réseau.
+  assert.match(gate, /const commands = useLauncherCommands\(\);[\s\S]*?message=\{unreachableText\(state\.failure, commands\)\}/);
   assert.doesNotMatch(gate, /kind: "unreachable", message/);
   assert.doesNotMatch(gate, /\.message\b/);
+}
+
+test("the gate keeps the failure, not its text, and computes the text when it renders", () => {
+  assertGateFailureRendering(stripScriptComments(readSource("components/session-gate.tsx")));
+});
+
+test("gate failure guard rejects discarding the response or freezing its message", () => {
+  const gate = stripScriptComments(readSource("components/session-gate.tsx"));
+  assertGateFailureRendering(gate);
+  for (const [before, after] of [
+    ["setState(nextState)", 'setState({ kind: "open" })'],
+    ["setState(nextState)", 'setState({ kind: "unreachable", message: nextState.message })'],
+    ["unreachableText(state.failure, commands)", '"Service indisponible."'],
+    ["const commands = useLauncherCommands();", "const commands = null;"],
+  ]) {
+    const mutant = gate.replace(before, after);
+    assert.notEqual(mutant, gate, `mutation exercée : ${before}`);
+    assert.throws(() => assertGateFailureRendering(mutant), assert.AssertionError);
+  }
 });

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, CircleAlert, FileText, List, RotateCw, Search, ZoomIn, ZoomOut } from "lucide-react";
 import type { PDFDocumentProxy, PDFPageProxy, RenderTask } from "pdfjs-dist";
@@ -8,6 +8,7 @@ import { useWorkspace } from "@/lib/store";
 import { boundedCanvasSize, reconcileSelection, visiblePageWindow, wholeBlockSpan } from "@/lib/selection";
 import { hasExtractedText, ocrOverlays, pageTextCaption } from "@/lib/ocr-overlay";
 import { hasPublishedExtraction } from "@/lib/publication";
+import { findNextPdfPage, samePdfReading } from "@/lib/pdf-search";
 import { groupedWarningTexts } from "@/lib/warnings";
 import { blocksKey, citedRevision } from "@/lib/provenance-revision";
 import { useCitationRevision } from "@/lib/use-citation-revision";
@@ -42,6 +43,14 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
   const binding = citedRevision(versionId, source);
   const blocks = useQuery({ queryKey: blocksKey(versionId, pageIndex, binding.revision), queryFn: ({ signal }) => api.blocks(versionId, pageIndex, signal, binding.revision), enabled: provenanceReady && !binding.error, staleTime: 30000 });
   const correction = blocks.data?.page.orientation_correction ?? 0;
+  const extractionState = blocks.data?.page.extraction_state;
+  const renderKey = `${versionId}:${pageIndex}:${width}:${zoom}:${rotation}:${correction}:${extractionState}`;
+  const [previousRender, setPreviousRender] = useState({ document, key: renderKey });
+  if (previousRender.document !== document || previousRender.key !== renderKey) {
+    setPreviousRender({ document, key: renderKey });
+    setFailure("");
+    setNativeText(null);
+  }
 
   useEffect(() => {
     let disposed = false;
@@ -50,8 +59,6 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
     let page: PDFPageProxy | undefined;
     const outputCanvas = canvas.current;
     const layerContainer = textLayer.current;
-    setFailure("");
-    setNativeText(null);
     const renderPage = async () => {
       const pdfjs = await import("pdfjs-dist");
       page = await document.getPage(pageIndex + 1);
@@ -72,7 +79,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
       const renderText = async () => {
         const content = await page!.getTextContent();
         if (disposed) return;
-        const hasNative = content.items.some(item => "str" in item && item.str.trim()) && blocks.data?.page.extraction_state !== "ocr";
+        const hasNative = content.items.some(item => "str" in item && item.str.trim()) && extractionState !== "ocr";
         setNativeText(Boolean(hasNative));
         layerContainer.replaceChildren();
         if (hasNative) {
@@ -93,7 +100,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
       layerContainer?.replaceChildren();
       page?.cleanup();
     };
-  }, [document, versionId, pageIndex, width, zoom, rotation, correction, blocks.data?.page.extraction_state, onHeight]);
+  }, [document, pageIndex, width, zoom, rotation, correction, extractionState, onHeight]);
 
   useEffect(() => {
     for (const span of textLayer.current?.querySelectorAll("span") ?? []) {
@@ -130,13 +137,15 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
 export function PdfViewer() {
   const state = useWorkspace();
   const opened = state.opened;
+  const versionId = opened?.versionId;
+  const pageIndex = opened?.pageIndex;
+  const readingSource = state.source;
   const binding = useCitationRevision();
   const metadata = useQuery({ queryKey: ["document", opened?.documentId], queryFn: ({ signal }) => api.document(opened!.documentId, signal, true), enabled: Boolean(opened), staleTime: 30000, refetchInterval: query => hasPublishedExtraction(query.state.data, opened?.versionId) ? false : 3000 });
   const provenanceReady = !binding.error && hasPublishedExtraction(metadata.data, opened?.versionId);
   const outline = useQuery({ queryKey: ["outline", opened?.versionId, binding.revision], queryFn: ({ signal }) => api.outline(opened!.versionId, signal, binding.revision), enabled: Boolean(opened) && provenanceReady, staleTime: 30000 });
   const [document, setDocument] = useState<PDFDocumentProxy | null>(null);
   const [loadError, setLoadError] = useState<Failure | null>(null);
-  const [center, setCenter] = useState(0);
   const [width, setWidth] = useState(600);
   const [search, setSearch] = useState("");
   const [searching, setSearching] = useState(false);
@@ -147,9 +156,28 @@ export function PdfViewer() {
   const [extractedVisible, setExtractedVisible] = useState(false);
   const [heights, setHeights] = useState<Record<number, number>>({});
   const scroll = useRef<HTMLDivElement>(null);
-  const heightHandler = useRef((index: number, height: number) => setHeights(current => Math.abs((current[index] ?? 0) - height) > 1 ? { ...current, [index]: height } : current));
+  const heightHandler = useCallback((index: number, height: number) => setHeights(current => Math.abs((current[index] ?? 0) - height) > 1 ? { ...current, [index]: height } : current), []);
   const currentCenter = useRef(0);
   const searchGeneration = useRef(0);
+  const searchLifetime = useRef<AbortController | null>(null);
+  const [previousVersion, setPreviousVersion] = useState(versionId);
+  const [previousReading, setPreviousReading] = useState({ versionId, source: readingSource });
+  const layoutKey = `${versionId}:${state.zoom}:${state.rotation}:${width}`;
+  const [previousLayout, setPreviousLayout] = useState(layoutKey);
+  if (previousVersion !== versionId) {
+    setPreviousVersion(versionId);
+    setDocument(null);
+    setLoadError(null);
+  }
+  if (!samePdfReading(previousReading, { versionId, source: readingSource })) {
+    setPreviousReading({ versionId, source: readingSource });
+    setSearchStatus("");
+    setSearching(false);
+  }
+  if (previousLayout !== layoutKey) {
+    setPreviousLayout(layoutKey);
+    setHeights({});
+  }
   const currentBlocks = useQuery({ queryKey: blocksKey(opened?.versionId, opened?.pageIndex, binding.revision), queryFn: ({ signal }) => api.blocks(opened!.versionId, opened!.pageIndex, signal, binding.revision), enabled: Boolean(opened) && provenanceReady, staleTime: 30000 });
 
   useEffect(() => {
@@ -157,79 +185,90 @@ export function PdfViewer() {
     const observer = new ResizeObserver(entries => setWidth(entries[0].contentRect.width));
     observer.observe(scroll.current);
     return () => observer.disconnect();
-  }, [opened?.versionId]);
+  }, [versionId]);
 
   useEffect(() => {
-    setDocument(null); setLoadError(null); setHeights({}); setSearchStatus("");
-    searchGeneration.current++;
-    if (!opened) return;
+    const lifetime = new AbortController();
+    searchLifetime.current = lifetime;
+    return () => lifetime.abort();
+  }, [versionId, readingSource]);
+
+  useEffect(() => {
+    if (!versionId) return;
     let disposed = false;
     let task: { destroy(): Promise<void> } | undefined;
     const load = async () => {
       const pdfjs = await import("pdfjs-dist");
       if (disposed) return;
       pdfjs.GlobalWorkerOptions.workerSrc = "/pdfjs/pdf.worker.min.mjs";
-      const loading = pdfjs.getDocument({ url: api.fileUrl(opened.versionId), cMapUrl: "/pdfjs/cmaps/", cMapPacked: true, standardFontDataUrl: "/pdfjs/standard_fonts/", wasmUrl: "/pdfjs/wasm/", iccUrl: "/pdfjs/iccs/", canvasMaxAreaInBytes: 96_000_000, useSystemFonts: false, enableXfa: false, withCredentials: true });
+      const loading = pdfjs.getDocument({ url: api.fileUrl(versionId), cMapUrl: "/pdfjs/cmaps/", cMapPacked: true, standardFontDataUrl: "/pdfjs/standard_fonts/", wasmUrl: "/pdfjs/wasm/", iccUrl: "/pdfjs/iccs/", canvasMaxAreaInBytes: 96_000_000, useSystemFonts: false, enableXfa: false, withCredentials: true });
       task = loading;
       const loaded = await loading.promise;
       if (disposed) { await loading.destroy(); return; }
+      const latestOpened = useWorkspace.getState().opened;
+      if (latestOpened?.versionId !== versionId) { await loading.destroy(); return; }
       setDocument(loaded);
-      const pageIndex = Math.max(0, Math.min(loaded.numPages - 1, opened.pageIndex));
-      currentCenter.current = pageIndex;
-      setCenter(pageIndex);
-      if (pageIndex !== opened.pageIndex) useWorkspace.getState().page(pageIndex);
+      const nextPage = Math.max(0, Math.min(loaded.numPages - 1, latestOpened.pageIndex));
+      currentCenter.current = nextPage;
+      if (nextPage !== latestOpened.pageIndex) useWorkspace.getState().page(nextPage);
     };
     load().catch(error => { if (!disposed) setLoadError({ error }); });
-    return () => { disposed = true; searchGeneration.current++; void task?.destroy(); };
+    return () => { disposed = true; void task?.destroy(); };
     // Page changes keep the PDF instance and do not change scope.
-  }, [opened?.versionId]);
+  }, [versionId]);
 
-  useEffect(() => { setHeights({}); }, [state.zoom, state.rotation, width]);
   const pageCount = document?.numPages ?? 0;
   const estimatedHeight = (width - 48) * (state.rotation % 180 ? 1 / 1.414 : 1.414) * state.zoom + 52;
   const offsets = [0];
   for (let index = 0; index < pageCount; index++) offsets.push(offsets[index] + (heights[index] ?? estimatedHeight));
+  const pageOffset = offsets[pageIndex ?? 0] ?? 0;
   useEffect(() => {
-    if (!scroll.current || !opened || !document) return;
-    if (opened.pageIndex !== currentCenter.current || scroll.current.scrollTop === 0 && opened.pageIndex > 0) {
-      currentCenter.current = opened.pageIndex;
-      setCenter(opened.pageIndex);
-      scroll.current.scrollTo({ top: offsets[opened.pageIndex] ?? 0, behavior: "instant" });
+    if (!scroll.current || pageIndex === undefined || !document) return;
+    if (pageIndex !== currentCenter.current || scroll.current.scrollTop === 0 && pageIndex > 0) {
+      currentCenter.current = pageIndex;
+      scroll.current.scrollTo({ top: pageOffset, behavior: "instant" });
     }
-  }, [opened?.pageIndex, document, offsets[opened?.pageIndex ?? 0]]);
+  }, [pageIndex, document, pageOffset]);
 
   const onScroll = () => {
     if (!scroll.current || !opened) return;
     const top = scroll.current.scrollTop + 100;
     let page = 0;
     while (page + 1 < pageCount && offsets[page + 1] <= top) page++;
-    if (page !== currentCenter.current) { currentCenter.current = page; setCenter(page); state.page(page); }
+    if (page !== currentCenter.current) { currentCenter.current = page; state.page(page); }
   };
   const localSearch = async () => {
-    if (!document || !opened || !search.trim()) return;
+    const lifetime = searchLifetime.current;
+    if (!document || !opened || !search.trim() || !lifetime || lifetime.signal.aborted) return;
     const generation = ++searchGeneration.current;
+    const reading = { versionId: opened.versionId, source: readingSource };
+    const isCurrent = () => {
+      const current = useWorkspace.getState();
+      return searchGeneration.current === generation && samePdfReading(reading, { versionId: current.opened?.versionId, source: current.source });
+    };
     setSearching(true); setSearchStatus("Recherche dans le texte du document…");
     try {
-      for (let step = 1; step <= document.numPages; step++) {
-        if (searchGeneration.current !== generation) return;
-        const index = (opened.pageIndex + step) % document.numPages;
-        const page = await document.getPage(index + 1);
-        const native = await page.getTextContent();
-        let text = native.items.map(item => "str" in item ? item.str : "").join(" ");
-        // A mixed page can have a native paragraph and an OCR-only table.
-        // Searching just the native layer would miss the table's values.
-        if (provenanceReady) text += " " + (await api.blocks(opened.versionId, index, undefined, binding.revision)).blocks.map(block => block.raw_text ?? block.text).join(" ");
-        if (text.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())) { state.page(index); setSearchStatus(`Expression trouvée page ${index + 1}`); return; }
-      }
-      setSearchStatus("Expression absente du texte disponible de ce document. Le contenu des images sans texte extrait n'est pas lu.");
-    } catch (error) { setSearchStatus({ error }); }
-    finally { if (searchGeneration.current === generation) setSearching(false); }
+      const result = await findNextPdfPage({ pageCount: document.numPages, pageIndex: opened.pageIndex, expression: search,
+        signal: lifetime.signal, isCurrent,
+        readNative: async index => {
+          const page = await document.getPage(index + 1);
+          if (!isCurrent() || lifetime.signal.aborted) return "";
+          const native = await page.getTextContent();
+          return native.items.map(item => "str" in item ? item.str : "").join(" ");
+        },
+        readExtracted: provenanceReady ? async (index, signal) => (await api.blocks(opened.versionId, index, signal, binding.revision)).blocks.map(block => block.raw_text ?? block.text).join(" ") : undefined,
+      });
+      if (!isCurrent() || lifetime.signal.aborted || result.kind === "cancelled") return;
+      if (result.kind === "found") { state.page(result.pageIndex); setSearchStatus(`Expression trouvée page ${result.pageIndex + 1}`); }
+      else setSearchStatus("Expression absente du texte disponible de ce document. Le contenu des images sans texte extrait n'est pas lu.");
+    } catch (error) { if (isCurrent() && !lifetime.signal.aborted) setSearchStatus({ error }); }
+    finally { if (isCurrent() && !lifetime.signal.aborted) setSearching(false); }
   };
   const setPageScope = () => {
     if (opened && binding.actions.allowed) state.setScope({ kind: "pages", versionId: opened.versionId, pageStart: opened.pageIndex, pageEnd: opened.pageIndex }, `${metadata.data?.name ?? "Document"} · page ${opened.pageIndex + 1}`);
   };
   if (!opened) return <section className="viewer-panel"><PanelHeader title="Lecteur" /><PanelEmpty reason="not-started" icon={<FileText size={40} strokeWidth={1} aria-hidden="true" />} title="Aucun document ouvert" description="Ouvrez un document depuis la bibliothèque ou importez un PDF. Une source consultable s'ouvre ici à la page concernée ; le passage est surligné lorsque sa position est connue." /></section>;
-  const visible = visiblePageWindow(center, pageCount);
+  const visible = visiblePageWindow(opened.pageIndex, pageCount);
   const version = metadata.data?.versions.find(value => value.id === opened.versionId);
   return <section className="viewer-panel">
     <div className="viewer-title"><div><p className="eyebrow">Lecture de l'original</p><h2 title={metadata.data?.name}>{metadata.data?.name ?? (metadata.isError ? "Document sans informations" : "Chargement du document…")}</h2></div>{metadata.data && <DocumentTools key={metadata.data.id} document={metadata.data} />}<Button variant="ghost" size="icon" onClick={state.back} disabled={!state.previous} title="Revenir au passage précédent" aria-label="Revenir au passage précédent"><ArrowLeft size={16} /></Button></div>
@@ -254,7 +293,7 @@ export function PdfViewer() {
     <div className="pdf-scroll" ref={scroll} onScroll={onScroll} data-testid="pdf-scroll">
       {loadError ? <PanelError title="Lecture de l'original impossible" message={errorText(loadError.error)} onRetry={() => window.location.reload()} retryLabel="Recharger la page" /> : !document ? <PanelLoading label="Chargement de l'original PDF…" /> : <>
         <div aria-hidden="true" style={{ height: offsets[visible[0] ?? 0] }} />
-        {visible.map(index => <PdfPage key={`${opened.versionId}:${index}`} document={document} versionId={opened.versionId} pageIndex={index} width={width} zoom={state.zoom} rotation={state.rotation} source={state.source} search={search} provenanceReady={provenanceReady} onHeight={heightHandler.current} />)}
+        {visible.map(index => <PdfPage key={`${opened.versionId}:${index}`} document={document} versionId={opened.versionId} pageIndex={index} width={width} zoom={state.zoom} rotation={state.rotation} source={state.source} search={search} provenanceReady={provenanceReady} onHeight={heightHandler} />)}
         <div aria-hidden="true" style={{ height: (offsets[pageCount] ?? 0) - (offsets[(visible.at(-1) ?? -1) + 1] ?? 0) }} />
       </>}
     </div>

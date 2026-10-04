@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, type ReactNode, type Ref } from "react";
+import { useEffect, useLayoutEffect, useRef, type ReactNode, type Ref } from "react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -16,7 +16,7 @@ export function Sheet({ open, onClose, side, labelledBy, className, bodyRef, chi
   const dialog = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLElement | null>(null);
   const openRef = useRef(open);
-  openRef.current = open;
+  useLayoutEffect(() => { openRef.current = open; }, [open]);
   useEffect(() => {
     const element = dialog.current;
     if (!element) return;

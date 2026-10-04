@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useImperativeHandle, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronDown, ChevronRight, CircleAlert, Crosshair, FileText, Folder as FolderIcon, FolderPlus, ListChecks, Play, RefreshCw, Search, Upload } from "lucide-react";
 import { api } from "@/lib/api";
@@ -122,14 +122,11 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
     for (const input of inputs) input.addEventListener("cancel", cancelled);
     return () => { for (const input of inputs) input.removeEventListener("cancel", cancelled); };
   }, []);
-  useEffect(() => {
-    if (!controller) return;
-    controller.current = {
-      importFiles: () => chooseFiles("files"),
+  useImperativeHandle(controller, () => ({
+      importFiles: () => { setImportOrigin("files"); fileInput.current?.click(); },
       focusFilter: () => filterInput.current?.focus(),
       focusSelection: () => (selectionButton.current && !selectionButton.current.disabled ? selectionButton.current : filterInput.current)?.focus(),
-    };
-  });
+  }), []);
   const toggleFolder = (id: string) => setClosed(value => { const next = new Set(value); if (next.has(id)) next.delete(id); else next.add(id); return next; });
   const matches = (document: DocumentRecord) => !filter || document.relative_path.toLocaleLowerCase().includes(filter.toLocaleLowerCase()) || document.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase());
   const data: LibraryTree = tree.data ?? { folders: [], documents: [] };

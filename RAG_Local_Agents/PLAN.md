@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `3855b09` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 11:05 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `9f6c1bb` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 11:29 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -16,6 +16,15 @@ aucun second plan n'est créé. La revue éditoriale indépendante a confronté 
 ajouts récents aux preuves et les textes frontend concernés à leur consommateur.
 Les retouches de lisibilité sont appliquées ; les 58 tests documentaires, Ruff
 et les cinq SVG passent. Les procédures non exécutées restent non qualifiées.
+
+**Complément du 4 octobre à 11:29 UTC :** le checkpoint documentaire est publié
+sur `origin/main` par `9f6c1bb`. La revue indépendante C du lot cohérent de
+20 fichiers frontend est acceptée ; elle confirme les mêmes sources que les
+contrôles acquis, sans requalifier F01 ou la DoD. Le diagnostic final B est
+préparé, relu indépendamment par A et accepté par ROOT ; il précise l'assertion
+et les phases sans modifier les verdicts. B prépare maintenant sa liaison
+minimale au dernier arrêt courant `5278b261…`. Aucun nouveau prepare, démarrage
+ou PASS modal ; voir le [journal de cette itération](journal/2026-10-04.md#publication-documentaire-et-intégration-du-lot-frontend-relevé-1129-utc).
 
 | Action existante ou constat | État au relevé | Validation restante |
 |---|---|---|

@@ -8,12 +8,36 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
+import ts from "typescript";
 import { allRules, readSource, sourceFiles, stripCssComments, stripScriptComments, topLevelRules } from "./theme-support.ts";
 import { activeJobsSentence } from "../../src/lib/panel-state.ts";
 
 const code = (file: string) => stripScriptComments(readSource(file));
 const workspace = code("components/workspace.tsx");
 const components = sourceFiles(/\.tsx$/).filter(file => file.startsWith("components/"));
+
+/** Enfants JSX directs, indépendants de l'indentation et des flèches `=>` dans les attributs. */
+function panelGridChildren(source: string) {
+  const ast = ts.createSourceFile("workspace.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const layouts: ts.JsxElement[] = [];
+  const className = (opening: ts.JsxOpeningElement | ts.JsxSelfClosingElement) => {
+    const attribute = opening.attributes.properties.find((item): item is ts.JsxAttribute => ts.isJsxAttribute(item) && item.name.getText(ast) === "className");
+    return attribute?.initializer && ts.isStringLiteral(attribute.initializer) ? attribute.initializer.text : undefined;
+  };
+  const visit = (node: ts.Node) => {
+    if (ts.isJsxElement(node) && node.openingElement.tagName.getText(ast) === "div" && className(node.openingElement) === "workspace-layout") layouts.push(node);
+    ts.forEachChild(node, visit);
+  };
+  visit(ast);
+  assert.equal(layouts.length, 1, "une seule grille réelle à examiner");
+  return layouts[0].children.filter(child => !ts.isJsxText(child) || child.text.trim() !== "").map(child => {
+    assert.ok(ts.isJsxElement(child) || ts.isJsxSelfClosingElement(child), "un enfant conditionnel ou fragment exige un examen explicite des pistes");
+    const opening = ts.isJsxElement(child) ? child.openingElement : child;
+    const classes = className(opening);
+    assert.ok(classes, "chaque enfant direct possède sa classe de piste");
+    return { tag: opening.tagName.getText(ast), classes: classes.split(" ") };
+  });
+}
 
 test("named zones: aside Bibliothèque, main Lecteur, aside Analyse", () => {
   const library = code("components/library-panel.tsx");
@@ -85,9 +109,10 @@ test("media queries use Tailwind breakpoints only; the former 1100 and 760 px th
 test("each child of the panel grid has its own track, so a [hidden] child never shifts the reader", () => {
   // Le preflight Tailwind retire de la grille tout élément [hidden] (display: none !important) :
   // placé automatiquement, le lecteur glisserait alors dans la piste de 0 px d'un séparateur.
-  const layout = /<div className="workspace-layout"[^>]*>([\s\S]*?)<Sheet side=/.exec(workspace)?.[1] ?? "";
-  const children = [...layout.matchAll(/^ {8}<(?:div|main)\b[^>]*?className="([^"]+)"/gm)].map(([, classes]) => classes.split(" "));
+  const nodes = panelGridChildren(workspace);
+  const children = nodes.map(node => node.classes);
   assert.equal(children.length, 5, `${children.length} enfants directs lus dans la grille`);
+  assert.deepEqual(nodes.map(node => node.tag), ["div", "div", "main", "div", "div"]);
   const css = stripCssComments(readSource("app/globals.css"));
   const column = (name: string) => new RegExp(`^\\.${name} \\{[^}]*grid-column: (\\d+);`, "m").exec(css)?.[1];
   children.forEach((classes, index) => {
@@ -96,6 +121,24 @@ test("each child of the panel grid has its own track, so a [hidden] child never 
   assert.equal(children[2].includes("reader-slot"), true, "le lecteur occupe la troisième piste, la seule élastique");
   assert.match(css, /^\.workspace-layout > \* \{ grid-row: 1; \}/m);
   assert.match(workspace, /style=\{\{ gridTemplateColumns: panelGridColumns\(/);
+});
+
+test("panel-grid parser ignores indentation and nested decoys but rejects ambiguous direct children", () => {
+  const source = `function Grid() { return <div className="workspace-layout" ref={node => node}>
+<div className="library-column"><div className="nested-decoy" /></div>
+            <div className="resizer-library" />
+  <main className="reader-slot"><div className="nested-reader" /></main>
+<div className="resizer-analysis" />
+                  <div className="analysis-wrapper" />
+  </div>; }`;
+  const expected = ["library-column", "resizer-library", "reader-slot", "resizer-analysis", "analysis-wrapper"];
+  assert.deepEqual(panelGridChildren(source).map(node => node.classes.join(" ")), expected);
+  const nestedInsteadOfDirect = source.replace('<div className="analysis-wrapper" />', "");
+  assert.equal(panelGridChildren(nestedInsteadOfDirect).length, 4, "un descendant imbriqué ne remplace pas une piste manquante");
+  assert.throws(() => assert.equal(panelGridChildren(nestedInsteadOfDirect).length, 5), assert.AssertionError);
+  assert.throws(() => panelGridChildren(source.replace('<div className="analysis-wrapper" />', '{shown && <div className="analysis-wrapper" />}')), assert.AssertionError);
+  assert.throws(() => panelGridChildren(source.replace('<div className="analysis-wrapper" />', 'anonymous text<div className="analysis-wrapper" />')), assert.AssertionError);
+  assert.throws(() => panelGridChildren(source.replace('className="workspace-layout"', 'className="other-layout"')), assert.AssertionError);
 });
 
 /** Preuve, dans le code, de chaque touche annoncée par le menu Aide. */

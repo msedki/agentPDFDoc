@@ -21,7 +21,12 @@ const ACTIONS: readonly LauncherAction[] = ["open", "status", "logs", "doctor"];
 /** Lanceurs livrés : `rag.ps1` (PowerShell, Windows) et `rag.sh` (shell POSIX, Linux). */
 const DELIVERED = [["Windows", ".\\rag.ps1"], ["Linux", "./rag.sh"]] as const;
 /** Une ligne de commande affichable : sans caractère de contrôle ni espace de bord, longueur bornée. */
-const PRINTABLE = /^[^\u0000-\u001f\u007f]{1,200}$/;
+function printableCommand(value: string): boolean {
+  return value.length >= 1 && value.length <= 200 && [...value].every(character => {
+    const code = character.charCodeAt(0);
+    return code > 31 && code !== 127;
+  });
+}
 
 let current: LauncherCommands | null = null;
 const listeners = new Set<() => void>();
@@ -36,7 +41,7 @@ export function launcherCommandsFrom(health: unknown): LauncherCommands | null {
   const found: LauncherCommands = {};
   for (const action of ACTIONS) {
     const value = (announced as Record<string, unknown>)[action];
-    if (typeof value === "string" && PRINTABLE.test(value) && value.trim() === value && value.endsWith(` ${action}`)) found[action] = value;
+    if (typeof value === "string" && printableCommand(value) && value.trim() === value && value.endsWith(` ${action}`)) found[action] = value;
   }
   return Object.keys(found).length ? found : null;
 }

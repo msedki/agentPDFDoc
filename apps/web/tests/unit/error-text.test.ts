@@ -18,6 +18,24 @@ const LINUX = { open: "./rag.sh open", status: "./rag.sh status", logs: "./rag.s
 const COMPONENTS = ["components/ui/action-button.tsx", "components/analysis-panel.tsx", "components/workspace.tsx", "components/library-panel.tsx",
   "components/pdf-viewer.tsx", "components/jobs-panel.tsx", "components/document-tools.tsx", "components/scope-control.tsx"];
 
+function assertWorkspaceFailurePaths(workspace: string) {
+  // Le lien mal formé est gardé dès l'initialisation ; la résolution distante garde son échec au retour.
+  assert.match(workspace, /const \[failure, setFailure\] = useState<Failure \| null>\(\(\) => entry\.kind === "error" \? \{ error: entry\.error \} : null\);/);
+  assert.equal((workspace.match(/setFailure\(\{ error: failure \}\)/g) ?? []).length, 1);
+  assert.match(workspace, /\.catch\(failure => \{ if \(!disposed\) setFailure\(\{ error: failure \}\); \}\)/);
+}
+
+function assertInvalidLinkHealthPath(gate: string) {
+  assert.match(gate, /const \[invalidLink\] = useState\(\(\) => linkInvalidFromSearch\(window\.location\.search\)\);/);
+  assert.match(gate, /const \[state, setState\] = useState<GateState>\(\(\) => invalidLink \? \{ kind: "ended", reason: "link_invalid" \} : \{ kind: "checking" \}\);/);
+  const branch = /if \(invalidLink\) \{([\s\S]*?)\} else \{([\s\S]*?)\}/.exec(gate);
+  assert.ok(branch, "branche du lien refusé distincte de la vérification normale");
+  assert.match(branch[1], /window\.history\.replaceState\(null, "", window\.location\.pathname\);\s*void readLauncherCommands\(api\)\.then\(retryCommands\);/);
+  assert.doesNotMatch(branch[1], /\b(?:checkSession|check|setState)\(/, "un lien refusé ne vérifie pas la session et garde son motif initial");
+  assert.match(branch[2], /^\s*void check\(\);\s*$/);
+  assert.match(gate, /\}, \[check, retryCommands, invalidLink\]\);/);
+}
+
 test("no component freezes the text of a failure in a state", () => {
   const scripts = sourceFiles(/\.tsx?$/);
   const frozen = scripts.filter(file => /\bset\w+\(\s*errorMessage\(/.test(stripScriptComments(readSource(file))));
@@ -37,7 +55,7 @@ test("components keep the failure itself and compute its text when they render",
   assert.equal((analysis.match(/setError\(\{ error: failure \}\)/g) ?? []).length, 4);
   assert.match(analysis, /\{error && <p className="inline-error" role="alert"><CircleAlert size=\{14\} aria-hidden="true" \/><ErrorText error=\{error\.error\} \/><\/p>\}/);
   const workspace = code("components/workspace.tsx");
-  assert.equal((workspace.match(/setFailure\(\{ error: failure \}\)/g) ?? []).length, 2);
+  assertWorkspaceFailurePaths(workspace);
   assert.match(workspace, /error=\{failure \? errorText\(failure\.error\) : ""\}/);
   assert.match(workspace, /error: readiness\.isError \? errorText\(readiness\.error\) : undefined/);
   const library = code("components/library-panel.tsx");
@@ -48,6 +66,21 @@ test("components keep the failure itself and compute its text when they render",
   assert.match(code("components/jobs-panel.tsx"), /errorText\(jobs\.error\)/);
   assert.match(code("components/document-tools.tsx"), /setRemoveError\(\{ error: failure \}\)/);
   assert.match(code("components/scope-control.tsx"), /\$\{what\} : \$\{errorText\(error\)\}/);
+});
+
+test("workspace failure guard rejects a lost initial error or a discarded asynchronous error", () => {
+  const workspace = stripScriptComments(readSource("components/workspace.tsx"));
+  assertWorkspaceFailurePaths(workspace);
+  for (const [before, after] of [
+    ['entry.kind === "error" ? { error: entry.error } : null', "null"],
+    ["{ error: entry.error }", "{ error: errorText(entry.error) }"],
+    ["setFailure({ error: failure })", "setFailure(null)"],
+    ["if (!disposed) setFailure({ error: failure })", "setFailure({ error: failure })"],
+  ]) {
+    const mutant = workspace.replace(before, after);
+    assert.notEqual(mutant, workspace, `mutation exercée : ${before}`);
+    assert.throws(() => assertWorkspaceFailurePaths(mutant), assert.AssertionError);
+  }
 });
 
 test("a failure kept in a state is shown with the commands known when it renders", () => {
@@ -143,8 +176,24 @@ test("nothing is scheduled when the commands are already known", () => {
 test("the session gate reads /health on every screen, keeps asking while the commands are unknown, and stops on unmount", () => {
   const gate = stripScriptComments(readSource("components/session-gate.tsx"));
   assert.match(gate, /stopRetry\.current\?\.\(\);\s*stopRetry\.current = mounted\.current \? retryLauncherCommands\(\(\) => api\.health\(\)\) : null;/);
-  assert.match(gate, /setState\(await checkSession\(api\)\);\s*retryCommands\(\);/);
+  assert.match(gate, /checkSession\(api\)\.then\(nextState => \{\s*setState\(nextState\);\s*retryCommands\(\);/);
   // Lien refusé : aucune vérification de session, mais les commandes sont lues pour cet écran aussi.
-  assert.match(gate, /setState\(\{ kind: "ended", reason: "link_invalid" \}\);\s*void readLauncherCommands\(api\)\.then\(retryCommands\);/);
+  assertInvalidLinkHealthPath(gate);
   assert.match(gate, /return \(\) => \{ mounted\.current = false; window\.removeEventListener\(SESSION_ENDED_EVENT, ended\); stopRetry\.current\?\.\(\); \};/);
+});
+
+test("invalid-link guard rejects a missing initial reason, health reading, cleanup or a session check", () => {
+  const gate = stripScriptComments(readSource("components/session-gate.tsx"));
+  assertInvalidLinkHealthPath(gate);
+  for (const [before, after] of [
+    ['invalidLink ? { kind: "ended", reason: "link_invalid" }', 'invalidLink ? { kind: "ended", reason: "session_expired" }'],
+    ["void readLauncherCommands(api).then(retryCommands);", "void check();"],
+    ["void readLauncherCommands(api).then(retryCommands);", "void checkSession(api); void readLauncherCommands(api).then(retryCommands);"],
+    ['window.history.replaceState(null, "", window.location.pathname);', ""],
+    ["[check, retryCommands, invalidLink]", "[check, retryCommands]"],
+  ]) {
+    const mutant = gate.replace(before, after);
+    assert.notEqual(mutant, gate, `mutation exercée : ${before}`);
+    assert.throws(() => assertInvalidLinkHealthPath(mutant), assert.AssertionError);
+  }
 });

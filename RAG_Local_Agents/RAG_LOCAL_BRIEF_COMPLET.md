@@ -1628,7 +1628,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `3855b09` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 11:05 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `9f6c1bb` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 11:29 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1644,6 +1644,15 @@ aucun second plan n'est créé. La revue éditoriale indépendante a confronté 
 ajouts récents aux preuves et les textes frontend concernés à leur consommateur.
 Les retouches de lisibilité sont appliquées ; les 58 tests documentaires, Ruff
 et les cinq SVG passent. Les procédures non exécutées restent non qualifiées.
+
+**Complément du 4 octobre à 11:29 UTC :** le checkpoint documentaire est publié
+sur `origin/main` par `9f6c1bb`. La revue indépendante C du lot cohérent de
+20 fichiers frontend est acceptée ; elle confirme les mêmes sources que les
+contrôles acquis, sans requalifier F01 ou la DoD. Le diagnostic final B est
+préparé, relu indépendamment par A et accepté par ROOT ; il précise l'assertion
+et les phases sans modifier les verdicts. B prépare maintenant sa liaison
+minimale au dernier arrêt courant `5278b261…`. Aucun nouveau prepare, démarrage
+ou PASS modal ; voir le [journal de cette itération](journal/2026-10-04.md#publication-documentaire-et-intégration-du-lot-frontend-relevé-1129-utc).
 
 | Action existante ou constat | État au relevé | Validation restante |
 |---|---|---|
@@ -3143,7 +3152,26 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `3855b09` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 11:05 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `9f6c1bb` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 11:29 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R15S55 — diagnostic final de la sonde modale
+
+Sources officielles consultées par B le 4 octobre 2026 à 10:58–10:59 UTC,
+puis relues par ROOT à 11:27 UTC ; version applicable Playwright 1.63.0.
+
+| Référence officielle | Apport | Limite |
+| --- | --- | --- |
+| [Page.request/requestfailed](https://playwright.dev/docs/api/class-page#page-event-request-failed) et [Route.request](https://playwright.dev/docs/api/class-route#route-request) | Événements et route exposent une Request ; une réponse HTTP d'erreur n'est pas un échec de transport. | Une identité objet reconnue observe la tentative d'abort et l'événement ; elle ne démontre pas la cause exclusive de l'échec. |
+| [ConsoleMessage](https://playwright.dev/docs/api/class-consolemessage) | L'API documentée n'expose pas d'identité Request. | La cooccurrence page/phase ne prouve pas la cause d'une console. |
+| [Types officiels du tag v1.63.0](https://raw.githubusercontent.com/microsoft/playwright/v1.63.0/packages/playwright-core/types/types.d.ts), confrontés par B aux types installés | Signatures applicables aux dépendances verrouillées. | Ni navigation ni transport réels exécutés lors de cette consultation. |
+
+Sources internes : remise B `33a6aeda…`, diff et inverse exacts de la sonde,
+13 tests purs PASS et rouge conservé ; avis indépendant A `01fb56e1…` /
+`432bd3bf…`, lu et accepté ROOT. La projection ajoutée est bornée à 64 événements,
+sans texte, URL ou contenu réseau ; les erreurs console restent fatales.
+Le [journal](journal/2026-10-04.md#publication-documentaire-et-intégration-du-lot-frontend-relevé-1129-utc)
+identifie les preuves privées. Ce complément préparatoire ne résout pas la
+cause historique, ne qualifie pas F01 et n'autorise aucun démarrage.
 
 ## R15S54 — nouveaux 31 sur F01 et frontières de liaison modale
 

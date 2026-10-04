@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { FileText, X } from "lucide-react";
@@ -43,18 +43,40 @@ function useCompactLayout() {
  * questions, les flux en cours et le filtre de la bibliothèque sont conservés
  * quand la fenêtre franchit 1 024 px.
  */
-function usePanelNode() {
+function usePanelNode(slotRef: RefObject<HTMLDivElement | null>) {
   const [node, setNode] = useState<HTMLDivElement | null>(null);
-  useEffect(() => {
+  const attach = useCallback((slot: HTMLDivElement | null) => {
+    slotRef.current = slot;
+    if (!slot) return;
     const element = document.createElement("div");
     element.className = "panel-host";
     setNode(element);
-    return () => element.remove();
-  }, []);
-  return node;
+    return () => { slotRef.current = null; element.remove(); };
+  }, [slotRef]);
+  return [node, attach] as const;
 }
 
 function nextFrame(action: () => void) { requestAnimationFrame(() => requestAnimationFrame(action)); }
+
+type WorkspaceEntry = { kind: "none" } | { kind: "citation"; queryId: string; sourceId: string }
+  | { kind: "document"; documentId: string; versionId: string; pageIndex: number } | { kind: "error"; error: unknown };
+
+/** Le lien initial est lu une fois ; une citation invalide ne se rabat pas sur un document courant. */
+function readWorkspaceEntry(search: string): WorkspaceEntry {
+  try {
+    const params = new URLSearchParams(search);
+    const citation = citationLinkIds(params);
+    if (citation) return { kind: "citation", ...citation };
+    const documentId = params.get("document"); const versionId = params.get("version"); const page = Number(params.get("page") ?? "1");
+    if (documentId && versionId && /^[\w-]{1,128}$/.test(documentId) && /^[\w-]{1,128}$/.test(versionId) && Number.isInteger(page) && page >= 1) return { kind: "document", documentId, versionId, pageIndex: page - 1 };
+    return { kind: "none" };
+  } catch (error) { return { kind: "error", error }; }
+}
+
+type SheetContext = { compact: boolean; documentId?: string; versionId?: string; source: Source | null };
+function shouldCloseSheet(previous: SheetContext, next: SheetContext): boolean {
+  return !next.compact || previous.documentId !== next.documentId || previous.versionId !== next.versionId || previous.source !== next.source;
+}
 
 function WorkspaceBody() {
   const state = useWorkspace();
@@ -64,8 +86,16 @@ function WorkspaceBody() {
   const tree = useQuery({ queryKey: ["tree"], queryFn: ({ signal }) => api.tree(signal), staleTime: 3000 });
   const [jobsVisible, setJobsVisible] = useState(false);
   const [sheet, setSheet] = useState<"library" | "analysis" | null>(null);
+  const sheetContext = { compact, documentId: state.opened?.documentId, versionId: state.opened?.versionId, source: state.source };
+  const [previousSheetContext, setPreviousSheetContext] = useState(sheetContext);
+  if (previousSheetContext.compact !== compact || previousSheetContext.documentId !== sheetContext.documentId || previousSheetContext.versionId !== sheetContext.versionId || previousSheetContext.source !== state.source) {
+    setPreviousSheetContext(sheetContext);
+    if (shouldCloseSheet(previousSheetContext, sheetContext)) setSheet(null);
+  }
+  // Workspace ne monte qu'après la session valide (page.tsx). Aucun accès navigateur côté export.
+  const [entry] = useState(() => readWorkspaceEntry(typeof window === "undefined" ? "" : window.location.search));
   // Échec d'ouverture d'une citation ou d'un lien : gardé tel quel, son texte se calcule au rendu.
-  const [failure, setFailure] = useState<Failure | null>(null);
+  const [failure, setFailure] = useState<Failure | null>(() => entry.kind === "error" ? { error: entry.error } : null);
   const errorText = useErrorText();
   const layout = useRef<HTMLDivElement>(null);
   const librarySlot = useRef<HTMLDivElement>(null);
@@ -73,27 +103,23 @@ function WorkspaceBody() {
   const librarySheetBody = useRef<HTMLDivElement>(null);
   const analysisSheetBody = useRef<HTMLDivElement>(null);
   const libraryController = useRef<LibraryController | null>(null);
-  const libraryNode = usePanelNode();
-  const analysisNode = usePanelNode();
+  const [libraryNode, attachLibrary] = usePanelNode(librarySlot);
+  const [analysisNode, attachAnalysis] = usePanelNode(analysisSlot);
   const activeJobs = jobs.data ? jobs.data.jobs.filter(job => isActiveJobState(job.state ?? job.status)).length : null;
+  const open = state.open;
 
   useEffect(() => {
     restorePanelPreferences();
     let disposed = false;
-    const params = new URLSearchParams(window.location.search);
-    const documentId = params.get("document"); const versionId = params.get("version"); const page = Number(params.get("page") ?? "1");
-    try {
-      const citation = citationLinkIds(params);
-      if (citation) {
-        void api.citation(citation.queryId, citation.sourceId).then(source => {
-          const location = registeredCitationLocation(source, citation.queryId, citation.sourceId);
-          if (!disposed) state.open(location, source);
-        }).catch(failure => { if (!disposed) setFailure({ error: failure }); });
-      } else if (documentId && versionId && /^[\w-]{1,128}$/.test(documentId) && /^[\w-]{1,128}$/.test(versionId) && Number.isInteger(page) && page >= 1) state.open({ documentId, versionId, pageIndex: page - 1 });
-    } catch (failure) { setFailure({ error: failure }); }
+    if (entry.kind === "citation") {
+      void api.citation(entry.queryId, entry.sourceId).then(source => {
+        const location = registeredCitationLocation(source, entry.queryId, entry.sourceId);
+        if (!disposed) open(location, source);
+      }).catch(failure => { if (!disposed) setFailure({ error: failure }); });
+    } else if (entry.kind === "document") open({ documentId: entry.documentId, versionId: entry.versionId, pageIndex: entry.pageIndex });
     const unsubscribe = useWorkspace.subscribe((next, previous) => { if (next.libraryMode !== previous.libraryMode || next.analysisMode !== previous.analysisMode || next.panelWidths !== previous.panelWidths) savePanelPreferences(); });
     return () => { disposed = true; unsubscribe(); };
-  }, []);
+  }, [entry, open]);
   useEffect(() => {
     if (!state.opened) return;
     const params = new URLSearchParams({ document: state.opened.documentId, version: state.opened.versionId, page: String(state.opened.pageIndex + 1) });
@@ -107,9 +133,6 @@ function WorkspaceBody() {
     place(libraryNode, compact ? librarySheetBody.current : librarySlot.current);
     place(analysisNode, compact ? analysisSheetBody.current : analysisSlot.current);
   }, [compact, libraryNode, analysisNode]);
-  useEffect(() => { if (!compact) setSheet(null); }, [compact]);
-  // Sous 1 024 px, ouvrir un document ou une source ferme le panneau latéral pour montrer le lecteur.
-  useEffect(() => { if (compact) setSheet(null); }, [state.opened?.documentId, state.opened?.versionId, state.source]);
 
   const toggleLibrary = () => {
     if (compact) setSheet(current => current === "library" ? null : "library");
@@ -196,12 +219,12 @@ function WorkspaceBody() {
             onImport={() => { expandLibrary(); libraryController.current?.importFiles(); }}
             onFilter={() => expandLibrary(controller => controller.focusFilter())}
             onSelection={() => expandLibrary(controller => controller.focusSelection())} />}
-          <div className="panel-wrapper library-wrapper" ref={librarySlot} hidden={!libraryExpanded} />
+          <div className="panel-wrapper library-wrapper" ref={attachLibrary} hidden={!libraryExpanded} />
         </div>
         <div className="panel-resizer resizer-library" hidden={!libraryExpanded} role="separator" aria-label="Largeur de la bibliothèque" aria-orientation="vertical" aria-valuemin={PANEL_WIDTH_MIN} aria-valuemax={PANEL_WIDTH_MAX} aria-valuenow={state.panelWidths[0]} tabIndex={libraryExpanded ? 0 : -1} onPointerDown={event => resize(0, event.currentTarget, event.pointerId)} onKeyDown={event => { if (["ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); adjustKeyboard(0, event.key === "ArrowLeft" ? -1 : 1); } }} />
         <main id="lecteur" className="reader-slot" aria-label="Lecteur" tabIndex={-1}><PdfViewer /></main>
         <div className="panel-resizer resizer-analysis" hidden={!analysisExpanded} role="separator" aria-label="Largeur de l'analyse" aria-orientation="vertical" aria-valuemin={PANEL_WIDTH_MIN} aria-valuemax={PANEL_WIDTH_MAX} aria-valuenow={state.panelWidths[1]} tabIndex={analysisExpanded ? 0 : -1} onPointerDown={event => resize(1, event.currentTarget, event.pointerId)} onKeyDown={event => { if (["ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); adjustKeyboard(1, event.key === "ArrowLeft" ? 1 : -1); } }} />
-        <div className="panel-wrapper analysis-wrapper" ref={analysisSlot} hidden={!analysisExpanded} />
+          <div className="panel-wrapper analysis-wrapper" ref={attachAnalysis} hidden={!analysisExpanded} />
       </div>
       <Sheet side="left" open={compact && sheet === "library"} onClose={() => setSheet(null)} labelledBy="library-heading" bodyRef={librarySheetBody} className="sheet-library" />
       <Sheet side="right" open={compact && sheet === "analysis"} onClose={() => setSheet(null)} labelledBy="analysis-heading" bodyRef={analysisSheetBody} className="sheet-analysis" />

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 
 /**
  * Ferme un menu non modal sur Échap ou sur un clic hors de son conteneur.
@@ -7,7 +7,7 @@ import { useEffect, useRef, type RefObject } from "react";
  */
 export function useDismiss(open: boolean, container: RefObject<HTMLElement | null>, onDismiss: (reason: "escape" | "outside") => void) {
   const callback = useRef(onDismiss);
-  callback.current = onDismiss;
+  useLayoutEffect(() => { callback.current = onDismiss; }, [onDismiss]);
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => { if (event.key === "Escape" && !event.defaultPrevented) { event.preventDefault(); callback.current("escape"); } };

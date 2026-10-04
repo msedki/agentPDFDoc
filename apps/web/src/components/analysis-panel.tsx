@@ -65,8 +65,6 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
   // Échec gardé tel quel : son texte se calcule au rendu, avec les commandes du lanceur connues à cet instant.
   const [error, setError] = useState<Failure | null>(null);
   const streams = useRef(new Map<string, () => void>());
-  const queriesRef = useRef(queries);
-  queriesRef.current = queries;
   const conversation = useRef<string | null>(null);
   const followup = useRef<string | undefined>(undefined);
   const focus = useRef<{ query_id: string; source_id: string } | undefined>(undefined);
@@ -104,7 +102,8 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
   };
   useEffect(() => () => { for (const close of streams.current.values()) close(); }, []);
   useEffect(() => { conversation.current = null; followup.current = undefined; focus.current = undefined; }, [scopeFingerprint]);
-  useEffect(() => { if (history.current) history.current.scrollTop = history.current.scrollHeight; }, [queries.at(-1)?.text.length, queries.length]);
+  const lastAnswerLength = queries.at(-1)?.text.length;
+  useEffect(() => { if (history.current) history.current.scrollTop = history.current.scrollHeight; }, [lastAnswerLength, queries.length]);
 
   const submission = useMutation({ mutationFn: async ({ text, scope, scopeLabel, mode }: { text: string; scope: Scope; scopeLabel: string; mode: string }) => {
     const created = await api.query(text, scope, mode, conversation.current, followup.current, focus.current);
@@ -138,7 +137,7 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
     finally { setCancelBusy(false); }
   };
   const openSource = (source: Source, queryId?: string, sourceScope?: Scope) => {
-    const fromQuery = queriesRef.current.find(query => query.id === queryId);
+    const fromQuery = queries.find(query => query.id === queryId);
     const usedScope = fromQuery?.scope ?? sourceScope ?? (queryId && source.query_id === queryId ? searchScope?.scope : undefined);
     focus.current = queryId && source.source_id && usedScope && JSON.stringify(usedScope) === scopeFingerprint ? { query_id: queryId, source_id: source.source_id } : undefined;
     void onSource(source, queryId).catch(failure => setError({ error: failure }));
