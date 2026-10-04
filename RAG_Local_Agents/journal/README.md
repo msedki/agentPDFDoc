@@ -1,6 +1,6 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `45e8482` et entrées datées · **Mis à jour :** 2026-10-03 22:54 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `555382f` et entrées datées · **Mis à jour :** 2026-10-04 00:18 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
@@ -105,9 +105,43 @@ B confirme les 97 absences et la conservation ; nouvelle copie
 `owned-launcher` conforme ROOT/C et vierge, V5 en correction et test.
 Aucune qualification anticipée ni nouvelle authentification démarrée.
 
+Reprise à 23:10 : [gel V5 et départ de la recette](2026-10-03.md#gel-v5-et-départ-de-la-recette-relevé-2310-utc).
+Suivi publié dans `555382f`, 105 tests purs et revue indépendante conformes ;
+session native `46805` en cours sur copie neuve après contrôle de l'hôte.
+Aucun verdict terminal, miroir F04 ou clôture globale encore acquis.
+
+Terminal à 23:23 : [preuves des 31 cas](2026-10-03.md#terminal-des-31-cas-relevé-2323-utc).
+Sortie 0 observée, 31 cas stricts, attestations C/A et 118 absences
+terminales conformes ; revues indépendantes en cours. Six nouvelles
+captures vues par ROOT, peinture à 300 % non qualifiée. Miroir et
+onze F04 toujours non exécutés.
+
+Miroir à 23:37 : [admissibilité des 31 et refus préparatoire F04](2026-10-03.md#admissibilité-des-31-et-refus-préparatoire-f04-relevé-2337-utc).
+Revues B/C/ROOT et validation finale A favorables dans leur portée ; miroir
+703 fichiers créé. Liste des parents Python refusée avant chmod/native,
+six attendus contre sept réels ; préparation D en correction indépendante.
+Diagnostic modale borné avant capture, sans défaut produit établi.
+
+Atelier utilisateur à 23:56 : [redémarrage GPU et Chromium](2026-10-03.md#redémarrage-gpu-et-ouverture-dans-chromium-relevé-2356-utc).
+Export qualifié installé, ancien conservé ; nouvelle instance GPU prête,
+comptes de données identiques, ouverture Chromium exécutée sans divulguer
+le lien de session. Recettes lourdes non lancées pendant l'essai utilisateur,
+anciennes clearances inapplicables à la nouvelle identité ; DoD ouverte.
+
+Reprise du 4 octobre à 00:12 : [arrêt de l'instance utilisateur](2026-10-04.md#arrêt-de-linstance-utilisateur-et-reprise-relevé-0012-utc).
+Arrêt demandé exécuté, sortie 0 et quatre absences indépendamment vérifiées.
+L'hôte reste arrêté ; revue du préparateur D et du diagnostic modal en cours,
+porte QA à adapter sans faux état de disponibilité. Aucun natif F04 nouveau.
+
+Complément à 00:18 : [préparateur D et diagnostic modal](2026-10-04.md#préparateur-d-et-diagnostic-modal-relevé-0018-utc).
+Préparateur relu par A puis réellement exécuté, sortie 0 ; miroir postpréparation
+confirmé intact par A. Diagnostic modal relu ROOT/B sur 38 tests purs, sans sonde native.
+Nouvelle porte QA E en préparation, anciennes attestations intactes.
+
 | Date | Travail effectué |
 |---|---|
 | [30 septembre 2026](2026-09-30.md) | Inspection (commencée le 29), réalisation des lots R0 à R22 : runtime Windows, ingestion et OCR, session locale, interface, corpus réel, évaluation W013 et W014, distribution |
 | [1er octobre 2026](2026-10-01.md) | Poste Windows (00:11–12:18) : disponibilité sur base neuve, réextraction et mesures B et C (W015), EV-3 interrompu faute de mémoire, distribution DIST-03 à DIST-08, premier kit fabriqué dont l'installation d'essai s'est arrêtée au contrôle d'intégrité, R2 vérifié, D09.3 et D09.4, qualification sur instances isolées (D01 à D04, D06, D08), W016, D10.3 et D10.4, migration Qdrant W017 ; poste Linux aarch64 (depuis 13:20) : inspection en lecture seule, W018, environnement Python et artefacts Linux, corrections de l'inspection (lots J), évaluation sur le corpus réel (J10), rondes 4 et 5, étude et réalisation de l'accélération GPU (W024, W025, J11) |
 | [2 octobre 2026](2026-10-02.md) | PowerShell 7.4.15 en outil de validation de syntaxe ; corrections de la revue J11 et commit `4d8ba68` ; essai GPU réel J11.8 ; génération et jugement J10 ; documentation J11.9 (`c32b759`) ; D01 Linux sur clone neuf ; qualification Linux J8 (lots L0 à L10), corrections (`419b526`), rejeux R1 à R7, finitions (`36824e2`) ; artefacts lourds et fichiers temporaires déplacés sur la carte microSD ; essai de l'atelier par l'utilisateur sous Firefox 136 et décision W027 (version moderne de PDF.js) ; audit D10/D11 et intégration documentaire du lot J9 ; W029 : ingestion, API réelle et diagnostic du scan à 90° ; R14-1 : propriétaires, spécifications et déploiement ; R15-1 : disponibilité des services, inventaire et recette du rendu |
 | [3 octobre 2026](2026-10-03.md) | Pilote D03 relu ; correctifs frontend avec 277 unités, typage, lint/build PASS. QA0732 : 31 stricts ; RB1032 : 5 stricts, modale dédiée FAILED puis V2 préparée. F04 : 11 stricts/vraie génération ; réserve de carte corrompue, oracle préparé ; revue du pilote B39 détecte un refus tardif ignoré, delta ROOT45 tests purs au vert et relecture préparatoire. Q05/run1315 FAILED malgré trois ancres visibles à 300 % dans deux captures ROOT/C ; arrêt20tuples/conservation conformes bornés, diagnostic des phases requis. R23 Qwen2B Q4_K_M NOT_STARTED. Rouges et incident0510 conservés ; D06/Windows/D07 et chantier ouverts |
+| [4 octobre 2026](2026-10-04.md) | Fin de l'essai utilisateur dans Chromium et arrêt explicite de l'instance GPU ; données conservées, quatre absences vérifiées indépendamment. Reprise F04 et diagnostic modal : préparations privées en revue, aucune nouvelle recette native ni clôture globale |

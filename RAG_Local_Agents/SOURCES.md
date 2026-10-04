@@ -1,6 +1,26 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `45e8482` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 22:49 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `555382f` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 00:18 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R15S36 — préparation QA et continuité de l'hôte arrêté
+
+Sources internes lues le 4 octobre 2026 entre 00:09 et 00:18 UTC, sous la
+racine privée QA R15 ; aucun nouveau contrat externe ou téléchargement.
+Les contrats PSF/psutil/Linux déjà consignés R15S24–R15S30 restent les références
+des primitives. Cette lecture ne reconstitue ni l'état d'un ancien processus,
+ni un résultat natif absent.
+
+| Source et version examinée | Apport | Limite |
+|---|---|---|
+| `frontend-lifecycle/execution-source249C/artifact_policy.py`, SHA `652b9def…` ; variante D, SHA `8544bd8c…`, `PYTHON_PARENTS` et `sources` ; gel réel source249 et E05 | Liste C de six parents incompatible avec les sept parents des 86 Python du gel ; ajout fermé `tests/unit` dans D, inverses et refus conservés | Défaut du préparateur QA, pas une correction produit ou une validation des onze scénarios |
+| D `prepare_source_dirs.py`, `controller.py`, tests et livraison `b2618f64…`, relus ROOT/A ; reçu réel `a69e65f0…` | Sept dossiers du miroir explicitement lié passent de 700 à 500 après vérifications ; aucun cache, build ou démarrage | Les pures sur fixtures et la lecture du code ne remplacent pas le contrôle postpréparation du miroir, effectué séparément par A |
+| `frontend-focus-fix/modal-probe-oracle-diagnosticC/probe.mjs`, SHA `a408c4fc…`, diagnostic, tests, inverse et livraison `3e2738c3…`, relus ROOT/B | 26 oracles constants, projection fermée et primaire/cleanup distincts ; reconstruction complète du callee original `09686d5a…` | 38 tests sur doubles explicites, sans navigateur ; dernière assignation d'oracle, pas cause du FAILED historique |
+| `host_clearance.py`, `collect` 41–65 ; `frontend-pilot/pilot.py`, `gate_proofs` 83–106 ; F04 D `clearance_check` 176–195 et `checkpoint` 542–546 | La porte historique lie corpus et HOST74 en fonctionnement ; elle ne peut attester HOST81cb arrêté. Motive une variante QA distincte avec corpus historique conservé et état actuel honnête | Aucune nouvelle clearance ou recette délivrée par cette analyse ; ne pas modifier les faits historiques ou fabriquer une disponibilité |
+| Reçu d'arrêt ROOT `user-GPU-stop-result-20261004.json`, SHA `c7e89046…` ; preuve indépendante A `bfad6abc…` | Stop demandé, sortie 0 et quatre tuples strictement absents à leurs dates ; l'hôte doit rester arrêté | Preuve datée et bornée à quatre identités ; comptes/conservation lus par ROOT, sans deuxième SQL par A ; ni absence exhaustive future ni preuve DoD |
+
+Les preuves et dates d'exécution sont au [journal du 4 octobre](journal/2026-10-04.md).
+Le registre conserve les sources ; il ne remplace ni le suivi canonique, ni les
+rapports privés, ni leurs garde-fous d'exploitation.
 
 **Révision documentaire :** 29 septembre 2026, complétée par des sections datées ; relevé historique des ajouts au 2 octobre 2026 : sources de l'accélération GPU examinées le 1er octobre (W024, W025), puis sources et outils du chantier Linux consignés après l'audit D10/D11 (LNX21, LNX22, J8S01, J8S02, TOOL01 à TOOL03), et consultation actuelle des releases et avis de sécurité de trois dépendances Linux (D11S01–D11S08). Les décisions de ce dossier restent des choix de conception, non des résultats certifiés par les éditeurs. Les versions de production doivent être verrouillées séparément ; une documentation sur `main`/`master` ne constitue pas un verrou logiciel. Les consultations du 3 octobre (frontend, psutil, Linux, PSF, WHATWG, CSSWG et Node.js) figurent dans leurs sections datées ci-dessous.
 

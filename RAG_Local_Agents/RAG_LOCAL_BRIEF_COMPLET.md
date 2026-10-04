@@ -1612,7 +1612,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `45e8482` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-03 22:54 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `555382f` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 00:18 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1620,7 +1620,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
-## R14/R15 — relecture documentaire et reprise QA, relevé du 3 octobre à 21:26 UTC
+## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 00:18 UTC
 
 La nouvelle demande documentaire reprend les exigences existantes de R14/R15.
 L'espace stabilisé reste dans `docs/`, le suivi vivant dans `RAG_Local_Agents/` ;
@@ -1631,9 +1631,9 @@ et les cinq SVG passent. Les procédures non exécutées restent non qualifiées
 
 | Action existante ou constat | État au relevé | Validation restante |
 |---|---|---|
-| RB5 et sonde modale | `run-20261003T154834Z` : cinq cas stricts PASS sans retry, sonde FAILED à `nominal_1366`. Revue terminale indépendante B reçue et lue : quatorze captures examinées, 34 identités enregistrées strictement absentes, base et 96 fichiers immuables conservés. L'assertion refusée reste inconnue | Établir l'assertion modale refusée sans lire la trace sensible ni neutraliser un contrôle. Ces cinq PASS et les captures ne qualifient pas la modale |
+| RB5 et sonde modale | `run-20261003T154834Z` : cinq cas stricts PASS sans retry, sonde FAILED à `nominal_1366`. Revue B : quatorze captures, 34 absences, base et 96 fichiers conservés. Diagnostic borné avant la capture nominale, assertion précise inconnue. Instrumentation C relue ROOT/B : 16 pièces et 11 pins exacts, inverse complet vers ROOTv3, 38 tests purs PASS ; protocole diagnostique fermé, primaire et cleanup distincts | Préparer le binding explicite d'une future sonde sur des sources actuelles et sa porte HOST arrêté. Aucun nouveau résultat modal ni défaut produit acquis ; doubles et placeholders ne qualifient pas le navigateur ou le rendu |
 | R15-3-Q05 | Instrumentation et enveloppe relues favorablement sur preuves préparatoires. Le run1315 reste FAILED ; aucun nouveau parcours de peinture | Nouveau dernier arrêt indépendant et sources applicables requis avant recette. La correction frontend E03 invalide la comparaison avec les sources ROOT de l'ancien gel |
-| R15-3-F04 | Oracle publié dans `d1ab706` ; bindings des 249 sources relus sur 28 témoins purs. Recette `strict-final`, session `81325`, sortie 1 : quatre groupes qualifiés par le pilote et sept tests de géométrie stricts réussis, puis refus du lanceur dans le census. Arrêt ciblé, nouveau contrôle de schéma, 97 absences finales, restauration et verrous conformes ; recette refusée et préservée | Corriger la garde du lanceur pour les seuls argv figés de collecte et des sept groupes, avec mêmes exigences de Popen et d'absence. V5 en préparation ; nouvelle copie seule autorisée. Recette admissible des 31 cas toujours requise avant le miroir et les onze F04 |
+| R15-3-F04 | Prérequis 31 admissible après B, rendu C/ROOT et validation finale A : sortie 0, 118 absences fraîches, conservation bornée. Miroir physique de 703 fichiers créé. Préparateur C refusé avant permissions : six parents au lieu de sept. D relu ROOT/A, 44 tests purs puis 16 ciblés PASS ; préparation réelle session `88007` sortie 0. A confirme ensuite 703 fichiers intacts, sept parents scellés, 86 Python conformes, sources/export inchangés et miroir sans données/auth/cache | Variante QA E en préparation pour remplacer uniquement la porte HOST74 en fonctionnement par conservation historique et arrêt actuel explicitement liés. Revue indépendante et tests discriminants requis avant natif ; aucun nouveau F04 ou génération sur le miroir. Peinture, rotations exhaustives et DoD globale ouvertes |
 | R15-3-E03, incohérence rédactionnelle | VALIDÉ et publié dans `f8cd964` sur `origin/main` à 18:25 UTC : sept tests ciblés, 281 unités sans skip, typage/lint/build isolé conformes. V5 sortie 0, trois contextes UI et captures relus ; neuf processus absents, permissions et conservation vérifiées indépendamment. V1/V2 restent FAILED, cause V2 inconnue ; V4 conserve son wrapper EXIT1 | Aucune correction E03 restante dans cette portée. Session/API doublées : ni publication native, ni peinture PDF, ni recette RAG de bout en bout ; voir le journal pour les preuves |
 | R15-3-E04, incohérence rédactionnelle / frontend | VALIDÉ et publié dans `19f483f` sur `origin/main` à 20:09 UTC : aide vers les actions du Suivi et la disponibilité réelle, inverse de la seule phrase byte-exact ; calculs et gates conservés. Rouge préservé, 20 tests frontend ciblés puis 288 complets sans skip conformes ; typage, lint de 118 fichiers et build isolé sortie 0. Huit contextes UI et captures neuves relus par ROOT/C/A ; conservation et quinze absences actuelles vérifiées indépendamment par B | Aucun correctif E04 restant dans cette portée. API/session doublées : ni publication backend, ni peinture PDF, ni recette RAG native ou DoD globale ; aucun défaut visuel bloquant dans les huit captures |
 | R15-3-E05, amélioration rédactionnelle / API affichée dans le frontend | VALIDÉ et publié dans `19f483f` sur `origin/main` à 20:09 UTC : traduction fixe après S41, contrat conservé. Rouge ASGI préservé, 16 tests ciblés et 104 de régression PASS ; Ruff et mypy Linux/cible win32 conformes, revue B favorable. Référence API §3 réalignée ; vrai client frontend testé avec fetch doublé. Deux aides 422 lisibles aux deux tailles sur le nouvel export, revues ROOT/C/A et fermeture vérifiée B | Aucun correctif E05 restant dans cette portée. Le navigateur reçoit des 422 doublés sur une petite sélection : le refus de 1 001 éléments est exercé séparément par ASGI isolé avec services doublés, pas par un parcours natif |
@@ -1758,6 +1758,50 @@ dans une nouvelle preuve scellée, sans promouvoir l'échec. Copie
 `owned-launcher` préparée par C et contrôlée par ROOT ; ses 971 références
 sont exactes, état vierge. V5 reste en correction et test, aucun GO natif.
 [Preuve et copie suivante](journal/2026-10-03.md#validation-indépendante-et-copie-suivante-relevé-2254-utc).
+
+**Reprise à 23:10 UTC :** suivi publié dans `555382f`. V5 contrôlée par
+ROOT et B : 105 tests purs, 57 pièces et 62 références conformes, garde
+limitée aux commandes figées et aux mêmes identités. Recette native
+`46805` en cours sur la copie contrôlée, après vérification de l'hôte à
+23:08:02 UTC ; un seul traitement lourd, aucun build ni reprise des tâches
+en pause. Qualification terminale et revues encore attendues avant F04.
+[Gel V5 et départ](journal/2026-10-03.md#gel-v5-et-départ-de-la-recette-relevé-2310-utc).
+
+**Terminal des 31 à 23:23 UTC :** sortie 0 observée, résultats stricts et
+attestations C/A conformes. Vérifications indépendantes en cours ; miroir et
+onze F04 toujours non exécutés. Les limites du rendu ne sont pas levées par
+les assertions techniques. [Preuves terminales](journal/2026-10-03.md#terminal-des-31-cas-relevé-2323-utc).
+
+**Miroir F04 à 23:37 UTC :** prérequis des 31 désormais
+admissible ; copie créée, puis refus de la politique des parents Python,
+avant tout chmod ou démarrage. La cause est prouvée sur les sources réelles,
+pas déduite du plan. Correction QA privée en cours ; garde, refus et données
+préservés. [Miroir et refus](journal/2026-10-03.md#admissibilité-des-31-et-refus-préparatoire-f04-relevé-2337-utc).
+
+**Demande prioritaire, atelier GPU à 23:56 UTC :** instance de l'utilisateur
+redémarrée sur demande explicite, frontend qualifié E04 installé et atelier
+rouvert dans Chromium. Profil et racine des données conservés, nouveau runtime
+`81cb1450…`, GPU déclaré et disponibilités vérifiées ; pas de génération de
+qualification. Les recettes lourdes ne sont pas lancées pendant son essai.
+Les anciennes clearances liées à `74acf854…` ne sont plus applicables ; toute
+future porte F04 devra vérifier la nouvelle identité et la continuité des données,
+sans assouplir ses contrôles. [Relance réelle](journal/2026-10-03.md#redémarrage-gpu-et-ouverture-dans-chromium-relevé-2356-utc).
+
+**Arrêt demandé et reprise à 00:12 UTC, le 4 octobre :** instance utilisateur
+arrêtée proprement à 00:03:21 UTC, sortie 0 ; quatre identités absentes,
+contre-vérification indépendante A à 00:10:43 UTC. Données non réinitialisées
+ni déplacées ; six documents, six versions, dix jobs et 92 requêtes enregistrées.
+L'hôte reste arrêté. D et diagnostic modal sont des préparations privées,
+pas des recettes natives ; nouvelle porte de conservation en diagnostic,
+sans recyclage des attestations de l'ancien owner ni redémarrage implicite.
+[Arrêt et reprise](journal/2026-10-04.md#arrêt-de-linstance-utilisateur-et-reprise-relevé-0012-utc).
+
+**Préparations contrôlées à 00:18 UTC :** avis indépendant A favorable sur D,
+préparateur réellement exécuté avec sortie 0 ; avis indépendant B favorable
+sur le diagnostic modal, 38 tests purs relus et pins vérifiés par ROOT.
+L'ancien collecteur ne pouvant attester l'hôte arrêté, E est une nouvelle
+préparation privée, pas une modification du produit ou des reçus historiques.
+[Contrôles et limites](journal/2026-10-04.md#préparateur-d-et-diagnostic-modal-relevé-0018-utc).
 
 ## R15-3 — reprise des contrôles QA, relevé du 3 octobre à 15:19 UTC
 
@@ -3052,7 +3096,27 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `45e8482` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-03 22:49 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `555382f` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 00:18 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R15S36 — préparation QA et continuité de l'hôte arrêté
+
+Sources internes lues le 4 octobre 2026 entre 00:09 et 00:18 UTC, sous la
+racine privée QA R15 ; aucun nouveau contrat externe ou téléchargement.
+Les contrats PSF/psutil/Linux déjà consignés R15S24–R15S30 restent les références
+des primitives. Cette lecture ne reconstitue ni l'état d'un ancien processus,
+ni un résultat natif absent.
+
+| Source et version examinée | Apport | Limite |
+|---|---|---|
+| `frontend-lifecycle/execution-source249C/artifact_policy.py`, SHA `652b9def…` ; variante D, SHA `8544bd8c…`, `PYTHON_PARENTS` et `sources` ; gel réel source249 et E05 | Liste C de six parents incompatible avec les sept parents des 86 Python du gel ; ajout fermé `tests/unit` dans D, inverses et refus conservés | Défaut du préparateur QA, pas une correction produit ou une validation des onze scénarios |
+| D `prepare_source_dirs.py`, `controller.py`, tests et livraison `b2618f64…`, relus ROOT/A ; reçu réel `a69e65f0…` | Sept dossiers du miroir explicitement lié passent de 700 à 500 après vérifications ; aucun cache, build ou démarrage | Les pures sur fixtures et la lecture du code ne remplacent pas le contrôle postpréparation du miroir, effectué séparément par A |
+| `frontend-focus-fix/modal-probe-oracle-diagnosticC/probe.mjs`, SHA `a408c4fc…`, diagnostic, tests, inverse et livraison `3e2738c3…`, relus ROOT/B | 26 oracles constants, projection fermée et primaire/cleanup distincts ; reconstruction complète du callee original `09686d5a…` | 38 tests sur doubles explicites, sans navigateur ; dernière assignation d'oracle, pas cause du FAILED historique |
+| `host_clearance.py`, `collect` 41–65 ; `frontend-pilot/pilot.py`, `gate_proofs` 83–106 ; F04 D `clearance_check` 176–195 et `checkpoint` 542–546 | La porte historique lie corpus et HOST74 en fonctionnement ; elle ne peut attester HOST81cb arrêté. Motive une variante QA distincte avec corpus historique conservé et état actuel honnête | Aucune nouvelle clearance ou recette délivrée par cette analyse ; ne pas modifier les faits historiques ou fabriquer une disponibilité |
+| Reçu d'arrêt ROOT `user-GPU-stop-result-20261004.json`, SHA `c7e89046…` ; preuve indépendante A `bfad6abc…` | Stop demandé, sortie 0 et quatre tuples strictement absents à leurs dates ; l'hôte doit rester arrêté | Preuve datée et bornée à quatre identités ; comptes/conservation lus par ROOT, sans deuxième SQL par A ; ni absence exhaustive future ni preuve DoD |
+
+Les preuves et dates d'exécution sont au [journal du 4 octobre](journal/2026-10-04.md).
+Le registre conserve les sources ; il ne remplace ni le suivi canonique, ni les
+rapports privés, ni leurs garde-fous d'exploitation.
 
 **Révision documentaire :** 29 septembre 2026, complétée par des sections datées ; relevé historique des ajouts au 2 octobre 2026 : sources de l'accélération GPU examinées le 1er octobre (W024, W025), puis sources et outils du chantier Linux consignés après l'audit D10/D11 (LNX21, LNX22, J8S01, J8S02, TOOL01 à TOOL03), et consultation actuelle des releases et avis de sécurité de trois dépendances Linux (D11S01–D11S08). Les décisions de ce dossier restent des choix de conception, non des résultats certifiés par les éditeurs. Les versions de production doivent être verrouillées séparément ; une documentation sur `main`/`master` ne constitue pas un verrou logiciel. Les consultations du 3 octobre (frontend, psutil, Linux, PSF, WHATWG, CSSWG et Node.js) figurent dans leurs sections datées ci-dessous.
 
