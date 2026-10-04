@@ -1,6 +1,34 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `c9fc873` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 05:29 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `946e680` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 06:24 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R15S52 — copie F01 et refus d'identité pendant les unités
+
+Lectures internes ROOT le 4 octobre 2026, de 05:41 à 06:24 UTC ;
+consultation officielle distincte à 06:08 ci-dessous. Chemins et résultats
+au journal, sections de reprise F01 à 06:03 et de typage à 06:24.
+
+| Source examinée | Apport | Limite |
+| --- | --- | --- |
+| Adaptateur qualité A `9fb94069…`, helpers stage/qualité/build figés, avis C `ee6f40bb…` | Deux records post-fix exacts, réemploi des 247 autres et des gardes HOST arrêté ; cinq phases distinctes avec conservation. | Tests purs avec doubles ; pas une preuve d'exécution. |
+| Freeze réel `f76f2660…`, reçus stage et postcopie C `17e42870…` | Copie249/13, inodes distincts, profil CPU et quatre liens conformes, sans ancien export ou auth/data. | Aucun build ni rendu ; pool/`.next` limités aux marqueurs du helper. |
+| Reçu unités `b0b61134…`, pile ROOT `7ef94c`, `pilot.py:173,195` | Le refus touche un candidat descendant avant insertion, et non la garde initiale du launcher. | Identité du candidat et cause non consignées ; XML52B non clos, aucun test qualifié. |
+| Diagnostic indépendant C `da3d598e…`, metadata `e67ece1c…` | Absence stricte du seul launcher710062 et conservation JSON égale. | Descendants inconnus non inventoriés, aucun total de tests reconstitué. |
+| Typage isolé, reçu `5b64ab40…` et terminal ROOT `48a9e8 EXIT0` ; lecture et réhash à 06:24 UTC | PASS réel sur la copie F01, log vide, postcheck sans erreur et snapshot égal au baseline ; cache TypeScript privé hors PROGRAM. | Pas un PASS unités/lint/build ; réemploi futur soumis aux mêmes liaisons exactes, sans reçu fabriqué. |
+| `recovery31-v4/controller.py:129–295`, SHA `605fbcf3…`, et V3 `CandidateJournal` | Observation bornée d'un candidat à exécutable attendu vide ; seule absence fraîche exacte peut retourner None, sans appropriation ou signal de l'inconnu. | Son réemploi qualité doit encore être préparé et relu ; aucune causalité de l'échec passé ni réussite future déduite. |
+
+L'alternative Node `--test-isolation=none`, seulement proposée par C à partir
+des [CLI24.16 officielles](https://nodejs.org/download/release/v24.16.0/docs/api/cli.html#--test-isolationmode)
+et du [modèle de tests24.16](https://nodejs.org/download/release/v24.16.0/docs/api/test.html#test-runner-execution-model),
+n'est pas retenue à ce relevé. Ces liens décrivent une option, pas une cause
+établie ni une recette exécutée. La préparation retenue conserve les argv et
+les assertions actuels ; ancien FAILED et gardes restent intacts.
+ROOT vérifie également ces deux sections officielles le 4 octobre 2026,
+à 06:08 UTC, avec le skill `official-source-review` : mode `process` par
+défaut, contexte partagé en mode `none` et interactions possibles entre
+fichiers. L'aide du Node installé expose bien l'option (`b00136 EXIT0`) ;
+aucun test n'est exécuté avec elle. Cette vérification justifie le maintien
+du modèle d'exécution actuel, pas une hypothèse sur le candidat refusé.
 
 ## R15S51 — refus Q05 V2 et récupération native ciblée
 
