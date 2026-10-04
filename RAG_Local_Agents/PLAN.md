@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `3bdd2d3` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 18:15 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `3e56c75` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 22:28 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -10,7 +10,70 @@
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
 
-**Dernier relevé, 4 octobre à 18:06 UTC :** suivi FAILED publié dans `3bdd2d3`.
+**Dernier relevé, 4 octobre à 22:28 UTC :** choix au lancement et défaut
+2B implémentés ; parcours natifs GPU 2B et 4B réussis sur le même index
+synthétique, tokens 466/466, citations, annulation et replay vérifiés.
+Cinq E2E Chromium passent par modèle, avec clic de citation et rendu examiné.
+Suite backend complète corrigée : 1 510 PASS, 20 SKIP ; deux tests natifs
+Tesseract passent séparément. Lint, typage, build et contrôles documentaires
+réussis. Instances QA arrêtées, données conservées. Relecture finale
+indépendante favorable pour ce sous-lot ; publication en cours.
+R23 reste IN_PROGRESS pour calibration et qualité
+DEV. Le pilote d'abstention 2B ajoute un jugement de fiabilité injustifié,
+absent du pilote 4B : limite de qualité prouvée, aucun Done global.
+[Preuves](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc)
+et [relecture finale](journal/2026-10-04.md#relecture-finale-r23-et-publication-du-sous-lot-relevé-2228-utc).
+
+**Relevé du 4 octobre à 21:38 UTC :** le 2B est provisionné et son
+contrôle hors ligne passe. Premier nominal GPU sur l'index 4B conservé :
+réponse 2,7 bar, tokens 453/453, mais aucun lien de citation reconnu ;
+recette FAILED conservée et instance arrêtée (cinq absences strictes).
+La première correction de consigne a fait échouer un test de budget ;
+version raccourcie sans relèvement de budget, 45 tests context/retrieval
+PASS et relecture non-auteur. Suite complète, rejeu natif, Chromium et
+non-régression 4B à terminer. Le premier contrôle complet avant ce
+correctif avait réellement réussi : 1 508 PASS, 20 SKIP, trois exclusions.
+[Détails](journal/2026-10-04.md#r23--premier-2b-rouge-et-correction-du-format-de-citation-relevé-2138-utc).
+
+**Relevé du 4 octobre à 20:33 UTC :** R23 : build physique réussi
+après un premier échec de pré-rendu conservé ; contrôles backend affectés
+verts (86 ciblés, 62 documentaires et 9 de provenance), Ruff/mypy conformes,
+revue finale indépendante D favorable sur code/tests/build seulement.
+Les quatre cas Chromium 4B passent, rendus 1366×768 et 1920×1080 examinés.
+La réponse native 4B est citée, GPU et tokens 453/453 ; l'annulation aboutit
+réellement à `cancelled`, mais la sonde attendait à tort `cancelled` dès le
+POST au lieu de `cancel_requested`. Échec de sonde conservé, replay du même
+ID à vérifier sans nouvelle question. Poids 2B encore en téléchargement ;
+recette 2B, réemploi du même index, arrêt et documentation finale non acquis.
+[Détails et prochaine action](journal/2026-10-04.md#r23--contrôles-et-première-recette-native-relevé-2033-utc).
+
+**Relevé du 4 octobre à 20:02 UTC :** Q05 a terminé FAILED avant
+l'authentification (`0d254c`, EXIT1) : le lecteur QA exige 0600, le fichier
+runtime natif était en 0664. ROOT a arrêté uniquement sa cohorte ; A confirme
+onze absences fraîches, runtime arrêté et conservation bornée. Ni Q05 ni
+Done global ne sont acquis. Les anciens échecs et les preuves sont conservés.
+R23 est maintenant implémenté localement : deux profils réels, 2B par défaut,
+choix 4B au démarrage, verrou et tokenizer 2B distincts, modèle affiché depuis
+`/jobs`. Revue non-auteur D et correction de compatibilité frontend intégrées.
+Frontend : 309 unités, typage et lint réussis ; tokenizer 2B vérifié.
+Le premier pull des poids a échoué sur IPv6 ; diagnostic de résolveur borné
+en cours, tests backend puis build et recette native restent à terminer.
+[Preuves et prochaine action](journal/2026-10-04.md#q05--arrêt-vérifié-et-intégration-r23-relevé-2002-utc).
+
+**Relevé du 4 octobre à 18:56 UTC :** suivi des incréments publié dans
+`3e56c75`. Composition C et activation des sept sources relues ROOT/A ;
+verrou opératoire neuf à 116 références actives, 195 historiques conservées
+sans rouvrir leurs cibles. Préflight réel en lecture seule refusé avant tout
+run ou démarrage : la projection SQL du binder garde l'étape à la place du
+nombre de tentatives. Le vrai code de conservation et les preuves fermées
+établissent la correction ; données cohérentes et critères inchangés.
+Correctif ciblé et fixture fidèle en préparation D, puis relecture non-auteur,
+nouveau paquet distinct, préflight et admission ROOT avant la recette.
+Q05 reste ouvert, l'ancien FAILED reste conservé. R23 reconfirmé : lecture
+ciblée du choix de modèle en parallèle, sans bascule ni téléchargement.
+[Preuves et prochaine action](journal/2026-10-04.md#q05--préflight-refusé-sur-la-projection-sql-et-demande-r23-reconfirmée).
+
+**Relevé du 4 octobre à 18:06 UTC :** suivi FAILED publié dans `3bdd2d3`.
 ROOT accepte séparément C-v2 et D à 18:06:28 UTC après lecture du code, des
 preuves et des revues non-auteur A. C-v2 : lecture ROI bornée, drains après
 dispose et avant fermeture, rapport de compteurs cohérent, 26 tests purs.
@@ -387,6 +450,39 @@ sont pas clôturés par ces préparations.
 
 ## R23 — choix du modèle de génération et défaut Qwen 3.5 2B
 
+**État réel au 4 octobre, 22:02 UTC :** choix au lancement confirmé par
+l'utilisateur et implémenté. Tag exact `qwen3.5:2b` Q8_0 par défaut ; 4B
+sélectionnable, profil antérieur conservé. Tokenizer et poids vérifiés hors
+ligne, suite backend corrigée 1 510 PASS, 20 SKIP et deux exclusions natives
+reprises séparément au vert. Web 309 PASS, lint/typage/build réussis.
+Parcours GPU 2B et 4B : index conservé sans réimport/réindexation, SSE,
+citations versionnées, annulation/replay, cinq E2E Chromium par modèle,
+arrêt propriétaire et conservation. La consigne de citation est corrigée
+sans modifier le parseur ni les budgets ; échecs antérieurs conservés.
+Le pilote sans fabricant aboutit à une abstention, mais le 2B ajoute un
+jugement de fiabilité contraire à la consigne. Cette limite reste ouverte ;
+aucune qualité équivalente au 4B n'est annoncée. Calibration réelle,
+comparaison DEV 100 questions, plateformes non exercées et D07 restent
+à traiter. [Preuves](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc).
+
+**Relevé historique au 4 octobre, 20:02 UTC :** choix implémenté dans le lanceur,
+sans bascule à chaud ni téléchargement à `up`. `config/local16.yaml` désigne
+le tag exact demandé `qwen3.5:2b` (Q8_0 officiel) ; `local16-4b.yaml` conserve
+octet pour octet l'ancien profil 4B. Le verrou ajoute l'identité officielle
+2B et six fichiers de tokenizer versionnés. Le frontend conserve l'état
+matériel même si le nouveau champ informatif modèle est invalide. Tests
+frontend 309/309, lint et typage réussis ; tokenizer provisionné, poids et
+réponse native non validés. Sources [R23S02](SOURCES.md#r23s02--identité-du-tag-2b-et-tokenizer-versionné).
+La nouvelle demande explicite du tag court est appliquée ; elle ne qualifie
+pas le tag Q4_K_M initialement proposé, conservé ci-dessous comme historique.
+
+**Demande reconfirmée dans l'itération, relevé du 4 octobre à 18:56 UTC :**
+intégrer le choix du modèle avec `qwen3.5:2b` par défaut. Reconnaissance ciblée
+du code et des sources officielles en parallèle du correctif Q05 ; aucune
+installation, bascule ni fonctionnalité livrée à ce stade. L'intégration
+suivra la vérification du lot Q05 déjà engagé. Le contrat actuel fixe le
+modèle au démarrage ; un choix en cours d'utilisation reste à préciser.
+
 **Demande actualisée le 4 octobre 2026, relevé à 16:12 UTC :** intégrer le
 choix du modèle et utiliser `qwen3.5:2b` par défaut. L'utilisateur demande
 ensuite de terminer le lot en cours avant cette intégration. R23 est donc
@@ -416,7 +512,7 @@ de bascule de profil, de redémarrage ou d'exécution du lot futur.
 
 | ID | Couche, propriétaire et livrable attendu | Dépendances | Critère de validation | Statut et preuve |
 |---|---|---|---|---|
-| R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | NOT_STARTED — réalisation autorisée mais différée après le lot en cours ; aucune preuve d'exécution 2B |
+| R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Relecture finale indépendante favorable au sous-lot, publication en cours. Restent calibration, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes et D07 non qualifiés. [Preuves](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [relecture](journal/2026-10-04.md#relecture-finale-r23-et-publication-du-sous-lot-relevé-2228-utc) |
 
 Travail prévu, dans l'ordre utile :
 
@@ -443,10 +539,13 @@ Travail prévu, dans l'ordre utile :
   preuves, puis mettre à jour les procédures et références stabilisées seulement
   après validation réelle. Distinguer Windows, Linux aarch64 et Linux x86-64.
 
-**Prochaine action de ce lot :** après le lot en cours, vérifier les
-artefacts immuables et les contrats d'Ollama 0.35.0 pour la cible 2B avant
-modification des profils ou verrous. Cet ajout ne suspend ni ne clôt les
-corrections R15-3-F03/F04 et la preuve de peinture R15-3-Q05.
+**Prochaine action de ce lot :** publier le sous-lot vérifié après relecture
+finale indépendante favorable, puis calibration
+séquentielle et comparaison sur les mêmes 100 questions DEV et extractions,
+sans utiliser les anciens 16/20 comme bras apparié ni ouvrir le jeu final.
+La procédure privée C est préparée, NOT_RUN. Tracer et traiter le jugement
+injustifié du 2B sans retirer le texte synthétique des preuves. R15-3-F03/F04,
+Q05, les qualifications de plateforme et la DoD globale restent ouverts.
 
 ## Inspection autorisée et état courant
 

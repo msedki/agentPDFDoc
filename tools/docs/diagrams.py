@@ -241,7 +241,7 @@ def processes() -> Diagram:
            "pdf_chunks_e5small_v1"], mono=(3,))
     d.box(312, 462, 250, 112, "model", "Ollama 0.35.0",
           ["127.0.0.1:11434", "llama-server : port loopback", "attribué par Ollama",
-           "qwen3.5:4b-text, CPU ou GPU"], mono=(3,))
+           "Modèle du profil, CPU ou GPU"], mono=(3,))
     d.box(586, 462, 246, 112, "process", "Worker Docling/Tesseract",
           ["processus Python à la demande", "aucun port réseau", "échanges par fichiers JSON",
            "(requête, résultat, fenêtres)"])
@@ -253,7 +253,7 @@ def processes() -> Diagram:
     d.label(478, 354, "sous-processus")
     d.box(24, 626, 832, 92, "storage", ".runtime/ (non versionné)",
           ["data/ : app.sqlite3, originals/, extractions/, control/, logs/<instance>/, qdrant/",
-           "models/ : ollama, e5-small-int8, qwen3.5-4b-tokenizer, docling, tessdata",
+           "models/ : ollama, e5-small-int8, tokenizer Qwen choisi, docling, tessdata",
            "bin/ : qdrant-1.19.1, ollama-0.35.0, tesseract-5.4.0 · manifests/ : empreintes"])
     d.line([(168, 574), (168, 624)], FILES, "dotted")
     d.line([(437, 574), (437, 624)], FILES, "dotted")
@@ -444,7 +444,7 @@ def question() -> Diagram:
                     ("search", "Recherche", "FTS5 · E5 · Qdrant", 338, 136),
                     ("context", "Contexte", "ContextBuilder", 480, 118),
                     ("gov", "Gouverneur", "ResourceGovernor", 624, 128),
-                    ("llm", "Ollama", "qwen3.5:4b-text", 774, 124)])
+                    ("llm", "Ollama", "modèle du profil", 774, 124)])
     steps = [
         ("msg", "user", "api", "POST /api/v1/queries + X-CSRF-Token : question, périmètre, mode", "solid"),
         ("msg", "api", "user", "202 : query_id, events_url", "dashed"),

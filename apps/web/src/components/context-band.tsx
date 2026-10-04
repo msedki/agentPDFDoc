@@ -3,7 +3,7 @@ import { useId, useRef, useState } from "react";
 import { CircleAlert, Info, X } from "lucide-react";
 import type { Generation, LibraryTree, Scope } from "@/lib/types";
 import { coverageSentence, scopeCoverage, scopeKindLabel } from "@/lib/panel-state";
-import { generationView, type GenerationView } from "@/lib/generation";
+import { generationModelView, generationView, type GenerationModelView, type GenerationView } from "@/lib/generation";
 import { readinessSentence } from "@/lib/warnings";
 import { useDismiss } from "@/lib/use-dismiss";
 import { useLauncherCommands } from "@/lib/use-launcher-commands";
@@ -33,6 +33,7 @@ export function ContextBand({ scope, tree, treeFailed, blockers, error, onDismis
   const commands = useLauncherCommands();
   const coverage = tree ? scopeCoverage(scope, tree) : null;
   const computing = generationView(generation, commands);
+  const model = generationModelView(generation);
   const notice = computing?.notice ?? null;
   const message = error ? "error" : blockers.length ? "readiness" : notice ? "generation" : null;
   const scoped = Boolean(coverage) || treeFailed;
@@ -43,7 +44,7 @@ export function ContextBand({ scope, tree, treeFailed, blockers, error, onDismis
     {message === "error" && <div className="context-message workspace-error" role="alert"><CircleAlert size={14} aria-hidden="true" /><span>{error}</span><button type="button" onClick={onDismissError} aria-label="Fermer le message"><X size={16} /></button></div>}
     {message === "readiness" && <p className="context-message readiness-notice" role="status" title={`Contrôles non satisfaits : ${blockers.join(", ")}`}>{readinessSentence(blockers, commands)}</p>}
     {message === "generation" && <p className="context-message generation-notice" role="status">{notice}</p>}
-    {computing && <GenerationIndicator view={computing} />}
+    {computing && <GenerationIndicator view={computing} model={model} />}
   </div>;
 }
 
@@ -52,7 +53,7 @@ export function ContextBand({ scope, tree, treeFailed, blockers, error, onDismis
  * ou une nouvelle occupation du modèle sans déplacer le focus. L'explication, avec la commande doctor,
  * s'ouvre par un bouton, au clavier comme au toucher, y compris quand l'emplacement de message est occupé.
  */
-function GenerationIndicator({ view }: { view: GenerationView }) {
+function GenerationIndicator({ view, model }: { view: GenerationView; model: GenerationModelView | null }) {
   const [open, setOpen] = useState(false);
   const container = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -60,8 +61,9 @@ function GenerationIndicator({ view }: { view: GenerationView }) {
   useDismiss(open, container, reason => { setOpen(false); if (reason === "escape") trigger.current?.focus(); });
   return <div className="context-generation" ref={container}>
     <span role="status"><StatusIndicator status={view.status} /></span>
+    {model && <Badge tone="neutral">{model.label}</Badge>}
     <Button ref={trigger} type="button" variant="ghost" size="icon" className="generation-help" aria-expanded={open} aria-controls={open ? detailId : undefined}
-      aria-label="Explication du matériel de génération" title="Explication du matériel de génération" onClick={() => setOpen(value => !value)}><Info size={16} aria-hidden="true" /></Button>
-    {open && <p className="generation-help-text" id={detailId}>{view.detail}</p>}
+      aria-label="Explication du modèle et du matériel de génération" title="Explication du modèle et du matériel de génération" onClick={() => setOpen(value => !value)}><Info size={16} aria-hidden="true" /></Button>
+    {open && <p className="generation-help-text" id={detailId}>{model && <>{model.detail} </>}{view.detail}</p>}
   </div>;
 }

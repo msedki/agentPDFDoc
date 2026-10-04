@@ -264,7 +264,8 @@ def _complement_unavailable(name: str, exc: Exception, *, offline: bool, extract
 
 
 def provision_artifacts(only: str | None = None, *, offline: bool = False, skip_groups: frozenset[str] = frozenset(),
-                        signals: dict[str, Any] | None = None) -> dict[str, Any]:
+                        signals: dict[str, Any] | None = None,
+                        tokenizer_model_id: str = "Qwen/Qwen3.5-2B") -> dict[str, Any]:
     """Télécharge, vérifie et extrait les entrées du verrou valables sur ce poste, puis les consigne au manifeste local.
 
     `skip_groups` écarte des groupes (complément GPU d'un profil en calcul CPU) ; `signals` (host_signals) choisit,
@@ -288,7 +289,14 @@ def provision_artifacts(only: str | None = None, *, offline: bool = False, skip_
                 raise ValueError(f"Le groupe {name} est téléchargé, vérifié et consigné par la construction de Tesseract : "
                                  f"exécuter {launcher_command('provision')} sans --only")
             continue
-        records = []
+        if name == "qwen-tokenizer":
+            entries = [entry for entry in entries if entry.get("model_id") == tokenizer_model_id]
+            if not entries:
+                raise ValueError("Tokenizer du modèle choisi absent du verrou : " + tokenizer_model_id)
+            # Préserver les manifestes des autres modèles déjà provisionnés, sans les télécharger ni les ouvrir.
+            records = [record for record in manifest.get(name, []) if record.get("model_id") != tokenizer_model_id]
+        else:
+            records = []
         optional = name == GPU_GROUP and only != GPU_GROUP
         # Seules les entrées de ce poste (sans champ platform, ou avec le sien, puis champ host éventuel) sont téléchargées.
         for entry in entries_for_host(entries, signals):

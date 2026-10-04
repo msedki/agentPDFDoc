@@ -92,9 +92,10 @@ test("the launcher commands of the health contract are all read by the workspace
 
 test("the generation hardware published by /jobs matches the contract and every described value is read (W025)", () => {
   const described = contract.jobs_response.generation;
-  assert.deepEqual(Object.keys(described).sort(), ["device", "fallback", "null", "processor"]);
+  assert.deepEqual(Object.keys(described).sort(), ["device", "fallback", "model", "null", "processor"]);
   assert.deepEqual([...GENERATION_DEVICES], values(described.device));
   assert.match(described.fallback, /^boolean/);
+  assert.match(described.model, /^string: exact served model/);
   // Valeur null décrite par le contrat (API lancée avec un double de la passerelle) : rien n'est affiché.
   assert.ok(Object.hasOwn(described, "null"));
   assert.equal(readGeneration(null), null);

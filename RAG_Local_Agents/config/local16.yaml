@@ -11,11 +11,11 @@ app:
 llm:
   provider: ollama
   base_url: http://127.0.0.1:11434
-  model: qwen3.5:4b-text
-  source_model: qwen3.5:4b
-  model_manifest: .runtime/manifests/ollama-model-text.json
-  source_model_manifest: .runtime/manifests/ollama-model.json
-  required_quantization: Q4_K_M
+  model: qwen3.5:2b
+  source_model: qwen3.5:2b
+  model_manifest: .runtime/manifests/ollama-model-2b.json
+  source_model_manifest: .runtime/manifests/ollama-model-2b.json
+  required_quantization: Q8_0
   num_ctx: 8192
   num_predict: 768
   temperature: 0.2
@@ -36,7 +36,8 @@ llm:
     ordinary: 768
     analysis: 768
     compare: 768
-  tokenizer_dir: .runtime/models/qwen3.5-4b-tokenizer
+  tokenizer_model_id: Qwen/Qwen3.5-2B
+  tokenizer_dir: .runtime/models/qwen3.5-2b-tokenizer
 embedding:
   model_id: intfloat/multilingual-e5-small
   local_dir: .runtime/models/e5-small-int8
@@ -149,6 +150,7 @@ resources:
   admit_heavy_min_available_mib: 3072
   sampling_interval_seconds: 1
   unload_llm_before_ingestion: true
+  # R23 : borne provisoire conservée ; le pic 2B doit être mesuré avant qualification.
   initial_llm_load_peak_estimate_mib: 3456
   warm_llm_additional_peak_estimate_mib: 512
   embedding_load_peak_estimate_mib: 512

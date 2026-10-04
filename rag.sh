@@ -10,7 +10,8 @@ Commandes : provision, doctor (par défaut), up, open, status, logs, down, pull-
             verify, init-profile, selftest
 
 Options :
-  --profile <fichier>        profil (défaut : config/local16.yaml, relatif à la racine du projet)
+  --profile <fichier>        profil utilisateur explicite, exclusif de --model
+  --model <tag>              qwen3.5:2b (défaut) ou qwen3.5:4b ; changement appliqué après down puis up
   --only <groupe>            provision : un seul groupe d'artefacts
   --offline                  aucun accès réseau (kit déjà provisionné)
   --skip-model               provision : sans modèle Ollama
@@ -32,6 +33,8 @@ fail() {
 command_name=doctor
 command_seen=0
 profile=config/local16.yaml
+profile_seen=0
+model=
 only=
 offline=0
 skip_model=0
@@ -60,10 +63,11 @@ while [ "$#" -gt 0 ]; do
         --offline) offline=1 ;;
         --skip-model) skip_model=1 ;;
         --no-browser) no_browser=1 ;;
-        --profile|--only|--path|--target|--report|--qdrant-storage|--ports)
+        --profile|--model|--only|--path|--target|--report|--qdrant-storage|--ports)
             [ "$#" -ge 2 ] || fail "Option $option : valeur manquante."
             case "$option" in
-                --profile) profile=$2 ;;
+                --profile) profile=$2; profile_seen=1 ;;
+                --model) model=$2 ;;
                 --only) only=$2 ;;
                 --path) path=$2 ;;
                 --target) target=$2 ;;
@@ -102,7 +106,11 @@ case "$profile" in
     *) resolved_profile=$project_root/$profile ;;
 esac
 
-set -- -m services.runtime.cli "$command_name" --profile "$resolved_profile"
+set -- -m services.runtime.cli "$command_name"
+if [ -z "$model" ] || [ "$profile_seen" -eq 1 ]; then
+    set -- "$@" --profile "$resolved_profile"
+fi
+[ -z "$model" ] || set -- "$@" --model "$model"
 [ -z "$only" ] || set -- "$@" --only "$only"
 [ "$offline" -eq 0 ] || set -- "$@" --offline
 [ "$skip_model" -eq 0 ] || set -- "$@" --skip-model

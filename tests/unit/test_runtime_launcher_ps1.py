@@ -4,14 +4,20 @@ Le poste Linux n'a pas pwsh : ces tests interprètent les seules lignes qui cons
 sont connues, et refusent toute autre forme. L'essai réel `.\\rag.ps1 open -NoBrowser` reste à faire sur un poste Windows.
 """
 
+import json
 import re
+import sys
 
+import pytest
+
+from services.runtime import cli
 from services.runtime.artifacts import ROOT
 
 RAG_PS1 = ROOT / "rag.ps1"
 CLI_SOURCE = ROOT / "services/runtime/cli.py"
 PROFILE = r"C:\atelier\config\local16.yaml"
-BASE = "$arguments = @('-m','services.runtime.cli',$Command,'--profile',$resolvedProfile)"
+BASE = "$arguments = @('-m','services.runtime.cli',$Command)"
+PROFILE_BRANCH = "if (-not $Model -or $PSBoundParameters.ContainsKey('Profile')) { $arguments += @('--profile',$resolvedProfile) }"
 CALL = "& $projectPython @arguments"
 SWITCH = re.compile(r"^if \(\$(?P<name>\w+)\) \{ \$arguments \+= '(?P<flag>--[a-z-]+)' \}$")
 VALUED = re.compile(r"^if \(\$(?P<name>\w+)\) \{ \$arguments \+= @\('(?P<flag>--[a-z-]+)',\$(?P=name)\) \}$")
@@ -38,7 +44,7 @@ def options(text: str) -> dict[str, tuple[str, str]]:
     """Option du CLI ajoutée par chaque paramètre : nom -> (forme, option)."""
     mapping = {}
     for line in (line.strip() for line in text.splitlines()):
-        if "$arguments" not in line or line in {BASE, CALL}:
+        if "$arguments" not in line or line in {BASE, CALL, PROFILE_BRANCH}:
             continue
         match = SWITCH.match(line) or VALUED.match(line)
         assert match is not None, f"forme de rag.ps1 non interprétée : {line}"
@@ -50,9 +56,13 @@ def options(text: str) -> dict[str, tuple[str, str]]:
 def cli_arguments(text: str, command: str, bound: dict[str, str | bool]) -> list[str]:
     """Arguments que rag.ps1 passe à l'interpréteur pour la commande et les paramètres liés donnés."""
     lines = [line.strip() for line in text.splitlines()]
-    assert lines.count(BASE) == 1 and lines.count(CALL) == 1 and lines.index(BASE) < lines.index(CALL)
+    assert lines.count(BASE) == lines.count(PROFILE_BRANCH) == lines.count(CALL) == 1
+    assert lines.index(BASE) < lines.index(PROFILE_BRANCH) < lines.index(CALL)
     declared, mapping = parameters(text), options(text)
-    arguments = ["-m", "services.runtime.cli", command, "--profile", PROFILE]
+    assert declared["Profile"] == "string" and declared["Model"] == "string"
+    arguments = ["-m", "services.runtime.cli", command]
+    if not bound.get("Model") or "Profile" in bound:
+        arguments += ["--profile", str(bound.get("Profile", PROFILE))]
     for name, (kind, flag) in mapping.items():
         # La forme de la ligne suit le type déclaré : un switch n'ajoute que l'option, une chaîne l'option et sa valeur.
         assert declared.get(name) == kind, f"{name} : déclaré {declared.get(name)}, transmis comme {kind}"
@@ -86,3 +96,38 @@ def test_rag_ps1_passes_exactly_the_options_of_the_cli():
     declared = set(re.findall(r'parser\.add_argument\("(--[a-z-]+)"', CLI_SOURCE.read_text(encoding="utf-8")))
     passed = {flag for _, flag in options(script()).values()} | {"--profile"}
     assert passed == declared
+
+
+@pytest.mark.parametrize("model,name", [("qwen3.5:2b", "local16.yaml"), ("qwen3.5:4b", "local16-4b.yaml")])
+def test_rag_ps1_model_omits_the_default_profile_and_reaches_the_cli(monkeypatch, capsys, model, name):
+    """Lignes PowerShell interprétées, CLI réel ; démarrage explicitement doublé, aucun PowerShell ni service."""
+    arguments = cli_arguments(script(), "up", {"Model": model})
+    assert arguments == ["-m", "services.runtime.cli", "up", "--model", model]
+    started = []
+    monkeypatch.setattr(sys, "argv", ["rag", *arguments[2:]])
+    monkeypatch.setattr(cli, "start", lambda path: started.append(path) or {"status": "explicit_start_double"})
+    assert cli.main() == 0 and started == [ROOT / "config" / name]
+    assert json.loads(capsys.readouterr().out)["status"] == "explicit_start_double"
+
+
+def test_rag_ps1_keeps_an_explicit_profile_and_cli_refuses_combining_it_with_model(monkeypatch, capsys):
+    supplied = r"C:\atelier utilisateur\profil.yaml"
+    assert cli_arguments(script(), "up", {"Profile": supplied}) == ["-m", "services.runtime.cli", "up", "--profile", supplied]
+    arguments = cli_arguments(script(), "up", {"Profile": supplied, "Model": "qwen3.5:2b"})
+    assert arguments == ["-m", "services.runtime.cli", "up", "--profile", supplied, "--model", "qwen3.5:2b"]
+    started = []
+    monkeypatch.setattr(sys, "argv", ["rag", *arguments[2:]])
+    monkeypatch.setattr(cli, "start", lambda path: started.append(path))
+    assert cli.main() == 1 and started == []
+    assert json.loads(capsys.readouterr().out)["error"] == "ValueError"
+
+
+@pytest.mark.parametrize("branch", [
+    "if ($Model) { $arguments += @('--profile',$resolvedProfile) }",
+    PROFILE_BRANCH + "\n" + PROFILE_BRANCH,
+    "",
+])
+def test_rag_ps1_parser_refuses_a_changed_or_missing_profile_condition(branch):
+    changed = script().replace(PROFILE_BRANCH, branch)
+    with pytest.raises(AssertionError):
+        cli_arguments(changed, "up", {"Model": "qwen3.5:2b"})

@@ -70,7 +70,7 @@ export type GenerationDevice = typeof GENERATION_DEVICES[number];
  * `processor` : dernière occupation du modèle relue par l'API, colonne PROCESSOR d'`ollama ps` (`100% GPU`,
  * `100% CPU`, `25%/75% CPU/GPU` ou `Unknown`), null tant que le modèle n'a pas été vu chargé.
  */
-export interface Generation { device: GenerationDevice; fallback: boolean; processor: string | null }
+export interface Generation { device: GenerationDevice; fallback: boolean; processor: string | null; model?: string }
 /** `generation` est null quand l'API tourne avec un double de la passerelle Ollama, absent d'une API antérieure à W025. */
 export interface JobsResponse { jobs: Job[]; total?: number; runtime_mode?: "interactive" | "ingestion" | null; generation?: Generation | null }
 export interface Readiness { ready?: boolean; status?: string; blockers?: string[]; [key: string]: unknown }

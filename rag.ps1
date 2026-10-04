@@ -5,6 +5,8 @@ param(
     [ValidateSet('provision','doctor','up','open','status','logs','down','pull-model','backup','restore','verify','init-profile','selftest')]
     [string]$Command = 'doctor',
     [string]$Profile = 'config/local16.yaml',
+    [ValidateSet('qwen3.5:2b','qwen3.5:4b')]
+    [string]$Model,
     [string]$Only,
     [switch]$Offline,
     [switch]$SkipModel,
@@ -26,7 +28,9 @@ $resolvedProfile = if ([System.IO.Path]::IsPathRooted($Profile)) {
 } else {
     Join-Path $projectRoot $Profile
 }
-$arguments = @('-m','services.runtime.cli',$Command,'--profile',$resolvedProfile)
+$arguments = @('-m','services.runtime.cli',$Command)
+if (-not $Model -or $PSBoundParameters.ContainsKey('Profile')) { $arguments += @('--profile',$resolvedProfile) }
+if ($Model) { $arguments += @('--model',$Model) }
 if ($Only) { $arguments += @('--only',$Only) }
 if ($Offline) { $arguments += '--offline' }
 if ($SkipModel) { $arguments += '--skip-model' }

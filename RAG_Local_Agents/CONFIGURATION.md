@@ -10,6 +10,8 @@ Les fichiers Ollama, Next.js, Qdrant et SQL sont des exemples de leurs formats n
 
 Les valeurs suivantes sont une baseline initiale à qualifier. Aucune n'est présentée comme un optimum universel. La recette ne peut pas être affaiblie après un échec sans changement de baseline explicite.
 
+**Évolution R23 du 4 octobre 2026 :** la table ci-dessous conserve la baseline de conception 4B. Le runtime [config/local16.yaml](../config/local16.yaml) choisit désormais `qwen3.5:2b` Q8_0, source et servi identiques ; [config/local16-4b.yaml](../config/local16-4b.yaml) conserve le 4B Q4_K_M et sa dérivation texte seule. Choix au démarrage, exclusivité modèle/profil et conditions de bascule : [exploitation](../docs/exploitation/EXPLOITATION.md#91-changer-le-modèle-de-génération). Les commandes Ollama brutes de la section 3 et le smoke JSON restent des exemples 4B ; ils ne provisionnent ni ne vérifient le profil 2B. Pour le modèle choisi, utiliser `rag.ps1`/`rag.sh` avec `-Model`/`--model` ou un profil explicite. Les preuves 4B historiques ne qualifient pas le 2B.
+
 ## 2. Paramètres initiaux et qualification
 
 | Domaine | Valeur de départ | Vérification exigée |

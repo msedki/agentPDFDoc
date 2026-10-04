@@ -64,6 +64,21 @@ def test_delivered_files_list_matches_repository():
     assert (ROOT / "apps/web/next.config.mjs").is_file() and (ROOT / "config/models.lock.json").is_file()
 
 
+def test_capture_covers_four_b_profile_and_two_b_model_manifest(tmp_path, monkeypatch):
+    root = tmp_path / "livraison"
+    _tree(root)
+    names = ("config/local16-4b.yaml", ".runtime/manifests/ollama-model-2b.json")
+    for name in names:
+        path = root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("{\"model\": \"synthetic\"}\n", encoding="utf-8")
+    monkeypatch.setattr(source_manifest.shutil, "which", lambda name: None)
+    before = source_manifest.capture(root)
+    assert set(names) <= {item["path"] for item in before["files"]}
+    (root / names[1]).write_text("{\"model\": \"changed-synthetic\"}\n", encoding="utf-8")
+    assert source_manifest.capture(root)["source_fingerprint"] != before["source_fingerprint"]
+
+
 def test_capture_covers_the_launchers_of_both_platforms(tmp_path, monkeypatch):
     root = tmp_path / "livraison"
     _tree(root)

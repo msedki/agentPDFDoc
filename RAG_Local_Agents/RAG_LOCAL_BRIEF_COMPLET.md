@@ -875,6 +875,8 @@ Les fichiers Ollama, Next.js, Qdrant et SQL sont des exemples de leurs formats n
 
 Les valeurs suivantes sont une baseline initiale à qualifier. Aucune n'est présentée comme un optimum universel. La recette ne peut pas être affaiblie après un échec sans changement de baseline explicite.
 
+**Évolution R23 du 4 octobre 2026 :** la table ci-dessous conserve la baseline de conception 4B. Le runtime [config/local16.yaml](../config/local16.yaml) choisit désormais `qwen3.5:2b` Q8_0, source et servi identiques ; [config/local16-4b.yaml](../config/local16-4b.yaml) conserve le 4B Q4_K_M et sa dérivation texte seule. Choix au démarrage, exclusivité modèle/profil et conditions de bascule : [exploitation](../docs/exploitation/EXPLOITATION.md#91-changer-le-modèle-de-génération). Les commandes Ollama brutes de la section 3 et le smoke JSON restent des exemples 4B ; ils ne provisionnent ni ne vérifient le profil 2B. Pour le modèle choisi, utiliser `rag.ps1`/`rag.sh` avec `-Model`/`--model` ou un profil explicite. Les preuves 4B historiques ne qualifient pas le 2B.
+
 ## 2. Paramètres initiaux et qualification
 
 | Domaine | Valeur de départ | Vérification exigée |
@@ -1628,7 +1630,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `3bdd2d3` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 18:15 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `3e56c75` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 22:28 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1638,7 +1640,70 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
 
-**Dernier relevé, 4 octobre à 18:06 UTC :** suivi FAILED publié dans `3bdd2d3`.
+**Dernier relevé, 4 octobre à 22:28 UTC :** choix au lancement et défaut
+2B implémentés ; parcours natifs GPU 2B et 4B réussis sur le même index
+synthétique, tokens 466/466, citations, annulation et replay vérifiés.
+Cinq E2E Chromium passent par modèle, avec clic de citation et rendu examiné.
+Suite backend complète corrigée : 1 510 PASS, 20 SKIP ; deux tests natifs
+Tesseract passent séparément. Lint, typage, build et contrôles documentaires
+réussis. Instances QA arrêtées, données conservées. Relecture finale
+indépendante favorable pour ce sous-lot ; publication en cours.
+R23 reste IN_PROGRESS pour calibration et qualité
+DEV. Le pilote d'abstention 2B ajoute un jugement de fiabilité injustifié,
+absent du pilote 4B : limite de qualité prouvée, aucun Done global.
+[Preuves](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc)
+et [relecture finale](journal/2026-10-04.md#relecture-finale-r23-et-publication-du-sous-lot-relevé-2228-utc).
+
+**Relevé du 4 octobre à 21:38 UTC :** le 2B est provisionné et son
+contrôle hors ligne passe. Premier nominal GPU sur l'index 4B conservé :
+réponse 2,7 bar, tokens 453/453, mais aucun lien de citation reconnu ;
+recette FAILED conservée et instance arrêtée (cinq absences strictes).
+La première correction de consigne a fait échouer un test de budget ;
+version raccourcie sans relèvement de budget, 45 tests context/retrieval
+PASS et relecture non-auteur. Suite complète, rejeu natif, Chromium et
+non-régression 4B à terminer. Le premier contrôle complet avant ce
+correctif avait réellement réussi : 1 508 PASS, 20 SKIP, trois exclusions.
+[Détails](journal/2026-10-04.md#r23--premier-2b-rouge-et-correction-du-format-de-citation-relevé-2138-utc).
+
+**Relevé du 4 octobre à 20:33 UTC :** R23 : build physique réussi
+après un premier échec de pré-rendu conservé ; contrôles backend affectés
+verts (86 ciblés, 62 documentaires et 9 de provenance), Ruff/mypy conformes,
+revue finale indépendante D favorable sur code/tests/build seulement.
+Les quatre cas Chromium 4B passent, rendus 1366×768 et 1920×1080 examinés.
+La réponse native 4B est citée, GPU et tokens 453/453 ; l'annulation aboutit
+réellement à `cancelled`, mais la sonde attendait à tort `cancelled` dès le
+POST au lieu de `cancel_requested`. Échec de sonde conservé, replay du même
+ID à vérifier sans nouvelle question. Poids 2B encore en téléchargement ;
+recette 2B, réemploi du même index, arrêt et documentation finale non acquis.
+[Détails et prochaine action](journal/2026-10-04.md#r23--contrôles-et-première-recette-native-relevé-2033-utc).
+
+**Relevé du 4 octobre à 20:02 UTC :** Q05 a terminé FAILED avant
+l'authentification (`0d254c`, EXIT1) : le lecteur QA exige 0600, le fichier
+runtime natif était en 0664. ROOT a arrêté uniquement sa cohorte ; A confirme
+onze absences fraîches, runtime arrêté et conservation bornée. Ni Q05 ni
+Done global ne sont acquis. Les anciens échecs et les preuves sont conservés.
+R23 est maintenant implémenté localement : deux profils réels, 2B par défaut,
+choix 4B au démarrage, verrou et tokenizer 2B distincts, modèle affiché depuis
+`/jobs`. Revue non-auteur D et correction de compatibilité frontend intégrées.
+Frontend : 309 unités, typage et lint réussis ; tokenizer 2B vérifié.
+Le premier pull des poids a échoué sur IPv6 ; diagnostic de résolveur borné
+en cours, tests backend puis build et recette native restent à terminer.
+[Preuves et prochaine action](journal/2026-10-04.md#q05--arrêt-vérifié-et-intégration-r23-relevé-2002-utc).
+
+**Relevé du 4 octobre à 18:56 UTC :** suivi des incréments publié dans
+`3e56c75`. Composition C et activation des sept sources relues ROOT/A ;
+verrou opératoire neuf à 116 références actives, 195 historiques conservées
+sans rouvrir leurs cibles. Préflight réel en lecture seule refusé avant tout
+run ou démarrage : la projection SQL du binder garde l'étape à la place du
+nombre de tentatives. Le vrai code de conservation et les preuves fermées
+établissent la correction ; données cohérentes et critères inchangés.
+Correctif ciblé et fixture fidèle en préparation D, puis relecture non-auteur,
+nouveau paquet distinct, préflight et admission ROOT avant la recette.
+Q05 reste ouvert, l'ancien FAILED reste conservé. R23 reconfirmé : lecture
+ciblée du choix de modèle en parallèle, sans bascule ni téléchargement.
+[Preuves et prochaine action](journal/2026-10-04.md#q05--préflight-refusé-sur-la-projection-sql-et-demande-r23-reconfirmée).
+
+**Relevé du 4 octobre à 18:06 UTC :** suivi FAILED publié dans `3bdd2d3`.
 ROOT accepte séparément C-v2 et D à 18:06:28 UTC après lecture du code, des
 preuves et des revues non-auteur A. C-v2 : lecture ROI bornée, drains après
 dispose et avant fermeture, rapport de compteurs cohérent, 26 tests purs.
@@ -2015,6 +2080,39 @@ sont pas clôturés par ces préparations.
 
 ## R23 — choix du modèle de génération et défaut Qwen 3.5 2B
 
+**État réel au 4 octobre, 22:02 UTC :** choix au lancement confirmé par
+l'utilisateur et implémenté. Tag exact `qwen3.5:2b` Q8_0 par défaut ; 4B
+sélectionnable, profil antérieur conservé. Tokenizer et poids vérifiés hors
+ligne, suite backend corrigée 1 510 PASS, 20 SKIP et deux exclusions natives
+reprises séparément au vert. Web 309 PASS, lint/typage/build réussis.
+Parcours GPU 2B et 4B : index conservé sans réimport/réindexation, SSE,
+citations versionnées, annulation/replay, cinq E2E Chromium par modèle,
+arrêt propriétaire et conservation. La consigne de citation est corrigée
+sans modifier le parseur ni les budgets ; échecs antérieurs conservés.
+Le pilote sans fabricant aboutit à une abstention, mais le 2B ajoute un
+jugement de fiabilité contraire à la consigne. Cette limite reste ouverte ;
+aucune qualité équivalente au 4B n'est annoncée. Calibration réelle,
+comparaison DEV 100 questions, plateformes non exercées et D07 restent
+à traiter. [Preuves](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc).
+
+**Relevé historique au 4 octobre, 20:02 UTC :** choix implémenté dans le lanceur,
+sans bascule à chaud ni téléchargement à `up`. `config/local16.yaml` désigne
+le tag exact demandé `qwen3.5:2b` (Q8_0 officiel) ; `local16-4b.yaml` conserve
+octet pour octet l'ancien profil 4B. Le verrou ajoute l'identité officielle
+2B et six fichiers de tokenizer versionnés. Le frontend conserve l'état
+matériel même si le nouveau champ informatif modèle est invalide. Tests
+frontend 309/309, lint et typage réussis ; tokenizer provisionné, poids et
+réponse native non validés. Sources [R23S02](SOURCES.md#r23s02--identité-du-tag-2b-et-tokenizer-versionné).
+La nouvelle demande explicite du tag court est appliquée ; elle ne qualifie
+pas le tag Q4_K_M initialement proposé, conservé ci-dessous comme historique.
+
+**Demande reconfirmée dans l'itération, relevé du 4 octobre à 18:56 UTC :**
+intégrer le choix du modèle avec `qwen3.5:2b` par défaut. Reconnaissance ciblée
+du code et des sources officielles en parallèle du correctif Q05 ; aucune
+installation, bascule ni fonctionnalité livrée à ce stade. L'intégration
+suivra la vérification du lot Q05 déjà engagé. Le contrat actuel fixe le
+modèle au démarrage ; un choix en cours d'utilisation reste à préciser.
+
 **Demande actualisée le 4 octobre 2026, relevé à 16:12 UTC :** intégrer le
 choix du modèle et utiliser `qwen3.5:2b` par défaut. L'utilisateur demande
 ensuite de terminer le lot en cours avant cette intégration. R23 est donc
@@ -2044,7 +2142,7 @@ de bascule de profil, de redémarrage ou d'exécution du lot futur.
 
 | ID | Couche, propriétaire et livrable attendu | Dépendances | Critère de validation | Statut et preuve |
 |---|---|---|---|---|
-| R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | NOT_STARTED — réalisation autorisée mais différée après le lot en cours ; aucune preuve d'exécution 2B |
+| R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Relecture finale indépendante favorable au sous-lot, publication en cours. Restent calibration, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes et D07 non qualifiés. [Preuves](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [relecture](journal/2026-10-04.md#relecture-finale-r23-et-publication-du-sous-lot-relevé-2228-utc) |
 
 Travail prévu, dans l'ordre utile :
 
@@ -2071,10 +2169,13 @@ Travail prévu, dans l'ordre utile :
   preuves, puis mettre à jour les procédures et références stabilisées seulement
   après validation réelle. Distinguer Windows, Linux aarch64 et Linux x86-64.
 
-**Prochaine action de ce lot :** après le lot en cours, vérifier les
-artefacts immuables et les contrats d'Ollama 0.35.0 pour la cible 2B avant
-modification des profils ou verrous. Cet ajout ne suspend ni ne clôt les
-corrections R15-3-F03/F04 et la preuve de peinture R15-3-Q05.
+**Prochaine action de ce lot :** publier le sous-lot vérifié après relecture
+finale indépendante favorable, puis calibration
+séquentielle et comparaison sur les mêmes 100 questions DEV et extractions,
+sans utiliser les anciens 16/20 comme bras apparié ni ouvrir le jeu final.
+La procédure privée C est préparée, NOT_RUN. Tracer et traiter le jugement
+injustifié du 2B sans retirer le texte synthétique des preuves. R15-3-F03/F04,
+Q05, les qualifications de plateforme et la DoD globale restent ouverts.
 
 ## Inspection autorisée et état courant
 
@@ -2807,7 +2908,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1, base publiée `9ccfc68` et complément local W025 daté ci-dessous ; historique conservé · **Mis à jour :** 2026-10-04 12:52 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1, base publiée `9ccfc68` et complément local W025 daté ci-dessous ; historique conservé · **Mis à jour :** 2026-10-04 22:06 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -3244,6 +3345,18 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 
 **Reprise/retour arrière :** conserver manifeste, verrou, configuration et receipt du pool correspondant ensemble ; ne pas supprimer ni réinstaller de force le pool partagé. La procédure de préparation compare les versions, les fichiers de paquet et les marqueurs pnpm avant de remplacer le seul lien local `node_modules`. Toute révision de ce choix se contrôle sur un pool distinct, puis sur le vrai code ; elle ne justifie pas de désactiver les règles pour masquer une régression.
 
+## W032 Modèle choisi au démarrage, Qwen 3.5 2B par défaut
+
+**Date :** 4 octobre 2026, 20:37 UTC. **Statut :** choix utilisateur acquis, intégration locale R23 en cours de recette. Base publiée `3e56c75` et modifications locales ; résultats dans [PLAN.md](PLAN.md#r23--choix-du-modèle-de-génération-et-défaut-qwen-35-2b), pas de qualification globale déduite.
+
+**Contexte :** après la demande initiale d'un 2B Q4_K_M, l'utilisateur demande explicitement `qwen3.5:2b` comme défaut et le choix du modèle. L'identité officielle de ce tag est Q8_0, distincte du tag Q4_K_M initial ; manifeste, couches et tokenizer versionné dans [R23S02](SOURCES.md#r23s02--identité-du-tag-2b-et-tokenizer-versionné). Les profils transmis aux enfants fixent déjà le modèle pour toute la vie de l'instance.
+
+**Choix retenu :** `config/local16.yaml` utilise le tag exact `qwen3.5:2b`, source et servi identiques. `config/local16-4b.yaml` conserve octet pour octet l'ancien profil 4B Q4_K_M, servi par `qwen3.5:4b-text` selon W006. `--model qwen3.5:2b` ou `qwen3.5:4b` (PowerShell : `-Model`) sélectionne un fichier physique, sans téléchargement au démarrage. Un profil utilisateur explicite reste intact et exclusif de l'option modèle. Le tokenizer et les contrôles de provisionnement/doctor suivent le modèle sélectionné.
+
+**Conséquences :** les questions d'une même instance utilisent son modèle ; aucune bascule à chaud ni option par question. L'API annonce son nom dans `generation.model` et le frontend explique le redémarrage nécessaire. Changer de modèle ne change pas les chemins persistants d'un profil utilisateur. Le réemploi 4B→2B→4B de l'index QV-01 est vérifié sans réindexation dans la recette bornée du [4 octobre](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc). Cette observation ne prouve ni une qualité équivalente ni la qualification d'un autre corpus ou d'une autre plateforme. Les estimations mémoire et une recette GPU sur ce Jetson ne satisfont pas D07.
+
+**Reprise/retour arrière :** arrêter avec le profil réellement actif, reprendre la section `llm` du profil souhaité sans modifier les autres sections, puis provisionner, contrôler et redémarrer avec le même profil utilisateur. Avec les profils livrés, conserver le même choix `--model` dans toute la séquence. Garder les manifestes distincts et l'ancien 4B ; ne modifier aucun verrou pour accepter un digest inattendu. La procédure canonique est tenue dans [EXPLOITATION.md](../docs/exploitation/EXPLOITATION.md).
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -3296,7 +3409,93 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5092263` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 17:12 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `3e56c75` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 22:06 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R23S02 — identité du tag 2B et tokenizer versionné
+
+Consultation ROOT le 4 octobre 2026, relevé à 19:17 UTC, après
+reconfirmation du choix du modèle et du défaut `qwen3.5:2b`. Le tag exact
+demandé n'est pas remplacé par le tag Q4_K_M historique de [R23S01](#r23s01--modèle-qwen-35-2b-et-quantification-explicite).
+
+Le [manifeste officiel du registre Ollama](https://registry.ollama.ai/v2/library/qwen3.5/manifests/2b)
+a été lu et haché : 1 088 octets, SHA-256
+`0689d44085e06d165161a8a9a1731344278cfb5aade63a3c3dbdb48ab54b130a`.
+Il désigne le moteur `llamacpp`, le format GGUF, une couche modèle de
+2 012 012 448 octets et un projecteur séparé de 671 372 768 octets.
+La [configuration officielle de cette identité](https://registry.ollama.ai/v2/library/qwen3.5/blobs/sha256:0f7af3a2d4145d7e4dbc9dbab778ac7a6aee7104fb93570c047726b5a816781f)
+porte `Q8_0`, les renderer/parser `qwen3.5` et le prérequis `0.30.0`.
+La [fiche du catalogue](https://ollama.com/library/qwen3.5:2b) distingue
+aussi une distribution MLX : son identité n'est pas celle du runtime
+Ollama 0.35.0 utilisé ici. Le tag reste mobile ; le futur provisionnement
+doit refuser une identité différente du verrou, pas la suivre implicitement.
+
+Contrôle complémentaire du code officiel Ollama 0.35.0 le 4 octobre :
+[`PullModel`, `server/images.go`](https://github.com/ollama/ollama/blob/v0.35.0/server/images.go#L936)
+conserve les octets reçus du registre (`pullModelManifest`, lignes 1194–1214)
+et les écrit tels quels au stockage (ligne 1039). Il ne resérialise pas ici
+les champs additionnels `runner` et `format`. Le digest est calculé à la
+lecture du fichier dans
+[`manifest/manifest.go`](https://github.com/ollama/ollama/blob/v0.35.0/manifest/manifest.go#L133).
+Ce constat de code justifie le contrôle du SHA brut ; il ne remplace pas
+le rapprochement HTTP et fichiers après un provisionnement réel.
+
+Diagnostic réseau du provisionnement le 4 octobre : la documentation de
+[`net`, Go 1.26.0, Name Resolution](https://pkg.go.dev/net@go1.26.0#hdr-Name_Resolution)
+décrit `GODEBUG=netdns=cgo` pour utiliser le résolveur système lorsqu'il est
+présent dans le binaire. Le
+[`go.mod` d'Ollama 0.35.0](https://github.com/ollama/ollama/blob/v0.35.0/go.mod)
+déclare Go 1.26.0. Cette source justifie un essai borné au processus de
+provisionnement, pas une modification DNS de la machine. Le premier pull
+a échoué sur IPv6 ; les lectures HTTPS Python et curl IPv4 du même manifeste
+ont réussi. La cause précise et l'effet du changement de résolveur restent
+à vérifier ; ni proxy ni certificat désactivé.
+
+Diagnostic des segments GGUF, sources officielles v0.35.0 relues le 4 octobre :
+[`download.go`](https://github.com/ollama/ollama/blob/v0.35.0/server/download.go)
+fixe 16 transferts et réessaie les segments bloqués ; la reprise lit les
+sidecars et leurs offsets `Range`. Les variables d'inférence ne règlent pas
+cette concurrence ([envconfig](https://github.com/ollama/ollama/blob/v0.35.0/envconfig/config.go)).
+Le transport des ranges choisit une adresse résolue et ne configure pas de
+proxy ([redirect.go](https://github.com/ollama/ollama/blob/v0.35.0/transfer/redirect.go)) ;
+aucun sélecteur IPv4 officiel applicable identifié. Au redémarrage,
+`Serve` appelle `PruneLayers` sauf `OLLAMA_NOPRUNE` ; les partiels âgés
+de plus d'une heure peuvent être supprimés
+([routes.go](https://github.com/ollama/ollama/blob/v0.35.0/server/routes.go),
+[images.go](https://github.com/ollama/ollama/blob/v0.35.0/server/images.go)).
+Une éventuelle reprise doit donc préserver le store et les partiels, sans
+modifier le DNS global, le TLS ou détourner un paramètre d'inférence.
+Ce constat ne prouve pas la cause des stalls ; aucun arrêt de téléchargement
+ni ajout de `OLLAMA_NOPRUNE` effectué à ce relevé.
+
+Le tokenizer candidat du producteur est
+[Qwen/Qwen3.5-2B, révision `15852e8c16360a2fea060d615a32b45270f8a8fc`](https://huggingface.co/Qwen/Qwen3.5-2B/tree/15852e8c16360a2fea060d615a32b45270f8a8fc).
+Ses six fichiers ont été lus depuis les URLs `resolve` versionnées, en
+mémoire seulement, puis hachés :
+
+| Fichier | Octets | SHA-256 |
+| --- | ---: | --- |
+| `tokenizer.json` | 12 807 982 | `5f9e4d4901a92b997e463c1f46055088b6cca5ca61a6522d1b9f64c4bb81cb42` |
+| `tokenizer_config.json` | 16 709 | `49e2b6e395f959f077f1e992b338919c0d4a9732fc6e613995e06557f843500c` |
+| `chat_template.jinja` | 7 755 | `273d8e0e683b885071fb17e08d71e5f2a5ddfb5309756181681de4f5a1822d80` |
+| `config.json` | 2 908 | `ed1c1723241f23f7f4e23430759cbd7dcfb4103cbdfe052bfe7626b57c2615b4` |
+| `LICENSE` | 11 544 | `bbedc3fda3305820b977265f01b8619d87570a6739de3a5582c3464840f1e57a` |
+| `README.md` | 62 814 | `c0e83a849c776e6fa843d011f023132d942a0f0140d903205bf1c363adad2275` |
+
+Les chemins officiels et les digests complets des couches figurent dans la
+preuve privée `R23_OFFICIAL_2B_IDENTITY_OBSERVATIONS_20261004.json`, sous
+QA R15 `evidence-review/modal-source249-ROOT-20261004/`, SHA-256
+`0fedc1b54b5d3b2e90737f8eda9851d5ac02225c303e6d14c4c1820b23182ed9`.
+Les accès directs du navigateur de recherche au registre et au fichier
+`raw` Hugging Face ont échoué ; la lecture HTTPS des endpoints officiels
+par la bibliothèque standard a réussi. Une erreur initiale d'échappement
+du lecteur s'est produite avant tout accès réseau, puis a été corrigée.
+
+Limites de cette consultation du 4 octobre à 19:17 UTC : les poids et le projecteur n'ont pas été téléchargés ni inspectés,
+aucun artefact n'a été installé et aucun appel au modèle n'a été exécuté.
+Le tokenizer documentaire ne prouve pas sa parité avec `prompt_eval_count`
+d'Ollama. La séparation du projecteur ne prouve pas encore le comportement
+texte seul sur cette version. Admission mémoire, latence, qualité, génération
+SSE/citations et non-régression 4B restent à vérifier sur une cible isolée.
 
 ## R15S57 — lecture de pixels et drainage du harnais Q05
 
@@ -3599,7 +3798,7 @@ Observation locale distincte : `config/local16.yaml` et
 `config/models.lock.json` n'identifient que la source 4B et sa variante texte ;
 `services/runtime/cli.py` contrôle l'identité des modèles du profil et la
 quantification via `_model_record`. Ces lectures soutiennent le statut
-NOT_STARTED de [R23](PLAN.md#r23--démarrage-optionnel-avec-qwen-35-2b-q4_k_m),
+NOT_STARTED au relevé du 3 octobre de [R23](PLAN.md#r23--choix-du-modèle-de-génération-et-défaut-qwen-35-2b),
 pas une impossibilité du 2B. Aucun modèle téléchargé, profil modifié ou essai
 de génération effectué lors de cette inscription. Compatibilité tokenizer,
 template, dérivation texte, identité, admission et qualité restent à tester.
@@ -4446,7 +4645,7 @@ END;
 -- LIMIT 24;
 ```
 
-## Fichier : `config/local16.yaml`
+## Fichier : `config/local16-4b.yaml`
 
 ```yaml
 schema_version: 2
@@ -4600,6 +4799,211 @@ resources:
   admit_heavy_min_available_mib: 3072
   sampling_interval_seconds: 1
   unload_llm_before_ingestion: true
+  initial_llm_load_peak_estimate_mib: 3456
+  warm_llm_additional_peak_estimate_mib: 512
+  embedding_load_peak_estimate_mib: 512
+  generation_admission_wait_seconds: 120
+  initial_parser_peak_estimate_mib: 2304
+  scheduling:
+    initial_mode: interactive
+    pause_policy: cooperative_checkpoint
+    kill_on_interactive_request: false
+    auto_resume_ingestion: false
+    watchdog_no_progress_seconds_initial: 300
+    watchdog_window_seconds_initial: 900
+    record_checkpoint_and_reload_costs: true
+security:
+  # W011 : development = HTTP loopback sans cookie Secure ; production = HTTPS, cookies Secure et __Host-, HSTS.
+  environment: development
+  session_idle_minutes: 120
+  session_absolute_hours: 12
+  launch_link_ttl_seconds: 300
+  tls_cert_file: null
+  tls_key_file: null
+ui:
+  pdf_max_high_resolution_canvases: 5
+  pdf_max_device_pixel_ratio: 2
+  default_scope: document_if_open_else_library
+  citation_navigation_preserves_scope: true
+  assets_local_only: true
+  pdf_max_total_raster_pixels: 24000000
+  include_thumbnails_in_raster_budget: true
+  selection_offset_unit: unicode_code_point
+  selection_requires_text_hash: true
+evaluation_targets:
+  retrieval_p95_seconds: 3
+  warm_ttft_p95_seconds: 45
+  warm_answer_400_tokens_p95_seconds: 180
+  recall_at_10_min: 0.9
+  supported_claim_ratio_min: 0.95
+  no_answer_correct_ratio_min: 0.9
+  citation_integrity_ratio: 1.0
+  scope_leakage_count: 0
+  evidence_coverage_at_context_min: 0.9
+  answer_correctness_on_answerable_min: 0.85
+  qualification_questions: 200
+  development_questions: 100
+  heldout_questions: 100
+  heldout_unanswerable_questions: 20
+baseline: RAG-LOCAL-16-v2.1
+```
+
+## Fichier : `config/local16.yaml`
+
+```yaml
+schema_version: 2
+profile: local16
+app:
+  host: 127.0.0.1
+  port: 8785
+  asgi_workers: 1
+  data_dir: .runtime/data
+  offline: true
+  telemetry: false
+  log_document_text: false
+llm:
+  provider: ollama
+  base_url: http://127.0.0.1:11434
+  model: qwen3.5:2b
+  source_model: qwen3.5:2b
+  model_manifest: .runtime/manifests/ollama-model-2b.json
+  source_model_manifest: .runtime/manifests/ollama-model-2b.json
+  required_quantization: Q8_0
+  num_ctx: 8192
+  num_predict: 768
+  temperature: 0.2
+  top_p: 0.9
+  think: false
+  # W024, W025 : auto = génération sur GPU pour un poste qualifié où Ollama en découvre un, CPU sinon ; cpu = calcul CPU imposé (recette D07) ; gpu = essai sur un poste non qualifié.
+  accelerator: auto
+  threads_max: 4
+  keep_alive: 10m
+  prompt_cache_mib: 256
+  context_checkpoints_max: 2
+  connect_timeout_seconds: 5
+  idle_read_timeout_seconds: 300
+  max_active_generations: 1
+  max_pending_generations: 2
+  output_tokens_by_mode:
+    factual: 384
+    ordinary: 768
+    analysis: 768
+    compare: 768
+  tokenizer_model_id: Qwen/Qwen3.5-2B
+  tokenizer_dir: .runtime/models/qwen3.5-2b-tokenizer
+embedding:
+  model_id: intfloat/multilingual-e5-small
+  local_dir: .runtime/models/e5-small-int8
+  backend: onnxruntime
+  provider: CPUExecutionProvider
+  weights_precision: int8
+  dimensions: 384
+  query_prefix: 'query: '
+  passage_prefix: 'passage: '
+  max_model_tokens: 512
+  normalize_l2: true
+  batch_size: 8
+  intra_op_threads: 2
+  inter_op_threads: 1
+  allow_spinning: false
+  qualification:
+    baseline_required: true
+    candidate_model_id: ibm-granite/granite-embedding-97m-multilingual-r2
+    max_candidates: 1
+    verify_official_artifact_before_use: true
+    if_candidate_unverifiable: retain_baseline_and_report
+    simultaneous_models: false
+  onnx_file: model.onnx
+pdf:
+  parser: docling_router
+  device: cpu
+  worker_processes: 1
+  threads_max: 2
+  table_mode: accurate_when_structured
+  ocr_engine: tesseract_cli
+  ocr_languages:
+  - fra
+  - eng
+  ocr_policy: selective_regions
+  enable_remote_services: false
+  generate_page_images: false
+  picture_description: false
+  max_file_mib: 200
+  max_document_pages: 2000
+  max_page_render_pixels: 8000000
+  max_ocr_region_pixels: 13000000
+  suspect_text_min_alnum_chars: 40
+  suspect_text_max_replacement_ratio: 0.02
+  routes:
+  - native
+  - structured
+  - regional_ocr
+  native_parser_threads: 2
+  model_inference_threads: 2
+  checkpoint_window_pages_initial: 4
+  coverage_unit: region
+  native_route_requires_quality_gate: true
+  ocr_mode_requested: pdf_aware_layout_regions
+  parser_api_contract_check_required: true
+  artifacts_path: .runtime/models/docling
+  tesseract_cmd: .runtime/bin/tesseract-5.4.0/tesseract.exe
+  tessdata_dir: .runtime/models/tessdata
+  pdf_backend: pypdfium2
+  ocr_intrinsic_aspect: true
+  ocr_cell_ink_crop: true
+  ocr_min_word_confidence: 0.8
+chunking:
+  tokenizer: embedding
+  target_tokens: 320
+  max_prefixed_tokens: 448
+  overlap_max_tokens: 48
+  respect_section_boundaries: true
+  parent_expand_max_llm_tokens: 900
+retrieval:
+  dense_top_k: 24
+  lexical_top_k: 24
+  rrf_k: 60
+  final_max_fragments: 6
+  hnsw_ef: 64
+  reranker: false
+  max_evidence_llm_tokens: 5120
+  max_history_llm_tokens: 512
+  max_instructions_question_llm_tokens: 1024
+  context_safety_tokens: 256
+  constrained_max_fragments: 8
+  exact_identifier_final_coverage_required: true
+  context_coverage_check_required: true
+  evidence_tokens_by_mode:
+    factual: 1536
+    ordinary: 2560
+    analysis: 5120
+    compare: 5120
+  history_is_evidence: false
+qdrant:
+  url: http://127.0.0.1:6333
+  collection: pdf_chunks_e5small_v1
+  distance: Cosine
+  vector_dimensions: 384
+  upsert_batch_size: 64
+  wait_for_upserts: true
+  vector_storage_initial: mapped
+  hnsw_storage_initial: ram_or_cached
+  collection_api_contract_check_required: true
+  model_identity_in_collection_name_required: true
+sqlite:
+  path: .runtime/data/app.sqlite3
+  journal_mode: WAL
+  foreign_keys: true
+  busy_timeout_ms: 5000
+  cache_size_kib: 32768
+  fts_tokenizer: unicode61 remove_diacritics 2
+resources:
+  application_target_max_mib: 10240
+  host_available_min_mib: 1536
+  admit_heavy_min_available_mib: 3072
+  sampling_interval_seconds: 1
+  unload_llm_before_ingestion: true
+  # R23 : borne provisoire conservée ; le pic 2B doit être mesuré avant qualification.
   initial_llm_load_peak_estimate_mib: 3456
   warm_llm_additional_peak_estimate_mib: 512
   embedding_load_peak_estimate_mib: 512

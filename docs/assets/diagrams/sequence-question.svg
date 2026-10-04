@@ -30,7 +30,7 @@
 <text x="624" y="107" font-size="12" fill="#4A5961" text-anchor="middle">ResourceGovernor</text>
 <rect x="712" y="70" width="124" height="46" rx="6" fill="#E3EEF6" stroke="#1F5F8B" stroke-width="1.4"/>
 <text x="774" y="89" font-size="13" fill="#172B33" font-weight="600" text-anchor="middle">Ollama</text>
-<text x="774" y="107" font-size="12" fill="#4A5961" text-anchor="middle">qwen3.5:4b-text</text>
+<text x="774" y="107" font-size="12" fill="#4A5961" text-anchor="middle">modèle du profil</text>
 <polyline points="82,146 192,146" fill="none" stroke="#1F5F8B" stroke-width="1.6" marker-end="url(#sequence-question-head-1f5f8b)"/>
 <rect x="83" y="128" width="436.92" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
 <text x="86" y="140" font-size="12" fill="#172B33">POST /api/v1/queries + X-CSRF-Token : question, périmètre, mode</text>

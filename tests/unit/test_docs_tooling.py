@@ -130,6 +130,26 @@ def test_runtime_profile_copy_real_repository():
     detail = vp.config_identity_check()
     runtime = (PROJECT / 'config' / 'local16.yaml').read_bytes()
     assert detail['byte_identical'] and detail['sha256'] == hashlib.sha256(runtime).hexdigest()
+    four = (PROJECT / 'config' / 'local16-4b.yaml').read_bytes()
+    assert detail['additional_profiles']['local16-4b.yaml']['sha256'] == hashlib.sha256(four).hexdigest()
+    assert detail['additional_profiles']['local16-4b.yaml']['byte_identical']
+
+
+@pytest.mark.parametrize('case', ['identical', 'different', 'missing_runtime', 'missing_copy'])
+def test_four_b_profile_documentary_copy_is_checked(tmp_path, case):
+    root = tmp_path / 'RAG_Local_Agents'
+    for folder in (tmp_path, root):
+        (folder / 'config').mkdir(parents=True)
+        (folder / 'config/local16.yaml').write_bytes(b'default: 2b\n')
+    if case != 'missing_runtime':
+        (tmp_path / 'config/local16-4b.yaml').write_bytes(b'model: 4b\n')
+    if case != 'missing_copy':
+        (root / 'config/local16-4b.yaml').write_bytes(b'model: wrong\n' if case == 'different' else b'model: 4b\n')
+    if case == 'identical':
+        assert vp.config_identity_check(root)['additional_profiles']['local16-4b.yaml']['byte_identical']
+    else:
+        with pytest.raises((AssertionError, FileNotFoundError), match='local16-4b.yaml'):
+            vp.config_identity_check(root)
 
 
 @pytest.mark.parametrize(('copy', 'reason'), [

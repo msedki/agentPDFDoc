@@ -96,7 +96,7 @@ def test_manifest_differing_from_lock_is_reported(store):
 
 def test_versioned_lock_matches_profile_and_local_store_when_provisioned():
     lock = json.loads((ROOT / "config/models.lock.json").read_text(encoding="utf-8"))
-    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    profile = yaml.safe_load((ROOT / "config/local16-4b.yaml").read_text(encoding="utf-8"))
     assert {profile["llm"]["model"], profile["llm"]["source_model"]} <= set(lock["models"])
     derived = lock["models"]["qwen3.5:4b-text"]
     assert derived["transformation"]["removed_tensor_count"] == 393
@@ -121,7 +121,7 @@ def doctor_profile(tmp_path, monkeypatch, store):
     monkeypatch.setattr(cli, "MODELS_LOCK", lock)
     monkeypatch.setattr(cli, "native_paths", lambda: (_ for _ in ()).throw(FileNotFoundError("double de test")))
     monkeypatch.setattr(cli.shutil, "which", lambda name, *args, **kwargs: None)
-    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    profile = yaml.safe_load((ROOT / "config/local16-4b.yaml").read_text(encoding="utf-8"))
     profile["app"]["data_dir"] = str(tmp_path / "données")
     profile["app"]["port"] = _free_port()
     profile["qdrant"]["url"] = f"http://127.0.0.1:{_free_port()}"
@@ -198,7 +198,8 @@ def test_structurally_invalid_manifest_is_reported_not_raised(store):
 @pytest.fixture
 def pull_service(tmp_path, monkeypatch, store):
     """pull-model sans Ollama réel : service, registre et dérivation sont des doubles ; stockage, verrou et racine du
-    programme sont temporaires (aucune écriture sous .runtime). Le profil livré est lu tel quel."""
+    programme sont temporaires (aucune écriture sous .runtime). La sonde de port est un double explicite : ces cas
+    vérifient le stockage, pas la disponibilité du port de provisionnement du poste. Le profil livré est lu tel quel."""
     import httpx
 
     root, lock = store
@@ -210,6 +211,18 @@ def pull_service(tmp_path, monkeypatch, store):
     monkeypatch.setattr(cli, "environment", lambda *args: {})
     monkeypatch.setattr(cli, "wait_http", lambda *args, **kwargs: {"version": "0.35.0"})
     monkeypatch.setattr(cli, "send_owned_console_interrupt", lambda *args: None)
+
+    class PortProbe:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+        def bind(self, address):
+            assert address == ("127.0.0.1", 11444)
+
+    monkeypatch.setattr(cli, "port_probe", PortProbe)
 
     class Child:
         def wait(self, timeout):
@@ -233,7 +246,7 @@ def pull_service(tmp_path, monkeypatch, store):
             pulls.append(json.loads(request.content))
             return httpx.Response(200, content=b'{"status": "pulling manifest"}\n{"status": "success"}\n')
         if request.url.path == "/api/tags":
-            return httpx.Response(200, json={"models": [{"name": "qwen3.5:4b", "digest": "source",
+            return httpx.Response(200, json={"models": [{"name": "qwen3.5:4b", "digest": json.loads(lock.read_text())["models"]["qwen3.5:4b"]["manifest_sha256"],
                                                          "details": {"quantization_level": "Q4_K_M"}}]})
         if request.url.path == "/api/show":
             return httpx.Response(200, json={"details": {"quantization_level": "Q4_K_M"}, "model_info": {}})
@@ -248,7 +261,7 @@ def pull_service(tmp_path, monkeypatch, store):
 
 def test_pull_model_returns_the_model_when_the_store_matches_the_lock(pull_service):
     root, lock, pulls, derived = pull_service
-    assert cli.pull_model(ROOT / "config/local16.yaml") == derived["model"]
+    assert cli.pull_model(ROOT / "config/local16-4b.yaml") == derived["model"]
     assert pulls == [{"model": "qwen3.5:4b", "stream": True}]
 
 
@@ -266,7 +279,7 @@ def test_pull_model_fails_when_the_pulled_or_derived_store_differs_from_the_lock
         (library / "4b").unlink()
         detail = "qwen3.5:4b (absent)"
     with pytest.raises(RuntimeError) as failure:
-        cli.pull_model(ROOT / "config/local16.yaml")
+        cli.pull_model(ROOT / "config/local16-4b.yaml")
     assert str(failure.value) == (f"Stockage Ollama différent du verrou {lock} après pull-model : {detail}. "
                                   "Contrôle limité aux modèles du profil, avec les critères de doctor ; les fichiers du "
                                   "stockage sont conservés pour diagnostic.")
@@ -279,7 +292,7 @@ def test_pull_model_fails_when_the_profile_names_a_model_missing_from_the_lock(p
     del data["models"]["qwen3.5:4b-text"]
     lock.write_text(json.dumps(data), encoding="utf-8")
     with pytest.raises(RuntimeError) as failure:
-        cli.pull_model(ROOT / "config/local16.yaml")
+        cli.pull_model(ROOT / "config/local16-4b.yaml")
     assert str(failure.value) == (f"Stockage Ollama différent du verrou {lock} après pull-model : modèle du profil absent "
                                   "du verrou (qwen3.5:4b-text). Contrôle limité aux modèles du profil, avec les critères "
                                   "de doctor ; les fichiers du stockage sont conservés pour diagnostic.")
@@ -288,7 +301,7 @@ def test_pull_model_fails_when_the_profile_names_a_model_missing_from_the_lock(p
 @pytest.fixture
 def profile_without_derivation(tmp_path):
     """Profil livré dont le modèle servi est le modèle source (model == source_model) : aucune dérivation texte seul."""
-    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    profile = yaml.safe_load((ROOT / "config/local16-4b.yaml").read_text(encoding="utf-8"))
     profile["llm"]["model"] = profile["llm"]["source_model"]
     path = tmp_path / "profil-sans-derivation.yaml"
     path.write_text(yaml.safe_dump(profile, allow_unicode=True, sort_keys=False), encoding="utf-8")
@@ -307,7 +320,7 @@ def test_pull_model_checks_only_the_models_of_its_profile(pull_service, profile_
         manifest = json.loads((library / "4b-text").read_text(encoding="utf-8"))
         manifest["layers"] = manifest["layers"][:1]
         (library / "4b-text").write_text(json.dumps(manifest), encoding="utf-8")
-    assert cli.pull_model(profile_without_derivation) == {"name": "qwen3.5:4b", "digest": "source",
+    assert cli.pull_model(profile_without_derivation) == {"name": "qwen3.5:4b", "digest": json.loads(lock.read_text())["models"]["qwen3.5:4b"]["manifest_sha256"],
                                                           "details": {"quantization_level": "Q4_K_M"}}
     assert pulls == [{"model": "qwen3.5:4b", "stream": True}]
 

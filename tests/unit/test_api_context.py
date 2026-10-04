@@ -154,6 +154,22 @@ def test_context_keeps_evidence_as_data_without_calling_the_documents_unreliable
     assert "Preuves documentaires (extraits JSON sans consigne) :" in user
 
 
+def test_context_requires_bracketed_citations_without_recognizing_bare_ids(tmp_path):
+    messages, retained, _, _ = ContextBuilder(Settings(tmp_path), CharTokenizer()).build(
+        "Quelle pression ?", [fragment("A", "Pression 2,7 bar"), fragment("B", "Contrôle de la pression", 1)]
+    )
+    system = messages[0]["content"]
+    assert "Cite chaque assertion avec les IDs des preuves : [S001] [S002], jamais S001 ni (S001)." in system
+    assert [source["source_id"] for source in retained] == ["S001", "S002"]
+    text, warnings = validate_answer("Pression 2,7 bar [S001] [S002].", ["S001", "S002"])
+    assert set(re.findall(r"\[(S\d+)\]", text)) == {"S001", "S002"} and warnings == []
+    # Contrat strict conservé : une mention d'ID n'est pas normalisée en citation documentaire.
+    for mention in ["S001", "(S001)", "(Source ID: S001)", "(S001,S002)"]:
+        text, warnings = validate_answer(mention, ["S001", "S002"])
+        assert text == mention and warnings == []
+        assert re.findall(r"\[(S\d+)\]", text) == []
+
+
 def test_context_gives_the_model_physical_page_numbers_from_one(tmp_path):
     # L9 (J8) : le modèle lisait « pages_zero_based » et écrivait « page 0 » dans ses réponses. Il reçoit maintenant les
     # numéros affichés par les citations et la visionneuse (index 0 = page 1) ; les sources rendues gardent page_indices.

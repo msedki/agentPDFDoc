@@ -1,6 +1,6 @@
 # Déploiement sur le poste de l'utilisateur
 
-**Rôle :** procédures de préparation d'un clone et de distribution interne du kit Windows, avec cibles, contrôles et reprise · **Propriétaire :** exploitation et distribution locale · **Statut :** Stabilisé · **Référence :** commit `5ca3685` et rédaction documentaire locale R14-1 du 2026-10-02 ; scripts lus, aucune fabrication, installation, mise à jour ou désinstallation exécutée pour cette rédaction · **Mis à jour :** 2026-10-02 17:09 (UTC) · **Source de vérité :** `bootstrap.ps1`, `bootstrap.sh`, `rag.ps1`, `rag.sh`, `tools/dist/build_kit.py`, `install.ps1`, `shortcuts.ps1`, `uninstall.ps1` et `services/runtime/profile_setup.py` · **Remplace :** aucun document
+**Rôle :** procédures de préparation d'un clone et de distribution interne du kit Windows, avec cibles, contrôles et reprise · **Propriétaire :** exploitation et distribution locale · **Statut :** Stabilisé · **Référence :** commit `5ca3685` et rédaction documentaire locale R14-1 du 2026-10-02 ; scripts lus, aucune fabrication, installation, mise à jour ou désinstallation exécutée pour cette rédaction ; choix de modèle R23 relu dans le code intégré et modifications locales du 2026-10-04, sans qualification native transférée · **Mis à jour :** 2026-10-04 20:05 (UTC) · **Source de vérité :** `bootstrap.ps1`, `bootstrap.sh`, `rag.ps1`, `rag.sh`, `tools/dist/build_kit.py`, `install.ps1`, `shortcuts.ps1`, `uninstall.ps1` et `services/runtime/profile_setup.py` · **Remplace :** aucun document
 
 ## 1. Voies et conditions
 
@@ -19,7 +19,7 @@ Les prérequis communs (mémoire, disque, Node/pnpm, ports, GPU) sont dans le [R
 
 ## 2. Préparer un clone
 
-Prérequis : clone dans un dossier appartenant à l'utilisateur, [profil livré](../../config/local16.yaml) relu, ports disponibles, ressources et outils prérequis présents. Le premier provisionnement accède aux sources officielles verrouillées ; un provisionnement hors ligne exige des caches déjà remplis. Ne pas mélanger le clone, ses données et une installation du kit.
+Prérequis : clone dans un dossier appartenant à l'utilisateur, modèle choisi ([profil 2B par défaut](../../config/local16.yaml) ou [profil 4B](../../config/local16-4b.yaml)) relu, ports disponibles, ressources et outils prérequis présents. Le premier provisionnement accède aux sources officielles verrouillées ; un provisionnement hors ligne exige des caches déjà remplis. Ne pas mélanger le clone, ses données et une installation du kit.
 
 Depuis la racine du clone, sous Windows PowerShell :
 
@@ -36,6 +36,8 @@ Sous Linux, depuis un shell POSIX à la racine du clone :
 ./rag.sh provision
 ./rag.sh doctor
 ```
+
+Sans option de modèle ou de profil, ces commandes préparent `qwen3.5:2b` et son tokenizer. Pour le 4B, conserver `-Model qwen3.5:4b` sous Windows ou `--model qwen3.5:4b` sous Linux sur `provision`, `doctor`, `up` et `open`. Un profil utilisateur se transmet exclusivement par `-Profile`/`--profile` ; il n'est pas converti automatiquement vers le défaut. La [procédure de changement de modèle](../exploitation/EXPLOITATION.md#91-changer-le-modèle-de-génération) préserve ses chemins et prévoit la reprise. Les essais historiques de la section 1 ne qualifient pas par anticipation une installation 2B.
 
 Effets persistants : environnement Python `.venv/`, outils, caches, binaires, modèles et manifestes sous `.runtime/`, export statique `apps/web/out/`. Le détail des étapes, options hors ligne et erreurs est tenu dans l'[exploitation, préparation](../exploitation/EXPLOITATION.md#2-préparer-le-poste) ; les versions et empreintes attendues proviennent des verrous, pas de valeurs choisies dans cette procédure.
 

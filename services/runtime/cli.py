@@ -64,6 +64,16 @@ from .supervisor import (
 
 MODELS_LOCK = ROOT / "config/models.lock.json"
 PNPM_DEFAULT_VERSION = "10.34.1"
+MODEL_PROFILES = {"qwen3.5:2b": "local16.yaml", "qwen3.5:4b": "local16-4b.yaml"}
+
+
+def model_profile_path(profile: Path | None, model: str | None) -> Path:
+    """Un choix au démarrage sélectionne un vrai profil, sans réécrire un profil utilisateur."""
+    if profile is not None and model is not None:
+        raise ValueError("--model et --profile sont exclusifs ; choisissez le profil utilisateur ou un modèle livré")
+    if model is not None and model not in MODEL_PROFILES:
+        raise ValueError("Modèle livré inconnu ; choisir qwen3.5:2b ou qwen3.5:4b")
+    return profile if profile is not None else ROOT / "config" / MODEL_PROFILES[model or "qwen3.5:2b"]
 
 
 def pnpm_required_version() -> str:
@@ -130,7 +140,7 @@ def ollama_store_files(name: str, store: Path | None = None) -> dict:
 
 
 def model_lock_conformity(lock_path: Path | None = None, store: Path | None = None,
-                          hash_limit_bytes: int | None = 1048576) -> dict:
+                          hash_limit_bytes: int | None = 1048576, *, models: set[str] | None = None) -> dict:
     """Conformité hors ligne du stockage Ollama au verrou versionné.
 
     Les blobs jusqu'à hash_limit_bytes sont rehachés (None : tous) ; au-delà, la taille est comparée.
@@ -141,6 +151,8 @@ def model_lock_conformity(lock_path: Path | None = None, store: Path | None = No
     result: dict = {"status": "conform", "lock": str(lock_path), "lock_sha256": file_hash(lock_path),
               "hash_limit_bytes": hash_limit_bytes, "models": {}}
     for name, expected in lock["models"].items():
+        if models is not None and name not in models:
+            continue
         files = ollama_store_files(name, store)
         issues = [*files.get("issues", [])]
         if files["status"] in {"absent", "invalid_manifest"}:
@@ -173,14 +185,15 @@ def _profile_models(profile: dict) -> set[str]:
 def profile_model_lock(profile: dict) -> dict:
     """Contrôle du verrou des modèles commun à doctor et pull-model : stockage Ollama comparé au verrou (blobs rehachés
     jusqu'au seuil de model_lock_conformity, tailles au-delà) et modèles du profil présents dans le verrou."""
-    check = model_lock_conformity()
+    check = model_lock_conformity(models=_profile_models(profile))
+    check["scope"] = "profile_source_and_served_models_only"
     check["profile_models_locked"] = all(name in check["models"] for name in _profile_models(profile))
     return check
 
 
 def model_lock_differences(check: dict, profile: dict) -> str | None:
     """Écarts au verrou des seuls modèles du profil (source et servi) dans un contrôle profile_model_lock, en une phrase ;
-    None s'ils sont conformes. Les autres modèles du verrou n'entrent pas dans ce contrôle (doctor juge tout le verrou)."""
+    None s'ils sont conformes. Les autres modèles du verrou n'entrent pas dans ce contrôle (doctor juge également les seuls modèles du profil)."""
     used = _profile_models(profile)
     parts = []
     unlocked = sorted(used - set(check["models"]))
@@ -580,6 +593,11 @@ def _model_record(client, base_url: str, name: str, quantization: str) -> tuple[
     observed = model.get("details", {}).get("quantization_level")
     if observed != quantization:
         raise RuntimeError(f"Quantification {observed} différente du contrat")
+    expected = json.loads(MODELS_LOCK.read_text(encoding="utf-8"))["models"].get(name, {})
+    digest = expected.get("manifest_sha256")
+    if (not isinstance(digest, str) or len(digest) != 64 or set(digest) - set("0123456789abcdef")
+            or model.get("digest") != digest):
+        raise RuntimeError("Digest Ollama différent ou absent du verrou ; aucun manifeste provisionné écrit")
     payload = client.post(base_url + "/api/show", json={"model": name})
     payload.raise_for_status()
     return model, payload.json()
@@ -645,6 +663,16 @@ def _derive_text_model(client, base_url: str, profile: dict, env: dict, director
     return manifest
 
 
+def model_pull_environment(profile: dict, directory: Path, profile_path: Path) -> dict[str, str]:
+    """Réseau du provisionnement seul ; les services du poste restent hors ligne."""
+    env = environment(profile, directory, profile_path)
+    if sys.platform == "linux":
+        # Go 1.26 : le résolveur système respecte getaddrinfo sur un hôte sans route IPv6.
+        # Valeur propre au processus, pas héritée d'un GODEBUG utilisateur ni propagée à up.
+        env["GODEBUG"] = "netdns=cgo"
+    return env
+
+
 def pull_model(profile_path: Path, offline: bool = False) -> dict:
     import httpx
 
@@ -656,7 +684,7 @@ def pull_model(profile_path: Path, offline: bool = False) -> dict:
         probe.bind(("127.0.0.1", 11444))
     paths = native_paths()
     directory = ROOT / ".runtime/provision-service"
-    env = environment(profile, directory, profile_path)
+    env = model_pull_environment(profile, directory, profile_path)
     with ProcessJob() as job:
         child = job.launch([str(paths["ollama"]), "serve"], cwd=ollama_working_directory(paths["ollama"]), env=env,
                            log_path=directory / "ollama-pull.log")
@@ -800,8 +828,10 @@ def provision(profile_path: Path, only: str | None = None, offline: bool = False
     # provisionnement limité à un autre groupe ne lit pas le profil, comme avant.
     profile: dict | None = None
     signals: dict | None = None
-    if only in (None, "ollama", GPU_GROUP):
-        profile, signals = load_profile(profile_path), host_signals()
+    if only in (None, "ollama", GPU_GROUP, "qwen-tokenizer"):
+        profile = load_profile(profile_path)
+        if only != "qwen-tokenizer":
+            signals = host_signals()
     uv = ROOT / ".runtime/bootstrap/bin" / executable_name("uv")
     if not only:
         subprocess.run([str(uv), "sync", "--locked", "--python", sys.executable, "--no-python-downloads",
@@ -817,7 +847,9 @@ def provision(profile_path: Path, only: str | None = None, offline: bool = False
     complements: list[dict] = []
     if profile is not None and signals is not None:
         skip_groups, complements = gpu_complement(profile, only, signals)
-    provision_artifacts(only, offline=offline, skip_groups=skip_groups, signals=signals)
+    tokenizer_model_id = (profile or {}).get("llm", {}).get("tokenizer_model_id", "Qwen/Qwen3.5-4B")
+    provision_artifacts(only, offline=offline, skip_groups=skip_groups, signals=signals,
+                        tokenizer_model_id=tokenizer_model_id)
     if not only:
         assert profile is not None
         from .provisioning import tesseract
@@ -907,7 +939,8 @@ def open_workspace(profile_path: Path, *, launch: bool = True) -> dict[str, Any]
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["provision", "doctor", "up", "status", "logs", "down", "_serve", "pull-model", "backup", "restore", "verify", "open", "init-profile", "selftest"])
-    parser.add_argument("--profile", type=Path, default=ROOT / "config/local16.yaml")
+    parser.add_argument("--profile", type=Path, help="Profil utilisateur explicite, exclusif de --model")
+    parser.add_argument("--model", choices=list(MODEL_PROFILES), help="Modèle du profil livré (défaut : qwen3.5:2b)")
     parser.add_argument("--only")
     parser.add_argument("--offline", action="store_true")
     parser.add_argument("--skip-model", action="store_true")
@@ -919,6 +952,7 @@ def main() -> int:
     parser.add_argument("--ports", help="init-profile : ports API,Qdrant,Ollama séparés par des virgules")
     args = parser.parse_args()
     try:
+        args.profile = model_profile_path(args.profile, args.model)
         if args.command == "_serve":
             return supervise(args.profile)
         if args.command == "provision":

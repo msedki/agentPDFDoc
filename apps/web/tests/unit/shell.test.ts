@@ -282,7 +282,7 @@ test("one message slot replaces the former readiness notice and workspace error 
 test("the generation hardware read on /jobs closes the context band, and nothing is shown after a failed read", () => {
   const band = code("components/context-band.tsx");
   assert.match(band, /const computing = generationView\(generation, commands\);/);
-  assert.match(band, /\{computing && <GenerationIndicator view=\{computing\} \/>\}/);
+  assert.match(band, /\{computing && <GenerationIndicator view=\{computing\} model=\{model\} \/>\}/);
   // Dernier élément du bandeau, aligné à droite sous l'état des services de la barre supérieure.
   assert.ok(band.indexOf("<GenerationIndicator view") > band.lastIndexOf('className="context-message '), "indicateur après l'emplacement de message");
   assert.match(workspace, /generation=\{jobs\.isError \? null : readGeneration\(jobs\.data\?\.generation\)\}/);
@@ -297,8 +297,8 @@ test("the generation indicator announces its changes politely and opens its expl
   // Région de statut polie : un passage en repli ou une nouvelle occupation du modèle est annoncé sans voler le focus.
   assert.match(band, /<div className="context-generation" ref=\{container\}>\s*<span role="status"><StatusIndicator status=\{view\.status\} \/><\/span>/);
   // Explication derrière un bouton : clavier, toucher et lecteurs d'écran, même quand l'emplacement de message est occupé.
-  assert.match(band, /<Button ref=\{trigger\} type="button" variant="ghost" size="icon" className="generation-help" aria-expanded=\{open\} aria-controls=\{open \? detailId : undefined\}\s+aria-label="Explication du matériel de génération"/);
-  assert.match(band, /\{open && <p className="generation-help-text" id=\{detailId\}>\{view\.detail\}<\/p>\}/);
+  assert.match(band, /<Button ref=\{trigger\} type="button" variant="ghost" size="icon" className="generation-help" aria-expanded=\{open\} aria-controls=\{open \? detailId : undefined\}\s+aria-label="Explication du modèle et du matériel de génération"/);
+  assert.match(band, /\{open && <p className="generation-help-text" id=\{detailId\}>\{model && <>\{model\.detail\} <\/>\}\{view\.detail\}<\/p>\}/);
   assert.match(band, /useDismiss\(open, container, reason => \{ setOpen\(false\); if \(reason === "escape"\) trigger\.current\?\.focus\(\); \}\);/);
   // L'explication n'est plus confiée au seul attribut title, illisible au clavier et au toucher.
   assert.doesNotMatch(band, /title=\{(?:computing|view)\.detail\}/);

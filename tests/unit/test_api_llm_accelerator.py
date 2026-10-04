@@ -244,7 +244,7 @@ def test_diagnostics_and_jobs_report_the_generation_device_and_its_fallback(tmp_
     with TestClient(app, base_url=ORIGIN) as client:
         assert client.get("/api/v1/diagnostics", headers=control).json()["llm_accelerator"] == {
             "requested": "auto", "requested_source": "profile", "mode": "gpu", "reason": "gpu_discovered", "fallback": None}
-        assert client.get("/api/v1/jobs", headers=control).json()["generation"] == {"device": "gpu", "fallback": False, "processor": None}
+        assert client.get("/api/v1/jobs", headers=control).json()["generation"] == {"device": "gpu", "fallback": False, "processor": None, "model": "qwen3.5:4b"}
 
         async def answer():
             return [event async for event in gateway.stream(REFERENCE_MESSAGES, asyncio.Event(), 384)]
@@ -256,7 +256,7 @@ def test_diagnostics_and_jobs_report_the_generation_device_and_its_fallback(tmp_
     assert {key: accelerator[key] for key in ("requested", "mode", "reason")} == {"requested": "auto", "mode": "cpu", "reason": "gpu_discovered"}
     assert set(accelerator["fallback"]) == {"utc", "http_status", "error"} and accelerator["fallback"]["error"] == LOAD_FAILURE
     # Le repli décharge le modèle : son occupation n'est plus connue avant la question suivante.
-    assert jobs["generation"] == {"device": "cpu", "fallback": True, "processor": None}
+    assert jobs["generation"] == {"device": "cpu", "fallback": True, "processor": None, "model": "qwen3.5:4b"}
 
 
 def test_cpu_instance_reports_cpu_without_fallback(tmp_path, monkeypatch):
@@ -265,7 +265,7 @@ def test_cpu_instance_reports_cpu_without_fallback(tmp_path, monkeypatch):
     with TestClient(app, base_url=ORIGIN) as client:
         assert client.get("/api/v1/diagnostics", headers=control).json()["llm_accelerator"] == {
             "requested": "auto", "requested_source": "profile", "mode": "cpu", "reason": "no_gpu_discovered", "fallback": None}
-        assert client.get("/api/v1/jobs", headers=control).json()["generation"] == {"device": "cpu", "fallback": False, "processor": None}
+        assert client.get("/api/v1/jobs", headers=control).json()["generation"] == {"device": "cpu", "fallback": False, "processor": None, "model": "qwen3.5:4b"}
 
 
 GPU_SIZE = GPU_RESIDENT["size"]
@@ -292,10 +292,10 @@ def test_jobs_publish_the_model_placement_observed_after_a_gpu_answer(tmp_path, 
         return events
     with TestClient(app, base_url=ORIGIN) as client:
         # Modèle absent avant la première question : aucune occupation observée.
-        assert client.get("/api/v1/jobs", headers=control).json()["generation"] == {"device": "gpu", "fallback": False, "processor": None}
+        assert client.get("/api/v1/jobs", headers=control).json()["generation"] == {"device": "gpu", "fallback": False, "processor": None, "model": "qwen3.5:4b"}
         assert client.portal.call(answer)[-1]["metrics"]["llm_execution"] == {"mode": "gpu", "fallback": False}
         calls = list(scripted.calls)
-        assert client.get("/api/v1/jobs", headers=control).json()["generation"] == {"device": "gpu", "fallback": False, "processor": processor}
+        assert client.get("/api/v1/jobs", headers=control).json()["generation"] == {"device": "gpu", "fallback": False, "processor": processor, "model": "qwen3.5:4b"}
         assert client.get("/api/v1/jobs", headers=control).json()["generation"]["processor"] == processor
         assert scripted.calls == calls, "/jobs ne contacte pas Ollama"
         client.portal.call(answer)
@@ -343,7 +343,7 @@ def test_a_failed_placement_reading_after_the_answer_keeps_the_answer_and_the_la
         events = client.portal.call(answer)
         generation = client.get("/api/v1/jobs", headers={"X-RAG-Control-Token": CONTROL}).json()["generation"]
     assert [event["type"] for event in events] == ["delta", "done"] and reads == ["/api/ps"]
-    assert generation == {"device": "gpu", "fallback": False, "processor": "100% GPU"}
+    assert generation == {"device": "gpu", "fallback": False, "processor": "100% GPU", "model": "qwen3.5:4b"}
 
 
 def test_public_routes_never_disclose_the_generation_hardware(tmp_path, monkeypatch):

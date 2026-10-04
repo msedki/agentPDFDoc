@@ -159,6 +159,12 @@ def config_identity_check(root: Path = ROOT):
     """Les copies documentaires du profil et de la configuration de collection runtime restent identiques octet pour octet."""
     detail={'runtime_profile':'config/local16.yaml','documentary_copy':'RAG_Local_Agents/config/local16.yaml',
             'sha256':identical_copy(root.parent/'config/local16.yaml',root/'config/local16.yaml','local16.yaml'),'byte_identical':True}
+    for name in ('local16-4b.yaml',):
+        runtime,copy=root.parent/'config'/name,root/'config'/name
+        if runtime.exists() or copy.exists():
+            detail.setdefault('additional_profiles',{})[name]={
+                'runtime':f'config/{name}','documentary_copy':f'RAG_Local_Agents/config/{name}',
+                'sha256':identical_copy(runtime,copy,name),'byte_identical':True}
     # Le runtime lit la configuration de collection sous config/ ; la copie documentaire du dossier la décrit (C12, DIST-02).
     if (root/'config/qdrant.collection.json').is_file():
         detail['collection_config']={'runtime':'config/qdrant.collection.json','documentary_copy':'RAG_Local_Agents/config/qdrant.collection.json',

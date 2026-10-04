@@ -5,6 +5,51 @@
   "runtime": {"name": "ollama", "version": "0.35.0"},
   "store": ".runtime/models/ollama",
   "models": {
+    "qwen3.5:2b": {
+      "role": "source",
+      "consulted_at_utc": "2026-10-04T19:16:35Z",
+      "source_reference": "R23S02; ROOT 0fedc1b54b5d3b2e90737f8eda9851d5ac02225c303e6d14c4c1820b23182ed9",
+      "source": "https://ollama.com/library/qwen3.5:2b",
+      "manifest_path": "manifests/registry.ollama.ai/library/qwen3.5/2b",
+      "manifest_sha256": "0689d44085e06d165161a8a9a1731344278cfb5aade63a3c3dbdb48ab54b130a",
+      "config": {
+        "mediaType": "application/vnd.docker.container.image.v1+json",
+        "digest": "sha256:0f7af3a2d4145d7e4dbc9dbab778ac7a6aee7104fb93570c047726b5a816781f",
+        "size": 175
+      },
+      "layers": [
+        {
+          "mediaType": "application/vnd.ollama.image.projector",
+          "digest": "sha256:5ddf560e34046fd958b2576324f2a9b57d70f297afe6526958d60a23f3bfc20b",
+          "size": 671372768
+        },
+        {
+          "mediaType": "application/vnd.ollama.image.model",
+          "digest": "sha256:e8bf47d40c5ba68baf8f3e503ee36710da6e8641cb0a670a508cff5b3f0cfbf7",
+          "size": 2012012448
+        },
+        {
+          "mediaType": "application/vnd.ollama.image.template",
+          "digest": "sha256:b507b9c2f6ca642bffcd06665ea7c91f235fd32daeefdf875a0f938db05fb315",
+          "size": 13
+        },
+        {
+          "mediaType": "application/vnd.ollama.image.license",
+          "digest": "sha256:50cbab8a892c5f2993b8c7351a99182507472def3b1374558308605d99b86b32",
+          "size": 11343
+        },
+        {
+          "mediaType": "application/vnd.ollama.image.params",
+          "digest": "sha256:9371364b27a52acac9d87f88bd93c9db1174d8d6ec57f6888925cdc1788871ff",
+          "size": 65
+        }
+      ],
+      "quantization": "Q8_0",
+      "runner": "llamacpp",
+      "format": "gguf",
+      "minimum_ollama_version": "0.30.0",
+      "verification_scope": "Official manifest/config metadata only; no native inference qualification"
+    },
     "qwen3.5:4b": {
       "role": "source",
       "source": "https://ollama.com/library/qwen3.5:4b",

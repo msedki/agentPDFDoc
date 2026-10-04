@@ -118,6 +118,7 @@
     "total": 0,
     "runtime_mode": "interactive|ingestion|null",
     "generation": {
+      "model": "string: exact served model from the startup profile; choosing another requires a stopped instance and restart; no per-query override",
       "device": "gpu|cpu",
       "fallback": "boolean: true once a GPU load failure has switched the instance to CPU until restart (W025)",
       "processor": "string|null: placement of the model last read by the API in Ollama /api/ps, as the PROCESSOR column of ollama ps (100% GPU, 100% CPU, <cpu>%/<gpu>% CPU/GPU or Unknown); read before each question and, in gpu mode, after each answer, never by GET /jobs itself; null until the model has been seen loaded since the API started, and again after a GPU fallback, which unloads it",

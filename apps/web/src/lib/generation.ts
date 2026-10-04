@@ -20,13 +20,24 @@ import { GENERATION_DEVICES, type Generation } from "./types.ts";
  */
 export function readGeneration(value: unknown): Generation | null {
   if (!value || typeof value !== "object") return null;
-  const { device, fallback, processor = null } = value as { device?: unknown; fallback?: unknown; processor?: unknown };
+  const { device, fallback, processor = null, model } = value as { device?: unknown; fallback?: unknown; processor?: unknown; model?: unknown };
   const known = GENERATION_DEVICES.find(item => item === device);
   if (!known || typeof fallback !== "boolean") return null;
   if (processor !== null && (typeof processor !== "string" || !processor)) return null;
   // Après un repli, l'API publie toujours `cpu` : un repli annoncé sur le GPU est incohérent.
   if (fallback && known !== "cpu") return null;
-  return { device: known, fallback, processor };
+  // Le nom est informatif : un champ absent ou invalide ne masque jamais le matériel validé.
+  const printableModel = typeof model === "string" && /^[\x21-\x7E]{1,256}$/.test(model) ? model : undefined;
+  return { device: known, fallback, processor, ...(printableModel === undefined ? {} : { model: printableModel }) };
+}
+
+export type GenerationModelView = { label: string; detail: string };
+
+/** Modèle choisi au démarrage, sans supposer qu’il est déjà chargé ni proposer de changement à chaud. */
+export function generationModelView(generation: Generation | null): GenerationModelView | null {
+  if (!generation?.model) return null;
+  const label = generation.model === "qwen3.5:2b" ? "Qwen 3.5 2B" : generation.model === "qwen3.5:4b-text" ? "Qwen 3.5 4B · texte seul" : generation.model;
+  return { label, detail: `Modèle choisi au démarrage : ${generation.model}. Pour changer de modèle, arrêtez le poste, adaptez la section llm de votre profil sans changer ses chemins de données, puis redémarrez avec ce même profil ; les questions utilisent le modèle de cette instance.` };
 }
 
 /** Occupation du modèle : entièrement sur le GPU, partagée (parts en pour cent), entièrement sur le processeur, ou inconnue. */

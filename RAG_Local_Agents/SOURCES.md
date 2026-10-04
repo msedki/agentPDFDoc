@@ -1,6 +1,92 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5092263` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 17:12 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `3e56c75` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 22:06 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R23S02 — identité du tag 2B et tokenizer versionné
+
+Consultation ROOT le 4 octobre 2026, relevé à 19:17 UTC, après
+reconfirmation du choix du modèle et du défaut `qwen3.5:2b`. Le tag exact
+demandé n'est pas remplacé par le tag Q4_K_M historique de [R23S01](#r23s01--modèle-qwen-35-2b-et-quantification-explicite).
+
+Le [manifeste officiel du registre Ollama](https://registry.ollama.ai/v2/library/qwen3.5/manifests/2b)
+a été lu et haché : 1 088 octets, SHA-256
+`0689d44085e06d165161a8a9a1731344278cfb5aade63a3c3dbdb48ab54b130a`.
+Il désigne le moteur `llamacpp`, le format GGUF, une couche modèle de
+2 012 012 448 octets et un projecteur séparé de 671 372 768 octets.
+La [configuration officielle de cette identité](https://registry.ollama.ai/v2/library/qwen3.5/blobs/sha256:0f7af3a2d4145d7e4dbc9dbab778ac7a6aee7104fb93570c047726b5a816781f)
+porte `Q8_0`, les renderer/parser `qwen3.5` et le prérequis `0.30.0`.
+La [fiche du catalogue](https://ollama.com/library/qwen3.5:2b) distingue
+aussi une distribution MLX : son identité n'est pas celle du runtime
+Ollama 0.35.0 utilisé ici. Le tag reste mobile ; le futur provisionnement
+doit refuser une identité différente du verrou, pas la suivre implicitement.
+
+Contrôle complémentaire du code officiel Ollama 0.35.0 le 4 octobre :
+[`PullModel`, `server/images.go`](https://github.com/ollama/ollama/blob/v0.35.0/server/images.go#L936)
+conserve les octets reçus du registre (`pullModelManifest`, lignes 1194–1214)
+et les écrit tels quels au stockage (ligne 1039). Il ne resérialise pas ici
+les champs additionnels `runner` et `format`. Le digest est calculé à la
+lecture du fichier dans
+[`manifest/manifest.go`](https://github.com/ollama/ollama/blob/v0.35.0/manifest/manifest.go#L133).
+Ce constat de code justifie le contrôle du SHA brut ; il ne remplace pas
+le rapprochement HTTP et fichiers après un provisionnement réel.
+
+Diagnostic réseau du provisionnement le 4 octobre : la documentation de
+[`net`, Go 1.26.0, Name Resolution](https://pkg.go.dev/net@go1.26.0#hdr-Name_Resolution)
+décrit `GODEBUG=netdns=cgo` pour utiliser le résolveur système lorsqu'il est
+présent dans le binaire. Le
+[`go.mod` d'Ollama 0.35.0](https://github.com/ollama/ollama/blob/v0.35.0/go.mod)
+déclare Go 1.26.0. Cette source justifie un essai borné au processus de
+provisionnement, pas une modification DNS de la machine. Le premier pull
+a échoué sur IPv6 ; les lectures HTTPS Python et curl IPv4 du même manifeste
+ont réussi. La cause précise et l'effet du changement de résolveur restent
+à vérifier ; ni proxy ni certificat désactivé.
+
+Diagnostic des segments GGUF, sources officielles v0.35.0 relues le 4 octobre :
+[`download.go`](https://github.com/ollama/ollama/blob/v0.35.0/server/download.go)
+fixe 16 transferts et réessaie les segments bloqués ; la reprise lit les
+sidecars et leurs offsets `Range`. Les variables d'inférence ne règlent pas
+cette concurrence ([envconfig](https://github.com/ollama/ollama/blob/v0.35.0/envconfig/config.go)).
+Le transport des ranges choisit une adresse résolue et ne configure pas de
+proxy ([redirect.go](https://github.com/ollama/ollama/blob/v0.35.0/transfer/redirect.go)) ;
+aucun sélecteur IPv4 officiel applicable identifié. Au redémarrage,
+`Serve` appelle `PruneLayers` sauf `OLLAMA_NOPRUNE` ; les partiels âgés
+de plus d'une heure peuvent être supprimés
+([routes.go](https://github.com/ollama/ollama/blob/v0.35.0/server/routes.go),
+[images.go](https://github.com/ollama/ollama/blob/v0.35.0/server/images.go)).
+Une éventuelle reprise doit donc préserver le store et les partiels, sans
+modifier le DNS global, le TLS ou détourner un paramètre d'inférence.
+Ce constat ne prouve pas la cause des stalls ; aucun arrêt de téléchargement
+ni ajout de `OLLAMA_NOPRUNE` effectué à ce relevé.
+
+Le tokenizer candidat du producteur est
+[Qwen/Qwen3.5-2B, révision `15852e8c16360a2fea060d615a32b45270f8a8fc`](https://huggingface.co/Qwen/Qwen3.5-2B/tree/15852e8c16360a2fea060d615a32b45270f8a8fc).
+Ses six fichiers ont été lus depuis les URLs `resolve` versionnées, en
+mémoire seulement, puis hachés :
+
+| Fichier | Octets | SHA-256 |
+| --- | ---: | --- |
+| `tokenizer.json` | 12 807 982 | `5f9e4d4901a92b997e463c1f46055088b6cca5ca61a6522d1b9f64c4bb81cb42` |
+| `tokenizer_config.json` | 16 709 | `49e2b6e395f959f077f1e992b338919c0d4a9732fc6e613995e06557f843500c` |
+| `chat_template.jinja` | 7 755 | `273d8e0e683b885071fb17e08d71e5f2a5ddfb5309756181681de4f5a1822d80` |
+| `config.json` | 2 908 | `ed1c1723241f23f7f4e23430759cbd7dcfb4103cbdfe052bfe7626b57c2615b4` |
+| `LICENSE` | 11 544 | `bbedc3fda3305820b977265f01b8619d87570a6739de3a5582c3464840f1e57a` |
+| `README.md` | 62 814 | `c0e83a849c776e6fa843d011f023132d942a0f0140d903205bf1c363adad2275` |
+
+Les chemins officiels et les digests complets des couches figurent dans la
+preuve privée `R23_OFFICIAL_2B_IDENTITY_OBSERVATIONS_20261004.json`, sous
+QA R15 `evidence-review/modal-source249-ROOT-20261004/`, SHA-256
+`0fedc1b54b5d3b2e90737f8eda9851d5ac02225c303e6d14c4c1820b23182ed9`.
+Les accès directs du navigateur de recherche au registre et au fichier
+`raw` Hugging Face ont échoué ; la lecture HTTPS des endpoints officiels
+par la bibliothèque standard a réussi. Une erreur initiale d'échappement
+du lecteur s'est produite avant tout accès réseau, puis a été corrigée.
+
+Limites de cette consultation du 4 octobre à 19:17 UTC : les poids et le projecteur n'ont pas été téléchargés ni inspectés,
+aucun artefact n'a été installé et aucun appel au modèle n'a été exécuté.
+Le tokenizer documentaire ne prouve pas sa parité avec `prompt_eval_count`
+d'Ollama. La séparation du projecteur ne prouve pas encore le comportement
+texte seul sur cette version. Admission mémoire, latence, qualité, génération
+SSE/citations et non-régression 4B restent à vérifier sur une cible isolée.
 
 ## R15S57 — lecture de pixels et drainage du harnais Q05
 
@@ -303,7 +389,7 @@ Observation locale distincte : `config/local16.yaml` et
 `config/models.lock.json` n'identifient que la source 4B et sa variante texte ;
 `services/runtime/cli.py` contrôle l'identité des modèles du profil et la
 quantification via `_model_record`. Ces lectures soutiennent le statut
-NOT_STARTED de [R23](PLAN.md#r23--démarrage-optionnel-avec-qwen-35-2b-q4_k_m),
+NOT_STARTED au relevé du 3 octobre de [R23](PLAN.md#r23--choix-du-modèle-de-génération-et-défaut-qwen-35-2b),
 pas une impossibilité du 2B. Aucun modèle téléchargé, profil modifié ou essai
 de génération effectué lors de cette inscription. Compatibilité tokenizer,
 template, dérivation texte, identité, admission et qualité restent à tester.

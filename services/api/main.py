@@ -625,7 +625,8 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         if not hasattr(ollama, "describe"):
             return None
         state = ollama.describe()
-        return {"device": state["mode"], "fallback": state["fallback"] is not None, "processor": getattr(ollama, "placement", None)}
+        return {"device": state["mode"], "fallback": state["fallback"] is not None, "processor": getattr(ollama, "placement", None),
+                "model": settings.value("llm", "model", "qwen3.5:4b")}
 
     @application.get(prefix + "/jobs")
     async def job_list(limit: int = 100):
