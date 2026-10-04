@@ -1628,7 +1628,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `946e680` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 06:24 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `142e734` et modifications locales datées ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 07:19 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1636,7 +1636,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
-## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 06:24 UTC
+## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 07:19 UTC
 
 La nouvelle demande documentaire reprend les exigences existantes de R14/R15.
 L'espace stabilisé reste dans `docs/`, le suivi vivant dans `RAG_Local_Agents/` ;
@@ -1647,7 +1647,7 @@ et les cinq SVG passent. Les procédures non exécutées restent non qualifiées
 
 | Action existante ou constat | État au relevé | Validation restante |
 |---|---|---|
-| RB5 et sonde modale | C3 : cinq RB passed/retry0, mais sonde FAILED à `NOMINAL_CANCEL_FOCUS` à 1366, avant Tab/pending ; élément actif inconnu. Correctif F01 appliqué et relu C/ROOT, rouge23/deux FAIL puis vert23, 305 unités PASS, typage et lint119 conformes. Nouvelle copie réelle249/13, freeze `f76f2660…`, stage `94970 EXIT0` et postcopie C `17e42870…` conformes. La commande unités isolée `14011 EXIT1` refuse ensuite un candidat descendant avant insertion ; identité et cause inconnues, XML52B incomplet. Typage de cette copie `18531 EXIT0`, reçu `5b64ab40…` PASS à 06:10:38, conservation égale | Préserver le FAILED ; finir et faire relire la reprise privée avec observation des candidats, mêmes assertions et gardes strictes, puis unités/lint/build réels. Typage acquis réemployable uniquement avec liaison explicite aux mêmes sources/copie et baseline. Nouvel export, qualification31 et RB5/modale inchangée aux trois tailles/pending restent requis. Aucun test validé par l'XML incomplet, aucun transfert du PASS natif ni clôture F01. [Refus](journal/2026-10-04.md#copie-du-correctif-f01-et-refus-du-lanceur-des-unités-relevé-0603-utc) et [typage isolé](journal/2026-10-04.md#typage-de-la-copie-f01-relevé-0624-utc) |
+| RB5 et sonde modale | Ancien C3 FAILED avant Tab/pending, élément actif inconnu ; correctif F01 appliqué et relu C/ROOT. Copie réelle de 249 sources, dont 13 d'ingestion, freeze `f76f2660…`, stage et postcopie conformes. Ancien essai unités `14011 EXIT1` préservé, identité du candidat et cause inconnues. Reprise C-v2 : 305 unités sans test ignoré, lint sur 119 fichiers sans erreur ni avertissement et build isolé réellement EXIT0 ; reçus `379d92a7…`, `1af55fa6…`, `2c6831a4…`, conservation égale. Typage A `5b64ab40…` réemployé explicitement sur le même baseline, pas rejoué. Export neuf `7168111f…`, 243 fichiers/6 537 094 octets vérifiés physiquement. Avis indépendant B `b2e738a7…` relu et accepté ROOT : qualité isolée validée dans cette portée | Finaliser la préparation des 31 parcours liée à cet export, revue non auteur et GO natif distinct. Qualification des 31 et RB5/modale inchangée aux trois tailles/pending restent requis. Aucun transfert des anciens PASS natifs ni clôture F01. [Ancien refus](journal/2026-10-04.md#copie-du-correctif-f01-et-refus-du-lanceur-des-unités-relevé-0603-utc), [typage acquis](journal/2026-10-04.md#typage-de-la-copie-f01-relevé-0624-utc), [qualité isolée](journal/2026-10-04.md#qualité-isolée-du-correctif-f01-relevé-0710-utc) |
 | R15-3-Q05 | V1 refusée au préflight avant tout démarrage : comptage PDF.js erroné. V2 corrige uniquement ce contrat, 202 assets plus manifeste ; 95 tests purs PASS, 19 pièces/72 pins, avis préparatoire C/ROOT favorables. Vrai préflight PASS à 04:59:11 ; recette native `7124 EXIT1`, FAILED avant auth, primaire `PRE_AUTH_NATIVE_REFUSED/ValueError` et secondaire down. Une seule clearance q05-start, aucune capture. ROOT arrête ensuite le seul owner QA `c59e67…` avec le CLI standard `33272 EXIT0` ; C `7d29e8fb…` confirme 12 absences, DB inchangée/query0 et conservation bornée. Sous-prédicat exact inconnu ; ancien descriptor `a747094a…` obsolète | Préserver le FAILED et sa récupération distincte, sans relance identique ni garde affaiblie. Avancer F01 sur un nouvel export ; avant un futur Q05, obtenir une observation discriminante du refus, puis nouvelle liaison aux sources qualifiées et dernier arrêt effectif, quatre receipts après checkpoints et deux PNG réelles relues. Ni la récupération ni les tests purs ne qualifient la peinture |
 | R15-3-F04 | VALIDATED_BOUNDED après revue finale A : miroir703 qualifié, E2 terminal `22825 EXIT0`, onze cas stricts/retry0/skip0 ; génération réelle, carte corrompue liée au fichier, seuil64KiB isolé. B : 138 absences datées, trois tuples historiques incomplets conservés, sources/export/marqueurs nommés inchangés. C : dix PNG vus et dix blocs recomputés ; ROOT trois PNG inclus dans ces dix. Ancien E FAILED préservé | Aucun rejeu F04 requis dans ce critère d'action. Les preuves directes ne sont pas une exécution de l'ancien adaptateur GET/cards. Révision distincte non observée, peinture300, modale, ancres, SSE, Windows et DoD globale restent ouverts ; prochaines actions sur leurs lots existants |
 | R15-3-E03, incohérence rédactionnelle | VALIDÉ et publié dans `f8cd964` sur `origin/main` à 18:25 UTC : sept tests ciblés, 281 unités sans skip, typage/lint/build isolé conformes. V5 sortie 0, trois contextes UI et captures relus ; neuf processus absents, permissions et conservation vérifiées indépendamment. V1/V2 restent FAILED, cause V2 inconnue ; V4 conserve son wrapper EXIT1 | Aucune correction E03 restante dans cette portée. Session/API doublées : ni publication native, ni peinture PDF, ni recette RAG de bout en bout ; voir le journal pour les preuves |
@@ -3143,7 +3143,33 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `946e680` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 06:24 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `142e734` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 07:19 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R15S53 — reprise qualité F01 et diagnostic préparatoire Q05
+
+Sources internes relues le 4 octobre 2026 jusqu'à 07:19 UTC ; les exécutions
+et chemins de preuves sont au [journal](journal/2026-10-04.md#qualité-isolée-du-correctif-f01-relevé-0710-utc).
+Les avis préparatoires ne qualifient pas un service ou le navigateur.
+
+| Source examinée | Apport vérifié | Limite |
+| --- | --- | --- |
+| Gels qualité C1 `25383639…` et C-v2 `b23eb515…`, contrôleur `d203d01a…` ; avis B `f9b23b32…` puis `2136ab16…` | C1 peut masquer le primaire lors de close ; le seul delta C-v2 préserve cet objet, distingue le secondaire et conserve un close seul fatal. Inverse entier, quality/gate byte-identiques ; neuf témoins verts sur le vrai delegate avec doubles. | C1 reste refusé, ses vingt tests ne sont pas rejoués ; les doubles ne qualifient aucun arrêt réel et ne localisent pas l'ancien refus OS. |
+| Reçus C-v2 unités `379d92a7…`, lint `1af55fa6…`, build `2c6831a4…`, sorties ROOT `afb8d6`, `54242c`, `19f7bd` ; revue indépendante B `b2e738a7…`, metadata `87c8d885…` | Trois EXIT0 réels, 305 cas sans skip, 119 fichiers sans erreur/avertissement ; postchecks sans erreur et même baseline, typage A explicitement réemployé. B rehash les sources, l'export et les ensembles de conservation fermés ; ROOT lit et contrôle la remise. | Avis favorable borné à cette qualité isolée ; ni React DOM natif, ni recette31/RB5, ni DoD globale déduits. |
+| Manifeste export `7168111f…`, export-check `1db79234…`, contrôle ROOT `52e0dd` | Ensemble physique exact de 243 fichiers, 6 537 094 octets ; 203 fichiers PDF.js et BUILD_ID liés aux SHA réels. Ressources : 23 échantillons, réserve minimum de 42 482 Mio. | Échantillons espacés d'environ deux secondes, pas pic continu ni qualification sur une machine physique de 16 Gio ; conservation pool/`.next` limitée aux marqueurs existants. |
+| E2 `main:299–305`, quality `execute:155,196`, `argv_for:119–120` et `build-run.quality_reports:22` | Le pointeur de clearance doit porter le nom du stage à publication ; ce nom entre en collision avec le rapport ESLint. Publication sous dossier privé puis copie exacte ROOT vers un nom distinct admise par les contrats de lecture, SHA conservé. | Aucun changement des gardes, des heures, des assertions ou du gel ; fraîcheur maximale de 120 s toujours contrôlée avant opération. Le refus de nom initial reste distinct du lint réussi. |
+| Diagnostic Q05 B-v2 `cd9eed67…`, verrou `9cb388ea…`, revue C `be4e90fd…` | Inverse B-v1 entier ; comparaison typée et récursive des constantes, rouge discriminant avec un FAIL puis 30 témoins PASS. Sources compilées pour contrôle d'identité, pas exécutées ; 34 anciens tests non rejoués. | Préparation acceptée seulement, aucune liaison ni GO natif neuf ; constantes flottantes comparées par valeur typée, pas par représentation binaire universelle. Sous-prédicat du refus Q05 toujours inconnu. |
+
+Vérification officielle ROOT le 4 octobre à 06:27–06:28 UTC, avant acceptation
+du diagnostic B-v2 : Python Software Foundation,
+[objets traceback](https://docs.python.org/3.12/reference/datamodel.html#traceback-objects),
+[sys.exc_info](https://docs.python.org/3.12/library/sys.html#sys.exc_info) et
+[types.CodeType](https://docs.python.org/3.12/library/types.html#types.CodeType).
+Sections utiles : `co_consts`, `tb_frame/tb_lineno/tb_next`, triplet
+type/exception/traceback et construction des objets code. Documentation de la
+branche3.12, interpréteur installé3.12.14 ; aucune montée de version effectuée.
+Ces contrats encadrent une observation locale bornée, sans messages arbitraires,
+locals/globals/env ou contenu d'authentification. Ils ne reconstituent aucune
+cause historique et ne remplacent pas les preuves d'exécution.
 
 ## R15S52 — copie F01 et refus d'identité pendant les unités
 
