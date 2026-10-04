@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `c27d673` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 23:07 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `3fe34e6` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 23:16 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -9,6 +9,14 @@
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**Dernier relevé DEV à 23:16 UTC :** gate de publication complète refusé.
+Cinq fixtures DEV sont publiées et capturées ; DA-P02 et DA-P03 ont terminé
+`ready_partial`, pour confiance OCR insuffisante, sans génération active.
+La comparaison des 100 questions n'est pas lancée. QA arrêtée, quatre PID
+propres absents et comptes persistants conservés ; aucun seuil ni texte
+attendu modifié. Diagnostic indépendant de l'OCR en cours, action R23-OCR-01.
+[Défaut et prochaine action](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc).
 
 **Reprise DEV à 23:07 UTC :** QA conservée redémarrée avec le 2B en mode
 GPU ; sept imports synthétiques acceptés, zéro refus. Publications et captures
@@ -535,6 +543,7 @@ de bascule de profil, de redémarrage ou d'exécution du lot futur.
 | ID | Couche, propriétaire et livrable attendu | Dépendances | Critère de validation | Statut et preuve |
 |---|---|---|---|---|
 | R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Sous-lot publié sur `origin/main` (`a17819a`). Pilotes GPU exécutés et relus, sans réduction de seuil ni qualification D07. Restent admission réellement calibrée, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes non qualifiées. [Parcours](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [pilotes](journal/2026-10-04.md#r23--pilotes-gpu-et-préflight-dev-relevé-2258-utc) |
+| R23-OCR-01 | Ingestion / qualité — intégrateur avec diagnostic et validation non-auteurs : fiabiliser l'extraction des deux scans DEV sans modifier les sources gelées | R23, contrats d'ingestion et skill `pdf-ingestion-windows` ; QA propriétaire arrêtée, extractions partielles conservées | Reproduction ciblée ; correction prouvée avec même moteur et seuils ; publications complètes des sept documents, résolution des 100 scopes/annotations et 90 unités sans ambiguïté avant génération ; contrôles et relecture des cas touchés | IN_PROGRESS — défaut de recette prouvé, cause à diagnostiquer : P02 a sept régions de mots sous 0,8 ; P03 une cellule à 0,70787102, retry densité refusé par la limite de crop. Gate FAILED, aucun score DEV acquis. [Preuves](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc) |
 
 Travail prévu, dans l'ordre utile :
 
@@ -561,9 +570,12 @@ Travail prévu, dans l'ordre utile :
   preuves, puis mettre à jour les procédures et références stabilisées seulement
   après validation réelle. Distinguer Windows, Linux aarch64 et Linux x86-64.
 
-**Prochaine action de ce lot :** terminer la publication des sept fixtures DEV dans la QA
-isolée conservée, vérifier l'extraction/OCR et résoudre les 100 scopes et
-90 unités attendues avant la comparaison sur les mêmes questions et extractions.
+**Prochaine action de ce lot :** reproduire les défauts OCR de DA-P02/DA-P03
+dans un dossier neuf isolé, après le diagnostic des extractions conservées ;
+corriger et revalider sans réduire les seuils ni réécrire les faits attendus.
+La QA est arrêtée, les cinq captures publiées sont conservées. Après correction,
+terminer les publications, vérifier l'extraction/OCR et résoudre les 100 scopes
+et 90 unités attendues avant comparaison sur les mêmes questions et extractions.
 Les deux pilotes GPU sont terminés ; leurs mesures ne ferment pas l'admission.
 La procédure privée C reste une préparation, pas une preuve d'exécution DEV ;
 elle vise sept documents d'une famille, et non sept familles. Ne pas utiliser
