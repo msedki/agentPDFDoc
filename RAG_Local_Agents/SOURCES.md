@@ -1,6 +1,6 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `88dd5ba` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 04:27 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `7e31ea9` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 06:24 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
 
@@ -44,6 +44,24 @@ Complément causal consulté le 5 octobre après les premiers essais natifs :
 Ces lectures corrigent les interprétations des contrôles préparatoires, pas
 les critères de fidélité OCR. Les premiers refus et leurs conditions sont
 conservés dans le journal ; aucun candidat n'est qualifié par ces sources.
+
+Complément après le refus de préparation, sources officielles consultées
+ROOT le 5 octobre ; relevé du registre à 05:38 UTC :
+
+| Source officielle et version | Contrat du diagnostic I/O | Limite |
+|---|---|---|
+| PSF, [os.fsync, documentation Python 3.12](https://docs.python.org/3.12/library/os.html#os.fsync), page courante 3.12.15 ; interpréteur local 3.12.14 | Pour un flux Python tamponné, vider le tampon avant de synchroniser le descripteur. Sur Unix, l'appel utilise `fsync`. | Pas de mise à jour de Python ; aucune durée ni accélération locale déduite du contrat. |
+| Projet Linux man-pages, [fsync(2), DESCRIPTION et ERRORS](https://man7.org/linux/man-pages/man2/fsync.2.html), 6.19, page datée du 08/02/2026 | Synchroniser chaque fichier ne garantit pas la persistance de son entrée de répertoire : une synchronisation distincte du répertoire est nécessaire. Depuis Linux 4.13, les erreurs de writeback sont rapportées aux descripteurs ouverts lors de l'écriture. Garder les descripteurs écrivains jusqu'à la barrière. | Le noyau local 5.10 appartient à cette plage ; cette documentation ne prouve ni le comportement matériel en coupure électrique, ni le coût des synchronisations du pilote. Le diagnostic compare des écritures contrôlées, sans qualifier l'apprentissage. |
+
+Hypothèse locale : les écritures immédiatement synchronisées sérialisent une
+partie de la préparation. Le diagnostic prépare les mêmes octets dans deux
+bras neufs et mesure rendu, écriture et synchronisations séparément. Chaque
+fichier et les répertoires restent synchronisés avant toute réussite du
+diagnostic ; un résultat manquant ou une erreur ne devient pas une admission.
+Aucun regroupement n'est adopté dans le pilote ; le [diagnostic exécuté](journal/2026-10-05.md#diagnostic-io-natif-terminé-relevé-0624-utc)
+ne confirme pas de gain. [W035](DECISIONS.md#w035-pilote-isolé-dapprentissage-des-signes-scientifiques)
+conserve ses budgets, données et critères. Les publications officielles
+décrivent la durabilité, pas ce résultat local.
 
 ## R23OCR-S08 — procédure d'extension et sources d'outillage
 

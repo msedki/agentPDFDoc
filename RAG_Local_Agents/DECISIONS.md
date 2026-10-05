@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W035 sur la base publiée `88dd5ba` et préparation locale datée ci-dessous · **Mis à jour :** 2026-10-05 04:27 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W035 sur la base publiée `7e31ea9` et préparation locale datée ci-dessous · **Mis à jour :** 2026-10-05 06:24 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -590,3 +590,34 @@ ne qualifie pas un apprentissage des signes. Aucun allongement automatique,
 reprise, changement du plafond ou des seuils OCR pour le faire passer.
 Cette condition d'exécution est fixée avant dataset et calcul ; ce n'est
 pas un réglage sur leur résultat.
+
+**Précision du 5 octobre à 05:38 UTC, après le refus de préparation :**
+la deadline de 900 secondes a arrêté le premier pilote avant le train.
+Les 792 LSTMF partiels et leurs preuves restent conservés, non admissibles.
+Choix de diagnostic acquis : comparer, sur la QA neuve
+`r23-ocr03-io-20261005-7rVw1X`, les mêmes PNG/GT rendus une fois à deux voies
+d'écriture. Échantillon : 32 groupes généraux, 6/6/6/7/7 par famille et deux
+tailles, sans donnée DEV/finale ; ce n'est pas un dataset réduit du pilote.
+Une voie synchronise immédiatement chaque fichier ; l'autre garde les
+descripteurs écrivains ouverts jusqu'à une barrière qui synchronise chaque
+fichier, puis les répertoires. La réussite est publiée seulement après
+vérification des identités et de tous les contenus. Rendu, écriture,
+synchronisation et parcours de supervision sont mesurés séparément.
+
+Ce diagnostic indépendant est borné à 180 secondes, RSS cohorte 512 Mio,
+QA totale 32 Mio et réserves 8/2/20 Gio, sous le verrou lourd et l'arrêt
+possédé existants. Protocole neuf, tests purs et relecture non-auteur requis
+avant l'exécution ROOT ; statut attendu `PASS_IO_DIAGNOSTIC_ONLY`, aucune
+commande Tesseract, aucun apprentissage ou adoption. Les sources officielles
+sont consignées dans [S09](SOURCES.md#r23ocr-s09--entrées-et-mesures-du-pilote-lstm).
+L'effet du regroupement reste une hypothèse. Les données, itérations,
+seuils et budgets 900/1800/900 du pilote ne changent pas ; les logs/reçus
+natifs gardent leur fermeture actuelle. Une correction éventuelle devra
+être mesurée, gelée et relue sur cible neuve, sans reprise automatique.
+
+**Précision du 5 octobre à 06:24 UTC :** le diagnostic réel se termine,
+avec barrières et contenus conformes, mais ne confirme pas l'accélération
+par regroupement. Ce regroupement n'est pas adopté dans le pilote.
+La prochaine investigation porte sur les coûts de supervision et de
+clôture de la préparation ; aucune modification de protocole, des données
+ou des budgets n'est acquise. [Mesures et limites](journal/2026-10-05.md#diagnostic-io-natif-terminé-relevé-0624-utc).

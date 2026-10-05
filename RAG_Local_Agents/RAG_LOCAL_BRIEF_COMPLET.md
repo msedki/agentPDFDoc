@@ -1631,7 +1631,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `614ffdd` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 05:18 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `7e31ea9` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 06:24 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -2242,7 +2242,7 @@ de bascule de profil, de redémarrage ou d'exécution du lot futur.
 | R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Sous-lot publié sur `origin/main` (`a17819a`). Pilotes GPU exécutés et relus, sans réduction de seuil ni qualification D07. Restent admission réellement calibrée, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes non qualifiées. [Parcours](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [pilotes](journal/2026-10-04.md#r23--pilotes-gpu-et-préflight-dev-relevé-2258-utc) |
 | R23-OCR-01 | Ingestion / qualité — intégrateur avec diagnostic et validation non-auteurs : fiabiliser l'extraction des deux scans DEV sans modifier les sources gelées | R23, contrats d'ingestion et skill `pdf-ingestion-windows` ; QA propriétaire arrêtée, extractions partielles conservées | Reproduction ciblée ; correction prouvée avec même moteur et seuils ; publications complètes des sept documents, résolution des 100 scopes/annotations et 90 unités sans ambiguïté avant génération ; contrôles et relecture des cas touchés | IN_PROGRESS — sous-lot P03 qualifié et publié (`d26a3a4`) : extraction complète native PASS, 236 unités sans exclusion, Ruff/mypy et documents verts, revue finale favorable. P02 : signes non couverts par les alphabets inspectés, aucun artefact adopté. Gate DEV toujours FAILED ; sept publications et scores non acquis. [Livraison P03](journal/2026-10-05.md#publication-du-sous-lot-p03-relevé-0037-utc) ; [essais et limite](journal/2026-10-04.md#r23-ocr-01--essais-bornés-et-alphabets-relevé-2356-utc) ; [rouge conservé](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc) |
 | R23-OCR-02 | Outillage / ingestion — construction séparée des outils d'extension Tesseract, intégrateur avec validateur non-auteur | R23-OCR-01, W034, skill `tesseract-lstm-extension` ; archive verrouillée, ICU/Leptonica ; protocole figé et relu | Configuration puis compilation réelles en QA neuve sous verrou et plafonds ; cibles, dépendances, versions et identités contrôlées, ressources et arrêts conservés ; pas de changement nominal ni apprentissage | VALIDATED_BOUNDED — outils Linux aarch64 seuls : construction réelle `PASS_TOOLS_ONLY` en 397,59 s, sept versions/dépendances et 707 mesures conformes ; revue finale non-auteur favorable, acceptée ROOT à 02:21 UTC. 625 identités observées absentes ; source/entrées/archive inchangées. Entraînement, adoption, P02 et autres plateformes non validés. [Décision](DECISIONS.md#w034-outils-séparés-avant-toute-extension-lstm) ; [preuves et avis final](journal/2026-10-05.md#construction-terminée-et-lecture-des-preuves-relevé-0212-utc) |
-| R23-OCR-03 | Apprentissage OCR isolé — entrées officielles, proto-alphabet, lignes générales inédites, pilote borné et revue non-auteur | R23-OCR-02, W035, skill LSTM, entrées exactes et supervision qualifiée ; aucun DEV/final pour apprendre | Identités réelles et séparation des groupes ; proto/lexiques conservés ; apprentissage surveillé ; sortie unique et métriques préalables respectées ; revue indépendante ; aucun résultat produit déduit | IN_PROGRESS — entrées, fonte et proto V2 admis avec revue indépendante ; protocole fermé, 39 tests purs durables PASS. Première préparation réelle FAILED : plafond900s, 2000 PNG mais792/2000 LSTMF ; arrêt et conservation contre-vérifiés, sources et modèle nominal inchangés. Apprentissage/export/évaluation OCR NOT_RUN. Prochaine action : diagnostiquer les latences et corriger la préparation aux mêmes critères W035, puis gel/revue et cible neuve ; aucun budget étendu ou reprise des partiels. [W035](DECISIONS.md#w035-pilote-isolé-dapprentissage-des-signes-scientifiques) ; [préconditions natives](journal/2026-10-05.md#fonte-et-proto-v2-réellement-conformes-relevé-0353-utc) ; [lancement](journal/2026-10-05.md#pilote-natif-lancé-relevé-0458-utc) ; [échec et arrêt](journal/2026-10-05.md#premier-pilote-interrompu-au-plafond-de-préparation-relevé-0518-utc) |
+| R23-OCR-03 | Apprentissage OCR isolé — entrées officielles, proto-alphabet, lignes générales inédites, pilote borné et revue non-auteur | R23-OCR-02, W035, skill LSTM, entrées exactes et supervision qualifiée ; aucun DEV/final pour apprendre | Identités réelles et séparation des groupes ; proto/lexiques conservés ; apprentissage surveillé ; sortie unique et métriques préalables respectées ; revue indépendante ; aucun résultat produit déduit | IN_PROGRESS — entrées, fonte et proto V2 admis avec revue indépendante ; protocole fermé, 39 tests purs durables PASS. Première préparation réelle FAILED : plafond900s, 2000 PNG mais792/2000 LSTMF ; arrêt et conservation contre-vérifiés, sources et modèle nominal inchangés. Diagnostic I/O séparé exécuté EXIT0 après 52 tests purs durables, lint/typage et revue du protocole ; pas de gain au regroupement, aucune correction adoptée sur cette piste. Apprentissage/export/évaluation OCR NOT_RUN. Prochaine action : isoler les coûts de supervision et de clôture, corriger aux mêmes critères W035 puis gel/revue et cible neuve ; aucun budget étendu ni reprise des partiels. [W035](DECISIONS.md#w035-pilote-isolé-dapprentissage-des-signes-scientifiques) ; [préconditions natives](journal/2026-10-05.md#fonte-et-proto-v2-réellement-conformes-relevé-0353-utc) ; [échec et arrêt](journal/2026-10-05.md#premier-pilote-interrompu-au-plafond-de-préparation-relevé-0518-utc) ; [diagnostic et limites](journal/2026-10-05.md#diagnostic-io-natif-terminé-relevé-0624-utc) |
 
 Travail prévu, dans l'ordre utile :
 
@@ -3016,7 +3016,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W035 sur la base publiée `88dd5ba` et préparation locale datée ci-dessous · **Mis à jour :** 2026-10-05 04:27 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W035 sur la base publiée `7e31ea9` et préparation locale datée ci-dessous · **Mis à jour :** 2026-10-05 06:24 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -3607,6 +3607,37 @@ reprise, changement du plafond ou des seuils OCR pour le faire passer.
 Cette condition d'exécution est fixée avant dataset et calcul ; ce n'est
 pas un réglage sur leur résultat.
 
+**Précision du 5 octobre à 05:38 UTC, après le refus de préparation :**
+la deadline de 900 secondes a arrêté le premier pilote avant le train.
+Les 792 LSTMF partiels et leurs preuves restent conservés, non admissibles.
+Choix de diagnostic acquis : comparer, sur la QA neuve
+`r23-ocr03-io-20261005-7rVw1X`, les mêmes PNG/GT rendus une fois à deux voies
+d'écriture. Échantillon : 32 groupes généraux, 6/6/6/7/7 par famille et deux
+tailles, sans donnée DEV/finale ; ce n'est pas un dataset réduit du pilote.
+Une voie synchronise immédiatement chaque fichier ; l'autre garde les
+descripteurs écrivains ouverts jusqu'à une barrière qui synchronise chaque
+fichier, puis les répertoires. La réussite est publiée seulement après
+vérification des identités et de tous les contenus. Rendu, écriture,
+synchronisation et parcours de supervision sont mesurés séparément.
+
+Ce diagnostic indépendant est borné à 180 secondes, RSS cohorte 512 Mio,
+QA totale 32 Mio et réserves 8/2/20 Gio, sous le verrou lourd et l'arrêt
+possédé existants. Protocole neuf, tests purs et relecture non-auteur requis
+avant l'exécution ROOT ; statut attendu `PASS_IO_DIAGNOSTIC_ONLY`, aucune
+commande Tesseract, aucun apprentissage ou adoption. Les sources officielles
+sont consignées dans [S09](SOURCES.md#r23ocr-s09--entrées-et-mesures-du-pilote-lstm).
+L'effet du regroupement reste une hypothèse. Les données, itérations,
+seuils et budgets 900/1800/900 du pilote ne changent pas ; les logs/reçus
+natifs gardent leur fermeture actuelle. Une correction éventuelle devra
+être mesurée, gelée et relue sur cible neuve, sans reprise automatique.
+
+**Précision du 5 octobre à 06:24 UTC :** le diagnostic réel se termine,
+avec barrières et contenus conformes, mais ne confirme pas l'accélération
+par regroupement. Ce regroupement n'est pas adopté dans le pilote.
+La prochaine investigation porte sur les coûts de supervision et de
+clôture de la préparation ; aucune modification de protocole, des données
+ou des budgets n'est acquise. [Mesures et limites](journal/2026-10-05.md#diagnostic-io-natif-terminé-relevé-0624-utc).
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -3659,7 +3690,7 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `88dd5ba` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 04:27 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `7e31ea9` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 06:24 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
 
@@ -3703,6 +3734,24 @@ Complément causal consulté le 5 octobre après les premiers essais natifs :
 Ces lectures corrigent les interprétations des contrôles préparatoires, pas
 les critères de fidélité OCR. Les premiers refus et leurs conditions sont
 conservés dans le journal ; aucun candidat n'est qualifié par ces sources.
+
+Complément après le refus de préparation, sources officielles consultées
+ROOT le 5 octobre ; relevé du registre à 05:38 UTC :
+
+| Source officielle et version | Contrat du diagnostic I/O | Limite |
+|---|---|---|
+| PSF, [os.fsync, documentation Python 3.12](https://docs.python.org/3.12/library/os.html#os.fsync), page courante 3.12.15 ; interpréteur local 3.12.14 | Pour un flux Python tamponné, vider le tampon avant de synchroniser le descripteur. Sur Unix, l'appel utilise `fsync`. | Pas de mise à jour de Python ; aucune durée ni accélération locale déduite du contrat. |
+| Projet Linux man-pages, [fsync(2), DESCRIPTION et ERRORS](https://man7.org/linux/man-pages/man2/fsync.2.html), 6.19, page datée du 08/02/2026 | Synchroniser chaque fichier ne garantit pas la persistance de son entrée de répertoire : une synchronisation distincte du répertoire est nécessaire. Depuis Linux 4.13, les erreurs de writeback sont rapportées aux descripteurs ouverts lors de l'écriture. Garder les descripteurs écrivains jusqu'à la barrière. | Le noyau local 5.10 appartient à cette plage ; cette documentation ne prouve ni le comportement matériel en coupure électrique, ni le coût des synchronisations du pilote. Le diagnostic compare des écritures contrôlées, sans qualifier l'apprentissage. |
+
+Hypothèse locale : les écritures immédiatement synchronisées sérialisent une
+partie de la préparation. Le diagnostic prépare les mêmes octets dans deux
+bras neufs et mesure rendu, écriture et synchronisations séparément. Chaque
+fichier et les répertoires restent synchronisés avant toute réussite du
+diagnostic ; un résultat manquant ou une erreur ne devient pas une admission.
+Aucun regroupement n'est adopté dans le pilote ; le [diagnostic exécuté](journal/2026-10-05.md#diagnostic-io-natif-terminé-relevé-0624-utc)
+ne confirme pas de gain. [W035](DECISIONS.md#w035-pilote-isolé-dapprentissage-des-signes-scientifiques)
+conserve ses budgets, données et critères. Les publications officielles
+décrivent la durabilité, pas ce résultat local.
 
 ## R23OCR-S08 — procédure d'extension et sources d'outillage
 

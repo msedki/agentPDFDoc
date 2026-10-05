@@ -1,8 +1,13 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `614ffdd` et entrées datées · **Mis à jour :** 2026-10-05 05:18 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `7e31ea9` et entrées datées · **Mis à jour :** 2026-10-05 06:24 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+Diagnostic du 5 octobre, [relevé06:24 UTC](2026-10-05.md#diagnostic-io-natif-terminé-relevé-0624-utc) :
+52 tests purs durables puis mesure native EXIT0 ; contenus/barrières conformes,
+mais aucun gain au regroupement. Pas de pilote relancé ou modèle adopté ;
+prochaine investigation : supervision et clôture de la préparation.
 
 Résultat du 5 octobre, [relevé05:18 UTC](2026-10-05.md#premier-pilote-interrompu-au-plafond-de-préparation-relevé-0518-utc) :
 préparation arrêtée au plafond de900s, 792/2000 LSTMF ; échec, arrêt et
