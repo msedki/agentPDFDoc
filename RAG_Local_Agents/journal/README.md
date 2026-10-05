@@ -1,8 +1,22 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `5b2844e` et entrées datées · **Mis à jour :** 2026-10-05 10:04 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `e7355e1` et entrées datées · **Mis à jour :** 2026-10-05 11:10 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Documentation des choix OCR et contrôles](2026-10-05.md#contrôles-de-cette-documentation-relevé-1105-utc) :
+62 tests PASS, liens/pack/brief/schémas conformes, avis final indépendant
+`GO_DOCS_ONLY` ; aucune qualification OCR ou clôture de chantier déduite.
+
+[Pilote neuf lancé à 11:01 UTC](2026-10-05.md#lancement-natif-du-pilote-neuf-relevé-1101-utc) :
+revue du protocole favorable et préflight frais conformes ; préparation
+native en cours, aucun résultat d'apprentissage ou d'adoption acquis.
+
+Préparation du pilote neuf, [relevé 10:50 UTC](2026-10-05.md#pilote-neuf--configuration-et-contrôles-communs-relevé-1050-utc) :
+configuration réelle et 120 contrôles communs PASS ; ancien échec conservé,
+sources corrigées figées, revue finale avant natif. Origine des fichiers,
+choix du volume, sens de l'apprentissage, limite des images propres et voie
+CPU documentés dans W035/S09 ; aucune qualification produit déduite.
 
 Diagnostic du 5 octobre, [relevé 09:59 UTC](2026-10-05.md#benchmark-scanner-v2-fermé-relevé-0959-utc) :
 benchmark scanner V2 EXIT0 après contrôles purs et revue de protocole ;

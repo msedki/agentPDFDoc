@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W035 sur la base publiée `5b2844e` et préparation locale datée ci-dessous · **Mis à jour :** 2026-10-05 10:04 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W035 sur la base publiée `e7355e1` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 10:50 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -568,6 +568,49 @@ ni P02 au PSM produit, ni extraction publiée, confiance, Windows, CPU 16 Go ou
 DoD. Toute adoption demande sa qualification d'ingestion distincte et une
 identité versionnée. Le retour au modèle actuel ne nécessite aucune mutation
 pendant ce pilote puisqu'il reste inchangé.
+
+### Portée, données et sens de l'apprentissage — précision du 5 octobre, 10:50 UTC
+
+Le pilote cherche à vérifier une extension des sorties du réseau OCR pour
+les deux signes absents de l'alphabet constaté. Il ne réentraîne pas Qwen,
+ne transforme pas les PDF de l'utilisateur en données d'apprentissage et
+ne remplace pas le modèle OCR utilisé par l'application.
+
+| Opération | Ce qui change | Ce qui ne constitue pas sa preuve |
+|---|---|---|
+| Préparation OCR | Création d'images de lignes, de transcriptions attendues et de fichiers `.lstmf` associant image et texte UTF-8 | Le nombre de fichiers ne prouve aucune modification des poids |
+| Apprentissage OCR du pilote | Continuation du réseau flottant Tesseract ; checkpoint et compteurs réels contrôlés selon les critères ci-dessus | Un proto-alphabet, une commande réussie ou un compteur hérité ne prouve pas un apprentissage effectif |
+| Indexation RAG | Extraction et représentation des documents pour la recherche | Elle n'entraîne ni le réseau OCR ni Qwen |
+| Génération Qwen | Production d'une réponse à partir du contexte documentaire | Ce pilote ne modifie pas les poids du modèle de génération |
+
+Le volume ci-dessus est un choix local de couverture : les cinq familles
+exercent français, incertitude avec `±`, produit avec `·`, signes combinés et
+témoins sans ces signes. Il n'est ni un minimum imposé par Tesseract, ni un
+volume optimal démontré. Les deux variantes de chaque groupe restent dans
+le même partage : 1 600 images de train et 400 d'évaluation. Ce sont de
+petites images de lignes, pas 2 000 PDF. La graine, les textes et les
+transcriptions sont produits par le générateur épinglé, sans lecture du
+corpus privé ou des annotations DEV/final ; le journal donne son identité.
+
+Une seule fonte et deux tailles propres permettent un essai contrôlé de
+faisabilité, mais n'établissent pas la généralisation aux scans. Bruit,
+flou, inclinaison, compression, autres fontes et mises en page ne sont pas
+couverts par cette évaluation de lignes. Un bon score sur ce jeu ne vaut
+donc pas qualité sur les documents réels. Avant toute adoption : reprise
+de l'extraction PDF réelle, contrôle de fidélité littérale des signes,
+unités et cellules, des régions non résolues et de la non-régression,
+puis qualifications de plateforme prévues au plan. Ne pas réutiliser
+DEV/final pour apprendre ou changer les critères à la suite du résultat.
+
+La voie d'apprentissage Tesseract retenue ne prend pas en charge le GPU ;
+la génération Qwen/Ollama dispose de son mécanisme GPU distinct. Changer
+de moteur pour entraîner sur GPU ne serait pas une accélération
+transparente du même protocole. La préparation des fichiers et ses accès
+disque sont également distincts du calcul des mises à jour du réseau.
+Contrats et réserves documentaires : [R23OCR-S09](SOURCES.md#r23ocr-s09--entrées-et-mesures-du-pilote-lstm).
+L'utilisateur a confirmé la poursuite du pilote prévu après ces questions ;
+volumes, budgets, séparation et critères restent inchangés. Cette précision
+ne constitue ni résultat d'apprentissage ni décision d'adoption.
 
 **Précisions du 5 octobre à 03:37 UTC, avant reprise :** les deux refus natifs
 ont exposé des erreurs d'interprétation des contrôles source-only, pas un

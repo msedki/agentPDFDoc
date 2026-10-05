@@ -1,6 +1,6 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5b2844e` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 10:04 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `e7355e1` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 10:50 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
 
@@ -8,6 +8,20 @@ Sources initiales consultées ROOT le 5 octobre 2026 avant le provisionnement
 du pilote ; compléments causaux datés ci-dessous, après les premiers essais.
 Les références mouvantes sont des contrats documentaires, pas des identités
 d'artefacts ou des résultats locaux. Décision : [W035](DECISIONS.md#w035-pilote-isolé-dapprentissage-des-signes-scientifiques).
+
+Complément de méthode du 5 octobre, consigné à 10:50 UTC après les questions
+sur le volume, la qualité des exemples et le GPU. Skill
+`official-source-review` appliqué, sans nouveau téléchargement ou changement
+de moteur ; `project-documentation` pour la trace vivante.
+
+| Source officielle relue | Fait documentaire | Application et limite |
+|---|---|---|
+| Mainteneurs Tesseract, [Training Tesseract 5](https://tesseract-ocr.github.io/tessdoc/tess5/TrainingTesseract-5.html), sections Introduction, Training Text Requirements, Hardware-Software Requirements et Understanding the Various Files Used During Training ; page courante, date de mise à jour non indiquée | La continuation peut utiliser peu de données ; les images doivent ressembler au domaine visé. La documentation distingue rendu, préparation `.lstmf` et apprentissage ; `.lstmf` associe image et transcription UTF-8. La voie décrite n'offre pas de support GPU. | Version exécutée : 5.4.0 épinglée ci-dessous. Les informations historiques de la page sur les OS ne qualifient pas Windows. Aucun minimum de 1 000 lignes ou preuve de généralisation n'est tiré de cette page ; le volume et la fonte unique sont des choix locaux du pilote. |
+| Mainteneurs Tesseract, [README tesstrain](https://raw.githubusercontent.com/tesseract-ocr/tesstrain/405346a3a67d8e4e049341d1da6a4b752e0b8351/README.md), révision `405346a3a67d8e4e049341d1da6a4b752e0b8351`, sections Provide ground truth data et Train | Paires d'images de lignes TIFF/PNG et transcriptions `.gt.txt`, partage apprentissage/évaluation et étapes de préparation avant le train. | Le protocole local sépare les groupes avant leurs variantes ; la seule extension de fichier ne prouve pas leur contenu ou leur conversion native. Aucune commande `make training`, téléchargement ou installation de cette page exécuté. |
+
+Résultat local de cette relecture : distinction explicite des opérations et
+limites ajoutée à [W035](DECISIONS.md#portée-données-et-sens-de-lapprentissage--précision-du-5-octobre-1050-utc).
+Ce complément ne réduit aucun seuil et ne qualifie pas le pilote.
 
 | Source officielle et version | Apport utilisé | Limite |
 |---|---|---|

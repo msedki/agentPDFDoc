@@ -1631,7 +1631,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `5b2844e` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 10:04 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `e7355e1` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 11:01 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -2242,7 +2242,7 @@ de bascule de profil, de redémarrage ou d'exécution du lot futur.
 | R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Sous-lot publié sur `origin/main` (`a17819a`). Pilotes GPU exécutés et relus, sans réduction de seuil ni qualification D07. Restent admission réellement calibrée, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes non qualifiées. [Parcours](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [pilotes](journal/2026-10-04.md#r23--pilotes-gpu-et-préflight-dev-relevé-2258-utc) |
 | R23-OCR-01 | Ingestion / qualité — intégrateur avec diagnostic et validation non-auteurs : fiabiliser l'extraction des deux scans DEV sans modifier les sources gelées | R23, contrats d'ingestion et skill `pdf-ingestion-windows` ; QA propriétaire arrêtée, extractions partielles conservées | Reproduction ciblée ; correction prouvée avec même moteur et seuils ; publications complètes des sept documents, résolution des 100 scopes/annotations et 90 unités sans ambiguïté avant génération ; contrôles et relecture des cas touchés | IN_PROGRESS — sous-lot P03 qualifié et publié (`d26a3a4`) : extraction complète native PASS, 236 unités sans exclusion, Ruff/mypy et documents verts, revue finale favorable. P02 : signes non couverts par les alphabets inspectés, aucun artefact adopté. Gate DEV toujours FAILED ; sept publications et scores non acquis. [Livraison P03](journal/2026-10-05.md#publication-du-sous-lot-p03-relevé-0037-utc) ; [essais et limite](journal/2026-10-04.md#r23-ocr-01--essais-bornés-et-alphabets-relevé-2356-utc) ; [rouge conservé](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc) |
 | R23-OCR-02 | Outillage / ingestion — construction séparée des outils d'extension Tesseract, intégrateur avec validateur non-auteur | R23-OCR-01, W034, skill `tesseract-lstm-extension` ; archive verrouillée, ICU/Leptonica ; protocole figé et relu | Configuration puis compilation réelles en QA neuve sous verrou et plafonds ; cibles, dépendances, versions et identités contrôlées, ressources et arrêts conservés ; pas de changement nominal ni apprentissage | VALIDATED_BOUNDED — outils Linux aarch64 seuls : construction réelle `PASS_TOOLS_ONLY` en 397,59 s, sept versions/dépendances et 707 mesures conformes ; revue finale non-auteur favorable, acceptée ROOT à 02:21 UTC. 625 identités observées absentes ; source/entrées/archive inchangées. Entraînement, adoption, P02 et autres plateformes non validés. [Décision](DECISIONS.md#w034-outils-séparés-avant-toute-extension-lstm) ; [preuves et avis final](journal/2026-10-05.md#construction-terminée-et-lecture-des-preuves-relevé-0212-utc) |
-| R23-OCR-03 | Apprentissage OCR isolé — entrées officielles, proto-alphabet, lignes générales inédites, pilote borné et revue non-auteur | R23-OCR-02, W035, skill LSTM, entrées exactes et supervision qualifiée ; aucun DEV/final pour apprendre | Identités réelles et séparation des groupes ; proto/lexiques conservés ; apprentissage surveillé ; sortie unique et métriques préalables respectées ; revue indépendante ; aucun résultat produit déduit | IN_PROGRESS — entrées, fonte et proto V2 admis avec revue indépendante. Première préparation FAILED au plafond de 900 s, 792/2000 LSTMF ; aucun partiel repris. Diagnostic I/O fermé, sans gain au regroupement. Scanner et instrumentation : 52 témoins purs fermés, puis 16 témoins V2 après un refus mémoire de l'enveloppe V1 ; lint/typage et revues du protocole conformes. Benchmark V2 EXIT0 sur métadonnées seules : comptes identiques, parcours plus rapides ; avis terminal non-auteur favorable accepté à 10:00 UTC, limité au diagnostic. Sources du pilote neuf en préparation, sans exécution. Apprentissage/export/évaluation OCR NOT_RUN ; mêmes budgets W035, aucune adoption. [W035](DECISIONS.md#w035-pilote-isolé-dapprentissage-des-signes-scientifiques) ; [échec](journal/2026-10-05.md#premier-pilote-interrompu-au-plafond-de-préparation-relevé-0518-utc) ; [I/O](journal/2026-10-05.md#diagnostic-io-natif-terminé-relevé-0624-utc) ; [scanner](journal/2026-10-05.md#benchmark-scanner-v2-fermé-relevé-0959-utc) |
+| R23-OCR-03 | Apprentissage OCR isolé — entrées officielles, proto-alphabet, lignes générales inédites, pilote borné et revue non-auteur | R23-OCR-02, W035, skill LSTM, entrées exactes et supervision qualifiée ; aucun DEV/final pour apprendre | Identités réelles et séparation des groupes ; proto/lexiques conservés ; apprentissage surveillé ; sortie unique et métriques préalables respectées ; revue indépendante ; aucun résultat produit déduit | IN_PROGRESS — première préparation FAILED à 900 s, 792/2000 LSTMF, aucun partiel repris. Diagnostic I/O fermé, sans gain au regroupement ; benchmark scanner borné aux métadonnées figées. Pilote neuf : configuration et sources figées, 120 tests purs PASS, lint/typage conformes ; revue finale `GO_PILOT_PROTOCOL_ONLY`, contrecheck `fdad59 EXIT0`. ROOT lance une seule exécution native, session 15409 ; premier relevé à 11:01:07 UTC le 5 octobre, préparation réellement observée. Apprentissage/export/évaluation encore NOT_RUN à ce relevé ; mêmes budgets W035, aucune adoption ni qualification produit. [Portée et données](DECISIONS.md#portée-données-et-sens-de-lapprentissage--précision-du-5-octobre-1050-utc) ; [ancien échec](journal/2026-10-05.md#premier-pilote-interrompu-au-plafond-de-préparation-relevé-0518-utc) ; [scanner](journal/2026-10-05.md#benchmark-scanner-v2-fermé-relevé-0959-utc) ; [tests communs](journal/2026-10-05.md#pilote-neuf--configuration-et-contrôles-communs-relevé-1050-utc) ; [lancement](journal/2026-10-05.md#lancement-natif-du-pilote-neuf-relevé-1101-utc) |
 
 Travail prévu, dans l'ordre utile :
 
@@ -2269,17 +2269,16 @@ Travail prévu, dans l'ordre utile :
   preuves, puis mettre à jour les procédures et références stabilisées seulement
   après validation réelle. Distinguer Windows, Linux aarch64 et Linux x86-64.
 
-**Prochaine action de ce lot :** après la contre-vérification favorable du reçu
-scanner V2, terminer le raccordement des sources à la cible neuve,
-leurs contrôles purs, gel et revue non-auteur. Les parcours sont plus rapides
-sur les métadonnées figées ; une préparation complète dans les 900 secondes
-reste à démontrer, avec les écrivains réels et la mesure de clôture des callbacks.
+**Prochaine action de ce lot :** surveiller le seul pilote natif neuf et ses
+ressources, lire son état terminal puis faire vérifier indépendamment les
+preuves et métriques. La préparation complète dans les 900 secondes reste
+à démontrer avec les écrivains réels ; les tests purs ne la valident pas.
 Les entrées, fonte, proto, données et budgets restent inchangés ; ancien dataset
-partiel exclu. Après autorisation du protocole fermé : préparation native
-complète, puis apprentissage borné. Ne pas rejouer
+partiel exclu. Aucun redémarrage, hausse de budget ou adoption automatique
+en cas d'échec. Ne pas rejouer
 les essais de densité ou de mode sur ces alphabets incomplets. P03 est déjà
 qualifié et publié ; son extraction privée n'est pas encore republiée par API.
-La QA est arrêtée, les cinq captures publiées sont conservées. Après correction P02,
+La QA DEV précédente est arrêtée, les cinq captures publiées sont conservées. Après correction P02,
 terminer les publications, vérifier l'extraction/OCR et résoudre les 100 scopes
 et 90 unités attendues avant comparaison sur les mêmes questions et extractions.
 Les deux pilotes GPU sont terminés ; leurs mesures ne ferment pas l'admission.
@@ -3020,7 +3019,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W035 sur la base publiée `5b2844e` et préparation locale datée ci-dessous · **Mis à jour :** 2026-10-05 10:04 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W035 sur la base publiée `e7355e1` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 10:50 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -3589,6 +3588,49 @@ DoD. Toute adoption demande sa qualification d'ingestion distincte et une
 identité versionnée. Le retour au modèle actuel ne nécessite aucune mutation
 pendant ce pilote puisqu'il reste inchangé.
 
+### Portée, données et sens de l'apprentissage — précision du 5 octobre, 10:50 UTC
+
+Le pilote cherche à vérifier une extension des sorties du réseau OCR pour
+les deux signes absents de l'alphabet constaté. Il ne réentraîne pas Qwen,
+ne transforme pas les PDF de l'utilisateur en données d'apprentissage et
+ne remplace pas le modèle OCR utilisé par l'application.
+
+| Opération | Ce qui change | Ce qui ne constitue pas sa preuve |
+|---|---|---|
+| Préparation OCR | Création d'images de lignes, de transcriptions attendues et de fichiers `.lstmf` associant image et texte UTF-8 | Le nombre de fichiers ne prouve aucune modification des poids |
+| Apprentissage OCR du pilote | Continuation du réseau flottant Tesseract ; checkpoint et compteurs réels contrôlés selon les critères ci-dessus | Un proto-alphabet, une commande réussie ou un compteur hérité ne prouve pas un apprentissage effectif |
+| Indexation RAG | Extraction et représentation des documents pour la recherche | Elle n'entraîne ni le réseau OCR ni Qwen |
+| Génération Qwen | Production d'une réponse à partir du contexte documentaire | Ce pilote ne modifie pas les poids du modèle de génération |
+
+Le volume ci-dessus est un choix local de couverture : les cinq familles
+exercent français, incertitude avec `±`, produit avec `·`, signes combinés et
+témoins sans ces signes. Il n'est ni un minimum imposé par Tesseract, ni un
+volume optimal démontré. Les deux variantes de chaque groupe restent dans
+le même partage : 1 600 images de train et 400 d'évaluation. Ce sont de
+petites images de lignes, pas 2 000 PDF. La graine, les textes et les
+transcriptions sont produits par le générateur épinglé, sans lecture du
+corpus privé ou des annotations DEV/final ; le journal donne son identité.
+
+Une seule fonte et deux tailles propres permettent un essai contrôlé de
+faisabilité, mais n'établissent pas la généralisation aux scans. Bruit,
+flou, inclinaison, compression, autres fontes et mises en page ne sont pas
+couverts par cette évaluation de lignes. Un bon score sur ce jeu ne vaut
+donc pas qualité sur les documents réels. Avant toute adoption : reprise
+de l'extraction PDF réelle, contrôle de fidélité littérale des signes,
+unités et cellules, des régions non résolues et de la non-régression,
+puis qualifications de plateforme prévues au plan. Ne pas réutiliser
+DEV/final pour apprendre ou changer les critères à la suite du résultat.
+
+La voie d'apprentissage Tesseract retenue ne prend pas en charge le GPU ;
+la génération Qwen/Ollama dispose de son mécanisme GPU distinct. Changer
+de moteur pour entraîner sur GPU ne serait pas une accélération
+transparente du même protocole. La préparation des fichiers et ses accès
+disque sont également distincts du calcul des mises à jour du réseau.
+Contrats et réserves documentaires : [R23OCR-S09](SOURCES.md#r23ocr-s09--entrées-et-mesures-du-pilote-lstm).
+L'utilisateur a confirmé la poursuite du pilote prévu après ces questions ;
+volumes, budgets, séparation et critères restent inchangés. Cette précision
+ne constitue ni résultat d'apprentissage ni décision d'adoption.
+
 **Précisions du 5 octobre à 03:37 UTC, avant reprise :** les deux refus natifs
 ont exposé des erreurs d'interprétation des contrôles source-only, pas un
 résultat d'apprentissage. Les valeurs Fixed de fonte et les entiers retournés
@@ -3737,7 +3779,7 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5b2844e` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 10:04 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `e7355e1` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 10:50 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
 
@@ -3745,6 +3787,20 @@ Sources initiales consultées ROOT le 5 octobre 2026 avant le provisionnement
 du pilote ; compléments causaux datés ci-dessous, après les premiers essais.
 Les références mouvantes sont des contrats documentaires, pas des identités
 d'artefacts ou des résultats locaux. Décision : [W035](DECISIONS.md#w035-pilote-isolé-dapprentissage-des-signes-scientifiques).
+
+Complément de méthode du 5 octobre, consigné à 10:50 UTC après les questions
+sur le volume, la qualité des exemples et le GPU. Skill
+`official-source-review` appliqué, sans nouveau téléchargement ou changement
+de moteur ; `project-documentation` pour la trace vivante.
+
+| Source officielle relue | Fait documentaire | Application et limite |
+|---|---|---|
+| Mainteneurs Tesseract, [Training Tesseract 5](https://tesseract-ocr.github.io/tessdoc/tess5/TrainingTesseract-5.html), sections Introduction, Training Text Requirements, Hardware-Software Requirements et Understanding the Various Files Used During Training ; page courante, date de mise à jour non indiquée | La continuation peut utiliser peu de données ; les images doivent ressembler au domaine visé. La documentation distingue rendu, préparation `.lstmf` et apprentissage ; `.lstmf` associe image et transcription UTF-8. La voie décrite n'offre pas de support GPU. | Version exécutée : 5.4.0 épinglée ci-dessous. Les informations historiques de la page sur les OS ne qualifient pas Windows. Aucun minimum de 1 000 lignes ou preuve de généralisation n'est tiré de cette page ; le volume et la fonte unique sont des choix locaux du pilote. |
+| Mainteneurs Tesseract, [README tesstrain](https://raw.githubusercontent.com/tesseract-ocr/tesstrain/405346a3a67d8e4e049341d1da6a4b752e0b8351/README.md), révision `405346a3a67d8e4e049341d1da6a4b752e0b8351`, sections Provide ground truth data et Train | Paires d'images de lignes TIFF/PNG et transcriptions `.gt.txt`, partage apprentissage/évaluation et étapes de préparation avant le train. | Le protocole local sépare les groupes avant leurs variantes ; la seule extension de fichier ne prouve pas leur contenu ou leur conversion native. Aucune commande `make training`, téléchargement ou installation de cette page exécuté. |
+
+Résultat local de cette relecture : distinction explicite des opérations et
+limites ajoutée à [W035](DECISIONS.md#portée-données-et-sens-de-lapprentissage--précision-du-5-octobre-1050-utc).
+Ce complément ne réduit aucun seuil et ne qualifie pas le pilote.
 
 | Source officielle et version | Apport utilisé | Limite |
 |---|---|---|
