@@ -1,6 +1,6 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `bebb8f2` et complément local F04 E2 daté ci-dessous, historique conservé · **Mis à jour :** 2026-10-04 01:59 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `1e20a58` et compléments locaux F04 E2 et D06.9 datés ci-dessous, historique conservé · **Mis à jour :** 2026-10-05 22:31 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -372,6 +372,20 @@ refait une inspection SQL ou de tous les blobs. Console exhaustive,
 peinture300, modale/pending/trois tailles, ancres, OCR sélection, SSE,
 Windows et qualification physique16Go restent ouverts. L'échec E est
 conservé, l'instance utilisateur reste arrêtée. [Preuves nouvelles et limites](journal/2026-10-04.md#terminal-f04-e2-et-relectures-relevé-0157-utc).
+
+Complément D06.9 Linux du 5 octobre 2026 : **PASS technique borné** sur
+la seule fixture synthétique QLONG-14 déjà indexée, `qwen3.5:2b` réel sur
+GPU du Jetson61Gio, base `1e20a58` et correctif local daté. Une recette
+strictement réussie sans retry/skip/flaky : document Prêt et identité
+corroborée, préfixe UI visible avant terminal (« # », pas un premier mot
+utile qualifié), coupure SSE réelle, reprise après ID6 sans nouvelle
+question/génération ni doublon, réponse limitée, seconde génération annulée
+après sept deltas, tâche et bail libérés. Avis indépendant favorable dans
+cette portée, arrêt et conservation bornée vérifiés ; deux essais FAILED
+conservés. Les cases Windows ci-dessus, D06 global, qualité métier et D07
+ne changent pas. L'ancien relevé D06 du tableau Linux est historique pour
+D06.9 ; ce complément porte son résultat plus récent.
+[Commandes, preuves, empreintes et limites](journal/2026-10-05.md#d069--flux-progressif-reconnexion-et-annulation).
 
 ## Rapport final exigé
 

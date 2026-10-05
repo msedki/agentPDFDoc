@@ -1,6 +1,49 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `fb058aa` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 21:32 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `1e20a58` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 22:31 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## D06.9 — coupure réseau et observation du flux réel
+
+Consultations intégrateur du 5 octobre 2026, avant le relevé de 21:52 UTC : mainteneurs
+Playwright, [BrowserContext.setOffline](https://playwright.dev/docs/api/class-browsercontext#browser-context-set-offline)
+et [newCDPSession](https://playwright.dev/docs/api/class-browsercontext#browser-context-new-cdp-session) ;
+Chrome DevTools, [Network.eventSourceMessageReceived](https://chromedevtools.github.io/devtools-protocol/tot/Network/#event-eventSourceMessageReceived)
+et [schéma du mainteneur](https://raw.githubusercontent.com/ChromeDevTools/devtools-protocol/master/json/browser_protocol.json) ;
+WHATWG, [HTML — reconnexion et Last-Event-ID](https://html.spec.whatwg.org/multipage/server-sent-events.html#processing-model).
+
+`setOffline` émule une indisponibilité réseau du contexte navigateur ; CDP
+est limité à Chromium. L'événement observé fournit l'identité de requête,
+le type, l'identifiant et le contenu du message reçu. Contrats confrontés
+aux types réellement installés de Playwright 1.63.0, sans mise à jour.
+Les pages et la branche `master` sont courantes, non des artefacts verrouillés.
+La reprise automatique d'EventSource utilise `Last-Event-ID` ; le paramètre
+`after` du bouton applicatif relève de `src/lib/stream.ts` et
+`services/api/main.py:581–610`, relus séparément. Observer les vrais messages
+ne prouve pas leur affichage : la recette doit contrôler le texte pendant
+génération, la reprise sans second POST et l'annulation réelle. Aucun PASS
+natif ni critère DoD déduit de ces références.
+
+Complément consulté à 21:59 UTC : [CDP Page.stopLoading](https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-stopLoading),
+schéma officiel ci-dessus et types installés `protocol.d.ts:16268–16273`.
+La commande arrête les navigations et chargements de ressources en cours.
+Hypothèse ciblée après l'essai rouge : interrompre ainsi le vrai chargement
+SSE, puis conserver le mode hors ligne jusqu'au bouton de reconnexion.
+Le standard ne garantit pas le comportement observé d'EventSource après
+cette commande : un nouvel essai reste nécessaire. La première recette a
+reçu 252 deltas pendant `setOffline(true)` ; ce réglage seul n'a pas coupé
+la connexion ouverte sur ce navigateur. Ce constat n'est ni un défaut
+produit ni une propriété générale de toutes les versions de Chromium.
+
+Complément Qdrant du 5 octobre à 22:14 UTC : mainteneur,
+[liste des collections, API v1.19.x](https://api.qdrant.tech/api-reference/collections/get-collections).
+`GET /collections` renvoie `result.collections[].name` ; `QdrantStore.request`
+retourne ici le contenu de `result`. Version native 1.19.1, aucune migration.
+Le résultat de la liste permet de distinguer absence confirmée et erreur
+de lecture des détails ; une présence listée ne suffit pas à qualifier
+l'accès aux détails. Correction envisagée : une seule nouvelle lecture
+des détails si la liste confirme la collection, sinon conserver le blocage
+réel et son motif. Cette référence ne démontre pas la cause transport du
+premier échec de lecture ; ni suppression d'index ni reprise native acquise.
 
 ## Q05 — état de session Playwright isolé
 

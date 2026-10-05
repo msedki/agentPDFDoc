@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `fb058aa` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 21:36 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `1e20a58` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 22:36 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -9,6 +9,30 @@
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R15-3-Q06 — D06.9 Linux, VALIDATED_BOUNDED le 5 octobre.** Sur le PDF
+synthétique déjà indexé et le modèle 2B réel : progression visible, vraie
+coupure/reprise SSE sans nouvelle question et annulation après génération
+effective. Auteur et vérificateur indépendants ; Q05 publié dans `1e20a58`
+n'est pas rejoué. Deux FAILED conservés : coupure QA insuffisante, puis
+faux diagnostic de collection absente sur erreur de lecture. Correctif
+API borné et 29 tests HTTP isolés PASS, typage/lint affectés conformes.
+Troisième recette native : un PASS strict sans retry/skip/flaky, reprise
+après ID6 sans doublons, réponse limitée puis seconde question annulée ;
+activité et bail libérés, GPU sans repli, deux appels modèle seulement.
+Avis indépendant `GO_NATIVE_D06_9_LINUX_BOUNDED` accepté ROOT. Préfixe UI
+observé avant terminal : « # » ; ce contrôle ne qualifie ni la lisibilité
+de la progression, ni la qualité métier ou le temps du premier mot utile.
+Instance arrêtée, treize PID possédés absents, ports libres et conservation
+bornée vérifiée. Aucun rebuild, import, réindexation ou apprentissage nouveau.
+Documentation affectée contrôlée : espace documentaire 7/7, pack 11/11,
+brief synchronisé ; relecture documentaire finale acceptée le 5 octobre à 22:35 UTC. Windows,
+sélection OCR, ancres métier, D07 et DoD globale restent ouverts.
+Lot terminé dans cette portée, publication selon la politique du dépôt.
+Prochaine action : traiter uniquement le
+prochain défaut ou manque de preuve nécessaire à l'usage local.
+[Sources de méthode](SOURCES.md#d069--coupure-réseau-et-observation-du-flux-réel).
+[Exécution et prochaine action](journal/2026-10-05.md#d069--flux-progressif-reconnexion-et-annulation).
 
 **État courant Q05 du 5 octobre à 21:36 UTC : VALIDATED_BOUNDED** pour
 les pixels, la capture utile à 300 % et le budget du lecteur. Test canonique

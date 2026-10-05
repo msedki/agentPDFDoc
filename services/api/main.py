@@ -376,18 +376,29 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
             checks["embedding"] = False
         checks["llm_tokenizer"] = (settings.llm_tokenizer_dir / "tokenizer.json").exists() and (settings.llm_tokenizer_dir / "tokenizer_config.json").exists()
         collection_state = "unreachable"
+        collection = None
         try:
-            await vectors.request("GET", f"/collections/{vectors.collection}")
+            collection = vectors.collection
+            await vectors.request("GET", f"/collections/{collection}")
             checks["qdrant"], collection_state = True, "present"
         except (ApiError, AttributeError):
-            # Base neuve : la collection naît à la première indexation ; seul un serveur muet ou une collection perdue bloque.
-            try:
-                await vectors.request("GET", "/collections")
-                published = db.one("SELECT 1 AS present FROM index_generations WHERE published_at IS NOT NULL LIMIT 1")
-                collection_state = "absent_with_published_generations" if published else "absent_empty_library"
-                checks["qdrant"] = not published
-            except (ApiError, AttributeError):
-                pass
+            # Un échec des détails ne prouve pas l'absence ; la liste confirme le nom avant une seule reprise.
+            if collection is not None:
+                try:
+                    listing = await vectors.request("GET", "/collections")
+                    names = listing.get("collections") if isinstance(listing, dict) else None
+                    if not isinstance(names, list) or any(not isinstance(item, dict) or not isinstance(item.get("name"), str) or not item["name"] for item in names):
+                        raise ApiError("qdrant_unavailable", "Liste des collections Qdrant invalide.", 503)
+                    if any(item["name"] == collection for item in names):
+                        await vectors.request("GET", f"/collections/{collection}")
+                        checks["qdrant"], collection_state = True, "present"
+                    else:
+                        # Base neuve : la collection naît à la première indexation.
+                        published = db.one("SELECT 1 AS present FROM index_generations WHERE published_at IS NOT NULL LIMIT 1")
+                        collection_state = "absent_with_published_generations" if published else "absent_empty_library"
+                        checks["qdrant"] = not published
+                except (ApiError, AttributeError):
+                    pass
         try:
             response = await ollama.client.get("/api/tags")
             response.raise_for_status()

@@ -693,7 +693,11 @@ def test_api_readiness_is_blocked_without_artifacts_and_never_loads_models(tmp_p
     from services.api.embedding import EmbeddingService
     class AvailableVectors(FakeVectors):
         collection = "explicit-test-collection"
+        def __init__(self):
+            super().__init__()
+            self.requests = []
         async def request(self, method, path):
+            self.requests.append((method, path))
             return {"status": "ok"}
     class TagsResponse:
         def raise_for_status(self):
@@ -708,7 +712,8 @@ def test_api_readiness_is_blocked_without_artifacts_and_never_loads_models(tmp_p
     runtime.client = TagsClient()
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     embedding = EmbeddingService(settings)
-    app = create_app(settings=settings, embedding=embedding, vectors=AvailableVectors(), tokenizer=FakeTokenizer(), ollama=runtime, governor=FakeGovernor(), start_jobs=False)
+    vectors = AvailableVectors()
+    app = create_app(settings=settings, embedding=embedding, vectors=vectors, tokenizer=FakeTokenizer(), ollama=runtime, governor=FakeGovernor(), start_jobs=False)
     with browser_client(app) as client:
         assert client.get("/api/v1/health").status_code == 200
         response = client.get("/api/v1/readiness")
@@ -716,6 +721,7 @@ def test_api_readiness_is_blocked_without_artifacts_and_never_loads_models(tmp_p
         assert response.json()["checks"]["qdrant"] and response.json()["checks"]["ollama"]
         assert {"embedding_not_ready", "llm_tokenizer_not_ready"} <= set(response.json()["blockers"])
         assert embedding._session is None and embedding._tokenizer is None and runtime.calls == 0
+        assert vectors.requests == [("GET", "/collections/explicit-test-collection")]
         assert not settings.embedding_dir.exists() and not settings.llm_tokenizer_dir.exists()
 
 
@@ -967,19 +973,133 @@ def test_api_readiness_accepts_a_missing_collection_only_while_the_library_is_em
     class EmptyServer(FakeVectors):
         collection = "explicit-test-collection"
 
+        def __init__(self):
+            super().__init__()
+            self.requests = []
+
         async def request(self, method, path):
+            self.requests.append((method, path))
             if path == "/collections":
                 return {"collections": []}
             raise ApiError("qdrant_unavailable", "Collection absente (404 simulé).", 503)
 
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
-    app = create_app(settings=settings, embedding=EmbeddingService(settings), vectors=EmptyServer(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+    vectors = EmptyServer()
+    app = create_app(settings=settings, embedding=EmbeddingService(settings), vectors=vectors, tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
     with browser_client(app) as client:
         body = client.get("/api/v1/readiness").json()
         assert body["checks"]["qdrant"] is True and body["qdrant_collection"] == "absent_empty_library"
+        assert vectors.requests == [("GET", "/collections/explicit-test-collection"), ("GET", "/collections")]
         blob = tmp_path / "original.pdf"
         blob.write_bytes(b"%PDF-1.7\n")
         version = app.state.db.import_original("manuel.pdf", "0" * 64, blob)["version_id"]
         app.state.db.execute("INSERT INTO index_generations(id,version_id,fingerprint,expected_chunks,created_at,published_at) VALUES('g',?,'f',0,'t','t')", (version,))
         body = client.get("/api/v1/readiness").json()
         assert body["checks"]["qdrant"] is False and body["qdrant_collection"] == "absent_with_published_generations"
+        assert vectors.requests == [("GET", "/collections/explicit-test-collection"), ("GET", "/collections")] * 2
+
+
+@pytest.mark.parametrize("listing", [
+    pytest.param({"collections": [{"name": "explicit-test-collection"}]}, id="listed"),
+    pytest.param({"collections": []}, id="absent"),
+    pytest.param({"collections": [{"name": "another-collection"}]}, id="other-name"),
+    pytest.param({}, id="missing-list"),
+    pytest.param(None, id="null-result"),
+    pytest.param({"collections": None}, id="null-list"),
+    pytest.param({"collections": {}}, id="object-not-list"),
+    pytest.param({"collections": [None]}, id="null-entry"),
+    pytest.param({"collections": [{}]}, id="missing-name"),
+    pytest.param({"collections": [{"name": 1}]}, id="non-string-name"),
+    pytest.param({"collections": [{"name": ""}]}, id="empty-name"),
+    pytest.param({"collections": [{"name": "explicit-test-collection"}, {}]}, id="listed-but-invalid"),
+    pytest.param("unavailable", id="list-unavailable"),
+])
+@pytest.mark.parametrize("details_recover", [False, True], ids=["details-persistent-error", "details-recover"])
+def test_api_readiness_confirms_list_names_before_classifying_failed_details(tmp_path, listing, details_recover):
+    from services.api.context import LlmTokenizer
+    from services.api.embedding import EmbeddingService
+    from services.api.errors import ApiError
+
+    class ScriptedReadinessVectors(FakeVectors):
+        """Named HTTP-result double; no native Qdrant is contacted."""
+        collection = "explicit-test-collection"
+
+        def __init__(self):
+            super().__init__()
+            self.requests = []
+
+        async def request(self, method, path):
+            self.requests.append((method, path))
+            if path == "/collections":
+                if listing == "unavailable":
+                    raise ApiError("qdrant_unavailable", "Liste indisponible (double).", 503)
+                return listing
+            if len(self.requests) == 3 and details_recover:
+                return {"status": "green"}
+            raise ApiError("qdrant_unavailable", "Détails indisponibles (double).", 503)
+
+    class TagsResponse:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"models": [{"name": "qwen3.5:4b"}]}
+
+    class TagsClient:
+        async def get(self, path):
+            assert path == "/api/tags"
+            return TagsResponse()
+
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    # Invalid placeholders intentionally exercise existence only; loading them would fail.
+    settings.embedding_dir.mkdir(parents=True)
+    settings.llm_tokenizer_dir.mkdir(parents=True)
+    for artifact in [settings.embedding_dir / "tokenizer.json", settings.embedding_dir / "model.onnx",
+                     settings.llm_tokenizer_dir / "tokenizer.json", settings.llm_tokenizer_dir / "tokenizer_config.json"]:
+        artifact.write_bytes(b"not a model; readiness must not load this test placeholder")
+    embedding, tokenizer = EmbeddingService(settings), LlmTokenizer(settings)
+    vectors, runtime = ScriptedReadinessVectors(), FakeOllama()
+    runtime.client = TagsClient()
+    app = create_app(settings=settings, embedding=embedding, vectors=vectors, tokenizer=tokenizer, ollama=runtime, governor=FakeGovernor(), start_jobs=False)
+    with browser_client(app) as client:
+        # Published SQLite metadata rules out the empty-library exception.
+        blob = tmp_path / "original.pdf"
+        blob.write_bytes(b"%PDF-1.7\ncontrolled test placeholder")
+        version = app.state.db.import_original("manuel.pdf", "0" * 64, blob)["version_id"]
+        app.state.db.execute("INSERT INTO index_generations(id,version_id,fingerprint,expected_chunks,created_at,published_at) VALUES('g',?,'f',0,'t','t')", (version,))
+        response = client.get("/api/v1/readiness")
+        body = response.json()
+        listed = listing == {"collections": [{"name": vectors.collection}]}
+        absent = listing in ({"collections": []}, {"collections": [{"name": "another-collection"}]})
+        ready = listed and details_recover
+        assert response.status_code == (200 if ready else 503)
+        assert body["checks"]["qdrant"] is ready
+        assert body["qdrant_collection"] == ("present" if ready else "absent_with_published_generations" if absent else "unreachable")
+        expected_requests = [("GET", "/collections/explicit-test-collection"), ("GET", "/collections")]
+        if listed:
+            expected_requests.append(("GET", "/collections/explicit-test-collection"))
+        assert vectors.requests == expected_requests
+        assert embedding._session is None and embedding._tokenizer is None and embedding._load_count == 0
+        assert tokenizer._tokenizer is None and tokenizer._load_count == 0 and runtime.calls == 0
+
+
+def test_api_readiness_unprovisioned_collection_identity_remains_blocked_json(tmp_path):
+    from services.api.embedding import EmbeddingService
+    from services.api.errors import ApiError
+
+    class UnprovisionedReadinessVectors(FakeVectors):
+        @property
+        def collection(self):
+            raise ApiError("embedding_not_provisioned", "Identité absente (double).", 503)
+
+        async def request(self, method, path):
+            pytest.fail("No Qdrant request is meaningful without a resolved collection identity")
+
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    embedding, runtime = EmbeddingService(settings), FakeOllama()
+    app = create_app(settings=settings, embedding=embedding, vectors=UnprovisionedReadinessVectors(), tokenizer=FakeTokenizer(), ollama=runtime, governor=FakeGovernor(), start_jobs=False)
+    with browser_client(app) as client:
+        response = client.get("/api/v1/readiness")
+        assert response.status_code == 503 and response.json()["checks"]["qdrant"] is False
+        assert response.json()["qdrant_collection"] == "unreachable"
+        assert embedding._session is None and embedding._tokenizer is None and runtime.calls == 0

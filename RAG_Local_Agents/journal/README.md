@@ -1,8 +1,16 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `fb058aa` et entrées datées · **Mis à jour :** 2026-10-05 21:36 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `1e20a58` et entrées datées · **Mis à jour :** 2026-10-05 22:31 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[D06.9, flux progressif, reconnexion et annulation](2026-10-05.md#d069--flux-progressif-reconnexion-et-annulation) :
+deux échecs conservés, coupure QA corrigée puis diagnostic Qdrant réparé.
+29 tests HTTP isolés PASS et revue du code ; troisième recette native verte,
+reprise sans nouvelle génération, annulation et libération conformes.
+Avis indépendant favorable technique Linux ; préfixe progressif « # »
+uniquement, pas de qualification métier/Windows. Instance arrêtée, données
+conservées, pas de campagne inchangée ni d'apprentissage supplémentaire.
 
 [Q05, pixels et capture réellement visible](2026-10-05.md#q05--oracle-de-peinture-et-recette-canonique-isolée) :
 oracles et session corrigés, 20+5 tests purs et typage/lint affectés conformes.

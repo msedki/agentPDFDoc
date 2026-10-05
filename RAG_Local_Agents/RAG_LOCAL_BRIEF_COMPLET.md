@@ -1246,7 +1246,7 @@ Pour chaque skill retenu, vérifier une tâche pertinente et une tâche hors pé
 
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `bebb8f2` et complément local F04 E2 daté ci-dessous, historique conservé · **Mis à jour :** 2026-10-04 01:59 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `1e20a58` et compléments locaux F04 E2 et D06.9 datés ci-dessous, historique conservé · **Mis à jour :** 2026-10-05 22:31 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -1619,6 +1619,20 @@ peinture300, modale/pending/trois tailles, ancres, OCR sélection, SSE,
 Windows et qualification physique16Go restent ouverts. L'échec E est
 conservé, l'instance utilisateur reste arrêtée. [Preuves nouvelles et limites](journal/2026-10-04.md#terminal-f04-e2-et-relectures-relevé-0157-utc).
 
+Complément D06.9 Linux du 5 octobre 2026 : **PASS technique borné** sur
+la seule fixture synthétique QLONG-14 déjà indexée, `qwen3.5:2b` réel sur
+GPU du Jetson61Gio, base `1e20a58` et correctif local daté. Une recette
+strictement réussie sans retry/skip/flaky : document Prêt et identité
+corroborée, préfixe UI visible avant terminal (« # », pas un premier mot
+utile qualifié), coupure SSE réelle, reprise après ID6 sans nouvelle
+question/génération ni doublon, réponse limitée, seconde génération annulée
+après sept deltas, tâche et bail libérés. Avis indépendant favorable dans
+cette portée, arrêt et conservation bornée vérifiés ; deux essais FAILED
+conservés. Les cases Windows ci-dessus, D06 global, qualité métier et D07
+ne changent pas. L'ancien relevé D06 du tableau Linux est historique pour
+D06.9 ; ce complément porte son résultat plus récent.
+[Commandes, preuves, empreintes et limites](journal/2026-10-05.md#d069--flux-progressif-reconnexion-et-annulation).
+
 ## Rapport final exigé
 
 Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, corpus, résultat et chemin de preuve. Ajouter un tableau des métriques avec dénominateurs, mesures chaud/froid, limitations et écarts. Résumer uniquement ce qui est réellement exécuté ; ne pas substituer un discours de conformité aux résultats.
@@ -1631,7 +1645,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `fb058aa` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 21:36 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `1e20a58` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 22:36 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1640,6 +1654,30 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R15-3-Q06 — D06.9 Linux, VALIDATED_BOUNDED le 5 octobre.** Sur le PDF
+synthétique déjà indexé et le modèle 2B réel : progression visible, vraie
+coupure/reprise SSE sans nouvelle question et annulation après génération
+effective. Auteur et vérificateur indépendants ; Q05 publié dans `1e20a58`
+n'est pas rejoué. Deux FAILED conservés : coupure QA insuffisante, puis
+faux diagnostic de collection absente sur erreur de lecture. Correctif
+API borné et 29 tests HTTP isolés PASS, typage/lint affectés conformes.
+Troisième recette native : un PASS strict sans retry/skip/flaky, reprise
+après ID6 sans doublons, réponse limitée puis seconde question annulée ;
+activité et bail libérés, GPU sans repli, deux appels modèle seulement.
+Avis indépendant `GO_NATIVE_D06_9_LINUX_BOUNDED` accepté ROOT. Préfixe UI
+observé avant terminal : « # » ; ce contrôle ne qualifie ni la lisibilité
+de la progression, ni la qualité métier ou le temps du premier mot utile.
+Instance arrêtée, treize PID possédés absents, ports libres et conservation
+bornée vérifiée. Aucun rebuild, import, réindexation ou apprentissage nouveau.
+Documentation affectée contrôlée : espace documentaire 7/7, pack 11/11,
+brief synchronisé ; relecture documentaire finale acceptée le 5 octobre à 22:35 UTC. Windows,
+sélection OCR, ancres métier, D07 et DoD globale restent ouverts.
+Lot terminé dans cette portée, publication selon la politique du dépôt.
+Prochaine action : traiter uniquement le
+prochain défaut ou manque de preuve nécessaire à l'usage local.
+[Sources de méthode](SOURCES.md#d069--coupure-réseau-et-observation-du-flux-réel).
+[Exécution et prochaine action](journal/2026-10-05.md#d069--flux-progressif-reconnexion-et-annulation).
 
 **État courant Q05 du 5 octobre à 21:36 UTC : VALIDATED_BOUNDED** pour
 les pixels, la capture utile à 300 % et le budget du lecteur. Test canonique
@@ -4144,7 +4182,50 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `fb058aa` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 21:32 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `1e20a58` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 22:31 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## D06.9 — coupure réseau et observation du flux réel
+
+Consultations intégrateur du 5 octobre 2026, avant le relevé de 21:52 UTC : mainteneurs
+Playwright, [BrowserContext.setOffline](https://playwright.dev/docs/api/class-browsercontext#browser-context-set-offline)
+et [newCDPSession](https://playwright.dev/docs/api/class-browsercontext#browser-context-new-cdp-session) ;
+Chrome DevTools, [Network.eventSourceMessageReceived](https://chromedevtools.github.io/devtools-protocol/tot/Network/#event-eventSourceMessageReceived)
+et [schéma du mainteneur](https://raw.githubusercontent.com/ChromeDevTools/devtools-protocol/master/json/browser_protocol.json) ;
+WHATWG, [HTML — reconnexion et Last-Event-ID](https://html.spec.whatwg.org/multipage/server-sent-events.html#processing-model).
+
+`setOffline` émule une indisponibilité réseau du contexte navigateur ; CDP
+est limité à Chromium. L'événement observé fournit l'identité de requête,
+le type, l'identifiant et le contenu du message reçu. Contrats confrontés
+aux types réellement installés de Playwright 1.63.0, sans mise à jour.
+Les pages et la branche `master` sont courantes, non des artefacts verrouillés.
+La reprise automatique d'EventSource utilise `Last-Event-ID` ; le paramètre
+`after` du bouton applicatif relève de `src/lib/stream.ts` et
+`services/api/main.py:581–610`, relus séparément. Observer les vrais messages
+ne prouve pas leur affichage : la recette doit contrôler le texte pendant
+génération, la reprise sans second POST et l'annulation réelle. Aucun PASS
+natif ni critère DoD déduit de ces références.
+
+Complément consulté à 21:59 UTC : [CDP Page.stopLoading](https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-stopLoading),
+schéma officiel ci-dessus et types installés `protocol.d.ts:16268–16273`.
+La commande arrête les navigations et chargements de ressources en cours.
+Hypothèse ciblée après l'essai rouge : interrompre ainsi le vrai chargement
+SSE, puis conserver le mode hors ligne jusqu'au bouton de reconnexion.
+Le standard ne garantit pas le comportement observé d'EventSource après
+cette commande : un nouvel essai reste nécessaire. La première recette a
+reçu 252 deltas pendant `setOffline(true)` ; ce réglage seul n'a pas coupé
+la connexion ouverte sur ce navigateur. Ce constat n'est ni un défaut
+produit ni une propriété générale de toutes les versions de Chromium.
+
+Complément Qdrant du 5 octobre à 22:14 UTC : mainteneur,
+[liste des collections, API v1.19.x](https://api.qdrant.tech/api-reference/collections/get-collections).
+`GET /collections` renvoie `result.collections[].name` ; `QdrantStore.request`
+retourne ici le contenu de `result`. Version native 1.19.1, aucune migration.
+Le résultat de la liste permet de distinguer absence confirmée et erreur
+de lecture des détails ; une présence listée ne suffit pas à qualifier
+l'accès aux détails. Correction envisagée : une seule nouvelle lecture
+des détails si la liste confirme la collection, sinon conserver le blocage
+réel et son motif. Cette référence ne démontre pas la cause transport du
+premier échec de lecture ; ni suppression d'index ni reprise native acquise.
 
 ## Q05 — état de session Playwright isolé
 
