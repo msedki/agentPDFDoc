@@ -1,8 +1,33 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `4e0b16c` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 18:45 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `d981638` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 19:48 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+Complément du 5 octobre 2026 à 19:48 UTC, avant la correction de rendu :
+PSF, [queue](https://docs.python.org/3.12/library/queue.html) et
+[threading](https://docs.python.org/3.12/library/threading.html), documentation
+3.12.15 ; contrat de l'interpréteur local 3.12.14 confronté à
+[queue.py](https://raw.githubusercontent.com/python/cpython/v3.12.14/Lib/queue.py)
+(`put`, `get`, `join`) et
+[threading.py](https://raw.githubusercontent.com/python/cpython/v3.12.14/Lib/threading.py)
+(`Event`, `Thread.join`, `is_alive`, `daemon`). La borne `Queue.maxsize`
+porte sur les éléments en file, pas sur ceux déjà pris par un travailleur.
+La limite de deux lignes admises non terminées doit donc être contrôlée
+séparément. `qsize`, `empty` et `full` ne sont pas des garanties de sécurité ;
+`Queue.join` n'a pas de délai. Les attentes sont bornées par la deadline
+existante, sans renouvellement. Après une jointure bornée, vérifier
+`is_alive` ; un thread encore actif interdit toute réussite et tout BOX.
+Un événement d'arrêt ne force pas l'interruption d'une opération active.
+
+Le GIL ne permet pas de présumer un gain de calcul Python ; la concurrence
+proposée vise les attentes de publication observées, sans attribuer leur
+cause au matériel. Deux threads non-daemon, un collecteur canonique et
+la fermeture avant le traitement natif doivent être testés et relus.
+Aucune suppression de synchronisation, mise à jour de runtime ou
+accélération acquise par ces contrats. Choix préparatoire :
+[W035](DECISIONS.md#correction-préparatoire-du-rendu--choix-du-5-octobre-1948-utc) ;
+preuves et exécution éventuelle restent dans le journal.
 
 Complément du 5 octobre 2026 à 18:45 UTC, avant le diagnostic du rendu :
 contrats précédents relus dans les publications officielles de la PSF et

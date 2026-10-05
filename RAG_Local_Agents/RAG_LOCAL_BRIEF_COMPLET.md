@@ -1631,7 +1631,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `61a4cb9` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 19:28 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `d981638` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 19:48 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1640,6 +1640,19 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**Complément du 5 octobre à 19:48 UTC :** diagnostic de rendu publié dans
+`d981638`. Analyse indépendante des reçus fermés lue et acceptée dans sa
+portée : première séquence d'images antérieure aux BOX, durée exacte
+inconnue, pas de gain extrapolé. Action **R23-OCR-03-RD**, couche préparation
+OCR, **IN_PROGRESS source/tests** : deux lignes de rendu/publication au plus,
+collecte canonique, scans et manifeste avant BOX inchangés. Dépendances :
+diagnostic fermé et [choix W035](DECISIONS.md#correction-préparatoire-du-rendu--choix-du-5-octobre-1948-utc).
+Livrable : sources distinctes, tests discriminants et revue non-auteur ;
+validation native séparée requise avant toute affirmation de fidélité ou de
+gain. Prochaine action : fermer et relire le correctif, puis son raccord
+réel. Ni relance du pilote, ni apprentissage ou Done nouveau acquis.
+[Cibles, preuves, ressources et estimation](journal/2026-10-05.md#r23-ocr-03--correction-du-rendu-et-de-la-publication-initiale).
 
 **Complément du 5 octobre à 19:28 UTC :** validation finale indépendante
 du témoin acceptée après lecture du rapport fermé et de sa portée. Les
@@ -3156,7 +3169,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `68db1e3` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 16:53 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `d981638` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 19:57 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -3725,6 +3738,47 @@ DoD. Toute adoption demande sa qualification d'ingestion distincte et une
 identité versionnée. Le retour au modèle actuel ne nécessite aucune mutation
 pendant ce pilote puisqu'il reste inchangé.
 
+### Correction préparatoire du rendu — choix du 5 octobre, 19:48 UTC
+
+**Statut :** réalisation source/tests autorisée ; exécution conditionnée à
+la revue indépendante et au préflight ROOT. Aucun gain ou modèle adopté.
+
+Le diagnostic fermé montre des attentes de synchronisation dans sa fenêtre
+de publication. L'analyse des reçus du pilote interrompu confirme que les
+images et leur manifeste précèdent tous les BOX ; elle ne mesure pas la
+durée exacte du rendu initial. Ces observations motivent une correction
+ciblée, sans cache de fonte ni pipeline BOX anticipé.
+
+Préparer deux threads de rendu/publication persistants non-daemon, avec
+au plus deux lignes admises non terminées. Chaque ligne conserve les
+primitives, octets, fonte, axes, erreurs et barrières existants ; seul le
+thread principal collecte les résultats dans l'ordre canonique. Drainer
+le bloc précédent avant chacun des 40 scans initiaux. Publier les 2 000
+enregistrements et leur manifeste puis joindre les deux threads avant
+la première commande BOX. Le contrôleur natif reste distinct, inchangé,
+et appelé une seule fois ; ses 40 contrôles plus le contrôle final restent
+conservés. Arrêter les admissions au premier refus enregistré ; tout
+thread actif après jointure bornée interdit la suite.
+
+Conséquences : cible neuve, fixtures négatives séparées et anciennes
+preuves immuables. Budgets 900/1800/900, données, splits, seuils et modèle
+nominal inchangés. Les tests doivent exercer inversion des fins, plafond
+d'admission, refus de rendu/écriture, deadline, scans et ordre manifeste/BOX.
+Une réussite pure ne prouve ni les PNG réels ni le pilote complet : témoin
+discriminant, revue et préflight précèdent toute nouvelle exécution.
+Contrats officiels : [S09](SOURCES.md#r23ocr-s09--entrées-et-mesures-du-pilote-lstm).
+Provenance et prochaine action :
+[journal](journal/2026-10-05.md#r23-ocr-03--correction-du-rendu-et-de-la-publication-initiale).
+
+**Précision du 5 octobre à 19:57 UTC :** le dispatcher en réalisation
+joint ses deux threads avant de rendre les records au batch. Retenir cet
+ordre plus restrictif : lignes drainées et threads terminés, manifeste
+complet publié, puis BOX. Il remplace seulement l'ordre manifeste puis
+jointure décrit à 19:48 ; la frontière historique manifeste avant BOX,
+les writers et les budgets ne changent pas. Le contrôle de deadline reste
+requis après la jointure. Choix de structure relu dans les sources en cours,
+pas encore validation du gel, des tests ou d'un résultat natif.
+
 ### Portée, données et sens de l'apprentissage — précision du 5 octobre, 10:50 UTC
 
 Le pilote cherche à vérifier une extension des sorties du réseau OCR pour
@@ -3970,9 +4024,34 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `4e0b16c` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 18:45 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `d981638` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 19:48 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+Complément du 5 octobre 2026 à 19:48 UTC, avant la correction de rendu :
+PSF, [queue](https://docs.python.org/3.12/library/queue.html) et
+[threading](https://docs.python.org/3.12/library/threading.html), documentation
+3.12.15 ; contrat de l'interpréteur local 3.12.14 confronté à
+[queue.py](https://raw.githubusercontent.com/python/cpython/v3.12.14/Lib/queue.py)
+(`put`, `get`, `join`) et
+[threading.py](https://raw.githubusercontent.com/python/cpython/v3.12.14/Lib/threading.py)
+(`Event`, `Thread.join`, `is_alive`, `daemon`). La borne `Queue.maxsize`
+porte sur les éléments en file, pas sur ceux déjà pris par un travailleur.
+La limite de deux lignes admises non terminées doit donc être contrôlée
+séparément. `qsize`, `empty` et `full` ne sont pas des garanties de sécurité ;
+`Queue.join` n'a pas de délai. Les attentes sont bornées par la deadline
+existante, sans renouvellement. Après une jointure bornée, vérifier
+`is_alive` ; un thread encore actif interdit toute réussite et tout BOX.
+Un événement d'arrêt ne force pas l'interruption d'une opération active.
+
+Le GIL ne permet pas de présumer un gain de calcul Python ; la concurrence
+proposée vise les attentes de publication observées, sans attribuer leur
+cause au matériel. Deux threads non-daemon, un collecteur canonique et
+la fermeture avant le traitement natif doivent être testés et relus.
+Aucune suppression de synchronisation, mise à jour de runtime ou
+accélération acquise par ces contrats. Choix préparatoire :
+[W035](DECISIONS.md#correction-préparatoire-du-rendu--choix-du-5-octobre-1948-utc) ;
+preuves et exécution éventuelle restent dans le journal.
 
 Complément du 5 octobre 2026 à 18:45 UTC, avant le diagnostic du rendu :
 contrats précédents relus dans les publications officielles de la PSF et

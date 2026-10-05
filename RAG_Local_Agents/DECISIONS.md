@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `68db1e3` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 16:53 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `d981638` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 19:57 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -568,6 +568,47 @@ ni P02 au PSM produit, ni extraction publiée, confiance, Windows, CPU 16 Go ou
 DoD. Toute adoption demande sa qualification d'ingestion distincte et une
 identité versionnée. Le retour au modèle actuel ne nécessite aucune mutation
 pendant ce pilote puisqu'il reste inchangé.
+
+### Correction préparatoire du rendu — choix du 5 octobre, 19:48 UTC
+
+**Statut :** réalisation source/tests autorisée ; exécution conditionnée à
+la revue indépendante et au préflight ROOT. Aucun gain ou modèle adopté.
+
+Le diagnostic fermé montre des attentes de synchronisation dans sa fenêtre
+de publication. L'analyse des reçus du pilote interrompu confirme que les
+images et leur manifeste précèdent tous les BOX ; elle ne mesure pas la
+durée exacte du rendu initial. Ces observations motivent une correction
+ciblée, sans cache de fonte ni pipeline BOX anticipé.
+
+Préparer deux threads de rendu/publication persistants non-daemon, avec
+au plus deux lignes admises non terminées. Chaque ligne conserve les
+primitives, octets, fonte, axes, erreurs et barrières existants ; seul le
+thread principal collecte les résultats dans l'ordre canonique. Drainer
+le bloc précédent avant chacun des 40 scans initiaux. Publier les 2 000
+enregistrements et leur manifeste puis joindre les deux threads avant
+la première commande BOX. Le contrôleur natif reste distinct, inchangé,
+et appelé une seule fois ; ses 40 contrôles plus le contrôle final restent
+conservés. Arrêter les admissions au premier refus enregistré ; tout
+thread actif après jointure bornée interdit la suite.
+
+Conséquences : cible neuve, fixtures négatives séparées et anciennes
+preuves immuables. Budgets 900/1800/900, données, splits, seuils et modèle
+nominal inchangés. Les tests doivent exercer inversion des fins, plafond
+d'admission, refus de rendu/écriture, deadline, scans et ordre manifeste/BOX.
+Une réussite pure ne prouve ni les PNG réels ni le pilote complet : témoin
+discriminant, revue et préflight précèdent toute nouvelle exécution.
+Contrats officiels : [S09](SOURCES.md#r23ocr-s09--entrées-et-mesures-du-pilote-lstm).
+Provenance et prochaine action :
+[journal](journal/2026-10-05.md#r23-ocr-03--correction-du-rendu-et-de-la-publication-initiale).
+
+**Précision du 5 octobre à 19:57 UTC :** le dispatcher en réalisation
+joint ses deux threads avant de rendre les records au batch. Retenir cet
+ordre plus restrictif : lignes drainées et threads terminés, manifeste
+complet publié, puis BOX. Il remplace seulement l'ordre manifeste puis
+jointure décrit à 19:48 ; la frontière historique manifeste avant BOX,
+les writers et les budgets ne changent pas. Le contrôle de deadline reste
+requis après la jointure. Choix de structure relu dans les sources en cours,
+pas encore validation du gel, des tests ou d'un résultat natif.
 
 ### Portée, données et sens de l'apprentissage — précision du 5 octobre, 10:50 UTC
 

@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `61a4cb9` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 19:28 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `d981638` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 19:48 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -9,6 +9,19 @@
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**Complément du 5 octobre à 19:48 UTC :** diagnostic de rendu publié dans
+`d981638`. Analyse indépendante des reçus fermés lue et acceptée dans sa
+portée : première séquence d'images antérieure aux BOX, durée exacte
+inconnue, pas de gain extrapolé. Action **R23-OCR-03-RD**, couche préparation
+OCR, **IN_PROGRESS source/tests** : deux lignes de rendu/publication au plus,
+collecte canonique, scans et manifeste avant BOX inchangés. Dépendances :
+diagnostic fermé et [choix W035](DECISIONS.md#correction-préparatoire-du-rendu--choix-du-5-octobre-1948-utc).
+Livrable : sources distinctes, tests discriminants et revue non-auteur ;
+validation native séparée requise avant toute affirmation de fidélité ou de
+gain. Prochaine action : fermer et relire le correctif, puis son raccord
+réel. Ni relance du pilote, ni apprentissage ou Done nouveau acquis.
+[Cibles, preuves, ressources et estimation](journal/2026-10-05.md#r23-ocr-03--correction-du-rendu-et-de-la-publication-initiale).
 
 **Complément du 5 octobre à 19:28 UTC :** validation finale indépendante
 du témoin acceptée après lecture du rapport fermé et de sa portée. Les
