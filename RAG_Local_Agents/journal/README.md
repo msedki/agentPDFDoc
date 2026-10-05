@@ -1,8 +1,15 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `dd5dea6` et entrées datées · **Mis à jour :** 2026-10-05 18:28 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `4e0b16c` et entrées datées · **Mis à jour :** 2026-10-05 18:50 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Diagnostic du rendu et de sa publication](2026-10-05.md#r23-ocr-03--diagnostic-du-rendu-et-de-sa-publication) :
+préparation d'un témoin de huit variantes, avec comparaison exacte au rendu
+instrumenté, sans cache ni apprentissage. Pas encore exécuté. Sources
+officielles relues, versions et réserves hôte contrôlées. Couverture des
+explications sur les fichiers, les opérations et le CPU/GPU confirmée
+indépendamment ; aucun nouveau résultat OCR ou critère de Done acquis.
 
 [Correction de préparation et pilote distinct](2026-10-05.md#pilote-à-deux-lignes-arrêté-relevé-1817-utc) :
 explications sur les données publiées après relecture du générateur ;

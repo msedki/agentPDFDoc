@@ -1631,7 +1631,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `dd5dea6` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 18:28 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `4e0b16c` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 18:50 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1640,6 +1640,18 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**Reprise du 5 octobre à 18:45 UTC :** explications sur les données OCR,
+l'apprentissage et le CPU/GPU déjà publiées, vérification ciblée non-auteur
+en cours. Diagnostic du rendu en préparation dans une QA neuve : huit
+variantes comparées à leur version instrumentée, sans cache, reprise de
+partiels ou modification des barrières. Sources officielles et versions
+relues ; aucun rendu ou résultat natif acquis à ce relevé. Prochaine action :
+tests et revue du protocole, puis préflight et lancement borné s'ils passent.
+[Périmètre, ressources et estimation](journal/2026-10-05.md#r23-ocr-03--diagnostic-du-rendu-et-de-sa-publication).
+Le pilote et les critères de Done restent ouverts. Complément à 18:49 UTC :
+revue indépendante de couverture documentaire acceptée, aucun manque
+factuel identifié ; elle ne qualifie pas la méthode ou le résultat du témoin.
 
 **Relevé du 5 octobre à 18:17 UTC :** pilote à deux lignes fermé EXIT1
 à18:15:03 UTC : `ACTIVE_STAGE_DEADLINE`, 900,46 s, seule étape prepare.
@@ -3930,9 +3942,27 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `68db1e3` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 16:53 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `4e0b16c` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 18:45 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+Complément du 5 octobre 2026 à 18:45 UTC, avant le diagnostic du rendu :
+contrats précédents relus dans les publications officielles de la PSF et
+des mainteneurs Pillow. La documentation
+[time, Python 3.12](https://docs.python.org/3.12/library/time.html), courante
+3.12.15, distingue durée monotone écoulée et temps CPU ; deux lectures
+de `monotonic_ns` bornent un intervalle, sans en attribuer les attentes
+à un composant matériel. Interpréteur local confirmé : 3.12.14.
+[ImageFont](https://pillow.readthedocs.io/en/stable/reference/ImageFont.html),
+documentation 12.3.0, et
+[ImageFont.py au tag 12.3.0](https://raw.githubusercontent.com/python-pillow/Pillow/12.3.0/src/PIL/ImageFont.py),
+sections `truetype` et `set_variation_by_axes`, confirment la création de
+l'objet de fonte depuis un flux binaire et le réglage des axes. Version
+locale confirmée par les métadonnées installées : 12.3.0, sans ouvrir de fonte.
+Le témoin conserve BASIC, fonte, axes et appels existants ; il ajoute des
+sondes, pas un cache. Leur surcoût reste dans les mesures. Les publications
+ne prouvent ni le coût dominant, ni un gain, ni l'achèvement des 2 000
+variantes. [Protocole et état d'exécution](journal/2026-10-05.md#r23-ocr-03--diagnostic-du-rendu-et-de-sa-publication).
 
 Complément du 5 octobre 2026 à 16:41 UTC : contrats examinés avant une
 correction de préparation, pas une performance acquise. PSF,

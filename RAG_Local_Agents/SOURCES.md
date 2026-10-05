@@ -1,8 +1,26 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `68db1e3` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 16:53 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `4e0b16c` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 18:45 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+Complément du 5 octobre 2026 à 18:45 UTC, avant le diagnostic du rendu :
+contrats précédents relus dans les publications officielles de la PSF et
+des mainteneurs Pillow. La documentation
+[time, Python 3.12](https://docs.python.org/3.12/library/time.html), courante
+3.12.15, distingue durée monotone écoulée et temps CPU ; deux lectures
+de `monotonic_ns` bornent un intervalle, sans en attribuer les attentes
+à un composant matériel. Interpréteur local confirmé : 3.12.14.
+[ImageFont](https://pillow.readthedocs.io/en/stable/reference/ImageFont.html),
+documentation 12.3.0, et
+[ImageFont.py au tag 12.3.0](https://raw.githubusercontent.com/python-pillow/Pillow/12.3.0/src/PIL/ImageFont.py),
+sections `truetype` et `set_variation_by_axes`, confirment la création de
+l'objet de fonte depuis un flux binaire et le réglage des axes. Version
+locale confirmée par les métadonnées installées : 12.3.0, sans ouvrir de fonte.
+Le témoin conserve BASIC, fonte, axes et appels existants ; il ajoute des
+sondes, pas un cache. Leur surcoût reste dans les mesures. Les publications
+ne prouvent ni le coût dominant, ni un gain, ni l'achèvement des 2 000
+variantes. [Protocole et état d'exécution](journal/2026-10-05.md#r23-ocr-03--diagnostic-du-rendu-et-de-sa-publication).
 
 Complément du 5 octobre 2026 à 16:41 UTC : contrats examinés avant une
 correction de préparation, pas une performance acquise. PSF,
