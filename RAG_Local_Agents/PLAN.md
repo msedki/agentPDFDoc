@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `7f5dca4` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 22:53 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `6fd8713` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 23:13 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -9,6 +9,20 @@
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R23-OCR-03 — reprise limitée, relevé du 5 octobre à 23:13 UTC.**
+Le défaut « ± » lu « + » bloque la fidélité de ces valeurs, pas la sélection
+Q07 désormais validée. Une seule alternative officielle restante examinée :
+best/script/Latin, composant 21 seulement, 18 Ko lus ; « ± » absent.
+Cette piste est écartée sans téléchargement des poids, OCR ou installation.
+La correction est nécessaire pour qualifier ces signes ; le volume de
+1 000 groupes / 2 000 variantes n'est pas démontré indispensable.
+Pas d'apprentissage admis ni de relance automatique de W035 dans cette
+reprise, pas de nouvelle campagne ou de réduction improvisée des critères.
+Prochaine action de ce lot : retenir une correction proportionnée au défaut
+avant une admission distincte ; le pilote préparé et les échecs sont conservés.
+Les critères non vérifiés restent ouverts, aucune clôture globale déduite.
+[Résultat et décision de suite](journal/2026-10-05.md#nécessité-de-correction-ocr--contrôle-ciblé-après-q07).
 
 **R15-3-Q07 — sélection OCR D06.6 Linux, VALIDATED_BOUNDED le 5 octobre à 22:56 UTC.**
 Manque de preuve traité, aucun défaut produit établi. Test canonique,

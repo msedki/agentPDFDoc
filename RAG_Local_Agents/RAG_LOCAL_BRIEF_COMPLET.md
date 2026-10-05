@@ -1657,7 +1657,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `7f5dca4` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 22:53 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `6fd8713` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 23:13 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1666,6 +1666,20 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R23-OCR-03 — reprise limitée, relevé du 5 octobre à 23:13 UTC.**
+Le défaut « ± » lu « + » bloque la fidélité de ces valeurs, pas la sélection
+Q07 désormais validée. Une seule alternative officielle restante examinée :
+best/script/Latin, composant 21 seulement, 18 Ko lus ; « ± » absent.
+Cette piste est écartée sans téléchargement des poids, OCR ou installation.
+La correction est nécessaire pour qualifier ces signes ; le volume de
+1 000 groupes / 2 000 variantes n'est pas démontré indispensable.
+Pas d'apprentissage admis ni de relance automatique de W035 dans cette
+reprise, pas de nouvelle campagne ou de réduction improvisée des critères.
+Prochaine action de ce lot : retenir une correction proportionnée au défaut
+avant une admission distincte ; le pilote préparé et les échecs sont conservés.
+Les critères non vérifiés restent ouverts, aucune clôture globale déduite.
+[Résultat et décision de suite](journal/2026-10-05.md#nécessité-de-correction-ocr--contrôle-ciblé-après-q07).
 
 **R15-3-Q07 — sélection OCR D06.6 Linux, VALIDATED_BOUNDED le 5 octobre à 22:56 UTC.**
 Manque de preuve traité, aucun défaut produit établi. Test canonique,
@@ -4217,7 +4231,7 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `7f5dca4` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 22:53 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `6fd8713` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 23:13 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## Q07 — sélection OCR par le navigateur
 
@@ -4663,6 +4677,41 @@ Le résultat négatif borne la prochaine action : définir une voie dont
 l'alphabet couvre les signes avant tout essai. Il ne justifie ni changement
 de PDF gelé, correction lexicale des sorties, cascade de modèles ou nouveau
 réglage de densité/PSM sur ces mêmes alphabets.
+
+### Alternative ciblée best/script/Latin — 5 octobre, 23:04 UTC
+
+Question : cet alphabet officiel couvre-t-il les signes manquants, avant
+d'envisager le pilote W035 ? Une seule alternative supplémentaire, sans OCR,
+installation ni recherche de modèles en série.
+
+Les [métadonnées GitHub du mainteneur, révision best épinglée](https://api.github.com/repos/tesseract-ocr/tessdata_best/contents/script/Latin.traineddata?ref=e12c65a915945e4c28e237a9b52bc4a8f39a0cec)
+ont été lues directement par ROOT (`f80a19`/`7823b2 EXIT0`) après deux routes
+de lecture web indisponibles. Corps reçu : 1 112 octets, SHA-256
+`1297ab31829ff778397778a8a7ba76448a81970a9345153f198730b4f80b2fdd`.
+Elles annoncent un fichier de 101 402 885 octets, blob Git
+`e78c193f637e0bcbeeb9ed2919f2e4ac68cb972d`, et la
+[route raw officielle immuable](https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/e12c65a915945e4c28e237a9b52bc4a8f39a0cec/script/Latin.traineddata).
+Le [README de cette révision](https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/e12c65a915945e4c28e237a9b52bc4a8f39a0cec/README.md)
+décrit des modèles LSTM et une licence Apache 2.0 ; il ne prouve ni couverture
+des signes ni reconnaissance sur les scans du projet.
+
+Métadonnées consignées avant usage ; lecture unique fermée à 23:13 UTC,
+`05469c`/`7bdec7 EXIT0`, `INSPECTED_COMPONENT21_ONLY`. Trois plages 206
+exactes, 18 219 octets lus au total : en-têtes et alphabet seulement.
+Composant 21 : 303 caractères, 18 023 octets, plage inclusive
+101382045–101400067, SHA-256
+`0ce04ab5919d3ae2a48769b4f8a17b25062a619495ccf00f3aa0f10384077994`.
+« · » présent, « ± » absent des octets UTF-8 et des représentations.
+Alphabet identique au composant fast/Latin examiné plus haut ; aucune
+équivalence des réseaux ou de leur reconnaissance n'est déduite.
+
+Le lecteur strict 206 épinglé est réutilisé sans modification, plafond
+64 Kio et aucun repli intégral ; wrapper relu indépendamment avant admission
+ROOT. La taille et le blob annoncés restent des métadonnées, non une identité
+complète revalidée. Alternative écartée pour le signe requis, sans installation,
+OCR ni apprentissage. Ce résultat ne prouve pas l'absence de tous les modèles
+et ne rend pas indispensable le volume W035.
+[Reçu, méthode et décision de suite](journal/2026-10-05.md#nécessité-de-correction-ocr--contrôle-ciblé-après-q07).
 
 ## R23OCR — reprise locale des petites lignes imprimées
 

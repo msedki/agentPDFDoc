@@ -1,8 +1,13 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `7f5dca4` et entrées datées · **Mis à jour :** 2026-10-05 22:53 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `6fd8713` et entrées datées · **Mis à jour :** 2026-10-05 23:13 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Nécessité de correction OCR](2026-10-05.md#nécessité-de-correction-ocr--contrôle-ciblé-après-q07) :
+une seule alternative officielle, alphabet best/Latin lu en 18 Ko et « ± »
+absent. Pas de poids téléchargés, d'OCR ou d'apprentissage. Le défaut de
+fidélité reste ouvert ; le volume W035 n'est pas déclaré indispensable.
 
 [Q07, sélection d'un texte OCR réel](2026-10-05.md#q07--sélection-dun-texte-ocr-réel) :
 un import synthétique OCR ; premier FAIL d'oracle conservé et corrigé.
