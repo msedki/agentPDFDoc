@@ -1,8 +1,16 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `f1c28f2` et entrées datées · **Mis à jour :** 2026-10-05 15:26 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `849fb40` et entrées datées · **Mis à jour :** 2026-10-05 16:21 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Décomposition des appels de fermeture des journaux OCR](2026-10-05.md#r23-ocr-03--décomposition-de-la-fermeture-des-journaux) :
+38 nouveaux tests, lint/typecheck et revue préparatoire conformes ;
+témoin natif unique EXIT0 à 16:09 UTC, huit variantes et seize callbacks,
+contrôles après publication conformes. Les intervalles entourant fsync
+dominent seulement la fenêtre raw mesurée ; aucune suppression de barrière,
+performance globale, qualité OCR ou apprentissage démontré. Validation
+finale indépendante acceptée à 16:21 UTC dans cette portée diagnostique.
 
 [Diagnostic borné des coûts OCR](2026-10-05.md#diagnostic-exécuté-une-fois-relevé-1509-utc) :
 44 tests parent, 35 tests worker et revue préparatoire avant une exécution

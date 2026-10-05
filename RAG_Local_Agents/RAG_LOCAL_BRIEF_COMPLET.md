@@ -1631,7 +1631,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `f1c28f2` et complément documentaire daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 15:26 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `849fb40` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 16:21 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1640,6 +1640,15 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**Relevé du 5 octobre à 16:12 UTC :** décomposition raw-close exécutée une
+fois après 38 nouveaux tests purs, lint/typecheck verts et revue indépendante
+de méthode. Parent EXIT0, reçu fermé et contrôles après publication conformes.
+Les intervalles autour de fsync dominent la fenêtre mesurée ; ni cause
+matérielle, ni débit du pilote complet, ni gain de performance démontrés.
+[Résultat et limites](journal/2026-10-05.md#témoin-exécuté-une-fois-relevé-1612-utc).
+Validation finale indépendante acceptée à 16:21 UTC dans la portée
+diagnostique ; apprentissage et DoD ouverts.
 
 **Relevé du 5 octobre à 15:09 UTC :** diagnostic OCR distinct exécuté une fois,
 EXIT0, huit rendus et seize commandes réussis ; mesures et limites dans le
@@ -2289,8 +2298,16 @@ Instrumentation source-only et diagnostic distinct : [contrat borné](journal/20
 Le diagnostic distinct a terminé EXIT0 après 44 tests parent et 35 tests worker,
 revue préparatoire indépendante ; résultat et fermeture relus conformes
 par le rôle non-auteur, dans la seule portée diagnostique.
-Prochaine action : investiguer le coût observé de `raw_flush_fsync_close`
-sur ces huit lignes avec un témoin causal, en préservant les barrières.
+La décomposition des quatre appels a été exécutée sur une cible neuve :
+[protocole et répartition](journal/2026-10-05.md#r23-ocr-03--décomposition-de-la-fermeture-des-journaux).
+Parent et config raccordés par inversion exacte ; 38 tests nouveaux et
+revue préparatoire conformes, parent EXIT0 après publication terminale.
+Validation finale indépendante acquise dans la seule portée diagnostique.
+Prochaine action : qualifier une correction ciblée de préparation qui
+conserve les synchronisations et les
+limites du pilote. Une concurrence bornée reste une piste, pas un protocole
+implémenté ou validé : vérifier état partagé, naissance, arrêt et fermeture
+avant toute mesure de gain. Pas de quatrième relance identique.
 Aucun résultat de ce diagnostic ne valide
 les 1 000 groupes ou les 2 000 variantes du pilote complet.
 Les contrôles d'identité, ressources et arrêt restent inchangés.
@@ -3845,9 +3862,26 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `f1c28f2` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 15:17 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `849fb40` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 16:21 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+Complément du 5 octobre 2026 à 15:40 UTC : PSF,
+[IOBase.close, fileno et flush](https://docs.python.org/3.12/library/io.html#io.IOBase.close)
+et [BufferedWriter](https://docs.python.org/3.12/library/io.html#io.BufferedWriter),
+documentation courante 3.12.15, interpréteur local inchangé 3.12.14.
+`flush` vide le tampon Python ; `close` vide puis ferme le flux. Le contrat
+[os.fsync](https://docs.python.org/3.12/library/os.html#os.fsync), déjà enregistré
+ci-dessous, reste distinct : sur Unix, synchronisation du descripteur après
+vidage du tampon. L'instrumentation suivante conserve ces appels et leur
+ordre, y compris pour un journal vide. Elle mesure la durée écoulée de chaque
+appel Python, pas un temps disque pur ni une consommation CPU. Aucune
+suppression, substitution ou mise à jour de runtime n'en découle ; protocole
+local dans le [journal](journal/2026-10-05.md#r23-ocr-03--décomposition-de-la-fermeture-des-journaux).
+Relevé local exécuté à 16:09 UTC, [résultat et limites](journal/2026-10-05.md#témoin-exécuté-une-fois-relevé-1612-utc) :
+intervalles instrumentés, sans attribution à un temps matériel pur ou
+au débit du pilote complet. La publication officielle décrit les contrats,
+pas ces durées locales.
 
 Complément du 5 octobre 2026 à 14:00 UTC : PSF,
 [module time, Python 3.12](https://docs.python.org/3.12/library/time.html),

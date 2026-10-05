@@ -1,8 +1,25 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `f1c28f2` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 15:17 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `849fb40` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 16:21 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+Complément du 5 octobre 2026 à 15:40 UTC : PSF,
+[IOBase.close, fileno et flush](https://docs.python.org/3.12/library/io.html#io.IOBase.close)
+et [BufferedWriter](https://docs.python.org/3.12/library/io.html#io.BufferedWriter),
+documentation courante 3.12.15, interpréteur local inchangé 3.12.14.
+`flush` vide le tampon Python ; `close` vide puis ferme le flux. Le contrat
+[os.fsync](https://docs.python.org/3.12/library/os.html#os.fsync), déjà enregistré
+ci-dessous, reste distinct : sur Unix, synchronisation du descripteur après
+vidage du tampon. L'instrumentation suivante conserve ces appels et leur
+ordre, y compris pour un journal vide. Elle mesure la durée écoulée de chaque
+appel Python, pas un temps disque pur ni une consommation CPU. Aucune
+suppression, substitution ou mise à jour de runtime n'en découle ; protocole
+local dans le [journal](journal/2026-10-05.md#r23-ocr-03--décomposition-de-la-fermeture-des-journaux).
+Relevé local exécuté à 16:09 UTC, [résultat et limites](journal/2026-10-05.md#témoin-exécuté-une-fois-relevé-1612-utc) :
+intervalles instrumentés, sans attribution à un temps matériel pur ou
+au débit du pilote complet. La publication officielle décrit les contrats,
+pas ces durées locales.
 
 Complément du 5 octobre 2026 à 14:00 UTC : PSF,
 [module time, Python 3.12](https://docs.python.org/3.12/library/time.html),
