@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `af21fe8` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 12:59 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `c818e03` et complément documentaire daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 13:26 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -638,10 +638,10 @@ Travail prévu, dans l'ordre utile :
   preuves, puis mettre à jour les procédures et références stabilisées seulement
   après validation réelle. Distinguer Windows, Linux aarch64 et Linux x86-64.
 
-**Prochaine action de ce lot :** contrelecture terminale QA3 fermée : session
+**État vérifié :** contrelecture terminale QA3 achevée : session
 ROOT 59382 EXIT1, préparation refusée à 900,18 s par ACTIVE_STAGE_DEADLINE ;
 arrêt et conservation bornée vérifiés, qualification refusée.
-Isoler le coût réel de préparation avant
+**Prochaine action de ce lot :** isoler le coût réel de préparation avant
 une optimisation ciblée et son témoin, pas une quatrième relance identique.
 Les contrôles d'identité, ressources et arrêt restent inchangés.
 La préparation complète dans les 900 secondes reste non démontrée ;

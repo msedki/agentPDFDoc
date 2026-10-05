@@ -1,8 +1,13 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `af21fe8` et entrées datées · **Mis à jour :** 2026-10-05 12:59 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `c818e03` et entrées datées · **Mis à jour :** 2026-10-05 13:26 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Vérification des explications OCR et du choix CPU/GPU](2026-10-05.md#r23-ocr-03--vérification-documentaire-des-choix-cpugpu-relevé-1326-utc) :
+contenu existant confronté aux sources, au code et au dernier reçu fermé ;
+renvois directs ajoutés, prochaine action du plan clarifiée. Pas de
+nouveau modèle, apprentissage ou qualification produit.
 
 [Pilote QA3 fermé au délai de préparation](2026-10-05.md#pilote-qa3-arrêté-au-délai-de-préparation-relevé-1246-utc) :
 900,18 s, ACTIVE_STAGE_DEADLINE, handle 59382 EXIT1. 778 LSTMF partiels
@@ -34,7 +39,10 @@ Préparation du pilote neuf, [relevé 10:50 UTC](2026-10-05.md#pilote-neuf--conf
 configuration réelle et 120 contrôles communs PASS ; ancien échec conservé,
 sources corrigées figées, revue finale avant natif. Origine des fichiers,
 choix du volume, sens de l'apprentissage, limite des images propres et voie
-CPU documentés dans W035/S09 ; aucune qualification produit déduite.
+CPU documentés dans
+[W035](../DECISIONS.md#portée-données-et-sens-de-lapprentissage--précision-du-5-octobre-1050-utc)
+et [S09](../SOURCES.md#r23ocr-s09--entrées-et-mesures-du-pilote-lstm) ;
+aucune qualification produit déduite.
 
 Diagnostic du 5 octobre, [relevé 09:59 UTC](2026-10-05.md#benchmark-scanner-v2-fermé-relevé-0959-utc) :
 benchmark scanner V2 EXIT0 après contrôles purs et revue de protocole ;
