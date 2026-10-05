@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W035 sur la base publiée `e7355e1` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 10:50 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `f1c28f2` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 15:17 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -707,3 +707,46 @@ Toute modification de cadence reste séparée, testée et relue ; aucune
 garantie de période continue n'est déduite du benchmark. Gel, preuves
 pures et revue finale sont requis avant calcul ; pas de relancement acquis
 par la seule création des sources. [Résultat mesuré](journal/2026-10-05.md#benchmark-scanner-v2-fermé-relevé-0959-utc).
+
+### Diagnostic borné des coûts — décision du 5 octobre, 14:00 UTC
+
+**Statut :** composition et tests autorisés ; exécution native conditionnée à
+la revue non-auteur et aux gardes de ressources. Aucun nouveau pilote admis.
+
+Le troisième essai s'est arrêté à la deadline de préparation avant la
+clôture agrégée. Sept reçus fermés conservent des observations partielles,
+mais pas `receipt_publish` ni `full_callback`. Leur échantillon ne permet
+pas d'attribuer les 900 secondes à un poste de coût.
+
+Choix : instrumenter une expérience distincte sur huit rendus neufs,
+indices de groupes 0/200/600/800, tailles 28/36, sous une seule deadline
+absolue de 60 secondes et le verrou lourd existant. RSS 2 Gio, QA 32 Mio,
+réserves 8/2/20 Gio ; fontes, moteur, commandes, gardes et publications
+inchangés. Les barrières restent celles des vrais writers : fichier seul
+pour `batch.exclusive` (PNG/GT/BOX), fichier et répertoire pour les reçus
+de `Callbacks.publish`. Cette distinction a été vérifiée et précisée avant
+exécution à 14:16 UTC ; aucune garantie de persistance globale n'est ajoutée
+au prototype. Les durées sont
+écoulées, pas CPU. Le [contrat exécutable et ses preuves](journal/2026-10-05.md#r23-ocr-03--instrumentation-des-coûts-et-diagnostic-borné)
+restent au journal ; source d'horloge dans [S09](SOURCES.md#r23ocr-s09--entrées-et-mesures-du-pilote-lstm).
+
+Différence explicite avec l'instrumentation du pilote : dans cette seule
+expérience, publier une observation compagnon après chaque retour de
+callback pour conserver ses durées finales même si la suite échoue. Son
+propre coût est mesuré séparément, dans le résultat final ; il n'est pas
+présenté comme un coût historique du pilote. Aucune adoption de ce writer
+ou modification de cadence dans le pilote complet.
+
+Conséquences : pas d'extrapolation aux 2 000 variantes, de comparaison de
+qualité ou de reprise des anciens partiels. Les critères W035 restent
+inchangés. Une optimisation exige une hypothèse mesurée, un témoin, son
+contrat et une relecture avant la prochaine préparation complète.
+
+**Réalisation du 5 octobre, 15:09 UTC :** diagnostic exécuté une fois après
+revue du protocole ; huit lignes et seize commandes réussies, EXIT0.
+[Mesures et preuves](journal/2026-10-05.md#diagnostic-exécuté-une-fois-relevé-1509-utc),
+avec revue native indépendante acceptée dans cette seule portée.
+L'investigation suivante cible le coût
+observé de fermeture des journaux, sans réduire les garanties de
+publication ou transposer les durées de l'échantillon au pilote complet.
+Apprentissage et adoption restent non exécutés/non autorisés par ce résultat.

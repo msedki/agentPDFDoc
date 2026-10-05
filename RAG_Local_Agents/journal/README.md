@@ -1,8 +1,19 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `c818e03` et entrées datées · **Mis à jour :** 2026-10-05 13:26 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `f1c28f2` et entrées datées · **Mis à jour :** 2026-10-05 15:26 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Diagnostic borné des coûts OCR](2026-10-05.md#diagnostic-exécuté-une-fois-relevé-1509-utc) :
+44 tests parent, 35 tests worker et revue préparatoire avant une exécution
+EXIT0 sur huit lignes ; durées imbriquées et limites explicites. Revue
+native et documentaire non-auteur acceptée, aucun apprentissage ou
+résultat qualité acquis.
+
+[Q05, liaison à une cible neuve](2026-10-05.md#q05--préparation-distincte-de-la-liaison-à-une-cible-neuve) :
+31 tests, revue non-auteur et composition source-only réelle EXIT0.
+Copies réelles relues et conformes ; aucune cible native créée et refus
+source31/HOST préservés.
 
 [Vérification des explications OCR et du choix CPU/GPU](2026-10-05.md#r23-ocr-03--vérification-documentaire-des-choix-cpugpu-relevé-1326-utc) :
 contenu existant confronté aux sources, au code et au dernier reçu fermé ;

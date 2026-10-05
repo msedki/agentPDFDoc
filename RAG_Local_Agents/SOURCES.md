@@ -1,8 +1,26 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `a230c07` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 12:22 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `f1c28f2` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 15:17 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+Complément du 5 octobre 2026 à 14:00 UTC : PSF,
+[module time, Python 3.12](https://docs.python.org/3.12/library/time.html),
+sections `monotonic_ns`, `perf_counter_ns` et `get_clock_info`, documentation
+courante 3.12.15, interpréteur local 3.12.14. Les différences de deux lectures
+de l'horloge monotone mesurent une durée écoulée ; `perf_counter` inclut les
+attentes. Le diagnostic utilise `monotonic_ns` et conserve les caractéristiques
+de l'horloge. Les mesures comprennent les attentes, contrôles et barrières
+des opérations délimitées : ce ne sont pas des temps CPU ni une preuve de
+débit global. Aucun remplacement d'interpréteur ou de moteur n'en découle.
+Protocole local et limites : [journal du diagnostic](journal/2026-10-05.md#r23-ocr-03--instrumentation-des-coûts-et-diagnostic-borné).
+
+Complément local à 15:09 UTC : instrumentation confrontée aux sources
+parent/worker épinglées et aux nouveaux reçus natifs fermés ;
+[mesures exécutées](journal/2026-10-05.md#diagnostic-exécuté-une-fois-relevé-1509-utc).
+Le résultat du diagnostic ne constitue ni un apprentissage, ni une
+qualification du pilote complet. Les valeurs et hashes ne sont pas
+dupliqués ici ; ce registre conserve le contrat officiel de l'horloge.
 
 Sources initiales consultées ROOT le 5 octobre 2026 avant le provisionnement
 du pilote ; compléments causaux datés ci-dessous, après les premiers essais.

@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `c818e03` et complément documentaire daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 13:26 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `f1c28f2` et complément documentaire daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 15:26 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -9,6 +9,17 @@
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**Relevé du 5 octobre à 15:09 UTC :** diagnostic OCR distinct exécuté une fois,
+EXIT0, huit rendus et seize commandes réussis ; mesures et limites dans le
+[journal](journal/2026-10-05.md#diagnostic-exécuté-une-fois-relevé-1509-utc).
+Revues native et documentaire non-auteur acceptées dans la portée du lot.
+Aucun apprentissage, qualité OCR ou
+pilote complet validé. Q05 : composition source-only réelle EXIT0 après
+31 tests et revue indépendante préparatoire ; copies réelles relues et
+conformes, pas d'instance neuve créée.
+[Provenance, frontières et suite](journal/2026-10-05.md#q05--préparation-distincte-de-la-liaison-à-une-cible-neuve).
+Les critères D01–D11 restent ouverts selon leurs états propres.
 
 **Relevé du 5 octobre à 02:21 UTC :** correctif causal QA prêt et relu
 indépendamment : 10 témoins purs verts après un rouge discriminant, sans
@@ -643,6 +654,14 @@ ROOT 59382 EXIT1, préparation refusée à 900,18 s par ACTIVE_STAGE_DEADLINE ;
 arrêt et conservation bornée vérifiés, qualification refusée.
 **Prochaine action de ce lot :** isoler le coût réel de préparation avant
 une optimisation ciblée et son témoin, pas une quatrième relance identique.
+Instrumentation source-only et diagnostic distinct : [contrat borné](journal/2026-10-05.md#r23-ocr-03--instrumentation-des-coûts-et-diagnostic-borné).
+Le diagnostic distinct a terminé EXIT0 après 44 tests parent et 35 tests worker,
+revue préparatoire indépendante ; résultat et fermeture relus conformes
+par le rôle non-auteur, dans la seule portée diagnostique.
+Prochaine action : investiguer le coût observé de `raw_flush_fsync_close`
+sur ces huit lignes avec un témoin causal, en préservant les barrières.
+Aucun résultat de ce diagnostic ne valide
+les 1 000 groupes ou les 2 000 variantes du pilote complet.
 Les contrôles d'identité, ressources et arrêt restent inchangés.
 La préparation complète dans les 900 secondes reste non démontrée ;
 le correctif procfs et les tests purs ne la valident pas.

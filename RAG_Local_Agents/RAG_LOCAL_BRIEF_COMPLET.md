@@ -1631,7 +1631,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `c818e03` et complément documentaire daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 13:26 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `f1c28f2` et complément documentaire daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 15:26 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1640,6 +1640,17 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**Relevé du 5 octobre à 15:09 UTC :** diagnostic OCR distinct exécuté une fois,
+EXIT0, huit rendus et seize commandes réussis ; mesures et limites dans le
+[journal](journal/2026-10-05.md#diagnostic-exécuté-une-fois-relevé-1509-utc).
+Revues native et documentaire non-auteur acceptées dans la portée du lot.
+Aucun apprentissage, qualité OCR ou
+pilote complet validé. Q05 : composition source-only réelle EXIT0 après
+31 tests et revue indépendante préparatoire ; copies réelles relues et
+conformes, pas d'instance neuve créée.
+[Provenance, frontières et suite](journal/2026-10-05.md#q05--préparation-distincte-de-la-liaison-à-une-cible-neuve).
+Les critères D01–D11 restent ouverts selon leurs états propres.
 
 **Relevé du 5 octobre à 02:21 UTC :** correctif causal QA prêt et relu
 indépendamment : 10 témoins purs verts après un rouge discriminant, sans
@@ -2274,6 +2285,14 @@ ROOT 59382 EXIT1, préparation refusée à 900,18 s par ACTIVE_STAGE_DEADLINE ;
 arrêt et conservation bornée vérifiés, qualification refusée.
 **Prochaine action de ce lot :** isoler le coût réel de préparation avant
 une optimisation ciblée et son témoin, pas une quatrième relance identique.
+Instrumentation source-only et diagnostic distinct : [contrat borné](journal/2026-10-05.md#r23-ocr-03--instrumentation-des-coûts-et-diagnostic-borné).
+Le diagnostic distinct a terminé EXIT0 après 44 tests parent et 35 tests worker,
+revue préparatoire indépendante ; résultat et fermeture relus conformes
+par le rôle non-auteur, dans la seule portée diagnostique.
+Prochaine action : investiguer le coût observé de `raw_flush_fsync_close`
+sur ces huit lignes avec un témoin causal, en préservant les barrières.
+Aucun résultat de ce diagnostic ne valide
+les 1 000 groupes ou les 2 000 variantes du pilote complet.
 Les contrôles d'identité, ressources et arrêt restent inchangés.
 La préparation complète dans les 900 secondes reste non démontrée ;
 le correctif procfs et les tests purs ne la valident pas.
@@ -3023,7 +3042,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W035 sur la base publiée `e7355e1` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 10:50 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `f1c28f2` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 15:17 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -3731,6 +3750,49 @@ garantie de période continue n'est déduite du benchmark. Gel, preuves
 pures et revue finale sont requis avant calcul ; pas de relancement acquis
 par la seule création des sources. [Résultat mesuré](journal/2026-10-05.md#benchmark-scanner-v2-fermé-relevé-0959-utc).
 
+### Diagnostic borné des coûts — décision du 5 octobre, 14:00 UTC
+
+**Statut :** composition et tests autorisés ; exécution native conditionnée à
+la revue non-auteur et aux gardes de ressources. Aucun nouveau pilote admis.
+
+Le troisième essai s'est arrêté à la deadline de préparation avant la
+clôture agrégée. Sept reçus fermés conservent des observations partielles,
+mais pas `receipt_publish` ni `full_callback`. Leur échantillon ne permet
+pas d'attribuer les 900 secondes à un poste de coût.
+
+Choix : instrumenter une expérience distincte sur huit rendus neufs,
+indices de groupes 0/200/600/800, tailles 28/36, sous une seule deadline
+absolue de 60 secondes et le verrou lourd existant. RSS 2 Gio, QA 32 Mio,
+réserves 8/2/20 Gio ; fontes, moteur, commandes, gardes et publications
+inchangés. Les barrières restent celles des vrais writers : fichier seul
+pour `batch.exclusive` (PNG/GT/BOX), fichier et répertoire pour les reçus
+de `Callbacks.publish`. Cette distinction a été vérifiée et précisée avant
+exécution à 14:16 UTC ; aucune garantie de persistance globale n'est ajoutée
+au prototype. Les durées sont
+écoulées, pas CPU. Le [contrat exécutable et ses preuves](journal/2026-10-05.md#r23-ocr-03--instrumentation-des-coûts-et-diagnostic-borné)
+restent au journal ; source d'horloge dans [S09](SOURCES.md#r23ocr-s09--entrées-et-mesures-du-pilote-lstm).
+
+Différence explicite avec l'instrumentation du pilote : dans cette seule
+expérience, publier une observation compagnon après chaque retour de
+callback pour conserver ses durées finales même si la suite échoue. Son
+propre coût est mesuré séparément, dans le résultat final ; il n'est pas
+présenté comme un coût historique du pilote. Aucune adoption de ce writer
+ou modification de cadence dans le pilote complet.
+
+Conséquences : pas d'extrapolation aux 2 000 variantes, de comparaison de
+qualité ou de reprise des anciens partiels. Les critères W035 restent
+inchangés. Une optimisation exige une hypothèse mesurée, un témoin, son
+contrat et une relecture avant la prochaine préparation complète.
+
+**Réalisation du 5 octobre, 15:09 UTC :** diagnostic exécuté une fois après
+revue du protocole ; huit lignes et seize commandes réussies, EXIT0.
+[Mesures et preuves](journal/2026-10-05.md#diagnostic-exécuté-une-fois-relevé-1509-utc),
+avec revue native indépendante acceptée dans cette seule portée.
+L'investigation suivante cible le coût
+observé de fermeture des journaux, sans réduire les garanties de
+publication ou transposer les durées de l'échantillon au pilote complet.
+Apprentissage et adoption restent non exécutés/non autorisés par ce résultat.
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -3783,9 +3845,27 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `a230c07` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 12:22 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `f1c28f2` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 15:17 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+Complément du 5 octobre 2026 à 14:00 UTC : PSF,
+[module time, Python 3.12](https://docs.python.org/3.12/library/time.html),
+sections `monotonic_ns`, `perf_counter_ns` et `get_clock_info`, documentation
+courante 3.12.15, interpréteur local 3.12.14. Les différences de deux lectures
+de l'horloge monotone mesurent une durée écoulée ; `perf_counter` inclut les
+attentes. Le diagnostic utilise `monotonic_ns` et conserve les caractéristiques
+de l'horloge. Les mesures comprennent les attentes, contrôles et barrières
+des opérations délimitées : ce ne sont pas des temps CPU ni une preuve de
+débit global. Aucun remplacement d'interpréteur ou de moteur n'en découle.
+Protocole local et limites : [journal du diagnostic](journal/2026-10-05.md#r23-ocr-03--instrumentation-des-coûts-et-diagnostic-borné).
+
+Complément local à 15:09 UTC : instrumentation confrontée aux sources
+parent/worker épinglées et aux nouveaux reçus natifs fermés ;
+[mesures exécutées](journal/2026-10-05.md#diagnostic-exécuté-une-fois-relevé-1509-utc).
+Le résultat du diagnostic ne constitue ni un apprentissage, ni une
+qualification du pilote complet. Les valeurs et hashes ne sont pas
+dupliqués ici ; ce registre conserve le contrat officiel de l'horloge.
 
 Sources initiales consultées ROOT le 5 octobre 2026 avant le provisionnement
 du pilote ; compléments causaux datés ci-dessous, après les premiers essais.
