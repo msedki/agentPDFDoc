@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `6f12604` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 18:01 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `dd5dea6` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 18:28 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -9,6 +9,19 @@
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**Relevé du 5 octobre à 18:17 UTC :** pilote à deux lignes fermé EXIT1
+à18:15:03 UTC : `ACTIVE_STAGE_DEADLINE`, 900,46 s, seule étape prepare.
+2000 PNG/GT et 1485 BOX/LSTMF sont présents ; cette présence ne valide
+pas leur contenu ou une préparation complète. Apprentissage, export,
+évaluation et adoption non exécutés. Pins avant/après identiques dans
+la clôture ; revue finale non-auteur acceptée à18:28 UTC : qualification
+refusée, arrêt/conservation vérifiés dans leur portée bornée. Seuls1483
+LSTMF ont un reçu fermé ; deux présences sans reçu ne sont pas admises.
+Documentation du lot source/tests et lancement publiée dans `dd5dea6`.
+Pas de relance identique ou reprise des partiels : mesurer le coût du
+rendu répétitif avant toute nouvelle correction, sans changer données,
+seuils, barrières ou budgets. [Fermeture et suite](journal/2026-10-05.md#pilote-à-deux-lignes-arrêté-relevé-1817-utc).
 
 **Relevé du 5 octobre à 18:01 UTC :** correctif de préparation à deux
 lignes figé, 51 tests purs et 16 sous-cas conformes ; deux témoins rouges
@@ -713,10 +726,13 @@ différée sont figés et relus dans la portée de protocole ; les erreurs
 de lancement ou de retour non nul ferment désormais les admissions avant
 la fermeture raw. Le raccord strict de config, ses 32 témoins et le
 contrôle ROOT des cinq pins avant/après sont fermés. Exécution complète
-unique en cours sous session 11165 depuis le relevé 18:01 UTC : surveiller
-les ressources et étapes, fermer le même handle, puis examiner les pièces
-durables et l'arrêt réel avant revue finale non-auteur. Les tests purs et
-le GO de protocole ne prouvent pas le comportement natif ou un gain.
+unique session11165 fermée EXIT1 à18:15:03 UTC par le plafond de préparation,
+900,46 s ; 1485 LSTMF partiels présents, pas d'apprentissage. Revue
+finale non-auteur fermée, arrêt/conservation vérifiés bornément et
+qualification refusée. Mesurer séparément initialisation de fonte,
+dessin/encodage et publication des images avant une correction prouvée.
+Les tests purs et le GO de protocole ne prouvent pas un gain ou une
+préparation complète conforme.
 Pas de quatrième relance identique.
 Aucun résultat de ce diagnostic ne valide
 les 1 000 groupes ou les 2 000 variantes du pilote complet.
