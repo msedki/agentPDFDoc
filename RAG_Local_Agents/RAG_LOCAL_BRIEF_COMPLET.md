@@ -1631,7 +1631,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `849fb40` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 16:21 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `68db1e3` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 17:22 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1640,6 +1640,24 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**Relevé du 5 octobre à 17:22 UTC :** les explications OCR ont été
+confrontées au générateur épinglé et relues : W035 précise désormais la
+stratification 160/40 par famille et la diversité limitée des cinq gabarits.
+Le correctif de préparation à deux lignes au plus est en réalisation
+source-only, sans suppression de barrière ou modification du pilote.
+Trois sources du parent sont raccordées à une cible neuve avec inversion
+exacte ; 11 témoins purs du raccord conformes, composeur et tests contrôlés
+par lint/typecheck. La config
+et la validation du correctif restent à terminer avant toute exécution.
+Le préflight indépendant refuse le parent raccordé : fenêtre TERM avant
+capture d'identité. Une nouvelle source avec interruption différée existe ;
+11 témoins causaux sur le vrai corps du superviseur avec doubles nommés
+passent, ainsi que leur lint/typecheck ciblés. Nouvelle revue indépendante
+en cours ; aucun processus natif ou pilote admis. Ce défaut ne
+reconstitue pas la cause des échecs précédents.
+[Travail et prochaine reprise](journal/2026-10-05.md#r23-ocr-03--correction-bornée-de-la-préparation-en-cours).
+Aucun apprentissage ou critère DoD nouvellement acquis.
 
 **Relevé du 5 octobre à 16:12 UTC :** décomposition raw-close exécutée une
 fois après 38 nouveaux tests purs, lint/typecheck verts et revue indépendante
@@ -2305,9 +2323,13 @@ revue préparatoire conformes, parent EXIT0 après publication terminale.
 Validation finale indépendante acquise dans la seule portée diagnostique.
 Prochaine action : qualifier une correction ciblée de préparation qui
 conserve les synchronisations et les
-limites du pilote. Une concurrence bornée reste une piste, pas un protocole
-implémenté ou validé : vérifier état partagé, naissance, arrêt et fermeture
-avant toute mesure de gain. Pas de quatrième relance identique.
+limites du pilote. Le prototype de concurrence à deux lignes est en
+réalisation source-only : faire relire le parent corrigé et ses 11 témoins
+causaux TERM/naissance, puis terminer les tests et le raccord strict de config
+et la revue indépendante de l'état partagé, de la naissance, de l'arrêt
+et de la fermeture avant toute mesure de gain. Le raccord du parent
+ne valide pas le correctif ou son comportement natif.
+Pas de quatrième relance identique.
 Aucun résultat de ce diagnostic ne valide
 les 1 000 groupes ou les 2 000 variantes du pilote complet.
 Les contrôles d'identité, ressources et arrêt restent inchangés.
@@ -3059,7 +3081,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `f1c28f2` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 15:17 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `68db1e3` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 16:53 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -3646,10 +3668,21 @@ Le volume ci-dessus est un choix local de couverture : les cinq familles
 exercent français, incertitude avec `±`, produit avec `·`, signes combinés et
 témoins sans ces signes. Il n'est ni un minimum imposé par Tesseract, ni un
 volume optimal démontré. Les deux variantes de chaque groupe restent dans
-le même partage : 1 600 images de train et 400 d'évaluation. Ce sont de
+le même partage : 1 600 images de train et 400 d'évaluation. Le partage est
+stratifié à 80/20 : dans chacune des cinq familles, 160 textes sont réservés
+à l'apprentissage et 40 à l'évaluation avant leur rendu en deux tailles.
+Le même texte ne peut donc pas apparaître dans les deux jeux sous deux
+tailles différentes. Ce ratio est un choix local, pas un optimum démontré.
+Ce sont de
 petites images de lignes, pas 2 000 PDF. La graine, les textes et les
 transcriptions sont produits par le générateur épinglé, sans lecture du
 corpus privé ou des annotations DEV/final ; le journal donne son identité.
+
+Les 1 000 textes sont uniques, mais produits à partir de cinq gabarits,
+avec un vocabulaire et des valeurs limités. L'unicité ne prouve ni une
+grande diversité de formulations ni la représentativité de documents
+scientifiques. Ce jeu exerce les signes et les caractères retenus ; il
+ne constitue pas un corpus métier.
 
 Une seule fonte et deux tailles propres permettent un essai contrôlé de
 faisabilité, mais n'établissent pas la généralisation aux scans. Bruit,
@@ -3862,9 +3895,34 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `849fb40` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 16:21 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `68db1e3` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 16:53 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+Complément du 5 octobre 2026 à 16:41 UTC : contrats examinés avant une
+correction de préparation, pas une performance acquise. PSF,
+[concurrent.futures](https://docs.python.org/3.12/library/concurrent.futures.html),
+[threading](https://docs.python.org/3.12/library/threading.html) et
+[subprocess](https://docs.python.org/3.12/library/subprocess.html), documentation
+courante 3.12.15 ; contrat de l'interpréteur installé 3.12.14 confronté au
+code officiel [thread.py](https://raw.githubusercontent.com/python/cpython/v3.12.14/Lib/concurrent/futures/thread.py)
+(`_python_exit`, `shutdown`) et
+[threading.py](https://raw.githubusercontent.com/python/cpython/v3.12.14/Lib/threading.py)
+(`Thread.join`). `shutdown(wait=False)` ne supprime pas l'attente des threads
+à la sortie de l'interpréteur ; annuler les tâches en attente n'arrête pas
+les tâches déjà actives. Un `join` borné doit être suivi d'`is_alive`.
+Les threads daemon ne garantissent pas la fermeture des ressources ;
+`preexec_fn` est exclu en présence de threads.
+
+Projet Linux man-pages 6.19,
+[PR_SET_PDEATHSIG, Description et Caveats](https://man7.org/linux/man-pages/man2/PR_SET_PDEATHSIG.2const.html),
+relu le même jour : le parent concerné est le thread créateur du processus,
+pas l'ensemble du processus Python. Il doit donc rester vivant tant que
+son enfant n'est pas récolté. Ces contrats imposent une revue du cycle de
+vie, de l'état partagé et de l'arrêt avant toute concurrence native.
+Aucune mise à jour de Python, suppression de synchronisation ou autorisation
+d'adoption OCR n'en découle. Hypothèse locale et essais, lorsqu'exécutés,
+restent dans le journal ; les publications ne prouvent pas un gain sur ce poste.
 
 Complément du 5 octobre 2026 à 15:40 UTC : PSF,
 [IOBase.close, fileno et flush](https://docs.python.org/3.12/library/io.html#io.IOBase.close)

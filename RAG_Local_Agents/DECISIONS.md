@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `f1c28f2` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 15:17 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `68db1e3` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 16:53 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -587,10 +587,21 @@ Le volume ci-dessus est un choix local de couverture : les cinq familles
 exercent français, incertitude avec `±`, produit avec `·`, signes combinés et
 témoins sans ces signes. Il n'est ni un minimum imposé par Tesseract, ni un
 volume optimal démontré. Les deux variantes de chaque groupe restent dans
-le même partage : 1 600 images de train et 400 d'évaluation. Ce sont de
+le même partage : 1 600 images de train et 400 d'évaluation. Le partage est
+stratifié à 80/20 : dans chacune des cinq familles, 160 textes sont réservés
+à l'apprentissage et 40 à l'évaluation avant leur rendu en deux tailles.
+Le même texte ne peut donc pas apparaître dans les deux jeux sous deux
+tailles différentes. Ce ratio est un choix local, pas un optimum démontré.
+Ce sont de
 petites images de lignes, pas 2 000 PDF. La graine, les textes et les
 transcriptions sont produits par le générateur épinglé, sans lecture du
 corpus privé ou des annotations DEV/final ; le journal donne son identité.
+
+Les 1 000 textes sont uniques, mais produits à partir de cinq gabarits,
+avec un vocabulaire et des valeurs limités. L'unicité ne prouve ni une
+grande diversité de formulations ni la représentativité de documents
+scientifiques. Ce jeu exerce les signes et les caractères retenus ; il
+ne constitue pas un corpus métier.
 
 Une seule fonte et deux tailles propres permettent un essai contrôlé de
 faisabilité, mais n'établissent pas la généralisation aux scans. Bruit,

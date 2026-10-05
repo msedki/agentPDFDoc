@@ -1,8 +1,33 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `849fb40` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 16:21 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `68db1e3` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 16:53 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+Complément du 5 octobre 2026 à 16:41 UTC : contrats examinés avant une
+correction de préparation, pas une performance acquise. PSF,
+[concurrent.futures](https://docs.python.org/3.12/library/concurrent.futures.html),
+[threading](https://docs.python.org/3.12/library/threading.html) et
+[subprocess](https://docs.python.org/3.12/library/subprocess.html), documentation
+courante 3.12.15 ; contrat de l'interpréteur installé 3.12.14 confronté au
+code officiel [thread.py](https://raw.githubusercontent.com/python/cpython/v3.12.14/Lib/concurrent/futures/thread.py)
+(`_python_exit`, `shutdown`) et
+[threading.py](https://raw.githubusercontent.com/python/cpython/v3.12.14/Lib/threading.py)
+(`Thread.join`). `shutdown(wait=False)` ne supprime pas l'attente des threads
+à la sortie de l'interpréteur ; annuler les tâches en attente n'arrête pas
+les tâches déjà actives. Un `join` borné doit être suivi d'`is_alive`.
+Les threads daemon ne garantissent pas la fermeture des ressources ;
+`preexec_fn` est exclu en présence de threads.
+
+Projet Linux man-pages 6.19,
+[PR_SET_PDEATHSIG, Description et Caveats](https://man7.org/linux/man-pages/man2/PR_SET_PDEATHSIG.2const.html),
+relu le même jour : le parent concerné est le thread créateur du processus,
+pas l'ensemble du processus Python. Il doit donc rester vivant tant que
+son enfant n'est pas récolté. Ces contrats imposent une revue du cycle de
+vie, de l'état partagé et de l'arrêt avant toute concurrence native.
+Aucune mise à jour de Python, suppression de synchronisation ou autorisation
+d'adoption OCR n'en découle. Hypothèse locale et essais, lorsqu'exécutés,
+restent dans le journal ; les publications ne prouvent pas un gain sur ce poste.
 
 Complément du 5 octobre 2026 à 15:40 UTC : PSF,
 [IOBase.close, fileno et flush](https://docs.python.org/3.12/library/io.html#io.IOBase.close)

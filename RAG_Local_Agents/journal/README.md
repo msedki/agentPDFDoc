@@ -1,8 +1,19 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `849fb40` et entrées datées · **Mis à jour :** 2026-10-05 16:21 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `68db1e3` et entrées datées · **Mis à jour :** 2026-10-05 17:22 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Correction de préparation en cours](2026-10-05.md#r23-ocr-03--correction-bornée-de-la-préparation-en-cours) :
+explications sur les données complétées après relecture du générateur ;
+prototype limité à deux lignes en réalisation source-only, contrats officiels
+et cycle de vie examinés. Parent raccordé avec inversion exacte, 11 témoins
+purs conformes, composeur et tests contrôlés par lint/typecheck ;
+config et revue du correctif non terminées,
+aucun lancement ou apprentissage. Préflight parent refusé sur la fenêtre
+TERM/identité ; source avec interruption différée distincte créée,
+11 témoins causaux avec doubles et lint/typecheck ciblés conformes,
+nouvelle revue indépendante en cours. Aucun natif admis.
 
 [Décomposition des appels de fermeture des journaux OCR](2026-10-05.md#r23-ocr-03--décomposition-de-la-fermeture-des-journaux) :
 38 nouveaux tests, lint/typecheck et revue préparatoire conformes ;
