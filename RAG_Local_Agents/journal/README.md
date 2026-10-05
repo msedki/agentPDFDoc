@@ -1,8 +1,26 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `c05efad` et entrées datées · **Mis à jour :** 2026-10-05 02:29 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `88dd5ba` et entrées datées · **Mis à jour :** 2026-10-05 04:27 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+Exécutions du 5 octobre, [relevé 03:53 UTC](2026-10-05.md#fonte-et-proto-v2-réellement-conformes-relevé-0353-utc) :
+fonte et proto V2 conformes sur cibles neuves, rendu examiné, lexiques exacts ;
+revues terminales indépendantes favorables, limitées aux préconditions.
+Dataset/apprentissage/OCR non exécutés.
+
+Essais du 5 octobre, [relevé 03:37 UTC](2026-10-05.md#premiers-contrôles-natifs-et-refus-conservés-relevé-0337-utc) :
+proto et fonte refusés sur leurs contrôles préparatoires ; causes précisées,
+anciennes preuves conservées, reprises sur nouveaux préfixes en préparation.
+Aucun apprentissage, résultat OCR ou adoption acquis.
+
+Préparation du 5 octobre à 02:58 UTC : [pilote LSTM isolé](2026-10-05.md#r23-ocr-03--méthode-et-préparation-du-pilote-relevé-0258-utc),
+méthode W035 et 33 tests purs conformes ; pas de rendu, proto ou entraînement
+exécuté à ce relevé. Modèles nominaux inchangés, P02 et DoD ouverts.
+
+Exécution du 5 octobre à 03:01 UTC : [neuf entrées officielles provisionnées](2026-10-05.md#provisionnement-des-neuf-entrées-relevé-0301-utc),
+identités physiques contre-vérifiées indépendamment ; aucune adoption ou
+recette OCR déduite. Protections du nouvel adaptateur testées, revue avant natif.
 
 Contrôles du 5 octobre à 02:29 UTC : [préparation de publication de l'outillage](2026-10-05.md#contrôles-avant-publication-de-loutillage-relevé-0229-utc),
 contrôles documentaires verts ; aucune recette produit ajoutée.

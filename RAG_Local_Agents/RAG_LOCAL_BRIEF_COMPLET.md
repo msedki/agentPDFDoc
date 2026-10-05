@@ -1631,7 +1631,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `c05efad` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 02:21 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `88dd5ba` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 04:27 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -2242,6 +2242,7 @@ de bascule de profil, de redémarrage ou d'exécution du lot futur.
 | R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Sous-lot publié sur `origin/main` (`a17819a`). Pilotes GPU exécutés et relus, sans réduction de seuil ni qualification D07. Restent admission réellement calibrée, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes non qualifiées. [Parcours](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [pilotes](journal/2026-10-04.md#r23--pilotes-gpu-et-préflight-dev-relevé-2258-utc) |
 | R23-OCR-01 | Ingestion / qualité — intégrateur avec diagnostic et validation non-auteurs : fiabiliser l'extraction des deux scans DEV sans modifier les sources gelées | R23, contrats d'ingestion et skill `pdf-ingestion-windows` ; QA propriétaire arrêtée, extractions partielles conservées | Reproduction ciblée ; correction prouvée avec même moteur et seuils ; publications complètes des sept documents, résolution des 100 scopes/annotations et 90 unités sans ambiguïté avant génération ; contrôles et relecture des cas touchés | IN_PROGRESS — sous-lot P03 qualifié et publié (`d26a3a4`) : extraction complète native PASS, 236 unités sans exclusion, Ruff/mypy et documents verts, revue finale favorable. P02 : signes non couverts par les alphabets inspectés, aucun artefact adopté. Gate DEV toujours FAILED ; sept publications et scores non acquis. [Livraison P03](journal/2026-10-05.md#publication-du-sous-lot-p03-relevé-0037-utc) ; [essais et limite](journal/2026-10-04.md#r23-ocr-01--essais-bornés-et-alphabets-relevé-2356-utc) ; [rouge conservé](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc) |
 | R23-OCR-02 | Outillage / ingestion — construction séparée des outils d'extension Tesseract, intégrateur avec validateur non-auteur | R23-OCR-01, W034, skill `tesseract-lstm-extension` ; archive verrouillée, ICU/Leptonica ; protocole figé et relu | Configuration puis compilation réelles en QA neuve sous verrou et plafonds ; cibles, dépendances, versions et identités contrôlées, ressources et arrêts conservés ; pas de changement nominal ni apprentissage | VALIDATED_BOUNDED — outils Linux aarch64 seuls : construction réelle `PASS_TOOLS_ONLY` en 397,59 s, sept versions/dépendances et 707 mesures conformes ; revue finale non-auteur favorable, acceptée ROOT à 02:21 UTC. 625 identités observées absentes ; source/entrées/archive inchangées. Entraînement, adoption, P02 et autres plateformes non validés. [Décision](DECISIONS.md#w034-outils-séparés-avant-toute-extension-lstm) ; [preuves et avis final](journal/2026-10-05.md#construction-terminée-et-lecture-des-preuves-relevé-0212-utc) |
+| R23-OCR-03 | Apprentissage OCR isolé — entrées officielles, proto-alphabet, lignes générales inédites, pilote borné et revue non-auteur | R23-OCR-02, W035, skill LSTM, entrées exactes et supervision qualifiée ; aucun DEV/final pour apprendre | Identités réelles et séparation des groupes ; proto/lexiques conservés ; apprentissage surveillé ; sortie unique et métriques préalables respectées ; revue indépendante ; aucun résultat produit déduit | IN_PROGRESS — neuf entrées admises et contre-vérifiées ; fonte et proto V2 réellement PASS sous garde, sources et reçus terminaux relus indépendamment. 53 glyphes couverts, rendu diagnostique examiné ; 13 commandes proto, 141→143 IDs, recoder et trois lexiques Unicode exacts. Échecs précédents conservés, modèle nominal inchangé. Dataset/apprentissage/OCR NOT_RUN. Prochaine action : finaliser/revoir l'adaptateur et le pipeline borné, puis préparer les lignes et exécuter le pilote. [W035](DECISIONS.md#w035-pilote-isolé-dapprentissage-des-signes-scientifiques) ; [refus conservés](journal/2026-10-05.md#premiers-contrôles-natifs-et-refus-conservés-relevé-0337-utc) ; [préconditions natives et avis finaux](journal/2026-10-05.md#fonte-et-proto-v2-réellement-conformes-relevé-0353-utc) |
 
 Travail prévu, dans l'ordre utile :
 
@@ -2268,11 +2269,10 @@ Travail prévu, dans l'ordre utile :
   preuves, puis mettre à jour les procédures et références stabilisées seulement
   après validation réelle. Distinguer Windows, Linux aarch64 et Linux x86-64.
 
-**Prochaine action de ce lot :** le constat négatif P02 et son préflight
-étant relus et les outils séparés validés selon W034, figer les entrées
-officielles du pilote et statuer sur ses limites avant toute nouvelle phase.
-Le pilote d'apprentissage exige ses propres
-entrées, budgets et critères préalables. Ne pas rejouer
+**Prochaine action de ce lot :** méthode W035 et sources du pilote gelées,
+entrées, fonte et proto réellement admis et relus indépendamment. Finaliser
+l'adaptateur surveillé et le pipeline, tester leurs gardes et obtenir leur
+revue avant la préparation des lignes puis l'apprentissage borné W035. Ne pas rejouer
 les essais de densité ou de mode sur ces alphabets incomplets. P03 est déjà
 qualifié et publié ; son extraction privée n'est pas encore republiée par API.
 La QA est arrêtée, les cinq captures publiées sont conservées. Après correction P02,
@@ -3016,7 +3016,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W034 sur la base publiée `c05efad` et préparation locale datée ci-dessous · **Mis à jour :** 2026-10-05 01:34 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W035 sur la base publiée `88dd5ba` et préparation locale datée ci-dessous · **Mis à jour :** 2026-10-05 04:27 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -3516,6 +3516,97 @@ exige qualification produit et plateforme, nouvelle identité et retour
 au modèle précédent. Les modèles nominaux, le moteur et les seuils restent
 inchangés pendant l'étude.
 
+## W035 Pilote isolé d'apprentissage des signes scientifiques
+
+**Date :** 5 octobre 2026, 02:58 UTC. **Statut :** choix technique ROOT acquis
+dans le chantier autorisé ; phases conditionnées à leurs contrôles et à une
+relecture indépendante. Aucune adoption produit décidée.
+
+**Contexte :** W034 a livré sept outils Tesseract 5.4.0 vérifiés sur Linux
+aarch64. P02 reste non résolu. Les scripts de provisionnement et de génération
+de lignes inédites ont respectivement 15 et 11 tests purs conformes ; ce ne
+sont pas des téléchargements, des rendus ou des résultats d'apprentissage.
+Sources et identités : [R23OCR-S09](SOURCES.md#r23ocr-s09--entrées-et-mesures-du-pilote-lstm).
+
+**Phases retenues :**
+
+1. Provisionner uniquement les neuf entrées officielles verrouillées dans la
+   QA neuve `r23-ocr03-pilot-20261005-v2Er5T`, sur le support QA existant.
+   Aucun poids ou fichier nominal remplacé. TLS vérifié, URLs immuables,
+   tailles et Git blob SHA-1 contrôlés, SHA-256 calculés ; 8 Mio par fichier,
+   16 Mio au total et 600 s. Tout partiel reste conservé et non admissible.
+2. Après vérification réelle des entrées, préparer le proto-alphabet : ancien
+   alphabet en premier, IDs préservés, seuls ajouts `±` et `·`, propriétés,
+   recoder et lexiques contrôlés par aller-retour. Vérifier le réseau flottant
+   et la fonte réelle, ses axes et sa couverture avant allocation raster.
+3. Après revue du protocole exécutable, préparer 1 000 groupes généraux inédits,
+   cinq familles de 200, graine 20261005, partage 800/200 fixé avant rendu.
+   Chaque texte a deux variantes 28/36 pixels, dans le même split. Noto Sans
+   normal, largeur 100/poids 400 selon l'ordre réel des axes, BASIC, 300 dpi,
+   bordure 12 ; images bornées à 2048×96 et 196 608 pixels. Aucun PDF, texte,
+   ID ou annotation DEV/final n'alimente cette préparation.
+4. Continuer le réseau flottant best/fra avec l'ancien traineddata exact et
+   le nouveau proto. Plafond 500 `training_iteration`, taux 0,0001 réinitialisé,
+   `target_error_rate=0`, caches train/évaluateur de 64 Mio chacun. Un arrêt
+   anticipé normal reste possible ; relever les compteurs réellement atteints.
+   Dans Tesseract 5.4, `max_iterations` borne `training_iteration` ;
+   `learning_iteration` peut être inférieur. Ni 500 mises à jour effectives,
+   ni une convergence ne sont supposées au seul réglage du plafond.
+   Exporter seulement le checkpoint courant terminal, pas un fichier classé
+   « best » par son erreur TRAIN. Aucun classement de candidats sur DEV/final,
+   aucune conversion integer dans ce premier pilote.
+
+**Budget lourd commun :** verrou exclusif existant, environnement enfant
+explicite, pas de LLM/OCR/recette native concurrents. Enveloppe 60 minutes :
+préparation ≤15, apprentissage ≤30, export et deux bras d'évaluation ≤15.
+Préparation RSS cohorte ≤2 Gio et QA ≤512 Mio ; suite RSS ≤4 Gio et QA totale
+≤1 Gio. Réserves : RAM disponible ≥8 Gio, système ≥2 Gio, support QA ≥20 Gio.
+Mesures CPU/RSS/disques et arrêt de la seule cohorte possédée sur dépassement.
+Une deadline ou un fichier manquant est un échec borné, pas un candidat qualifié.
+Le cache images n'est pas une limite RSS. Aucun support GPU de cette voie
+Tesseract n'a été établi ; conserver le moteur CPU retenu.
+
+**Critères préalables du pilote, distincts de la DoD :** comparer les mêmes
+400 variantes d'évaluation, OEM 1/PSM 13, à la baseline best/fra flottante.
+CER micro littéral ≤2 % ; précision et rappel ≥95 % pour chaque signe,
+séparément à 28 et 36 pixels. Sur les 160 variantes sans ces signes,
+CER micro candidat ≤CER baseline +0,002 absolu. Alignement Levenshtein en
+points de code, espaces inclus, sans normalisation ou réparation ; égalités
+résolues diagonal/suppression/insertion. Retirer seulement les séparateurs
+terminaux propres à la CLI : au plus deux LF (ligne/paragraphe) et une
+éventuelle FF finale ; tout LF interne ou supplémentaire reste un refus,
+CR et espaces conservés. Les sorties brutes sont gardées. Les sorties vides et erreurs restent dans les
+dénominateurs. Détails par famille, taille et confusion conservés.
+
+**Conséquences et reprise :** les phases échouées, logs et checkpoints restent
+séparés ; aucun relancement sur un préfixe existant. Une réussite n'établit
+ni P02 au PSM produit, ni extraction publiée, confiance, Windows, CPU 16 Go ou
+DoD. Toute adoption demande sa qualification d'ingestion distincte et une
+identité versionnée. Le retour au modèle actuel ne nécessite aucune mutation
+pendant ce pilote puisqu'il reste inchangé.
+
+**Précisions du 5 octobre à 03:37 UTC, avant reprise :** les deux refus natifs
+ont exposé des erreurs d'interprétation des contrôles source-only, pas un
+résultat d'apprentissage. Les valeurs Fixed de fonte et les entiers retournés
+par Pillow doivent être distingués ; les coordonnées normales restent 400/100.
+Un message de casse manquante ne peut être admis qu'au `build-proto`, pour une
+paire ancienne prouvée absente de la baseline et à `other_case` propre,
+avec propriétés inchangées dans le proto. Aucun diagnostic inconnu, ajout
+d'alphabet ou défaut de lexique n'est toléré. Sources : [S09](SOURCES.md#r23ocr-s09--entrées-et-mesures-du-pilote-lstm).
+Une décroissance des compteurs ou un retour automatique à un ancien réseau
+« best » pendant le futur pilote empêche la qualification de sa sortie ;
+ce n'est pas une autre règle de sélection. Les traces restent conservées.
+
+**Précision du 5 octobre à 04:16 UTC, avant toute préparation des lignes :**
+le compteur `learning_iteration` doit être positif pour déclarer ce pilote
+d'apprentissage exécuté. Dans la source 5.4, il ne progresse que si
+`ET_DELTA > 0` ; `training_iteration` progresse aussi sur les lignes parfaites.
+Un arrêt normal avec zéro `learning_iteration` reste une trace valide, mais
+ne qualifie pas un apprentissage des signes. Aucun allongement automatique,
+reprise, changement du plafond ou des seuils OCR pour le faire passer.
+Cette condition d'exécution est fixée avant dataset et calcul ; ce n'est
+pas un réglage sur leur résultat.
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -3568,7 +3659,50 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `c05efad` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 01:58 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `88dd5ba` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 04:27 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+Sources initiales consultées ROOT le 5 octobre 2026 avant le provisionnement
+du pilote ; compléments causaux datés ci-dessous, après les premiers essais.
+Les références mouvantes sont des contrats documentaires, pas des identités
+d'artefacts ou des résultats locaux. Décision : [W035](DECISIONS.md#w035-pilote-isolé-dapprentissage-des-signes-scientifiques).
+
+| Source officielle et version | Apport utilisé | Limite |
+|---|---|---|
+| [tessdata_best README](https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/e12c65a915945e4c28e237a9b52bc4a8f39a0cec/README.md) et [licence](https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/e12c65a915945e4c28e237a9b52bc4a8f39a0cec/LICENSE), révision `e12c65a915945e4c28e237a9b52bc4a8f39a0cec` ; [Data Files](https://tesseract-ocr.github.io/tessdoc/Data-Files.html) | best contient des modèles LSTM flottants utilisables pour continuation ; OEM 1. Licence Apache-2.0, notices à préserver. | La description n'établit pas la nature du blob local : contrôle natif distinct consigné au journal. Aucun résultat P02. |
+| [Noto Sans OFL](https://raw.githubusercontent.com/google/fonts/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/notosans/OFL.txt), révision `9710da1eacb3be272583c3224dcb70f9da6eadbb` | Fonte sous OFL 1.1, texte de licence conservé ; les documents rendus ne deviennent pas des fichiers de fonte. | Usage interne uniquement ici, fonte non modifiée ; aucune licence inventée pour le code ou les textes du projet. Couverture réelle non déduite du nom Noto. |
+| [generate_line_box.py](https://raw.githubusercontent.com/tesseract-ocr/tesstrain/405346a3a67d8e4e049341d1da6a4b752e0b8351/generate_line_box.py), révision `405346a3a67d8e4e049341d1da6a4b752e0b8351`, 1 462 octets | Une boîte pleine ligne par caractère et une ligne tabulation ; utilise Pillow et normalise le GT. | Le générateur exige préalablement NFC et absence d'espaces de bord ; aucune correction d'OCR. Le helper seul ne valide pas les LSTMF. |
+| Pillow 12.3.0, [ImageFont](https://pillow.readthedocs.io/en/stable/reference/ImageFont.html), sections truetype/getbbox/get_variation_axes/set_variation_by_axes/Layout ; [ImageDraw.text](https://pillow.readthedocs.io/en/stable/reference/ImageDraw.html#PIL.ImageDraw.ImageDraw.text), lues ROOT à 02:57 UTC | Fonte chargée depuis ses octets, axes dans l'ordre effectivement retourné, BASIC explicite, bbox tenant compte des accents et ancre cohérente au dessin. | La documentation ne démontre ni l'absence de clipping ni les glyphes réels ; admission et rendu séparés requis. |
+| Microsoft OpenType 1.9.1, [cmap](https://learn.microsoft.com/en-us/typography/opentype/spec/cmap), [table directory](https://learn.microsoft.com/en-us/typography/opentype/spec/otff#table-directory) et [maxp](https://learn.microsoft.com/en-us/typography/opentype/spec/maxp), sections pertinentes lues ROOT jusqu'à 02:57 UTC | Répertoire big-endian, numGlyphs, glyph 0 manquant ; formats Unicode 4/12 et calcul idRangeOffset/idDelta. | Lecteur borné pour la seule fonte épinglée ; pas un validateur général de fontes. L'identité du blob complet reste une garde séparée. |
+| Tesseract 5.4.0, [lstmtraining.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/lstmtraining.cpp) et [lstmtrainer.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/unicharset/lstmtrainer.cpp) ; sections relues dans la source verrouillée locale | Caches distincts, défaut 6 000 Mio remplacé explicitement ; reprise d'un checkpoint existant prioritaire ; fichier courant terminal FULL et export du réseau courant. | Choix de préfixe neuf, deadline et contrôle des sorties indispensables. Le plafond 500 porte sur `training_iteration`, pas sur `learning_iteration`, la durée ou la convergence ; « best » est lié au TRAIN et n'est pas la règle de choix du pilote. |
+
+Les neuf fichiers proposés totalisent 6 679 977 octets : best/fra ;
+Latin.unicharset, radical-stroke.txt et licence langdata_lstm
+`07930fd9f246622c26eb5de794d9212ceac432d3` ; fonte, OFL et METADATA.pb ; helper
+et licence tesstrain. Tailles, Git blobs, SHA connus et URLs complètes dans
+le reçu privé fermé, relié au [journal](journal/2026-10-05.md#r23-ocr-03--méthode-et-préparation-du-pilote-relevé-0258-utc).
+Aucun de ces fichiers n'était provisionné au gel de cette méthode.
+
+Complément sur le framing CLI : `TessTextRenderer::AddImageHandler`,
+`TessBaseAPI::GetUTF8Text`, `ResultIterator::IterateAndAppendUTF8TextlineText`
+et constructeur `LTRResultIterator`, sources locales Tesseract 5.4.0
+verrouillées, relus ROOT avant tout OCR. La ligne puis le paragraphe ajoutent
+chacun LF ; le premier rendu n'ajoute pas de séparateur de page. Le lecteur
+du pilote borne donc le suffixe à deux LF et une éventuelle FF, sans `rstrip`
+arbitraire ni changement des espaces/CR ; les fichiers stdout restent conservés.
+
+Complément causal consulté le 5 octobre après les premiers essais natifs :
+
+| Source officielle et section | Contrat utilisé | Limite |
+|---|---|---|
+| Tesseract 5.4.0, [unicharset_training_utils.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/unicharset/unicharset_training_utils.cpp), `SetupBasicProperties`, lignes 91–106 ; source locale verrouillée relue | `other_case` est initialisé à l'ID propre. Une casse opposée absente produit un message informatif, sans ajout de token ni branche d'échec. | N'autorise aucune omission nouvelle : seules les paires anciennes réellement vérifiées peuvent être distinguées des autres diagnostics, au seul `build-proto`. Les contrôles complets du proto et des lexiques restent nécessaires. |
+| Pillow 12.3.0, [_imagingft.c](https://raw.githubusercontent.com/python-pillow/Pillow/12.3.0/src/_imagingft.c), `font_getvaraxes`, lignes 1269–1333, et `font_setvaraxes_impl`, lignes 1362–1407 | Les bornes/defaults exposés par `getvaraxes` sont des entiers après division du Fixed FreeType par 65536. Le setter accepte aussi les coordonnées flottantes. | Le résultat de cette API n'est pas la valeur Fixed exacte de la table de fonte ; les deux représentations sont contrôlées séparément. Le [journal natif](journal/2026-10-05.md#fonte-et-proto-v2-réellement-conformes-relevé-0353-utc) porte l'observation locale, pas cette source. |
+| Microsoft OpenType 1.9.1, [fvar](https://learn.microsoft.com/en-us/typography/opentype/spec/fvar), header, `VariationAxisRecord` et sélection d'instance ; [types](https://learn.microsoft.com/en-us/typography/opentype/spec/otff#data-types) | Axes dans l'ordre des enregistrements, bornes/defaults en Fixed signé16.16 ; coordonnées par défaut pour l'instance normale. Tailles et offsets explicites. | Le document n'établit pas les valeurs du blob Noto téléchargé ; identité et table contrôlées localement, résultats au journal. |
+
+Ces lectures corrigent les interprétations des contrôles préparatoires, pas
+les critères de fidélité OCR. Les premiers refus et leurs conditions sont
+conservés dans le journal ; aucun candidat n'est qualifié par ces sources.
 
 ## R23OCR-S08 — procédure d'extension et sources d'outillage
 
@@ -3583,7 +3717,7 @@ pas un build ; la phase d'outillage est distincte de l'apprentissage.
 | [Tesseract 5.4, fusion d'alphabets](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/merge_unicharsets.cpp) | Fusion dans l'ordre des arguments ; contrôler les anciens tokens/IDs et les ajouts. | Conserver l'ordre ne suffit pas à prouver le recoder ou la reconnaissance. |
 | [Tesseract 5.4, chargement du réseau d'apprentissage](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/unicharset/lstmtrainer.cpp), `TryLoadingCheckpoint` | Rejet du modèle integer ; ancien charset/recoder chargés pour remapper les sorties lorsque l'alphabet change. | Le remapping ne constitue pas l'apprentissage des sorties nouvelles ; aucune convergence présumée. |
 | [Tesseract 5.4, `combine_lang_model`](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/combine_lang_model.cpp) | Les trois listes lexicales illisibles peuvent produire un avertissement et une liste vide ; vérifier les composants réels et les lexiques après export. | EXIT0 seul ne prouve pas la conservation des ressources nominales. |
-| [Tesseract 5.4, boucle et exports d'apprentissage](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/lstmtraining.cpp) | `max_iterations` suit les itérations d'apprentissage réussies ; caches train/évaluateur distincts. Un export peut signaler un échec d'écriture sans retour final non nul. | Deadline externe, mesures de ressources et contrôle des fichiers restent nécessaires ; pas de résultat d'entraînement ici. |
+| [Tesseract 5.4, boucle et exports d'apprentissage](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/lstmtraining.cpp) | `max_iterations` borne le compteur `training_iteration` ; caches train/évaluateur distincts. Un export peut signaler un échec d'écriture sans retour final non nul. | `learning_iteration` peut être inférieur, les lignes parfaites faisant aussi progresser `training_iteration`. Deadline externe, mesures et contrôle des fichiers restent nécessaires ; pas de résultat d'entraînement ici. Précision de source relue le 5 octobre à 04:16 UTC. |
 | [CMake 3.16, FindICU](https://cmake.org/cmake/help/v3.16/module/FindICU.html), lecture ROOT du 05/10/2026 | Variables `ICU_FOUND`, `ICU_VERSION`, en-têtes et bibliothèques par composant. Le CMake training épinglé ne demande pas `REQUIRED` : les cibles effectives sont contrôlées avant compilation. | Le guide est affiché en version documentaire 3.16.9 ; CMake local est 3.16.3. La configuration réelle reste à exécuter ; la documentation ne valide pas la résolution locale d'ICU. |
 
 Archive source déjà en cache vérifiée ROOT (`859d1c`) : 1 900 009 octets,

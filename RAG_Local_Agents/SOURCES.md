@@ -1,6 +1,49 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `c05efad` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 01:58 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `88dd5ba` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 04:27 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+Sources initiales consultées ROOT le 5 octobre 2026 avant le provisionnement
+du pilote ; compléments causaux datés ci-dessous, après les premiers essais.
+Les références mouvantes sont des contrats documentaires, pas des identités
+d'artefacts ou des résultats locaux. Décision : [W035](DECISIONS.md#w035-pilote-isolé-dapprentissage-des-signes-scientifiques).
+
+| Source officielle et version | Apport utilisé | Limite |
+|---|---|---|
+| [tessdata_best README](https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/e12c65a915945e4c28e237a9b52bc4a8f39a0cec/README.md) et [licence](https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/e12c65a915945e4c28e237a9b52bc4a8f39a0cec/LICENSE), révision `e12c65a915945e4c28e237a9b52bc4a8f39a0cec` ; [Data Files](https://tesseract-ocr.github.io/tessdoc/Data-Files.html) | best contient des modèles LSTM flottants utilisables pour continuation ; OEM 1. Licence Apache-2.0, notices à préserver. | La description n'établit pas la nature du blob local : contrôle natif distinct consigné au journal. Aucun résultat P02. |
+| [Noto Sans OFL](https://raw.githubusercontent.com/google/fonts/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/notosans/OFL.txt), révision `9710da1eacb3be272583c3224dcb70f9da6eadbb` | Fonte sous OFL 1.1, texte de licence conservé ; les documents rendus ne deviennent pas des fichiers de fonte. | Usage interne uniquement ici, fonte non modifiée ; aucune licence inventée pour le code ou les textes du projet. Couverture réelle non déduite du nom Noto. |
+| [generate_line_box.py](https://raw.githubusercontent.com/tesseract-ocr/tesstrain/405346a3a67d8e4e049341d1da6a4b752e0b8351/generate_line_box.py), révision `405346a3a67d8e4e049341d1da6a4b752e0b8351`, 1 462 octets | Une boîte pleine ligne par caractère et une ligne tabulation ; utilise Pillow et normalise le GT. | Le générateur exige préalablement NFC et absence d'espaces de bord ; aucune correction d'OCR. Le helper seul ne valide pas les LSTMF. |
+| Pillow 12.3.0, [ImageFont](https://pillow.readthedocs.io/en/stable/reference/ImageFont.html), sections truetype/getbbox/get_variation_axes/set_variation_by_axes/Layout ; [ImageDraw.text](https://pillow.readthedocs.io/en/stable/reference/ImageDraw.html#PIL.ImageDraw.ImageDraw.text), lues ROOT à 02:57 UTC | Fonte chargée depuis ses octets, axes dans l'ordre effectivement retourné, BASIC explicite, bbox tenant compte des accents et ancre cohérente au dessin. | La documentation ne démontre ni l'absence de clipping ni les glyphes réels ; admission et rendu séparés requis. |
+| Microsoft OpenType 1.9.1, [cmap](https://learn.microsoft.com/en-us/typography/opentype/spec/cmap), [table directory](https://learn.microsoft.com/en-us/typography/opentype/spec/otff#table-directory) et [maxp](https://learn.microsoft.com/en-us/typography/opentype/spec/maxp), sections pertinentes lues ROOT jusqu'à 02:57 UTC | Répertoire big-endian, numGlyphs, glyph 0 manquant ; formats Unicode 4/12 et calcul idRangeOffset/idDelta. | Lecteur borné pour la seule fonte épinglée ; pas un validateur général de fontes. L'identité du blob complet reste une garde séparée. |
+| Tesseract 5.4.0, [lstmtraining.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/lstmtraining.cpp) et [lstmtrainer.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/unicharset/lstmtrainer.cpp) ; sections relues dans la source verrouillée locale | Caches distincts, défaut 6 000 Mio remplacé explicitement ; reprise d'un checkpoint existant prioritaire ; fichier courant terminal FULL et export du réseau courant. | Choix de préfixe neuf, deadline et contrôle des sorties indispensables. Le plafond 500 porte sur `training_iteration`, pas sur `learning_iteration`, la durée ou la convergence ; « best » est lié au TRAIN et n'est pas la règle de choix du pilote. |
+
+Les neuf fichiers proposés totalisent 6 679 977 octets : best/fra ;
+Latin.unicharset, radical-stroke.txt et licence langdata_lstm
+`07930fd9f246622c26eb5de794d9212ceac432d3` ; fonte, OFL et METADATA.pb ; helper
+et licence tesstrain. Tailles, Git blobs, SHA connus et URLs complètes dans
+le reçu privé fermé, relié au [journal](journal/2026-10-05.md#r23-ocr-03--méthode-et-préparation-du-pilote-relevé-0258-utc).
+Aucun de ces fichiers n'était provisionné au gel de cette méthode.
+
+Complément sur le framing CLI : `TessTextRenderer::AddImageHandler`,
+`TessBaseAPI::GetUTF8Text`, `ResultIterator::IterateAndAppendUTF8TextlineText`
+et constructeur `LTRResultIterator`, sources locales Tesseract 5.4.0
+verrouillées, relus ROOT avant tout OCR. La ligne puis le paragraphe ajoutent
+chacun LF ; le premier rendu n'ajoute pas de séparateur de page. Le lecteur
+du pilote borne donc le suffixe à deux LF et une éventuelle FF, sans `rstrip`
+arbitraire ni changement des espaces/CR ; les fichiers stdout restent conservés.
+
+Complément causal consulté le 5 octobre après les premiers essais natifs :
+
+| Source officielle et section | Contrat utilisé | Limite |
+|---|---|---|
+| Tesseract 5.4.0, [unicharset_training_utils.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/unicharset/unicharset_training_utils.cpp), `SetupBasicProperties`, lignes 91–106 ; source locale verrouillée relue | `other_case` est initialisé à l'ID propre. Une casse opposée absente produit un message informatif, sans ajout de token ni branche d'échec. | N'autorise aucune omission nouvelle : seules les paires anciennes réellement vérifiées peuvent être distinguées des autres diagnostics, au seul `build-proto`. Les contrôles complets du proto et des lexiques restent nécessaires. |
+| Pillow 12.3.0, [_imagingft.c](https://raw.githubusercontent.com/python-pillow/Pillow/12.3.0/src/_imagingft.c), `font_getvaraxes`, lignes 1269–1333, et `font_setvaraxes_impl`, lignes 1362–1407 | Les bornes/defaults exposés par `getvaraxes` sont des entiers après division du Fixed FreeType par 65536. Le setter accepte aussi les coordonnées flottantes. | Le résultat de cette API n'est pas la valeur Fixed exacte de la table de fonte ; les deux représentations sont contrôlées séparément. Le [journal natif](journal/2026-10-05.md#fonte-et-proto-v2-réellement-conformes-relevé-0353-utc) porte l'observation locale, pas cette source. |
+| Microsoft OpenType 1.9.1, [fvar](https://learn.microsoft.com/en-us/typography/opentype/spec/fvar), header, `VariationAxisRecord` et sélection d'instance ; [types](https://learn.microsoft.com/en-us/typography/opentype/spec/otff#data-types) | Axes dans l'ordre des enregistrements, bornes/defaults en Fixed signé16.16 ; coordonnées par défaut pour l'instance normale. Tailles et offsets explicites. | Le document n'établit pas les valeurs du blob Noto téléchargé ; identité et table contrôlées localement, résultats au journal. |
+
+Ces lectures corrigent les interprétations des contrôles préparatoires, pas
+les critères de fidélité OCR. Les premiers refus et leurs conditions sont
+conservés dans le journal ; aucun candidat n'est qualifié par ces sources.
 
 ## R23OCR-S08 — procédure d'extension et sources d'outillage
 
@@ -15,7 +58,7 @@ pas un build ; la phase d'outillage est distincte de l'apprentissage.
 | [Tesseract 5.4, fusion d'alphabets](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/merge_unicharsets.cpp) | Fusion dans l'ordre des arguments ; contrôler les anciens tokens/IDs et les ajouts. | Conserver l'ordre ne suffit pas à prouver le recoder ou la reconnaissance. |
 | [Tesseract 5.4, chargement du réseau d'apprentissage](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/unicharset/lstmtrainer.cpp), `TryLoadingCheckpoint` | Rejet du modèle integer ; ancien charset/recoder chargés pour remapper les sorties lorsque l'alphabet change. | Le remapping ne constitue pas l'apprentissage des sorties nouvelles ; aucune convergence présumée. |
 | [Tesseract 5.4, `combine_lang_model`](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/combine_lang_model.cpp) | Les trois listes lexicales illisibles peuvent produire un avertissement et une liste vide ; vérifier les composants réels et les lexiques après export. | EXIT0 seul ne prouve pas la conservation des ressources nominales. |
-| [Tesseract 5.4, boucle et exports d'apprentissage](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/lstmtraining.cpp) | `max_iterations` suit les itérations d'apprentissage réussies ; caches train/évaluateur distincts. Un export peut signaler un échec d'écriture sans retour final non nul. | Deadline externe, mesures de ressources et contrôle des fichiers restent nécessaires ; pas de résultat d'entraînement ici. |
+| [Tesseract 5.4, boucle et exports d'apprentissage](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/lstmtraining.cpp) | `max_iterations` borne le compteur `training_iteration` ; caches train/évaluateur distincts. Un export peut signaler un échec d'écriture sans retour final non nul. | `learning_iteration` peut être inférieur, les lignes parfaites faisant aussi progresser `training_iteration`. Deadline externe, mesures et contrôle des fichiers restent nécessaires ; pas de résultat d'entraînement ici. Précision de source relue le 5 octobre à 04:16 UTC. |
 | [CMake 3.16, FindICU](https://cmake.org/cmake/help/v3.16/module/FindICU.html), lecture ROOT du 05/10/2026 | Variables `ICU_FOUND`, `ICU_VERSION`, en-têtes et bibliothèques par composant. Le CMake training épinglé ne demande pas `REQUIRED` : les cibles effectives sont contrôlées avant compilation. | Le guide est affiché en version documentaire 3.16.9 ; CMake local est 3.16.3. La configuration réelle reste à exécuter ; la documentation ne valide pas la résolution locale d'ICU. |
 
 Archive source déjà en cache vérifiée ROOT (`859d1c`) : 1 900 009 octets,

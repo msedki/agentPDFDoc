@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W034 sur la base publiée `c05efad` et préparation locale datée ci-dessous · **Mis à jour :** 2026-10-05 01:34 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W035 sur la base publiée `88dd5ba` et préparation locale datée ci-dessous · **Mis à jour :** 2026-10-05 04:27 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -499,3 +499,94 @@ choix de checkpoint d'après les erreurs de recette. Une éventuelle adoption
 exige qualification produit et plateforme, nouvelle identité et retour
 au modèle précédent. Les modèles nominaux, le moteur et les seuils restent
 inchangés pendant l'étude.
+
+## W035 Pilote isolé d'apprentissage des signes scientifiques
+
+**Date :** 5 octobre 2026, 02:58 UTC. **Statut :** choix technique ROOT acquis
+dans le chantier autorisé ; phases conditionnées à leurs contrôles et à une
+relecture indépendante. Aucune adoption produit décidée.
+
+**Contexte :** W034 a livré sept outils Tesseract 5.4.0 vérifiés sur Linux
+aarch64. P02 reste non résolu. Les scripts de provisionnement et de génération
+de lignes inédites ont respectivement 15 et 11 tests purs conformes ; ce ne
+sont pas des téléchargements, des rendus ou des résultats d'apprentissage.
+Sources et identités : [R23OCR-S09](SOURCES.md#r23ocr-s09--entrées-et-mesures-du-pilote-lstm).
+
+**Phases retenues :**
+
+1. Provisionner uniquement les neuf entrées officielles verrouillées dans la
+   QA neuve `r23-ocr03-pilot-20261005-v2Er5T`, sur le support QA existant.
+   Aucun poids ou fichier nominal remplacé. TLS vérifié, URLs immuables,
+   tailles et Git blob SHA-1 contrôlés, SHA-256 calculés ; 8 Mio par fichier,
+   16 Mio au total et 600 s. Tout partiel reste conservé et non admissible.
+2. Après vérification réelle des entrées, préparer le proto-alphabet : ancien
+   alphabet en premier, IDs préservés, seuls ajouts `±` et `·`, propriétés,
+   recoder et lexiques contrôlés par aller-retour. Vérifier le réseau flottant
+   et la fonte réelle, ses axes et sa couverture avant allocation raster.
+3. Après revue du protocole exécutable, préparer 1 000 groupes généraux inédits,
+   cinq familles de 200, graine 20261005, partage 800/200 fixé avant rendu.
+   Chaque texte a deux variantes 28/36 pixels, dans le même split. Noto Sans
+   normal, largeur 100/poids 400 selon l'ordre réel des axes, BASIC, 300 dpi,
+   bordure 12 ; images bornées à 2048×96 et 196 608 pixels. Aucun PDF, texte,
+   ID ou annotation DEV/final n'alimente cette préparation.
+4. Continuer le réseau flottant best/fra avec l'ancien traineddata exact et
+   le nouveau proto. Plafond 500 `training_iteration`, taux 0,0001 réinitialisé,
+   `target_error_rate=0`, caches train/évaluateur de 64 Mio chacun. Un arrêt
+   anticipé normal reste possible ; relever les compteurs réellement atteints.
+   Dans Tesseract 5.4, `max_iterations` borne `training_iteration` ;
+   `learning_iteration` peut être inférieur. Ni 500 mises à jour effectives,
+   ni une convergence ne sont supposées au seul réglage du plafond.
+   Exporter seulement le checkpoint courant terminal, pas un fichier classé
+   « best » par son erreur TRAIN. Aucun classement de candidats sur DEV/final,
+   aucune conversion integer dans ce premier pilote.
+
+**Budget lourd commun :** verrou exclusif existant, environnement enfant
+explicite, pas de LLM/OCR/recette native concurrents. Enveloppe 60 minutes :
+préparation ≤15, apprentissage ≤30, export et deux bras d'évaluation ≤15.
+Préparation RSS cohorte ≤2 Gio et QA ≤512 Mio ; suite RSS ≤4 Gio et QA totale
+≤1 Gio. Réserves : RAM disponible ≥8 Gio, système ≥2 Gio, support QA ≥20 Gio.
+Mesures CPU/RSS/disques et arrêt de la seule cohorte possédée sur dépassement.
+Une deadline ou un fichier manquant est un échec borné, pas un candidat qualifié.
+Le cache images n'est pas une limite RSS. Aucun support GPU de cette voie
+Tesseract n'a été établi ; conserver le moteur CPU retenu.
+
+**Critères préalables du pilote, distincts de la DoD :** comparer les mêmes
+400 variantes d'évaluation, OEM 1/PSM 13, à la baseline best/fra flottante.
+CER micro littéral ≤2 % ; précision et rappel ≥95 % pour chaque signe,
+séparément à 28 et 36 pixels. Sur les 160 variantes sans ces signes,
+CER micro candidat ≤CER baseline +0,002 absolu. Alignement Levenshtein en
+points de code, espaces inclus, sans normalisation ou réparation ; égalités
+résolues diagonal/suppression/insertion. Retirer seulement les séparateurs
+terminaux propres à la CLI : au plus deux LF (ligne/paragraphe) et une
+éventuelle FF finale ; tout LF interne ou supplémentaire reste un refus,
+CR et espaces conservés. Les sorties brutes sont gardées. Les sorties vides et erreurs restent dans les
+dénominateurs. Détails par famille, taille et confusion conservés.
+
+**Conséquences et reprise :** les phases échouées, logs et checkpoints restent
+séparés ; aucun relancement sur un préfixe existant. Une réussite n'établit
+ni P02 au PSM produit, ni extraction publiée, confiance, Windows, CPU 16 Go ou
+DoD. Toute adoption demande sa qualification d'ingestion distincte et une
+identité versionnée. Le retour au modèle actuel ne nécessite aucune mutation
+pendant ce pilote puisqu'il reste inchangé.
+
+**Précisions du 5 octobre à 03:37 UTC, avant reprise :** les deux refus natifs
+ont exposé des erreurs d'interprétation des contrôles source-only, pas un
+résultat d'apprentissage. Les valeurs Fixed de fonte et les entiers retournés
+par Pillow doivent être distingués ; les coordonnées normales restent 400/100.
+Un message de casse manquante ne peut être admis qu'au `build-proto`, pour une
+paire ancienne prouvée absente de la baseline et à `other_case` propre,
+avec propriétés inchangées dans le proto. Aucun diagnostic inconnu, ajout
+d'alphabet ou défaut de lexique n'est toléré. Sources : [S09](SOURCES.md#r23ocr-s09--entrées-et-mesures-du-pilote-lstm).
+Une décroissance des compteurs ou un retour automatique à un ancien réseau
+« best » pendant le futur pilote empêche la qualification de sa sortie ;
+ce n'est pas une autre règle de sélection. Les traces restent conservées.
+
+**Précision du 5 octobre à 04:16 UTC, avant toute préparation des lignes :**
+le compteur `learning_iteration` doit être positif pour déclarer ce pilote
+d'apprentissage exécuté. Dans la source 5.4, il ne progresse que si
+`ET_DELTA > 0` ; `training_iteration` progresse aussi sur les lignes parfaites.
+Un arrêt normal avec zéro `learning_iteration` reste une trace valide, mais
+ne qualifie pas un apprentissage des signes. Aucun allongement automatique,
+reprise, changement du plafond ou des seuils OCR pour le faire passer.
+Cette condition d'exécution est fixée avant dataset et calcul ; ce n'est
+pas un réglage sur leur résultat.
