@@ -1,4 +1,5 @@
 import { defineConfig } from "@playwright/test";
+import { storageStatePath } from "./tests/e2e/storage-state.ts";
 const outputDir = process.env.RAG_E2E_OUTPUT_DIR ?? "test-results/default";
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -15,7 +16,7 @@ export default defineConfig({
     browserName: "chromium",
     viewport: { width: 1366, height: 768 },
     // Session ouverte par globalSetup (W011) ; les specs qui testent l'absence de session la vident explicitement.
-    storageState: "playwright/.auth/state.json",
+    storageState: storageStatePath(),
     headless: true,
     trace: "on",
     screenshot: "only-on-failure",

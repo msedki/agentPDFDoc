@@ -6,8 +6,9 @@
 import { request, type FullConfig } from "@playwright/test";
 import { mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { storageStatePath } from "./e2e/storage-state.ts";
 
-export const STORAGE_STATE = path.resolve(process.cwd(), "playwright/.auth/state.json");
+export const STORAGE_STATE = storageStatePath();
 
 export default async function globalSetup(config: FullConfig) {
   const baseURL = String(config.projects[0]?.use.baseURL ?? "http://127.0.0.1:8785");

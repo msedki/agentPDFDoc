@@ -1,8 +1,16 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `1ae9eaa` et entrées datées · **Mis à jour :** 2026-10-05 21:00 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `fb058aa` et entrées datées · **Mis à jour :** 2026-10-05 21:36 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Q05, pixels et capture réellement visible](2026-10-05.md#q05--oracle-de-peinture-et-recette-canonique-isolée) :
+oracles et session corrigés, 20+5 tests purs et typage/lint affectés conformes.
+Premier PASS technique refusé visuellement, capture blanche conservée.
+Second essai après cadrage QA : un PASS strict, capture300 relue, pixels,
+budgets et libération conformes ; avis indépendant favorable borné.
+Instance arrêtée, données conservées. Pas de rebuild, réindexation,
+apprentissage ou Done global déduit.
 
 [Correction du rendu et de la publication initiale](2026-10-05.md#r23-ocr-03--correction-du-rendu-et-de-la-publication-initiale) :
 analyse des reçus fermés acceptée ; correctif et raccord gelés, 27 et 14

@@ -1,6 +1,29 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `d981638` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 19:48 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `fb058aa` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 21:32 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## Q05 — état de session Playwright isolé
+
+Consultation du 5 octobre 2026 à 21:13 UTC : mainteneurs Playwright,
+[authentification](https://playwright.dev/docs/auth) et
+[BrowserContext.storageState](https://playwright.dev/docs/api/class-browsercontext#browser-context-storage-state).
+Ces pages courantes non versionnées décrivent un état sauvegardé dans un fichier
+et réutilisé par la configuration du navigateur ; ce fichier contient des
+informations d'authentification et ne doit pas être publié. Contrat confronté
+aux types installés de Playwright 1.63.0. Le résolveur local conserve le chemin
+historique par défaut et permet un fichier privé propre à chaque recette.
+La consultation ne prouve ni ouverture de session ni parcours réel ;
+[exécutions et limites](journal/2026-10-05.md#q05--oracle-de-peinture-et-recette-canonique-isolée).
+
+Complément du même jour à 21:32 UTC : CSSWG/W3C,
+[CSSOM View, Range.getBoundingClientRect](https://drafts.csswg.org/cssom-view/#dom-range-getboundingclientrect)
+et [Element.scrollBy](https://drafts.csswg.org/cssom-view/#dom-element-scrollby),
+Editor's Draft affiché du 12 juillet 2026. Les rectangles d'un Range portent
+sur le texte sélectionné, avec transformations, et sont des instantanés ;
+le cadrage mesure donc le seul repère puis remesure après le défilement.
+Ni visibilité d'encre ni absence d'occlusion ne découle de ces coordonnées :
+les pixels et la capture réelle restent des preuves distinctes. Accès DOM
+WHATWG refusé par l'outil ; aucune lecture réussie de cette page revendiquée.
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
 
