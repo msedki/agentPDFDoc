@@ -1,8 +1,20 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `88dd5ba` et entrées datées · **Mis à jour :** 2026-10-05 04:27 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `614ffdd` et entrées datées · **Mis à jour :** 2026-10-05 05:18 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+Résultat du 5 octobre, [relevé05:18 UTC](2026-10-05.md#premier-pilote-interrompu-au-plafond-de-préparation-relevé-0518-utc) :
+préparation arrêtée au plafond de900s, 792/2000 LSTMF ; échec, arrêt et
+conservation contre-vérifiés. Pas d'apprentissage ; diagnostic des latences.
+
+Exécution du 5 octobre, [relevé04:58 UTC](2026-10-05.md#pilote-natif-lancé-relevé-0458-utc) :
+39 contrôles purs fermés et revue finale favorable au protocole ; pilote
+natif lancé une seule fois, préparation en cours. Pas de résultat OCR acquis.
+
+Préparation du 5 octobre, [relevé04:48 UTC](2026-10-05.md#configuration-et-contrôles-purs-du-pilote-relevé-0448-utc) :
+configuration fermée, quinze tests purs ROOT et vingt-quatre du parent verts ;
+revue finale et preuves durables en cours. Aucun calcul du pilote exécuté.
 
 Exécutions du 5 octobre, [relevé 03:53 UTC](2026-10-05.md#fonte-et-proto-v2-réellement-conformes-relevé-0353-utc) :
 fonte et proto V2 conformes sur cibles neuves, rendu examiné, lexiques exacts ;
