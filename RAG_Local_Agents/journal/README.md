@@ -1,6 +1,6 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `68db1e3` et entrées datées · **Mis à jour :** 2026-10-05 17:22 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `c527e6c` et entrées datées · **Mis à jour :** 2026-10-05 17:32 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
@@ -13,7 +13,9 @@ config et revue du correctif non terminées,
 aucun lancement ou apprentissage. Préflight parent refusé sur la fenêtre
 TERM/identité ; source avec interruption différée distincte créée,
 11 témoins causaux avec doubles et lint/typecheck ciblés conformes,
-nouvelle revue indépendante en cours. Aucun natif admis.
+revue indépendante favorable au parent source-only. Deux défauts de
+fermeture des admissions à corriger dans le prototype, aucun natif admis.
+Documentation vérifiée publiée dans `c527e6c`, limites conservées.
 
 [Décomposition des appels de fermeture des journaux OCR](2026-10-05.md#r23-ocr-03--décomposition-de-la-fermeture-des-journaux) :
 38 nouveaux tests, lint/typecheck et revue préparatoire conformes ;
