@@ -1,14 +1,19 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `a230c07` et entrées datées · **Mis à jour :** 2026-10-05 12:32 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `af21fe8` et entrées datées · **Mis à jour :** 2026-10-05 12:59 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Pilote QA3 fermé au délai de préparation](2026-10-05.md#pilote-qa3-arrêté-au-délai-de-préparation-relevé-1246-utc) :
+900,18 s, ACTIVE_STAGE_DEADLINE, handle 59382 EXIT1. 778 LSTMF partiels
+présents, sans validation de contenu. Aucun apprentissage ou score OCR ;
+arrêt et conservation bornée relus, qualification refusée, pas de relance identique.
 
 [Correction isolée du lecteur procfs](2026-10-05.md#correction-bornée-du-lecteur-procfs-relevé-1208-utc) :
 23 témoins causaux purs PASS, nouvelle QA raccordée, 120 régressions PASS.
 Diagnostics préexistants du protocole intégral conservés ; deux avis
-indépendants GO_PILOT_PROTOCOL_ONLY. Un seul pilote QA3 lancé à 12:29 UTC,
-session 59382, en préparation ; aucun apprentissage ou résultat qualifié.
+indépendants GO_PILOT_PROTOCOL_ONLY. Pilote unique lancé à 12:29 UTC,
+depuis fermé au délai ; aucun apprentissage ou résultat qualifié.
 
 [Pilote neuf arrêté avant apprentissage](2026-10-05.md#pilote-neuf-interrompu-en-préparation-relevé-1119-utc) :
 734,17 s, `ProcessLookupError` en préparation, 545 LSTMF partiels conservés,
