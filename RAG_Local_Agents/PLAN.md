@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `1d73064` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 00:38 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `13c5a66` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 01:28 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -9,6 +9,22 @@
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R23-OCR-01, préflight du 5 octobre à 01:18 UTC :** l'extension LSTM
+est documentée, mais les outils ne sont pas construits. ICU/Leptonica sont
+présents ; le gate Pango de la configuration standard n'est pas satisfait.
+Une construction ciblée sans renderer est une hypothèse tirée du code,
+pas un build réussi. Aucun poids, corpus d'entraînement ou candidat adopté.
+[Préflight borné et prochaine action](journal/2026-10-05.md#r23-ocr-01--préflight-dextension-lstm-relevé-0118-utc).
+
+**R23-OCR-01, relevé du 5 octobre à 01:04 UTC :** la piste officielle
+`tessdata/fra` historique est écartée : les composants 1 et 21 ne couvrent
+ni `±` ni `·`. Inspection bornée sans poids, installation ou OCR ; revue
+finale favorable au constat et à son préflight, acceptée à 01:28 UTC.
+Une extension d'alphabet LSTM n'est qu'une piste
+de faisabilité, pas un modèle livré ou un entraînement lancé. Le sous-lot
+P03 reste qualifié et publié ; P02 et le gate DEV demeurent non validés.
+[Preuves et prochaine action](journal/2026-10-05.md#r23-ocr-01--piste-française-historique-écartée-relevé-0104-utc).
 
 **Publication du 5 octobre à 00:37 UTC :** correctif P03 et preuves publiés
 sur `origin/main` dans `d26a3a4`. Extraction, régression d'ingestion, typages
@@ -607,10 +623,12 @@ Travail prévu, dans l'ordre utile :
   preuves, puis mettre à jour les procédures et références stabilisées seulement
   après validation réelle. Distinguer Windows, Linux aarch64 et Linux x86-64.
 
-**Prochaine action de ce lot :** reproduire les défauts OCR de DA-P02/DA-P03
-dans un dossier neuf isolé, après le diagnostic des extractions conservées ;
-corriger et revalider sans réduire les seuils ni réécrire les faits attendus.
-La QA est arrêtée, les cinq captures publiées sont conservées. Après correction,
+**Prochaine action de ce lot :** le constat négatif P02 et son préflight
+étant relus, établir une procédure d'extension LSTM et statuer sur un pilote
+borné avant toute construction ou entraînement. Ne pas rejouer
+les essais de densité ou de mode sur ces alphabets incomplets. P03 est déjà
+qualifié et publié ; son extraction privée n'est pas encore republiée par API.
+La QA est arrêtée, les cinq captures publiées sont conservées. Après correction P02,
 terminer les publications, vérifier l'extraction/OCR et résoudre les 100 scopes
 et 90 unités attendues avant comparaison sur les mêmes questions et extractions.
 Les deux pilotes GPU sont terminés ; leurs mesures ne ferment pas l'admission.

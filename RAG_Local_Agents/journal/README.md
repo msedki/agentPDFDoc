@@ -1,8 +1,19 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `1d73064` et entrées datées · **Mis à jour :** 2026-10-05 00:35 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `13c5a66` et entrées datées · **Mis à jour :** 2026-10-05 01:28 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+Relecture finale du 5 octobre à 01:28 UTC : [avis indépendant accepté](2026-10-05.md#relecture-finale-du-constat-p02-relevé-0128-utc),
+pour le constat négatif, son préflight et le delta du skill ; P02/R23/DoD ouverts.
+
+Relevé du 5 octobre à 01:18 UTC : [préflight de l'extension LSTM](2026-10-05.md#r23-ocr-01--préflight-dextension-lstm-relevé-0118-utc),
+outils non construits, pistes et prérequis explicités. Aucun entraînement,
+OCR ou modèle adopté ; premier contrôle de brief rouge conservé puis corrigé.
+
+Relevé du 5 octobre à 01:04 UTC : [piste OCR française historique écartée](2026-10-05.md#r23-ocr-01--piste-française-historique-écartée-relevé-0104-utc),
+alphabets incomplets vérifiés sans installation ni OCR. P03 publié,
+P02/gate DEV ouverts ; extension d'alphabet seulement à l'étude.
 
 Validation du 5 octobre à 00:32 UTC : [sous-lot P03 qualifié](2026-10-05.md#validation-finale-ciblée-relevé-0032-utc),
 236 tests d'ingestion sans exclusion, lint et typages conformes ; revue finale

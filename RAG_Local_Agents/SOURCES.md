@@ -1,6 +1,62 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `1d73064` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 00:19 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `13c5a66` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 01:18 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R23OCR-S06 — alphabet français historique et mode OCR
+
+Étude ciblée du 5 octobre 2026, sans installation ni OCR. Hypothèse : le
+modèle français officiel du dépôt `tessdata`, distinct de fast/best, pourrait
+couvrir les deux signes scientifiques manquants par sa voie historique.
+Métadonnées consultées à 00:55:56–00:55:58 UTC, composants à
+00:58:17–00:58:19 ; ROOT relit les reçus et le lecteur, puis les sources
+primaires et la version locale. Le [README épinglé](https://raw.githubusercontent.com/tesseract-ocr/tessdata/ced78752cc61322fb554c280d13360b35b8684e4/README.md)
+déclare les voies historique et LSTM et la licence Apache-2.0 ; il ne prouve
+pas la reconnaissance des signes.
+
+| Source ou composant | Fait vérifié | Limite |
+|---|---|---|
+| [`tessdata/fra`](https://raw.githubusercontent.com/tesseract-ocr/tessdata/ced78752cc61322fb554c280d13360b35b8684e4/fra.traineddata), révision `ced78752cc61322fb554c280d13360b35b8684e4` | Taille annoncée 14 213 351 octets ; blob Git annoncé `250c7749ba301ce50c3317631c6a61b03b6410ce`. Composant 0 absent ; composant 1 : 143 entrées, 9 560 octets, plage 196–9755 ; composant 21 : 141 entrées, 8 105 octets, plage 14203943–14212047. `±` et `·` absents dans les deux alphabets, y compris leurs octets UTF-8 complets. | Quatre plages HTTP 206 exactes, 17 861 octets sur un plafond de 64 Kio ; aucun poids ni modèle complet. Le blob annoncé n'est pas rehaché. Cette seule piste française est écartée, pas tous les artefacts possibles. |
+| [Tesseract 5.4.0, `TessdataType` et disponibilité des composants](https://raw.githubusercontent.com/tesseract-ocr/tesseract/5.4.0/src/ccutil/tessdatamanager.h), [initialisation du mode](https://raw.githubusercontent.com/tesseract-ocr/tesseract/5.4.0/src/ccmain/tessedit.cpp) | Composant 1 : alphabet historique ; 21 : alphabet LSTM. Le mode par défaut choisit selon la présence de 17 et de 1+3, puis les configurations peuvent le modifier. Un OEM explicite est réappliqué après ces configurations. | Une aide CLI, un composant présent ou une confiance élevée ne prouve pas une reconnaissance fidèle. Une langue partiellement chargée ne qualifie pas `fra+eng`. |
+| [Docling 2.131.0, `_run_tesseract`](https://raw.githubusercontent.com/docling-project/docling/v2.131.0/docling/models/stages/ocr/tesseract_ocr_cli_model.py), fonction locale relue ; `services/ingestion/regional_grid.py:_run_literal_tsv` | Les deux chemins ne passent aucun `--oem`. Le binaire local expose réellement 0/1/2/3 via `--help-oem` (`64b9ad EXIT0`), sans OCR. | Changer de `tessdata` n'est donc pas nécessairement transparent pour le mode effectif. Ni essai historique, ni compatibilité Windows qualifiés. |
+
+[Reçus, empreintes et décision de poursuite](journal/2026-10-05.md#r23-ocr-01--piste-française-historique-écartée-relevé-0104-utc).
+L'inspection indépendante et le suivi restent distincts de la qualification
+native. Aucun fichier installé, PDF gelé, seuil ou configuration nominale
+n'est modifié par cette étude.
+
+## R23OCR-S07 — extension d'alphabet LSTM, faisabilité à établir
+
+Consultation ROOT le 5 octobre 2026 à 01:02 UTC de la
+[documentation de formation Tesseract 5](https://tesseract-ocr.github.io/tessdoc/tess5/TrainingTesseract-5.html),
+sections « Understanding the Various Files Used During Training » et
+« LSTMTraining Command Line », et du [dépôt officiel tesstrain](https://github.com/tesseract-ocr/tesstrain).
+Fait documentaire : la continuation peut modifier l'alphabet d'un modèle
+non converti en entier ; `--old_traineddata` fournit alors l'ancien
+alphabet/recoder. Les outils, données séparées et limites de calcul doivent
+être établis avant essai. Les scripts historiques `tesstrain.sh` ne sont
+plus la procédure recommandée ; aucun support GPU n'est annoncé pour cet
+entraînement.
+
+Préflight local clos à 01:11:51 UTC, relu ROOT à 01:18 : six outils absents
+du seul préfixe inspecté, `BUILD_TRAINING_TOOLS=OFF` dans le cache nominal.
+ICU 66.1 et Leptonica 1.87 disposent des en-têtes et liens requis ; les
+modules pkg-config Pango/cairo/fontconfig interrogés ne sont pas trouvés.
+Ces observations ne sont ni une configuration CMake réussie, ni une
+compilation. [Reçu, empreintes et limites](journal/2026-10-05.md#r23-ocr-01--préflight-dextension-lstm-relevé-0118-utc).
+
+| Source officielle relue ROOT le 5 octobre | Apport | Limite |
+|---|---|---|
+| [CMake des outils, Tesseract 5.4 épinglé](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/CMakeLists.txt) | Les cibles LSTM nécessitent ICU ; avec PkgConfig disponible, le bloc Pango du renderer est requis dès la configuration. Sélectionner seulement les cibles LSTM au build n'évite pas ce bloc. | L'absence de ces modules concerne la recherche effectuée, pas toutes les bibliothèques présentes sur le poste. |
+| [CMake 3.16, désactivation d'un paquet optionnel](https://cmake.org/cmake/help/v3.16/variable/CMAKE_DISABLE_FIND_PACKAGE_PackageName.html) | `CMAKE_DISABLE_FIND_PACKAGE_PkgConfig=TRUE` sur un cache neuf désactive sa découverte non REQUIRED. Le code 5.4 devrait alors prendre FindICU et omettre Pango/text2image. | Déduction des sources seulement ; aucune configuration ni cible compilée. Le cache nominal ne doit pas être réutilisé ou modifié. |
+| [README officiel tesstrain](https://raw.githubusercontent.com/tesseract-ocr/tesstrain/main/README.md) | Lignes TIFF/PNG et transcriptions UTF-8 séparées entre apprentissage et évaluation ; cibles explicites pour proto-modèle, entraînement et export. | Branche mobile consultée pour l'étude, pas un pin adopté. Les cibles peuvent télécharger des données ; aucune exécutée ici. |
+
+**Statut : faisabilité seulement ; construction, entraînement et OCR NOT_RUN.**
+Aucun modèle float téléchargé, outil construit ou entraînement lancé. Une
+adoption nécessiterait une décision distincte, un skill adapté, des données
+et licences d'entraînement séparées des fixtures gelées et une
+requalification de l'extraction. Le coût et la convergence sont inconnus.
+Cette étude ne donne ni poids corrigés ni résultat de qualité ; les modèles
+nominaux restent ceux du verrou existant.
 
 ## R23OCR-S05 — couverture des alphabets alternatifs
 

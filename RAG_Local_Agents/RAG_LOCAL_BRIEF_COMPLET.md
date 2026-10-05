@@ -391,7 +391,7 @@ Chaque ligne donne le fichier, son origine telle qu'elle se constate dans le dé
 | rag-pdf-provenance | pack | [`skills/rag-pdf-provenance/SKILL.md`](skills/rag-pdf-provenance/SKILL.md) | Pack V2.1 : `metadata.origin: project-authored`, version 2.1 ; ligne `compatibility` révisée le 02/10/2026 (W024, W025) | `7f0204cd95f63494f15706fbb94f06a0ddb2340926aa3da2a1b92ee24a691ddf` | PASS `skill_format` | NOT_RUN |
 | rag-retrieval-evaluation | pack | [`skills/rag-retrieval-evaluation/SKILL.md`](skills/rag-retrieval-evaluation/SKILL.md) | Pack V2.1 : `metadata.origin: project-authored`, version 2.1 ; ligne `compatibility` révisée le 02/10/2026 (W024, W025) | `952161de2f5f62855859623e217eed44817e01a86d6b699033f94d22ea2f4aa3` | PASS `skill_format` | NOT_RUN |
 | hybrid-rag-api | projet | [`.agents/skills/hybrid-rag-api/SKILL.md`](../.agents/skills/hybrid-rag-api/SKILL.md) | Rédigé pour ce dépôt (renvoie à `RAG_Local_Agents/`) ; aucun champ d'origine ; création non tracée dans `PLAN.md` ni le journal ; options d'Ollama selon le mode (W025) révisées au lot J11.9 (02/10/2026) | `6209a83fb48310f4823f6b6d17687530a1f3ee695e38f373d5f3dea435123cac` | PASS `agents_skill_format` | NOT_RUN |
-| pdf-ingestion-windows | projet | [`.agents/skills/pdf-ingestion-windows/SKILL.md`](../.agents/skills/pdf-ingestion-windows/SKILL.md) | Projet ; W029 conservé. Procédure distincte de petites lignes/rangées ajoutée avant R23-OCR-01, sources R23OCR-S01–S04 ; ×2 rejeté en fidélité, rangée native vérifiée sur P03 | `7dd5e118d2d5b70a9944f95ec3017c53b3a129d992400f2be4caf793dd6a4af0` | PASS quick_validate (05/10, 00:20 UTC), delta rangée inclus | Extraction complète P03 Linux, 236 tests d'ingestion PASS sans exclusion et revue finale favorable ; [preuves](journal/2026-10-05.md#validation-finale-ciblée-relevé-0032-utc). Windows natif et P02 non qualifiés |
+| pdf-ingestion-windows | projet | [`.agents/skills/pdf-ingestion-windows/SKILL.md`](../.agents/skills/pdf-ingestion-windows/SKILL.md) | Projet ; W029 et reprise de rangée conservés. Contrôle préalable d'alphabet et modes OEM ajouté selon R23OCR-S04–S06 ; aucun entraînement autorisé par ce skill | `a8297af3dd0580350bcd30f1dea221e9490afb72e8a43ccc9140ad458ff21206` | PASS quick_validate (05/10, 01:08 UTC), delta alphabet/OEM inclus | P03 : extraction complète Linux, 236 tests et revue favorables, non rejoués. Constat négatif et delta alphabet/OEM relus indépendamment, avis favorable accepté ROOT à 01:28 UTC ; [portée et preuves](journal/2026-10-05.md#relecture-finale-du-constat-p02-relevé-0128-utc). Windows natif et P02 non qualifiés |
 | pdf-workspace-web | projet | [`.agents/skills/pdf-workspace-web/SKILL.md`](../.agents/skills/pdf-workspace-web/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot D de `PLAN.md` ; textes d'interface et référence de forme ajoutés par les commits `f8fbb1c` et `d4924d9` | `a96ca71a8b7a622ed1276ef95147dc422c43f54f9a64b3e777d5e3a4cf4e6b3a` | PASS `agents_skill_format` | NOT_RUN |
 | rag-qualification-fixtures | projet | [`.agents/skills/rag-qualification-fixtures/SKILL.md`](../.agents/skills/rag-qualification-fixtures/SKILL.md) | Rédigé pour ce dépôt (renvoie à `RAG_Local_Agents/`) ; création non tracée dans `PLAN.md` ni le journal | `04dd992863315562c3910ab05fac6e353843fc70e11ce199b19df759fb8f2e7f` | PASS `agents_skill_format` | NOT_RUN |
 | windows-rag-runtime | projet | [`.agents/skills/windows-rag-runtime/SKILL.md`](../.agents/skills/windows-rag-runtime/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot E de `PLAN.md` ; lecture consignée dans `reports/skills-usage-2026-09-30.json` ; section « Accélération GPU » du lot J11.9 (02/10/2026) rédigée d'après le code du commit `4d8ba68`, sans essai sous Windows, puis corrigée le 02/10/2026 après une relecture contradictoire non versionnée | `538f75c2cbee38453f192d4db8cd311d1787fdfd13316bc81b677df65851acab` | PASS `agents_skill_format` | NOT_RUN |
@@ -1630,7 +1630,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `1d73064` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 00:38 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `13c5a66` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 01:28 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1639,6 +1639,22 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R23-OCR-01, préflight du 5 octobre à 01:18 UTC :** l'extension LSTM
+est documentée, mais les outils ne sont pas construits. ICU/Leptonica sont
+présents ; le gate Pango de la configuration standard n'est pas satisfait.
+Une construction ciblée sans renderer est une hypothèse tirée du code,
+pas un build réussi. Aucun poids, corpus d'entraînement ou candidat adopté.
+[Préflight borné et prochaine action](journal/2026-10-05.md#r23-ocr-01--préflight-dextension-lstm-relevé-0118-utc).
+
+**R23-OCR-01, relevé du 5 octobre à 01:04 UTC :** la piste officielle
+`tessdata/fra` historique est écartée : les composants 1 et 21 ne couvrent
+ni `±` ni `·`. Inspection bornée sans poids, installation ou OCR ; revue
+finale favorable au constat et à son préflight, acceptée à 01:28 UTC.
+Une extension d'alphabet LSTM n'est qu'une piste
+de faisabilité, pas un modèle livré ou un entraînement lancé. Le sous-lot
+P03 reste qualifié et publié ; P02 et le gate DEV demeurent non validés.
+[Preuves et prochaine action](journal/2026-10-05.md#r23-ocr-01--piste-française-historique-écartée-relevé-0104-utc).
 
 **Publication du 5 octobre à 00:37 UTC :** correctif P03 et preuves publiés
 sur `origin/main` dans `d26a3a4`. Extraction, régression d'ingestion, typages
@@ -2237,10 +2253,12 @@ Travail prévu, dans l'ordre utile :
   preuves, puis mettre à jour les procédures et références stabilisées seulement
   après validation réelle. Distinguer Windows, Linux aarch64 et Linux x86-64.
 
-**Prochaine action de ce lot :** reproduire les défauts OCR de DA-P02/DA-P03
-dans un dossier neuf isolé, après le diagnostic des extractions conservées ;
-corriger et revalider sans réduire les seuils ni réécrire les faits attendus.
-La QA est arrêtée, les cinq captures publiées sont conservées. Après correction,
+**Prochaine action de ce lot :** le constat négatif P02 et son préflight
+étant relus, établir une procédure d'extension LSTM et statuer sur un pilote
+borné avant toute construction ou entraînement. Ne pas rejouer
+les essais de densité ou de mode sur ces alphabets incomplets. P03 est déjà
+qualifié et publié ; son extraction privée n'est pas encore republiée par API.
+La QA est arrêtée, les cinq captures publiées sont conservées. Après correction P02,
 terminer les publications, vérifier l'extraction/OCR et résoudre les 100 scopes
 et 90 unités attendues avant comparaison sur les mêmes questions et extractions.
 Les deux pilotes GPU sont terminés ; leurs mesures ne ferment pas l'admission.
@@ -3496,7 +3514,63 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `1d73064` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 00:19 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `13c5a66` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 01:18 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R23OCR-S06 — alphabet français historique et mode OCR
+
+Étude ciblée du 5 octobre 2026, sans installation ni OCR. Hypothèse : le
+modèle français officiel du dépôt `tessdata`, distinct de fast/best, pourrait
+couvrir les deux signes scientifiques manquants par sa voie historique.
+Métadonnées consultées à 00:55:56–00:55:58 UTC, composants à
+00:58:17–00:58:19 ; ROOT relit les reçus et le lecteur, puis les sources
+primaires et la version locale. Le [README épinglé](https://raw.githubusercontent.com/tesseract-ocr/tessdata/ced78752cc61322fb554c280d13360b35b8684e4/README.md)
+déclare les voies historique et LSTM et la licence Apache-2.0 ; il ne prouve
+pas la reconnaissance des signes.
+
+| Source ou composant | Fait vérifié | Limite |
+|---|---|---|
+| [`tessdata/fra`](https://raw.githubusercontent.com/tesseract-ocr/tessdata/ced78752cc61322fb554c280d13360b35b8684e4/fra.traineddata), révision `ced78752cc61322fb554c280d13360b35b8684e4` | Taille annoncée 14 213 351 octets ; blob Git annoncé `250c7749ba301ce50c3317631c6a61b03b6410ce`. Composant 0 absent ; composant 1 : 143 entrées, 9 560 octets, plage 196–9755 ; composant 21 : 141 entrées, 8 105 octets, plage 14203943–14212047. `±` et `·` absents dans les deux alphabets, y compris leurs octets UTF-8 complets. | Quatre plages HTTP 206 exactes, 17 861 octets sur un plafond de 64 Kio ; aucun poids ni modèle complet. Le blob annoncé n'est pas rehaché. Cette seule piste française est écartée, pas tous les artefacts possibles. |
+| [Tesseract 5.4.0, `TessdataType` et disponibilité des composants](https://raw.githubusercontent.com/tesseract-ocr/tesseract/5.4.0/src/ccutil/tessdatamanager.h), [initialisation du mode](https://raw.githubusercontent.com/tesseract-ocr/tesseract/5.4.0/src/ccmain/tessedit.cpp) | Composant 1 : alphabet historique ; 21 : alphabet LSTM. Le mode par défaut choisit selon la présence de 17 et de 1+3, puis les configurations peuvent le modifier. Un OEM explicite est réappliqué après ces configurations. | Une aide CLI, un composant présent ou une confiance élevée ne prouve pas une reconnaissance fidèle. Une langue partiellement chargée ne qualifie pas `fra+eng`. |
+| [Docling 2.131.0, `_run_tesseract`](https://raw.githubusercontent.com/docling-project/docling/v2.131.0/docling/models/stages/ocr/tesseract_ocr_cli_model.py), fonction locale relue ; `services/ingestion/regional_grid.py:_run_literal_tsv` | Les deux chemins ne passent aucun `--oem`. Le binaire local expose réellement 0/1/2/3 via `--help-oem` (`64b9ad EXIT0`), sans OCR. | Changer de `tessdata` n'est donc pas nécessairement transparent pour le mode effectif. Ni essai historique, ni compatibilité Windows qualifiés. |
+
+[Reçus, empreintes et décision de poursuite](journal/2026-10-05.md#r23-ocr-01--piste-française-historique-écartée-relevé-0104-utc).
+L'inspection indépendante et le suivi restent distincts de la qualification
+native. Aucun fichier installé, PDF gelé, seuil ou configuration nominale
+n'est modifié par cette étude.
+
+## R23OCR-S07 — extension d'alphabet LSTM, faisabilité à établir
+
+Consultation ROOT le 5 octobre 2026 à 01:02 UTC de la
+[documentation de formation Tesseract 5](https://tesseract-ocr.github.io/tessdoc/tess5/TrainingTesseract-5.html),
+sections « Understanding the Various Files Used During Training » et
+« LSTMTraining Command Line », et du [dépôt officiel tesstrain](https://github.com/tesseract-ocr/tesstrain).
+Fait documentaire : la continuation peut modifier l'alphabet d'un modèle
+non converti en entier ; `--old_traineddata` fournit alors l'ancien
+alphabet/recoder. Les outils, données séparées et limites de calcul doivent
+être établis avant essai. Les scripts historiques `tesstrain.sh` ne sont
+plus la procédure recommandée ; aucun support GPU n'est annoncé pour cet
+entraînement.
+
+Préflight local clos à 01:11:51 UTC, relu ROOT à 01:18 : six outils absents
+du seul préfixe inspecté, `BUILD_TRAINING_TOOLS=OFF` dans le cache nominal.
+ICU 66.1 et Leptonica 1.87 disposent des en-têtes et liens requis ; les
+modules pkg-config Pango/cairo/fontconfig interrogés ne sont pas trouvés.
+Ces observations ne sont ni une configuration CMake réussie, ni une
+compilation. [Reçu, empreintes et limites](journal/2026-10-05.md#r23-ocr-01--préflight-dextension-lstm-relevé-0118-utc).
+
+| Source officielle relue ROOT le 5 octobre | Apport | Limite |
+|---|---|---|
+| [CMake des outils, Tesseract 5.4 épinglé](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/CMakeLists.txt) | Les cibles LSTM nécessitent ICU ; avec PkgConfig disponible, le bloc Pango du renderer est requis dès la configuration. Sélectionner seulement les cibles LSTM au build n'évite pas ce bloc. | L'absence de ces modules concerne la recherche effectuée, pas toutes les bibliothèques présentes sur le poste. |
+| [CMake 3.16, désactivation d'un paquet optionnel](https://cmake.org/cmake/help/v3.16/variable/CMAKE_DISABLE_FIND_PACKAGE_PackageName.html) | `CMAKE_DISABLE_FIND_PACKAGE_PkgConfig=TRUE` sur un cache neuf désactive sa découverte non REQUIRED. Le code 5.4 devrait alors prendre FindICU et omettre Pango/text2image. | Déduction des sources seulement ; aucune configuration ni cible compilée. Le cache nominal ne doit pas être réutilisé ou modifié. |
+| [README officiel tesstrain](https://raw.githubusercontent.com/tesseract-ocr/tesstrain/main/README.md) | Lignes TIFF/PNG et transcriptions UTF-8 séparées entre apprentissage et évaluation ; cibles explicites pour proto-modèle, entraînement et export. | Branche mobile consultée pour l'étude, pas un pin adopté. Les cibles peuvent télécharger des données ; aucune exécutée ici. |
+
+**Statut : faisabilité seulement ; construction, entraînement et OCR NOT_RUN.**
+Aucun modèle float téléchargé, outil construit ou entraînement lancé. Une
+adoption nécessiterait une décision distincte, un skill adapté, des données
+et licences d'entraînement séparées des fixtures gelées et une
+requalification de l'extraction. Le coût et la convergence sont inconnus.
+Cette étude ne donne ni poids corrigés ni résultat de qualité ; les modèles
+nominaux restent ceux du verrou existant.
 
 ## R23OCR-S05 — couverture des alphabets alternatifs
 
