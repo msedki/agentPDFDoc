@@ -1631,7 +1631,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `e7355e1` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 11:01 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `1bf76ff` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 11:39 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -2242,7 +2242,7 @@ de bascule de profil, de redémarrage ou d'exécution du lot futur.
 | R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Sous-lot publié sur `origin/main` (`a17819a`). Pilotes GPU exécutés et relus, sans réduction de seuil ni qualification D07. Restent admission réellement calibrée, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes non qualifiées. [Parcours](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [pilotes](journal/2026-10-04.md#r23--pilotes-gpu-et-préflight-dev-relevé-2258-utc) |
 | R23-OCR-01 | Ingestion / qualité — intégrateur avec diagnostic et validation non-auteurs : fiabiliser l'extraction des deux scans DEV sans modifier les sources gelées | R23, contrats d'ingestion et skill `pdf-ingestion-windows` ; QA propriétaire arrêtée, extractions partielles conservées | Reproduction ciblée ; correction prouvée avec même moteur et seuils ; publications complètes des sept documents, résolution des 100 scopes/annotations et 90 unités sans ambiguïté avant génération ; contrôles et relecture des cas touchés | IN_PROGRESS — sous-lot P03 qualifié et publié (`d26a3a4`) : extraction complète native PASS, 236 unités sans exclusion, Ruff/mypy et documents verts, revue finale favorable. P02 : signes non couverts par les alphabets inspectés, aucun artefact adopté. Gate DEV toujours FAILED ; sept publications et scores non acquis. [Livraison P03](journal/2026-10-05.md#publication-du-sous-lot-p03-relevé-0037-utc) ; [essais et limite](journal/2026-10-04.md#r23-ocr-01--essais-bornés-et-alphabets-relevé-2356-utc) ; [rouge conservé](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc) |
 | R23-OCR-02 | Outillage / ingestion — construction séparée des outils d'extension Tesseract, intégrateur avec validateur non-auteur | R23-OCR-01, W034, skill `tesseract-lstm-extension` ; archive verrouillée, ICU/Leptonica ; protocole figé et relu | Configuration puis compilation réelles en QA neuve sous verrou et plafonds ; cibles, dépendances, versions et identités contrôlées, ressources et arrêts conservés ; pas de changement nominal ni apprentissage | VALIDATED_BOUNDED — outils Linux aarch64 seuls : construction réelle `PASS_TOOLS_ONLY` en 397,59 s, sept versions/dépendances et 707 mesures conformes ; revue finale non-auteur favorable, acceptée ROOT à 02:21 UTC. 625 identités observées absentes ; source/entrées/archive inchangées. Entraînement, adoption, P02 et autres plateformes non validés. [Décision](DECISIONS.md#w034-outils-séparés-avant-toute-extension-lstm) ; [preuves et avis final](journal/2026-10-05.md#construction-terminée-et-lecture-des-preuves-relevé-0212-utc) |
-| R23-OCR-03 | Apprentissage OCR isolé — entrées officielles, proto-alphabet, lignes générales inédites, pilote borné et revue non-auteur | R23-OCR-02, W035, skill LSTM, entrées exactes et supervision qualifiée ; aucun DEV/final pour apprendre | Identités réelles et séparation des groupes ; proto/lexiques conservés ; apprentissage surveillé ; sortie unique et métriques préalables respectées ; revue indépendante ; aucun résultat produit déduit | IN_PROGRESS — première préparation FAILED à 900 s, 792/2000 LSTMF, aucun partiel repris. Diagnostic I/O fermé, sans gain au regroupement ; benchmark scanner borné aux métadonnées figées. Pilote neuf : configuration et sources figées, 120 tests purs PASS, lint/typage conformes ; revue finale `GO_PILOT_PROTOCOL_ONLY`, contrecheck `fdad59 EXIT0`. ROOT lance une seule exécution native, session 15409 ; premier relevé à 11:01:07 UTC le 5 octobre, préparation réellement observée. Apprentissage/export/évaluation encore NOT_RUN à ce relevé ; mêmes budgets W035, aucune adoption ni qualification produit. [Portée et données](DECISIONS.md#portée-données-et-sens-de-lapprentissage--précision-du-5-octobre-1050-utc) ; [ancien échec](journal/2026-10-05.md#premier-pilote-interrompu-au-plafond-de-préparation-relevé-0518-utc) ; [scanner](journal/2026-10-05.md#benchmark-scanner-v2-fermé-relevé-0959-utc) ; [tests communs](journal/2026-10-05.md#pilote-neuf--configuration-et-contrôles-communs-relevé-1050-utc) ; [lancement](journal/2026-10-05.md#lancement-natif-du-pilote-neuf-relevé-1101-utc) |
+| R23-OCR-03 | Apprentissage OCR isolé — entrées officielles, proto-alphabet, lignes générales inédites, pilote borné et revue non-auteur | R23-OCR-02, W035, skill LSTM, entrées exactes et supervision qualifiée ; aucun DEV/final pour apprendre | Identités réelles et séparation des groupes ; proto/lexiques conservés ; apprentissage surveillé ; sortie unique et métriques préalables respectées ; revue indépendante ; aucun résultat produit déduit | IN_PROGRESS — première préparation FAILED à 900 s, 792/2000 LSTMF, aucun partiel repris. Diagnostic I/O fermé, sans gain au regroupement ; benchmark scanner borné aux métadonnées figées. Pilote neuf : sources/config figées, 120 tests purs PASS, lint/typage et revue `GO_PILOT_PROTOCOL_ONLY` conformes. Exécution réelle session 15409 FAILED à 11:13:21 UTC après 734,17 s : primaire `ProcessLookupError`, 545 LSTMF partiels. Revue terminale non-auteur accepte l'arrêt/conservation vérifiés et refuse la qualification du pilote, `0e6bde`/`f0bf50 EXIT0` ; pins exacts, 133 identités observées et parent absents au contrôle frais. Apprentissage/export/évaluation NOT_RUN ; budgets W035 inchangés, aucune adoption. Diagnostic du lecteur procfs distinct d'une cause historique établie, correction non réalisée. [Portée et données](DECISIONS.md#portée-données-et-sens-de-lapprentissage--précision-du-5-octobre-1050-utc) ; [tests communs](journal/2026-10-05.md#pilote-neuf--configuration-et-contrôles-communs-relevé-1050-utc) ; [rouge neuf et reprise](journal/2026-10-05.md#pilote-neuf-interrompu-en-préparation-relevé-1119-utc) ; [contrat procfs](SOURCES.md#r23ocr-s10--disparition-dun-processus-pendant-la-lecture-procfs) |
 
 Travail prévu, dans l'ordre utile :
 
@@ -2269,10 +2269,10 @@ Travail prévu, dans l'ordre utile :
   preuves, puis mettre à jour les procédures et références stabilisées seulement
   après validation réelle. Distinguer Windows, Linux aarch64 et Linux x86-64.
 
-**Prochaine action de ce lot :** surveiller le seul pilote natif neuf et ses
-ressources, lire son état terminal puis faire vérifier indépendamment les
-preuves et métriques. La préparation complète dans les 900 secondes reste
-à démontrer avec les écrivains réels ; les tests purs ne la valident pas.
+**Prochaine action de ce lot :** reproduire le scénario du lecteur procfs et corriger
+ce cas de supervision sans tolérance globale d'erreur ni perte de contrôle
+des identités. La préparation complète dans les 900 secondes reste à
+démontrer avec les écrivains réels ; les tests purs ne la valident pas.
 Les entrées, fonte, proto, données et budgets restent inchangés ; ancien dataset
 partiel exclu. Aucun redémarrage, hausse de budget ou adoption automatique
 en cas d'échec. Ne pas rejouer
@@ -3779,7 +3779,7 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `e7355e1` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 10:50 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `1bf76ff` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 11:19 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
 
@@ -3885,6 +3885,29 @@ décrit `VmHWM` et `VmRSS` dans `status` et précise leur caractère asynchrone
 et approximatif sur SMP. La V2 garde le pic historique en information et
 contrôle le même plafond sur les valeurs de l'image courante ; ni pic
 continu exact ni isolation matérielle mémoire ne sont revendiqués.
+
+## R23OCR-S10 — disparition d'un processus pendant la lecture procfs
+
+Consultation ROOT du 5 octobre, après l'échec du pilote neuf à 11:13:21 UTC,
+avant tout changement du lecteur. Skills `official-source-review` et
+`agent-introspection-debugging` ; aucune relance ou mutation du protocole
+gelé par cette recherche. Hôte observé : `5.10.120-tegra` (`db8a62`).
+
+| Source officielle et version | Apport | Limite d'application |
+|---|---|---|
+| Mainteneurs Linux, [documentation 5.10 de `/proc`, §1.1](https://docs.kernel.org/5.10/filesystems/proc.html#process-specific-subdirectories) | Un descripteur ouvert sur un processus ensuite disparu ne vise pas le nouveau processus qui reprendrait son PID ; ses opérations peuvent échouer avec `ESRCH`. La lecture du statut n'est pas une réservation de l'identité. | Famille de noyau applicable à l'hôte ; ne vérifie pas toutes les modifications NVIDIA. La source ne localise pas l'exception passée ni le PID concerné. |
+| Python Software Foundation, [exceptions système Python 3.12](https://docs.python.org/3.12/library/exceptions.html#ProcessLookupError), `FileNotFoundError` et `ProcessLookupError` | `ENOENT` correspond au fichier absent ; `ESRCH` au processus absent et à `ProcessLookupError`. Ce sont deux sous-classes distinctes de `OSError`. | Page courante titrée 3.12.15, dernière mise à jour indiquée 01/10/2026 ; interpréteur projet 3.12.14. Contrat de la famille 3.12, pas preuve d'une recette locale. |
+
+Code local relu (`0aabce`) : `process_stat` du protocole épinglé
+`7c830396…0132`, lignes 203–211, intercepte seulement `FileNotFoundError`.
+`owned_cohort`, lignes 214–225, utilise ce lecteur pour les entrées de
+`/proc`, avant de retenir la session possédée. Cela identifie un scénario
+de course testable ; l'origine exacte du `ProcessLookupError` historique
+reste inconnue faute de traceback. Une correction future doit borner la
+gestion d'absence au lecteur proc, conserver le refus sur perte de leader,
+naissance différente, PGID/SID incohérents, permissions, données invalides
+et erreurs non reconnues. Aucun arrêt sur un PID réutilisé ni tolérance
+globale de `OSError` n'est autorisé par ce constat.
 
 ## R23OCR-S08 — procédure d'extension et sources d'outillage
 

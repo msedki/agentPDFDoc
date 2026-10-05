@@ -1,8 +1,15 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `e7355e1` et entrées datées · **Mis à jour :** 2026-10-05 11:10 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `1bf76ff` et entrées datées · **Mis à jour :** 2026-10-05 11:39 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Pilote neuf arrêté avant apprentissage](2026-10-05.md#pilote-neuf-interrompu-en-préparation-relevé-1119-utc) :
+734,17 s, `ProcessLookupError` en préparation, 545 LSTMF partiels conservés,
+aucune relance. Diagnostic et revue terminale séparés ; aucune cause
+historique exacte ou qualité OCR déduite.
+Revue terminale non-auteur : qualification refusée, arrêt et conservation
+vérifiés ; correction du lecteur procfs proposée, pas réalisée.
 
 [Documentation des choix OCR et contrôles](2026-10-05.md#contrôles-de-cette-documentation-relevé-1105-utc) :
 62 tests PASS, liens/pack/brief/schémas conformes, avis final indépendant

@@ -1,6 +1,6 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `e7355e1` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 10:50 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `1bf76ff` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 11:19 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
 
@@ -106,6 +106,29 @@ décrit `VmHWM` et `VmRSS` dans `status` et précise leur caractère asynchrone
 et approximatif sur SMP. La V2 garde le pic historique en information et
 contrôle le même plafond sur les valeurs de l'image courante ; ni pic
 continu exact ni isolation matérielle mémoire ne sont revendiqués.
+
+## R23OCR-S10 — disparition d'un processus pendant la lecture procfs
+
+Consultation ROOT du 5 octobre, après l'échec du pilote neuf à 11:13:21 UTC,
+avant tout changement du lecteur. Skills `official-source-review` et
+`agent-introspection-debugging` ; aucune relance ou mutation du protocole
+gelé par cette recherche. Hôte observé : `5.10.120-tegra` (`db8a62`).
+
+| Source officielle et version | Apport | Limite d'application |
+|---|---|---|
+| Mainteneurs Linux, [documentation 5.10 de `/proc`, §1.1](https://docs.kernel.org/5.10/filesystems/proc.html#process-specific-subdirectories) | Un descripteur ouvert sur un processus ensuite disparu ne vise pas le nouveau processus qui reprendrait son PID ; ses opérations peuvent échouer avec `ESRCH`. La lecture du statut n'est pas une réservation de l'identité. | Famille de noyau applicable à l'hôte ; ne vérifie pas toutes les modifications NVIDIA. La source ne localise pas l'exception passée ni le PID concerné. |
+| Python Software Foundation, [exceptions système Python 3.12](https://docs.python.org/3.12/library/exceptions.html#ProcessLookupError), `FileNotFoundError` et `ProcessLookupError` | `ENOENT` correspond au fichier absent ; `ESRCH` au processus absent et à `ProcessLookupError`. Ce sont deux sous-classes distinctes de `OSError`. | Page courante titrée 3.12.15, dernière mise à jour indiquée 01/10/2026 ; interpréteur projet 3.12.14. Contrat de la famille 3.12, pas preuve d'une recette locale. |
+
+Code local relu (`0aabce`) : `process_stat` du protocole épinglé
+`7c830396…0132`, lignes 203–211, intercepte seulement `FileNotFoundError`.
+`owned_cohort`, lignes 214–225, utilise ce lecteur pour les entrées de
+`/proc`, avant de retenir la session possédée. Cela identifie un scénario
+de course testable ; l'origine exacte du `ProcessLookupError` historique
+reste inconnue faute de traceback. Une correction future doit borner la
+gestion d'absence au lecteur proc, conserver le refus sur perte de leader,
+naissance différente, PGID/SID incohérents, permissions, données invalides
+et erreurs non reconnues. Aucun arrêt sur un PID réutilisé ni tolérance
+globale de `OSError` n'est autorisé par ce constat.
 
 ## R23OCR-S08 — procédure d'extension et sources d'outillage
 
