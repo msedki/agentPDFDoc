@@ -1631,7 +1631,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `5d297b5` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 20:18 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `1ae9eaa` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 21:00 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1640,6 +1640,47 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**Priorité d'exécution actualisée le 5 octobre à 21:00 UTC :** demande
+utilisateur de procéder par étapes et de n'exécuter que le nécessaire,
+sans exhaustivité inutile. Réutiliser les preuves encore applicables,
+traiter les blocages concrets de l'usage local et leurs non-régressions.
+Ne pas ouvrir une campagne large ou un apprentissage sans établir son
+utilité pour le résultat demandé. Le pilote L n'est pas lancé : vérifier
+d'abord cette nécessité, puis reprendre seulement le lot justifié.
+Les critères DoD et les résultats historiques restent inchangés ; une
+qualification reportée n'est pas déclarée acquise. Cette priorité remplace
+le lancement immédiat proposé à 20:54, pas les preuves de fidélité.
+
+**Complément du 5 octobre à 20:54 UTC :** avis final non-auteur fermé,
+lu et accepté ROOT, `GO_RENDER_EQUIVALENCE_FIDELITY_ONLY`. R23-OCR-03-RD :
+sources, tests et fidélité de l'échantillon natif validés dans leur portée.
+Les dix paires réelles/cinq familles sont corroborées indépendamment,
+ainsi que quarante fichiers, pins et fermeture après publication.
+Prochaine action : préflight frais et admission distincte du pilote complet,
+dans sa cible neuve, sous W035 inchangé. Ni préparation complète en 900 s,
+apprentissage, qualité OCR, gain global ou Done acquis.
+[Avis final et reprise](journal/2026-10-05.md#r23-ocr-03--correction-du-rendu-et-de-la-publication-initiale).
+
+**Complément du 5 octobre à 20:48 UTC :** témoin de fidélité exécuté une
+fois après avis de méthode accepté et préflight frais. Parent et worker
+EXIT0, dix paires/cinq familles, vingt rendus et quarante fichiers PNG/GT
+réels identiques ; neuf pins avant/après/actuels conformes, deux threads
+morts, ressources et contrôle après publication conformes. Validation finale
+non-auteur en cours ; aucun gain extrapolé, préparation complète,
+apprentissage ou Done déduit. Prochaine action : fermer cette validation,
+puis admission distincte du pilote complet si le résultat est confirmé.
+[Exécution, preuves et limites](journal/2026-10-05.md#r23-ocr-03--correction-du-rendu-et-de-la-publication-initiale).
+
+**Complément du 5 octobre à 20:43 UTC :** témoin de fidélité du rendu
+fermé côté auteurs : 28 tests purs worker et 14 tests purs parent/config
+PASS, lint et typage ciblés conformes. Sources, configuration et reçus
+gelés ; rouge initial du test et refus du composeur AST conservés.
+R23-OCR-03-RD reste validé source-only ; la fidélité native reste ouverte.
+Prochaine action : lire et accepter la revue non-auteur du témoin, puis
+préflight frais et exécution unique bornée si conforme. Aucun PNG/GT
+réel nouveau, apprentissage, gain ou Done déduit des doubles.
+[Preuves, limites et reprise](journal/2026-10-05.md#r23-ocr-03--correction-du-rendu-et-de-la-publication-initiale).
 
 **Complément du 5 octobre à 20:18 UTC :** avis non-auteur fermé lu et
 accepté ROOT, `GO_RENDER_LANES_SOURCE_ONLY`. R23-OCR-03-RD : source,

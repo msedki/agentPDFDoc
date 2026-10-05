@@ -1,6 +1,6 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `5d297b5` et entrées datées · **Mis à jour :** 2026-10-05 20:18 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `1ae9eaa` et entrées datées · **Mis à jour :** 2026-10-05 21:00 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
@@ -8,9 +8,14 @@ Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](..
 analyse des reçus fermés acceptée ; correctif et raccord gelés, 27 et 14
 tests purs PASS, lint/typage ciblés verts, revue indépendante source-only
 acceptée ROOT. Contrôles documentaires conformes, avertissements conservés.
-Témoin de fidélité de dix variantes/cinq familles en préparation source/tests
-seulement. Sans cache, nouveau pilote ou reprise des partiels ; collecte
+Témoin de fidélité de dix variantes/cinq familles : 28 et 14 tests purs
+PASS, méthode relue et préflight frais, puis exécution unique EXIT0.
+Vingt rendus, quarante PNG/GT réels identiques, fermeture et ressources
+conformes ; validation finale non-auteur acceptée ROOT. Sans cache, nouveau
+pilote ou reprise des partiels ; collecte
 canonique, scans et manifeste avant BOX conservés. Gain encore inconnu.
+Priorité utilisateur actualisée : étapes nécessaires à l'usage local,
+preuves valides réutilisées ; pilote complet non lancé, nécessité à établir.
 
 [Diagnostic du rendu et de sa publication](2026-10-05.md#r23-ocr-03--diagnostic-du-rendu-et-de-sa-publication) :
 témoin de huit variantes, sans cache ni apprentissage, exécuté une seule
