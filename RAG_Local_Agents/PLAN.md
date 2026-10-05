@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `d981638` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 19:48 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `5d297b5` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 20:18 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -9,6 +9,28 @@
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**Complément du 5 octobre à 20:18 UTC :** avis non-auteur fermé lu et
+accepté ROOT, `GO_RENDER_LANES_SOURCE_ONLY`. R23-OCR-03-RD : source,
+raccord et vérification pure validés dans cette portée ; identité des
+pixels et préparation native restent non vérifiées. Documentation
+7/7, pack 11/11, brief et cinq SVG conformes ; douze avertissements
+tiers préexistants conservés. Prochaine action inchangée : fermer les
+sources/tests du témoin de fidélité puis sa revue et son admission
+distinctes. [Avis, preuves et limites](journal/2026-10-05.md#r23-ocr-03--correction-du-rendu-et-de-la-publication-initiale).
+Aucune clôture du pilote, de l'apprentissage, de P02 ou de la DoD.
+
+**Relevé du 5 octobre à 20:12 UTC :** R23-OCR-03-RD, sources et raccord
+gelés ; 27 tests purs de rendu et 14 de raccordement PASS, lint/typage
+ciblés verts. Revue indépendante du bundle en fermeture : aucun avis
+source encore accepté ROOT à ce relevé. Aucun rendu réel nouveau ou
+pilote exécuté. Prochaine action : accepter l'avis fermé, puis préparer
+le témoin de fidélité de dix variantes couvrant les cinq familles,
+selon [W035](DECISIONS.md#correction-préparatoire-du-rendu--choix-du-5-octobre-1948-utc).
+Livrable préalable : sources du témoin, tests et avis non-auteur ; critère
+natif distinct : vingt rendus, quarante fichiers, identité PNG/GT et
+fermeture conforme sous les bornes. [Preuves et reprise](journal/2026-10-05.md#r23-ocr-03--correction-du-rendu-et-de-la-publication-initiale).
+Le pilote complet, l'apprentissage, l'adoption et la DoD restent ouverts.
 
 **Complément du 5 octobre à 19:48 UTC :** diagnostic de rendu publié dans
 `d981638`. Analyse indépendante des reçus fermés lue et acceptée dans sa

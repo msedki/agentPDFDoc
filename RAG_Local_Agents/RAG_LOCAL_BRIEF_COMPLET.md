@@ -1631,7 +1631,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `d981638` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 19:48 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `5d297b5` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 20:18 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1640,6 +1640,28 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**Complément du 5 octobre à 20:18 UTC :** avis non-auteur fermé lu et
+accepté ROOT, `GO_RENDER_LANES_SOURCE_ONLY`. R23-OCR-03-RD : source,
+raccord et vérification pure validés dans cette portée ; identité des
+pixels et préparation native restent non vérifiées. Documentation
+7/7, pack 11/11, brief et cinq SVG conformes ; douze avertissements
+tiers préexistants conservés. Prochaine action inchangée : fermer les
+sources/tests du témoin de fidélité puis sa revue et son admission
+distinctes. [Avis, preuves et limites](journal/2026-10-05.md#r23-ocr-03--correction-du-rendu-et-de-la-publication-initiale).
+Aucune clôture du pilote, de l'apprentissage, de P02 ou de la DoD.
+
+**Relevé du 5 octobre à 20:12 UTC :** R23-OCR-03-RD, sources et raccord
+gelés ; 27 tests purs de rendu et 14 de raccordement PASS, lint/typage
+ciblés verts. Revue indépendante du bundle en fermeture : aucun avis
+source encore accepté ROOT à ce relevé. Aucun rendu réel nouveau ou
+pilote exécuté. Prochaine action : accepter l'avis fermé, puis préparer
+le témoin de fidélité de dix variantes couvrant les cinq familles,
+selon [W035](DECISIONS.md#correction-préparatoire-du-rendu--choix-du-5-octobre-1948-utc).
+Livrable préalable : sources du témoin, tests et avis non-auteur ; critère
+natif distinct : vingt rendus, quarante fichiers, identité PNG/GT et
+fermeture conforme sous les bornes. [Preuves et reprise](journal/2026-10-05.md#r23-ocr-03--correction-du-rendu-et-de-la-publication-initiale).
+Le pilote complet, l'apprentissage, l'adoption et la DoD restent ouverts.
 
 **Complément du 5 octobre à 19:48 UTC :** diagnostic de rendu publié dans
 `d981638`. Analyse indépendante des reçus fermés lue et acceptée dans sa
@@ -3169,7 +3191,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `d981638` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 19:57 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `5d297b5` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 20:19 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -3779,6 +3801,31 @@ les writers et les budgets ne changent pas. Le contrôle de deadline reste
 requis après la jointure. Choix de structure relu dans les sources en cours,
 pas encore validation du gel, des tests ou d'un résultat natif.
 
+**Témoin de fidélité du rendu — méthode du 5 octobre à 20:12 UTC :**
+préparer les sources et tests d'une comparaison isolée avant tout nouveau
+pilote. Dix variantes, indices de groupe 0/200/400/600/800 et tailles 28/36,
+couvrent les cinq familles du générateur inchangé. Une branche exécute les
+primitives originales en série ; l'autre le corps dérivé avec le contrôleur
+de rendu à deux threads. Chaque branche publie dans des répertoires neufs :
+vingt rendus et quarante fichiers PNG/GT attendus au total. Comparer octets
+PNG, dimensions, transcriptions exactes et identités de lignes ; seuls les
+chemins des branches diffèrent. Aucun cache ou normalisation du texte.
+
+Les entrées épinglées et leurs identités sont contrôlées avant/après. La
+transformation des chemins QA intervient avant compilation, notamment avant
+la capture des arguments par défaut. Le parent supervisé existant est
+réutilisé par dérivation minimale, sans changer ses mécanismes d'arrêt.
+Budget du témoin : 60 s depuis le démarrage du parent, RSS 2 Gio, QA 32 Mio,
+réserves RAM/système/support QA 8/2/20 Gio, verrou lourd existant. Fixtures
+négatives séparées. Tests purs puis avis non-auteur de méthode et préflight
+ROOT frais sont nécessaires avant l'unique exécution éventuelle.
+
+Ce témoin ne lance ni BOX/LSTMF, ni OCR, apprentissage, export ou évaluation ;
+il n'ouvre pas DEV/final. Il ne valide pas les 81 scans du pilote complet,
+sa réussite en 900 s ou la qualité OCR. Une durée écoulée inclut les attentes
+et contrôles : aucun gain global, coût CPU ou débit disque n'en est déduit.
+Le nouveau pilote reste conditionné à son admission distincte.
+
 ### Portée, données et sens de l'apprentissage — précision du 5 octobre, 10:50 UTC
 
 Le pilote cherche à vérifier une extension des sorties du réseau OCR pour
@@ -3802,8 +3849,22 @@ stratifié à 80/20 : dans chacune des cinq familles, 160 textes sont réservés
 à l'apprentissage et 40 à l'évaluation avant leur rendu en deux tailles.
 Le même texte ne peut donc pas apparaître dans les deux jeux sous deux
 tailles différentes. Ce ratio est un choix local, pas un optimum démontré.
-Ce sont de
-petites images de lignes, pas 2 000 PDF. La graine, les textes et les
+Ce sont de petites images de lignes, pas 2 000 PDF : 1 000 textes rendus
+en deux tailles donnent les 2 000 variantes attendues. Plusieurs fichiers
+représentent une même variante ; ils ne sont pas autant de documents :
+
+| Fichier par variante | Rôle dans la préparation du pilote |
+|---|---|
+| `.png` | Image de la ligne générale, rendue avec la fonte et les paramètres fixés |
+| `.gt.txt` | Transcription UTF-8 attendue, issue du générateur et non d'un résultat OCR |
+| `.box` | Annotation de la ligne produite par le helper, avant création du LSTMF |
+| `.lstmf` | Échantillon image/texte préparé pour le moteur d'apprentissage ; sa présence n'est pas une mise à jour du réseau |
+
+Les « 792 » du premier essai comptent des LSTMF partiels constatés lors
+de l'arrêt ; ils ne désignent ni des PDF ajoutés, ni un objectif de volume,
+ni 792 apprentissages réussis. Leur statut et les autres essais restent
+dans les entrées datées du journal, pas dans un total cumulatif de progrès.
+La graine, les textes et les
 transcriptions sont produits par le générateur épinglé, sans lecture du
 corpus privé ou des annotations DEV/final ; le journal donne son identité.
 

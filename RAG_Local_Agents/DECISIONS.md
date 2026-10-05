@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `d981638` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 19:57 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `5d297b5` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 20:19 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -610,6 +610,31 @@ les writers et les budgets ne changent pas. Le contrôle de deadline reste
 requis après la jointure. Choix de structure relu dans les sources en cours,
 pas encore validation du gel, des tests ou d'un résultat natif.
 
+**Témoin de fidélité du rendu — méthode du 5 octobre à 20:12 UTC :**
+préparer les sources et tests d'une comparaison isolée avant tout nouveau
+pilote. Dix variantes, indices de groupe 0/200/400/600/800 et tailles 28/36,
+couvrent les cinq familles du générateur inchangé. Une branche exécute les
+primitives originales en série ; l'autre le corps dérivé avec le contrôleur
+de rendu à deux threads. Chaque branche publie dans des répertoires neufs :
+vingt rendus et quarante fichiers PNG/GT attendus au total. Comparer octets
+PNG, dimensions, transcriptions exactes et identités de lignes ; seuls les
+chemins des branches diffèrent. Aucun cache ou normalisation du texte.
+
+Les entrées épinglées et leurs identités sont contrôlées avant/après. La
+transformation des chemins QA intervient avant compilation, notamment avant
+la capture des arguments par défaut. Le parent supervisé existant est
+réutilisé par dérivation minimale, sans changer ses mécanismes d'arrêt.
+Budget du témoin : 60 s depuis le démarrage du parent, RSS 2 Gio, QA 32 Mio,
+réserves RAM/système/support QA 8/2/20 Gio, verrou lourd existant. Fixtures
+négatives séparées. Tests purs puis avis non-auteur de méthode et préflight
+ROOT frais sont nécessaires avant l'unique exécution éventuelle.
+
+Ce témoin ne lance ni BOX/LSTMF, ni OCR, apprentissage, export ou évaluation ;
+il n'ouvre pas DEV/final. Il ne valide pas les 81 scans du pilote complet,
+sa réussite en 900 s ou la qualité OCR. Une durée écoulée inclut les attentes
+et contrôles : aucun gain global, coût CPU ou débit disque n'en est déduit.
+Le nouveau pilote reste conditionné à son admission distincte.
+
 ### Portée, données et sens de l'apprentissage — précision du 5 octobre, 10:50 UTC
 
 Le pilote cherche à vérifier une extension des sorties du réseau OCR pour
@@ -633,8 +658,22 @@ stratifié à 80/20 : dans chacune des cinq familles, 160 textes sont réservés
 à l'apprentissage et 40 à l'évaluation avant leur rendu en deux tailles.
 Le même texte ne peut donc pas apparaître dans les deux jeux sous deux
 tailles différentes. Ce ratio est un choix local, pas un optimum démontré.
-Ce sont de
-petites images de lignes, pas 2 000 PDF. La graine, les textes et les
+Ce sont de petites images de lignes, pas 2 000 PDF : 1 000 textes rendus
+en deux tailles donnent les 2 000 variantes attendues. Plusieurs fichiers
+représentent une même variante ; ils ne sont pas autant de documents :
+
+| Fichier par variante | Rôle dans la préparation du pilote |
+|---|---|
+| `.png` | Image de la ligne générale, rendue avec la fonte et les paramètres fixés |
+| `.gt.txt` | Transcription UTF-8 attendue, issue du générateur et non d'un résultat OCR |
+| `.box` | Annotation de la ligne produite par le helper, avant création du LSTMF |
+| `.lstmf` | Échantillon image/texte préparé pour le moteur d'apprentissage ; sa présence n'est pas une mise à jour du réseau |
+
+Les « 792 » du premier essai comptent des LSTMF partiels constatés lors
+de l'arrêt ; ils ne désignent ni des PDF ajoutés, ni un objectif de volume,
+ni 792 apprentissages réussis. Leur statut et les autres essais restent
+dans les entrées datées du journal, pas dans un total cumulatif de progrès.
+La graine, les textes et les
 transcriptions sont produits par le générateur épinglé, sans lecture du
 corpus privé ou des annotations DEV/final ; le journal donne son identité.
 
