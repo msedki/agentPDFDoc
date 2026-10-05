@@ -1,6 +1,20 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `1e20a58` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 22:31 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `7f5dca4` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 22:53 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## Q07 — sélection OCR par le navigateur
+
+Consultation du 5 octobre 2026 à 22:40 UTC : mainteneur Playwright,
+[Mouse](https://playwright.dev/docs/api/class-mouse) et
+[Locator.click](https://playwright.dev/docs/api/class-locator#locator-click).
+La souris travaille en pixels CSS du viewport principal ; `down`, `move`
+et `up` produisent les événements de souris, `clickCount` compte les clics.
+Contrats confrontés aux types locaux Playwright 1.63.0. Ces actions ne
+garantissent pas une sélection correcte : il faut lire la vraie sélection,
+vérifier sa correspondance aux blocs OCR et l'aller-retour par l'API.
+La géométrie vient des blocs extraits et du DOM rendu, jamais d'un texte
+injecté ou d'une réponse interceptée. Ces sources ne prouvent ni extraction,
+sélection native réussie ni critère DoD ; les essais restent séparés.
 
 ## D06.9 — coupure réseau et observation du flux réel
 

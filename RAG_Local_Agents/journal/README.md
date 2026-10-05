@@ -1,8 +1,16 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `1e20a58` et entrées datées · **Mis à jour :** 2026-10-05 22:31 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `7f5dca4` et entrées datées · **Mis à jour :** 2026-10-05 22:53 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Q07, sélection d'un texte OCR réel](2026-10-05.md#q07--sélection-dun-texte-ocr-réel) :
+un import synthétique OCR ; premier FAIL d'oracle conservé et corrigé.
+Second essai sur la même publication PASS aux deux tailles : vraie souris,
+captures vues ROOT, scope/révision/hash/offsets et texte API exacts.
+Instance arrêtée, deux originaux/publications conservés, relecture finale
+indépendante favorable bornée. « ± » extrait « + » hors sélection reste une limite de qualité,
+pas de campagne ni d'apprentissage supplémentaire.
 
 [D06.9, flux progressif, reconnexion et annulation](2026-10-05.md#d069--flux-progressif-reconnexion-et-annulation) :
 deux échecs conservés, coupure QA corrigée puis diagnostic Qdrant réparé.

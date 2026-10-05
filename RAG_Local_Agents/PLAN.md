@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `1e20a58` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 22:36 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `7f5dca4` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 22:53 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -9,6 +9,29 @@
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R15-3-Q07 — sélection OCR D06.6 Linux, VALIDATED_BOUNDED le 5 octobre à 22:56 UTC.**
+Manque de preuve traité, aucun défaut produit établi. Test canonique,
+méthode/source relues indépendamment, typage/lint ciblés verts. Un seul
+scan synthétique importé par l'interface, vraie extraction OCR publiée
+avec géométrie. Premier FAIL conservé : oracle QA mélangeant `innerText`
+et `textContent`, corrigé sans enlever le contrôle du périmètre.
+Second essai sur la même publication, sans réimport/OCR : un PASS strict
+sans retry/skip/flaky, souris réelle et captures utiles aux deux tailles,
+expression « pression de 3.8 bar » ; révision/hash/offsets Unicode et texte
+exact corroborés par deux recherches réelles. Zéro génération, erreur de
+garde ou appel externe. Captures vues ROOT, instance arrêtée, 22 PID
+possédés absents, ports libres et deux originaux/publications conservés.
+Pas de campagne, apprentissage ni rebuild inchangé. Limite qualité :
+« ± » devient « + » hors sélection ; aucune qualité OCR métier qualifiée.
+Windows, actions page/section, ancres et DoD globale ne sont pas cochés
+par ce lot. Avis indépendant natif et de publication favorables acceptés
+ROOT ; contrôles documentaires 7/7 et pack 11/11 conformes, brief synchronisé.
+Lot fermé dans cette portée ; publication selon la politique du dépôt.
+Prochaine action : traiter uniquement un défaut ou manque de preuve nécessaire
+à l'usage local, sans campagne inchangée ni apprentissage non justifié.
+[Sources](SOURCES.md#q07--sélection-ocr-par-le-navigateur),
+[exécution](journal/2026-10-05.md#q07--sélection-dun-texte-ocr-réel).
 
 **R15-3-Q06 — D06.9 Linux, VALIDATED_BOUNDED le 5 octobre.** Sur le PDF
 synthétique déjà indexé et le modèle 2B réel : progression visible, vraie

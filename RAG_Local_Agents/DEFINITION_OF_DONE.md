@@ -1,6 +1,6 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `1e20a58` et compléments locaux F04 E2 et D06.9 datés ci-dessous, historique conservé · **Mis à jour :** 2026-10-05 22:31 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `7f5dca4` et complément local Q07 daté ci-dessous, historique conservé · **Mis à jour :** 2026-10-05 22:53 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -386,6 +386,18 @@ conservés. Les cases Windows ci-dessus, D06 global, qualité métier et D07
 ne changent pas. L'ancien relevé D06 du tableau Linux est historique pour
 D06.9 ; ce complément porte son résultat plus récent.
 [Commandes, preuves, empreintes et limites](journal/2026-10-05.md#d069--flux-progressif-reconnexion-et-annulation).
+
+Complément sélection OCR D06.6 Linux du 5 octobre 2026 : **PASS technique
+borné, relecture indépendante favorable** sur un scan
+synthétique image-only réellement importé et publié. Souris réelle aux deux
+tailles desktop, sélection visible, action explicite puis recherche avec
+révision/hash/offsets Unicode et texte exact ; aucun appel LLM. Premier FAIL
+d'oracle QA conservé, second essai sans réimport/OCR strictement réussi.
+Instance arrêtée et originaux/publications conservés. « ± » extrait « + »
+hors sélection : qualité OCR des symboles et métier non qualifiée. Actions
+page/section non rejouées, case Windows D06.6 et DoD globale inchangées.
+L'ancien relevé du tableau Linux reste historique pour ce manque de preuve.
+[Commandes, identités, captures et limites](journal/2026-10-05.md#q07--sélection-dun-texte-ocr-réel).
 
 ## Rapport final exigé
 

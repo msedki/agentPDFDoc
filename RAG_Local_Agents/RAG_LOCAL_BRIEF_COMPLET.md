@@ -1246,7 +1246,7 @@ Pour chaque skill retenu, vérifier une tâche pertinente et une tâche hors pé
 
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `1e20a58` et compléments locaux F04 E2 et D06.9 datés ci-dessous, historique conservé · **Mis à jour :** 2026-10-05 22:31 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `7f5dca4` et complément local Q07 daté ci-dessous, historique conservé · **Mis à jour :** 2026-10-05 22:53 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -1633,6 +1633,18 @@ ne changent pas. L'ancien relevé D06 du tableau Linux est historique pour
 D06.9 ; ce complément porte son résultat plus récent.
 [Commandes, preuves, empreintes et limites](journal/2026-10-05.md#d069--flux-progressif-reconnexion-et-annulation).
 
+Complément sélection OCR D06.6 Linux du 5 octobre 2026 : **PASS technique
+borné, relecture indépendante favorable** sur un scan
+synthétique image-only réellement importé et publié. Souris réelle aux deux
+tailles desktop, sélection visible, action explicite puis recherche avec
+révision/hash/offsets Unicode et texte exact ; aucun appel LLM. Premier FAIL
+d'oracle QA conservé, second essai sans réimport/OCR strictement réussi.
+Instance arrêtée et originaux/publications conservés. « ± » extrait « + »
+hors sélection : qualité OCR des symboles et métier non qualifiée. Actions
+page/section non rejouées, case Windows D06.6 et DoD globale inchangées.
+L'ancien relevé du tableau Linux reste historique pour ce manque de preuve.
+[Commandes, identités, captures et limites](journal/2026-10-05.md#q07--sélection-dun-texte-ocr-réel).
+
 ## Rapport final exigé
 
 Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, corpus, résultat et chemin de preuve. Ajouter un tableau des métriques avec dénominateurs, mesures chaud/froid, limitations et écarts. Résumer uniquement ce qui est réellement exécuté ; ne pas substituer un discours de conformité aux résultats.
@@ -1645,7 +1657,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `1e20a58` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 22:36 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `7f5dca4` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 22:53 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1654,6 +1666,29 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R15-3-Q07 — sélection OCR D06.6 Linux, VALIDATED_BOUNDED le 5 octobre à 22:56 UTC.**
+Manque de preuve traité, aucun défaut produit établi. Test canonique,
+méthode/source relues indépendamment, typage/lint ciblés verts. Un seul
+scan synthétique importé par l'interface, vraie extraction OCR publiée
+avec géométrie. Premier FAIL conservé : oracle QA mélangeant `innerText`
+et `textContent`, corrigé sans enlever le contrôle du périmètre.
+Second essai sur la même publication, sans réimport/OCR : un PASS strict
+sans retry/skip/flaky, souris réelle et captures utiles aux deux tailles,
+expression « pression de 3.8 bar » ; révision/hash/offsets Unicode et texte
+exact corroborés par deux recherches réelles. Zéro génération, erreur de
+garde ou appel externe. Captures vues ROOT, instance arrêtée, 22 PID
+possédés absents, ports libres et deux originaux/publications conservés.
+Pas de campagne, apprentissage ni rebuild inchangé. Limite qualité :
+« ± » devient « + » hors sélection ; aucune qualité OCR métier qualifiée.
+Windows, actions page/section, ancres et DoD globale ne sont pas cochés
+par ce lot. Avis indépendant natif et de publication favorables acceptés
+ROOT ; contrôles documentaires 7/7 et pack 11/11 conformes, brief synchronisé.
+Lot fermé dans cette portée ; publication selon la politique du dépôt.
+Prochaine action : traiter uniquement un défaut ou manque de preuve nécessaire
+à l'usage local, sans campagne inchangée ni apprentissage non justifié.
+[Sources](SOURCES.md#q07--sélection-ocr-par-le-navigateur),
+[exécution](journal/2026-10-05.md#q07--sélection-dun-texte-ocr-réel).
 
 **R15-3-Q06 — D06.9 Linux, VALIDATED_BOUNDED le 5 octobre.** Sur le PDF
 synthétique déjà indexé et le modèle 2B réel : progression visible, vraie
@@ -4182,7 +4217,21 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `1e20a58` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 22:31 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `7f5dca4` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 22:53 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## Q07 — sélection OCR par le navigateur
+
+Consultation du 5 octobre 2026 à 22:40 UTC : mainteneur Playwright,
+[Mouse](https://playwright.dev/docs/api/class-mouse) et
+[Locator.click](https://playwright.dev/docs/api/class-locator#locator-click).
+La souris travaille en pixels CSS du viewport principal ; `down`, `move`
+et `up` produisent les événements de souris, `clickCount` compte les clics.
+Contrats confrontés aux types locaux Playwright 1.63.0. Ces actions ne
+garantissent pas une sélection correcte : il faut lire la vraie sélection,
+vérifier sa correspondance aux blocs OCR et l'aller-retour par l'API.
+La géométrie vient des blocs extraits et du DOM rendu, jamais d'un texte
+injecté ou d'une réponse interceptée. Ces sources ne prouvent ni extraction,
+sélection native réussie ni critère DoD ; les essais restent séparés.
 
 ## D06.9 — coupure réseau et observation du flux réel
 
