@@ -1631,7 +1631,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `c527e6c` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 17:32 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `6f12604` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 18:01 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1640,6 +1640,19 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**Relevé du 5 octobre à 18:01 UTC :** correctif de préparation à deux
+lignes figé, 51 tests purs et 16 sous-cas conformes ; deux témoins rouges
+antérieurs conservés. Le contrôle ROOT de cinq entrées avant/après est
+fermé dans une cible distincte après correction d'un collecteur refusant
+un journal vide ; aucune assertion affaiblie. Raccord réel de configuration
+exécuté, inversion exacte, 32 nouveaux témoins purs et lint/typecheck ciblés
+verts. Revue non-auteur du bundle favorable au protocole seulement, lue
+et acceptée ROOT. Préflight physique et ressources frais conformes ;
+une exécution complète distincte est lancée, session 11165, et doit rester
+surveillée sous les bornes W035 inchangées. Aucun apprentissage, gain,
+qualité OCR ou critère DoD encore acquis par ce lancement.
+[Preuves et suivi de l'exécution](journal/2026-10-05.md#bundle-fermé-et-lancement-unique-relevé-1801-utc).
 
 **Relevé du 5 octobre à 17:32 UTC :** les explications OCR ont été
 confrontées au générateur épinglé et relues : W035 précise désormais la
@@ -2326,13 +2339,15 @@ revue préparatoire conformes, parent EXIT0 après publication terminale.
 Validation finale indépendante acquise dans la seule portée diagnostique.
 Prochaine action : qualifier une correction ciblée de préparation qui
 conserve les synchronisations et les
-limites du pilote. Le prototype de concurrence à deux lignes est en
-réalisation source-only : parent corrigé et ses 11 témoins causaux
-TERM/naissance relus dans cette portée ; terminer les deux corrections de
-fermeture des admissions, leurs tests et le raccord strict de config
-et la revue indépendante de l'état partagé, de la naissance, de l'arrêt
-et de la fermeture avant toute mesure de gain. Le raccord du parent
-ne valide pas le correctif ou son comportement natif.
+limites du pilote. Le correctif à deux lignes et le parent avec interruption
+différée sont figés et relus dans la portée de protocole ; les erreurs
+de lancement ou de retour non nul ferment désormais les admissions avant
+la fermeture raw. Le raccord strict de config, ses 32 témoins et le
+contrôle ROOT des cinq pins avant/après sont fermés. Exécution complète
+unique en cours sous session 11165 depuis le relevé 18:01 UTC : surveiller
+les ressources et étapes, fermer le même handle, puis examiner les pièces
+durables et l'arrêt réel avant revue finale non-auteur. Les tests purs et
+le GO de protocole ne prouvent pas le comportement natif ou un gain.
 Pas de quatrième relance identique.
 Aucun résultat de ce diagnostic ne valide
 les 1 000 groupes ou les 2 000 variantes du pilote complet.

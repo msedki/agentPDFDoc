@@ -1,21 +1,17 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `c527e6c` et entrées datées · **Mis à jour :** 2026-10-05 17:32 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `6f12604` et entrées datées · **Mis à jour :** 2026-10-05 18:01 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
-[Correction de préparation en cours](2026-10-05.md#r23-ocr-03--correction-bornée-de-la-préparation-en-cours) :
-explications sur les données complétées après relecture du générateur ;
-prototype limité à deux lignes en réalisation source-only, contrats officiels
-et cycle de vie examinés. Parent raccordé avec inversion exacte, 11 témoins
-purs conformes, composeur et tests contrôlés par lint/typecheck ;
-config et revue du correctif non terminées,
-aucun lancement ou apprentissage. Préflight parent refusé sur la fenêtre
-TERM/identité ; source avec interruption différée distincte créée,
-11 témoins causaux avec doubles et lint/typecheck ciblés conformes,
-revue indépendante favorable au parent source-only. Deux défauts de
-fermeture des admissions à corriger dans le prototype, aucun natif admis.
-Documentation vérifiée publiée dans `c527e6c`, limites conservées.
+[Correction de préparation et pilote distinct](2026-10-05.md#bundle-fermé-et-lancement-unique-relevé-1801-utc) :
+explications sur les données publiées après relecture du générateur ;
+parent à interruption différée et correctif à deux lignes figés et relus.
+51 tests et 16 sous-cas purs, contrôle ROOT des cinq pins avant/après et
+32 nouveaux témoins de config conformes ; erreurs antérieures conservées.
+Revue indépendante favorable au protocole, puis préflight frais et
+lancement unique session 11165 à 18:00 UTC. Exécution en cours ; aucun
+apprentissage, gain, qualité OCR ou DoD validé par ces précontrôles.
 
 [Décomposition des appels de fermeture des journaux OCR](2026-10-05.md#r23-ocr-03--décomposition-de-la-fermeture-des-journaux) :
 38 nouveaux tests, lint/typecheck et revue préparatoire conformes ;
