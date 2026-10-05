@@ -482,16 +482,36 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
                 right, bottom = max(cell[2] for cell in cells), max(cell[3] for cell in cells)
                 center_x, center_y = frame["left"] + frame["width"] / 2, frame["top"] + frame["height"] / 2
                 outside = frame[~((center_x >= left) & (center_x <= right) & (center_y >= top) & (center_y <= bottom))]
-                frames = [outside]
+                cell_frames = []
                 metadata["cell_ocr"] = []
                 for bounds in cells:
                     printed = int((np.asarray(derived.crop(tuple(bounds)).convert("L")) < 128).sum()) >= 3
                     cell_frame = self._cell_ocr(derived, bounds) if printed else None
                     cell_frame = frame.iloc[0:0] if cell_frame is None else cell_frame
-                    frames.append(cell_frame)
+                    cell_frames.append(cell_frame)
                     evidence = {"raster_bbox": bounds, "printed": printed, "recognized_words": len(cell_frame)}
                     if printed:
                         evidence["crop"] = self._last_cell_crop
+                    metadata["cell_ocr"].append(evidence)
+
+                from .regional_row_context import recognize_grid_rows
+
+                def recognize_row(raster):
+                    with temporary_raster(raster) as row_target:
+                        return self._run_literal_tsv(row_target, psm=6)
+
+                cell_frames, row_traces, row_budget = recognize_grid_rows(
+                    derived, cells, cell_frames, metadata["cell_ocr"], recognize_row,
+                    minimum_confidence, max_region_pixels)
+                metadata["row_context_ocr"] = row_traces
+                metadata["row_context_budget"] = row_budget
+                for trace in row_traces:
+                    for index in trace.get("adopted_cell_indices", []):
+                        metadata["cell_ocr"][index]["row_context_retry"] = {
+                            "row_index": trace["row_index"], "selected": "row_context"}
+                for cell_frame, evidence in zip(cell_frames, metadata["cell_ocr"], strict=True):
+                    bounds, printed = evidence["raster_bbox"], evidence["printed"]
+                    evidence["recognized_words"] = len(cell_frame)
                     confidence = _minimum_cell_confidence(cell_frame)
                     evidence["minimum_word_confidence"] = confidence
                     evidence["minimum_confidence_required"] = minimum_confidence
@@ -509,8 +529,7 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
                             orientation=orientation.get("orientation_degrees", 0), im_size=source_size)
                         key = "unresolved_parser_bbox" if cell_frame.empty else "uncertain_parser_bbox"
                         evidence[key] = rect.to_bounding_box().model_dump(mode="json")
-                    metadata["cell_ocr"].append(evidence)
-                return self._restore_raster(pd.concat(frames, ignore_index=True), source_size, derived.size)
+                return self._restore_raster(pd.concat([outside, *cell_frames], ignore_index=True), source_size, derived.size)
 
         def _restore_raster(self, frame, source_size, derived_size):
             sx, sy = source_size[0] / derived_size[0], source_size[1] / derived_size[1]

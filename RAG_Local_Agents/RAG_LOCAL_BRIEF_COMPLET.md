@@ -327,7 +327,7 @@ Le **travail des agents** peut consulter Internet selon l'autorisation de l'util
 
 # Registre et usage des skills — RAG-LOCAL-16 V2.1
 
-**Statut :** registre vivant des skills présents dans le dépôt. **Date :** 30/09/2026 (UTC), mis à jour le 02/10/2026 (UTC). **Référence :** empreintes SHA-256 des fichiers de la révision Git qui contient ce registre, recontrôlées à chaque exécution de `tools/verify_pack.py`.
+**Statut :** registre vivant des skills présents dans le dépôt. **Date :** 30/09/2026 (UTC), mis à jour le 05/10/2026 (UTC). **Référence :** empreintes SHA-256 des fichiers de la révision Git qui contient ce registre, recontrôlées à chaque exécution de `tools/verify_pack.py`.
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -391,7 +391,7 @@ Chaque ligne donne le fichier, son origine telle qu'elle se constate dans le dé
 | rag-pdf-provenance | pack | [`skills/rag-pdf-provenance/SKILL.md`](skills/rag-pdf-provenance/SKILL.md) | Pack V2.1 : `metadata.origin: project-authored`, version 2.1 ; ligne `compatibility` révisée le 02/10/2026 (W024, W025) | `7f0204cd95f63494f15706fbb94f06a0ddb2340926aa3da2a1b92ee24a691ddf` | PASS `skill_format` | NOT_RUN |
 | rag-retrieval-evaluation | pack | [`skills/rag-retrieval-evaluation/SKILL.md`](skills/rag-retrieval-evaluation/SKILL.md) | Pack V2.1 : `metadata.origin: project-authored`, version 2.1 ; ligne `compatibility` révisée le 02/10/2026 (W024, W025) | `952161de2f5f62855859623e217eed44817e01a86d6b699033f94d22ea2f4aa3` | PASS `skill_format` | NOT_RUN |
 | hybrid-rag-api | projet | [`.agents/skills/hybrid-rag-api/SKILL.md`](../.agents/skills/hybrid-rag-api/SKILL.md) | Rédigé pour ce dépôt (renvoie à `RAG_Local_Agents/`) ; aucun champ d'origine ; création non tracée dans `PLAN.md` ni le journal ; options d'Ollama selon le mode (W025) révisées au lot J11.9 (02/10/2026) | `6209a83fb48310f4823f6b6d17687530a1f3ee695e38f373d5f3dea435123cac` | PASS `agents_skill_format` | NOT_RUN |
-| pdf-ingestion-windows | projet | [`.agents/skills/pdf-ingestion-windows/SKILL.md`](../.agents/skills/pdf-ingestion-windows/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot B de `PLAN.md` ; gardes orientation, segmentation horizontale, repli natif et reprise de densité bornée précisées le 02/10/2026 (W029), à partir du code, des tests réels et W029S01/W029S02 | `49fc8d0272096f59d5bbf74bbc89120b5043bb514aedc2a81c998032ec4ec227` | PASS `agents_skill_format` (02/10, 18:05 UTC) | NOT_RUN |
+| pdf-ingestion-windows | projet | [`.agents/skills/pdf-ingestion-windows/SKILL.md`](../.agents/skills/pdf-ingestion-windows/SKILL.md) | Projet ; W029 conservé. Procédure distincte de petites lignes/rangées ajoutée avant R23-OCR-01, sources R23OCR-S01–S04 ; ×2 rejeté en fidélité, rangée native vérifiée sur P03 | `7dd5e118d2d5b70a9944f95ec3017c53b3a129d992400f2be4caf793dd6a4af0` | PASS quick_validate (05/10, 00:20 UTC), delta rangée inclus | Extraction complète P03 Linux, 236 tests d'ingestion PASS sans exclusion et revue finale favorable ; [preuves](journal/2026-10-05.md#validation-finale-ciblée-relevé-0032-utc). Windows natif et P02 non qualifiés |
 | pdf-workspace-web | projet | [`.agents/skills/pdf-workspace-web/SKILL.md`](../.agents/skills/pdf-workspace-web/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot D de `PLAN.md` ; textes d'interface et référence de forme ajoutés par les commits `f8fbb1c` et `d4924d9` | `a96ca71a8b7a622ed1276ef95147dc422c43f54f9a64b3e777d5e3a4cf4e6b3a` | PASS `agents_skill_format` | NOT_RUN |
 | rag-qualification-fixtures | projet | [`.agents/skills/rag-qualification-fixtures/SKILL.md`](../.agents/skills/rag-qualification-fixtures/SKILL.md) | Rédigé pour ce dépôt (renvoie à `RAG_Local_Agents/`) ; création non tracée dans `PLAN.md` ni le journal | `04dd992863315562c3910ab05fac6e353843fc70e11ce199b19df759fb8f2e7f` | PASS `agents_skill_format` | NOT_RUN |
 | windows-rag-runtime | projet | [`.agents/skills/windows-rag-runtime/SKILL.md`](../.agents/skills/windows-rag-runtime/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot E de `PLAN.md` ; lecture consignée dans `reports/skills-usage-2026-09-30.json` ; section « Accélération GPU » du lot J11.9 (02/10/2026) rédigée d'après le code du commit `4d8ba68`, sans essai sous Windows, puis corrigée le 02/10/2026 après une relecture contradictoire non versionnée | `538f75c2cbee38453f192d4db8cd311d1787fdfd13316bc81b677df65851acab` | PASS `agents_skill_format` | NOT_RUN |
@@ -1630,7 +1630,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `3fe34e6` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 23:16 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `1d73064` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 00:35 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1639,6 +1639,36 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R23-OCR-01, validation du 5 octobre à 00:32 UTC :** sous-lot P03
+qualifié localement : extraction réelle complète, 236 tests d'ingestion sans
+exclusion, lint et typages Linux/win32 verts ; 62 contrôles documentaires,
+liens/SVG/brief/dossier conformes. Relecture finale non-auteur favorable
+dans cette portée, publication sélective en finalisation. L'erreur de sonde
+et les limites des ressources restent conservées. P02, sept publications
+DEV, résolution des annotations et qualité 2B/4B restent non validés.
+[Validation, preuves et prochaine action](journal/2026-10-05.md#validation-finale-ciblée-relevé-0032-utc).
+
+**R23-OCR-01, relevé du 5 octobre à 00:15 UTC :** contexte de rangée
+P03 implémenté, 113 tests avec doubles PASS et extraction native complète
+vérifiée : deux pages, aucune région non résolue, tableau littéral exact.
+L'erreur initiale de sonde (index supposé) est conservée ; vérification
+géométrique séparée réussie, sans réextraction identique. Régression élargie
+et relecture indépendante en cours avant livraison. P02 reste non qualifié ;
+aucune publication DEV nouvelle ou génération des 100 questions.
+[Preuves et reprise](journal/2026-10-05.md#r23-ocr-01--contexte-de-rangée-p03-relevé-0015-utc).
+
+**R23-OCR-01, relevé à 23:56 UTC :** trois essais ciblés sur les rasters DEV
+hashés n'ont pas qualifié DA-P02. Le retry ×2 peut même transformer `0`
+en `O` malgré une confiance supérieure au seuil. Le contexte de rangée à
+densité native restitue correctement les trois cellules contrôlées de P03 ;
+son intégration et ses tests sont en cours, pas encore livrés. Une inspection
+du contrat officiel et des deux artefacts OCR exacts établit l'absence de
+`±` et `·` dans leurs alphabets LSTM : la fidélité P02 ne peut pas être
+obtenue par le seul changement de densité ou de PSM. Étude officielle d'une
+seule famille de modèles alternatifs en lecture seule ; aucune installation
+ni substitution acquise. Pas de génération DEV ou d'assouplissement du gate.
+[Essais et limite structurelle](journal/2026-10-04.md#r23-ocr-01--essais-bornés-et-alphabets-relevé-2356-utc).
 
 **Dernier relevé DEV à 23:16 UTC :** gate de publication complète refusé.
 Cinq fixtures DEV sont publiées et capturées ; DA-P02 et DA-P03 ont terminé
@@ -2173,7 +2203,7 @@ de bascule de profil, de redémarrage ou d'exécution du lot futur.
 | ID | Couche, propriétaire et livrable attendu | Dépendances | Critère de validation | Statut et preuve |
 |---|---|---|---|---|
 | R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Sous-lot publié sur `origin/main` (`a17819a`). Pilotes GPU exécutés et relus, sans réduction de seuil ni qualification D07. Restent admission réellement calibrée, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes non qualifiées. [Parcours](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [pilotes](journal/2026-10-04.md#r23--pilotes-gpu-et-préflight-dev-relevé-2258-utc) |
-| R23-OCR-01 | Ingestion / qualité — intégrateur avec diagnostic et validation non-auteurs : fiabiliser l'extraction des deux scans DEV sans modifier les sources gelées | R23, contrats d'ingestion et skill `pdf-ingestion-windows` ; QA propriétaire arrêtée, extractions partielles conservées | Reproduction ciblée ; correction prouvée avec même moteur et seuils ; publications complètes des sept documents, résolution des 100 scopes/annotations et 90 unités sans ambiguïté avant génération ; contrôles et relecture des cas touchés | IN_PROGRESS — défaut de recette prouvé, cause à diagnostiquer : P02 a sept régions de mots sous 0,8 ; P03 une cellule à 0,70787102, retry densité refusé par la limite de crop. Gate FAILED, aucun score DEV acquis. [Preuves](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc) |
+| R23-OCR-01 | Ingestion / qualité — intégrateur avec diagnostic et validation non-auteurs : fiabiliser l'extraction des deux scans DEV sans modifier les sources gelées | R23, contrats d'ingestion et skill `pdf-ingestion-windows` ; QA propriétaire arrêtée, extractions partielles conservées | Reproduction ciblée ; correction prouvée avec même moteur et seuils ; publications complètes des sept documents, résolution des 100 scopes/annotations et 90 unités sans ambiguïté avant génération ; contrôles et relecture des cas touchés | IN_PROGRESS — sous-lot P03 qualifié : extraction complète native PASS, 236 unités sans exclusion, Ruff/mypy et documents verts, revue finale favorable. Publication Git en finalisation. P02 : signes non couverts par les alphabets inspectés, aucun artefact adopté. Gate DEV toujours FAILED ; sept publications et scores non acquis. [Validation P03](journal/2026-10-05.md#validation-finale-ciblée-relevé-0032-utc) ; [essais et limite](journal/2026-10-04.md#r23-ocr-01--essais-bornés-et-alphabets-relevé-2356-utc) ; [rouge conservé](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc) |
 
 Travail prévu, dans l'ordre utile :
 
@@ -2944,7 +2974,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1, base publiée `9ccfc68` et complément local W025 daté ci-dessous ; historique conservé · **Mis à jour :** 2026-10-04 22:06 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1, base publiée `9ccfc68` et complément local W025 daté ci-dessous ; historique conservé ; W033 sur la base `1d73064` et sources locales du 2026-10-05 · **Mis à jour :** 2026-10-05 00:35 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -3393,6 +3423,20 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 
 **Reprise/retour arrière :** arrêter avec le profil réellement actif, reprendre la section `llm` du profil souhaité sans modifier les autres sections, puis provisionner, contrôler et redémarrer avec le même profil utilisateur. Avec les profils livrés, conserver le même choix `--model` dans toute la séquence. Garder les manifestes distincts et l'ancien 4B ; ne modifier aucun verrou pour accepter un digest inattendu. La procédure canonique est tenue dans [EXPLOITATION.md](../docs/exploitation/EXPLOITATION.md).
 
+## W033 Reprise OCR limitée au contexte d'une rangée de grille
+
+**Date :** 5 octobre 2026, 00:21 UTC. **Statut :** choix implémenté et extraction P03 native vérifiée en Linux aarch64 ; régression élargie, typages et revue finale indépendante favorables au relevé 00:32 UTC, avant publication. Référence : base `1d73064` et sources locales épinglées au [journal du 5 octobre](journal/2026-10-05.md#validation-finale-ciblée-relevé-0032-utc). Aucune clôture de R23-OCR-01, de D05 ou de Windows.
+
+**Contexte :** une référence multiglyphe de la fixture DEV P03 reste sous le seuil de confiance 0,8 après OCR cellulaire. Elle ne relève pas de la politique mono-glyphe W029. L'essai ×2 dégrade un zéro en lettre O malgré sa confiance admissible ; il est rejeté. À densité native, le contexte de la même rangée restitue ses trois cellules exactement. Sources de segmentation et contrat du moteur : R23OCR-S01/S02/S04 dans [SOURCES.md](SOURCES.md#r23ocr--reprise-locale-des-petites-lignes-imprimées).
+
+**Choix retenu :** ajouter `grid_row_native_density_retry_v1` après les baselines cellulaires d'une grille géométriquement validée. Même Tesseract 5.4.0, `fra+eng`, PSM 6, bordure existante et seuil ; densité native uniquement. Ne reprendre ni une rangée entièrement admissible ni une rangée avec confiance non finie ou retry mono-glyphe déjà tenté. Valider le candidat entier : confidences finies suffisantes, boîtes positives contenues dans le crop, chaque mot entièrement dans une seule cellule, toutes les cellules imprimées présentes. Le candidat doit confirmer les textes littéraux des voisines admissibles ; elles ne sont jamais remplacées. En cas de refus ou d'erreur récupérable, conserver la baseline.
+
+**Conséquences :** rectangles source et final bornés avant allocation à 2048×128 pixels, hauteur d'encre 48, cumul au plafond régional, au plus 32 appels supplémentaires par région. Ces bornes ne changent pas 24/64/×2. Choix, hashes, dimensions, confiance et géométrie restent dans les métadonnées, sans texte OCR ou stderr. Les zones d'incertitude suivent le résultat sélectionné, pas une baseline abandonnée. La nouvelle source Python entre automatiquement dans l'empreinte d'ingestion ; les extractions anciennes ne sont ni écrasées ni requalifiées.
+
+**Limites :** la réussite complète de P03 ne corrige pas P02. Les alphabets installés ne contiennent pas `±` et `·` ; best/fra, best/eng et fast/Latin inspectés ne couvrent pas non plus la paire. Aucun nouvel artefact adopté ni réparation lexicale. Publication API/index, résolution DEV et comparaison qualité restent distinctes de l'extraction.
+
+**Reprise/retour arrière :** conserver les révisions et les citations publiées. Une révision du helper constitue un nouveau changement vérifié et une nouvelle empreinte ; aucun reset du stockage ou remplacement de source gelée pour revenir à l'ancien comportement. Le suivi et les reçus demeurent au plan/journal, pas dans cette décision.
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -3445,7 +3489,62 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `3e56c75` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 22:06 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `1d73064` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 00:19 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R23OCR-S05 — couverture des alphabets alternatifs
+
+Consultations C le 5 octobre 2026 : `best/fra` et `best/eng` à 00:01:55–00:01:58 UTC,
+puis `fast/script/Latin` à 00:10:31–00:10:35. ROOT relit les deux reçus fermés
+et le lecteur borné, puis les sections utiles du [README fast versionné](https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/README.md)
+et de [Data-Files](https://tesseract-ocr.github.io/tessdoc/Data-Files.html), à 00:17–00:19 UTC.
+La compatibilité d'un alphabet avec les deux signes scientifiques de P02 est
+la question préalable ; aucune mesure de qualité OCR n'est exécutée.
+
+| Artefact officiel | Révision de la source | Composant 21 inspecté | Résultat et limite |
+|---|---|---|---|
+| [`best/fra`](https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/e12c65a915945e4c28e237a9b52bc4a8f39a0cec/fra.traineddata) | `e12c65a915945e4c28e237a9b52bc4a8f39a0cec` | 8 105 octets, plage inclusive 3963477–3971581 ; 141 caractères | `±` et `·` absents. SHA-256 `575fb5df…`, identique au composant fast installé ; ce n'est pas une équivalence des réseaux ou de leur qualité. |
+| [`best/eng`](https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/e12c65a915945e4c28e237a9b52bc4a8f39a0cec/eng.traineddata) | même révision best | 6 360 octets, plage inclusive 15393149–15399508 ; 112 caractères | `±` et `·` absents. SHA-256 `3a18fb4e…`, même limite de comparaison. |
+| [`fast/script/Latin`](https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/script/Latin.traineddata) | `87416418657359cb625c412a48b6e1d6d41c29bd` | 18 023 octets, plage inclusive 89364021–89382043 ; 303 caractères | `·` présent, `±` absent. SHA-256 `0ce04ab5…`. Le README décrit un modèle d'écriture couvrant plusieurs langues latines, non la langue `lat`. Couverture insuffisante pour ce cas ; pas d'adoption. |
+
+Lectures strictes HTTP 206 : `Content-Range`, longueur et absence de compression
+contrôlés, plafond 64 Kio par artefact, sans repli sur une réponse intégrale.
+Seuls l'en-tête et le composant 21 sont lus ; respectivement 8 301, 6 556 et
+18 219 octets. Les tailles totales et blobs Git annoncés dans les métadonnées
+officielles ne sont **pas** rehachés depuis ces lectures partielles. Aucun poids
+du réseau, fichier modèle complet, inventaire installé ou OCR lu/exécuté ;
+aucune installation ou modification de `fra+eng`. Le format du composant est
+celui vérifié en R23OCR-S04. [Reçus, hashes complets et limites](journal/2026-10-05.md#inspection-bornée-des-alphabets-alternatifs).
+
+Le résultat négatif borne la prochaine action : définir une voie dont
+l'alphabet couvre les signes avant tout essai. Il ne justifie ni changement
+de PDF gelé, correction lexicale des sorties, cascade de modèles ou nouveau
+réglage de densité/PSM sur ces mêmes alphabets.
+
+## R23OCR — reprise locale des petites lignes imprimées
+
+Consultation ROOT du 4 octobre 2026, 23:29–23:36 UTC, avant l'essai et
+l'adoption d'une voie différente du retry mono-glyphe. Question : peut-on
+récupérer les deux extractions DEV partielles sans changer les PDF gelés,
+le moteur, les langues ou le seuil de confiance ? Le skill d'ingestion
+existant est adapté ; aucun second skill concurrent n'est créé.
+
+| ID | Source officielle et contrat constaté | Apport et limite |
+|---|---|---|
+| R23OCR-S01 | Mainteneurs Tesseract, [ImproveQuality](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html), sections Rescaling, Borders et Page segmentation method ; documentation courante non datée, binaire local verrouillé 5.4.0 | Densité et bordure peuvent influer sur la reconnaissance. PSM 3 segmente une page, 6 un bloc uniforme et 7 une ligne. Ces conseils justifient une hypothèse locale, pas les facteurs, plafonds ou gains du projet. Première expérience : crop borné et ×2, PSM de la baseline conservé. Aucun dictionnaire d'attendus ni substitution lexicale. |
+| R23OCR-S02 | Projet Docling, [Tesseract CLI au tag v2.131.0](https://github.com/docling-project/docling/blob/v2.131.0/docling/models/stages/ocr/tesseract_ocr_cli_model.py), `_run_tesseract` et `__call__` ; mêmes fonctions et `backend/pypdfium2_backend.py:get_page_image` relues dans la version installée 2.131.0 | Les mots TSV, confiances et boîtes alimentent les cellules Docling ; le PSM est ajouté seulement s'il est configuré. Le rendu PDFium est fait à `scale * 1.5`, puis redimensionné aux dimensions arrondies du crop. Vérifier le hash du raster avant l'expérience ; aucune compatibilité Windows ou succès natif ne se déduit de la lecture. |
+| R23OCR-S03 | Mainteneurs Pillow, [Image.resize](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.resize), documentation et installation 12.3.0 | Le filtre est un paramètre explicite ; BICUBIC est le défaut hors modes 1/P, LANCZOS est disponible. L'expérience doit nommer facteur, filtre et dimensions réellement arrondies. La disponibilité du filtre ne prouve ni amélioration OCR ni fidélité des signes et unités. |
+| R23OCR-S04 | Tesseract 5.4.0, [TessdataType](https://raw.githubusercontent.com/tesseract-ocr/tesseract/5.4.0/src/ccutil/tessdatamanager.h), entrées 17–23 ; [LoadMemBuffer](https://raw.githubusercontent.com/tesseract-ocr/tesseract/5.4.0/src/ccutil/tessdatamanager.cpp), table d'offsets ; [LoadCharsets et DecodeLabel](https://raw.githubusercontent.com/tesseract-ocr/tesseract/5.4.0/src/lstm/lstmrecognizer.cpp). ROOT : sections ouvertes le 04/10 à 23:52–23:54 UTC ; diagnostic indépendant C précédent | Le composant 21 est l'alphabet LSTM effectivement chargé, lu avec le nombre d'entrées uint32 et les offsets int64. Son inspection locale en lecture seule vérifie d'abord tailles et Git blob SHA-1 des modèles officiels verrouillés. `±` et `·` sont absents des deux composants, y compris hors tokens. Limite d'alphabet, pas explication de la préférence particulière `+`/`-`, ni cause isolée de `0/O`. [Preuve et limites](journal/2026-10-04.md#r23-ocr-01--essais-bornés-et-alphabets-relevé-2356-utc). |
+
+Hypothèse initiale, **NOT_RUN à sa rédaction** : reprendre une petite ligne
+multiglyphe choisie par la baseline TSV réellement insuffisante, une seule
+fois, avec budgets vérifiés avant allocation. Une réussite devra conserver
+ses voisines, inverser toutes les transformations et respecter les attentes
+littérales gelées. Les confiances seules ne prouvent pas cette fidélité.
+L'action [R23-OCR-01](PLAN.md) et le journal portent les essais ; ce registre
+ne remplace pas leurs résultats. Complément du relevé à 23:56 UTC : les essais
+×2 et PSM7 ne qualifient pas P02 ; le contexte de rangée P03 est positif au
+crop seulement. Les deux artefacts OCR existants ne couvrent pas les signes
+scientifiques contrôlés. Aucun changement d'artefact acquis.
 
 ## R23S02 — identité du tag 2B et tokenizer versionné
 

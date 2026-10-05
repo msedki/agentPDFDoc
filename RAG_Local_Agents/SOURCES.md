@@ -1,6 +1,61 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `3e56c75` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-04 22:06 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `1d73064` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 00:19 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R23OCR-S05 — couverture des alphabets alternatifs
+
+Consultations C le 5 octobre 2026 : `best/fra` et `best/eng` à 00:01:55–00:01:58 UTC,
+puis `fast/script/Latin` à 00:10:31–00:10:35. ROOT relit les deux reçus fermés
+et le lecteur borné, puis les sections utiles du [README fast versionné](https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/README.md)
+et de [Data-Files](https://tesseract-ocr.github.io/tessdoc/Data-Files.html), à 00:17–00:19 UTC.
+La compatibilité d'un alphabet avec les deux signes scientifiques de P02 est
+la question préalable ; aucune mesure de qualité OCR n'est exécutée.
+
+| Artefact officiel | Révision de la source | Composant 21 inspecté | Résultat et limite |
+|---|---|---|---|
+| [`best/fra`](https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/e12c65a915945e4c28e237a9b52bc4a8f39a0cec/fra.traineddata) | `e12c65a915945e4c28e237a9b52bc4a8f39a0cec` | 8 105 octets, plage inclusive 3963477–3971581 ; 141 caractères | `±` et `·` absents. SHA-256 `575fb5df…`, identique au composant fast installé ; ce n'est pas une équivalence des réseaux ou de leur qualité. |
+| [`best/eng`](https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/e12c65a915945e4c28e237a9b52bc4a8f39a0cec/eng.traineddata) | même révision best | 6 360 octets, plage inclusive 15393149–15399508 ; 112 caractères | `±` et `·` absents. SHA-256 `3a18fb4e…`, même limite de comparaison. |
+| [`fast/script/Latin`](https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/script/Latin.traineddata) | `87416418657359cb625c412a48b6e1d6d41c29bd` | 18 023 octets, plage inclusive 89364021–89382043 ; 303 caractères | `·` présent, `±` absent. SHA-256 `0ce04ab5…`. Le README décrit un modèle d'écriture couvrant plusieurs langues latines, non la langue `lat`. Couverture insuffisante pour ce cas ; pas d'adoption. |
+
+Lectures strictes HTTP 206 : `Content-Range`, longueur et absence de compression
+contrôlés, plafond 64 Kio par artefact, sans repli sur une réponse intégrale.
+Seuls l'en-tête et le composant 21 sont lus ; respectivement 8 301, 6 556 et
+18 219 octets. Les tailles totales et blobs Git annoncés dans les métadonnées
+officielles ne sont **pas** rehachés depuis ces lectures partielles. Aucun poids
+du réseau, fichier modèle complet, inventaire installé ou OCR lu/exécuté ;
+aucune installation ou modification de `fra+eng`. Le format du composant est
+celui vérifié en R23OCR-S04. [Reçus, hashes complets et limites](journal/2026-10-05.md#inspection-bornée-des-alphabets-alternatifs).
+
+Le résultat négatif borne la prochaine action : définir une voie dont
+l'alphabet couvre les signes avant tout essai. Il ne justifie ni changement
+de PDF gelé, correction lexicale des sorties, cascade de modèles ou nouveau
+réglage de densité/PSM sur ces mêmes alphabets.
+
+## R23OCR — reprise locale des petites lignes imprimées
+
+Consultation ROOT du 4 octobre 2026, 23:29–23:36 UTC, avant l'essai et
+l'adoption d'une voie différente du retry mono-glyphe. Question : peut-on
+récupérer les deux extractions DEV partielles sans changer les PDF gelés,
+le moteur, les langues ou le seuil de confiance ? Le skill d'ingestion
+existant est adapté ; aucun second skill concurrent n'est créé.
+
+| ID | Source officielle et contrat constaté | Apport et limite |
+|---|---|---|
+| R23OCR-S01 | Mainteneurs Tesseract, [ImproveQuality](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html), sections Rescaling, Borders et Page segmentation method ; documentation courante non datée, binaire local verrouillé 5.4.0 | Densité et bordure peuvent influer sur la reconnaissance. PSM 3 segmente une page, 6 un bloc uniforme et 7 une ligne. Ces conseils justifient une hypothèse locale, pas les facteurs, plafonds ou gains du projet. Première expérience : crop borné et ×2, PSM de la baseline conservé. Aucun dictionnaire d'attendus ni substitution lexicale. |
+| R23OCR-S02 | Projet Docling, [Tesseract CLI au tag v2.131.0](https://github.com/docling-project/docling/blob/v2.131.0/docling/models/stages/ocr/tesseract_ocr_cli_model.py), `_run_tesseract` et `__call__` ; mêmes fonctions et `backend/pypdfium2_backend.py:get_page_image` relues dans la version installée 2.131.0 | Les mots TSV, confiances et boîtes alimentent les cellules Docling ; le PSM est ajouté seulement s'il est configuré. Le rendu PDFium est fait à `scale * 1.5`, puis redimensionné aux dimensions arrondies du crop. Vérifier le hash du raster avant l'expérience ; aucune compatibilité Windows ou succès natif ne se déduit de la lecture. |
+| R23OCR-S03 | Mainteneurs Pillow, [Image.resize](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.resize), documentation et installation 12.3.0 | Le filtre est un paramètre explicite ; BICUBIC est le défaut hors modes 1/P, LANCZOS est disponible. L'expérience doit nommer facteur, filtre et dimensions réellement arrondies. La disponibilité du filtre ne prouve ni amélioration OCR ni fidélité des signes et unités. |
+| R23OCR-S04 | Tesseract 5.4.0, [TessdataType](https://raw.githubusercontent.com/tesseract-ocr/tesseract/5.4.0/src/ccutil/tessdatamanager.h), entrées 17–23 ; [LoadMemBuffer](https://raw.githubusercontent.com/tesseract-ocr/tesseract/5.4.0/src/ccutil/tessdatamanager.cpp), table d'offsets ; [LoadCharsets et DecodeLabel](https://raw.githubusercontent.com/tesseract-ocr/tesseract/5.4.0/src/lstm/lstmrecognizer.cpp). ROOT : sections ouvertes le 04/10 à 23:52–23:54 UTC ; diagnostic indépendant C précédent | Le composant 21 est l'alphabet LSTM effectivement chargé, lu avec le nombre d'entrées uint32 et les offsets int64. Son inspection locale en lecture seule vérifie d'abord tailles et Git blob SHA-1 des modèles officiels verrouillés. `±` et `·` sont absents des deux composants, y compris hors tokens. Limite d'alphabet, pas explication de la préférence particulière `+`/`-`, ni cause isolée de `0/O`. [Preuve et limites](journal/2026-10-04.md#r23-ocr-01--essais-bornés-et-alphabets-relevé-2356-utc). |
+
+Hypothèse initiale, **NOT_RUN à sa rédaction** : reprendre une petite ligne
+multiglyphe choisie par la baseline TSV réellement insuffisante, une seule
+fois, avec budgets vérifiés avant allocation. Une réussite devra conserver
+ses voisines, inverser toutes les transformations et respecter les attentes
+littérales gelées. Les confiances seules ne prouvent pas cette fidélité.
+L'action [R23-OCR-01](PLAN.md) et le journal portent les essais ; ce registre
+ne remplace pas leurs résultats. Complément du relevé à 23:56 UTC : les essais
+×2 et PSM7 ne qualifient pas P02 ; le contexte de rangée P03 est positif au
+crop seulement. Les deux artefacts OCR existants ne couvrent pas les signes
+scientifiques contrôlés. Aucun changement d'artefact acquis.
 
 ## R23S02 — identité du tag 2B et tokenizer versionné
 

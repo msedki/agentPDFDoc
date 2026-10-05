@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `3fe34e6` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-04 23:16 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `1d73064` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 00:35 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -9,6 +9,36 @@
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R23-OCR-01, validation du 5 octobre à 00:32 UTC :** sous-lot P03
+qualifié localement : extraction réelle complète, 236 tests d'ingestion sans
+exclusion, lint et typages Linux/win32 verts ; 62 contrôles documentaires,
+liens/SVG/brief/dossier conformes. Relecture finale non-auteur favorable
+dans cette portée, publication sélective en finalisation. L'erreur de sonde
+et les limites des ressources restent conservées. P02, sept publications
+DEV, résolution des annotations et qualité 2B/4B restent non validés.
+[Validation, preuves et prochaine action](journal/2026-10-05.md#validation-finale-ciblée-relevé-0032-utc).
+
+**R23-OCR-01, relevé du 5 octobre à 00:15 UTC :** contexte de rangée
+P03 implémenté, 113 tests avec doubles PASS et extraction native complète
+vérifiée : deux pages, aucune région non résolue, tableau littéral exact.
+L'erreur initiale de sonde (index supposé) est conservée ; vérification
+géométrique séparée réussie, sans réextraction identique. Régression élargie
+et relecture indépendante en cours avant livraison. P02 reste non qualifié ;
+aucune publication DEV nouvelle ou génération des 100 questions.
+[Preuves et reprise](journal/2026-10-05.md#r23-ocr-01--contexte-de-rangée-p03-relevé-0015-utc).
+
+**R23-OCR-01, relevé à 23:56 UTC :** trois essais ciblés sur les rasters DEV
+hashés n'ont pas qualifié DA-P02. Le retry ×2 peut même transformer `0`
+en `O` malgré une confiance supérieure au seuil. Le contexte de rangée à
+densité native restitue correctement les trois cellules contrôlées de P03 ;
+son intégration et ses tests sont en cours, pas encore livrés. Une inspection
+du contrat officiel et des deux artefacts OCR exacts établit l'absence de
+`±` et `·` dans leurs alphabets LSTM : la fidélité P02 ne peut pas être
+obtenue par le seul changement de densité ou de PSM. Étude officielle d'une
+seule famille de modèles alternatifs en lecture seule ; aucune installation
+ni substitution acquise. Pas de génération DEV ou d'assouplissement du gate.
+[Essais et limite structurelle](journal/2026-10-04.md#r23-ocr-01--essais-bornés-et-alphabets-relevé-2356-utc).
 
 **Dernier relevé DEV à 23:16 UTC :** gate de publication complète refusé.
 Cinq fixtures DEV sont publiées et capturées ; DA-P02 et DA-P03 ont terminé
@@ -543,7 +573,7 @@ de bascule de profil, de redémarrage ou d'exécution du lot futur.
 | ID | Couche, propriétaire et livrable attendu | Dépendances | Critère de validation | Statut et preuve |
 |---|---|---|---|---|
 | R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Sous-lot publié sur `origin/main` (`a17819a`). Pilotes GPU exécutés et relus, sans réduction de seuil ni qualification D07. Restent admission réellement calibrée, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes non qualifiées. [Parcours](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [pilotes](journal/2026-10-04.md#r23--pilotes-gpu-et-préflight-dev-relevé-2258-utc) |
-| R23-OCR-01 | Ingestion / qualité — intégrateur avec diagnostic et validation non-auteurs : fiabiliser l'extraction des deux scans DEV sans modifier les sources gelées | R23, contrats d'ingestion et skill `pdf-ingestion-windows` ; QA propriétaire arrêtée, extractions partielles conservées | Reproduction ciblée ; correction prouvée avec même moteur et seuils ; publications complètes des sept documents, résolution des 100 scopes/annotations et 90 unités sans ambiguïté avant génération ; contrôles et relecture des cas touchés | IN_PROGRESS — défaut de recette prouvé, cause à diagnostiquer : P02 a sept régions de mots sous 0,8 ; P03 une cellule à 0,70787102, retry densité refusé par la limite de crop. Gate FAILED, aucun score DEV acquis. [Preuves](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc) |
+| R23-OCR-01 | Ingestion / qualité — intégrateur avec diagnostic et validation non-auteurs : fiabiliser l'extraction des deux scans DEV sans modifier les sources gelées | R23, contrats d'ingestion et skill `pdf-ingestion-windows` ; QA propriétaire arrêtée, extractions partielles conservées | Reproduction ciblée ; correction prouvée avec même moteur et seuils ; publications complètes des sept documents, résolution des 100 scopes/annotations et 90 unités sans ambiguïté avant génération ; contrôles et relecture des cas touchés | IN_PROGRESS — sous-lot P03 qualifié : extraction complète native PASS, 236 unités sans exclusion, Ruff/mypy et documents verts, revue finale favorable. Publication Git en finalisation. P02 : signes non couverts par les alphabets inspectés, aucun artefact adopté. Gate DEV toujours FAILED ; sept publications et scores non acquis. [Validation P03](journal/2026-10-05.md#validation-finale-ciblée-relevé-0032-utc) ; [essais et limite](journal/2026-10-04.md#r23-ocr-01--essais-bornés-et-alphabets-relevé-2356-utc) ; [rouge conservé](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc) |
 
 Travail prévu, dans l'ordre utile :
 
