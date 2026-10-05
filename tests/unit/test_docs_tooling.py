@@ -211,8 +211,15 @@ def registry_row(root: Path, path: Path, category: str) -> str:
 
 def test_registry_real_repository():
     detail = vp.registry_check()
-    assert len(detail['pack']) == 5 and len(detail['project']) == 8
-    assert 'project-documentation' in detail['project']
+    assert detail['pack'] == [
+        'local-cpu-qualification', 'official-source-review', 'pdf-workspace-e2e',
+        'rag-pdf-provenance', 'rag-retrieval-evaluation',
+    ]
+    assert detail['project'] == [
+        'embedding-comparison-windows', 'hybrid-rag-api', 'linux-rag-runtime',
+        'pdf-ingestion-windows', 'pdf-workspace-web', 'project-documentation',
+        'rag-qualification-fixtures', 'tesseract-lstm-extension', 'windows-rag-runtime',
+    ]
     assert set(detail['third_party']) >= {'backend-patterns', 'agent-introspection-debugging', 'frontend-design',
                                           'frontend-skill', 'SKILL.md', 'openai.yaml'}
 

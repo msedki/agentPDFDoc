@@ -1,6 +1,6 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `7e31ea9` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 06:24 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5b2844e` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 10:04 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
 
@@ -62,6 +62,36 @@ Aucun regroupement n'est adopté dans le pilote ; le [diagnostic exécuté](jour
 ne confirme pas de gain. [W035](DECISIONS.md#w035-pilote-isolé-dapprentissage-des-signes-scientifiques)
 conserve ses budgets, données et critères. Les publications officielles
 décrivent la durabilité, pas ce résultat local.
+
+Complément de supervision consulté ROOT le 5 octobre à 09:14–09:18 UTC :
+[PSF, `os.scandir`, `DirEntry.stat` et `os.walk`](https://docs.python.org/3.12/library/os.html#os.scandir),
+documentation 3.12.15, interpréteur local 3.12.14. Sur Unix, `stat` effectue
+un appel système puis garde son résultat dans l'entrée ; ne pas conserver
+ce cache entre deux scans. Fermer explicitement les itérateurs et utiliser
+les relevés sans suivi des liens. `os.walk` utilise déjà `scandir` depuis
+Python 3.5 : le changement proposé évite des relevés et allocations
+répétés, pas un remplacement de `listdir` supposé. Les mutations durant
+l'itération ont un résultat non spécifié ; la racine et son inventaire
+doivent rester inchangés dans le benchmark en lecture seule.
+
+Hypothèse à mesurer : le parcours actuel de la QA contribue au temps
+de préparation et aux écarts de supervision. Le benchmark compare les
+comptes logiques et physiques séparément sur l'ancien arbre immuable ;
+aucun contenu de fonte, poids ou texte n'est ouvert. Il ne prouve ni une
+cadence continue, ni le respect des 900 secondes du pilote avec écrivains
+actifs. La mesure de fermeture conserve les synchronisations, gardes et
+ordres existants ; aucun regroupement de commandes n'est adopté.
+
+Complément mémoire consulté ROOT le 5 octobre à 09:40–09:42 UTC après le
+refus `BENCH_RSS_CAP` : [Linux man-pages 6.19, `getrusage(2)`, NOTES](https://man7.org/linux/man-pages/man2/getrusage.2.html)
+indique que les mesures sont conservées à travers `execve`. Le pic
+`ru_maxrss` peut donc inclure l'image précédente du même processus ; il
+n'est pas assimilé à la seule exécution Python du benchmark.
+[Documentation officielle Linux, `/proc`, section 1.1](https://docs.kernel.org/filesystems/proc.html)
+décrit `VmHWM` et `VmRSS` dans `status` et précise leur caractère asynchrone
+et approximatif sur SMP. La V2 garde le pic historique en information et
+contrôle le même plafond sur les valeurs de l'image courante ; ni pic
+continu exact ni isolation matérielle mémoire ne sont revendiqués.
 
 ## R23OCR-S08 — procédure d'extension et sources d'outillage
 

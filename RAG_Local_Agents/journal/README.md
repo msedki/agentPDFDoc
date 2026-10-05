@@ -1,8 +1,15 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `7e31ea9` et entrées datées · **Mis à jour :** 2026-10-05 06:24 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `5b2844e` et entrées datées · **Mis à jour :** 2026-10-05 10:04 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+Diagnostic du 5 octobre, [relevé 09:59 UTC](2026-10-05.md#benchmark-scanner-v2-fermé-relevé-0959-utc) :
+benchmark scanner V2 EXIT0 après contrôles purs et revue de protocole ;
+comptes identiques, gain de parcours sur métadonnées figées uniquement,
+avis terminal non-auteur favorable accepté à 10:00 UTC. Sources du pilote
+neuf en cours, pas de nouvel apprentissage ou d'adoption ; refus de
+l'enveloppe V1 conservé.
 
 Diagnostic du 5 octobre, [relevé06:24 UTC](2026-10-05.md#diagnostic-io-natif-terminé-relevé-0624-utc) :
 52 tests purs durables puis mesure native EXIT0 ; contenus/barrières conformes,

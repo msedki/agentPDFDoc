@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W035 sur la base publiée `7e31ea9` et préparation locale datée ci-dessous · **Mis à jour :** 2026-10-05 06:24 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W035 sur la base publiée `5b2844e` et préparation locale datée ci-dessous · **Mis à jour :** 2026-10-05 10:04 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -621,3 +621,46 @@ par regroupement. Ce regroupement n'est pas adopté dans le pilote.
 La prochaine investigation porte sur les coûts de supervision et de
 clôture de la préparation ; aucune modification de protocole, des données
 ou des budgets n'est acquise. [Mesures et limites](journal/2026-10-05.md#diagnostic-io-natif-terminé-relevé-0624-utc).
+
+**Précision du 5 octobre à 09:23 UTC, avant benchmark :** nouvelle cible
+privée `r23-ocr03-prep-20261005-PmS30t`, sources et rapport seuls modifiables.
+Comparer trois paires de scans, ordre alterné, sur les seules métadonnées
+de l'ancien arbre de préparation arrêté. Conserver deux comptes distincts :
+taille logique des fichiers réguliers ; compte physique conservateur de
+tous les descendants, répertoires compris, hors racine : somme de
+`max(st_size, st_blocks × 512)` par entrée. Racine et inventaire avant/après doivent
+être identiques ; liens symboliques et erreurs ne sont pas masqués.
+Plafonds diagnostiques : 180 secondes au total, 30 par parcours, 20 000
+entrées, RSS 512 Mio, réserves 8/2/20 Gio. Le plafond d'entrées est propre
+au benchmark, pas ajouté au pilote. Aucune lecture de contenus, commande
+OCR, apprentissage ou reprise de partiel. Tests purs et avis non-auteur
+requis avant une seule exécution ROOT.
+
+La fermeture des commandes est instrumentée séparément sans déplacer sa
+frontière historique, ses barrières, ses limites ou ses traitements d'erreur.
+Son coût complet ne peut être connu dans le reçu dont la publication fait
+partie de ce coût : conserver ces durées finales dans la clôture agrégée,
+sans seconde publication par commande. Un gain sur l'arbre figé restera
+une observation à cache chaud, pas une qualification de préparation native.
+Une correction et un nouveau pilote exigent encore leur gel et leur revue,
+avec les données, critères et budgets 900/1800/900 inchangés.
+
+**Précision du 5 octobre à 09:59 UTC, après comparaison :** conserver le
+refus mémoire V1 et sa source. La V2 distingue le pic `getrusage` historique
+des relevés `VmHWM`/`VmRSS` de l'image courante ; même plafond 512 Mio,
+sans mesure continue exacte ni isolation mémoire revendiquée. Les champs
+absents ou incohérents restent des refus, jamais une valeur zéro admise.
+Contrats et limites : [S09](SOURCES.md#r23ocr-s09--entrées-et-mesures-du-pilote-lstm).
+
+Le benchmark V2 fermé confirme un gain sur les parcours de métadonnées,
+pas sur la préparation native complète. Choix de réalisation : préparer
+le raccordement du scanner mesuré à une cible de pilote neuve, avec
+instrumentation de clôture. Garder les entrées admises de l'ancienne QA
+en lecture seule, dans un périmètre explicite distinct des sorties neuves ;
+ne reprendre aucune donnée partielle. Les 81 appels de budget du batch,
+comptes logiques/physiques et délais absolus restent ceux du protocole.
+Le plafond diagnostique de 20 000 entrées n'est pas transplanté au pilote.
+Toute modification de cadence reste séparée, testée et relue ; aucune
+garantie de période continue n'est déduite du benchmark. Gel, preuves
+pures et revue finale sont requis avant calcul ; pas de relancement acquis
+par la seule création des sources. [Résultat mesuré](journal/2026-10-05.md#benchmark-scanner-v2-fermé-relevé-0959-utc).
