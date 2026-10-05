@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1, base publiée `9ccfc68` et complément local W025 daté ci-dessous ; historique conservé ; W033 sur la base `1d73064` et sources locales du 2026-10-05 · **Mis à jour :** 2026-10-05 00:35 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W034 sur la base publiée `c05efad` et préparation locale datée ci-dessous · **Mis à jour :** 2026-10-05 01:34 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -462,3 +462,40 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 **Limites :** la réussite complète de P03 ne corrige pas P02. Les alphabets installés ne contiennent pas `±` et `·` ; best/fra, best/eng et fast/Latin inspectés ne couvrent pas non plus la paire. Aucun nouvel artefact adopté ni réparation lexicale. Publication API/index, résolution DEV et comparaison qualité restent distinctes de l'extraction.
 
 **Reprise/retour arrière :** conserver les révisions et les citations publiées. Une révision du helper constitue un nouveau changement vérifié et une nouvelle empreinte ; aucun reset du stockage ou remplacement de source gelée pour revenir à l'ancien comportement. Le suivi et les reçus demeurent au plan/journal, pas dans cette décision.
+
+## W034 Outils séparés avant toute extension LSTM
+
+**Date :** 5 octobre 2026, relevé 01:34 UTC. **Statut :** choix technique
+ROOT acquis pour la seule phase d'outillage ; exécution conditionnée à la
+relecture du skill et du protocole. Entraînement et adoption proposés,
+non autorisés par cette décision.
+
+**Contexte :** les pistes d'alphabets inspectées ne couvrent pas la paire
+scientifique requise. Le remapping officiel nécessite un réseau flottant,
+un nouvel alphabet/recoder et des poids réellement appris. Le préflight
+constate les outils absents du préfixe nominal et ICU/Leptonica présents.
+Sources : [R23OCR-S07/S08](SOURCES.md#r23ocr-s08--procédure-dextension-et-sources-doutillage).
+
+**Choix :** préparer une construction CPU séparée de Tesseract 5.4.0 à partir
+de l'archive verrouillée, avec ICU et sans renderer Pango, cache neuf et
+sources non modifiées. Construire uniquement les cibles nécessaires,
+dont fusion d'alphabets et export des lexiques. Aucune installation dans
+le préfixe du produit, modification système ou téléchargement implicite.
+Une branche CMake ne sera tenue pour fonctionnelle qu'après configuration,
+compilation et exécution des contrôles des outils réellement produits.
+
+**Bornes de cette phase :** deux tâches de compilation au maximum, vingt
+minutes de deadline, QA neuve sur le volume dédié, sous verrou lourd
+exclusif ; RSS de la cohorte ≤8 Gio, espace consommé ≤2 Gio, réserve hôte
+≥8 Gio disponibles, disque système ≥2 Gio et volume QA ≥20 Gio libres.
+Mesurer périodiquement, arrêter uniquement les descendants possédés sur
+dépassement, préserver les échecs. Aucun OCR, modèle, génération ou recette
+native en parallèle. Ce sont des limites de travail, pas des mesures D07.
+
+**Suite séparée :** poids flottants, langdata, fontes, données inédites,
+split groupé, budgets et critères d'apprentissage devront être gelés et
+relus avant un pilote. DEV/final restent hors de l'apprentissage ; aucun
+choix de checkpoint d'après les erreurs de recette. Une éventuelle adoption
+exige qualification produit et plateforme, nouvelle identité et retour
+au modèle précédent. Les modèles nominaux, le moteur et les seuils restent
+inchangés pendant l'étude.

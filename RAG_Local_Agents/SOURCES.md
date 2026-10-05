@@ -1,6 +1,44 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `13c5a66` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 01:18 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `c05efad` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 01:58 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R23OCR-S08 — procédure d'extension et sources d'outillage
+
+Sources officielles lues ROOT le 5 octobre avant la création du skill
+`tesseract-lstm-extension`. Pas de poids, outils ou données d'apprentissage
+adoptés par ces lectures. Le préflight S07 reste une observation locale,
+pas un build ; la phase d'outillage est distincte de l'apprentissage.
+
+| Source officielle/version | Contrat utilisé | Limite |
+|---|---|---|
+| [Makefile tesstrain `405346a3…`](https://raw.githubusercontent.com/tesseract-ocr/tesstrain/405346a3a67d8e4e049341d1da6a4b752e0b8351/Makefile) | Ancien alphabet fusionné avant le nouveau ; continuation avec `old_traineddata`, préparation des lignes et exports. Téléchargements et nettoyages sont des cibles explicites à ne pas déclencher implicitement. | Pin découvert par l'étude, pas un checkout exécuté ou qualifié. Un split par fichiers ne garantit pas la séparation des variantes d'un même texte. |
+| [Tesseract 5.4, fusion d'alphabets](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/merge_unicharsets.cpp) | Fusion dans l'ordre des arguments ; contrôler les anciens tokens/IDs et les ajouts. | Conserver l'ordre ne suffit pas à prouver le recoder ou la reconnaissance. |
+| [Tesseract 5.4, chargement du réseau d'apprentissage](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/unicharset/lstmtrainer.cpp), `TryLoadingCheckpoint` | Rejet du modèle integer ; ancien charset/recoder chargés pour remapper les sorties lorsque l'alphabet change. | Le remapping ne constitue pas l'apprentissage des sorties nouvelles ; aucune convergence présumée. |
+| [Tesseract 5.4, `combine_lang_model`](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/combine_lang_model.cpp) | Les trois listes lexicales illisibles peuvent produire un avertissement et une liste vide ; vérifier les composants réels et les lexiques après export. | EXIT0 seul ne prouve pas la conservation des ressources nominales. |
+| [Tesseract 5.4, boucle et exports d'apprentissage](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/lstmtraining.cpp) | `max_iterations` suit les itérations d'apprentissage réussies ; caches train/évaluateur distincts. Un export peut signaler un échec d'écriture sans retour final non nul. | Deadline externe, mesures de ressources et contrôle des fichiers restent nécessaires ; pas de résultat d'entraînement ici. |
+| [CMake 3.16, FindICU](https://cmake.org/cmake/help/v3.16/module/FindICU.html), lecture ROOT du 05/10/2026 | Variables `ICU_FOUND`, `ICU_VERSION`, en-têtes et bibliothèques par composant. Le CMake training épinglé ne demande pas `REQUIRED` : les cibles effectives sont contrôlées avant compilation. | Le guide est affiché en version documentaire 3.16.9 ; CMake local est 3.16.3. La configuration réelle reste à exécuter ; la documentation ne valide pas la résolution locale d'ICU. |
+
+Archive source déjà en cache vérifiée ROOT (`859d1c`) : 1 900 009 octets,
+SHA-256 `30ceffd9b86780f01cbf4eaf9b7fc59abddfcbaf5bbd52f9a633c6528cb183fd`,
+identique au verrou du projet. Aucune extraction ou construction nouvelle
+à ce contrôle ; cache et installation nominaux inchangés.
+
+## Q05UMASK-S01 — portée du masque dans l'entrée QA
+
+Lecture ROOT le 5 octobre 2026 de la [documentation PSF Python 3.12,
+`os.umask`](https://docs.python.org/3.12/library/os.html#os.umask) : fixe le
+masque du processus et retourne l'ancien. La version documentaire affichée
+est 3.12.15, l'interpréteur local 3.12.14. Ce contrat ne change pas les
+permissions d'un fichier déjà présent et ne prouve pas le masque d'un
+lancement historique.
+
+Source locale : entrée opératoire SHA `8276b631…` appelant directement
+`cohort.flow`, sans l'initialisation de `cohort.main` (`5ea2e203…`). Writer
+exact `37e1287e…` : création temporaire `open("w")`, publication par
+`replace`, sans chmod. Lecteur strict inchangé : JSON ≤16 Mio et mode `0600`.
+[Sources complètes, correctif et témoins](journal/2026-10-05.md#q05--correctif-dentrée-qa-et-témoins-causaux-relevé-0141-utc).
+L'omission de composition est prouvée ; aucune correction produit,
+transformation d'ancien runtime ou validation native n'en est déduite.
 
 ## R23OCR-S06 — alphabet français historique et mode OCR
 

@@ -333,7 +333,7 @@ Le **travail des agents** peut consulter Internet selon l'autorisation de l'util
 
 ## Point d'entrée
 
-Deux familles de **vrais `SKILL.md` rédigés pour ce projet** coexistent : les cinq skills du pack sous `RAG_Local_Agents/skills/` (premier tableau) et huit skills projet sous `.agents/skills/` à la racine du dépôt (second tableau). Ils organisent le travail des agents de développement ; ils ne sont pas des plugins installés ni des compétences certifiées par OpenAI, Anthropic ou un éditeur de la stack. Des fichiers tiers sont aussi posés sous `.agents/skills/` ; le [registre](#registre-des-fichiers-présents) les recense sans les compter parmi les skills du projet.
+Deux familles de **vrais `SKILL.md` rédigés pour ce projet** coexistent : les cinq skills du pack sous `RAG_Local_Agents/skills/` (premier tableau) et neuf skills projet sous `.agents/skills/` à la racine du dépôt (second tableau). Ils organisent le travail des agents de développement ; ils ne sont pas des plugins installés ni des compétences certifiées par OpenAI, Anthropic ou un éditeur de la stack. Des fichiers tiers sont aussi posés sous `.agents/skills/` ; le [registre](#registre-des-fichiers-présents) les recense sans les compter parmi les skills du projet.
 
 Lire les noms/descriptions, choisir le skill utile, puis ouvrir son fichier. Si l'environnement fournit déjà un skill plus adapté, en contrôler les instructions et la compatibilité avant de le réutiliser ; ne pas charger les deux intégralement par réflexe. Les décisions externes restent soumises à [RECHERCHE_ET_SKILLS.md](RECHERCHE_ET_SKILLS.md).
 
@@ -392,6 +392,7 @@ Chaque ligne donne le fichier, son origine telle qu'elle se constate dans le dé
 | rag-retrieval-evaluation | pack | [`skills/rag-retrieval-evaluation/SKILL.md`](skills/rag-retrieval-evaluation/SKILL.md) | Pack V2.1 : `metadata.origin: project-authored`, version 2.1 ; ligne `compatibility` révisée le 02/10/2026 (W024, W025) | `952161de2f5f62855859623e217eed44817e01a86d6b699033f94d22ea2f4aa3` | PASS `skill_format` | NOT_RUN |
 | hybrid-rag-api | projet | [`.agents/skills/hybrid-rag-api/SKILL.md`](../.agents/skills/hybrid-rag-api/SKILL.md) | Rédigé pour ce dépôt (renvoie à `RAG_Local_Agents/`) ; aucun champ d'origine ; création non tracée dans `PLAN.md` ni le journal ; options d'Ollama selon le mode (W025) révisées au lot J11.9 (02/10/2026) | `6209a83fb48310f4823f6b6d17687530a1f3ee695e38f373d5f3dea435123cac` | PASS `agents_skill_format` | NOT_RUN |
 | pdf-ingestion-windows | projet | [`.agents/skills/pdf-ingestion-windows/SKILL.md`](../.agents/skills/pdf-ingestion-windows/SKILL.md) | Projet ; W029 et reprise de rangée conservés. Contrôle préalable d'alphabet et modes OEM ajouté selon R23OCR-S04–S06 ; aucun entraînement autorisé par ce skill | `a8297af3dd0580350bcd30f1dea221e9490afb72e8a43ccc9140ad458ff21206` | PASS quick_validate (05/10, 01:08 UTC), delta alphabet/OEM inclus | P03 : extraction complète Linux, 236 tests et revue favorables, non rejoués. Constat négatif et delta alphabet/OEM relus indépendamment, avis favorable accepté ROOT à 01:28 UTC ; [portée et preuves](journal/2026-10-05.md#relecture-finale-du-constat-p02-relevé-0128-utc). Windows natif et P02 non qualifiés |
+| tesseract-lstm-extension | projet | [`.agents/skills/tesseract-lstm-extension/SKILL.md`](../.agents/skills/tesseract-lstm-extension/SKILL.md) | Rédigé le 05/10/2026 après lecture des sources officielles R23OCR-S07/S08, avec skill-creator ; outils, apprentissage et admission produit séparés | `18255ddbd5d902b348e8cb6d9cb1a1b984ea736d0e0122d12fccf42c80fc2c26` | PASS quick_validate, `31ca5b EXIT0` | Forward-test puis construction réelle des sept outils Linux aarch64 et revue finale non-auteur favorables, avis accepté ROOT à 02:21 UTC. Apprentissage, P02 et Windows non qualifiés. [Preuves et portée](journal/2026-10-05.md#construction-terminée-et-lecture-des-preuves-relevé-0212-utc) |
 | pdf-workspace-web | projet | [`.agents/skills/pdf-workspace-web/SKILL.md`](../.agents/skills/pdf-workspace-web/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot D de `PLAN.md` ; textes d'interface et référence de forme ajoutés par les commits `f8fbb1c` et `d4924d9` | `a96ca71a8b7a622ed1276ef95147dc422c43f54f9a64b3e777d5e3a4cf4e6b3a` | PASS `agents_skill_format` | NOT_RUN |
 | rag-qualification-fixtures | projet | [`.agents/skills/rag-qualification-fixtures/SKILL.md`](../.agents/skills/rag-qualification-fixtures/SKILL.md) | Rédigé pour ce dépôt (renvoie à `RAG_Local_Agents/`) ; création non tracée dans `PLAN.md` ni le journal | `04dd992863315562c3910ab05fac6e353843fc70e11ce199b19df759fb8f2e7f` | PASS `agents_skill_format` | NOT_RUN |
 | windows-rag-runtime | projet | [`.agents/skills/windows-rag-runtime/SKILL.md`](../.agents/skills/windows-rag-runtime/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot E de `PLAN.md` ; lecture consignée dans `reports/skills-usage-2026-09-30.json` ; section « Accélération GPU » du lot J11.9 (02/10/2026) rédigée d'après le code du commit `4d8ba68`, sans essai sous Windows, puis corrigée le 02/10/2026 après une relecture contradictoire non versionnée | `538f75c2cbee38453f192d4db8cd311d1787fdfd13316bc81b677df65851acab` | PASS `agents_skill_format` | NOT_RUN |
@@ -1630,7 +1631,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `13c5a66` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 01:28 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `c05efad` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 02:21 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1639,6 +1640,19 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**Relevé du 5 octobre à 02:21 UTC :** correctif causal QA prêt et relu
+indépendamment : 10 témoins purs verts après un rouge discriminant, sans
+modification du produit ou des anciennes données. Q05 natif reste ouvert :
+cible/liaison neuves et préflight requis. Pour P02, procédure d'extension
+LSTM rédigée, contrôle de format vert ; avis indépendant de méthode favorable
+à la phase outils, sous préconditions, accepté à 01:51 UTC. Sources neuves
+conformes au verrou ; protocole figé et relu indépendamment. Configuration
+réelle conforme et compilation terminée à 02:09:59 UTC selon W034 :
+`PASS_TOOLS_ONLY`, avis final indépendant favorable accepté à 02:21 UTC.
+Lot d'outillage seul validé ; aucun entraînement ni adoption.
+[Correctif QA](journal/2026-10-05.md#q05--correctif-dentrée-qa-et-témoins-causaux-relevé-0141-utc)
+et [phase OCR suivante](journal/2026-10-05.md#r23-ocr-02--procédure-dextension-et-outils-isolés-relevé-0134-utc).
 
 **R23-OCR-01, préflight du 5 octobre à 01:18 UTC :** l'extension LSTM
 est documentée, mais les outils ne sont pas construits. ICU/Leptonica sont
@@ -2227,6 +2241,7 @@ de bascule de profil, de redémarrage ou d'exécution du lot futur.
 |---|---|---|---|---|
 | R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Sous-lot publié sur `origin/main` (`a17819a`). Pilotes GPU exécutés et relus, sans réduction de seuil ni qualification D07. Restent admission réellement calibrée, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes non qualifiées. [Parcours](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [pilotes](journal/2026-10-04.md#r23--pilotes-gpu-et-préflight-dev-relevé-2258-utc) |
 | R23-OCR-01 | Ingestion / qualité — intégrateur avec diagnostic et validation non-auteurs : fiabiliser l'extraction des deux scans DEV sans modifier les sources gelées | R23, contrats d'ingestion et skill `pdf-ingestion-windows` ; QA propriétaire arrêtée, extractions partielles conservées | Reproduction ciblée ; correction prouvée avec même moteur et seuils ; publications complètes des sept documents, résolution des 100 scopes/annotations et 90 unités sans ambiguïté avant génération ; contrôles et relecture des cas touchés | IN_PROGRESS — sous-lot P03 qualifié et publié (`d26a3a4`) : extraction complète native PASS, 236 unités sans exclusion, Ruff/mypy et documents verts, revue finale favorable. P02 : signes non couverts par les alphabets inspectés, aucun artefact adopté. Gate DEV toujours FAILED ; sept publications et scores non acquis. [Livraison P03](journal/2026-10-05.md#publication-du-sous-lot-p03-relevé-0037-utc) ; [essais et limite](journal/2026-10-04.md#r23-ocr-01--essais-bornés-et-alphabets-relevé-2356-utc) ; [rouge conservé](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc) |
+| R23-OCR-02 | Outillage / ingestion — construction séparée des outils d'extension Tesseract, intégrateur avec validateur non-auteur | R23-OCR-01, W034, skill `tesseract-lstm-extension` ; archive verrouillée, ICU/Leptonica ; protocole figé et relu | Configuration puis compilation réelles en QA neuve sous verrou et plafonds ; cibles, dépendances, versions et identités contrôlées, ressources et arrêts conservés ; pas de changement nominal ni apprentissage | VALIDATED_BOUNDED — outils Linux aarch64 seuls : construction réelle `PASS_TOOLS_ONLY` en 397,59 s, sept versions/dépendances et 707 mesures conformes ; revue finale non-auteur favorable, acceptée ROOT à 02:21 UTC. 625 identités observées absentes ; source/entrées/archive inchangées. Entraînement, adoption, P02 et autres plateformes non validés. [Décision](DECISIONS.md#w034-outils-séparés-avant-toute-extension-lstm) ; [preuves et avis final](journal/2026-10-05.md#construction-terminée-et-lecture-des-preuves-relevé-0212-utc) |
 
 Travail prévu, dans l'ordre utile :
 
@@ -2254,8 +2269,10 @@ Travail prévu, dans l'ordre utile :
   après validation réelle. Distinguer Windows, Linux aarch64 et Linux x86-64.
 
 **Prochaine action de ce lot :** le constat négatif P02 et son préflight
-étant relus, établir une procédure d'extension LSTM et statuer sur un pilote
-borné avant toute construction ou entraînement. Ne pas rejouer
+étant relus et les outils séparés validés selon W034, figer les entrées
+officielles du pilote et statuer sur ses limites avant toute nouvelle phase.
+Le pilote d'apprentissage exige ses propres
+entrées, budgets et critères préalables. Ne pas rejouer
 les essais de densité ou de mode sur ces alphabets incomplets. P03 est déjà
 qualifié et publié ; son extraction privée n'est pas encore republiée par API.
 La QA est arrêtée, les cinq captures publiées sont conservées. Après correction P02,
@@ -2999,7 +3016,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1, base publiée `9ccfc68` et complément local W025 daté ci-dessous ; historique conservé ; W033 sur la base `1d73064` et sources locales du 2026-10-05 · **Mis à jour :** 2026-10-05 00:35 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; W034 sur la base publiée `c05efad` et préparation locale datée ci-dessous · **Mis à jour :** 2026-10-05 01:34 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -3462,6 +3479,43 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 
 **Reprise/retour arrière :** conserver les révisions et les citations publiées. Une révision du helper constitue un nouveau changement vérifié et une nouvelle empreinte ; aucun reset du stockage ou remplacement de source gelée pour revenir à l'ancien comportement. Le suivi et les reçus demeurent au plan/journal, pas dans cette décision.
 
+## W034 Outils séparés avant toute extension LSTM
+
+**Date :** 5 octobre 2026, relevé 01:34 UTC. **Statut :** choix technique
+ROOT acquis pour la seule phase d'outillage ; exécution conditionnée à la
+relecture du skill et du protocole. Entraînement et adoption proposés,
+non autorisés par cette décision.
+
+**Contexte :** les pistes d'alphabets inspectées ne couvrent pas la paire
+scientifique requise. Le remapping officiel nécessite un réseau flottant,
+un nouvel alphabet/recoder et des poids réellement appris. Le préflight
+constate les outils absents du préfixe nominal et ICU/Leptonica présents.
+Sources : [R23OCR-S07/S08](SOURCES.md#r23ocr-s08--procédure-dextension-et-sources-doutillage).
+
+**Choix :** préparer une construction CPU séparée de Tesseract 5.4.0 à partir
+de l'archive verrouillée, avec ICU et sans renderer Pango, cache neuf et
+sources non modifiées. Construire uniquement les cibles nécessaires,
+dont fusion d'alphabets et export des lexiques. Aucune installation dans
+le préfixe du produit, modification système ou téléchargement implicite.
+Une branche CMake ne sera tenue pour fonctionnelle qu'après configuration,
+compilation et exécution des contrôles des outils réellement produits.
+
+**Bornes de cette phase :** deux tâches de compilation au maximum, vingt
+minutes de deadline, QA neuve sur le volume dédié, sous verrou lourd
+exclusif ; RSS de la cohorte ≤8 Gio, espace consommé ≤2 Gio, réserve hôte
+≥8 Gio disponibles, disque système ≥2 Gio et volume QA ≥20 Gio libres.
+Mesurer périodiquement, arrêter uniquement les descendants possédés sur
+dépassement, préserver les échecs. Aucun OCR, modèle, génération ou recette
+native en parallèle. Ce sont des limites de travail, pas des mesures D07.
+
+**Suite séparée :** poids flottants, langdata, fontes, données inédites,
+split groupé, budgets et critères d'apprentissage devront être gelés et
+relus avant un pilote. DEV/final restent hors de l'apprentissage ; aucun
+choix de checkpoint d'après les erreurs de recette. Une éventuelle adoption
+exige qualification produit et plateforme, nouvelle identité et retour
+au modèle précédent. Les modèles nominaux, le moteur et les seuils restent
+inchangés pendant l'étude.
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -3514,7 +3568,45 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `13c5a66` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 01:18 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `c05efad` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 01:58 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R23OCR-S08 — procédure d'extension et sources d'outillage
+
+Sources officielles lues ROOT le 5 octobre avant la création du skill
+`tesseract-lstm-extension`. Pas de poids, outils ou données d'apprentissage
+adoptés par ces lectures. Le préflight S07 reste une observation locale,
+pas un build ; la phase d'outillage est distincte de l'apprentissage.
+
+| Source officielle/version | Contrat utilisé | Limite |
+|---|---|---|
+| [Makefile tesstrain `405346a3…`](https://raw.githubusercontent.com/tesseract-ocr/tesstrain/405346a3a67d8e4e049341d1da6a4b752e0b8351/Makefile) | Ancien alphabet fusionné avant le nouveau ; continuation avec `old_traineddata`, préparation des lignes et exports. Téléchargements et nettoyages sont des cibles explicites à ne pas déclencher implicitement. | Pin découvert par l'étude, pas un checkout exécuté ou qualifié. Un split par fichiers ne garantit pas la séparation des variantes d'un même texte. |
+| [Tesseract 5.4, fusion d'alphabets](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/merge_unicharsets.cpp) | Fusion dans l'ordre des arguments ; contrôler les anciens tokens/IDs et les ajouts. | Conserver l'ordre ne suffit pas à prouver le recoder ou la reconnaissance. |
+| [Tesseract 5.4, chargement du réseau d'apprentissage](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/unicharset/lstmtrainer.cpp), `TryLoadingCheckpoint` | Rejet du modèle integer ; ancien charset/recoder chargés pour remapper les sorties lorsque l'alphabet change. | Le remapping ne constitue pas l'apprentissage des sorties nouvelles ; aucune convergence présumée. |
+| [Tesseract 5.4, `combine_lang_model`](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/combine_lang_model.cpp) | Les trois listes lexicales illisibles peuvent produire un avertissement et une liste vide ; vérifier les composants réels et les lexiques après export. | EXIT0 seul ne prouve pas la conservation des ressources nominales. |
+| [Tesseract 5.4, boucle et exports d'apprentissage](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/lstmtraining.cpp) | `max_iterations` suit les itérations d'apprentissage réussies ; caches train/évaluateur distincts. Un export peut signaler un échec d'écriture sans retour final non nul. | Deadline externe, mesures de ressources et contrôle des fichiers restent nécessaires ; pas de résultat d'entraînement ici. |
+| [CMake 3.16, FindICU](https://cmake.org/cmake/help/v3.16/module/FindICU.html), lecture ROOT du 05/10/2026 | Variables `ICU_FOUND`, `ICU_VERSION`, en-têtes et bibliothèques par composant. Le CMake training épinglé ne demande pas `REQUIRED` : les cibles effectives sont contrôlées avant compilation. | Le guide est affiché en version documentaire 3.16.9 ; CMake local est 3.16.3. La configuration réelle reste à exécuter ; la documentation ne valide pas la résolution locale d'ICU. |
+
+Archive source déjà en cache vérifiée ROOT (`859d1c`) : 1 900 009 octets,
+SHA-256 `30ceffd9b86780f01cbf4eaf9b7fc59abddfcbaf5bbd52f9a633c6528cb183fd`,
+identique au verrou du projet. Aucune extraction ou construction nouvelle
+à ce contrôle ; cache et installation nominaux inchangés.
+
+## Q05UMASK-S01 — portée du masque dans l'entrée QA
+
+Lecture ROOT le 5 octobre 2026 de la [documentation PSF Python 3.12,
+`os.umask`](https://docs.python.org/3.12/library/os.html#os.umask) : fixe le
+masque du processus et retourne l'ancien. La version documentaire affichée
+est 3.12.15, l'interpréteur local 3.12.14. Ce contrat ne change pas les
+permissions d'un fichier déjà présent et ne prouve pas le masque d'un
+lancement historique.
+
+Source locale : entrée opératoire SHA `8276b631…` appelant directement
+`cohort.flow`, sans l'initialisation de `cohort.main` (`5ea2e203…`). Writer
+exact `37e1287e…` : création temporaire `open("w")`, publication par
+`replace`, sans chmod. Lecteur strict inchangé : JSON ≤16 Mio et mode `0600`.
+[Sources complètes, correctif et témoins](journal/2026-10-05.md#q05--correctif-dentrée-qa-et-témoins-causaux-relevé-0141-utc).
+L'omission de composition est prouvée ; aucune correction produit,
+transformation d'ancien runtime ou validation native n'en est déduite.
 
 ## R23OCR-S06 — alphabet français historique et mode OCR
 

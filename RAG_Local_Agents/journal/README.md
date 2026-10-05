@@ -1,8 +1,20 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `13c5a66` et entrées datées · **Mis à jour :** 2026-10-05 01:28 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `c05efad` et entrées datées · **Mis à jour :** 2026-10-05 02:29 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+Contrôles du 5 octobre à 02:29 UTC : [préparation de publication de l'outillage](2026-10-05.md#contrôles-avant-publication-de-loutillage-relevé-0229-utc),
+contrôles documentaires verts ; aucune recette produit ajoutée.
+
+Validation du 5 octobre à 02:21 UTC : [sept outils OCR construits et relus](2026-10-05.md#construction-terminée-et-lecture-des-preuves-relevé-0212-utc),
+23 commandes et 707 mesures conformes, 625 identités observées absentes.
+Lot outils Linux aarch64 seul validé ; apprentissage, P02 et DoD restent ouverts.
+
+Relevé du 5 octobre à 01:58 UTC : [correctif d'entrée QA](2026-10-05.md#q05--correctif-dentrée-qa-et-témoins-causaux-relevé-0141-utc),
+rouge causal puis 10 témoins verts, relecture finale indépendante ; pas de
+recette native. [Procédure OCR et phase d'outillage](2026-10-05.md#r23-ocr-02--procédure-dextension-et-outils-isolés-relevé-0134-utc)
+préparées, aucune construction ni entraînement exécutés à ce relevé.
 
 Relecture finale du 5 octobre à 01:28 UTC : [avis indépendant accepté](2026-10-05.md#relecture-finale-du-constat-p02-relevé-0128-utc),
 pour le constat négatif, son préflight et le delta du skill ; P02/R23/DoD ouverts.

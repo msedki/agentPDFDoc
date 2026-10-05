@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `13c5a66` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 01:28 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `c05efad` et complément de suivi daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 02:21 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -9,6 +9,19 @@
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**Relevé du 5 octobre à 02:21 UTC :** correctif causal QA prêt et relu
+indépendamment : 10 témoins purs verts après un rouge discriminant, sans
+modification du produit ou des anciennes données. Q05 natif reste ouvert :
+cible/liaison neuves et préflight requis. Pour P02, procédure d'extension
+LSTM rédigée, contrôle de format vert ; avis indépendant de méthode favorable
+à la phase outils, sous préconditions, accepté à 01:51 UTC. Sources neuves
+conformes au verrou ; protocole figé et relu indépendamment. Configuration
+réelle conforme et compilation terminée à 02:09:59 UTC selon W034 :
+`PASS_TOOLS_ONLY`, avis final indépendant favorable accepté à 02:21 UTC.
+Lot d'outillage seul validé ; aucun entraînement ni adoption.
+[Correctif QA](journal/2026-10-05.md#q05--correctif-dentrée-qa-et-témoins-causaux-relevé-0141-utc)
+et [phase OCR suivante](journal/2026-10-05.md#r23-ocr-02--procédure-dextension-et-outils-isolés-relevé-0134-utc).
 
 **R23-OCR-01, préflight du 5 octobre à 01:18 UTC :** l'extension LSTM
 est documentée, mais les outils ne sont pas construits. ICU/Leptonica sont
@@ -597,6 +610,7 @@ de bascule de profil, de redémarrage ou d'exécution du lot futur.
 |---|---|---|---|---|
 | R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Sous-lot publié sur `origin/main` (`a17819a`). Pilotes GPU exécutés et relus, sans réduction de seuil ni qualification D07. Restent admission réellement calibrée, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes non qualifiées. [Parcours](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [pilotes](journal/2026-10-04.md#r23--pilotes-gpu-et-préflight-dev-relevé-2258-utc) |
 | R23-OCR-01 | Ingestion / qualité — intégrateur avec diagnostic et validation non-auteurs : fiabiliser l'extraction des deux scans DEV sans modifier les sources gelées | R23, contrats d'ingestion et skill `pdf-ingestion-windows` ; QA propriétaire arrêtée, extractions partielles conservées | Reproduction ciblée ; correction prouvée avec même moteur et seuils ; publications complètes des sept documents, résolution des 100 scopes/annotations et 90 unités sans ambiguïté avant génération ; contrôles et relecture des cas touchés | IN_PROGRESS — sous-lot P03 qualifié et publié (`d26a3a4`) : extraction complète native PASS, 236 unités sans exclusion, Ruff/mypy et documents verts, revue finale favorable. P02 : signes non couverts par les alphabets inspectés, aucun artefact adopté. Gate DEV toujours FAILED ; sept publications et scores non acquis. [Livraison P03](journal/2026-10-05.md#publication-du-sous-lot-p03-relevé-0037-utc) ; [essais et limite](journal/2026-10-04.md#r23-ocr-01--essais-bornés-et-alphabets-relevé-2356-utc) ; [rouge conservé](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc) |
+| R23-OCR-02 | Outillage / ingestion — construction séparée des outils d'extension Tesseract, intégrateur avec validateur non-auteur | R23-OCR-01, W034, skill `tesseract-lstm-extension` ; archive verrouillée, ICU/Leptonica ; protocole figé et relu | Configuration puis compilation réelles en QA neuve sous verrou et plafonds ; cibles, dépendances, versions et identités contrôlées, ressources et arrêts conservés ; pas de changement nominal ni apprentissage | VALIDATED_BOUNDED — outils Linux aarch64 seuls : construction réelle `PASS_TOOLS_ONLY` en 397,59 s, sept versions/dépendances et 707 mesures conformes ; revue finale non-auteur favorable, acceptée ROOT à 02:21 UTC. 625 identités observées absentes ; source/entrées/archive inchangées. Entraînement, adoption, P02 et autres plateformes non validés. [Décision](DECISIONS.md#w034-outils-séparés-avant-toute-extension-lstm) ; [preuves et avis final](journal/2026-10-05.md#construction-terminée-et-lecture-des-preuves-relevé-0212-utc) |
 
 Travail prévu, dans l'ordre utile :
 
@@ -624,8 +638,10 @@ Travail prévu, dans l'ordre utile :
   après validation réelle. Distinguer Windows, Linux aarch64 et Linux x86-64.
 
 **Prochaine action de ce lot :** le constat négatif P02 et son préflight
-étant relus, établir une procédure d'extension LSTM et statuer sur un pilote
-borné avant toute construction ou entraînement. Ne pas rejouer
+étant relus et les outils séparés validés selon W034, figer les entrées
+officielles du pilote et statuer sur ses limites avant toute nouvelle phase.
+Le pilote d'apprentissage exige ses propres
+entrées, budgets et critères préalables. Ne pas rejouer
 les essais de densité ou de mode sur ces alphabets incomplets. P03 est déjà
 qualifié et publié ; son extraction privée n'est pas encore republiée par API.
 La QA est arrêtée, les cinq captures publiées sont conservées. Après correction P02,
