@@ -1,15 +1,21 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `1bf76ff` et entrées datées · **Mis à jour :** 2026-10-05 11:39 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `a230c07` et entrées datées · **Mis à jour :** 2026-10-05 12:32 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Correction isolée du lecteur procfs](2026-10-05.md#correction-bornée-du-lecteur-procfs-relevé-1208-utc) :
+23 témoins causaux purs PASS, nouvelle QA raccordée, 120 régressions PASS.
+Diagnostics préexistants du protocole intégral conservés ; deux avis
+indépendants GO_PILOT_PROTOCOL_ONLY. Un seul pilote QA3 lancé à 12:29 UTC,
+session 59382, en préparation ; aucun apprentissage ou résultat qualifié.
 
 [Pilote neuf arrêté avant apprentissage](2026-10-05.md#pilote-neuf-interrompu-en-préparation-relevé-1119-utc) :
 734,17 s, `ProcessLookupError` en préparation, 545 LSTMF partiels conservés,
 aucune relance. Diagnostic et revue terminale séparés ; aucune cause
 historique exacte ou qualité OCR déduite.
 Revue terminale non-auteur : qualification refusée, arrêt et conservation
-vérifiés ; correction du lecteur procfs proposée, pas réalisée.
+vérifiés ; correction alors proposée, réalisée et testée dans le lot distinct ci-dessus.
 
 [Documentation des choix OCR et contrôles](2026-10-05.md#contrôles-de-cette-documentation-relevé-1105-utc) :
 62 tests PASS, liens/pack/brief/schémas conformes, avis final indépendant

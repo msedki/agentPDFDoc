@@ -1,6 +1,6 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `1bf76ff` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 11:19 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `a230c07` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 12:22 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
 
@@ -129,6 +129,17 @@ gestion d'absence au lecteur proc, conserver le refus sur perte de leader,
 naissance différente, PGID/SID incohérents, permissions, données invalides
 et erreurs non reconnues. Aucun arrêt sur un PID réutilisé ni tolérance
 globale de `OSError` n'est autorisé par ce constat.
+
+Correction locale distincte du protocole ancien : copie isolée
+`tools_protocol_v2.py`, SHA-256
+`f5655f5548428f81ec77950f582af2e3363ccc241b333869d2b2e0ef2ffb2ed2`.
+Seuls l'import `errno` et le handler entourant `read_text` changent ;
+ENOENT/ESRCH donnent `None`, les autres erreurs sont propagées, parsing
+hors de ce handler. Les refus du leader, du groupe et de session ainsi
+que l'arrêt restent inchangés. Témoins exacts, interfaces substituées,
+gel et raccordement : [journal du correctif](journal/2026-10-05.md#correction-bornée-du-lecteur-procfs-relevé-1208-utc).
+Ces preuves pures ne localisent pas l'exception historique et ne prouvent
+ni une préparation complète ni un apprentissage natif.
 
 ## R23OCR-S08 — procédure d'extension et sources d'outillage
 
