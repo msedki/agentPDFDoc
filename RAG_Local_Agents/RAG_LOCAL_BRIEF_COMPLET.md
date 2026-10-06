@@ -1704,7 +1704,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `0821b22` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 06:25 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `e58ff24` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 06:38 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1713,6 +1713,22 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R24-EMB-01 — précondition locale du comparatif, relevé du 6 octobre à 06:36 UTC.**
+Inconnue de qualification : les dix artefacts Granite et l'avis de licence
+du verrou séparé sont absents du runtime de ce poste. Ce constat ne prouve
+ni une incompatibilité du graphe ni une indisponibilité chez l'éditeur.
+D-04/QUALIFICATION §5 prévoient ce candidat sous conditions ; les anciennes
+preuves sont statiques ou unitaires avec doubles, pas un essai ONNX réel.
+Statut **DECISION_PENDING**, aucune réalisation native : un provisionnement
+optionnel suivi d'un contrôle court est une étape distincte, pas une clôture
+de D03.8/D10.2. Pas de téléchargement, corpus, collection ou baseline modifiés.
+La demande de limiter le travail au nécessaire est conservée ; arbitrage à
+obtenir sur la poursuite de la qualification intégrale ou une livraison locale
+avec les réserves explicites, sans modifier la DoD avant décision utilisateur.
+Après arbitrage : contrôler uniquement les prérequis du lot retenu ; ni relance
+des diagnostics OCR clos ni répétition des contrôles Q10 inchangés.
+[Constats, limites et reprise](journal/2026-10-06.md#r24-emb-01--précondition-du-comparatif).
 
 **R15-3-Q10 — passages complets validés sur le jeu QLONG le 6 octobre à 06:24 UTC.**
 Une seule recette réutilise les citations et l'export existants : huit passages,
