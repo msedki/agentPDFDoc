@@ -1,6 +1,28 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `133c259` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 04:18 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `a4c2029` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 05:50 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R23OCR-S11 — discriminant de segmentation par lignes
+
+Consultation ROOT le 6 octobre 2026 à 05:23 puis 05:29 UTC, avant tout
+nouvel OCR. [ImproveQuality](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html),
+sections Page segmentation method et Borders : le mode dépend de la forme
+de la région ; une petite bordure peut être utile. Documentation courante,
+date de publication non indiquée. Au tag Tesseract 5.4.0 utilisé ici,
+[`publictypes.h`, `PageSegMode`](https://raw.githubusercontent.com/tesseract-ocr/tesseract/5.4.0/include/tesseract/publictypes.h)
+définit le mode 13 comme reconnaissance d'une ligne sans certaines
+heuristiques spécifiques. Cela établit le contrat, pas un gain de fidélité.
+
+Hypothèse distincte formulée avant exécution : reconnaître les vrais groupes TSV d'une
+seule région narrative P02, à densité native, mêmes poids/langues/seuils,
+avec une bordure de dix pixels et PSM13. Le choix des groupes ne dépend
+ni d'une valeur attendue ni de la confiance. Ce n'est pas le retry actuel,
+qui conserve les cellules admissibles. Le raster doit d'abord correspondre
+exactement à celui de l'extraction conservée ; les lignes du pilote isolé
+ne peuvent le remplacer. L'essai du 6 octobre à 05:44 UTC refuse cette
+méthode comme correction dans ce périmètre ; aucun pipeline ou modèle
+nominal modifié. Le [journal de l'essai](journal/2026-10-06.md#r23-ocr-01--discriminant-des-lignes-réelles)
+porte les résultats locaux, que les sources officielles ne préjugent pas.
 
 ## R15-F05-S01 — stabilité du défilement PDF virtualisé
 
