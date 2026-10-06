@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `ab6e0cc` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 03:28 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `dde3440` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 03:36 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -9,6 +9,18 @@
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R23-OCR-01 — diagnostic ciblé clos le 6 octobre à 03:36 UTC, sans correction prouvée.**
+La relecture du code et des sorties P/F confirme l'erreur `DA-PO2`
+dans l'OCR brut d'une région entière, sans crop ni reprise de ligne.
+Le pilote réussi S utilise des lignes isolées et une segmentation différente ;
+il ne qualifie pas ce chemin PDF. Aucun défaut de chargement du candidat
+n'est établi. Le contexte et la segmentation restent une hypothèse, pas
+une cause démontrée ni un correctif acquis. Refus d'adoption conservé,
+R23-OCR-01/D02 ouverts. Ce constat ne justifie ni nouvelle campagne
+ni apprentissage. Les contrôles applicatifs déjà acquis sur des
+sources inchangées ne sont pas rejoués.
+[Frontière vérifiée et limites](journal/2026-10-06.md#r23-ocr-01--limite-du-pilote-ligne-et-fin-du-diagnostic).
 
 **R23 — candidat éditorial 2B refusé le 6 octobre à 03:23:45 UTC.**
 Une question originale, quatre preuves gelées, un seul chat GPU : 503 tokens

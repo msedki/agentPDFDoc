@@ -1,8 +1,12 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `ab6e0cc` et entrées datées · **Mis à jour :** 2026-10-06 03:28 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `dde3440` et entrées datées · **Mis à jour :** 2026-10-06 03:36 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Limite du pilote ligne, diagnostic P02 clos](2026-10-06.md#r23-ocr-01--limite-du-pilote-ligne-et-fin-du-diagnostic) :
+OCR narratif pleine région distinct des lignes isolées du pilote réussi.
+Cause non démontrée, refus d'adoption maintenu ; aucune campagne relancée.
 
 [Candidat éditorial 2B refusé](2026-10-06.md#r23--correction-ciblée-du-jugement-2b) :
 un seul chat GPU, abstention correcte et jugement supprimé, mais ajout
