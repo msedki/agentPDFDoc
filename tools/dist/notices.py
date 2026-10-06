@@ -1,8 +1,8 @@
 """Avis de tiers du kit (DIST-07) : composants, licences déclarées par les verrous, textes présents et manques connus.
 
 Source de vérité : `config/artifacts.lock.json` (licence, éditeur et source de chaque artefact) ; les textes de licence
-sont ceux qui figurent réellement dans le kit. Ce fichier n'est pas un avis juridique : les manques connus restent soumis
-à la décision P7 de l'analyse de distribution.
+sont ceux qui figurent réellement dans le kit. Usage interne selon W030, sans validation juridique ni redistribution
+hors de l'organisation ; les manques connus restent déclarés.
 """
 
 from __future__ import annotations
@@ -47,8 +47,9 @@ def third_party_notices(root: Path, files: list[str], version: str, platform: st
     rows = artifact_rows(lock, files, platform)
     lines = [f"# Avis de tiers — Atelier documentaire {version}", "",
              "Composants livrés par ce kit, avec la licence déclarée par le verrou du projet (`config/artifacts.lock.json`) et les textes "
-             "de licence effectivement présents dans le kit. Ce document n'est pas un avis juridique : les manques listés en fin de "
-             "document attendent la décision P7 de l'analyse de distribution.", "",
+             "de licence effectivement présents dans le kit. Ce document n'est pas un avis juridique. Le projet est d'usage interne, "
+             "sans redistribution hors de l'organisation (décision W030). Les manques connus restent listés en fin de document. "
+             "Une redistribution hors de l'organisation rouvrirait le contrôle des licences et avis manquants.", "",
              "| Composant | Version ou révision | Éditeur | Licence déclarée | Source | Textes présents dans le kit |", "|---|---|---|---|---|---|"]
     for row in rows:
         texts = "<br>".join(f"`{name}`" for name in row["texts"]) or "aucun"

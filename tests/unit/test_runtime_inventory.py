@@ -3,6 +3,7 @@
 Racine de programme temporaire ; ni distribution Python ni paquet npm n'est parcouru (doubles), seul le verrou compte.
 """
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -43,6 +44,38 @@ def test_the_inventory_lists_the_artifacts_that_provision_takes_on_this_host(pro
     listed = json.loads(output.read_text(encoding="utf-8"))["artifacts"]
     assert [item["source"].rsplit("/", 1)[-1] for item in listed] == expected
     assert all(item["provisioned"] is False for item in listed)
+
+
+@pytest.mark.parametrize(("present", "license_text"), [(False, None), (True, "Licence 2B de la fixture"), (True, None)])
+def test_ollama_2b_manifest_is_inventoried_without_changing_4b_records(program, monkeypatch, present, license_text):
+    monkeypatch.setattr(inventory, "host_signals", lambda: dict(JETSON))
+    manifests = program / ".runtime/manifests"
+    manifests.mkdir(parents=True)
+    expected = {}
+    for key, filename, model in (
+        ("ollama_model", "ollama-model.json", "qwen3.5:4b"),
+        ("ollama_text_model", "ollama-model-text.json", "qwen3.5:4b-text"),
+        ("ollama_2b_model", "ollama-model-2b.json", "qwen3.5:2b"),
+    ):
+        if key == "ollama_2b_model" and not present:
+            continue
+        source_model = "qwen3.5:4b" if key == "ollama_text_model" else None
+        data = {"model": {"name": model, "digest": f"sha256:fixture-{key}"},
+                "source_model": source_model,
+                "license": license_text if key == "ollama_2b_model" else "Licence 4B de la fixture"}
+        payload = json.dumps(data, ensure_ascii=False).encode("utf-8")
+        (manifests / filename).write_bytes(payload)
+        expected[key] = {"model": data["model"], "license_notice": data["license"],
+                         "derived_from": source_model, "manifest_sha256": hashlib.sha256(payload).hexdigest()}
+    inventory.license_inventory(program / "licences.json")
+    report = json.loads((program / "licences.json").read_text(encoding="utf-8"))
+    assert {key: report[key] for key in expected} == expected
+    if not present:
+        assert "ollama_2b_model" not in report
+    for key, filename in (("ollama_model", "ollama-model.json"), ("ollama_text_model", "ollama-model-text.json"),
+                          ("ollama_2b_model", "ollama-model-2b.json")):
+        if key in expected:
+            assert hashlib.sha256((manifests / filename).read_bytes()).hexdigest() == expected[key]["manifest_sha256"]
 
 
 class Distribution:

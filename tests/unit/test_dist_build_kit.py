@@ -100,6 +100,18 @@ def test_kit_carries_third_party_notices_from_the_artifact_lock(repository, tmp_
     assert verify_kit(kit)["status"] == "verified"
 
 
+def test_notices_state_internal_use_and_preserve_known_gaps(repository):
+    from tools.dist.notices import third_party_notices
+
+    notices = third_party_notices(repository, [], "0.1.0")
+    assert "usage interne" in notices and "W030" in notices
+    assert "Une redistribution hors de l'organisation" in notices
+    assert "rouvrirait" in notices and "pas un avis juridique" in notices
+    assert "attendent la décision P7" not in notices
+    assert "## Manques connus" in notices
+    assert "Qdrant et à Ollama" in notices and "licences des DLL tierces" in notices
+
+
 def test_notices_cover_every_locked_artifact_of_the_repository():
     from tools.dist.build_kit import ROOT
     from tools.dist.notices import third_party_notices
@@ -219,4 +231,3 @@ def test_windows_outputs_print_the_proposal_the_summary_points_to(script, line):
     from tools.dist.build_kit import ROOT
 
     assert line in [item.strip() for item in (ROOT / script).read_text(encoding="utf-8-sig").splitlines()]
-

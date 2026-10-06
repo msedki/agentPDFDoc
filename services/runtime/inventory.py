@@ -284,7 +284,8 @@ def license_inventory(output: Path) -> dict:
                 if (ROOT / entry["target"]).is_file() else None} for entry in entries],
             "limit": "Presence and metadata inventory; does not prove inference or an IBM-bundled NOTICE.",
         }
-    for key, name in (("ollama_model", "ollama-model.json"), ("ollama_text_model", "ollama-model-text.json")):
+    for key, name in (("ollama_model", "ollama-model.json"), ("ollama_text_model", "ollama-model-text.json"),
+                      ("ollama_2b_model", "ollama-model-2b.json")):
         manifest = ROOT / ".runtime/manifests" / name
         if manifest.is_file():
             data = json.loads(manifest.read_text(encoding="utf-8"))

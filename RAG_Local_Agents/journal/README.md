@@ -1,8 +1,12 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `461c1f0` et entrées datées · **Mis à jour :** 2026-10-06 05:00 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `dd527fb` et entrées datées · **Mis à jour :** 2026-10-06 05:12 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Modèle 2B dans le registre](2026-10-06.md#r23-lic-01--modèle-2b-ajouté-au-registre) :
+omission corrigée, 55 unités ciblées et inventaire réel Linux conformes.
+Champs 4B et manques conservés, avis générés alignés avec W030 ; aucun modèle chargé.
 
 [Sélection et actions : preuves réconciliées](2026-10-06.md#r15-3-q09--sélection-et-actions-réconciliation-des-preuves) :
 D06.6 Linux couvert par final31/E04, Q07 et Q08 après relecture indépendante

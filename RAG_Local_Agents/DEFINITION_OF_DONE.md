@@ -1,6 +1,6 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `461c1f0` et compléments locaux datés ci-dessous, historique conservé · **Mis à jour :** 2026-10-06 05:00 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `dd527fb` et compléments locaux datés ci-dessous, historique conservé · **Mis à jour :** 2026-10-06 05:12 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -421,6 +421,19 @@ Deux captures desktop vues ROOT ; aucun import, OCR ou appel LLM.
 Actions page/bloc et sélection OCR déjà prouvées, non rejouées. Une section
 ne qualifie ni toutes les sections, ni D06.5, ni Windows ou la DoD globale.
 [Exécution, contrôles et limites](journal/2026-10-06.md#r15-3-q08--action-de-section-sur-lextraction-publiée).
+
+Complément registre D09.5 Linux du 6 octobre 2026 à 05:12 UTC : le modèle
+par défaut 2B est désormais recensé dans `ollama_2b_model` lorsque son
+manifeste existe ; les deux champs 4B historiques sont conservés. Inventaire
+réel du poste généré une fois : identité, licence et hash des trois manifestes
+exacts ; 124 distributions Python, 219 paquets npm, 35 artefacts verrouillés
+et neuf avis natifs. Dépendances de développement incluses, manques CUDA et
+OpenMP déclarés comme avant ; pas de certification juridique ou redistribution
+autorisée déduite. Les avis générés reflètent l'usage interne W030 au lieu
+d'une attente P7 périmée. 55 unités ciblées, lint/typage conformes et avis
+indépendant source favorable. Ce complément ne qualifie ni le kit Windows,
+ni la qualité des réponses 2B, ni la DoD globale.
+[Exécution et limites](journal/2026-10-06.md#r23-lic-01--modèle-2b-ajouté-au-registre).
 
 ## Rapport final exigé
 
