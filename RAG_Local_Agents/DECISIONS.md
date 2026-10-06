@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `5d297b5` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 20:19 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `255c0f4` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 23:56 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -568,6 +568,64 @@ ni P02 au PSM produit, ni extraction publiée, confiance, Windows, CPU 16 Go ou
 DoD. Toute adoption demande sa qualification d'ingestion distincte et une
 identité versionnée. Le retour au modèle actuel ne nécessite aucune mutation
 pendant ce pilote puisqu'il reste inchangé.
+
+### Admission du passage unique — 5 octobre, 23:34 UTC
+
+**Statut :** décision technique ROOT acquise pour une exécution isolée ;
+aucun résultat d'apprentissage ni adoption acquis.
+
+Le défaut observé « ± » lu « + » altère les valeurs scientifiques. Les
+alternatives légères examinées ne le corrigent pas ; le dernier contrôle
+best/Latin est négatif. Le correctif préparatoire a été relu indépendamment
+et son témoin PNG/GT réel est conforme. Retenir un passage du pilote déjà
+préparé plutôt que concevoir une autre campagne. Les 1 000 groupes / 2 000
+variantes restent un choix local gelé, sans preuve de nécessité ou d'optimalité.
+
+Avis indépendant de proportionnalité favorable et
+`GO_ADMISSION_CONDITIONNELLE_W035_PILOT_ONLY` acceptés ROOT. Préflight frais
+à 23:30:09 UTC conforme : 26 dépendances directes, six sorties absentes,
+réserves suffisantes, aucune cohorte lourde observée ; acquisition puis
+libération du verrou inchangé. Le parent doit le reprendre atomiquement
+avant tout lancement natif. Détail : [journal](journal/2026-10-05.md#r23-ocr-03--admission-du-passage-unique-corrigé).
+
+Une seule exécution dans `r23-render-lanes-20261005-Ij6DSn`, avec le parent,
+le raccord, les entrées et les empreintes relus. Budgets 900/1 800/900 s,
+réserves, séparation des jeux, 81 contrôles, seuils et checkpoint terminal
+ci-dessus inchangés. Un refus ou une deadline ferme l'essai sans relance
+automatique. Aucune mutation du modèle nominal, aucun apprentissage sur
+DEV/final ou le corpus privé. Une réussite ne fournit qu'un candidat ;
+la fidélité dans l'ingestion réelle doit être vérifiée avant toute adoption.
+Cette admission remplace l'état « non admis » du relevé de 23:13, pas les
+échecs historiques ni les qualifications encore ouvertes.
+
+**Résultat et correction nécessaire, relevé de 23:56 UTC :** l'unique passage
+est fermé en échec à 23:49:24. La préparation est aboutie, pas l'apprentissage
+des signes ; aucun export, évaluation ou adoption. Deux défauts du pilote
+sont établis contre la source officielle 5.4 et les pièces fermées :
+
+- `--reset_learning_rate true` laisse `true` comme argument non-option,
+  ce qui interrompt le parsing avant les réglages suivants. Le même défaut
+  existe dans la commande d'export non exécutée avec `--stop_training true`.
+- La liste d'apprentissage suit les blocs de familles : les 100 premiers
+  exemples sont en français sans les signes nouveaux. Le moteur termine
+  après ce bloc à BCER TRAIN nul ; corriger uniquement les booléens ne suffit
+  pas. Le premier `·` est même hors des 500 premiers exemples dans cet ordre.
+
+| Réglage | Demandé par le pilote | Effectif dans ce passage |
+|---|---:|---:|
+| Taux d'apprentissage | 0,0001 | 0,001, défaut natif confirmé par le log |
+| Cible d'erreur TRAIN | 0 | 0,01, défaut après interruption du parseur |
+| Cache images, Mio | 64 | 6 000, défaut ; pas une consommation observée |
+
+Correction source/tests nécessaire : booléens en un argument `=true` ou
+`=false` pour l'apprentissage et l'export ; vue d'apprentissage intercalant
+déterministement les cinq familles, paires 28/36 et membres train/évaluation
+inchangés. Le manifeste canonique reste conservé ; la garde de liste doit
+vérifier la nouvelle vue explicite, pas être supprimée. Garder critères,
+budgets et contrôle de progression positive. Aucun volume supplémentaire
+ni nouvelle campagne justifiés. Une nouvelle exécution nécessite sa propre
+admission, pas une relance sur cet échec. Sources et limites :
+[S09, diagnostic CLI et ordre](SOURCES.md#diagnostic-cli-et-ordre-des-exemples--5-octobre-2355-utc).
 
 ### Correction préparatoire du rendu — choix du 5 octobre, 19:48 UTC
 

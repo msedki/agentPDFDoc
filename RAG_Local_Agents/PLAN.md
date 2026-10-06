@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `6fd8713` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 23:13 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `255c0f4` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 23:56 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -10,7 +10,26 @@
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
 
-**R23-OCR-03 — reprise limitée, relevé du 5 octobre à 23:13 UTC.**
+**R23-OCR-03 — passage unique fermé en échec le 5 octobre à 23:49:24 UTC.**
+Décision distincte ROOT après avis indépendant de proportionnalité et
+préflight frais : un seul pilote corrigé dans la cible L neuve, sans nouvelle
+méthode, réduction des critères ni relance automatique. Le volume gelé est
+réutilisé, pas déclaré indispensable. Application et modèle nominal inchangés.
+Parent existant lancé une fois (`e98934`/`6be975 EXIT1`, handle `99697`).
+Préparation complète en moins de 900 s, 2 000 LSTMF vérifiés ; commande
+d'apprentissage EXIT0 mais garde refusée : compteur `learning` nul et taux
+différent du réglage demandé. Causes établies : booléen séparé interrompant
+le parseur CLI, puis premières lignes sans les signes visés dans la liste
+groupée. Aucun export, évaluation ou candidat adopté ; 4 003 identités
+absentes, verrou libéré, modèle nominal conforme au verrou officiel.
+Relecture indépendante favorable à ces constats bornés, pas à la qualité.
+Prochaine action nécessaire : corriger la syntaxe des booléens et la seule
+vue d'apprentissage, tester ces deux défauts sans changer membres, volume,
+seuils ou budgets. Pas de nouvelle exécution native automatiquement admise.
+[Admission W035](DECISIONS.md#admission-du-passage-unique--5-octobre-2334-utc),
+[préflight, résultat et diagnostic](journal/2026-10-05.md#r23-ocr-03--admission-du-passage-unique-corrigé).
+
+**R23-OCR-03 — reprise limitée, relevé historique du 5 octobre à 23:13 UTC.**
 Le défaut « ± » lu « + » bloque la fidélité de ces valeurs, pas la sélection
 Q07 désormais validée. Une seule alternative officielle restante examinée :
 best/script/Latin, composant 21 seulement, 18 Ko lus ; « ± » absent.

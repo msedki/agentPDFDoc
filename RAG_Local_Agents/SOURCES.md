@@ -1,6 +1,6 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `6fd8713` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 23:13 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `255c0f4` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 23:56 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## Q07 — sélection OCR par le navigateur
 
@@ -83,6 +83,35 @@ les pixels et la capture réelle restent des preuves distinctes. Accès DOM
 WHATWG refusé par l'outil ; aucune lecture réussie de cette page revendiquée.
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+### Diagnostic CLI et ordre des exemples — 5 octobre, 23:55 UTC
+
+Après le passage fermé, lecture non-auteur puis ROOT des sources officielles
+5.4.0 déjà provisionnées dans la QA d'outillage, révision
+`1be261dc226d49bdcad0ab2fcb10f8395edc1225`. Aucun téléchargement, patch des
+sources mainteneur, apprentissage ou rejeu natif pour cette lecture.
+
+| Source mainteneur | Contrat vérifié | Apport et limite |
+|---|---|---|
+| [commandlineflags.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/common/commandlineflags.cpp), `ParseCommandLineFlags`, lignes 168–185 et 279–302 ; SHA-256 local `e514dc6a88d52eaab5ad9fc51e3b49718ca990f5cd87b6c632e8be5c9884d249` | Booléens sans valeur séparée : flag seul ou `=true`/`=false` ; le premier argument non-option termine le parsing | Explique pourquoi `true` séparé interrompt la commande avant les réglages suivants. Pas de garantie sur une commande encore non corrigée. |
+| [lstmtraining.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/lstmtraining.cpp), défauts, reset, cache, boucle et export ; SHA-256 local `fac1b0572b23d20c234ce6ee6dcdefef6d04ffd7854e66d2ed0b62f96f9571e2` | Taux par défaut 0,001, cible 0,01, cache 6 000 Mio ; arrêt lorsque l'erreur TRAIN n'est plus supérieure à la cible | Le paramètre demandé n'est pas une preuve de son application. À erreur nulle, la cible demandée 0 arrêterait aussi ; corriger les flags seuls ne couvre pas l'ordre des familles. |
+| [imagedata.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/ccstruct/imagedata.cpp), `LoadDocuments` et `GetPageRoundRobin` ; SHA-256 local `7a38cfba4560f0d8e932bc4a8c78d0b64e7a5f6fab46ee77b4dd61c99992a811`, avec [lstmtrainer.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/unicharset/lstmtrainer.cpp) et `TrainOnLine` du header associé | Chargement dans l'ordre de la liste, sélection par numéro d'échantillon modulo le nombre de documents ; compteurs remis à zéro | Une liste regroupée par famille n'expose pas les signes dans son préfixe. Le préchargement du cache ne prouve pas leur soumission à l'apprentissage. |
+
+Métadonnées fermées confrontées à ce chemin : 1 600 entrées, liste
+SHA-256 `eca7f02165f65d3d0622d174dbdd3fbabea755f6e43f63acb08ab191a5401c00`,
+manifeste LSTMF `7d1d7fefc23229260c920816a5ffc9316f122c51e7ab42e828872b2aeaec2baa`.
+Les 100 premières entrées sont françaises sans les signes ; premier signe
+à l'entrée 321 et première famille produit à 641. Le compteur terminal
+`0/100/100` et l'absence de skip bornent les exemples effectivement soumis,
+pas les fichiers préchargés. Le compteur learning nul ne constitue pas une
+preuve d'identité bit à bit de tous les poids.
+
+Rectification du relevé antérieur de cache : « défaut remplacé explicitement »
+décrivait le réglage écrit. Dans ce passage, l'interruption du parser le
+laisse au défaut ; aucune consommation de 6 000 Mio n'est déduite.
+Résultat, arrêt et preuves : [journal](journal/2026-10-05.md#fermeture-en-échec-et-diagnostic).
+Correction nécessaire : [W035](DECISIONS.md#admission-du-passage-unique--5-octobre-2334-utc),
+sans seuil abaissé, volume augmenté ou nouveau candidat qualifié.
 
 Complément du 5 octobre 2026 à 19:48 UTC, avant la correction de rendu :
 PSF, [queue](https://docs.python.org/3.12/library/queue.html) et

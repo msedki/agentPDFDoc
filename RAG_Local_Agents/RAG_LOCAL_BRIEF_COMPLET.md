@@ -1657,7 +1657,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `6fd8713` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 23:13 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `255c0f4` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 23:56 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1667,7 +1667,26 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
 
-**R23-OCR-03 — reprise limitée, relevé du 5 octobre à 23:13 UTC.**
+**R23-OCR-03 — passage unique fermé en échec le 5 octobre à 23:49:24 UTC.**
+Décision distincte ROOT après avis indépendant de proportionnalité et
+préflight frais : un seul pilote corrigé dans la cible L neuve, sans nouvelle
+méthode, réduction des critères ni relance automatique. Le volume gelé est
+réutilisé, pas déclaré indispensable. Application et modèle nominal inchangés.
+Parent existant lancé une fois (`e98934`/`6be975 EXIT1`, handle `99697`).
+Préparation complète en moins de 900 s, 2 000 LSTMF vérifiés ; commande
+d'apprentissage EXIT0 mais garde refusée : compteur `learning` nul et taux
+différent du réglage demandé. Causes établies : booléen séparé interrompant
+le parseur CLI, puis premières lignes sans les signes visés dans la liste
+groupée. Aucun export, évaluation ou candidat adopté ; 4 003 identités
+absentes, verrou libéré, modèle nominal conforme au verrou officiel.
+Relecture indépendante favorable à ces constats bornés, pas à la qualité.
+Prochaine action nécessaire : corriger la syntaxe des booléens et la seule
+vue d'apprentissage, tester ces deux défauts sans changer membres, volume,
+seuils ou budgets. Pas de nouvelle exécution native automatiquement admise.
+[Admission W035](DECISIONS.md#admission-du-passage-unique--5-octobre-2334-utc),
+[préflight, résultat et diagnostic](journal/2026-10-05.md#r23-ocr-03--admission-du-passage-unique-corrigé).
+
+**R23-OCR-03 — reprise limitée, relevé historique du 5 octobre à 23:13 UTC.**
 Le défaut « ± » lu « + » bloque la fidélité de ces valeurs, pas la sélection
 Q07 désormais validée. Une seule alternative officielle restante examinée :
 best/script/Latin, composant 21 seulement, 18 Ko lus ; « ± » absent.
@@ -3337,7 +3356,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `5d297b5` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 20:19 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `255c0f4` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 23:56 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -3906,6 +3925,64 @@ DoD. Toute adoption demande sa qualification d'ingestion distincte et une
 identité versionnée. Le retour au modèle actuel ne nécessite aucune mutation
 pendant ce pilote puisqu'il reste inchangé.
 
+### Admission du passage unique — 5 octobre, 23:34 UTC
+
+**Statut :** décision technique ROOT acquise pour une exécution isolée ;
+aucun résultat d'apprentissage ni adoption acquis.
+
+Le défaut observé « ± » lu « + » altère les valeurs scientifiques. Les
+alternatives légères examinées ne le corrigent pas ; le dernier contrôle
+best/Latin est négatif. Le correctif préparatoire a été relu indépendamment
+et son témoin PNG/GT réel est conforme. Retenir un passage du pilote déjà
+préparé plutôt que concevoir une autre campagne. Les 1 000 groupes / 2 000
+variantes restent un choix local gelé, sans preuve de nécessité ou d'optimalité.
+
+Avis indépendant de proportionnalité favorable et
+`GO_ADMISSION_CONDITIONNELLE_W035_PILOT_ONLY` acceptés ROOT. Préflight frais
+à 23:30:09 UTC conforme : 26 dépendances directes, six sorties absentes,
+réserves suffisantes, aucune cohorte lourde observée ; acquisition puis
+libération du verrou inchangé. Le parent doit le reprendre atomiquement
+avant tout lancement natif. Détail : [journal](journal/2026-10-05.md#r23-ocr-03--admission-du-passage-unique-corrigé).
+
+Une seule exécution dans `r23-render-lanes-20261005-Ij6DSn`, avec le parent,
+le raccord, les entrées et les empreintes relus. Budgets 900/1 800/900 s,
+réserves, séparation des jeux, 81 contrôles, seuils et checkpoint terminal
+ci-dessus inchangés. Un refus ou une deadline ferme l'essai sans relance
+automatique. Aucune mutation du modèle nominal, aucun apprentissage sur
+DEV/final ou le corpus privé. Une réussite ne fournit qu'un candidat ;
+la fidélité dans l'ingestion réelle doit être vérifiée avant toute adoption.
+Cette admission remplace l'état « non admis » du relevé de 23:13, pas les
+échecs historiques ni les qualifications encore ouvertes.
+
+**Résultat et correction nécessaire, relevé de 23:56 UTC :** l'unique passage
+est fermé en échec à 23:49:24. La préparation est aboutie, pas l'apprentissage
+des signes ; aucun export, évaluation ou adoption. Deux défauts du pilote
+sont établis contre la source officielle 5.4 et les pièces fermées :
+
+- `--reset_learning_rate true` laisse `true` comme argument non-option,
+  ce qui interrompt le parsing avant les réglages suivants. Le même défaut
+  existe dans la commande d'export non exécutée avec `--stop_training true`.
+- La liste d'apprentissage suit les blocs de familles : les 100 premiers
+  exemples sont en français sans les signes nouveaux. Le moteur termine
+  après ce bloc à BCER TRAIN nul ; corriger uniquement les booléens ne suffit
+  pas. Le premier `·` est même hors des 500 premiers exemples dans cet ordre.
+
+| Réglage | Demandé par le pilote | Effectif dans ce passage |
+|---|---:|---:|
+| Taux d'apprentissage | 0,0001 | 0,001, défaut natif confirmé par le log |
+| Cible d'erreur TRAIN | 0 | 0,01, défaut après interruption du parseur |
+| Cache images, Mio | 64 | 6 000, défaut ; pas une consommation observée |
+
+Correction source/tests nécessaire : booléens en un argument `=true` ou
+`=false` pour l'apprentissage et l'export ; vue d'apprentissage intercalant
+déterministement les cinq familles, paires 28/36 et membres train/évaluation
+inchangés. Le manifeste canonique reste conservé ; la garde de liste doit
+vérifier la nouvelle vue explicite, pas être supprimée. Garder critères,
+budgets et contrôle de progression positive. Aucun volume supplémentaire
+ni nouvelle campagne justifiés. Une nouvelle exécution nécessite sa propre
+admission, pas une relance sur cet échec. Sources et limites :
+[S09, diagnostic CLI et ordre](SOURCES.md#diagnostic-cli-et-ordre-des-exemples--5-octobre-2355-utc).
+
 ### Correction préparatoire du rendu — choix du 5 octobre, 19:48 UTC
 
 **Statut :** réalisation source/tests autorisée ; exécution conditionnée à
@@ -4231,7 +4308,7 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `6fd8713` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 23:13 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `255c0f4` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 23:56 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## Q07 — sélection OCR par le navigateur
 
@@ -4314,6 +4391,35 @@ les pixels et la capture réelle restent des preuves distinctes. Accès DOM
 WHATWG refusé par l'outil ; aucune lecture réussie de cette page revendiquée.
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+### Diagnostic CLI et ordre des exemples — 5 octobre, 23:55 UTC
+
+Après le passage fermé, lecture non-auteur puis ROOT des sources officielles
+5.4.0 déjà provisionnées dans la QA d'outillage, révision
+`1be261dc226d49bdcad0ab2fcb10f8395edc1225`. Aucun téléchargement, patch des
+sources mainteneur, apprentissage ou rejeu natif pour cette lecture.
+
+| Source mainteneur | Contrat vérifié | Apport et limite |
+|---|---|---|
+| [commandlineflags.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/common/commandlineflags.cpp), `ParseCommandLineFlags`, lignes 168–185 et 279–302 ; SHA-256 local `e514dc6a88d52eaab5ad9fc51e3b49718ca990f5cd87b6c632e8be5c9884d249` | Booléens sans valeur séparée : flag seul ou `=true`/`=false` ; le premier argument non-option termine le parsing | Explique pourquoi `true` séparé interrompt la commande avant les réglages suivants. Pas de garantie sur une commande encore non corrigée. |
+| [lstmtraining.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/lstmtraining.cpp), défauts, reset, cache, boucle et export ; SHA-256 local `fac1b0572b23d20c234ce6ee6dcdefef6d04ffd7854e66d2ed0b62f96f9571e2` | Taux par défaut 0,001, cible 0,01, cache 6 000 Mio ; arrêt lorsque l'erreur TRAIN n'est plus supérieure à la cible | Le paramètre demandé n'est pas une preuve de son application. À erreur nulle, la cible demandée 0 arrêterait aussi ; corriger les flags seuls ne couvre pas l'ordre des familles. |
+| [imagedata.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/ccstruct/imagedata.cpp), `LoadDocuments` et `GetPageRoundRobin` ; SHA-256 local `7a38cfba4560f0d8e932bc4a8c78d0b64e7a5f6fab46ee77b4dd61c99992a811`, avec [lstmtrainer.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/unicharset/lstmtrainer.cpp) et `TrainOnLine` du header associé | Chargement dans l'ordre de la liste, sélection par numéro d'échantillon modulo le nombre de documents ; compteurs remis à zéro | Une liste regroupée par famille n'expose pas les signes dans son préfixe. Le préchargement du cache ne prouve pas leur soumission à l'apprentissage. |
+
+Métadonnées fermées confrontées à ce chemin : 1 600 entrées, liste
+SHA-256 `eca7f02165f65d3d0622d174dbdd3fbabea755f6e43f63acb08ab191a5401c00`,
+manifeste LSTMF `7d1d7fefc23229260c920816a5ffc9316f122c51e7ab42e828872b2aeaec2baa`.
+Les 100 premières entrées sont françaises sans les signes ; premier signe
+à l'entrée 321 et première famille produit à 641. Le compteur terminal
+`0/100/100` et l'absence de skip bornent les exemples effectivement soumis,
+pas les fichiers préchargés. Le compteur learning nul ne constitue pas une
+preuve d'identité bit à bit de tous les poids.
+
+Rectification du relevé antérieur de cache : « défaut remplacé explicitement »
+décrivait le réglage écrit. Dans ce passage, l'interruption du parser le
+laisse au défaut ; aucune consommation de 6 000 Mio n'est déduite.
+Résultat, arrêt et preuves : [journal](journal/2026-10-05.md#fermeture-en-échec-et-diagnostic).
+Correction nécessaire : [W035](DECISIONS.md#admission-du-passage-unique--5-octobre-2334-utc),
+sans seuil abaissé, volume augmenté ou nouveau candidat qualifié.
 
 Complément du 5 octobre 2026 à 19:48 UTC, avant la correction de rendu :
 PSF, [queue](https://docs.python.org/3.12/library/queue.html) et
