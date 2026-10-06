@@ -1246,7 +1246,7 @@ Pour chaque skill retenu, vérifier une tâche pertinente et une tâche hors pé
 
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `7f5dca4` et complément local Q07 daté ci-dessous, historique conservé · **Mis à jour :** 2026-10-05 22:53 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `9faf256` et complément local Q08 daté ci-dessous, historique conservé · **Mis à jour :** 2026-10-06 04:40 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -1645,6 +1645,16 @@ page/section non rejouées, case Windows D06.6 et DoD globale inchangées.
 L'ancien relevé du tableau Linux reste historique pour ce manque de preuve.
 [Commandes, identités, captures et limites](journal/2026-10-05.md#q07--sélection-dun-texte-ocr-réel).
 
+Complément action de section D06.6 Linux du 6 octobre 2026 : **PASS technique
+borné, relecture indépendante favorable** sur une section QLONG déjà publiée couvrant les
+pages physiques 2–7. Action UI seule sans traitement, puis recherche réelle
+avec scope/version/révision exacts et six passages, 21 blocs admissibles.
+Le même terme rend 18 blocs distincts hors section dans le témoin bibliothèque.
+Deux captures desktop vues ROOT ; aucun import, OCR ou appel LLM.
+Actions page/bloc et sélection OCR déjà prouvées, non rejouées. Une section
+ne qualifie ni toutes les sections, ni D06.5, ni Windows ou la DoD globale.
+[Exécution, contrôles et limites](journal/2026-10-06.md#r15-3-q08--action-de-section-sur-lextraction-publiée).
+
 ## Rapport final exigé
 
 Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, corpus, résultat et chemin de preuve. Ajouter un tableau des métriques avec dénominateurs, mesures chaud/froid, limitations et écarts. Résumer uniquement ce qui est réellement exécuté ; ne pas substituer un discours de conformité aux résultats.
@@ -1657,7 +1667,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `133c259` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 04:18 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `9faf256` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 04:40 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1666,6 +1676,18 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R15-3-Q08 — action de section VALIDATED_BOUNDED le 6 octobre à 04:40 UTC.**
+Un seul parcours sommaire → action explicite → recherche UI, deux recherches
+réelles : témoin bibliothèque avec 18 blocs QLONG distincts hors section ;
+section avec six passages et 21 fragments correspondant aux 21 blocs admis.
+Scope, version, génération, révision, hashes et offsets vérifiés ; captures
+aux deux tailles vues ROOT. Aucune question, import, OCR ou réextraction.
+Source relue indépendamment, lint et typage ciblés verts ; build livré
+inchangé, non reconstruit. Instance arrêtée et données conservées.
+Revue native indépendante favorable ; actions page/bloc/OCR non rejouées,
+ancres à 95 %, Windows et DoD globale non qualifiés par ce parcours.
+[Commandes, identités et limites](journal/2026-10-06.md#r15-3-q08--action-de-section-sur-lextraction-publiée).
 
 **R15-3-F05 — correction de navigation VALIDATED_BOUNDED le 6 octobre à 04:18 UTC.**
 Viewport périmé exclu, dimensions provisoires et offsets cohérents,
@@ -3402,6 +3424,7 @@ L'utilisateur confirme lint, typage, build, QA/E2E, analyse critique indépendan
 
 | ID | Lot et dépendances | Livrable et critère de validation | Statut et preuve |
 |---|---|---|---|
+| R15-3-Q08 | Qualification UI / D06.6, sections QLONG déjà publiées, F05 | Un parcours sommaire→section→recherche UI ; scope exact et passages dans les blocs de la section, témoin hors section, identité/révision conservées, aucune génération/import ; arrêt conservatif et relecture indépendante | VALIDATED_BOUNDED — un cas strict PASS/retry0 ; deux recherches, 18 blocs QLONG distincts hors section dans le témoin, 21/21 blocs admissibles dans les six passages scoped. Deux captures vues ROOT/non-auteur, arrêt et conservation établis ; avis `GO_NATIVE_Q08_BOUNDED` accepté. Actions page/bloc/OCR non rejouées, DoD globale et Windows non clos ; [preuve](journal/2026-10-06.md#r15-3-q08--action-de-section-sur-lextraction-publiée) |
 | R15-3-F05 | Bug du lecteur PDF / R15-3, citation Q06 et données conservées | Synchroniser offsets/slots sans bloquer le scroll manuel. Critère : unités, lint, typage et build verts ; citation14→document1→retour14 puis resize réel, six repères natifs distincts visibles/couverts/peints, scope inchangé, arrêt et relecture non-auteur | VALIDATED_BOUNDED — 342 unités PASS, export `6ae946b1…`, native03 1 PASS/retry0, trois captures vues et avis `GO_NATIVE_CITATION_ANCHOR_LINUX_BOUNDED`. D06.5/global non clos ; [preuves et limites](journal/2026-10-06.md#r15-3-f05--citation-page-14-déviée-vers-la-page-13). Les états historiques des autres lignes sont conservés à leur date, pas transférés au nouvel export |
 | R15-3 | Qualité transverse / R15-2 ; recette isolée et ressources disponibles | Lint frontend explicite, versions maintenues/peers contrôlés ; lint, typage configuré et régressions pertinents réussis après corrections ; couverture E2E réelle et substitutions distinguées, rendu et limites relus indépendamment | IN_PROGRESS — qualité produit inchangée : backend Ruff, 1 517 pytest PASS/12 SKIP/45 exclus, typage Linux/win32 et 17 intégrations Linux ; frontend 305 unités, typage, lint119/0/0, export `7168111f…` et 31 cas stricts sur gel `e093c06b…`. F01/F02/F03/F04 et Q01 VALIDATED_BOUNDED dans leurs critères, contrôles inchangés non rejoués. Dernière recette Q05 `64878/2e222a EXIT1` FAILED après quatre reçus, avec deux PNG 300 % relues ; arrêt courant owner72fd, C 20 absences strictes et conservation bornée. Revue finale non-auteur A `14307b32…` acceptée ROOT à 17:22:23 UTC, FAILED inchangé ; C-v2 et D acceptés séparément ROOT à 18:06:28 UTC après 26/47 tests purs et revues non-auteur A. Assemblage du vrai caller et verrou distinct en préparation, sans GO. STOP FBE `fc5278d0…` désormais historique, non réutilisable comme dernier arrêt courant. Révision distincte, ancres, reconnexion SSE, Windows/16 Gio et DoD globale ouverts. [Preuves et prochaine action](journal/2026-10-04.md#q05--correctifs-qa-acceptés-séparément-relevé-1806-utc) |
 | R15-3-F01 | Bug : boucle clavier et focus initial de la confirmation / R15-3 | Compléter Tab/Shift+Tab aux bornes sans remplacer le dialogue natif ; désigner Annuler à l'ouverture nominale, garder cible statique pending, Échap, fermeture et retour. Validation : sonde inchangée initial/Tab/retour aux trois tailles et pending, unités/qualité puis export réel au vert | VALIDATED_BOUNDED — arbitrage ROOT du 04/10 à 14:14 UTC après revue finale non-auteur A `bb6ab2e2…` / `a86f8940…`. Qualité, export et 31 acquis sur `e093c06b…` / `7168111f…`, non rejoués. Recette neuve `29568/1dfe36 EXIT0` : cinq RB stricts et sonde finale PASS, trois nominales et pending/récupération ; 64 observations clavier, retour du focus, aucune console tardive inattendue ni GET de cleanup aborté. C actuelle `2411ac8a…` / `af6f3eca…` acceptée : owner FBE arrêté, 35 QA/quatre HOST absents, SQL neuf ready/query0 et conservation bornée. Cinq mêmes PNG modales effectivement vues ROOT/C ; DELETE unique interceptée/400, zéro backend, pas de retrait métier qualifié. Deux hunks cleanup ND et liaison CB ne retirent aucune assertion. Anciens FAILED et incidents de lecteur conservés ; cause historique inconnue. Ni Q05 ni DoD globale clôturés. [Critères et preuves](journal/2026-10-04.md#validation-finale-bornée-f01f03-relevé-1414-utc) ; [historique du défaut](journal/2026-10-04.md#c3-native-et-défaut-du-focus-initial-relevé-0427-utc) |
