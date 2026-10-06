@@ -1657,7 +1657,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `f74e19e` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 02:02 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `405de69` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 02:24 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1667,6 +1667,20 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
 
+**R23-OCR-01 — contrôle P02 fermé en refus le 6 octobre à 02:20:56 UTC.**
+Une seule extraction des deux pages gelées, avec le candidat isolé et les
+paramètres d'ingestion conservés. Worker EXIT0, mais `ready_partial` :
+cinq régions sous le seuil de confiance, « ± » devient « + », « N·m »
+devient « N-m » et quatre références DA-P02 sont altérées. Tableau exact,
+entrées et nominal conservés ; aucun artefact adopté. R23-OCR-03 qualifie
+les lignes du pilote, pas l'ingestion PDF. Relecture et diagnostic des
+sorties existantes terminés ; sérialisation écartée, cause OCR non établie.
+Seule piste de reprise ciblée : distinguer `fra` de `fra+eng` sur ce même
+témoin avant toute correction, sans admission native acquise ici.
+Aucun nouvel apprentissage, corpus accru, seuil abaissé
+ou rejeu applicatif inchangé ; R23-OCR-01/D02 restent ouverts.
+[Résultats et reprise](journal/2026-10-06.md#r23-ocr-01--p02-avec-le-candidat-isolé).
+
 **R23-OCR-03 — pilote qualifié le 6 octobre à 01:57:09 UTC.**
 Un seul taux changé à 0,001, 500 itérations et données existantes conservées ;
 aucune préparation supplémentaire. Neuf tests ciblés, Ruff/mypy et relecture
@@ -1674,7 +1688,7 @@ source conformes. Dix premières sorties sans refus certain, puis 400 variantes
 réelles par bras : tous les critères d'origine PASS. Recalcul indépendant
 des 800 sorties conforme ; deux omissions de « ± » subsistent à 28 px, sans
 abaissement du seuil. Pilote seulement `VALIDATED_BOUNDED`, sans adoption.
-Prochaine action nécessaire dans R23-OCR-01 : extraire les deux pages du
+Action identifiée à ce relevé dans R23-OCR-01 : extraire les deux pages du
 P02 synthétique gelé avec le candidat isolé et contrôler littéralement les
 signes, faits, tables et provenance, avant toute utilisation nominale.
 Pas de nouvel apprentissage, volume accru ou rejeu applicatif inchangé.
@@ -2604,7 +2618,7 @@ de bascule de profil, de redémarrage ou d'exécution du lot futur.
 | ID | Couche, propriétaire et livrable attendu | Dépendances | Critère de validation | Statut et preuve |
 |---|---|---|---|---|
 | R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Sous-lot publié sur `origin/main` (`a17819a`). Pilotes GPU exécutés et relus, sans réduction de seuil ni qualification D07. Restent admission réellement calibrée, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes non qualifiées. [Parcours](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [pilotes](journal/2026-10-04.md#r23--pilotes-gpu-et-préflight-dev-relevé-2258-utc) |
-| R23-OCR-01 | Ingestion / qualité — intégrateur avec diagnostic et validation non-auteurs : fiabiliser l'extraction des deux scans DEV sans modifier les sources gelées | R23, contrats d'ingestion et skill `pdf-ingestion-windows` ; QA propriétaire arrêtée, extractions partielles conservées | Reproduction ciblée ; correction prouvée avec même moteur et seuils ; publications complètes des sept documents, résolution des 100 scopes/annotations et 90 unités sans ambiguïté avant génération ; contrôles et relecture des cas touchés | IN_PROGRESS — sous-lot P03 qualifié et publié (`d26a3a4`) : extraction complète native PASS, 236 unités sans exclusion, Ruff/mypy et documents verts, revue finale favorable. P02 : signes non couverts par les alphabets inspectés, aucun artefact adopté. Gate DEV toujours FAILED ; sept publications et scores non acquis. [Livraison P03](journal/2026-10-05.md#publication-du-sous-lot-p03-relevé-0037-utc) ; [essais et limite](journal/2026-10-04.md#r23-ocr-01--essais-bornés-et-alphabets-relevé-2356-utc) ; [rouge conservé](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc) |
+| R23-OCR-01 | Ingestion / qualité — intégrateur avec diagnostic et validation non-auteurs : fiabiliser l'extraction des deux scans DEV sans modifier les sources gelées | R23, contrats d'ingestion et skill `pdf-ingestion-windows` ; QA propriétaire arrêtée, extractions partielles conservées | Reproduction ciblée ; correction prouvée avec même moteur et seuils ; publications complètes des sept documents, résolution des 100 scopes/annotations et 90 unités sans ambiguïté avant génération ; contrôles et relecture des cas touchés | IN_PROGRESS — P03 qualifié et publié (`d26a3a4`) : extraction complète native PASS, 236 unités sans exclusion, Ruff/mypy et documents verts, revue finale favorable. P02 avec le candidat du pilote : témoin réel fermé FAILED le 06/10 à 02:20:56 UTC ; cinq régions de faible confiance, signes scientifiques substitués et références altérées, tableau exact insuffisant. Aucun artefact adopté ; gate DEV, sept publications et scores non acquis. Diagnostic des sorties existantes avant une correction ciblée, sans nouvel apprentissage ou volume accru. [P02 courant](journal/2026-10-06.md#r23-ocr-01--p02-avec-le-candidat-isolé) ; [livraison P03](journal/2026-10-05.md#publication-du-sous-lot-p03-relevé-0037-utc) ; [rouge initial conservé](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc) |
 | R23-OCR-02 | Outillage / ingestion — construction séparée des outils d'extension Tesseract, intégrateur avec validateur non-auteur | R23-OCR-01, W034, skill `tesseract-lstm-extension` ; archive verrouillée, ICU/Leptonica ; protocole figé et relu | Configuration puis compilation réelles en QA neuve sous verrou et plafonds ; cibles, dépendances, versions et identités contrôlées, ressources et arrêts conservés ; pas de changement nominal ni apprentissage | VALIDATED_BOUNDED — outils Linux aarch64 seuls : construction réelle `PASS_TOOLS_ONLY` en 397,59 s, sept versions/dépendances et 707 mesures conformes ; revue finale non-auteur favorable, acceptée ROOT à 02:21 UTC. 625 identités observées absentes ; source/entrées/archive inchangées. Entraînement, adoption, P02 et autres plateformes non validés. [Décision](DECISIONS.md#w034-outils-séparés-avant-toute-extension-lstm) ; [preuves et avis final](journal/2026-10-05.md#construction-terminée-et-lecture-des-preuves-relevé-0212-utc) |
 | R23-OCR-03 | Apprentissage OCR isolé — entrées officielles, proto-alphabet, lignes générales inédites, pilote borné et revue non-auteur | R23-OCR-02, W035, skill LSTM, entrées exactes et supervision qualifiée ; aucun DEV/final pour apprendre | Identités réelles et séparation des groupes ; proto/lexiques conservés ; apprentissage surveillé ; sortie unique et métriques préalables respectées ; revue indépendante ; aucun résultat produit déduit | VALIDATED_BOUNDED — pilote CPU Linux aarch64 au taux 0,001, 500 itérations, données existantes sans régénération : 400 variantes par bras, toutes les gates d'origine PASS. CER 4/21 200, témoins 0/8 642 ; rappel de ± à 28 px : 97,5 %, autres cellules : 100 %, précision : 100 %. Dix observations réutilisées, 811 identités absentes et ressources conformes dans 708 échantillons ; GO_NATIVE_PILOT_ONLY accepté ROOT. Échecs historiques conservés ; aucun modèle installé changé, ingestion P02 et critères globaux non qualifiés. [Résultats et suite nécessaire](journal/2026-10-06.md#r23-ocr-03--taux-mainteneur-et-refus-anticipé), [portée W035](DECISIONS.md#essai-du-taux-mainteneur--6-octobre-2026) |
 
@@ -3413,7 +3427,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `f74e19e` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 02:04 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `405de69` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 02:24 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -4149,6 +4163,23 @@ isolé ; aucune itération ou donnée supplémentaire justifiée par le pilote.
 Adoption toujours non autorisée à ce stade : vérifier la fidélité dans
 l'ingestion PDF réelle. Relecture terminale `GO_NATIVE_PILOT_ONLY` acquise :
 scores recalculés, arrêt et ressources corroborés, deux omissions conservées.
+
+### Témoin P02 du candidat — 6 octobre, 02:19 UTC
+
+**Statut :** source/tests relus, invocation unique fermée en refus à 02:20:56 UTC ;
+pas d'adoption. Admission historique conservée, aucune relance automatique.
+
+Vérifier les deux pages du P02 synthétique DEV gelé avec le candidat validé,
+les autres langues nominales copiées dans une QA neuve et le profil P03
+inchangé sauf `tessdata_dir`. Conserver les oracles scientifiques, tables,
+couverture et provenance ; ne pas démarrer app, index ou LLM. Supervisor
+et interruption qualifiés réutilisés sans nouvelle architecture de recette.
+Le worker termine mais le contrôle est refusé : `ready_partial`, signes
+scientifiques substitués et références altérées ; tableau exact insuffisant.
+Conserver le candidat en QA et le modèle nominal inchangé. Le pilote de
+lignes ne vaut pas qualification PDF ; diagnostic sur les sorties existantes
+avant toute correction ciblée, sans corpus accru ni nouveaux seuils.
+[Admission et résultats](journal/2026-10-06.md#r23-ocr-01--p02-avec-le-candidat-isolé).
 
 ### Correction CLI et ordre — 6 octobre, 00:17 UTC
 

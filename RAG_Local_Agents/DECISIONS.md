@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `f74e19e` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 02:04 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `405de69` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 02:24 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -736,6 +736,23 @@ isolé ; aucune itération ou donnée supplémentaire justifiée par le pilote.
 Adoption toujours non autorisée à ce stade : vérifier la fidélité dans
 l'ingestion PDF réelle. Relecture terminale `GO_NATIVE_PILOT_ONLY` acquise :
 scores recalculés, arrêt et ressources corroborés, deux omissions conservées.
+
+### Témoin P02 du candidat — 6 octobre, 02:19 UTC
+
+**Statut :** source/tests relus, invocation unique fermée en refus à 02:20:56 UTC ;
+pas d'adoption. Admission historique conservée, aucune relance automatique.
+
+Vérifier les deux pages du P02 synthétique DEV gelé avec le candidat validé,
+les autres langues nominales copiées dans une QA neuve et le profil P03
+inchangé sauf `tessdata_dir`. Conserver les oracles scientifiques, tables,
+couverture et provenance ; ne pas démarrer app, index ou LLM. Supervisor
+et interruption qualifiés réutilisés sans nouvelle architecture de recette.
+Le worker termine mais le contrôle est refusé : `ready_partial`, signes
+scientifiques substitués et références altérées ; tableau exact insuffisant.
+Conserver le candidat en QA et le modèle nominal inchangé. Le pilote de
+lignes ne vaut pas qualification PDF ; diagnostic sur les sorties existantes
+avant toute correction ciblée, sans corpus accru ni nouveaux seuils.
+[Admission et résultats](journal/2026-10-06.md#r23-ocr-01--p02-avec-le-candidat-isolé).
 
 ### Correction CLI et ordre — 6 octobre, 00:17 UTC
 
