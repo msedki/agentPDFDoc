@@ -1,6 +1,6 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `255c0f4` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 23:56 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `34124fb` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 01:23 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## Q07 — sélection OCR par le navigateur
 
@@ -83,6 +83,26 @@ les pixels et la capture réelle restent des preuves distinctes. Accès DOM
 WHATWG refusé par l'outil ; aucune lecture réussie de cette page revendiquée.
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+### Diagnostic des signes sans dictionnaire — 6 octobre 2026
+
+Sources officielles 5.4.0, révision
+`1be261dc226d49bdcad0ab2fcb10f8395edc1225`, confrontées aux fichiers
+locaux verrouillés avant le témoin. Deux relectures indépendantes et ROOT ;
+pas de nouvelle méthode d'apprentissage ou de paramètre adopté.
+
+| Source mainteneur | Contrat utile | Limite |
+| --- | --- | --- |
+| [lstmeval.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/lstmeval.cpp), lignes 43–69, et [lstmtester.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/unicharset/lstmtester.cpp), lignes 83–128 | Un modèle de reconnaissance et une liste LSTMF suffisent. `RunEvalSync` calcule les sorties et imprime les paires Truth/OCR à verbosité 2. | EXIT0 seul est insuffisant : `Deserialize failed` peut être renvoyé comme texte. Exiger les deux paires attendues et le résumé ; les entrées non encodables peuvent prolonger la boucle, d'où une deadline externe. |
+| [lstmrecognizer.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/lstm/lstmrecognizer.cpp), lignes 55–65 et 530–536, avec `lstmtester.cpp` ci-dessus | Le reconnaisseur neuf conserve `dict_ = nullptr` ; ce chemin n'appelle pas `LoadDictionary`. Il décode donc sans DAWG. | Une différence avec l'OCR CLI ne prouverait pas une causalité lexicale exclusive : la préparation des lignes diffère aussi. |
+| [lstmtrainer.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/unicharset/lstmtrainer.cpp), lignes 882–917, et [weightmatrix.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/lstm/weightmatrix.cpp), lignes 146–173 | L'évaluation fait un forward et prépare des erreurs en mémoire, sans `Backward`/`Update`. Les sorties nouvelles du remap sont initialisées à partir de la moyenne des poids anciens. | Ajouter les tokens ne leur transmet pas une reconnaissance préapprise. Le compteur learning mesure des mises à jour, pas le succès de chaque signe ; augmenter les itérations ne constitue pas une correction démontrée. |
+
+La documentation [Training Tesseract 5](https://tesseract-ocr.github.io/tessdoc/tess5/TrainingTesseract-5.html)
+confirme la distinction entre extension d'alphabet et apprentissage.
+Le tutoriel historique 4.00, désormais déprécié pour Tesseract 5, n'est
+pas repris comme procédure ni comme prescription d'un nombre d'itérations.
+Le témoin utilise uniquement deux variantes heldout du pilote W035 ;
+aucun jeu DEV/final RAG, aucun corpus privé. [Décision bornée](DECISIONS.md#diagnostic-sur-deux-lignes--6-octobre-2026).
 
 ### Diagnostic CLI et ordre des exemples — 5 octobre, 23:55 UTC
 

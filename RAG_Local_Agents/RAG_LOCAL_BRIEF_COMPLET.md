@@ -1657,7 +1657,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `e28e299` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 01:03 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `34124fb` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 01:23 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1685,10 +1685,15 @@ scientifique refusé : aucun « ± » ou « · » reconnu, aux deux tailles.
 CER global candidat 1,54 %, non-régression conforme : ces succès ne
 valident pas les signes. Modèle nominal conservé, aucune adoption ni
 clôture D02/R23 déduite. Résultat et arrêt corroborés indépendamment.
-Prochaine action nécessaire : diagnostic ciblé de l'apprentissage et du
-décodage des deux classes, avant toute proposition de nouvel essai ; ne
-pas augmenter le corpus, répéter les tests verts ou abaisser les critères.
+Diagnostic ciblé fermé à 01:22:58 UTC : alphabet/GT conformes ; une seule
+commande `lstmeval` sur deux variantes heldout, sans dictionnaire, confirme
+les substitutions. Les lexiques ne suffisent pas à expliquer ces deux
+échecs ; apprentissage insuffisant plausible, correction non démontrée.
+Prochaine action : préparer seulement un réglage de pilote justifié et
+relu avant admission distincte ; pas de volume accru, nouvelle campagne,
+rejeu des tests verts ou critères abaissés.
 [Admission et preuves](journal/2026-10-06.md#r23-ocr-03--réutilisation-de-la-préparation-complète).
+[Diagnostic minimal](journal/2026-10-06.md#r23-ocr-03--diagnostic-minimal-des-signes).
 
 **R23-OCR-03 — correctif CLI et ordre, source/tests validés le 6 octobre.**
 Booléens train/export corrigés ; vue d'apprentissage interlacée par groupes,
@@ -3395,7 +3400,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `e28e299` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 01:03 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `34124fb` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 01:23 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -4065,6 +4070,34 @@ mais candidat refusé sur `signs_by_size` ; aucun signe reconnu dans les
 et le modèle nominal. Aucune adoption ou relance déduite des commandes
 EXIT0 ; prochain travail limité au diagnostic des deux classes.
 
+### Diagnostic sur deux lignes — 6 octobre 2026
+
+**Statut :** admission ROOT du 6 octobre, 01:22 UTC, limitée au diagnostic,
+après avis `GO_SOURCE_TWO_HELDOUT_DIAGNOSTIC_ONLY` et préflight `22a49d`.
+Gel de l'appel `6d926aa…`, une seule invocation ; sans adoption ou relance.
+
+Le pilote G2 échoue sur les signes, bien présents dans son alphabet.
+Retenir une seule invocation de `lstmeval` déjà qualifié, sur les variantes
+heldout 28/36 du groupe `55cd59cb…`, candidat G2 inchangé. Ce chemin sans
+dictionnaire permet de tester une explication, pas de qualifier la qualité
+sur deux lignes. [Contrat officiel](SOURCES.md#diagnostic-des-signes-sans-dictionnaire--6-octobre-2026).
+
+Cible neuve `r23-signs-witness-20261006-3gK327`, écriture limitée aux preuves
+du témoin ; listes canoniques et entrées conservées. Superviseur existant
+inchangé, verrou lourd, commande 10 s/global 15 s, RSS 2 Gio, QA 64 Mio,
+réserves RAM/système/QA 8/2/20 Gio. Deux paires Truth/OCR strictes requises,
+sans erreur de décodage/encodage ; EXIT0 seul ne suffit pas. Aucun train,
+génération, téléchargement, installation, test frontend ou retry automatique.
+[Admission et résultat](journal/2026-10-06.md#r23-ocr-03--diagnostic-minimal-des-signes).
+
+**Résultat à 01:22:58 UTC :** une commande EXIT0, deux paires exactes,
+signes toujours substitués sans dictionnaire. Le témoin est conforme,
+pas le modèle OCR. Les dictionnaires ne suffisent pas à expliquer ces
+deux échecs ; apprentissage insuffisant plausible, correction non démontrée.
+Conserver le candidat refusé et les données existantes, sans adoption,
+augmentation du corpus ou relance automatique. Le prochain réglage devra
+être justifié et relu avant une admission native distincte.
+
 ### Correction CLI et ordre — 6 octobre, 00:17 UTC
 
 **Statut :** correctif source/tests relu indépendamment et accepté ROOT ;
@@ -4417,7 +4450,7 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `255c0f4` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-05 23:56 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `34124fb` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 01:23 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## Q07 — sélection OCR par le navigateur
 
@@ -4500,6 +4533,26 @@ les pixels et la capture réelle restent des preuves distinctes. Accès DOM
 WHATWG refusé par l'outil ; aucune lecture réussie de cette page revendiquée.
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+### Diagnostic des signes sans dictionnaire — 6 octobre 2026
+
+Sources officielles 5.4.0, révision
+`1be261dc226d49bdcad0ab2fcb10f8395edc1225`, confrontées aux fichiers
+locaux verrouillés avant le témoin. Deux relectures indépendantes et ROOT ;
+pas de nouvelle méthode d'apprentissage ou de paramètre adopté.
+
+| Source mainteneur | Contrat utile | Limite |
+| --- | --- | --- |
+| [lstmeval.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/lstmeval.cpp), lignes 43–69, et [lstmtester.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/unicharset/lstmtester.cpp), lignes 83–128 | Un modèle de reconnaissance et une liste LSTMF suffisent. `RunEvalSync` calcule les sorties et imprime les paires Truth/OCR à verbosité 2. | EXIT0 seul est insuffisant : `Deserialize failed` peut être renvoyé comme texte. Exiger les deux paires attendues et le résumé ; les entrées non encodables peuvent prolonger la boucle, d'où une deadline externe. |
+| [lstmrecognizer.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/lstm/lstmrecognizer.cpp), lignes 55–65 et 530–536, avec `lstmtester.cpp` ci-dessus | Le reconnaisseur neuf conserve `dict_ = nullptr` ; ce chemin n'appelle pas `LoadDictionary`. Il décode donc sans DAWG. | Une différence avec l'OCR CLI ne prouverait pas une causalité lexicale exclusive : la préparation des lignes diffère aussi. |
+| [lstmtrainer.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/unicharset/lstmtrainer.cpp), lignes 882–917, et [weightmatrix.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/lstm/weightmatrix.cpp), lignes 146–173 | L'évaluation fait un forward et prépare des erreurs en mémoire, sans `Backward`/`Update`. Les sorties nouvelles du remap sont initialisées à partir de la moyenne des poids anciens. | Ajouter les tokens ne leur transmet pas une reconnaissance préapprise. Le compteur learning mesure des mises à jour, pas le succès de chaque signe ; augmenter les itérations ne constitue pas une correction démontrée. |
+
+La documentation [Training Tesseract 5](https://tesseract-ocr.github.io/tessdoc/tess5/TrainingTesseract-5.html)
+confirme la distinction entre extension d'alphabet et apprentissage.
+Le tutoriel historique 4.00, désormais déprécié pour Tesseract 5, n'est
+pas repris comme procédure ni comme prescription d'un nombre d'itérations.
+Le témoin utilise uniquement deux variantes heldout du pilote W035 ;
+aucun jeu DEV/final RAG, aucun corpus privé. [Décision bornée](DECISIONS.md#diagnostic-sur-deux-lignes--6-octobre-2026).
 
 ### Diagnostic CLI et ordre des exemples — 5 octobre, 23:55 UTC
 

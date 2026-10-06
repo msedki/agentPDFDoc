@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `e28e299` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 01:03 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `34124fb` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 01:23 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -669,6 +669,34 @@ mais candidat refusé sur `signs_by_size` ; aucun signe reconnu dans les
 évaluations, malgré le CER global conforme. Conserver ce résultat négatif
 et le modèle nominal. Aucune adoption ou relance déduite des commandes
 EXIT0 ; prochain travail limité au diagnostic des deux classes.
+
+### Diagnostic sur deux lignes — 6 octobre 2026
+
+**Statut :** admission ROOT du 6 octobre, 01:22 UTC, limitée au diagnostic,
+après avis `GO_SOURCE_TWO_HELDOUT_DIAGNOSTIC_ONLY` et préflight `22a49d`.
+Gel de l'appel `6d926aa…`, une seule invocation ; sans adoption ou relance.
+
+Le pilote G2 échoue sur les signes, bien présents dans son alphabet.
+Retenir une seule invocation de `lstmeval` déjà qualifié, sur les variantes
+heldout 28/36 du groupe `55cd59cb…`, candidat G2 inchangé. Ce chemin sans
+dictionnaire permet de tester une explication, pas de qualifier la qualité
+sur deux lignes. [Contrat officiel](SOURCES.md#diagnostic-des-signes-sans-dictionnaire--6-octobre-2026).
+
+Cible neuve `r23-signs-witness-20261006-3gK327`, écriture limitée aux preuves
+du témoin ; listes canoniques et entrées conservées. Superviseur existant
+inchangé, verrou lourd, commande 10 s/global 15 s, RSS 2 Gio, QA 64 Mio,
+réserves RAM/système/QA 8/2/20 Gio. Deux paires Truth/OCR strictes requises,
+sans erreur de décodage/encodage ; EXIT0 seul ne suffit pas. Aucun train,
+génération, téléchargement, installation, test frontend ou retry automatique.
+[Admission et résultat](journal/2026-10-06.md#r23-ocr-03--diagnostic-minimal-des-signes).
+
+**Résultat à 01:22:58 UTC :** une commande EXIT0, deux paires exactes,
+signes toujours substitués sans dictionnaire. Le témoin est conforme,
+pas le modèle OCR. Les dictionnaires ne suffisent pas à expliquer ces
+deux échecs ; apprentissage insuffisant plausible, correction non démontrée.
+Conserver le candidat refusé et les données existantes, sans adoption,
+augmentation du corpus ou relance automatique. Le prochain réglage devra
+être justifié et relu avant une admission native distincte.
 
 ### Correction CLI et ordre — 6 octobre, 00:17 UTC
 
