@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, CircleAlert, FileText, List, RotateCw, Search, ZoomIn, ZoomOut } from "lucide-react";
 import type { PDFDocumentProxy, PDFPageProxy, RenderTask } from "pdfjs-dist";
@@ -9,6 +9,7 @@ import { boundedCanvasSize, reconcileSelection, visiblePageWindow, wholeBlockSpa
 import { hasExtractedText, ocrOverlays, pageTextCaption } from "@/lib/ocr-overlay";
 import { hasPublishedExtraction } from "@/lib/publication";
 import { findNextPdfPage, samePdfReading } from "@/lib/pdf-search";
+import { pdfPageLayout, pdfScrollTarget, type PdfScrollLayout } from "@/lib/pdf-navigation";
 import { groupedWarningTexts } from "@/lib/warnings";
 import { blocksKey, citedRevision } from "@/lib/provenance-revision";
 import { useCitationRevision } from "@/lib/use-citation-revision";
@@ -35,7 +36,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const textLayer = useRef<HTMLDivElement>(null);
-  const [viewport, setViewport] = useState<Viewport | null>(null);
+  const [renderedViewport, setRenderedViewport] = useState<{ key: string; viewport: Viewport } | null>(null);
   // Limite de sélection rédigée ici, ou échec de rendu gardé tel quel (texte calculé au rendu).
   const [failure, setFailure] = useState<string | Failure>("");
   const errorText = useErrorText();
@@ -45,6 +46,8 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
   const correction = blocks.data?.page.orientation_correction ?? 0;
   const extractionState = blocks.data?.page.extraction_state;
   const renderKey = `${versionId}:${pageIndex}:${width}:${zoom}:${rotation}:${correction}:${extractionState}`;
+  const pageLayout = pdfPageLayout(renderedViewport, renderKey, width, zoom, rotation);
+  const viewport = pageLayout.viewport;
   const [previousRender, setPreviousRender] = useState({ document, key: renderKey });
   if (previousRender.document !== document || previousRender.key !== renderKey) {
     setPreviousRender({ document, key: renderKey });
@@ -67,7 +70,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
       const natural = page.getViewport({ scale: 1, rotation: pageRotation });
       const scale = Math.max(0.1, (width - 48) / natural.width) * zoom;
       const view = page.getViewport({ scale, rotation: pageRotation });
-      setViewport(view);
+      setRenderedViewport({ key: renderKey, viewport: view });
       onHeight(pageIndex, view.height + 52);
       const raster = boundedCanvasSize(view.width, view.height, window.devicePixelRatio || 1, GLOBAL_PIXEL_BUDGET, MAX_CANVASES);
       const resolution = raster.scale;
@@ -100,7 +103,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
       layerContainer?.replaceChildren();
       page?.cleanup();
     };
-  }, [document, pageIndex, width, zoom, rotation, correction, extractionState, onHeight]);
+  }, [document, pageIndex, width, zoom, rotation, correction, extractionState, onHeight, renderKey]);
 
   useEffect(() => {
     for (const span of textLayer.current?.querySelectorAll("span") ?? []) {
@@ -121,7 +124,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
   };
   return <section className="pdf-page-slot" aria-label={`Page ${pageIndex + 1}`} data-page-index={pageIndex}>
     <div className="page-caption"><span>Page {pageIndex + 1}{blocks.data?.page.label && blocks.data.page.label !== String(pageIndex + 1) ? ` · folio ${blocks.data.page.label}` : ""}</span><span>{pageTextCaption({ extractionState: blocks.data?.page.extraction_state, nativeText, blocksLoading: blocks.isLoading, ocrRegions: overlays.length, extractedTextAvailable: hasExtractedText(blocks.data?.blocks ?? []), blocksUnavailable: blocks.isError || !provenanceReady || Boolean(binding.error) })}</span></div>
-    <div className="pdf-paper" style={{ width: viewport?.width ?? width - 48, height: viewport?.height ?? (width - 48) * 1.414 }} onMouseUp={selectText} onKeyUp={selectText}>
+    <div className="pdf-paper" style={{ width: pageLayout.width, height: pageLayout.height }} onMouseUp={selectText} onKeyUp={selectText}>
       <canvas ref={canvas} aria-label={`Page ${pageIndex + 1} de l'original PDF`} style={{ width: "100%", height: "100%" }} />
       <div ref={textLayer} className="textLayer" style={{ "--total-scale-factor": viewport ? viewport.scale * viewport.userUnit : 1, "--scale-round-x": "1px", "--scale-round-y": "1px" } as React.CSSProperties} />
       {viewport && <div className="ocr-text-layer" aria-label="Texte OCR extrait sélectionnable">
@@ -158,6 +161,7 @@ export function PdfViewer() {
   const scroll = useRef<HTMLDivElement>(null);
   const heightHandler = useCallback((index: number, height: number) => setHeights(current => Math.abs((current[index] ?? 0) - height) > 1 ? { ...current, [index]: height } : current), []);
   const currentCenter = useRef(0);
+  const scrollLayout = useRef<PdfScrollLayout | null>(null);
   const searchGeneration = useRef(0);
   const searchLifetime = useRef<AbortController | null>(null);
   const [previousVersion, setPreviousVersion] = useState(versionId);
@@ -218,15 +222,18 @@ export function PdfViewer() {
   }, [versionId]);
 
   const pageCount = document?.numPages ?? 0;
-  const estimatedHeight = (width - 48) * (state.rotation % 180 ? 1 / 1.414 : 1.414) * state.zoom + 52;
+  const estimatedHeight = pdfPageLayout(null, layoutKey, width, state.zoom, state.rotation).height + 52;
   const offsets = [0];
   for (let index = 0; index < pageCount; index++) offsets.push(offsets[index] + (heights[index] ?? estimatedHeight));
   const pageOffset = offsets[pageIndex ?? 0] ?? 0;
-  useEffect(() => {
-    if (!scroll.current || pageIndex === undefined || !document) return;
-    if (pageIndex !== currentCenter.current || scroll.current.scrollTop === 0 && pageIndex > 0) {
+  useLayoutEffect(() => {
+    if (!scroll.current || pageIndex === undefined || !document) { scrollLayout.current = null; return; }
+    const next = { document, pageIndex, pageOffset };
+    const target = pdfScrollTarget(scrollLayout.current, next, currentCenter.current, scroll.current.scrollTop);
+    scrollLayout.current = next;
+    if (target !== null) {
       currentCenter.current = pageIndex;
-      scroll.current.scrollTo({ top: pageOffset, behavior: "instant" });
+      scroll.current.scrollTo({ top: target, behavior: "instant" });
     }
   }, [pageIndex, document, pageOffset]);
 
@@ -290,7 +297,7 @@ export function PdfViewer() {
     {binding.actions.reason && !binding.error && <p className="viewer-notice" role="status">{binding.actions.reason}</p>}
     {state.source && <div className="source-navigation" role="status"><strong>{state.source.source_id ?? "Passage retrouvé"}</strong><span>{sourcePrecisionLabel(state.source)} · version <span className="mono">{opened.versionId.slice(0, 8)}</span>{binding.revision ? <> · révision <span className="mono">{binding.revision.slice(0, 8)}</span></> : null}</span></div>}
     {outlineVisible && <nav className="outline" aria-label="Sommaire"><h3>Sommaire</h3>{outline.isLoading ? <p role="status">Chargement du sommaire…</p> : outline.isError ? <p role="alert" className="inline-error">Sommaire indisponible : {errorText(outline.error)}</p> : !outline.data?.sections.length ? <p>{provenanceReady ? "Aucune section extraite pour cette version." : "Le sommaire sera disponible après publication de l'extraction."}</p> :outline.data.sections.map(section => <div key={section.id}><button onClick={() => state.page(section.page_index)}>{section.title}<span>p. {section.page_index + 1}</span></button><Button variant="ghost" size="sm" aria-label={`Analyser la section ${section.title}`} disabled={!binding.actions.allowed} title={binding.actions.reason ?? undefined} onClick={() => { if (binding.actions.allowed) state.setScope({ kind: "section", versionId: opened.versionId, sectionId: section.id }, section.title); }}>Analyser</Button></div>)}</nav>}
-    <div className="pdf-scroll" ref={scroll} onScroll={onScroll} data-testid="pdf-scroll">
+    <div className="pdf-scroll" ref={scroll} onScroll={onScroll} data-testid="pdf-scroll" style={{ overflowAnchor: "none" }}>
       {loadError ? <PanelError title="Lecture de l'original impossible" message={errorText(loadError.error)} onRetry={() => window.location.reload()} retryLabel="Recharger la page" /> : !document ? <PanelLoading label="Chargement de l'original PDF…" /> : <>
         <div aria-hidden="true" style={{ height: offsets[visible[0] ?? 0] }} />
         {visible.map(index => <PdfPage key={`${opened.versionId}:${index}`} document={document} versionId={opened.versionId} pageIndex={index} width={width} zoom={state.zoom} rotation={state.rotation} source={state.source} search={search} provenanceReady={provenanceReady} onHeight={heightHandler} />)}

@@ -1,6 +1,27 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `ab6e0cc` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 03:28 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `133c259` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 04:18 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R15-F05-S01 — stabilité du défilement PDF virtualisé
+
+Consultations du 6 octobre 2026 à 04:03–04:05 UTC, avant validation du
+correctif : [React 19.3, useLayoutEffect](https://react.dev/reference/react/useLayoutEffect),
+[CSSWG, Scroll Anchoring §2.1 et §3](https://drafts.csswg.org/css-scroll-anchoring/#exclusion-api)
+(Editor's Draft du 30/09/2026) et
+[CSSOM View, défilement instantané](https://drafts.csswg.org/cssom-view/#scrolling)
+(Editor's Draft du 12/07/2026). React installé : 19.3.0, inchangé.
+Apport : synchronisation de la géométrie après commit avant peinture ;
+exclusion de l'ancrage implicite sur le seul scroller dont l'application
+compense les offsets. `instant` est déjà utilisé par le lecteur.
+Référence locale du correctif : [pdf-navigation.ts](../apps/web/src/lib/pdf-navigation.ts)
+et [pdf-viewer.tsx](../apps/web/src/components/pdf-viewer.tsx), base `133c259`
+et modifications F05 datées du 06/10/2026. Viewport périmé exclu ; mêmes
+dimensions provisoires pour les slots et offsets, puis viewport PDF.js
+réel. Le test de clamp utilise les dimensions observées du second essai.
+Limites : les drafts sont des travaux en cours, pas une qualification
+des navigateurs ; ni ces textes ni les unités ne démontrent la chronologie
+du premier échec. La validation réelle est portée par le
+[journal F05](journal/2026-10-06.md#r15-3-f05--citation-page-14-déviée-vers-la-page-13).
 
 ## R23S04 — consigne et témoin éditorial 2B
 

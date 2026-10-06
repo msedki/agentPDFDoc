@@ -1657,7 +1657,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `dde3440` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 03:36 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `133c259` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 04:18 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1666,6 +1666,24 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R15-3-F05 — correction de navigation VALIDATED_BOUNDED le 6 octobre à 04:18 UTC.**
+Viewport périmé exclu, dimensions provisoires et offsets cohérents,
+position conservée quand les mesures changent, défilement manuel préservé.
+342 unités, lint, typage et nouvel export conformes ; même parcours réel
+S005/page14 → document1 → source14 puis resize 1366→1920 : PASS strict,
+neuf overlays et six spans natifs couverts, visibles et peints. Trois captures
+vues par ROOT et le vérificateur non-auteur ; avis final natif favorable.
+Instance arrêtée, données conservées, deux essais rouges préservés.
+D06.5 reste ouvert : une citation ne qualifie pas 95 % du corpus.
+[Critère et preuves](journal/2026-10-06.md#r15-3-f05--citation-page-14-déviée-vers-la-page-13).
+
+**Reprise limitée aux travaux nécessaires, demande du 6 octobre.**
+Pas de campagne exhaustive, corpus accru, apprentissage supplémentaire ou
+rejeu de contrôles applicatifs sur des entrées inchangées. Les autres critères
+ouverts restent visibles sans être cochés ni déclencher automatiquement un
+lot futur. Les limites OCR P02 et qualité 2B restent celles du diagnostic
+clos ci-dessous ; aucune nouvelle tentative justifiée par ce seul correctif.
 
 **R23-OCR-01 — diagnostic ciblé clos le 6 octobre à 03:36 UTC, sans correction prouvée.**
 La relecture du code et des sorties P/F confirme l'erreur `DA-PO2`
@@ -3384,6 +3402,7 @@ L'utilisateur confirme lint, typage, build, QA/E2E, analyse critique indépendan
 
 | ID | Lot et dépendances | Livrable et critère de validation | Statut et preuve |
 |---|---|---|---|
+| R15-3-F05 | Bug du lecteur PDF / R15-3, citation Q06 et données conservées | Synchroniser offsets/slots sans bloquer le scroll manuel. Critère : unités, lint, typage et build verts ; citation14→document1→retour14 puis resize réel, six repères natifs distincts visibles/couverts/peints, scope inchangé, arrêt et relecture non-auteur | VALIDATED_BOUNDED — 342 unités PASS, export `6ae946b1…`, native03 1 PASS/retry0, trois captures vues et avis `GO_NATIVE_CITATION_ANCHOR_LINUX_BOUNDED`. D06.5/global non clos ; [preuves et limites](journal/2026-10-06.md#r15-3-f05--citation-page-14-déviée-vers-la-page-13). Les états historiques des autres lignes sont conservés à leur date, pas transférés au nouvel export |
 | R15-3 | Qualité transverse / R15-2 ; recette isolée et ressources disponibles | Lint frontend explicite, versions maintenues/peers contrôlés ; lint, typage configuré et régressions pertinents réussis après corrections ; couverture E2E réelle et substitutions distinguées, rendu et limites relus indépendamment | IN_PROGRESS — qualité produit inchangée : backend Ruff, 1 517 pytest PASS/12 SKIP/45 exclus, typage Linux/win32 et 17 intégrations Linux ; frontend 305 unités, typage, lint119/0/0, export `7168111f…` et 31 cas stricts sur gel `e093c06b…`. F01/F02/F03/F04 et Q01 VALIDATED_BOUNDED dans leurs critères, contrôles inchangés non rejoués. Dernière recette Q05 `64878/2e222a EXIT1` FAILED après quatre reçus, avec deux PNG 300 % relues ; arrêt courant owner72fd, C 20 absences strictes et conservation bornée. Revue finale non-auteur A `14307b32…` acceptée ROOT à 17:22:23 UTC, FAILED inchangé ; C-v2 et D acceptés séparément ROOT à 18:06:28 UTC après 26/47 tests purs et revues non-auteur A. Assemblage du vrai caller et verrou distinct en préparation, sans GO. STOP FBE `fc5278d0…` désormais historique, non réutilisable comme dernier arrêt courant. Révision distincte, ancres, reconnexion SSE, Windows/16 Gio et DoD globale ouverts. [Preuves et prochaine action](journal/2026-10-04.md#q05--correctifs-qa-acceptés-séparément-relevé-1806-utc) |
 | R15-3-F01 | Bug : boucle clavier et focus initial de la confirmation / R15-3 | Compléter Tab/Shift+Tab aux bornes sans remplacer le dialogue natif ; désigner Annuler à l'ouverture nominale, garder cible statique pending, Échap, fermeture et retour. Validation : sonde inchangée initial/Tab/retour aux trois tailles et pending, unités/qualité puis export réel au vert | VALIDATED_BOUNDED — arbitrage ROOT du 04/10 à 14:14 UTC après revue finale non-auteur A `bb6ab2e2…` / `a86f8940…`. Qualité, export et 31 acquis sur `e093c06b…` / `7168111f…`, non rejoués. Recette neuve `29568/1dfe36 EXIT0` : cinq RB stricts et sonde finale PASS, trois nominales et pending/récupération ; 64 observations clavier, retour du focus, aucune console tardive inattendue ni GET de cleanup aborté. C actuelle `2411ac8a…` / `af6f3eca…` acceptée : owner FBE arrêté, 35 QA/quatre HOST absents, SQL neuf ready/query0 et conservation bornée. Cinq mêmes PNG modales effectivement vues ROOT/C ; DELETE unique interceptée/400, zéro backend, pas de retrait métier qualifié. Deux hunks cleanup ND et liaison CB ne retirent aucune assertion. Anciens FAILED et incidents de lecteur conservés ; cause historique inconnue. Ni Q05 ni DoD globale clôturés. [Critères et preuves](journal/2026-10-04.md#validation-finale-bornée-f01f03-relevé-1414-utc) ; [historique du défaut](journal/2026-10-04.md#c3-native-et-défaut-du-focus-initial-relevé-0427-utc) |
 | R15-3-F02 | Bug : titre de confirmation tronqué / R15-3 | Limiter l'ellipsis du lecteur à son titre direct ; préserver largeur et retour à la ligne du dialogue. Validation : garde CSS PASS et nouveau rendu long réellement examiné aux tailles utiles, sans régression lecteur | VALIDATED_BOUNDED — titre seul validé ROOT le 04/10 à 11:04:24 UTC : garde CSS, titre complet sans ellipsis aux trois tailles, mêmes cinq originales vues ROOT/C, export `7168111f…` sur gel `e093c06b…`. Ancienne recette FAILED conservée, pas promue en PASS. Nouvelle recette `29568/1dfe36 EXIT0` et cinq modales neuves C/ROOT préservent le titre ; revue finale A `bb6ab2e2…` acceptée ROOT à 14:14 UTC. F01/F03 désormais validés séparément dans leur portée ; Q05 et DoD globale restent ouverts. Pas de nouveau build ou rejeu des contrôles inchangés. [Validation initiale](journal/2026-10-04.md#revue-c-terminale-et-validation-bornée-f02-relevé-1105-utc), [validation actuelle](journal/2026-10-04.md#validation-finale-bornée-f01f03-relevé-1414-utc) |
@@ -4656,7 +4675,28 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `ab6e0cc` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 03:28 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `133c259` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 04:18 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R15-F05-S01 — stabilité du défilement PDF virtualisé
+
+Consultations du 6 octobre 2026 à 04:03–04:05 UTC, avant validation du
+correctif : [React 19.3, useLayoutEffect](https://react.dev/reference/react/useLayoutEffect),
+[CSSWG, Scroll Anchoring §2.1 et §3](https://drafts.csswg.org/css-scroll-anchoring/#exclusion-api)
+(Editor's Draft du 30/09/2026) et
+[CSSOM View, défilement instantané](https://drafts.csswg.org/cssom-view/#scrolling)
+(Editor's Draft du 12/07/2026). React installé : 19.3.0, inchangé.
+Apport : synchronisation de la géométrie après commit avant peinture ;
+exclusion de l'ancrage implicite sur le seul scroller dont l'application
+compense les offsets. `instant` est déjà utilisé par le lecteur.
+Référence locale du correctif : [pdf-navigation.ts](../apps/web/src/lib/pdf-navigation.ts)
+et [pdf-viewer.tsx](../apps/web/src/components/pdf-viewer.tsx), base `133c259`
+et modifications F05 datées du 06/10/2026. Viewport périmé exclu ; mêmes
+dimensions provisoires pour les slots et offsets, puis viewport PDF.js
+réel. Le test de clamp utilise les dimensions observées du second essai.
+Limites : les drafts sont des travaux en cours, pas une qualification
+des navigateurs ; ni ces textes ni les unités ne démontrent la chronologie
+du premier échec. La validation réelle est portée par le
+[journal F05](journal/2026-10-06.md#r15-3-f05--citation-page-14-déviée-vers-la-page-13).
 
 ## R23S04 — consigne et témoin éditorial 2B
 

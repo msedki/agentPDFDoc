@@ -67,6 +67,8 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 ### Corrigé
 
+- Navigation des citations PDF : une mesure tardive ou un redimensionnement ne fait plus basculer vers la page précédente. Dimensions provisoires et offsets cohérents, défilement manuel conservé ; ouverture/retour page14 et resize réellement vérifiés dans Chromium, sans génération ni réimport (base `133c259`, correctif F05 du 06/10/2026 ; [preuve et limites](RAG_Local_Agents/journal/2026-10-06.md#r15-3-f05--citation-page-14-déviée-vers-la-page-13)).
+
 - Disponibilité Qdrant : une erreur de lecture ne signifie plus que la collection a disparu. Une liste valide confirme le nom avant une unique reprise des détails ; une panne persistante reste bloquante. Correctif sur la base `1e20a58` et modifications locales du 05/10/2026, 29 tests HTTP isolés PASS ; scénario SSE réel vert sous Linux (reconnexion sans nouvelle génération, annulation et libération). [Preuves et limites](RAG_Local_Agents/journal/2026-10-05.md#d069--flux-progressif-reconnexion-et-annulation).
 
 - OCR de grille : une cellule multiglyphe insuffisante peut bénéficier du contexte de sa rangée à densité native, sans remplacer les voisines déjà admissibles ni changer moteur, langues ou seuil. Allocations, pixels cumulés et appels sont bornés ; l'incertitude suit la sortie retenue. Extraction complète de DA-P03 vérifiée sous Linux aarch64 ; P02 et qualification globale restent ouverts (base `1d73064` et modifications locales du 05/10/2026, [W033](RAG_Local_Agents/DECISIONS.md#w033-reprise-ocr-limitée-au-contexte-dune-rangée-de-grille), [preuve et limites](RAG_Local_Agents/journal/2026-10-05.md#r23-ocr-01--contexte-de-rangée-p03-relevé-0015-utc)).
