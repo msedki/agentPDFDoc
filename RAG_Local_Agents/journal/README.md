@@ -1,8 +1,12 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `7f37c39` et entrées datées · **Mis à jour :** 2026-10-06 04:50 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `461c1f0` et entrées datées · **Mis à jour :** 2026-10-06 05:00 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Sélection et actions : preuves réconciliées](2026-10-06.md#r15-3-q09--sélection-et-actions-réconciliation-des-preuves) :
+D06.6 Linux couvert par final31/E04, Q07 et Q08 après relecture indépendante
+et comparaison au code ; aucune nouvelle recette. Windows et DoD globale ouverts.
 
 [Migration de pipeline déjà prouvée](2026-10-06.md#r11-lnx-01--migration-de-pipeline-déjà-prouvée) :
 D09.4 Linux réconcilié sur les métadonnées W029 existantes, sans nouvelle

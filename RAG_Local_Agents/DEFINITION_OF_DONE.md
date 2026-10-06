@@ -1,6 +1,6 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `7f37c39` et compléments locaux datés ci-dessous, historique conservé · **Mis à jour :** 2026-10-06 04:50 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `461c1f0` et compléments locaux datés ci-dessous, historique conservé · **Mis à jour :** 2026-10-06 05:00 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -386,6 +386,19 @@ conservés. Les cases Windows ci-dessus, D06 global, qualité métier et D07
 ne changent pas. L'ancien relevé D06 du tableau Linux est historique pour
 D06.9 ; ce complément porte son résultat plus récent.
 [Commandes, preuves, empreintes et limites](journal/2026-10-05.md#d069--flux-progressif-reconnexion-et-annulation).
+
+Réconciliation D06.6 Linux du 6 octobre 2026 à 05:00 UTC : **PASS sur le
+poste aarch64 déclaré**. Le critère sélection native/OCR et actions page/section
+est couvert par final31/E04 (native, page/bloc), Q07 (OCR) et Q08 (section),
+sur API native réelle. Les rapports et captures sont relus, les contrats
+conservés vérifiés contre le code actuel ; avis indépendant favorable.
+La sélection native utilise une Range DOM réelle, l'OCR deux glissers
+de souris. F05 a modifié la disposition et la navigation ; aucun nouveau
+geste de sélection après ce changement n'est présenté comme exécuté.
+Pas de nouveau test pour réconcilier ce statut. Le manque D06.6 dans
+l'ancien tableau Linux est historique ; D06 global, D06.5, Windows et
+Linux x86-64 ne sont pas clos par cet assemblage.
+[Matrice des preuves et limites](journal/2026-10-06.md#r15-3-q09--sélection-et-actions-réconciliation-des-preuves).
 
 Complément sélection OCR D06.6 Linux du 5 octobre 2026 : **PASS technique
 borné, relecture indépendante favorable** sur un scan
