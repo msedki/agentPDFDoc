@@ -150,8 +150,8 @@ resources:
   admit_heavy_min_available_mib: 3072
   sampling_interval_seconds: 1
   unload_llm_before_ingestion: true
-  # W036 : pilote CPU 2B, baisse hôte 3418,79 Mio + marge 165,21 ; portée Linux aarch64.
-  initial_llm_load_peak_estimate_mib: 3584
+  # W041 : pilote CPU 2B exclusif du 06/10, pic froid 3723,50 Mio + marge 129 (W036 : 3584) ; portée Linux aarch64.
+  initial_llm_load_peak_estimate_mib: 3968
   warm_llm_additional_peak_estimate_mib: 512
   embedding_load_peak_estimate_mib: 512
   generation_admission_wait_seconds: 120

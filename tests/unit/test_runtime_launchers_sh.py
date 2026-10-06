@@ -282,3 +282,36 @@ def test_rag_sh_passes_no_browser_to_the_cli_and_keeps_the_browser_by_default(tm
     assert json.loads(result.stdout)["argv"] == ["-m", "services.runtime.cli", "open", "--profile", profile, "--no-browser"]
     default = run(root / "rag.sh", "open")
     assert json.loads(default.stdout)["argv"] == ["-m", "services.runtime.cli", "open", "--profile", profile]
+
+
+# --- Garde d'une installation depuis un kit (R26-KIT-01, défaut C7) -------------------------------------------------------
+
+INSTALLED_GUARD = ("Installation de l'atelier : sans --profile, {command} emploierait le profil livré, qui écrit ses données dans "
+                   "le dossier du programme. Indiquer le profil de l'utilisateur (--profile <racine des données>/profile.yaml) ou "
+                   "passer par le lanceur atelier de l'installation.")
+
+
+def installed_project(tmp_path: Path) -> Path:
+    root = project(tmp_path)
+    (root / "kit-manifest.json").write_text('{"format": "atelier-kit-v2"}\n', encoding="utf-8")
+    return root
+
+
+@pytest.mark.parametrize("args", [[], ["up"], ["doctor"], ["backup"], ["up", "--model", "qwen3.5:4b"], ["provision", "--offline"]],
+                         ids=["defaut", "up", "doctor", "backup", "up-4b", "provision"])
+def test_rag_sh_in_an_installation_refuses_the_shipped_profile(tmp_path, args):
+    # Sans cette garde, `./rag.sh up` d'une installation écrivait .runtime/data et .runtime/control dans le dossier programme.
+    result = run(installed_project(tmp_path) / "rag.sh", *args)
+    command = next((arg for arg in args if not arg.startswith("-") and arg != "qwen3.5:4b"), "doctor")
+    assert result.returncode == 1 and result.stdout == ""
+    assert result.stderr.strip() == INSTALLED_GUARD.format(command=command)
+
+
+@pytest.mark.parametrize("args", [["up", "--profile", "/donnees/profile.yaml"], ["init-profile", "--target", "/donnees"],
+                                  ["init-profile", "--model", "qwen3.5:4b", "--target", "/donnees"], ["verify", "--path", "/s"],
+                                  ["restore", "--path", "/s", "--target", "/r"]],
+                         ids=["profil-utilisateur", "init-profile", "init-profile-4b", "verify", "restore"])
+def test_rag_sh_in_an_installation_accepts_a_user_profile_and_profile_free_commands(tmp_path, args):
+    result = run(installed_project(tmp_path) / "rag.sh", *args)
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["argv"][2] == args[0]

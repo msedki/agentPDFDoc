@@ -439,6 +439,83 @@ Rapports du 01/10 : `RAG_Local_Agents/reports/library-2026-10-01*.json`,
 `faults-2026-10-01.json`, `scope-2026-10-01.json`, `http-guards-live-20261001T0943.json`, `http-guards-live-20261001T1030.json`, `log-privacy-20261001T0949.json`, `migration-2026-10-01-0414.json`,
 `restore-question-2026-10-01-0525.json`, `injection-2026-10-01-0441.json`.
 
+### `embedding_identity_check.py` : sonde d'identité d'embedding (mécanismes de D03.8)
+
+Cette sonde vérifie ce que le code fait quand l'identité dense change, sans changer
+de modèle. Le profil P0 est le profil livré, généré pour la racine de l'essai par le
+même code que `init-profile` ; le profil P1 n'en diffère que par `embedding.model_id`,
+suffixé de `#qa-identity-probe`. Graphe, tokenizer, préfixes et pooling restent ceux
+d'E5 : c'est une **substitution déclarée**, qui change l'empreinte d'identité, donc la
+collection Qdrant et la clé du cache d'embeddings, sans changer l'espace vectoriel.
+Elle ne vaut pas migration d'embedding : D03.8 reste NOT_RUN et le comparatif D10.2
+n'est pas concerné. Aucune question n'est posée au modèle ; le client de la sonde
+refuse les routes de question et d'évaluation avant tout envoi.
+
+```bash
+.venv/bin/python -B tools/qualification/embedding_identity_check.py \
+  --root <racine neuve> --ports <api>,<qdrant>,<ollama>
+```
+
+La racine doit être absente ou vide et ne pas recouvrir les données de l'instance
+principale ; les trois ports doivent être distincts, libres et différents de ceux du
+profil livré ; 8 Gio de mémoire disponible sont exigés (`--min-available-mib`). La
+racine est créée en mode 700 et conservée : profils `profile.yaml` (P0) et
+`profile-p1.yaml`, données et journaux de chaque vie d'instance, journal
+`embedding-identity-journal.jsonl` écrit au fil des phases, rapport
+`embedding-identity-report.json` en création exclusive. Les arrêts sont coopératifs
+(superviseur) ; la sonde ne supprime rien.
+
+Trois fixtures versionnées sont importées sous P0, empreintes comparées au manifeste :
+le scan `scans/Contrôle bilingue FR EN.pdf` (une page lue par OCR), le natif de
+développement `Atelier 1 - Banc pneumatique DA-P01.pdf` et `text/Unicode ligatures
+césures.pdf`. Le seul scan de développement, DA-P02, n'est pas retenu : son extraction
+reste `ready_partial` (R23-OCR-01) et ne serait pas publiée sans action explicite. La
+recherche, en anglais (« Which supply voltage powers each compressed air rig? »),
+n'a aucun mot commun avec ces documents ; la sonde le vérifie dans l'index plein texte
+avec l'expression FTS5 du code servi, si bien que la recherche n'est servie que par la
+branche dense. Elle est jouée sur toute la bibliothèque puis document par document.
+
+| Phase | Observation |
+|---|---|
+| `p0_published` | Empreinte F0, collection C0, points par génération, branche lexicale vide, chaque document retrouvé |
+| `p1_started` | Readiness sous P1 avant réindexation (503 `absent_with_published_generations` attendu) |
+| `p1_scan_reindexed` | Après réindexation du seul scan et fin du nettoyage : compteurs, C1, C0, readiness, cohérence, recherche |
+| `p1_all_reindexed` | Après réindexation des deux autres documents sous P1 |
+| `p0_returned` | Retour sous P0, avant réindexation |
+| `p0_reindexed` | Après réindexation des trois documents sous P0 |
+
+`PASS_MECHANISM` exige trois contrôles et tous les attendus des étapes :
+`ocr_not_redone` (aucun worker natif sur les six réindexations, une extraction
+réutilisée par document, même révision d'extraction pour chaque document),
+`collections_distinct` (F0 ≠ F1, C0 ≠ C1, deux collections présentes) et
+`no_p1_request_reaches_c0`. Ce dernier lit le journal Qdrant de la vie P1 : les
+lectures directes de la sonde portent le User-Agent `r26-identity-probe/1` et sont
+exclues ; les requêtes de l'API vers C1 servent de témoin positif. Les attendus
+comprennent notamment : embeddings recalculés sous P1 pour autant de textes que de
+fragments, aucun calcul E5 au retour sous P0 (cache), C0 intacte pendant la phase P1,
+aucune requête `/api/chat` ni `/api/generate` dans les journaux d'Ollama, code et
+configuration inchangés d'une vie à l'autre, arrêts `stopped`. Sinon le résultat est
+`FAIL`, ou `ERROR` si l'essai s'interrompt (l'instance en cours est alors arrêtée et
+l'erreur conservée).
+
+Les hypothèses sont rapportées à part, `CONFIRMED`, `REFUTED` ou `INCONCLUSIVE`
+(observation manquante, par exemple une recherche en erreur) ; elles ne changent pas
+le résultat :
+
+- H-A1 : sous P1, après réindexation du seul scan, la readiness répond 200
+  « present » alors que les deux autres documents n'ont aucun point dans C1, que la
+  recherche dense ne les retrouve plus et qu'aucun avertissement ne les concerne
+  (un avertissement propre au scan, provenance OCR par exemple, n'en est pas un) ;
+- H-A2 : les points de la génération remplacée restent dans C0, alors que le
+  nettoyage, limité à la collection courante, se déclare terminé ; le rapport compte
+  aussi, en fin d'essai, les points orphelins de chaque collection ;
+- H-A3 : au retour sous P0, aucun document n'est servi par la branche dense jusqu'à
+  la réindexation.
+
+Les tests unitaires (`tests/unit/test_qualification_embedding_identity.py`) emploient
+des doubles nommés du produit et du superviseur ; ils ne valent pas exécution native.
+Une exécution sur un poste ne qualifie que ce poste et cette révision du code.
+
 ## Fixtures séparées D08.5/D08.6 et D06.8
 
 `extra_fixtures.py` crée, hors manifeste et hors jeux de questions,

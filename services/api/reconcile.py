@@ -40,6 +40,8 @@ class Reconciler:
         pinned = self.pinned()
         records = self.db.rows("SELECT * FROM vector_cleanup WHERE state='pending' ORDER BY created_at LIMIT ?", (limit,))
         completed = []
+        # Collections visées par génération nettoyée : toutes celles du projet pour le vrai QdrantStore (R26-IDX-02).
+        collections = {}
         for record in records:
             generation = record["generation_id"]
             if generation in pinned or self.suspended:
@@ -50,7 +52,7 @@ class Reconciler:
                 self.db.execute("UPDATE vector_cleanup SET state='retained',updated_at=? WHERE generation_id=?", (now(), generation))
                 continue
             try:
-                await self.vectors.delete_generation(generation)
+                targets = await self.vectors.delete_generation(generation)
                 with self.db.transaction() as connection:
                     if record["reason"] == "deleted":
                         connection.execute("DELETE FROM identifiers WHERE chunk_uuid IN (SELECT chunk_uuid FROM chunks WHERE generation_id=?)", (generation,))
@@ -58,9 +60,11 @@ class Reconciler:
                         connection.execute("DELETE FROM chunks WHERE generation_id=?", (generation,))
                     connection.execute("UPDATE vector_cleanup SET state='complete',error_code=NULL,updated_at=? WHERE generation_id=?", (now(), generation))
                 completed.append(generation)
+                if isinstance(targets, list):
+                    collections[generation] = targets
             except Exception as error:
                 self.db.execute("UPDATE vector_cleanup SET error_code=?,updated_at=? WHERE generation_id=?", (error.code if isinstance(error, ApiError) else "cleanup_failed", now(), generation))
-        return {"completed": completed, "pinned": sorted(pinned), "staged": self.inspect()}
+        return {"completed": completed, "collections": collections, "pinned": sorted(pinned), "staged": self.inspect()}
 
     async def loop(self):
         """Passe de nettoyage chaque seconde ; une passe en erreur est journalisée et retentée après une attente croissante, plafonnée."""

@@ -419,3 +419,65 @@ def test_contract_accelerator_reason_without_the_supervisor_decision_matches_the
                         '{"accelerator": "auto"}': None, '{"accelerator": "gpu"}': None, "{}": None}
     rule = CONTRACT["diagnostics_llm_accelerator"]["rule"]
     assert "reason is imposed_by_profile or legacy_profile_cpu" in rule and "null for an auto or gpu profile started without" in rule
+
+
+def test_contract_source_extraction_methods_are_the_ingestion_vocabulary():
+    """R26-OCR-01 : valeurs de `extraction_methods` = valeurs que rend `source_method` de l'ingestion, plus `unknown` d'office."""
+    from services.api.scope import UNKNOWN_METHOD
+    tree = ast.parse((ROOT / "services/ingestion/docling_adapter.py").read_text(encoding="utf-8"))
+    function = next(node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef) and node.name == "source_method")
+
+    def returned(value):
+        if isinstance(value, ast.IfExp):
+            return returned(value.body) | returned(value.orelse)
+        assert isinstance(value, ast.Constant) and isinstance(value.value, str), f"méthode non littérale à la ligne {value.lineno}"
+        return {value.value}
+    produced = set().union(*(returned(node.value) for node in ast.walk(function) if isinstance(node, ast.Return) and node.value is not None))
+    described = CONTRACT["source"]
+    assert alternatives(described["extraction_methods"][0]) == alternatives(described["block_extraction_method"]) == produced | {UNKNOWN_METHOD}
+    assert "never native" in described["extraction_provenance_rule"] and 'read it as extraction_methods ["unknown"]' in described["extraction_provenance_rule"]
+
+
+def test_contract_r26_warning_fields_match_the_warnings_built_by_the_api():
+    """Champs des avertissements R26 : ceux que construisent réellement retrieval.py et claims.py."""
+    from services.api.claims import answer_warnings
+    from services.api.retrieval import (
+        PARTIAL_EXTRACTION_MESSAGE,
+        dense_identity_warning,
+        ocr_evidence_warnings,
+    )
+    described = CONTRACT["query_events"]["warning_data"]
+    built = ocr_evidence_warnings([{"source_id": "S001", "document_id": "A", "document_name": "a.pdf", "extraction_methods": ["mixed"]}])
+    built.append(dense_identity_warning([{"document_id": "A", "document_name": "a.pdf", "generation_id": "g"}]))
+    built += answer_warnings("Selon S001, la pression est de 9 bar.", [{"source_id": "S001", "text": "Pression 3 bar"}])
+    built += answer_warnings("Pression 2.7 bar [S001].", [{"source_id": "S001", "text": "QV-01"}, {"source_id": "S002", "text": "2.7 bar"}])
+    built.append({"code": "partial_extraction", "document_id": "A", "message": PARTIAL_EXTRACTION_MESSAGE})
+    by_code = {warning["code"]: warning for warning in built}
+    assert set(by_code) == set(described) - {"code", "message", "rule"}
+    for code, warning in by_code.items():
+        assert set(warning) == alternatives(described[code]["fields"]), code
+        for item in warning.get("values", []):
+            assert set(item) == set(described[code]["values"][0]), code
+    claims = (ROOT / "services/api/claims.py").read_text(encoding="utf-8")
+    assert set(re.findall(r'"code": "([a-z_]+)"', claims)) <= set(described)
+
+
+def test_contract_readiness_dense_index_fields_are_those_of_the_api(tmp_path):
+    """R26-IDX-02 : `dense_index` et `documents_to_reindex` de GET /readiness, valeurs possibles comprises."""
+    from fastapi.testclient import TestClient
+
+    from services.api.embedding import EmbeddingService
+    from services.api.retrieval import DenseCoverage
+    described = CONTRACT["readiness_dense_index"]
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    # Vrai EmbeddingService jamais chargé (artefacts absents) ; vecteurs, tokenizer, génération et gouverneur en doubles.
+    app = create_app(settings=settings, embedding=EmbeddingService(settings), vectors=FakeVectors(), tokenizer=FakeLlmTokenizer(),
+                     ollama=SilentOllama(), governor=types.SimpleNamespace(), start_jobs=False)
+    with TestClient(app, base_url="http://127.0.0.1:8785") as client:
+        body = client.get("/api/v1/readiness").json()
+    assert {"dense_index", "documents_to_reindex"} <= set(body) and isinstance(body["documents_to_reindex"], list)
+    assert body["dense_index"] in alternatives(described["dense_index"])
+    source = inspect.getsource(DenseCoverage.status) + (ROOT / "services/api/main.py").read_text(encoding="utf-8")
+    produced = set(re.findall(r'"(complete|dense_migration_incomplete|unverifiable|not_applicable)"', source))
+    assert produced == alternatives(described["dense_index"])
+    assert "non blocking" in described["rule"] and "behind the session" in described["rule"]

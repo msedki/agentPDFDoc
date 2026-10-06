@@ -151,7 +151,10 @@ test("les deux événements SSE alimentent le même dédoublonnage, sans modifie
   const analysis = code("components/analysis-panel.tsx");
   assert.match(analysis, /case "warning": next\.warnings = mergeQueryWarnings\(query\.warnings, \[event\.data\.warning \?\? event\.data\]\)/);
   assert.match(analysis, /if \(Array\.isArray\(event\.data\.warnings\)\) next\.warnings = mergeQueryWarnings\(query\.warnings, event\.data\.warnings\)/);
-  assert.match(analysis, /queryWarningTexts\(query\.warnings, query\.finishReason\)\.map\(\(text, index\) =>[^\n]*\{text\}/, "le rendu affiche les textes contrôlés en regroupant la limite de génération");
+  // R26 : les avis sont structurés (sources et valeurs signalées) ; seul leur texte contrôlé est affiché.
+  assert.match(analysis, /<WarningNotices notices=\{warningNotices\(query\.warnings, query\.finishReason\)\}/, "le rendu affiche les textes contrôlés en regroupant la limite de génération");
+  assert.match(analysis, /<WarningNotices notices=\{warningNotices\(search\.warnings \?\? \[\]\)\}/, "la recherche emploie les mêmes avis");
+  assert.match(analysis, /<p>\{notice\.text\}<\/p>/);
   assert.doesNotMatch(analysis, /query\.warnings\.map\([^\n]*\{warning\}/, "les objets d'avertissement ne sont jamais rendus directement");
   const onEvent = /const onEvent =([\s\S]*?)const connect =/.exec(analysis)?.[1] ?? "";
   assert.ok(onEvent);

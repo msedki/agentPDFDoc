@@ -2,8 +2,9 @@ import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { basename, isAbsolute, relative, resolve } from "node:path";
 import { expect, type APIRequestContext, type Page, type TestInfo } from "@playwright/test";
 import { fixture, sha256, uploadFromUi, waitJob } from "./lifecycle-target";
+import { e2eTarget } from "./target.ts";
 
-export const apiOrigin = process.env.RAG_E2E_BASE_URL ?? "http://127.0.0.1:8785";
+export const apiOrigin = e2eTarget().baseURL;
 const projectRoot = resolve(process.cwd(), "../..");
 const fixturesRoot = resolve(projectRoot, "fixtures");
 const loopback = ["127.0.0.1", "localhost", "[::1]"];

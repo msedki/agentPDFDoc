@@ -62,7 +62,7 @@ def test_profiles_keep_the_same_documentary_and_runtime_contracts():
         assert value["llm"]["think"] is False and value["llm"]["num_ctx"] == 8192
 
 
-@pytest.mark.parametrize("name,cold_estimate", [("local16.yaml", 3584), ("local16-4b.yaml", 3456)])
+@pytest.mark.parametrize("name,cold_estimate", [("local16.yaml", 3968), ("local16-4b.yaml", 3456)])
 def test_delivered_model_profile_drives_the_cold_admission_boundary(tmp_path, monkeypatch, name, cold_estimate):
     """Profils réels, mémoire simulée ; aucun modèle, bail ou stockage hôte acquis."""
     from services.runtime.resources import ResourceAdmissionError, ResourceGovernor, admission_requirement

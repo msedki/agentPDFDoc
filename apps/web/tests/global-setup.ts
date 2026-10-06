@@ -7,13 +7,14 @@ import { request, type FullConfig } from "@playwright/test";
 import { mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { storageStatePath } from "./e2e/storage-state.ts";
+import { e2eTarget } from "./e2e/target.ts";
 
 export const STORAGE_STATE = storageStatePath();
 
 export default async function globalSetup(config: FullConfig) {
-  const baseURL = String(config.projects[0]?.use.baseURL ?? "http://127.0.0.1:8785");
-  // Jeton de l'instance principale par défaut ; une autre racine de données passe son fichier explicitement.
-  const tokenFile = process.env.RAG_E2E_CONTROL_TOKEN_FILE ?? path.resolve(process.cwd(), "../../.runtime/data/control/admin-token");
+  // Adresse et jeton de l'instance de recette, validés par tests/e2e/target.ts : aucune instance par défaut.
+  const baseURL = String(config.projects[0]?.use.baseURL ?? e2eTarget().baseURL);
+  const tokenFile = e2eTarget().tokenFile;
   const token = readFileSync(tokenFile, "ascii").trim();
   const context = await request.newContext({ baseURL });
   try {

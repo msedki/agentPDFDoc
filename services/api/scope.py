@@ -4,6 +4,28 @@ from dataclasses import dataclass, field
 from .errors import ApiError
 from .schemas import Scope
 
+# Méthode d'extraction d'un bloc sans métadonnée d'ingestion (index antérieur, extraction contrôlée) : jamais « native ».
+UNKNOWN_METHOD = "unknown"
+
+
+def block_extraction_method(metadata_json):
+    """`metadata.extraction_method` écrit par l'ingestion pour le bloc (native, ocr, mixed, unknown), tel quel ; absent → unknown."""
+    metadata = json.loads(metadata_json or "{}").get("metadata")
+    method = metadata.get("extraction_method") if isinstance(metadata, dict) else None
+    return method if isinstance(method, str) and method else UNKNOWN_METHOD
+
+
+def extraction_methods(blocks):
+    return sorted({block.get("extraction_method") or UNKNOWN_METHOD for block in blocks})
+
+
+def with_extraction_provenance(source):
+    """Copie d'une source ou citation enregistrée avant R26 (sans provenance) lue comme `unknown` ; les autres sont inchangées."""
+    blocks = [block if "extraction_method" in block else {**block, "extraction_method": UNKNOWN_METHOD} for block in source.get("blocks", [])]
+    item = {**source, "blocks": blocks} if "blocks" in source else dict(source)
+    item.setdefault("extraction_methods", extraction_methods(blocks) if blocks else [UNKNOWN_METHOD])
+    return item
+
 
 @dataclass
 class ScopeSnapshot:
@@ -142,7 +164,7 @@ class ScopeResolver:
         generation_id = chunk["generation_id"]
         if generation_id not in snapshot.generations:
             return None
-        rows = self.db.rows("SELECT s.*,b.text,b.bbox_json,b.precision,b.kind,b.section_id,b.extraction_revision_id,b.source_text_hash,p.geometry_json FROM chunk_sources s JOIN blocks b ON b.generation_id=? AND b.id=s.block_id JOIN pages p ON p.generation_id=b.generation_id AND p.page_index=b.page_index WHERE s.chunk_uuid=? ORDER BY s.position", (generation_id, chunk["chunk_uuid"]))
+        rows = self.db.rows("SELECT s.*,b.text,b.bbox_json,b.precision,b.kind,b.section_id,b.extraction_revision_id,b.source_text_hash,b.metadata_json,p.geometry_json FROM chunk_sources s JOIN blocks b ON b.generation_id=? AND b.id=s.block_id JOIN pages p ON p.generation_id=b.generation_id AND p.page_index=b.page_index WHERE s.chunk_uuid=? ORDER BY s.position", (generation_id, chunk["chunk_uuid"]))
         allowed = []
         for row in rows:
             if snapshot.page_indices is not None and row["page_index"] not in snapshot.page_indices:
@@ -160,12 +182,13 @@ class ScopeResolver:
                                 "text": row["text"][range_start:range_end], "start_offset": range_start, "end_offset": range_end,
                                 "bbox": json.loads(row["bbox_json"]) if row["bbox_json"] else None,
                                 "precision": row["precision"], "type": row["kind"], "page": geometry,
-                                "extraction_revision_id": row["extraction_revision_id"], "source_text_hash": row["source_text_hash"]})
+                                "extraction_revision_id": row["extraction_revision_id"], "source_text_hash": row["source_text_hash"],
+                                "extraction_method": block_extraction_method(row["metadata_json"])})
         if not allowed:
             return None
         return {"chunk_id": chunk["chunk_uuid"], "generation_id": generation_id, "extraction_revision_id": chunk["extraction_revision_id"],
                 "version_id": snapshot.versions[generation_id], "document_id": snapshot.documents[generation_id],
-                "text": "\n".join(row["text"] for row in allowed), "blocks": allowed,
+                "text": "\n".join(row["text"] for row in allowed), "blocks": allowed, "extraction_methods": extraction_methods(allowed),
                 "page_indices": sorted({row["page_index"] for row in allowed}), "parent_id": chunk.get("parent_id")}
 
     def selected_sources(self, snapshot):
@@ -180,10 +203,12 @@ class ScopeResolver:
                      "start_offset": span["startOffset"], "end_offset": span["endOffset"], "type": row["kind"],
                      "bbox": json.loads(row["bbox_json"]) if row["bbox_json"] else None,
                      "precision": row["precision"], "page": json.loads(row["geometry_json"]),
-                     "extraction_revision_id": row["extraction_revision_id"], "source_text_hash": row["source_text_hash"]}
+                     "extraction_revision_id": row["extraction_revision_id"], "source_text_hash": row["source_text_hash"],
+                     "extraction_method": block_extraction_method(row["metadata_json"])}
             sources.append({"chunk_id": None, "generation_id": generation_id, "extraction_revision_id": row["extraction_revision_id"],
                             "version_id": snapshot.versions[generation_id], "document_id": snapshot.documents[generation_id],
-                            "text": text, "blocks": [block], "page_indices": [row["page_index"]], "parent_id": row["id"]})
+                            "text": text, "blocks": [block], "extraction_methods": extraction_methods([block]),
+                            "page_indices": [row["page_index"]], "parent_id": row["id"]})
         return sources
 
     def expand_parent(self, source, snapshot, tokenizer, maximum_tokens=900):

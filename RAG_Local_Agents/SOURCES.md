@@ -1,6 +1,56 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `497d901`, W038 conservée et correctif R25-LEN-01 daté ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 13:27 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `011a817` et consultations R26 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 20:10 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R26-KIT — kit hors ligne Linux (KIT01 à KIT16)
+
+Consultation du 6 octobre 2026 (UTC) pour R26-KIT-00 et R26-KIT-01, avant la
+rédaction du skill [linux-offline-kit](../.agents/skills/linux-offline-kit/SKILL.md).
+Ces pages établissent des mécanismes et des contrats de version ; elles ne
+prouvent pas qu'un kit fabriqué ici s'installe ailleurs.
+
+| ID | Source officielle | Version | Apport | Limite |
+|---|---|---|---|---|
+| KIT01 | [uv, cache](https://docs.astral.sh/uv/concepts/cache/) | page courante | cache sur le même volume que l'environnement pour lier au lieu de copier ; usage concurrent sûr | relocalisation et hors ligne non traités |
+| KIT02 | [uv, réglages](https://docs.astral.sh/uv/reference/settings/) | page courante | `link-mode` (`clone` par défaut sous Linux), `offline`, désactivation de la configuration | repli sur ext4 non décrit |
+| KIT03 | [uv, variables d'environnement](https://docs.astral.sh/uv/reference/environment/) | page courante | `UV_LINK_MODE`, `UV_OFFLINE`, `UV_MANAGED_PYTHON`, `UV_NO_CONFIG` | correction de `sysconfig` non décrite ; effet de `UV_NO_CONFIG` vérifié localement (`uv lock --check --offline` identique) |
+| KIT04 | [uv, versions de Python](https://docs.astral.sh/uv/concepts/python-versions/) | page courante | lien de version mineure (lien symbolique sous Unix) | relocalisation non traitée |
+| KIT05 | [uv, stockage](https://docs.astral.sh/uv/reference/storage/) | page courante | déplacer un Python géré impose de recréer les environnements | — |
+| KIT06 | [uv, synchronisation](https://docs.astral.sh/uv/concepts/projects/sync/) | page du 05/08/2026 | `--locked`, `--no-dev` | hors ligne non décrit |
+| KIT07 | [python-build-standalone, particularités](https://gregoryszorc.com/docs/python-build-standalone/main/quirks.html), renvoyé par la documentation d'uv | non datée | chemins de construction figés dans `_sysconfigdata`, corrigés par uv à l'installation | version non indiquée |
+| KIT08 | [Python 3.12, venv](https://docs.python.org/3.12/library/venv.html) | 3.12.15 | un environnement virtuel ne se déplace pas : il se recrée | — |
+| KIT09 | [Python 3.12, sysconfig](https://docs.python.org/3.12/library/sysconfig.html) et `Lib/sysconfig.py` 3.12.14 livré (l. 650-677) | 3.12.15 / 3.12.14 | `_init_posix` reprend `prefix` du fichier `_sysconfigdata` | relocalisation établie par le code et un essai local, pas par la documentation |
+| KIT10 | [Python 3.12, tarfile](https://docs.python.org/3.12/library/tarfile.html) | 3.12.15 | filtre `data` : liens absolus ou sortants, fichiers spéciaux, modes ; format PAX | — |
+| KIT11 | [Python 3.12, os](https://docs.python.org/3.12/library/os.html) et [shutil](https://docs.python.org/3.12/library/shutil.html) | 3.12.15 | `symlink`, `readlink`, `copystat`, `rmtree.avoids_symlink_attacks`, `disk_usage` | l'atomicité du remplacement relève de rename(2) |
+| KIT12 | [PEP 600](https://peps.python.org/pep-0600/) | Final | `manylinux_X_Y` signifie glibc X.Y ou plus récente | — |
+| KIT13 | [binutils : readelf, objdump](https://sourceware.org/binutils/docs/binutils/) et [ld, VERSION](https://sourceware.org/binutils/docs/ld/VERSION.html) | binutils 2.34 sur le poste | lecture des versions de symboles requises, contrôle au chargement | version non indiquée sur les pages |
+| KIT14 | [libstdc++, ABI](https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html) | page courante | `GLIBCXX_3.4.26` correspond à GCC 9.1.0 | — |
+| KIT15 | [ldd(1)](https://man7.org/linux/man-pages/man1/ldd.1.html), [rename(2)](https://man7.org/linux/man-pages/man2/rename.2.html) | man-pages 6.19 | ne pas lancer `ldd` sur un exécutable non vérifié ; remplacement atomique, `EXDEV` | — |
+| KIT16 | [Desktop Entry](https://specifications.freedesktop.org/desktop-entry-spec/latest/) et [XDG Base Directory](https://specifications.freedesktop.org/basedir-spec/latest/) | 1.5 / 0.8 | clés requises, citation de `Exec` et `%%`, `XDG_DATA_HOME` | entrée de menu créée seulement sur demande explicite |
+
+## R26-WEB — chargement de PDF.js hors bundle et contrôle de l'export
+
+Consultation du 6 octobre 2026 (UTC) pour R26-UI-01 : cause de la fuite du
+chemin du poste dans l'export et choix de correction.
+
+| ID | Source | Version | Apport | Limite |
+|---|---|---|---|---|
+| WEB01 | [Next.js, chargement différé, commentaires magiques](https://nextjs.org/docs/app/guides/lazy-loading) et documentation Turbopack livrée avec le paquet | Next 16.3.7 | `webpackIgnore: true` laisse l'import tel quel avec webpack comme avec Turbopack | Turbopack (`next dev`) non essayé |
+| WEB02 | `next/dist/compiled/webpack/bundle5.js` (`ImportMetaPlugin`, schéma `importMeta`) | webpack 5.98.0 livré par Next | preuve de la substitution `import.meta.url` → URL `file://` du poste ; `importMeta` booléen seulement | code minifié |
+| WEB03 | [webpack, variables de module](https://webpack.js.org/api/module-variables/), [configuration de module](https://webpack.js.org/configuration/module/), [méthodes de module](https://webpack.js.org/api/module-methods/) | documentation courante | `import.meta.url` rend l'URL `file:` absolue du module ; `importMeta: false` ; `webpackIgnore` | décrit la dernière version, forme objet de `importMeta` à partir de 5.109.0 seulement |
+| WEB04 | `pdfjs-dist` `build/pdf.mjs` (l. 9685-9699) et `package.json` | 6.3.289 | `createRequire(import.meta.url)` réservé à Node ; point d'entrée `build/pdf.mjs` | — |
+| WEB05 | [PDF.js, exemple helloworld](https://github.com/mozilla/pdf.js/blob/master/examples/learning/helloworld.html) | branche master | chargement de `pdf.mjs` en module et réglage de `workerSrc` | branche master, pas le tag 6.3.289 |
+
+## R26-S01 — demande et arbitrages utilisateur
+
+Source primaire : demandes utilisateur de cette session, reçues le 6 octobre
+2026 vers 17:48 et 18:20 UTC, et réponses aux questions d'arbitrage de 19:20
+à 19:50 UTC. Elles autorisent la reprise de W038 limitée aux réserves Linux
+et à la distribution interne Linux, la campagne 2B sur le jeu DEV, l'arrêt
+coopératif de l'instance principale pendant les recettes et la méthode
+Playwright du point (15). L'utilisateur juge excessive une mesure D06.5 de
+trois à cinq heures. Ces réponses n'autorisent ni R19, ni purge, ni
+apprentissage, ni réglage sur le jeu final. [Décision W040](DECISIONS.md#w040-reprise-r26--réserves-linux-et-distribution-interne-linux).
 
 ## W039-S01 — plafond Ollama et correctif autorisé
 

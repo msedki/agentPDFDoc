@@ -2,12 +2,18 @@
 
 Le pilote GPU (`--accelerator auto`) mesure ce poste seulement : il n'est jamais une mesure de la recette D07, qui se fait
 en calcul CPU imposé. En `cpu`, les requêtes sont celles d'avant l'accélération GPU, octet pour octet.
+
+Chaque essai est précédé d'une mesure (mémoire disponible, swap libre, mémoire propre des processus Ollama) prise juste
+avant sa soumission : la baisse propre à l'essai se lit depuis cette mesure. `--warm-series N` ajoute N contenus neufs
+distincts, `--long-output N` un essai qui demande une réponse longue limitée à N tokens. La revue d'admission du rapport
+propose des bornes sans en modifier aucune ; un débit sur 400 tokens n'est rapporté que si 400 tokens sont produits.
 """
 
 from __future__ import annotations
 
 import concurrent.futures
 import json
+import math
 import sys
 import time
 from datetime import UTC, datetime
@@ -40,6 +46,82 @@ from .supervisor import (
 ACCELERATORS = ("cpu", "auto")
 SCOPES = {"cpu": "Early QCPU controlled pilot; not the final performance qualification",
           "auto": "Early GPU pilot on this host; never a D07 measurement"}
+# Règle de borne retenue le 6 octobre 2026 pour l'admission froide du 2B : pic observé + 129 Mio, arrondi au multiple
+# de 128 Mio supérieur ; une borne contredite est relevée, jamais baissée.
+BOUND_MARGIN_MIB = 129
+BOUND_STEP_MIB = 128
+# Écart de mémoire propre d'Ollama toléré entre les deux derniers contenus neufs de la série chaude (plateau).
+USS_PLATEAU_MIB = 32
+LONG_OUTPUT_TOKENS = 400
+WARM_SERIES_MAX = 9
+BASE_LABELS = ("cold", "warm_same_prefix", "warm_new_content")
+
+
+def bound_review(peak_mib: float, current_mib: int) -> dict:
+    """Proposition de borne selon la règle figée ; ne modifie ni le profil ni aucun seuil."""
+    candidate = math.ceil((peak_mib + BOUND_MARGIN_MIB) / BOUND_STEP_MIB) * BOUND_STEP_MIB
+    contradicted = peak_mib + BOUND_MARGIN_MIB > current_mib
+    return {"peak_mib": peak_mib, "current_mib": current_mib, "margin_mib": BOUND_MARGIN_MIB, "step_mib": BOUND_STEP_MIB,
+            "candidate_mib": candidate, "contradicted": contradicted, "proposed_mib": max(candidate, current_mib)}
+
+
+def admission_review(report: dict, resources: dict) -> dict:
+    """Revue de l'admission tirée du pilote : propositions seulement, aucune case D07.
+
+    Règle figée le 6 octobre 2026 à 20:20 UTC : pic froid = maximum, pendant l'essai froid, de la baisse depuis la base du
+    pilote et de la baisse depuis la mesure préalable de l'essai ; pic chaud = maximum des baisses des essais chauds depuis
+    leur mesure préalable. La baisse globale de toute la série (minimum atteint pendant un essai chaud compris) est publiée
+    pour information, sans servir de base à une borne."""
+    trials = report["trials"]
+    cold = next(trial for trial in trials if trial["label"] == "cold")
+    basis = {"from_baseline_mib": report["baseline_available_mib"] - cold["min_available_mib"],
+             "from_pre_trial_mib": cold["drop_from_pre_trial_mib"]}
+    warm = [trial["drop_from_pre_trial_mib"] for trial in trials if trial["label"] != "cold"]
+    series = [trial for trial in trials if trial["label"].startswith("warm_series_")][-2:]
+    key = "post_trial_ollama_" + memory_key()
+    delta = round(abs(series[-1][key] - series[0][key]), 3) if len(series) == 2 else None
+    reached = [trial["label"] for trial in trials if not trial["not_a_400_token_measurement"]]
+    return {"status": "proposal_only", "d07_eligible": False,
+            "cold": bound_review(max(basis.values()), resources["initial_llm_load_peak_estimate_mib"]),
+            "cold_peak_basis": basis, "global_drop_information_mib": report["max_available_drop_mib"],
+            "warm": bound_review(max(warm), resources["warm_llm_additional_peak_estimate_mib"]) if warm else None,
+            "uss_plateau": {"basis": [trial["label"] for trial in series], "delta_mib": delta, "limit_mib": USS_PLATEAU_MIB,
+                            "stable": None if delta is None else delta <= USS_PLATEAU_MIB},
+            "output_400_tokens": {"observed": bool(reached), "trials": reached}}
+
+
+def memory_key() -> str:
+    """Mémoire propre d'un processus : USS sous Linux, mémoire privée sous Windows."""
+    return "private_mib" if sys.platform == "win32" else "uss_mib"
+
+
+def process_tree(pid: int) -> list[psutil.Process]:
+    return [psutil.Process(pid), *psutil.Process(pid).children(recursive=True)]
+
+
+def process_memory(pid: int) -> list[dict]:
+    """Mémoire de chaque processus Ollama possédé (service et runner) ; liste vide si l'arbre a disparu."""
+    processes: list[dict] = []
+    try:
+        for process in process_tree(pid):
+            if sys.platform == "win32":
+                memory = process.memory_info()
+                processes.append({"pid": process.pid, "rss_mib": memory.rss / 1048576,
+                                  "private_mib": getattr(memory, "private", memory.rss) / 1048576})
+            else:
+                processes.append({"pid": process.pid, **linux_memory_mib(process)})
+    except psutil.Error:
+        pass
+    return processes
+
+
+def host_measurement(pid: int, label: str, phase: str) -> dict:
+    """Mesure ponctuelle : MemAvailable, swap libre et mémoire propre cumulée des processus Ollama."""
+    sample = {"monotonic_seconds": time.monotonic(), "trial": label, "phase": phase,
+              "available_mib": psutil.virtual_memory().available / 1048576, "swap_free_mib": swap_free_mib(),
+              "cpu_percent": psutil.cpu_percent(interval=None), "processes": process_memory(pid)}
+    sample["ollama_" + memory_key()] = sum(item[memory_key()] or 0 for item in sample["processes"])
+    return sample
 
 
 def chat_body(profile: dict, messages: list[dict], *, output_limit: int, threads: int, use_mmap: bool | None,
@@ -93,12 +175,17 @@ def swap_free_mib() -> float:
 
 def calibrate(profile_path: Path, output: Path, *, input_target: int = 2950,
               output_limit: int = 64, threads: int = 4, read_timeout: int = 600,
-              use_mmap: bool | None = None, accelerator: str = "cpu") -> dict:
+              use_mmap: bool | None = None, accelerator: str = "cpu", warm_series: int = 0,
+              long_output: int | None = None) -> dict:
     from services.api.context import LlmTokenizer
     from services.api.settings import Settings
 
     if accelerator not in ACCELERATORS:
         raise ValueError(f"Accélération du pilote inconnue : {accelerator} (cpu ou auto)")
+    if not 0 <= warm_series <= WARM_SERIES_MAX:
+        raise ValueError(f"Série chaude de 0 à {WARM_SERIES_MAX} contenus neufs, reçu {warm_series}")
+    if long_output is not None and long_output < LONG_OUTPUT_TOKENS:
+        raise ValueError(f"Sortie longue d'au moins {LONG_OUTPUT_TOKENS} tokens, reçu {long_output}")
     if output.exists():
         raise FileExistsError(f"Rapport pilote déjà présent, aucune réécriture : {output}")
     profile = load_profile(profile_path)
@@ -118,8 +205,29 @@ def calibrate(profile_path: Path, output: Path, *, input_target: int = 2950,
                                        f"{volts} V et la température de {celsius} °C.")
         return messages
 
+    def long_request(component: str, volts: int, celsius: int) -> list[dict]:
+        # Texte distinct des essais courts : il demande une réponse longue, pour observer au moins 400 tokens produits.
+        messages = [system, {"role": "user", "content": "Voici une fiche de maintenance synthétique. " +
+                             f"L'équipement {component} est alimenté sous {volts} V ; sa température de service maximale "
+                             f"est {celsius} °C. Rédige une note de maintenance détaillée d'au moins 600 mots, en "
+                             "paragraphes numérotés, sur la tension et la température indiquées."}]
+        while tokenizer.count_messages(messages) < input_target:
+            messages[1]["content"] += (f" La vérification synthétique de {component} relève la tension de {volts} V "
+                                       f"et la température de {celsius} °C.")
+        return messages
+
     trial_messages = {"cold": synthetic("SYN-21", 24, 45), "warm_same_prefix": synthetic("SYN-21", 24, 45),
                       "warm_new_content": synthetic("SYN-73", 48, 60)}
+    for index in range(1, warm_series + 1):
+        trial_messages[f"warm_series_{index}"] = synthetic(f"SYN-{80 + index}", 30 + 6 * index, 50 + 5 * index)
+    trial_limits = dict.fromkeys(trial_messages, output_limit)
+    if long_output is not None:
+        trial_messages["long_output"] = long_request("SYN-95", 60, 70)
+        trial_limits["long_output"] = long_output
+        needed = tokenizer.count_messages(trial_messages["long_output"]) + long_output
+        if needed > profile["llm"]["num_ctx"]:
+            raise ValueError(f"Essai de sortie longue refusé : {needed} tokens d'entrée et de sortie pour "
+                             f"num_ctx {profile['llm']['num_ctx']}")
     messages = trial_messages["cold"]
     input_tokens = tokenizer.count_messages(messages)
     initial = psutil.virtual_memory().available / 1048576
@@ -137,7 +245,7 @@ def calibrate(profile_path: Path, output: Path, *, input_target: int = 2950,
               "input_target": input_target, "output_limit": output_limit,
               "serialized_tokens_by_trial": {label: tokenizer.count_messages(value) for label, value in trial_messages.items()},
               "num_ctx": profile["llm"]["num_ctx"], "threads": threads, "read_timeout_seconds": read_timeout,
-              "use_mmap_option": use_mmap}
+              "use_mmap_option": use_mmap, "warm_series": warm_series, "long_output_limit": long_output}
     write_json_atomic(output, report)
     service_profile = {**profile, "llm": {**profile["llm"], "base_url": "http://127.0.0.1:11444"}}
     base_url = service_profile["llm"]["base_url"]
@@ -163,7 +271,7 @@ def calibrate(profile_path: Path, output: Path, *, input_target: int = 2950,
             first = None
             text = ""
             final = None
-            body = chat_body(profile, trial_messages[label], output_limit=output_limit, threads=threads,
+            body = chat_body(profile, trial_messages[label], output_limit=trial_limits[label], threads=threads,
                              use_mmap=use_mmap, accelerator=accelerator)
             with httpx.Client(timeout=httpx.Timeout(read_timeout, connect=10), trust_env=False) as client:
                 with client.stream("POST", base_url + "/api/chat", json=body) as response:
@@ -184,42 +292,40 @@ def calibrate(profile_path: Path, output: Path, *, input_target: int = 2950,
                             final = event
                 resident = client.get(base_url + "/api/ps").json()["models"]
             model = next((item for item in resident if item.get("name", item.get("model")) == profile["llm"]["model"]), None)
+            produced = final.get("eval_count") if final else None
+            duration = final.get("eval_duration") if final else None
+            reached = isinstance(produced, int) and produced >= LONG_OUTPUT_TOKENS
             return {"label": label, "elapsed_seconds": time.monotonic() - started,
                     "ttft_seconds": first, "final": final, "public_synthetic_output": text,
                     "resident": resident, "serialized_tokens": tokenizer.count_messages(trial_messages[label]),
                     "processor": processor_label(int(model.get("size") or 0), int(model.get("size_vram") or 0))
                     if model else None,
-                    "output_limit": output_limit,
-                    "not_a_400_token_measurement": not final or final.get("eval_count", 0) < 400}
+                    "output_limit": trial_limits[label], "eval_count": produced,
+                    "not_a_400_token_measurement": not reached,
+                    # Débit de génération rapporté par Ollama (eval_count / eval_duration), seulement sur 400 tokens et plus.
+                    "throughput_400_tokens_per_second": round(produced / (duration / 1e9), 3)
+                    if reached and isinstance(produced, int) and duration else None}
 
+        def record(sample: dict) -> dict:
+            report["samples"].append(sample)
+            if len(report["samples"]) % 20 == 0:
+                write_json_atomic(output, report)
+            if sample["available_mib"] < reserve:
+                report["status"] = "FAIL_HOST_RESERVE"
+                report["forced_stop"] = "Owned pilot Job closed to protect host; no document job active"
+                write_json_atomic(output, report)
+                job.close()
+                raise RuntimeError("Réserve mémoire menacée ; pilote isolé arrêté, échec conservé")
+            return sample
+
+        own = "ollama_" + memory_key()
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            for label in ["cold", "warm_same_prefix", "warm_new_content"]:
+            for label in trial_messages:
+                # Mesure juste avant la soumission : base de la baisse propre à cet essai.
+                pre = record(host_measurement(child.pid, label, "pre_trial"))
                 future = executor.submit(trial, label)
                 while not future.done():
-                    sample = {"monotonic_seconds": time.monotonic(), "trial": label,
-                              "available_mib": psutil.virtual_memory().available / 1048576,
-                              "swap_free_mib": swap_free_mib(),
-                              "cpu_percent": psutil.cpu_percent(interval=None), "processes": []}
-                    try:
-                        tree = [psutil.Process(child.pid), *psutil.Process(child.pid).children(recursive=True)]
-                        for process in tree:
-                            if sys.platform == "win32":
-                                memory = process.memory_info()
-                                sample["processes"].append({"pid": process.pid, "rss_mib": memory.rss / 1048576,
-                                                            "private_mib": getattr(memory, "private", memory.rss) / 1048576})
-                            else:
-                                sample["processes"].append({"pid": process.pid, **linux_memory_mib(process)})
-                    except psutil.Error:
-                        pass
-                    report["samples"].append(sample)
-                    if len(report["samples"]) % 20 == 0:
-                        write_json_atomic(output, report)
-                    if sample["available_mib"] < reserve:
-                        report["status"] = "FAIL_HOST_RESERVE"
-                        report["forced_stop"] = "Owned pilot Job closed to protect host; no document job active"
-                        write_json_atomic(output, report)
-                        job.close()
-                        raise RuntimeError("Réserve mémoire menacée ; pilote isolé arrêté, échec conservé")
+                    record(host_measurement(child.pid, label, "during_trial"))
                     time.sleep(0.25)
                 try:
                     result = future.result()
@@ -229,6 +335,13 @@ def calibrate(profile_path: Path, output: Path, *, input_target: int = 2950,
                     report["minimum_available_mib"] = min(item["available_mib"] for item in report["samples"])
                     write_json_atomic(output, report)
                     raise
+                post = record(host_measurement(child.pid, label, "post_trial"))
+                observed = [item["available_mib"] for item in report["samples"]
+                            if item["trial"] == label and item["phase"] != "pre_trial"]
+                result.update({"pre_trial_available_mib": pre["available_mib"], "pre_trial_swap_free_mib": pre["swap_free_mib"],
+                               "pre_trial_" + own: pre[own], "post_trial_available_mib": post["available_mib"],
+                               "post_trial_swap_free_mib": post["swap_free_mib"], "post_trial_" + own: post[own],
+                               "min_available_mib": min(observed), "drop_from_pre_trial_mib": pre["available_mib"] - min(observed)})
                 if not result["final"] or not result["public_synthetic_output"]:
                     raise RuntimeError("Réponse pilote incomplète")
                 check_residency(result["resident"], accelerator)
@@ -248,6 +361,7 @@ def calibrate(profile_path: Path, output: Path, *, input_target: int = 2950,
             report["peak_sum_pss_mib"] = max(sum(p["pss_mib"] or 0 for p in item["processes"]) for item in report["samples"])
         # Grandeur prévue par l'admission : baisse de mémoire disponible de l'hôte due au pilote.
         report["max_available_drop_mib"] = initial - report["minimum_available_mib"]
+        report["admission_review"] = admission_review(report, profile["resources"])
         write_json_atomic(output, report)
         send_owned_console_interrupt(child, "ollama")
         try:
@@ -273,7 +387,13 @@ if __name__ == "__main__":
     parser.add_argument("--accelerator", choices=ACCELERATORS, default="cpu",
                         help="cpu (défaut) : num_gpu 0, comme avant l'accélération GPU ; auto : option omise, GPU "
                              "exigé, jamais une mesure D07")
+    parser.add_argument("--warm-series", type=int, choices=range(0, WARM_SERIES_MAX + 1), default=0,
+                        help="nombre de contenus neufs distincts ajoutés après les trois essais (0 par défaut)")
+    parser.add_argument("--long-output", type=int,
+                        help=f"ajoute un essai demandant une réponse longue, limitée à ce nombre de tokens "
+                             f"(au moins {LONG_OUTPUT_TOKENS})")
     args = parser.parse_args()
     calibrate(args.profile, args.output, input_target=args.input_tokens,
               output_limit=args.output_tokens, threads=args.threads, read_timeout=args.read_timeout,
-              use_mmap=None if args.use_mmap is None else args.use_mmap == "true", accelerator=args.accelerator)
+              use_mmap=None if args.use_mmap is None else args.use_mmap == "true", accelerator=args.accelerator,
+              warm_series=args.warm_series, long_output=args.long_output)

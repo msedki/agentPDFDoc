@@ -327,13 +327,13 @@ Le **travail des agents** peut consulter Internet selon l'autorisation de l'util
 
 # Registre et usage des skills — RAG-LOCAL-16 V2.1
 
-**Statut :** registre vivant des skills présents dans le dépôt. **Date :** 30/09/2026 (UTC), mis à jour le 05/10/2026 (UTC). **Référence :** empreintes SHA-256 des fichiers de la révision Git qui contient ce registre, recontrôlées à chaque exécution de `tools/verify_pack.py`.
+**Statut :** registre vivant des skills présents dans le dépôt. **Date :** 30/09/2026 (UTC), mis à jour le 06/10/2026 (UTC). **Référence :** empreintes SHA-256 des fichiers de la révision Git qui contient ce registre, recontrôlées à chaque exécution de `tools/verify_pack.py`.
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
 ## Point d'entrée
 
-Deux familles de **vrais `SKILL.md` rédigés pour ce projet** coexistent : les cinq skills du pack sous `RAG_Local_Agents/skills/` (premier tableau) et neuf skills projet sous `.agents/skills/` à la racine du dépôt (second tableau). Ils organisent le travail des agents de développement ; ils ne sont pas des plugins installés ni des compétences certifiées par OpenAI, Anthropic ou un éditeur de la stack. Des fichiers tiers sont aussi posés sous `.agents/skills/` ; le [registre](#registre-des-fichiers-présents) les recense sans les compter parmi les skills du projet.
+Deux familles de **vrais `SKILL.md` rédigés pour ce projet** coexistent : les cinq skills du pack sous `RAG_Local_Agents/skills/` (premier tableau) et dix skills projet sous `.agents/skills/` à la racine du dépôt (second tableau). Ils organisent le travail des agents de développement ; ils ne sont pas des plugins installés ni des compétences certifiées par OpenAI, Anthropic ou un éditeur de la stack. Des fichiers tiers sont aussi posés sous `.agents/skills/` ; le [registre](#registre-des-fichiers-présents) les recense sans les compter parmi les skills du projet.
 
 Lire les noms/descriptions, choisir le skill utile, puis ouvrir son fichier. Si l'environnement fournit déjà un skill plus adapté, en contrôler les instructions et la compatibilité avant de le réutiliser ; ne pas charger les deux intégralement par réflexe. Les décisions externes restent soumises à [RECHERCHE_ET_SKILLS.md](RECHERCHE_ET_SKILLS.md).
 
@@ -353,6 +353,7 @@ Lire les noms/descriptions, choisir le skill utile, puis ouvrir son fichier. Si 
 | PDF synthétiques et annotations de qualification, séparation développement/final | [rag-qualification-fixtures](../.agents/skills/rag-qualification-fixtures/SKILL.md) | Fixtures hashées ; ni benchmark métier ni import/indexation |
 | Provisionnement, supervision et arrêt ciblé des processus natifs Windows | [windows-rag-runtime](../.agents/skills/windows-rag-runtime/SKILL.md) | Versions verrouillées, Job Object, aucun WSL/Docker ni mutation système |
 | Provisionnement, supervision et arrêt ciblé des processus natifs Linux aarch64 et x86-64 (W018, sans sudo) | [linux-rag-runtime](../.agents/skills/linux-rag-runtime/SKILL.md) | uv et torch +cpu, binaires arm64 vérifiés, Tesseract compilé en espace utilisateur, groupes de processus et `flock`, complément JetPack d'Ollama et mode de génération décidé au démarrage ; aucun sudo ni Docker, comportement Windows inchangé |
+| Kit hors ligne Linux interne : fabrication, vérification, installation sans droits d'administration, mise à jour, retour arrière et retrait (R26) | [linux-offline-kit](../.agents/skills/linux-offline-kit/SKILL.md) | Kit relocatable par architecture, liens symboliques et chemins du poste de fabrication contrôlés, glibc et bibliothèques système déclarées, données hors programme ; ni sudo, ni service, ni kit croisé ; recette réelle requise avant toute qualification |
 | Comparatif d'embedding E5-small INT8 / Granite 97M R2 ONNX CPU | [embedding-comparison-windows](../.agents/skills/embedding-comparison-windows/SKILL.md) | Collections séparées, décision tracée ; modèle actif inchangé sans décision |
 | Maintien des références, spécifications et procédures documentaires | [project-documentation](../.agents/skills/project-documentation/SKILL.md) | Documents confrontés au code et aux preuves, contrôles de structure et relecture indépendante ; aucune recette d'installation déduite de la rédaction |
 
@@ -398,6 +399,7 @@ Chaque ligne donne le fichier, son origine telle qu'elle se constate dans le dé
 | windows-rag-runtime | projet | [`.agents/skills/windows-rag-runtime/SKILL.md`](../.agents/skills/windows-rag-runtime/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot E de `PLAN.md` ; lecture consignée dans `reports/skills-usage-2026-09-30.json` ; section « Accélération GPU » du lot J11.9 (02/10/2026) rédigée d'après le code du commit `4d8ba68`, sans essai sous Windows, puis corrigée le 02/10/2026 après une relecture contradictoire non versionnée | `538f75c2cbee38453f192d4db8cd311d1787fdfd13316bc81b677df65851acab` | PASS `agents_skill_format` | NOT_RUN |
 | embedding-comparison-windows | projet | [`.agents/skills/embedding-comparison-windows/SKILL.md`](../.agents/skills/embedding-comparison-windows/SKILL.md) | Rédigé pour ce dépôt ; création consignée au journal du 30/09/2026 | `b2f18df54759dff6273605215188d22f9d1462f302e1ccd4e2292058020fa49f` | PASS `agents_skill_format` | NOT_RUN |
 | linux-rag-runtime | projet | [`.agents/skills/linux-rag-runtime/SKILL.md`](../.agents/skills/linux-rag-runtime/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot J0 de `PLAN.md` (W018) ; sources officielles consultées le 01/10/2026 (LNX01 à LNX15, LNX19 et LNX20 de `SOURCES.md`), affirmations revérifiées par un vérificateur indépendant ; compléments de la ronde 5 (compilateurs, `open` selon W023, glibc lue par `bootstrap.sh`, plancher glibc d'Ollama) vérifiés contre le code par l'intégrateur, sans revue indépendante ; section « Accélération GPU » du lot J11.9 (02/10/2026) rédigée d'après le code du commit `4d8ba68`, les résultats de l'essai J11.8 (résumés dans la section 5.1 de `docs/architecture/ARCHITECTURE.md`, preuves hors Git) et GPU01 à GPU15 de `SOURCES.md`, puis corrigée le 02/10/2026 après une relecture contradictoire non versionnée ; paragraphe Interface et E2E mis à jour le 02/10/2026 (lot J9) | `29e50be8c1c5ccd42e577448e9d77ab2dacb4520525a1343ad7d658007e931d2` | PASS `agents_skill_format` | NOT_RUN |
+| linux-offline-kit | projet | [`.agents/skills/linux-offline-kit/SKILL.md`](../.agents/skills/linux-offline-kit/SKILL.md) | Rédigé le 06/10/2026 pour R26-KIT-00 après consultation des sources officielles KIT01 à KIT16 de `SOURCES.md` ; `metadata.origin: project-authored` ; révisé le 06/10 après la revue indépendante et la contre-vérification de R26-KIT-01 | `b03211b4ba36c1d987824c99d34ef742b7e24313126643b8d8e0ea3d1e2d0ce9` | PASS `agents_skill_format` et quick_validate (06/10/2026) | NOT_RUN : recette réelle R26-KIT-02 à exécuter |
 | backend-patterns | tiers | [`.agents/skills/backend-patterns/SKILL.md`](../.agents/skills/backend-patterns/SKILL.md) | Autre projet : décrit le backend Decodair (PostgreSQL, SQLAlchemy 2) et renvoie au skill `postgresql-data-pipelines`, absent ici | `15bcac61e48183586d8b3ecd8cebabda3ad9c9ae782a3f4beb5dab7adecc986f` | PASS `agents_skill_format` | NOT_RUN |
 | agent-introspection-debugging | tiers | [`.agents/skills/agent-introspection-debugging/SKILL.md`](../.agents/skills/agent-introspection-debugging/SKILL.md) | Champ `origin: ECC` et section « Integration with ECC » ; source non vérifiée | `84f817fd626369280affe13883acb490c3856c0b108f9bb2ff78a59c7ce78aff` | PASS `agents_skill_format` | NOT_RUN |
 | frontend-design | tiers | [`.agents/skills/frontend-design/SKILL.md`](../.agents/skills/frontend-design/SKILL.md) | Aucune origine déclarée ; contenu générique sans référence à ce dépôt ; source non vérifiée | `50aff55b89e8d2699940dfa7308db236aed7749c7efebf92451ba00b0ca5b95e` | PASS `agents_skill_format` | NOT_RUN |
@@ -1737,7 +1739,67 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, livraison locale retenue avec réserves ; qualification intégrale en attente · **Référence :** base publiée `497d901`, W038 conservée et correctif R25-LEN-01 daté ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 13:27 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, livraison locale retenue avec réserves ; reprise R26 autorisée (réserves Linux et distribution Linux) ; qualification intégrale en attente hors de ce périmètre · **Référence :** base publiée `011a817` et modifications locales R26 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 22:55 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+
+## R26 — reprise autorisée du 6 octobre : réserves Linux et distribution interne Linux
+
+**Objectif :** compléter les réserves de la livraison Linux W038 et livrer une
+distribution interne Linux installable et vérifiée, à partir de l'état réel
+du dépôt. **Périmètre daté :** demande utilisateur du 6 octobre 2026, reçue
+vers 17:48 UTC et précisée à 18:20 UTC ; reprise de W038 limitée aux réserves
+Linux et à la distribution Linux. **Exclusions :** qualification Windows,
+chantier multiplateforme général, corpus privé R19, purge physique,
+apprentissage OCR, comparatif Granite D10.2 (différé par W038), déclaration
+de DoD globale. **Sources examinées :** base `011a817`, ce plan, DoD,
+QUALIFICATION, DECISIONS W036–W039, journal du 6 octobre, synthèse de
+livraison, skills du registre utiles à chaque lot. **Résultat attendu :**
+réserves exécutables traitées avec preuves, kit Linux aarch64 fabriqué,
+installé hors ligne dans une cible isolée, mis à jour et ramené en arrière ;
+x86-64 et D07 conservés non qualifiés faute de matériel.
+
+**Arbitrages utilisateur du 6 octobre (19:20–19:50 UTC) :** campagne 2B sur les
+100 questions DEV autorisée (jeu final intouché) ; méthode Playwright avec
+`PLAYWRIGHT_HOST_PLATFORM_OVERRIDE` acceptée comme preuve D06 sur ce poste,
+ce qui tranche le point (15) ; arrêt coopératif de l'instance principale
+autorisé pendant les recettes lourdes, avec remise en service en fin de lot ;
+mesure D06.5 acceptée seulement si elle reste courte, d'où un lot borné à
+environ une heure. Instance principale arrêtée à 19:51 UTC (code 0 pour
+l'API, Ollama et Qdrant ; preuves `.runtime/qa/r26-main-instance/`).
+
+**État de référence :** cinq analyses en lecture seule du 6 octobre
+(18:00–18:45 UTC) ont relu les preuves, les pistes refusées et le code.
+Pistes refusées non relancées : douze variantes OCR P02 (R23-OCR-01/03),
+candidat éditorial W037, normalisation des citations, seuil W026,
+réutilisation à identité constante comme preuve D03.8.
+
+| Action | Lot / responsable | Dépendances | Livrable et critère de validation | État |
+|---|---|---|---|---|
+| R26-OCR-01 | Lot 1, backend puis interface | Analyse P02 ; prompt inchangé | Méthode d'extraction par bloc, source et citation (`unknown` à défaut, jamais `native`) ; avertissement `ocr_evidence` par document ; `partial_extraction` reformulé ; textes de confiance OCR corrigés ; test rouge puis vert sur l'extraction P02 réelle ; passage nominal P02 sur le code livré ; badge d'interface, E2E et rendu | VERIFIED — rouge puis vert backend et interface ; passage nominal : même défaut OCR (`+`, `N-m`, `DA-PO2`, `CCO`), réserve P02 maintenue ; E2E sur API réelle (badge « Lu par OCR », avis unique) et rendu aux deux tailles relus ; revues backend et interface favorables ([W042](DECISIONS.md#w042-provenance-ocr-et-contrôles-de-réponse-en-signaux)) |
+| R26-ANS-01 | Lot 1, backend | R26-OCR-01 (fichiers communs) | Signaux `answer_without_valid_citation` et `source_id_mentioned_without_citation`, sans normalisation ni filtre ; rejeu hors ligne figé avant exécution | VERIFIED — rejeu : R25 factuelle signalée, 0/94 réponses DEV 4B ; campagne 2B : 50/84 réponses signalées, recalcul avec le code final identique ; revue favorable |
+| R26-ANS-02 | Lot 1, backend | R26-ANS-01 | Signaux `cited_value_not_in_cited_sources` et `value_not_in_context`, sans suppression ni réécriture (W037) ; faux positifs publiés avec dénominateur | VERIFIED — cas 2,7 bar signalé ; DEV 4B : 6 valeurs non soutenues et 3 faux positifs relus ; faux positifs de la revue corrigés (dates, `pp.`, `§`, rangs, plages, citation en tête de puce) ; limites dans API.md §5 |
+| R26-IDX-01 | Lot 1, qualification | Instance isolée | Sonde d'identité d'embedding : OCR non refait, collections distinctes, aucune recherche sous la nouvelle identité vers l'ancienne collection | VERIFIED (mécanisme) — défauts H-A1, H-A2 et H-A3 confirmés ; D03.8 reste NOT_RUN pour un vrai changement de modèle |
+| R26-IDX-02 | Lot 1, backend | R26-IDX-01 | Mode dégradé signalé `dense_identity_mismatch`, état de disponibilité nommé, nettoyage des générations remplacées dans toutes les collections du projet ; sonde rejouée | VERIFIED — sonde native rejouée `PASS_MECHANISM`, H-A1/H-A2 réfutés après correction, H-A3 signalé ; revue favorable ([W043](DECISIONS.md#w043-identité-dembedding--mode-dégradé-signalé)) |
+| R26-ADM-01 | Lot 1, qualification CPU | Instance principale arrêtée | Mesure juste avant chaque requête ; pilote CPU 2B aux limites W039 ; règle W036 appliquée sans baisse de borne ; aucune case D07 | VERIFIED — premier pilote non exclusif écarté ; pilote exclusif : borne froide 2B portée à 3 968 Mio, borne chaude 512 confirmée ([W041](DECISIONS.md#w041-admission-froide-du-2b-relevée-après-un-pilote-exclusif-aux-limites-w039)) ; 159 tests d'admission PASS ; outil corrigé pour suivre la règle figée |
+| R26-UI-01 | Lot 1/2, interface | R26-OCR-01, R26-ANS-01/02 | Export sans chemin du poste ; badge OCR ; avertissements regroupés ; garde E2E contre l'instance principale ; unités, lint, types, build ; non-régression du lecteur (rotations, 300 %, sélections, génération puis citation) ; rendu 1366×768 et 1920×1080 | VERIFIED — 393 unités, lint, types, build avec contrôle d'export intégré ; E2E sur instance isolée : lecteur 12/12, génération 2B réelle 2/2 ; rendu relu ; revue et contre-vérification favorables ([W044](DECISIONS.md#w044-pdfjs-chargé-hors-bundle-et-export-contrôlé)) |
+| R26-ANC-01 | Lot 1, interface | R26-UI-01 | Taux D06.5 sur les fixtures DEV natives et QLONG, en une passe automatisée bornée à environ une heure ; blocs OCR déclarés à part ; clôture soumise à l'utilisateur | FAIL selon les règles figées — 155/169 régions (91,7 %), 161/169 pages (95,3 %) ; les 14 échecs sont des textes répétés que la méthode ne discrimine pas, aucune erreur de page sur les 161 passages ouverts ; P02 non publié absent du jeu. D06.5 reste ouvert |
+| R26-2B-01 | Lot 1, qualification | Code backend stabilisé | 100 questions DEV en 2B, grille de deux juges et un arbitre (assistant, sans expert métier), dénominateurs et questions P02 NOT_RUN conservés ; jeu final intouché | VERIFIED (diagnostic DEV) — 84 générées, 16 NOT_RUN ; exactitude 50/80, abstention 17/20, faux refus 10/80, assertions soutenues 64/181 ; défaut principal : citations hors crochets dans 50 réponses sur 84. Réserve 2B maintenue |
+| R26-KIT-00 | Lot 2, skill | Sources officielles KIT01–KIT16 | Skill `linux-offline-kit` créé, format validé, registre à jour | VERIFIED — format et quick_validate PASS, registre à jour |
+| R26-KIT-01 | Lot 2, outils de distribution | R26-KIT-00 | Fabricant Linux par plateforme, liens symboliques, marqueurs du poste, glibc minimale, archive, installateur, mise à jour, retour arrière, désinstallation, garde du profil livré ; Windows inchangé hors correctif C3 | VERIFIED (unités) — revue NO-GO (3 majeurs, 10 mineurs) puis corrections rouge/vert, contre-vérification GO ; 238 PASS/19 SKIP ; dry-run sans fuite, `ready` attendu après commit |
+| R26-KIT-02 | Lot 2, recette réelle | R26-KIT-01, export sans fuite, commit | Kit aarch64 fabriqué, vérifié, archivé ; installation isolée à un autre chemin sans réseau ; PDF, extraction, recherche, question, citation et lecture ; redémarrage hors ligne ; mise à jour et retour arrière avec sauvegarde vérifiée ; désinstallation gardée | À FAIRE — après le commit du lot |
+| R26-KIT-03 | Lot 2, x86-64 | Hôte x86-64 provisionné | Kit x86-64 fabriqué et qualifié sur un hôte de cette architecture | BLOCKED — aucun hôte x86-64 ; le fabricant refuse un kit croisé |
+| R26-DOC-01 | Documentation | Lots vérifiés | Déploiement, exploitation, API, spécifications, DoD Linux, synthèse de livraison, décisions, sources, registre des skills, journal | EN COURS — API, dépannage, décisions W040–W044, sources, registre et journal à jour ; déploiement, exploitation, DoD et synthèse après la recette du kit |
+| R26-REV-01 | Validation | Tous les lots | Revues non-auteur par lot et validation finale contre ce plan, les skills et la DoD | EN COURS — revues backend, interface et kit favorables ; validation finale après la recette du kit |
+
+**Point à trancher (utilisateur) :** le 2B cite ses sources hors crochets
+dans 50 réponses DEV sur 84 (38 correctes par leur contenu), si bien que
+ces citations ne sont ni enregistrées ni cliquables. Le parseur strict
+`[S001]` est un contrat délibéré ; le normaliser modifierait ce contrat.
+
+Reste hors de portée de ce poste : D07 (hôte CPU de 16 Go au plus), Linux
+x86-64, Windows. Ces critères restent non qualifiés et ne bloquent pas les
+lots indépendants. **Prochaine action :** committer et publier le lot vérifié,
+fabriquer le kit aarch64 depuis ce commit et exécuter la recette R26-KIT-02,
+puis mettre à jour la documentation stabilisée et la DoD Linux.
 
 ## Périmètre courant — décision W038 du 6 octobre 2026
 
@@ -3702,7 +3764,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `5fb5dc8` et décision W038 datée ci-dessous · **Mis à jour :** 2026-10-06 09:36 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `011a817` et décisions W038 à W040 datées ci-dessous · **Mis à jour :** 2026-10-06 20:10 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -4916,6 +4978,186 @@ rétablir les budgets de sortie et de preuves précédents dans les quatre profi
 l'export de l'interface à la révision précédente, puis arrêter/démarrer ;
 aucune migration ou réindexation des données n'est nécessaire.
 
+
+## W040 Reprise R26 : réserves Linux et distribution interne Linux
+
+**Date :** 6 octobre 2026, demande reçue vers 17:48 UTC, arbitrages de
+19:20 à 19:50 UTC. **Statut :** décisions utilisateur acquises ; réalisation
+suivie par [R26](PLAN.md#r26--reprise-autorisée-du-6-octobre--réserves-linux-et-distribution-interne-linux).
+
+**Contexte :** W038 avait retenu la livraison locale Linux avec réserves et
+mis en attente la qualification intégrale. L'utilisateur autorise la reprise
+de W038 uniquement pour les réserves Linux et pour une distribution interne
+Linux installable et vérifiée. [Source utilisateur](SOURCES.md#r26-s01--demande-et-arbitrages-utilisateur).
+
+**Choix retenus :**
+
+- Périmètre R26 du plan ; Windows, chantier multiplateforme général,
+  corpus privé R19, purge physique, apprentissage OCR et comparatif D10.2
+  restent exclus ; la DoD globale n'est pas déclarée.
+- Point à trancher (15) : la méthode Playwright 1.63 avec Chrome Headless
+  Shell et `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE` est acceptée comme preuve D06
+  sur ce poste Ubuntu 20.04 aarch64. La limite de plateforme (TOOL02) reste
+  déclarée et ne vaut pas pour un autre système.
+- Campagne 2B sur les 100 questions DEV autorisée, jugée par deux juges et un
+  arbitre (assistant, sans expert métier) ; jeu final intouché.
+- Arrêt coopératif de l'instance principale pendant les recettes lourdes,
+  puis remise en service en fin de lot.
+- D06.5 : l'utilisateur juge trop longue une mesure de trois à cinq heures ;
+  la mesure est bornée à une passe automatisée d'environ une heure et sa
+  portée de clôture lui sera soumise.
+
+**Justification :** demande explicite ; réduire les réserves exécutables sur
+ce poste sans campagne volumineuse, réglage sur le jeu final ni assertion
+affaiblie.
+
+**Conséquences :** les preuves R26 valent pour Linux aarch64 (Jetson AGX
+Orin, Ubuntu 20.04.6). Linux x86-64, la recette D07 sur un hôte CPU de 16 Go
+et Windows restent non qualifiés. W038 reste applicable hors de ce périmètre.
+
+## W041 Admission froide du 2B relevée après un pilote exclusif aux limites W039
+
+**Date :** 6 octobre 2026, critère figé à 20:20 UTC, mesure de 20:23 à 20:38
+UTC. **Statut :** acquise pour le profil 2B livré ; prolonge W036 sans la
+remplacer pour ses mesures historiques. Aucune case D07 n'est cochée.
+
+**Contexte :** W036 avait porté l'estimation froide du 2B à 3 584 Mio sur un
+pilote CPU de 2 959 tokens d'entrée et 64 de sortie, et laissé provisoire
+l'estimation chaude de 512 Mio. W039 a ensuite porté l'entrée maximale à
+6 400 tokens et la sortie à 768/1 536. L'outil de calibration mesure
+désormais la mémoire juste avant chaque requête (R26-ADM-01). Un premier
+pilote, non exclusif, a été écarté : un `mypy` lancé hors du verrou tombait
+dans la fenêtre des pics.
+
+**Mesure retenue :** pilote CPU exclusif sur le Jetson (`MODE_30W`, huit
+cœurs, 61 Gio), profil 2B livré, qwen3.5:2b Q8_0 sur CPU, entrées de 6 319
+tokens, trois contenus chauds neufs et une sortie de 768 tokens.
+Pic froid retenu 3 723,50 Mio (baisse depuis la base du pilote ; 3 674,39
+depuis la mesure préalable de l'essai), pic chaud 263,64 Mio, plateau d'USS
+1,52 Mio, aucun swap, 768 tokens réellement produits par l'essai long.
+[Journal](journal/2026-10-06.md#r26-adm-01--pilote-cpu-exclusif-et-bornes-dadmission).
+
+**Choix :** règle de W036 inchangée (pic + 129 Mio arrondi au multiple de 128
+supérieur, borne relevée et jamais baissée) : estimation froide du 2B portée
+de 3 584 à 3 968 Mio, soit 5 504 Mio requis à froid avec la réserve de
+1 536 ; estimation chaude de 512 Mio confirmée pour l'enveloppe mesurée.
+Profil 4B inchangé.
+
+**Justification :** le pic froid contredit la borne précédente aux limites
+réelles du profil ; la borne chaude tient avec une marge de 248 Mio.
+
+**Conséquences :** admission plus stricte de 384 Mio pour la première
+génération du 2B ; un poste juste au-dessus de l'ancien seuil attendra ou
+refusera. Portée : Linux aarch64, CPU, ce Jetson ; ni GPU, ni hôte de 16 Go,
+ni Windows. **Retour arrière :** rétablir 3 584 dans `config/local16.yaml`,
+sa copie et le test de seuil, si une mesure exclusive ultérieure, plus
+représentative de la cible, le justifie.
+
+## W042 Provenance OCR et contrôles de réponse en signaux
+
+**Date :** 6 octobre 2026, 18:15–20:45 UTC. **Statut :** implémenté et revu
+indépendamment (accord pour commit, corrections mineures demandées) ;
+parcours natif dans la campagne R26-2B-01 et les E2E R26-UI-01.
+
+**Contexte :** l'OCR livré lit `+` pour `±`, `N-m` pour `N·m` et `DA-PO2`
+pour `DA-P02` sans alerte de faible confiance ; l'alphabet installé ne
+contient ni `±` ni `·`, et toutes les variantes sans apprentissage ont été
+refusées (R23-OCR-01/03). Les sources et citations ne portaient pas la
+méthode d'extraction. En 2B, une réponse sans citation entre crochets était
+acceptée sans avertissement, et une valeur citée n'était pas rapprochée de
+la source citée. W037 refuse tout filtre de réponse.
+
+**Choix :** porter la méthode d'extraction de chaque bloc jusqu'aux sources,
+citations et recherche (`extraction_methods`, `unknown` à défaut, jamais
+`native`) ; avertir par document (`ocr_evidence`) quand un passage transmis
+au modèle vient de l'OCR ; reformuler `partial_extraction` ; ajouter quatre
+contrôles déterministes en fin de réponse, dans `done` seulement :
+`answer_without_valid_citation`, `source_id_mentioned_without_citation`,
+`cited_value_not_in_cited_sources` et `value_not_in_context`. Aucun texte,
+citation ni prompt n'est modifié ; le parseur strict `[S001]` est conservé.
+L'interface affiche un badge « Lu par OCR », « En partie lu par OCR » ou
+« Méthode d'extraction inconnue » et regroupe ces avis.
+
+**Justification :** sans apprentissage, la seule correction honnête de la
+cause « valeur erronée présentée comme fiable » est de signaler l'origine et
+les incohérences là où l'utilisateur emploie la valeur ; un filtre ou une
+normalisation reviendrait aux pistes refusées.
+
+**Conséquences :** contrat additif ; tout document scanné reçoit un
+avertissement ; faux positifs connus sur les valeurs calculées justes,
+mesurés sur le jeu DEV (3 sur 123 assertions soutenues portant un nombre
+dans la grille 4B) et listés dans l'API. La réserve OCR P02 et la réserve de
+fiabilité 2B restent ouvertes : ces signaux ne corrigent ni le texte OCR ni
+le modèle. **Retour arrière :** retirer les avertissements et champs ajoutés,
+le contrat restant compatible pour les clients qui les ignorent.
+
+## W043 Identité d'embedding : mode dégradé signalé
+
+**Date :** 6 octobre 2026, 19:55–20:40 UTC. **Statut :** implémenté, sonde
+native PASS sur instance isolée, revu indépendamment (accord pour commit,
+corrections mineures demandées). D03.8 reste NOT_RUN pour un vrai
+changement de modèle.
+
+**Contexte :** la sonde R26-IDX-01 a confirmé trois défauts. Après un
+changement d'identité d'embedding et une réindexation partielle, la
+disponibilité répondait « present » alors que deux documents sur trois
+n'avaient plus d'index dense, sans avertissement, ce qu'interdit
+IMPLEMENTATION.md (fausse recherche globale) ; le nettoyage laissait les
+points des générations remplacées dans l'ancienne collection ; au retour à
+l'identité initiale, la branche dense restait vide sans signal.
+
+**Choix :** sans migration SQLite, relever au démarrage puis à chaque
+consultation les générations actives sans point dans la collection de
+l'identité courante ; émettre `dense_identity_mismatch` dans la recherche et
+les questions ; exposer `dense_index` (`complete`,
+`dense_migration_incomplete`, `unverifiable`, `not_applicable`) et
+`documents_to_reindex` dans `/readiness`, qui reste en 200 ; supprimer une
+génération remplacée dans toutes les collections du projet, et seulement
+celles-ci.
+
+**Justification :** la branche lexicale reste valide pendant une
+réindexation et le démarrage ne doit pas être bloqué ; l'utilisateur doit
+savoir quels documents réindexer. Une bascule contrôlée complète (nouvelle
+collection préparée pendant que l'ancienne sert) reste une évolution plus
+large, non engagée.
+
+**Conséquences :** contrat additif ; les points laissés par des nettoyages
+antérieurs au correctif ne sont pas repris ; une collection courante absente
+garde le refus explicite existant. **Retour arrière :** retirer
+l'avertissement et les champs ajoutés ; le nettoyage reviendrait à la seule
+collection courante.
+
+## W044 PDF.js chargé hors bundle et export contrôlé
+
+**Date :** 6 octobre 2026, 18:20–22:30 UTC. **Statut :** implémenté, build et
+E2E sur instance isolée PASS, revu indépendamment (accord pour commit).
+
+**Contexte :** l'export de l'interface embarquait le chemin réel du poste de
+fabrication (`file:///media/…/pdfjs-dist/build/pdf.mjs`). Cause établie :
+webpack 5.98.0, livré par Next 16.3.7, remplace `import.meta.url` par l'URL
+`file:` du module au moment du build ; `pdfjs-dist` 6.3.289 l'emploie dans
+sa fabrique de canvas réservée à Node. Le kit Linux refuse toute fuite de
+chemin, et cette information privée n'a rien à faire dans l'interface.
+[Sources WEB01 à WEB05](SOURCES.md#r26-web--chargement-de-pdfjs-hors-bundle-et-contrôle-de-lexport).
+
+**Choix :** ne plus empaqueter PDF.js ; le navigateur charge la copie locale
+`/pdfjs/pdf.min.mjs`, de la même version que le worker, par un import natif
+(`webpackIgnore`), avec un seul module pour le document et la couche de
+texte. Le script `build` exécute désormais `check-export-paths.mjs`, qui
+échoue sur un chemin absolu du poste ; seules trois constantes amont de
+PDF.js, aux fichiers et contextes exacts, sont admises.
+
+**Alternatives écartées :** `importMeta: false` (provoque une erreur de
+syntaxe dans les chunks classiques), forme objet de `importMeta` (absente de
+webpack 5.98.0), `DefinePlugin` global, réécriture du code de PDF.js.
+
+**Conséquences :** export plus léger (chunks de 1,64 à 1,19 Mo), lecteur
+dépendant du fichier statique `pdf.min.mjs` servi en JavaScript (vérifié
+sous Linux ; type MIME sous Windows non vérifié). Un échec de chargement
+affiche « Lecteur PDF indisponible » avec l'action à mener. **Retour
+arrière :** revenir à l'import empaqueté et retirer le contrôle du script
+`build`, ce qui réintroduirait la fuite.
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -4968,7 +5210,57 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `497d901`, W038 conservée et correctif R25-LEN-01 daté ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 13:27 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `011a817` et consultations R26 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 20:10 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R26-KIT — kit hors ligne Linux (KIT01 à KIT16)
+
+Consultation du 6 octobre 2026 (UTC) pour R26-KIT-00 et R26-KIT-01, avant la
+rédaction du skill [linux-offline-kit](../.agents/skills/linux-offline-kit/SKILL.md).
+Ces pages établissent des mécanismes et des contrats de version ; elles ne
+prouvent pas qu'un kit fabriqué ici s'installe ailleurs.
+
+| ID | Source officielle | Version | Apport | Limite |
+|---|---|---|---|---|
+| KIT01 | [uv, cache](https://docs.astral.sh/uv/concepts/cache/) | page courante | cache sur le même volume que l'environnement pour lier au lieu de copier ; usage concurrent sûr | relocalisation et hors ligne non traités |
+| KIT02 | [uv, réglages](https://docs.astral.sh/uv/reference/settings/) | page courante | `link-mode` (`clone` par défaut sous Linux), `offline`, désactivation de la configuration | repli sur ext4 non décrit |
+| KIT03 | [uv, variables d'environnement](https://docs.astral.sh/uv/reference/environment/) | page courante | `UV_LINK_MODE`, `UV_OFFLINE`, `UV_MANAGED_PYTHON`, `UV_NO_CONFIG` | correction de `sysconfig` non décrite ; effet de `UV_NO_CONFIG` vérifié localement (`uv lock --check --offline` identique) |
+| KIT04 | [uv, versions de Python](https://docs.astral.sh/uv/concepts/python-versions/) | page courante | lien de version mineure (lien symbolique sous Unix) | relocalisation non traitée |
+| KIT05 | [uv, stockage](https://docs.astral.sh/uv/reference/storage/) | page courante | déplacer un Python géré impose de recréer les environnements | — |
+| KIT06 | [uv, synchronisation](https://docs.astral.sh/uv/concepts/projects/sync/) | page du 05/08/2026 | `--locked`, `--no-dev` | hors ligne non décrit |
+| KIT07 | [python-build-standalone, particularités](https://gregoryszorc.com/docs/python-build-standalone/main/quirks.html), renvoyé par la documentation d'uv | non datée | chemins de construction figés dans `_sysconfigdata`, corrigés par uv à l'installation | version non indiquée |
+| KIT08 | [Python 3.12, venv](https://docs.python.org/3.12/library/venv.html) | 3.12.15 | un environnement virtuel ne se déplace pas : il se recrée | — |
+| KIT09 | [Python 3.12, sysconfig](https://docs.python.org/3.12/library/sysconfig.html) et `Lib/sysconfig.py` 3.12.14 livré (l. 650-677) | 3.12.15 / 3.12.14 | `_init_posix` reprend `prefix` du fichier `_sysconfigdata` | relocalisation établie par le code et un essai local, pas par la documentation |
+| KIT10 | [Python 3.12, tarfile](https://docs.python.org/3.12/library/tarfile.html) | 3.12.15 | filtre `data` : liens absolus ou sortants, fichiers spéciaux, modes ; format PAX | — |
+| KIT11 | [Python 3.12, os](https://docs.python.org/3.12/library/os.html) et [shutil](https://docs.python.org/3.12/library/shutil.html) | 3.12.15 | `symlink`, `readlink`, `copystat`, `rmtree.avoids_symlink_attacks`, `disk_usage` | l'atomicité du remplacement relève de rename(2) |
+| KIT12 | [PEP 600](https://peps.python.org/pep-0600/) | Final | `manylinux_X_Y` signifie glibc X.Y ou plus récente | — |
+| KIT13 | [binutils : readelf, objdump](https://sourceware.org/binutils/docs/binutils/) et [ld, VERSION](https://sourceware.org/binutils/docs/ld/VERSION.html) | binutils 2.34 sur le poste | lecture des versions de symboles requises, contrôle au chargement | version non indiquée sur les pages |
+| KIT14 | [libstdc++, ABI](https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html) | page courante | `GLIBCXX_3.4.26` correspond à GCC 9.1.0 | — |
+| KIT15 | [ldd(1)](https://man7.org/linux/man-pages/man1/ldd.1.html), [rename(2)](https://man7.org/linux/man-pages/man2/rename.2.html) | man-pages 6.19 | ne pas lancer `ldd` sur un exécutable non vérifié ; remplacement atomique, `EXDEV` | — |
+| KIT16 | [Desktop Entry](https://specifications.freedesktop.org/desktop-entry-spec/latest/) et [XDG Base Directory](https://specifications.freedesktop.org/basedir-spec/latest/) | 1.5 / 0.8 | clés requises, citation de `Exec` et `%%`, `XDG_DATA_HOME` | entrée de menu créée seulement sur demande explicite |
+
+## R26-WEB — chargement de PDF.js hors bundle et contrôle de l'export
+
+Consultation du 6 octobre 2026 (UTC) pour R26-UI-01 : cause de la fuite du
+chemin du poste dans l'export et choix de correction.
+
+| ID | Source | Version | Apport | Limite |
+|---|---|---|---|---|
+| WEB01 | [Next.js, chargement différé, commentaires magiques](https://nextjs.org/docs/app/guides/lazy-loading) et documentation Turbopack livrée avec le paquet | Next 16.3.7 | `webpackIgnore: true` laisse l'import tel quel avec webpack comme avec Turbopack | Turbopack (`next dev`) non essayé |
+| WEB02 | `next/dist/compiled/webpack/bundle5.js` (`ImportMetaPlugin`, schéma `importMeta`) | webpack 5.98.0 livré par Next | preuve de la substitution `import.meta.url` → URL `file://` du poste ; `importMeta` booléen seulement | code minifié |
+| WEB03 | [webpack, variables de module](https://webpack.js.org/api/module-variables/), [configuration de module](https://webpack.js.org/configuration/module/), [méthodes de module](https://webpack.js.org/api/module-methods/) | documentation courante | `import.meta.url` rend l'URL `file:` absolue du module ; `importMeta: false` ; `webpackIgnore` | décrit la dernière version, forme objet de `importMeta` à partir de 5.109.0 seulement |
+| WEB04 | `pdfjs-dist` `build/pdf.mjs` (l. 9685-9699) et `package.json` | 6.3.289 | `createRequire(import.meta.url)` réservé à Node ; point d'entrée `build/pdf.mjs` | — |
+| WEB05 | [PDF.js, exemple helloworld](https://github.com/mozilla/pdf.js/blob/master/examples/learning/helloworld.html) | branche master | chargement de `pdf.mjs` en module et réglage de `workerSrc` | branche master, pas le tag 6.3.289 |
+
+## R26-S01 — demande et arbitrages utilisateur
+
+Source primaire : demandes utilisateur de cette session, reçues le 6 octobre
+2026 vers 17:48 et 18:20 UTC, et réponses aux questions d'arbitrage de 19:20
+à 19:50 UTC. Elles autorisent la reprise de W038 limitée aux réserves Linux
+et à la distribution interne Linux, la campagne 2B sur le jeu DEV, l'arrêt
+coopératif de l'instance principale pendant les recettes et la méthode
+Playwright du point (15). L'utilisateur juge excessive une mesure D06.5 de
+trois à cinq heures. Ces réponses n'autorisent ni R19, ni purge, ni
+apprentissage, ni réglage sur le jeu final. [Décision W040](DECISIONS.md#w040-reprise-r26--réserves-linux-et-distribution-interne-linux).
 
 ## W039-S01 — plafond Ollama et correctif autorisé
 
@@ -7272,8 +7564,8 @@ resources:
   admit_heavy_min_available_mib: 3072
   sampling_interval_seconds: 1
   unload_llm_before_ingestion: true
-  # W036 : pilote CPU 2B, baisse hôte 3418,79 Mio + marge 165,21 ; portée Linux aarch64.
-  initial_llm_load_peak_estimate_mib: 3584
+  # W041 : pilote CPU 2B exclusif du 06/10, pic froid 3723,50 Mio + marge 129 (W036 : 3584) ; portée Linux aarch64.
+  initial_llm_load_peak_estimate_mib: 3968
   warm_llm_additional_peak_estimate_mib: 512
   embedding_load_peak_estimate_mib: 512
   generation_admission_wait_seconds: 120

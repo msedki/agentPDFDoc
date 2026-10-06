@@ -22,9 +22,11 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 
-# Chemins relatifs à la racine du dépôt, fichiers ou dossiers copiés entiers (moins les exclusions).
+# Chemins relatifs à la racine du dépôt, fichiers ou dossiers copiés entiers (moins les exclusions). `packages/contracts` :
+# la sauvegarde copie `contracts.json` dans chaque sauvegarde (services/runtime/backup.py) ; absent, la sauvegarde d'une
+# installation échouait, et avec elle la mise à jour (défaut C3 du lot R26-KIT-01, commun aux deux plateformes).
 INCLUDED = ("services", "config", "apps/web/out", "apps/web/package.json", "apps/web/pnpm-lock.yaml", "rag.ps1", "bootstrap.ps1",
-            "pyproject.toml", "uv.lock", "README.md", "CHANGELOG.md", "docs", "tools/corpus", "tools/dist",
+            "pyproject.toml", "uv.lock", "README.md", "CHANGELOG.md", "docs", "tools/corpus", "tools/dist", "packages/contracts",
             ".runtime/bin", ".runtime/models", ".runtime/python", ".runtime/bootstrap", ".runtime/cache/uv", ".runtime/manifests",
             ".runtime/model-metadata")
 # Motifs exclus partout (fnmatch sur le chemin relatif en POSIX) ; la comparaison Granite n'appartient pas au produit.
@@ -223,37 +225,110 @@ def install_copy(folder: Path, target: Path) -> dict[str, Any]:
     return {"status": "copied", "files": copied, "target": str(target)}
 
 
+# Plateformes de kit : Windows (format v1, ce module) et Linux (format v2, tools/dist/linux_kit.py). Un kit se fabrique
+# sur un poste de sa plateforme, avec ses binaires, son CPython et ses roues : jamais de kit croisé.
+PLATFORMS = {"windows-x86_64": "atelier-kit-v1", "linux-aarch64": "atelier-kit-v2", "linux-x86_64": "atelier-kit-v2"}
+OK_STATUSES = {"verified", "copied", "built", "ready", "archived", "extracted"}
+
+
+def kit_format(folder: Path) -> str | None:
+    try:
+        return json.loads((folder / "kit-manifest.json").read_text(encoding="utf-8")).get("format")
+    except (OSError, ValueError):
+        return None
+
+
+def linux_build(args: argparse.Namespace) -> dict[str, Any]:
+    """Kit Linux : plateforme du poste seulement, options --gpu, --models et --dry-run."""
+    from tools.dist import linux_kit
+
+    if args.without_gpu:
+        raise ValueError("--without-gpu est l'option du kit Windows ; sous Linux, choisir --gpu none ou --gpu jetpack5")
+    host = linux_kit.host_platform()
+    if host != args.platform:
+        raise ValueError(f"Kit {args.platform} demandé sur un poste {host} : un kit se fabrique sur un poste de sa plateforme")
+    models = tuple(part.strip() for part in args.models.split(",") if part.strip())
+    if not models or set(models) - set(linux_kit.MODEL_PROFILES):
+        raise ValueError("--models : 2b ou 2b,4b")
+    if args.dry_run:
+        return linux_kit.dry_run(ROOT, platform=args.platform, gpu=args.gpu, models=models)
+    if args.output is None:
+        raise ValueError("--output requis (dossier neuf hors du dépôt), sauf avec --dry-run")
+    manifest = linux_kit.build_linux_kit(args.output, ROOT, platform=args.platform, gpu=args.gpu, models=models)
+    return {"status": "built", "kit": str(args.output.resolve()), **{key: manifest[key] for key in
+            ("kit_id", "files", "symlinks", "bytes", "bytes_by_group", "target", "neutralizations", "sha256sums_sha256")},
+            "worktree_modified_excluded": manifest["tracked_source"]["worktree_modified_excluded"]}
+
+
 def main() -> int:
+    if str(ROOT) not in sys.path:
+        # Lancé comme script (install.ps1, installateur Linux) : la racine rend `tools.dist` importable.
+        sys.path.insert(0, str(ROOT))
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
     build = sub.add_parser("build")
-    build.add_argument("--output", type=Path, required=True)
+    build.add_argument("--output", type=Path)
+    build.add_argument("--platform", choices=list(PLATFORMS), default="windows-x86_64",
+                       help="plateforme du kit, celle du poste de fabrication (défaut : windows-x86_64)")
     build.add_argument("--without-gpu", action="store_true", help=WITHOUT_GPU_HELP)
+    build.add_argument("--gpu", choices=["none", "jetpack5"], default="none",
+                       help="kit Linux : bibliothèques GPU d'Ollama livrées ; jetpack5 sur un Jetson Linux R35 seulement")
+    build.add_argument("--models", default="2b,4b", help="kit Linux : modèles livrés, 2b,4b (défaut) ou 2b")
+    build.add_argument("--dry-run", action="store_true", help="kit Linux : liste, tailles, exigences et fuites, sans rien copier")
+    build.add_argument("--report", type=Path, help="kit Linux : écrire aussi le résultat JSON dans ce fichier")
     check = sub.add_parser("verify")
     check.add_argument("--kit", type=Path, required=True)
     copy = sub.add_parser("install-copy", help="Copie vérifiée du kit vers le dossier programme, en un seul passage")
     copy.add_argument("--kit", type=Path, required=True)
     copy.add_argument("--target", type=Path, required=True)
+    pack = sub.add_parser("archive", help="Kit Linux : archive .tar de transport et son .sha256")
+    pack.add_argument("--kit", type=Path, required=True)
+    pack.add_argument("--output", type=Path, required=True)
+    unpack = sub.add_parser("extract", help="Kit Linux : extraction contrôlée puis vérification complète")
+    unpack.add_argument("--archive", type=Path, required=True)
+    unpack.add_argument("--into", type=Path, required=True)
+    unpack.add_argument("--sha256", help="empreinte attendue, à défaut du fichier <archive>.sha256")
     args = parser.parse_args()
-    if args.command == "verify":
-        result = verify_kit(args.kit)
-    elif args.command == "install-copy":
-        try:
-            result = install_copy(args.kit, args.target)
-        except ValueError as error:
-            result = {"status": "failed", "message": str(error)}
-    elif sys.platform != "win32":
-        # .runtime contient ici les binaires, CPython et roues de ce poste, pas ceux de Windows : aucun kit n'est fabriqué.
-        result = {"status": "failed", "message": f"Le kit hors ligne vise {KIT_PLATFORM} : le fabriquer sur le poste Windows"}
-    else:
-        import subprocess
-        import tomllib
+    result: dict[str, Any]
+    try:
+        if args.command in {"verify", "install-copy", "archive"} and kit_format(args.kit) == "atelier-kit-v2":
+            from tools.dist import linux_kit
 
-        version = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
-        head = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True, text=True, check=False).stdout.strip() or None
-        result = build_kit(args.output, version=version, without_gpu=args.without_gpu, commit=head)
+            result = (linux_kit.verify_kit(args.kit) if args.command == "verify" else linux_kit.install_copy(args.kit, args.target)
+                      if args.command == "install-copy" else linux_kit.archive_kit(args.kit, args.output))
+        elif args.command == "archive":
+            result = {"status": "failed", "message": "Archive de transport : kit Linux (atelier-kit-v2) seulement"}
+        elif args.command == "extract":
+            from tools.dist import linux_kit
+
+            result = linux_kit.extract_kit(args.archive, args.into, sha256=args.sha256)
+        elif args.command == "verify":
+            result = verify_kit(args.kit)
+        elif args.command == "install-copy":
+            result = install_copy(args.kit, args.target)
+        elif args.platform != "windows-x86_64":
+            result = linux_build(args)
+            if args.report:
+                args.report.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        elif sys.platform != "win32":
+            # .runtime contient ici les binaires, CPython et roues de ce poste, pas ceux de Windows : aucun kit n'est fabriqué.
+            result = {"status": "failed", "message": f"Le kit hors ligne vise {KIT_PLATFORM} : le fabriquer sur le poste Windows ; "
+                                                     "sur un poste Linux, --platform linux-aarch64 ou linux-x86_64 fabrique son kit"}
+        elif args.gpu != "none" or args.models != "2b,4b" or args.dry_run or args.report:
+            result = {"status": "failed", "message": "--gpu, --models, --dry-run et --report sont des options du kit Linux"}
+        elif args.output is None:
+            result = {"status": "failed", "message": "--output requis (dossier neuf hors du dépôt)"}
+        else:
+            import subprocess
+            import tomllib
+
+            version = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+            head = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True, text=True, check=False).stdout.strip() or None
+            result = build_kit(args.output, version=version, without_gpu=args.without_gpu, commit=head)
+    except ValueError as error:
+        result = {"status": "failed", "message": str(error)}
     print(json.dumps(result, ensure_ascii=False, indent=2))
-    return 0 if result.get("status", "verified") in {"verified", "copied"} else 1
+    return 0 if result.get("status", "verified") in OK_STATUSES else 1
 
 
 if __name__ == "__main__":

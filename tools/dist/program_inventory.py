@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -22,19 +23,55 @@ def file_digest(path: Path) -> str:
     return digest.hexdigest()
 
 
+WINDOWS = os.name == "nt"
+
+
+def walk(folder: Path):
+    """Fichiers et liens symboliques, sans traverser aucun lien (un lien vers un dossier reste une entrée)."""
+    pending = [folder]
+    while pending:
+        with os.scandir(pending.pop()) as entries:
+            for entry in entries:
+                if entry.is_dir(follow_symlinks=False) and not entry.is_symlink():
+                    pending.append(Path(entry.path))
+                else:
+                    yield Path(entry.path), entry.is_symlink()
+
+
 def snapshot(folder: Path) -> dict[str, Any]:
+    """Inventaire du dossier programme. Sous Windows, comportement d'origine inchangé : fichiers seulement. Ailleurs, les
+    liens symboliques (cible exacte) s'y ajoutent : un lien ajouté, retiré ou redirigé est une écriture dans le programme."""
     folder = folder.resolve()
-    files = {item.relative_to(folder).as_posix(): {"bytes": item.stat().st_size, "sha256": file_digest(item)}
-             for item in sorted(folder.rglob("*")) if item.is_file() and not item.is_symlink()}
-    return {"folder": str(folder), "files": files}
+    files: dict[str, Any] = {}
+    if WINDOWS:
+        files = {item.relative_to(folder).as_posix(): {"bytes": item.stat().st_size, "sha256": file_digest(item)}
+                 for item in sorted(folder.rglob("*")) if item.is_file() and not item.is_symlink()}
+        return {"folder": str(folder), "files": files}
+    links: dict[str, str] = {}
+    for item, is_link in sorted(walk(folder)):
+        relative = item.relative_to(folder).as_posix()
+        if is_link:
+            links[relative] = os.readlink(item)
+        elif item.is_file():
+            files[relative] = {"bytes": item.stat().st_size, "sha256": file_digest(item)}
+    return {"folder": str(folder), "files": files, "links": links}
 
 
 def compare(before: dict[str, Any], after: dict[str, Any]) -> dict[str, Any]:
     old, new = before["files"], after["files"]
     changed = sorted(name for name in set(old) & set(new) if old[name]["sha256"] != new[name]["sha256"])
     added, removed = sorted(set(new) - set(old)), sorted(set(old) - set(new))
-    return {"files_before": len(old), "files_after": len(new), "added": added, "removed": removed, "changed": changed,
-            "status": "unchanged" if not (added or removed or changed) else "changed"}
+    report: dict[str, Any] = {"files_before": len(old), "files_after": len(new), "added": added, "removed": removed, "changed": changed}
+    old_links, new_links = before.get("links"), after.get("links")
+    moved = False
+    if old_links is not None and new_links is not None:
+        # Inventaires Linux : liens comparés par leur cible. Sous Windows, aucune clé `links` : rapport d'origine inchangé.
+        links = {"added": sorted(set(new_links) - set(old_links)), "removed": sorted(set(old_links) - set(new_links)),
+                 "changed": sorted(name for name in set(old_links) & set(new_links) if old_links[name] != new_links[name])}
+        report.update(links_before=len(old_links), links_after=len(new_links), links=links)
+        moved = any(links.values())
+    report["status"] = "unchanged" if not (added or removed or changed or moved) else "changed"
+    return report
 
 
 def main() -> int:

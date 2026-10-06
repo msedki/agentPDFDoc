@@ -97,6 +97,14 @@ while [ "$#" -gt 0 ]; do
 done
 
 project_root=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
+# Installation depuis un kit (kit-manifest.json à la racine) : le profil livré écrirait données, contrôle et sauvegardes dans
+# le dossier programme. Seules les commandes qui n'emploient pas le profil (init-profile, verify, restore) s'en passent.
+if [ -f "$project_root/kit-manifest.json" ] && [ "$profile_seen" -eq 0 ]; then
+    case "$command_name" in
+        init-profile|verify|restore) ;;
+        *) fail "Installation de l'atelier : sans --profile, $command_name emploierait le profil livré, qui écrit ses données dans le dossier du programme. Indiquer le profil de l'utilisateur (--profile <racine des données>/profile.yaml) ou passer par le lanceur atelier de l'installation." ;;
+    esac
+fi
 project_python=$project_root/.venv/bin/python
 if [ ! -f "$project_python" ]; then
     fail 'Environnement isolé absent. Exécuter bootstrap.sh pour préparer uv et Python3.12, puis rag.sh provision.'
@@ -125,6 +133,17 @@ export PYTHONUTF8=1
 # Le CLI et ses sondes (uv, pnpm, Tesseract) n'utilisent que les bibliothèques du système : un LD_LIBRARY_PATH hérité du
 # profil shell n'est pas transmis (un élément vide y désigne le répertoire courant pour le chargeur dynamique).
 unset LD_LIBRARY_PATH
+# Installation : un profil explicite est refusé s'il est rangé dans le programme (profil livré) ou s'il y écrirait ses
+# données ; tools/dist/linux_profiles.py résout ses emplacements comme le runtime.
+if [ -f "$project_root/kit-manifest.json" ] && [ "$profile_seen" -eq 1 ]; then
+    case "$command_name" in
+        init-profile|verify|restore) ;;
+        *)
+            refusal=$("$project_python" -B -I -X utf8 "$project_root/tools/dist/linux_profiles.py" guard --profile "$resolved_profile" 2>&1 >/dev/null) ||
+                fail "Installation de l'atelier : ${refusal:-profil illisible ($resolved_profile).}"
+            ;;
+    esac
+fi
 cd -- "$project_root"
 # exec : l'interpréteur remplace le lanceur, les signaux (Ctrl+C) l'atteignent directement et son code de sortie est celui du lanceur.
 exec "$project_python" "$@"

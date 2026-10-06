@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `5fb5dc8` et décision W038 datée ci-dessous · **Mis à jour :** 2026-10-06 09:36 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `011a817` et décisions W038 à W040 datées ci-dessous · **Mis à jour :** 2026-10-06 20:10 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -1213,3 +1213,183 @@ Ils ne démontrent pas la complétude d'une longue réponse. Revue indépendante
 rétablir les budgets de sortie et de preuves précédents dans les quatre profils, reconstruire
 l'export de l'interface à la révision précédente, puis arrêter/démarrer ;
 aucune migration ou réindexation des données n'est nécessaire.
+
+
+## W040 Reprise R26 : réserves Linux et distribution interne Linux
+
+**Date :** 6 octobre 2026, demande reçue vers 17:48 UTC, arbitrages de
+19:20 à 19:50 UTC. **Statut :** décisions utilisateur acquises ; réalisation
+suivie par [R26](PLAN.md#r26--reprise-autorisée-du-6-octobre--réserves-linux-et-distribution-interne-linux).
+
+**Contexte :** W038 avait retenu la livraison locale Linux avec réserves et
+mis en attente la qualification intégrale. L'utilisateur autorise la reprise
+de W038 uniquement pour les réserves Linux et pour une distribution interne
+Linux installable et vérifiée. [Source utilisateur](SOURCES.md#r26-s01--demande-et-arbitrages-utilisateur).
+
+**Choix retenus :**
+
+- Périmètre R26 du plan ; Windows, chantier multiplateforme général,
+  corpus privé R19, purge physique, apprentissage OCR et comparatif D10.2
+  restent exclus ; la DoD globale n'est pas déclarée.
+- Point à trancher (15) : la méthode Playwright 1.63 avec Chrome Headless
+  Shell et `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE` est acceptée comme preuve D06
+  sur ce poste Ubuntu 20.04 aarch64. La limite de plateforme (TOOL02) reste
+  déclarée et ne vaut pas pour un autre système.
+- Campagne 2B sur les 100 questions DEV autorisée, jugée par deux juges et un
+  arbitre (assistant, sans expert métier) ; jeu final intouché.
+- Arrêt coopératif de l'instance principale pendant les recettes lourdes,
+  puis remise en service en fin de lot.
+- D06.5 : l'utilisateur juge trop longue une mesure de trois à cinq heures ;
+  la mesure est bornée à une passe automatisée d'environ une heure et sa
+  portée de clôture lui sera soumise.
+
+**Justification :** demande explicite ; réduire les réserves exécutables sur
+ce poste sans campagne volumineuse, réglage sur le jeu final ni assertion
+affaiblie.
+
+**Conséquences :** les preuves R26 valent pour Linux aarch64 (Jetson AGX
+Orin, Ubuntu 20.04.6). Linux x86-64, la recette D07 sur un hôte CPU de 16 Go
+et Windows restent non qualifiés. W038 reste applicable hors de ce périmètre.
+
+## W041 Admission froide du 2B relevée après un pilote exclusif aux limites W039
+
+**Date :** 6 octobre 2026, critère figé à 20:20 UTC, mesure de 20:23 à 20:38
+UTC. **Statut :** acquise pour le profil 2B livré ; prolonge W036 sans la
+remplacer pour ses mesures historiques. Aucune case D07 n'est cochée.
+
+**Contexte :** W036 avait porté l'estimation froide du 2B à 3 584 Mio sur un
+pilote CPU de 2 959 tokens d'entrée et 64 de sortie, et laissé provisoire
+l'estimation chaude de 512 Mio. W039 a ensuite porté l'entrée maximale à
+6 400 tokens et la sortie à 768/1 536. L'outil de calibration mesure
+désormais la mémoire juste avant chaque requête (R26-ADM-01). Un premier
+pilote, non exclusif, a été écarté : un `mypy` lancé hors du verrou tombait
+dans la fenêtre des pics.
+
+**Mesure retenue :** pilote CPU exclusif sur le Jetson (`MODE_30W`, huit
+cœurs, 61 Gio), profil 2B livré, qwen3.5:2b Q8_0 sur CPU, entrées de 6 319
+tokens, trois contenus chauds neufs et une sortie de 768 tokens.
+Pic froid retenu 3 723,50 Mio (baisse depuis la base du pilote ; 3 674,39
+depuis la mesure préalable de l'essai), pic chaud 263,64 Mio, plateau d'USS
+1,52 Mio, aucun swap, 768 tokens réellement produits par l'essai long.
+[Journal](journal/2026-10-06.md#r26-adm-01--pilote-cpu-exclusif-et-bornes-dadmission).
+
+**Choix :** règle de W036 inchangée (pic + 129 Mio arrondi au multiple de 128
+supérieur, borne relevée et jamais baissée) : estimation froide du 2B portée
+de 3 584 à 3 968 Mio, soit 5 504 Mio requis à froid avec la réserve de
+1 536 ; estimation chaude de 512 Mio confirmée pour l'enveloppe mesurée.
+Profil 4B inchangé.
+
+**Justification :** le pic froid contredit la borne précédente aux limites
+réelles du profil ; la borne chaude tient avec une marge de 248 Mio.
+
+**Conséquences :** admission plus stricte de 384 Mio pour la première
+génération du 2B ; un poste juste au-dessus de l'ancien seuil attendra ou
+refusera. Portée : Linux aarch64, CPU, ce Jetson ; ni GPU, ni hôte de 16 Go,
+ni Windows. **Retour arrière :** rétablir 3 584 dans `config/local16.yaml`,
+sa copie et le test de seuil, si une mesure exclusive ultérieure, plus
+représentative de la cible, le justifie.
+
+## W042 Provenance OCR et contrôles de réponse en signaux
+
+**Date :** 6 octobre 2026, 18:15–20:45 UTC. **Statut :** implémenté et revu
+indépendamment (accord pour commit, corrections mineures demandées) ;
+parcours natif dans la campagne R26-2B-01 et les E2E R26-UI-01.
+
+**Contexte :** l'OCR livré lit `+` pour `±`, `N-m` pour `N·m` et `DA-PO2`
+pour `DA-P02` sans alerte de faible confiance ; l'alphabet installé ne
+contient ni `±` ni `·`, et toutes les variantes sans apprentissage ont été
+refusées (R23-OCR-01/03). Les sources et citations ne portaient pas la
+méthode d'extraction. En 2B, une réponse sans citation entre crochets était
+acceptée sans avertissement, et une valeur citée n'était pas rapprochée de
+la source citée. W037 refuse tout filtre de réponse.
+
+**Choix :** porter la méthode d'extraction de chaque bloc jusqu'aux sources,
+citations et recherche (`extraction_methods`, `unknown` à défaut, jamais
+`native`) ; avertir par document (`ocr_evidence`) quand un passage transmis
+au modèle vient de l'OCR ; reformuler `partial_extraction` ; ajouter quatre
+contrôles déterministes en fin de réponse, dans `done` seulement :
+`answer_without_valid_citation`, `source_id_mentioned_without_citation`,
+`cited_value_not_in_cited_sources` et `value_not_in_context`. Aucun texte,
+citation ni prompt n'est modifié ; le parseur strict `[S001]` est conservé.
+L'interface affiche un badge « Lu par OCR », « En partie lu par OCR » ou
+« Méthode d'extraction inconnue » et regroupe ces avis.
+
+**Justification :** sans apprentissage, la seule correction honnête de la
+cause « valeur erronée présentée comme fiable » est de signaler l'origine et
+les incohérences là où l'utilisateur emploie la valeur ; un filtre ou une
+normalisation reviendrait aux pistes refusées.
+
+**Conséquences :** contrat additif ; tout document scanné reçoit un
+avertissement ; faux positifs connus sur les valeurs calculées justes,
+mesurés sur le jeu DEV (3 sur 123 assertions soutenues portant un nombre
+dans la grille 4B) et listés dans l'API. La réserve OCR P02 et la réserve de
+fiabilité 2B restent ouvertes : ces signaux ne corrigent ni le texte OCR ni
+le modèle. **Retour arrière :** retirer les avertissements et champs ajoutés,
+le contrat restant compatible pour les clients qui les ignorent.
+
+## W043 Identité d'embedding : mode dégradé signalé
+
+**Date :** 6 octobre 2026, 19:55–20:40 UTC. **Statut :** implémenté, sonde
+native PASS sur instance isolée, revu indépendamment (accord pour commit,
+corrections mineures demandées). D03.8 reste NOT_RUN pour un vrai
+changement de modèle.
+
+**Contexte :** la sonde R26-IDX-01 a confirmé trois défauts. Après un
+changement d'identité d'embedding et une réindexation partielle, la
+disponibilité répondait « present » alors que deux documents sur trois
+n'avaient plus d'index dense, sans avertissement, ce qu'interdit
+IMPLEMENTATION.md (fausse recherche globale) ; le nettoyage laissait les
+points des générations remplacées dans l'ancienne collection ; au retour à
+l'identité initiale, la branche dense restait vide sans signal.
+
+**Choix :** sans migration SQLite, relever au démarrage puis à chaque
+consultation les générations actives sans point dans la collection de
+l'identité courante ; émettre `dense_identity_mismatch` dans la recherche et
+les questions ; exposer `dense_index` (`complete`,
+`dense_migration_incomplete`, `unverifiable`, `not_applicable`) et
+`documents_to_reindex` dans `/readiness`, qui reste en 200 ; supprimer une
+génération remplacée dans toutes les collections du projet, et seulement
+celles-ci.
+
+**Justification :** la branche lexicale reste valide pendant une
+réindexation et le démarrage ne doit pas être bloqué ; l'utilisateur doit
+savoir quels documents réindexer. Une bascule contrôlée complète (nouvelle
+collection préparée pendant que l'ancienne sert) reste une évolution plus
+large, non engagée.
+
+**Conséquences :** contrat additif ; les points laissés par des nettoyages
+antérieurs au correctif ne sont pas repris ; une collection courante absente
+garde le refus explicite existant. **Retour arrière :** retirer
+l'avertissement et les champs ajoutés ; le nettoyage reviendrait à la seule
+collection courante.
+
+## W044 PDF.js chargé hors bundle et export contrôlé
+
+**Date :** 6 octobre 2026, 18:20–22:30 UTC. **Statut :** implémenté, build et
+E2E sur instance isolée PASS, revu indépendamment (accord pour commit).
+
+**Contexte :** l'export de l'interface embarquait le chemin réel du poste de
+fabrication (`file:///media/…/pdfjs-dist/build/pdf.mjs`). Cause établie :
+webpack 5.98.0, livré par Next 16.3.7, remplace `import.meta.url` par l'URL
+`file:` du module au moment du build ; `pdfjs-dist` 6.3.289 l'emploie dans
+sa fabrique de canvas réservée à Node. Le kit Linux refuse toute fuite de
+chemin, et cette information privée n'a rien à faire dans l'interface.
+[Sources WEB01 à WEB05](SOURCES.md#r26-web--chargement-de-pdfjs-hors-bundle-et-contrôle-de-lexport).
+
+**Choix :** ne plus empaqueter PDF.js ; le navigateur charge la copie locale
+`/pdfjs/pdf.min.mjs`, de la même version que le worker, par un import natif
+(`webpackIgnore`), avec un seul module pour le document et la couche de
+texte. Le script `build` exécute désormais `check-export-paths.mjs`, qui
+échoue sur un chemin absolu du poste ; seules trois constantes amont de
+PDF.js, aux fichiers et contextes exacts, sont admises.
+
+**Alternatives écartées :** `importMeta: false` (provoque une erreur de
+syntaxe dans les chunks classiques), forme objet de `importMeta` (absente de
+webpack 5.98.0), `DefinePlugin` global, réécriture du code de PDF.js.
+
+**Conséquences :** export plus léger (chunks de 1,64 à 1,19 Mo), lecteur
+dépendant du fichier statique `pdf.min.mjs` servi en JavaScript (vérifié
+sous Linux ; type MIME sous Windows non vérifié). Un échec de chargement
+affiche « Lecteur PDF indisponible » avec l'action à mener. **Retour
+arrière :** revenir à l'import empaqueté et retirer le contrôle du script
+`build`, ce qui réintroduirait la fuite.

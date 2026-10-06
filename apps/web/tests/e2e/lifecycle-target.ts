@@ -4,6 +4,7 @@ import { readFileSync, realpathSync } from "node:fs";
 import { basename, isAbsolute, relative, resolve } from "node:path";
 import { expect, type APIRequestContext, type Page, type TestInfo } from "@playwright/test";
 import { dataDirKey, projectPython, projectRoot } from "./host.ts";
+import { e2eTarget } from "./target.ts";
 
 export type LifecycleTarget = {
   schema_version: number; origin: string; data_dir: string; runtime_instance_id: string;
@@ -31,7 +32,7 @@ export async function guardTarget(request: APIRequestContext, target: LifecycleT
   expect(["127.0.0.1", "localhost", "[::1]"]).toContain(origin.hostname);
   expect(origin.username + origin.password + origin.search + origin.hash).toBe("");
   expect(origin.pathname).toBe("/");
-  expect(target.origin).toBe(process.env.RAG_E2E_BASE_URL ?? "http://127.0.0.1:8785");
+  expect(target.origin).toBe(e2eTarget().baseURL);
   expect(target.data_dir, "The authorized persistent storage must be explicit").toBeTruthy();
   const dataDir = realpathSync(target.data_dir);
   const runtimeRoot = realpathSync(resolve(projectRoot, ".runtime"));

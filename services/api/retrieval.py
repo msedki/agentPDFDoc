@@ -120,6 +120,108 @@ def match_expression(text):
     return " OR ".join('"' + term.replace('"', '""') + '"' for term in terms)
 
 
+# Méthodes d'extraction d'un bloc dont le texte vient, au moins en partie, de la reconnaissance de caractères (ingestion).
+OCR_METHODS = frozenset({"ocr", "mixed"})
+# Valable pour une recherche comme pour une question : aucune mention de « la réponse ».
+PARTIAL_EXTRACTION_MESSAGE = ("Extraction partielle : des pages ou des régions de ce document sont absentes de l'extraction ou ont été lues "
+                              "avec une confiance insuffisante. Des informations peuvent manquer ; vérifiez les passages retrouvés sur la "
+                              "page originale.")
+
+
+def ocr_evidence_warnings(sources):
+    """Un avertissement par document dont une source porte un bloc lu par OCR (méthode ocr ou mixed), dans l'ordre des sources.
+
+    Une méthode `unknown` ou `native` n'en déclenche pas. `source_ids` liste les sources concernées quand elles ont un
+    identifiant (sources d'une question) ; il est vide pour une recherche, qui n'en attribue pas."""
+    documents: dict[str, dict[str, Any]] = {}
+    for source in sources:
+        methods = OCR_METHODS.intersection(source.get("extraction_methods") or [])
+        if not methods:
+            continue
+        entry = documents.setdefault(source["document_id"], {"name": source.get("document_name"), "methods": set(), "source_ids": []})
+        entry["methods"].update(methods)
+        if source.get("source_id"):
+            entry["source_ids"].append(source["source_id"])
+    return [{"code": "ocr_evidence", "document_id": document_id, "document_name": entry["name"], "extraction_methods": sorted(entry["methods"]),
+             "source_ids": entry["source_ids"],
+             "message": ("Passages de « " + entry["name"] + " »" if entry["name"] else "Passages de ce document") +
+                        " lus par reconnaissance optique de caractères (OCR) : des signes, unités ou références peuvent être faux même "
+                        "sans alerte de faible confiance. Comparez les valeurs utilisées avec la page originale."}
+            for document_id, entry in documents.items()]
+
+
+def dense_identity_warning(documents):
+    """Documents du périmètre dont la génération active n'a aucun point dans la collection de l'identité dense courante."""
+    names = [item["document_name"] for item in documents]
+    quoted = [f"« {name} »" for name in names[:5]]
+    listing = quoted[0] if len(quoted) == 1 else ", ".join(quoted[:-1]) + " et " + quoted[-1]
+    if len(names) > 5:
+        rest = len(names) - 5
+        listing = ", ".join(quoted) + f" et {rest} autre" + ("s" if rest > 1 else "")
+    message = ("Recherche sémantique incomplète : " + listing + " n'a pas d'index sémantique pour le modèle d'embedding actuel. "
+               "La recherche par mots peut encore le retrouver ; réindexez-le pour rétablir la recherche sémantique." if len(names) == 1 else
+               f"Recherche sémantique incomplète : {len(names)} documents n'ont pas d'index sémantique pour le modèle d'embedding actuel "
+               f"({listing}). La recherche par mots peut encore les retrouver ; réindexez-les pour rétablir la recherche sémantique.")
+    return {"code": "dense_identity_mismatch", "document_ids": [item["document_id"] for item in documents], "document_names": names,
+            "message": message}
+
+
+class DenseCoverage:
+    """Générations actives sans aucun point dans la collection de l'identité dense courante (R26-IDX-02).
+
+    Mode dégradé signalé, non bloquant : la branche lexicale reste servie, la recherche et les questions avertissent et
+    /readiness nomme l'état. Le compte d'une génération active vient de `count_generation` (collection courante) ; il est
+    gardé pour la vie du processus, car une génération publiée ne gagne ni ne perd de points et l'identité ne change qu'au
+    redémarrage. L'ensemble actif est relu dans SQLite à chaque consultation : une publication y entre à la lecture
+    suivante, une génération remplacée ou nettoyée en sort. Aucune écriture SQLite."""
+
+    def __init__(self, db, vectors):
+        self.db, self.vectors = db, vectors
+        self.points: dict[str, int] = {}
+        self.present: bool | None = None
+        self._lock = asyncio.Lock()
+
+    async def status(self, collection_absent=None):
+        """État `complete`, `dense_migration_incomplete`, `unverifiable` (liste ou compte en échec) ou `not_applicable`
+        (double de test sans compte), avec les documents à réindexer connus et l'état de la collection courante :
+        `present`, `absent` (comme `absent_*` de /readiness, sans erreur Qdrant) ou `unverified`. /readiness fournit
+        `collection_absent` ; sinon, avant de compter une génération nouvelle, la liste des collections du projet dit si
+        la collection courante existe. Absente : toute génération active portant des fragments est à réindexer, sans compte.
+        L'ensemble actif est lu sous le verrou, avec les comptes qu'il met à jour."""
+        if not hasattr(self.vectors, "count_generation"):
+            return {"state": "not_applicable", "collection": "unverified", "documents": [], "active_generations": None, "error_code": None}
+        error_code = None
+        async with self._lock:
+            rows = self.db.rows("SELECT g.id AS generation_id,d.id AS document_id,d.name AS document_name,"
+                                "COALESCE(g.actual_chunks,g.expected_chunks,0) AS chunks FROM documents d "
+                                "JOIN index_generations g ON g.id=d.active_generation_id WHERE d.deleted_at IS NULL ORDER BY d.relative_path")
+            active = {row["generation_id"] for row in rows}
+            self.points = {generation: count for generation, count in self.points.items() if generation in active}
+            pending = [row for row in rows if row["chunks"] and row["generation_id"] not in self.points]
+            if collection_absent is not None:
+                self.present = not collection_absent
+            elif pending and hasattr(self.vectors, "project_collections"):
+                try:
+                    self.present = self.vectors.collection in await self.vectors.project_collections()
+                except ApiError as error:
+                    error_code = error.code
+            if self.present is False:
+                missing = [row for row in rows if row["chunks"]]
+            else:
+                for row in pending if error_code is None else []:
+                    try:
+                        self.points[row["generation_id"]] = await self.vectors.count_generation(row["generation_id"])
+                    except ApiError as error:
+                        error_code = error.code
+                        break
+                missing = [row for row in rows if row["chunks"] and self.points.get(row["generation_id"]) == 0]
+            collection = "unverified" if self.present is None else "present" if self.present else "absent"
+        state = "dense_migration_incomplete" if missing else "unverifiable" if error_code else "complete"
+        return {"state": state, "collection": collection, "active_generations": len(rows), "error_code": error_code,
+                "documents": [{"document_id": row["document_id"], "document_name": row["document_name"], "generation_id": row["generation_id"]}
+                              for row in missing]}
+
+
 def rrf(lexical, dense, k=60):
     scores: dict[str, float] = {}
     for ranking in (lexical, dense):
@@ -216,8 +318,24 @@ class QdrantStore:
         if actual != expected:
             raise ApiError("vector_integrity_failure", "Les vecteurs attendus ne sont pas tous confirmés.", 503)
 
+    async def project_collections(self):
+        """Collections de ce projet : préfixe du profil suivi des 16 premiers caractères hexadécimaux d'une empreinte
+        d'identité dense, courante ou précédente. Une liste illisible est refusée, sans rien supprimer."""
+        listing = await self.request("GET", "/collections")
+        names = listing.get("collections") if isinstance(listing, dict) else None
+        if not isinstance(names, list) or any(not isinstance(item, dict) or not isinstance(item.get("name"), str) for item in names):
+            raise ApiError("qdrant_unavailable", "Liste des collections Qdrant invalide.", 503)
+        pattern = re.compile(re.escape(self.collection_prefix) + r"_[0-9a-f]{16}")
+        return sorted(item["name"] for item in names if pattern.fullmatch(item["name"]))
+
     async def delete_generation(self, generation_id):
-        await self.request("POST", f"/collections/{self.collection}/points/delete", params={"wait": "true"}, json={"filter": {"must": [{"key": "generation_id", "match": {"value": generation_id}}]}})
+        """Points d'une génération retirés de toutes les collections du projet (R26-IDX-02) : une génération remplacée a pu
+        être indexée sous une identité dense précédente. Le filtre ne vise que cette génération. Renvoie les collections."""
+        collections = await self.project_collections()
+        for collection in collections:
+            await self.request("POST", f"/collections/{collection}/points/delete", params={"wait": "true"},
+                               json={"filter": {"must": [{"key": "generation_id", "match": {"value": generation_id}}]}})
+        return collections
 
     async def count_generation(self, generation_id):
         """Comptage exact des points d'une génération, pour le diagnostic de cohérence avec les fragments SQLite."""
@@ -227,8 +345,9 @@ class QdrantStore:
 
 
 class SearchService:
-    def __init__(self, db, resolver, embedding, vectors, settings):
+    def __init__(self, db, resolver, embedding, vectors, settings, dense=None):
         self.db, self.resolver, self.embedding, self.vectors, self.settings = db, resolver, embedding, vectors, settings
+        self.dense = dense
 
     def lexical(self, question, snapshot):
         clause, parameters = snapshot.sql_filter()
@@ -283,6 +402,12 @@ class SearchService:
     async def search(self, question, snapshot, mode="question"):
         start = time.perf_counter()
         warnings = []
+        if self.dense is not None and snapshot.scope["kind"] != "selection" and snapshot.generations:
+            # Avertissement de périmètre : documents servis par la seule branche lexicale (identité dense changée, R26-IDX-02).
+            scoped = set(snapshot.generations)
+            missing = [item for item in (await self.dense.status())["documents"] if item["generation_id"] in scoped]
+            if missing:
+                warnings.append(dense_identity_warning(missing))
         if snapshot.scope["kind"] == "selection":
             results = self.resolver.selected_sources(snapshot)
         elif not snapshot.generations:
@@ -354,6 +479,8 @@ class SearchService:
             if len(unique) >= maximum:
                 break
         for document_id in {source["document_id"] for source in unique if source.get("extraction_state") == "ready_partial"}:
-            warnings.append({"code": "partial_extraction", "document_id": document_id, "message": "Extraction partielle ; les régions ou pages non extraites ne constituent pas des preuves."})
+            warnings.append({"code": "partial_extraction", "document_id": document_id, "message": PARTIAL_EXTRACTION_MESSAGE})
+        # Recherche seule (POST /search, évaluation) : passages finals ; une question le recalcule sur les sources retenues.
+        warnings.extend(ocr_evidence_warnings(unique))
         return {"results": unique, "top10": top10, "scope_snapshot": snapshot.as_dict(), "warnings": warnings,
                 "elapsed_ms": round((time.perf_counter() - start) * 1000, 2)}

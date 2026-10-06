@@ -46,12 +46,25 @@ test("labels share the source card vocabulary, including search hits without a t
 });
 
 test("source card badges separate exact families, page-only locations and unlocated sources", () => {
-  assert.deepEqual(sourceLocalization({ ...base, precision: "table", blocks: [block("a", 1, "table", [1, 2, 3, 4])] }), { family: "exact", label: "Table source", tone: "success" });
-  assert.deepEqual(sourceLocalization({ ...base, precision: "block", blocks: [block("a", 1, "block", null)] }), { family: "page", label: "Localisation à la page", tone: "neutral" });
-  assert.deepEqual(sourceLocalization({ ...base, page_index: undefined, page_indices: [2] }), { family: "page", label: "Localisation à la page", tone: "neutral" });
+  const pick = ({ family, label, tone }: ReturnType<typeof sourceLocalization>) => ({ family, label, tone });
+  // R26 : une localisation précise est une information (ton « info »), pas une validation du texte (ancien ton « success »).
+  assert.deepEqual(pick(sourceLocalization({ ...base, precision: "table", blocks: [block("a", 1, "table", [1, 2, 3, 4])] })), { family: "exact", label: "Table source", tone: "info" });
+  assert.deepEqual(pick(sourceLocalization({ ...base, precision: "block", blocks: [block("a", 1, "block", null)] })), { family: "page", label: "Localisation à la page", tone: "neutral" });
+  assert.deepEqual(pick(sourceLocalization({ ...base, page_index: undefined, page_indices: [2] })), { family: "page", label: "Localisation à la page", tone: "neutral" });
   const unlocated: Source = { document_id: "document", version_id: "version", text: "Passage", precision: "span", bboxes: [[1, 2, 3, 4]] };
-  assert.deepEqual(sourceLocalization(unlocated), { family: "unlocated", label: "Source non localisée", tone: "warning" });
+  assert.deepEqual(pick(sourceLocalization(unlocated)), { family: "unlocated", label: "Source non localisée", tone: "warning" });
   assert.deepEqual(sourceLocalization({ ...unlocated, page_indices: [] }).family, "unlocated");
+});
+
+test("each localisation badge explains what it locates and never vouches for the extracted text", () => {
+  const exact = sourceLocalization({ ...base, precision: "span", blocks: [block("a", 1, "span", [1, 2, 3, 4])] });
+  assert.match(exact.title, /^La zone de ce passage est surlignée dans le lecteur\. /);
+  assert.doesNotMatch(exact.title, /zone citée/, "valable pour un résultat de recherche, qui n'est pas une citation");
+  assert.match(exact.title, /ne garantit pas l'exactitude du texte extrait/);
+  assert.match(sourceLocalization(base).title, /Seule la page est connue/);
+  const unlocated: Source = { document_id: "document", version_id: "version", text: "Passage" };
+  assert.match(sourceLocalization(unlocated).title, /Aucune page/);
+  for (const title of [exact.title, sourceLocalization(base).title]) assert.doesNotMatch(title, /vérifié|fiable|exact\b/);
 });
 
 test("legacy bboxes without blocks are drawn only for a single-page source", () => {

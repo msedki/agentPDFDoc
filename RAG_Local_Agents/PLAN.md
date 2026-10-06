@@ -1,6 +1,66 @@
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, livraison locale retenue avec réserves ; qualification intégrale en attente · **Référence :** base publiée `497d901`, W038 conservée et correctif R25-LEN-01 daté ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 13:27 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, livraison locale retenue avec réserves ; reprise R26 autorisée (réserves Linux et distribution Linux) ; qualification intégrale en attente hors de ce périmètre · **Référence :** base publiée `011a817` et modifications locales R26 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 22:55 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+
+## R26 — reprise autorisée du 6 octobre : réserves Linux et distribution interne Linux
+
+**Objectif :** compléter les réserves de la livraison Linux W038 et livrer une
+distribution interne Linux installable et vérifiée, à partir de l'état réel
+du dépôt. **Périmètre daté :** demande utilisateur du 6 octobre 2026, reçue
+vers 17:48 UTC et précisée à 18:20 UTC ; reprise de W038 limitée aux réserves
+Linux et à la distribution Linux. **Exclusions :** qualification Windows,
+chantier multiplateforme général, corpus privé R19, purge physique,
+apprentissage OCR, comparatif Granite D10.2 (différé par W038), déclaration
+de DoD globale. **Sources examinées :** base `011a817`, ce plan, DoD,
+QUALIFICATION, DECISIONS W036–W039, journal du 6 octobre, synthèse de
+livraison, skills du registre utiles à chaque lot. **Résultat attendu :**
+réserves exécutables traitées avec preuves, kit Linux aarch64 fabriqué,
+installé hors ligne dans une cible isolée, mis à jour et ramené en arrière ;
+x86-64 et D07 conservés non qualifiés faute de matériel.
+
+**Arbitrages utilisateur du 6 octobre (19:20–19:50 UTC) :** campagne 2B sur les
+100 questions DEV autorisée (jeu final intouché) ; méthode Playwright avec
+`PLAYWRIGHT_HOST_PLATFORM_OVERRIDE` acceptée comme preuve D06 sur ce poste,
+ce qui tranche le point (15) ; arrêt coopératif de l'instance principale
+autorisé pendant les recettes lourdes, avec remise en service en fin de lot ;
+mesure D06.5 acceptée seulement si elle reste courte, d'où un lot borné à
+environ une heure. Instance principale arrêtée à 19:51 UTC (code 0 pour
+l'API, Ollama et Qdrant ; preuves `.runtime/qa/r26-main-instance/`).
+
+**État de référence :** cinq analyses en lecture seule du 6 octobre
+(18:00–18:45 UTC) ont relu les preuves, les pistes refusées et le code.
+Pistes refusées non relancées : douze variantes OCR P02 (R23-OCR-01/03),
+candidat éditorial W037, normalisation des citations, seuil W026,
+réutilisation à identité constante comme preuve D03.8.
+
+| Action | Lot / responsable | Dépendances | Livrable et critère de validation | État |
+|---|---|---|---|---|
+| R26-OCR-01 | Lot 1, backend puis interface | Analyse P02 ; prompt inchangé | Méthode d'extraction par bloc, source et citation (`unknown` à défaut, jamais `native`) ; avertissement `ocr_evidence` par document ; `partial_extraction` reformulé ; textes de confiance OCR corrigés ; test rouge puis vert sur l'extraction P02 réelle ; passage nominal P02 sur le code livré ; badge d'interface, E2E et rendu | VERIFIED — rouge puis vert backend et interface ; passage nominal : même défaut OCR (`+`, `N-m`, `DA-PO2`, `CCO`), réserve P02 maintenue ; E2E sur API réelle (badge « Lu par OCR », avis unique) et rendu aux deux tailles relus ; revues backend et interface favorables ([W042](DECISIONS.md#w042-provenance-ocr-et-contrôles-de-réponse-en-signaux)) |
+| R26-ANS-01 | Lot 1, backend | R26-OCR-01 (fichiers communs) | Signaux `answer_without_valid_citation` et `source_id_mentioned_without_citation`, sans normalisation ni filtre ; rejeu hors ligne figé avant exécution | VERIFIED — rejeu : R25 factuelle signalée, 0/94 réponses DEV 4B ; campagne 2B : 50/84 réponses signalées, recalcul avec le code final identique ; revue favorable |
+| R26-ANS-02 | Lot 1, backend | R26-ANS-01 | Signaux `cited_value_not_in_cited_sources` et `value_not_in_context`, sans suppression ni réécriture (W037) ; faux positifs publiés avec dénominateur | VERIFIED — cas 2,7 bar signalé ; DEV 4B : 6 valeurs non soutenues et 3 faux positifs relus ; faux positifs de la revue corrigés (dates, `pp.`, `§`, rangs, plages, citation en tête de puce) ; limites dans API.md §5 |
+| R26-IDX-01 | Lot 1, qualification | Instance isolée | Sonde d'identité d'embedding : OCR non refait, collections distinctes, aucune recherche sous la nouvelle identité vers l'ancienne collection | VERIFIED (mécanisme) — défauts H-A1, H-A2 et H-A3 confirmés ; D03.8 reste NOT_RUN pour un vrai changement de modèle |
+| R26-IDX-02 | Lot 1, backend | R26-IDX-01 | Mode dégradé signalé `dense_identity_mismatch`, état de disponibilité nommé, nettoyage des générations remplacées dans toutes les collections du projet ; sonde rejouée | VERIFIED — sonde native rejouée `PASS_MECHANISM`, H-A1/H-A2 réfutés après correction, H-A3 signalé ; revue favorable ([W043](DECISIONS.md#w043-identité-dembedding--mode-dégradé-signalé)) |
+| R26-ADM-01 | Lot 1, qualification CPU | Instance principale arrêtée | Mesure juste avant chaque requête ; pilote CPU 2B aux limites W039 ; règle W036 appliquée sans baisse de borne ; aucune case D07 | VERIFIED — premier pilote non exclusif écarté ; pilote exclusif : borne froide 2B portée à 3 968 Mio, borne chaude 512 confirmée ([W041](DECISIONS.md#w041-admission-froide-du-2b-relevée-après-un-pilote-exclusif-aux-limites-w039)) ; 159 tests d'admission PASS ; outil corrigé pour suivre la règle figée |
+| R26-UI-01 | Lot 1/2, interface | R26-OCR-01, R26-ANS-01/02 | Export sans chemin du poste ; badge OCR ; avertissements regroupés ; garde E2E contre l'instance principale ; unités, lint, types, build ; non-régression du lecteur (rotations, 300 %, sélections, génération puis citation) ; rendu 1366×768 et 1920×1080 | VERIFIED — 393 unités, lint, types, build avec contrôle d'export intégré ; E2E sur instance isolée : lecteur 12/12, génération 2B réelle 2/2 ; rendu relu ; revue et contre-vérification favorables ([W044](DECISIONS.md#w044-pdfjs-chargé-hors-bundle-et-export-contrôlé)) |
+| R26-ANC-01 | Lot 1, interface | R26-UI-01 | Taux D06.5 sur les fixtures DEV natives et QLONG, en une passe automatisée bornée à environ une heure ; blocs OCR déclarés à part ; clôture soumise à l'utilisateur | FAIL selon les règles figées — 155/169 régions (91,7 %), 161/169 pages (95,3 %) ; les 14 échecs sont des textes répétés que la méthode ne discrimine pas, aucune erreur de page sur les 161 passages ouverts ; P02 non publié absent du jeu. D06.5 reste ouvert |
+| R26-2B-01 | Lot 1, qualification | Code backend stabilisé | 100 questions DEV en 2B, grille de deux juges et un arbitre (assistant, sans expert métier), dénominateurs et questions P02 NOT_RUN conservés ; jeu final intouché | VERIFIED (diagnostic DEV) — 84 générées, 16 NOT_RUN ; exactitude 50/80, abstention 17/20, faux refus 10/80, assertions soutenues 64/181 ; défaut principal : citations hors crochets dans 50 réponses sur 84. Réserve 2B maintenue |
+| R26-KIT-00 | Lot 2, skill | Sources officielles KIT01–KIT16 | Skill `linux-offline-kit` créé, format validé, registre à jour | VERIFIED — format et quick_validate PASS, registre à jour |
+| R26-KIT-01 | Lot 2, outils de distribution | R26-KIT-00 | Fabricant Linux par plateforme, liens symboliques, marqueurs du poste, glibc minimale, archive, installateur, mise à jour, retour arrière, désinstallation, garde du profil livré ; Windows inchangé hors correctif C3 | VERIFIED (unités) — revue NO-GO (3 majeurs, 10 mineurs) puis corrections rouge/vert, contre-vérification GO ; 238 PASS/19 SKIP ; dry-run sans fuite, `ready` attendu après commit |
+| R26-KIT-02 | Lot 2, recette réelle | R26-KIT-01, export sans fuite, commit | Kit aarch64 fabriqué, vérifié, archivé ; installation isolée à un autre chemin sans réseau ; PDF, extraction, recherche, question, citation et lecture ; redémarrage hors ligne ; mise à jour et retour arrière avec sauvegarde vérifiée ; désinstallation gardée | À FAIRE — après le commit du lot |
+| R26-KIT-03 | Lot 2, x86-64 | Hôte x86-64 provisionné | Kit x86-64 fabriqué et qualifié sur un hôte de cette architecture | BLOCKED — aucun hôte x86-64 ; le fabricant refuse un kit croisé |
+| R26-DOC-01 | Documentation | Lots vérifiés | Déploiement, exploitation, API, spécifications, DoD Linux, synthèse de livraison, décisions, sources, registre des skills, journal | EN COURS — API, dépannage, décisions W040–W044, sources, registre et journal à jour ; déploiement, exploitation, DoD et synthèse après la recette du kit |
+| R26-REV-01 | Validation | Tous les lots | Revues non-auteur par lot et validation finale contre ce plan, les skills et la DoD | EN COURS — revues backend, interface et kit favorables ; validation finale après la recette du kit |
+
+**Point à trancher (utilisateur) :** le 2B cite ses sources hors crochets
+dans 50 réponses DEV sur 84 (38 correctes par leur contenu), si bien que
+ces citations ne sont ni enregistrées ni cliquables. Le parseur strict
+`[S001]` est un contrat délibéré ; le normaliser modifierait ce contrat.
+
+Reste hors de portée de ce poste : D07 (hôte CPU de 16 Go au plus), Linux
+x86-64, Windows. Ces critères restent non qualifiés et ne bloquent pas les
+lots indépendants. **Prochaine action :** committer et publier le lot vérifié,
+fabriquer le kit aarch64 depuis ce commit et exécuter la recette R26-KIT-02,
+puis mettre à jour la documentation stabilisée et la DoD Linux.
 
 ## Périmètre courant — décision W038 du 6 octobre 2026
 

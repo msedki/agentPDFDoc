@@ -328,7 +328,12 @@
     "text": "string",
     "bboxes": [],
     "precision": "span|block|table|page",
-    "extraction_revision_id": "uuid"
+    "extraction_revision_id": "uuid",
+    "extraction_methods": [
+      "native|ocr|mixed|unknown"
+    ],
+    "block_extraction_method": "native|ocr|mixed|unknown",
+    "extraction_provenance_rule": "extraction_methods lists, sorted and deduplicated, the metadata.extraction_method that the ingestion recorded for each block behind the source, as stored, and blocks[].extraction_method gives it per block; unknown when a block has none, never native. Carried by the sources and done.citations events, GET /citations and POST /search results (R26-OCR-01, 2026-10-06). A citation or event recorded before that date has neither field: read it as extraction_methods [\"unknown\"] and extraction_method unknown. The context sent to the model is unchanged: evidence lines keep source_id, version_id, pages and text only."
   },
   "query_events": {
     "types": [
@@ -391,6 +396,64 @@
       "status": "cancelled",
       "text": "string",
       "metrics": {}
+    },
+    "warning_data": {
+      "code": "string",
+      "message": "string: French text shown to the user, with the action to take when there is one",
+      "rule": "Codes below are those added or reworded by R26 (2026-10-06); the other codes are listed in docs/interfaces/API.md section 5. Warnings are signals only: they never remove or rewrite the answer, its citations or earlier events.",
+      "ocr_evidence": {
+        "fields": "code|document_id|document_name|extraction_methods|source_ids|message",
+        "extraction_methods": "subset of ocr|mixed found in the document sources",
+        "source_ids": "S001...: retained sources of that document read by OCR; empty list in POST /search and POST /admin/evaluation/context, which assign no source ID",
+        "rule": "one per document when a source carries a block whose extraction_method is ocr or mixed; native and unknown never raise it; in a query it is computed on the sources sent to the model, emitted as a warning event before the first delta and repeated in done.warnings"
+      },
+      "partial_extraction": {
+        "fields": "code|document_id|message",
+        "rule": "one per document of the final passages whose published generation is ready_partial; the message no longer implies that the extracted regions are proof"
+      },
+      "answer_without_valid_citation": {
+        "fields": "code|message",
+        "rule": "done.warnings only, when the model was called on at least one source and the validated answer contains no [Sxxx] of a source sent to the model"
+      },
+      "source_id_mentioned_without_citation": {
+        "fields": "code|source_ids|message",
+        "rule": "done.warnings only, with answer_without_valid_citation: IDs of sources sent to the model written without brackets (S001, (S001), Source ID: S001), in source order; never raised when the answer has a valid citation"
+      },
+      "cited_value_not_in_cited_sources": {
+        "fields": "code|values|message",
+        "values": [
+          {
+            "value": "string: number and following unit as written",
+            "number": "string",
+            "unit": "string|null",
+            "cited_source_ids": [
+              "S001"
+            ],
+            "holder_source_ids": [
+              "S002"
+            ]
+          }
+        ],
+        "rule": "done.warnings only, model called: a number of a sentence or bullet citing valid sources is absent from those sources but present in other sources sent to the model; numbers compared as decimals (comma or point, thousands separators), identifiers, page mentions, citation tags and list numbers ignored; units shown, not compared"
+      },
+      "value_not_in_context": {
+        "fields": "code|values|message",
+        "values": [
+          {
+            "value": "string",
+            "number": "string",
+            "unit": "string|null",
+            "cited_source_ids": [
+              "S001"
+            ]
+          }
+        ],
+        "rule": "done.warnings only, model called: a number of the answer is absent from every source sent to the model (computed, deduced or misquoted value); same comparison as cited_value_not_in_cited_sources; cited_source_ids is empty for a sentence without citation"
+      },
+      "dense_identity_mismatch": {
+        "fields": "code|document_ids|document_names|message",
+        "rule": "R26-IDX-02: documents of the scope whose active generation has no point in the collection of the current dense identity (embedding identity changed, partial reindex); the lexical branch still serves them; emitted by the search (POST /search, queries before the first delta and in done.warnings, evaluation), never for a selection scope; non blocking, the message asks to reindex them"
+      }
     }
   },
   "query_run": {
@@ -484,5 +547,12 @@
     "launch_module": "services.runtime.api_entry",
     "asgi_application": "services.api.main:app"
   },
-  "offset_unit": "Unicode code points in immutable block source_text; client UTF16 offsets must be converted and source_text_hash verified"
+  "offset_unit": "Unicode code points in immutable block source_text; client UTF16 offsets must be converted and source_text_hash verified",
+  "readiness_dense_index": {
+    "dense_index": "complete|dense_migration_incomplete|unverifiable|not_applicable",
+    "documents_to_reindex": [
+      "uuid"
+    ],
+    "rule": "Fields added to GET /readiness by R26-IDX-02 (2026-10-06). dense_migration_incomplete names a degraded but non blocking state: status and HTTP code are unchanged (200 when every check passes), documents_to_reindex lists the document IDs whose active generation has no point in the current collection (all active documents with fragments when the collection is absent); unverifiable when Qdrant is unreachable or a count failed; not_applicable with a vector test double without counts. Document names are only given behind the session (dense_coverage of GET /diagnostics, warning dense_identity_mismatch)."
+  }
 }

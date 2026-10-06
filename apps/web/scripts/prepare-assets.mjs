@@ -21,6 +21,9 @@ await mkdir(destination, { recursive: true });
 for (const directory of ["cmaps", "wasm", "standard_fonts", "iccs"]) {
   await cp(join(source, directory), new URL(`${directory}/`, destination), { recursive: true });
 }
+// Module principal et worker de la même version : le navigateur charge le premier par un import natif
+// (src/lib/pdfjs.ts), hors bundle, pour qu'aucun `import.meta.url` ne soit figé en chemin du poste au build.
+await cp(join(source, "build/pdf.min.mjs"), new URL("pdf.min.mjs", destination));
 await cp(join(source, "build/pdf.worker.min.mjs"), new URL("pdf.worker.min.mjs", destination));
 await cp(join(source, "LICENSE"), new URL("LICENSE", destination));
 const version = JSON.parse(await readFile(join(source, "package.json"), "utf8")).version;

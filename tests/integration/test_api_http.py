@@ -381,6 +381,137 @@ def test_api_partial_job_metadata_and_explicit_publication(tmp_path):
         assert any(warning["code"] == "partial_extraction" and warning["document_id"] == imported["document_id"] for warning in done)
 
 
+ROOT = Path(__file__).resolve().parents[2]
+# Extraction réelle de la fixture DEV DA-P02 par le worker livré (instance QA r23, 2026-10-04) : OCR régional sur les deux
+# pages, « + 3.0 % » pour « ± 3.0 % », « N-m », « DA-PO2 », « CCO », sept mots de faible confiance, état ready_partial.
+# Preuve privée hors Git (.runtime) : le bras correspondant est sauté, avec ce motif, sur un poste qui ne l'a pas.
+P02_PDF = ROOT / "fixtures/qualification-v2.1/development/Procédures/Atelier 2 - Banc pneumatique DA-P02.pdf"
+P02_EXTRACTION = ROOT / (".runtime/qa/r23-model-native-20261004-wyQVqE/data/extractions/7195ce39-77fc-48ed-95a6-d0641e508a41/"
+                         "199f18ae-d7c3-4a7b-b235-9cc982f2c8cf/extraction.json")
+P02_EXTRACTION_SHA256 = "971d186613c5217876ff023e661a7a85a16edb0cc374a27be495eb7d560d0d96"
+OCR_MESSAGE = ("lus par reconnaissance optique de caractères (OCR) : des signes, unités ou références peuvent être faux même "
+               "sans alerte de faible confiance. Comparez les valeurs utilisées avec la page originale.")
+PARTIAL_MESSAGE = ("Extraction partielle : des pages ou des régions de ce document sont absentes de l'extraction ou ont été lues "
+                   "avec une confiance insuffisante. Des informations peuvent manquer ; vérifiez les passages retrouvés sur la "
+                   "page originale.")
+
+
+def sse_events(text):
+    """Événements (type, données JSON) du flux SSE, dans l'ordre ; les lignes de maintien « : heartbeat » sont ignorées."""
+    events = []
+    for frame in text.split("\n\n"):
+        fields = dict(line.split(": ", 1) for line in frame.splitlines() if ": " in line and not line.startswith(":"))
+        if "event" in fields:
+            events.append((fields["event"], json.loads(fields["data"])))
+    return events
+
+
+def controlled_ocr_extraction(payload):
+    """Extraction contrôlée `ready` sans région non résolue : un bloc lu par OCR, un bloc natif (métadonnées de l'ingestion)."""
+    return {"fingerprint": "controlled-ocr-ready", "sha256": hashlib.sha256(payload).hexdigest(), "page_count": 1, "status": "ready",
+            "pages": [{"page_index": 0, "width": 595, "height": 842, "extraction_state": "ocr", "unresolved_regions": [], "blocks": [
+                {"id": "ocr0", "raw_text": "La tolérance de pression de DA-P02 est de + 3.0 %.", "bbox": [10, 700, 300, 712],
+                 "metadata": {"extraction_method": "ocr", "ocr_used": True, "route": "regional_ocr"}},
+                {"id": "nat0", "raw_text": "Le couple de serrage prescrit pour DA-P02 est de 14 N·m.", "bbox": [10, 680, 300, 692],
+                 "metadata": {"extraction_method": "native", "ocr_used": False, "route": "native"}}]}]}
+
+
+@pytest.mark.parametrize("arm", ["controlled_ocr_ready", "p02_reference_extraction"])
+def test_api_ocr_provenance_reaches_sources_citations_and_warnings(tmp_path, arm):
+    """R26-OCR-01. SQLite, indexation, recherche, contexte et SSE réels ; embeddings (FakeEmbedding), vecteurs (FakeVectors),
+    tokenizer (FakeTokenizer), génération (RecordingOllama) et gouverneur (FakeGovernor) sont des doubles nommés."""
+    if arm == "controlled_ocr_ready":
+        name, payload = "controle-ocr.pdf", b"%PDF-1.7\ncontrolled OCR provenance fixture"
+        extraction = controlled_ocr_extraction(payload)
+    else:
+        if not P02_EXTRACTION.is_file():
+            pytest.skip(f"Extraction de référence P02 absente de ce poste : {P02_EXTRACTION}")
+        assert hashlib.sha256(P02_EXTRACTION.read_bytes()).hexdigest() == P02_EXTRACTION_SHA256
+        name, payload = P02_PDF.name, P02_PDF.read_bytes()
+        extraction = json.loads(P02_EXTRACTION.read_text(encoding="utf-8"))
+        assert extraction["sha256"] == hashlib.sha256(payload).hexdigest() and extraction["status"] == "ready_partial"
+
+    class RecordingOllama(FakeOllama):
+        def __init__(self):
+            self.requests = []
+        async def stream(self, messages, cancelled, output_tokens=None):
+            self.requests.append(messages)
+            async for event in super().stream(messages, cancelled, output_tokens):
+                yield event
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    runtime = RecordingOllama()
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=runtime, governor=FakeGovernor(), start_jobs=False)
+    stored = {block["id"]: block.get("raw_text", block.get("text")) for page in extraction["pages"] for block in page["blocks"]}
+    with browser_client(app) as client:
+        imported = client.post("/api/v1/documents/import", files={"files": (name, payload, "application/pdf")}).json()
+        client.portal.call(app.state.indexer.index, imported["job_id"], extraction)
+        if arm == "p02_reference_extraction":
+            assert client.post(f"/api/v1/jobs/{imported['job_id']}/publish-partial").status_code == 200
+        query = client.post("/api/v1/queries", json={"question": "Quelle est la tolérance de pression de DA-P02 ?",
+                                                     "scope": {"kind": "documents", "documentIds": [imported["document_id"]]}}).json()
+        events = sse_events(client.get(query["events_url"]).text)
+        kinds = [kind for kind, _ in events]
+        assert kinds[-1] == "done" and "error" not in kinds and runtime.calls == 1
+        sources = next(data for kind, data in events if kind == "sources")["sources"]
+        assert sources
+        for source in sources:
+            # Méthodes telles qu'enregistrées par l'ingestion, bloc par bloc ; texte des blocs inchangé (aucune normalisation).
+            assert source["extraction_methods"] == sorted({block["extraction_method"] for block in source["blocks"]})
+            assert all(block["text"] == stored[block["id"]][block["start_offset"]:block["end_offset"]] for block in source["blocks"])
+        expected_methods = {"ocr0": ["ocr"], "nat0": ["native"]} if arm == "controlled_ocr_ready" else None
+        for source in sources:
+            assert source["extraction_methods"] == (expected_methods[source["blocks"][0]["id"]] if expected_methods else ["ocr"])
+        ocr_sources = [source["source_id"] for source in sources if "ocr" in source["extraction_methods"]]
+        assert ocr_sources
+        ocr_warnings = [(position, data) for position, (kind, data) in enumerate(events) if kind == "warning" and data["code"] == "ocr_evidence"]
+        assert len(ocr_warnings) == 1
+        position, warning = ocr_warnings[0]
+        assert position < kinds.index("delta") < kinds.index("done")
+        assert warning == {"code": "ocr_evidence", "document_id": imported["document_id"], "document_name": name,
+                           "extraction_methods": ["ocr"], "source_ids": ocr_sources,
+                           "message": f"Passages de « {name} » " + OCR_MESSAGE}
+        done = events[-1][1]
+        assert [item for item in done["warnings"] if item["code"] == "ocr_evidence"] == [warning]
+        partial = [data for kind, data in events if kind == "warning" and data["code"] == "partial_extraction"]
+        if arm == "controlled_ocr_ready":
+            assert partial == []
+        else:
+            assert partial == [{"code": "partial_extraction", "document_id": imported["document_id"], "message": PARTIAL_MESSAGE}]
+        for citation in done["citations"]:
+            fetched = client.get(f"/api/v1/citations/{query['query_id']}/{citation['source_id']}").json()
+            assert fetched["extraction_methods"] == citation["extraction_methods"]
+            assert [block["extraction_method"] for block in fetched["blocks"]] == [block["extraction_method"] for block in citation["blocks"]]
+        # Le contexte transmis au modèle ne porte pas la provenance : mêmes champs de preuve qu'avant R26.
+        evidence = [json.loads(line) for line in runtime.requests[-1][-1]["content"].splitlines() if line.startswith("{")]
+        assert evidence and all(set(item) == {"source_id", "version_id", "pages", "text"} for item in evidence)
+
+
+def test_api_citation_recorded_before_r26_reads_unknown_provenance_never_native(tmp_path):
+    """R26-OCR-01 : une citation enregistrée sans provenance (avant R26) est rendue `unknown` par GET /citations, sans que
+    la ligne stockée change. SQLite et API réels ; embeddings, vecteurs, tokenizer, génération et gouverneur en doubles."""
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+    with browser_client(app) as client:
+        payload = b"%PDF-1.7\nlegacy citation fixture"
+        imported = client.post("/api/v1/documents/import", files={"files": ("ancien.pdf", payload, "application/pdf")}).json()
+        client.portal.call(app.state.indexer.index, imported["job_id"], controlled_ocr_extraction(payload))
+        query = client.post("/api/v1/queries", json={"question": "Quelle est la tolérance de pression de DA-P02 ?",
+                                                     "scope": {"kind": "documents", "documentIds": [imported["document_id"]]}}).json()
+        assert "event: done" in client.get(query["events_url"]).text
+        row = app.state.db.one("SELECT source_json FROM citations WHERE query_id=? AND source_id='S001'", (query["query_id"],))
+        legacy = json.loads(row["source_json"])
+        legacy.pop("extraction_methods")
+        for block in legacy["blocks"]:
+            block.pop("extraction_method")
+        stored = json.dumps(legacy, ensure_ascii=False)
+        app.state.db.execute("UPDATE citations SET source_json=? WHERE query_id=? AND source_id='S001'", (stored, query["query_id"]))
+        fetched = client.get(f"/api/v1/citations/{query['query_id']}/S001").json()
+        assert fetched["extraction_methods"] == ["unknown"] and {block["extraction_method"] for block in fetched["blocks"]} == {"unknown"}
+        assert {key: value for key, value in fetched.items() if key not in {"extraction_methods", "blocks"}} == \
+               {key: value for key, value in legacy.items() if key != "blocks"}
+        assert app.state.db.one("SELECT source_json FROM citations WHERE query_id=? AND source_id='S001'", (query["query_id"],))["source_json"] == stored
+
+
 def test_api_rejects_host_origin_traversal_and_private_error_inputs(tmp_path):
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
     app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(), ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
@@ -1103,3 +1234,198 @@ def test_api_readiness_unprovisioned_collection_identity_remains_blocked_json(tm
         assert response.status_code == 503 and response.json()["checks"]["qdrant"] is False
         assert response.json()["qdrant_collection"] == "unreachable"
         assert embedding._session is None and embedding._tokenizer is None and runtime.calls == 0
+
+
+class InMemoryQdrant:
+    """Double nommé du serveur Qdrant (API HTTP réduite) servi par httpx.MockTransport au vrai QdrantStore : collections
+    en mémoire, filtres `match` any/value, journal (méthode, collection, route) de chaque requête reçue."""
+
+    def __init__(self):
+        self.collections: dict[str, dict] = {}
+        self.log: list[tuple[str, str | None, str]] = []
+
+    @staticmethod
+    def matches(payload, condition):
+        value, match = payload.get(condition["key"]), condition["match"]
+        values = set(value) if isinstance(value, list) else {value}
+        return bool(values & set(match["any"])) if "any" in match else match["value"] in values
+
+    def selected(self, points, body):
+        conditions = (body.get("filter") or {}).get("must", [])
+        return [key for key, point in points.items() if all(self.matches(point["payload"], condition) for condition in conditions)]
+
+    def __call__(self, request):
+        import httpx
+        parts = request.url.path.strip("/").split("/")
+        body = json.loads(request.content) if request.content else {}
+        if parts == ["collections"]:
+            self.log.append((request.method, None, ""))
+            return httpx.Response(200, json={"status": "ok", "result": {"collections": [{"name": name} for name in self.collections]}})
+        name, route = parts[1], "/".join(parts[2:])
+        self.log.append((request.method, name, route))
+        collection = self.collections.get(name)
+        if route == "" and request.method == "PUT":
+            self.collections[name] = {"config": {"params": {"vectors": body["vectors"], "replication_factor": body["replication_factor"],
+                                                            "payload": body["payload"]},
+                                                 "hnsw_config": body["hnsw_config"], "optimizer_config": body["optimizers_config"]}, "points": {}}
+            return httpx.Response(200, json={"status": "ok", "result": True})
+        if collection is None:
+            return httpx.Response(404, json={"status": {"error": "Not found"}})
+        points = collection["points"]
+        if route == "" and request.method == "GET":
+            return httpx.Response(200, json={"status": "ok", "result": {"config": collection["config"]}})
+        if route == "index":
+            return httpx.Response(200, json={"status": "ok", "result": True})
+        if route == "points" and request.method == "PUT":
+            points.update({str(point["id"]): point for point in body["points"]})
+            return httpx.Response(200, json={"status": "ok", "result": True})
+        if route == "points" and request.method == "POST":
+            return httpx.Response(200, json={"status": "ok", "result": [{"id": key, "payload": points[key]["payload"]} for key in body["ids"] if key in points]})
+        if route == "points/query":
+            return httpx.Response(200, json={"status": "ok", "result": {"points": [{"id": key} for key in self.selected(points, body)][:body["limit"]]}})
+        if route == "points/count":
+            return httpx.Response(200, json={"status": "ok", "result": {"count": len(self.selected(points, body))}})
+        if route == "points/delete":
+            for key in self.selected(points, body):
+                del points[key]
+            return httpx.Response(200, json={"status": "ok", "result": True})
+        raise AssertionError(f"Route Qdrant non prévue par le double : {request.method} {request.url.path}")
+
+    def generation_points(self, collection, generation):
+        return sum(point["payload"]["generation_id"] == generation for point in self.collections.get(collection, {}).get("points", {}).values())
+
+
+def identity_store(settings, server, fingerprint):
+    """Vrai QdrantStore dont l'identité dense est fixée (empreinte de test) et le transport servi par InMemoryQdrant."""
+    import httpx
+
+    from services.api.retrieval import QdrantStore
+    store = QdrantStore(settings)
+    store._identity = {"fingerprint": fingerprint}
+    store.client = httpx.AsyncClient(base_url="http://qdrant.test", transport=httpx.MockTransport(server), timeout=5)
+    return store
+
+
+def ready_app(tmp_path, server, fingerprint):
+    """Instance dont toutes les vérifications de /readiness peuvent réussir : artefacts de test présents (jamais chargés),
+    embeddings (ReadyEmbedding), tokenizer, génération et gouverneur en doubles nommés, vrai QdrantStore sur InMemoryQdrant."""
+    import shutil
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})
+    (tmp_path / "config").mkdir(exist_ok=True)
+    shutil.copyfile(ROOT / "config/qdrant.collection.json", tmp_path / "config/qdrant.collection.json")
+    for artifact in [settings.embedding_dir / "tokenizer.json", settings.embedding_dir / "model.onnx",
+                     settings.llm_tokenizer_dir / "tokenizer.json", settings.llm_tokenizer_dir / "tokenizer_config.json"]:
+        artifact.parent.mkdir(parents=True, exist_ok=True)
+        artifact.write_bytes(b"test placeholder, never loaded")
+
+    class ReadyEmbedding(FakeEmbedding):
+        def model_path(self):
+            return settings.embedding_dir / "model.onnx"
+
+    class TagsResponse:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"models": [{"name": "qwen3.5:4b"}]}
+
+    class TagsClient:
+        async def get(self, path):
+            return TagsResponse()
+    runtime = FakeOllama()
+    runtime.client = TagsClient()
+    return create_app(settings=settings, embedding=ReadyEmbedding(), vectors=identity_store(settings, server, fingerprint), tokenizer=FakeTokenizer(),
+                      ollama=runtime, governor=FakeGovernor(), start_jobs=False)
+
+
+DENSE_A, DENSE_B = "a" * 64, "b" * 64
+DENSE_TEXTS = {"pompe.pdf": "Pompe PX-10 : tension d'alimentation 24 V.", "vanne.pdf": "Vanne VX-20 : tension d'alimentation 48 V."}
+
+
+def dense_extraction(payload, text, fingerprint="controlled-dense"):
+    return {"fingerprint": fingerprint, "sha256": hashlib.sha256(payload).hexdigest(), "page_count": 1, "status": "ready",
+            "pages": [{"page_index": 0, "width": 595, "height": 842, "blocks": [{"id": "b0", "raw_text": text, "bbox": [10, 10, 300, 30]}]}]}
+
+
+def dense_reindex(client, app, document_id, payload, text):
+    """Réindexation de l'extraction réutilisée (aucune ingestion relancée) : nouvelle génération sous l'identité courante."""
+    from services.api.reconcile import Reconciler
+    job_id = client.post(f"/api/v1/documents/{document_id}/reindex").json()["job_id"]
+    client.portal.call(app.state.indexer.index, job_id, dense_extraction(payload, text))
+    return client.portal.call(Reconciler(app.state.db, app.state.vectors).run_once)
+
+
+def dense_state(client, scope=None):
+    readiness = client.get("/api/v1/readiness")
+    search = client.post("/api/v1/search", json={"question": "tension d'alimentation", "scope": scope or {"kind": "library"}}).json()
+    return readiness, search, [warning for warning in search["warnings"] if warning["code"] == "dense_identity_mismatch"]
+
+
+def test_api_dense_identity_change_is_signalled_without_blocking_and_cleanup_reaches_every_collection(tmp_path):
+    """R26-IDX-02 (H-A1, H-A2, H-A3). SQLite, API, vrai QdrantStore et réconciliateur ; serveur Qdrant (InMemoryQdrant),
+    embeddings, tokenizer, génération et gouverneur en doubles nommés. Un changement d'identité dense est un redémarrage
+    sur la même base avec une autre empreinte : trois vies d'application successives."""
+    server = InMemoryQdrant()
+    prefix = "pdf_chunks_e5small_v1_"
+    c0, c1 = prefix + DENSE_A[:16], prefix + DENSE_B[:16]
+    documents = {}
+    app = ready_app(tmp_path, server, DENSE_A)
+    with browser_client(app) as client:
+        for name, text in DENSE_TEXTS.items():
+            payload = b"%PDF-1.7\n" + text.encode()
+            imported = client.post("/api/v1/documents/import", files={"files": (name, payload, "application/pdf")}).json()
+            client.portal.call(app.state.indexer.index, imported["job_id"], dense_extraction(payload, text))
+            documents[name] = {**imported, "payload": payload, "text": text}
+        readiness, search, mismatch = dense_state(client)
+        assert readiness.status_code == 200 and readiness.json()["dense_index"] == "complete" and readiness.json()["documents_to_reindex"] == []
+        assert mismatch == [] and {source["document_id"] for source in search["results"]} == {item["document_id"] for item in documents.values()}
+    pump, valve = documents["pompe.pdf"], documents["vanne.pdf"]
+    first = {name: app.state.db.one("SELECT active_generation_id FROM documents WHERE id=?", (item["document_id"],))["active_generation_id"]
+             for name, item in documents.items()}
+
+    # Nouvelle identité : seule la pompe est réindexée (état partiel).
+    app = ready_app(tmp_path, server, DENSE_B)
+    with browser_client(app) as client:
+        start = len(server.log)
+        cleaned = dense_reindex(client, app, pump["document_id"], pump["payload"], pump["text"])
+        assert cleaned["completed"] == [first["pompe.pdf"]] and cleaned["collections"] == {first["pompe.pdf"]: [c0, c1]}
+        # H-A2 : la génération remplacée quitte aussi l'ancienne collection ; celle de la vanne y reste intacte.
+        assert server.generation_points(c0, first["pompe.pdf"]) == 0 and server.generation_points(c0, first["vanne.pdf"]) == 1
+        readiness, search, mismatch = dense_state(client)
+        body = readiness.json()
+        # H-A1 : état nommé, non bloquant, document à réindexer ; avertissement dans la recherche ; la vanne reste servie par les mots.
+        assert readiness.status_code == 200 and body["status"] == "ready" and body["qdrant_collection"] == "present"
+        assert body["dense_index"] == "dense_migration_incomplete" and body["documents_to_reindex"] == [valve["document_id"]]
+        assert mismatch == [{"code": "dense_identity_mismatch", "document_ids": [valve["document_id"]], "document_names": ["vanne.pdf"],
+                             "message": "Recherche sémantique incomplète : « vanne.pdf » n'a pas d'index sémantique pour le modèle "
+                                        "d'embedding actuel. La recherche par mots peut encore le retrouver ; réindexez-le pour "
+                                        "rétablir la recherche sémantique."}]
+        assert valve["document_id"] in {source["document_id"] for source in search["results"]}
+        assert dense_state(client, {"kind": "documents", "documentIds": [pump["document_id"]]})[2] == []
+        query = client.post("/api/v1/queries", json={"question": "Quelle tension d'alimentation ?", "scope": {"kind": "library"}}).json()
+        events = sse_events(client.get(query["events_url"]).text)
+        kinds = [kind for kind, _ in events]
+        position = next(index for index, (kind, data) in enumerate(events) if kind == "warning" and data["code"] == "dense_identity_mismatch")
+        assert position < kinds.index("delta") < kinds.index("done")
+        assert [item for item in events[-1][1]["warnings"] if item["code"] == "dense_identity_mismatch"] == mismatch
+        # Garde : sous la nouvelle identité, l'ancienne collection ne reçoit que la suppression des générations remplacées.
+        assert {(method, route) for method, collection, route in server.log[start:] if collection == c0} == {("POST", "points/delete")}
+        dense_reindex(client, app, valve["document_id"], valve["payload"], valve["text"])
+        readiness, _, mismatch = dense_state(client)
+        assert readiness.json()["dense_index"] == "complete" and readiness.json()["documents_to_reindex"] == [] and mismatch == []
+    second = {name: app.state.db.one("SELECT active_generation_id FROM documents WHERE id=?", (item["document_id"],))["active_generation_id"]
+              for name, item in documents.items()}
+    assert server.collections[c0]["points"] == {}
+
+    # H-A3 : retour à l'identité initiale, branche dense vide jusqu'à la réindexation, désormais signalée.
+    app = ready_app(tmp_path, server, DENSE_A)
+    with browser_client(app) as client:
+        readiness, _, mismatch = dense_state(client)
+        assert readiness.status_code == 200 and readiness.json()["dense_index"] == "dense_migration_incomplete"
+        assert sorted(readiness.json()["documents_to_reindex"]) == sorted(item["document_id"] for item in documents.values())
+        assert mismatch and sorted(mismatch[0]["document_ids"]) == sorted(item["document_id"] for item in documents.values())
+        assert mismatch[0]["message"].startswith("Recherche sémantique incomplète : 2 documents n'ont pas d'index sémantique")
+        for item in documents.values():
+            dense_reindex(client, app, item["document_id"], item["payload"], item["text"])
+        assert dense_state(client)[0].json()["dense_index"] == "complete"
+    assert all(server.generation_points(collection, second[name]) == 0 for collection in (c0, c1) for name in documents)

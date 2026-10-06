@@ -288,6 +288,10 @@ progress { display: block; width: 100%; height: 4px; margin-top: 8px; accent-col
 .composer-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 8px; border-top: 1px solid hsl(var(--border)); }
 .composer-footer > span { font-size: 11px; color: hsl(var(--muted-foreground)); }
 .inline-warning { display: flex; gap: 4px; align-items: flex-start; margin: 8px 0; color: hsl(var(--warning)); font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+/* Avis structuré (R26) : message du service, valeurs signalées et sources à ouvrir. */
+.inline-warning > div { min-width: 0; }
+.inline-warning > div > p + p, .warning-values { margin-top: 4px; }
+.warning-values li + li { margin-top: 2px; }
 .selection-action { display: flex; flex-direction: column; gap: 8px; padding: 0 0 8px; color: hsl(var(--muted-foreground)); font-size: 12px; }
 .selection-action span { font-style: italic; }
 .selection-action button { align-self: flex-start; }

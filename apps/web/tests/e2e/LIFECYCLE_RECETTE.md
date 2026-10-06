@@ -118,13 +118,18 @@ Depuis `apps/web`, avec Node/pnpm déjà installés et services isolés déjà d
 
 ```powershell
 $env:COREPACK_ENABLE_NETWORK='0'
-$env:RAG_E2E_BASE_URL='http://127.0.0.1:8785'
+$env:RAG_E2E_BASE_URL='http://127.0.0.1:<port de l'instance isolée>'
+$env:RAG_E2E_CONTROL_TOKEN_FILE='<racine de données isolée>\control\admin-token'
 $env:RAG_E2E_LIFECYCLE_ALLOWED='1'
 $env:RAG_E2E_LIFECYCLE_TARGET='<binding concret revu>'
 $env:RAG_E2E_GENERATION_ALLOWED='0'
 $env:RAG_E2E_OUTPUT_DIR='test-results/<nouvelle-execution-unique>'
 pnpm exec playwright test tests/e2e/lifecycle.spec.ts --grep '<cas exact autorisé>'
 ```
+
+`RAG_E2E_BASE_URL` et `RAG_E2E_CONTROL_TOKEN_FILE` sont obligatoires ; le port 8785 et le jeton
+`.runtime/data/control/admin-token` de l'instance principale sont refusés par `tests/e2e/target.ts`, sauf
+`RAG_E2E_MAIN_INSTANCE_ALLOWED=1` posé délibérément pour une recette autorisée sur cette instance.
 
 Ne pas reprendre un dossier de sortie existant : la trace initiale et son FAIL
 restent séparés d'une reprise corrigée. Les tests utilisent les mêmes sondes

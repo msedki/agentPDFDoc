@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, CircleAlert, FileText, List, RotateCw, Search, ZoomIn, ZoomOut } from "lucide-react";
 import type { PDFDocumentProxy, PDFPageProxy, RenderTask } from "pdfjs-dist";
 import { api } from "@/lib/api";
+import { loadPdfJs, PdfJsLoadError } from "@/lib/pdfjs";
 import { useWorkspace } from "@/lib/store";
 import { boundedCanvasSize, reconcileSelection, visiblePageWindow, wholeBlockSpan } from "@/lib/selection";
 import { hasExtractedText, ocrOverlays, pageTextCaption } from "@/lib/ocr-overlay";
@@ -17,6 +18,7 @@ import { sourcePrecisionLabel, sourceRegionBoxes } from "@/lib/source-location";
 import type { Bbox, Source } from "@/lib/types";
 import { Button } from "./ui/button";
 import { DocumentTools } from "./document-tools";
+import { ExtractionBadge } from "./extraction-badge";
 import { useErrorText, type Failure } from "./ui/error-text";
 import { PanelEmpty, PanelError, PanelHeader, PanelLoading } from "./ui/panel";
 
@@ -63,7 +65,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
     const outputCanvas = canvas.current;
     const layerContainer = textLayer.current;
     const renderPage = async () => {
-      const pdfjs = await import("pdfjs-dist");
+      const pdfjs = await loadPdfJs();
       page = await document.getPage(pageIndex + 1);
       if (disposed || !outputCanvas || !layerContainer) { page.cleanup(); return; }
       const pageRotation = (page.rotate + rotation + correction) % 360;
@@ -202,9 +204,8 @@ export function PdfViewer() {
     let disposed = false;
     let task: { destroy(): Promise<void> } | undefined;
     const load = async () => {
-      const pdfjs = await import("pdfjs-dist");
+      const pdfjs = await loadPdfJs();
       if (disposed) return;
-      pdfjs.GlobalWorkerOptions.workerSrc = "/pdfjs/pdf.worker.min.mjs";
       const loading = pdfjs.getDocument({ url: api.fileUrl(versionId), cMapUrl: "/pdfjs/cmaps/", cMapPacked: true, standardFontDataUrl: "/pdfjs/standard_fonts/", wasmUrl: "/pdfjs/wasm/", iccUrl: "/pdfjs/iccs/", canvasMaxAreaInBytes: 96_000_000, useSystemFonts: false, enableXfa: false, withCredentials: true });
       task = loading;
       const loaded = await loading.promise;
@@ -295,10 +296,10 @@ export function PdfViewer() {
     {searchStatus && <p className="viewer-notice" role="status">{typeof searchStatus === "string" ? searchStatus : errorText(searchStatus.error)}</p>}
     {binding.error ? <p className="viewer-notice inline-warning" role="status">{binding.error}</p> : !provenanceReady && <p className="viewer-notice" role="status">Original consultable ; son extraction n'est pas encore publiée. Les passages, le sommaire et l'analyse de page seront disponibles après publication de l'extraction. Consultez le Suivi : une extraction partielle peut demander votre accord.</p>}
     {binding.actions.reason && !binding.error && <p className="viewer-notice" role="status">{binding.actions.reason}</p>}
-    {state.source && <div className="source-navigation" role="status"><strong>{state.source.source_id ?? "Passage retrouvé"}</strong><span>{sourcePrecisionLabel(state.source)} · version <span className="mono">{opened.versionId.slice(0, 8)}</span>{binding.revision ? <> · révision <span className="mono">{binding.revision.slice(0, 8)}</span></> : null}</span></div>}
+    {state.source && <div className="source-navigation" role="status"><strong>{state.source.source_id ?? "Passage retrouvé"}</strong><span>{sourcePrecisionLabel(state.source)} · version <span className="mono">{opened.versionId.slice(0, 8)}</span>{binding.revision ? <> · révision <span className="mono">{binding.revision.slice(0, 8)}</span></> : null}</span><ExtractionBadge source={state.source} /></div>}
     {outlineVisible && <nav className="outline" aria-label="Sommaire"><h3>Sommaire</h3>{outline.isLoading ? <p role="status">Chargement du sommaire…</p> : outline.isError ? <p role="alert" className="inline-error">Sommaire indisponible : {errorText(outline.error)}</p> : !outline.data?.sections.length ? <p>{provenanceReady ? "Aucune section extraite pour cette version." : "Le sommaire sera disponible après publication de l'extraction."}</p> :outline.data.sections.map(section => <div key={section.id}><button onClick={() => state.page(section.page_index)}>{section.title}<span>p. {section.page_index + 1}</span></button><Button variant="ghost" size="sm" aria-label={`Analyser la section ${section.title}`} disabled={!binding.actions.allowed} title={binding.actions.reason ?? undefined} onClick={() => { if (binding.actions.allowed) state.setScope({ kind: "section", versionId: opened.versionId, sectionId: section.id }, section.title); }}>Analyser</Button></div>)}</nav>}
     <div className="pdf-scroll" ref={scroll} onScroll={onScroll} data-testid="pdf-scroll" style={{ overflowAnchor: "none" }}>
-      {loadError ? <PanelError title="Lecture de l'original impossible" message={errorText(loadError.error)} onRetry={() => window.location.reload()} retryLabel="Recharger la page" /> : !document ? <PanelLoading label="Chargement de l'original PDF…" /> : <>
+      {loadError ? <PanelError title={loadError.error instanceof PdfJsLoadError ? "Lecteur PDF indisponible" : "Lecture de l'original impossible"} message={errorText(loadError.error)} onRetry={() => window.location.reload()} retryLabel="Recharger la page" /> : !document ? <PanelLoading label="Chargement de l'original PDF…" /> : <>
         <div aria-hidden="true" style={{ height: offsets[visible[0] ?? 0] }} />
         {visible.map(index => <PdfPage key={`${opened.versionId}:${index}`} document={document} versionId={opened.versionId} pageIndex={index} width={width} zoom={state.zoom} rotation={state.rotation} source={state.source} search={search} provenanceReady={provenanceReady} onHeight={heightHandler} />)}
         <div aria-hidden="true" style={{ height: (offsets[pageCount] ?? 0) - (offsets[(visible.at(-1) ?? -1) + 1] ?? 0) }} />

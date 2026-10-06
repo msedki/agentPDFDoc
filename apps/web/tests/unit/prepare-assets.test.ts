@@ -4,9 +4,11 @@
  */
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import test from "node:test";
 import { webRoot } from "./theme-support.ts";
 
@@ -21,8 +23,11 @@ test("assets left by a previous PDF.js copy are removed and never inventoried", 
     assert.match(output, /PDF\.js \d+\.\d+\.\d+: \d+ local assets prepared/);
     assert.equal(existsSync(join(destination, "wasm", "ancien-module.wasm")), false);
     assert.equal(existsSync(join(destination, "pdf.worker.ancien.mjs")), false);
-    const manifest = JSON.parse(readFileSync(join(destination, "manifest.json"), "utf8")) as { files: { path: string }[] };
+    const manifest = JSON.parse(readFileSync(join(destination, "manifest.json"), "utf8")) as { files: { path: string; sha256: string }[] };
     assert.ok(manifest.files.some(file => file.path === "pdf.worker.min.mjs"));
+    // Le module principal chargé par src/lib/pdfjs.ts est la copie exacte du build minifié de la version installée.
+    const installed = readFileSync(join(dirname(createRequire(join(webRoot, "package.json")).resolve("pdfjs-dist/package.json")), "build/pdf.min.mjs"));
+    assert.equal(manifest.files.find(file => file.path === "pdf.min.mjs")?.sha256, createHash("sha256").update(installed).digest("hex"));
     assert.deepEqual(manifest.files.filter(file => /ancien/.test(file.path)), []);
   } finally {
     rmSync(destination, { recursive: true, force: true });

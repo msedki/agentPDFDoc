@@ -1,6 +1,7 @@
 import asyncio
 import hashlib
 import json
+import logging
 import os
 import secrets
 import sqlite3
@@ -25,11 +26,31 @@ from .jobs import JobSupervisor
 from .ollama import OllamaGateway
 from .query import QueryService
 from .reconcile import Reconciler
-from .retrieval import QdrantStore, SearchService
+from .retrieval import DenseCoverage, QdrantStore, SearchService
 from .schemas import DocumentMove, EvaluationContextRequest, QueryRequest, RuntimeMode
-from .scope import ScopeResolver
+from .scope import ScopeResolver, with_extraction_provenance
 from .security import LINK_HELP, SecurityPolicy, SessionRegistry, cookie_attributes
 from .settings import Settings
+
+logger = logging.getLogger("rag.api")
+
+
+def log_dense_coverage(task):
+    """Journal du service : état dense établi au démarrage, sans nom de document (R26-IDX-02) ; toute exception est consignée."""
+    if task.cancelled():
+        return
+    error = task.exception()
+    if error is not None:
+        logger.error("Couverture dense non établie au démarrage : %s: %s", type(error).__name__, error)
+        return
+    status = task.result()
+    if status["state"] == "dense_migration_incomplete":
+        cause = "collection de l'identité dense courante absente" if status["collection"] == "absent" else "identité dense courante"
+        logger.warning("Recherche sémantique incomplète (%s) : %d document(s) à réindexer "
+                       "(liste dans /api/v1/readiness, champ documents_to_reindex).", cause, len(status["documents"]))
+    elif status["state"] == "unverifiable":
+        logger.warning("Couverture dense non vérifiée au démarrage (%s).", status["error_code"])
+
 
 # Accessibles sans session : sondes de disponibilité et échange du lien d'ouverture ; la déconnexion contrôle elle-même son CSRF.
 PUBLIC_PATHS = frozenset({"/api/v1/health", "/api/v1/readiness", "/api/v1/session/open", "/api/v1/session/logout"})
@@ -86,7 +107,9 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
                 await governor.readmit_generation(await release_before_cold_load(cold))
             ollama.before_cpu_fallback = before_cpu_fallback
     resolver = ScopeResolver(db)
-    search = SearchService(db, resolver, embedding, vectors, settings)
+    # Couverture dense de l'identité courante (R26-IDX-02) : avertissement de recherche et état nommé de /readiness.
+    dense_coverage = DenseCoverage(db, vectors)
+    search = SearchService(db, resolver, embedding, vectors, settings, dense=dense_coverage)
     indexer = Indexer(db, embedding, vectors, settings, tokenizer)
     queries = QueryService(db, resolver, search, ContextBuilder(settings, tokenizer), ollama, settings, governor)
     jobs = JobSupervisor(db, indexer, settings, governor, ingestion_runner)
@@ -98,12 +121,19 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     async def lifespan(application):
         db.initialize()
         (settings.data_dir / "originals").mkdir(parents=True, exist_ok=True)
+        coverage_task = None
         if start_jobs:
             if governor is None:
                 raise RuntimeError("ResourceGovernor requis pour l'exécution applicative.")
             jobs.start()
             reconciler.start()
+            # État établi au démarrage, sans retarder la disponibilité de l'API ; relu ensuite à chaque consultation.
+            coverage_task = asyncio.create_task(dense_coverage.status())
+            coverage_task.add_done_callback(log_dense_coverage)
         yield
+        if coverage_task is not None:
+            coverage_task.cancel()
+            await asyncio.gather(coverage_task, return_exceptions=True)
         await queries.close()
         await jobs.close()
         await reconciler.close()
@@ -123,6 +153,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     application.state.queries = queries
     application.state.jobs = jobs
     application.state.search = search
+    application.state.dense_coverage = dense_coverage
     application.state.reconciler = reconciler
     application.state.sessions = sessions
     application.state.mutations_paused = False
@@ -406,7 +437,13 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         except Exception:
             pass
         blockers.extend(key + "_not_ready" for key, ready in checks.items() if not ready)
-        return JSONResponse({"status": "ready" if all(checks.values()) else "blocked", "checks": checks, "blockers": blockers, "qdrant_collection": collection_state},
+        # Couverture dense (R26-IDX-02) : état nommé, jamais bloquant ; identifiants seuls, les noms restent derrière la session.
+        if collection_state in {"present", "absent_with_published_generations", "absent_empty_library"}:
+            dense = await dense_coverage.status(collection_absent=collection_state != "present")
+        else:
+            dense = {"state": "unverifiable", "documents": []}
+        return JSONResponse({"status": "ready" if all(checks.values()) else "blocked", "checks": checks, "blockers": blockers, "qdrant_collection": collection_state,
+                             "dense_index": dense["state"], "documents_to_reindex": [item["document_id"] for item in dense["documents"]]},
                             status_code=200 if all(checks.values()) else 503)
 
     def document_rows(where="d.deleted_at IS NULL", parameters=(), limit=100, offset=0):
@@ -627,7 +664,8 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         if not row:
             raise ApiError("citation_not_found", "Citation inconnue.", 404)
         db.version(row["version_id"])
-        return json.loads(row["source_json"])
+        # Citation enregistrée avant R26 : provenance lue `unknown`, jamais `native` ; la ligne stockée reste inchangée.
+        return with_extraction_provenance(json.loads(row["source_json"]))
 
     def generation_device():
         """Matériel de la génération pour l'atelier (W025 P7), sur une route authentifiée relue toutes les 3 s :
@@ -720,7 +758,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
                 "llm_accelerator": ollama.describe() if hasattr(ollama, "describe") else {"status": "explicit_test_substitute"},
                 "profile_sha256": hashlib.sha256(json.dumps(settings.profile, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest(),
                 "reconciliation": {"staged": reconciler.inspect(), "pending_cleanup": db.one("SELECT count(*) AS n FROM vector_cleanup WHERE state='pending'")["n"]},
-                "index_consistency": await index_consistency()}
+                "index_consistency": await index_consistency(), "dense_coverage": await dense_coverage.status()}
 
     async def index_consistency():
         """Chaque génération active doit avoir dans Qdrant exactement autant de points que de fragments dans SQLite."""

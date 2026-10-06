@@ -5,9 +5,9 @@
  */
 import { expect, test, type APIRequestContext } from "@playwright/test";
 import { readFileSync } from "node:fs";
-import path from "node:path";
+import { e2eTarget } from "./target.ts";
 
-const tokenFile = process.env.RAG_E2E_CONTROL_TOKEN_FILE ?? path.resolve(process.cwd(), "../../.runtime/data/control/admin-token");
+const tokenFile = e2eTarget().tokenFile;
 
 async function openingLink(request: APIRequestContext): Promise<string> {
   const response = await request.post("/api/v1/admin/session-links", { headers: { "X-RAG-Control-Token": readFileSync(tokenFile, "ascii").trim() } });

@@ -598,3 +598,24 @@ test("reader title CSS guard: ellipsis is restricted to the reader heading, not 
   assert.match(css, /\.viewer-title\s*>\s*div\s*>\s*h2\s*\{[^}]*text-overflow:\s*ellipsis/);
   assert.match(css, /\.confirm-dialog h2 > svg\s*\{[^}]*flex-shrink:\s*0/);
 });
+
+test("real React render of warning notices: only a registered source becomes a button, unknown IDs stay text", () => {
+  const WarningNotices = loadFunction("components/analysis-panel.tsx", "WarningNotices", {
+    React, Fragment: React.Fragment, citationTitle: (source: { source_id: string }) => `Ouvrir ${source.source_id}`,
+  }) as React.ComponentType<Record<string, unknown>>;
+  const notices = [
+    { key: "a", text: "Message du service.", sourceIds: ["S001", "S009"], values: [] },
+    { key: "b", text: "Valeurs.", sourceIds: [], values: [{ value: "7.5 bar", citedSourceIds: ["S001"], holderSourceIds: ["S009"] }, { value: "8 %", citedSourceIds: [], holderSourceIds: [] }] },
+  ];
+  const sources = [{ source_id: "S001", document_id: "d", version_id: "v", text: "t" }];
+  // renderToString sépare deux textes adjacents par « <!-- --> » : retiré pour lire le texte rendu.
+  const html = renderToString(React.createElement(WarningNotices, { notices, sources, onSource: () => undefined })).replaceAll("<!-- -->", "");
+  assert.equal((html.match(/<button type="button" class="inline-citation"[^>]*>S001<\/button>/g) ?? []).length, 2);
+  assert.doesNotMatch(html, /<button[^>]*>S009/);
+  assert.match(html, /<span class="mono">S009<\/span>/);
+  assert.match(html, /<span class="mono">7\.5 bar<\/span> · phrase ou puce citant <button[^>]*>S001<\/button> · présente dans <span class="mono">S009<\/span>/);
+  assert.match(html, /<span class="mono">8 %<\/span> · phrase ou puce sans citation/);
+  assert.equal((html.match(/Message du service\./g) ?? []).length, 1);
+  // Sans action d'ouverture (recherche), aucun identifiant n'est cliquable.
+  assert.doesNotMatch(renderToString(React.createElement(WarningNotices, { notices, sources })), /<button/);
+});

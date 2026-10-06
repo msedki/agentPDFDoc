@@ -36,6 +36,8 @@ export interface Block {
   id: string; version_id?: string; page_index: number; type?: string; kind?: string; text: string;
   raw_text?: string; bbox?: Bbox | null; precision: Precision; section_id?: string | null;
   extraction_revision_id?: string; source_text_hash?: string; source_text_sha256?: string;
+  /** Méthode d'extraction du bloc dans une source ou une citation (contrat R26) ; absente = inconnue. */
+  extraction_method?: string;
   metadata?: { extraction_method?: "native" | "ocr" | "mixed" | "unknown"; ocr_used?: boolean; ocr_spans?: { start_offset: number; end_offset: number; bbox: Bbox; precision: "span" }[]; [key: string]: unknown };
   spans?: { start_offset: number; end_offset: number; bbox?: Bbox }[];
 }
@@ -55,6 +57,8 @@ export interface Source {
   label?: string | null; block_ids?: string[]; text: string; bboxes?: Bbox[]; precision?: Precision;
   blocks?: Block[];
   citation_url?: string; warnings?: ApiWarning[];
+  /** Méthodes d'extraction des blocs de la source (native, ocr, mixed, unknown) ; absentes avant R26 = inconnues. */
+  extraction_methods?: string[];
 }
 export interface SearchResult { source?: Source; source_id?: string; score?: number; text?: string; [key: string]: unknown }
 export interface SearchResponse { results: (Source | SearchResult)[]; warnings: ApiWarning[]; scope_snapshot: unknown; elapsed_ms: number }

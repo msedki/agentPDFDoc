@@ -88,3 +88,23 @@ test("les positions incohérentes avec le repère de la page sont décrites, ave
     assert.doesNotMatch(text, /GEOMETRY_|COORDINATE_|sans description/);
   }
 });
+
+test("une faible confiance OCR désigne les mots ou cellules signalés sans laisser croire que les autres sont exacts", () => {
+  // R26 : sur la fixture DA-P02, l'OCR rend « + » pour « ± », « N-m » pour « N·m », « DA-PO2 » et « CCO » sans
+  // OCR_WORD_LOW_CONFIDENCE, alors que des « DA-P02 » corrects sont signalés. Codes émis sans message par
+  // services/ingestion/docling_adapter.py : le texte affiché est celui de l'interface.
+  const texts = groupedWarningTexts([
+    { code: "OCR_WORD_LOW_CONFIDENCE", page_index: 0, count: 2, minimum_confidence_required: 0.8 },
+    { code: "OCR_CELL_LOW_CONFIDENCE", page_index: 2 },
+  ]);
+  assert.equal(texts.length, 2);
+  assert.match(texts[0], /^Mots lus par OCR avec une faible confiance, page 1 : vérifiez ces mots sur la page originale/);
+  assert.match(texts[1], /^Cellules de tableau lues par OCR avec une faible confiance, page 3 : vérifiez ces cellules sur la page originale/);
+  assert.match(texts[0], /L'absence d'alerte ne garantit pas que les autres mots soient exacts : /);
+  assert.match(texts[1], /L'absence d'alerte ne garantit pas que les autres cellules soient exactes : /);
+  for (const text of texts) {
+    assert.match(text, /signes, unités et références peuvent être mal lus \(± lu \+, N·m lu N-m, 0 lu O\)\.$/);
+    assert.equal(text.match(/page originale/g)?.length, 1, "la page originale n'est nommée qu'une fois");
+    assert.doesNotMatch(text, /LOW_CONFIDENCE|sans description|fiable|sont exact/);
+  }
+});

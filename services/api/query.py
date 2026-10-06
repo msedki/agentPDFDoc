@@ -7,10 +7,11 @@ from typing import Any
 
 from services.runtime.platforms import launcher_command
 
+from .claims import answer_warnings
 from .context import validate_answer
 from .db import json_dump, now, uid
 from .errors import ApiError
-from .retrieval import identifiers
+from .retrieval import identifiers, ocr_evidence_warnings
 
 
 @asynccontextmanager
@@ -202,6 +203,8 @@ class QueryService:
                         metrics["context_ms"] = round((time.perf_counter() - context_started) * 1000, 2)
                         warnings.extend(context_warnings)
                         sources = self.register_sources(query_id, retained)
+                        # Provenance OCR des seules sources transmises au modèle : remplace celle des passages de la recherche.
+                        warnings = [warning for warning in warnings if warning.get("code") != "ocr_evidence"] + ocr_evidence_warnings(sources)
                     else:
                         messages = []
                     self.db.add_event(query_id, "sources", {"sources": sources})
@@ -267,6 +270,9 @@ class QueryService:
                                     "ttft_ms": round((first_token_at - started) * 1000, 2) if first_token_at else None})
                     cited_ids = set(re.findall(r"\[(S\d+)\]", answer))
                     citations = [source for source in sources if source["source_id"] in cited_ids]
+                    if metrics.get("model_called") and sources:
+                        # Signaux seulement (R26-ANS-01/02) : texte, citations et événements déjà émis restent inchangés.
+                        warnings.extend(answer_warnings(answer, sources, request.question))
                     with self.db.transaction() as connection:
                         connection.execute("UPDATE query_runs SET state=?,answer=?,warnings_json=?,metrics_json=?,updated_at=? WHERE id=?", (state, answer, json_dump(warnings), json_dump(metrics), now(), query_id))
                         conversation_id = connection.execute("SELECT conversation_id FROM query_runs WHERE id=?", (query_id,)).fetchone()[0]

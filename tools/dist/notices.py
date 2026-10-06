@@ -42,8 +42,19 @@ def artifact_rows(lock: dict[str, Any], files: list[str], platform: str = "windo
     return list(rows.values())
 
 
-def third_party_notices(root: Path, files: list[str], version: str, platform: str = "windows-x86_64") -> str:
-    lock = json.loads((root / "config/artifacts.lock.json").read_text(encoding="utf-8"))
+# Manques propres aux kits Linux (R26-KIT-01) : constatés sur le contenu livré, non résolus par le kit.
+LINUX_GAPS = ("texte de licence d'uv absent : `bootstrap.sh` n'extrait que les exécutables `uv` et `uvx` de l'archive officielle",
+              "Tesseract et Leptonica construits depuis les sources verrouillées et liés aux bibliothèques du système "
+              "(libjpeg, libpng, libtiff, zlib…), non livrées : leurs licences relèvent de la distribution du poste")
+JETPACK5_GAP = ("conditions de licence NVIDIA (CUDA 11.4, cuBLAS) des bibliothèques du complément JetPack 5 d'Ollama "
+                "(`lib/ollama/cuda_jetpack5`), livrées sans texte de licence propre")
+
+
+def third_party_notices(root: Path, files: list[str], version: str, platform: str = "windows-x86_64", *,
+                        lock: dict[str, Any] | None = None, gpu: str | None = None) -> str:
+    """`lock` : verrou lu dans le commit du kit (kit Linux) ; à défaut, celui de l'arbre de travail (kit Windows)."""
+    if lock is None:
+        lock = json.loads((root / "config/artifacts.lock.json").read_text(encoding="utf-8"))
     rows = artifact_rows(lock, files, platform)
     lines = [f"# Avis de tiers — Atelier documentaire {version}", "",
              "Composants livrés par ce kit, avec la licence déclarée par le verrou du projet (`config/artifacts.lock.json`) et les textes "
@@ -54,7 +65,8 @@ def third_party_notices(root: Path, files: list[str], version: str, platform: st
     for row in rows:
         texts = "<br>".join(f"`{name}`" for name in row["texts"]) or "aucun"
         lines.append(f"| {row['component']} | {row['version']} | {row['publisher']} | {row['license']} | {row['source']} | {texts} |")
-    bundled = {"CPython (python-build-standalone)": ".runtime/python", "uv": ".runtime/bootstrap", "Tesseract (copie locale)": ".runtime/bin/tesseract-5.4.0",
+    tesseract = "Tesseract et Leptonica (construits depuis les sources)" if platform.startswith("linux") else "Tesseract (copie locale)"
+    bundled = {"CPython (python-build-standalone)": ".runtime/python", "uv": ".runtime/bootstrap", tesseract: ".runtime/bin/tesseract-5.4.0",
                "Interface (PDF.js et paquets regroupés)": "apps/web/out"}
     for name, prefix in bundled.items():
         present = license_files(files, prefix)
@@ -70,4 +82,6 @@ def third_party_notices(root: Path, files: list[str], version: str, platform: st
               "absent des archives officielles ; licences des DLL tierces de la copie Tesseract ; titulaire du copyright d'E5 ; textes "
               "Apache-2.0 de Docling Heron et CDLA-Permissive-2.0 de TableFormer à joindre ; avis des paquets npm regroupés dans les "
               "scripts de l'interface ; conditions NVIDIA des bibliothèques CUDA d'Ollama tant qu'elles sont livrées (P3)."]
+    if platform.startswith("linux"):
+        lines += ["", "Manques propres au kit Linux :", ""] + [f"- {gap}." for gap in (*LINUX_GAPS, *((JETPACK5_GAP,) if gpu == "jetpack5" else ()))]
     return "\n".join(lines) + "\n"

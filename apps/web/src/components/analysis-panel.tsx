@@ -6,16 +6,18 @@ import { api } from "@/lib/api";
 import { connectQueryStream } from "@/lib/stream";
 import { sourcePage } from "@/lib/selection";
 import { useWorkspace } from "@/lib/store";
-import { mergeQueryWarnings, queryWarningTexts, warningText } from "@/lib/warnings";
+import { mergeQueryWarnings, warningNotices, type WarningNotice } from "@/lib/warnings";
 import { answerBlocks, type Inline } from "@/lib/answer-format";
 import { citationParts, citedSourceIds } from "@/lib/citations";
 import { tabKeyTarget } from "@/lib/keyboard";
 import { sourceLocalization } from "@/lib/source-location";
+import { withExtractionLabel } from "@/lib/extraction-provenance";
 import { queryStatus } from "@/lib/status";
 import { unindexedInScope, unindexedSentence } from "@/lib/panel-state";
 import type { LibraryTree, QueryState, Scope, SearchResponse, Source, StreamEvent } from "@/lib/types";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { ExtractionBadge } from "./extraction-badge";
 import { ErrorText, type Failure } from "./ui/error-text";
 import { PanelEmpty, PanelHeader } from "./ui/panel";
 import { StatusIndicator } from "./ui/status-indicator";
@@ -26,7 +28,7 @@ const analysisTabs = [{ id: "question", label: "Question", Icon: MessageSquare }
 
 function CitedSegment({ text, sources, onCitation }: { text: string; sources: Source[]; onCitation: (source: Source) => void }) {
   return citationParts(text, sources).map((part, index) => part.kind === "text" ? <span key={index}>{part.text}</span>
-    : part.kind === "citation" ? <button className="inline-citation" key={index} onClick={() => onCitation(part.source)} title={`Ouvrir ${part.source.name ?? part.source.document_name}, page ${sourcePage(part.source) + 1}`}>{part.id}</button>
+    : part.kind === "citation" ? <button className="inline-citation" key={index} onClick={() => onCitation(part.source)} title={citationTitle(part.source)}>{part.id}</button>
     : <span className="invalid-citation" key={index} title="Cette référence n'est pas enregistrée dans les sources de la réponse : elle n'ouvre aucun passage.">{part.text} (référence inconnue)</span>);
 }
 
@@ -40,13 +42,30 @@ export function CitationText({ text, sources, onCitation }: { text: string; sour
     : <p key={index}>{block.lines.map((segments, position) => <Fragment key={position}>{position > 0 && <br />}{line(segments)}</Fragment>)}</p>)}</div>;
 }
 
+/** Titre d'un lien vers une source enregistrée : document, page et méthode d'extraction à vérifier. */
+function citationTitle(source: Source) { return withExtractionLabel(`Ouvrir ${source.name ?? source.document_name}, page ${sourcePage(source) + 1}`, source); }
+
+/**
+ * Avis d'une recherche ou d'une réponse : texte contrôlé, puis valeurs et sources signalées. Une source
+ * enregistrée s'ouvre comme une citation ; un identifiant inconnu reste du texte.
+ */
+function WarningNotices({ notices, sources = [], onSource }: { notices: WarningNotice[]; sources?: Source[]; onSource?: (source: Source) => void }) {
+  const reference = (id: string) => { const source = sources.find(item => item.source_id === id); return source && onSource ? <button type="button" className="inline-citation" onClick={() => onSource(source)} title={citationTitle(source)}>{id}</button> : <span className="mono">{id}</span>; };
+  const references = (ids: string[]) => ids.map((id, index) => <Fragment key={id}>{index > 0 && ", "}{reference(id)}</Fragment>);
+  return notices.map(notice => <div className="inline-warning" key={notice.key}><div>
+    <p>{notice.text}</p>
+    {notice.values.length > 0 && <ul className="warning-values">{notice.values.map((item, index) => <li key={index}><span className="mono">{item.value}</span> · {item.citedSourceIds.length ? <>phrase ou puce citant {references(item.citedSourceIds)}</> : "phrase ou puce sans citation"}{item.holderSourceIds.length > 0 && <> · présente dans {references(item.holderSourceIds)}</>}</li>)}</ul>}
+    {notice.sourceIds.length > 0 && <p>Sources concernées : {references(notice.sourceIds)}</p>}
+  </div></div>);
+}
+
 /** Carte de source : identifiant, document, page, précision, extrait de trois lignes et une seule action. */
 export function SourceCard({ source, onOpen }: { source: Source; onOpen: () => void }) {
   const titleId = useId();
   const page = sourcePage(source) + 1;
   const location = sourceLocalization(source);
   return <article className="source-card" data-testid="source-card" aria-labelledby={titleId}>
-    <div className="source-card-meta"><span className="source-id">{source.source_id ?? "Passage"}</span>{location.family !== "unlocated" && <span className="tabular">p. {page}{source.label && source.label !== String(page) ? ` · folio ${source.label}` : ""}</span>}<Badge tone={location.tone}>{location.label}</Badge></div>
+    <div className="source-card-meta"><span className="source-id">{source.source_id ?? "Passage"}</span>{location.family !== "unlocated" && <span className="tabular">p. {page}{source.label && source.label !== String(page) ? ` · folio ${source.label}` : ""}</span>}<Badge tone={location.tone} title={location.title}>{location.label}</Badge><ExtractionBadge source={source} /></div>
     <h3 className="source-card-title" id={titleId}>{source.name ?? source.document_name ?? "Document sans nom"}</h3>
     <p className="source-card-excerpt">{source.text}</p>
     <div className="source-card-footer"><span title={source.version_id}>version <span className="mono">{source.version_id.slice(0, 8)}</span></span><Button type="button" variant="secondary" size="sm" onClick={onOpen} aria-describedby={titleId}><ArrowUpRight size={16} />Ouvrir le passage</Button></div>
@@ -156,7 +175,7 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
     <div className="scope-summary" data-testid="scope-summary"><span className="eyebrow">Périmètre actif</span><strong>{state.scopeLabel}</strong>{state.scope.kind === "selection" && <span>{state.scope.spans.length === 1 ? "1 passage référencé" : `${state.scope.spans.length} passages référencés`}</span>}</div>
     <div className="analysis-history" ref={history} role="tabpanel" id="analysis-tabpanel" aria-labelledby={`analysis-tab-${tab}`} tabIndex={0}>
       {tab === "search" && search && searchScope && <p className="result-count">Périmètre de cette recherche : {searchScope.label}</p>}
-      {tab === "search" ? search ? <div className="search-results"><p className="result-count tabular">{passagesFound(search.results.length)} · {Math.round(search.elapsed_ms)} ms</p>{search.warnings?.map((warning, index) => <p className="inline-warning" key={index}>{warningText(warning)}</p>)}{!search.results.length && (searchScope?.unindexed
+      {tab === "search" ? search ? <div className="search-results"><p className="result-count tabular">{passagesFound(search.results.length)} · {Math.round(search.elapsed_ms)} ms</p><WarningNotices notices={warningNotices(search.warnings ?? [])} />{!search.results.length && (searchScope?.unindexed
         ? <PanelEmpty reason="index-incomplete" title="Index incomplet pour ce périmètre" description={`Aucun passage retrouvé dans les documents déjà indexés. ${unindexedSentence(searchScope.unindexed)}. Consultez le Suivi pour vérifier leur état et les actions possibles, puis relancez la recherche lorsqu'ils sont interrogeables.`} />
         : <PanelEmpty reason="no-match" title="Aucun passage retrouvé" description="La recherche n'a retrouvé aucun passage dans ce périmètre. Une recherche sans résultat ne prouve pas l'absence de l'information : reformulez ou élargissez le périmètre." />)}{search.results.map((result, index) => { const source = ("source" in result && result.source ? result.source : result) as Source; return source.version_id ? <SourceCard key={`${source.source_id}:${index}`} source={source} onOpen={() => openSource(source, source.query_id)} /> : <p key={index} className="inline-warning">Ce résultat ne désigne aucune version de document : il ne peut pas être ouvert dans le lecteur.</p>; })}</div>
         : <PanelEmpty reason="not-started" icon={<Search size={32} strokeWidth={1.5} aria-hidden="true" />} title="Retrouver un passage" description="Recherchez un code, une expression ou une notion dans le périmètre actif. La recherche lit l'index sans appeler le modèle de réponse." />
@@ -166,7 +185,7 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
         {query.text && <CitationText text={query.text} sources={query.sources} onCitation={source => openSource(source, query.id)} />}
         {query.error && <p className="inline-error" role="alert"><CircleAlert size={14} aria-hidden="true" />{query.error}</p>}
         {["cancelled", "interrupted"].includes(query.status) && <p className="inline-warning">Cette réponse est incomplète : elle a été annulée ou interrompue avant la fin.</p>}
-        {queryWarningTexts(query.warnings, query.finishReason).map((text, index) => <p className="inline-warning" key={index}>{text}</p>)}
+        <WarningNotices notices={warningNotices(query.warnings, query.finishReason)} sources={query.sources} onSource={source => openSource(source, query.id)} />
         {!!query.sources.length && <details className="sources-list" open><summary><Check size={14} aria-hidden="true" />{query.sources.length === 1 ? "1 source consultable" : `${query.sources.length} sources consultables`}</summary>{query.sources.map(source => <SourceCard key={source.source_id} source={source} onOpen={() => openSource(source, query.id)} />)}</details>}
       </article>)}
     </div>
