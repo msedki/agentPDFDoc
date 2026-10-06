@@ -1,8 +1,14 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `ff2a468` et entrées datées · **Mis à jour :** 2026-10-06 00:17 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `e28e299` et entrées datées · **Mis à jour :** 2026-10-06 01:03 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Réutilisation de la préparation complète](2026-10-06.md#r23-ocr-03--réutilisation-de-la-préparation-complète) :
+25 tests ciblés et relecture conformes ; premier parent refusé avant enfant
+sur des liens temporaires pytest, puis G2 fermé avec train/export et
+400 évaluations par bras : candidat refusé sur les deux signes scientifiques.
+811 identités absentes, verrou libéré et nominal conservé ; pas d'adoption.
 
 [Correctif CLI et ordre des exemples](2026-10-06.md#r23-ocr-03--correctif-cli-et-ordre-des-exemples) :
 34 tests ciblés, lint/typage et relecture non-auteur conformes ; vue vérifiée

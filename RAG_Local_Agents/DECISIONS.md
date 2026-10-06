@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `255c0f4` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-05 23:56 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `e28e299` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 01:03 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -626,6 +626,49 @@ budgets et contrôle de progression positive. Aucun volume supplémentaire
 ni nouvelle campagne justifiés. Une nouvelle exécution nécessite sa propre
 admission, pas une relance sur cet échec. Sources et limites :
 [S09, diagnostic CLI et ordre](SOURCES.md#diagnostic-cli-et-ordre-des-exemples--5-octobre-2355-utc).
+
+### Réutilisation de la préparation complète — 6 octobre, 00:46 UTC
+
+**Statut :** admissions techniques ROOT distinctes ; résultats G/G2 clos
+ci-dessous, aucune adoption.
+
+Réutiliser les entrées complètes de L en lecture seule évite une nouvelle
+génération des 2 000 exemples. Leur admission contrôle provenance, octets,
+sémantiques et listes ; l'échec historique et son checkpoint restent exclus
+de toute reprise. Le train continue le réseau officiel épinglé, avec le
+proto étendu comme `traineddata` et la vue interlacée corrigée.
+
+Bundle G `r23-prepared-reuse-20261006-7d9mEw`, reçu fermé SHA-256
+`4bb527b9054b57c83a7870d24cec744d1cd5efe662d2c63535fd84b39cc70f07` ;
+25 tests PASS, Ruff/mypy conformes. Revue finale non-auteur
+`GO_SOURCE_PREPARED_REUSE_ONLY` acceptée ROOT. Préflight frais `04a808`
+conforme à 00:46:14 UTC : pins, six sorties absentes, ressources et verrou.
+
+Admettre une seule invocation de `root-source/run_pilot_latched.py`,
+avec les chemins et pins exacts du reçu. Le parent conserve verrou,
+supervision, stages 900/1800/900 s et réserves ; writers limités à G.
+Pas de régénération, de réduction des critères, d'adoption nominale ou
+de relance automatique. [Exécution et résultat](journal/2026-10-06.md#r23-ocr-03--réutilisation-de-la-préparation-complète).
+
+**Résultat G :** parent refusé avant enfant à 00:47:10 UTC, deux liens
+temporaires pytest présents dans sa cible de scan. Aucun apprentissage.
+Préparer une QA native neuve sans fixtures de tests, sans supprimer les
+preuves G ni changer les protections ; son raccord seul devra être relu.
+Une nouvelle exécution exigera une admission ROOT distincte.
+
+**Admission G2 — 00:53 UTC :** QA native neuve
+`r23-prepared-reuse-clean-20261006-Gl8aYc`, sans fixtures ; sept pièces
+strictement dérivées de G par les seuls littéraux de racine et pins.
+Avis indépendant `GO_SOURCE_CLEAN_REUSE_ONLY` accepté, scanner original
+conforme et préflight ROOT `a6f53c` frais conforme. Admettre une invocation
+du parent exact du reçu `b49409bf…`, sans modifier scanner, critères,
+budgets ou supervision. Cette admission ne reprend pas celle échouée de G.
+
+**Résultat G2 — 01:00:12 UTC :** apprentissage, export et évaluation exécutés,
+mais candidat refusé sur `signs_by_size` ; aucun signe reconnu dans les
+évaluations, malgré le CER global conforme. Conserver ce résultat négatif
+et le modèle nominal. Aucune adoption ou relance déduite des commandes
+EXIT0 ; prochain travail limité au diagnostic des deux classes.
 
 ### Correction CLI et ordre — 6 octobre, 00:17 UTC
 

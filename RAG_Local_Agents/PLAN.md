@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `ff2a468` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 00:17 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `e28e299` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 01:03 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -9,6 +9,29 @@
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R23-OCR-03 — essai sur préparation réutilisée fermé le 6 octobre à 01:00 UTC, candidat refusé.**
+Raccord privé G fermé : 25 tests PASS, Ruff/mypy conformes et avis
+indépendant `GO_SOURCE_PREPARED_REUSE_ONLY` accepté. La préparation L
+complète reste une entrée immuable ; checkpoint échoué exclu, sorties G
+neuves, superviseur et critères inchangés. Préflight ROOT frais conforme.
+Admission limitée à une invocation du parent existant, avec revalidation
+des entrées sous verrou, puis train/export/évaluation. Aucun gain ou
+succès natif anticipé ; aucune suite frontend inchangée rejouée.
+Cette invocation s'est fermée avant enfant à 00:47:10 UTC : le scanner
+refuse deux liens de répertoire temporaire créés par pytest dans G.
+Pas d'OCR lancé dans G. QA native G2 sans fixtures, raccord relu et
+préflight/admission distincts conformes ; passage fermé en 387,158 s.
+Préparation réutilisée sans régénération ; train réel 323/500/500, export
+et 400 évaluations par bras exécutés. 810 commandes EXIT0, mais critère
+scientifique refusé : aucun « ± » ou « · » reconnu, aux deux tailles.
+CER global candidat 1,54 %, non-régression conforme : ces succès ne
+valident pas les signes. Modèle nominal conservé, aucune adoption ni
+clôture D02/R23 déduite. Résultat et arrêt corroborés indépendamment.
+Prochaine action nécessaire : diagnostic ciblé de l'apprentissage et du
+décodage des deux classes, avant toute proposition de nouvel essai ; ne
+pas augmenter le corpus, répéter les tests verts ou abaisser les critères.
+[Admission et preuves](journal/2026-10-06.md#r23-ocr-03--réutilisation-de-la-préparation-complète).
 
 **R23-OCR-03 — correctif CLI et ordre, source/tests validés le 6 octobre.**
 Booléens train/export corrigés ; vue d'apprentissage interlacée par groupes,
