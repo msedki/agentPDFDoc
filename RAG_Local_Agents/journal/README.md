@@ -1,8 +1,14 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `405de69` et entrées datées · **Mis à jour :** 2026-10-06 02:24 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `cd4c3d5` et entrées datées · **Mis à jour :** 2026-10-06 02:39 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Discriminant de langue P02](2026-10-06.md#discriminant-de-langue-p02--préparation-distincte) :
+un essai `fra` seul, refus relu indépendamment. Signes rétablis, quatre
+références toujours erronées et trois références du tableau dégradées ;
+1/5 faits exacts, douze régions faibles. Profil bilingue conservé, aucun
+modèle adopté ni nouvel apprentissage ; diagnostic ciblé des sorties.
 
 [P02 avec le candidat isolé](2026-10-06.md#r23-ocr-01--p02-avec-le-candidat-isolé) :
 une extraction réelle des deux pages, worker EXIT0 mais contrôle FAILED ;

@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `405de69` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 02:24 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `cd4c3d5` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 02:39 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -753,6 +753,26 @@ Conserver le candidat en QA et le modèle nominal inchangé. Le pilote de
 lignes ne vaut pas qualification PDF ; diagnostic sur les sorties existantes
 avant toute correction ciblée, sans corpus accru ni nouveaux seuils.
 [Admission et résultats](journal/2026-10-06.md#r23-ocr-01--p02-avec-le-candidat-isolé).
+
+### Discriminant de langue P02 — 6 octobre, 02:35 UTC
+
+**Statut :** invocation unique fermée en refus à 02:37:18 UTC et relue ;
+profil bilingue conservé, aucune adoption ni relance automatique.
+
+L'écart `fra` du pilote / `fra+eng` en ingestion motive un seul essai,
+pas une grille de paramètres. Réutiliser le témoin P02 gelé dans une QA
+neuve, avec seulement le dossier tessdata isolé et les langues `[fra]`.
+Même PDF, candidat, moteur, seuils et oracles ; supervision et fermeture
+conservées. Quatre tests du seul raccord et relecture indépendants conformes,
+préflight frais accepté ; admission ROOT distincte du reçu `00de8049…`.
+Aucun apprentissage ni changement nominal. Même un PASS ne qualifiera
+pas le profil bilingue ; conclure à partir des sorties réelles avant toute
+correction. L'essai rétablit les deux signes mais conserve quatre références
+erronées et dégrade les trois références du tableau ; douze régions faibles,
+un seul fait complet exact. Le passage global à `fra` seul est donc écarté.
+Les langues affectent les signes ; la cause des défauts restants n'est pas
+établie. Aucun réglage supplémentaire ou apprentissage automatique admis.
+[Admission et résultats](journal/2026-10-06.md#discriminant-de-langue-p02--préparation-distincte).
 
 ### Correction CLI et ordre — 6 octobre, 00:17 UTC
 
