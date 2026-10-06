@@ -1,8 +1,13 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `a4c2029` et entrées datées · **Mis à jour :** 2026-10-06 05:50 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `0821b22` et entrées datées · **Mis à jour :** 2026-10-06 06:25 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Texte complet des citations QLONG](2026-10-06.md#r15-3-q10--couverture-des-passages-entiers) :
+un essai ciblé PASS, 40 régions distinctes couvertes, arrêt et conservation
+conformes, revue finale indépendante favorable. Ni nouveau corpus ni build
+produit ; D06.5 global reste ouvert.
 
 [Discriminant des lignes P02 refusé](2026-10-06.md#r23-ocr-01--discriminant-des-lignes-réelles) :
 onze lignes réelles, mêmes pixels et poids, douze appels en 13 secondes ;

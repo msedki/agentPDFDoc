@@ -1,6 +1,6 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `a4c2029` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 05:50 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `0821b22` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 06:25 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## R23OCR-S11 — discriminant de segmentation par lignes
 
@@ -23,6 +23,29 @@ ne peuvent le remplacer. L'essai du 6 octobre à 05:44 UTC refuse cette
 méthode comme correction dans ce périmètre ; aucun pipeline ou modèle
 nominal modifié. Le [journal de l'essai](journal/2026-10-06.md#r23-ocr-01--discriminant-des-lignes-réelles)
 porte les résultats locaux, que les sources officielles ne préjugent pas.
+
+## R15-Q10-S01 — couverture du texte complet d'une citation
+
+Consultation ROOT du 6 octobre 2026, 05:57–05:59 UTC : CSSWG/W3C,
+[CSSOM View §9, Range.getClientRects](https://drafts.csswg.org/cssom-view/#dom-range-getclientrects),
+Editor's Draft du 12 juillet 2026. Les rectangles concernent le texte
+sélectionné, avec transformations ; ils ne prouvent pas sa peinture.
+[Playwright, environnements d'évaluation](https://playwright.dev/docs/evaluating#different-environments)
+impose de passer les arguments au navigateur, sans fermeture sur les imports
+du test ; contrat confronté aux types installés de Playwright 1.63.0.
+[MDN, Range.getClientRects](https://developer.mozilla.org/en-US/docs/Web/API/Range/getClientRects)
+(page du 7 mars 2024), corrobore ce mécanisme.
+Dans PDF.js 6.3.289 installé, `TextLayer.#appendText` ajoute les spans réels
+et un BR pour `hasEOL` ; ne pas inférer les sauts de ligne des bboxes.
+
+Méthode de contrôle Q10 : réconcilier le texte complet de chaque région
+avec la TextLayer native, normaliser seulement les blancs, refuser
+ambiguïté ou contenu manquant et mesurer tous les fragments par Range.
+Comparer aux overlays réellement affichés ; conserver séparément l'encre
+du canvas original et les captures. Aucun taux du corpus global déduit
+d'un seul PDF ni de citations répétées. Essai local effectué sans changement
+produit ; [résultats et limites](journal/2026-10-06.md#r15-3-q10--couverture-des-passages-entiers),
+distincts des contrats documentés par les éditeurs.
 
 ## R15-F05-S01 — stabilité du défilement PDF virtualisé
 

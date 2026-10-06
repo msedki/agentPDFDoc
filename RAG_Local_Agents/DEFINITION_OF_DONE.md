@@ -1,6 +1,6 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `dd527fb` et compléments locaux datés ci-dessous, historique conservé · **Mis à jour :** 2026-10-06 05:12 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `0821b22` et compléments locaux datés ci-dessous, historique conservé · **Mis à jour :** 2026-10-06 06:25 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -386,6 +386,17 @@ conservés. Les cases Windows ci-dessus, D06 global, qualité métier et D07
 ne changent pas. L'ancien relevé D06 du tableau Linux est historique pour
 D06.9 ; ce complément porte son résultat plus récent.
 [Commandes, preuves, empreintes et limites](journal/2026-10-05.md#d069--flux-progressif-reconnexion-et-annulation).
+
+Complément D06.5 Linux du 6 octobre 2026 à 06:24 UTC : **PASS ciblé QLONG**,
+pas une clôture du critère global. Treize citations persistées, huit passages
+distincts ouverts et 40/40 régions couvertes contre le texte natif intégral,
+dont un paragraphe de six lignes. Une seule recette stricte, export produit
+inchangé, aucun import ou appel modèle ; arrêt, conservation et revue finale
+indépendante conformes. Le taux de cet ensemble fermé n'est pas un taux du
+corpus ; folios hors viewport mesurés, pas déclarés visibles. Ni chaque glyphe
+peint, ni RenderTask terminé, ni clic inline ou archive distincte qualifiés.
+Cases Windows, D06.5 global et DoD globale inchangées.
+[Oracle, résultats et limites](journal/2026-10-06.md#r15-3-q10--couverture-des-passages-entiers).
 
 Réconciliation D06.6 Linux du 6 octobre 2026 à 05:00 UTC : **PASS sur le
 poste aarch64 déclaré**. Le critère sélection native/OCR et actions page/section
