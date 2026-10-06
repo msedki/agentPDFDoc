@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `ab6e0cc` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 03:28 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `5fb5dc8` et décision W038 datée ci-dessous · **Mis à jour :** 2026-10-06 09:36 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -1127,3 +1127,42 @@ de frontières sont conservés ; 28 unités PASS après retrait.
 du marquage synthétique ou extension de campagne. La consigne initiale,
 les budgets, modèles et preuves restent inchangés ; pas de PASS D05/D07.
 [Résultat et relecture](journal/2026-10-06.md#r23--correction-ciblée-du-jugement-2b).
+
+## W038 Livraison locale Linux avec réserves et qualification intégrale en attente
+
+**Date de consignation :** 2026-10-06 09:36 UTC. **Statut :** décision utilisateur
+acquise ; livraison locale retenue avec réserves, qualification intégrale
+V2.1 différée. Ce statut n'est pas un PASS de recette.
+
+**Contexte :** les dernières livraisons Linux sont publiées, mais les défauts
+OCR P02 et de fiabilité du 2B persistent. Windows, Linux x86-64, la cible
+physique CPU/16 Go et plusieurs gates V2.1 ne sont pas qualifiés. Après la
+demande de ne réaliser que le nécessaire, l'utilisateur choisit explicitement
+la livraison locale Linux avec réserves et demande de consigner le report
+de la qualification intégrale. [Source utilisateur et références locales](SOURCES.md#w038-s01--arbitrage-utilisateur-de-livraison).
+
+**Choix retenu :** livrer l'état publié pour ce poste Linux aarch64/Jetson,
+avec une [synthèse de portée et de réserves](reports/livraison-locale-linux-2026-10-06.md).
+Conserver le choix de modèle au lancement et `qwen3.5:2b` par défaut selon
+W032. La qualification intégrale est mise en attente jusqu'à demande
+explicite de reprise, sans date imposée ni lancement automatique d'un lot.
+
+**Justification :** arbitrage de livraison demandé par l'utilisateur ; ne
+pas prolonger l'exécution par des campagnes optionnelles ou des contrôles
+inchangés. Il ne s'agit ni de contourner un échec ni de garantir une qualité
+documentaire qui n'a pas été démontrée.
+
+**Conséquences :** les cases, seuils, FAIL/NOT_RUN/BLOCKED et preuves de la
+DoD restent conservés. Aucune conformité V2.1 globale, certification métier,
+qualification Windows/x86-64/16 Go, purge physique ou correction OCR/2B
+n'est acquise par ce choix. Les données OCR et assertions des réponses
+doivent être vérifiées dans les PDF sources avant exploitation métier.
+R19 reste en pause ; ni corpus, index, modèle, code ni profil ne sont modifiés.
+
+**Historique et reprise :** W038 tranche l'arbitrage R24-EMB-01, sans annuler
+les cibles W001/W018 ni les exigences initiales. Les travaux intégraux
+restent inscrits, non réalisés lorsqu'ils ne l'étaient pas. À la reprise,
+choisir le lot nécessaire, contrôler son matériel, ses données et ses
+autorisations ; garder l'autorisation distincte requise pour toute purge.
+Le [plan](PLAN.md#périmètre-courant--décision-w038-du-6-octobre-2026)
+porte les actions, le journal leurs vérifications.

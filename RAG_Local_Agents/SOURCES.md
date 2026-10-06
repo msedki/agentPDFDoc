@@ -1,6 +1,25 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `0821b22` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 06:25 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5fb5dc8` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 09:36 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## W038-S01 — arbitrage utilisateur de livraison
+
+Source primaire : demande utilisateur de cette session, consignée le
+2026-10-06 09:36 UTC. Choix explicite : livraison locale Linux avec réserves et
+mise en attente de la qualification intégrale, à documenter. Cette source
+autorise l'arbitrage de livraison, pas un PASS technique ni la suppression
+d'une preuve ou de données. [Décision W038](DECISIONS.md#w038-livraison-locale-linux-avec-réserves-et-qualification-intégrale-en-attente).
+
+Références locales relues sur la base `5fb5dc8` :
+[DoD, règles et qualifications](DEFINITION_OF_DONE.md), W032/W036/W037,
+`config/local16.yaml` et `config/models.lock.json` (défaut 2B/Q8_0),
+journal du 6 octobre (refus OCR P02/2B, Q10 et précondition Granite).
+Les trois SHA des sources Q10 sont identiques à ceux du lot publié ;
+aucun nouveau résultat applicatif n'est ajouté. Ces documents relient
+les preuves antérieures, ils ne remplacent pas les rapports d'exécution.
+Pas de recherche externe : aucun contrat logiciel, modèle ou méthode
+technique changé. La [synthèse de livraison](reports/livraison-locale-linux-2026-10-06.md)
+est un état daté avec réserves, pas le rapport final V2.1.
 
 ## R23OCR-S11 — discriminant de segmentation par lignes
 

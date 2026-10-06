@@ -1,6 +1,15 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `0821b22` et compléments locaux datés ci-dessous, historique conservé · **Mis à jour :** 2026-10-06 06:25 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; base publiée `5fb5dc8` et note de livraison datée ci-dessous, historique conservé · **Mis à jour :** 2026-10-06 09:36 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+
+**Livraison locale avec réserves — W038, 6 octobre 2026.** L'utilisateur
+retient la livraison pour le poste Linux aarch64 et met en attente la
+qualification intégrale. [Décision acquise](DECISIONS.md#w038-livraison-locale-linux-avec-réserves-et-qualification-intégrale-en-attente)
+et [synthèse des réserves](reports/livraison-locale-linux-2026-10-06.md).
+Cette acceptation n'est pas la clôture D01–D11 : aucune case, aucun seuil
+ni résultat de recette ci-dessous n'est modifié. Les cibles initiales
+restent référencées pour la reprise ; aucun nouvel essai n'est exécuté
+pour consigner cette décision.
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 

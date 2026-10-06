@@ -1,12 +1,16 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `e58ff24` et entrées datées · **Mis à jour :** 2026-10-06 06:38 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `5fb5dc8` et entrée W038 datée · **Mis à jour :** 2026-10-06 09:36 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
+[Livraison locale avec réserves](2026-10-06.md#r24-doc-02--livraison-locale-retenue-avec-réserves) :
+choix utilisateur W038 acquis ; qualification intégrale en attente,
+sans correction ou PASS déduit. [Synthèse de livraison](../reports/livraison-locale-linux-2026-10-06.md).
+
 [Précondition du comparatif](2026-10-06.md#r24-emb-01--précondition-du-comparatif) :
 artefacts Granite absents localement ; aucun essai ou verdict d'incompatibilité.
-Étape optionnelle distincte, arbitrage de périmètre en attente ; DoD inchangée.
+Étape optionnelle désormais différée selon W038 ; relevé historique conservé.
 
 [Texte complet des citations QLONG](2026-10-06.md#r15-3-q10--couverture-des-passages-entiers) :
 un essai ciblé PASS, 40 régions distinctes couvertes, arrêt et conservation

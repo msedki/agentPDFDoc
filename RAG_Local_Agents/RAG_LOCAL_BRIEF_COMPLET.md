@@ -1246,7 +1246,16 @@ Pour chaque skill retenu, vérifier une tâche pertinente et une tâche hors pé
 
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018 ; base publiée `0821b22` et compléments locaux datés ci-dessous, historique conservé · **Mis à jour :** 2026-10-06 06:25 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; base publiée `5fb5dc8` et note de livraison datée ci-dessous, historique conservé · **Mis à jour :** 2026-10-06 09:36 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+
+**Livraison locale avec réserves — W038, 6 octobre 2026.** L'utilisateur
+retient la livraison pour le poste Linux aarch64 et met en attente la
+qualification intégrale. [Décision acquise](DECISIONS.md#w038-livraison-locale-linux-avec-réserves-et-qualification-intégrale-en-attente)
+et [synthèse des réserves](reports/livraison-locale-linux-2026-10-06.md).
+Cette acceptation n'est pas la clôture D01–D11 : aucune case, aucun seuil
+ni résultat de recette ci-dessous n'est modifié. Les cibles initiales
+restent référencées pour la reprise ; aucun nouvel essai n'est exécuté
+pour consigner cette décision.
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -1702,11 +1711,34 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 ## Fichier : `PLAN.md`
 
-# Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
+# Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `e58ff24` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 06:38 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, livraison locale retenue avec réserves ; qualification intégrale en attente · **Référence :** base publiée `5fb5dc8` et complément W038 daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 09:41 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
-**Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
+## Périmètre courant — décision W038 du 6 octobre 2026
+
+L'utilisateur retient la **livraison locale Linux avec réserves explicites**
+et demande de **mettre en attente la qualification intégrale V2.1**.
+L'arbitrage précédent est résolu ; [W038](DECISIONS.md#w038-livraison-locale-linux-avec-réserves-et-qualification-intégrale-en-attente)
+porte cette décision, la [synthèse de livraison](reports/livraison-locale-linux-2026-10-06.md)
+décrit la portée et les réserves. Le poste retenu est Linux aarch64/Jetson ;
+aucune qualification Windows, Linux x86-64 ou CPU/16 Go n'en est déduite.
+Les défauts OCR P02 et de fiabilité des réponses 2B ne sont pas corrigés
+par cette acceptation. Les cases, seuils et résultats D01–D11 restent intacts.
+
+| Action | Lot / responsable | Dépendances | Livrable et critère de validation | État |
+|---|---|---|---|---|
+| R24-DOC-02 | Livraison documentaire / intégration, relecture indépendante | Choix utilisateur W038, preuves publiées jusqu'à `5fb5dc8` | Décision, réserves et travaux différés accessibles depuis les index ; brief synchronisé ; liens/pack conformes ; revue finale favorable ; publication sans fichier utilisateur ou runtime | VERIFIED — documentation 7/7 et pack 11/11 PASS, avis final indépendant accepté ; publication de ce seul lot documentaire, aucune clôture V2.1 |
+
+Les travaux de qualification intégrale, notamment R13/R22, les gates DEV/final,
+D03.8/D10.2 et la recette D07, sont différés. Aucune campagne, calibration,
+nouvelle variante OCR, purge ou reprise du corpus privé R19 n'est engagée.
+Les lignes historiques ci-dessous conservent leurs états et dates : elles
+ne constituent pas un ordre de reprise. Après publication de R24-DOC-02,
+la qualification intégrale ne reprend que sur demande explicite, avec les
+préconditions du lot concerné ; aucun contrôle inchangé n'est rejoué d'office.
+
+**Objectif initial du `/goal` du 30 septembre 2026, qualification intégrale désormais en attente selon W038 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
 **Périmètre daté :** inspection des 29/30 septembre 2026 puis réalisation autorisée le 30 septembre, UTC. Brief actif RAG-LOCAL-16 V2.1 (archive vérifiée) et décision utilisateur W001 : **Windows natif, sans WSL ni Docker**, orchestration locale comparable à Docker Compose. Sources, configuration et corpus identifiés par empreintes ; aucun dépôt Git lors de l'inspection (dépôt créé à 08:50, W005). Provisionnement isolé, téléchargements officiels, services locaux, OCR, builds et tests du chantier sont désormais autorisés. Exclusions conservées : modification globale de configuration système, destruction des originaux ou données étrangères, arrêt de services étrangers et déploiement externe. Depuis 08:50 UTC (W005), Git est initialisé et commit/push sont autorisés uniquement vers le remote privé `origin` https://github.com/msedki/agentPDFDoc.git, après chaque travail substantiel vérifié ; corpus, runtimes, modèles, données et secrets restent exclus du dépôt. Résultat attendu : application réelle, preuves de recette et documentation fidèle.
 
@@ -1715,6 +1747,8 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
 
 **R24-EMB-01 — précondition locale du comparatif, relevé du 6 octobre à 06:36 UTC.**
+**Actualisation W038 :** arbitrage résolu, comparatif différé avec la
+qualification intégrale ; le relevé antérieur ci-dessous est conservé.
 Inconnue de qualification : les dix artefacts Granite et l'avis de licence
 du verrou séparé sont absents du runtime de ce poste. Ce constat ne prouve
 ni une incompatibilité du graphe ni une indisponibilité chez l'éditeur.
@@ -3635,7 +3669,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `ab6e0cc` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 03:28 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `5fb5dc8` et décision W038 datée ci-dessous · **Mis à jour :** 2026-10-06 09:36 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -4763,6 +4797,45 @@ du marquage synthétique ou extension de campagne. La consigne initiale,
 les budgets, modèles et preuves restent inchangés ; pas de PASS D05/D07.
 [Résultat et relecture](journal/2026-10-06.md#r23--correction-ciblée-du-jugement-2b).
 
+## W038 Livraison locale Linux avec réserves et qualification intégrale en attente
+
+**Date de consignation :** 2026-10-06 09:36 UTC. **Statut :** décision utilisateur
+acquise ; livraison locale retenue avec réserves, qualification intégrale
+V2.1 différée. Ce statut n'est pas un PASS de recette.
+
+**Contexte :** les dernières livraisons Linux sont publiées, mais les défauts
+OCR P02 et de fiabilité du 2B persistent. Windows, Linux x86-64, la cible
+physique CPU/16 Go et plusieurs gates V2.1 ne sont pas qualifiés. Après la
+demande de ne réaliser que le nécessaire, l'utilisateur choisit explicitement
+la livraison locale Linux avec réserves et demande de consigner le report
+de la qualification intégrale. [Source utilisateur et références locales](SOURCES.md#w038-s01--arbitrage-utilisateur-de-livraison).
+
+**Choix retenu :** livrer l'état publié pour ce poste Linux aarch64/Jetson,
+avec une [synthèse de portée et de réserves](reports/livraison-locale-linux-2026-10-06.md).
+Conserver le choix de modèle au lancement et `qwen3.5:2b` par défaut selon
+W032. La qualification intégrale est mise en attente jusqu'à demande
+explicite de reprise, sans date imposée ni lancement automatique d'un lot.
+
+**Justification :** arbitrage de livraison demandé par l'utilisateur ; ne
+pas prolonger l'exécution par des campagnes optionnelles ou des contrôles
+inchangés. Il ne s'agit ni de contourner un échec ni de garantir une qualité
+documentaire qui n'a pas été démontrée.
+
+**Conséquences :** les cases, seuils, FAIL/NOT_RUN/BLOCKED et preuves de la
+DoD restent conservés. Aucune conformité V2.1 globale, certification métier,
+qualification Windows/x86-64/16 Go, purge physique ou correction OCR/2B
+n'est acquise par ce choix. Les données OCR et assertions des réponses
+doivent être vérifiées dans les PDF sources avant exploitation métier.
+R19 reste en pause ; ni corpus, index, modèle, code ni profil ne sont modifiés.
+
+**Historique et reprise :** W038 tranche l'arbitrage R24-EMB-01, sans annuler
+les cibles W001/W018 ni les exigences initiales. Les travaux intégraux
+restent inscrits, non réalisés lorsqu'ils ne l'étaient pas. À la reprise,
+choisir le lot nécessaire, contrôler son matériel, ses données et ses
+autorisations ; garder l'autorisation distincte requise pour toute purge.
+Le [plan](PLAN.md#périmètre-courant--décision-w038-du-6-octobre-2026)
+porte les actions, le journal leurs vérifications.
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -4815,7 +4888,26 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `0821b22` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 06:25 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5fb5dc8` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 09:36 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## W038-S01 — arbitrage utilisateur de livraison
+
+Source primaire : demande utilisateur de cette session, consignée le
+2026-10-06 09:36 UTC. Choix explicite : livraison locale Linux avec réserves et
+mise en attente de la qualification intégrale, à documenter. Cette source
+autorise l'arbitrage de livraison, pas un PASS technique ni la suppression
+d'une preuve ou de données. [Décision W038](DECISIONS.md#w038-livraison-locale-linux-avec-réserves-et-qualification-intégrale-en-attente).
+
+Références locales relues sur la base `5fb5dc8` :
+[DoD, règles et qualifications](DEFINITION_OF_DONE.md), W032/W036/W037,
+`config/local16.yaml` et `config/models.lock.json` (défaut 2B/Q8_0),
+journal du 6 octobre (refus OCR P02/2B, Q10 et précondition Granite).
+Les trois SHA des sources Q10 sont identiques à ceux du lot publié ;
+aucun nouveau résultat applicatif n'est ajouté. Ces documents relient
+les preuves antérieures, ils ne remplacent pas les rapports d'exécution.
+Pas de recherche externe : aucun contrat logiciel, modèle ou méthode
+technique changé. La [synthèse de livraison](reports/livraison-locale-linux-2026-10-06.md)
+est un état daté avec réserves, pas le rapport final V2.1.
 
 ## R23OCR-S11 — discriminant de segmentation par lignes
 

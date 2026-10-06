@@ -1,6 +1,6 @@
 # Documentation du poste documentaire local
 
-**Rôle :** index de la documentation stabilisée, séparation avec le suivi vivant et convention d'en-tête · **Propriétaire :** documentation du produit (R14) · **Statut :** Stabilisé · **Référence :** commit `5ca3685` et modifications documentaires locales R14-1 du 2026-10-02 ; index initial `6935e13`, compléments GPU `4d8ba68` et Linux `36824e2` conservés · **Mis à jour :** 2026-10-02 17:03 (UTC) · **Source de vérité :** ce fichier pour l'organisation de `docs/` ; chaque document pour son sujet · **Remplace :** aucun document
+**Rôle :** index de la documentation stabilisée, séparation avec le suivi vivant et convention d'en-tête · **Propriétaire :** documentation du produit (R14) · **Statut :** Stabilisé · **Référence :** commit `5ca3685` et modifications documentaires locales R14-1 du 2026-10-02 ; index initial `6935e13`, compléments GPU `4d8ba68` et Linux `36824e2` conservés ; lien de livraison W038 sur base `5fb5dc8` · **Mis à jour :** 2026-10-06 09:36 (UTC) · **Source de vérité :** ce fichier pour l'organisation de `docs/` ; chaque document pour son sujet · **Remplace :** aucun document
 
 `docs/` décrit le système tel qu'il est livré à la référence citée en tête de chaque document. Le suivi du chantier (plan, journal, décisions, sources, rapports de preuve) et le référentiel d'exigences V2.1 restent dans [`RAG_Local_Agents/`](../RAG_Local_Agents/), dossier vivant qui n'est pas déplacé : ses outils `build_brief.py` et `verify_pack.py` dépendent de son emplacement. Le point d'entrée général est le [README racine](../README.md).
 
@@ -32,6 +32,7 @@ Les schémas sont des SVG en couleur produits par [`tools/docs/diagrams.py`](../
 
 | Document | Rôle |
 |---|---|
+| [Livraison locale Linux avec réserves](../RAG_Local_Agents/reports/livraison-locale-linux-2026-10-06.md) | Synthèse vivante du périmètre retenu par W038, réserves connues et qualification intégrale mise en attente ; pas une conformité V2.1 globale |
 | [PLAN.md](../RAG_Local_Agents/PLAN.md) | Suivi canonique du chantier : lots, statuts, blocages, prochaine action |
 | [DEFINITION_OF_DONE.md](../RAG_Local_Agents/DEFINITION_OF_DONE.md) | Critères de fin D01 à D11 et règle de clôture |
 | [DECISIONS.md](../RAG_Local_Agents/DECISIONS.md) | Décisions de conception (D-01 à D-16) et décisions du chantier (W001 et suivantes) |

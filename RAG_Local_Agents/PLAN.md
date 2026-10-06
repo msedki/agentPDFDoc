@@ -1,8 +1,31 @@
-# Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
+# Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `e58ff24` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 06:38 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, livraison locale retenue avec réserves ; qualification intégrale en attente · **Référence :** base publiée `5fb5dc8` et complément W038 daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 09:41 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
-**Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
+## Périmètre courant — décision W038 du 6 octobre 2026
+
+L'utilisateur retient la **livraison locale Linux avec réserves explicites**
+et demande de **mettre en attente la qualification intégrale V2.1**.
+L'arbitrage précédent est résolu ; [W038](DECISIONS.md#w038-livraison-locale-linux-avec-réserves-et-qualification-intégrale-en-attente)
+porte cette décision, la [synthèse de livraison](reports/livraison-locale-linux-2026-10-06.md)
+décrit la portée et les réserves. Le poste retenu est Linux aarch64/Jetson ;
+aucune qualification Windows, Linux x86-64 ou CPU/16 Go n'en est déduite.
+Les défauts OCR P02 et de fiabilité des réponses 2B ne sont pas corrigés
+par cette acceptation. Les cases, seuils et résultats D01–D11 restent intacts.
+
+| Action | Lot / responsable | Dépendances | Livrable et critère de validation | État |
+|---|---|---|---|---|
+| R24-DOC-02 | Livraison documentaire / intégration, relecture indépendante | Choix utilisateur W038, preuves publiées jusqu'à `5fb5dc8` | Décision, réserves et travaux différés accessibles depuis les index ; brief synchronisé ; liens/pack conformes ; revue finale favorable ; publication sans fichier utilisateur ou runtime | VERIFIED — documentation 7/7 et pack 11/11 PASS, avis final indépendant accepté ; publication de ce seul lot documentaire, aucune clôture V2.1 |
+
+Les travaux de qualification intégrale, notamment R13/R22, les gates DEV/final,
+D03.8/D10.2 et la recette D07, sont différés. Aucune campagne, calibration,
+nouvelle variante OCR, purge ou reprise du corpus privé R19 n'est engagée.
+Les lignes historiques ci-dessous conservent leurs états et dates : elles
+ne constituent pas un ordre de reprise. Après publication de R24-DOC-02,
+la qualification intégrale ne reprend que sur demande explicite, avec les
+préconditions du lot concerné ; aucun contrôle inchangé n'est rejoué d'office.
+
+**Objectif initial du `/goal` du 30 septembre 2026, qualification intégrale désormais en attente selon W038 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
 **Périmètre daté :** inspection des 29/30 septembre 2026 puis réalisation autorisée le 30 septembre, UTC. Brief actif RAG-LOCAL-16 V2.1 (archive vérifiée) et décision utilisateur W001 : **Windows natif, sans WSL ni Docker**, orchestration locale comparable à Docker Compose. Sources, configuration et corpus identifiés par empreintes ; aucun dépôt Git lors de l'inspection (dépôt créé à 08:50, W005). Provisionnement isolé, téléchargements officiels, services locaux, OCR, builds et tests du chantier sont désormais autorisés. Exclusions conservées : modification globale de configuration système, destruction des originaux ou données étrangères, arrêt de services étrangers et déploiement externe. Depuis 08:50 UTC (W005), Git est initialisé et commit/push sont autorisés uniquement vers le remote privé `origin` https://github.com/msedki/agentPDFDoc.git, après chaque travail substantiel vérifié ; corpus, runtimes, modèles, données et secrets restent exclus du dépôt. Résultat attendu : application réelle, preuves de recette et documentation fidèle.
 
@@ -11,6 +34,8 @@
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
 
 **R24-EMB-01 — précondition locale du comparatif, relevé du 6 octobre à 06:36 UTC.**
+**Actualisation W038 :** arbitrage résolu, comparatif différé avec la
+qualification intégrale ; le relevé antérieur ci-dessous est conservé.
 Inconnue de qualification : les dix artefacts Granite et l'avis de licence
 du verrou séparé sont absents du runtime de ce poste. Ce constat ne prouve
 ni une incompatibilité du graphe ni une indisponibilité chez l'éditeur.
