@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `0fd0f17` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 03:03 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `ab6e0cc` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 03:28 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -1103,3 +1103,27 @@ Windows, GPU ou qualité documentaire déduite. Le pilote ne qualifie pas
 une sortie de 400 tokens ni une charge maximale. Mise à jour du dépannage
 et du schéma concerné après validation ; pas de modification frontend.
 [Exécution, contrôle et reprise](journal/2026-10-06.md#r23--mesure-cpu-2b-bornée-admission-du-6-octobre-à-0253-utc).
+
+Complément du 6 octobre, 03:28 UTC : la ligne « Admission » de l'architecture
+renvoie au pic du profil actif et au dépannage, plutôt que généraliser le
+chiffre historique du 4B. Pas de nouveau changement de seuil ou essai natif.
+
+## W037 Candidat éditorial 2B refusé après un témoin unique
+
+**Date :** 6 octobre 2026, 03:28 UTC. **Statut :** candidat refusé ; code
+produit antérieur conservé, qualité du modèle toujours non qualifiée.
+
+**Contexte et choix :** deux phrases demandaient de signaler une information
+non documentée sans jugement sur les sources et de rester dans la question.
+Un seul chat GPU sur la question fabricant QV-01 et ses quatre preuves
+historiques supprime le jugement de fiabilité, mais ajoute pression/révision
+hors demande avec une citation qui ne porte pas la pression. Le critère
+figé n'est pas satisfait malgré les contrôles techniques et 53 unités verts.
+Retirer le seul candidat et son test de présence textuelle, préserver l'échec
+et ne pas lancer une boucle de prompts. Les tests utiles de synonymie et
+de frontières sont conservés ; 28 unités PASS après retrait.
+
+**Conséquences :** ni règle lexicale d'abstention, filtre de réponse, retrait
+du marquage synthétique ou extension de campagne. La consigne initiale,
+les budgets, modèles et preuves restent inchangés ; pas de PASS D05/D07.
+[Résultat et relecture](journal/2026-10-06.md#r23--correction-ciblée-du-jugement-2b).

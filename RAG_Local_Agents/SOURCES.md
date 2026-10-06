@@ -1,6 +1,19 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `0fd0f17` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 03:03 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `ab6e0cc` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 03:28 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R23S04 — consigne et témoin éditorial 2B
+
+Consultation locale du 6 octobre 2026, 03:28 UTC :
+[context.py](../services/api/context.py), consigne publiée sur `ab6e0cc`
+restaurée, SHA `24db2d77…`, et [ollama.py](../services/api/ollama.py),
+options et contrôle d'identité inchangés. Question et quatre objets de
+preuve du rapport historique `69c56b3f…`, jamais reconstruits ou retirés.
+Le rapport natif `d761333a…` conserve la consigne candidate effectivement
+essayée ; celle-ci n'est pas livrée. Apport : distinguer validation technique
+et appui factuel d'une citation. Limite : un chat GPU, sans retrieval/E2E,
+mesure de performance ou taux d'abstention ; aucun recours externe.
+[Exécution et refus](journal/2026-10-06.md#r23--correction-ciblée-du-jugement-2b).
 
 ## R23S03 — référence locale de la calibration CPU 2B
 

@@ -1657,7 +1657,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `0fd0f17` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 03:03 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `ab6e0cc` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 03:28 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1666,6 +1666,18 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R23 — candidat éditorial 2B refusé le 6 octobre à 03:23:45 UTC.**
+Une question originale, quatre preuves gelées, un seul chat GPU : 503 tokens
+locaux/réels, sortie complète de 87 tokens. Le jugement de fiabilité disparaît,
+mais la réponse ajoute révision/pression hors demande et cite S001, qui ne
+porte pas la pression. Critère éditorial non satisfait, confirmé indépendamment.
+Les deux phrases candidates sont retirées ; consigne produit inchangée.
+Garde de synonymie QueryService et frontières de contexte renforcées conservées,
+28 tests livrés PASS. Pas de deuxième chat, corpus ou apprentissage.
+R23/D05 restent ouverts ; ne pas engager une campagne pour ce seul essai.
+[Décision W037](DECISIONS.md#w037-candidat-éditorial-2b-refusé-après-un-témoin-unique) ;
+[preuve et limites](journal/2026-10-06.md#r23--correction-ciblée-du-jugement-2b).
 
 **R23 — admission froide 2B mesurée le 6 octobre à 02:56 UTC.**
 Un seul pilote CPU fermé, trois conditions intégrées et 349 sondes :
@@ -3452,7 +3464,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `0fd0f17` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 03:03 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `ab6e0cc` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 03:28 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -4556,6 +4568,30 @@ une sortie de 400 tokens ni une charge maximale. Mise à jour du dépannage
 et du schéma concerné après validation ; pas de modification frontend.
 [Exécution, contrôle et reprise](journal/2026-10-06.md#r23--mesure-cpu-2b-bornée-admission-du-6-octobre-à-0253-utc).
 
+Complément du 6 octobre, 03:28 UTC : la ligne « Admission » de l'architecture
+renvoie au pic du profil actif et au dépannage, plutôt que généraliser le
+chiffre historique du 4B. Pas de nouveau changement de seuil ou essai natif.
+
+## W037 Candidat éditorial 2B refusé après un témoin unique
+
+**Date :** 6 octobre 2026, 03:28 UTC. **Statut :** candidat refusé ; code
+produit antérieur conservé, qualité du modèle toujours non qualifiée.
+
+**Contexte et choix :** deux phrases demandaient de signaler une information
+non documentée sans jugement sur les sources et de rester dans la question.
+Un seul chat GPU sur la question fabricant QV-01 et ses quatre preuves
+historiques supprime le jugement de fiabilité, mais ajoute pression/révision
+hors demande avec une citation qui ne porte pas la pression. Le critère
+figé n'est pas satisfait malgré les contrôles techniques et 53 unités verts.
+Retirer le seul candidat et son test de présence textuelle, préserver l'échec
+et ne pas lancer une boucle de prompts. Les tests utiles de synonymie et
+de frontières sont conservés ; 28 unités PASS après retrait.
+
+**Conséquences :** ni règle lexicale d'abstention, filtre de réponse, retrait
+du marquage synthétique ou extension de campagne. La consigne initiale,
+les budgets, modèles et preuves restent inchangés ; pas de PASS D05/D07.
+[Résultat et relecture](journal/2026-10-06.md#r23--correction-ciblée-du-jugement-2b).
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -4608,7 +4644,20 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `0fd0f17` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 03:03 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `ab6e0cc` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 03:28 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R23S04 — consigne et témoin éditorial 2B
+
+Consultation locale du 6 octobre 2026, 03:28 UTC :
+[context.py](../services/api/context.py), consigne publiée sur `ab6e0cc`
+restaurée, SHA `24db2d77…`, et [ollama.py](../services/api/ollama.py),
+options et contrôle d'identité inchangés. Question et quatre objets de
+preuve du rapport historique `69c56b3f…`, jamais reconstruits ou retirés.
+Le rapport natif `d761333a…` conserve la consigne candidate effectivement
+essayée ; celle-ci n'est pas livrée. Apport : distinguer validation technique
+et appui factuel d'une citation. Limite : un chat GPU, sans retrieval/E2E,
+mesure de performance ou taux d'abstention ; aucun recours externe.
+[Exécution et refus](journal/2026-10-06.md#r23--correction-ciblée-du-jugement-2b).
 
 ## R23S03 — référence locale de la calibration CPU 2B
 

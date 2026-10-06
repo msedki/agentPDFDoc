@@ -21,8 +21,8 @@ def previous_question(db, conversation, question, snapshot):
     return query_id
 
 
-def query_fixture(storage, question):
-    imported, _ = import_fixture(storage, text="CCU-21 tension 72 V et CCU-22 tension 110 V")
+def query_fixture(storage, question, *, text="CCU-21 tension 72 V et CCU-22 tension 110 V"):
+    imported, _ = import_fixture(storage, text=text)
     settings, db, vectors, _ = storage
     resolver = ScopeResolver(db)
     snapshot = resolver.resolve(Scope(kind="library"))
@@ -138,6 +138,38 @@ def test_api_token_count_warning_text_keeps_threshold_counts_and_citations_with_
         stored = db.one("SELECT state,warnings_json,metrics_json FROM query_runs WHERE id=?", (query_id,))
         assert stored["state"] == "done" and json.loads(stored["warnings_json"]) == done["warnings"]
         assert json.loads(stored["metrics_json"]) == done["metrics"]
+
+    asyncio.run(scenario())
+
+
+def test_api_factual_synonym_without_shared_question_term_still_calls_model(storage):
+    """SQLite et QueryService réels ; vecteurs, tokenizer et génération sont des doubles."""
+    question = "Quel fabricant est indiqué pour CCU-21 ?"
+    evidence = "Le constructeur de CCU-21 est Atelier Exemple."
+    service, db, conversation, _ = query_fixture(storage, question, text=evidence)
+
+    class AnsweringOllama:
+        calls = 0
+
+        async def stream(self, messages, cancelled, output_tokens):
+            self.calls += 1
+            assert evidence in messages[-1]["content"]
+            yield {"type": "delta", "text": "Le constructeur est Atelier Exemple [S001]."}
+            yield {"type": "done", "finish_reason": "stop", "metrics": {}}
+
+    gateway = AnsweringOllama()
+    service.ollama = gateway
+
+    async def scenario():
+        query_id = service.create(QueryRequest(question=question, scope=Scope(kind="library"),
+                                               conversation_id=conversation))["query_id"]
+        await service.tasks[query_id]
+        done = json.loads(db.one("SELECT data_json FROM events WHERE query_id=? AND type='done'", (query_id,))["data_json"])
+        assert gateway.calls == 1 and done["status"] == "done"
+        assert done["text"] == "Le constructeur est Atelier Exemple [S001]."
+        assert done["metrics"]["model_called"] is True
+        assert done["metrics"]["identifier_coverage_states"] == {"CCU-21": "identifier_present_no_answer_evidence"}
+        assert [citation["source_id"] for citation in done["citations"]] == ["S001"]
 
     asyncio.run(scenario())
 

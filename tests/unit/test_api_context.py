@@ -56,10 +56,16 @@ def test_context_reports_fragments_excluded_by_evidence_budget(tmp_path):
 
 
 def test_context_reports_fragments_removed_by_serialized_limit(tmp_path):
-    settings = Settings(tmp_path, {"llm": {"num_ctx": 400, "num_predict": 100}, "retrieval": {"context_safety_tokens": 50}})
     sources = [fragment("A", "alimentation " * 12, index) for index in range(4)]
+    builder = ContextBuilder(Settings(tmp_path), CharTokenizer())
+    _, _, two, _ = builder.build("Décrire l'alimentation", sources[:2])
+    _, _, three, _ = builder.build("Décrire l'alimentation", sources[:3])
+    max_input = (two["local_prompt_tokens"] + three["local_prompt_tokens"]) // 2
+    assert two["local_prompt_tokens"] <= max_input < three["local_prompt_tokens"]
+    settings = Settings(tmp_path, {"llm": {"num_ctx": max_input + 150, "num_predict": 100}, "retrieval": {"context_safety_tokens": 50}})
     _, retained, metrics, warnings = ContextBuilder(settings, CharTokenizer()).build("Décrire l'alimentation", sources)
-    assert 0 < len(retained) < len(sources)
+    assert len(retained) == 2 and metrics["local_prompt_tokens"] <= max_input
+    assert metrics["context_fragments_excluded_by_budget"] == 2
     assert metrics["context_fragments_excluded_by_budget"] == len(sources) - len(retained)
     assert any(warning["code"] == "context_fragments_excluded_by_budget" for warning in warnings)
 
@@ -128,11 +134,17 @@ def test_context_serialized_budget_refusal_preserves_limit_and_code_without_gene
 
 
 def test_context_serialized_cut_keeps_last_fragment_of_compared_document(tmp_path):
-    # Tokenizer de test : 2 fragments = 255 tokens sérialisés, 3 = 297 ; entrée maximale 430 - 100 - 50 = 280.
-    settings = Settings(tmp_path, {"llm": {"num_ctx": 430, "num_predict": 100}, "retrieval": {"context_safety_tokens": 50}})
     sources = [fragment("A", "tension " * 12, index) for index in range(3)] + [fragment("B", "tension " * 12)]
+    # Compteur caractères/4 : frontière entre deux et trois preuves, avec la consigne réellement livrée.
+    builder = ContextBuilder(Settings(tmp_path), CharTokenizer())
+    _, _, two, _ = builder.build("Comparer la tension", [sources[0], sources[-1]], "comparison")
+    _, _, three, _ = builder.build("Comparer la tension", [sources[0], sources[1], sources[-1]], "comparison")
+    max_input = (two["local_prompt_tokens"] + three["local_prompt_tokens"]) // 2
+    assert two["local_prompt_tokens"] <= max_input < three["local_prompt_tokens"]
+    settings = Settings(tmp_path, {"llm": {"num_ctx": max_input + 150, "num_predict": 100}, "retrieval": {"context_safety_tokens": 50}})
     _, retained, metrics, warnings = ContextBuilder(settings, CharTokenizer()).build("Comparer la tension", sources, "comparison")
     assert [source["chunk_id"] for source in retained] == ["A-0", "B-0"]
+    assert metrics["local_prompt_tokens"] <= max_input
     assert metrics["context_fragments_excluded_by_budget"] == 2
     assert not any(warning["code"] == "comparison_document_not_in_context" for warning in warnings)
 

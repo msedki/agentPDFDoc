@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `0fd0f17` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 03:03 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `ab6e0cc` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 03:28 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -9,6 +9,18 @@
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R23 — candidat éditorial 2B refusé le 6 octobre à 03:23:45 UTC.**
+Une question originale, quatre preuves gelées, un seul chat GPU : 503 tokens
+locaux/réels, sortie complète de 87 tokens. Le jugement de fiabilité disparaît,
+mais la réponse ajoute révision/pression hors demande et cite S001, qui ne
+porte pas la pression. Critère éditorial non satisfait, confirmé indépendamment.
+Les deux phrases candidates sont retirées ; consigne produit inchangée.
+Garde de synonymie QueryService et frontières de contexte renforcées conservées,
+28 tests livrés PASS. Pas de deuxième chat, corpus ou apprentissage.
+R23/D05 restent ouverts ; ne pas engager une campagne pour ce seul essai.
+[Décision W037](DECISIONS.md#w037-candidat-éditorial-2b-refusé-après-un-témoin-unique) ;
+[preuve et limites](journal/2026-10-06.md#r23--correction-ciblée-du-jugement-2b).
 
 **R23 — admission froide 2B mesurée le 6 octobre à 02:56 UTC.**
 Un seul pilote CPU fermé, trois conditions intégrées et 349 sondes :
