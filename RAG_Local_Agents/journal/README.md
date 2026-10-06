@@ -1,8 +1,14 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `34124fb` et entrées datées · **Mis à jour :** 2026-10-06 01:23 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `f74e19e` et entrées datées · **Mis à jour :** 2026-10-06 02:02 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Taux mainteneur et refus anticipé](2026-10-06.md#r23-ocr-03--taux-mainteneur-et-refus-anticipé) :
+pilote réel PASS après neuf tests ciblés et relecture indépendante, données
+et 500 itérations conservées. Aucun nouveau corpus ; quatre critères conformes,
+deux omissions de « ± » à 28 px restantes. Processus arrêtés, nominal conservé,
+pas d'adoption ; preuve P02 en ingestion réelle encore nécessaire.
 
 [Diagnostic minimal des signes](2026-10-06.md#r23-ocr-03--diagnostic-minimal-des-signes) :
 une seule évaluation sans dictionnaire, deux variantes heldout existantes,

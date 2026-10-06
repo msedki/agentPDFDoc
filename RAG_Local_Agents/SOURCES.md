@@ -1,6 +1,6 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `34124fb` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 01:23 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `f74e19e` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 01:39 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## Q07 — sélection OCR par le navigateur
 
@@ -83,6 +83,23 @@ les pixels et la capture réelle restent des preuves distinctes. Accès DOM
 WHATWG refusé par l'outil ; aucune lecture réussie de cette page revendiquée.
 
 ## R23OCR-S09 — entrées et mesures du pilote LSTM
+
+### Taux réinitialisé après remap — 6 octobre 2026
+
+Consultation du 6 octobre, 01:32–01:38 UTC, version 5.4.0 à la même
+révision immuable que ci-dessous. ROOT et relecteur ont vérifié les sources
+officielles locales verrouillées, sans nouveau modèle ou apprentissage.
+
+- [lstmtraining.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/training/lstmtraining.cpp), défaut ligne 39 et chargement/reset lignes 152–182 : défaut 0,001 ; le reset s'applique après continuation/remap. Un checkpoint existant est prioritaire et contournerait ce bloc ; le préfixe doit être neuf.
+- [lstmrecognizer.h](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/lstm/lstmrecognizer.h), lignes 161–168, et [plumbing.cpp](https://raw.githubusercontent.com/tesseract-ocr/tesseract/1be261dc226d49bdcad0ab2fcb10f8395edc1225/src/lstm/plumbing.cpp), lignes 240–250 : `SetLearningRate` remplace aussi les taux par couche, consommés par `Update`. Le mode 192 est hérité du réseau dans cette continuation, pas réappliqué par le flag `net_mode`.
+
+Lecture en ligne de `lstmtraining.cpp` réussie ; ouverture de l'en-tête
+refusée par l'outil (`Cache miss`). Son contrat est établi sur la source
+officielle locale épinglée, pas sur une lecture Web réussie prétendue.
+Ces sources justifient l'essai du taux 0,001 ; elles ne démontrent pas,
+à elles seules, son efficacité sur le pilote ou l'ingestion PDF.
+Il affecte aussi les anciennes classes : les critères de non-régression
+restent indispensables. [Choix borné](DECISIONS.md#essai-du-taux-mainteneur--6-octobre-2026).
 
 ### Diagnostic des signes sans dictionnaire — 6 octobre 2026
 

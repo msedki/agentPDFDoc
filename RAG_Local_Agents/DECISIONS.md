@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `34124fb` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 01:23 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `f74e19e` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 02:04 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -697,6 +697,45 @@ deux échecs ; apprentissage insuffisant plausible, correction non démontrée.
 Conserver le candidat refusé et les données existantes, sans adoption,
 augmentation du corpus ou relance automatique. Le prochain réglage devra
 être justifié et relu avant une admission native distincte.
+
+### Essai du taux mainteneur — 6 octobre 2026
+
+**Statut :** gel source/tests relu indépendamment et accepté ROOT le
+6 octobre à 01:50 UTC ; admission distincte d'une seule invocation dans S.
+Aucun résultat ou modèle adopté à cette admission.
+
+Après le diagnostic sans dictionnaire, tester uniquement le taux 0,001
+au lieu de 0,0001, avec reset effectif après remap et préfixe neuf.
+Conserver 500 itérations, données, splits, caches et critères ; pas de
+corpus supplémentaire ou de nouveau flag `net_mode`.
+[Contrat de la version exécutée](SOURCES.md#taux-réinitialisé-après-remap--6-octobre-2026).
+
+Évaluer d'abord au plus cinq groupes heldout « signes » aux deux tailles,
+déterminés par l'ordre du manifeste gelé. Pour une classe/taille,
+80 occurrences attendues et cinq faux négatifs certains donnent un rappel
+maximal de 75/80 = 93,75 %, inférieur au seuil fixé. Ce refus unilatéral
+évite une suite déjà vouée à échouer ; quatre faux négatifs ne permettent
+aucun PASS. Les sorties techniquement invalides doivent être distinguées.
+Sinon continuer sur les 400 variantes, en réutilisant les résultats du
+précontrôle, puis vérifier tous les critères d'origine sans les réduire.
+
+QA source/native neuve `r23-rate-probe-20261006-p2hE1f`, tests dans la cible
+séparée `r23-rate-probe-tests-20261006-R55fce`. Ni génération, checkpoint
+échoué repris, installation ou recette applicative inchangée. Réutilisation
+des 400 sorties baseline historiques différée : ses nouvelles frontières
+de provenance et de chemins ne font pas partie de ce correctif.
+Le candidat est évalué avant la baseline ; un refus anticipé n'exécute donc
+aucune commande baseline. Gel, contrôles et avis `GO_SOURCE_RATE_PROBE_ONLY`
+acquis ; invocation unique de la commande du reçu admise ROOT dans les
+budgets existants, sans retry ou adoption automatique.
+[Admission et résultats](journal/2026-10-06.md#r23-ocr-03--taux-mainteneur-et-refus-anticipé).
+
+**Résultat à 01:57:09 UTC :** `PASS_PILOT_ONLY`, les quatre gates d'origine
+satisfaites sur 400 variantes par bras. Ce taux est retenu pour le candidat
+isolé ; aucune itération ou donnée supplémentaire justifiée par le pilote.
+Adoption toujours non autorisée à ce stade : vérifier la fidélité dans
+l'ingestion PDF réelle. Relecture terminale `GO_NATIVE_PILOT_ONLY` acquise :
+scores recalculés, arrêt et ressources corroborés, deux omissions conservées.
 
 ### Correction CLI et ordre — 6 octobre, 00:17 UTC
 
