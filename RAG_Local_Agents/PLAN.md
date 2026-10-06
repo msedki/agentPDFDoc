@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `9faf256` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 04:40 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `7f37c39` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 04:53 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -9,6 +9,21 @@
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R11-LNX-01 — D09.4 couvert par la migration de pipeline W029, réconciliation du 6 octobre à 04:50 UTC.**
+Le critère demande une migration de schéma **ou de pipeline**, une nouvelle
+génération contrôlée et un retour arrière documenté. Les métadonnées fermées
+de W029 prouvent déjà un changement d'empreinte sur la même version, une
+nouvelle génération active et la conservation des anciennes citations.
+Lecture ROOT et vérification indépendante concordantes ; politique de
+publication inchangée depuis cette preuve. Le motif Linux « absence de
+sauvegarde au schéma 2 » ne bloque donc plus D09.4 ; une migration SQLite
+sous Linux reste non exécutée. Aucun service, corpus ou test applicatif relancé.
+Critère de ce lot : relier le statut Linux à ces preuves exactes, contrôler
+le suivi modifié et obtenir sa relecture finale avant publication. État :
+VERIFIED borné — suivi synchronisé, contrôles 7/7 et 11/11 PASS, avis final
+indépendant favorable accepté ; publication du seul lot, DoD globale ouverte.
+[Preuves et limites](journal/2026-10-06.md#r11-lnx-01--migration-de-pipeline-déjà-prouvée).
 
 **R15-3-Q08 — action de section VALIDATED_BOUNDED le 6 octobre à 04:40 UTC.**
 Un seul parcours sommaire → action explicite → recherche UI, deux recherches
