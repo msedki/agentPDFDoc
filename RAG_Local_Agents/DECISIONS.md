@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `cd4c3d5` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 02:39 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `0fd0f17` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 03:03 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -1073,3 +1073,33 @@ L'investigation suivante cible le coût
 observé de fermeture des journaux, sans réduire les garanties de
 publication ou transposer les durées de l'échantillon au pilote complet.
 Apprentissage et adoption restent non exécutés/non autorisés par ce résultat.
+
+## W036 Admission froide du 2B fondée sur un pilote CPU local
+
+**Date :** 6 octobre 2026, 03:03 UTC. **Statut :** correction validée sur
+Linux aarch64 ; estimation chaude provisoire, recette globale ouverte.
+
+**Contexte :** le profil 2B héritait des 3456 Mio du 4B. Un seul passage
+du module de calibration existant, 2959 tokens réels d'entrée/64 de sortie,
+contexte 8192 et quatre threads, mesure une baisse maximale de mémoire
+disponible de 3418,79296875 Mio. La marge restante de 37,207 Mio est
+inférieure aux 129 Mio historiques retenus avant l'essai. Rapport fermé
+`8dde564c…`, 349 mesures et revue indépendante concordants.
+
+**Choix :** porter la seule estimation froide du profil 2B à 3584 Mio :
+3418,793 + 129 = 3547,793, arrondi local au multiple de 128 supérieur.
+La marge observée est de 165,207 Mio ; réserve 1536 inchangée, soit
+5120 Mio requis à froid. Le profil 4B reste octet pour octet inchangé
+à 3456 Mio. Conserver 512 Mio supplémentaires à chaud comme estimation
+provisoire surveillée : les différences de 3,313/144,234 Mio depuis la
+première sonde des phases chaudes ne sont pas des baselines pré-requête.
+
+**Validation et limites :** seuil exact du gouverneur exercé sur les deux
+profils réels, mémoire simulée et stockage temporaire ; 83 unités PASS,
+Ruff conforme. Les trois générations natives sont CPU à 100 %, sans swap
+supplémentaire, avec identités/parité de tokens vérifiées et arrêt corroboré.
+Aucune réduction de réserve, seconde campagne ou qualification D07,
+Windows, GPU ou qualité documentaire déduite. Le pilote ne qualifie pas
+une sortie de 400 tokens ni une charge maximale. Mise à jour du dépannage
+et du schéma concerné après validation ; pas de modification frontend.
+[Exécution, contrôle et reprise](journal/2026-10-06.md#r23--mesure-cpu-2b-bornée-admission-du-6-octobre-à-0253-utc).

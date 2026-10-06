@@ -1657,7 +1657,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `cd4c3d5` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 02:39 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `0fd0f17` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 03:03 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1666,6 +1666,18 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R23 — admission froide 2B mesurée le 6 octobre à 02:56 UTC.**
+Un seul pilote CPU fermé, trois conditions intégrées et 349 sondes :
+baisse hôte maximale 3418,793 Mio. Ancienne marge de 37,207 Mio insuffisante ;
+borne du seul profil 2B portée à 3584 Mio, marge 165,207 et réserve 1536
+conservée. Profil 4B inchangé, chaud 512 toujours provisoire. Trois essais
+à 2959/64 tokens, identités et arrêt relus indépendamment ; 83 unités PASS
+sur sélection, admission et documentation. Pas de D07, plateforme Windows,
+GPU ou qualité DEV qualifiés. Défaut OCR P02 et jugement injustifié du 2B
+restent ouverts ; aucune nouvelle campagne ou boucle de prompts admise ici.
+[Décision W036](DECISIONS.md#w036-admission-froide-du-2b-fondée-sur-un-pilote-cpu-local) ;
+[preuves et reprise](journal/2026-10-06.md#r23--mesure-cpu-2b-bornée-admission-du-6-octobre-à-0253-utc).
 
 **R23-OCR-01 — discriminant de langue fermé en refus le 6 octobre à 02:37:18 UTC.**
 Un seul essai P02, candidat/PDF/rasters/moteur/seuils conservés, `fra` seul.
@@ -2630,8 +2642,8 @@ de bascule de profil, de redémarrage ou d'exécution du lot futur.
 
 | ID | Couche, propriétaire et livrable attendu | Dépendances | Critère de validation | Statut et preuve |
 |---|---|---|---|---|
-| R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Sous-lot publié sur `origin/main` (`a17819a`). Pilotes GPU exécutés et relus, sans réduction de seuil ni qualification D07. Restent admission réellement calibrée, comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes non qualifiées. [Parcours](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [pilotes](journal/2026-10-04.md#r23--pilotes-gpu-et-préflight-dev-relevé-2258-utc) |
-| R23-OCR-01 | Ingestion / qualité — intégrateur avec diagnostic et validation non-auteurs : fiabiliser l'extraction des deux scans DEV sans modifier les sources gelées | R23, contrats d'ingestion et skill `pdf-ingestion-windows` ; QA propriétaire arrêtée, extractions partielles conservées | Reproduction ciblée ; correction prouvée avec même moteur et seuils ; publications complètes des sept documents, résolution des 100 scopes/annotations et 90 unités sans ambiguïté avant génération ; contrôles et relecture des cas touchés | IN_PROGRESS — P03 qualifié et publié (`d26a3a4`) : extraction complète native PASS, 236 unités sans exclusion, Ruff/mypy et documents verts, revue finale favorable. P02 bilingue puis fra seul refusés : ce dernier rétablit les signes, mais conserve quatre références erronées et dégrade les trois références du tableau ; 1/5 faits exacts, douze régions faibles. Diagnostic et refus relus, aucun correctif prouvé ni artefact adopté. Gate DEV, sept publications et scores non acquis. Admission mémoire R23 à poursuivre indépendamment ; pas de nouvel apprentissage, volume accru ou répétition aveugle. [Comparaison courante](journal/2026-10-06.md#discriminant-de-langue-p02--préparation-distincte) ; [livraison P03](journal/2026-10-05.md#publication-du-sous-lot-p03-relevé-0037-utc) ; [rouge initial conservé](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc) |
+| R23 | Runtime / génération — intégrateur, avec relecture indépendante : choix explicite 4B ou 2B, défaut 2B demandé, artefacts et profil distincts, procédures associées | W006/W007 (modèle texte et admission), W018 (plateformes), W024/W025 (mode de calcul), contrats de génération et sources R23S01/R23S02 ; conserver les qualifications R15 en cours | Tag et quantification rapprochés de la demande actualisée ; identité vérifiée ; préparation reproductible puis démarrage/redémarrage hors ligne sur cible isolée ; génération native avec SSE et citations ; admission et ressources mesurées ; non-régression du profil 4B ; limites de plateforme et de qualité déclarées | IN_PROGRESS — sélection et parcours natifs validés sur Linux aarch64 : 2B/4B, même index, SSE/citations/annulation/replay, cinq E2E par modèle ; 1 510 unités backend et deux contrôles natifs, web 309, lint/typage/build verts. Sous-lot publié sur `origin/main` (`a17819a`). Pilotes GPU exécutés et relus, sans réduction de seuil ni qualification D07. Admission froide CPU locale corrigée à 3584 Mio (W036), chaud 512 encore provisoire ; 83 unités de sélection/admission/documentation PASS. Restent comparaison DEV 100 et traitement du jugement injustifié du 2B ; autres plateformes et D07 non qualifiés. [Parcours](journal/2026-10-04.md#r23--choix-au-lancement-et-parcours-natifs-validés-relevé-2202-utc), [pilotes](journal/2026-10-04.md#r23--pilotes-gpu-et-préflight-dev-relevé-2258-utc), [admission froide](journal/2026-10-06.md#r23--mesure-cpu-2b-bornée-admission-du-6-octobre-à-0253-utc) |
+| R23-OCR-01 | Ingestion / qualité — intégrateur avec diagnostic et validation non-auteurs : fiabiliser l'extraction des deux scans DEV sans modifier les sources gelées | R23, contrats d'ingestion et skill `pdf-ingestion-windows` ; QA propriétaire arrêtée, extractions partielles conservées | Reproduction ciblée ; correction prouvée avec même moteur et seuils ; publications complètes des sept documents, résolution des 100 scopes/annotations et 90 unités sans ambiguïté avant génération ; contrôles et relecture des cas touchés | IN_PROGRESS — P03 qualifié et publié (`d26a3a4`) : extraction complète native PASS, 236 unités sans exclusion, Ruff/mypy et documents verts, revue finale favorable. P02 bilingue puis fra seul refusés : ce dernier rétablit les signes, mais conserve quatre références erronées et dégrade les trois références du tableau ; 1/5 faits exacts, douze régions faibles. Diagnostic et refus relus, aucun correctif prouvé ni artefact adopté. Gate DEV, sept publications et scores non acquis. Admission froide R23 corrigée séparément (W036), sans résoudre l'OCR ; pas de nouvel apprentissage, volume accru ou répétition aveugle. [Comparaison courante](journal/2026-10-06.md#discriminant-de-langue-p02--préparation-distincte) ; [livraison P03](journal/2026-10-05.md#publication-du-sous-lot-p03-relevé-0037-utc) ; [rouge initial conservé](journal/2026-10-04.md#r23--gate-dev-refusé-et-qa-arrêtée-relevé-2316-utc) |
 | R23-OCR-02 | Outillage / ingestion — construction séparée des outils d'extension Tesseract, intégrateur avec validateur non-auteur | R23-OCR-01, W034, skill `tesseract-lstm-extension` ; archive verrouillée, ICU/Leptonica ; protocole figé et relu | Configuration puis compilation réelles en QA neuve sous verrou et plafonds ; cibles, dépendances, versions et identités contrôlées, ressources et arrêts conservés ; pas de changement nominal ni apprentissage | VALIDATED_BOUNDED — outils Linux aarch64 seuls : construction réelle `PASS_TOOLS_ONLY` en 397,59 s, sept versions/dépendances et 707 mesures conformes ; revue finale non-auteur favorable, acceptée ROOT à 02:21 UTC. 625 identités observées absentes ; source/entrées/archive inchangées. Entraînement, adoption, P02 et autres plateformes non validés. [Décision](DECISIONS.md#w034-outils-séparés-avant-toute-extension-lstm) ; [preuves et avis final](journal/2026-10-05.md#construction-terminée-et-lecture-des-preuves-relevé-0212-utc) |
 | R23-OCR-03 | Apprentissage OCR isolé — entrées officielles, proto-alphabet, lignes générales inédites, pilote borné et revue non-auteur | R23-OCR-02, W035, skill LSTM, entrées exactes et supervision qualifiée ; aucun DEV/final pour apprendre | Identités réelles et séparation des groupes ; proto/lexiques conservés ; apprentissage surveillé ; sortie unique et métriques préalables respectées ; revue indépendante ; aucun résultat produit déduit | VALIDATED_BOUNDED — pilote CPU Linux aarch64 au taux 0,001, 500 itérations, données existantes sans régénération : 400 variantes par bras, toutes les gates d'origine PASS. CER 4/21 200, témoins 0/8 642 ; rappel de ± à 28 px : 97,5 %, autres cellules : 100 %, précision : 100 %. Dix observations réutilisées, 811 identités absentes et ressources conformes dans 708 échantillons ; GO_NATIVE_PILOT_ONLY accepté ROOT. Échecs historiques conservés ; aucun modèle installé changé, ingestion P02 et critères globaux non qualifiés. [Résultats et suite nécessaire](journal/2026-10-06.md#r23-ocr-03--taux-mainteneur-et-refus-anticipé), [portée W035](DECISIONS.md#essai-du-taux-mainteneur--6-octobre-2026) |
 
@@ -3440,7 +3452,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `cd4c3d5` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 02:39 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `0fd0f17` et précisions locales datées ci-dessous · **Mis à jour :** 2026-10-06 03:03 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -4514,6 +4526,36 @@ observé de fermeture des journaux, sans réduire les garanties de
 publication ou transposer les durées de l'échantillon au pilote complet.
 Apprentissage et adoption restent non exécutés/non autorisés par ce résultat.
 
+## W036 Admission froide du 2B fondée sur un pilote CPU local
+
+**Date :** 6 octobre 2026, 03:03 UTC. **Statut :** correction validée sur
+Linux aarch64 ; estimation chaude provisoire, recette globale ouverte.
+
+**Contexte :** le profil 2B héritait des 3456 Mio du 4B. Un seul passage
+du module de calibration existant, 2959 tokens réels d'entrée/64 de sortie,
+contexte 8192 et quatre threads, mesure une baisse maximale de mémoire
+disponible de 3418,79296875 Mio. La marge restante de 37,207 Mio est
+inférieure aux 129 Mio historiques retenus avant l'essai. Rapport fermé
+`8dde564c…`, 349 mesures et revue indépendante concordants.
+
+**Choix :** porter la seule estimation froide du profil 2B à 3584 Mio :
+3418,793 + 129 = 3547,793, arrondi local au multiple de 128 supérieur.
+La marge observée est de 165,207 Mio ; réserve 1536 inchangée, soit
+5120 Mio requis à froid. Le profil 4B reste octet pour octet inchangé
+à 3456 Mio. Conserver 512 Mio supplémentaires à chaud comme estimation
+provisoire surveillée : les différences de 3,313/144,234 Mio depuis la
+première sonde des phases chaudes ne sont pas des baselines pré-requête.
+
+**Validation et limites :** seuil exact du gouverneur exercé sur les deux
+profils réels, mémoire simulée et stockage temporaire ; 83 unités PASS,
+Ruff conforme. Les trois générations natives sont CPU à 100 %, sans swap
+supplémentaire, avec identités/parité de tokens vérifiées et arrêt corroboré.
+Aucune réduction de réserve, seconde campagne ou qualification D07,
+Windows, GPU ou qualité documentaire déduite. Le pilote ne qualifie pas
+une sortie de 400 tokens ni une charge maximale. Mise à jour du dépannage
+et du schéma concerné après validation ; pas de modification frontend.
+[Exécution, contrôle et reprise](journal/2026-10-06.md#r23--mesure-cpu-2b-bornée-admission-du-6-octobre-à-0253-utc).
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -4566,7 +4608,20 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `f74e19e` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 01:39 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `0fd0f17` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 03:03 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R23S03 — référence locale de la calibration CPU 2B
+
+Consultation du 6 octobre 2026, 03:03 UTC :
+[calibration.py](../services/runtime/calibration.py), source inchangée à
+la base `0fd0f17`, SHA `d2d40531…`. Le rapport natif fermé, son profil
+initial et la revue indépendante sont identifiés au
+[journal de la mesure CPU](journal/2026-10-06.md#r23--mesure-cpu-2b-bornée-admission-du-6-octobre-à-0253-utc).
+Apport : mesure locale utilisée par W036, pas une estimation depuis la taille
+du modèle. Limite : CPU Linux aarch64, pilote court ; aucune qualification
+D07, Windows, GPU, croissance chaude exacte ou qualité de réponse.
+Le [profil livré](../config/local16.yaml) est la source de vérité du paramètre
+corrigé ; le rapport conserve le profil antérieur utilisé pour mesurer.
 
 ## Q07 — sélection OCR par le navigateur
 
@@ -6740,8 +6795,8 @@ resources:
   admit_heavy_min_available_mib: 3072
   sampling_interval_seconds: 1
   unload_llm_before_ingestion: true
-  # R23 : borne provisoire conservée ; le pic 2B doit être mesuré avant qualification.
-  initial_llm_load_peak_estimate_mib: 3456
+  # W036 : pilote CPU 2B, baisse hôte 3418,79 Mio + marge 165,21 ; portée Linux aarch64.
+  initial_llm_load_peak_estimate_mib: 3584
   warm_llm_additional_peak_estimate_mib: 512
   embedding_load_peak_estimate_mib: 512
   generation_admission_wait_seconds: 120

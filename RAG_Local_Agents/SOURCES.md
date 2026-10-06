@@ -1,6 +1,19 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `f74e19e` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 01:39 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `0fd0f17` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 03:03 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R23S03 — référence locale de la calibration CPU 2B
+
+Consultation du 6 octobre 2026, 03:03 UTC :
+[calibration.py](../services/runtime/calibration.py), source inchangée à
+la base `0fd0f17`, SHA `d2d40531…`. Le rapport natif fermé, son profil
+initial et la revue indépendante sont identifiés au
+[journal de la mesure CPU](journal/2026-10-06.md#r23--mesure-cpu-2b-bornée-admission-du-6-octobre-à-0253-utc).
+Apport : mesure locale utilisée par W036, pas une estimation depuis la taille
+du modèle. Limite : CPU Linux aarch64, pilote court ; aucune qualification
+D07, Windows, GPU, croissance chaude exacte ou qualité de réponse.
+Le [profil livré](../config/local16.yaml) est la source de vérité du paramètre
+corrigé ; le rapport conserve le profil antérieur utilisé pour mesurer.
 
 ## Q07 — sélection OCR par le navigateur
 

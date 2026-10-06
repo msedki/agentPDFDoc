@@ -1,8 +1,13 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `cd4c3d5` et entrées datées · **Mis à jour :** 2026-10-06 02:39 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `0fd0f17` et entrées datées · **Mis à jour :** 2026-10-06 03:03 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Admission froide 2B CPU](2026-10-06.md#r23--mesure-cpu-2b-bornée-admission-du-6-octobre-à-0253-utc) :
+un pilote, baisse hôte 3418,793 Mio, borne 2B portée à 3584 après relecture.
+Réserve et 4B inchangés, chaud provisoire ; 83 unités et cinq contrôles de
+schémas verts. D07 et qualité documentaire non qualifiés.
 
 [Discriminant de langue P02](2026-10-06.md#discriminant-de-langue-p02--préparation-distincte) :
 un essai `fra` seul, refus relu indépendamment. Signes rétablis, quatre

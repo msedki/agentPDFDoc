@@ -328,6 +328,7 @@ def startup() -> Diagram:
     column = WIDTH - 24 - right
     for kind, owner, value, refusal in steps:
         if kind == "self":
+            assert isinstance(owner, str)
             end = d.self_step(y, owner, value, limit=right - 10)
         else:
             source, target = owner
@@ -456,7 +457,7 @@ def question() -> Diagram:
         ("msg", "api", "context", "expansion parent (900 jetons), budget par mode 1536 / 2560 / 5120", "solid"),
         ("msg", "api", "user", "sources S001…, warnings ; sans source : insuffisance, modèle non appelé",
          "dashed"),
-        ("msg", "api", "gov", "admission : verrou lourd, 3456 + 1536 = 4992 Mio disponibles (froid)", "solid"),
+        ("msg", "api", "gov", "admission : verrou lourd, pic froid du profil + réserve hôte", "solid"),
         ("msg", "api", "user", "status waiting_for_resources : remesure toutes les 2 s, 120 s au plus", "dashed"),
         ("msg", "api", "llm", "POST /api/chat en flux ; status generating", "solid"),
         ("self", "gov", None, "réserve 1536 Mio surveillée toutes les 0,5 s ; annulation si menacée", "left"),
@@ -470,6 +471,7 @@ def question() -> Diagram:
         if kind == "self":
             d.self_step(y, owner, value, side=style)
         else:
+            assert target is not None
             d.message(y, owner, target, value, style=style, color=NETWORK if style == "solid" else FLOW)
         y += 36
     d.lifelines(y - 14)

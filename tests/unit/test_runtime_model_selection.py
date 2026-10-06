@@ -62,6 +62,30 @@ def test_profiles_keep_the_same_documentary_and_runtime_contracts():
         assert value["llm"]["think"] is False and value["llm"]["num_ctx"] == 8192
 
 
+@pytest.mark.parametrize("name,cold_estimate", [("local16.yaml", 3584), ("local16-4b.yaml", 3456)])
+def test_delivered_model_profile_drives_the_cold_admission_boundary(tmp_path, monkeypatch, name, cold_estimate):
+    """Profils réels, mémoire simulée ; aucun modèle, bail ou stockage hôte acquis."""
+    from services.runtime.resources import ResourceAdmissionError, ResourceGovernor, admission_requirement
+
+    profile = yaml.safe_load((ROOT / "config" / name).read_text())
+    resources = profile["resources"]
+    assert resources["initial_llm_load_peak_estimate_mib"] == cold_estimate
+    assert resources["host_available_min_mib"] == 1536
+    assert resources["warm_llm_additional_peak_estimate_mib"] == 512
+    required = cold_estimate + 1536
+    assert admission_requirement(resources, "generation")["required_available_mib"] == required
+    governor = ResourceGovernor({**profile, "app": {**profile["app"], "data_dir": str(tmp_path)}},
+                                host_lock_path=tmp_path / "host-heavy.lock")
+    monkeypatch.setattr(governor, "snapshot", lambda: {"available_mib": required - 1})
+    with pytest.raises(ResourceAdmissionError) as refused:
+        governor._admit("generation")
+    assert refused.value.snapshot["admission"]["required_available_mib"] == required
+    monkeypatch.setattr(governor, "snapshot", lambda: {"available_mib": required})
+    assert governor._admit("generation") is None
+    assert governor._owner is None and governor._host_lock is None
+    assert not governor.host_lock_path.exists() and not governor.pause_path.exists()
+
+
 @pytest.mark.parametrize("chosen", ["qwen3.5:2b", "qwen3.5:4b"])
 def test_real_profile_model_lock_never_reads_an_unselected_store(monkeypatch, tmp_path, chosen):
     lock = tmp_path / "models.lock.json"

@@ -56,8 +56,8 @@
 <rect x="83" y="380" width="491.64" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
 <text x="86" y="392" font-size="12" fill="#172B33">sources S001…, warnings ; sans source : insuffisance, modèle non appelé</text>
 <polyline points="204,434 618,434" fill="none" stroke="#1F5F8B" stroke-width="1.6" marker-end="url(#sequence-question-head-1f5f8b)"/>
-<rect x="205" y="416" width="471.12" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
-<text x="208" y="428" font-size="12" fill="#172B33">admission : verrou lourd, 3456 + 1536 = 4992 Mio disponibles (froid)</text>
+<rect x="205" y="416" width="416.4" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
+<text x="208" y="428" font-size="12" fill="#172B33">admission : verrou lourd, pic froid du profil + réserve hôte</text>
 <polyline points="192,470 82,470" fill="none" stroke="#172B33" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#sequence-question-head-172b33)"/>
 <rect x="83" y="452" width="477.96" height="17" rx="2" fill="#F6F4EE" stroke="#F6F4EE" stroke-width="0"/>
 <text x="86" y="464" font-size="12" fill="#172B33">status waiting_for_resources : remesure toutes les 2 s, 120 s au plus</text>
