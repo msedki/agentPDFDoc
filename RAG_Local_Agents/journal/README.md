@@ -1,8 +1,14 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `255c0f4` et entrées datées · **Mis à jour :** 2026-10-05 23:56 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `ff2a468` et entrées datées · **Mis à jour :** 2026-10-06 00:17 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Correctif CLI et ordre des exemples](2026-10-06.md#r23-ocr-03--correctif-cli-et-ordre-des-exemples) :
+34 tests ciblés, lint/typage et relecture non-auteur conformes ; vue vérifiée
+sur les métadonnées réelles, données et membres inchangés. Aucun nouvel
+apprentissage, volume ou build/E2E inchangé. Témoin CLI réel sans poids PASS ;
+raccord natif et qualité OCR non validés.
 
 [Passage unique du pilote OCR corrigé](2026-10-05.md#r23-ocr-03--admission-du-passage-unique-corrigé) :
 préparation complète dans le délai ; apprentissage refusé après commande

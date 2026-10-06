@@ -113,6 +113,14 @@ Résultat, arrêt et preuves : [journal](journal/2026-10-05.md#fermeture-en-éch
 Correction nécessaire : [W035](DECISIONS.md#admission-du-passage-unique--5-octobre-2334-utc),
 sans seuil abaissé, volume augmenté ou nouveau candidat qualifié.
 
+Complément du 6 octobre, 00:17 UTC : mêmes sources locales épinglées,
+`commandlineflags.cpp`, lignes 129–166 et 191–197, et `lstmtraining.cpp`,
+lignes 78–105. L'aide imprime les valeurs courantes des flags puis termine
+le processus ; malgré le libellé « default », les valeurs reflètent les
+arguments déjà parsés. Une sortie modèle vide est refusée avant le test
+d'écriture et le chargement du réseau. Ces contrats permettent un témoin
+de parsing borné, pas une preuve d'apprentissage ou d'export.
+
 Complément du 5 octobre 2026 à 19:48 UTC, avant la correction de rendu :
 PSF, [queue](https://docs.python.org/3.12/library/queue.html) et
 [threading](https://docs.python.org/3.12/library/threading.html), documentation

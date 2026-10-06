@@ -627,6 +627,33 @@ ni nouvelle campagne justifiés. Une nouvelle exécution nécessite sa propre
 admission, pas une relance sur cet échec. Sources et limites :
 [S09, diagnostic CLI et ordre](SOURCES.md#diagnostic-cli-et-ordre-des-exemples--5-octobre-2355-utc).
 
+### Correction CLI et ordre — 6 octobre, 00:17 UTC
+
+**Statut :** correctif source/tests relu indépendamment et accepté ROOT ;
+aucune nouvelle admission d'apprentissage ni adoption.
+
+Le gel privé `r23-cli-order-20261006-JFH9VG` corrige les deux défauts
+prouvés, avec inversion exacte vers le driver précédent. Les listes
+canoniques restent contrôlées avant une vue dérivée, publiée par le writer
+exclusif existant. Gardes, membres, splits, seuils et budgets inchangés.
+34 tests purs PASS ; avis non-auteur `GO_SOURCE_CLI_ORDER_ONLY` accepté.
+Le contrôle ROOT des métadonnées réelles confirme la compatibilité de la vue,
+pas un apprentissage ou une qualité OCR. [Preuves](journal/2026-10-06.md#r23-ocr-03--correctif-cli-et-ordre-des-exemples).
+
+Admission distincte ROOT : un témoin du parseur natif, sans poids ni image,
+avec les anciens/nouveaux arguments train/export. `model_output` vide
+imposé avant toute sortie possible, aide finale ; cinq secondes maximum
+par commande, verrou lourd exclusif existant. Dans le code officiel 5.4,
+l'aide termine avant le traitement des modèles ; un parsing interrompu
+refuse la sortie vide avant la première écriture. La relecture non-auteur
+confirme cette borne. Ce contrôle ne remplace pas le pilote, ne crée pas
+de candidat et n'autorise pas sa relance.
+
+**Résultat :** `e6b57e EXIT0`, 0,032 s de phase sous verrou : deux anciens
+argv refusés avant écriture ; deux nouveaux argv atteignent l'aide et
+affichent les paramètres corrigés. Pins et verrou inchangés. Aucun poids
+chargé ni apprentissage ; contrôle CLI uniquement. Détails au journal.
+
 ### Correction préparatoire du rendu — choix du 5 octobre, 19:48 UTC
 
 **Statut :** réalisation source/tests autorisée ; exécution conditionnée à

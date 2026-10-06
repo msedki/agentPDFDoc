@@ -1657,7 +1657,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — application réalisée en partie, recette D01–D11 non close
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `255c0f4` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-05 23:56 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, chantier en cours · **Référence :** base publiée `ff2a468` et complément daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 00:17 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Objectif actif depuis le `/goal` du 30 septembre 2026 :** réaliser, intégrer et qualifier l'application RAG PDF locale sur Windows natif, sans WSL ni Docker, jusqu'aux critères exacts du plan et de DEFINITION_OF_DONE. L'inspection préalable reste conservée comme référence ; elle n'est pas répétée. Étendu le 1er octobre 2026 à Linux natif (W018) et à l'accélération GPU de la génération (W024, W025).
 
@@ -1666,6 +1666,22 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 **État initial du brief conservé :** brief et configurations disponibles ; aucun code applicatif à la remise. L'inspection préalable ne valide ni le lot A complet ni D01–D11. Les états courants des lots sont actualisés ci-dessous, sans effacer cette baseline.
 
 ## R14/R15 — relecture documentaire et reprise QA, relevé du 4 octobre à 11:05 UTC
+
+**R23-OCR-03 — correctif CLI et ordre, source/tests validés le 6 octobre.**
+Booléens train/export corrigés ; vue d'apprentissage interlacée par groupes,
+sans modifier les listes canoniques, les 1 600/400 membres, les critères ou
+les budgets. 34 tests ciblés PASS, Ruff et mypy conformes. ROOT a contrôlé
+la vue sur les métadonnées réellement préparées : cinq familles et les
+signes dès les 100 premiers exemples. Revue non-auteur
+`GO_SOURCE_CLI_ORDER_ONLY` acceptée, pas de nouvelle préparation ou
+d'apprentissage. Le correctif privé n'est pas un raccord natif complet.
+Témoin du parseur réel PASS : anciens arguments refusés avant toute
+écriture, nouveaux réglages tous pris en compte par l'aide, sans poids.
+Prochaine action : raccord minimal utilisant en lecture seule les entrées
+complètes déjà vérifiées ; revue puis admission distincte avant un pilote.
+Aucun build/E2E inchangé à rejouer, volume supplémentaire ou régénération
+des 2 000 entrées justifiés par ce correctif.
+[Résultats, limites et reprise](journal/2026-10-06.md#r23-ocr-03--correctif-cli-et-ordre-des-exemples).
 
 **R23-OCR-03 — passage unique fermé en échec le 5 octobre à 23:49:24 UTC.**
 Décision distincte ROOT après avis indépendant de proportionnalité et
@@ -3983,6 +3999,33 @@ ni nouvelle campagne justifiés. Une nouvelle exécution nécessite sa propre
 admission, pas une relance sur cet échec. Sources et limites :
 [S09, diagnostic CLI et ordre](SOURCES.md#diagnostic-cli-et-ordre-des-exemples--5-octobre-2355-utc).
 
+### Correction CLI et ordre — 6 octobre, 00:17 UTC
+
+**Statut :** correctif source/tests relu indépendamment et accepté ROOT ;
+aucune nouvelle admission d'apprentissage ni adoption.
+
+Le gel privé `r23-cli-order-20261006-JFH9VG` corrige les deux défauts
+prouvés, avec inversion exacte vers le driver précédent. Les listes
+canoniques restent contrôlées avant une vue dérivée, publiée par le writer
+exclusif existant. Gardes, membres, splits, seuils et budgets inchangés.
+34 tests purs PASS ; avis non-auteur `GO_SOURCE_CLI_ORDER_ONLY` accepté.
+Le contrôle ROOT des métadonnées réelles confirme la compatibilité de la vue,
+pas un apprentissage ou une qualité OCR. [Preuves](journal/2026-10-06.md#r23-ocr-03--correctif-cli-et-ordre-des-exemples).
+
+Admission distincte ROOT : un témoin du parseur natif, sans poids ni image,
+avec les anciens/nouveaux arguments train/export. `model_output` vide
+imposé avant toute sortie possible, aide finale ; cinq secondes maximum
+par commande, verrou lourd exclusif existant. Dans le code officiel 5.4,
+l'aide termine avant le traitement des modèles ; un parsing interrompu
+refuse la sortie vide avant la première écriture. La relecture non-auteur
+confirme cette borne. Ce contrôle ne remplace pas le pilote, ne crée pas
+de candidat et n'autorise pas sa relance.
+
+**Résultat :** `e6b57e EXIT0`, 0,032 s de phase sous verrou : deux anciens
+argv refusés avant écriture ; deux nouveaux argv atteignent l'aide et
+affichent les paramètres corrigés. Pins et verrou inchangés. Aucun poids
+chargé ni apprentissage ; contrôle CLI uniquement. Détails au journal.
+
 ### Correction préparatoire du rendu — choix du 5 octobre, 19:48 UTC
 
 **Statut :** réalisation source/tests autorisée ; exécution conditionnée à
@@ -4420,6 +4463,14 @@ laisse au défaut ; aucune consommation de 6 000 Mio n'est déduite.
 Résultat, arrêt et preuves : [journal](journal/2026-10-05.md#fermeture-en-échec-et-diagnostic).
 Correction nécessaire : [W035](DECISIONS.md#admission-du-passage-unique--5-octobre-2334-utc),
 sans seuil abaissé, volume augmenté ou nouveau candidat qualifié.
+
+Complément du 6 octobre, 00:17 UTC : mêmes sources locales épinglées,
+`commandlineflags.cpp`, lignes 129–166 et 191–197, et `lstmtraining.cpp`,
+lignes 78–105. L'aide imprime les valeurs courantes des flags puis termine
+le processus ; malgré le libellé « default », les valeurs reflètent les
+arguments déjà parsés. Une sortie modèle vide est refusée avant le test
+d'écriture et le chargement du réseau. Ces contrats permettent un témoin
+de parsing borné, pas une preuve d'apprentissage ou d'export.
 
 Complément du 5 octobre 2026 à 19:48 UTC, avant la correction de rendu :
 PSF, [queue](https://docs.python.org/3.12/library/queue.html) et
