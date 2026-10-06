@@ -588,6 +588,12 @@ Dense top 24 + lexical top 24 restent les valeurs de départ. RRF k=60 est conse
 
 Budget ordinaire de preuves : 2 560 tokens LLM, cible réduite à 1 536 pour une question factuelle, jusqu'à 5 120 pour analyse/comparaison. Ce sont des plafonds de modes, pas des objectifs à remplir. Une preuve obligatoire ne doit pas être perdue pour respecter un budget nominal : étendre jusqu'au plafond autorisé ou annoncer la limite. Mesurer `EvidenceCoverage@Context` après la sélection, les déduplications et toutes les coupes.
 
+**Profils livrés depuis W039 (6 octobre 2026) :** le plafond initial
+analyse/comparaison ci-dessus est ramené à 4 864 pour réserver la sortie
+maximale de 1 536 dans le contexte de 8 192. Budgets factuel/ordinaire
+inchangés ; couverture revérifiée et limites toujours signalées.
+Valeurs effectives et garde du prompt complet : [IMPLEMENTATION.md §7](IMPLEMENTATION.md#7-contexte-conversation-et-génération).
+
 Une relance telle que « Et sa tolérance ? » utilise un référent explicite issu de la question utilisateur, d'une sélection ou d'une source choisie, jamais un fait affirmé par le modèle précédent. Si le référent est ambigu, demander une précision sans lancer de recherche globale hasardeuse. Un changement de scope invalide les référents hors périmètre ; l'historique n'est pas un canal de réintroduction de documents exclus.
 
 Qwen reçoit uniquement les preuves autorisées et le contexte conversationnel explicitement non probant. Pas de navigateur, de shell, de système de fichiers ni de tool calling. Les sources sont des données non fiables délimitées. La recette distingue intégrité de citation, localisation et soutien de l'assertion.
@@ -782,9 +788,9 @@ Enregistrer les références candidates, sélectionnées puis effectivement envo
 
 ### Budgets selon le mode
 
-Contexte total maximal 8 192 tokens ; marge 256 ; sortie maximale 768. L'entrée sérialisée complète, template compris, doit respecter `num_ctx - num_predict - marge`. Budget ordinaire de preuves : 2 560 ; question factuelle : 1 536 ; analyse/comparaison : jusqu'à 5 120. Instructions + question <= 1 024, historique autorisé <= 512 comme limites de départ. Compter le total réel ; les plafonds séparés ne remplacent pas ce comptage. Les preuves nécessaires priment sur le remplissage artificiel et leur couverture est revérifiée après assemblage.
+Contexte total maximal 8 192 tokens ; marge 256 ; sortie maximale 1 536 dans les profils livrés depuis [W039](DECISIONS.md#w039-plafonds-de-réponse-et-avertissement-de-longueur). L'entrée sérialisée complète, template compris, doit respecter `num_ctx - num_predict - marge`, soit 6 400 tokens avec ces profils. Budget ordinaire de preuves : 2 560 ; question factuelle : 1 536 ; analyse/comparaison et maximum de preuves : 4 864, contre 5 120 dans la baseline initiale. Instructions + question <= 1 024, historique autorisé <= 512 comme limites de départ. La somme des plafonds est ainsi de 8 192 ; compter néanmoins le total réel avec son template. Les plafonds séparés ne remplacent pas ce comptage. Les preuves nécessaires priment sur le remplissage artificiel et leur couverture est revérifiée après assemblage.
 
-Sortie demandée : 384 tokens au plus pour le mode factuel, 768 pour réponse ordinaire ou analyse. Une limite de sortie atteinte est signalée ; ne pas la compter comme réponse complète. Le scénario de performance « 400 tokens » utilise explicitement une limite supérieure à 400, pas le mode factuel 384. Aucune continuation automatique infinie.
+Sortie demandée : 768 tokens au plus pour le mode factuel, 1 536 pour réponse ordinaire, analyse, section ou comparaison. Ces plafonds remplacent les valeurs initiales 384/768 ; les preuves historiques gardent leur configuration d'exécution. `output_tokens_by_mode` détermine le plafond transmis à Ollama ; `num_predict` réserve la sortie maximale dans le calcul du contexte. Une limite atteinte reste signalée par `length_limited` et `answer_length_limit` ; l'interface affiche une seule aide pour cette coupure. Ne pas compter cette réponse comme complète. Le scénario de performance « 400 tokens » conserve son plafond explicite et ses conditions de recette. Pas de continuation automatique ; une question de suivi reconstruit ses preuves autorisées et ne garantit pas la reprise exacte d'un texte interrompu.
 
 Le tokenizer local doit correspondre à l'artefact Ollama et à son template. Comparer ses comptes à ceux observés par le runtime ; si une divergence existe, la corriger ou documenter une marge vérifiée, jamais un ratio arbitraire caractères/tokens.
 
@@ -903,6 +909,24 @@ Les valeurs suivantes sont une baseline initiale à qualifier. Aucune n'est pré
 | Ordonnancement | Pause coopérative ; reprise manuelle initiale | Pas de kill nominal après cinq secondes ni de reprise périodique aveugle |
 | Viewer | Cinq canvases max et 24 000 000 pixels RGBA cumulés | Allocations raster réelles et mémoire navigateur |
 | Mémoire | Cible application 10 Gio ; réserve hôte 1,5 Gio | Hôte Windows + navigateur + services natifs |
+
+**Plafonds livrés depuis W039, 6 octobre 2026 :** la ligne « Sortie » conserve
+la baseline initiale. Les profils runtime 2B et 4B, et leurs copies documentaires,
+utilisent désormais `llm.num_predict: 1536`, avec `output_tokens_by_mode`
+à 768 pour `factual` et 1 536 pour `ordinary`, `analysis` et `compare`.
+Le contexte reste à 8 192 et la marge à 256 : entrée sérialisée autorisée
+jusqu'à 6 400 tokens, puis retrait contrôlé des fragments et couverture
+revérifiée. Modifier seulement `num_predict` ne change pas un plafond explicite
+par mode. Le changement s'applique après arrêt puis démarrage de l'instance.
+
+Le maximum de preuves et les budgets `analysis`/`compare` sont ramenés
+de 5 120 à 4 864 tokens pour respecter aussi la somme des plafonds :
+4 864 + 512 (historique) + 1 024 (instructions/question) + 1 536 (sortie) + 256 (marge) = 8 192.
+Budgets factuel/ordinaire de preuves inchangés,
+modèles, tokenizer et garde du contexte complet conservés. Le template
+et le prompt réellement assemblés restent comptés ; cette somme ne suffit
+pas à elle seule à garantir leur taille.
+[Décision, limites et validation ciblée](DECISIONS.md#w039-plafonds-de-réponse-et-avertissement-de-longueur).
 
 ## 3. Ollama
 
@@ -1713,7 +1737,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, livraison locale retenue avec réserves ; qualification intégrale en attente · **Référence :** base publiée `5fb5dc8` et complément W038 daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 09:41 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, livraison locale retenue avec réserves ; qualification intégrale en attente · **Référence :** base publiée `497d901`, W038 conservée et correctif R25-LEN-01 daté ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 13:27 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 ## Périmètre courant — décision W038 du 6 octobre 2026
 
@@ -1729,6 +1753,15 @@ par cette acceptation. Les cases, seuils et résultats D01–D11 restent intacts
 | Action | Lot / responsable | Dépendances | Livrable et critère de validation | État |
 |---|---|---|---|---|
 | R24-DOC-02 | Livraison documentaire / intégration, relecture indépendante | Choix utilisateur W038, preuves publiées jusqu'à `5fb5dc8` | Décision, réserves et travaux différés accessibles depuis les index ; brief synchronisé ; liens/pack conformes ; revue finale favorable ; publication sans fichier utilisateur ou runtime | VERIFIED — documentation 7/7 et pack 11/11 PASS, avis final indépendant accepté ; publication de ce seul lot documentaire, aucune clôture V2.1 |
+| R25-LEN-01 | Correctif local / intégration backend et interface, vérification indépendante | Demande utilisateur du 06/10/2026, base `497d901` ; W038 conservée | Sortie 768 tokens factuels, 1 536 autres modes dans les deux profils et leurs copies ; contexte 8 192, marge 256, gardes et citations conservées ; preuves analyse/comparaison 4 864 ; avertissement unique ; unités, lint, types, build, contrôle navigateur ciblé, essai natif borné, documentation et revue finale | VERIFIED — 246/246 unités backend ciblées (36 nouvelles), unités frontend, lint/types/build et 3/3 cas UI PASS ; documentation 7/7 et pack 11/11 PASS. Budgets 768/1 536 réels sur GPU ; FAIL factuel sur citation conservé, deuxième question ordinaire PASS. Atelier rouvert ; avis indépendant GO local avec réserve 2B accepté, aucune clôture V2.1. [Preuves et limites](journal/2026-10-06.md#r25-len-01--plafonds-de-réponse-et-avertissement-unique) |
+
+**Correctif autorisé le 6 octobre à 12:56 UTC :** les messages de limite de
+longueur remontés par l'utilisateur correspondent au plafond de sortie
+384/768 tokens et à un double affichage de la même limite dans l'interface
+(`config/local16.yaml`, `ContextBuilder.build`, `OllamaGateway.chat_options`,
+`QueryService.run`, `analysis-panel.tsx`). R25-LEN-01 ajuste ces plafonds,
+sans nouveau modèle, apprentissage, continuation automatique ou changement
+des données. Les défauts de fiabilité 2B et les réserves W038 restent ouverts.
 
 Les travaux de qualification intégrale, notamment R13/R22, les gates DEV/final,
 D03.8/D10.2 et la recette D07, sont différés. Aucune campagne, calibration,
@@ -4836,6 +4869,53 @@ autorisations ; garder l'autorisation distincte requise pour toute purge.
 Le [plan](PLAN.md#périmètre-courant--décision-w038-du-6-octobre-2026)
 porte les actions, le journal leurs vérifications.
 
+## W039 Plafonds de réponse et avertissement de longueur
+
+**Date :** 6 octobre 2026, 13:05 UTC, ajustement final à 13:20 UTC.
+**Statut :** correctif ciblé validé localement avec réserve de fiabilité 2B,
+revue finale favorable acceptée ; qualification intégrale en attente selon W038.
+
+**Contexte :** l'utilisateur rencontre rapidement une réponse coupée, avec
+deux messages pour la même limite. Le code transmet les plafonds 384/768
+des profils à `num_predict` ; le backend conserve `done_reason=length`
+comme `length_limited`, et l'interface affichait cette raison puis son
+avertissement `answer_length_limit`. Ce diagnostic ne lit pas les questions
+ou réponses privées et ne prétend pas connaître leurs compteurs réels.
+
+**Choix :** plafonds 768 tokens factuels, 1 536 pour les autres modes, dans
+les profils 2B/4B et leurs copies. Réserver 1 536 via `num_predict`, conserver
+le contexte 8 192 et la marge 256 ; l'entrée maximale devient 6 400.
+Ramener le maximum de preuves et les budgets analyse/comparaison de
+5 120 à 4 864 : 4 864 + 512 + 1 024 + 1 536 + 256 = 8 192. Budgets
+factuel/ordinaire de preuves inchangés. Cette correction de cohérence
+répond au refus du contrôle documentaire après la première hausse.
+Conserver les contrôles du prompt sérialisé, de couverture et le refus
+de dépassement observé par Ollama. Dédupliquer seulement l'affichage de la limite de génération,
+sans supprimer les autres avertissements ou modifier les événements SSE.
+L'aide oriente vers une réponse plus concise ou un point précis ; aucune
+continuation exacte ou automatique n'est annoncée.
+
+**Justification et sources :** changement minimal demandé, pas de nouveau
+modèle ni d'apprentissage. Le plafond Ollama est un nombre de tokens, pas
+un délai ; le GPU ne le relève pas. [Sources et contrat de version](SOURCES.md#w039-s01--plafond-ollama-et-correctif-autorisé).
+
+**Conséquences et limites :** génération potentiellement plus longue et
+moins de place réservée à l'entrée, dont 256 tokens de moins au plafond
+de preuves analyse/comparaison. Les fragments nécessaires restent
+contrôlés après assemblage. Davantage de tokens ne garantit ni la fin de
+toute réponse ni sa fiabilité documentaire ; réserves 2B/OCR et cases DoD
+inchangées. R19 et qualification intégrale restent en pause.
+
+**Validation et retour arrière :** [R25-LEN-01](PLAN.md#périmètre-courant--décision-w038-du-6-octobre-2026)
+porte les contrôles ciblés et le journal leurs résultats. Unités, lint,
+types, build et contrôle UI PASS. Les essais natifs prouvent les budgets
+transmis ; échec de citation factuelle conservé, question ordinaire PASS.
+Ils ne démontrent pas la complétude d'une longue réponse. Revue indépendante
+`GO_FINAL_R25_LEN_LOCAL_WITH_2B_RESERVE` acceptée à 13:27 UTC. Retour arrière :
+rétablir les budgets de sortie et de preuves précédents dans les quatre profils, reconstruire
+l'export de l'interface à la révision précédente, puis arrêter/démarrer ;
+aucune migration ou réindexation des données n'est nécessaire.
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -4888,7 +4968,26 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5fb5dc8` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 09:36 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `497d901`, W038 conservée et correctif R25-LEN-01 daté ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 13:27 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## W039-S01 — plafond Ollama et correctif autorisé
+
+Consultation du 6 octobre 2026 (UTC), diagnostic puis correctif R25-LEN-01 :
+[Modelfile, paramètres officiels Ollama](https://docs.ollama.com/modelfile#valid-parameters-and-values),
+[API chat officielle](https://docs.ollama.com/api/chat) et
+[types API du tag installé v0.35.0](https://github.com/ollama/ollama/blob/v0.35.0/api/types.go).
+`num_predict` borne le nombre de tokens générés ; `/api/chat` expose la
+raison de fin, les tokens d'entrée et ceux de sortie. Le code versionné
+confirme ces champs. Ces sources établissent le contrat, pas la qualité
+ou les performances de nos réponses. Aucune option illimitée retenue.
+
+Source locale : `config/local16.yaml`, `config/local16-4b.yaml`,
+`ContextBuilder.build`, `OllamaGateway.chat_options`, `QueryService.run`
+et `analysis-panel.tsx`, base `497d901` et modifications locales datées.
+L'utilisateur autorise le correctif proposé 768/1 536 tokens avec réserve
+cohérente et avertissement unique, dans le respect de CLAUDE.md et des skills.
+La [décision W039](DECISIONS.md#w039-plafonds-de-réponse-et-avertissement-de-longueur)
+ne reprend pas la qualification intégrale mise en attente par W038.
 
 ## W038-S01 — arbitrage utilisateur de livraison
 
@@ -6837,7 +6936,7 @@ llm:
   source_model_manifest: .runtime/manifests/ollama-model.json
   required_quantization: Q4_K_M
   num_ctx: 8192
-  num_predict: 768
+  num_predict: 1536
   temperature: 0.2
   top_p: 0.9
   think: false
@@ -6852,10 +6951,10 @@ llm:
   max_active_generations: 1
   max_pending_generations: 2
   output_tokens_by_mode:
-    factual: 384
-    ordinary: 768
-    analysis: 768
-    compare: 768
+    factual: 768
+    ordinary: 1536
+    analysis: 1536
+    compare: 1536
   tokenizer_dir: .runtime/models/qwen3.5-4b-tokenizer
 embedding:
   model_id: intfloat/multilingual-e5-small
@@ -6932,7 +7031,7 @@ retrieval:
   final_max_fragments: 6
   hnsw_ef: 64
   reranker: false
-  max_evidence_llm_tokens: 5120
+  max_evidence_llm_tokens: 4864
   max_history_llm_tokens: 512
   max_instructions_question_llm_tokens: 1024
   context_safety_tokens: 256
@@ -6942,8 +7041,8 @@ retrieval:
   evidence_tokens_by_mode:
     factual: 1536
     ordinary: 2560
-    analysis: 5120
-    compare: 5120
+    analysis: 4864
+    compare: 4864
   history_is_evidence: false
 qdrant:
   url: http://127.0.0.1:6333
@@ -7040,7 +7139,7 @@ llm:
   source_model_manifest: .runtime/manifests/ollama-model-2b.json
   required_quantization: Q8_0
   num_ctx: 8192
-  num_predict: 768
+  num_predict: 1536
   temperature: 0.2
   top_p: 0.9
   think: false
@@ -7055,10 +7154,10 @@ llm:
   max_active_generations: 1
   max_pending_generations: 2
   output_tokens_by_mode:
-    factual: 384
-    ordinary: 768
-    analysis: 768
-    compare: 768
+    factual: 768
+    ordinary: 1536
+    analysis: 1536
+    compare: 1536
   tokenizer_model_id: Qwen/Qwen3.5-2B
   tokenizer_dir: .runtime/models/qwen3.5-2b-tokenizer
 embedding:
@@ -7136,7 +7235,7 @@ retrieval:
   final_max_fragments: 6
   hnsw_ef: 64
   reranker: false
-  max_evidence_llm_tokens: 5120
+  max_evidence_llm_tokens: 4864
   max_history_llm_tokens: 512
   max_instructions_question_llm_tokens: 1024
   context_safety_tokens: 256
@@ -7146,8 +7245,8 @@ retrieval:
   evidence_tokens_by_mode:
     factual: 1536
     ordinary: 2560
-    analysis: 5120
-    compare: 5120
+    analysis: 4864
+    compare: 4864
   history_is_evidence: false
 qdrant:
   url: http://127.0.0.1:6333

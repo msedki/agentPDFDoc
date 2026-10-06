@@ -151,7 +151,8 @@ test("les deux événements SSE alimentent le même dédoublonnage, sans modifie
   const analysis = code("components/analysis-panel.tsx");
   assert.match(analysis, /case "warning": next\.warnings = mergeQueryWarnings\(query\.warnings, \[event\.data\.warning \?\? event\.data\]\)/);
   assert.match(analysis, /if \(Array\.isArray\(event\.data\.warnings\)\) next\.warnings = mergeQueryWarnings\(query\.warnings, event\.data\.warnings\)/);
-  assert.match(analysis, /query\.warnings\.map\(\(warning, index\) =>[^\n]*warningText\(warning\)/, "le rendu continue de n'afficher que le texte contrôlé");
+  assert.match(analysis, /queryWarningTexts\(query\.warnings, query\.finishReason\)\.map\(\(text, index\) =>[^\n]*\{text\}/, "le rendu affiche les textes contrôlés en regroupant la limite de génération");
+  assert.doesNotMatch(analysis, /query\.warnings\.map\([^\n]*\{warning\}/, "les objets d'avertissement ne sont jamais rendus directement");
   const onEvent = /const onEvent =([\s\S]*?)const connect =/.exec(analysis)?.[1] ?? "";
   assert.ok(onEvent);
   assert.doesNotMatch(onEvent, /setScope\(|api\.query\(/, "aucun changement de scope ou redémarrage de génération au traitement d'événement");

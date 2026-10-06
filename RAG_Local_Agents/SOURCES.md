@@ -1,6 +1,25 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5fb5dc8` et consultations datées ci-dessous ; références historiques conservées · **Mis à jour :** 2026-10-06 09:36 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `497d901`, W038 conservée et correctif R25-LEN-01 daté ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 13:27 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## W039-S01 — plafond Ollama et correctif autorisé
+
+Consultation du 6 octobre 2026 (UTC), diagnostic puis correctif R25-LEN-01 :
+[Modelfile, paramètres officiels Ollama](https://docs.ollama.com/modelfile#valid-parameters-and-values),
+[API chat officielle](https://docs.ollama.com/api/chat) et
+[types API du tag installé v0.35.0](https://github.com/ollama/ollama/blob/v0.35.0/api/types.go).
+`num_predict` borne le nombre de tokens générés ; `/api/chat` expose la
+raison de fin, les tokens d'entrée et ceux de sortie. Le code versionné
+confirme ces champs. Ces sources établissent le contrat, pas la qualité
+ou les performances de nos réponses. Aucune option illimitée retenue.
+
+Source locale : `config/local16.yaml`, `config/local16-4b.yaml`,
+`ContextBuilder.build`, `OllamaGateway.chat_options`, `QueryService.run`
+et `analysis-panel.tsx`, base `497d901` et modifications locales datées.
+L'utilisateur autorise le correctif proposé 768/1 536 tokens avec réserve
+cohérente et avertissement unique, dans le respect de CLAUDE.md et des skills.
+La [décision W039](DECISIONS.md#w039-plafonds-de-réponse-et-avertissement-de-longueur)
+ne reprend pas la qualification intégrale mise en attente par W038.
 
 ## W038-S01 — arbitrage utilisateur de livraison
 

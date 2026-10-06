@@ -38,6 +38,24 @@ Les valeurs suivantes sont une baseline initiale à qualifier. Aucune n'est pré
 | Viewer | Cinq canvases max et 24 000 000 pixels RGBA cumulés | Allocations raster réelles et mémoire navigateur |
 | Mémoire | Cible application 10 Gio ; réserve hôte 1,5 Gio | Hôte Windows + navigateur + services natifs |
 
+**Plafonds livrés depuis W039, 6 octobre 2026 :** la ligne « Sortie » conserve
+la baseline initiale. Les profils runtime 2B et 4B, et leurs copies documentaires,
+utilisent désormais `llm.num_predict: 1536`, avec `output_tokens_by_mode`
+à 768 pour `factual` et 1 536 pour `ordinary`, `analysis` et `compare`.
+Le contexte reste à 8 192 et la marge à 256 : entrée sérialisée autorisée
+jusqu'à 6 400 tokens, puis retrait contrôlé des fragments et couverture
+revérifiée. Modifier seulement `num_predict` ne change pas un plafond explicite
+par mode. Le changement s'applique après arrêt puis démarrage de l'instance.
+
+Le maximum de preuves et les budgets `analysis`/`compare` sont ramenés
+de 5 120 à 4 864 tokens pour respecter aussi la somme des plafonds :
+4 864 + 512 (historique) + 1 024 (instructions/question) + 1 536 (sortie) + 256 (marge) = 8 192.
+Budgets factuel/ordinaire de preuves inchangés,
+modèles, tokenizer et garde du contexte complet conservés. Le template
+et le prompt réellement assemblés restent comptés ; cette somme ne suffit
+pas à elle seule à garantir leur taille.
+[Décision, limites et validation ciblée](DECISIONS.md#w039-plafonds-de-réponse-et-avertissement-de-longueur).
+
 ## 3. Ollama
 
 Injecter `config/ollama.env` dans le processus ou service Ollama. Pendant le provisionnement autorisé, exécuter :

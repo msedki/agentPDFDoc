@@ -149,6 +149,12 @@ Dense top 24 + lexical top 24 restent les valeurs de départ. RRF k=60 est conse
 
 Budget ordinaire de preuves : 2 560 tokens LLM, cible réduite à 1 536 pour une question factuelle, jusqu'à 5 120 pour analyse/comparaison. Ce sont des plafonds de modes, pas des objectifs à remplir. Une preuve obligatoire ne doit pas être perdue pour respecter un budget nominal : étendre jusqu'au plafond autorisé ou annoncer la limite. Mesurer `EvidenceCoverage@Context` après la sélection, les déduplications et toutes les coupes.
 
+**Profils livrés depuis W039 (6 octobre 2026) :** le plafond initial
+analyse/comparaison ci-dessus est ramené à 4 864 pour réserver la sortie
+maximale de 1 536 dans le contexte de 8 192. Budgets factuel/ordinaire
+inchangés ; couverture revérifiée et limites toujours signalées.
+Valeurs effectives et garde du prompt complet : [IMPLEMENTATION.md §7](IMPLEMENTATION.md#7-contexte-conversation-et-génération).
+
 Une relance telle que « Et sa tolérance ? » utilise un référent explicite issu de la question utilisateur, d'une sélection ou d'une source choisie, jamais un fait affirmé par le modèle précédent. Si le référent est ambigu, demander une précision sans lancer de recherche globale hasardeuse. Un changement de scope invalide les référents hors périmètre ; l'historique n'est pas un canal de réintroduction de documents exclus.
 
 Qwen reçoit uniquement les preuves autorisées et le contexte conversationnel explicitement non probant. Pas de navigateur, de shell, de système de fichiers ni de tool calling. Les sources sont des données non fiables délimitées. La recette distingue intégrité de citation, localisation et soutien de l'assertion.

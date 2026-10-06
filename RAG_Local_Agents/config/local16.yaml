@@ -17,7 +17,7 @@ llm:
   source_model_manifest: .runtime/manifests/ollama-model-2b.json
   required_quantization: Q8_0
   num_ctx: 8192
-  num_predict: 768
+  num_predict: 1536
   temperature: 0.2
   top_p: 0.9
   think: false
@@ -32,10 +32,10 @@ llm:
   max_active_generations: 1
   max_pending_generations: 2
   output_tokens_by_mode:
-    factual: 384
-    ordinary: 768
-    analysis: 768
-    compare: 768
+    factual: 768
+    ordinary: 1536
+    analysis: 1536
+    compare: 1536
   tokenizer_model_id: Qwen/Qwen3.5-2B
   tokenizer_dir: .runtime/models/qwen3.5-2b-tokenizer
 embedding:
@@ -113,7 +113,7 @@ retrieval:
   final_max_fragments: 6
   hnsw_ef: 64
   reranker: false
-  max_evidence_llm_tokens: 5120
+  max_evidence_llm_tokens: 4864
   max_history_llm_tokens: 512
   max_instructions_question_llm_tokens: 1024
   context_safety_tokens: 256
@@ -123,8 +123,8 @@ retrieval:
   evidence_tokens_by_mode:
     factual: 1536
     ordinary: 2560
-    analysis: 5120
-    compare: 5120
+    analysis: 4864
+    compare: 4864
   history_is_evidence: false
 qdrant:
   url: http://127.0.0.1:6333

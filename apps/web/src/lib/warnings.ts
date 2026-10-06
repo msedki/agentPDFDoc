@@ -38,6 +38,18 @@ export function mergeQueryWarnings(previous: ApiWarning[], incoming: unknown[]):
   return result;
 }
 
+/** La raison de fin et le code du service décrivent la même coupure ; les autres limites restent distinctes. */
+export function queryWarningTexts(warnings: unknown[], finishReason?: string): string[] {
+  const lengthNotice = "Réponse incomplète : la limite de longueur a été atteinte. Demandez une réponse plus concise ou détaillez un point précis dans le même périmètre.";
+  const texts: string[] = finishReason === "length" ? [lengthNotice] : [];
+  for (const warning of warnings) {
+    if (warning && typeof warning === "object" && "code" in warning && warning.code === "answer_length_limit") {
+      if (!texts.includes(lengthNotice)) texts.push(lengthNotice);
+    } else texts.push(warningText(warning));
+  }
+  return texts;
+}
+
 /**
  * Limites d'extraction (codes de `services/ingestion`) : intitulé et conséquence pour
  * l'utilisateur. Un même code répété par zone est regroupé avec ses pages.

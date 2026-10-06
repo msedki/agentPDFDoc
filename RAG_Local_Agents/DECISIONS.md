@@ -1166,3 +1166,50 @@ choisir le lot nécessaire, contrôler son matériel, ses données et ses
 autorisations ; garder l'autorisation distincte requise pour toute purge.
 Le [plan](PLAN.md#périmètre-courant--décision-w038-du-6-octobre-2026)
 porte les actions, le journal leurs vérifications.
+
+## W039 Plafonds de réponse et avertissement de longueur
+
+**Date :** 6 octobre 2026, 13:05 UTC, ajustement final à 13:20 UTC.
+**Statut :** correctif ciblé validé localement avec réserve de fiabilité 2B,
+revue finale favorable acceptée ; qualification intégrale en attente selon W038.
+
+**Contexte :** l'utilisateur rencontre rapidement une réponse coupée, avec
+deux messages pour la même limite. Le code transmet les plafonds 384/768
+des profils à `num_predict` ; le backend conserve `done_reason=length`
+comme `length_limited`, et l'interface affichait cette raison puis son
+avertissement `answer_length_limit`. Ce diagnostic ne lit pas les questions
+ou réponses privées et ne prétend pas connaître leurs compteurs réels.
+
+**Choix :** plafonds 768 tokens factuels, 1 536 pour les autres modes, dans
+les profils 2B/4B et leurs copies. Réserver 1 536 via `num_predict`, conserver
+le contexte 8 192 et la marge 256 ; l'entrée maximale devient 6 400.
+Ramener le maximum de preuves et les budgets analyse/comparaison de
+5 120 à 4 864 : 4 864 + 512 + 1 024 + 1 536 + 256 = 8 192. Budgets
+factuel/ordinaire de preuves inchangés. Cette correction de cohérence
+répond au refus du contrôle documentaire après la première hausse.
+Conserver les contrôles du prompt sérialisé, de couverture et le refus
+de dépassement observé par Ollama. Dédupliquer seulement l'affichage de la limite de génération,
+sans supprimer les autres avertissements ou modifier les événements SSE.
+L'aide oriente vers une réponse plus concise ou un point précis ; aucune
+continuation exacte ou automatique n'est annoncée.
+
+**Justification et sources :** changement minimal demandé, pas de nouveau
+modèle ni d'apprentissage. Le plafond Ollama est un nombre de tokens, pas
+un délai ; le GPU ne le relève pas. [Sources et contrat de version](SOURCES.md#w039-s01--plafond-ollama-et-correctif-autorisé).
+
+**Conséquences et limites :** génération potentiellement plus longue et
+moins de place réservée à l'entrée, dont 256 tokens de moins au plafond
+de preuves analyse/comparaison. Les fragments nécessaires restent
+contrôlés après assemblage. Davantage de tokens ne garantit ni la fin de
+toute réponse ni sa fiabilité documentaire ; réserves 2B/OCR et cases DoD
+inchangées. R19 et qualification intégrale restent en pause.
+
+**Validation et retour arrière :** [R25-LEN-01](PLAN.md#périmètre-courant--décision-w038-du-6-octobre-2026)
+porte les contrôles ciblés et le journal leurs résultats. Unités, lint,
+types, build et contrôle UI PASS. Les essais natifs prouvent les budgets
+transmis ; échec de citation factuelle conservé, question ordinaire PASS.
+Ils ne démontrent pas la complétude d'une longue réponse. Revue indépendante
+`GO_FINAL_R25_LEN_LOCAL_WITH_2B_RESERVE` acceptée à 13:27 UTC. Retour arrière :
+rétablir les budgets de sortie et de preuves précédents dans les quatre profils, reconstruire
+l'export de l'interface à la révision précédente, puis arrêter/démarrer ;
+aucune migration ou réindexation des données n'est nécessaire.

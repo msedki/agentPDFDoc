@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import { connectQueryStream } from "@/lib/stream";
 import { sourcePage } from "@/lib/selection";
 import { useWorkspace } from "@/lib/store";
-import { mergeQueryWarnings, warningText } from "@/lib/warnings";
+import { mergeQueryWarnings, queryWarningTexts, warningText } from "@/lib/warnings";
 import { answerBlocks, type Inline } from "@/lib/answer-format";
 import { citationParts, citedSourceIds } from "@/lib/citations";
 import { tabKeyTarget } from "@/lib/keyboard";
@@ -165,9 +165,8 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
         <div className="query-status" role="status"><StatusIndicator status={queryStatus(query.status)} active={query.connection !== "closed"} />{query.connection === "reconnecting" && <Button variant="ghost" size="sm" onClick={() => connect(query.id, `/api/v1/queries/${encodeURIComponent(query.id)}/events`, query.lastEventId)}><RefreshCw size={16} />Reconnecter</Button>}</div>
         {query.text && <CitationText text={query.text} sources={query.sources} onCitation={source => openSource(source, query.id)} />}
         {query.error && <p className="inline-error" role="alert"><CircleAlert size={14} aria-hidden="true" />{query.error}</p>}
-        {query.finishReason === "length" && <p className="inline-warning">La réponse a atteint sa limite de longueur. Reformulez ou demandez explicitement une suite dans le même périmètre.</p>}
         {["cancelled", "interrupted"].includes(query.status) && <p className="inline-warning">Cette réponse est incomplète : elle a été annulée ou interrompue avant la fin.</p>}
-        {query.warnings.map((warning, index) => <p className="inline-warning" key={index}>{warningText(warning)}</p>)}
+        {queryWarningTexts(query.warnings, query.finishReason).map((text, index) => <p className="inline-warning" key={index}>{text}</p>)}
         {!!query.sources.length && <details className="sources-list" open><summary><Check size={14} aria-hidden="true" />{query.sources.length === 1 ? "1 source consultable" : `${query.sources.length} sources consultables`}</summary>{query.sources.map(source => <SourceCard key={source.source_id} source={source} onOpen={() => openSource(source, query.id)} />)}</details>}
       </article>)}
     </div>

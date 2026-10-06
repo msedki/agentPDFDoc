@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, livraison locale retenue avec réserves ; qualification intégrale en attente · **Référence :** base publiée `5fb5dc8` et complément W038 daté ci-dessous ; historique W029 conservé · **Mis à jour :** 2026-10-06 09:41 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, livraison locale retenue avec réserves ; qualification intégrale en attente · **Référence :** base publiée `497d901`, W038 conservée et correctif R25-LEN-01 daté ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 13:27 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 ## Périmètre courant — décision W038 du 6 octobre 2026
 
@@ -16,6 +16,15 @@ par cette acceptation. Les cases, seuils et résultats D01–D11 restent intacts
 | Action | Lot / responsable | Dépendances | Livrable et critère de validation | État |
 |---|---|---|---|---|
 | R24-DOC-02 | Livraison documentaire / intégration, relecture indépendante | Choix utilisateur W038, preuves publiées jusqu'à `5fb5dc8` | Décision, réserves et travaux différés accessibles depuis les index ; brief synchronisé ; liens/pack conformes ; revue finale favorable ; publication sans fichier utilisateur ou runtime | VERIFIED — documentation 7/7 et pack 11/11 PASS, avis final indépendant accepté ; publication de ce seul lot documentaire, aucune clôture V2.1 |
+| R25-LEN-01 | Correctif local / intégration backend et interface, vérification indépendante | Demande utilisateur du 06/10/2026, base `497d901` ; W038 conservée | Sortie 768 tokens factuels, 1 536 autres modes dans les deux profils et leurs copies ; contexte 8 192, marge 256, gardes et citations conservées ; preuves analyse/comparaison 4 864 ; avertissement unique ; unités, lint, types, build, contrôle navigateur ciblé, essai natif borné, documentation et revue finale | VERIFIED — 246/246 unités backend ciblées (36 nouvelles), unités frontend, lint/types/build et 3/3 cas UI PASS ; documentation 7/7 et pack 11/11 PASS. Budgets 768/1 536 réels sur GPU ; FAIL factuel sur citation conservé, deuxième question ordinaire PASS. Atelier rouvert ; avis indépendant GO local avec réserve 2B accepté, aucune clôture V2.1. [Preuves et limites](journal/2026-10-06.md#r25-len-01--plafonds-de-réponse-et-avertissement-unique) |
+
+**Correctif autorisé le 6 octobre à 12:56 UTC :** les messages de limite de
+longueur remontés par l'utilisateur correspondent au plafond de sortie
+384/768 tokens et à un double affichage de la même limite dans l'interface
+(`config/local16.yaml`, `ContextBuilder.build`, `OllamaGateway.chat_options`,
+`QueryService.run`, `analysis-panel.tsx`). R25-LEN-01 ajuste ces plafonds,
+sans nouveau modèle, apprentissage, continuation automatique ou changement
+des données. Les défauts de fiabilité 2B et les réserves W038 restent ouverts.
 
 Les travaux de qualification intégrale, notamment R13/R22, les gates DEV/final,
 D03.8/D10.2 et la recette D07, sont différés. Aucune campagne, calibration,
