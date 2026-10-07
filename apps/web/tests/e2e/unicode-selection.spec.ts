@@ -8,6 +8,7 @@
  */
 import { test, expect, type Page } from "@playwright/test";
 import { fileURLToPath } from "node:url";
+import { withImportPriority } from "./import-priority.ts";
 
 const fixtureName = "Unicode ligatures césures.pdf";
 const fixturePath = fileURLToPath(new URL(`../../../../fixtures/qualification-v2.1/text/${fixtureName}`, import.meta.url));
@@ -72,11 +73,15 @@ test("native Unicode selection round-trips through the API in code points or is 
   test.setTimeout(600000);
   test.skip(process.env.RAG_E2E_IMPORT_ALLOWED !== "1", "Supervisor must confirm the API targets an authorized isolated store before fixture import.");
   await page.goto("/workspace/");
-  const chooser = page.waitForEvent("filechooser");
-  await page.getByRole("button", { name: "Importer des PDF", exact: true }).click();
-  await (await chooser).setFiles(fixturePath);
   const documentButton = page.getByRole("navigation", { name: "Arborescence documentaire" }).getByRole("button", { name: new RegExp(fixtureName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) }).first();
-  await expect(documentButton).toContainText("Prêt", { timeout: 540000 });
+  // D4 (recette R26-KIT-02) : import et indexation sous « Priorité aux imports », choisie dans une page dédiée du
+  // contexte puis rétablie à la priorité trouvée dans un finally (import-priority.ts).
+  await withImportPriority(page, page.request, info, async () => {
+    const chooser = page.waitForEvent("filechooser");
+    await page.getByRole("button", { name: "Importer des PDF", exact: true }).click();
+    await (await chooser).setFiles(fixturePath);
+    await expect(documentButton).toContainText("Prêt", { timeout: 540000 });
+  });
   const tree = await (await page.request.get("/api/v1/library/tree")).json();
   const document = tree.documents.find((item: { name: string }) => item.name === fixtureName);
   const versionId = document.active_version_id ?? document.version_id;

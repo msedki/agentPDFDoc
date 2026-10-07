@@ -4,6 +4,7 @@ import { ocrOverlays } from "../../src/lib/ocr-overlay.ts";
 import { csrfFromCookies } from "../../src/lib/session.ts";
 import type { DocumentDetail, Job, LibraryTree, PageBlocks, SelectedSpan, Source } from "../../src/lib/types.ts";
 import { watchPage } from "./guards.ts";
+import { withImportPriority } from "./import-priority.ts";
 import { fixture, uploadFromUi, waitJob } from "./lifecycle-target.ts";
 import { monitorBrowser } from "./resources";
 
@@ -77,11 +78,6 @@ test("real geometric OCR selection retains its exact revision, hash and Unicode 
     await monitorBrowser(browser, "ocr-start", info);
     await page.goto("/workspace/");
     await expect(page.getByTestId("scope-summary")).toContainText("Toute la bibliothèque");
-    // This UI priority switch is necessary after the preceding generation recipe; no backend substitution.
-    await page.getByRole("button", { name: "Suivi", exact: false }).click();
-    await page.getByRole("button", { name: "Priorité aux imports", exact: true }).click();
-    await expect(page.getByRole("button", { name: "Priorité aux imports", exact: true })).toHaveAttribute("aria-pressed", "true");
-    await page.getByRole("button", { name: "Fermer le suivi", exact: true }).click();
     const initialTreeResponse = await page.request.get("/api/v1/library/tree");
     expect(initialTreeResponse.status()).toBe(200);
     const initialTree = await initialTreeResponse.json() as LibraryTree;
@@ -89,19 +85,24 @@ test("real geometric OCR selection retains its exact revision, hash and Unicode 
     let importedVersion: string | undefined;
     if (!documentId) {
       expect(initialTree.documents.filter(document => document.name === input.name), "Existing OCR fixture requires explicit reuse; never reimport automatically").toEqual([]);
-      const received = await uploadFromUi(page, input, info);
-      // Retain the exact created job for bounded cleanup even if later publication assertions fail.
-      if (received.status === 202 && received.body.reused === false && typeof received.body.job_id === "string") ownedJob = received.body.job_id;
-      expect(received.status).toBe(202);
-      expect(received.body.reused).toBe(false);
-      documentId = String(received.body.document_id);
-      importedVersion = String(received.body.version_id);
-      expect(ownedJob).toBeTruthy();
-      const job = await waitJob(page.request, new URL(page.url()).origin, ownedJob!, info);
-      expect(job.state).toBe("ready");
-      expect(job.published).toBe(true);
-      expect(job.document_id).toBe(documentId);
-      expect(job.version_id).toBe(importedVersion);
+      // D4 (recette R26-KIT-02) : import et publication sous « Priorité aux imports », choisie dans une page dédiée
+      // du contexte puis rétablie à la priorité trouvée dans un finally (import-priority.ts). La page du scénario et
+      // son journal ne voient pas ce choix ; un document réutilisé n'en a pas besoin.
+      await withImportPriority(page, page.request, info, async () => {
+        const received = await uploadFromUi(page, input, info);
+        // Retain the exact created job for bounded cleanup even if later publication assertions fail.
+        if (received.status === 202 && received.body.reused === false && typeof received.body.job_id === "string") ownedJob = received.body.job_id;
+        expect(received.status).toBe(202);
+        expect(received.body.reused).toBe(false);
+        documentId = String(received.body.document_id);
+        importedVersion = String(received.body.version_id);
+        expect(ownedJob).toBeTruthy();
+        const job = await waitJob(page.request, new URL(page.url()).origin, ownedJob!, info);
+        expect(job.state).toBe("ready");
+        expect(job.published).toBe(true);
+        expect(job.document_id).toBe(documentId);
+        expect(job.version_id).toBe(importedVersion);
+      });
     }
     const detailResponse = await page.request.get(`/api/v1/documents/${encodeURIComponent(documentId!)}`);
     expect(detailResponse.status()).toBe(200);

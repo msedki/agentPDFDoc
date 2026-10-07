@@ -1783,17 +1783,31 @@ réutilisation à identité constante comme preuve D03.8.
 | R26-UI-01 | Lot 1/2, interface | R26-OCR-01, R26-ANS-01/02 | Export sans chemin du poste ; badge OCR ; avertissements regroupés ; garde E2E contre l'instance principale ; unités, lint, types, build ; non-régression du lecteur (rotations, 300 %, sélections, génération puis citation) ; rendu 1366×768 et 1920×1080 | VERIFIED — 393 unités, lint, types, build avec contrôle d'export intégré ; E2E sur instance isolée : lecteur 12/12, génération 2B réelle 2/2 ; rendu relu ; revue et contre-vérification favorables ([W044](DECISIONS.md#w044-pdfjs-chargé-hors-bundle-et-export-contrôlé)) |
 | R26-ANC-01 | Lot 1, interface | R26-UI-01 | Taux D06.5 sur les fixtures DEV natives et QLONG, en une passe automatisée bornée à environ une heure ; blocs OCR déclarés à part ; clôture soumise à l'utilisateur | FAIL selon les règles figées — 155/169 régions (91,7 %), 161/169 pages (95,3 %) ; les 14 échecs sont des textes répétés que la méthode ne discrimine pas, aucune erreur de page sur les 161 passages ouverts ; P02 non publié absent du jeu. D06.5 reste ouvert |
 | R26-2B-01 | Lot 1, qualification | Code backend stabilisé | 100 questions DEV en 2B, grille de deux juges et un arbitre (assistant, sans expert métier), dénominateurs et questions P02 NOT_RUN conservés ; jeu final intouché | VERIFIED (diagnostic DEV) — 84 générées, 16 NOT_RUN ; exactitude 50/80, abstention 17/20, faux refus 10/80, assertions soutenues 64/181 ; défaut principal : citations hors crochets dans 50 réponses sur 84. Réserve 2B maintenue |
+| R26-CIT-01 | Lot 1, backend | R26-2B-01 ; décision utilisateur du 6 octobre, vers 23:20 UTC | Origine des citations 2B hors crochets établie et corrigée à la source (présentation des preuves et consigne), sans normaliser les variantes ni affaiblir le parseur strict ; critère figé avant exécution ; campagne DEV 2B complète et contrôle du format 4B ; grilles jugées par deux juges et un arbitre | ANNULÉ par l'utilisateur à 23:40 UTC (4B par défaut, aucun nouveau travail 2B) — arrêté pendant le diagnostic, sans modification ; diagnostic conservé au journal |
+| R26-LBL-01 | Lot 1, backend | R26-2B-01 ; décision utilisateur du 6 octobre | Étiquette interne d'historique recopiée en tête de réponse (DEV-077, DEV-079) : origine corrigée et étiquette exacte retirée de l'affichage avec avertissement ; rien d'autre n'est filtré | ANNULÉ avec R26-CIT-01 ; défaut conservé dans la réserve 2B |
+| R26-MOD-01 | Runtime, lanceurs, kit | Décision utilisateur du 6 octobre, 23:40 UTC | `qwen3.5:4b` modèle par défaut (CLI, `rag.sh`, `rag.ps1`, kit et installateur), 2B en option au lancement ; profils inchangés ; profil existant d'un utilisateur non converti ; tests rouge puis vert, Windows en plateforme simulée seulement | VERIFIED (unités) — CLI, `rag.sh`, `rag.ps1` et profils publiés avec le lot du 7 octobre ([W045](DECISIONS.md#w045-qwen-35-4b-par-défaut-2b-conservé-au-lancement)) ; kit et installateur avec R26-KIT-04 ; Windows en plateforme simulée seulement |
+| R26-4B-01 | Lot 1, qualification | R26-MOD-01 décidé ; code R26 publié | Campagne DEV 4B sur le code actuel (procédure de R26-2B-01), grille de deux juges et un arbitre ; jeu final intouché | VERIFIED (diagnostic DEV) — 84 générées, 16 NOT_RUN ; exactitude 59/80, abstention 17/20, faux refus 6/80, assertions soutenues 156/191, citations entre crochets dans 77/84 réponses ; refus « intervalle de contrôle » persistant (6 questions françaises) ; aucune cible D05 revendiquée ([journal](journal/2026-10-07.md#r26-4b-01--grille-dev-jugée-et-arbitrée-7-octobre-00200100-utc)) |
+| R26-ADM-02 | Lot 1, qualification CPU | Critère figé au journal à 23:45 UTC | Pilote CPU exclusif du 4B aux limites W039 ; borne relevée si contredite, jamais baissée ; aucune case D07 | VERIFIED — pic froid 4 138,56 Mio et pic chaud 385,41 Mio : bornes 4B portées à 4 352 et 640 Mio ([W046](DECISIONS.md#w046-admission-du-4b-relevée-après-un-pilote-exclusif-aux-limites-w039)) ; aucune case D07 |
 | R26-KIT-00 | Lot 2, skill | Sources officielles KIT01–KIT16 | Skill `linux-offline-kit` créé, format validé, registre à jour | VERIFIED — format et quick_validate PASS, registre à jour |
 | R26-KIT-01 | Lot 2, outils de distribution | R26-KIT-00 | Fabricant Linux par plateforme, liens symboliques, marqueurs du poste, glibc minimale, archive, installateur, mise à jour, retour arrière, désinstallation, garde du profil livré ; Windows inchangé hors correctif C3 | VERIFIED (unités) — revue NO-GO (3 majeurs, 10 mineurs) puis corrections rouge/vert, contre-vérification GO ; 238 PASS/19 SKIP ; dry-run sans fuite, `ready` attendu après commit |
-| R26-KIT-02 | Lot 2, recette réelle | R26-KIT-01, export sans fuite, commit | Kit aarch64 fabriqué, vérifié, archivé ; installation isolée à un autre chemin sans réseau ; PDF, extraction, recherche, question, citation et lecture ; redémarrage hors ligne ; mise à jour et retour arrière avec sauvegarde vérifiée ; désinstallation gardée | À FAIRE — après le commit du lot |
+| R26-KIT-02 | Lot 2, recette réelle | R26-KIT-01, export sans fuite, commit | Kit aarch64 fabriqué, vérifié, archivé ; installation isolée à un autre chemin sans réseau ; PDF, extraction, recherche, question, citation et lecture ; redémarrage hors ligne ; mise à jour et retour arrière avec sauvegarde vérifiée ; désinstallation gardée | EN COURS — phase 1 (kit A, `78ec95c`) réalisée sans réseau : fabrication, transport, installation, parcours, choix du modèle et redémarrage hors ligne PASS, six défauts relevés (D1–D6) ; phase 2 (mise à jour, retours arrière, retrait) avec le kit B après R26-KIT-04 |
+| R26-KIT-04 | Lot 2, outils et documentation du kit | Demande utilisateur du 7 octobre, vers 00:00 UTC ; R26-MOD-01 ; retours de la recette R26-KIT-02 | Kit simple et fluide pour l'utilisateur : commande d'installation sans argument obligatoire, emplacements par défaut au niveau utilisateur, messages en français par étapes, entrées de menu utilisateur, guide à la racine du kit généré depuis le manifeste, mise à jour et retrait sans chemin à retrouver ; aucune modification globale ; preuves en recette réelle | EN COURS — audit en lecture seule (quatre angles) et spécification priorisée |
+| R26-UI-02 | Interface, E2E | Recette R26-KIT-02 phase 1 | D2 oracle de citation trop large, D3 retour au passage précédent après rotation et zoom, D4 ordre des specs (mode de priorité) : cause établie, rouge puis vert, E2E sur instance isolée | VERIFIED — D3 régression de F05 corrigée (unités rouge puis vert, E2E aux deux tailles) ; D2 oracle sur la citation enregistrée ; D4 helper de priorité employé par toutes les specs qui attendent une indexation (contrôle statique 5/5, six mutations détectées) ; E2E complet à rejouer sur le build final ([journal](journal/2026-10-07.md#r26-ui-02--lecteur-et-specs-e2e-après-la-recette-du-kit-a-7-octobre-01500230-utc)) |
+| R26-RT-01 | Runtime | Recette R26-KIT-02 phase 1 (D1) | Qdrant lancé depuis un dossier de la racine des données (plus aucune écriture dans le programme), restauration comprise ; inventaire de recette pris avant le premier démarrage | IMPLÉMENTÉ — Qdrant lancé depuis son dossier de stockage (instance, restauration et essai d'intégration), Windows inchangé ; unités et mutants verts ; constat réel attendu en recette R26-KIT-02 phase 2 |
 | R26-KIT-03 | Lot 2, x86-64 | Hôte x86-64 provisionné | Kit x86-64 fabriqué et qualifié sur un hôte de cette architecture | BLOCKED — aucun hôte x86-64 ; le fabricant refuse un kit croisé |
 | R26-DOC-01 | Documentation | Lots vérifiés | Déploiement, exploitation, API, spécifications, DoD Linux, synthèse de livraison, décisions, sources, registre des skills, journal | EN COURS — API, dépannage, décisions W040–W044, sources, registre et journal à jour ; déploiement, exploitation, DoD et synthèse après la recette du kit |
 | R26-REV-01 | Validation | Tous les lots | Revues non-auteur par lot et validation finale contre ce plan, les skills et la DoD | EN COURS — revues backend, interface et kit favorables ; validation finale après la recette du kit |
 
-**Point à trancher (utilisateur) :** le 2B cite ses sources hors crochets
-dans 50 réponses DEV sur 84 (38 correctes par leur contenu), si bien que
-ces citations ne sont ni enregistrées ni cliquables. Le parseur strict
-`[S001]` est un contrat délibéré ; le normaliser modifierait ce contrat.
+**Arbitrage utilisateur du 6 octobre, 23:40 UTC :** `qwen3.5:4b` devient le
+modèle par défaut, le 2B reste disponible en option au lancement, sans
+nouveau travail sur le 2B (R26-MOD-01). Il remplace la consigne initiale
+« conserver qwen3.5:2b par défaut ».
+
+**Arbitrages utilisateur antérieurs du 6 octobre (23:15–23:25 UTC) :** les citations
+doivent être produites entre crochets ; corriger l'origine plutôt que
+reconnaître les variantes (R26-CIT-01). Retirer de l'affichage l'étiquette
+technique recopiée (R26-LBL-01). Conserver l'échec D06.5 en réserve, sans
+nouvelle mesure.
 
 Reste hors de portée de ce poste : D07 (hôte CPU de 16 Go au plus), Linux
 x86-64, Windows. Ces critères restent non qualifiés et ne bloquent pas les
@@ -5158,6 +5172,163 @@ affiche « Lecteur PDF indisponible » avec l'action à mener. **Retour
 arrière :** revenir à l'import empaqueté et retirer le contrôle du script
 `build`, ce qui réintroduirait la fuite.
 
+## W045 Qwen 3.5 4B par défaut, 2B conservé au lancement
+
+**Date :** 6 octobre 2026, 23:40 UTC. **Statut :** décision utilisateur
+acquise ; implémentée (R26-MOD-01) et testée en unitaire, revue avec le lot
+R26-KIT-04. Remplace uniquement le défaut de W032 ; le choix au démarrage,
+l'exclusivité entre modèle et profil et la conservation des profils
+utilisateur restent régis par W032.
+
+**Contexte :** la campagne DEV R26-2B-01 mesure pour le 2B une exactitude de
+50/80, des citations hors crochets dans 50 réponses sur 84 et 64 assertions
+soutenues sur 181 ; le 4B mesuré en J8 citait toutes ses réponses. Après
+explication, l'utilisateur demande « je veux 4B par défaut » et choisit
+« 4B par défaut, 2B en option », sans nouveau travail sur le 2B.
+[Source utilisateur](SOURCES.md#r26-s02--arbitrages-utilisateur-sur-la-fiabilité-2b-et-d065).
+
+**Choix :** `qwen3.5:4b` (profil `config/local16-4b.yaml`) est le défaut de
+la CLI, de `rag.sh`, de `rag.ps1` et du kit Linux ; `--model qwen3.5:2b` (ou
+`-Model` sous Windows) sélectionne le 2B. Tout kit Linux contient le 4B ;
+`--models 4b,2b` est le défaut, un kit 4B seul est permis, un kit 2B seul
+refusé. Les fichiers de profil ne changent pas de nom ni de rôle.
+
+**Conséquences :** un profil existant n'est jamais converti : une
+installation mise à jour garde son modèle principal et le rapport le
+signale, avec la commande pour employer le 4B. Un clone lancé sans option
+passe au 4B au démarrage suivant. Le 4B demande davantage de mémoire et de
+calcul sur CPU que le 2B (W046). Windows n'est couvert que par les tests en
+plateforme simulée ; rien n'y a été exécuté. Les mesures de qualité du 4B
+sur le code actuel relèvent de R26-4B-01. **Retour arrière :** remettre
+`config/local16.yaml` comme défaut et la règle « 2B obligatoire dans tout
+kit ».
+
+## W046 Admission du 4B relevée après un pilote exclusif aux limites W039
+
+**Date :** 7 octobre 2026, critère figé le 6 octobre à 23:45 UTC, mesure de
+22:45 à 23:31 UTC. **Statut :** acquise pour le profil 4B livré ; prolonge
+W007 sans en réécrire les mesures historiques. Aucune case D07 n'est cochée.
+
+**Contexte :** le 4B devient le modèle par défaut (W045). Ses estimations
+(3 456 Mio à froid, 512 Mio à chaud) dataient de W007, avant les limites de
+W039 (entrée maximale 6 400 tokens, sorties 768/1 536).
+
+**Mesure retenue :** pilote CPU exclusif sur le Jetson (verrous lourd et GPU
+tenus, aucune instance du chantier pendant la fenêtre), profil 4B livré,
+`qwen3.5:4b-text` sur CPU, entrées de 6 319 tokens, trois contenus chauds
+neufs et une sortie de 768 tokens. Pic froid 4 138,56 Mio (depuis la base du
+pilote ; 3 830,27 depuis la mesure préalable), pic chaud 385,41 Mio, plateau
+d'USS 0,22 Mio, swap consommé 260 Mio. [Journal](journal/2026-10-06.md#r26-adm-02--pilote-cpu-exclusif-du-4b-22452331-utc).
+
+**Choix :** règle de W036 (pic + 129 Mio arrondi au multiple de 128
+supérieur, borne relevée et jamais baissée) : estimation froide du 4B portée
+de 3 456 à 4 352 Mio et estimation chaude de 512 à 640 Mio, dans
+`config/local16-4b.yaml` et sa copie ; 5 888 Mio requis à froid avec la
+réserve de 1 536. Profil 2B inchangé (W041).
+
+**Conséquences :** admission plus stricte du 4B ; un hôte de 16 Go garde la
+marge prévue mais aucune recette D07 n'en découle. Portée : CPU de ce Jetson.
+**Retour arrière :** rétablir 3 456 et 512 dans le profil 4B, sa copie et le
+test de seuil, si une mesure exclusive plus représentative le justifie.
+
+## W047 Kit Linux installé en espace utilisateur, intégré au bureau par défaut
+
+**Date :** 7 octobre 2026. **Statut :** choix techniques déduits des demandes
+R26 (installation sans droit administrateur ni modification globale) et de la
+demande du 7 octobre vers 00:00 UTC (« user friendly seamless avec les
+composants et toute la doc ») ; implémenté (R26-KIT-01, R26-KIT-04), testé en
+unitaire et relu par des relecteurs non auteurs. La recette réelle de la mise
+à jour, des retours arrière et du retrait reste à faire (R26-KIT-02, phase 2).
+Remplace la limite KIT16 « entrée de menu créée seulement sur demande
+explicite ».
+
+**Contexte :** la phase 1 de la recette (kit A, `78ec95c`) a installé et
+utilisé le kit sans réseau, mais l'installateur exigeait deux chemins, ne
+créait aucune entrée de menu et laissait l'utilisateur retrouver seul la
+destination pour mettre à jour ou retirer. L'audit en quatre angles a relevé
+56 constats, regroupés en 31 actions KIT4-01 à KIT4-31
+(`.runtime/qa/r26-kit-ux-audit-20261007/kit-ux-spec.json`).
+
+**Choix :**
+
+- Format `atelier-kit-v2` : archive `<kit_id>.tar` (PAX, sans compression),
+  empreinte `<kit_id>.tar.sha256` et guide `<kit_id>.LISEZMOI.md` à côté ;
+  dans le kit, `kit-manifest.json`, `SHA256SUMS`, `SYMLINKS`, `EXECUTABLES`,
+  `THIRD_PARTY_NOTICES.md` et `LISEZMOI.md` généré depuis le manifeste.
+  Fichiers du dépôt lus au commit du kit, interface exportée accompagnée de
+  sa preuve de provenance ; corpus, bases, sessions, secrets, journaux et
+  preuves de qualification exclus.
+- `./installer.sh` sans argument obligatoire, refusé en root. Emplacements
+  par défaut `${XDG_DATA_HOME:-$HOME/.local/share}/atelier-documentaire/`
+  `programme` et `donnees`, ou `--emplacement <dossier>` pour un autre
+  volume. C'est une interprétation : la spécification XDG Base Directory 0.8
+  ne définit aucun dossier de programmes ; uv range ses outils de la même
+  façon sous `$XDG_DATA_HOME`.
+- Intégration au bureau par défaut, désactivable par `--sans-menu` : entrée
+  `atelier-documentaire.desktop` (`Version=1.1`, acceptée par
+  `desktop-file-validate` 0.24, qui refuse 1.5), icône SVG désignée par chemin
+  absolu, commande `~/.local/bin/atelier` et registre
+  `${XDG_STATE_HOME:-$HOME/.local/state}/atelier-documentaire/installations.json`.
+  Le PATH, `~/.profile`, `/etc`, `/usr` et `update-desktop-database` ne sont
+  jamais touchés.
+- Versions côte à côte sous `<programme>/<kit_id>`, désignées par le pointeur
+  `installation.json` (version courante et précédente), remplacé par
+  `rename(2)` une fois tous les fichiers dérivés préparés ; `repair`
+  régénère le lanceur, l'entrée et la commande depuis le pointeur.
+- Mise à jour : sauvegarde des données par la version en place, vérifiée
+  avant toute copie. Retour arrière simple ou avec restauration de la
+  sauvegarde, annoncé et confirmé avant toute action. Retrait de la version
+  courante refusé tant qu'une version précédente existe ;
+  `uninstall --anciennes` et `uninstall --tout` conservent toujours les
+  données.
+- Données conservées reprises par `install --reprendre-donnees` seulement
+  si une sauvegarde existe ; sans sauvegarde, refus avec une autre racine
+  proposée, car aucune version installée ne peut les sauvegarder avant une
+  éventuelle évolution de format.
+- Codes de sortie : 0 réussite, 1 autre erreur, 2 usage, 3 refus avant toute
+  écriture, 4 contrôles système refusés, 5 échec après le début des
+  écritures, 130 interruption. Messages en français, par étapes, sans durée
+  promise tant qu'aucune n'est mesurée.
+
+**Justification :** la demande de simplicité, la règle « aucune élévation »
+de la charte, et les spécifications Desktop Entry et XDG Base Directory
+([SOURCES R26-KIT](SOURCES.md#r26-kit--kit-hors-ligne-linux-kit01-à-kit26)).
+
+**Conséquences :** sans `--sans-menu`, l'installateur écrit hors des deux
+dossiers choisis (entrée, commande, registre) ; tout est retiré par
+`uninstall --tout`. La commande `atelier` n'est trouvée que si
+`~/.local/bin` figure dans le PATH, ce que l'installateur signale sans le
+modifier. L'affichage de l'entrée sous GNOME 3.36 n'est pas observé. Points
+non retenus, à trancher par l'utilisateur : retrait du modèle 4B source
+(3,39 Go) et filtrage du groupe de développement du cache uv (99,8 Mo).
+**Retour arrière :** `--sans-menu` rétablit le comportement de R26-KIT-01
+(aucune écriture hors des dossiers choisis).
+
+## W048 Modèle principal durable d'une installation Linux
+
+**Date :** 7 octobre 2026. **Statut :** choix technique compatible avec
+W045 ; implémenté (KIT4-22) et testé en unitaire ; recette réelle avec le
+kit B (R26-KIT-02, phase 2).
+
+**Contexte :** W045 interdit de convertir un profil existant ; une
+installation 2B mise à jour garde donc le 2B. Sans commande dédiée,
+l'utilisateur devait répéter `--modele` à chaque ouverture.
+
+**Choix :** `atelier modele <modèle>` (ou `installer.sh modele <modèle>`)
+change durablement le modèle principal, sous le verrou de l'installateur :
+refus si une instance tourne avec un autre profil, sauf arrêt confirmé au
+terminal ; profil dérivé s'il manque ; rubriques modèle et mémoire de
+`doctor` affichées ; bascule du pointeur avec l'événement `modele` ; lanceur
+et actions du menu régénérés. `update --model <modèle>` fait le même choix
+pendant une mise à jour. Aucun fichier de profil n'est modifié et le modèle
+doit être livré par la version installée.
+
+**Conséquences :** le rapport de mise à jour d'une installation 2B cite la
+commande pour passer au 4B. Aucune bascule automatique : l'arrêt reste une
+décision de l'utilisateur. **Retour arrière :** `atelier modele` avec
+l'ancien modèle, ou retrait de la commande, l'option `--modele` au
+lancement restant disponible.
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -5212,7 +5383,18 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 **Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `011a817` et consultations R26 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 20:10 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
-## R26-KIT — kit hors ligne Linux (KIT01 à KIT16)
+## R26-S02 — arbitrages utilisateur sur la fiabilité 2B et D06.5
+
+Réponses de l'utilisateur dans cette session, le 6 octobre 2026 entre 23:15
+et 23:25 UTC, après explication des résultats de la campagne 2B DEV et de la
+mesure D06.5 : « il faut que les citations soient avec crochets, donc trouver
+l'origine et corriger » ; retrait de l'étiquette technique recopiée accepté ;
+échec D06.5 conservé en réserve. Ces réponses autorisent une correction de la
+présentation des preuves et de la consigne, mesurée sur le jeu DEV ; elles
+n'autorisent ni réglage sur le jeu final, ni normalisation des variantes de
+citation, ni nouvelle mesure D06.5.
+
+## R26-KIT — kit hors ligne Linux (KIT01 à KIT26)
 
 Consultation du 6 octobre 2026 (UTC) pour R26-KIT-00 et R26-KIT-01, avant la
 rédaction du skill [linux-offline-kit](../.agents/skills/linux-offline-kit/SKILL.md).
@@ -5236,7 +5418,17 @@ prouvent pas qu'un kit fabriqué ici s'installe ailleurs.
 | KIT13 | [binutils : readelf, objdump](https://sourceware.org/binutils/docs/binutils/) et [ld, VERSION](https://sourceware.org/binutils/docs/ld/VERSION.html) | binutils 2.34 sur le poste | lecture des versions de symboles requises, contrôle au chargement | version non indiquée sur les pages |
 | KIT14 | [libstdc++, ABI](https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html) | page courante | `GLIBCXX_3.4.26` correspond à GCC 9.1.0 | — |
 | KIT15 | [ldd(1)](https://man7.org/linux/man-pages/man1/ldd.1.html), [rename(2)](https://man7.org/linux/man-pages/man2/rename.2.html) | man-pages 6.19 | ne pas lancer `ldd` sur un exécutable non vérifié ; remplacement atomique, `EXDEV` | — |
-| KIT16 | [Desktop Entry](https://specifications.freedesktop.org/desktop-entry-spec/latest/) et [XDG Base Directory](https://specifications.freedesktop.org/basedir-spec/latest/) | 1.5 / 0.8 | clés requises, citation de `Exec` et `%%`, `XDG_DATA_HOME` | entrée de menu créée seulement sur demande explicite |
+| KIT16 | [Desktop Entry](https://specifications.freedesktop.org/desktop-entry-spec/latest/) et [XDG Base Directory](https://specifications.freedesktop.org/basedir-spec/latest/) | 1.5 / 0.8 | clés requises, citation de `Exec` et `%%`, `XDG_DATA_HOME` | entrée de menu créée seulement sur demande explicite jusqu'à [W047](DECISIONS.md#w047-kit-linux-installé-en-espace-utilisateur-intégré-au-bureau-par-défaut) |
+| KIT17 | [Desktop Entry, clés reconnues](https://specifications.freedesktop.org/desktop-entry/latest/recognized-keys.html), [actions supplémentaires](https://specifications.freedesktop.org/desktop-entry/latest/extra-actions.html), [nom de fichier](https://specifications.freedesktop.org/desktop-entry/latest/file-naming.html), [changements de 1.0 à 1.1](https://specifications.freedesktop.org/desktop-entry/latest/apes05.html) | 1.5, consultée le 07/10/2026 | `Icon` en chemin absolu employé tel quel, `TryExec`, `Actions` et groupes `[Desktop Action]`, identifiant d'entrée ; `Actions` existe depuis 1.1, d'où `Version=1.1` | `desktop-file-validate` 0.24 du poste refuse `Version=1.5` (observé le 07/10) |
+| KIT18 | [GNOME, intégrer une application](https://developer.gnome.org/documentation/guidelines/maintainer/integrating.html) | page courante, 07/10/2026 | installation par utilisateur sous `$XDG_DATA_HOME/applications`, `desktop-file-validate` dans les tests, icône SVG | affichage sous GNOME 3.36 non observé |
+| KIT19 | [XDG Base Directory](https://specifications.freedesktop.org/basedir/latest/) | 0.8, 07/10/2026 | `XDG_DATA_HOME` et `XDG_STATE_HOME` par défaut ; un chemin relatif est invalide et ignoré | aucun dossier de programmes défini : emplacement par défaut interprété (W047) |
+| KIT20 | [uv, stockage](https://docs.astral.sh/uv/reference/storage/) | page courante, 07/10/2026 | outils sous `$XDG_DATA_HOME/uv/tools`, exécutables sous `~/.local/bin` : précédent pour un programme par utilisateur | précédent, pas une norme |
+| KIT21 | [Python 3.12, argparse](https://docs.python.org/3.12/library/argparse.html), [io.IOBase.isatty](https://docs.python.org/3.12/library/io.html#io.IOBase.isatty), [os.geteuid](https://docs.python.org/3.12/library/os.html#os.geteuid) | 3.12, 07/10/2026 | aides, `epilog`, erreurs d'usage sur stderr avec le code 2 ; détection d'un terminal ; refus en root | — |
+| KIT22 | [dpkg-query(1), Ubuntu 20.04](https://manpages.ubuntu.com/manpages/focal/man1/dpkg-query.1.html) | focal, 07/10/2026 | `-S` donne le paquet qui fournit une bibliothèque, nommé dans les refus | paquets relevés sur le poste de fabrication seulement |
+| KIT23 | [SQLite, corruption](https://www.sqlite.org/howtocorrupt.html) | page courante, 07/10/2026 | verrous défectueux sur les systèmes de fichiers réseau : données refusées sur un volume réseau | — |
+| KIT24 | [Ollama, FAQ](https://docs.ollama.com/faq) | page courante, 07/10/2026 | écoute par défaut sur 127.0.0.1:11434 : ports contrôlés avant écriture et triplet libre proposé | — |
+| KIT25 | [Microsoft, comparaison des systèmes de fichiers](https://learn.microsoft.com/en-us/windows/win32/fileio/filesystem-functionality-comparison) | page courante, 07/10/2026 | FAT32 limité à 4 Gio par fichier, ni FAT32 ni exFAT n'ont de liens symboliques : kit à extraire sur un disque Linux local | transport seulement |
+| KIT26 | [Python, module site](https://docs.python.org/3.12/library/site.html), [initialisation de sys.path](https://docs.python.org/3.12/library/sys_path_init.html), [options de la ligne de commande](https://docs.python.org/3.12/using/cmdline.html) et [sys.pycache_prefix](https://docs.python.org/3.12/library/sys.html#sys.pycache_prefix) | 3.12, 07/10/2026 | `-S` sans `site` ni fichier `.pth`, `-I` mode isolé, `-B`, `-X pycache_prefix` : ce qui s'exécute avant la vérification ciblée | portée réelle établie par les tests de l'installateur |
 
 ## R26-WEB — chargement de PDF.js hors bundle et contrôle de l'export
 
@@ -7360,8 +7552,9 @@ resources:
   admit_heavy_min_available_mib: 3072
   sampling_interval_seconds: 1
   unload_llm_before_ingestion: true
-  initial_llm_load_peak_estimate_mib: 3456
-  warm_llm_additional_peak_estimate_mib: 512
+  # W046 : pilote CPU 4B exclusif du 07/10, pic froid 4138,56 Mio et pic chaud 385,41 Mio + marge 129 (W007 : 3456 et 512) ; portée Linux aarch64.
+  initial_llm_load_peak_estimate_mib: 4352
+  warm_llm_additional_peak_estimate_mib: 640
   embedding_load_peak_estimate_mib: 512
   generation_admission_wait_seconds: 120
   initial_parser_peak_estimate_mib: 2304

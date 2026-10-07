@@ -823,3 +823,294 @@ def test_supervise_records_the_mode_and_passes_it_to_the_api_only(tmp_path, monk
     api_only = set(launched["api"]["env"]) - set(reference)
     assert api_only == {"RAG_SHUTDOWN_MARKER", "RAG_CONTROL_TOKEN", "RAG_QDRANT_API_KEY", "RAG_LLM_ACCELERATOR",
                         "RAG_LLM_ACCELERATOR_REASON"}
+
+
+# --- D1 (recette R26-KIT-02, phase 1) : répertoire courant de Qdrant -------------------------------------------------
+
+REPOSITORY = ROOT
+QDRANT_INIT_FILE = ".qdrant-initialized"
+OLLAMA_INSTANCE_KEYS = ("id_ed25519", "id_ed25519.pub")
+QDRANT_BINARY = ".runtime/bin/qdrant-1.19.1/qdrant"
+OLLAMA_BINARY = ".runtime/bin/ollama-0.35.0/bin/ollama"
+TEST_INSTANCE_ID = "essai0instance"
+
+
+def program_entries(program: Path) -> list[str]:
+    """Fichiers, liens et dossiers d'un programme de test, chemins relatifs triés."""
+    return sorted(path.relative_to(program).as_posix() for path in program.rglob("*"))
+
+
+class ChildProcessDouble:
+    """Double nommé d'un enfant du superviseur, qui n'exécute rien.
+
+    Il écrit ce que chaque service écrit hors de ses chemins configurés. Qdrant : `src/startup.rs` (tag v1.19.1) crée
+    l'indicateur vide `.qdrant-initialized` relativement au répertoire courant quand QDRANT_INIT_FILE_PATH est absent, ce
+    que la liste blanche de l'environnement garantit. Ollama, sous Linux : `RunServer` appelle `initializeKeypair`
+    (`cmd/cmd.go`, tag v0.35.0), qui crée `id_ed25519` et `id_ed25519.pub` sous `$HOME/.ollama` s'ils manquent ; le
+    double y écrit une clé factice. L'API n'écrit rien ici. Aucune écriture n'est faite dans le dépôt réel, même si le
+    code lançait encore Qdrant depuis sa racine ou y plaçait le HOME des enfants."""
+
+    def __init__(self, name: str, argv: list[str], cwd: Path, env: dict[str, str], log_path: Path):
+        self.name, self.argv, self.cwd, self.env, self.log_path = name, argv, Path(cwd), dict(env), log_path
+        if name == "qdrant":
+            assert "QDRANT_INIT_FILE_PATH" not in env
+            assert not self.cwd.resolve().is_relative_to(REPOSITORY), f"Qdrant lancé depuis le dépôt réel : {cwd}"
+            (self.cwd / QDRANT_INIT_FILE).write_bytes(b"")
+        elif name == "ollama" and sys.platform != "win32":
+            keys = Path(env["HOME"]) / ".ollama"
+            assert not keys.resolve().is_relative_to(REPOSITORY), f"HOME d'Ollama dans le dépôt réel : {keys}"
+            keys.mkdir(parents=True, exist_ok=True)
+            for key in OLLAMA_INSTANCE_KEYS:
+                (keys / key).write_bytes(b"cle factice du double")
+
+    def identity(self):
+        return {"pid": 4194000, "created_at": 1.0, "executable": f"/absent/{self.name}", "log_path": str(self.log_path)}
+
+    def poll(self):
+        return None
+
+    def wait(self, timeout=30):
+        return 0
+
+
+class ProcessJobDouble:
+    """Double nommé de ProcessJob (Job Object ou groupe POSIX) : il enregistre chaque lancement sans rien exécuter."""
+
+    def __init__(self):
+        self.launched: dict[str, ChildProcessDouble] = {}
+
+    def launch(self, argv, *, cwd, env, log_path):
+        name = "api" if "services.runtime.api_entry" in argv else Path(argv[0]).name
+        child = ChildProcessDouble(name, argv, cwd, env, log_path)
+        self.launched[name] = child
+        return child
+
+    def close(self):
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        self.close()
+
+
+class MsvcrtDouble:
+    """Double nommé de msvcrt pour la plateforme Windows simulée : verrous d'octet acceptés et consignés, rien d'autre."""
+
+    LK_NBLCK, LK_UNLCK = 2, 0
+
+    def __init__(self):
+        self.calls: list[int] = []
+
+    def locking(self, fd, mode, nbytes):
+        self.calls.append(mode)
+
+
+class FixedInstanceIdentifier:
+    """Double nommé du module uuid vu par le superviseur : l'instance reçoit l'identifiant fixe TEST_INSTANCE_ID, celui
+    du marqueur d'arrêt posé d'avance, si bien que la boucle de surveillance n'est pas parcourue."""
+
+    hex = TEST_INSTANCE_ID
+
+    @classmethod
+    def uuid4(cls) -> "FixedInstanceIdentifier":
+        return cls()
+
+
+def source_manifest_of_the_test_program() -> dict[str, str]:
+    """Double nommé de source_manifest.capture : empreinte fixe, sans parcourir les sources du programme de test."""
+    return {"source_fingerprint": "essai", "kind": "test"}
+
+
+class ProgramBinariesDouble:
+    """Double nommé de native_paths : binaires natifs du programme de test, rendus sans manifeste d'artefacts à vérifier
+    (le programme simulé n'en a pas)."""
+
+    def __init__(self, program: Path):
+        self.program = program
+
+    def __call__(self, names: tuple[str, ...] = ("qdrant", "ollama")) -> dict[str, Path]:
+        paths = {"qdrant": self.program / QDRANT_BINARY, "ollama": self.program / OLLAMA_BINARY}
+        return {name: paths[name] for name in names}
+
+
+def cooperative_stop_accepted(child, service: str | None = None) -> bool:
+    """Double nommé de send_owned_console_interrupt : l'enfant doublé accepte l'arrêt coopératif, aucun signal n'est envoyé."""
+    return True
+
+
+def services_ready_at_once(url: str, child, expected_version: str | None = None, timeout: float = 90,
+                           verify: str | bool = True) -> dict[str, str]:
+    """Double nommé de wait_http, même signature : chaque service répond dès son lancement, Ollama avec sa version
+    verrouillée 0.35.0."""
+    return {"version": "0.35.0"} if url.endswith("/api/version") else {"status": "ok"}
+
+
+def cpu_decision_without_ollama_log(profile: dict, log_path: Path) -> dict[str, str]:
+    """Double nommé d'instance_accelerator : décision « cpu » d'essai, sans lire le journal d'Ollama."""
+    return {"mode": "cpu", "reason": "essai"}
+
+
+ORIGINAL_PLATFORM = sys.platform
+
+
+def run_on_platform(monkeypatch, platform: str, action, *args, **kwargs):
+    """Exécute `action(*args, **kwargs)` sous la plateforme demandée (Windows simulé sous Linux), puis rétablit aussitôt
+    la plateforme."""
+    monkeypatch.setattr(sys, "platform", platform)
+    try:
+        return action(*args, **kwargs)
+    finally:
+        monkeypatch.setattr(sys, "platform", ORIGINAL_PLATFORM)
+
+
+def recording_jobs(monkeypatch, module) -> list[ProcessJobDouble]:
+    """Remplace ProcessJob de `module` par des doubles et rend la liste des jobs créés."""
+    jobs: list[ProcessJobDouble] = []
+
+    def new_job() -> ProcessJobDouble:
+        jobs.append(ProcessJobDouble())
+        return jobs[-1]
+
+    monkeypatch.setattr(module, "ProcessJob", new_job)
+    return jobs
+
+
+def distinct_free_ports(count: int) -> list[int]:
+    """Ports libres et distincts : les sondes restent ouvertes ensemble, le système ne rend donc pas deux fois le même
+    port (`user_profile` refuse des ports confondus)."""
+    probes = [socket.socket(socket.AF_INET, socket.SOCK_STREAM) for _ in range(count)]
+    try:
+        for probe in probes:
+            probe.bind(("127.0.0.1", 0))
+        return [probe.getsockname()[1] for probe in probes]
+    finally:
+        for probe in probes:
+            probe.close()
+
+
+def simulated_program(tmp_path: Path) -> Path:
+    """Programme de test : binaires natifs (contenu factice) sous `.runtime/bin`, comme dans un kit installé."""
+    program = tmp_path / "programme"
+    for relative in (QDRANT_BINARY, OLLAMA_BINARY):
+        (program / relative).parent.mkdir(parents=True)
+        (program / relative).write_bytes(b"binaire factice")
+    return program
+
+
+def supervise_with_doubles(tmp_path: Path, monkeypatch, *, platform: str, storage_dir: Path | None = None,
+                           installed: bool = False):
+    """Superviseur réel, enfants et disponibilité doublés ; ROOT désigne un programme de test hors du dépôt.
+
+    `installed` : profil qu'`init-profile` crée pour une installation par le kit (`user_profile`, racine des données
+    `<tmp>/données-installation`) ; sinon profil de développement tiré de `config/local16.yaml`."""
+    from types import SimpleNamespace
+
+    from services.runtime import source_manifest, supervisor
+    from services.runtime.profile_setup import user_profile
+
+    program = simulated_program(tmp_path)
+    monkeypatch.setattr(supervisor, "ROOT", program)
+    monkeypatch.delenv("RAG_DATA_DIR", raising=False)
+    monkeypatch.delenv("QDRANT_INIT_FILE_PATH", raising=False)
+    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    if installed:
+        profile = user_profile(profile, tmp_path / "données-installation", program_root=program,
+                               ports=dict(zip(("app", "qdrant", "ollama"), distinct_free_ports(3), strict=True)))
+        data = Path(profile["app"]["data_dir"])
+    else:
+        data = tmp_path / "données"
+        profile["app"].update(data_dir=str(data), port=_free_port())
+        profile["qdrant"]["url"] = f"http://127.0.0.1:{_free_port()}"
+        profile["llm"]["base_url"] = f"http://127.0.0.1:{_free_port()}"
+    if storage_dir is not None:
+        profile["qdrant"]["storage_dir"] = str(storage_dir)
+    profile_path = tmp_path / "profil.yaml"
+    profile_path.write_text(yaml.safe_dump(profile, allow_unicode=True), encoding="utf-8")
+    (data / "control").mkdir(parents=True)
+    # Marqueur d'arrêt posé d'avance : la boucle de surveillance n'est pas parcourue.
+    (data / f"control/shutdown-{TEST_INSTANCE_ID}").touch()
+    monkeypatch.setattr(supervisor, "uuid", FixedInstanceIdentifier)
+    monkeypatch.setattr(source_manifest, "capture", source_manifest_of_the_test_program)
+    monkeypatch.setattr(supervisor, "native_paths", ProgramBinariesDouble(program))
+    monkeypatch.setattr(supervisor, "send_owned_console_interrupt", cooperative_stop_accepted)
+    monkeypatch.setattr(supervisor, "wait_http", services_ready_at_once)
+    monkeypatch.setattr(supervisor, "instance_accelerator", cpu_decision_without_ollama_log)
+    jobs = recording_jobs(monkeypatch, supervisor)
+    msvcrt = MsvcrtDouble()
+    if platform == "win32":
+        monkeypatch.setattr(supervisor, "msvcrt", msvcrt, raising=False)
+    before = program_entries(program)
+    code = run_on_platform(monkeypatch, platform, supervisor.supervise, profile_path)
+    state = json.loads((data / "control/runtime.json").read_text(encoding="utf-8"))
+    assert code == 0 and state["status"] == "stopped", state.get("error")
+    assert len(jobs) == 1
+    return SimpleNamespace(program=program, data=data.resolve(), before=before, state=state, launched=jobs[0].launched,
+                           msvcrt=msvcrt)
+
+
+# Linux et Windows sont simulés sous Linux ; sous Windows réel, la garde MAX_PATH du stockage Qdrant refuserait les
+# chemins temporaires longs de pytest.
+SIMULATED_PLATFORMS_ONLY = pytest.mark.skipif(sys.platform == "win32", reason="plateformes simulées sous Linux")
+
+
+@SIMULATED_PLATFORMS_ONLY
+@pytest.mark.parametrize("storage", ["racine-des-données", "stockage-explicite"])
+def test_qdrant_starts_from_its_storage_folder_and_leaves_the_program_untouched(tmp_path, monkeypatch, storage):
+    """D1 : lancé avec cwd=ROOT, Qdrant créait `.qdrant-initialized` dans le dossier programme à chaque démarrage, fichier
+    absent de SHA256SUMS. Il démarre désormais depuis le dossier de son stockage, celui de son verrou : chemins de
+    données inchangés et absolus, programme intact."""
+    explicit = tmp_path / "q" if storage == "stockage-explicite" else None
+    run = supervise_with_doubles(tmp_path, monkeypatch, platform="linux", storage_dir=explicit)
+    qdrant_directory = explicit.resolve() if explicit is not None else run.data / "qdrant"
+    qdrant = run.launched["qdrant"]
+    assert qdrant.cwd == qdrant_directory and (qdrant_directory / "native-runtime.lock").is_file()
+    assert (qdrant_directory / QDRANT_INIT_FILE).is_file()
+    assert program_entries(run.program) == run.before
+    # Chemins de données de Qdrant inchangés : absolus, sous son dossier, quel que soit le répertoire courant.
+    config = yaml.safe_load(Path(qdrant.argv[qdrant.argv.index("--config-path") + 1]).read_text(encoding="utf-8"))
+    assert config["storage"]["storage_path"] == str(qdrant_directory / "storage")
+    assert config["storage"]["snapshots_path"] == str(qdrant_directory / "snapshots")
+    assert run.state["qdrant_data_dir"] == str(qdrant_directory)
+    # Ollama et l'API, relus pour D1 : répertoires inchangés (bibliothèques d'Ollama à côté de son exécutable, import
+    # `-m services…` depuis la racine) ; la recette A n'y a relevé aucune écriture.
+    from services.runtime import supervisor
+
+    assert run.launched["ollama"].cwd == supervisor.ollama_working_directory(run.program / ".runtime/bin/ollama-0.35.0/bin/ollama")
+    assert run.launched["api"].cwd == run.program
+
+
+@SIMULATED_PLATFORMS_ONLY
+def test_qdrant_keeps_the_program_root_as_working_directory_under_simulated_windows(tmp_path, monkeypatch):
+    """Windows inchangé (D1 corrigé sous Linux seulement) : Qdrant y garde la racine du programme comme répertoire courant."""
+    run = supervise_with_doubles(tmp_path, monkeypatch, platform="win32")
+    assert run.msvcrt.calls == [MsvcrtDouble.LK_NBLCK] * 2 + [MsvcrtDouble.LK_UNLCK]
+    assert run.launched["qdrant"].cwd == run.program
+    assert run.launched["api"].cwd == run.program and run.launched["ollama"].cwd == run.program
+
+
+# Variables par lesquelles un enfant reçoit un dossier où écrire : HOME (clé d'Ollama, caches implicites des
+# bibliothèques), TMPDIR, HF_HOME (cache Hugging Face de l'API) et RAG_DATA_DIR (données de l'API).
+CHILD_WRITE_VARIABLES = ("HOME", "TMPDIR", "HF_HOME", "RAG_DATA_DIR")
+
+
+@SIMULATED_PLATFORMS_ONLY
+def test_an_installed_program_gets_no_write_from_the_children_of_the_supervisor(tmp_path, monkeypatch):
+    """Relecture de D1 (R26-KIT-04, ronde 5), sous Linux, avec le profil qu'`init-profile` crée pour une installation par
+    le kit : aucun enfant du superviseur n'écrit dans le programme. Qdrant démarre depuis son stockage `<données>/q`, où
+    il pose son indicateur ; Ollama crée sa clé sous le HOME de l'instance, `<données>/data/home` ; HOME, TMPDIR,
+    HF_HOME, RAG_DATA_DIR et le journal de chaque enfant sont hors du programme. Ollama et l'API ne tiennent du programme
+    que leur répertoire courant et des lectures (bibliothèques, modèles, tessdata, code précompilé à l'installation)."""
+    run = supervise_with_doubles(tmp_path, monkeypatch, platform="linux", installed=True)
+    program = run.program.resolve()
+    assert program_entries(run.program) == run.before
+    qdrant_directory = (tmp_path / "données-installation/q").resolve()
+    assert run.launched["qdrant"].cwd == qdrant_directory and (qdrant_directory / QDRANT_INIT_FILE).is_file()
+    assert sorted(path.name for path in (run.data / "home/.ollama").iterdir()) == sorted(OLLAMA_INSTANCE_KEYS)
+    assert set(run.launched) == {"qdrant", "ollama", "api"}
+    for name, child in run.launched.items():
+        inside = {key: child.env[key] for key in CHILD_WRITE_VARIABLES
+                  if Path(child.env[key]).resolve().is_relative_to(program)}
+        assert not inside, f"{name} : {inside}"
+        assert not child.log_path.resolve().is_relative_to(program), (name, child.log_path)

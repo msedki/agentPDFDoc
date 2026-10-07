@@ -2,7 +2,18 @@
 
 **Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `011a817` et consultations R26 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 20:10 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
-## R26-KIT — kit hors ligne Linux (KIT01 à KIT16)
+## R26-S02 — arbitrages utilisateur sur la fiabilité 2B et D06.5
+
+Réponses de l'utilisateur dans cette session, le 6 octobre 2026 entre 23:15
+et 23:25 UTC, après explication des résultats de la campagne 2B DEV et de la
+mesure D06.5 : « il faut que les citations soient avec crochets, donc trouver
+l'origine et corriger » ; retrait de l'étiquette technique recopiée accepté ;
+échec D06.5 conservé en réserve. Ces réponses autorisent une correction de la
+présentation des preuves et de la consigne, mesurée sur le jeu DEV ; elles
+n'autorisent ni réglage sur le jeu final, ni normalisation des variantes de
+citation, ni nouvelle mesure D06.5.
+
+## R26-KIT — kit hors ligne Linux (KIT01 à KIT26)
 
 Consultation du 6 octobre 2026 (UTC) pour R26-KIT-00 et R26-KIT-01, avant la
 rédaction du skill [linux-offline-kit](../.agents/skills/linux-offline-kit/SKILL.md).
@@ -26,7 +37,17 @@ prouvent pas qu'un kit fabriqué ici s'installe ailleurs.
 | KIT13 | [binutils : readelf, objdump](https://sourceware.org/binutils/docs/binutils/) et [ld, VERSION](https://sourceware.org/binutils/docs/ld/VERSION.html) | binutils 2.34 sur le poste | lecture des versions de symboles requises, contrôle au chargement | version non indiquée sur les pages |
 | KIT14 | [libstdc++, ABI](https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html) | page courante | `GLIBCXX_3.4.26` correspond à GCC 9.1.0 | — |
 | KIT15 | [ldd(1)](https://man7.org/linux/man-pages/man1/ldd.1.html), [rename(2)](https://man7.org/linux/man-pages/man2/rename.2.html) | man-pages 6.19 | ne pas lancer `ldd` sur un exécutable non vérifié ; remplacement atomique, `EXDEV` | — |
-| KIT16 | [Desktop Entry](https://specifications.freedesktop.org/desktop-entry-spec/latest/) et [XDG Base Directory](https://specifications.freedesktop.org/basedir-spec/latest/) | 1.5 / 0.8 | clés requises, citation de `Exec` et `%%`, `XDG_DATA_HOME` | entrée de menu créée seulement sur demande explicite |
+| KIT16 | [Desktop Entry](https://specifications.freedesktop.org/desktop-entry-spec/latest/) et [XDG Base Directory](https://specifications.freedesktop.org/basedir-spec/latest/) | 1.5 / 0.8 | clés requises, citation de `Exec` et `%%`, `XDG_DATA_HOME` | entrée de menu créée seulement sur demande explicite jusqu'à [W047](DECISIONS.md#w047-kit-linux-installé-en-espace-utilisateur-intégré-au-bureau-par-défaut) |
+| KIT17 | [Desktop Entry, clés reconnues](https://specifications.freedesktop.org/desktop-entry/latest/recognized-keys.html), [actions supplémentaires](https://specifications.freedesktop.org/desktop-entry/latest/extra-actions.html), [nom de fichier](https://specifications.freedesktop.org/desktop-entry/latest/file-naming.html), [changements de 1.0 à 1.1](https://specifications.freedesktop.org/desktop-entry/latest/apes05.html) | 1.5, consultée le 07/10/2026 | `Icon` en chemin absolu employé tel quel, `TryExec`, `Actions` et groupes `[Desktop Action]`, identifiant d'entrée ; `Actions` existe depuis 1.1, d'où `Version=1.1` | `desktop-file-validate` 0.24 du poste refuse `Version=1.5` (observé le 07/10) |
+| KIT18 | [GNOME, intégrer une application](https://developer.gnome.org/documentation/guidelines/maintainer/integrating.html) | page courante, 07/10/2026 | installation par utilisateur sous `$XDG_DATA_HOME/applications`, `desktop-file-validate` dans les tests, icône SVG | affichage sous GNOME 3.36 non observé |
+| KIT19 | [XDG Base Directory](https://specifications.freedesktop.org/basedir/latest/) | 0.8, 07/10/2026 | `XDG_DATA_HOME` et `XDG_STATE_HOME` par défaut ; un chemin relatif est invalide et ignoré | aucun dossier de programmes défini : emplacement par défaut interprété (W047) |
+| KIT20 | [uv, stockage](https://docs.astral.sh/uv/reference/storage/) | page courante, 07/10/2026 | outils sous `$XDG_DATA_HOME/uv/tools`, exécutables sous `~/.local/bin` : précédent pour un programme par utilisateur | précédent, pas une norme |
+| KIT21 | [Python 3.12, argparse](https://docs.python.org/3.12/library/argparse.html), [io.IOBase.isatty](https://docs.python.org/3.12/library/io.html#io.IOBase.isatty), [os.geteuid](https://docs.python.org/3.12/library/os.html#os.geteuid) | 3.12, 07/10/2026 | aides, `epilog`, erreurs d'usage sur stderr avec le code 2 ; détection d'un terminal ; refus en root | — |
+| KIT22 | [dpkg-query(1), Ubuntu 20.04](https://manpages.ubuntu.com/manpages/focal/man1/dpkg-query.1.html) | focal, 07/10/2026 | `-S` donne le paquet qui fournit une bibliothèque, nommé dans les refus | paquets relevés sur le poste de fabrication seulement |
+| KIT23 | [SQLite, corruption](https://www.sqlite.org/howtocorrupt.html) | page courante, 07/10/2026 | verrous défectueux sur les systèmes de fichiers réseau : données refusées sur un volume réseau | — |
+| KIT24 | [Ollama, FAQ](https://docs.ollama.com/faq) | page courante, 07/10/2026 | écoute par défaut sur 127.0.0.1:11434 : ports contrôlés avant écriture et triplet libre proposé | — |
+| KIT25 | [Microsoft, comparaison des systèmes de fichiers](https://learn.microsoft.com/en-us/windows/win32/fileio/filesystem-functionality-comparison) | page courante, 07/10/2026 | FAT32 limité à 4 Gio par fichier, ni FAT32 ni exFAT n'ont de liens symboliques : kit à extraire sur un disque Linux local | transport seulement |
+| KIT26 | [Python, module site](https://docs.python.org/3.12/library/site.html), [initialisation de sys.path](https://docs.python.org/3.12/library/sys_path_init.html), [options de la ligne de commande](https://docs.python.org/3.12/using/cmdline.html) et [sys.pycache_prefix](https://docs.python.org/3.12/library/sys.html#sys.pycache_prefix) | 3.12, 07/10/2026 | `-S` sans `site` ni fichier `.pth`, `-I` mode isolé, `-B`, `-X pycache_prefix` : ce qui s'exécute avant la vérification ciblée | portée réelle établie par les tests de l'installateur |
 
 ## R26-WEB — chargement de PDF.js hors bundle et contrôle de l'export
 

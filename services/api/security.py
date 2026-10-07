@@ -21,13 +21,22 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from services.runtime.platforms import launcher_command
+from services.runtime.platforms import installation, launcher_command, launcher_instruction
 
 from .errors import ApiError
 
 ENVIRONMENTS = ("development", "production")
-# Commande du lanceur du poste : « .\\rag.ps1 open » sous Windows (texte inchangé), « ./rag.sh open » sous Linux (W018).
-LINK_HELP = f"Ouvrir l'atelier avec « {launcher_command('open')} » depuis le dossier du projet."
+
+
+def link_help() -> str:
+    """Comment rouvrir l'atelier : « .\\rag.ps1 open » sous Windows (texte inchangé) et « ./rag.sh open » dans un clone
+    Linux (W018), depuis le dossier du projet ; dans une installation par le kit Linux, l'entrée de menu si elle existe et
+    la commande du lanceur atelier, à taper dans un terminal."""
+    installed = installation()
+    if installed and installed.menu:
+        return (f"Ouvrir l'atelier depuis le menu des applications ({installed.menu}) ou avec "
+                f"« {launcher_command('open')} » dans un terminal.")
+    return f"Ouvrir l'atelier avec {launcher_instruction('open')}."
 
 logger = logging.getLogger("rag.security")
 
@@ -307,7 +316,7 @@ class SessionRegistry:
                 reason = "unknown_or_used" if expiry is None else "expired"
                 self._purge(now)
                 self.audit("session_link_rejected", reason=reason)
-                raise ApiError("session_link_invalid", "Lien d'ouverture inconnu, déjà utilisé ou expiré. " + LINK_HELP, 401)
+                raise ApiError("session_link_invalid", "Lien d'ouverture inconnu, déjà utilisé ou expiré. " + link_help(), 401)
             replaced = previous is not None and self._sessions.pop(digest(previous), None) is not None
             session_id, csrf = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
             self._sessions[digest(session_id)] = Session(digest(csrf), now, now)

@@ -5,6 +5,7 @@ import json
 import os
 import re
 import socket
+import sys
 
 import pytest
 
@@ -935,3 +936,178 @@ def test_generation_text_for_selftest_and_status():
         "génération sur CPU, profil antérieur à l'accélération GPU (llm.num_gpu: 0)")
     assert generation_text({"mode": "cpu", "reason": "imposed_by_profile"}) == (
         "génération sur CPU, imposée par le profil (llm.accelerator: cpu)")
+
+
+# --- Installation par le kit Linux (R26-KIT-04, KIT4-13) --------------------------------------------------------------
+# Le runtime s'exécute dans une arborescence d'installation factice (double nommé `installation_tree`) : chaque commande
+# citée doit s'exécuter telle quelle et hors ligne, par le lanceur `atelier` de la destination, ou par le rag.sh du
+# programme avec le profil de l'utilisateur pour les commandes qui n'ont pas d'action dans le lanceur.
+
+INSTALLED_ACTIONS = {"ouvrir", "arreter", "diagnostic", "etat", "sauvegarder", "journaux"}
+
+
+@pytest.fixture
+def installed_launcher(tmp_path, monkeypatch):
+    from tests.unit.test_runtime_installation_texts import installation_tree, run_as
+
+    tree = installation_tree(tmp_path)
+    run_as(monkeypatch, tree.program)
+    return tree
+
+
+def _general_variants() -> list[dict]:
+    """Résultats de doctor qui exercent chaque action des rubriques autres que « calcul »."""
+    changes = [
+        lambda result: result["checks"].update(tesseract_binary=False),
+        lambda result: result["checks"].update(model_lock={"status": "invalid_lock", "reason": "JSON"}),
+        lambda result: result["checks"].update(model_lock={"status": "conform", "profile_models_locked": False}),
+        lambda result: result["checks"].update(model_lock={"status": "absent", "profile_models_locked": True,
+                                                           "models": {MODEL: {"status": "absent"}}}),
+        lambda result: result["checks"].update(model_lock={"status": "nonconform", "profile_models_locked": True, "models": {
+            MODEL: {"status": "nonconform", "issues": [{"issue": "size_mismatch"}]}}}),
+        lambda result: result["checks"].update(model_lock={"status": "unknown", "profile_models_locked": True, "models": {}}),
+        lambda result: result["checks"].update(profile_application={"status": "restart_required"}),
+        lambda result: result["checks"].update(qdrant_storage={"status": "invalid", "reason": "Chemin trop long"}),
+        lambda result: result["checks"].update(ports={"app": {"port": 8785, "state": "foreign", "listener_pids": [9],
+                                                              "listener_names": ["autre"]}}),
+        lambda result: result.update(runtime={"status": "stopped"}),
+        lambda result: result.update(runtime={"status": "failed"}),
+        lambda result: result.update(runtime={"status": "stale"}),
+        lambda result: result.update(runtime={"status": "starting"}),
+        lambda result: result["services"].update(api_ready={"http_status": 503, "body": {"checks": {"qdrant": False}}}),
+        lambda result: result["checks"].update(index_consistency={"status": "inconsistent", "mismatches": [{}]}),
+        lambda result: result["checks"].update(index_consistency={"status": "api_unavailable"}),
+        lambda result: result["checks"]["cold_admission"]["generation"].update(admissible_now=False),
+    ]
+    variants = []
+    for change in changes:
+        result = healthy()
+        change(result)
+        variants.append(result)
+    return variants
+
+
+def _installation_texts() -> list[str]:
+    texts = []
+    for result in _general_variants():
+        verdict = doctor_verdict(result)
+        texts.append(verdict["summary"])
+        for item in verdict["rubrics"]:
+            texts += [item["message"], item.get("action") or "", item.get("proposal") or ""]
+    for cases in (LINUX_CASES, WINDOWS_CASES):
+        for check, *_ in cases.values():
+            item = rubric(verdict_of(check), "calcul")
+            texts += [item["message"], item.get("action") or "", item.get("proposal") or ""]
+    for check in (_r36_missing()[0], _legacy_r36()[1], _r36_unreadable()[0], accelerator(requested="gpu", libraries=LIBRARIES_MISSING)):
+        item = rubric(verdict_of(check), "calcul")
+        texts += [item["message"], item.get("action") or "", item.get("proposal") or ""]
+    return [text for text in texts if text]
+
+
+def test_in_an_installation_every_command_runs_offline_through_the_atelier_launcher(installed_launcher):
+    tree = installed_launcher
+    texts = _installation_texts()
+    launcher = str(tree.destination / "atelier")
+    assert sum(launcher in text for text in texts) >= 20, "le lanceur atelier est cité par les actions"
+    for text in texts:
+        # Ni phase réseau, ni lanceur du clone ou de Windows, ni renvoi au dossier du projet.
+        assert "pull-model" not in text and not re.search(r"\bprovision\b", text), text
+        assert "./rag.sh" not in text and "rag.ps1" not in text and "dossier du projet" not in text, text
+        # rag.sh : seulement celui du programme, pour une commande sans action du lanceur, avec le profil de l'utilisateur.
+        for match in re.finditer(r"[^\s(]*rag\.sh", text):
+            assert match[0] == str(tree.program / "rag.sh"), text
+            # Mots suivants, sans la ponctuation de la phrase qui suit la commande.
+            following = [word.rstrip(".,;)") for word in text[match.end():].split()]
+            assert following[0] in {"selftest", "verify", "restore"}, text
+            assert following[1:3] == ["--profile", tree.profiles["qwen3.5:4b"]], text
+        for match in re.finditer(re.escape(launcher) + r" (\w+)", text):
+            assert match[1] in INSTALLED_ACTIONS, text
+
+
+def test_installation_actions_read_with_the_launcher_and_the_kit(installed_launcher):
+    tree = installed_launcher
+    atelier = f"{tree.destination / 'atelier'}"
+    selftest = f"{tree.program / 'rag.sh'} selftest --profile {tree.profiles['qwen3.5:4b']}"
+    reinstall = f"<dossier du kit>/installer.sh update --destination {tree.destination}"
+    result = healthy()
+    result["runtime"] = {"status": "stopped"}
+    assert rubric(doctor_verdict(result), "services")["action"] == f"Ouvrez-le par {atelier} ouvrir, qui le démarre si nécessaire."
+    result = healthy()
+    result["checks"]["profile_application"] = {"status": "restart_required"}
+    assert rubric(doctor_verdict(result), "profil")["action"] == f"Redémarrez : {atelier} arreter puis {atelier} ouvrir."
+    result = healthy()
+    result["services"]["api_ready"] = {"http_status": 503, "body": {"checks": {"qdrant": False}}}
+    assert rubric(doctor_verdict(result), "services")["action"] == (
+        f"Consultez les journaux ({atelier} journaux). Une collection perdue ne se recrée pas sur place : restaurez une "
+        f"sauvegarde dans une racine neuve ({tree.program / 'rag.sh'} restore --profile {tree.profiles['qwen3.5:4b']} "
+        "--path <sauvegarde> --target <racine neuve>).")
+    result = healthy()
+    result["checks"]["tesseract_binary"] = False
+    assert rubric(doctor_verdict(result), "programme")["action"] == (
+        "Réinstallez le programme depuis le kit d'une autre version, une version installée n'étant jamais remplacée sur "
+        f"place : {reinstall} ; les données de l'utilisateur ne sont pas touchées.")
+    result = healthy()
+    result["checks"]["model_lock"] = {"status": "absent", "profile_models_locked": True, "models": {MODEL: {"status": "absent"}}}
+    assert rubric(doctor_verdict(result), "modèle")["action"] == (
+        "Réinstallez le programme depuis le kit d'une autre version, une version installée n'étant jamais remplacée sur "
+        f"place : {reinstall} ; les données de l'utilisateur ne sont pas touchées.")
+    result["checks"]["model_lock"] = {"status": "unknown", "profile_models_locked": True, "models": {}}
+    assert rubric(doctor_verdict(result), "modèle")["action"] == (
+        f"Relancez {atelier} diagnostic ; si l'état persiste, réinstallez le programme depuis le kit d'une autre version : "
+        f"{reinstall}.")
+    missing = calcul(LINUX_CASES["gpu_libraries_missing"][0])[1]
+    assert missing == ("Pour calculer les réponses sur le GPU, mettez à jour l'installation avec un kit fabriqué avec "
+                       f"l'option --gpu jetpack5 : {reinstall}. Pour rester sur CPU sans cette proposition, indiquez "
+                       "llm.accelerator: cpu dans le profil.")
+    unverified = calcul(LINUX_CASES["gpu_libraries_unverified"][0])[0]["action"]
+    assert unverified == ("Réinstallez le programme depuis le kit d'une autre version pour rétablir les fichiers vérifiés "
+                          f"d'Ollama : {reinstall}.")
+    unified = calcul(LINUX_CASES["gpu_unified_memory_not_qualified"][0])[1]
+    assert unified.endswith(f"redémarrez ({atelier} arreter puis {atelier} ouvrir) puis lancez {selftest}.")
+    requested = calcul(accelerator(requested="gpu", libraries=LIBRARIES_MISSING))[0]["action"]
+    assert requested == ("Mettez à jour l'installation avec un kit fabriqué avec l'option --gpu jetpack5 : "
+                         f"{reinstall} ; sinon, indiquez llm.accelerator: auto ou cpu dans le profil.")
+
+
+def test_in_an_installation_a_jetson_without_a_gpu_kit_gets_no_gpu_proposal(installed_launcher):
+    # Jetson Linux R36 : aucun kit ne livre son complément (--gpu jetpack5 seulement) ; rien n'est proposé ni annoncé.
+    check, proposal = _r36_missing()
+    assert check["state"] == "gpu_libraries_missing" and proposal is None
+    assert not verdict_of(check)["summary"].endswith(PROPOSAL_SUFFIX)
+    assert _legacy_r36()[0] is None
+    action = calcul(accelerator(requested="gpu", host=JETSON_R36_HOST, libraries=LIBRARIES_MISSING_R36,
+                                complement=COMPLEMENT_R36))[0]["action"]
+    atelier = f"{installed_launcher.destination / 'atelier'}"
+    assert action == ("Aucun kit de l'atelier ne livre les bibliothèques GPU d'Ollama de ce Jetson : indiquez "
+                      f"llm.accelerator: auto ou cpu dans le profil, puis redémarrez ({atelier} arreter puis {atelier} "
+                      "ouvrir).")
+    # Bibliothèques CUDA génériques jamais livrées par un kit Linux (W025) : proposition informative, sans commande.
+    absent = calcul(accelerator(host={**WINDOWS_HOST, "platform": "linux-x86_64", "windows_nvcuda": None,
+                                      "nvidia_kernel_driver": "NVRM version: NVIDIA UNIX x86_64 Kernel Module  535.183.01"},
+                                libraries={**WINDOWS_KIT_WITHOUT_GPU, "variants": {
+                                    name: value for name, value in WINDOWS_KIT_WITHOUT_GPU["variants"].items()
+                                    if name.startswith("cuda")}},
+                                complement=None, **cpu_decision(JETSON_BASE_ONLY, "no_gpu_discovered")))
+    assert absent[0]["message"].endswith("ne contient pas les bibliothèques CUDA vérifiées (les kits Linux ne les "
+                                         "livrent pas) : Ollama ne peut retenir aucun GPU NVIDIA.")
+    assert absent[1] == ("Les kits Linux de l'atelier ne livrent pas les bibliothèques CUDA génériques d'Ollama, aucune "
+                         "voie n'étant qualifiée sur ce type de poste : le calcul reste sur CPU.")
+
+
+def test_installation_calcul_texts_nest_no_parentheses(installed_launcher):
+    for text in _installation_texts():
+        assert _depth(text) <= 1, text
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="fabricant du kit Linux")
+def test_the_gpu_kit_variants_cited_are_those_the_kit_builder_makes():
+    from services.runtime.verdict import KIT_GPU_VARIANTS
+    from tools.dist import linux_kit
+
+    assert KIT_GPU_VARIANTS == {name for name, libraries in linux_kit.GPU_VARIANTS.items() if libraries}
+
+
+def test_the_docstring_of_the_host_action_no_longer_denies_the_linux_kit():
+    from services.runtime.verdict import on_this_host
+
+    assert "n'a pas de kit" not in (on_this_host.__doc__ or "")

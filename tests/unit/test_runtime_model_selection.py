@@ -15,10 +15,32 @@ from services.runtime.artifacts import ROOT
 from services.runtime.verdict import model_rubric
 
 
-@pytest.mark.parametrize("model,name", [(None, "local16.yaml"), ("qwen3.5:2b", "local16.yaml"),
+@pytest.mark.parametrize("model,name", [(None, "local16-4b.yaml"), ("qwen3.5:2b", "local16.yaml"),
                                         ("qwen3.5:4b", "local16-4b.yaml")])
 def test_startup_model_resolves_to_a_real_profile(model, name):
+    # W045 (6 octobre 2026) : sans option, le profil livré du 4B ; le 2B reste un choix au lancement.
     assert cli.model_profile_path(None, model) == ROOT / "config" / name
+
+
+def test_the_default_model_is_the_4b_and_the_cli_without_option_starts_its_profile(monkeypatch, capsys):
+    assert cli.DEFAULT_MODEL == "qwen3.5:4b" and cli.MODEL_PROFILES[cli.DEFAULT_MODEL] == "local16-4b.yaml"
+    assert cli.MODEL_PROFILES["qwen3.5:2b"] == "local16.yaml"
+    called = []
+    monkeypatch.setattr(sys, "argv", ["rag", "up"])
+    monkeypatch.setattr(cli, "start", lambda path: called.append(path) or {"status": "explicit_start_double"})
+    assert cli.main() == 0 and called == [ROOT / "config/local16-4b.yaml"]
+    capsys.readouterr()
+    monkeypatch.setattr(sys, "argv", ["rag", "--help"])
+    with pytest.raises(SystemExit):
+        cli.main()
+    help_text = " ".join(capsys.readouterr().out.split())
+    assert "défaut : qwen3.5:4b" in help_text and "--model qwen3.5:2b" in help_text
+
+
+def test_an_unknown_model_names_the_default_and_the_2b(tmp_path):
+    with pytest.raises(ValueError) as refused:
+        cli.model_profile_path(None, "qwen3.5:9b")
+    assert str(refused.value) == "Modèle livré inconnu ; choisir qwen3.5:4b (défaut) ou qwen3.5:2b"
 
 
 def test_explicit_user_profile_is_preserved_and_never_overlaid(tmp_path):
@@ -62,8 +84,8 @@ def test_profiles_keep_the_same_documentary_and_runtime_contracts():
         assert value["llm"]["think"] is False and value["llm"]["num_ctx"] == 8192
 
 
-@pytest.mark.parametrize("name,cold_estimate", [("local16.yaml", 3968), ("local16-4b.yaml", 3456)])
-def test_delivered_model_profile_drives_the_cold_admission_boundary(tmp_path, monkeypatch, name, cold_estimate):
+@pytest.mark.parametrize("name,cold_estimate,warm_estimate", [("local16.yaml", 3968, 512), ("local16-4b.yaml", 4352, 640)])
+def test_delivered_model_profile_drives_the_cold_admission_boundary(tmp_path, monkeypatch, name, cold_estimate, warm_estimate):
     """Profils réels, mémoire simulée ; aucun modèle, bail ou stockage hôte acquis."""
     from services.runtime.resources import ResourceAdmissionError, ResourceGovernor, admission_requirement
 
@@ -71,7 +93,7 @@ def test_delivered_model_profile_drives_the_cold_admission_boundary(tmp_path, mo
     resources = profile["resources"]
     assert resources["initial_llm_load_peak_estimate_mib"] == cold_estimate
     assert resources["host_available_min_mib"] == 1536
-    assert resources["warm_llm_additional_peak_estimate_mib"] == 512
+    assert resources["warm_llm_additional_peak_estimate_mib"] == warm_estimate
     required = cold_estimate + 1536
     assert admission_requirement(resources, "generation")["required_available_mib"] == required
     governor = ResourceGovernor({**profile, "app": {**profile["app"], "data_dir": str(tmp_path)}},

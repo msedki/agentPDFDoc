@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { csrfFromCookies, isSessionFailure, linkInvalidFromSearch, sessionScreen, type SessionEndReason } from "../../src/lib/session.ts";
-import { openCommandChoices } from "../../src/lib/launcher.ts";
+import { csrfFromCookies, isSessionFailure, linkInvalidFromSearch, sessionCloseTitle, sessionScreen, type SessionEndReason } from "../../src/lib/session.ts";
+import { launcherCommandsFrom, openCommandChoices } from "../../src/lib/launcher.ts";
 
 test("le jeton CSRF est lu dans le cookie lisible, nom préfixé de production d'abord", () => {
   assert.equal(csrfFromCookies("rag_csrf=abc-123; autre=1"), "abc-123");
@@ -47,4 +47,38 @@ test("the opening command shown is the one of this host, or one line per deliver
   // Lanceurs mêlés ou autre chemin : plateforme inconnue, une ligne par lanceur livré.
   assert.deepEqual(openCommandChoices({ status: "./rag.sh status", logs: ".\\rag.ps1 logs" }), openCommandChoices(null));
   assert.deepEqual(openCommandChoices({ status: "/opt/rag/rag.sh status" }), openCommandChoices(null));
+});
+
+// Installation par le kit Linux (R26-KIT-04, KIT4-13) : menu des applications s'il existe, et commande à taper dans un
+// terminal ; aucun renvoi au dossier du projet. Le clone et Windows gardent leurs textes (launcher.test.ts, windows-texts).
+const ATELIER = "/home/atelier/.local/share/atelier-documentaire/programme/atelier";
+const installed = (menu: string | null) => launcherCommandsFrom({ status: "alive", service: "rag-api",
+  commands: { open: `${ATELIER} ouvrir`, status: `${ATELIER} etat`, logs: `${ATELIER} journaux`, doctor: `${ATELIER} diagnostic` },
+  launcher: { kind: "installation", menu } });
+
+test("installation screens offer the applications menu and the command to type in a terminal", () => {
+  const withMenu = installed("Atelier documentaire");
+  assert.deepEqual(sessionScreen("session_required", withMenu), { title: "Session requise",
+    body: "L'atelier s'ouvre avec un lien à usage unique délivré sur ce poste. Ouvrez-le depuis le menu des applications (Atelier documentaire), ou lancez la commande ci-dessous dans un terminal : il s'affiche dans un nouvel onglet." });
+  assert.equal(sessionScreen("session_expired", withMenu).body, "La session s'est fermée après une période sans activité ou a atteint sa durée maximale. Rouvrez l'atelier depuis le menu des applications (Atelier documentaire) ou avec la commande ci-dessous, dans un terminal ; documents, index et conversations enregistrés restent intacts.");
+  assert.equal(sessionScreen("session_closed", withMenu).body, "La session de ce navigateur est fermée. Pour reprendre le travail, rouvrez l'atelier depuis le menu des applications (Atelier documentaire) ou avec la commande ci-dessous, dans un terminal.");
+  assert.equal(sessionScreen("link_invalid", withMenu).body, "Chaque lien d'ouverture ne sert qu'une fois et expire après quelques minutes. Demandez-en un nouveau depuis le menu des applications (Atelier documentaire) ou avec la commande ci-dessous, dans un terminal.");
+  assert.deepEqual(openCommandChoices(withMenu), [{ system: null, command: `${ATELIER} ouvrir` }]);
+});
+
+test("an installation without menu entry names only the terminal command", () => {
+  const withoutMenu = installed(null);
+  assert.equal(sessionScreen("session_required", withoutMenu).body, "L'atelier s'ouvre avec un lien à usage unique délivré sur ce poste. Dans un terminal, lancez la commande ci-dessous : elle ouvre l'atelier dans un nouvel onglet.");
+  assert.equal(sessionScreen("session_expired", withoutMenu).body, "La session s'est fermée après une période sans activité ou a atteint sa durée maximale. Rouvrez l'atelier avec la commande ci-dessous, dans un terminal ; documents, index et conversations enregistrés restent intacts.");
+  for (const reason of ["session_required", "session_expired", "session_closed", "link_invalid"] as SessionEndReason[]) {
+    assert.doesNotMatch(sessionScreen(reason, withoutMenu).body, /menu|dossier du projet|commande de votre système/, reason);
+  }
+});
+
+test("the closing tooltip names the way back of this host", () => {
+  assert.equal(sessionCloseTitle(installed("Atelier documentaire")), `Ferme la session de ce navigateur. Pour revenir : menu des applications (Atelier documentaire), ou ${ATELIER} ouvrir dans un terminal.`);
+  assert.equal(sessionCloseTitle(installed(null)), `Ferme la session de ce navigateur. Pour revenir : ${ATELIER} ouvrir dans un terminal.`);
+  // Clone Linux et Windows : texte d'avant l'installation par le kit.
+  assert.equal(sessionCloseTitle({ open: "./rag.sh open" }), "Ferme la session de ce navigateur. Pour revenir : ./rag.sh open depuis le dossier du projet.");
+  assert.equal(sessionCloseTitle({ open: ".\\rag.ps1 open" }), "Ferme la session de ce navigateur. Pour revenir : .\\rag.ps1 open depuis le dossier du projet.");
 });

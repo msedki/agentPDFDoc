@@ -15,22 +15,34 @@ from services.runtime.artifacts import ROOT
 
 RAG_PS1 = ROOT / "rag.ps1"
 CLI_SOURCE = ROOT / "services/runtime/cli.py"
-PROFILE = r"C:\atelier\config\local16.yaml"
 BASE = "$arguments = @('-m','services.runtime.cli',$Command)"
 PROFILE_BRANCH = "if (-not $Model -or $PSBoundParameters.ContainsKey('Profile')) { $arguments += @('--profile',$resolvedProfile) }"
 CALL = "& $projectPython @arguments"
 SWITCH = re.compile(r"^if \(\$(?P<name>\w+)\) \{ \$arguments \+= '(?P<flag>--[a-z-]+)' \}$")
 VALUED = re.compile(r"^if \(\$(?P<name>\w+)\) \{ \$arguments \+= @\('(?P<flag>--[a-z-]+)',\$(?P=name)\) \}$")
+
+
+def script() -> str:
+    return RAG_PS1.read_text(encoding="utf-8-sig")
+
+
+def default_profile(text: str) -> str:
+    """Valeur par défaut de -Profile déclarée dans le bloc param(...), relative à la racine du projet."""
+    block = re.search(r"^param\($(?P<body>.*?)^\)$", text, re.MULTILINE | re.DOTALL)
+    assert block is not None, "bloc param( ) introuvable"
+    values = re.findall(r"^\s*\[string\]\$Profile = '([^']+)',$", block["body"], re.MULTILINE)
+    assert len(values) == 1, "défaut de -Profile introuvable ou déclaré deux fois"
+    return values[0]
+
+
+# Profil par défaut résolu par Join-Path dans une installation fictive C:\atelier.
+PROFILE = "C:\\atelier\\" + default_profile(script()).replace("/", "\\")
 # Toutes les options de rag.ps1, comme dans le test de correspondance de rag.sh (test_runtime_launchers_sh.py).
 ALL_OPTIONS = {"Only": "qdrant", "Offline": True, "SkipModel": True, "Path": "sauvegarde", "Target": "racine neuve",
                "Report": "r.json", "QdrantStorage": "/q", "Ports": "1,2,3"}
 ALL_ARGUMENTS = ["-m", "services.runtime.cli", "restore", "--profile", PROFILE, "--only", "qdrant", "--offline",
                  "--skip-model", "--path", "sauvegarde", "--target", "racine neuve", "--report", "r.json",
                  "--qdrant-storage", "/q", "--ports", "1,2,3"]
-
-
-def script() -> str:
-    return RAG_PS1.read_text(encoding="utf-8-sig")
 
 
 def parameters(text: str) -> dict[str, str]:
@@ -72,6 +84,14 @@ def cli_arguments(text: str, command: str, bound: dict[str, str | bool]) -> list
         elif kind == "string" and value:
             arguments += [flag, str(value)]
     return arguments
+
+
+def test_rag_ps1_defaults_to_the_4b_profile_and_keeps_the_model_choice():
+    # W045 : seule la valeur par défaut de -Profile change ; -Model garde ses deux valeurs, le 2B reste sélectionnable.
+    text = script()
+    assert default_profile(text) == "config/local16-4b.yaml" and PROFILE == r"C:\atelier\config\local16-4b.yaml"
+    assert "[ValidateSet('qwen3.5:2b','qwen3.5:4b')]" in text
+    assert cli_arguments(text, "up", {}) == ["-m", "services.runtime.cli", "up", "--profile", PROFILE]
 
 
 def test_rag_ps1_no_browser_is_a_switch_that_adds_the_cli_option():

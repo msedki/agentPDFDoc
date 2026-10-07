@@ -358,7 +358,9 @@ def svg_faults(path: Path) -> list[str]:
                 faults.append(f"ressource externe {value}")
         if local != "text":
             continue
-        node, size = element, None
+        # Taille héritée : l'élément, puis ses ancêtres jusqu'à la racine (sans parent : None).
+        node: ET.Element | None = element
+        size: str | None = None
         while node is not None and size is None:
             size = node.get("font-size")
             node = parents.get(node)

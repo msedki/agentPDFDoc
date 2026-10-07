@@ -3,6 +3,9 @@ import { fileURLToPath } from "node:url";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { monitorBrowser } from "./resources";
+import { doneEvent, registeredAnswerCitation, type DoneEvent } from "./answer-citations";
+import { readOnlyApi, watchPage } from "./guards";
+import { withImportPriority } from "./import-priority.ts";
 
 let importedName = "";
 const nativeDevName = "Atelier 1 - Banc pneumatique DA-P01.pdf";
@@ -54,43 +57,48 @@ test("real import, reading, scoped search and source navigation", async ({ page,
   page.on("pageerror", error => consoleErrors.push(error.message));
   page.on("request", request => { const url = new URL(request.url()); if (!["127.0.0.1", "localhost", "[::1]"].includes(url.hostname) && !["blob:", "data:"].includes(url.protocol)) external.push(request.url()); });
   await page.goto("/workspace/");
-  if (process.env.RAG_E2E_REUSE_DOCUMENT_ID) {
-    const previous = await page.request.get(`/api/v1/documents/${process.env.RAG_E2E_REUSE_DOCUMENT_ID}`);
-    expect(previous.status()).toBe(200);
-    const detail = await previous.json();
-    expect(detail.name).toBe(name);
-    const actualSha = createHash("sha256").update(readFileSync(nativeDevPath)).digest("hex");
-    expect(detail.versions.some((version: { sha256: string }) => version.sha256 === actualSha)).toBeTruthy();
-    await info.attach("reused-controlled-document", { body: Buffer.from(JSON.stringify(detail, null, 2)), contentType: "application/json" });
-  } else {
-    const chooser = page.waitForEvent("filechooser");
-    await page.getByRole("button", { name: "Importer des PDF", exact: true }).click();
-    await (await chooser).setFiles(nativeDevPath);
-  }
   const documentButton = page.getByRole("navigation", { name: "Arborescence documentaire" }).getByRole("button", { name: new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) }).first();
-  await expect(documentButton).toBeVisible();
-  await documentButton.click();
-  await expect(page.locator("canvas").first()).toBeVisible();
-  await page.getByLabel("Numéro de page").fill("2");
-  await expect(page.getByTestId("scope-summary")).toContainText("Toute la bibliothèque");
-  await page.getByRole("button", { name: "Pivoter de 90 degrés" }).click();
-  await page.getByRole("button", { name: "Augmenter le zoom" }).click();
-  await expect.poll(() => page.locator("canvas").count()).toBeLessThanOrEqual(5);
-  await expect.poll(() => page.locator("canvas").evaluateAll(canvases => canvases.reduce((sum, canvas) => sum + (canvas as HTMLCanvasElement).width * (canvas as HTMLCanvasElement).height, 0))).toBeLessThanOrEqual(24_000_000);
-  await page.getByLabel(`Sélectionner ${name}`).check();
-  await page.getByRole("button", { name: "Utiliser ce périmètre" }).click();
-  await expect(page.getByTestId("scope-summary")).toContainText(name);
-  await page.getByRole("button", { name: "Suivi", exact: false }).click();
-  await page.getByRole("button", { name: "Priorité aux imports", exact: true }).click();
-  const jobsResponse = await page.request.get("/api/v1/jobs");
-  const paused = (await jobsResponse.json()).jobs.find((job: { document_id: string; state: string }) => job.document_id === process.env.RAG_E2E_REUSE_DOCUMENT_ID && job.state === "paused");
-  if (paused) {
-    const resumeRequest = page.waitForResponse(response => response.request().method() === "POST" && response.url().endsWith(`/jobs/${paused.id}/resume`));
-    await page.getByRole("button", { name: "Reprendre l'indexation", exact: true }).click();
-    expect((await resumeRequest).status()).toBe(200);
-  }
-  await page.getByRole("button", { name: "Fermer le suivi" }).click();
-  await expect(documentButton).toContainText("Prêt", { timeout: 540000 });
+  // D4 (recette R26-KIT-02) : de l'import (ou de la reprise d'un document réutilisé) jusqu'à « Prêt », le poste est en
+  // « Priorité aux imports », choisie dans une page dédiée du contexte puis rétablie à la priorité trouvée dans un
+  // finally (import-priority.ts). La lecture, la rotation et le périmètre se font donc pendant l'indexation.
+  await withImportPriority(page, page.request, info, async () => {
+    if (process.env.RAG_E2E_REUSE_DOCUMENT_ID) {
+      const previous = await page.request.get(`/api/v1/documents/${process.env.RAG_E2E_REUSE_DOCUMENT_ID}`);
+      expect(previous.status()).toBe(200);
+      const detail = await previous.json();
+      expect(detail.name).toBe(name);
+      const actualSha = createHash("sha256").update(readFileSync(nativeDevPath)).digest("hex");
+      expect(detail.versions.some((version: { sha256: string }) => version.sha256 === actualSha)).toBeTruthy();
+      await info.attach("reused-controlled-document", { body: Buffer.from(JSON.stringify(detail, null, 2)), contentType: "application/json" });
+    } else {
+      const chooser = page.waitForEvent("filechooser");
+      await page.getByRole("button", { name: "Importer des PDF", exact: true }).click();
+      await (await chooser).setFiles(nativeDevPath);
+    }
+    await expect(documentButton).toBeVisible();
+    await documentButton.click();
+    await expect(page.locator("canvas").first()).toBeVisible();
+    await page.getByLabel("Numéro de page").fill("2");
+    await expect(page.getByTestId("scope-summary")).toContainText("Toute la bibliothèque");
+    await page.getByRole("button", { name: "Pivoter de 90 degrés" }).click();
+    await page.getByRole("button", { name: "Augmenter le zoom" }).click();
+    await expect.poll(() => page.locator("canvas").count()).toBeLessThanOrEqual(5);
+    await expect.poll(() => page.locator("canvas").evaluateAll(canvases => canvases.reduce((sum, canvas) => sum + (canvas as HTMLCanvasElement).width * (canvas as HTMLCanvasElement).height, 0))).toBeLessThanOrEqual(24_000_000);
+    await page.getByLabel(`Sélectionner ${name}`).check();
+    await page.getByRole("button", { name: "Utiliser ce périmètre" }).click();
+    await expect(page.getByTestId("scope-summary")).toContainText(name);
+    // Suivi : l'indexation d'un document réutilisé restée en pause y est reprise, comme le ferait l'utilisateur.
+    await page.getByRole("button", { name: "Suivi", exact: false }).click();
+    const jobsResponse = await page.request.get("/api/v1/jobs");
+    const paused = (await jobsResponse.json()).jobs.find((job: { document_id: string; state: string }) => job.document_id === process.env.RAG_E2E_REUSE_DOCUMENT_ID && job.state === "paused");
+    if (paused) {
+      const resumeRequest = page.waitForResponse(response => response.request().method() === "POST" && response.url().endsWith(`/jobs/${paused.id}/resume`));
+      await page.getByRole("button", { name: "Reprendre l'indexation", exact: true }).click();
+      expect((await resumeRequest).status()).toBe(200);
+    }
+    await page.getByRole("button", { name: "Fermer le suivi" }).click();
+    await expect(documentButton).toContainText("Prêt", { timeout: 540000 });
+  });
   await monitorBrowser(browser, "indexed", info);
   const tree = await page.request.get("/api/v1/library/tree");
   const actualDocument = (await tree.json()).documents.find((document: { name: string }) => document.name === name);
@@ -128,6 +136,18 @@ test("real import, reading, scoped search and source navigation", async ({ page,
   await page.screenshot({ path: info.outputPath("native-pressure-source-rotation90.png"), fullPage: true });
   await page.getByRole("button", { name: "Revenir au passage précédent" }).click();
   await expect(page.getByLabel("Numéro de page")).toHaveValue("2");
+  // D3 (recette R26-KIT-02) : un changement de géométrie (rotation, zoom, largeur) ne change pas la page lue.
+  // La page 2 reste celle de la ligne de lecture du lecteur (haut + 100 px) aux deux tailles de bureau, puis au retour.
+  for (const [index, viewport] of [{ width: 1366, height: 768 }, { width: 1920, height: 1080 }, { width: 1366, height: 768 }].entries()) {
+    await page.setViewportSize(viewport);
+    await expect(page.getByLabel("Numéro de page")).toHaveValue("2");
+    await expect.poll(() => page.getByTestId("pdf-scroll").evaluate(scroller => {
+      const slot = scroller.querySelector('.pdf-page-slot[data-page-index="1"]')?.getBoundingClientRect();
+      const view = scroller.getBoundingClientRect();
+      return Boolean(slot && slot.top <= view.top + 100 && slot.bottom > view.top + 100);
+    })).toBe(true);
+    await page.screenshot({ path: info.outputPath(`return-page2-rotation90-${index + 1}-${viewport.width}x${viewport.height}.png`), fullPage: true });
+  }
   await page.screenshot({ path: test.info().outputPath("import-search-source.png"), fullPage: true });
   await page.getByLabel("Votre recherche").fill("DA-P99 référence absente");
   await page.getByRole("button", { name: "Rechercher", exact: true }).click();
@@ -225,15 +245,22 @@ test("real local model answers with registered citations and preserves scope", a
     await diagnostics("question-terminal");
     const terminal = await page.locator(".query-status").last().innerText();
     expect(terminal, "The actual query must complete before an answer/citation assertion; terminal errors are preserved in the SSE attachment").toMatch(/Réponse terminée|Réponse limitée/);
-    await expect(page.locator(".answer-text").last()).toContainText(/3[.,]1/);
-    await expect(page.locator(".answer-text").last()).toContainText(/\bbar\b/i);
-    await expect(page.locator(".inline-citation").first()).toBeVisible();
-    const citationResponse = page.waitForResponse(response => response.url().includes(`/api/v1/citations/${queryId}/`));
-    await page.locator(".inline-citation").first().click();
+    const turn = page.getByTestId("query-turn").last();
+    await expect(turn.locator(".answer-text")).toContainText(/3[.,]1/);
+    await expect(turn.locator(".answer-text")).toContainText(/\bbar\b/i);
+    // D2 (recette R26-KIT-02) : seule compte une citation enregistrée dans l'événement done et affichée dans le texte
+    // de la réponse ; les boutons de source des avis portent la même classe et ont validé deux réponses sans citation.
+    const replay = await page.request.get(`/api/v1/queries/${encodeURIComponent(queryId!)}/events?after=0`, { timeout: 10000 });
+    expect(replay.status()).toBe(200);
+    const cited = await registeredAnswerCitation(turn, doneEvent(await replay.text()));
+    await info.attach("registered-answer-citations", { body: Buffer.from(JSON.stringify({ registered: cited.registered, shown: cited.shown }, null, 2)), contentType: "application/json" });
+    const citationResponse = page.waitForResponse(response => response.url().includes(`/api/v1/citations/${encodeURIComponent(queryId!)}/${encodeURIComponent(cited.sourceId)}`));
+    await cited.button.click();
     const citation = await citationResponse;
     expect(citation.status()).toBe(200);
     const source = await citation.json();
     await info.attach("clicked-registered-citation", { body: Buffer.from(JSON.stringify(source, null, 2)), contentType: "application/json" });
+    expect(source.source_id).toBe(cited.sourceId);
     expect(source.page_index).toBe(0);
     expect(source.text).toMatch(/3[.,]1/);
     await expect(page.getByLabel("Numéro de page")).toHaveValue("1");
@@ -250,4 +277,52 @@ test("real local model answers with registered citations and preserves scope", a
     const timings = await page.evaluate(() => (window as unknown as { __qualificationTimings: unknown }).__qualificationTimings).catch(() => null);
     await info.attach("ui-observed-latency", { body: Buffer.from(JSON.stringify({ timings, completed_at_ms: Date.now(), method: "DOM observation of first displayed answer text; server TTFT remains separate in actual SSE metrics." }, null, 2)), contentType: "application/json" });
   }
+});
+
+test("DOUBLE SSE injecté : réponse sans citation enregistrée (2B de la recette R26-KIT-02) refusée par l'oracle", async ({ page }, info) => {
+  // Double nommé de l'oracle D2, sans génération : POST /queries et son flux sont remplacés dans le navigateur par la
+  // réponse 2B rejouée de la recette (requête ce0013ed, texte et avis repris, sources réduites). Ne qualifie ni le modèle
+  // ni les contrôles du service ; vérifie que les boutons de source des avis ne sont jamais pris pour des citations.
+  const log = watchPage(page);
+  const blocked: string[] = [];
+  await readOnlyApi(page, blocked);
+  const queryId = "r26-ui02-double-2b";
+  const eventsUrl = `/api/v1/queries/${queryId}/events`;
+  await page.route("**/api/v1/queries", route => route.fulfill({ status: 202, contentType: "application/json", body: JSON.stringify({ query_id: queryId, events_url: eventsUrl }) }));
+  const ids = ["S001", "S002", "S003", "S004", "S005"];
+  const sources = ids.map((source_id, index) => ({ source_id, query_id: queryId, document_id: "doc-da-p01", version_id: "version-da-p01", name: nativeDevName,
+    page_index: index ? 1 : 0, page_number: index ? 2 : 1, precision: "block", extraction_methods: ["native"], text: index ? "Mesures de contrôle — DA-P01." : "La pression nominale de DA-P01 est de 3.1 bar." }));
+  const text = "Selon les preuves fournies, la pression nominale de DA-P01 est de **3.1 bar**. Cette information est explicitement mentionnée dans le texte de la preuve S001 : « La pression nominale de DA-P01 est de 3.1 bar. »\n\nIl est important de noter que les autres preuves (S002, S003, S004, S005) ne contiennent pas d'information concernant la pression nominale ; elles concernent uniquement des mesures de contrôle (diamètres, fuite), une référence à un autre équipement ou le contenu général de la page.";
+  const warnings = [
+    { code: "answer_without_valid_citation", message: "La réponse ne contient aucune citation valide entre crochets : ses affirmations ne sont reliées à aucune source vérifiable. Contrôlez-les dans les sources listées avant de les utiliser." },
+    { code: "source_id_mentioned_without_citation", source_ids: ids, message: "La réponse nomme S001, S002, S003, S004 et S005 sans crochets : ces mentions ne sont pas des citations et n'ouvrent pas les sources. Retrouvez ces sources dans la liste pour vérifier la réponse." },
+  ];
+  const done: DoneEvent = { status: "done", finish_reason: "stop", text, citations: [], warnings };
+  const events = [
+    { type: "status", data: { state: "generating" } },
+    { type: "sources", data: { sources } },
+    { type: "delta", data: { text } },
+    { type: "done", data: done },
+  ];
+  const sse = events.map((event, position) => `id: ${position + 1}\nevent: ${event.type}\ndata: ${JSON.stringify(event.data)}\n\n`).join("");
+  await page.route(`**${eventsUrl}*`, route => route.fulfill({ status: 200, contentType: "text/event-stream", body: sse }));
+  await page.goto("/workspace/");
+  await page.getByRole("tab", { name: "Question", exact: true }).click();
+  await page.getByLabel("Votre question").fill("Quelle est la pression nominale de DA-P01 ? Citez sa source.");
+  await page.getByRole("button", { name: "Envoyer", exact: true }).click();
+  const turn = page.getByTestId("query-turn").last();
+  await expect(turn.locator(".query-status")).toContainText("Réponse terminée");
+  await expect(turn.locator(".answer-text")).toContainText("3.1 bar");
+  // Le piège de l'ancien oracle : des boutons `.inline-citation` existent, mais dans les avis, hors du texte de la réponse.
+  await expect(turn.locator(".inline-warning .inline-citation").first()).toBeVisible();
+  await expect(turn.locator(".answer-text .inline-citation")).toHaveCount(0);
+  const parsed = doneEvent(sse);
+  await expect(registeredAnswerCitation(turn, parsed)).rejects.toThrow(/aucune citation/);
+  await page.screenshot({ path: info.outputPath("double-2b-sans-citation.png"), fullPage: true });
+  await info.attach("r26-ui02-double-2b", { body: Buffer.from(JSON.stringify({ double: "SSE injecté", substitutions: ["POST /api/v1/queries", `GET ${eventsUrl}`],
+    warningButtons: await turn.locator(".inline-warning .inline-citation").allInnerTexts(), blocked, mutations: log.mutations, external: log.external, pageErrors: log.pageErrors }, null, 2)), contentType: "application/json" });
+  expect(blocked).toEqual([]);
+  expect(log.mutations).toEqual(["POST /api/v1/queries"]);
+  expect(log.external).toEqual([]);
+  expect(log.pageErrors).toEqual([]);
 });

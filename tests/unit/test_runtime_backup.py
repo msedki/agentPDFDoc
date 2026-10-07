@@ -1,5 +1,6 @@
 import json
 import sqlite3
+import sys
 from contextlib import closing
 from pathlib import Path
 
@@ -109,3 +110,101 @@ def test_snapshot_upload_stops_on_permanent_error_partial_collection_or_exhauste
     with client, pytest.raises(httpx.HTTPStatusError):
         upload_snapshot(client, "/collections/c", snapshot)
     assert sum(method == "POST" for method, _ in calls) == len(responses)
+
+
+def verified_backup_without_collection(folder: Path, source_root: Path) -> Path:
+    """Sauvegarde complète réelle (base SQLite peuplée, profil livré, manifeste vérifiable), sans collection Qdrant."""
+    import yaml
+
+    from services.runtime.artifacts import ROOT
+
+    saved_db = folder / "data/app.sqlite3"
+    populated_database(saved_db, source_root)
+    profile = folder / "config/profile.yaml"
+    profile.parent.mkdir(parents=True)
+    profile.write_text(yaml.safe_dump(yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))),
+                       encoding="utf-8")
+    files = [{"path": path.relative_to(folder).as_posix(), "bytes": path.stat().st_size, "sha256": file_hash(path)}
+             for path in (saved_db, profile)]
+    write_json_atomic(folder / "manifest.json", {
+        "format": "rag-native-backup-v1", "state": "complete", "backup_id": "d1-essai", "source_data_dir": str(source_root),
+        "qdrant_version": "1.19.1", "sqlite": database_summary(saved_db), "collections": [], "files": files})
+    assert verify_backup(folder)["state"] == "verified"
+    return folder
+
+
+def empty_qdrant_server(request: httpx.Request) -> httpx.Response:
+    """Double nommé du serveur Qdrant de restauration, vide : seule la liste des collections est demandée."""
+    assert (request.method, request.url.path) == ("GET", "/collections")
+    return httpx.Response(200, json={"result": {"collections": []}})
+
+
+class HttpxToTheEmptyQdrantServer:
+    """Double nommé du module httpx vu par la restauration : de vrais clients httpx, reliés par MockTransport à
+    empty_qdrant_server ; HTTPStatusError reste celle de httpx."""
+
+    HTTPStatusError = httpx.HTTPStatusError
+
+    @staticmethod
+    def Client(**options) -> httpx.Client:
+        return httpx.Client(transport=httpx.MockTransport(empty_qdrant_server), **options)
+
+
+def ports_assumed_free(ports: list[int]) -> None:
+    """Double nommé de check_ports : le port du serveur de restauration est tenu pour libre, sans être sondé."""
+
+
+# Linux et Windows sont simulés sous Linux ; sous Windows réel, la garde MAX_PATH du stockage Qdrant déplacerait la
+# restauration des chemins temporaires longs de pytest.
+@pytest.mark.skipif(sys.platform == "win32", reason="plateformes simulées sous Linux")
+@pytest.mark.parametrize("platform", ["linux", "win32"])
+def test_the_restore_server_starts_from_the_new_qdrant_storage_and_leaves_the_program_untouched(
+        tmp_path, monkeypatch, platform):
+    """D1 côté restauration : le serveur Qdrant temporaire était lui aussi lancé avec cwd=ROOT et écrivait
+    `.qdrant-initialized` dans le programme. Linux : il démarre depuis le stockage neuf de la racine restaurée, dont les
+    chemins restent ceux d'avant. Windows simulé : inchangé, racine du programme."""
+    import yaml
+
+    from services.runtime import backup, supervisor
+    from tests.unit.test_runtime_supervisor import (
+        QDRANT_INIT_FILE,
+        MsvcrtDouble,
+        ProgramBinariesDouble,
+        cooperative_stop_accepted,
+        program_entries,
+        recording_jobs,
+        run_on_platform,
+        services_ready_at_once,
+        simulated_program,
+    )
+
+    program = simulated_program(tmp_path)
+    for module in (backup, supervisor):
+        monkeypatch.setattr(module, "ROOT", program)
+    monkeypatch.delenv("QDRANT_INIT_FILE_PATH", raising=False)
+    folder = verified_backup_without_collection(tmp_path / "sauvegarde", tmp_path / "ancienne-racine")
+    jobs = recording_jobs(monkeypatch, backup)
+    monkeypatch.setattr(backup, "check_ports", ports_assumed_free)
+    monkeypatch.setattr(backup, "native_paths", ProgramBinariesDouble(program))
+    monkeypatch.setattr(backup, "wait_http", services_ready_at_once)
+    monkeypatch.setattr(backup, "send_owned_console_interrupt", cooperative_stop_accepted)
+    monkeypatch.setattr(backup, "httpx", HttpxToTheEmptyQdrantServer)
+    msvcrt = MsvcrtDouble()
+    if platform == "win32":
+        monkeypatch.setattr(supervisor, "msvcrt", msvcrt, raising=False)
+    before = program_entries(program)
+    target = tmp_path / "racine-restaurée"
+    report = run_on_platform(monkeypatch, platform, backup.restore_backup, folder, target, qdrant_port=16343)
+    assert report["state"] == "restored_storage_verified" and len(jobs) == 1
+    qdrant = jobs[0].launched["qdrant"]
+    qdrant_directory = target.resolve() / "qdrant"
+    assert report["qdrant_data_dir"] == str(qdrant_directory)
+    config = yaml.safe_load((target / "control/qdrant.yaml").read_text(encoding="utf-8"))
+    assert config["storage"]["storage_path"] == str(qdrant_directory / "storage")
+    assert config["storage"]["snapshots_path"] == str(qdrant_directory / "snapshots")
+    if platform == "win32":
+        assert msvcrt.calls == [MsvcrtDouble.LK_NBLCK]
+        assert qdrant.cwd == program
+    else:
+        assert qdrant.cwd == qdrant_directory and (qdrant_directory / QDRANT_INIT_FILE).is_file()
+        assert program_entries(program) == before

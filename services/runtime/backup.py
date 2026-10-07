@@ -31,6 +31,7 @@ from .supervisor import (
     native_paths,
     qdrant_data_path,
     qdrant_environment,
+    qdrant_working_directory,
     send_owned_console_interrupt,
     status,
     wait_http,
@@ -310,8 +311,10 @@ def restore_backup(folder: Path, target: Path, *, qdrant_port: int = 6343) -> di
         restore_key = issue_qdrant_key(control)
         try:
             with closing(acquire_qdrant_lock(qdrant_directory)), ProcessJob() as job:
+                # Serveur temporaire lancé depuis le stockage neuf, comme celui de l'instance (D1) : rien dans le programme.
                 child = job.launch([str(native_paths()["qdrant"]), "--config-path", str(config), "--disable-telemetry"],
-                                   cwd=ROOT, env=qdrant_environment(environment(profile, target, ROOT / "config/local16.yaml"), restore_key),
+                                   cwd=qdrant_working_directory(qdrant_directory),
+                                   env=qdrant_environment(environment(profile, target, ROOT / "config/local16.yaml"), restore_key),
                                    log_path=target / "restore-qdrant.log")
                 wait_http(profile["qdrant"]["url"] + "/healthz", child)
                 with httpx.Client(base_url=profile["qdrant"]["url"], headers={"api-key": restore_key},

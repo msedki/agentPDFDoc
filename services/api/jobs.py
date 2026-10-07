@@ -10,7 +10,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from services.runtime.platforms import launcher_command, native_executable
+from services.runtime.platforms import launcher_instruction, native_executable
 
 from .background import FailureLog, finish, log_unexpected_end
 from .db import json_dump, now
@@ -339,7 +339,7 @@ class JobSupervisor:
         code = error.code if isinstance(error, ApiError) else ("resource_admission_denied" if admission_failure else "ingestion_failed")
         message = error.message if isinstance(error, ApiError) else (str(error) if admission_failure else
             "L'indexation a été interrompue. Réindexez le document ; si l'erreur se reproduit, "
-            f"exécutez « {launcher_command('logs')} » depuis le dossier du projet pour trouver le journal du service local.")
+            f"exécutez {launcher_instruction('logs')} pour trouver le journal du service local.")
         paused = code in {"checkpointed", "interrupted", "insufficient_memory", "resource_admission_denied"}
         state = "paused" if paused else ("cancelled" if self.cancelled(job["id"]) else "error")
         with self.db.transaction() as connection:
@@ -418,7 +418,7 @@ class JobSupervisor:
             if not result_path.is_file():
                 raise ApiError("worker_failed", f"Le processus d'extraction s'est arrêté sans résultat (code {process.returncode}). "
                                "Réindexez le document ; si l'échec persiste, "
-                               f"exécutez « {launcher_command('logs')} » depuis le dossier du projet pour trouver le journal du service local.", 503,
+                               f"exécutez {launcher_instruction('logs')} pour trouver le journal du service local.", 503,
                                {"worker_exit_code": process.returncode})
             envelope = json.loads(result_path.read_text(encoding="utf-8"))
             if not envelope.get("ok"):

@@ -2,6 +2,7 @@ import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { basename, isAbsolute, relative, resolve } from "node:path";
 import { expect, type APIRequestContext, type Page, type TestInfo } from "@playwright/test";
 import { fixture, sha256, uploadFromUi, waitJob } from "./lifecycle-target";
+import { withImportPriority } from "./import-priority.ts";
 import { e2eTarget } from "./target.ts";
 
 export const apiOrigin = e2eTarget().baseURL;
@@ -53,14 +54,20 @@ export function fixtureAtPath(path: string): ControlledFixture | null {
   return { key: String(sidecar.key), path, sha256: String(sidecar.sha256), bytes, absolute_path: absolute, name: basename(absolute), origin: "sidecar", expected_pages: Number(sidecar.pages), expected_native_strings: sidecar.expected_native_strings };
 }
 
-/** Import réel par l'UI puis attente du job exact ; aucune reprise ni réimport automatique. */
+/**
+ * Import réel par l'UI puis attente du job exact ; aucune reprise ni réimport automatique. L'import a lieu sous
+ * « Priorité aux imports », choisie dans le Suivi puis rétablie (import-priority.ts) : « Priorité aux questions »,
+ * laissée par une recette de génération et conservée au redémarrage, garderait sinon le job en file jusqu'au délai.
+ */
 export async function importPublished(page: Page, request: APIRequestContext, input: ReturnType<typeof fixture>, info: TestInfo, accepted = ["ready"]) {
-  await page.goto("/workspace/");
-  const received = await uploadFromUi(page, input, info);
-  expect(received.status).toBe(202);
-  const job = await waitJob(request, apiOrigin, received.body.job_id, info);
-  expect(accepted, `État réel du job ${received.body.job_id}`).toContain(String(job.state));
-  return { documentId: String(received.body.document_id), versionId: String(received.body.version_id), job };
+  return withImportPriority(page, request, info, async () => {
+    await page.goto("/workspace/");
+    const received = await uploadFromUi(page, input, info);
+    expect(received.status).toBe(202);
+    const job = await waitJob(request, apiOrigin, received.body.job_id, info);
+    expect(accepted, `État réel du job ${received.body.job_id}`).toContain(String(job.state));
+    return { documentId: String(received.body.document_id), versionId: String(received.body.version_id), job };
+  });
 }
 
 export async function pageBlocks(request: APIRequestContext, versionId: string, pageIndex: number) {

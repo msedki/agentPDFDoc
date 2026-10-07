@@ -15,7 +15,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response, StreamingResponse
 from starlette.staticfiles import StaticFiles
 
-from services.runtime.platforms import launcher_command
+from services.runtime.platforms import launcher_command, launcher_instruction, launcher_kind
 
 from .context import ContextBuilder, LlmTokenizer
 from .db import Database, json_dump, now, relative_pdf_path, uid
@@ -29,7 +29,7 @@ from .reconcile import Reconciler
 from .retrieval import DenseCoverage, QdrantStore, SearchService
 from .schemas import DocumentMove, EvaluationContextRequest, QueryRequest, RuntimeMode
 from .scope import ScopeResolver, with_extraction_provenance
-from .security import LINK_HELP, SecurityPolicy, SessionRegistry, cookie_attributes
+from .security import SecurityPolicy, SessionRegistry, cookie_attributes, link_help
 from .settings import Settings
 
 logger = logging.getLogger("rag.api")
@@ -194,10 +194,10 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         if session is None:
             sessions.audit("request_refused", reason=reason, method=request.method, path=path)
             if reason == "session_required":
-                return refused(request.state.request_id, 401, "session_required", "Session requise. " + LINK_HELP, reason)
+                return refused(request.state.request_id, 401, "session_required", "Session requise. " + link_help(), reason)
             messages = {"session_unknown": "Session inconnue ou fermée. ", "session_idle_expired": "Session expirée après inactivité. ",
                         "session_absolute_expired": "Session arrivée à sa durée maximale. "}
-            return refused(request.state.request_id, 401, "session_expired", messages[reason] + LINK_HELP, reason)
+            return refused(request.state.request_id, 401, "session_expired", messages[reason] + link_help(), reason)
         request.state.auth, request.state.session = "session", session
         if request.method in {"POST", "PUT", "PATCH", "DELETE"} and not sessions.csrf_valid(session, request.headers.get("x-csrf-token")):
             sessions.audit("csrf_rejected", method=request.method, path=path)
@@ -269,7 +269,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     @application.exception_handler(Exception)
     async def unexpected_error(request, error):
         return JSONResponse({"code": "internal_error", "message": "Le service a rencontré une erreur. Réessayez ; si elle se reproduit, "
-                             f"exécutez « {launcher_command('logs')} » depuis le dossier du projet pour trouver le journal du service local.",
+                             f"exécutez {launcher_instruction('logs')} pour trouver le journal du service local.",
                              "details": {}, "request_id": getattr(request.state, "request_id", uid())}, status_code=500)
 
     prefix = "/api/v1"
@@ -384,12 +384,15 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         finally:
             governor.finish_interactive() if governor else None
 
-    # Commandes du lanceur de ce poste (W018), citées par l'atelier : « .\\rag.ps1 … » sous Windows, « ./rag.sh … » sous Linux.
+    # Commandes du lanceur de ce poste (W018), citées par l'atelier : « .\\rag.ps1 … » sous Windows, « ./rag.sh … » dans un
+    # clone Linux, « <destination>/atelier … » dans une installation par le kit Linux (R26-KIT-04), qui l'annonce dans
+    # `launcher` avec le nom de son entrée de menu.
     launcher_commands = {action: launcher_command(action) for action in ("open", "status", "logs", "doctor")}
+    launcher = launcher_kind()
 
     @application.get(prefix + "/health")
     async def health():
-        return {"status": "alive", "service": "rag-api", "commands": dict(launcher_commands)}
+        return {"status": "alive", "service": "rag-api", "commands": dict(launcher_commands), "launcher": dict(launcher)}
 
     @application.get(prefix + "/readiness")
     async def readiness():

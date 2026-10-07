@@ -132,7 +132,7 @@ test("lancé par un lien symbolique, le contrôle s'exécute ; importé, il éch
 
 test("le build échoue lui-même si l'export livre un chemin du poste", () => {
   const { scripts } = JSON.parse(readFileSync(join(webRoot, "package.json"), "utf8")) as { scripts: Record<string, string> };
-  assert.equal(scripts.build, "node scripts/prepare-assets.mjs && next build --webpack && node scripts/check-export-paths.mjs out");
+  assert.equal(scripts.build, "node scripts/prepare-assets.mjs && next build --webpack && node scripts/check-export-paths.mjs out && node scripts/write-provenance.mjs out");
 });
 
 test("les chemins d'un poste Windows sont repérés, sous forme simple, échappée ou d'URL", () => {

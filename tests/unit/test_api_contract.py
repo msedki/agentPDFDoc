@@ -150,6 +150,18 @@ def test_contract_health_response_matches_the_public_probe(app):
     for action, described in CONTRACT["health_response"]["commands"].items():
         assert f".\\rag.ps1 {action}" in described and f"./rag.sh {action}" in described, action
         assert health["commands"][action] in described, action
+    # Installation par le kit Linux (R26-KIT-04) : lanceur atelier de la destination, champ launcher décrit par le contrat.
+    from services.runtime.platforms import INSTALLED_ACTIONS, MODEL_ACTIONS
+
+    for action, described in CONTRACT["health_response"]["commands"].items():
+        assert f"<destination>/atelier {INSTALLED_ACTIONS[action]}" in described, action
+        # --modele : seulement pour les actions qui choisissent le profil (ouvrir, diagnostic).
+        assert ("--modele <tag>" in described) is (action in MODEL_ACTIONS), action
+    launcher = CONTRACT["health_response"]["launcher"]
+    assert set(health["launcher"]) == set(launcher) == {"kind", "menu"}
+    assert launcher["kind"].split(":", 1)[0].split("|") == ["installation", "projet"]
+    assert launcher["menu"].startswith("string|null:") and "Atelier documentaire" in launcher["menu"]
+    assert health["launcher"] == {"kind": "projet", "menu": None}
 
 
 def test_contract_reindex_outcomes_are_those_of_the_api_for_each_last_job_state(tmp_path, monkeypatch):

@@ -5,7 +5,7 @@ import time
 from contextlib import asynccontextmanager
 from typing import Any
 
-from services.runtime.platforms import launcher_command
+from services.runtime.platforms import launcher_instruction
 
 from .claims import answer_warnings
 from .context import validate_answer
@@ -286,7 +286,7 @@ class QueryService:
             code = error.code if isinstance(error, ApiError) else ("resource_admission_denied" if admission_failure else "query_failed")
             message = error.message if isinstance(error, ApiError) else (str(error) if admission_failure else
                 "La question n'a pas pu être traitée. Renvoyez-la ; si l'erreur se reproduit, "
-                f"exécutez « {launcher_command('logs')} » depuis le dossier du projet pour trouver le journal du service local.")
+                f"exécutez {launcher_instruction('logs')} pour trouver le journal du service local.")
             metrics["elapsed_ms"] = round((time.perf_counter() - started) * 1000, 2)
             self.db.execute("UPDATE query_runs SET state='error',answer=?,metrics_json=?,updated_at=? WHERE id=?", (answer, json_dump(metrics), now(), query_id))
             self.db.add_event(query_id, "error", {"code": code, "message": message, "metrics": metrics})

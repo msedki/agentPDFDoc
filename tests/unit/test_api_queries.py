@@ -102,6 +102,38 @@ def test_api_query_error_message_preserves_sse_code_and_private_boundary_with_se
     asyncio.run(scenario())
 
 
+class PrivateSearchFailure:
+    """Double nommé : recherche en échec sur une erreur privée, jamais affichée à l'utilisateur."""
+
+    async def search(self, *args):
+        raise RuntimeError("PRIVATE_QUERY_SENTINEL")
+
+
+def test_api_query_error_message_of_an_installation_names_the_atelier_logs_command(storage, monkeypatch, tmp_path):
+    """Installation par le kit Linux : arborescence factice (double nommé `installation_tree` de
+    test_runtime_installation_texts) ; la commande des journaux est celle du lanceur `atelier`, à taper dans un terminal,
+    sans renvoi au dossier du projet (KIT4-13, point 5). Vrai QueryService/SQLite, aucun modèle ni service."""
+    from test_runtime_installation_texts import installation_tree, run_as
+
+    tree = installation_tree(tmp_path / "poste")
+    run_as(monkeypatch, tree.program)
+    service, db, conversation, _ = query_fixture(storage, "Quelle tension CCU-21 ?")
+    service.search = PrivateSearchFailure()
+
+    async def scenario():
+        query_id = service.create(QueryRequest(question="Quelle tension CCU-21 ?", scope=Scope(kind="library"),
+                                               conversation_id=conversation))["query_id"]
+        await service.tasks[query_id]
+        await asyncio.sleep(0)
+        event = json.loads(db.rows("SELECT data_json FROM events WHERE query_id=? ORDER BY id", (query_id,))[-1]["data_json"])
+        assert event["code"] == "query_failed"
+        assert event["message"] == (
+            "La question n'a pas pu être traitée. Renvoyez-la ; si l'erreur se reproduit, "
+            f"exécutez « {tree.destination / 'atelier'} journaux » dans un terminal pour trouver le journal du service local.")
+
+    asyncio.run(scenario())
+
+
 @pytest.mark.parametrize("difference", [256, 257])
 def test_api_token_count_warning_text_keeps_threshold_counts_and_citations_with_ollama_double(storage, difference):
     """Ollama et tokenizer synthétiques explicites : aucun modèle ou appel réseau."""

@@ -327,10 +327,14 @@ def test_api_same_embedding_reindex_retries_partial_extraction(storage, monkeypa
     assert db.one("SELECT active_generation_id FROM documents WHERE id=?", (imported["document_id"],))["active_generation_id"] == job["generation_id"]
 
 
-def test_api_a_worker_that_leaves_no_result_is_not_mistaken_for_a_previous_run(storage, monkeypatch):
-    """Reprise d'un job : le résultat de l'exécution précédente ne doit jamais être relu comme le nouveau."""
+@pytest.mark.parametrize("where", ["clone", "installation"])
+def test_api_a_worker_that_leaves_no_result_is_not_mistaken_for_a_previous_run(storage, monkeypatch, tmp_path, where):
+    """Reprise d'un job : le résultat de l'exécution précédente ne doit jamais être relu comme le nouveau. Le message cite
+    la commande des journaux du lanceur : celle du dépôt dans un clone, celle d'`atelier` dans une installation factice
+    (double nommé `installation_tree` de test_runtime_installation_texts)."""
     from pathlib import Path
 
+    tree = installed_api(tmp_path, monkeypatch) if where == "installation" else None
     imported, extraction = import_fixture(storage)
     settings, db, _, indexer = storage
     job_id = new_job(db, imported)
@@ -352,11 +356,18 @@ def test_api_a_worker_that_leaves_no_result_is_not_mistaken_for_a_previous_run(s
         asyncio.run(supervisor.run(db.one("SELECT * FROM jobs WHERE id=?", (job_id,))))
     assert failed.value.code == "worker_failed" and "code 3" in failed.value.message
     assert failed.value.status == 503 and failed.value.details == {"worker_exit_code": 3}
-    assert failed.value.message == (
-        "Le processus d'extraction s'est arrêté sans résultat (code 3). Réindexez le document ; "
-        f"si l'échec persiste, exécutez « {launcher_command('logs')} » depuis le dossier du projet "
-        "pour trouver le journal du service local."
-    )
+    if tree is None:
+        assert failed.value.message == (
+            "Le processus d'extraction s'est arrêté sans résultat (code 3). Réindexez le document ; "
+            f"si l'échec persiste, exécutez « {launcher_command('logs')} » depuis le dossier du projet "
+            "pour trouver le journal du service local."
+        )
+    else:
+        assert failed.value.message == (
+            "Le processus d'extraction s'est arrêté sans résultat (code 3). Réindexez le document ; "
+            f"si l'échec persiste, exécutez « {tree.destination / 'atelier'} journaux » dans un terminal "
+            "pour trouver le journal du service local."
+        )
 
 
 @pytest.mark.parametrize("launcher", ["./rag.sh", r".\rag.ps1"])
@@ -379,6 +390,33 @@ def test_api_generic_job_failure_message_keeps_private_error_in_logs_only(storag
     assert stored["error_message"] == (
         "L'indexation a été interrompue. Réindexez le document ; si l'erreur se reproduit, "
         f"exécutez « {launcher} logs » depuis le dossier du projet pour trouver le journal du service local."
+    )
+
+
+def installed_api(tmp_path, monkeypatch):
+    """API lancée depuis une installation par le kit Linux : arborescence factice (double nommé `installation_tree` de
+    test_runtime_installation_texts), aucun programme copié ni lancé."""
+    from test_runtime_installation_texts import installation_tree, run_as
+
+    tree = installation_tree(tmp_path / "poste")
+    run_as(monkeypatch, tree.program)
+    return tree
+
+
+def test_api_generic_job_failure_message_of_an_installation_names_the_atelier_logs_command(storage, monkeypatch, tmp_path):
+    """Installation : la commande des journaux est celle du lanceur `atelier`, à taper dans un terminal ; une installation
+    n'a pas de dossier du projet (KIT4-13, point 5). Erreur synthétique persistée par le superviseur réel."""
+    tree = installed_api(tmp_path, monkeypatch)
+    settings, db, _, indexer = storage
+    pending = db.import_original("synthetic/error.pdf", "f" * 64, "error.pdf")
+    supervisor = JobSupervisor(db, indexer, settings)
+    job = db.one("SELECT * FROM jobs WHERE id=?", (pending["job_id"],))
+    assert supervisor.record_failure(job, RuntimeError("PRIVATE_JOB_SENTINEL")) is False
+    stored = db.one("SELECT * FROM jobs WHERE id=?", (pending["job_id"],))
+    assert stored["error_code"] == "ingestion_failed"
+    assert stored["error_message"] == (
+        "L'indexation a été interrompue. Réindexez le document ; si l'erreur se reproduit, "
+        f"exécutez « {tree.destination / 'atelier'} journaux » dans un terminal pour trouver le journal du service local."
     )
 
 

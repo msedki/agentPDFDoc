@@ -149,8 +149,9 @@ resources:
   admit_heavy_min_available_mib: 3072
   sampling_interval_seconds: 1
   unload_llm_before_ingestion: true
-  initial_llm_load_peak_estimate_mib: 3456
-  warm_llm_additional_peak_estimate_mib: 512
+  # W046 : pilote CPU 4B exclusif du 07/10, pic froid 4138,56 Mio et pic chaud 385,41 Mio + marge 129 (W007 : 3456 et 512) ; portée Linux aarch64.
+  initial_llm_load_peak_estimate_mib: 4352
+  warm_llm_additional_peak_estimate_mib: 640
   embedding_load_peak_estimate_mib: 512
   generation_admission_wait_seconds: 120
   initial_parser_peak_estimate_mib: 2304

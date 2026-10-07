@@ -1,9 +1,14 @@
 import { test, expect, type Page } from "@playwright/test";
 import { monitorBrowser } from "./resources";
+import { withImportPriority } from "./import-priority.ts";
 import { configuredUploadLimit, detail, fixture, guardTarget, readLifecycleTarget, sha256, uploadFromUi, waitJob } from "./lifecycle-target";
 
 // No test is enabled by merely listing it. Every run also needs a concrete
 // runtime binding and exact scenario permit. This suite never calls /queries.
+// D4 (recette R26-KIT-02) : chaque indexation attendue (import, nouvelle version, réindexation) a lieu sous
+// « Priorité aux imports », choisie dans une page dédiée du contexte puis rétablie à la priorité trouvée dans un
+// finally (import-priority.ts). Le réimport identique (job publié rendu tel quel) et le refus 413 n'attendent
+// aucune indexation : ils ne changent pas la priorité.
 test.beforeEach(() => {
   test.skip(process.env.RAG_E2E_LIFECYCLE_ALLOWED !== "1", "Lifecycle windows are scheduled separately; NOT_RUN without explicit authorization.");
 });
@@ -183,17 +188,20 @@ test("UI reindex publishes a new verified generation without creating a file ver
   expect(before.active_generation_id).toBe(target.document.generation_id);
   await page.goto(`/workspace/?document=${encodeURIComponent(before.id)}&version=${encodeURIComponent(target.document.version_id)}&page=1`);
   await expect(page.locator("canvas").first()).toBeVisible();
-  await page.getByLabel("Actions et versions du document").click();
-  const pending = page.waitForResponse(response => response.request().method() === "POST" && response.url().endsWith(`/documents/${target.document.id}/reindex`));
-  await page.getByRole("button", { name: "Réindexer ce document", exact: true }).click();
-  const response = await pending;
-  expect(response.status()).toBe(202);
-  const started = await response.json();
-  expect(started.version_id).toBe(target.document.version_id);
-  expect(started.reused).toBe(false);
-  const job = await waitJob(request, target.origin, started.job_id, info);
-  expect(job.state).toBe("ready");
-  expect(job.published).toBe(true);
+  const { started, job } = await withImportPriority(page, request, info, async () => {
+    await page.getByLabel("Actions et versions du document").click();
+    const pending = page.waitForResponse(response => response.request().method() === "POST" && response.url().endsWith(`/documents/${target.document.id}/reindex`));
+    await page.getByRole("button", { name: "Réindexer ce document", exact: true }).click();
+    const response = await pending;
+    expect(response.status()).toBe(202);
+    const started = await response.json();
+    expect(started.version_id).toBe(target.document.version_id);
+    expect(started.reused).toBe(false);
+    const job = await waitJob(request, target.origin, started.job_id, info);
+    expect(job.state).toBe("ready");
+    expect(job.published).toBe(true);
+    return { started, job };
+  });
   const after = await detail(request, target);
   expect(after.versions).toEqual(before.versions);
   expect(after.active_version_id).toBe(before.active_version_id);
@@ -220,21 +228,24 @@ test("updated PDF remains unpublished until ready and preserves its old original
   expect(before.versions.some((version: { sha256: string }) => version.sha256 === next.sha256), "Keep this mutation a first controlled update; do not silently reimport an already existing v2").toBe(false);
   await page.goto(`/workspace/?document=${before.id}&version=${target.document.version_id}&page=1`);
   await expect(page.locator("canvas").first()).toBeVisible();
-  const received = await uploadFromUi(page, next, info);
-  expect(received.status).toBe(202);
-  expect(received.body.document_id).toBe(before.id);
-  expect(received.body.version_id).not.toBe(target.document.version_id);
-  expect(received.body.reused).toBe(false);
-  const staging = await detail(request, target);
-  await info.attach("actual-new-version-before-publication", { body: Buffer.from(JSON.stringify(staging, null, 2)), contentType: "application/json" });
-  expect(staging.active_generation_id, "A prepublication observation is required; a fast completion cannot prove this boundary").toBe(before.active_generation_id);
-  expect(staging.active_version_id).toBe(before.active_version_id);
-  const unpublished = await request.get(`${target.origin}/api/v1/versions/${received.body.version_id}/pages/0/blocks`);
-  expect(unpublished.status()).toBe(409);
-  expect((await unpublished.json()).code).toBe("not_indexed");
-  const job = await waitJob(request, target.origin, received.body.job_id, info);
-  expect(job.state).toBe("ready");
-  expect(job.published).toBe(true);
+  const { received, job } = await withImportPriority(page, request, info, async () => {
+    const received = await uploadFromUi(page, next, info);
+    expect(received.status).toBe(202);
+    expect(received.body.document_id).toBe(before.id);
+    expect(received.body.version_id).not.toBe(target.document.version_id);
+    expect(received.body.reused).toBe(false);
+    const staging = await detail(request, target);
+    await info.attach("actual-new-version-before-publication", { body: Buffer.from(JSON.stringify(staging, null, 2)), contentType: "application/json" });
+    expect(staging.active_generation_id, "A prepublication observation is required; a fast completion cannot prove this boundary").toBe(before.active_generation_id);
+    expect(staging.active_version_id).toBe(before.active_version_id);
+    const unpublished = await request.get(`${target.origin}/api/v1/versions/${received.body.version_id}/pages/0/blocks`);
+    expect(unpublished.status()).toBe(409);
+    expect((await unpublished.json()).code).toBe("not_indexed");
+    const job = await waitJob(request, target.origin, received.body.job_id, info);
+    expect(job.state).toBe("ready");
+    expect(job.published).toBe(true);
+    return { received, job };
+  });
   const after = await detail(request, target);
   expect(after.active_version_id).toBe(received.body.version_id);
   expect(after.active_generation_id).toBe(job.generation_id);
@@ -264,14 +275,17 @@ for (const [key, expectedCode] of [["encrypted", "PDF_ENCRYPTED"], ["corrupt", "
     const tree = await request.get(`${target.origin}/api/v1/library/tree?search=${encodeURIComponent(input.name)}`);
     expect((await tree.json()).documents.some((document: { relative_path: string }) => document.relative_path === input.name), "Preserve prior error evidence; choose a fresh isolated storage rather than silently retry").toBe(false);
     await page.goto("/workspace/");
-    const received = await uploadFromUi(page, input, info);
-    expect(received.status).toBe(202);
-    const job = await waitJob(request, target.origin, received.body.job_id, info);
-    expect(job.id).toBe(received.body.job_id);
-    expect(job.document_id).toBe(received.body.document_id);
-    expect(job.version_id).toBe(received.body.version_id);
-    expect(job.state).toBe("error");
-    expect(job.error_code).toBe(expectedCode);
+    const job = await withImportPriority(page, request, info, async () => {
+      const received = await uploadFromUi(page, input, info);
+      expect(received.status).toBe(202);
+      const job = await waitJob(request, target.origin, received.body.job_id, info);
+      expect(job.id).toBe(received.body.job_id);
+      expect(job.document_id).toBe(received.body.document_id);
+      expect(job.version_id).toBe(received.body.version_id);
+      expect(job.state).toBe("error");
+      expect(job.error_code).toBe(expectedCode);
+      return job;
+    });
     await page.getByRole("button", { name: "Actualiser la bibliothèque", exact: true }).click();
     const row = page.getByRole("navigation", { name: "Arborescence documentaire" }).getByRole("button", { name: new RegExp(input.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) }).first();
     await expect(row).toContainText("Erreur");
@@ -291,10 +305,13 @@ test("blank PDF requires an explicit visible no-text state", async ({ request, p
   const tree = await request.get(`${target.origin}/api/v1/library/tree?search=${encodeURIComponent(input.name)}`);
   expect((await tree.json()).documents.some((document: { relative_path: string }) => document.relative_path === input.name)).toBe(false);
   await page.goto("/workspace/");
-  const received = await uploadFromUi(page, input, info);
-  expect(received.status).toBe(202);
-  const job = await waitJob(request, target.origin, received.body.job_id, info);
-  expect(job.state).toBe("ready");
+  const { received, job } = await withImportPriority(page, request, info, async () => {
+    const received = await uploadFromUi(page, input, info);
+    expect(received.status).toBe(202);
+    const job = await waitJob(request, target.origin, received.body.job_id, info);
+    expect(job.state).toBe("ready");
+    return { received, job };
+  });
   const blocks = await request.get(`${target.origin}/api/v1/versions/${received.body.version_id}/pages/0/blocks`);
   expect(blocks.status()).toBe(200);
   const actual = await blocks.json();

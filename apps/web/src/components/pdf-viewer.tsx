@@ -10,7 +10,7 @@ import { boundedCanvasSize, reconcileSelection, visiblePageWindow, wholeBlockSpa
 import { hasExtractedText, ocrOverlays, pageTextCaption } from "@/lib/ocr-overlay";
 import { hasPublishedExtraction } from "@/lib/publication";
 import { findNextPdfPage, samePdfReading } from "@/lib/pdf-search";
-import { pdfPageLayout, pdfScrollTarget, type PdfScrollLayout } from "@/lib/pdf-navigation";
+import { pdfPageAtScroll, pdfPageLayout, pdfScrollTarget, type PdfScrollLayout } from "@/lib/pdf-navigation";
 import { groupedWarningTexts } from "@/lib/warnings";
 import { blocksKey, citedRevision } from "@/lib/provenance-revision";
 import { useCitationRevision } from "@/lib/use-citation-revision";
@@ -228,21 +228,24 @@ export function PdfViewer() {
   for (let index = 0; index < pageCount; index++) offsets.push(offsets[index] + (heights[index] ?? estimatedHeight));
   const pageOffset = offsets[pageIndex ?? 0] ?? 0;
   useLayoutEffect(() => {
-    if (!scroll.current || pageIndex === undefined || !document) { scrollLayout.current = null; return; }
+    const element = scroll.current;
+    if (!element || pageIndex === undefined || !document) { scrollLayout.current = null; return; }
     const next = { document, pageIndex, pageOffset };
-    const target = pdfScrollTarget(scrollLayout.current, next, currentCenter.current, scroll.current.scrollTop);
-    scrollLayout.current = next;
+    const target = pdfScrollTarget(scrollLayout.current, next, currentCenter.current, element.scrollTop);
     if (target !== null) {
       currentCenter.current = pageIndex;
-      scroll.current.scrollTo({ top: target, behavior: "instant" });
+      element.scrollTo({ top: target, behavior: "instant" });
     }
+    // Position effective dans la nouvelle géométrie, après un éventuel recadrage par le navigateur.
+    scrollLayout.current = { ...next, scrollTop: element.scrollTop };
   }, [pageIndex, document, pageOffset]);
 
   const onScroll = () => {
     if (!scroll.current || !opened) return;
-    const top = scroll.current.scrollTop + 100;
-    let page = 0;
-    while (page + 1 < pageCount && offsets[page + 1] <= top) page++;
+    // Défilement du lecteur entre deux géométries : base du prochain recalage (rotation, zoom, hauteurs mesurées).
+    if (scrollLayout.current) scrollLayout.current = { ...scrollLayout.current, scrollTop: scroll.current.scrollTop };
+    const element = scroll.current;
+    const page = pdfPageAtScroll(offsets, pageCount, element.scrollTop, element.scrollHeight - element.clientHeight, currentCenter.current);
     if (page !== currentCenter.current) { currentCenter.current = page; state.page(page); }
   };
   const localSearch = async () => {

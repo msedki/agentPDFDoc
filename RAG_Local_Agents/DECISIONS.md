@@ -1393,3 +1393,160 @@ sous Linux ; type MIME sous Windows non vérifié). Un échec de chargement
 affiche « Lecteur PDF indisponible » avec l'action à mener. **Retour
 arrière :** revenir à l'import empaqueté et retirer le contrôle du script
 `build`, ce qui réintroduirait la fuite.
+
+## W045 Qwen 3.5 4B par défaut, 2B conservé au lancement
+
+**Date :** 6 octobre 2026, 23:40 UTC. **Statut :** décision utilisateur
+acquise ; implémentée (R26-MOD-01) et testée en unitaire, revue avec le lot
+R26-KIT-04. Remplace uniquement le défaut de W032 ; le choix au démarrage,
+l'exclusivité entre modèle et profil et la conservation des profils
+utilisateur restent régis par W032.
+
+**Contexte :** la campagne DEV R26-2B-01 mesure pour le 2B une exactitude de
+50/80, des citations hors crochets dans 50 réponses sur 84 et 64 assertions
+soutenues sur 181 ; le 4B mesuré en J8 citait toutes ses réponses. Après
+explication, l'utilisateur demande « je veux 4B par défaut » et choisit
+« 4B par défaut, 2B en option », sans nouveau travail sur le 2B.
+[Source utilisateur](SOURCES.md#r26-s02--arbitrages-utilisateur-sur-la-fiabilité-2b-et-d065).
+
+**Choix :** `qwen3.5:4b` (profil `config/local16-4b.yaml`) est le défaut de
+la CLI, de `rag.sh`, de `rag.ps1` et du kit Linux ; `--model qwen3.5:2b` (ou
+`-Model` sous Windows) sélectionne le 2B. Tout kit Linux contient le 4B ;
+`--models 4b,2b` est le défaut, un kit 4B seul est permis, un kit 2B seul
+refusé. Les fichiers de profil ne changent pas de nom ni de rôle.
+
+**Conséquences :** un profil existant n'est jamais converti : une
+installation mise à jour garde son modèle principal et le rapport le
+signale, avec la commande pour employer le 4B. Un clone lancé sans option
+passe au 4B au démarrage suivant. Le 4B demande davantage de mémoire et de
+calcul sur CPU que le 2B (W046). Windows n'est couvert que par les tests en
+plateforme simulée ; rien n'y a été exécuté. Les mesures de qualité du 4B
+sur le code actuel relèvent de R26-4B-01. **Retour arrière :** remettre
+`config/local16.yaml` comme défaut et la règle « 2B obligatoire dans tout
+kit ».
+
+## W046 Admission du 4B relevée après un pilote exclusif aux limites W039
+
+**Date :** 7 octobre 2026, critère figé le 6 octobre à 23:45 UTC, mesure de
+22:45 à 23:31 UTC. **Statut :** acquise pour le profil 4B livré ; prolonge
+W007 sans en réécrire les mesures historiques. Aucune case D07 n'est cochée.
+
+**Contexte :** le 4B devient le modèle par défaut (W045). Ses estimations
+(3 456 Mio à froid, 512 Mio à chaud) dataient de W007, avant les limites de
+W039 (entrée maximale 6 400 tokens, sorties 768/1 536).
+
+**Mesure retenue :** pilote CPU exclusif sur le Jetson (verrous lourd et GPU
+tenus, aucune instance du chantier pendant la fenêtre), profil 4B livré,
+`qwen3.5:4b-text` sur CPU, entrées de 6 319 tokens, trois contenus chauds
+neufs et une sortie de 768 tokens. Pic froid 4 138,56 Mio (depuis la base du
+pilote ; 3 830,27 depuis la mesure préalable), pic chaud 385,41 Mio, plateau
+d'USS 0,22 Mio, swap consommé 260 Mio. [Journal](journal/2026-10-06.md#r26-adm-02--pilote-cpu-exclusif-du-4b-22452331-utc).
+
+**Choix :** règle de W036 (pic + 129 Mio arrondi au multiple de 128
+supérieur, borne relevée et jamais baissée) : estimation froide du 4B portée
+de 3 456 à 4 352 Mio et estimation chaude de 512 à 640 Mio, dans
+`config/local16-4b.yaml` et sa copie ; 5 888 Mio requis à froid avec la
+réserve de 1 536. Profil 2B inchangé (W041).
+
+**Conséquences :** admission plus stricte du 4B ; un hôte de 16 Go garde la
+marge prévue mais aucune recette D07 n'en découle. Portée : CPU de ce Jetson.
+**Retour arrière :** rétablir 3 456 et 512 dans le profil 4B, sa copie et le
+test de seuil, si une mesure exclusive plus représentative le justifie.
+
+## W047 Kit Linux installé en espace utilisateur, intégré au bureau par défaut
+
+**Date :** 7 octobre 2026. **Statut :** choix techniques déduits des demandes
+R26 (installation sans droit administrateur ni modification globale) et de la
+demande du 7 octobre vers 00:00 UTC (« user friendly seamless avec les
+composants et toute la doc ») ; implémenté (R26-KIT-01, R26-KIT-04), testé en
+unitaire et relu par des relecteurs non auteurs. La recette réelle de la mise
+à jour, des retours arrière et du retrait reste à faire (R26-KIT-02, phase 2).
+Remplace la limite KIT16 « entrée de menu créée seulement sur demande
+explicite ».
+
+**Contexte :** la phase 1 de la recette (kit A, `78ec95c`) a installé et
+utilisé le kit sans réseau, mais l'installateur exigeait deux chemins, ne
+créait aucune entrée de menu et laissait l'utilisateur retrouver seul la
+destination pour mettre à jour ou retirer. L'audit en quatre angles a relevé
+56 constats, regroupés en 31 actions KIT4-01 à KIT4-31
+(`.runtime/qa/r26-kit-ux-audit-20261007/kit-ux-spec.json`).
+
+**Choix :**
+
+- Format `atelier-kit-v2` : archive `<kit_id>.tar` (PAX, sans compression),
+  empreinte `<kit_id>.tar.sha256` et guide `<kit_id>.LISEZMOI.md` à côté ;
+  dans le kit, `kit-manifest.json`, `SHA256SUMS`, `SYMLINKS`, `EXECUTABLES`,
+  `THIRD_PARTY_NOTICES.md` et `LISEZMOI.md` généré depuis le manifeste.
+  Fichiers du dépôt lus au commit du kit, interface exportée accompagnée de
+  sa preuve de provenance ; corpus, bases, sessions, secrets, journaux et
+  preuves de qualification exclus.
+- `./installer.sh` sans argument obligatoire, refusé en root. Emplacements
+  par défaut `${XDG_DATA_HOME:-$HOME/.local/share}/atelier-documentaire/`
+  `programme` et `donnees`, ou `--emplacement <dossier>` pour un autre
+  volume. C'est une interprétation : la spécification XDG Base Directory 0.8
+  ne définit aucun dossier de programmes ; uv range ses outils de la même
+  façon sous `$XDG_DATA_HOME`.
+- Intégration au bureau par défaut, désactivable par `--sans-menu` : entrée
+  `atelier-documentaire.desktop` (`Version=1.1`, acceptée par
+  `desktop-file-validate` 0.24, qui refuse 1.5), icône SVG désignée par chemin
+  absolu, commande `~/.local/bin/atelier` et registre
+  `${XDG_STATE_HOME:-$HOME/.local/state}/atelier-documentaire/installations.json`.
+  Le PATH, `~/.profile`, `/etc`, `/usr` et `update-desktop-database` ne sont
+  jamais touchés.
+- Versions côte à côte sous `<programme>/<kit_id>`, désignées par le pointeur
+  `installation.json` (version courante et précédente), remplacé par
+  `rename(2)` une fois tous les fichiers dérivés préparés ; `repair`
+  régénère le lanceur, l'entrée et la commande depuis le pointeur.
+- Mise à jour : sauvegarde des données par la version en place, vérifiée
+  avant toute copie. Retour arrière simple ou avec restauration de la
+  sauvegarde, annoncé et confirmé avant toute action. Retrait de la version
+  courante refusé tant qu'une version précédente existe ;
+  `uninstall --anciennes` et `uninstall --tout` conservent toujours les
+  données.
+- Données conservées reprises par `install --reprendre-donnees` seulement
+  si une sauvegarde existe ; sans sauvegarde, refus avec une autre racine
+  proposée, car aucune version installée ne peut les sauvegarder avant une
+  éventuelle évolution de format.
+- Codes de sortie : 0 réussite, 1 autre erreur, 2 usage, 3 refus avant toute
+  écriture, 4 contrôles système refusés, 5 échec après le début des
+  écritures, 130 interruption. Messages en français, par étapes, sans durée
+  promise tant qu'aucune n'est mesurée.
+
+**Justification :** la demande de simplicité, la règle « aucune élévation »
+de la charte, et les spécifications Desktop Entry et XDG Base Directory
+([SOURCES R26-KIT](SOURCES.md#r26-kit--kit-hors-ligne-linux-kit01-à-kit26)).
+
+**Conséquences :** sans `--sans-menu`, l'installateur écrit hors des deux
+dossiers choisis (entrée, commande, registre) ; tout est retiré par
+`uninstall --tout`. La commande `atelier` n'est trouvée que si
+`~/.local/bin` figure dans le PATH, ce que l'installateur signale sans le
+modifier. L'affichage de l'entrée sous GNOME 3.36 n'est pas observé. Points
+non retenus, à trancher par l'utilisateur : retrait du modèle 4B source
+(3,39 Go) et filtrage du groupe de développement du cache uv (99,8 Mo).
+**Retour arrière :** `--sans-menu` rétablit le comportement de R26-KIT-01
+(aucune écriture hors des dossiers choisis).
+
+## W048 Modèle principal durable d'une installation Linux
+
+**Date :** 7 octobre 2026. **Statut :** choix technique compatible avec
+W045 ; implémenté (KIT4-22) et testé en unitaire ; recette réelle avec le
+kit B (R26-KIT-02, phase 2).
+
+**Contexte :** W045 interdit de convertir un profil existant ; une
+installation 2B mise à jour garde donc le 2B. Sans commande dédiée,
+l'utilisateur devait répéter `--modele` à chaque ouverture.
+
+**Choix :** `atelier modele <modèle>` (ou `installer.sh modele <modèle>`)
+change durablement le modèle principal, sous le verrou de l'installateur :
+refus si une instance tourne avec un autre profil, sauf arrêt confirmé au
+terminal ; profil dérivé s'il manque ; rubriques modèle et mémoire de
+`doctor` affichées ; bascule du pointeur avec l'événement `modele` ; lanceur
+et actions du menu régénérés. `update --model <modèle>` fait le même choix
+pendant une mise à jour. Aucun fichier de profil n'est modifié et le modèle
+doit être livré par la version installée.
+
+**Conséquences :** le rapport de mise à jour d'une installation 2B cite la
+commande pour passer au 4B. Aucune bascule automatique : l'arrêt reste une
+décision de l'utilisateur. **Retour arrière :** `atelier modele` avec
+l'ancien modèle, ou retrait de la commande, l'option `--modele` au
+lancement restant disponible.

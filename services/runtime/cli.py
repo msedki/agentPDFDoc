@@ -39,7 +39,14 @@ from .accelerator import (
     verified_libraries,
 )
 from .artifacts import ROOT, file_hash, provision_artifacts, write_json_atomic
-from .platforms import executable_name, launcher_command, native_executable, platform_label
+from .platforms import (
+    executable_name,
+    installation,
+    launcher_command,
+    native_executable,
+    platform_label,
+    use_profile,
+)
 from .resources import admission_requirement
 from .supervisor import (
     ProcessJob,
@@ -64,7 +71,10 @@ from .supervisor import (
 
 MODELS_LOCK = ROOT / "config/models.lock.json"
 PNPM_DEFAULT_VERSION = "10.34.1"
-MODEL_PROFILES = {"qwen3.5:2b": "local16.yaml", "qwen3.5:4b": "local16-4b.yaml"}
+# W045 (6 octobre 2026) : le 4B est le modèle par défaut ; le 2B reste un choix au lancement (W032). Les profils livrés ne
+# changent pas : config/local16-4b.yaml pour le 4B, config/local16.yaml pour le 2B.
+DEFAULT_MODEL = "qwen3.5:4b"
+MODEL_PROFILES = {"qwen3.5:4b": "local16-4b.yaml", "qwen3.5:2b": "local16.yaml"}
 
 
 def model_profile_path(profile: Path | None, model: str | None) -> Path:
@@ -72,8 +82,9 @@ def model_profile_path(profile: Path | None, model: str | None) -> Path:
     if profile is not None and model is not None:
         raise ValueError("--model et --profile sont exclusifs ; choisissez le profil utilisateur ou un modèle livré")
     if model is not None and model not in MODEL_PROFILES:
-        raise ValueError("Modèle livré inconnu ; choisir qwen3.5:2b ou qwen3.5:4b")
-    return profile if profile is not None else ROOT / "config" / MODEL_PROFILES[model or "qwen3.5:2b"]
+        raise ValueError("Modèle livré inconnu ; choisir "
+                         + " ou ".join(f"{name} (défaut)" if name == DEFAULT_MODEL else name for name in MODEL_PROFILES))
+    return profile if profile is not None else ROOT / "config" / MODEL_PROFILES[model or DEFAULT_MODEL]
 
 
 def pnpm_required_version() -> str:
@@ -912,7 +923,10 @@ def open_workspace(profile_path: Path, *, launch: bool = True) -> dict[str, Any]
         raise RuntimeError("Instance non démarrée : lancer d'abord " + launcher_command("up"))
     headers = control_headers(data_path(profile))
     if not headers:
-        raise RuntimeError("Jeton de contrôle de l'instance absent : redémarrer avec " + launcher_command("down") + " puis up")
+        # Clone et Windows : texte inchangé ; installation : les deux commandes du lanceur atelier.
+        restart = launcher_command("up") if installation() else "up"
+        raise RuntimeError("Jeton de contrôle de l'instance absent : redémarrer avec " + launcher_command("down") + " puis "
+                           + restart)
     origin, verify = app_origin(profile)
     with httpx.Client(timeout=10, trust_env=False, verify=verify) as client:
         response = client.post(origin + "/api/v1/admin/session-links", headers=headers)
@@ -940,7 +954,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["provision", "doctor", "up", "status", "logs", "down", "_serve", "pull-model", "backup", "restore", "verify", "open", "init-profile", "selftest"])
     parser.add_argument("--profile", type=Path, help="Profil utilisateur explicite, exclusif de --model")
-    parser.add_argument("--model", choices=list(MODEL_PROFILES), help="Modèle du profil livré (défaut : qwen3.5:2b)")
+    parser.add_argument("--model", choices=list(MODEL_PROFILES),
+                        help=f"Modèle du profil livré (défaut : {DEFAULT_MODEL} ; --model qwen3.5:2b pour le 2B)")
     parser.add_argument("--only")
     parser.add_argument("--offline", action="store_true")
     parser.add_argument("--skip-model", action="store_true")
@@ -953,6 +968,8 @@ def main() -> int:
     args = parser.parse_args()
     try:
         args.profile = model_profile_path(args.profile, args.model)
+        # Commandes citées par ce processus dans une installation : modèle et profil de l'utilisateur en usage.
+        use_profile(args.profile)
         if args.command == "_serve":
             return supervise(args.profile)
         if args.command == "provision":

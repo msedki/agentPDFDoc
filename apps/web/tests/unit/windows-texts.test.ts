@@ -16,8 +16,8 @@ import { join } from "node:path";
 import test, { after } from "node:test";
 import { pathToFileURL } from "node:url";
 import { api } from "../../src/lib/api.ts";
-import { launcherCommandsFrom, launcherText, openCommandChoices, type LauncherCommands } from "../../src/lib/launcher.ts";
-import { sessionScreen, type SessionEndReason } from "../../src/lib/session.ts";
+import { launcherCommandsFrom, openCommandChoices, type LauncherCommands } from "../../src/lib/launcher.ts";
+import { sessionCloseTitle, sessionScreen, type SessionEndReason } from "../../src/lib/session.ts";
 import { errorMessage } from "../../src/lib/utils.ts";
 import { httpFailureMessage, readinessSentence, serviceUnreachableMessage } from "../../src/lib/warnings.ts";
 import { readSource, stripScriptComments, webRoot } from "./theme-support.ts";
@@ -107,10 +107,7 @@ test("failures written by the workspace are those of the reference commit, throu
 test("the closing tooltip of the top bar is that of the reference commit", { skip }, () => {
   const before = /title="(Ferme la session de ce navigateur\. Pour revenir : [^"]*)"/.exec(sources["src/components/app-topbar.tsx"]!)?.[1];
   assert.ok(before, "info-bulle absente de la source de référence");
-  const template = /title=\{`(Ferme la session de ce navigateur\. Pour revenir : \$\{launcherText\("open", commands\)\} depuis le dossier du projet\.)`\}/
-    .exec(stripScriptComments(readSource("components/app-topbar.tsx")))?.[1];
-  assert.ok(template, "info-bulle actuelle introuvable");
-  for (const [label, commands] of WINDOWS) {
-    assert.equal(template.replace('${launcherText("open", commands)}', launcherText("open", commands)), before, label);
-  }
+  // L'info-bulle actuelle est calculée par sessionCloseTitle, que la barre supérieure emploie avec les commandes connues.
+  assert.match(stripScriptComments(readSource("components/app-topbar.tsx")), /title=\{sessionCloseTitle\(commands\)\}/);
+  for (const [label, commands] of WINDOWS) assert.equal(sessionCloseTitle(commands), before, label);
 });

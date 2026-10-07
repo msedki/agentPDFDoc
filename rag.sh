@@ -11,7 +11,8 @@ Commandes : provision, doctor (par défaut), up, open, status, logs, down, pull-
 
 Options :
   --profile <fichier>        profil utilisateur explicite, exclusif de --model
-  --model <tag>              qwen3.5:2b (défaut) ou qwen3.5:4b ; changement appliqué après down puis up
+  --model <tag>              modèle du profil livré : qwen3.5:4b (défaut) ; --model qwen3.5:2b pour le 2B ;
+                             changement appliqué après down puis up
   --only <groupe>            provision : un seul groupe d'artefacts
   --offline                  aucun accès réseau (kit déjà provisionné)
   --skip-model               provision : sans modèle Ollama
@@ -32,7 +33,8 @@ fail() {
 
 command_name=doctor
 command_seen=0
-profile=config/local16.yaml
+# Profil livré par défaut : celui du 4B (W045) ; --model qwen3.5:2b sélectionne le profil du 2B.
+profile=config/local16-4b.yaml
 profile_seen=0
 model=
 only=

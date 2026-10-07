@@ -4,7 +4,7 @@ import { Activity, LogOut, PanelLeftClose, PanelLeftOpen, PanelRightClose, Panel
 import type { StatusView } from "@/lib/status";
 import { activeJobsBadge, activeJobsSentence } from "@/lib/panel-state";
 import { analysisToggleLabel, libraryToggleLabel, type AnalysisMode, type LibraryMode } from "@/lib/panel-preferences";
-import { launcherText } from "@/lib/launcher";
+import { sessionCloseTitle } from "@/lib/session";
 import { useLauncherCommands } from "@/lib/use-launcher-commands";
 import { Button } from "./ui/button";
 import { StatusIndicator } from "./ui/status-indicator";
@@ -70,7 +70,7 @@ export function AppTopbar({ compact, libraryMode, analysisMode, librarySheetOpen
       <span className="sr-only" aria-live="polite">{announcement}</span>
       <HelpMenu />
       {session && <Button variant="ghost" size="sm" onClick={() => void session.logout()} aria-label="Fermer la session"
-        title={`Ferme la session de ce navigateur. Pour revenir : ${launcherText("open", commands)} depuis le dossier du projet.`}><LogOut size={16} aria-hidden="true" /><span className="topbar-label">Fermer la session</span></Button>}
+        title={sessionCloseTitle(commands)}><LogOut size={16} aria-hidden="true" /><span className="topbar-label">Fermer la session</span></Button>}
       <Button variant="ghost" size="icon" onClick={onAnalysisToggle} aria-label={analysisLabel} title={analysisLabel}
         aria-haspopup={compact ? "dialog" : undefined} aria-expanded={compact ? analysisSheetOpen : undefined}>{analysisClosed ? <PanelRightOpen size={16} /> : <PanelRightClose size={16} />}</Button>
     </div>

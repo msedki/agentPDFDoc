@@ -21,7 +21,7 @@ import yaml
 
 from .accelerator import host_signals, profile_accelerator, read_discovery, resolve_mode, verified_libraries
 from .artifacts import ROOT, file_hash, read_json_atomic, runtime_location, write_json_atomic
-from .platforms import entries_for_platform, executable_name, platform_id
+from .platforms import entries_for_platform, executable_name, installation, launcher_command, platform_id
 from .resources import host_sample, linux_memory_mib
 
 if sys.platform == "win32":
@@ -315,6 +315,11 @@ def native_paths(names: tuple[str, ...] = ("qdrant", "ollama")) -> dict[str, Pat
     lock = json.loads((ROOT / "config/artifacts.lock.json").read_text(encoding="utf-8"))
     manifest = ROOT / ".runtime/manifests/artifacts.json"
     if not manifest.exists():
+        installed = installation()
+        if installed:
+            # Installation par le kit Linux : provision (réseau) y est refusé ; le programme se reprend depuis un kit.
+            raise FileNotFoundError("Artefacts du programme absents ; réinstaller le programme depuis le kit d'une autre "
+                                    f"version : {installed.reinstall_command}")
         raise FileNotFoundError("Artefacts non provisionnés ; exécuter "
                                 + ("rag.ps1 provision" if sys.platform == "win32" else "./rag.sh provision"))
     records = json.loads(manifest.read_text(encoding="utf-8"))
@@ -358,6 +363,21 @@ def qdrant_data_path(profile: dict, directory: Path) -> Path:
     if os.name == "nt" and len(str(path / "storage")) > 57:
         raise ValueError("Chemin Qdrant trop long pour le binaire Windows verrouillé : définir qdrant.storage_dir vers un dossier court distinct")
     return path
+
+
+def qdrant_working_directory(qdrant_directory: Path) -> Path:
+    """Répertoire courant de Qdrant : sous Linux, le dossier de son stockage (`qdrant_data_path`), celui de son verrou.
+
+    Qdrant 1.19.1 écrit son indicateur de démarrage vide `.qdrant-initialized` relativement au répertoire courant
+    (src/startup.rs ; QDRANT_INIT_FILE_PATH n'est pas transmis) ; lancé depuis la racine du programme, il l'y recréait à
+    chaque démarrage, hors de SHA256SUMS (D1, recette R26-KIT-02). Il y lit aussi, facultatifs, `config/config`,
+    `config/development` et `config/local` (src/settings.rs) et sert `./static` s'il existe (src/actix/web_ui.rs) : la
+    racine du programme n'en contient aucun, et le dossier du stockage, créé par le runtime, ne reçoit que `storage`,
+    `snapshots`, le verrou et l'indicateur. Les chemins de données de qdrant.yaml sont absolus et ne changent pas. Le
+    verrou de ce dossier n'est tenu que par un superviseur ou une restauration à la fois : un seul Qdrant y écrit
+    l'indicateur. Windows garde la racine du programme.
+    """
+    return ROOT if sys.platform == "win32" else qdrant_directory
 
 
 def acquire_qdrant_lock(directory: Path):
@@ -605,7 +625,8 @@ def supervise(profile_path: Path) -> int:
         state["qdrant_auth"] = "api_key"
         write_json_atomic(state_path, state)
         qdrant = job.launch([str(binaries["qdrant"]), "--config-path", str(qconfig), "--disable-telemetry"],
-                            cwd=ROOT, env=qdrant_environment(env, qdrant_key), log_path=log_root / "qdrant.log")
+                            cwd=qdrant_working_directory(qdrant_data_path(profile, directory)),
+                            env=qdrant_environment(env, qdrant_key), log_path=log_root / "qdrant.log")
         state["services"]["qdrant"] = qdrant.identity()
         write_json_atomic(state_path, state)
         wait_http(profile["qdrant"]["url"] + "/healthz", qdrant)
@@ -681,13 +702,17 @@ def start(profile_path: Path) -> dict:
     previous = read_state(directory)
     if process_identity_valid(previous.get("supervisor", {})):
         if previous.get("profile_sha256") != file_hash(profile_path):
-            raise RuntimeError("Instance existante avec profil différent : down puis up pour appliquer la configuration")
+            # Installation par le kit Linux : commandes du lanceur atelier, modèle du profil demandé compris.
+            restart = (f"{launcher_command('down')} puis {launcher_command('up', profile_path)}" if installation()
+                       else "down puis up")
+            raise RuntimeError(f"Instance existante avec profil différent : {restart} pour appliquer la configuration")
         return previous
     orphans = orphan_processes(previous)
     if orphans:
         listed = " ; ".join(f"{name} : PID {', '.join(map(str, pids))}" for name, pids in sorted(orphans.items()))
+        again = launcher_command("up", profile_path) if installation() else "up"
         raise RuntimeError(f"Processus de l'instance précédente encore actifs ({listed}) ; aucun n'est arrêté "
-                           "automatiquement : les arrêter, puis relancer up")
+                           f"automatiquement : les arrêter, puis relancer {again}")
     control = directory / "control"
     control.mkdir(parents=True, exist_ok=True)
     log = (control / "supervisor-start.log").open("ab")

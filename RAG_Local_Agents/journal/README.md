@@ -1,8 +1,13 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `497d901` et correctif W039 daté · **Mis à jour :** 2026-10-06 13:27 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base publiée `78ec95c` et modifications R26 non publiées · **Mis à jour :** 2026-10-07 10:25 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Reprise R26 : réserves Linux et kit Linux](2026-10-06.md#r26--reprise-des-réserves-linux-et-distribution-interne-linux),
+[suite du 7 octobre](2026-10-07.md#r26--suite-du-7-octobre) : réserves exécutables traitées avec preuves,
+kit Linux aarch64 fabriqué et installé sans réseau (phase 1), refonte de l'installateur relue ;
+mise à jour, retours arrière et retrait réels encore à recetter. DoD globale non déclarée.
 
 [Plafonds de réponse et avertissement unique](2026-10-06.md#r25-len-01--plafonds-de-réponse-et-avertissement-unique) :
 correctif local R25-LEN-01/W039 ; budgets réels contrôlés sur GPU,
@@ -444,4 +449,5 @@ Nouvelle porte QA E en préparation, anciennes attestations intactes.
 | [3 octobre 2026](2026-10-03.md) | Pilote D03 relu ; correctifs frontend avec 277 unités, typage, lint/build PASS. QA0732 : 31 stricts ; RB1032 : 5 stricts, modale dédiée FAILED puis V2 préparée. F04 : 11 stricts/vraie génération ; réserve de carte corrompue, oracle préparé ; revue du pilote B39 détecte un refus tardif ignoré, delta ROOT45 tests purs au vert et relecture préparatoire. Q05/run1315 FAILED malgré trois ancres visibles à 300 % dans deux captures ROOT/C ; arrêt20tuples/conservation conformes bornés, diagnostic des phases requis. R23 Qwen2B Q4_K_M NOT_STARTED. Rouges et incident0510 conservés ; D06/Windows/D07 et chantier ouverts |
 | [4 octobre 2026](2026-10-04.md) | Fin de l'essai utilisateur dans Chromium et arrêt explicite de l'instance GPU ; données conservées, quatre absences vérifiées indépendamment. Reprise F04 et diagnostic modal : préparations privées en revue, aucune nouvelle recette native ni clôture globale |
 | [5 octobre 2026](2026-10-05.md) | Reprise OCR à densité native sur rangée : 113 tests avec doubles, extraction réelle P03 complète ; erreur de sonde conservée et vérification géométrique séparée. Régression/revue en cours, aucun gate DEV ou Done global acquis |
-| [6 octobre 2026](2026-10-06.md) | Correctifs et diagnostics OCR ciblés ; inventaire du modèle 2B ; passages QLONG ; livraison locale Linux avec réserves W038, qualification intégrale en attente ; ouverture Chromium et correctif local des plafonds de réponse R25-LEN-01/W039, sans nouvelle campagne |
+| [6 octobre 2026](2026-10-06.md) | Correctifs et diagnostics OCR ciblés ; inventaire du modèle 2B ; passages QLONG ; livraison locale Linux avec réserves W038, qualification intégrale en attente ; ouverture Chromium et correctif local des plafonds de réponse R25-LEN-01/W039, sans nouvelle campagne ; reprise R26 (W040) : provenance OCR, signaux de réponse, identité dense, pilotes d'admission 2B et 4B (W041, W046), campagnes DEV 2B et 4B, 4B par défaut (W045), recette du kit A |
+| [7 octobre 2026](2026-10-07.md) | R26 : audit et refonte de l'expérience du kit Linux (R26-KIT-04, trois rondes de corrections et revues non-auteur), grille 4B arbitrée, corrections du lecteur et des specs E2E (R26-UI-02), Qdrant lancé hors du programme (R26-RT-01) |

@@ -4,7 +4,7 @@ param(
     [Parameter(Position=0)]
     [ValidateSet('provision','doctor','up','open','status','logs','down','pull-model','backup','restore','verify','init-profile','selftest')]
     [string]$Command = 'doctor',
-    [string]$Profile = 'config/local16.yaml',
+    [string]$Profile = 'config/local16-4b.yaml',
     [ValidateSet('qwen3.5:2b','qwen3.5:4b')]
     [string]$Model,
     [string]$Only,

@@ -38,12 +38,16 @@ def mib(value: float) -> str:
     return f"{value:,.0f}".replace(",", " ") + " Mio"
 
 
-def on_this_host(windows: str, posix: str) -> str:
-    """Action propre au lanceur du poste : texte de rag.ps1 inchangé sous Windows (W001), rag.sh sous Linux (W018).
+def on_this_host(windows: str, posix: str, installed: str | None = None) -> str:
+    """Action propre au lanceur du poste : texte de rag.ps1 inchangé sous Windows (W001), rag.sh dans un clone Linux
+    (W018), lanceur `atelier` dans une installation par le kit Linux (R26-KIT-04) quand `installed` est donné.
 
-    Le poste Linux n'a pas de kit d'installation : la reprise des fichiers du programme y passe par `provision`.
+    Dans un clone Linux, la reprise des fichiers du programme passe par `provision`, phase réseau. Dans une installation par
+    le kit Linux, `provision` et `pull-model` sont refusés : la reprise passe par la mise à jour depuis un kit.
     """
-    return windows if platforms.WINDOWS else posix
+    if platforms.WINDOWS:
+        return windows
+    return installed if installed is not None and platforms.installation() else posix
 
 
 def run(command: str) -> str:
@@ -51,6 +55,19 @@ def run(command: str) -> str:
 
 
 REPROVISION = "Relancez {} ; les données de l'utilisateur ne sont pas touchées."
+# Variantes GPU des kits Linux (GPU_VARIANTS de tools/dist/linux_kit.py) : complément d'Ollama qu'un kit peut livrer.
+KIT_GPU_VARIANTS = frozenset({"jetpack5"})
+
+
+def _reinstall() -> str:
+    """Mise à jour depuis un kit, seule reprise hors ligne des fichiers d'une installation ; vide hors installation."""
+    installed = platforms.installation()
+    return installed.reinstall_command if installed else ""
+
+
+def _reinstall_program() -> str:
+    return ("Réinstallez le programme depuis le kit d'une autre version, une version installée n'étant jamais remplacée "
+            f"sur place : {_reinstall()} ; les données de l'utilisateur ne sont pas touchées.")
 
 
 def rubric(name: str, level: str, message: str, action: str | None = None) -> dict[str, Any]:
@@ -65,7 +82,7 @@ def program_rubric(checks: dict[str, Any]) -> dict[str, Any]:
     if missing:
         return rubric("programme", RED, "Fichiers du programme absents ou incomplets : " + ", ".join(missing) + ".",
                       on_this_host("Réinstallez l'atelier depuis le kit ; les données de l'utilisateur ne sont pas touchées.",
-                                   REPROVISION.format(run("provision"))))
+                                   REPROVISION.format(run("provision")), _reinstall_program()))
     return rubric("programme", GREEN, "Fichiers du programme présents.")
 
 
@@ -74,7 +91,8 @@ def model_rubric(checks: dict[str, Any]) -> dict[str, Any]:
     if lock.get("status") == "invalid_lock":
         return rubric("modèle", RED, f"Verrou des modèles illisible : {lock.get('reason', 'raison inconnue')}.",
                       on_this_host("Réinstallez l'atelier depuis le kit.",
-                                   "Rétablissez config/models.lock.json de la version installée, puis relancez " + run("doctor") + "."))
+                                   "Rétablissez config/models.lock.json de la version installée, puis relancez " + run("doctor") + ".",
+                                   _reinstall_program()))
     if lock.get("profile_models_locked") is False:
         return rubric("modèle", RED, "Le modèle déclaré par le profil ne figure pas dans config/models.lock.json.",
                       "Rétablissez le profil généré à l'installation ou réinstallez l'atelier.")
@@ -84,17 +102,20 @@ def model_rubric(checks: dict[str, Any]) -> dict[str, Any]:
     if absent:
         return rubric("modèle", RED, "Modèle absent du stockage local : " + ", ".join(absent) + ".",
                       on_this_host(r"Lancez .\rag.ps1 pull-model -Offline ; s'il échoue, réinstallez l'atelier depuis le kit.",
-                                   f"Lancez {run('pull-model --offline')} ; s'il échoue, lancez {run('pull-model')}, qui télécharge le modèle verrouillé."))
+                                   f"Lancez {run('pull-model --offline')} ; s'il échoue, lancez {run('pull-model')}, qui télécharge le modèle verrouillé.",
+                                   _reinstall_program()))
     if altered:
         detail = "; ".join(f"{name} ({', '.join(sorted({issue.get('issue', '?') for issue in model.get('issues', [])}))})"
                            for name, model in altered.items())
         return rubric("modèle", RED, f"Modèle différent du verrou : {detail}.",
                       on_this_host("Réinstallez l'atelier depuis le kit pour retrouver les fichiers vérifiés.",
-                                   f"Relancez {run('pull-model')} pour retrouver les fichiers vérifiés."))
+                                   f"Relancez {run('pull-model')} pour retrouver les fichiers vérifiés.", _reinstall_program()))
     if lock.get("status") != "conform":
         return rubric("modèle", RED, f"Conformité du modèle non établie (état {lock.get('status', 'inconnu')}).",
                       on_this_host(r"Relancez .\rag.ps1 doctor ; si l'état persiste, réinstallez l'atelier.",
-                                   f"Relancez {run('doctor')} ; si l'état persiste, relancez {run('provision')}."))
+                                   f"Relancez {run('doctor')} ; si l'état persiste, relancez {run('provision')}.",
+                                   f"Relancez {run('doctor')} ; si l'état persiste, réinstallez le programme depuis le kit "
+                                   f"d'une autre version : {_reinstall()}."))
     return rubric("modèle", GREEN, "Modèle vérifié contre le verrou : " + ", ".join(sorted(models)) + ".")
 
 
@@ -131,7 +152,10 @@ def library_state(result: dict[str, Any]) -> str:
 def services_rubric(result: dict[str, Any]) -> dict[str, Any]:
     state = result.get("runtime", {}).get("status", "stopped")
     if state in {"stopped", "failed"}:
-        return rubric("services", ORANGE, "Atelier arrêté.", f"Démarrez-le : {run('up')}, ou ouvrez-le par {run('open')}.")
+        # Installation : `atelier ouvrir` démarre et ouvre ; up et open y sont la même commande.
+        start = f"Démarrez-le : {run('up')}, ou ouvrez-le par {run('open')}."
+        return rubric("services", ORANGE, "Atelier arrêté.",
+                      on_this_host(start, start, f"Ouvrez-le par {run('open')}, qui le démarre si nécessaire."))
     if state == "stale":
         return rubric("services", ORANGE, "État d'exécution périmé : le superviseur s'est arrêté sans le mettre à jour.",
                       f"Relancez l'atelier : {run('up')}.")
@@ -234,6 +258,19 @@ def _provision_gpu() -> str:
     return on_this_host(r".\rag.ps1 provision -Only ollama-gpu", run("provision --only ollama-gpu"))
 
 
+def _gpu_kit(check: dict[str, Any]) -> str | None:
+    """Installation par le kit Linux : « mettez à jour l'installation avec un kit fabriqué avec l'option --gpu jetpack5 »,
+    seule voie hors ligne vers le complément GPU de ce Jetson ; None si aucun kit ne le livre."""
+    variant = (check.get("host") or {}).get("jetpack")
+    if variant not in KIT_GPU_VARIANTS:
+        return None
+    return f"mettez à jour l'installation avec un kit fabriqué avec l'option --gpu {variant}"
+
+
+def _installed() -> bool:
+    return platforms.installation() is not None
+
+
 def _complement_sizes(check: dict[str, Any]) -> str:
     """« 283 Mio à télécharger, 825 Mio une fois extraits », tailles lues dans le verrou ; vide sans complément."""
     complement = check.get("complement") or {}
@@ -265,14 +302,25 @@ def _trial_reason(check: dict[str, Any]) -> str:
 
 def _trial_steps(check: dict[str, Any]) -> str:
     """Essai du GPU d'un Jetson sur une voie non qualifiée : complément, profil en gpu (s'il ne l'est pas), redémarrage,
-    puis contrôle réel."""
+    puis contrôle réel. Installation : profil d'abord, puis mise à jour depuis un kit qui livre le complément."""
     profile = "" if check.get("requested") == "gpu" else "indiquez llm.accelerator: gpu dans le profil, "
+    kit = _gpu_kit(check) if _installed() else None
+    if kit:
+        return f"{profile}{kit} ({_reinstall()}), et vérifiez la réponse avec {run('selftest')}"
     return (f"lancez {_provision_gpu()}{_complement_sizes(check)}, {profile}puis {_down_up()}, et vérifiez la réponse "
             f"avec {run('selftest')}")
 
 
-def _complement_proposal(check: dict[str, Any], qualified_text: str) -> str:
-    """Proposition d'extraire le complément du poste : calcul sur GPU sur une voie qualifiée, essai ailleurs."""
+def _complement_proposal(check: dict[str, Any], qualified_text: str) -> str | None:
+    """Proposition d'extraire le complément du poste : calcul sur GPU sur une voie qualifiée, essai ailleurs. Dans une
+    installation, mise à jour depuis un kit qui le livre ; None si aucun kit ne le livre."""
+    if _installed():
+        kit = _gpu_kit(check)
+        if kit is None:
+            return None
+        if _complement_qualified(check):
+            return f"{qualified_text}, {kit} : {_reinstall()}."
+        return f"Pour essayer le GPU de ce Jetson, {_trial_reason(check)} : {_trial_steps(check)}."
     if _complement_qualified(check):
         return f"{qualified_text} : {_provision_gpu()}{_complement_sizes(check)}, puis {_down_up()}."
     return f"Pour essayer le GPU de ce Jetson, {_trial_reason(check)} : {_trial_steps(check)}."
@@ -356,6 +404,13 @@ def _legacy_proposal(check: dict[str, Any]) -> str | None:
     if libraries.get("required") and not libraries.get("provisioned"):
         present = f"Un GPU NVIDIA Jetson est présent ({_jetson(check.get('host') or {})})"
         complement = f"lancez {_provision_gpu()}{_complement_sizes(check)}, puis {_down_up()}"
+        if _installed():
+            kit = _gpu_kit(check)
+            if kit is None:
+                return None
+            complement = f"{kit} : {_reinstall()}"
+            if not _complement_qualified(check):
+                complement = f"{kit} ({_reinstall()})"
         if _complement_qualified(check):
             return f"{present} : {replace.format('auto')}, {complement}."
         return (f"{present}, {_trial_reason(check)} : pour l'essayer, {replace.format('gpu')}, {complement}, et "
@@ -393,7 +448,13 @@ def _requested_unavailable(check: dict[str, Any]) -> tuple[str, str]:
     else:
         detail = "Ollama n'a découvert aucun GPU utilisable"
     message = f"Calcul sur CPU : le profil demande le GPU (llm.accelerator: gpu), mais {detail}."
-    if missing:
+    if missing and _installed():
+        kit = _gpu_kit(check)
+        action = (f"{kit[0].upper()}{kit[1:]} : {_reinstall()} ; sinon, indiquez llm.accelerator: auto ou cpu dans le "
+                  "profil." if kit else
+                  "Aucun kit de l'atelier ne livre les bibliothèques GPU d'Ollama de ce Jetson : indiquez "
+                  f"llm.accelerator: auto ou cpu dans le profil, puis redémarrez ({_restart()}).")
+    elif missing:
         action = (f"Lancez {_provision_gpu()}{_complement_sizes(check)}, puis {_down_up()} ; sinon, indiquez "
                   "llm.accelerator: auto ou cpu dans le profil.")
     else:
@@ -420,7 +481,8 @@ def calcul_rubric(check: dict[str, Any]) -> tuple[dict[str, Any], str | None]:
     """Rubrique « calcul » et proposition éventuelle, d'après `checks["accelerator"]` (état établi par doctor).
 
     Une proposition n'est jamais une réserve : elle ne change pas le niveau. Les commandes citées sont celles du lanceur
-    du poste (rag.ps1 ou rag.sh). Une découverte plus récente mais illisible, écartée, est signalée à la fin du message.
+    du poste (rag.ps1, rag.sh, ou atelier dans une installation par le kit Linux). Une découverte plus récente mais
+    illisible, écartée, est signalée à la fin du message.
     """
     item, proposal = _calcul_state(check)
     note = _superseded(check)
@@ -455,8 +517,9 @@ def _calcul_state(check: dict[str, Any]) -> tuple[dict[str, Any], str | None]:
     if state == "gpu_libraries_missing":
         message = (f"Calcul sur CPU : GPU NVIDIA Jetson présent ({_jetson(host)}), mais les bibliothèques GPU "
                    "d'Ollama pour cette version ne sont pas installées.")
-        proposal = (_complement_proposal(check, "Pour calculer les réponses sur le GPU") + " Pour rester sur CPU sans "
-                    "cette proposition, indiquez llm.accelerator: cpu dans le profil.")
+        offer = _complement_proposal(check, "Pour calculer les réponses sur le GPU")
+        proposal = (offer + " Pour rester sur CPU sans cette proposition, indiquez llm.accelerator: cpu dans le profil."
+                    if offer else None)
         return rubric("calcul", GREEN, message), proposal
     if state == "jetson_unsupported":
         return rubric("calcul", GREEN, f"Calcul sur CPU : Jetson Linux R{host.get('l4t_major')} n'a pas de bibliothèques "
@@ -478,12 +541,16 @@ def _calcul_state(check: dict[str, Any]) -> tuple[dict[str, Any], str | None]:
         # Kit construit avec --without-gpu (ou fichiers retirés) : la cause est l'installation, pas le pilote.
         message = ("Calcul sur CPU : un pilote NVIDIA est installé, mais l'installation d'Ollama de ce poste ne contient "
                    "pas les bibliothèques CUDA vérifiées " + on_this_host("(kit construit sans GPU, ou fichiers retirés depuis)",
-                                                             "(fichiers absents ou modifiés)")
+                                                             "(fichiers absents ou modifiés)",
+                                                             "(les kits Linux ne les livrent pas)")
                    + " : Ollama ne peut retenir aucun GPU NVIDIA.")
+        # Installation : les kits Linux ne livrent jamais cuda_v12 ni cuda_v13 (W025), aucune reprise ne les apporte.
         proposal = on_this_host("Pour essayer ce GPU, réinstallez l'atelier depuis un kit complet, construit sans "
                                 r"l'option --without-gpu, puis suivez la proposition de .\rag.ps1 doctor.",
                                 f"Pour rétablir ces bibliothèques, relancez {run('provision --only ollama')}, puis "
-                                f"{_down_up()}.")
+                                f"{_down_up()}.",
+                                "Les kits Linux de l'atelier ne livrent pas les bibliothèques CUDA génériques d'Ollama, "
+                                "aucune voie n'étant qualifiée sur ce type de poste : le calcul reste sur CPU.")
         return rubric("calcul", GREEN, message), proposal
     if state == "gpu_not_retained":
         return rubric("calcul", GREEN, f"Calcul sur CPU : {_gpu(_first(devices, False))} détecté par Ollama, non retenu "
@@ -525,7 +592,9 @@ def _calcul_state(check: dict[str, Any]) -> tuple[dict[str, Any], str | None]:
                       on_this_host("Réinstallez l'atelier depuis le kit pour rétablir les fichiers vérifiés d'Ollama, "
                                    f"puis redémarrez ({_restart()}).",
                                    f"Relancez {provision} pour rétablir les fichiers vérifiés d'Ollama, puis "
-                                   f"{_down_up()}.")), None
+                                   f"{_down_up()}.",
+                                   "Réinstallez le programme depuis le kit d'une autre version pour rétablir les fichiers "
+                                   f"vérifiés d'Ollama : {_reinstall()}.")), None
     if state == "gpu_rejected_by_ollama":
         return rubric("calcul", ORANGE, f"Calcul sur CPU : les bibliothèques GPU d'Ollama pour ce Jetson "
                       f"({_jetson(host)}) sont installées, mais Ollama n'a retenu aucun GPU.",

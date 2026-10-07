@@ -12,7 +12,7 @@ import { readGeneration, readPlacement } from "../../src/lib/generation.ts";
 import { documentStates, documentStatus, jobStates, jobStatus, queryStates, queryStatus } from "../../src/lib/status.ts";
 import { scopeCoverage } from "../../src/lib/panel-state.ts";
 import { wholeBlockSpan } from "../../src/lib/selection.ts";
-import { launcherCommandsFrom } from "../../src/lib/launcher.ts";
+import { INSTALLED_ACTIONS, launcherCommandsFrom } from "../../src/lib/launcher.ts";
 import { readSource, stripScriptComments } from "./theme-support.ts";
 
 const contract = JSON.parse(readFileSync(new URL("../../../../packages/contracts/contracts.json", import.meta.url), "utf8"));
@@ -87,6 +87,23 @@ test("the launcher commands of the health contract are all read by the workspace
   for (const launcher of [".\\rag.ps1", "./rag.sh"]) {
     const commands = Object.fromEntries(Object.keys(described).map(action => [action, `${launcher} ${action}`]));
     assert.deepEqual(launcherCommandsFrom({ commands }), commands);
+  }
+});
+
+test("the launcher field of the health contract and the commands of an installation are read by the workspace", () => {
+  const described = contract.health_response.launcher;
+  assert.deepEqual(Object.keys(described).sort(), ["kind", "menu"]);
+  assert.deepEqual(described.kind.split(":")[0].split("|"), ["installation", "projet"]);
+  assert.match(described.menu, /^string\|null:/);
+  for (const [action, description] of Object.entries(contract.health_response.commands as Record<string, string>)) {
+    const french = INSTALLED_ACTIONS[action as keyof typeof INSTALLED_ACTIONS];
+    assert.ok(description.includes(`<destination>/atelier ${french}`), description);
+    const commands = { [action]: `/opt/atelier/programme/atelier ${french}` };
+    assert.deepEqual(launcherCommandsFrom({ commands, launcher: { kind: "installation", menu: null } }), { ...commands, installation: { menu: null } });
+    // --modele <tag> : décrit pour ouvrir et diagnostic, et lu pour ces seules actions.
+    const withModel = { [action]: `/opt/atelier/programme/atelier ${french} --modele qwen3.5:2b` };
+    const read = launcherCommandsFrom({ commands: withModel, launcher: { kind: "installation", menu: null } });
+    assert.equal(description.includes("--modele <tag>"), read !== null, action);
   }
 });
 

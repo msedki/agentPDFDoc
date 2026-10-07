@@ -10,7 +10,7 @@ from test_api_storage import FakeEmbedding, FakeLlmTokenizer, FakeVectors
 from services.api.errors import ApiError
 from services.api.main import create_app
 from services.api.ollama import OllamaGateway
-from services.api.security import LINK_HELP
+from services.api.security import link_help
 from services.api.settings import FIXED_PROFILE_VALUES, Settings, unsupported_profile_values
 from services.runtime.accelerator import BOTH_KEYS_MESSAGE, LEGACY_NUM_GPU_MESSAGE, VALUE_MESSAGE
 from services.runtime.platforms import launcher_command
@@ -35,10 +35,14 @@ def build(tmp_path, profile=None):
                       ollama=SilentOllama(), governor=SilentGovernor(), start_jobs=False)
 
 
-def test_session_help_names_the_launcher_of_this_platform_and_keeps_the_windows_text():
-    assert LINK_HELP == f"Ouvrir l'atelier avec « {LAUNCHER} open » depuis le dossier du projet."
+def test_session_help_names_the_launcher_of_this_platform_and_keeps_the_windows_text(monkeypatch):
+    assert link_help() == f"Ouvrir l'atelier avec « {LAUNCHER} open » depuis le dossier du projet."
     if sys.platform == "win32":
-        assert LINK_HELP == "Ouvrir l'atelier avec « .\\rag.ps1 open » depuis le dossier du projet."
+        assert link_help() == "Ouvrir l'atelier avec « .\\rag.ps1 open » depuis le dossier du projet."
+    # Windows simulé : texte d'avant W018, mot pour mot.
+    monkeypatch.setattr("services.runtime.platforms.WINDOWS", True)
+    monkeypatch.setattr("services.runtime.platforms.LAUNCHER", r".\rag.ps1")
+    assert link_help() == "Ouvrir l'atelier avec « .\\rag.ps1 open » depuis le dossier du projet."
 
 
 def test_refused_session_and_public_health_announce_the_launcher_commands(tmp_path):
@@ -49,7 +53,8 @@ def test_refused_session_and_public_health_announce_the_launcher_commands(tmp_pa
     assert health.status_code == 200
     assert health.json() == {"status": "alive", "service": "rag-api",
                              "commands": {"open": f"{LAUNCHER} open", "status": f"{LAUNCHER} status", "logs": f"{LAUNCHER} logs",
-                                          "doctor": f"{LAUNCHER} doctor"}}
+                                          "doctor": f"{LAUNCHER} doctor"},
+                             "launcher": {"kind": "projet", "menu": None}}
     assert health.json()["commands"] == {action: launcher_command(action) for action in ("open", "status", "logs", "doctor")}
     if sys.platform == "win32":
         # Texte Windows de l'avis de préparation (HEAD) : « La commande .\rag.ps1 doctor détaille chaque contrôle ».
@@ -79,6 +84,63 @@ def test_api_generic_error_names_local_log_command_without_exposing_private_caus
             "Le service a rencontré une erreur. Réessayez ; si elle se reproduit, "
             f"exécutez « {launcher} logs » depuis le dossier du projet pour trouver le journal du service local."
         )
+
+
+
+# --- Installation par le kit Linux (R26-KIT-04, KIT4-13) --------------------------------------------------------------
+
+def _installed(tmp_path, monkeypatch, *, menu):
+    """Arborescence d'installation factice (double nommé de test_runtime_installation_texts) : l'API s'y croit installée."""
+    from tests.unit.test_runtime_installation_texts import installation_tree, run_as
+
+    tree = installation_tree(tmp_path / "poste", menu=menu)
+    run_as(monkeypatch, tree.program)
+    return tree
+
+
+def test_health_of_an_installation_announces_the_atelier_launcher_and_its_menu(tmp_path, monkeypatch):
+    tree = _installed(tmp_path, monkeypatch, menu=True)
+    atelier = tree.destination / "atelier"
+    with TestClient(build(tmp_path / "api"), base_url="http://127.0.0.1:8785") as client:
+        refused = client.get("/api/v1/library/tree")
+        health = client.get("/api/v1/health")
+    assert health.json() == {"status": "alive", "service": "rag-api",
+                             "commands": {"open": f"{atelier} ouvrir", "status": f"{atelier} etat",
+                                          "logs": f"{atelier} journaux", "doctor": f"{atelier} diagnostic"},
+                             "launcher": {"kind": "installation", "menu": "Atelier documentaire"}}
+    assert refused.status_code == 401 and refused.json()["message"] == (
+        "Session requise. Ouvrir l'atelier depuis le menu des applications (Atelier documentaire) ou avec "
+        f"« {atelier} ouvrir » dans un terminal.")
+
+
+def test_health_of_an_installation_running_another_model_names_that_model(tmp_path, monkeypatch):
+    tree = _installed(tmp_path, monkeypatch, menu=False)
+    # Profil transmis par le superviseur à l'API (RAG_PROFILE) : celui du 2B de l'installation.
+    monkeypatch.setenv("RAG_PROFILE", tree.profiles["qwen3.5:2b"])
+    atelier = tree.destination / "atelier"
+    with TestClient(build(tmp_path / "api"), base_url="http://127.0.0.1:8785") as client:
+        health = client.get("/api/v1/health").json()
+    assert health["commands"]["open"] == f"{atelier} ouvrir --modele qwen3.5:2b"
+    assert health["commands"]["doctor"] == f"{atelier} diagnostic --modele qwen3.5:2b"
+    assert health["launcher"] == {"kind": "installation", "menu": None}
+    assert link_help() == f"Ouvrir l'atelier avec « {atelier} ouvrir --modele qwen3.5:2b » dans un terminal."
+
+
+def test_an_internal_error_of_an_installation_names_the_journal_command(tmp_path, monkeypatch):
+    tree = _installed(tmp_path, monkeypatch, menu=False)
+    monkeypatch.setenv("RAG_CONTROL_TOKEN", "synthetic-editorial-token")
+    app = build(tmp_path / "api")
+
+    @app.get("/api/v1/synthetic-editorial-error")
+    async def synthetic_failure():
+        raise RuntimeError("PRIVATE_SERVER_SENTINEL")
+
+    with TestClient(app, base_url="http://127.0.0.1:8785", raise_server_exceptions=False,
+                    headers={"X-RAG-Control-Token": "synthetic-editorial-token"}) as client:
+        body = client.get("/api/v1/synthetic-editorial-error").json()
+    assert body["message"] == ("Le service a rencontré une erreur. Réessayez ; si elle se reproduit, exécutez "
+                               f"« {tree.destination / 'atelier'} journaux » dans un terminal pour trouver le journal du "
+                               "service local.")
 
 
 def test_api_refused_ingestion_priority_keeps_jobs_and_mode_unchanged_without_deferred_resume(tmp_path, monkeypatch):

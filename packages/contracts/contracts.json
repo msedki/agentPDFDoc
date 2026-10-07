@@ -51,10 +51,14 @@
     "status": "alive",
     "service": "rag-api",
     "commands": {
-      "open": "launcher command of this host: .\\rag.ps1 open on Windows, ./rag.sh open on Linux",
-      "status": "launcher command: .\\rag.ps1 status or ./rag.sh status",
-      "logs": "launcher command: .\\rag.ps1 logs or ./rag.sh logs",
-      "doctor": "launcher command: .\\rag.ps1 doctor or ./rag.sh doctor"
+      "open": "launcher command of this host: .\\rag.ps1 open on Windows, ./rag.sh open on Linux; <destination>/atelier ouvrir in an installation by the Linux kit, followed by --modele <tag> when the service runs another model than the principal one",
+      "status": "launcher command: .\\rag.ps1 status or ./rag.sh status; <destination>/atelier etat in an installation by the Linux kit",
+      "logs": "launcher command: .\\rag.ps1 logs or ./rag.sh logs; <destination>/atelier journaux in an installation by the Linux kit",
+      "doctor": "launcher command: .\\rag.ps1 doctor or ./rag.sh doctor; <destination>/atelier diagnostic in an installation by the Linux kit, followed by --modele <tag> as for open"
+    },
+    "launcher": {
+      "kind": "installation|projet: installation = program installed by the Linux kit (installer.sh), commands of the atelier launcher of its destination, absolute path; projet = repository clone or Windows host, commands of rag.sh or rag.ps1 from the project folder",
+      "menu": "string|null: name of the applications menu entry of an installation (Atelier documentaire) while its .desktop file exists; null otherwise"
     }
   },
   "scope": {

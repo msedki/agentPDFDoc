@@ -67,7 +67,7 @@ def test_locked_qdrant_refuses_requests_without_the_instance_key(tmp_path, owned
     key = issue_qdrant_key(control)
     results = {}
     with acquire_qdrant_lock(owned_qdrant_dir), ProcessJob() as job:
-        child = job.launch([str(binary), "--config-path", str(config), "--disable-telemetry"], cwd=ROOT,
+        child = job.launch([str(binary), "--config-path", str(config), "--disable-telemetry"], cwd=owned_qdrant_dir,
                            env=qdrant_environment(environment(profile, tmp_path, ROOT / "config/local16.yaml"), key),
                            log_path=tmp_path / "qdrant.log")
         try:

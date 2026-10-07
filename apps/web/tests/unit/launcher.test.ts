@@ -8,7 +8,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { knownLauncherCommands, launcherCommandsFrom, launcherShell, launcherText, openCommandChoices, rememberLauncherCommands, type LauncherCommands } from "../../src/lib/launcher.ts";
-import { sessionScreen, type SessionEndReason } from "../../src/lib/session.ts";
+import { sessionCloseTitle, sessionScreen, type SessionEndReason } from "../../src/lib/session.ts";
 import { httpFailureMessage, readinessSentence, serviceUnreachableMessage } from "../../src/lib/warnings.ts";
 import { errorMessage } from "../../src/lib/utils.ts";
 import { readSource, sourceFiles, stripScriptComments } from "./theme-support.ts";
@@ -133,4 +133,62 @@ test("no launcher command is written outside lib/launcher.ts", () => {
   assert.match(check, /client\.health\(\)\.then\(reply => rememberLauncherCommands\(launcherCommandsFrom\(reply\)\)/);
   assert.ok(check.indexOf("client.health()") < check.indexOf("client.session()"), "/health part avant /session");
   assert.match(stripScriptComments(readSource("components/session-gate.tsx")), /checkSession\(api\)/);
+});
+
+// --- Installation par le kit Linux (R26-KIT-04, KIT4-13) ---------------------------------------------------------------
+// Le service installé annonce `launcher.kind = "installation"` et les commandes du lanceur `atelier` de la destination,
+// terminées par l'action française ; `--modele <tag>` suit ouvrir et diagnostic quand il sert un autre modèle.
+const DESTINATION = "/home/atelier/.local/share/atelier-documentaire/programme";
+const installedHealth = { status: "alive", service: "rag-api",
+  commands: { open: `${DESTINATION}/atelier ouvrir`, status: `${DESTINATION}/atelier etat`, logs: `${DESTINATION}/atelier journaux`, doctor: `${DESTINATION}/atelier diagnostic` },
+  launcher: { kind: "installation", menu: "Atelier documentaire" } };
+
+test("an installation announces the atelier launcher; its French actions are read and English ones refused", () => {
+  const installed = launcherCommandsFrom(installedHealth)!;
+  assert.deepEqual(installed, { ...installedHealth.commands, installation: { menu: "Atelier documentaire" } });
+  assert.equal(launcherText("doctor", installed), `${DESTINATION}/atelier diagnostic`);
+  assert.equal(launcherShell(installed), "dans un terminal");
+  assert.deepEqual(openCommandChoices(installed), [{ system: null, command: `${DESTINATION}/atelier ouvrir` }]);
+  // Action anglaise, ou action d'une autre clé : refusées dans une installation.
+  assert.equal(launcherCommandsFrom({ ...installedHealth, commands: { open: `${DESTINATION}/atelier open`, status: `${DESTINATION}/atelier ouvrir`, logs: "./rag.sh logs" } }), null);
+  // Autre modèle que le principal : --modele après ouvrir et diagnostic seulement.
+  const other = launcherCommandsFrom({ ...installedHealth, launcher: { kind: "installation", menu: null }, commands: {
+    open: `${DESTINATION}/atelier ouvrir --modele qwen3.5:2b`, doctor: `${DESTINATION}/atelier diagnostic --modele qwen3.5:2b`,
+    status: `${DESTINATION}/atelier etat --modele qwen3.5:2b` } })!;
+  assert.deepEqual(other, { open: `${DESTINATION}/atelier ouvrir --modele qwen3.5:2b`, doctor: `${DESTINATION}/atelier diagnostic --modele qwen3.5:2b`,
+    installation: { menu: null } });
+  // Commande non annoncée : même lanceur, action française, sans modèle ; jamais rag.sh ni rag.ps1.
+  assert.equal(launcherText("logs", other), `${DESTINATION}/atelier journaux`);
+  assert.equal(launcherText("status", other), `${DESTINATION}/atelier etat`);
+  assert.deepEqual(openCommandChoices(launcherCommandsFrom({ ...installedHealth, commands: { status: `${DESTINATION}/atelier etat` } })),
+    [{ system: null, command: `${DESTINATION}/atelier ouvrir` }]);
+  // Chemin cité entre apostrophes par le service (espace dans la destination) : gardé tel quel.
+  const quoted = launcherCommandsFrom({ ...installedHealth, commands: { open: "'/home/atelier/Mes documents/atelier' ouvrir" } })!;
+  assert.equal(launcherText("doctor", quoted), "'/home/atelier/Mes documents/atelier' diagnostic");
+});
+
+test("a clone or a Windows host keeps its commands whatever the launcher field says", () => {
+  assert.deepEqual(launcherCommandsFrom({ ...linuxHealth, launcher: { kind: "projet", menu: null } }), linux);
+  assert.deepEqual(launcherCommandsFrom({ ...windowsHealth, launcher: { kind: "projet", menu: null } }), windows);
+  // Champ absent, inconnu ou mal formé : lu comme un projet ; une forme française n'y est pas reconnue.
+  assert.deepEqual(launcherCommandsFrom({ ...linuxHealth, launcher: { kind: "autre" } }), linux);
+  assert.deepEqual(launcherCommandsFrom({ ...linuxHealth, launcher: "installation" }), linux);
+  assert.equal(launcherCommandsFrom({ commands: { open: `${DESTINATION}/atelier ouvrir` } }), null);
+});
+
+test("the menu name is kept only when it is a printable string", () => {
+  for (const menu of [null, "", 42, "Atelier\ndocumentaire", " Atelier documentaire"]) {
+    assert.deepEqual(launcherCommandsFrom({ ...installedHealth, launcher: { kind: "installation", menu } })!.installation, { menu: null }, JSON.stringify(menu));
+  }
+});
+
+test("installation texts name the atelier launcher, a terminal and the menu, never rag.sh nor the project folder", () => {
+  const installed = launcherCommandsFrom(installedHealth)!;
+  const texts = [serviceUnreachableMessage(installed), httpFailureMessage(500, installed), errorMessage(undefined, installed),
+    readinessSentence(["ollama_not_ready"], installed), sessionCloseTitle(installed),
+    ...(["session_required", "session_expired", "session_closed", "link_invalid"] as SessionEndReason[]).map(reason => sessionScreen(reason, installed).body)];
+  for (const text of texts) assert.doesNotMatch(text, /rag\.ps1|rag\.sh|PowerShell|dossier du projet/, text);
+  assert.equal(serviceUnreachableMessage(installed), `Le service local ne répond pas. Vérifiez qu'il est démarré (${DESTINATION}/atelier etat), puis réessayez.`);
+  assert.match(httpFailureMessage(500, installed), new RegExp(`la commande ${DESTINATION}/atelier journaux en donne l'emplacement\\.$`));
+  assert.match(readinessSentence(["ollama_not_ready"], installed), new RegExp(`La commande ${DESTINATION}/atelier diagnostic détaille chaque contrôle`));
 });

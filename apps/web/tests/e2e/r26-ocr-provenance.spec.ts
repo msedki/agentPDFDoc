@@ -4,7 +4,8 @@
  * 1. API réelle, sans modèle : recherche dans la fixture numérisée « Contrôle bilingue FR EN.pdf » (scan-fr-en),
  *    badge de méthode d'extraction sur la carte, avertissement `ocr_evidence` affiché une seule fois, puis
  *    « Ouvrir le passage » et badge dans le bandeau du lecteur. Réutilise le document importé par
- *    ocr-selection.spec.ts s'il existe, sinon l'importe par l'interface.
+ *    ocr-selection.spec.ts s'il existe, sinon l'importe par l'interface avec importPublished (guards.ts), qui choisit
+ *    « Priorité aux imports » puis rétablit la priorité trouvée (import-priority.ts, défaut D4 de la recette R26-KIT-02).
  * 2. DOUBLE « SSE injecté » : POST /queries et son flux sont remplacés dans le navigateur par les événements écrits
  *    ici (ocr_evidence émis puis répété dans done, contrôles de valeurs, sources ocr/native/inconnue). Il vérifie
  *    l'affichage seul ; il ne qualifie ni la génération ni les contrôles du service.
