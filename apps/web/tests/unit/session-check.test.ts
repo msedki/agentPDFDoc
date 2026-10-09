@@ -126,9 +126,11 @@ test("a failing /health neither delays the gate nor forgets the commands already
 });
 
 function assertGateFailureRendering(gate: string) {
+  const openingFailure = /\{state\.kind === "unreachable" && <>([\s\S]*?)<\/>\}/.exec(gate);
+  assert.ok(openingFailure, "the opening failure branch remains distinct from an unconfirmed logout");
   assert.match(gate, /checkSession\(api\)\.then\(nextState => \{\s*setState\(nextState\);/);
   assert.match(gate, /const commands = useLauncherCommands\(\);/);
-  assert.match(gate, /message=\{unreachableText\(state\.failure, commands\)\}/);
+  assert.match(openingFailure[1], /message=\{unreachableText\(state\.failure, commands\)\}/);
   // Le hook de SessionEnded, après cet écran, ne prouve pas le câblage de l'échec réseau.
   assert.match(gate, /const commands = useLauncherCommands\(\);[\s\S]*?message=\{unreachableText\(state\.failure, commands\)\}/);
   assert.doesNotMatch(gate, /kind: "unreachable", message/);
@@ -145,7 +147,7 @@ test("gate failure guard rejects discarding the response or freezing its message
   for (const [before, after] of [
     ["setState(nextState)", 'setState({ kind: "open" })'],
     ["setState(nextState)", 'setState({ kind: "unreachable", message: nextState.message })'],
-    ["unreachableText(state.failure, commands)", '"Service indisponible."'],
+    ["message={unreachableText(state.failure, commands)}", 'message={"Service indisponible."}'],
     ["const commands = useLauncherCommands();", "const commands = null;"],
   ]) {
     const mutant = gate.replace(before, after);

@@ -58,4 +58,23 @@ test.describe("sans session", () => {
     await page.reload();
     await expect(page.getByRole("heading", { level: 1, name: "Session requise" })).toBeVisible();
   });
+
+  test("un échec réseau de fermeture est signalé, puis une nouvelle tentative révoque réellement la session", async ({ page, request }, info) => {
+    await page.goto(await openingLink(request));
+    await expect(page.getByRole("heading", { name: "Bibliothèque" })).toBeVisible();
+    // Fault injection navigateur uniquement : aucune première requête de révocation n'atteint le serveur.
+    await page.route("**/api/v1/session/logout", route => route.abort("connectionrefused"));
+    await page.getByRole("button", { name: "Fermer la session", exact: true }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Fermeture de la session non confirmée" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Session fermée", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Bibliothèque", exact: true })).toHaveCount(0);
+    expect((await page.request.get("/api/v1/session")).status()).toBe(200);
+    await page.screenshot({ path: info.outputPath("logout-not-confirmed.png"), fullPage: true });
+    await page.unroute("**/api/v1/session/logout");
+    await page.getByRole("button", { name: "Réessayer la fermeture", exact: true }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Session fermée", exact: true })).toBeVisible();
+    expect((await page.request.get("/api/v1/session")).status()).toBe(401);
+    await page.reload();
+    await expect(page.getByRole("heading", { level: 1, name: "Session requise", exact: true })).toBeVisible();
+  });
 });

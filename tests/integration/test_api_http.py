@@ -10,6 +10,7 @@ from collections import defaultdict
 from contextlib import asynccontextmanager, contextmanager
 from pathlib import Path
 
+import httpx
 import pytest
 from fastapi.testclient import TestClient
 
@@ -84,6 +85,72 @@ def browser_client(app):
         assert opened.status_code == 303 and opened.headers["location"] == "/workspace/"
         client.headers["X-CSRF-Token"] = client.cookies["rag_csrf"]
         yield client
+
+
+@pytest.mark.parametrize("declared_length", [None, "1"])
+def test_api_streamed_multipart_is_bounded_before_spooling_the_complete_body(tmp_path, monkeypatch, declared_length):
+    """Vrai parser multipart/SQLite ; corps ASGI en fragments, modèles doublés, aucun serveur réseau."""
+    import starlette.formparsers
+
+    spooled = []
+    original_spool = starlette.formparsers.SpooledTemporaryFile
+
+    def tracked_spool(*args, **kwargs):
+        file = original_spool(*args, **kwargs)
+        spooled.append(file)
+        return file
+
+    monkeypatch.setattr(starlette.formparsers, "SpooledTemporaryFile", tracked_spool)
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}, "pdf": {"max_file_mib": 1}})
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(),
+                     ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+    consumed = []
+
+    async def body():
+        yield b'--bounded\r\nContent-Disposition: form-data; name="files"; filename="large.pdf"\r\nContent-Type: application/pdf\r\n\r\n%PDF-1.7\n'
+        for index in range(40):
+            consumed.append(index)
+            yield b"x" * (64 * 1024)
+        yield b"\r\n--bounded--\r\n"
+
+    async def exercise():
+        async with app.router.lifespan_context(app):
+            async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://127.0.0.1:8785") as client:
+                headers = {"X-RAG-Control-Token": CONTROL, "Content-Type": "multipart/form-data; boundary=bounded"}
+                if declared_length is not None:
+                    headers["Content-Length"] = declared_length
+                response = await client.post("/api/v1/documents/import", content=body(), headers=headers)
+                assert response.status_code == 413 and response.json()["code"] == "request_too_large"
+                assert response.headers["x-content-type-options"] == "nosniff" and response.headers["x-request-id"]
+                assert app.state.db.one("SELECT count(*) AS n FROM documents")["n"] == 0
+                assert app.state.mutations_in_flight == 0
+
+    asyncio.run(exercise())
+    assert len(consumed) <= 32, "Le parser doit s'arrêter à la borne totale, avant les fragments restants."
+    assert spooled and all(file.closed for file in spooled)
+    assert not list((settings.data_dir / "originals").iterdir())
+
+
+@pytest.mark.parametrize("headers,expected", [({}, 401), ({"Host": "attacker.invalid"}, 400),
+                                           ({"Origin": "http://attacker.invalid"}, 403)])
+def test_api_refuses_the_boundary_before_reading_a_streamed_body(tmp_path, headers, expected):
+    settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}, "pdf": {"max_file_mib": 1}})
+    app = create_app(settings=settings, embedding=FakeEmbedding(), vectors=FakeVectors(), tokenizer=FakeTokenizer(),
+                     ollama=FakeOllama(), governor=FakeGovernor(), start_jobs=False)
+    consumed = []
+
+    async def body():
+        consumed.append(True)
+        yield b"unparsed input"
+
+    async def exercise():
+        async with app.router.lifespan_context(app):
+            async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://127.0.0.1:8785") as client:
+                response = await client.post("/api/v1/documents/import", content=body(), headers=headers)
+                assert response.status_code == expected
+
+    asyncio.run(exercise())
+    assert consumed == []
 
 def test_api_blank_pdf_exposes_warning_and_preserves_original_http(tmp_path):
     settings = Settings(tmp_path, {"app": {"data_dir": "runtime", "port": 8785}})

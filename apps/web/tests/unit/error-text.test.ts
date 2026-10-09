@@ -27,7 +27,8 @@ function assertWorkspaceFailurePaths(workspace: string) {
 
 function assertInvalidLinkHealthPath(gate: string) {
   assert.match(gate, /const \[invalidLink\] = useState\(\(\) => linkInvalidFromSearch\(window\.location\.search\)\);/);
-  assert.match(gate, /const \[state, setState\] = useState<GateState>\(\(\) => invalidLink \? \{ kind: "ended", reason: "link_invalid" \} : \{ kind: "checking" \}\);/);
+  assert.match(gate, /const \[state, setState\] = useState<SessionGateState>\(\(\) => invalidLink \? \{ kind: "ended", reason: "link_invalid" \} : \{ kind: "checking" \}\);/);
+  assert.match(gate, /type SessionGateState = GateState \| \{ kind: "closing" \} \| \{ kind: "logout_failed"; failure: unknown \};/);
   const branch = /if \(invalidLink\) \{([\s\S]*?)\} else \{([\s\S]*?)\}/.exec(gate);
   assert.ok(branch, "branche du lien refusé distincte de la vérification normale");
   assert.match(branch[1], /window\.history\.replaceState\(null, "", window\.location\.pathname\);\s*void readLauncherCommands\(api\)\.then\(retryCommands\);/);

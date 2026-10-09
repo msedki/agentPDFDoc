@@ -195,6 +195,7 @@ class ScopeResolver:
         if not snapshot.generations:
             return []
         generation_id = snapshot.generations[0]
+        generation = self.db.one("SELECT state,coverage_json,warnings_json FROM index_generations WHERE id=?", (generation_id,))
         sources = []
         for span in snapshot.spans:
             row = self.db.one("SELECT b.*,p.geometry_json FROM blocks b JOIN pages p ON p.generation_id=b.generation_id AND p.page_index=b.page_index WHERE b.generation_id=? AND b.id=?", (generation_id, span["blockId"]))
@@ -207,6 +208,8 @@ class ScopeResolver:
                      "extraction_method": block_extraction_method(row["metadata_json"])}
             sources.append({"chunk_id": None, "generation_id": generation_id, "extraction_revision_id": row["extraction_revision_id"],
                             "version_id": snapshot.versions[generation_id], "document_id": snapshot.documents[generation_id],
+                            "coverage": json.loads(generation["coverage_json"]), "extraction_state": generation["state"],
+                            "extraction_warnings": json.loads(generation["warnings_json"]),
                             "text": text, "blocks": [block], "extraction_methods": extraction_methods([block]),
                             "page_indices": [row["page_index"]], "parent_id": row["id"]})
         return sources

@@ -322,8 +322,8 @@ def test_retrieval_mandatory_identifier_prefers_fragment_with_question_terms(sto
     import_fixture(storage, pages=[{"page_index": 0, "width": 595, "height": 842, "blocks": blocks}])
     search, snapshot, _ = library_search(storage)
     original = search._candidates
-    async def reference_first(question, scope):
-        return sorted(await original(question, scope), key=lambda source: source["parent_id"] != "reference")
+    async def reference_first(question, scope, dense_available=True):
+        return sorted(await original(question, scope, dense_available), key=lambda source: source["parent_id"] != "reference")
     search._candidates = reference_first
     result = asyncio.run(search.search("Quelle tension nominale pour CCU-21 ?", snapshot))
     assert result["results"][0]["parent_id"] == "answer" and result["results"][0]["required_identifiers"] == ["CCU-21"]

@@ -91,6 +91,8 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
   const history = useRef<HTMLDivElement>(null);
   const tabButtons = useRef<(HTMLButtonElement | null)[]>([]);
   const [cancelBusy, setCancelBusy] = useState(false);
+  const searchSequence = useRef(0);
+  const searchPending = useRef<number | null>(null);
 
   const update = (id: string, updater: (query: QueryState) => QueryState) => setQueries(current => current.map(query => query.id === id ? updater(query) : query));
   const onEvent = (id: string, event: StreamEvent) => update(id, query => {
@@ -119,7 +121,11 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
     streams.current.get(id)?.();
     streams.current.set(id, connectQueryStream(eventsUrl, lastEventId, event => onEvent(id, event), connection => update(id, query => ({ ...query, connection }))));
   };
-  useEffect(() => () => { for (const close of streams.current.values()) close(); }, []);
+  useEffect(() => () => {
+    for (const close of streams.current.values()) close();
+    searchSequence.current++;
+    searchPending.current = null;
+  }, []);
   useEffect(() => { conversation.current = null; followup.current = undefined; focus.current = undefined; }, [scopeFingerprint]);
   const lastAnswerLength = queries.at(-1)?.text.length;
   useEffect(() => { if (history.current) history.current.scrollTop = history.current.scrollHeight; }, [lastAnswerLength, queries.length]);
@@ -135,18 +141,28 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
     connect(created.query_id, created.events_url);
     return created;
   }, onError: failure => setError({ error: failure }) });
-  const searchMutation = useMutation({ mutationFn: ({ text, scope }: { text: string; scope: Scope; scopeLabel: string }) => api.search(text, scope), onSuccess: (response, variables) => {
+  const searchMutation = useMutation({ mutationFn: ({ text, scope }: { text: string; scope: Scope; scopeLabel: string; requestId: number }) => api.search(text, scope), onSuccess: (response, variables) => {
+    if (variables.requestId !== searchSequence.current) return;
     const tree = client.getQueryData<LibraryTree>(["tree"]);
     setSearch(response); setSearchScope({ scope: variables.scope, label: variables.scopeLabel, unindexed: tree ? unindexedInScope(variables.scope, tree) : null }); setError(null);
-  }, onError: failure => setError({ error: failure }) });
+  }, onError: (failure, variables) => {
+    if (variables.requestId === searchSequence.current) setError({ error: failure });
+  }, onSettled: (_response, _failure, variables) => {
+    if (searchPending.current === variables.requestId) searchPending.current = null;
+  } });
   const active = queries.findLast(query => query.connection !== "closed");
   const compareAllowed = state.scope.kind === "documents" && state.scope.documentIds.length >= 2 && state.scope.documentIds.length <= 4;
   const emptyScope = state.scope.kind === "documents" && !state.scope.documentIds.length;
   const submit = () => {
-    if (!question.trim() || emptyScope || submission.isPending || active || tab === "comparison" && !compareAllowed) return;
+    if (!question.trim() || emptyScope || submission.isPending || searchMutation.isPending || searchPending.current !== null || active || tab === "comparison" && !compareAllowed) return;
     setError(null);
     const snapshot = structuredClone(state.scope);
-    if (tab === "search") searchMutation.mutate({ text: question.trim(), scope: snapshot, scopeLabel: state.scopeLabel });
+    if (tab === "search") {
+      // Le verrou précède mutate : deux événements peuvent arriver avant le rendu de isPending.
+      const requestId = ++searchSequence.current;
+      searchPending.current = requestId;
+      searchMutation.mutate({ text: question.trim(), scope: snapshot, scopeLabel: state.scopeLabel, requestId });
+    }
     else { submission.mutate({ text: question.trim(), scope: snapshot, scopeLabel: state.scopeLabel, mode: tab === "comparison" ? "comparison" : snapshot.kind === "selection" ? "selection" : snapshot.kind === "section" ? "section" : "question" }); setQuestion(""); }
   };
   const cancel = async () => {

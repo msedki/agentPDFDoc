@@ -1,3 +1,4 @@
+import errno
 import json
 import os
 import socket
@@ -82,6 +83,54 @@ def _profile(tmp_path, monkeypatch):
     path = tmp_path / "profil.yaml"
     path.write_text(yaml.safe_dump(profile, allow_unicode=True), encoding="utf-8")
     return path, tmp_path / "données"
+
+
+@pytest.mark.parametrize("inherited", ["accidental-data", "/ancienne-qa/donnees"])
+def test_the_profile_data_root_is_not_overridden_by_an_inherited_variable(tmp_path, monkeypatch, inherited):
+    from services.runtime import supervisor
+    from tools.dist.linux_profiles import guard, write_locations
+
+    path, data = _profile(tmp_path, monkeypatch)
+    program = tmp_path / "programme"
+    profile = load_profile(path)
+    profile["runtime"] = {key: str(tmp_path / "hors-programme" / key)
+                          for key in ("host_lock_path", "backups_dir", "restore_storage_dir", "huggingface_cache_dir")}
+    path.write_text(yaml.safe_dump(profile), encoding="utf-8")
+    monkeypatch.setattr(supervisor, "ROOT", program)
+    monkeypatch.setenv("RAG_DATA_DIR", inherited)
+    assert guard(path, program)["status"] == "ok"
+    actual = supervisor.data_path(load_profile(path))
+    assert actual == data.resolve() == Path(write_locations(profile, program)["app.data_dir"])
+    assert environment(profile, actual, path)["RAG_DATA_DIR"] == str(data.resolve())
+    assert not program.exists()
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="erreurs flock Linux")
+@pytest.mark.parametrize("kind", ["qdrant", "supervisor"])
+@pytest.mark.parametrize("number", [errno.EAGAIN, errno.ENOLCK, errno.EBADF])
+def test_only_flock_contention_is_reported_as_another_instance(tmp_path, monkeypatch, kind, number):
+    from services.runtime import supervisor
+
+    path, data = _profile(tmp_path, monkeypatch)
+    failure = OSError(number, "erreur de verrou simulée")
+    opened = []
+
+    def refuse(fd, operation):
+        opened.append(fd)
+        raise failure
+
+    monkeypatch.setattr(supervisor.fcntl, "flock", refuse)
+    if number in {errno.EAGAIN, errno.EWOULDBLOCK}:
+        with pytest.raises(RuntimeError, match="Une instance possède déjà"):
+            supervisor.acquire_qdrant_lock(data) if kind == "qdrant" else supervisor.supervise(path)
+    else:
+        with pytest.raises(OSError) as caught:
+            supervisor.acquire_qdrant_lock(data) if kind == "qdrant" else supervisor.supervise(path)
+        assert caught.value is failure
+    assert len(opened) == 1
+    with pytest.raises(OSError) as closed:
+        os.fstat(opened[0])
+    assert closed.value.errno == errno.EBADF
 
 
 @pytest.mark.parametrize("recorded", ["starting", "running", "stopping"])
@@ -1000,7 +1049,7 @@ def simulated_program(tmp_path: Path) -> Path:
 
 
 def supervise_with_doubles(tmp_path: Path, monkeypatch, *, platform: str, storage_dir: Path | None = None,
-                           installed: bool = False):
+                           installed: bool = False, inherited_data_in_program: bool = False):
     """Superviseur réel, enfants et disponibilité doublés ; ROOT désigne un programme de test hors du dépôt.
 
     `installed` : profil qu'`init-profile` crée pour une installation par le kit (`user_profile`, racine des données
@@ -1013,6 +1062,8 @@ def supervise_with_doubles(tmp_path: Path, monkeypatch, *, platform: str, storag
     program = simulated_program(tmp_path)
     monkeypatch.setattr(supervisor, "ROOT", program)
     monkeypatch.delenv("RAG_DATA_DIR", raising=False)
+    if inherited_data_in_program:
+        monkeypatch.setenv("RAG_DATA_DIR", str(program / "accidental-data"))
     monkeypatch.delenv("QDRANT_INIT_FILE_PATH", raising=False)
     profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
     if installed:
@@ -1096,13 +1147,14 @@ CHILD_WRITE_VARIABLES = ("HOME", "TMPDIR", "HF_HOME", "RAG_DATA_DIR")
 
 
 @SIMULATED_PLATFORMS_ONLY
-def test_an_installed_program_gets_no_write_from_the_children_of_the_supervisor(tmp_path, monkeypatch):
+@pytest.mark.parametrize("inherited", [False, True], ids=["sans-override", "override-sous-programme"])
+def test_an_installed_program_gets_no_write_from_the_children_of_the_supervisor(tmp_path, monkeypatch, inherited):
     """Relecture de D1 (R26-KIT-04, ronde 5), sous Linux, avec le profil qu'`init-profile` crée pour une installation par
     le kit : aucun enfant du superviseur n'écrit dans le programme. Qdrant démarre depuis son stockage `<données>/q`, où
     il pose son indicateur ; Ollama crée sa clé sous le HOME de l'instance, `<données>/data/home` ; HOME, TMPDIR,
     HF_HOME, RAG_DATA_DIR et le journal de chaque enfant sont hors du programme. Ollama et l'API ne tiennent du programme
     que leur répertoire courant et des lectures (bibliothèques, modèles, tessdata, code précompilé à l'installation)."""
-    run = supervise_with_doubles(tmp_path, monkeypatch, platform="linux", installed=True)
+    run = supervise_with_doubles(tmp_path, monkeypatch, platform="linux", installed=True, inherited_data_in_program=inherited)
     program = run.program.resolve()
     assert program_entries(run.program) == run.before
     qdrant_directory = (tmp_path / "données-installation/q").resolve()

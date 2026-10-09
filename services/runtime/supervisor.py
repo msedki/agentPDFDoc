@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import errno
 import json
 import os
 import secrets
@@ -13,6 +14,7 @@ import tempfile
 import time
 import uuid
 from datetime import UTC, datetime
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +24,7 @@ import yaml
 from .accelerator import host_signals, profile_accelerator, read_discovery, resolve_mode, verified_libraries
 from .artifacts import ROOT, file_hash, read_json_atomic, runtime_location, write_json_atomic
 from .platforms import entries_for_platform, executable_name, installation, launcher_command, platform_id
+from .profile_schema import read_profile_document, validate_profile
 from .resources import host_sample, linux_memory_mib
 
 if sys.platform == "win32":
@@ -39,13 +42,15 @@ else:
 def load_profile(path: Path) -> dict:
     from urllib.parse import urlsplit
 
-    config = yaml.safe_load(path.read_text(encoding="utf-8"))
-    if not isinstance(config, dict) or config.get("schema_version") != 2:
+    config = read_profile_document(path)
+    if type(config.get("schema_version")) is not int or config.get("schema_version") != 2:
         raise ValueError("Profil version2 requis")
-    if config["app"]["host"] != "127.0.0.1":
+    app = config.get("app")
+    if isinstance(app, dict) and app.get("host") != "127.0.0.1":
         raise ValueError("Le runtime exige loopback")
     # W024, W025 : llm.accelerator (auto, cpu, gpu) ou forme antérieure llm.num_gpu: 0 ; mêmes messages que l'API.
     profile_accelerator(config)
+    validate_profile(config, consumer="runtime")
     # Invariants du runtime, lus plutôt que supposés : aucun accès réseau ni télémétrie hors `provision`.
     if config["app"].get("offline", True) is not True or config["app"].get("telemetry", False) is not False:
         raise ValueError("Le runtime exige app.offline: true et app.telemetry: false")
@@ -59,7 +64,8 @@ def load_profile(path: Path) -> dict:
 
 
 def data_path(profile: dict) -> Path:
-    return (ROOT / os.environ.get("RAG_DATA_DIR", profile["app"]["data_dir"])).resolve()
+    """Racine déclarée par le profil ; RAG_DATA_DIR est transmis aux enfants, pas un override du lanceur."""
+    return (ROOT / profile["app"]["data_dir"]).resolve()
 
 
 def read_state(directory: Path) -> dict:
@@ -262,7 +268,11 @@ def environment(profile: dict, directory: Path, profile_path: Path) -> dict[str,
         "OLLAMA_HOST": profile["llm"]["base_url"].removeprefix("http://"),
         "OLLAMA_MODELS": str(ROOT / ".runtime/models/ollama"), "OLLAMA_NO_CLOUD": "1",
         "OLLAMA_NUM_PARALLEL": "1", "OLLAMA_MAX_LOADED_MODELS": "1", "OLLAMA_MAX_QUEUE": "2",
-        "OLLAMA_CONTEXT_LENGTH": str(profile["llm"]["num_ctx"]), "OLLAMA_KEEP_ALIVE": str(profile["llm"].get("keep_alive", "10m")),
+        "OLLAMA_CONTEXT_LENGTH": str(profile["llm"]["num_ctx"]),
+        # envconfig.KeepAlive accepte une durée Go ou des secondes entières ; l'API accepte aussi des fractions.
+        "OLLAMA_KEEP_ALIVE": (format(Decimal(str(profile["llm"]["keep_alive"])), "f") + "s"
+                              if type(profile["llm"].get("keep_alive")) is float
+                              else str(profile["llm"].get("keep_alive", "10m"))),
         "LLAMA_ARG_CACHE_RAM": str(profile["llm"].get("prompt_cache_mib", 256)),
         "LLAMA_ARG_CTX_CHECKPOINTS": str(profile["llm"].get("context_checkpoints_max", 2)),
     })
@@ -393,8 +403,10 @@ def acquire_qdrant_lock(directory: Path):
         else:
             # Verrou de description de fichier (flock, pas lockf) : relâché seulement par la fermeture de ce handle.
             fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except OSError:
+    except OSError as error:
         handle.close()
+        if sys.platform != "win32" and error.errno not in {errno.EAGAIN, errno.EWOULDBLOCK}:
+            raise
         raise RuntimeError("Une instance possède déjà ce stockage Qdrant") from None
     return handle
 
@@ -572,8 +584,10 @@ def supervise(profile_path: Path) -> int:
             msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
         else:
             fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except OSError:
+    except OSError as error:
         lock.close()
+        if sys.platform != "win32" and error.errno not in {errno.EAGAIN, errno.EWOULDBLOCK}:
+            raise
         raise RuntimeError("Une instance possède déjà cette racine de données") from None
     self_process = psutil.Process()
     instance = uuid.uuid4().hex

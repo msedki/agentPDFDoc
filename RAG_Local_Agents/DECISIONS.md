@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `011a817` et décisions W038 à W040 datées ci-dessous · **Mis à jour :** 2026-10-06 20:10 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** registre des décisions acquises et propositions · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base `75df760` ; décisions W050–W054 du 9 octobre, historique conservé · **Mis à jour :** 2026-10-09 18:31 (UTC) · **Source de vérité :** ce registre pour les choix ; PLAN pour les actions et rapports pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -1550,3 +1550,189 @@ commande pour passer au 4B. Aucune bascule automatique : l'arrêt reste une
 décision de l'utilisateur. **Retour arrière :** `atelier modele` avec
 l'ancien modèle, ou retrait de la commande, l'option `--modele` au
 lancement restant disponible.
+
+## W054 Cible technique de l'étude Office : extraction native structurée
+
+**Date :** 9 octobre 2026, 18:04 UTC. **Statut :** choix retenu pour le plan
+d'intégration ; implémentation proposée, non commencée.
+
+**Contexte :** le socle PDF réutilise versions, générations, embeddings,
+recherche hybride, contexte et citations, mais ses contrats présument pages
+et coordonnées PDF. Dix-huit essais sur de vrais conteneurs annotés ont
+comparé les bibliothèques installées ; Docling Office perd certains textes,
+structures, types/formules et ancrages. Le benchmark est exploratoire, n=1,
+petits fichiers sur aarch64 61 Gio, sans qualification 16 Go ou métier.
+
+**Choix :** python-docx 1.2.0 et parcours OOXML borné pour DOCX ; openpyxl
+3.1.5 read_only et faits OOXML streaming pour XLSX. Conserver originaux,
+structure, types, formule/cache distincts, localisations typées et citations
+immutables ; compléter les helpers publics pour Strict/Transitional et les
+structures que leurs API omettent. Caches présents ne certifient pas leur
+fraîcheur. Pas de recalcul, convertisseur bureautique ou deuxième parseur
+navigateur requis. Docling reste le moteur PDF ; aucun contrat, migration,
+profil, dépendance ou comportement Office produit n'est modifié par l'étude.
+
+**Justification :** précision source et coût observé sur le même corpus ;
+réutilisation du RAG et du poste documentaire. Les grands classeurs doivent
+éviter les rescans par cell() en mode read_only ; les scopes bornent le
+contenu classé et les statistiques lexicales avant top-k. Les principes de
+publication et de révision restent ceux du socle, sans fausse page PDF.
+
+**Conséquences :** sous-package Office proposé distinct de la voie PDF,
+migration portable et contrats additionnels, lecteurs React depuis données
+canoniques ; 8 lots et 12 critères dans le PLAN existant. Qualification
+indépendante réelle, gros documents, CPU ≤16 Go, Windows natif différé et
+Linux x86-64 restent requis avant livraison. Les 12 roues officielles
+contrôlées ne prouvent pas les kits hors ligne ; notices et handles Windows
+doivent être vérifiés. Étude et sources : [rapport](reports/extension-office-2026-10-09.md),
+[R28 du plan](PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation),
+[registre](SOURCES.md#r28--sources-de-létude-docxxlsx-du-9-octobre-2026).
+
+## W053 Extension DOCX/XLSX : étude préalable et plan actionnable
+
+**Date :**9 octobre2026, précisions pendant R27. **Statut :** mandat utilisateur
+acquis pour l'étude ; aucune implémentation Office commencée.
+
+**Contexte :** après avoir demandé l'ingestion DOCX/XLSX en plus du PDF,
+l'utilisateur précise une étude approfondie des structures, pipelines,
+contrats, usages et solutions, sur CPU16Go sansGPU, puis un PLAN détaillé.
+
+**Choix :** traiter cette phase dans le plan canonique existant, comparer les
+bibliothèques réellement disponibles et les options officielles, mesurer sur
+de vrais fichiers annotés, puis distinguer faits/benchmarks/propositions.
+Les DOCX gardent hiérarchie et ordre de lecture ; les XLSX gardent structure,
+types, formules et valeurs cachées disponibles. Sources et citations portent
+des localisations réelles, sans fabriquer des pages PDF. L'étude finalisée
+précède toute implémentation ; les corrections R27 restent indépendantes.
+**Conséquences :** skill Office spécifique après recherche officielle,
+prototypes de QA isolés autorisés, aucune migration/API/lecture Office livrée
+à ce stade ; aucune régression du PDF ni nouveau modèle imposé.
+
+## W052 Compatibilité des plateformes et recette Windows différée
+
+**Date :**9 octobre2026, précision utilisateur pendant R27. **Statut :** acquis.
+
+**Choix :** Windows natif sera recetté plus tard par l'utilisateur ; le code
+reste compatible avec Windows et Linux. Linux désigne une plateforme générale,
+pas le seul Jetson ni Ubuntu20.04. Les chemins, binaires, dépendances et gardes
+doivent dépendre de l'architecture et des prérequis réels, pas du poste de QA.
+JetPack reste une particularité d'accélération du Jetson ; les voies CPU
+restent disponibles. Les preuves aarch64 constatées ici gardent leur portée,
+Win32 simulé ne vaut pas Windows natif, et les architectures/distributions
+non exécutées restent indiquées comme telles. **Conséquences :** garder les
+critères DoD et vérifier la portabilité avant livraison sans faux PASS global.
+
+## W051 Validation stricte commune des profils YAML
+
+**Date :** 9 octobre 2026, 16:46 UTC. **Statut :** choix technique acquis
+dans le mandat R27 ; implémenté, revu et vérifié sur contrôles ciblés
+et transverses, publication préparée à partir de ce gel. Recette native
+de livraison distincte, aucune qualification de plateforme ajoutée.
+
+**Contexte :** E13 confronte une exigence explicite de CONFIGURATION §1
+au chargement réel : validations ciblées séparées, types partiellement
+contrôlés, paramètres inconnus ignorés. Les profils et les outils qui les
+produisent ont une compatibilité à préserver.
+
+**Choix :** modèle Pydantic2 strict et imbriqué, clés inconnues interdites,
+commun aux chargeurs API/runtime, avec erreurs par chemin/type sans valeurs
+d'entrée. Le dictionnaire YAML validé reste intact : aucun ajout de défaut,
+conversion ou `model_dump` modifiant son empreinte. Les adaptateurs gardent
+les chemins et gardes de sécurité ; APIv1/v2 et runtimev2 restent explicites.
+Les invariants numériques correspondent aux consommateurs réels, sans
+nouveau seuil de performance. Les extensions de profils des installateurs,
+restaurations et recettes sont déclarées et vérifiées.
+
+**Justification :** corriger le contrat à la frontière de chargement évite
+les dérives entre superviseur et API, sans dépendance nouvelle ni refonte
+des services. Références officielles Pydantic et sonde2.13.5 dans les preuves
+R27 backend. **Conséquences :** une faute de paramètre auparavant ignorée
+devient un refus explicite avant démarrage ; les profils valides livrés et
+générés doivent garder leurs valeurs exactes. Tests négatifs discriminants,
+contrôles transverses et revue indépendante requis avant clôture.
+
+## W050 Reprise d'exécution et clôture depuis la baseline du 9 octobre
+
+**Date :** 9 octobre 2026, demande reçue vers 16:16 UTC. **Statut :** mandat
+utilisateur acquis, réalisation en cours au lot R27 du plan canonique.
+
+**Contexte :** une analyse seule avait établi et fait relire la baseline
+du 9 octobre, sur `75df760` et l'arbre local du kit Linux. La nouvelle
+demande `/goal`, confirmée pendant la reprise, demande les corrections,
+la finalisation des travaux restants et leurs preuves conformes à la DoD.
+
+**Choix :** reprendre le plan existant ; vérifier les causes ciblées puis
+corriger, tester et revoir indépendamment ; finaliser les recettes Linux
+exécutables et conserver les limites explicites des cibles absentes.
+La baseline reste l'instantané antérieur aux corrections. Ses observations
+ne prescrivent ni refonte générale ni adoption automatique d'index,
+d'ORM, de framework ou de modèle. La publication suit la politique main/origin.
+
+**Conséquences :** le mandat d'analyse seule est remplacé. Les décisions
+précises précédentes — 4B par défaut, annulation des travaux 2B,
+invariants de scope/citations, gates DEV/final et seuils de DoD — restent
+applicables. Un essai Jetson ne clôt pas Windows, x86-64 ou CPU≤16Go.
+Les préconditions de ces cibles sont demandées pendant l'avancement des
+lots indépendants ; aucune conformité globale ne peut être reconstruite.
+**Réexamen :** nouvelle décision utilisateur ou preuve contradictoire,
+sans modification artificielle des critères pour obtenir du vert.
+
+## W049 Vérification d'un kit Linux avant exécution : modèle de menace et portée
+
+**Date :** 7 octobre 2026. **Statut :** choix technique acquis après quatre
+rondes de revue non-auteur sur la même classe de défaut (S3-01, S3-02,
+R3S-01, R4S-01) ; implémenté (`tools/dist/install.sh`, `linux_install.py`,
+`linux_profiles.py`), testé en unitaire avec mutations ; recette réelle avec le
+kit B (R26-KIT-02, phase 2). Remplace la garantie « vérification complète du
+kit avant toute écriture » de R26-KIT-01.
+
+**Contexte :** chaque ronde a trouvé un nouveau moyen d'exécuter un fichier non
+vérifié avant le contrôle (dossier de paquet ajouté, fichier de démarrage de
+Python, bibliothèque chargée par ld.so via `$ORIGIN/../lib`, fichier vérifié
+remplacé par un lien vers un autre arbre). Lire 12 Go deux fois (vérification
+complète, puis copie) ne protégeait par ailleurs aucune exécution de plus que
+la vérification ciblée (KIT4-24).
+
+**Modèle de menace, repris dans le guide, DEPLOIEMENT §8.3 et l'en-tête
+d'`install.sh` :** la vérification du kit protège contre
+l'altération accidentelle (copie ou transport incomplets, fichiers ajoutés par
+erreur, déduplication ou fermes de liens, droits perdus). Elle ne protège pas
+contre une personne qui peut écrire dans le kit : `installer.sh` lui-même
+s'exécute sans vérification préalable, et son intégrité repose sur
+l'empreinte de l'archive (`<kit_id>.tar.sha256`) contrôlée avant extraction.
+
+**Choix :**
+
+- Avant Python, `install.sh` garde du PATH ses seuls éléments absolus, prend
+  `sha256sum` et `find` dans `/usr/bin` puis `/bin`, vérifie par empreinte
+  l'interpréteur, `libpython`, les bibliothèques listées sous `<CPython>/lib`,
+  `SYMLINKS` et les trois scripts de l'installateur ; chaque entrée vérifiée
+  doit être un fichier ordinaire, sans lien non déclaré sur son chemin.
+- Dans le dossier de l'interpréteur, trois parcours typés : un lien doit
+  figurer dans `SYMLINKS`, un fichier ordinaire dans `SHA256SUMS` (hormis le
+  bytecode des `__pycache__`), aucune autre entrée n'est admise ; les fichiers
+  de démarrage de Python et les dossiers de paquet ajoutés parmi les modules
+  de l'installateur sont refusés.
+- Python est lancé en `-B -I -S`, sans `site` ni `.pth`, avec
+  `-X pycache_prefix=/dev/null` ; les modules de l'installateur sont chargés
+  par leur chemin, la racine étant prise par `os.path.abspath` sans résoudre
+  les liens.
+- La vérification ciblée en Python (manifeste, listes, cibles de `ldd`,
+  fichiers lus avant la copie) précède les contrôles système ; le reste du
+  kit est haché pendant la copie, et un écart retire la copie sans rien
+  désigner.
+
+**Limites assumées :** `installer.sh` s'exécute sans vérification ; un
+fichier listé de la bibliothèque standard, s'il a été modifié, s'exécute
+avant d'être haché ; la cible d'un lien déclaré dans `SYMLINKS` n'est comparée
+ni par `install.sh` ni par la vérification ciblée (la copie recrée chaque lien
+d'après `SYMLINKS`, et `build_kit.py verify` la compare côté dépôt) ; un intervalle demeure entre contrôle et exécution ; `LD_PRELOAD` et la
+configuration du système relèvent de l'environnement de l'utilisateur.
+Hacher toute la bibliothèque standard avant chaque commande reste possible
+(3 484 fichiers) mais n'est pas retenu.
+
+**Conséquences :** un kit dédupliqué par liens est refusé dès le lancement,
+avec le chemin en cause ; `find` devient un prérequis déclaré du poste
+cible ; un fichier étranger sous `<CPython>` d'un programme installé bloque
+ses commandes jusqu'à son retrait ou une réinstallation (dépannage §10.4).
+**Retour arrière :** aucun sans rouvrir les constats R3S-01 et R4S-01.

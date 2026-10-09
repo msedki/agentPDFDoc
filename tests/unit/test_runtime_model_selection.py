@@ -43,6 +43,21 @@ def test_an_unknown_model_names_the_default_and_the_2b(tmp_path):
     assert str(refused.value) == "Modèle livré inconnu ; choisir qwen3.5:4b (défaut) ou qwen3.5:2b"
 
 
+def test_every_entry_point_takes_the_same_default_profile():
+    """rag.sh, rag.ps1, le CLI et le kit Linux décident le même défaut (W045) ; les profils livrés ne changent pas."""
+    from tools.dist import linux_kit
+
+    default = "config/" + cli.MODEL_PROFILES[cli.DEFAULT_MODEL]
+    assert default == "config/local16-4b.yaml"
+    shell = [line for line in (ROOT / "rag.sh").read_text(encoding="utf-8").splitlines() if line.startswith("profile=")]
+    assert shell == [f"profile={default}"]
+    powershell = (ROOT / "rag.ps1").read_text(encoding="utf-8-sig")
+    assert f"[string]$Profile = '{default}'," in powershell and powershell.count("[string]$Profile =") == 1
+    assert linux_kit.MODEL_PROFILES[linux_kit.DEFAULT_MODEL] == default
+    four = yaml.safe_load((ROOT / default).read_text(encoding="utf-8"))
+    assert four["llm"]["source_model"] == cli.DEFAULT_MODEL and four["llm"]["model"] == "qwen3.5:4b-text"
+
+
 def test_explicit_user_profile_is_preserved_and_never_overlaid(tmp_path):
     path = tmp_path / "profil-utilisateur.yaml"
     assert cli.model_profile_path(path, None) is path

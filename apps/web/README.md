@@ -1,6 +1,6 @@
 # Poste documentaire web
 
-**Rôle :** référence des commandes et contrats du frontend, avec preuves historiques datées · **Propriétaire :** frontend et validation du produit · **Statut :** Stabilisé · **Référence :** base publiée `3e56c75` et choix de modèle R23 vérifié en Linux aarch64 le 2026-10-04, qualification bornée au plan · **Mis à jour :** 2026-10-04 22:06 (UTC) · **Source de vérité :** scripts, configuration et code liés ci-dessous ; état courant et prochaines actions dans [PLAN.md](../../RAG_Local_Agents/PLAN.md) · **Remplace :** aucun document
+**Rôle :** référence des commandes et contrats du frontend, avec preuves historiques datées · **Propriétaire :** frontend et validation du produit · **Statut :** Stabilisé · **Référence :** base publiée `05da85c` et commande lint R15-3 locale vérifiée le 2026-10-03 ; choix de modèle R23 sur la base `3e56c75` et modifications locales du 2026-10-04, qualification suivie dans le plan · **Mis à jour :** 2026-10-04 22:06 (UTC) · **Source de vérité :** scripts, configuration et code liés ci-dessous ; état courant et prochaines actions dans [PLAN.md](../../RAG_Local_Agents/PLAN.md) · **Remplace :** aucun document
 
 Application Next.js exportée statiquement sur `/workspace/`, servie par l'API
 native sur la même origine, sous Windows x86-64 ou Linux aarch64 et x86-64
@@ -14,9 +14,12 @@ Les originaux, bibliothèques, jobs, recherches et questions viennent uniquement
 de `/api/v1`. Le build livré ne comporte aucune réponse simulée, fixture
 embarquée, requête de fonte/CDN ou route serveur Next.
 
-Le skill appliqué est [pdf-workspace-web](../../.agents/skills/pdf-workspace-web/SKILL.md),
-avec frontend-design et les références React/general web security locales.
-Les parcours réels suivent le skill `RAG_Local_Agents/skills/pdf-workspace-e2e`.
+Les modifications du poste documentaire suivent le skill
+[pdf-workspace-web](../../.agents/skills/pdf-workspace-web/SKILL.md).
+Les parcours réels suivent le skill
+[pdf-workspace-e2e](../../RAG_Local_Agents/skills/pdf-workspace-e2e/SKILL.md).
+Un contrôle de sources, un build ou une collecte de tests ne remplace pas leur
+exécution navigateur et l'examen du rendu.
 
 Versions résolues : Next 16.3.7, React 19.3.0, PDF.js 6.3.289, TanStack Query
 5.104.0, Zustand 5.0.15, TypeScript 5.9.3 et Playwright 1.63.0. Les versions
@@ -65,6 +68,7 @@ Windows, une fois les dépendances installées (`rag.ps1 provision` exécute
 $env:NEXT_TELEMETRY_DISABLED='1'
 $env:COREPACK_ENABLE_NETWORK='0'
 $env:NODE_OPTIONS='--max-old-space-size=2048'
+pnpm lint
 pnpm typecheck
 pnpm test:unit
 pnpm build
@@ -75,16 +79,32 @@ Sous Linux, depuis ce dossier :
 ```bash
 export NEXT_TELEMETRY_DISABLED=1 COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 pnpm install --frozen-lockfile
+pnpm lint
 pnpm typecheck
 pnpm test:unit
 NODE_OPTIONS=--max-old-space-size=2048 nice -n 10 pnpm build
 ```
 
-Exemple propre au poste Linux aarch64 de développement, et non étape du produit :
-sa partition système n'ayant que quelques gigaoctets libres, le store pnpm y est
+Exemple daté du 1er octobre sur le poste Linux aarch64 de développement,
+et non étape du produit : sa partition système n'ayant que quelques gigaoctets libres, le store pnpm y était
 placé sur une carte microSD en ajoutant `--store-dir /media/safae/devsave1/agentPDFDoc-runtime/pnpm-store`
-à `pnpm install` ; `node_modules` et `.next` restent dans ce dossier. Sans cette
+à `pnpm install` ; `node_modules` et `.next` restaient alors dans ce dossier. Sans cette
 option, pnpm emploie son store par défaut.
+
+Avant une installation, vérifier la cible réelle de `node_modules`. Si elle est
+partagée, ne pas la recréer de force : préparer un pool distinct avec le même
+manifeste/verrou, contrôler ses versions puis remplacer seulement le lien local,
+en conservant l'ancienne cible. Le montage du poste est un aménagement local,
+pas un prérequis du produit ; la reprise R15-3 est consignée au
+[journal du 3 octobre](../../RAG_Local_Agents/journal/2026-10-03.md).
+
+`pnpm lint` exécute ESLint avec zéro avertissement admis. La configuration
+[`eslint.config.mjs`](eslint.config.mjs) couvre sources, scripts et tests avec les
+recommandations JS/TypeScript, le plugin Next direct et Hooks. Elle n'est pas le
+preset Next complet et ne qualifie pas l'accessibilité ou le comportement :
+typages, unités, E2E et rendu restent des contrôles distincts. Versions, choix
+de compatibilité et preuves dans
+[W031](../../RAG_Local_Agents/DECISIONS.md#w031-contrôle-lint-frontend-maintenu-et-explicite).
 
 `scripts/build-monitored.py --tag <étiquette>`, lancé avec l'interpréteur du
 projet (`.venv/Scripts/python.exe` sous Windows, `.venv/bin/python` sous Linux),

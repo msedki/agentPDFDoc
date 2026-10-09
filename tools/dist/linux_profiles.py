@@ -22,10 +22,38 @@ import sys
 from pathlib import Path
 from typing import Any
 
-PROGRAM = Path(__file__).resolve().parents[2]
-if str(PROGRAM) not in sys.path:
-    # Lancé avec -I : le dossier du script n'est pas dans sys.path, la racine du programme y est ajoutée explicitement.
-    sys.path.insert(0, str(PROGRAM))
+# Racine du programme par le chemin reçu, liens non résolus (R4S-01) : les modules chargés par load_runtime_modules sont
+# ceux de ce programme, à côté du script lancé, jamais ceux de l'arbre d'un lien qui aurait remplacé le script.
+PROGRAM = Path(os.path.abspath(__file__)).parents[2]
+# Modules de services.runtime que ce script exécute, dans l'ordre de leur chargement (artifacts importe accelerator et
+# platforms, accelerator importe platforms) : ceux de PRE_COPY_FILES (linux_install.py), vérifiés avant une dérivation contrôlée.
+RUNTIME_MODULES = ("platforms", "accelerator", "artifacts")
+
+
+def load_runtime_modules(root: Path) -> None:
+    """Lancé comme script (python -B -I … linux_profiles.py, par l'environnement d'un programme installé, sur le code de ce
+    programme ou d'un nouveau kit) : les modules de services.runtime sont chargés par leur chemin sous `root`, selon la recette
+    « Importing a source file directly » d'importlib (Python 3.12). Les paquets `services` et `services.runtime` sont créés
+    sans dossier (`__path__` vide) : aucun import par nom ne consulte le kit, si bien qu'un module, un bytecode ou un dossier
+    de paquet ajouté à côté des modules vérifiés (par exemple `services/runtime/artifacts/__init__.py`) n'est jamais importé,
+    et la racine du kit n'entre pas dans sys.path (PyYAML vient de l'environnement)."""
+    import importlib.util
+    import types
+
+    services, runtime = types.ModuleType("services"), types.ModuleType("services.runtime")
+    for package in (services, runtime):
+        package.__path__ = []
+        sys.modules[package.__name__] = package
+    services.__dict__["runtime"] = runtime
+    for name in RUNTIME_MODULES:
+        spec = importlib.util.spec_from_file_location(f"services.runtime.{name}", root / "services/runtime" / f"{name}.py")
+        if spec is None or spec.loader is None:
+            raise ImportError(f"services/runtime/{name}.py introuvable dans {root}")
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        spec.loader.exec_module(module)
+        setattr(runtime, name, module)
+
 
 WRITE_KEYS = ("host_lock_path", "backups_dir", "restore_storage_dir", "huggingface_cache_dir")
 # Sections qui portent chemins et ports : une différence entre profils livrés à cet endroit n'est pas une clé de modèle.
@@ -43,6 +71,8 @@ def load(path: Path) -> dict[str, Any]:
 
 def write_locations(profile: dict[str, Any], program: Path) -> dict[str, str]:
     """Emplacements où l'exécution écrit, résolus depuis la racine du programme comme dans supervisor et artifacts."""
+    if not __package__ and "services.runtime.artifacts" not in sys.modules:
+        load_runtime_modules(PROGRAM)
     from services.runtime.artifacts import RUNTIME_LOCATIONS
 
     data = (program / profile["app"]["data_dir"]).resolve()

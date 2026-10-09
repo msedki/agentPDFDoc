@@ -6,6 +6,7 @@ servi par httpx.MockTransport au vrai QdrantStore), FakeEmbedding et FakeVectors
 """
 import asyncio
 import json
+import threading
 
 import httpx
 import pytest
@@ -216,6 +217,90 @@ def test_an_absent_current_collection_is_named_like_readiness_not_as_an_unreacha
     assert requests == [("GET", "/collections")]
     present = asyncio.run(DenseCoverage(storage[1], CountingVectors({})).status())
     assert present["collection"] == "unverified" and present["state"] == "dense_migration_incomplete"
+
+
+@pytest.mark.parametrize("mode", ["question", "comparison"])
+def test_search_serves_lexical_results_when_the_current_dense_collection_is_absent(storage, mode):
+    imported, _ = library(storage, {"pompe": "Pompe PX-10 tension 24 V", "vanne": "Vanne VX-20 tension 48 V"})
+    settings, db, _, _ = storage
+    requests = []
+    store = absent_collection_store(settings, requests)
+    resolver = ScopeResolver(db)
+
+    class UnusedEmbedding:
+        def embed(self, *args):
+            raise AssertionError("Une collection absente ne doit pas charger l'embedding.")
+
+    async def search():
+        try:
+            service = SearchService(db, resolver, UnusedEmbedding(), store, settings, dense=DenseCoverage(db, store))
+            return await service.search("tension", resolver.resolve(Scope(kind="library")), mode)
+        finally:
+            await store.close()
+
+    result = asyncio.run(search())
+    assert {source["document_id"] for source in result["results"]} == {item["document_id"] for item in imported}
+    assert [warning["code"] for warning in result["warnings"]] == ["dense_identity_mismatch"]
+    assert requests == [("GET", "/collections")]
+
+
+def test_search_does_not_hide_qdrant_failure_after_an_absent_collection_diagnosis(storage):
+    library(storage, {"pompe": "Pompe PX-10 tension 24 V"})
+    settings, db, _, _ = storage
+    unavailable = False
+
+    def handler(request):
+        if unavailable:
+            raise httpx.ConnectError("Panne injectée après le diagnostic.", request=request)
+        return httpx.Response(200, json={"status": "ok", "result": {"collections": []}})
+
+    store = recording_store(settings, handler)
+    coverage = DenseCoverage(db, store)
+    resolver = ScopeResolver(db)
+
+    async def search():
+        nonlocal unavailable
+        try:
+            assert (await coverage.status())["collection"] == "absent"
+            unavailable = True
+            service = SearchService(db, resolver, FakeEmbedding(), store, settings, dense=coverage)
+            with pytest.raises(ApiError) as refused:
+                await service.search("tension", resolver.resolve(Scope(kind="library")))
+            assert refused.value.code == "qdrant_unavailable" and refused.value.status == 503
+        finally:
+            await store.close()
+
+    asyncio.run(search())
+
+
+@pytest.mark.parametrize("kind", ["library", "selection"])
+def test_search_reads_sqlite_provenance_outside_the_request_loop(storage, monkeypatch, kind):
+    imported, _ = library(storage, {"pompe": "Pompe PX-10 tension 24 V"})
+    settings, db, vectors, _ = storage
+    resolver = ScopeResolver(db)
+    block = db.one("SELECT * FROM blocks")
+    scope = Scope(kind="library") if kind == "library" else Scope(kind="selection", versionId=imported[0]["version_id"], spans=[{
+        "extractionRevisionId": block["extraction_revision_id"], "blockId": block["id"], "blockTextSha256": block["source_text_hash"],
+        "offsetUnit": "unicode_code_point", "startOffset": 0, "endOffset": len(block["text"])}])
+    snapshot = resolver.resolve(scope)
+    calls = []
+    original_rows = db.rows
+
+    def observed_rows(*args):
+        calls.append(threading.get_ident())
+        return original_rows(*args)
+
+    monkeypatch.setattr(db, "rows", observed_rows)
+    vectors.count_generation = CountingVectors({snapshot.generations[0]: 1}).count_generation
+
+    async def search():
+        loop_thread = threading.get_ident()
+        service = SearchService(db, resolver, FakeEmbedding(), vectors, settings, dense=DenseCoverage(db, vectors))
+        result = await service.search("tension", snapshot)
+        assert result["results"] and len(calls) >= 3
+        assert all(thread != loop_thread for thread in calls)
+
+    asyncio.run(search())
 
 
 def test_the_startup_coverage_task_logs_its_outcome_and_any_exception(caplog):

@@ -11,8 +11,11 @@ from pathlib import Path
 from typing import Annotated, Any
 
 from fastapi import FastAPI, File, Form, Request, UploadFile
+from fastapi.exception_handlers import http_exception_handler
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response, StreamingResponse
+from starlette.exceptions import HTTPException
+from starlette.middleware.body_limit import RequestBodyLimitMiddleware
 from starlette.staticfiles import StaticFiles
 
 from services.runtime.platforms import launcher_command, launcher_instruction, launcher_kind
@@ -167,6 +170,8 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     allowed_hosts = {f"127.0.0.1:{port}", f"localhost:{port}", f"[::1]:{port}"}
     allowed_origins = {f"{policy.scheme}://{host}" for host in allowed_hosts}
     maximum_upload = settings.value("pdf", "max_file_mib", 200) * 1024 * 1024
+    # Sous la frontière locale : compte les octets ASGI avant leur passage au parser, même sans Content-Length.
+    application.add_middleware(RequestBodyLimitMiddleware, max_body_size=maximum_upload + 1024 * 1024)
 
     def control_token_valid(request):
         token = os.environ.get("RAG_CONTROL_TOKEN", "")
@@ -260,6 +265,13 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     @application.exception_handler(ApiError)
     async def controlled_error(request, error):
         return JSONResponse({"code": error.code, "message": error.message, "details": error.details, "request_id": getattr(request.state, "request_id", uid())}, status_code=error.status)
+
+    @application.exception_handler(HTTPException)
+    async def http_error(request, error):
+        if error.status_code == 413:
+            return JSONResponse({"code": "request_too_large", "message": "Requête trop volumineuse.", "details": {},
+                                 "request_id": getattr(request.state, "request_id", uid())}, status_code=413)
+        return await http_exception_handler(request, error)
 
     @application.exception_handler(RequestValidationError)
     async def validation_error(request, error):
@@ -362,9 +374,9 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
             raise ApiError("ingestion_active", "Attendre le checkpoint avant une évaluation reproductible.", 409)
         if queries.tasks:
             raise ApiError("query_active", "Attendre la fin des questions avant une évaluation reproductible.", 409)
-        snapshot = resolver.resolve(body.scope, body.mode)
+        snapshot = await asyncio.to_thread(resolver.resolve, body.scope, body.mode)
         prior = [{"id": "evaluation_prior_user", "question": body.prior_user_question, "snapshot_json": json_dump(snapshot.as_dict())}] if body.prior_user_question else None
-        question, resolution, choices = queries.resolve_followup(body, snapshot, prior)
+        question, resolution, choices = await asyncio.to_thread(queries.resolve_followup, body, snapshot, prior)
         profile_sha = hashlib.sha256(json.dumps(settings.profile, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
         if choices:
             return {"state": "needs_clarification", "choices": choices, "resolution": resolution, "scope_snapshot": snapshot.as_dict(), "model_called": False, "profile_sha256": profile_sha}
@@ -620,18 +632,18 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
 
     @application.post(prefix + "/search")
     async def search_request(body: QueryRequest):
-        snapshot = resolver.resolve(body.scope, body.mode)
+        snapshot = await asyncio.to_thread(resolver.resolve, body.scope, body.mode)
         result = await search.search(body.question, snapshot, body.mode)
         result["warnings"] = snapshot.warnings + result["warnings"]
         return result
 
     @application.post(prefix + "/queries", status_code=202)
     async def create_query(body: QueryRequest):
-        return queries.create(body)
+        return await queries.create_async(body)
 
     @application.get(prefix + "/queries/{query_id}/events")
     async def query_events(query_id: str, request: Request, after: int = 0):
-        if not db.one("SELECT id FROM query_runs WHERE id=?", (query_id,)):
+        if not await asyncio.to_thread(db.one, "SELECT id FROM query_runs WHERE id=?", (query_id,)):
             raise ApiError("query_not_found", "Question inconnue.", 404)
         header = request.headers.get("last-event-id")
         if header:
@@ -644,11 +656,11 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
             cursor = after
             last_heartbeat = time.monotonic()
             while not await request.is_disconnected():
-                events = db.rows("SELECT * FROM events WHERE query_id=? AND id>? ORDER BY id LIMIT 128", (query_id, cursor))
+                events = await asyncio.to_thread(db.rows, "SELECT * FROM events WHERE query_id=? AND id>? ORDER BY id LIMIT 128", (query_id, cursor))
                 for event in events:
                     cursor = event["id"]
                     yield f"id: {cursor}\nevent: {event['type']}\ndata: {event['data_json']}\n\n"
-                row = db.one("SELECT state,last_event_id FROM query_runs WHERE id=?", (query_id,))
+                row = await asyncio.to_thread(db.one, "SELECT state,last_event_id FROM query_runs WHERE id=?", (query_id,))
                 if row["state"] not in {"queued", "running"} and cursor >= row["last_event_id"]:
                     break
                 if time.monotonic() - last_heartbeat >= 10:
@@ -659,7 +671,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
 
     @application.post(prefix + "/queries/{query_id}/cancel")
     async def cancel_query(query_id: str):
-        return queries.cancel(query_id)
+        return await queries.cancel_async(query_id)
 
     @application.get(prefix + "/citations/{query_id}/{source_id}")
     async def citation(query_id: str, source_id: str):

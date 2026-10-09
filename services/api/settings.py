@@ -9,6 +9,9 @@ from services.runtime.accelerator import (
     AcceleratorProfileError,
     profile_accelerator,
 )
+from services.runtime.profile_schema import FIXED_PROFILE_VALUES as FIXED_PROFILE_VALUES
+from services.runtime.profile_schema import ProfileValidationError, read_profile_document, validate_profile
+from services.runtime.profile_schema import unsupported_profile_values as unsupported_profile_values
 
 from .errors import ApiError
 from .security import scheme_for
@@ -16,56 +19,6 @@ from .security import scheme_for
 # Raisons de resolve_mode propres à chaque mode (W025) : une raison transmise qui contredit le mode est ignorée.
 GPU_REASONS = frozenset({"gpu_discovered", "gpu_trial"})
 
-# Clés du profil dont le code ne met en œuvre qu'une valeur (constat C6 de l'inspection du 1er octobre 2026) :
-# lues au chargement, toute autre valeur est refusée au démarrage au lieu d'être ignorée en silence.
-# Une clé absente garde la valeur mise en œuvre.
-FIXED_PROFILE_VALUES: dict[tuple[str, ...], object] = {
-    ("app", "log_document_text"): False,
-    ("llm", "provider"): "ollama",
-    ("llm", "max_active_generations"): 1,
-    ("embedding", "backend"): "onnxruntime",
-    ("embedding", "provider"): "CPUExecutionProvider",
-    ("embedding", "weights_precision"): "int8",
-    ("embedding", "dimensions"): 384,
-    ("embedding", "query_prefix"): "query: ",
-    ("embedding", "passage_prefix"): "passage: ",
-    ("embedding", "normalize_l2"): True,
-    # Bornes et réglage de la session E5 codés dans embedding.py, fichier haché par l'identité du sélecteur
-    # (`selector_sha256` des évaluations) : contrôlés ici pour ne pas changer cette identité.
-    ("embedding", "max_model_tokens"): 512,
-    ("embedding", "allow_spinning"): False,
-    ("chunking", "max_prefixed_tokens"): 448,
-    ("chunking", "tokenizer"): "embedding",
-    ("chunking", "respect_section_boundaries"): True,
-    ("retrieval", "reranker"): False,
-    ("retrieval", "history_is_evidence"): False,
-    ("retrieval", "exact_identifier_final_coverage_required"): True,
-    ("retrieval", "context_coverage_check_required"): True,
-    ("qdrant", "distance"): "Cosine",
-    ("qdrant", "vector_dimensions"): 384,
-    ("qdrant", "wait_for_upserts"): True,
-    ("qdrant", "collection_api_contract_check_required"): True,
-    ("qdrant", "model_identity_in_collection_name_required"): True,
-    ("sqlite", "journal_mode"): "WAL",
-    ("sqlite", "foreign_keys"): True,
-    ("sqlite", "fts_tokenizer"): "unicode61 remove_diacritics 2",
-    ("resources", "scheduling", "pause_policy"): "cooperative_checkpoint",
-    ("resources", "scheduling", "kill_on_interactive_request"): False,
-}
-
-_MISSING = object()
-
-
-def unsupported_profile_values(config: dict) -> list[str]:
-    """Clés de `FIXED_PROFILE_VALUES` présentes avec une autre valeur que celle mise en œuvre (types compris)."""
-    refused = []
-    for path, expected in FIXED_PROFILE_VALUES.items():
-        node: object = config
-        for name in path:
-            node = node.get(name, _MISSING) if isinstance(node, dict) else _MISSING
-        if node is not _MISSING and (type(node) is not type(expected) or node != expected):
-            refused.append(".".join(path))
-    return refused
 
 
 @dataclass
@@ -75,15 +28,16 @@ class Settings:
 
     @classmethod
     def load(cls, profile_path=None):
-        import yaml
-
         root = Path(__file__).resolve().parents[2]
         path = Path(profile_path or os.environ.get("RAG_PROFILE", root / "config/local16.yaml"))
         if not path.exists() and profile_path is None:
             path = root / "RAG_Local_Agents/config/local16.yaml"
-        config = yaml.safe_load(path.read_text(encoding="utf-8"))
-        if not isinstance(config, dict) or config.get("schema_version") not in {1, 2}:
-            raise ApiError("invalid_profile", "Profil de configuration invalide.")
+        try:
+            config = read_profile_document(path)
+        except ProfileValidationError as error:
+            raise ApiError("invalid_profile", str(error), 400, {"keys": error.keys}) from error
+        if type(config.get("schema_version")) is not int or config.get("schema_version") not in {1, 2}:
+            raise ApiError("invalid_profile", "Profil de configuration invalide.", 400, {"keys": ["schema_version"]})
         settings = cls(root, config)
         # Sections lues dès le chargement : présentes, elles doivent être des tables (relecture J11.9 : une section llm
         # en liste levait AttributeError dans `value`). Absentes, la règle de boucle locale ci-dessous les refuse.
@@ -92,18 +46,26 @@ class Settings:
             if section in config and not isinstance(config[section], dict):
                 raise ApiError("invalid_profile", message, 400, {"keys": [section]})
         for domain, field_name in (("qdrant", "url"), ("llm", "base_url")):
-            parsed = urlparse(settings.value(domain, field_name, ""))
-            if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:
+            value = settings.value(domain, field_name, "")
+            try:
+                parsed = urlparse(value) if isinstance(value, str) else None
+                local = (parsed is not None and parsed.scheme == "http"
+                         and parsed.hostname in {"127.0.0.1", "localhost", "::1"}
+                         and parsed.username is None and parsed.password is None
+                         and parsed.path in {"", "/"} and not parsed.query and not parsed.fragment)
+            except ValueError:
+                local = False
+            if not local:
                 raise ApiError("invalid_profile", "Les services doivent rester sur loopback.")
         try:
             profile_accelerator(config)
         except AcceleratorProfileError as error:
             # Mêmes messages que le superviseur (services/runtime/accelerator.py).
             raise ApiError("invalid_profile", str(error), 400, {"keys": list(error.keys)}) from error
-        refused = unsupported_profile_values(config)
-        if refused:
-            raise ApiError("invalid_profile", "Valeurs du profil non prises en charge par cette version : " + ", ".join(refused)
-                           + ". Rétablir les valeurs du profil livré (config/local16.yaml).", 400, {"keys": refused})
+        try:
+            validate_profile(config, consumer="api")
+        except ProfileValidationError as error:
+            raise ApiError("invalid_profile", str(error), 400, {"keys": error.keys}) from error
         return settings
 
     def value(self, section, key, default=None):

@@ -1,6 +1,6 @@
 # Atelier documentaire local
 
-**Rôle :** point d'entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** Stabilisé · **Référence :** code livré `abfc1e0` et réextraction W029-6 exécutée avec `635d74a`, validée le 2026-10-02 ; messages serveur R15-2 testés unitairement et relus, nouvelle version non exécutée sur l'instance du corpus ; choix de modèle R23 sur la base `3e56c75` et modifications locales du 2026-10-04, qualification suivie dans le plan · **Mis à jour :** 2026-10-04 22:06 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
+**Rôle :** point d'entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** Stabilisé · **Référence :** base publiée `05da85c` et commande lint R15-3 locale vérifiée le 2026-10-03 ; réextraction W029-6 validée sur `635d74a` ; choix de modèle R23 sur la base `3e56c75` et modifications locales du 2026-10-04, qualification suivie dans le plan ; modèle par défaut W045, estimations d'admission W041 et W046 et renvois aux kits d'installation (introduction, sections 1, 4, 5, 6, 9, 10, 13, 16, 19 et 20) sur la base `78ec95c` et les modifications locales R26-MOD-01 et R26-KIT-04 du 2026-10-07, vérifiés en unités ; corrections R27 et étude préalable Office R28 sur base `75df760` le 09/10/2026, statuts et preuves dans le PLAN · **Mis à jour :** 2026-10-09 18:16 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
 
 Poste de lecture et d'analyse de PDF pour Windows 11, sans WSL, Docker ni service distant. La recette de performance vise un poste physique de 16 Go au plus en calcul CPU. Le code comporte aussi une voie Linux native aarch64 et x86-64 ([W018](RAG_Local_Agents/DECISIONS.md#w018-double-plateforme--windows-11-x86-64-et-linux-aarch64-natifs)) ; seule aarch64 a été exercée sur le poste Jetson du chantier. La génération peut passer sur un GPU NVIDIA là où cette voie est qualifiée. Le modèle local répond à partir de passages enregistrés pour la question, et une citation valide s'ouvre dans le PDF à sa version, sa page et son bloc d'origine. La recette complète reste ouverte, notamment ses exigences de performance sur cet hôte.
 
@@ -39,7 +39,12 @@ Poste de lecture et d'analyse de PDF pour Windows 11, sans WSL, Docker ni servic
 - [Contribution](#contribution)
 - [Licence](#licence)
 
-La documentation stabilisée est indexée dans [docs/README.md](docs/README.md) : architecture, [spécifications fonctionnelles](docs/specifications/SPECIFICATIONS.md), interface HTTP, [déploiement](docs/deploiement/DEPLOIEMENT.md) et exploitation. L'historique des changements est dans [CHANGELOG.md](CHANGELOG.md).
+La documentation stabilisée est indexée dans [docs/README.md](docs/README.md) : architecture, [spécifications fonctionnelles](docs/specifications/SPECIFICATIONS.md), interface HTTP, [déploiement](docs/deploiement/DEPLOIEMENT.md) (clone, kit Windows interne, [kit hors ligne Linux](docs/deploiement/DEPLOIEMENT.md#8-kit-hors-ligne-linux)) et exploitation. L'historique des changements est dans [CHANGELOG.md](CHANGELOG.md).
+
+L'[étude DOCX/XLSX](RAG_Local_Agents/reports/extension-office-2026-10-09.md)
+définit leur intégration avec structures et citations sources. Les lots et
+critères sont dans [R28 du plan canonique](RAG_Local_Agents/PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation) ;
+ces formats ne sont pas encore pris en charge par l'application.
 
 ---
 
@@ -54,7 +59,7 @@ Le poste importe des PDF natifs, scannés ou mixtes, en extrait le texte avec sa
 | Ingestion PDF | Worker isolé : préflight PDFium, routage Docling natif / structuré / OCR régional, fenêtres reprenables | [`services/ingestion/`](services/ingestion/) |
 | Exploitation | Lanceur, superviseur, gouverneur de ressources, sauvegarde et restauration | [`services/runtime/`](services/runtime/), [`rag.ps1`](rag.ps1), [`bootstrap.ps1`](bootstrap.ps1), [`rag.sh`](rag.sh), [`bootstrap.sh`](bootstrap.sh) |
 | Contrats | Périmètre, page, bloc, fragment, source, événements SSE, erreurs | [`packages/contracts/contracts.json`](packages/contracts/contracts.json) |
-| Configuration | Profil `local16` et verrous d'artefacts et de modèles | [`config/`](config/) |
+| Configuration | Profils `local16-4b` (4B, défaut) et `local16` (2B), verrous d'artefacts et de modèles | [`config/`](config/) |
 | Qualification | PDF synthétiques, jeux de questions, outils de capture et de notation | [`fixtures/`](fixtures/), [`evals/`](evals/), [`tools/qualification/`](tools/qualification/) |
 | Suivi du chantier | Plan, critères de fin, décisions, journal, sources, preuves ; exigences V2.1 | [`RAG_Local_Agents/`](RAG_Local_Agents/) |
 
@@ -129,7 +134,7 @@ Description complète, flux, interfaces internes, sécurité et points d'observa
 | `services/ingestion/` | Préflight, pipeline de fenêtres, adaptateur Docling, OCR régional, worker | Oui |
 | `services/runtime/` | CLI d'exploitation, superviseur, gouverneur, sauvegarde, provisionnement, dérivation du modèle texte | Oui |
 | `packages/contracts/` | Contrat JSON partagé API, interface et ingestion | Oui |
-| `config/` | Profil `local16.yaml`, verrous `artifacts.lock.json`, `models.lock.json`, `embedding-comparison.lock.json` | Oui |
+| `config/` | Profils `local16-4b.yaml` (4B, défaut) et `local16.yaml` (2B), verrous `artifacts.lock.json`, `models.lock.json`, `embedding-comparison.lock.json` | Oui |
 | `tests/unit/`, `tests/integration/` | Tests pytest ; marqueurs `integration`, `slow`, `acceptance` pour les essais natifs et lourds | Oui |
 | `tools/qualification/` | Génération des fixtures, capture des annotations, réponses, notation, performance | Oui |
 | `tools/corpus/` | Import d'un dossier de PDF dans une instance démarrée, avec son arborescence | Oui |
@@ -171,21 +176,26 @@ Chaque version est lue dans le fichier cité ; un changement de version passe pa
 | Index plein texte | SQLite FTS5 (`unicode61 remove_diacritics 2`) | Bibliothèque embarquée par CPython, lue dans `GET /api/v1/diagnostics` (champ `sqlite`) | [`config/local16.yaml`](config/local16.yaml) (`sqlite`) |
 | Serveur de modèle | Ollama (archives Windows et Linux) | 0.35.0 | [`config/artifacts.lock.json`](config/artifacts.lock.json), contrôlé par `/api/version` au lancement |
 | Bibliothèques GPU d'Ollama pour Jetson | Compléments officiels `ollama-linux-arm64-jetpack5` (Jetson Linux R35) et `-jetpack6` (R36), extraits par-dessus l'archive de base | 0.35.0 | [`config/artifacts.lock.json`](config/artifacts.lock.json), groupe `ollama-gpu` |
-| Modèle de langue (défaut) | Qwen3.5 2B Q8_0 (`qwen3.5:2b`), tag officiel direct | manifeste `0689d440…` | [`config/local16.yaml`](config/local16.yaml), [`config/models.lock.json`](config/models.lock.json) |
-| Modèle de langue (option 4B) | Qwen3.5 4B Q4_K_M dérivé texte seul (`qwen3.5:4b-text`) | manifeste `de8024db…` | [`config/models.lock.json`](config/models.lock.json), [W006](RAG_Local_Agents/DECISIONS.md#w006-modèle-qwen-texte-seul-dérivé-localement-sans-encodeur-vision) |
+| Modèle de langue (défaut) | Qwen3.5 4B Q4_K_M dérivé texte seul, choisi par `qwen3.5:4b` et servi par `qwen3.5:4b-text` | manifeste `de8024db…` | [`config/local16-4b.yaml`](config/local16-4b.yaml), [`config/models.lock.json`](config/models.lock.json), [W006](RAG_Local_Agents/DECISIONS.md#w006-modèle-qwen-texte-seul-dérivé-localement-sans-encodeur-vision), [W045](RAG_Local_Agents/DECISIONS.md#w045-qwen-35-4b-par-défaut-2b-conservé-au-lancement) |
+| Modèle de langue (option 2B) | Qwen3.5 2B Q8_0 (`qwen3.5:2b`), tag officiel direct | manifeste `0689d440…` | [`config/local16.yaml`](config/local16.yaml), [`config/models.lock.json`](config/models.lock.json) |
 | Build web | Node.js, pnpm | 22.17.0, 10.34.1 | [`EXPLOITATION_WINDOWS.md`](RAG_Local_Agents/EXPLOITATION_WINDOWS.md) ; `engines` de [`apps/web/package.json`](apps/web/package.json) |
 | Interface | Next.js, React, pdfjs-dist, TanStack Query, Zustand, Tailwind CSS | 16.3.7, 19.3.0, 6.3.289, 5.104.0, 5.0.15, 4.3.3 | [`apps/web/package.json`](apps/web/package.json), [`pnpm-lock.yaml`](apps/web/pnpm-lock.yaml) |
 | Tests | pytest, TypeScript, Playwright | 9.1.1, 5.9.3, 1.63.0 | [`pyproject.toml`](pyproject.toml), [`apps/web/package.json`](apps/web/package.json) |
 
 Version du projet : `0.1.0`, identique dans [`pyproject.toml`](pyproject.toml) et [`apps/web/package.json`](apps/web/package.json) ; aucune version n'a été publiée.
 
-Le modèle se choisit au lancement : `./rag.sh up` utilise `qwen3.5:2b` par défaut ; `./rag.sh up --model qwen3.5:4b` choisit le 4B. Sous Windows, utiliser `-Model` avec `rag.ps1`. Un profil utilisateur explicite conserve son modèle et ses chemins de données ; il ne se combine pas avec l'option modèle. Préparation, arrêt et redémarrage : [procédure de changement de modèle](docs/exploitation/EXPLOITATION.md#91-changer-le-modèle-de-génération). Aucun changement à chaud ni choix par question.
+Le modèle se choisit au lancement : `./rag.sh up` utilise `qwen3.5:4b` par défaut ([W045](RAG_Local_Agents/DECISIONS.md#w045-qwen-35-4b-par-défaut-2b-conservé-au-lancement)) ; `./rag.sh up --model qwen3.5:2b` choisit le 2B. Sous Windows, utiliser `-Model` avec `rag.ps1`. Un profil utilisateur explicite conserve son modèle et ses chemins de données ; il ne se combine pas avec l'option modèle. Dans une installation par le kit hors ligne Linux, le modèle principal se choisit à l'installation (`--model`) et se change par `atelier modele <modèle>` ([déploiement, section 8.8](docs/deploiement/DEPLOIEMENT.md#88-état-réparation-vérification-et-modèle-principal)). Préparation, arrêt et redémarrage : [procédure de changement de modèle](docs/exploitation/EXPLOITATION.md#91-changer-le-modèle-de-génération). Aucun changement à chaud ni choix par question.
 
 ---
 
 ## 6. Données et stockage
 
-L'emplacement de données actif est `app.data_dir` du profil (`.runtime/data` pour `local16`), surchargeable par la variable `RAG_DATA_DIR`.
+Les lanceurs et l'installateur utilisent `app.data_dir` du profil (`.runtime/data`
+pour les profils livrés `local16-4b` et `local16`). Le superviseur transmet cette
+racine à l'API par `RAG_DATA_DIR` ; une variable héritée ne remplace pas le
+profil. L'API lancée directement et les tests lisent encore cette variable,
+hors du parcours supervisé ([W050](RAG_Local_Agents/DECISIONS.md#w050-reprise-dexécution-et-clôture-depuis-la-baseline-du-9-octobre),
+[exploitation](docs/exploitation/EXPLOITATION.md)).
 
 | Stockage | Contenu | Emplacement | Reproductible ? | Sauvegarde ? |
 |---|---|---|---|---|
@@ -239,7 +249,7 @@ Limites connues, non corrigées à ce jour :
 | Élément | Exigence | Contrôle |
 |---|---|---|
 | Système | Windows 11 x86-64, PowerShell 5.1, compte utilisateur standard (aucune étape ne demande de droits administrateur), exécution des scripts locaux autorisée (politique `RemoteSigned` observée pour l'utilisateur) ; les scripts du projet ne modifient ni la politique d'exécution ni le `PATH` | `$PSVersionTable`, `Get-ExecutionPolicy -List` |
-| Mémoire | 16 Gio physiques ; une question exige 4 992 Mio disponibles à froid, un import 3 840 Mio (estimation + réserve de 1 536 Mio) | `.\rag.ps1 doctor`, rubrique `cold_admission` |
+| Mémoire | 16 Gio physiques ; à froid, une question exige 5 888 Mio disponibles avec le 4B, modèle par défaut ([W046](RAG_Local_Agents/DECISIONS.md#w046-admission-du-4b-relevée-après-un-pilote-exclusif-aux-limites-w039)), 5 504 Mio avec le 2B ([W041](RAG_Local_Agents/DECISIONS.md#w041-admission-froide-du-2b-relevée-après-un-pilote-exclusif-aux-limites-w039)), et un import 3 840 Mio (estimation + réserve de 1 536 Mio) | `.\rag.ps1 doctor`, rubrique `cold_admission` |
 | Disque | Réserve de 2 Gio exigée avant téléchargement et avant sauvegarde ; la dérivation du modèle texte exige deux fois la taille du modèle source plus 2 Gio | messages de refus de [`artifacts.py`](services/runtime/artifacts.py), [`backup.py`](services/runtime/backup.py), [`cli.py`](services/runtime/cli.py) |
 | Node.js et pnpm | 22.17.0 et 10.34.1 dans le `PATH`, pour `provision` et le build | `.\rag.ps1 doctor`, rubrique `node_tools` |
 | Tesseract | Tesseract 5.4.0 Windows déjà installé, de préférence dans le profil de l'utilisateur (`%LOCALAPPDATA%\Programs\Tesseract-OCR`, emplacement du poste de référence) : une installation sous `%PROGRAMFILES%` demanderait des droits administrateur ; `provision` en copie l'exécutable, les DLL et les licences dans `.runtime/bin/` avec leurs empreintes | message « Prérequis Tesseract5.4.0 Windows absent » ([`provisioning.py`](services/runtime/provisioning.py)) |
@@ -262,6 +272,8 @@ Depuis la racine du dépôt, dans PowerShell 5.1 :
 ```
 
 Sous Linux, depuis un shell POSIX : `./bootstrap.sh`, `./rag.sh provision`, puis `./rag.sh doctor` ([EXPLOITATION.md, section 2](docs/exploitation/EXPLOITATION.md#2-préparer-le-poste) ; les options s'écrivent `--offline`, `--skip-model`, `--only <groupe>`).
+
+Sur un poste qui reçoit l'atelier sans le dépôt, l'installation passe par un kit : kit Windows interne ([déploiement, sections 3 à 7](docs/deploiement/DEPLOIEMENT.md#3-fabriquer-et-vérifier-un-kit-windows-interne)) ou kit hors ligne Linux, installé pour le compte de l'utilisateur par `./installer.sh` depuis le dossier extrait, avec son guide `LISEZMOI.md` ([déploiement, section 8](docs/deploiement/DEPLOIEMENT.md#8-kit-hors-ligne-linux)).
 
 `bootstrap.ps1` télécharge uv 0.12.21 (SHA-256 vérifié), installe CPython 3.12.14 dans `.runtime/python` et synchronise `.venv` depuis `uv.lock`. `provision` synchronise de nouveau les dépendances Python, installe les dépendances web (`pnpm install --frozen-lockfile`), télécharge et vérifie les artefacts verrouillés (Qdrant, Ollama, E5, tokenizer Qwen, tessdata, modèles Docling, et, sur un Jetson Linux R35 ou R36, le complément GPU d'Ollama sauf profil en calcul CPU), copie Tesseract, construit l'interface, prépare le modèle et le tokenizer du profil choisi (2B directement, 4B avec dérivation texte seule), puis consigne la découverte des GPU par Ollama ([`cli.py`](services/runtime/cli.py), fonction `provision` ; [exploitation, section 2](docs/exploitation/EXPLOITATION.md#2-préparer-le-poste)).
 
@@ -321,7 +333,7 @@ La recherche combine le classement BM25 de SQLite FTS5 (les identifiants techniq
 *Échanges d'une question, de la recherche hybride à l'ouverture d'une citation.*
 
 - Sans source retenue, l'API répond que les preuves du périmètre ne suffisent pas, sans appeler le modèle.
-- Avant la génération, le gouverneur exige 3 456 + 1 536 = 4 992 Mio disponibles à froid, remesure toutes les 2 s pendant 120 s au plus (événement `waiting_for_resources`) puis admet ou refuse ([W007](RAG_Local_Agents/DECISIONS.md#w007-estimations-dadmission-recalibrées-sur-le-modèle-texte), [W008](RAG_Local_Agents/DECISIONS.md#w008-attente-bornée-à-ladmission-de-génération)).
+- Avant la génération, le gouverneur exige à froid l'estimation du profil plus la réserve de 1 536 Mio : 4 352 + 1 536 = 5 888 Mio pour le 4B, modèle par défaut ([W046](RAG_Local_Agents/DECISIONS.md#w046-admission-du-4b-relevée-après-un-pilote-exclusif-aux-limites-w039)), 3 968 + 1 536 = 5 504 Mio pour le 2B ([W041](RAG_Local_Agents/DECISIONS.md#w041-admission-froide-du-2b-relevée-après-un-pilote-exclusif-aux-limites-w039)) ; il remesure toutes les 2 s pendant 120 s au plus (événement `waiting_for_resources`) puis admet ou refuse ([W007](RAG_Local_Agents/DECISIONS.md#w007-estimations-dadmission-recalibrées-sur-le-modèle-texte), [W008](RAG_Local_Agents/DECISIONS.md#w008-attente-bornée-à-ladmission-de-génération)).
 - Pendant la génération, la réserve de 1 536 Mio est surveillée toutes les 0,5 s ; si elle est menacée, la question est annulée.
 - La génération tourne sur le GPU ou sur le CPU selon le mode décidé au démarrage de l'instance, avec la même admission. En mode GPU, si Ollama ne parvient pas à charger le modèle (erreur 500 avant le flux), l'API relance la question une seule fois sur CPU, après une nouvelle admission à froid, et l'instance reste sur CPU jusqu'au redémarrage ([architecture, section 5.1](docs/architecture/ARCHITECTURE.md#51-accélération-gpu-de-la-génération)).
 - La réponse ne garde que les identifiants `[S001]`… présents dans le registre de la question ; un clic relit ce registre avant d'ouvrir le document.
@@ -341,15 +353,18 @@ Avant toute commande lourde, vérifier la mémoire disponible ; ne pas lancer un
 .\.venv\Scripts\python.exe tools/docs/diagrams.py --check
 .\.venv\Scripts\python.exe -m pytest tests/unit/test_docs_space.py -q -p no:cacheprovider
 
-# Interface : typage et tests unitaires (depuis apps/web)
+# Interface : lint, typage et tests unitaires (depuis apps/web)
 $env:COREPACK_ENABLE_NETWORK = '0'
+pnpm lint
 pnpm typecheck
 pnpm test:unit
 ```
 
-Sous Linux, les commandes Python sont les mêmes avec `.venv/bin/python`, depuis un shell POSIX ; celles de l'interface sous Linux sont dans [apps/web/README.md](apps/web/README.md). Le test `test_control_profile_isolates_data_and_ports_but_shares_the_host_heavy_lock` borne à 57 caractères le chemin du stockage Qdrant d'une racine de contrôle créée dans le dossier temporaire, sur toutes les plateformes, alors que cette borne ne tient qu'au binaire Qdrant de Windows et que le produit ne l'applique pas sous Linux : tant que ce défaut du test n'est pas corrigé, il échoue sous Linux si `TMPDIR` dépasse 38 caractères ([QUALIFICATION.md, section 10](RAG_Local_Agents/QUALIFICATION.md#10-qualification-sous-linux)).
+Sous Linux, les commandes Python sont les mêmes avec `.venv/bin/python`, depuis un shell POSIX ; celles de l'interface sous Linux sont dans [apps/web/README.md](apps/web/README.md). La borne de 57 caractères du stockage Qdrant concerne uniquement le binaire Windows : le produit et `test_control_profile_isolates_data_and_ports_but_shares_the_host_heavy_lock` la contrôlent seulement sur cette plateforme. Le lint frontend refuse erreurs et avertissements ; sa composition et ses limites sont décrites par [W031](RAG_Local_Agents/DECISIONS.md#w031-contrôle-lint-frontend-maintenu-et-explicite).
 
-| Contrôle | Dernier résultat conservé | Limite |
+Le [plan](RAG_Local_Agents/PLAN.md) et les journaux liés portent les contrôles du contenu actuel, avec leurs échecs et reprises. Le tableau suivant conserve des preuves historiques : il ne remplace pas ce suivi et ne qualifie pas une révision ultérieure.
+
+| Contrôle | Résultat historique conservé | Limite |
 |---|---|---|
 | Suite pytest entière (unitaires et toute l'intégration : session, HTTPS réel, OCR et rendu réels) | 480 tests le 30/09 de 21:46 à 22:02 UTC sur le contenu du commit `13d865f` avant ses deux corrections de tests : 477 PASS, 3 échecs analysés ([junit](RAG_Local_Agents/reports/backend/2026-09-30-r19-r21-full.xml)) ; reprise des fichiers corrigés : 7 PASS, 2 XFAIL ([junit](RAG_Local_Agents/reports/backend/2026-09-30-r19-r21-rerun.xml)) | Les 2 XFAIL reproduisent le défaut tiers W-PDF01 de `docling_parse` avec Torch, que la voie nominale n'emploie plus ([W009](RAG_Local_Agents/DECISIONS.md#w009-backend-pdf-nominal-pypdfium2-avec-repère-cropbox-corrigé)) |
 | Build de l'interface | Exit 0, 278 fichiers exportés, le 01/10 de 03:02 à 03:04 UTC sur le contenu du commit `49a2a1a` ([journal](apps/web/reports/build-2026-10-01-contrastes-legende.log)) ; dernier build surveillé avec manifeste : 30/09 ([journal](apps/web/reports/build-2026-09-30-r15-r17-integrated.log), [manifeste](apps/web/reports/export-manifest-2026-09-30-r15-r17-integrated.json)) | Mesures ponctuelles de mémoire, pas un pic continu |
@@ -388,7 +403,7 @@ Blocages actuels sur le poste Windows, détaillés dans le [plan](RAG_Local_Agen
 
 ## 16. Configuration
 
-Le profil actif est [`config/local16.yaml`](config/local16.yaml) (schéma version 2) ; `rag.ps1` en accepte un autre par `-Profile <chemin>`. Sa copie documentaire `RAG_Local_Agents/config/local16.yaml` doit rester identique octet pour octet ; l'explication de chaque paramètre est dans [CONFIGURATION.md](RAG_Local_Agents/CONFIGURATION.md).
+Le profil par défaut est [`config/local16-4b.yaml`](config/local16-4b.yaml) (4B, [W045](RAG_Local_Agents/DECISIONS.md#w045-qwen-35-4b-par-défaut-2b-conservé-au-lancement)) ; [`config/local16.yaml`](config/local16.yaml) sert le 2B (`--model qwen3.5:2b`, `-Model` sous Windows). Les deux suivent le schéma version 2 ; `rag.ps1` accepte un autre profil par `-Profile <chemin>`, `rag.sh` par `--profile <chemin>`. Leurs copies documentaires `RAG_Local_Agents/config/local16-4b.yaml` et `RAG_Local_Agents/config/local16.yaml` doivent rester identiques octet pour octet ; l'explication de chaque paramètre est dans [CONFIGURATION.md](RAG_Local_Agents/CONFIGURATION.md).
 
 | Section | Contenu principal |
 |---|---|
@@ -403,7 +418,7 @@ Le profil actif est [`config/local16.yaml`](config/local16.yaml) (schéma versio
 | `ui` | Budgets de rendu PDF, périmètre par défaut |
 | `evaluation_targets` | Seuils de recette (non modifiables sans décision) |
 
-Variables d'environnement lues par le code : `RAG_PROFILE` (profil de l'API), `RAG_DATA_DIR` (racine des données), `RAG_DB_PATH` (base SQLite, tests) ; `RAG_CONTROL_TOKEN`, `RAG_QDRANT_API_KEY`, `RAG_SHUTDOWN_MARKER`, `RAG_LLM_ACCELERATOR` et `RAG_LLM_ACCELERATOR_REASON` (mode de génération et sa raison), posées par le superviseur pour l'API ; `RAG_CONTROL_TOKEN` aussi lue par les outils de qualification ; `RAG_E2E_CONTROL_TOKEN_FILE` pour les scénarios Playwright. Un profil modifié ne s'applique qu'après `down` puis `up` ; `doctor` signale `restart_required` tant que l'instance tourne sur l'ancien profil.
+Variables d'environnement lues par le code : `RAG_PROFILE` (profil de l'API), `RAG_DATA_DIR` (racine transmise par le superviseur ; lue aussi par l'API directe et les tests), `RAG_DB_PATH` (base SQLite, tests) ; `RAG_CONTROL_TOKEN`, `RAG_QDRANT_API_KEY`, `RAG_SHUTDOWN_MARKER`, `RAG_LLM_ACCELERATOR` et `RAG_LLM_ACCELERATOR_REASON` (mode de génération et sa raison), posées par le superviseur pour l'API ; `RAG_CONTROL_TOKEN` aussi lue par les outils de qualification ; `RAG_E2E_CONTROL_TOKEN_FILE` pour les scénarios Playwright. Un profil modifié ne s'applique qu'après `down` puis `up` ; `doctor` signale `restart_required` tant que l'instance tourne sur l'ancien profil.
 
 ---
 
@@ -446,7 +461,7 @@ Les messages cités sont ceux du code ; la liste complète, avec les messages pr
 | « Port 6333 occupé ; aucun service existant ne sera arrêté. » | Autre programme ou autre instance sur le port | `.\rag.ps1 doctor` (rubrique `ports` : `owned`, `foreign`, `occupied_unknown_owner`) |
 | « Instance existante avec profil différent : down puis up pour appliquer la configuration » | Profil modifié pendant que l'instance tourne | `.\rag.ps1 down` puis `.\rag.ps1 up` |
 | « Chemin Qdrant trop long pour le binaire Windows verrouillé… » | Chemin `…\qdrant\storage` de plus de 57 caractères | Définir `qdrant.storage_dir` vers un dossier court dédié |
-| Question en « En attente de mémoire disponible » puis « Impossible de démarrer la génération de la réponse : … Mio disponibles, 4992 Mio requis … » | Mémoire hôte sous l'estimation à froid + réserve du profil livré | Fermer des applications étrangères, relancer la question ; `.\rag.ps1 doctor` (rubrique `cold_admission`) |
+| Question en « En attente de mémoire disponible » puis « Impossible de démarrer la génération de la réponse : … Mio disponibles, 5888 Mio requis (pic prévu 4352 + réserve 1536) … » (5504 et 3968 avec le 2B) | Mémoire hôte sous l'estimation à froid + réserve du profil livré | Fermer des applications étrangères, relancer la question ; `.\rag.ps1 doctor` (rubrique `cold_admission`) |
 | « Un travail lourd est déjà en cours sur ce poste (…) ; réessayer après sa fin. » | Import, génération ou calibration tient le verrou lourd | Attendre la fin ; `GET /api/v1/jobs` pour voir le travail actif |
 | `status` renvoie `stale` | Superviseur disparu sans écrire son état (redémarrage du poste, arrêt brutal) | `.\rag.ps1 up` : l'identité périmée n'empêche pas un nouveau lancement |
 | Atelier sur « Session requise », « Session expirée » ou « Lien d'ouverture expiré ou déjà utilisé » | Aucune session valide dans ce navigateur : adresse tapée, 2 h sans activité, 12 h écoulées, API redémarrée, lien de plus de 5 min ou déjà utilisé | `.\rag.ps1 open` |
@@ -481,7 +496,7 @@ Les messages cités sont ceux du code ; la liste complète, avec les messages pr
 # Import d'un dossier de PDF dans l'instance démarrée (rapport neuf hors Git)
 .\.venv\Scripts\python.exe tools\corpus\import_folder.py --source <dossier> --output .runtime\qa\import-<horodatage>.json
 
-# Profil d'un utilisateur, données hors du dossier du programme (installation par utilisateur en préparation)
+# Profil d'un utilisateur, données hors du dossier du programme (installation par utilisateur par un kit : docs/deploiement/DEPLOIEMENT.md, sections 4 et 8)
 .\rag.ps1 init-profile -Target <racine-des-donnees> -QdrantStorage <dossier-court> -Ports 18785,16333,21434
 .\rag.ps1 up -Profile <racine-des-donnees>\profile.yaml
 

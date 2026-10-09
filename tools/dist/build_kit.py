@@ -50,6 +50,8 @@ WITHOUT_GPU_HELP = ("retirer cuda_v12, cuda_v13 et vulkan d'Ollama, pour des pos
                     "sans proposition GPU ; sur un poste NVIDIA, doctor signale que l'installation ne contient pas les "
                     "bibliothèques CUDA")
 TEXT_SUFFIXES = {".json", ".yaml", ".yml", ".md", ".py", ".ps1", ".txt", ".toml", ".lock", ".cfg"}
+# Modèles d'un kit Linux par défaut (W045) : le 4B, modèle par défaut, et le 2B, pour garder le choix au lancement.
+LINUX_MODELS_DEFAULT = "4b,2b"
 TEXT_SCAN_LIMIT = 32 * 1024 * 1024
 # Le kit hors ligne est celui du poste Windows (W001, DIST-04) : binaires, CPython et roues Windows x86-64.
 KIT_PLATFORM = "windows-x86_64"
@@ -249,7 +251,7 @@ def linux_build(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError(f"Kit {args.platform} demandé sur un poste {host} : un kit se fabrique sur un poste de sa plateforme")
     models = tuple(part.strip() for part in args.models.split(",") if part.strip())
     if not models or set(models) - set(linux_kit.MODEL_PROFILES):
-        raise ValueError("--models : 2b ou 2b,4b")
+        raise ValueError("--models : 4b,2b (défaut) ou 4b")
     if args.dry_run:
         return linux_kit.dry_run(ROOT, platform=args.platform, gpu=args.gpu, models=models)
     if args.output is None:
@@ -273,17 +275,21 @@ def main() -> int:
     build.add_argument("--without-gpu", action="store_true", help=WITHOUT_GPU_HELP)
     build.add_argument("--gpu", choices=["none", "jetpack5"], default="none",
                        help="kit Linux : bibliothèques GPU d'Ollama livrées ; jetpack5 sur un Jetson Linux R35 seulement")
-    build.add_argument("--models", default="2b,4b", help="kit Linux : modèles livrés, 2b,4b (défaut) ou 2b")
+    build.add_argument("--models", default=LINUX_MODELS_DEFAULT,
+                       help="kit Linux : modèles livrés, 4b,2b (défaut) ou 4b ; le 4B, modèle par défaut, est toujours livré")
     build.add_argument("--dry-run", action="store_true", help="kit Linux : liste, tailles, exigences et fuites, sans rien copier")
     build.add_argument("--report", type=Path, help="kit Linux : écrire aussi le résultat JSON dans ce fichier")
     check = sub.add_parser("verify")
     check.add_argument("--kit", type=Path, required=True)
+    check.add_argument("--essai-hors-ligne", action="store_true",
+                       help="kit Linux : après la vérification, copie temporaire et bootstrap.sh --offline --no-dev, comme l'installateur")
+    check.add_argument("--dossier-essai", type=Path, help="kit Linux : dossier de la copie temporaire de l'essai (défaut : TMPDIR)")
     copy = sub.add_parser("install-copy", help="Copie vérifiée du kit vers le dossier programme, en un seul passage")
     copy.add_argument("--kit", type=Path, required=True)
     copy.add_argument("--target", type=Path, required=True)
-    pack = sub.add_parser("archive", help="Kit Linux : archive .tar de transport et son .sha256")
+    pack = sub.add_parser("archive", help="Kit Linux : archive <kit_id>.tar, guide <kit_id>.LISEZMOI.md et <kit_id>.tar.sha256")
     pack.add_argument("--kit", type=Path, required=True)
-    pack.add_argument("--output", type=Path, required=True)
+    pack.add_argument("--output", type=Path, required=True, help="dossier existant, ou fichier nommé <kit_id>.tar")
     unpack = sub.add_parser("extract", help="Kit Linux : extraction contrôlée puis vérification complète")
     unpack.add_argument("--archive", type=Path, required=True)
     unpack.add_argument("--into", type=Path, required=True)
@@ -296,6 +302,14 @@ def main() -> int:
 
             result = (linux_kit.verify_kit(args.kit) if args.command == "verify" else linux_kit.install_copy(args.kit, args.target)
                       if args.command == "install-copy" else linux_kit.archive_kit(args.kit, args.output))
+            if args.command == "verify" and args.essai_hors_ligne:
+                # Essai sur un kit vérifié seulement ; « verified » exige aussi l'essai réussi.
+                trial = (linux_kit.offline_trial(args.kit, work=args.dossier_essai) if result["status"] == "verified"
+                         else {"status": "not_run", "reason": "kit non vérifié"})
+                ok = result["status"] == "verified" and trial["status"] == "passed"
+                result = {"status": "verified" if ok else "failed", "verification": result, "offline_trial": trial}
+        elif args.command == "verify" and (args.essai_hors_ligne or args.dossier_essai):
+            result = {"status": "failed", "message": "--essai-hors-ligne et --dossier-essai sont des options du kit Linux"}
         elif args.command == "archive":
             result = {"status": "failed", "message": "Archive de transport : kit Linux (atelier-kit-v2) seulement"}
         elif args.command == "extract":
@@ -314,7 +328,7 @@ def main() -> int:
             # .runtime contient ici les binaires, CPython et roues de ce poste, pas ceux de Windows : aucun kit n'est fabriqué.
             result = {"status": "failed", "message": f"Le kit hors ligne vise {KIT_PLATFORM} : le fabriquer sur le poste Windows ; "
                                                      "sur un poste Linux, --platform linux-aarch64 ou linux-x86_64 fabrique son kit"}
-        elif args.gpu != "none" or args.models != "2b,4b" or args.dry_run or args.report:
+        elif args.gpu != "none" or args.models != LINUX_MODELS_DEFAULT or args.dry_run or args.report:
             result = {"status": "failed", "message": "--gpu, --models, --dry-run et --report sont des options du kit Linux"}
         elif args.output is None:
             result = {"status": "failed", "message": "--output requis (dossier neuf hors du dépôt)"}

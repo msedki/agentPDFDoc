@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 24 24">
+  <title>Atelier documentaire</title>
+  <rect x="0.5" y="0.5" width="23" height="23" rx="5" fill="#F8E9DF" stroke="#A94324" stroke-opacity="0.35" stroke-width="0.5"/>
+  <g transform="translate(2.4 2.4) scale(0.8)" fill="none" stroke="#A94324" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 3h8.5L19 7.5V21H6z"/>
+    <path d="M14.5 3v4.5H19"/>
+    <path d="M9 12h7M9 15h7M9 18h4"/>
+  </g>
+</svg>

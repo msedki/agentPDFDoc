@@ -12,6 +12,141 @@ from services.runtime.artifacts import file_hash, write_json_atomic
 from services.runtime.backup import database_summary, inside, rebase_database, upload_snapshot, verify_backup
 
 
+class BackupTransportDouble:
+    """HTTP en mémoire : instance propriétaire supposée, collections vides, pannes quiesce/reprise configurables."""
+
+    def __init__(self, *, primary=None, resume=None):
+        self.primary, self.resume = primary, resume
+        self.calls = []
+
+    def __call__(self, request):
+        self.calls.append(request.url.path)
+        if request.url.path.endswith("/quiesce"):
+            if self.primary:
+                raise self.primary
+            return httpx.Response(200, json={"active_queries": 0})
+        if request.url.path.endswith("/resume"):
+            if self.resume:
+                raise self.resume
+            return httpx.Response(200, json={"status": "resumed"})
+        assert request.url.path == "/collections"
+        return httpx.Response(200, json={"result": {"collections": []}})
+
+
+def backup_target(tmp_path, monkeypatch, transport):
+    """Vraie base/profil/copies sous tmp ; propriété et HTTP doublés, aucun service ni donnée du dépôt."""
+    import yaml
+
+    from services.runtime import backup, source_manifest
+    from services.runtime.artifacts import ROOT
+
+    program, data = tmp_path / "programme", tmp_path / "donnees"
+    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    profile["app"]["data_dir"] = str(data)
+    program.mkdir()
+    path = program / "profil.yaml"
+    path.write_text(yaml.safe_dump(profile), encoding="utf-8")
+    (data / "control").mkdir(parents=True)
+    (data / "control/admin-token").write_text("double-token", encoding="ascii")
+    populated_database(data / "app.sqlite3", data)
+    for name in ("config/artifacts.lock.json", "uv.lock", "apps/web/pnpm-lock.yaml", "pyproject.toml",
+                 "packages/contracts/contracts.json"):
+        target = program / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(backup, "ROOT", program)
+    monkeypatch.setattr(backup, "status", lambda path: {"status": "running", "supervisor_identity_valid": True,
+                                                       "services": {"api": {"identity_valid": True}}})
+    monkeypatch.setattr(source_manifest, "capture", lambda: {"double": "program sources"})
+    real_client = httpx.Client
+    monkeypatch.setattr(backup.httpx, "Client", lambda **options: real_client(transport=httpx.MockTransport(transport), **options))
+    return path, program
+
+
+def test_backup_checks_the_destination_volume_when_nested_parents_do_not_exist(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    from services.runtime import backup
+
+    transport = BackupTransportDouble()
+    profile, program = backup_target(tmp_path, monkeypatch, transport)
+    sd = tmp_path / "carte-sd"
+    sd.mkdir()
+    output = sd / "nouveau" / "encore" / "sauvegarde"
+    checked = []
+
+    def disk(path):
+        checked.append(path)
+        return SimpleNamespace(free=3 * 1024**3 if path == sd.resolve() else 0)
+
+    monkeypatch.setattr(backup.shutil, "disk_usage", disk)
+    assert backup.create_backup(profile, output)["state"] == "verified"
+    assert checked == [sd.resolve()] and program not in checked
+    assert transport.calls[-1].endswith("/resume")
+
+
+def test_backup_refuses_a_full_destination_before_creating_it(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    from services.runtime import backup
+
+    transport = BackupTransportDouble()
+    profile, program = backup_target(tmp_path, monkeypatch, transport)
+    destination = tmp_path / "volume-plein"
+    destination.mkdir()
+    output = destination / "nouveau" / "sauvegarde"
+    monkeypatch.setattr(backup.shutil, "disk_usage", lambda path: SimpleNamespace(free=0 if path == destination.resolve() else 3 * 1024**3))
+    with pytest.raises(RuntimeError, match="Réserve disque"):
+        backup.create_backup(profile, output)
+    assert not (destination / "nouveau").exists() and transport.calls == []
+
+
+def test_backup_preserves_the_primary_failure_and_records_a_failed_resume(tmp_path, monkeypatch):
+    from services.runtime import backup
+
+    primary, resume = ValueError("sauvegarde double en panne"), RuntimeError("reprise double en panne")
+    transport = BackupTransportDouble(primary=primary, resume=resume)
+    profile, _ = backup_target(tmp_path, monkeypatch, transport)
+    output = tmp_path / "sauvegarde"
+    with pytest.raises(ValueError) as caught:
+        backup.create_backup(profile, output)
+    assert caught.value is primary
+    assert any("reprise double en panne" in note for note in primary.__notes__)
+    manifest = json.loads((output / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["state"] == "failed" and manifest["error"]["type"] == "ValueError"
+    assert manifest["resume"]["state"] == "failed" and manifest["resume"]["error"]["type"] == "RuntimeError"
+
+
+def test_a_failed_resume_is_reported_after_a_verified_backup(tmp_path, monkeypatch):
+    from services.runtime import backup
+
+    resume = RuntimeError("reprise double en panne")
+    transport = BackupTransportDouble(resume=resume)
+    profile, _ = backup_target(tmp_path, monkeypatch, transport)
+    output = tmp_path / "sauvegarde"
+    with pytest.raises(RuntimeError) as caught:
+        backup.create_backup(profile, output)
+    assert caught.value is resume
+    assert verify_backup(output)["state"] == "verified"
+    manifest = json.loads((output / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["resume"]["state"] == "failed"
+
+
+def test_backup_cli_reports_the_primary_error_and_the_resume_error(tmp_path, monkeypatch, capsys):
+    from services.runtime import cli
+
+    primary, resume = ValueError("sauvegarde double en panne"), RuntimeError("reprise double en panne")
+    transport = BackupTransportDouble(primary=primary, resume=resume)
+    profile, _ = backup_target(tmp_path, monkeypatch, transport)
+    output, report = tmp_path / "sauvegarde", tmp_path / "rapport.json"
+    monkeypatch.setattr(sys, "argv", ["rag", "backup", "--profile", str(profile), "--path", str(output), "--report", str(report)])
+    assert cli.main() == 1
+    observed = json.loads(capsys.readouterr().out)
+    assert observed["error"] == "ValueError" and observed["message"] == "sauvegarde double en panne"
+    assert any("reprise double en panne" in note for note in observed["notes"])
+    assert json.loads(report.read_text(encoding="utf-8")) == observed
+
+
 def populated_database(path, original_root):
     Database(path).initialize()
     with closing(sqlite3.connect(path)) as connection, connection:

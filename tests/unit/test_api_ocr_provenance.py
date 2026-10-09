@@ -5,6 +5,7 @@ nommés de test_api_storage. Les méthodes viennent de `metadata.extraction_meth
 """
 import asyncio
 import hashlib
+import json
 
 from test_api_storage import FakeEmbedding, import_fixture
 from test_api_storage import storage as storage
@@ -47,6 +48,28 @@ def test_sources_carry_stored_block_methods_and_unknown_when_absent(storage):
     by_block = {source["blocks"][0]["id"]: source for source in result["results"]}
     assert {key: source["extraction_methods"] for key, source in by_block.items()} == {"ocr0": ["ocr"], "nat0": ["native"], "old0": ["unknown"]}
     assert {key: source["blocks"][0]["extraction_method"] for key, source in by_block.items()} == {"ocr0": "ocr", "nat0": "native", "old0": "unknown"}
+
+
+def test_selection_preserves_partial_extraction_coverage_and_warning(storage):
+    text = "Lecture vérifiée 😀 : tolérance 3.0 %."
+    imported, _ = import_fixture(storage, text=text, pages=[page([block("b0", text, "ocr")])])
+    settings, db, vectors, _ = storage
+    generation = db.one("SELECT active_generation_id FROM documents WHERE id=?", (imported["document_id"],))["active_generation_id"]
+    coverage = {"missing_pages": [1], "low_confidence_pages": [0]}
+    extraction_warnings = [{"code": "ocr_low_confidence", "page_index": 0}]
+    db.execute("UPDATE index_generations SET state='ready_partial',coverage_json=?,warnings_json=? WHERE id=?",
+               (json.dumps(coverage), json.dumps(extraction_warnings), generation))
+    stored = db.one("SELECT * FROM blocks WHERE generation_id=? AND id='b0'", (generation,))
+    resolver = ScopeResolver(db)
+    scope = Scope(kind="selection", versionId=imported["version_id"], spans=[{
+        "extractionRevisionId": stored["extraction_revision_id"], "blockId": "b0", "blockTextSha256": stored["source_text_hash"],
+        "offsetUnit": "unicode_code_point", "startOffset": 0, "endOffset": len(text)}])
+    result = asyncio.run(SearchService(db, resolver, FakeEmbedding(), vectors, settings).search("tolérance", resolver.resolve(scope)))
+    source = result["results"][0]
+    assert source["text"] == text and source["blocks"][0]["source_text_hash"] == stored["source_text_hash"]
+    assert source["coverage"] == coverage and source["extraction_state"] == "ready_partial"
+    assert source["extraction_warnings"] == extraction_warnings
+    assert [warning["document_id"] for warning in result["warnings"] if warning["code"] == "partial_extraction"] == [imported["document_id"]]
 
 
 def test_a_source_packing_several_blocks_lists_each_method_once(storage):

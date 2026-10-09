@@ -217,6 +217,7 @@ def test_registry_real_repository():
     ]
     assert detail['project'] == [
         'embedding-comparison-windows', 'hybrid-rag-api', 'linux-offline-kit', 'linux-rag-runtime',
+        'office-document-ingestion',
         'pdf-ingestion-windows', 'pdf-workspace-web', 'project-documentation',
         'rag-qualification-fixtures', 'tesseract-lstm-extension', 'windows-rag-runtime',
     ]

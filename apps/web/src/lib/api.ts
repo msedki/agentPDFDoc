@@ -52,6 +52,7 @@ export const api = {
   async tree(signal?: AbortSignal): Promise<LibraryTree> {
     const folders = new Map<string, LibraryTree["folders"][number]>();
     const documents: LibraryTree["documents"] = [];
+    const seenCursors = new Set<string>();
     let cursor: string | null | undefined = null;
     let offset = 0;
     let total: number;
@@ -62,9 +63,16 @@ export const api = {
       total = page.total_documents ?? page.total ?? documents.length;
       cursor = page.next_cursor;
       offset += page.documents.length;
-      if (!page.documents.length) break;
+      if (!page.documents.length) {
+        if (cursor || offset < total) throw new ApiError("LIBRARY_PAGINATION_ERROR", "La pagination de la bibliothèque a renvoyé une page vide avant la fin de la liste. Actualisez la bibliothèque ; si l'erreur persiste, consultez les journaux du service.");
+        break;
+      }
       if (cursor === undefined && offset < total) cursor = String(offset);
-    } while (cursor && documents.length < 10000);
+      if (cursor) {
+        if (seenCursors.has(cursor)) throw new ApiError("LIBRARY_PAGINATION_ERROR", "La pagination de la bibliothèque ne progresse plus. Actualisez la liste ; si l'erreur persiste, consultez les journaux du service.");
+        seenCursors.add(cursor);
+      }
+    } while (cursor);
     return { folders: [...folders.values()], documents, total_documents: total };
   },
   document: (id: string, signal?: AbortSignal, background = false) => request<DocumentDetail>(`/documents/${encodeURIComponent(id)}`, { signal, headers: background ? BACKGROUND : {} }),

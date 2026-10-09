@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 675" font-size="16" role="img" aria-labelledby="title desc">
+<title id="title">Extension Office proposée, pipeline PDF préservé</title>
+<desc id="desc">Originaux immuables, trois adaptateurs distincts, révisions structurées, indexation et RAG communs, lecteurs par format. Les voies DOCX et XLSX ne sont pas encore implémentées.</desc>
+<rect width="1100" height="675" fill="#f8fafc" class="background"/>
+<style>
+svg{background:#f8fafc;color:#172e45}text{font-family:system-ui,sans-serif;fill:currentColor}
+.heading{font-weight:700}.box{fill:#fff;stroke:#294766;stroke-width:1.5}
+.pdf{fill:#e7f0fb;stroke:#1e5fa7}.office{fill:#e4f5f0;stroke:#146854}.shared{fill:#f0eafd;stroke:#61479a}
+.line{fill:none;stroke:#465c76;stroke-width:2;marker-end:url(#arrow)}
+@media(prefers-color-scheme:dark){svg{background:#121e2e;color:#edf3fa}.background{fill:#121e2e}.box{fill:#202f43;stroke:#adbed5}.pdf{fill:#163452;stroke:#7ebafa}.office{fill:#183e37;stroke:#83d9be}.shared{fill:#33274d;stroke:#c0a1fa}.line{stroke:#adbed5}}
+</style>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/></marker></defs>
+<text class="heading" font-size="24" x="30" y="40">Extension DOCX/XLSX — architecture proposée</text>
+<text font-size="15" x="30" y="65">Étude du 9 octobre 2026 · Office non implémenté · CPU local / Windows et GNU/Linux</text>
+
+<rect class="box box" x="30" y="92" width="1040" height="76" rx="9"/>
+<text x="46" y="120">Originaux immuables : SHA-256 · document / version · format validé</text>
+<text x="46" y="143">PDF : contrôle existant     |     DOCX / XLSX : préflight ZIP/OPC + quotas + XML sans DTD/réseau</text>
+<path class="line" d="M190,168 L190,205"/>
+<rect class="box pdf" x="30" y="207" width="320" height="102" rx="9"/>
+<text x="46" y="235">PDF actuel préservé</text>
+<text x="46" y="258">Docling / PDFium / OCR</text>
+<text x="46" y="281">Page + bbox + texte exact</text>
+<path class="line" d="M190,309 L190,350"/>
+<path class="line" d="M550,168 L550,205"/>
+<rect class="box office" x="390" y="207" width="320" height="102" rx="9"/>
+<text x="406" y="235">DOCX proposé</text>
+<text x="406" y="258">python-docx + OOXML borné</text>
+<text x="406" y="281">Partie + élément + offsets</text>
+<path class="line" d="M550,309 L550,350"/>
+<path class="line" d="M910,168 L910,205"/>
+<rect class="box office" x="750" y="207" width="320" height="102" rx="9"/>
+<text x="766" y="235">XLSX proposé</text>
+<text x="766" y="258">openpyxl + OOXML streaming</text>
+<text x="766" y="281">Feuille + cellules / plages</text>
+<path class="line" d="M910,309 L910,350"/>
+<rect class="box shared" x="30" y="352" width="1040" height="81" rx="9"/>
+<text x="46" y="380">Révisions structurées : blocs / tableaux / cellules typées · localisateurs par format</text>
+<text x="46" y="403">Texte d’indexation dérivé + bindings sources · couverture / avertissements · checkpoints</text>
+<path class="line" d="M550,433 L550,457"/>
+<rect class="box shared" x="30" y="459" width="1040" height="81" rx="9"/>
+<text x="46" y="487">Socle commun : SQLite + FTS5 / E5 CPU / Qdrant · publication atomique</text>
+<text x="46" y="510">Scopes avant top-k et contexte · Ollama local · citations immuables version / révision</text>
+<path class="line" d="M550,540 L550,564"/>
+<rect class="box box" x="30" y="566" width="1040" height="76" rx="9"/>
+<text x="46" y="594">Même poste documentaire : import / bibliothèque / recherche / questions / comparaison</text>
+<text x="46" y="617">Lecteur PDF.js actuel     |     DOCX structuré React     |     XLSX par fenêtres bornées</text>
+</svg>

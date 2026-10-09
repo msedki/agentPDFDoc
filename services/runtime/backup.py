@@ -143,7 +143,8 @@ def create_backup(profile_path: Path, output: Path | None = None) -> dict:
     output = (output or runtime_location(profile, "backups_dir") / identifier).resolve()
     if output.exists() or output.is_relative_to(directory):
         raise ValueError("La sauvegarde exige un chemin neuf hors données actives")
-    if shutil.disk_usage(output.parent if output.parent.exists() else ROOT).free < 2 * 1024**3:
+    existing = next(parent for parent in (output.parent, *output.parent.parents) if parent.exists())
+    if shutil.disk_usage(existing).free < 2 * 1024**3:
         raise RuntimeError("Réserve disque de 2 Gio insuffisante avant sauvegarde")
     output.mkdir(parents=True)
     origin, verify = app_origin(profile)
@@ -155,6 +156,7 @@ def create_backup(profile_path: Path, output: Path | None = None) -> dict:
                                 "qdrant_version": "1.19.1", "collections": [], "files": []}
     write_json_atomic(output / "manifest.json", manifest)
     quiesce_requested = False
+    backup_failure: BaseException | None = None
     try:
         with httpx.Client(timeout=600, trust_env=False, verify=verify) as client:
             quiesce_requested = True
@@ -216,16 +218,32 @@ def create_backup(profile_path: Path, output: Path | None = None) -> dict:
             write_json_atomic(output / "manifest.json", manifest)
             result = verify_backup(output)
             return {**result, "path": str(output), "collections": len(manifest["collections"])}
-    except Exception as exc:
+    except BaseException as exc:
+        backup_failure = exc
         manifest["state"] = "failed"
         manifest["error"] = {"type": type(exc).__name__, "message": str(exc)}
-        write_json_atomic(output / "manifest.json", manifest)
+        try:
+            write_json_atomic(output / "manifest.json", manifest)
+        except Exception as record_error:
+            exc.add_note(f"Écriture du manifeste d'échec impossible : {type(record_error).__name__}: {record_error}")
         raise
     finally:
         if quiesce_requested:
-            with httpx.Client(timeout=30, trust_env=False, verify=verify) as client:
-                response = client.post(api + "/admin/resume", headers=headers)
-                response.raise_for_status()
+            try:
+                with httpx.Client(timeout=30, trust_env=False, verify=verify) as client:
+                    response = client.post(api + "/admin/resume", headers=headers)
+                    response.raise_for_status()
+            except Exception as resume_error:
+                manifest["resume"] = {"state": "failed", "error": {"type": type(resume_error).__name__, "message": str(resume_error)}}
+                if backup_failure is not None:
+                    backup_failure.add_note(f"La reprise de l'instance a aussi échoué : {type(resume_error).__name__}: {resume_error}")
+                try:
+                    write_json_atomic(output / "manifest.json", manifest)
+                except Exception as record_error:
+                    (backup_failure or resume_error).add_note(
+                        f"Écriture de l'échec de reprise impossible : {type(record_error).__name__}: {record_error}")
+                if backup_failure is None:
+                    raise
 
 
 def rebase_value(value, old: Path, new: Path):

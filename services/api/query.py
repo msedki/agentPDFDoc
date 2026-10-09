@@ -19,6 +19,24 @@ async def empty_lease():
     yield
 
 
+async def database_call(operation, *args):
+    """Déporte SQLite, puis termine l'opération en cours avant de propager une annulation.
+
+    Annuler `to_thread` n'arrête pas son thread : une écriture delta tardive ne doit pas suivre l'événement terminal.
+    """
+    task = asyncio.create_task(asyncio.to_thread(operation, *args))
+    try:
+        return await asyncio.shield(task)
+    except asyncio.CancelledError:
+        while not task.done():
+            try:
+                await asyncio.shield(task)
+            except asyncio.CancelledError:
+                continue
+        task.result()
+        raise
+
+
 class QueryService:
     def __init__(self, db, resolver, search, context, ollama, settings, governor=None):
         self.db, self.resolver, self.search, self.context, self.ollama, self.settings = db, resolver, search, context, ollama, settings
@@ -27,8 +45,28 @@ class QueryService:
         self.cancel_events = {}
         self.started = set()
         self.generation_lock = asyncio.Lock()
+        self.creation_lock = asyncio.Lock()
 
     def create(self, request):
+        return self.start_query(self.prepare_query(request))
+
+    async def create_async(self, request):
+        # Sérialisation de l'admission : deux threads ne doivent pas dépasser ensemble la borne de file.
+        async with self.creation_lock:
+            prepared = []
+
+            def prepare():
+                prepared.append(self.prepare_query(request))
+
+            try:
+                await database_call(prepare)
+            except asyncio.CancelledError:
+                if prepared:
+                    await database_call(self.mark_cancelled, prepared[0][0]["query_id"])
+                raise
+            return self.start_query(prepared[0])
+
+    def prepare_query(self, request):
         pending = self.db.one("SELECT count(*) AS n FROM query_runs WHERE state IN ('queued','running')")["n"]
         if pending >= 1 + self.settings.value("llm", "max_pending_generations", 2):
             raise ApiError("query_queue_full", "La file de questions est pleine.", 429)
@@ -47,20 +85,53 @@ class QueryService:
             connection.execute("INSERT INTO messages VALUES(?,?,?,?,?,?)", (uid(), conversation_id, query_id, "user", request.question, now()))
         if choices:
             self.db.add_event(query_id, "needs_clarification", {"state": "needs_clarification", "message": "Choisir la référence visée avant de poursuivre.", "choices": choices})
-            return {"query_id": query_id, "conversation_id": conversation_id, "events_url": f"/api/v1/queries/{query_id}/events", "state": "needs_clarification"}
+        response = {"query_id": query_id, "conversation_id": conversation_id, "events_url": f"/api/v1/queries/{query_id}/events"}
+        if choices:
+            response["state"] = "needs_clarification"
         resolved_request = request.model_copy(update={"question": effective_question})
+        return response, resolved_request, snapshot
+
+    def start_query(self, prepared):
+        response, resolved_request, snapshot = prepared
+        if response.get("state") == "needs_clarification":
+            return response
+        query_id = response["query_id"]
         event = asyncio.Event()
         self.cancel_events[query_id] = event
         task = asyncio.create_task(self.run(query_id, resolved_request, snapshot, event))
         self.tasks[query_id] = task
         task.add_done_callback(lambda finished: self.forget(query_id))
-        return {"query_id": query_id, "conversation_id": conversation_id, "events_url": f"/api/v1/queries/{query_id}/events"}
+        return response
 
     def forget(self, query_id):
         # Appelé aussi pour une tâche annulée avant son démarrage, dont le finally de run() ne s'exécute jamais.
         self.tasks.pop(query_id, None)
         self.cancel_events.pop(query_id, None)
         self.started.discard(query_id)
+
+    @asynccontextmanager
+    async def generation_turn(self, query_id):
+        # Réserve le tour avant le premier déport SQLite : la vitesse du disque ne réordonne pas les questions.
+        acquisition = asyncio.create_task(self.generation_lock.acquire())
+        acquired = False
+        try:
+            await database_call(self.db.add_event, query_id, "status", {"state": "queued"})
+            if self.governor and self.governor.snapshot().get("heavy_owner") == "ingestion":
+                await database_call(self.db.add_event, query_id, "status", {"state": "waiting_for_ingestion_checkpoint"})
+            await acquisition
+            acquired = True
+            yield
+        finally:
+            if not acquired:
+                acquisition.cancel()
+                while not acquisition.done():
+                    try:
+                        await asyncio.shield(acquisition)
+                    except asyncio.CancelledError:
+                        continue
+                acquired = not acquisition.cancelled() and acquisition.result()
+            if acquired:
+                self.generation_lock.release()
 
     def resolve_followup(self, request, snapshot, prior_user_questions=None):
         resolution = {"method": "explicit_question", "history_is_evidence": False}
@@ -163,6 +234,31 @@ class QueryService:
             connection.execute("INSERT INTO events VALUES(?,?,?,?,?)", (query_id, event_id, "cancelled", json_dump({"state": "cancelled", "status": "cancelled", "text": answer, "metrics": metrics}), now()))
         return True
 
+    def finish(self, query_id, state, answer, warnings, metrics, event):
+        """État, message et événement terminal publiés dans une seule transaction SQLite."""
+        with self.db.transaction() as connection:
+            row = connection.execute("SELECT conversation_id,last_event_id,cancel_requested FROM query_runs WHERE id=?", (query_id,)).fetchone()
+            event_id = row["last_event_id"] + 1
+            if row["cancel_requested"]:
+                connection.execute("UPDATE query_runs SET state='cancelled',answer=?,metrics_json=?,last_event_id=?,updated_at=? WHERE id=?",
+                                   (answer, json_dump(metrics), event_id, now(), query_id))
+                connection.execute("INSERT INTO events VALUES(?,?,?,?,?)", (query_id, event_id, "cancelled",
+                                   json_dump({"state": "cancelled", "status": "cancelled", "text": answer, "metrics": metrics}), now()))
+                return
+            connection.execute("UPDATE query_runs SET state=?,answer=?,warnings_json=?,metrics_json=?,updated_at=? WHERE id=?",
+                               (state, answer, json_dump(warnings), json_dump(metrics), now(), query_id))
+            connection.execute("INSERT INTO messages VALUES(?,?,?,?,?,?)", (uid(), row["conversation_id"], query_id, "assistant", answer, now()))
+            connection.execute("UPDATE query_runs SET last_event_id=? WHERE id=?", (event_id, query_id))
+            connection.execute("INSERT INTO events VALUES(?,?,?,?,?)", (query_id, event_id, "done", json_dump(event), now()))
+
+    def fail(self, query_id, answer, metrics, event):
+        with self.db.transaction() as connection:
+            row = connection.execute("SELECT last_event_id FROM query_runs WHERE id=?", (query_id,)).fetchone()
+            event_id = row["last_event_id"] + 1
+            connection.execute("UPDATE query_runs SET state='error',answer=?,metrics_json=?,last_event_id=?,updated_at=? WHERE id=?",
+                               (answer, json_dump(metrics), event_id, now(), query_id))
+            connection.execute("INSERT INTO events VALUES(?,?,?,?,?)", (query_id, event_id, "error", json_dump(event), now()))
+
     async def run(self, query_id, request, snapshot, cancelled):
         self.started.add(query_id)
         started = time.perf_counter()
@@ -173,67 +269,64 @@ class QueryService:
         sources = []
         finish_reason = "stop"
         try:
-            self.db.add_event(query_id, "status", {"state": "queued"})
             if self.governor:
                 self.governor.begin_interactive()
-                if self.governor.snapshot().get("heavy_owner") == "ingestion":
-                    self.db.add_event(query_id, "status", {"state": "waiting_for_ingestion_checkpoint"})
-            async with self.generation_lock:
+            async with self.generation_turn(query_id):
                 metrics["queue_wait_ms"] = round((time.perf_counter() - started) * 1000, 2)
                 if cancelled.is_set():
                     raise asyncio.CancelledError
                 # Retrieval/abstention does not admit or load a language model.
                 lease = empty_lease()
                 async with lease:
-                    allowed = self.db.rows("SELECT id FROM documents WHERE deleted_at IS NULL")
+                    allowed = await database_call(self.db.rows, "SELECT id FROM documents WHERE deleted_at IS NULL")
                     allowed_ids = {row["id"] for row in allowed}
                     if set(snapshot.documents.values()) - allowed_ids:
                         raise ApiError("scope_authorization_changed", "Un document du périmètre a été retiré pendant l'attente.", 409)
-                    self.db.execute("UPDATE query_runs SET state='running',updated_at=? WHERE id=?", (now(), query_id))
-                    self.db.add_event(query_id, "status", {"state": "searching"})
+                    await database_call(self.db.execute, "UPDATE query_runs SET state='running',updated_at=? WHERE id=?", (now(), query_id))
+                    await database_call(self.db.add_event, query_id, "status", {"state": "searching"})
                     search_result = await self.search.search(request.question, snapshot, request.mode)
                     metrics["retrieval_ms"] = search_result["elapsed_ms"]
                     warnings.extend(search_result["warnings"])
                     if search_result["results"]:
                         search_result["results"] = await asyncio.to_thread(lambda: [self.resolver.expand_parent(source, snapshot, self.context.tokenizer, self.settings.value("chunking", "parent_expand_max_llm_tokens", 900)) for source in search_result["results"]])
-                        history = self.authorized_history(query_id, request, snapshot)
+                        history = await database_call(self.authorized_history, query_id, request, snapshot)
                         context_started = time.perf_counter()
                         messages, retained, context_metrics, context_warnings = await asyncio.to_thread(self.context.build, request.question, search_result["results"], request.mode, history)
                         metrics.update(context_metrics)
                         metrics["context_ms"] = round((time.perf_counter() - context_started) * 1000, 2)
                         warnings.extend(context_warnings)
-                        sources = self.register_sources(query_id, retained)
+                        sources = await database_call(self.register_sources, query_id, retained)
                         # Provenance OCR des seules sources transmises au modèle : remplace celle des passages de la recherche.
                         warnings = [warning for warning in warnings if warning.get("code") != "ocr_evidence"] + ocr_evidence_warnings(sources)
                     else:
                         messages = []
-                    self.db.add_event(query_id, "sources", {"sources": sources})
+                    await database_call(self.db.add_event, query_id, "sources", {"sources": sources})
                     for warning in warnings:
-                        self.db.add_event(query_id, "warning", warning)
+                        await database_call(self.db.add_event, query_id, "warning", warning)
                     if not sources:
                         answer = "Les preuves disponibles dans ce périmètre ne suffisent pas pour répondre à cette question."
                         metrics["model_called"] = False
-                        self.db.add_event(query_id, "delta", {"text": answer})
+                        await database_call(self.db.add_event, query_id, "delta", {"text": answer})
                     else:
                         if self.governor and self.governor.snapshot().get("heavy_owner") == "ingestion":
-                            self.db.add_event(query_id, "status", {"state": "waiting_for_ingestion_checkpoint"})
+                            await database_call(self.db.add_event, query_id, "status", {"state": "waiting_for_ingestion_checkpoint"})
                         awaited = False
-                        def waiting(sample):
+                        async def waiting(sample):
                             # Appelée par l'admission du bail et par la nouvelle admission d'un repli sur CPU.
                             nonlocal awaited
                             awaited = True
                             admission = sample.get("admission") or {}
-                            self.db.add_event(query_id, "status", {"state": "waiting_for_resources",
-                                                                   "available_mib": sample.get("available_mib"),
-                                                                   "required_mib": admission.get("required_available_mib")})
+                            await database_call(self.db.add_event, query_id, "status", {"state": "waiting_for_resources",
+                                                                                        "available_mib": sample.get("available_mib"),
+                                                                                        "required_mib": admission.get("required_available_mib")})
                         generation_lease = self.governor.generation(on_wait=waiting) if self.governor else empty_lease()
                         admission_started = time.perf_counter()
                         async with generation_lease:
                             metrics["generation_admission_wait_ms"] = round((time.perf_counter() - admission_started) * 1000, 2)
-                            allowed_ids = {row["id"] for row in self.db.rows("SELECT id FROM documents WHERE deleted_at IS NULL")}
+                            allowed_ids = {row["id"] for row in await database_call(self.db.rows, "SELECT id FROM documents WHERE deleted_at IS NULL")}
                             if set(snapshot.documents.values()) - allowed_ids:
                                 raise ApiError("scope_authorization_changed", "Un document a été retiré pendant l'attente ; nouveau contexte refusé.", 409)
-                            self.db.add_event(query_id, "status", {"state": "generating"})
+                            await database_call(self.db.add_event, query_id, "status", {"state": "generating"})
                             awaited = False
                             metrics["model_call_attempted"] = True
                             async for event in self.ollama.stream(messages, cancelled, metrics.get("output_tokens")):
@@ -241,7 +334,7 @@ class QueryService:
                                     # Repli sur CPU admis : après une attente de mémoire, la génération reprend.
                                     if awaited:
                                         awaited = False
-                                        self.db.add_event(query_id, "status", {"state": "generating"})
+                                        await database_call(self.db.add_event, query_id, "status", {"state": "generating"})
                                     continue
                                 metrics["model_called"] = True
                                 if cancelled.is_set():
@@ -249,7 +342,7 @@ class QueryService:
                                 if event["type"] == "delta":
                                     first_token_at = first_token_at or time.perf_counter()
                                     answer += event["text"]
-                                    self.db.add_event(query_id, "delta", {"text": event["text"]})
+                                    await database_call(self.db.add_event, query_id, "delta", {"text": event["text"]})
                                 else:
                                     metrics.update(event["metrics"])
                                     finish_reason = event["finish_reason"]
@@ -273,14 +366,12 @@ class QueryService:
                     if metrics.get("model_called") and sources:
                         # Signaux seulement (R26-ANS-01/02) : texte, citations et événements déjà émis restent inchangés.
                         warnings.extend(answer_warnings(answer, sources, request.question))
-                    with self.db.transaction() as connection:
-                        connection.execute("UPDATE query_runs SET state=?,answer=?,warnings_json=?,metrics_json=?,updated_at=? WHERE id=?", (state, answer, json_dump(warnings), json_dump(metrics), now(), query_id))
-                        conversation_id = connection.execute("SELECT conversation_id FROM query_runs WHERE id=?", (query_id,)).fetchone()[0]
-                        connection.execute("INSERT INTO messages VALUES(?,?,?,?,?,?)", (uid(), conversation_id, query_id, "assistant", answer, now()))
-                    self.db.add_event(query_id, "done", {"message": answer, "text": answer, "status": state, "citations": citations, "finish_reason": finish_reason, "metrics": metrics, "warnings": warnings})
+                    await database_call(self.finish, query_id, state, answer, warnings, metrics,
+                                        {"message": answer, "text": answer, "status": state, "citations": citations,
+                                         "finish_reason": finish_reason, "metrics": metrics, "warnings": warnings})
         except asyncio.CancelledError:
             metrics["elapsed_ms"] = round((time.perf_counter() - started) * 1000, 2)
-            self.mark_cancelled(query_id, answer, metrics)
+            await database_call(self.mark_cancelled, query_id, answer, metrics)
         except Exception as error:
             admission_failure = error.__class__.__name__ == "ResourceAdmissionError"
             code = error.code if isinstance(error, ApiError) else ("resource_admission_denied" if admission_failure else "query_failed")
@@ -288,30 +379,56 @@ class QueryService:
                 "La question n'a pas pu être traitée. Renvoyez-la ; si l'erreur se reproduit, "
                 f"exécutez {launcher_instruction('logs')} pour trouver le journal du service local.")
             metrics["elapsed_ms"] = round((time.perf_counter() - started) * 1000, 2)
-            self.db.execute("UPDATE query_runs SET state='error',answer=?,metrics_json=?,updated_at=? WHERE id=?", (answer, json_dump(metrics), now(), query_id))
-            self.db.add_event(query_id, "error", {"code": code, "message": message, "metrics": metrics})
+            await database_call(self.fail, query_id, answer, metrics, {"code": code, "message": message, "metrics": metrics})
         finally:
             self.cancel_events.pop(query_id, None)
             if self.governor:
                 self.governor.finish_interactive()
 
-    def cancel(self, query_id):
-        query = self.db.one("SELECT state FROM query_runs WHERE id=?", (query_id,))
-        if not query:
-            raise ApiError("query_not_found", "Question inconnue.", 404)
-        self.db.execute("UPDATE query_runs SET cancel_requested=1 WHERE id=?", (query_id,))
+    def request_cancellation(self, query_id):
+        with self.db.transaction() as connection:
+            query = connection.execute("SELECT state FROM query_runs WHERE id=?", (query_id,)).fetchone()
+            if not query:
+                raise ApiError("query_not_found", "Question inconnue.", 404)
+            connection.execute("UPDATE query_runs SET cancel_requested=1 WHERE id=?", (query_id,))
+            return query["state"]
+
+    def signal_cancellation(self, query_id, state):
         event = self.cancel_events.get(query_id)
         if event:
             event.set()
         task = self.tasks.get(query_id)
         if task:
             task.cancel()
-            # Une tâche démarrée écrit elle-même l'état terminal dans run() ; sinon run() ne s'exécutera jamais.
-            if query_id not in self.started:
-                self.mark_cancelled(query_id)
-        return {"query_id": query_id, "state": "cancel_requested" if task else query["state"]}
+        return {"query_id": query_id, "state": "cancel_requested" if task else state}, bool(task and query_id not in self.started)
+
+    def cancel(self, query_id):
+        response, unstarted = self.signal_cancellation(query_id, self.request_cancellation(query_id))
+        if unstarted:
+            self.mark_cancelled(query_id)
+        return response
+
+    async def cancel_async(self, query_id):
+        persisted = []
+
+        def persist():
+            persisted.append(self.request_cancellation(query_id))
+
+        try:
+            await database_call(persist)
+        except asyncio.CancelledError:
+            if persisted:
+                _, unstarted = self.signal_cancellation(query_id, persisted[0])
+                if unstarted:
+                    await database_call(self.mark_cancelled, query_id)
+            raise
+        state = persisted[0]
+        response, unstarted = self.signal_cancellation(query_id, state)
+        if unstarted:
+            await database_call(self.mark_cancelled, query_id)
+        return response
 
     async def close(self):
         for query_id in list(self.tasks):
-            self.cancel(query_id)
+            await self.cancel_async(query_id)
         await asyncio.gather(*list(self.tasks.values()), return_exceptions=True)

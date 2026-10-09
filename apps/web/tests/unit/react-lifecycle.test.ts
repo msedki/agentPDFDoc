@@ -85,11 +85,11 @@ function elementProps(element: unknown) {
   return element.props as Record<string, unknown>;
 }
 
-function findElementOfType(tree: React.ReactNode, type: string): React.ReactElement | undefined {
+function findElementOfType(tree: React.ReactNode, type: string, match: (props: Record<string, unknown>) => boolean = () => true): React.ReactElement | undefined {
   for (const child of React.Children.toArray(tree)) {
     if (!React.isValidElement(child)) continue;
-    if (child.type === type) return child;
-    const nested = findElementOfType(elementProps(child).children as React.ReactNode, type);
+    if (child.type === type && match(elementProps(child))) return child;
+    const nested = findElementOfType(elementProps(child).children as React.ReactNode, type, match);
     if (nested) return nested;
   }
   return undefined;
@@ -168,6 +168,64 @@ test("real api.tree, fetch double: legacy offset fallback and total fallback rem
   try {
     assert.deepEqual(await api.tree(), { folders: [], documents: [{ id: "d1" }, { id: "d2" }], total_documents: 2 });
     assert.deepEqual(seen, ["/api/v1/library/tree?limit=100&offset=0", "/api/v1/library/tree?limit=100&offset=1&cursor=1"]);
+  } finally { globalThis.fetch = previous; }
+});
+
+test("real api.tree, fetch double: all 10001 documents remain accessible beyond the former silent cutoff", async () => {
+  const previous = globalThis.fetch;
+  let calls = 0;
+  const total = 10001;
+  globalThis.fetch = async url => {
+    const offset = Number(new URL(String(url), "http://127.0.0.1").searchParams.get("offset"));
+    calls++;
+    assert.ok(calls <= 101, "the finite API double must be exhausted exactly once");
+    const documents = Array.from({ length: Math.min(100, total - offset) }, (_, index) => ({ id: `d${offset + index}` }));
+    return new Response(JSON.stringify({ folders: [], documents, total_documents: total, next_cursor: offset + documents.length < total ? String(offset + documents.length) : null }), { status: 200 });
+  };
+  try {
+    const tree = await api.tree();
+    assert.equal(calls, 101);
+    assert.equal(tree.documents.length, total);
+    assert.equal(tree.total_documents, total);
+    assert.equal(tree.documents.at(-1)?.id, "d10000", "last document is available to the real local filter and selection");
+  } finally { globalThis.fetch = previous; }
+});
+
+test("real api.tree, fetch double: a repeated cursor is an explicit failure, never an endless or partial successful list", async () => {
+  const previous = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls++;
+    assert.ok(calls <= 3, "a broken cursor must not cause an unbounded request loop");
+    return new Response(JSON.stringify({ folders: [], documents: [{ id: `d${calls}` }], total_documents: 10, next_cursor: "same-cursor" }), { status: 200 });
+  };
+  try {
+    await assert.rejects(api.tree(), /pagination/i);
+    assert.equal(calls, 2);
+  } finally { globalThis.fetch = previous; }
+});
+
+test("real api.tree, fetch double: an empty unfinished page is reported instead of a falsely complete catalogue", async () => {
+  const previous = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({ folders: [], documents: [], total_documents: 10, next_cursor: "100" }), { status: 200 });
+  try { await assert.rejects(api.tree(), /pagination/i); }
+  finally { globalThis.fetch = previous; }
+});
+
+test("real api.tree, fetch double: cancellation propagates to every page and stops loading the catalogue", async () => {
+  const previous = globalThis.fetch;
+  const lifetime = new AbortController();
+  let calls = 0;
+  globalThis.fetch = async (_url, options) => {
+    calls++;
+    assert.equal(options?.signal, lifetime.signal);
+    if (lifetime.signal.aborted) throw new DOMException("catalogue cancelled", "AbortError");
+    lifetime.abort();
+    return new Response(JSON.stringify({ folders: [], documents: [{ id: "d1" }], total_documents: 10, next_cursor: "100" }), { status: 200 });
+  };
+  try {
+    await assert.rejects(api.tree(lifetime.signal), error => error instanceof DOMException && error.name === "AbortError");
+    assert.equal(calls, 2, "only the in-flight page and its cancelled successor reach the transport double");
   } finally { globalThis.fetch = previous; }
 });
 
@@ -250,7 +308,7 @@ test("real React server render: checking is identical and the client gate/childr
   assert.doesNotMatch(html, /PRIVATE_CHILD_SENTINEL|Lien d'ouverture/);
 });
 
-function gateDouble(search: string, expired = false, sessionReply?: () => Promise<unknown>) {
+function gateDouble(search: string, expired = false, sessionReply?: () => Promise<unknown>, logoutReply?: () => Promise<unknown>) {
   const runtime = hookDouble();
   const listeners = new Map<string, (event: unknown) => void>();
   const calls = { session: 0, health: 0, logout: 0 };
@@ -258,7 +316,7 @@ function gateDouble(search: string, expired = false, sessionReply?: () => Promis
   const client = {
     session: async () => { calls.session++; if (sessionReply) return sessionReply(); if (expired) throw new ApiError("session_expired", "Session expirée."); return {}; },
     health: async () => { calls.health++; return { commands: { open: "./rag.sh open" } }; },
-    logout: async () => { calls.logout++; throw new Error("revocation double unavailable"); },
+    logout: async () => { calls.logout++; if (logoutReply) return logoutReply(); throw new Error("revocation double unavailable"); },
   };
   const SessionContext = { Provider: "qa-provider" };
   const component = loadFunction("components/session-gate.tsx", "SessionGateClient", {
@@ -350,7 +408,15 @@ test("client gate, hooks/API doubles: success, expiration event, logout failure 
   assert.equal(props.children, "CHILD_SENTINEL");
   const logout = (props.value as { logout: () => Promise<void> }).logout;
   await logout();
-  assert.deepEqual(gate.runtime.peek(1), { kind: "ended", reason: "session_closed" });
+  const failure = gate.runtime.peek(1) as { kind: string; failure: unknown };
+  assert.equal(failure.kind, "logout_failed");
+  assert.ok(failure.failure instanceof Error);
+  assert.equal(failure.failure.message, "revocation double unavailable");
+  const failedScreen = gate.render(); gate.runtime.commit();
+  assert.notEqual(elementProps(failedScreen).children, "CHILD_SENTINEL", "workspace remains hidden while closure is unconfirmed");
+  const retry = findElementOfType(elementProps(failedScreen).children as React.ReactNode, "qa-error");
+  assert.ok(retry);
+  assert.equal(elementProps(retry).retryLabel, "Réessayer la fermeture");
   assert.equal(gate.calls.logout, 1);
   const ended = gate.listeners.get(SESSION_ENDED_EVENT);
   assert.ok(ended);
@@ -362,6 +428,118 @@ test("client gate, hooks/API doubles: success, expiration event, logout failure 
   await new Promise<void>(resolve => setImmediate(resolve));
   assert.deepEqual(expired.runtime.peek(1), { kind: "ended", reason: "session_expired" });
   expired.runtime.dispose();
+});
+
+test("client gate, hooks/API doubles: pending logout is single-flight and only a confirmed retry closes the session", async () => {
+  let attempt = 0;
+  let reject: ((failure: unknown) => void) | undefined;
+  const gate = gateDouble("", false, undefined, () => {
+    attempt++;
+    return attempt === 1 ? new Promise((_, refuse) => { reject = refuse; }) : Promise.resolve({ revoked: true });
+  });
+  gate.render(); gate.runtime.commit();
+  await new Promise<void>(resolve => setImmediate(resolve));
+  const provider = elementProps(gate.render()); gate.runtime.commit();
+  const logout = (provider.value as { logout: () => Promise<void> }).logout;
+  const closing = logout();
+  assert.deepEqual(gate.runtime.peek(1), { kind: "closing" });
+  const hidden = gate.render(); gate.runtime.commit();
+  assert.notEqual(elementProps(hidden).children, "CHILD_SENTINEL");
+  await logout();
+  assert.equal(gate.calls.logout, 1, "a second click before/after render cannot duplicate the pending request");
+  assert.ok(reject);
+  reject(new TypeError("network double refused"));
+  await closing;
+  assert.equal((gate.runtime.peek(1) as { kind: string }).kind, "logout_failed");
+  const screen = elementProps(gate.render()); gate.runtime.commit();
+  const panel = findElementOfType(screen.children as React.ReactNode, "qa-error");
+  assert.ok(panel);
+  (elementProps(panel).onRetry as () => void)();
+  await new Promise<void>(resolve => setImmediate(resolve));
+  assert.deepEqual(gate.runtime.peek(1), { kind: "ended", reason: "session_closed" });
+  assert.equal(gate.calls.logout, 2);
+  gate.runtime.dispose();
+});
+
+/** Hooks/mutations are doubles; the actual component handlers and callbacks execute unchanged. */
+function analysisDouble(pending = false) {
+  const runtime = hookDouble();
+  type MutationOptions = Record<string, (...args: unknown[]) => unknown>;
+  const calls: { variables: Record<string, unknown>; callbacks: MutationOptions }[] = [];
+  let mutationNumber = 0;
+  const state = { scope: { kind: "library" }, scopeLabel: "Toute la bibliothèque" };
+  const environment: Record<string, unknown> = {
+    ...runtime.hooks, React,
+    useWorkspace: Object.assign(() => state, { getState: () => state }),
+    useQueryClient: () => ({ getQueryData: () => undefined }),
+    useMutation: (callbacks: MutationOptions) => {
+      const isSearch = mutationNumber++ === 1;
+      return { isPending: isSearch && pending, mutate: (variables: Record<string, unknown>) => { calls.push({ variables, callbacks }); } };
+    },
+    analysisTabs: [{ id: "question", label: "Question", Icon: "span" }, { id: "search", label: "Recherche", Icon: "span" }],
+    passagesFound: loadFunction("components/analysis-panel.tsx", "passagesFound", {}),
+    warningNotices: () => [], api: {}, structuredClone,
+  };
+  for (const name of ["PanelHeader", "PanelEmpty", "Search", "BookOpen", "Button", "Send", "WarningNotices", "CircleAlert", "ErrorText", "SourceCard"]) environment[name] = `qa-${name}`;
+  const component = loadFunction("components/analysis-panel.tsx", "AnalysisPanel", environment);
+  const render = () => { mutationNumber = 0; return runtime.render(() => component({ onSource: async () => {} })); };
+  let element = render(); runtime.commit();
+  const tablist = findElementOfType(element as React.ReactNode, "div", props => props.role === "tablist");
+  assert.ok(tablist);
+  const tabs = React.Children.toArray(elementProps(tablist).children as React.ReactNode).filter(React.isValidElement);
+  const searchTab = tabs.find(child => elementProps(child).id === "analysis-tab-search");
+  assert.ok(searchTab);
+  (elementProps(searchTab).onClick as () => void)();
+  element = render(); runtime.commit();
+  const textarea = findElementOfType(element as React.ReactNode, "textarea");
+  assert.ok(textarea);
+  (elementProps(textarea).onChange as (event: unknown) => void)({ target: { value: "terme à rechercher" } });
+  const key = () => {
+    const tree = render(); runtime.commit();
+    const input = findElementOfType(tree as React.ReactNode, "textarea");
+    assert.ok(input);
+    return elementProps(input).onKeyDown as (event: unknown) => void;
+  };
+  return { runtime, calls, key, render };
+}
+
+test("real analysis component, hooks/mutation doubles: Ctrl/Meta+Enter respects pending and same-render single-flight", () => {
+  for (const modifier of ["ctrlKey", "metaKey"]) {
+    const busy = analysisDouble(true);
+    busy.key()({ key: "Enter", [modifier]: true, preventDefault() {} });
+    assert.equal(busy.calls.length, 0);
+    busy.runtime.dispose();
+    const ready = analysisDouble();
+    const key = ready.key();
+    key({ key: "Enter", [modifier]: true, preventDefault() {} });
+    key({ key: "Enter", [modifier]: true, preventDefault() {} });
+    assert.equal(ready.calls.length, 1, "the same event closure cannot start two operations before React commits pending");
+    ready.runtime.dispose();
+  }
+});
+
+test("real analysis component, mutation doubles: obsolete success/error/settled callbacks never overwrite the newer search", () => {
+  const panel = analysisDouble();
+  const trigger = () => panel.key()({ key: "Enter", ctrlKey: true, preventDefault() {} });
+  const response = (elapsed_ms: number) => ({ results: [], warnings: [], elapsed_ms });
+  trigger();
+  const first = panel.calls[0];
+  first.callbacks.onSuccess(response(10), first.variables);
+  first.callbacks.onSettled?.(response(10), null, first.variables);
+  trigger();
+  assert.equal(panel.calls.length, 2);
+  const second = panel.calls[1];
+  second.callbacks.onSuccess(response(20), second.variables);
+  first.callbacks.onSuccess(response(999), first.variables);
+  first.callbacks.onError(new Error("obsolete failure"), first.variables);
+  first.callbacks.onSettled?.(response(999), null, first.variables);
+  assert.equal((panel.runtime.peek(3) as { elapsed_ms: number }).elapsed_ms, 20);
+  assert.equal(panel.runtime.peek(5), null, "obsolete errors cannot replace the result with a failure");
+  trigger();
+  assert.equal(panel.calls.length, 2, "obsolete settlement cannot unlock the current operation");
+  panel.runtime.dispose();
+  second.callbacks.onSuccess(response(777), second.variables);
+  assert.equal((panel.runtime.peek(3) as { elapsed_ms: number }).elapsed_ms, 20, "unmounted component cannot accept a late callback");
 });
 
 test("dismiss hook, React/DOM doubles: latest committed callback, Escape/default prevention, inside/outside and cleanup", () => {

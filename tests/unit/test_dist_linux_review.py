@@ -20,19 +20,27 @@ if sys.platform == "win32":
 from tests.unit.test_dist_linux_install import (  # noqa: E402
     PosteSimule,
     ProgrammeSimule,
+    ToutSauf,
     context,
     free_ports,
     install,
+    isolated_home,  # noqa: F401 - HOME et XDG_* propres à chaque test (fixture automatique)
     make_kit,
     second_kit,
+    with_manifest,
 )
 from tests.unit.test_dist_linux_kit import (  # noqa: E402
     PYTHON_KEY,
     elf_header,
     fake_readelf,
     git,
+    jetson_r35_release,
     link,
     make_repository,
+    no_host_library,
+    no_l4t_release,
+    no_package_owner,
+    web_provenance,
     write,
 )
 from tools.dist import linux_install, linux_kit  # noqa: E402
@@ -49,18 +57,19 @@ def kit_id(kit: Path) -> str:
 
 def update(kit, destination, runner=None, *extra):
     ctx = context(kit, runner=runner)
-    return linux_install.main(["update", "--destination", str(destination), *extra], ctx), ctx
+    return linux_install.main(["update", "--destination", str(destination), "--oui", *extra], ctx), ctx
 
 
 def rollback(kit, destination, runner=None):
     ctx = context(kit, runner=runner)
-    return linux_install.main(["rollback", "--destination", str(destination)], ctx), ctx
+    return linux_install.main(["rollback", "--destination", str(destination), "--oui"], ctx), ctx
 
 
 def third_kit(tmp_path, monkeypatch, name="kit-c", **options) -> Path:
     repository = tmp_path / "depot"
     write(repository, "services/api/main.py", f"VERSION = '{name}'\n")
     git(repository, "commit", "-q", "-am", name)
+    web_provenance(repository)  # interface construite depuis ce commit (KIT4-26)
     return make_kit(tmp_path, monkeypatch, name=name, repository=repository, **options)
 
 
@@ -77,10 +86,10 @@ def test_m1_an_unwritable_menu_is_refused_before_any_write(kit, tmp_path):
     menu.chmod(0o555)
     try:
         ctx = context(kit)
-        assert install(ctx, tmp_path / "programmes", tmp_path / "donnees", "--no-start", "--menu", str(menu)) == 1
+        assert install(ctx, tmp_path / "programmes", tmp_path / "donnees", "--no-start", "--menu", str(menu)) == linux_install.EXIT_REFUSED
     finally:
         menu.chmod(0o755)
-    assert "--menu" in ctx.out.getvalue() and "rien n'a été écrit" in ctx.out.getvalue()
+    assert "--menu" in ctx.err.getvalue() and "rien n'a été écrit" in ctx.err.getvalue()
     assert not (tmp_path / "programmes").exists() and not (tmp_path / "donnees").exists()
 
 
@@ -101,13 +110,13 @@ def test_m1_a_failure_after_the_pointer_keeps_the_designated_program_and_repair_
     destination = tmp_path / "programmes"
     failing_once(monkeypatch, "atelier")
     ctx = context(kit)
-    assert install(ctx, destination, tmp_path / "donnees", "--no-start") == 1
+    assert install(ctx, destination, tmp_path / "donnees", "--no-start") == linux_install.EXIT_PARTIAL
     current = pointer(destination)["current"]
     assert Path(current["program"]).is_dir() and current["kit_id"] == kit_id(kit)
-    output = ctx.out.getvalue()
+    output = ctx.err.getvalue()
     assert f"La version {kit_id(kit)} est la version courante" in output and "repair" in output
     repaired = context(kit)
-    assert linux_install.main(["repair", "--destination", str(destination)], repaired) == 0, repaired.out.getvalue()
+    assert linux_install.main(["repair", "--destination", str(destination)], repaired) == 0, repaired.err.getvalue()
     assert f"version {kit_id(kit)}." in (destination / "atelier").read_text(encoding="utf-8")
 
 
@@ -117,10 +126,10 @@ def test_m1_an_update_message_names_the_version_the_pointer_designates(kit, tmp_
     kit_b = second_kit(tmp_path, monkeypatch)
     failing_once(monkeypatch, "atelier")
     code, ctx = update(kit_b, destination, None, "--no-start")
-    assert code == 1 and pointer(destination)["current"]["kit_id"] == kit_id(kit_b)
+    assert code == linux_install.EXIT_PARTIAL and pointer(destination)["current"]["kit_id"] == kit_id(kit_b)
     assert Path(pointer(destination)["current"]["program"]).is_dir()
-    assert f"La version {kit_id(kit_b)} est la version courante" in ctx.out.getvalue()
-    assert "reste la version courante" not in ctx.out.getvalue()
+    assert f"La version {kit_id(kit_b)} est la version courante" in ctx.err.getvalue()
+    assert "reste la version courante" not in ctx.err.getvalue()
 
 
 # --- M2 : retour arrière avec restauration, puis mise à jour ----------------------------------------------------------------
@@ -151,24 +160,25 @@ def test_m2_an_update_after_a_restoring_rollback_succeeds_and_keeps_the_model_ch
 
 
 def test_m5_a_profile_left_by_a_rollback_is_reused_or_refused_before_the_backup(tmp_path, monkeypatch):
+    # Kit 4B seul (le 2B seul n'est plus fabriqué, W045), puis kit complet : le profil du 2B est dérivé à la mise à jour.
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
-    small = make_kit(tmp_path, monkeypatch, name="kit-2b", models=("2b",))
+    small = make_kit(tmp_path, monkeypatch, name="kit-4b", models=("4b",))
     assert install(context(small), destination, data_root, "--no-start") == 0
     kit_b = second_kit(tmp_path, monkeypatch)
     assert update(kit_b, destination, None, "--no-start")[0] == 0
-    assert (data_root / "profile-qwen3.5-4b.yaml").is_file()
+    assert (data_root / "profile-qwen3.5-2b.yaml").is_file()
     assert rollback(small, destination, ProgrammeSimule(last_started=pointer(destination)["previous"]["program"]))[0] == 0
     kit_c = third_kit(tmp_path, monkeypatch)
     code, ctx = update(kit_c, destination, None, "--no-start")
     assert code == 0, ctx.out.getvalue()
-    assert pointer(destination)["current"]["profiles"]["qwen3.5:4b"] == str(data_root / "profile-qwen3.5-4b.yaml")
+    assert pointer(destination)["current"]["profiles"]["qwen3.5:2b"] == str(data_root / "profile-qwen3.5-2b.yaml")
     # Profil laissé, puis modifié à la main : refus dans les précontrôles, avant toute sauvegarde ni copie.
     assert rollback(kit_b, destination, ProgrammeSimule(last_started=pointer(destination)["previous"]["program"]))[0] == 0
-    with (data_root / "profile-qwen3.5-4b.yaml").open("a", encoding="utf-8") as stream:
+    with (data_root / "profile-qwen3.5-2b.yaml").open("a", encoding="utf-8") as stream:
         stream.write("# modifié\nprofile: autre\n")
     kit_d = third_kit(tmp_path, monkeypatch, name="kit-d")
     code, ctx = update(kit_d, destination, None, "--no-start")
-    assert code == 1 and "profile-qwen3.5-4b.yaml" in ctx.out.getvalue()
+    assert code == linux_install.EXIT_REFUSED and "profile-qwen3.5-2b.yaml" in ctx.err.getvalue()
     assert [command for command in ctx.runner.commands() if command in {"up", "backup", "bootstrap"}] == []
 
 
@@ -187,7 +197,7 @@ def test_m3_a_second_rollback_is_refused_and_the_restored_entry_carries_no_backu
     assert current["kit_id"] == kit_id(kit_b) and "backup" not in current
     before = pointer(destination)
     code, ctx = rollback(kit_b, destination, ProgrammeSimule(last_started=last))
-    assert code == 1 and "déjà" in ctx.out.getvalue() and pointer(destination) == before
+    assert code == linux_install.EXIT_REFUSED and "déjà" in ctx.err.getvalue() and pointer(destination) == before
 
 
 # --- m1 : garde de rag.sh contournable et données sous le programme ---------------------------------------------------------
@@ -250,8 +260,8 @@ def test_m1_uninstall_refuses_a_program_holding_runtime_data(kit, tmp_path, resi
     program = Path(pointer(destination)["current"]["program"])
     write(program, residue, "données")
     ctx = context(kit)
-    assert linux_install.main(["uninstall", "--destination", str(destination), "--kit-id", kit_id(kit)], ctx) == 1
-    assert "données d'exécution dans le dossier programme" in ctx.out.getvalue() and (program / residue).exists()
+    assert linux_install.main(["uninstall", "--destination", str(destination), "--kit-id", kit_id(kit), "--oui"], ctx) == linux_install.EXIT_REFUSED
+    assert "données d'exécution dans le dossier programme" in ctx.err.getvalue() and (program / residue).exists()
 
 
 # --- m2 : contrôles système ----------------------------------------------------------------------------------------------
@@ -262,26 +272,37 @@ def test_m1_uninstall_refuses_a_program_holding_runtime_data(kit, tmp_path, resi
 ])
 def test_m2_libstdcxx_and_system_libraries_of_the_target_are_compared(kit, tmp_path, values, message):
     ctx = context(kit, probe=PosteSimule(**values))
-    assert install(ctx, tmp_path / "programmes", tmp_path / "donnees") == 1
-    assert message in ctx.out.getvalue() and not (tmp_path / "programmes").exists()
+    assert install(ctx, tmp_path / "programmes", tmp_path / "donnees") == linux_install.EXIT_SYSTEM
+    assert message in ctx.err.getvalue() and not (tmp_path / "programmes").exists()
 
 
 def test_m2_a_jetpack5_kit_is_refused_off_jetson_r35(tmp_path, monkeypatch):
     monkeypatch.setattr(linux_kit, "readelf_batches", fake_readelf)
-    monkeypatch.setattr(linux_kit, "l4t_release", lambda path=None: {"major": 35, "revision": "4.1", "line": "R35"})
+    monkeypatch.setattr(linux_kit, "l4t_release", jetson_r35_release)
+    monkeypatch.setattr(linux_kit, "host_library_path", no_host_library)
+    monkeypatch.setattr(linux_kit, "package_owner", no_package_owner)
     repository = make_repository(tmp_path)
     kit = tmp_path / "kit-jp5"
-    linux_kit.build_linux_kit(kit, repository, platform="linux-aarch64", gpu="jetpack5", home=str(tmp_path / "maison"))
+    linux_kit.build_linux_kit(kit, repository, platform="linux-aarch64", gpu="jetpack5", home=str(tmp_path / "fabrication"))
     ctx = context(kit, probe=PosteSimule(l4t=None))
-    assert install(ctx, tmp_path / "programmes", tmp_path / "donnees") == 1
-    assert "Jetson Linux R35" in ctx.out.getvalue()
+    assert install(ctx, tmp_path / "programmes", tmp_path / "donnees") == linux_install.EXIT_REFUSED
+    assert "Jetson Linux R35" in ctx.err.getvalue()
 
 
-def test_m2_ldd_runs_only_after_the_whole_kit_is_verified(kit, tmp_path):
+def test_m2_ldd_runs_only_on_verified_files(kit, tmp_path):
+    # KIT4-24 (remplace « ldd seulement après la vérification complète ») : ldd ne vise que les fichiers de ldd_checks,
+    # vérifiés juste avant ; un autre fichier altéré est détecté pendant la copie, qui est retirée sans rien désigner.
     write(kit, "services/api/main.py", "altéré")
     ctx = context(kit)
-    assert install(ctx, tmp_path / "programmes", tmp_path / "donnees") == 1
-    assert "Kit non conforme" in ctx.out.getvalue() and ctx.probe.ldd_calls == []
+    assert install(ctx, tmp_path / "programmes", tmp_path / "donnees") == linux_install.EXIT_PARTIAL
+    checks = json.loads((kit / "kit-manifest.json").read_text(encoding="utf-8"))["target"]["ldd_checks"]
+    assert [Path(path).relative_to(kit).as_posix() for path in ctx.probe.ldd_calls] == checks
+    assert "Kit altéré (" in ctx.err.getvalue() and "services/api/main.py" in ctx.err.getvalue()
+    assert not (tmp_path / "programmes/installation.json").exists() and ctx.runner.calls == []
+    altered = context(kit, probe=PosteSimule(libraries=ToutSauf()))
+    (kit / checks[0]).write_bytes(b"\x7fELF autre")
+    assert install(altered, tmp_path / "autres", tmp_path / "donnees2") == linux_install.EXIT_REFUSED
+    assert altered.probe.ldd_calls == []
 
 
 # --- m3, m4 : environnement transmis, entrée de menu ---------------------------------------------------------------------
@@ -298,21 +319,23 @@ def test_m3_the_installation_environment_drops_inherited_python_and_uv_settings(
 def test_m4_percent_is_doubled_and_control_characters_are_refused(kit, tmp_path):
     assert linux_install.desktop_quote("/a%b") == '"/a%%b"'
     ctx = context(kit)
-    assert install(ctx, tmp_path / "pro\ngrammes", tmp_path / "donnees", "--no-start", "--menu", str(tmp_path / "menu")) == 1
-    assert "caractère de contrôle" in ctx.out.getvalue() and not (tmp_path / "pro\ngrammes").exists()
+    assert install(ctx, tmp_path / "pro\ngrammes", tmp_path / "donnees", "--no-start", "--menu", str(tmp_path / "menu")) == linux_install.EXIT_REFUSED
+    assert "caractère de contrôle" in ctx.err.getvalue() and not (tmp_path / "pro\ngrammes").exists()
 
 
 # --- m6, m7, m8 : instance 4B, verrou, options -----------------------------------------------------------------------------
 
-def test_m6_an_update_saves_from_the_running_4b_instance(kit, tmp_path, monkeypatch):
+def test_m6_an_update_saves_from_the_running_instance_of_the_other_model(kit, tmp_path, monkeypatch):
+    # Profil principal du 4B (W045) ; l'instance en marche emploie le profil dérivé du 2B.
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
     assert install(context(kit), destination, data_root, "--no-start") == 0
     current = pointer(destination)["current"]
+    assert current["model"] == "qwen3.5:4b"
     runner = ProgrammeSimule(last_started=current["program"])
-    runner.running = {current["program"]: current["profiles"]["qwen3.5:4b"]}
+    runner.running = {current["program"]: current["profiles"]["qwen3.5:2b"]}
     code, ctx = update(second_kit(tmp_path, monkeypatch), destination, runner, "--no-start")
-    assert code == 0, ctx.out.getvalue()
-    assert "qwen3.5:4b" in ctx.out.getvalue()
+    assert code == 0, ctx.err.getvalue()
+    assert f"instance en marche avec {current['profiles']['qwen3.5:2b']} (modèle qwen3.5:2b)" in ctx.out.getvalue()
 
 
 def test_m7_a_concurrent_installer_operation_is_refused(kit, tmp_path, monkeypatch):
@@ -322,7 +345,7 @@ def test_m7_a_concurrent_installer_operation_is_refused(kit, tmp_path, monkeypat
     with (destination / ".atelier-installateur.lock").open("a") as holder:
         fcntl.flock(holder, fcntl.LOCK_EX | fcntl.LOCK_NB)
         code, ctx = update(kit_b, destination, None, "--no-start")
-    assert code == 1 and "Une autre opération d'installation est en cours" in ctx.out.getvalue()
+    assert code == linux_install.EXIT_REFUSED and "Une autre opération d'installation est en cours" in ctx.err.getvalue()
     assert ctx.runner.calls == []
 
 
@@ -333,8 +356,8 @@ def test_m7_a_concurrent_installer_operation_is_refused(kit, tmp_path, monkeypat
 ], ids=["modele", "deux-ports", "port-privilegie"])
 def test_m8_model_and_ports_are_checked_before_any_write(kit, tmp_path, extra, message):
     ctx = context(kit)
-    assert install(ctx, tmp_path / "programmes", tmp_path / "donnees", *extra) == 1
-    assert message in ctx.out.getvalue() and not (tmp_path / "programmes").exists() and ctx.runner.calls == []
+    assert install(ctx, tmp_path / "programmes", tmp_path / "donnees", *extra) == linux_install.EXIT_REFUSED
+    assert message in ctx.err.getvalue() and not (tmp_path / "programmes").exists() and ctx.runner.calls == []
 
 
 def test_m8_a_busy_port_is_refused_before_any_write(kit, tmp_path):
@@ -346,15 +369,15 @@ def test_m8_a_busy_port_is_refused_before_any_write(kit, tmp_path):
         port = busy.getsockname()[1]
         free = free_ports(2)
         ctx = context(kit, probe=PosteSimule(real_ports=True))
-        assert install(ctx, tmp_path / "programmes", tmp_path / "donnees", "--ports", f"{port},{free[0]},{free[1]}") == 1
-    assert f"port {port} occupé" in ctx.out.getvalue() and not (tmp_path / "programmes").exists()
+        assert install(ctx, tmp_path / "programmes", tmp_path / "donnees", "--ports", f"{port},{free[0]},{free[1]}") == linux_install.EXIT_REFUSED
+    assert f"port {port} occupé" in ctx.err.getvalue() and not (tmp_path / "programmes").exists()
 
 
 # --- m9 : architecture, m10 : inventaire Windows -----------------------------------------------------------------------------
 
 def test_m9_any_elf_of_another_architecture_refuses_the_kit(tmp_path, monkeypatch):
     monkeypatch.setattr(linux_kit, "readelf_batches", fake_readelf)
-    monkeypatch.setattr(linux_kit, "l4t_release", lambda path=None: None)
+    monkeypatch.setattr(linux_kit, "l4t_release", no_l4t_release)
     repository = make_repository(tmp_path)
     write(repository, ".runtime/cache/uv/archive-v0/ZzZ/roue/_x86.so", elf_header(62))
     with pytest.raises(linux_kit.KitError, match="autre architecture"):
@@ -381,8 +404,8 @@ def test_a_forged_kit_id_or_python_path_is_refused(kit, tmp_path):
         forged = {**manifest, field: value}
         (kit / "kit-manifest.json").write_text(json.dumps(forged), encoding="utf-8")
         ctx = context(kit)
-        assert install(ctx, tmp_path / "programmes", tmp_path / "donnees") == 1
-        assert "kit-manifest.json" in ctx.out.getvalue() and not (tmp_path / "evasion").exists()
+        assert install(ctx, tmp_path / "programmes", tmp_path / "donnees") == linux_install.EXIT_REFUSED
+        assert "kit-manifest.json" in ctx.err.getvalue() and not (tmp_path / "evasion").exists()
     (kit / "kit-manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
 
 
@@ -393,7 +416,7 @@ def test_a_forged_kit_id_or_python_path_is_refused(kit, tmp_path):
 ])
 def test_more_secret_and_data_names_are_refused(tmp_path, monkeypatch, relative, refused):
     monkeypatch.setattr(linux_kit, "readelf_batches", fake_readelf)
-    monkeypatch.setattr(linux_kit, "l4t_release", lambda path=None: None)
+    monkeypatch.setattr(linux_kit, "l4t_release", no_l4t_release)
     repository = make_repository(tmp_path)
     write(repository, relative, "contenu")
     if refused:
@@ -404,13 +427,26 @@ def test_more_secret_and_data_names_are_refused(tmp_path, monkeypatch, relative,
 
 
 def test_the_target_procedure_without_the_repository_checks_then_extracts_with_coreutils_and_tar(kit, tmp_path):
+    # Archive nommée d'après le kit, guide à côté et empreintes des deux (KIT4-16), comme le guide les cite.
     (tmp_path / "transport").mkdir()
-    linux_kit.archive_kit(kit, tmp_path / "transport/kit.tar")
-    checked = subprocess.run(["sha256sum", "-c", "kit.tar.sha256"], cwd=tmp_path / "transport", capture_output=True, text=True, check=False)
-    assert checked.returncode == 0 and "kit.tar: OK" in checked.stdout
+    name = kit_id(kit)
+    linux_kit.archive_kit(kit, tmp_path / "transport")
+    checked = subprocess.run(["sha256sum", "-c", f"{name}.tar.sha256"], cwd=tmp_path / "transport", capture_output=True, text=True, check=False)
+    assert checked.returncode == 0 and f"{name}.tar: OK" in checked.stdout and f"{name}.LISEZMOI.md: OK" in checked.stdout
     (tmp_path / "poste").mkdir()
-    subprocess.run(["tar", "-xf", str(tmp_path / "transport/kit.tar"), "-C", str(tmp_path / "poste")], check=True)
+    subprocess.run(["tar", "-xf", str(tmp_path / "transport" / f"{name}.tar"), "-C", str(tmp_path / "poste")], check=True)
     assert linux_kit.verify_kit(tmp_path / "poste" / kit_id(kit))["status"] == "verified"
+
+
+def normalisation_qui_laisse_passer(evasion: str):
+    """Double de `linux_kit.normalized_link` : normalisation lexicale défaillante pour le seul lien `evasion`, qu'elle déclare
+    interne ; les autres liens gardent la règle réelle."""
+    real = linux_kit.normalized_link
+
+    def normalized_link(relative: str, target: str) -> str | None:
+        return relative if relative == evasion else real(relative, target)
+
+    return normalized_link
 
 
 def test_a_link_resolving_outside_after_copy_is_refused(kit, tmp_path, monkeypatch):
@@ -422,8 +458,25 @@ def test_a_link_resolving_outside_after_copy_is_refused(kit, tmp_path, monkeypat
     digest = hashlib.sha256(links).hexdigest()
     (kit / "SHA256SUMS").write_text("".join((f"{digest}  SYMLINKS" if line.endswith("  SYMLINKS") else line) + "\n"
                                             for line in sums.splitlines()), encoding="utf-8")
-    monkeypatch.setattr(linux_kit, "normalized_link", lambda relative, target: "services/evasion")
-    with pytest.raises(linux_kit.KitError, match="hors de la copie"):
+    # Listes réalignées sur le manifeste (S14 : install_copy compare SHA256SUMS à sha256sums_sha256) : seule la seconde
+    # barrière peut refuser ce kit.
+    with_manifest(kit, sha256sums_sha256=hashlib.sha256((kit / "SHA256SUMS").read_bytes()).hexdigest())
+    monkeypatch.setattr(linux_kit, "normalized_link", normalisation_qui_laisse_passer("services/evasion"))
+    with pytest.raises(linux_kit.KitError, match="Lien résolu hors de la copie : \\['services/evasion'\\]"):
+        linux_kit.install_copy(kit, tmp_path / "programme")
+    assert not (tmp_path / "programme").exists()
+
+
+def test_without_the_faulty_normalisation_the_first_barrier_refuses_the_outgoing_link(kit, tmp_path):
+    # Témoin du double ci-dessus : sans lui, la lecture de SYMLINKS refuse ce lien avant toute copie.
+    sums = (kit / "SHA256SUMS").read_text(encoding="utf-8")
+    links = (kit / "SYMLINKS").read_bytes() + b"services/evasion\t../../ailleurs\n"
+    (kit / "SYMLINKS").write_bytes(links)
+    digest = hashlib.sha256(links).hexdigest()
+    (kit / "SHA256SUMS").write_text("".join((f"{digest}  SYMLINKS" if line.endswith("  SYMLINKS") else line) + "\n"
+                                            for line in sums.splitlines()), encoding="utf-8")
+    with_manifest(kit, sha256sums_sha256=hashlib.sha256((kit / "SHA256SUMS").read_bytes()).hexdigest())
+    with pytest.raises(linux_kit.KitError, match="Lien absolu ou sortant déclaré : services/evasion"):
         linux_kit.install_copy(kit, tmp_path / "programme")
     assert not (tmp_path / "programme").exists()
 
@@ -436,7 +489,7 @@ def test_the_launcher_actions_need_no_lock_but_repair_does(kit, tmp_path):
         ctx = context(Path(pointer(destination)["current"]["program"]))
         assert linux_install.main(["run", "--destination", str(destination), "etat"], ctx) == 0
         busy = context(kit)
-        assert linux_install.main(["repair", "--destination", str(destination)], busy) == 1
+        assert linux_install.main(["repair", "--destination", str(destination)], busy) == linux_install.EXIT_REFUSED
 
 
 def test_probe_double_reports_ldd_by_binary_name():
@@ -455,8 +508,8 @@ def test_open_and_backup_from_the_launcher_are_refused_while_the_installer_lock_
         fcntl.flock(holder, fcntl.LOCK_EX | fcntl.LOCK_NB)
         for action in ("ouvrir", "sauvegarder"):
             ctx = context(program)
-            assert linux_install.main(["run", "--destination", str(destination), action], ctx) == 1
-            assert "Une opération d'installation est en cours" in ctx.out.getvalue() and ctx.runner.calls == []
+            assert linux_install.main(["run", "--destination", str(destination), action], ctx) == linux_install.EXIT_REFUSED
+            assert "Une opération d'installation est en cours" in ctx.err.getvalue() and ctx.runner.calls == []
         ctx = context(program)
         assert linux_install.main(["run", "--destination", str(destination), "etat"], ctx) == 0
 
@@ -476,26 +529,20 @@ def test_an_old_instance_restarted_during_the_update_stops_it_before_the_switch(
 
     runner.results[(Path(old["program"]).name, "down")] = down_then_restarted_by_the_old_launcher
     code, ctx = update(kit_b, destination, runner)
-    assert code == 1, ctx.out.getvalue()
+    assert code == linux_install.EXIT_PARTIAL, ctx.err.getvalue()
     assert pointer(destination)["current"]["kit_id"] == old["kit_id"]
     assert not (destination / kit_id(kit_b)).exists()
-    assert "relancée pendant la mise à jour" in ctx.out.getvalue() and f"La version {old['kit_id']} reste la version courante" in ctx.out.getvalue()
+    assert "relancée pendant la mise à jour" in ctx.err.getvalue() and f"La version {old['kit_id']} reste la version courante" in ctx.err.getvalue()
 
 
 def test_an_instance_of_another_program_returned_by_up_is_an_explicit_failure(kit, tmp_path):
     elsewhere = f"/ailleurs/programme/.runtime/python/{PYTHON_KEY}/bin/python3.12"
     runner = ProgrammeSimule(results={"up": {"status": "running", "instance_id": "x", "supervisor": {"executable": elsewhere}}})
     ctx = context(kit, runner=runner)
-    assert install(ctx, tmp_path / "programmes", tmp_path / "donnees") == 1
-    assert "n'appartient pas au programme" in ctx.out.getvalue() and "selftest" not in ctx.runner.commands()
-
-
-class ToutSauf:
-    def __init__(self, *absent):
-        self.absent = set(absent)
-
-    def __contains__(self, name):
-        return name not in self.absent
+    assert install(ctx, tmp_path / "programmes", tmp_path / "donnees") == linux_install.EXIT_PARTIAL
+    assert "n'appartient pas au programme" in ctx.err.getvalue() and "selftest" not in ctx.runner.commands()
+    # REL-U12 : arrêt par le lanceur, commande exécutable telle quelle (supervisor.stop agit sur le dossier de données).
+    assert "l'arrêter (« atelier arreter »)" in ctx.err.getvalue() and "rag.sh down" not in ctx.err.getvalue()
 
 
 def test_libcrypt_needed_only_by_the_crypt_module_is_optional_and_reported(kit, tmp_path):

@@ -192,9 +192,9 @@ class DenseCoverage:
             return {"state": "not_applicable", "collection": "unverified", "documents": [], "active_generations": None, "error_code": None}
         error_code = None
         async with self._lock:
-            rows = self.db.rows("SELECT g.id AS generation_id,d.id AS document_id,d.name AS document_name,"
-                                "COALESCE(g.actual_chunks,g.expected_chunks,0) AS chunks FROM documents d "
-                                "JOIN index_generations g ON g.id=d.active_generation_id WHERE d.deleted_at IS NULL ORDER BY d.relative_path")
+            rows = await asyncio.to_thread(self.db.rows, "SELECT g.id AS generation_id,d.id AS document_id,d.name AS document_name,"
+                                          "COALESCE(g.actual_chunks,g.expected_chunks,0) AS chunks FROM documents d "
+                                          "JOIN index_generations g ON g.id=d.active_generation_id WHERE d.deleted_at IS NULL ORDER BY d.relative_path")
             active = {row["generation_id"] for row in rows}
             self.points = {generation: count for generation, count in self.points.items() if generation in active}
             pending = [row for row in rows if row["chunks"] and row["generation_id"] not in self.points]
@@ -372,11 +372,13 @@ class SearchService:
             ranked = [row["chunk_uuid"] for row in self.db.rows(sql, parameters + [expression, limit])]
         return list(dict.fromkeys(exact + ranked))[:limit], exact
 
-    async def _candidates(self, question, snapshot):
+    async def _candidates(self, question, snapshot, dense_available=True):
         lexical_task = asyncio.create_task(asyncio.to_thread(self.lexical, question, snapshot))
         try:
-            vector = (await asyncio.to_thread(self.embedding.embed, [question], False))[0]
-            dense = await self.vectors.query(vector, snapshot, self.settings.value("retrieval", "dense_top_k", 24))
+            dense = []
+            if dense_available:
+                vector = (await asyncio.to_thread(self.embedding.embed, [question], False))[0]
+                dense = await self.vectors.query(vector, snapshot, self.settings.value("retrieval", "dense_top_k", 24))
             lexical, exact = await lexical_task
         except BaseException:
             lexical_task.cancel()
@@ -386,6 +388,10 @@ class SearchService:
         # Exact identifiers are deliberately retained before the rank fusion pool.
         exact_set = set(exact)
         scores.sort(key=lambda pair: (pair[0] not in exact_set, -pair[1], pair[0]))
+        return await asyncio.to_thread(self.source_candidates, scores, exact_set, snapshot)
+
+    def source_candidates(self, scores, exact_set, snapshot):
+        """Toutes les relectures de provenance d'un lot restent hors de la boucle de requêtes."""
         candidates = []
         for chunk_id, score in scores:
             chunk = self.db.one("SELECT * FROM chunks WHERE chunk_uuid=?", (chunk_id,))
@@ -399,33 +405,7 @@ class SearchService:
                 candidates.append(source)
         return candidates
 
-    async def search(self, question, snapshot, mode="question"):
-        start = time.perf_counter()
-        warnings = []
-        if self.dense is not None and snapshot.scope["kind"] != "selection" and snapshot.generations:
-            # Avertissement de périmètre : documents servis par la seule branche lexicale (identité dense changée, R26-IDX-02).
-            scoped = set(snapshot.generations)
-            missing = [item for item in (await self.dense.status())["documents"] if item["generation_id"] in scoped]
-            if missing:
-                warnings.append(dense_identity_warning(missing))
-        if snapshot.scope["kind"] == "selection":
-            results = self.resolver.selected_sources(snapshot)
-        elif not snapshot.generations:
-            results = []
-        elif mode == "comparison":
-            per_document = []
-            for document_id in dict.fromkeys(snapshot.documents.values()):
-                candidates = await self._candidates(question, snapshot.narrowed(document_id))
-                if not candidates:
-                    warnings.append({"code": "comparison_gap", "document_id": document_id, "message": "Aucun passage retrouvé pour ce document."})
-                per_document.append(candidates)
-            results = []
-            for position in range(24):
-                for candidates in per_document:
-                    if position < len(candidates):
-                        results.append(candidates[position])
-        else:
-            results = await self._candidates(question, snapshot)
+    def decorate_sources(self, results):
         documents = {}
         for source in results:
             document_id = source["document_id"]
@@ -440,6 +420,39 @@ class SearchService:
             source.update({"name": document["name"], "document_name": document["name"],
                            "relative_path": document["relative_path"], "page_index": page_index,
                            "page_number": page_index + 1, "label": page.get("label")})
+
+    async def search(self, question, snapshot, mode="question"):
+        start = time.perf_counter()
+        warnings = []
+        dense_available = True
+        if self.dense is not None and snapshot.scope["kind"] != "selection" and snapshot.generations:
+            # Avertissement de périmètre : documents servis par la seule branche lexicale (identité dense changée, R26-IDX-02).
+            scoped = set(snapshot.generations)
+            coverage = await self.dense.status()
+            # Seule une absence confirmée autorise le repli : une panne Qdrant ne devient pas un succès lexical.
+            dense_available = coverage["collection"] != "absent" or coverage["error_code"] is not None
+            missing = [item for item in coverage["documents"] if item["generation_id"] in scoped]
+            if missing:
+                warnings.append(dense_identity_warning(missing))
+        if snapshot.scope["kind"] == "selection":
+            results = await asyncio.to_thread(self.resolver.selected_sources, snapshot)
+        elif not snapshot.generations:
+            results = []
+        elif mode == "comparison":
+            per_document = []
+            for document_id in dict.fromkeys(snapshot.documents.values()):
+                candidates = await self._candidates(question, snapshot.narrowed(document_id), dense_available)
+                if not candidates:
+                    warnings.append({"code": "comparison_gap", "document_id": document_id, "message": "Aucun passage retrouvé pour ce document."})
+                per_document.append(candidates)
+            results = []
+            for position in range(24):
+                for candidates in per_document:
+                    if position < len(candidates):
+                        results.append(candidates[position])
+        else:
+            results = await self._candidates(question, snapshot, dense_available)
+        await asyncio.to_thread(self.decorate_sources, results)
         top10 = list(results[:10])
         required = {normalized_identifier(value) for value in identifiers(question)}
         terms = answer_terms(question)

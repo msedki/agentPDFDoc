@@ -99,13 +99,46 @@ while [ "$#" -gt 0 ]; do
 done
 
 project_root=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
-# Installation depuis un kit (kit-manifest.json à la racine) : le profil livré écrirait données, contrôle et sauvegardes dans
-# le dossier programme. Seules les commandes qui n'emploient pas le profil (init-profile, verify, restore) s'en passent.
-if [ -f "$project_root/kit-manifest.json" ] && [ "$profile_seen" -eq 0 ]; then
-    case "$command_name" in
-        init-profile|verify|restore) ;;
-        *) fail "Installation de l'atelier : sans --profile, $command_name emploierait le profil livré, qui écrit ses données dans le dossier du programme. Indiquer le profil de l'utilisateur (--profile <racine des données>/profile.yaml) ou passer par le lanceur atelier de l'installation." ;;
+# Dossier d'un kit hors ligne ou programme installé (kit-manifest.json à la racine). Un programme installé est désigné par
+# le pointeur de l'installateur (../installation.json, version courante ou précédente) ; un kit extrait ne l'est pas et ne
+# s'exécute pas sur place.
+if [ -f "$project_root/kit-manifest.json" ]; then
+    installed=0
+    for root in "$project_root" "$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -L)"; do
+        if [ -f "$root/../installation.json" ] && grep -F -q -- "\"program\": \"$root\"" "$root/../installation.json"; then
+            installed=1
+        fi
+    done
+    kit_refusal="Dossier d'un kit hors ligne : il ne s'exécute pas sur place et ne télécharge rien. Lancer ./installer.sh depuis ce dossier (voir LISEZMOI.md) ; rien n'a été exécuté."
+    # Une version installée n'est jamais remplacée sur place : reprise par le kit d'une autre version (comme
+    # platforms.reinstall_command, cité par doctor), ou, avec le seul kit de cette version, section 10.4 du dépannage.
+    destination=$(dirname -- "$project_root")
+    case "$destination" in
+        *[!A-Za-z0-9_@%+=:,./-]*) destination="'$(printf '%s' "$destination" | sed "s/'/'\\\\''/g")'" ;;
     esac
+    reinstall="mettre à jour depuis le kit d'une autre version (<dossier du kit>/installer.sh update --destination $destination), une version installée n'étant jamais remplacée sur place ; avec le seul kit de cette version : docs/exploitation/DEPANNAGE.md, section 10.4"
+    # Seules phases réseau (W001) : un kit et une installation hors ligne ne téléchargent rien, profil explicite ou non.
+    case "$command_name" in
+        provision|pull-model)
+            [ "$installed" -eq 1 ] || fail "$command_name télécharge des artefacts ou un modèle : refusé dans un kit hors ligne, dont les artefacts et les modèles sont déjà livrés. Lancer ./installer.sh depuis ce dossier (voir LISEZMOI.md) ; rien n'a été téléchargé."
+            fail "$command_name télécharge des artefacts ou un modèle : refusé dans une installation hors ligne, dont les artefacts et les modèles viennent du kit. Pour un fichier du programme manquant, $reinstall ; rien n'a été téléchargé."
+            ;;
+    esac
+    # Le profil livré écrirait données, contrôle et sauvegardes dans le dossier programme. Seules les commandes qui
+    # n'emploient pas le profil (init-profile, verify, restore) s'en passent.
+    if [ "$profile_seen" -eq 0 ]; then
+        case "$command_name" in
+            init-profile|verify|restore) ;;
+            *)
+                [ "$installed" -eq 1 ] || fail "$kit_refusal"
+                fail "Installation de l'atelier : sans --profile, $command_name emploierait le profil livré, qui écrit ses données dans le dossier du programme. Indiquer le profil de l'utilisateur (--profile <racine des données>/profile.yaml) ou passer par le lanceur atelier de l'installation."
+                ;;
+        esac
+    fi
+    if [ ! -f "$project_root/.venv/bin/python" ]; then
+        [ "$installed" -eq 1 ] || fail "$kit_refusal"
+        fail "Programme installé incomplet (environnement isolé absent) : $reinstall ; rien n'a été exécuté."
+    fi
 fi
 project_python=$project_root/.venv/bin/python
 if [ ! -f "$project_python" ]; then
@@ -134,7 +167,7 @@ fi
 export PYTHONUTF8=1
 # Le CLI et ses sondes (uv, pnpm, Tesseract) n'utilisent que les bibliothèques du système : un LD_LIBRARY_PATH hérité du
 # profil shell n'est pas transmis (un élément vide y désigne le répertoire courant pour le chargeur dynamique).
-unset LD_LIBRARY_PATH
+unset LD_LIBRARY_PATH RAG_DATA_DIR
 # Installation : un profil explicite est refusé s'il est rangé dans le programme (profil livré) ou s'il y écrirait ses
 # données ; tools/dist/linux_profiles.py résout ses emplacements comme le runtime.
 if [ -f "$project_root/kit-manifest.json" ] && [ "$profile_seen" -eq 1 ]; then

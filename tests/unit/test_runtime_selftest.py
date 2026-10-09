@@ -33,7 +33,7 @@ def test_control_profile_isolates_data_and_ports_but_shares_the_host_heavy_lock(
         if sys.platform == "win32":
             assert len(str(root / "q" / "storage")) <= 57
         assert runtime_location(profile, "host_lock_path") == runtime_location(base, "host_lock_path")
-        assert runtime_location(profile, "backups_dir") == root / "backups"
+        assert runtime_location(profile, "backups_dir") == (root / "backups").resolve()
         ports = {profile["app"]["port"], yaml.safe_load(path.read_text(encoding="utf-8"))["qdrant"]["url"].rsplit(":", 1)[1], profile["llm"]["base_url"].rsplit(":", 1)[1]}
         assert len(ports) == 3 and base["app"]["port"] not in ports
     finally:

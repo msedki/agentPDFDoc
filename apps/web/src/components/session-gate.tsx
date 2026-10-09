@@ -13,6 +13,7 @@ const SessionContext = createContext<{ logout: () => Promise<void> } | null>(nul
 const subscribeHydration = () => () => {};
 const clientSnapshot = () => true;
 const serverSnapshot = () => false;
+type SessionGateState = GateState | { kind: "closing" } | { kind: "logout_failed"; failure: unknown };
 
 /** Commandes de session pour la barre supérieure ; null hors de l'atelier ouvert. */
 export function useSessionControls() {
@@ -30,11 +31,12 @@ export function SessionGate({ children }: { children: ReactNode }) {
 
 function SessionGateClient({ children }: { children: ReactNode }) {
   const [invalidLink] = useState(() => linkInvalidFromSearch(window.location.search));
-  const [state, setState] = useState<GateState>(() => invalidLink ? { kind: "ended", reason: "link_invalid" } : { kind: "checking" });
+  const [state, setState] = useState<SessionGateState>(() => invalidLink ? { kind: "ended", reason: "link_invalid" } : { kind: "checking" });
   // Les textes qui citent le lanceur se recalculent quand /health annonce les commandes du poste.
   const commands = useLauncherCommands();
   const stopRetry = useRef<(() => void) | null>(null);
   const mounted = useRef(false);
+  const logoutPending = useRef(false);
   // Service muet ou /health en échec : nouvelles lectures espacées et bornées, aucune si les commandes sont
   // connues ; la série précédente est arrêtée, et aucune ne part après le démontage.
   const retryCommands = useCallback(() => {
@@ -69,9 +71,16 @@ function SessionGateClient({ children }: { children: ReactNode }) {
   }, [check, retryCommands, invalidLink]);
 
   const logout = useCallback(async () => {
-    // Les cookies sont effacés par le serveur même si la révocation échoue ; l'écran reflète la fermeture.
-    await api.logout().catch(() => undefined);
-    setState({ kind: "ended", reason: "session_closed" });
+    if (logoutPending.current || !mounted.current) return;
+    logoutPending.current = true;
+    setState({ kind: "closing" });
+    try {
+      // Seule la réponse du serveur confirme l'effacement des cookies ; une panne réseau ne le garantit pas.
+      await api.logout();
+      if (mounted.current) setState({ kind: "ended", reason: "session_closed" });
+    } catch (failure) {
+      if (mounted.current) setState(current => current.kind === "ended" ? current : { kind: "logout_failed", failure });
+    } finally { logoutPending.current = false; }
   }, []);
 
   if (state.kind === "open") return <SessionContext.Provider value={{ logout }}>{children}</SessionContext.Provider>;
@@ -79,6 +88,9 @@ function SessionGateClient({ children }: { children: ReactNode }) {
     <div className="session-card">
       <p className="eyebrow">Atelier documentaire</p>
       {state.kind === "checking" && <><h1 id="session-title">Ouverture de l'atelier</h1><PanelLoading label="Vérification de la session…" /></>}
+      {state.kind === "closing" && <><h1 id="session-title">Fermeture de la session</h1><PanelLoading label="Confirmation auprès du service local…" /></>}
+      {state.kind === "logout_failed" && <><h1 id="session-title">Fermeture de la session non confirmée</h1>
+        <PanelError title="La session peut encore être active" message={`${unreachableText(state.failure, commands)} Réessayez la fermeture pour que le service local efface les cookies de ce navigateur et révoque la session.`} onRetry={() => void logout()} retryLabel="Réessayer la fermeture" /></>}
       {state.kind === "unreachable" && <><h1 id="session-title">Ouverture de l'atelier impossible</h1>
         <PanelError title="Vérification de la session impossible" message={unreachableText(state.failure, commands)} onRetry={retrySession} retryLabel="Vérifier de nouveau" /></>}
       {state.kind === "ended" && <SessionEnded reason={state.reason} onRetry={retrySession} />}

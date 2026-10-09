@@ -327,7 +327,7 @@ Le **travail des agents** peut consulter Internet selon l'autorisation de l'util
 
 # Registre et usage des skills — RAG-LOCAL-16 V2.1
 
-**Statut :** registre vivant des skills présents dans le dépôt. **Date :** 30/09/2026 (UTC), mis à jour le 06/10/2026 (UTC). **Référence :** empreintes SHA-256 des fichiers de la révision Git qui contient ce registre, recontrôlées à chaque exécution de `tools/verify_pack.py`.
+**Statut :** registre vivant des skills présents dans le dépôt. **Date :** 30/09/2026 (UTC), mis à jour le 09/10/2026 (UTC). **Référence :** empreintes SHA-256 des fichiers de la révision Git qui contient ce registre, recontrôlées à chaque exécution de `tools/verify_pack.py`.
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)).
 
@@ -398,8 +398,9 @@ Chaque ligne donne le fichier, son origine telle qu'elle se constate dans le dé
 | rag-qualification-fixtures | projet | [`.agents/skills/rag-qualification-fixtures/SKILL.md`](../.agents/skills/rag-qualification-fixtures/SKILL.md) | Rédigé pour ce dépôt (renvoie à `RAG_Local_Agents/`) ; création non tracée dans `PLAN.md` ni le journal | `04dd992863315562c3910ab05fac6e353843fc70e11ce199b19df759fb8f2e7f` | PASS `agents_skill_format` | NOT_RUN |
 | windows-rag-runtime | projet | [`.agents/skills/windows-rag-runtime/SKILL.md`](../.agents/skills/windows-rag-runtime/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot E de `PLAN.md` ; lecture consignée dans `reports/skills-usage-2026-09-30.json` ; section « Accélération GPU » du lot J11.9 (02/10/2026) rédigée d'après le code du commit `4d8ba68`, sans essai sous Windows, puis corrigée le 02/10/2026 après une relecture contradictoire non versionnée | `538f75c2cbee38453f192d4db8cd311d1787fdfd13316bc81b677df65851acab` | PASS `agents_skill_format` | NOT_RUN |
 | embedding-comparison-windows | projet | [`.agents/skills/embedding-comparison-windows/SKILL.md`](../.agents/skills/embedding-comparison-windows/SKILL.md) | Rédigé pour ce dépôt ; création consignée au journal du 30/09/2026 | `b2f18df54759dff6273605215188d22f9d1462f302e1ccd4e2292058020fa49f` | PASS `agents_skill_format` | NOT_RUN |
-| linux-rag-runtime | projet | [`.agents/skills/linux-rag-runtime/SKILL.md`](../.agents/skills/linux-rag-runtime/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot J0 de `PLAN.md` (W018) ; sources officielles consultées le 01/10/2026 (LNX01 à LNX15, LNX19 et LNX20 de `SOURCES.md`), affirmations revérifiées par un vérificateur indépendant ; compléments de la ronde 5 (compilateurs, `open` selon W023, glibc lue par `bootstrap.sh`, plancher glibc d'Ollama) vérifiés contre le code par l'intégrateur, sans revue indépendante ; section « Accélération GPU » du lot J11.9 (02/10/2026) rédigée d'après le code du commit `4d8ba68`, les résultats de l'essai J11.8 (résumés dans la section 5.1 de `docs/architecture/ARCHITECTURE.md`, preuves hors Git) et GPU01 à GPU15 de `SOURCES.md`, puis corrigée le 02/10/2026 après une relecture contradictoire non versionnée ; paragraphe Interface et E2E mis à jour le 02/10/2026 (lot J9) | `29e50be8c1c5ccd42e577448e9d77ab2dacb4520525a1343ad7d658007e931d2` | PASS `agents_skill_format` | NOT_RUN |
-| linux-offline-kit | projet | [`.agents/skills/linux-offline-kit/SKILL.md`](../.agents/skills/linux-offline-kit/SKILL.md) | Rédigé le 06/10/2026 pour R26-KIT-00 après consultation des sources officielles KIT01 à KIT16 de `SOURCES.md` ; `metadata.origin: project-authored` ; révisé le 06/10 après la revue indépendante et la contre-vérification de R26-KIT-01 | `b03211b4ba36c1d987824c99d34ef742b7e24313126643b8d8e0ea3d1e2d0ce9` | PASS `agents_skill_format` et quick_validate (06/10/2026) | NOT_RUN : recette réelle R26-KIT-02 à exécuter |
+| linux-rag-runtime | projet | [`.agents/skills/linux-rag-runtime/SKILL.md`](../.agents/skills/linux-rag-runtime/SKILL.md) | Rédigé pour ce dépôt ; création citée au lot J0 de `PLAN.md` (W018) ; sources officielles consultées le 01/10/2026 (LNX01 à LNX15, LNX19 et LNX20 de `SOURCES.md`), affirmations revérifiées par un vérificateur indépendant ; compléments de la ronde 5 (compilateurs, `open` selon W023, glibc lue par `bootstrap.sh`, plancher glibc d'Ollama) vérifiés contre le code par l'intégrateur, sans revue indépendante ; section « Accélération GPU » du lot J11.9 (02/10/2026) rédigée d'après le code du commit `4d8ba68`, les résultats de l'essai J11.8 (résumés dans la section 5.1 de `docs/architecture/ARCHITECTURE.md`, preuves hors Git) et GPU01 à GPU15 de `SOURCES.md`, puis corrigée le 02/10/2026 après une relecture contradictoire non versionnée ; paragraphe Interface et E2E mis à jour le 02/10/2026 (lot J9) | `d09078539e3b9516b67a98ade1bddfb75b0258386fad4de4e0e211d48eb350c6` | PASS `agents_skill_format` | NOT_RUN |
+| linux-offline-kit | projet | [`.agents/skills/linux-offline-kit/SKILL.md`](../.agents/skills/linux-offline-kit/SKILL.md) | Rédigé le 06/10/2026 pour R26-KIT-00 après consultation des sources officielles KIT01 à KIT16 de `SOURCES.md` ; `metadata.origin: project-authored` ; révisé le 06/10 après la revue indépendante et la contre-vérification de R26-KIT-01 ; révisé le 07/10 pour W045 (4B par défaut) | `43c0f6ae2f7b25eac3ccc9400ba65e53ac26b525754045037b361011934f0256` | PASS `agents_skill_format` et quick_validate (06/10/2026) | NOT_RUN : recette réelle R26-KIT-02 à exécuter |
+| office-document-ingestion | projet | [`.agents/skills/office-document-ingestion/SKILL.md`](../.agents/skills/office-document-ingestion/SKILL.md) | Créé le 09/10/2026 pour l’étude DOCX/XLSX R28 ; standards OOXML et code mainteneur versionné confrontés aux bibliothèques installées ; aucun support produit Office annoncé | `52ff81dfdc54beaf9319064282813a737ebbbd17dda967cd63d79acc1396bdb6` | PASS quick_validate (09/10/2026) | NOT_RUN : étude, prototypes QA et implémentation produit distingués |
 | backend-patterns | tiers | [`.agents/skills/backend-patterns/SKILL.md`](../.agents/skills/backend-patterns/SKILL.md) | Autre projet : décrit le backend Decodair (PostgreSQL, SQLAlchemy 2) et renvoie au skill `postgresql-data-pipelines`, absent ici | `15bcac61e48183586d8b3ecd8cebabda3ad9c9ae782a3f4beb5dab7adecc986f` | PASS `agents_skill_format` | NOT_RUN |
 | agent-introspection-debugging | tiers | [`.agents/skills/agent-introspection-debugging/SKILL.md`](../.agents/skills/agent-introspection-debugging/SKILL.md) | Champ `origin: ECC` et section « Integration with ECC » ; source non vérifiée | `84f817fd626369280affe13883acb490c3856c0b108f9bb2ff78a59c7ce78aff` | PASS `agents_skill_format` | NOT_RUN |
 | frontend-design | tiers | [`.agents/skills/frontend-design/SKILL.md`](../.agents/skills/frontend-design/SKILL.md) | Aucune origine déclarée ; contenu générique sans référence à ce dépôt ; source non vérifiée | `50aff55b89e8d2699940dfa7308db236aed7749c7efebf92451ba00b0ca5b95e` | PASS `agents_skill_format` | NOT_RUN |
@@ -1096,7 +1097,7 @@ Le résultat attendu demeure une chaîne réelle import → OCR/extraction → d
 
 # Qualification ciblée — RAG-LOCAL-16 V2.1
 
-**Rôle :** protocole de qualification, prérequis et limites de preuve · **Propriétaire :** qualification du produit · **Statut :** Vivant · **Référence :** V2.1, décisions W001/W018/W024/W025 et base publiée `05da85c` ; correction documentaire du contrôle de chemin Linux le 2026-10-03 · **Mis à jour :** 2026-10-03 01:04 (UTC) · **Source de vérité :** ce document pour la méthode ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** protocole de qualification, prérequis et limites de preuve · **Propriétaire :** qualification du produit · **Statut :** Vivant · **Référence :** V2.1, décisions W001/W018/W024/W025 et base publiée `05da85c` ; correction documentaire du contrôle de chemin Linux le 2026-10-03 · **Mis à jour :** 2026-10-09 17:19 (UTC) · **Source de vérité :** ce document pour la méthode ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)). **W024 et W025 (01/10/2026) : le CPU reste le socle, le repli et la référence de la recette D07 ; seule la génération par Ollama peut passer sur GPU, automatiquement sur les voies qualifiées par un essai réel** ([W025](DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024)). Les mesures D07 se font en calcul CPU imposé (section 8).
 
@@ -1231,9 +1232,11 @@ Procédure employée le 2 octobre 2026 pour la qualification Linux (lot J8 du [p
 
 ### 10.3 Navigateur des scénarios Playwright
 
-Playwright 1.63.0 ne prend plus en charge Ubuntu 20.04 (notes de version citées en LNX15 de [SOURCES.md](SOURCES.md)). Les scénarios exécutés pour D06 et D08.6 ont tourné dans Chrome Headless Shell, sur des instances isolées, avec la variable `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE` posée pour l'installation et pour chaque commande : elle fait retenir à Playwright les navigateurs d'une plateforme prise en charge, la sienne restant marquée comme non prise en charge officiellement. Version du navigateur, commandes et limites : [apps/web/README.md](../apps/web/README.md), section « Scénarios Playwright sous Linux aarch64 » ; provenance et empreinte : TOOL02 de [SOURCES.md](SOURCES.md). L'acceptation de cette méthode comme preuve D06 reste à décider par l'utilisateur.
+Playwright 1.63.0 ne prend plus en charge Ubuntu 20.04 (notes de version citées en LNX15 de [SOURCES.md](SOURCES.md)). Les scénarios exécutés pour D06 et D08.6 ont tourné dans Chrome Headless Shell, sur des instances isolées, avec la variable `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE` posée pour l'installation et pour chaque commande : elle fait retenir à Playwright les navigateurs d'une plateforme prise en charge, la sienne restant marquée comme non prise en charge officiellement. Version du navigateur, commandes et limites : [apps/web/README.md](../apps/web/README.md), section « Scénarios Playwright sous Linux aarch64 » ; provenance et empreinte : TOOL02 de [SOURCES.md](SOURCES.md). La méthode a été acceptée par l'utilisateur le 6 octobre 2026 (W040), pour les preuves bornées sur ce poste ; cette acceptation ne change pas le support éditeur ni la qualification des autres plateformes.
 
 ### 10.4 Session hors ligne
+
+Pour la recette du kit R27, la garde de l'installateur refuse l'UID0. Le lanceur de QA conserve donc l'UID/GID réel dans un espace utilisateur dédié, crée son espace réseau, active loopback puis exécute les commandes sans capacités. La sonde préparatoire confirme UID1000, CapEff/Prm/Amb nuls, loopback disponible et réseau externe inaccessible. Ce contrôle ne remplace pas encore la recette applicative. Les observations historiques ci-dessous gardent leurs conditions propres.
 
 Les critères D01.2, D08.1, D08.2 et l'observation de l'exfiltration pour D08.5 se jugent dans une session sans réseau, ouverte sans droits d'administration par `unshare -rn` : espace de noms utilisateur et réseau où le compte a l'identifiant 0 et où seule `lo` existe (LNX04 de [SOURCES.md](SOURCES.md)). La boucle locale y est distincte de celle de l'hôte : les services du poste n'y sont pas joignables.
 
@@ -1739,7 +1742,211 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, livraison locale retenue avec réserves ; reprise R26 autorisée (réserves Linux et distribution Linux) ; qualification intégrale en attente hors de ce périmètre · **Référence :** base publiée `011a817` et modifications locales R26 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 22:55 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et relue, corrections R27 et recette Linux R26 en cours, qualification globale non acquise · **Référence :** base publiée `75df760` et modifications locales R26/R27 et étude R28 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-09 18:31 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+
+## R28 — étude de l'extension DOCX/XLSX avant implémentation
+
+**Objectif :** intégrer DOCX et XLSX dans le poste documentaire existant,
+avec structure, recherche et citations exactes, en conservant PDF.
+**Périmètre daté :** demande du 9 octobre ; étude préalable finalisée avant
+toute implémentation Office. **Sources :** code sur `75df760` + corrections
+locales R27, bibliothèques verrouillées, sources officielles versionnées,
+[étude consolidée](reports/extension-office-2026-10-09.md), skill
+`office-document-ingestion`, preuves d'étude sur SD.
+**Résultat attendu de cette phase :** candidats comparés et mesurés,
+architecture et contrats proposés, lots exécutables et critères précis.
+
+La phase actuelle autorise lecture, recherche officielle, prototypes isolés
+de benchmark et documentation ; aucun code produit Office n'est livré.
+Le plan d'implémentation ci-dessous est une proposition, pas une annonce
+de réalisation ni une autorisation anticipée pendant l'étude.
+CPU, au plus 16 Go de RAM et sans GPU requis ; Windows natif et GNU/Linux
+aarch64/x86-64 sous prérequis documentés, sans dépendance Jetson/Ubuntu
+dans l'extraction Office. Windows sera recetté plus tard par l'utilisateur.
+Les essais du Jetson 61 Gio ne deviennent pas des preuves 16 Go / x86-64/Windows.
+
+### R28.1 — étude et preuves
+
+| Action | Axe / responsable | Dépendances | Livrable et critère | État / preuve |
+|---|---|---|---|---|
+| R28-ST-01 | Extraction/fidélité | Versions réelles et sources mainteneur | Comparatif sur mêmes fichiers, pertes/structures/cache, sécurité, temps et RSS ; oracle et limites explicites | EXÉCUTÉ — 18 cas/105,08 s, 14 lectures réussies et quatre corruptions rejetées ; pertes de fidélité conservées, pas 18 PASS produit. Six ancrages exacts, sonde Strict distincte. `extraction/benchmark-2/summary.json`, `fidelity-results.json`, `anchor-probe.json`, `strict-docx-contract.json`. |
+| R28-ST-02 | DB/API/RAG | Contrats réels ; ST-01 | Réutilisation et adaptations précisément localisées ; migration/citations/scopes/indexation compatibles proposés | EXÉCUTÉ — modèle v3 sondé en mémoire, adaptations dans étude backend ; aucune migration persistante ni source Office. `backend/current-contract-probe.json`, rapport backend. |
+| R28-ST-03 | Frontend/parcours | ST-01/02 et contrats actuels | Import, lecteur/navigation, sélection/citations, analyse/comparaison, alternatives et tests proposés | EXÉCUTÉ — 20 frontières vérifiées, 149 fichiers inchangés. `frontend/frontend-study.md`, `verification.json` ; E2E Office NOT_RUN. |
+| R28-ST-04 | Intégration/validation indépendante | ST-01/02/03 | Choix et architecture cohérents, plan actionnable, source→fait→mesure→proposition traçable ; revue indépendante et contrôles documentaires | VALIDÉ ÉTUDE — avis indépendant GO, 15 contrôles finaux (14 contrôles de preuve préalables), 62 tests docs, docs7/7 et pack11/11 ; SVG reproductible et rendu clair/sombre examiné. `review/final-evidence.json`, `review/final-review.md`, `root/r28-docs/`. Aucun PASS produit Office. |
+
+Base des preuves : `.runtime/qa/r27-20261009/office-study/`. Les fichiers
+synthétiques et exemples officiels sont de vrais conteneurs OOXML, mais
+ne constituent pas un corpus métier représentatif. Les gros fichiers et
+mesures CPU 16 Go restent à exécuter. Étude détaillée et chiffres dans le
+rapport ; actions et statuts uniquement dans ce PLAN.
+
+### R28.2 — choix techniques proposés et frontières
+
+| Sujet | Choix justifié / effet sur l'existant | Gate avant livraison |
+|---|---|---|
+| DOCX | python-docx 1.2.0 pour helpers publics et OOXML borné pour texte/parties/ancrages ; Strict et Transitional. Docling Office non retenu comme vérité : pertes littérales et ancrage absent obligeraient un second parcours. | Qualifier styles/listes/révisions/notes/objets et namespaces ; aucun succès silencieux sur contenu perdu. |
+| XLSX | openpyxl 3.1.5 read_only + complément streaming OOXML pour valeur brute, `<f>/<v>`, tables/fusions/métadonnées. Pas de recalcul. | Jointure exacte cellules/cache, formules shared/array, types/dates, Strict/Transitional et sparse ; budget styles/sharedStrings mesuré. |
+| Socle | SQLite, Qdrant, FTS5/RRF, E5 ONNX CPU, Ollama et export Next statique conservés. Pas de GraphRAG, nouveau framework/DB/runtime Java/bureautique. | Recherche/scopes/citations mixtes réels et non-régression PDF. |
+| Architecture | Dispatch Office dans jobs vers `services/ingestion/office/` proposé ; voie PDF inchangée. Localisateurs `pdf_page`/`docx_element`/`xlsx_cells` et sortie Office structurée immutable. | Empreinte PDF conservée si sa voie est inchangée ; changement partagé réellement nécessaire = identité actualisée honnêtement. |
+| Données | Migration versionnée, pages nullables Office, locators, unités et cellules sparse avec bindings texte ; version/révision/génération inchangées comme principes. | Backup, FK/invariants/citations/FTS avant-après, crash/rollback, compatibilité SQLite de chaque cible ; aucune pseudo-page. |
+| Frontend | Même bibliothèque/analyses, lecteur React depuis extraction canonique, grille par fenêtres de lignes et colonnes, liens query/source conservés. | Sélection/hash/offsets, révision archivée, clavier/rendu, budgets ; PDF.js ne charge jamais Office. |
+| Visuel et calcul | Lecture structurée, images/légendes/relations. Pas de pagination Word garantie ni d'analyse image implicite. LibreOffice/Pandoc/Mammoth non requis. | Limites visibles ; éventuel dérivé visuel ou moteur de calcul constitue un lot ultérieur justifié. |
+
+Politique initiale proposée : DOCX en vue finale des révisions (insertions
+incluses, suppressions conservées hors texte de lecture, état signalé) ;
+notes/commentaires/en-têtes/pieds gardent leur rôle et ancrage. XLSX conserve
+toutes les feuilles/visibilités ; un scope « classeur entier » inclut les
+feuilles indexées, masquées signalées, et une feuille/plage ne s'élargit pas.
+Caches présents = fraîcheur inconnue, caches absents = absents. Aucun lien,
+macro, formule ou objet externe exécuté. Les documents privés ne sont pas
+requis pour l'implémentation ; leur recette métier restera distincte.
+
+### R28.3 — lots d'implémentation proposés, non commencés
+
+Tous les lots ci-dessous sont **PROPOSÉS / NON COMMENCÉS**. Un propriétaire
+unique tient contrats, migration et lockfile ; extraction DOCX et XLSX
+peuvent ensuite avancer séparément. Frontend travaille sur contrat gelé,
+avec intégration verticale précoce, pas sur un mock annoncé réel.
+
+| Action | Couche / fichiers concernés | Dépendances | Livrable et critère de clôture |
+|---|---|---|---|
+| R28-I-01 | Contrats, sécurité et configuration : `packages/contracts/contracts.json`, `services/api/schemas.py`, `db.py`, `main.py`, `services/runtime/profile_schema.py`, `tools/corpus/import_folder.py`, `pyproject.toml`/`uv.lock`, sous-package Office proposé | ST-04 finalisée | Format réel/MIME/chemins sûrs, modèles locators/structures/coverage versionnés, préflight OPC/quotas/DOCTYPE/entities, dépendances directes à versions conservées. Types API/web et profil strict concordent ; conteneurs hostiles refusés sans parseur dangereux. Critères C01/C02/C09/C12. |
+| R28-I-02 | Persistance/API de lecture : migration004 proposée, `db.py`, `main.py`, `scope.py` ; unités/cellules/bindings | I-01 | Migration portable v3→v4, stockages sparse, endpoints de représentations/unités/plages bornés et épinglés, téléchargement MIME correct. PDF anciens/citations/FTS intacts, FK et query plans vérifiés ; interruption ne laisse pas un schéma semi-migré. C02/C05/C08/C11. |
+| R28-I-03 | Extraction DOCX : sous-package Office/worker/checkpoints proposés, dispatch `services/api/jobs.py` | I-01 ; contrat I-02 pour intégration | V1 : titre, texte répété, table et ancrages ; V2 : Strict/Transitional, styles/listes/révisions/notes/images/légendes/parties et métadonnées. Texte exact, ordre, structures et couverture testés ; reprise sans doublons ni changement d'original. C03/C05/C09/C10. |
+| R28-I-04 | Extraction XLSX : même sous-package, worker/checkpoints ; cellules structurées | I-01 ; contrat I-02 pour intégration | V1 : deux feuilles, cellules typées, formule/cache et plage ; V2 : tables/fusions/noms/visibilité, shared/array, relations et métadonnées, Strict/Transitional, dates 1900/1904/sparse. Lecture streaming et valeur brute préservées, caches absents/périmés déclarés, aucune évaluation. C04/C05/C09/C10. |
+| R28-I-05 | Indexation et RAG : `indexing.py`, `scope.py`, `retrieval.py`, `context.py`, `query.py`, `comparison.py` | I-02 + V1 I-03/04 ; clôture après V2 | Projection narrative/tableaux bornée avec bindings cellule/texte, identité chunker Office distincte, index/caches/publication existants ; sheet/cell_range autoritaires avant top-k et contexte. Recherche/question/analyse/comparaison mixtes avec citations exactes et annulation/SSE ; aucun total exhaustif inventé par top-k. C05/C06/C07/C08/C11. |
+| R28-I-06 | Frontend : `library-panel.tsx`, `workspace.tsx`, `document-tools.tsx`, `scope-control.tsx`, lecteurs Office proposés, `types.ts`, `store.ts`, sélection/cache/citation helpers | I-01/02 contrats gelés + V1 I-03/04/I-05 | Import mixte et jobs réels, mêmes panneaux, lecteurs structurés et fenêtres bornées ; sélection sections/feuilles/plages, inspecteur type/formule/cache, citations/retour exacts. Action critique explicitement liée au mode `analysis` existant et limites. Lint/types/unités/build et rendu/E2E API réelle ; C05/C07/C08/C11/C12. |
+| R28-I-07 | Qualification et non-régression indépendante : fixtures annotées versionnées, suites unitaires/API/E2E, corpus autorisé | Vertical V1 puis I-01→06 finalisés | Contrat→extraction→DB→FTS/Qdrant→RAG→citation→lecteur réellement exercé ; corpus/métriques gelés, grands/adverses/reprise, CPU 16 Go et plateformes séparées. Aucun mock ne clôture chaîne réelle ; avis indépendant et écarts corrigés. Tous C01→C12. |
+| R28-I-08 | Livraison/documentation : PLAN, décisions, sources, CHANGELOG, docs de contrats/exploitation et kits affectés | I-07 preuves acquises | Documentation livrée alignée, dépendances et notices/kits Windows/Linux vérifiés hors ligne, backup/migration/reprise exécutables ; commit/push selon politique. Pas de clôture globale DoD tant que ses réserves distinctes restent ouvertes. C10/C11/C12. |
+
+**Premier jalon exécutable après étude :** fixer les modèles et quotas I-01,
+puis brancher un petit DOCX et un petit XLSX dans la chaîne réelle I-02/03/04
+V1→I-05→I-06. Faire échouer les tests sur la voie PDF-only actuelle, vérifier
+chaque citation source/lecteur, puis compléter V2. Aucun grand corpus privé
+ni campagne finale protégé n'est nécessaire à ce jalon.
+
+### R28.4 — critères d'acceptation et tests
+
+Les critères complètent la DoD existante pour l'extension ; ils ne baissent
+aucun seuil PDF. Un résultat de parseur ou une capture décorative ne prouve
+pas l'intégration. Chaque preuve lie commit/empreintes, cible, configuration,
+corpus et commande ; échecs et reprises gardés séparément.
+
+| ID | Scénario / oracle | Critère vérifiable |
+|---|---|---|
+| R28-C01 | Import réel mixte, MIME absent/incorrect, chemins Windows/Unicode, réimport/move/version | Format identifié par package ; originaux SHA inchangés ; exactement une version/job approprié, états et refus par fichier exacts, contrôles session/CSRF et taille conservés. |
+| R28-C02 | Migration sur base v3 isolée remplie de PDF et citations, redémarrage répété, crash au milieu, SQLite de chaque cible | 100% IDs/texte/hash/citations/FTS PDF conservés, FK/integrity conformes, transaction atomique, idempotence, backup restaurable et aucun minimum SQLite relevé implicitement. |
+| R28-C03 | DOCX annotés réels Strict/Transitional, répétitions, styles/listes, tables 1×1/imbriquées/fusions, images/légendes, notes/commentaires/révisions/parties | 100% faits attendus de l'oracle et localisations exacts ; ordre source et texte littéral conservés ; chaque élément non couvert identifié et statut partiel, jamais succès silencieux. |
+| R28-C04 | XLSX multi-feuilles/table/noms/fusions, nombres exacts/dates 1900-1904/erreurs/vides, shared/array, caches présents/absents/périmés et refs externes | Valeur/type/format/formule/cache/adresse distincts et exacts ; aucun cache absent inventé ni fraîcheur certifiée ; tables et relations préservées selon oracle, aucun calcul/lien exécuté. |
+| R28-C05 | Requête puis clic de toutes citations de l'oracle, texte répété/Unicode, cellule/plage, changement de version/réindexation | 100% citations testées résolvent version/révision/source exactes et ouvrent l'élément ; aucun `page1`, latest implicite ou hash texte client autoritaire. |
+| R28-C06 | JeuDEV Office annoté et gelé : retrieval lexical/dense/identifiant, questions mixtes, absence de preuve | EvidenceRecall@10 et EvidenceCoverage@Context au moins0,90 selon D04 sur preuves annotées ; réponses/incertitude/abstentions évaluées avec dénominateurs explicites, sans tuning sur jeu final. Ces scores restent NOT_RUN aujourd'hui. |
+| R28-C07 | Question/analyse critique/comparaison 2–4 PDF/DOCX/XLSX ; formule sans cache, total hors contexte | Faits et inférences distingués, sources correctes, limites/couverture annoncées ; pas de résultat de calcul non exécuté ni synthèse top-k prétendument exhaustive. Modeanalysis/API existant et UI réelle vérifiés. |
+| R28-C08 | Feuille/plage/section/sélection, chunk chevauchant deux plages et en-têtes hors plage, archive/source supprimée ; deux classeurs différant uniquement hors plage | Contenu ET classement/identifiants recherchés calculés sur projections autorisées avant tout top-k ; mêmes preuves autorisées = rang/adresses/identifiants couverts invariants, pas UUID interversions. Petite plage = extraits directs ; frontières larges = projections/FTS5 avec statistiques du scope/E5/cache bornés ou limite visible. Intersection bindings exacte, parent/focus/historique sans fuite, aucun élargissement ni collection par plage. |
+| R28-C09 | Archives/XML corrompus, CRC, faux types, traversal/doublons, bombes bornées, DTD/XXE, macros/liens/images/objets | Refus avant allocation/exécution dangereuse, code exploitable ; aucune connexion externe, lecture arbitraire, script ou formule ; quotas réels et temporaires contrôlés, aucun original changé. |
+| R28-C10 | Gros DOCX milliers de paragraphes et XLSX 10k/100k/1M cellules présentes, sparse+sharedStrings, pause/cancel/crash/reprise | Quotas gelés avant campagne ; RSS/temps mesurés sur CPU 16 Go réel avec runtime complet et seuils D07 conservés. Aucun rectangle vide matérialisé, publication complète seulement après vérifications ; reprise/dédup sans perte. Les tailles qui dépassent le budget sont explicitement refusées, pas qualifiées. |
+| R28-C11 | PDF de référence inchangés, citations anciennes, OCR/table/rotation/pages/scopes, défauts R27 | Empreinte d'extraction PDF inchangée si voie inchangée ; tests/contracts/citations et parcours E2E/rendu antérieurs verts, caches et générations cohérents. Aucune régression de longueur/provenance/session/recherche. |
+| R28-C12 | Poste/documentation/kits sous compte standard, hors ligne, Windows natif et Linux aarch64/x86-64 ; rendu 1366×768/1920×1080/clavier | Build export/provenance, dépendances directes/caches locaux et notices mainteneur vérifiés (openpyxl/et-xmlfile inclus), handles Windows fermés, UX exploitable, aucun sudo/service/globalPATH ; preuves par plateforme et architecture, Windows différé reste NOT_RUN jusqu'à recette. |
+
+Corpus de développement : conserver le générateur et manifestes du benchmark,
+étendre avec les oracles ci-dessus avant implémentation et ajouter des
+documents utilisateurs seulement après autorisation précise. Garder la
+séparation DEV/final ; le corpus actuel n'est pas réétiqueté métier/final.
+Les fixtures officielles restent sous preuve avec leur provenance/licence ;
+ne pas les publier aveuglément dans Git.
+
+Contrôles existants réutilisables : depuis la racine, Ruff, mypy
+`--platform linux` et `--platform win32`, suites `tests/unit`, API
+`tests/integration/test_api_http.py`, `test_api_session.py`, `test_api_tls.py`.
+Dans `apps/web`, scripts pnpm verrouillés `lint`, `typecheck`, `test:unit`,
+`build` et `test` définis par package.json. Les nouvelles suites Office
+seront ajoutées dans ces emplacements et exécutées sur cibles isolées ;
+pas de commande de recette Office présentée comme existante aujourd'hui.
+
+### R28.5 — inconnues et estimation
+
+- Les parseurs légers sont choisis pour fidélité/source et coût mesuré sur
+  petits fichiers ; coût final de l'adaptateur, gros styles/sharedStrings,
+  reprises et cellule→texte reste à mesurer dans I-03/04/07.
+- Strict, formules dynamiques, objets flottants/embarqués, images et toutes
+  variantes OOXML exigent couverture explicite ; pas de promesse universelle
+  à partir de six ancrages. Les variantes non supportées doivent être
+  signalées/refusées, puis faire l'objet d'un choix si elles sont métier.
+- Recette métier, matériel 16 Go / x86-64 et Windows natif manquent. Ils n'empêchent
+  pas l'intégration isolée, mais empêchent le PASS complet de livraison.
+- Moteur de calcul exhaustif et rendu Word pixel-identique ne sont pas
+  ajoutés au lot initial ; les résultats RAG restent bornés aux preuves et
+  aux opérations réellement exécutées.
+
+Étude clôturée après relecture indépendante et contrôles documentaires
+finaux : aucun travail restant pour ST-01→04. Les huit lots produit sont
+proposés, non commencés ; le prochain jalon décrit ci-dessus est I-01. La
+suite Python/API R27 est distincte et sa reprise complète est verte ;
+ses résultats ne constituent pas une qualification Office. Pour l'implémentation : chiffrage à réviser après vertical V1 ;
+ordre de grandeur de planification 5–8 journées d'ingénierie avec deux axes
+indépendants après contrats, puis recettes natives/métier selon disponibilité.
+Ce chiffre n'est ni une mesure ni un engagement de performance. La durée de
+clôture DoD globale reste dépendante de ses préconditions antérieures.
+
+## R27 — poursuite autorisée du 9 octobre à partir de la baseline
+
+**Objectif :** corriger les anomalies confirmées, terminer les travaux restant
+des lots actifs et obtenir leurs preuves de livraison, puis confronter l'état
+livré à tous les critères applicables de la DoD. **Périmètre daté :** demande
+`/goal` du 9 octobre, reçue vers 16:16 UTC, confirmée pendant la reprise.
+Elle remplace le mandat d'analyse seule de la baseline et autorise
+l'implémentation, les validations et la publication selon la politique du
+dépôt. **Sources :** arbre de travail sur `75df760`,
+[baseline factuelle](reports/baseline-technique-2026-10-09.md), décisions
+W038–W049, lots R26 ci-dessous, DoD et skills applicables. **Résultat
+attendu :** corrections réellement vérifiées, kit Linux B et ses parcours
+restants exercés, documentation alignée, puis statut explicite de chaque
+critère de qualification avec ses preuves et ses limites.
+
+Les annulations précises R26-CIT-01/R26-LBL-01 et le choix du 4B par défaut
+restent des décisions acquises : la demande générale ne vaut pas choix
+d'un nouveau modèle ou autorisation de contourner un gate DEV/final.
+Originaux, instance principale et jeux d'évaluation sont conservés ; les
+recettes préparatoires utilisent des cibles synthétiques isolées. Les
+seuils de la DoD et les échecs historiques ne sont pas assouplis ou effacés.
+La baseline reste un instantané, pas un suivi concurrent : ses observations
+sont confrontées au code, et leurs corrections sont suivies ici.
+
+| Action | Lot / responsabilité | Dépendances | Livrable et critère de validation | État |
+|---|---|---|---|---|
+| R27-BE-01 | Backend/API | Baseline B02/B03/R10/D18 ; invariants de scope/provenance | Recherche lexicale disponible lors d'absence de collection dense identifiée ; warning de génération partielle dans une sélection ; limite multipart effective avant parsing ; persistance/relectures coûteuses hors boucle async avec ordre/annulation conservés. Tests discriminants rouge/vert, API isolée et revue indépendante ; validation des profils distincte dans CFG-01 | VALIDÉ SUR TESTS ISOLÉS — query20 PASS au gel, témoins indépendants contention/annulation verts ; gel commun 2 661 unités PASS/20 SKIP et API HTTP/session/TLS88 PASS/1 SKIP, SHA stables. `backend/rapport-premier-lot.md` et preuves `review/` ; aucune migration D15 |
+| R27-CFG-01 | Configuration API/runtime | E13 ; W051 ; profils livrés et producteurs réels | Validation commune Pydantic stricte, inconnues refusées, dictionnaires/empreintes inchangés ; profils 2B/4B, installation et restauration compatibles ; témoins types/bornes/relations/versions, refus avant écriture, revue indépendante | VALIDÉ SUR TESTS ISOLÉS — 325 PASS/1 SKIP ciblés, 44 chargements positifs et sept environnements avec identité conservée ; unités/API globales et mypy Linux/Win32 verts, profils livrés identiques. `backend/e13/rapport.md`, `review/e13-final-review.md` dans preuves R27 |
+| R27-FE-01 | Interface | Baseline B04/B05/B06 ; backend inchangé aux contrats | Garde commune de recherche et callbacks tardifs, bibliothèque complète ou pagination explicite, logout confirmé seulement après réussite serveur avec erreur/reprise. Unités rouge/vert, lint/types, build, E2E/rendu réels des parcours concernés et revue | IMPLÉMENTÉ ET REVU — 433 unités, lint/types conformes ; build/E2E/rendu encore à exécuter. `frontend/summary.md`, `review/milestone.md` dans les preuves R27 ; U17 reste inconnu de performance |
+| R27-RT-01 | Runtime/distribution | Baseline B01/B07/F08/F09/F19 ; lot kit préexistant | Racine effective conforme au profil validé ; réserve de backup sur volume cible réel ; cause primaire et échec de reprise conservés ; erreurs de verrou correctement distinguées ; oracle physique/lexical sans affaiblissement. Tests rouge/vert, mypy deux plateformes simulées et revue | VALIDÉ SUR TESTS ISOLÉS — 162 PASS/1 SKIP ciblés, ressources21 PASS ; unités/API du gel commun et mypy deux plateformes verts. Recette native du kit dans INT-01. `runtime/report.md`, `review/milestone.md` dans les preuves R27 |
+| R27-DOC-01 | Intégration/documentation | Corrections et preuves | Registre des skills haché correctement, acceptation Playwright alignée sur décision, brief régénéré depuis sources, état R26-KIT-04 réel, CHANGELOG/journal/références affectées synchronisés. Contrôles docs/pack conformes et relecture ; baseline conservée | VALIDÉ DOCUMENTAIRE — docs7/7, pack11/11, brief/skills/SVG conformes, 62 tests docs et avis indépendant R28 ; état code/test distinct du native. `root/r28-docs/`, journal du 9 octobre. |
+| R27-INT-01 | Intégration/recette Linux | Lots corrigés/revus ; commit vérifié ; export lié à ce commit | Suites Python/web et contrôles pertinents verts ; publication ; build/export/provenance ; fabrication et transport du kit B ; installation, mise à jour avec backup, rollback et retrait isolés hors ligne ; inventaires programme/données et E2E. Finalise R26-KIT-02/04/RT-01 avec preuves, pas par les unités | PARTIEL — unités2 661 PASS/20 SKIP, API88 PASS/1 SKIP, Ruff/mypy Linux+Win32 et web433 unités/lint/types verts. Publication préparée ; build/export puis kit B/E2E/recette native non exécutés. Preuves `runtime/final-python-20261009T180505Z/`. |
+| R27-QUAL-01 | Qualification finale / validation indépendante | Lots locaux et préconditions QUALIFICATION | Matrice D01–D11 à jour : critères réellement acquis, échecs, données/mesures nécessaires et plateformes exactes ; avis indépendant final avant annonce de clôture. Ne pas assimiler Linux aarch64/GPU61Gio à Windows/x86-64/CPU16Go | À FAIRE — accès matériels demandé ; aucune cible absente reclassée en PASS |
+
+**Points vérifiés et conservés :** baseline relue indépendamment, HEAD et
+1 110 fichiers préexistants préservés avant reprise ; artefacts lourds et
+QA sur la SD ; aucune source privée transmise ; publication sur main/origin
+sans réécriture ; un seul plan canonique. Les observations D16 de couplage
+cohérent et U17 d'effet non mesuré ne deviennent pas automatiquement des
+refontes. D15 reste une opportunité de dimensionnement sans ralentissement
+mesuré. E13 est retenu par W051 pour satisfaire le contrat de configuration,
+sans modifier les profils valides.
+
+**Points à établir pour la clôture intégrale :** hôtes Windows natif,
+Linux x86-64 et CPU de 16 Go au plus accessibles sans élévation ; gates et
+corpus nécessaires à D04/D05, qualification OCR/métier et critère D06.5
+encore en échec. Ces préconditions ne bloquent pas les corrections ni la
+recette aarch64. Estimation révisée à 18:04 UTC : CFG-01 et sa revue sont terminées ;
+Ruff et mypy Linux/Win32 sont verts. La suite globale a rendu 2 659 PASS,
+20 SKIP et deux échecs d'isolation de test, corrigés ensuite avec 62 PASS/
+un SKIP ciblés. Reprise complète terminée : 2 661 PASS/20 SKIP en21min18 et API88 PASS/
+un SKIP ; 725 fichiers produit/tests/config inchangés durant ce gel.
+Publication préparée après revue ; build/E2E et recette du kit B restent
+à exécuter, ordre de grandeur 1–2 heures de contrôles locaux à réestimer
+après fabrication et premier parcours, sans durée native non mesurée promise. La durée de clôture globale
+n'est pas chiffrable sans les entrées absentes.
+**Prochaine action :** publier le gel vérifié après contrôle de l’index,
+puis build de provenance et recette Linux B selon INT-01. La demande
+courante d’étude Office est clôturée ; aucune implémentation Office engagée. Les lots
+Office I-01→08 sont proposés ; aucune implémentation Office engagée.
 
 ## R26 — reprise autorisée du 6 octobre : réserves Linux et distribution interne Linux
 
@@ -1791,7 +1998,7 @@ réutilisation à identité constante comme preuve D03.8.
 | R26-KIT-00 | Lot 2, skill | Sources officielles KIT01–KIT16 | Skill `linux-offline-kit` créé, format validé, registre à jour | VERIFIED — format et quick_validate PASS, registre à jour |
 | R26-KIT-01 | Lot 2, outils de distribution | R26-KIT-00 | Fabricant Linux par plateforme, liens symboliques, marqueurs du poste, glibc minimale, archive, installateur, mise à jour, retour arrière, désinstallation, garde du profil livré ; Windows inchangé hors correctif C3 | VERIFIED (unités) — revue NO-GO (3 majeurs, 10 mineurs) puis corrections rouge/vert, contre-vérification GO ; 238 PASS/19 SKIP ; dry-run sans fuite, `ready` attendu après commit |
 | R26-KIT-02 | Lot 2, recette réelle | R26-KIT-01, export sans fuite, commit | Kit aarch64 fabriqué, vérifié, archivé ; installation isolée à un autre chemin sans réseau ; PDF, extraction, recherche, question, citation et lecture ; redémarrage hors ligne ; mise à jour et retour arrière avec sauvegarde vérifiée ; désinstallation gardée | EN COURS — phase 1 (kit A, `78ec95c`) réalisée sans réseau : fabrication, transport, installation, parcours, choix du modèle et redémarrage hors ligne PASS, six défauts relevés (D1–D6) ; phase 2 (mise à jour, retours arrière, retrait) avec le kit B après R26-KIT-04 |
-| R26-KIT-04 | Lot 2, outils et documentation du kit | Demande utilisateur du 7 octobre, vers 00:00 UTC ; R26-MOD-01 ; retours de la recette R26-KIT-02 | Kit simple et fluide pour l'utilisateur : commande d'installation sans argument obligatoire, emplacements par défaut au niveau utilisateur, messages en français par étapes, entrées de menu utilisateur, guide à la racine du kit généré depuis le manifeste, mise à jour et retrait sans chemin à retrouver ; aucune modification globale ; preuves en recette réelle | EN COURS — audit en lecture seule (quatre angles) et spécification priorisée |
+| R26-KIT-04 | Lot 2, outils et documentation du kit | Demande utilisateur du 7 octobre, vers 00:00 UTC ; R26-MOD-01 ; retours de la recette R26-KIT-02 | Kit simple et fluide pour l'utilisateur : commande d'installation sans argument obligatoire, emplacements par défaut au niveau utilisateur, messages en français par étapes, entrées de menu utilisateur, guide à la racine du kit généré depuis le manifeste, mise à jour et retrait sans chemin à retrouver ; aucune modification globale ; preuves en recette réelle | IMPLÉMENTÉ, NON QUALIFIÉ NATIF — code du kit/guide/icône présent, rondes de corrections et unités du 7 octobre conservées ; contrôle transversal/publication/export puis recette B R27-INT-01 requis. L'état ancien « audit en lecture seule » est dépassé |
 | R26-UI-02 | Interface, E2E | Recette R26-KIT-02 phase 1 | D2 oracle de citation trop large, D3 retour au passage précédent après rotation et zoom, D4 ordre des specs (mode de priorité) : cause établie, rouge puis vert, E2E sur instance isolée | VERIFIED — D3 régression de F05 corrigée (unités rouge puis vert, E2E aux deux tailles) ; D2 oracle sur la citation enregistrée ; D4 helper de priorité employé par toutes les specs qui attendent une indexation (contrôle statique 5/5, six mutations détectées) ; E2E complet à rejouer sur le build final ([journal](journal/2026-10-07.md#r26-ui-02--lecteur-et-specs-e2e-après-la-recette-du-kit-a-7-octobre-01500230-utc)) |
 | R26-RT-01 | Runtime | Recette R26-KIT-02 phase 1 (D1) | Qdrant lancé depuis un dossier de la racine des données (plus aucune écriture dans le programme), restauration comprise ; inventaire de recette pris avant le premier démarrage | IMPLÉMENTÉ — Qdrant lancé depuis son dossier de stockage (instance, restauration et essai d'intégration), Windows inchangé ; unités et mutants verts ; constat réel attendu en recette R26-KIT-02 phase 2 |
 | R26-KIT-03 | Lot 2, x86-64 | Hôte x86-64 provisionné | Kit x86-64 fabriqué et qualifié sur un hôte de cette architecture | BLOCKED — aucun hôte x86-64 ; le fabricant refuse un kit croisé |
@@ -3778,7 +3985,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** décisions acquises, propositions et choix remplacés, avec leurs motifs · **Propriétaire :** conception et intégration du produit · **Statut :** Vivant · **Référence :** V2.1 et décisions historiques conservées ; base publiée `011a817` et décisions W038 à W040 datées ci-dessous · **Mis à jour :** 2026-10-06 20:10 (UTC) · **Source de vérité :** chaque décision datée pour son arbitrage ; [PLAN.md](PLAN.md) pour les actions et [journal](journal/README.md) pour les exécutions
+**Rôle :** registre des décisions acquises et propositions · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base `75df760` ; décisions W050–W054 du 9 octobre, historique conservé · **Mis à jour :** 2026-10-09 18:31 (UTC) · **Source de vérité :** ce registre pour les choix ; PLAN pour les actions et rapports pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -5329,6 +5536,192 @@ décision de l'utilisateur. **Retour arrière :** `atelier modele` avec
 l'ancien modèle, ou retrait de la commande, l'option `--modele` au
 lancement restant disponible.
 
+## W054 Cible technique de l'étude Office : extraction native structurée
+
+**Date :** 9 octobre 2026, 18:04 UTC. **Statut :** choix retenu pour le plan
+d'intégration ; implémentation proposée, non commencée.
+
+**Contexte :** le socle PDF réutilise versions, générations, embeddings,
+recherche hybride, contexte et citations, mais ses contrats présument pages
+et coordonnées PDF. Dix-huit essais sur de vrais conteneurs annotés ont
+comparé les bibliothèques installées ; Docling Office perd certains textes,
+structures, types/formules et ancrages. Le benchmark est exploratoire, n=1,
+petits fichiers sur aarch64 61 Gio, sans qualification 16 Go ou métier.
+
+**Choix :** python-docx 1.2.0 et parcours OOXML borné pour DOCX ; openpyxl
+3.1.5 read_only et faits OOXML streaming pour XLSX. Conserver originaux,
+structure, types, formule/cache distincts, localisations typées et citations
+immutables ; compléter les helpers publics pour Strict/Transitional et les
+structures que leurs API omettent. Caches présents ne certifient pas leur
+fraîcheur. Pas de recalcul, convertisseur bureautique ou deuxième parseur
+navigateur requis. Docling reste le moteur PDF ; aucun contrat, migration,
+profil, dépendance ou comportement Office produit n'est modifié par l'étude.
+
+**Justification :** précision source et coût observé sur le même corpus ;
+réutilisation du RAG et du poste documentaire. Les grands classeurs doivent
+éviter les rescans par cell() en mode read_only ; les scopes bornent le
+contenu classé et les statistiques lexicales avant top-k. Les principes de
+publication et de révision restent ceux du socle, sans fausse page PDF.
+
+**Conséquences :** sous-package Office proposé distinct de la voie PDF,
+migration portable et contrats additionnels, lecteurs React depuis données
+canoniques ; 8 lots et 12 critères dans le PLAN existant. Qualification
+indépendante réelle, gros documents, CPU ≤16 Go, Windows natif différé et
+Linux x86-64 restent requis avant livraison. Les 12 roues officielles
+contrôlées ne prouvent pas les kits hors ligne ; notices et handles Windows
+doivent être vérifiés. Étude et sources : [rapport](reports/extension-office-2026-10-09.md),
+[R28 du plan](PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation),
+[registre](SOURCES.md#r28--sources-de-létude-docxxlsx-du-9-octobre-2026).
+
+## W053 Extension DOCX/XLSX : étude préalable et plan actionnable
+
+**Date :**9 octobre2026, précisions pendant R27. **Statut :** mandat utilisateur
+acquis pour l'étude ; aucune implémentation Office commencée.
+
+**Contexte :** après avoir demandé l'ingestion DOCX/XLSX en plus du PDF,
+l'utilisateur précise une étude approfondie des structures, pipelines,
+contrats, usages et solutions, sur CPU16Go sansGPU, puis un PLAN détaillé.
+
+**Choix :** traiter cette phase dans le plan canonique existant, comparer les
+bibliothèques réellement disponibles et les options officielles, mesurer sur
+de vrais fichiers annotés, puis distinguer faits/benchmarks/propositions.
+Les DOCX gardent hiérarchie et ordre de lecture ; les XLSX gardent structure,
+types, formules et valeurs cachées disponibles. Sources et citations portent
+des localisations réelles, sans fabriquer des pages PDF. L'étude finalisée
+précède toute implémentation ; les corrections R27 restent indépendantes.
+**Conséquences :** skill Office spécifique après recherche officielle,
+prototypes de QA isolés autorisés, aucune migration/API/lecture Office livrée
+à ce stade ; aucune régression du PDF ni nouveau modèle imposé.
+
+## W052 Compatibilité des plateformes et recette Windows différée
+
+**Date :**9 octobre2026, précision utilisateur pendant R27. **Statut :** acquis.
+
+**Choix :** Windows natif sera recetté plus tard par l'utilisateur ; le code
+reste compatible avec Windows et Linux. Linux désigne une plateforme générale,
+pas le seul Jetson ni Ubuntu20.04. Les chemins, binaires, dépendances et gardes
+doivent dépendre de l'architecture et des prérequis réels, pas du poste de QA.
+JetPack reste une particularité d'accélération du Jetson ; les voies CPU
+restent disponibles. Les preuves aarch64 constatées ici gardent leur portée,
+Win32 simulé ne vaut pas Windows natif, et les architectures/distributions
+non exécutées restent indiquées comme telles. **Conséquences :** garder les
+critères DoD et vérifier la portabilité avant livraison sans faux PASS global.
+
+## W051 Validation stricte commune des profils YAML
+
+**Date :** 9 octobre 2026, 16:46 UTC. **Statut :** choix technique acquis
+dans le mandat R27 ; implémenté, revu et vérifié sur contrôles ciblés
+et transverses, publication préparée à partir de ce gel. Recette native
+de livraison distincte, aucune qualification de plateforme ajoutée.
+
+**Contexte :** E13 confronte une exigence explicite de CONFIGURATION §1
+au chargement réel : validations ciblées séparées, types partiellement
+contrôlés, paramètres inconnus ignorés. Les profils et les outils qui les
+produisent ont une compatibilité à préserver.
+
+**Choix :** modèle Pydantic2 strict et imbriqué, clés inconnues interdites,
+commun aux chargeurs API/runtime, avec erreurs par chemin/type sans valeurs
+d'entrée. Le dictionnaire YAML validé reste intact : aucun ajout de défaut,
+conversion ou `model_dump` modifiant son empreinte. Les adaptateurs gardent
+les chemins et gardes de sécurité ; APIv1/v2 et runtimev2 restent explicites.
+Les invariants numériques correspondent aux consommateurs réels, sans
+nouveau seuil de performance. Les extensions de profils des installateurs,
+restaurations et recettes sont déclarées et vérifiées.
+
+**Justification :** corriger le contrat à la frontière de chargement évite
+les dérives entre superviseur et API, sans dépendance nouvelle ni refonte
+des services. Références officielles Pydantic et sonde2.13.5 dans les preuves
+R27 backend. **Conséquences :** une faute de paramètre auparavant ignorée
+devient un refus explicite avant démarrage ; les profils valides livrés et
+générés doivent garder leurs valeurs exactes. Tests négatifs discriminants,
+contrôles transverses et revue indépendante requis avant clôture.
+
+## W050 Reprise d'exécution et clôture depuis la baseline du 9 octobre
+
+**Date :** 9 octobre 2026, demande reçue vers 16:16 UTC. **Statut :** mandat
+utilisateur acquis, réalisation en cours au lot R27 du plan canonique.
+
+**Contexte :** une analyse seule avait établi et fait relire la baseline
+du 9 octobre, sur `75df760` et l'arbre local du kit Linux. La nouvelle
+demande `/goal`, confirmée pendant la reprise, demande les corrections,
+la finalisation des travaux restants et leurs preuves conformes à la DoD.
+
+**Choix :** reprendre le plan existant ; vérifier les causes ciblées puis
+corriger, tester et revoir indépendamment ; finaliser les recettes Linux
+exécutables et conserver les limites explicites des cibles absentes.
+La baseline reste l'instantané antérieur aux corrections. Ses observations
+ne prescrivent ni refonte générale ni adoption automatique d'index,
+d'ORM, de framework ou de modèle. La publication suit la politique main/origin.
+
+**Conséquences :** le mandat d'analyse seule est remplacé. Les décisions
+précises précédentes — 4B par défaut, annulation des travaux 2B,
+invariants de scope/citations, gates DEV/final et seuils de DoD — restent
+applicables. Un essai Jetson ne clôt pas Windows, x86-64 ou CPU≤16Go.
+Les préconditions de ces cibles sont demandées pendant l'avancement des
+lots indépendants ; aucune conformité globale ne peut être reconstruite.
+**Réexamen :** nouvelle décision utilisateur ou preuve contradictoire,
+sans modification artificielle des critères pour obtenir du vert.
+
+## W049 Vérification d'un kit Linux avant exécution : modèle de menace et portée
+
+**Date :** 7 octobre 2026. **Statut :** choix technique acquis après quatre
+rondes de revue non-auteur sur la même classe de défaut (S3-01, S3-02,
+R3S-01, R4S-01) ; implémenté (`tools/dist/install.sh`, `linux_install.py`,
+`linux_profiles.py`), testé en unitaire avec mutations ; recette réelle avec le
+kit B (R26-KIT-02, phase 2). Remplace la garantie « vérification complète du
+kit avant toute écriture » de R26-KIT-01.
+
+**Contexte :** chaque ronde a trouvé un nouveau moyen d'exécuter un fichier non
+vérifié avant le contrôle (dossier de paquet ajouté, fichier de démarrage de
+Python, bibliothèque chargée par ld.so via `$ORIGIN/../lib`, fichier vérifié
+remplacé par un lien vers un autre arbre). Lire 12 Go deux fois (vérification
+complète, puis copie) ne protégeait par ailleurs aucune exécution de plus que
+la vérification ciblée (KIT4-24).
+
+**Modèle de menace, repris dans le guide, DEPLOIEMENT §8.3 et l'en-tête
+d'`install.sh` :** la vérification du kit protège contre
+l'altération accidentelle (copie ou transport incomplets, fichiers ajoutés par
+erreur, déduplication ou fermes de liens, droits perdus). Elle ne protège pas
+contre une personne qui peut écrire dans le kit : `installer.sh` lui-même
+s'exécute sans vérification préalable, et son intégrité repose sur
+l'empreinte de l'archive (`<kit_id>.tar.sha256`) contrôlée avant extraction.
+
+**Choix :**
+
+- Avant Python, `install.sh` garde du PATH ses seuls éléments absolus, prend
+  `sha256sum` et `find` dans `/usr/bin` puis `/bin`, vérifie par empreinte
+  l'interpréteur, `libpython`, les bibliothèques listées sous `<CPython>/lib`,
+  `SYMLINKS` et les trois scripts de l'installateur ; chaque entrée vérifiée
+  doit être un fichier ordinaire, sans lien non déclaré sur son chemin.
+- Dans le dossier de l'interpréteur, trois parcours typés : un lien doit
+  figurer dans `SYMLINKS`, un fichier ordinaire dans `SHA256SUMS` (hormis le
+  bytecode des `__pycache__`), aucune autre entrée n'est admise ; les fichiers
+  de démarrage de Python et les dossiers de paquet ajoutés parmi les modules
+  de l'installateur sont refusés.
+- Python est lancé en `-B -I -S`, sans `site` ni `.pth`, avec
+  `-X pycache_prefix=/dev/null` ; les modules de l'installateur sont chargés
+  par leur chemin, la racine étant prise par `os.path.abspath` sans résoudre
+  les liens.
+- La vérification ciblée en Python (manifeste, listes, cibles de `ldd`,
+  fichiers lus avant la copie) précède les contrôles système ; le reste du
+  kit est haché pendant la copie, et un écart retire la copie sans rien
+  désigner.
+
+**Limites assumées :** `installer.sh` s'exécute sans vérification ; un
+fichier listé de la bibliothèque standard, s'il a été modifié, s'exécute
+avant d'être haché ; la cible d'un lien déclaré dans `SYMLINKS` n'est comparée
+ni par `install.sh` ni par la vérification ciblée (la copie recrée chaque lien
+d'après `SYMLINKS`, et `build_kit.py verify` la compare côté dépôt) ; un intervalle demeure entre contrôle et exécution ; `LD_PRELOAD` et la
+configuration du système relèvent de l'environnement de l'utilisateur.
+Hacher toute la bibliothèque standard avant chaque commande reste possible
+(3 484 fichiers) mais n'est pas retenu.
+
+**Conséquences :** un kit dédupliqué par liens est refusé dès le lancement,
+avec le chemin en cause ; `find` devient un prérequis déclaré du poste
+cible ; un fichier étranger sous `<CPython>` d'un programme installé bloque
+ses commandes jusqu'à son retrait ou une réinstallation (dépannage §10.4).
+**Retour arrière :** aucun sans rouvrir les constats R3S-01 et R4S-01.
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -5381,7 +5774,51 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `011a817` et consultations R26 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-06 20:10 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `75df760` et consultations R26/R27/R28 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-09 18:31 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## R28 — sources de l'étude DOCX/XLSX du 9 octobre 2026
+
+Consultation le 09/10/2026 UTC ; [étude](reports/extension-office-2026-10-09.md)
+et [PLAN](PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation).
+Les publications établissent les contrats externes ; les benchmarks locaux
+sous `.runtime/qa/r27-20261009/office-study/` établissent seulement les
+comportements mesurés. Aucun résultat PDF publié, source mobile ou roue
+disponible n'est converti en preuve d'intégration Office du projet.
+
+| ID | Source officielle / version et date connue | Apport et limite |
+|---|---|---|
+| R28-S01 | [ECMA-376](https://ecma-international.org/publications-and-standards/standards/ecma-376/), édition5 : partie2 OPC2021, partie1/4 2016, partie3 2015 | Parties/relations et familles OOXML ; page de standard consultée, pas téléchargement/examen intégral de tous ses volumes. Aucun quota métier/RAM déduit du standard. |
+| R28-S02 | [Microsoft WordprocessingML](https://learn.microsoft.com/en-us/office/open-xml/word/structure-of-a-wordprocessingml-document), mise à jour12/01/2024 | Parties, paragraphes/runs et stories ; ne garantit pas pagination Word dans notre lecteur. |
+| R28-S03 | [python-docx Document](https://python-docx.readthedocs.io/en/latest/api/document.html),1.2.0 ; [source v1.2.0](https://github.com/python-openxml/python-docx/blob/v1.2.0/src/docx/document.py) | API ordre/paragraphes/tables/propriétés/commentaires et omissions révisions/nested ; source téléchargée identique à l'installation. Micro-probe Strict négatif et six ancrages XML exacts locaux, pas un adaptateur complet. |
+| R28-S04 | [Docling Word v2.131.0](https://github.com/docling-project/docling/blob/v2.131.0/docling/backend/msword_backend.py), [Excel même tag](https://github.com/docling-project/docling/blob/v2.131.0/docling/backend/msexcel_backend.py), [formats](https://docling-project.github.io/docling/usage/supported_formats/) ; Core2.99.0 installé | Backends exacts égaux à l'installation ; SimplePipeline Office et couvertures/limites confrontées aux sorties réelles. Import PyTorch observé sans modèle, pertes de provenance/littéraux/formules/types. Aucune généralisation de précision à tout corpus. |
+| R28-S05 | [openpyxl API](https://openpyxl.readthedocs.io/en/stable/api/openpyxl.reader.excel.html), [modes optimisés](https://openpyxl.readthedocs.io/en/stable/optimized.html), [formules](https://openpyxl.readthedocs.io/en/stable/formula.html) : stable3.1.3 ; route `/en/3.1`3.1.4 ; code installé3.1.5 vérifié | read_only/data_only/fermeture, dimensions, tokenizer limité. Tables/fusions et sharedStrings vérifiés dans source3.1.5 ; read_only ne prouve pas RAM constante ni évaluation de formules. Probe cache.cell borné non scalable, cible streaming à qualifier. |
+| R28-S06 | [Microsoft SpreadsheetML formules](https://learn.microsoft.com/en-us/office/open-xml/spreadsheet/working-with-formulas), mise à jour14/01/2025 | `<f>` formule et `<v>` valeur de dernier calcul distinctes ; refs feuille/classeur/noms. Présence du cache ne garantit ni fraîcheur ni exactitude ; absence conservée dans les probes. |
+| R28-S07 | [lxml parsing](https://lxml.de/parsing.html), [defusedxml mainteneur](https://github.com/tiran/defusedxml), [OWASP File Upload](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html) ; lxml6.1.3/defusedxml0.7.1 réels | Options XML/protection et contrôle upload ; micro-tests installés : entités non expansées ou refus explicite selon parser. Préflight DOCTYPE/entities/ZIP nécessaire ; aucune certification sécurité du produit Office absent. |
+| R28-S08 | [Python3.12 zipfile](https://docs.python.org/3.12/library/zipfile.html), [tempfile](https://docs.python.org/3.12/library/tempfile.html) ; documentation3.12.15, CPython3.12.14 exécuté | Tailles/CRC/chemins et handles temporaires Windows ; préflight et cleanup bornés à prévoir. Documentation de famille ne vaut pas recette Windows. |
+| R28-S09 | Publications PyPI [python-docx1.2.0](https://pypi.org/project/python-docx/1.2.0/), [openpyxl3.1.5](https://pypi.org/project/openpyxl/3.1.5/), [lxml6.1.3](https://pypi.org/project/lxml/6.1.3/), [defusedxml0.7.1](https://pypi.org/project/defusedxml/0.7.1/), [et-xmlfile2.0.0](https://pypi.org/project/et-xmlfile/2.0.0/), [typing-extensions4.16.0](https://pypi.org/project/typing-extensions/4.16.0/) | Douze roues du verrou confrontées à noms/hashes publiés, inventaire installé et avis. Textes openpyxl/et-xmlfile absents de leurs distributions installées : inclusion réelle à vérifier. Aucune installation Windows/x86 ou disponibilité de chaque cache offline prouvée. |
+| R28-S10 | [PyPA tags](https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/), [PEP600](https://peps.python.org/pep-0600/), [lxml installation](https://lxml.de/installation.html) ; roues CPython3.12 et ELF aarch64 local | manylinux/ABI ; glibc locale du module et minimum de la pile entière distingués. GNU/Linux sous prérequis, pas Linux universel/musl ni dépendance Jetson/GPU introduite par Office. |
+| R28-S11 | Mainteneurs [Calamine](https://github.com/tafia/calamine), [Mammoth Python](https://github.com/mwilliamson/python-mammoth), [Mammoth JS](https://github.com/mwilliamson/mammoth.js), [docx-preview](https://github.com/VolodymyrBaydalka/docxjs), [SheetJS cellules](https://docs.sheetjs.com/docs/csf/cell/), [MarkItDown](https://github.com/microsoft/markitdown), [Tika3.2.3 formats](https://tika.apache.org/3.2.3/formats.html) | Comparaison documentaire des représentations, rendu, sécurité, runtime et intégration ; solutions non installées/non benchmarkées ici. Versions mobiles ne sont pas des dépendances retenues ni des gains mesurés. |
+| R28-S12 | [LibreOffice paramètres](https://help.libreoffice.org/latest/en-US/text/shared/guide/start_parameters.html), documentation latest26.8 ; paquets locaux6.4.7 constatés | Headless/conversion et profil utilisateur ; aucun convertisseur exécuté, rendu/calcul/fidélité/offline multihôte NOT_RUN. Dérivé éventuel distinct, pas moteur requis. |
+| R28-S13 | [SQLite ALTER TABLE §6/8](https://sqlite.org/lang_altertable.html), [FK](https://sqlite.org/foreignkeys.html), [JSON](https://sqlite.org/json1.html), [query planner](https://sqlite.org/queryplanner.html) ; SQLite3.53.1 exécuté, ALTER COLUMN introduit3.53.0 | Sonde schéma v3 mémoire et DROP NOT NULL réel ; reconstruction portable si version antérieure, FK avant transaction et colonnes explicites. Contrats PK/FK/index sparse proposés, aucune migration persistante. |
+| R28-S14 | [Pydantic unions discriminées](https://docs.pydantic.dev/latest/concepts/unions/#discriminated-unions-with-str-discriminators), [React HTML](https://react.dev/reference/react-dom/components/common#dangerously-setting-the-inner-html) ; Pydantic2.13.5/React19.3.0 installés | Modèles typés et rendu échappé pour locators/source ; une structure d'API ou un composant ne prouve pas provenance, lecteur ou chaîne RAG. |
+
+## R27 — sources des corrections du 9 octobre 2026
+
+La baseline du 9 octobre fournit les observations initiales ; les rapports
+`.runtime/qa/r27-20261009/` conservent les reproductions et contrôles des
+corrections. Les sources ci-dessous établissent les mécanismes, sans certifier
+une qualification du RAG ni le support d'une plateforme non exercée.
+
+| ID | Source officielle et version confrontée | Apport et limite |
+|---|---|---|
+| R27-S01 | [Agent Skills, spécification](https://agentskills.io/specification), consultée le 09/10/2026 | `compatibility` est un champ facultatif de 1 à 500 caractères. Le validateur projet le prend en charge ; le `quick_validate.py` système le refuse avec son ancienne liste de clés. Cet échec d'outil est conservé, sans retirer un champ valide ni modifier l'outil global. La conformité de format ne prouve pas l'invocation native des skills. |
+| R27-S02 | [Linux user namespaces](https://man7.org/linux/man-pages/man7/user_namespaces.7.html), [netdevice](https://man7.org/linux/man-pages/man7/netdevice.7.html), [capabilities](https://man7.org/linux/man-pages/man7/capabilities.7.html), consultés le 09/10/2026 ; noyau local 5.10.120-tegra | Mapper uniquement l'UID/GID du compte, configurer loopback dans le namespace enfant puis exécuter en UID non nul sans capacités permet une recette hors ligne avec la garde root intacte. Sonde réelle : UID1000, CapEff/Prm/Amb nuls, loopback disponible, réseau externe inaccessible. Aucun changement du réseau hôte. |
+| R27-S03 | [OWASP, expiration manuelle des sessions](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#manual-session-expiration), [TanStack Query v5, mutations consécutives](https://tanstack.com/query/latest/docs/framework/react/guides/mutations#consecutive-mutations), [React, réponses dans les effets](https://react.dev/reference/react/useEffect#fetching-data-with-effects), consultés le 09/10/2026 ; Query5.104.0, React19.3.0 installés | Une fermeture doit être confirmée par le serveur ; les callbacks tardifs doivent respecter l'identité de l'opération. Corrections B04/B06 et tests discriminants, sans changement de session backend ni nouvelle couche de state. |
+| R27-S04 | [Python3.12, finally](https://docs.python.org/3.12/reference/compound_stmts.html#finally-clause), [notes d'exception](https://docs.python.org/3.12/library/exceptions.html#BaseException.add_note), [disk_usage](https://docs.python.org/3.12/library/shutil.html#shutil.disk_usage), [Path.resolve](https://docs.python.org/3.12/library/pathlib.html#pathlib.Path.resolve), [inspect.isawaitable](https://docs.python.org/3.12/library/inspect.html#inspect.isawaitable), [flock](https://man7.org/linux/man-pages/man2/flock.2.html), consultés le 09/10/2026 ; CPython3.12.14 installé, documentation3.12.15 | Conservation de l'erreur primaire et du diagnostic de reprise, mesure du volume réel de destination, comparaison des chemins physiques, distinction contention/autres errno et attente des callbacks async. Contrats applicables vérifiés par les tests ; aucune recette native déduite des doubles. |
+| R27-S05 | [Starlette, limite de corps](https://starlette.dev/middleware/#requestbodylimitmiddleware), [parseur multipart](https://starlette.dev/requests/), [code1.7.0](https://raw.githubusercontent.com/Kludex/starlette/1.7.0/starlette/middleware/body_limit.py), [FastAPI, fonctions utilitaires](https://fastapi.tiangolo.com/async/#other-utility-functions), [Python3.12, to_thread et shield](https://docs.python.org/3.12/library/asyncio-task.html), consultés le 09/10/2026 ; code Starlette1.7 et CPython3.12.14 exécutés | Compter les fragments avant parsing, fermer les spools sur dépassement ; une fonction synchrone appelée depuis async doit être déportée explicitement. Annuler l'attente n'arrête pas son thread : la persistance admise est drainée et le signal d'annulation conservé. Tests ASGI/SQLite et sondes non auteur, sans extrapolation au corpus ou à D07. |
+| R27-S06 | [Git, attribut whitespace](https://git-scm.com/docs/gitattributes#_checking_whitespace_errors), [Git, core.whitespace](https://git-scm.com/docs/git-config#Documentation/git-config.txt-corewhitespace), consultés le 09/10/2026 ; Git2.25.1 exécuté | Reconnaître CR comme terminaison des documents historiques/générés CRLF, avec `trailing-space` et `space-before-tab` conservés dans l'attribut Markdown. Témoins Git : ligne CRLF valide acceptée ; espace avant CR, ligne vide finale et espace avant tabulation refusés. Aucun changement de configuration Git global ni conversion d'octets. |
+| R27-S07 | [Pydantic2, strict mode](https://docs.pydantic.dev/latest/concepts/strict_mode/), [ConfigDict extra](https://docs.pydantic.dev/latest/api/config/#pydantic.config.ConfigDict.extra), consultés le 09/10/2026 ; Pydantic2.13.5 installé | Schéma commun strict et imbriqué ; clés inconnues et valeurs non finies refusées, relations effectives contrôlées. Sonde installée et 325 tests ciblés/44 chargements positifs établissent le contrat local ; retour du dictionnaire original, pas de model_dump ou défaut inséré. Une documentation de schéma ne prouve pas une recette native. |
+| R27-S08 | [Ollama0.35.0 Duration.UnmarshalJSON](https://github.com/ollama/ollama/blob/v0.35.0/api/types.go#L1085), [envconfig.KeepAlive](https://github.com/ollama/ollama/blob/v0.35.0/envconfig/config.go#L118), consultés le 09/10/2026 | Secondes numériques, fractions incluses, admises par le contrat ; variable du superviseur sérialisée en durée Go décimale exacte sans exposant. Sondes rouge/vert de la fonction réelle, profil inchangé ; aucun nouveau modèle ou démarrage Ollama déduit. |
 
 ## R26-S02 — arbitrages utilisateur sur la fiabilité 2B et D06.5
 

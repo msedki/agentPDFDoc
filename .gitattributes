@@ -2,6 +2,10 @@
 # doivent rester vérifiables après un clone, quel que soit core.autocrlf.
 * -text
 
+# Les documents historiques et le brief généré conservent leurs fins CRLF.
+# Espaces terminaux, lignes vides finales et espaces avant tab restent contrôlés.
+*.md whitespace=trailing-space,space-before-tab,cr-at-eol
+
 *.pdf binary
 *.zip binary
 *.png binary

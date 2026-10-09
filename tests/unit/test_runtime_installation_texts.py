@@ -227,6 +227,61 @@ def test_the_menu_is_announced_only_while_its_entry_exists(tmp_path, monkeypatch
 
 # --- Accord avec l'installateur ------------------------------------------------------------------------------------
 
+@pytest.mark.skipif(sys.platform == "win32", reason="installateur Linux")
+def test_pointer_launcher_and_menu_names_are_those_of_the_installer(tmp_path):
+    from tools.dist import linux_install, linux_kit
+
+    assert (linux_install.POINTER, linux_install.POINTER_FORMAT, linux_install.LAUNCHER, linux_install.MENU_NAME) == (
+        platforms.INSTALLATION_POINTER, platforms.INSTALLATION_FORMAT, platforms.INSTALLED_LAUNCHER, platforms.MENU_NAME)
+    assert linux_kit.MANIFEST == platforms.KIT_MANIFEST
+    entry = linux_install.version_entry({"kit_id": KIT_ID, "python": {"executable": "bin/python3.12"}}, tmp_path / KIT_ID,
+                                        tmp_path / "donnees", {PRINCIPAL: "p.yaml"}, PRINCIPAL)
+    assert {"kit_id", "program", "model", "profile", "profiles"} <= set(entry)
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="installateur Linux")
+@pytest.mark.parametrize("menu", [True, False], ids=["menu", "sans_menu"])
+def test_the_pointer_written_by_the_installer_is_read_by_the_runtime(tmp_path, monkeypatch, menu):
+    """Accord sur le pointeur réellement écrit : `linux_install.main` installe un kit fabriqué sous tmp_path (doubles
+    `make_kit`, `context`, `PosteSimule` et `ProgrammeSimule` de test_dist_linux_install), puis le runtime du programme
+    installé lit destination, programme, modèle, profils et entrée de menu (`menu_entry`, `menu`) ; /health en dépend."""
+    from test_dist_linux_install import context, make_kit
+
+    from tools.dist import linux_install
+
+    home = tmp_path / "maison"
+    home.mkdir()
+    monkeypatch.setenv("HOME", str(home))
+    for name in ("XDG_DATA_HOME", "XDG_STATE_HOME", "XDG_BIN_HOME"):
+        monkeypatch.delenv(name, raising=False)
+    kit = make_kit(tmp_path, monkeypatch)
+    kit_id = json.loads((kit / "kit-manifest.json").read_text(encoding="utf-8"))["kit_id"]
+    destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
+    ctx = context(kit)
+    argv = ["install", "--destination", str(destination), "--data-root", str(data_root), "--no-start", "--oui",
+            *([] if menu else ["--sans-menu"])]
+    assert linux_install.main(argv, ctx) == 0, ctx.out.getvalue() + ctx.err.getvalue()
+    program = destination / kit_id
+    entry = home / ".local/share/applications/atelier-documentaire.desktop"
+    assert entry.is_file() is menu
+    assert platforms.installation(program) == platforms.Installation(
+        destination=destination, program=program, kit_id=kit_id, model=PRINCIPAL,
+        profiles={PRINCIPAL: str(data_root / "profile.yaml"), OTHER: str(data_root / "profile-qwen3.5-2b.yaml")},
+        menu=platforms.MENU_NAME if menu else None)
+    # Annonce de /health et commandes citées par le runtime de ce programme.
+    run_as(monkeypatch, program)
+    assert platforms.launcher_kind() == {"kind": "installation", "menu": platforms.MENU_NAME if menu else None}
+    assert platforms.launcher_command("open") == f"{destination / 'atelier'} ouvrir"
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="installateur Linux")
+def test_every_translated_action_is_an_action_of_the_installed_launcher():
+    from tools.dist import linux_install
+
+    # LAUNCHER_ACTIONS : actions publiées par l'installateur (aide du lanceur et guide du kit).
+    assert set(platforms.INSTALLED_ACTIONS.values()) <= set(linux_install.LAUNCHER_ACTIONS)
+
+
 # --- Doubles du CLI et du superviseur ------------------------------------------------------------------------------
 # Lectures du runtime remplacées : aucune instance, aucun profil complet ni processus réel n'est nécessaire.
 

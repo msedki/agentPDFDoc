@@ -1017,7 +1017,9 @@ def main() -> int:
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
     except Exception as exc:
-        failure = {"status": "failed", "error": type(exc).__name__, "message": str(exc)}
+        failure: dict[str, Any] = {"status": "failed", "error": type(exc).__name__, "message": str(exc)}
+        if notes := getattr(exc, "__notes__", None):
+            failure["notes"] = notes
         if args.report:
             write_json_atomic(args.report, failure)
         print(json.dumps(failure, ensure_ascii=False))

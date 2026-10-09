@@ -37,7 +37,8 @@ def project(tmp_path: Path, *, venv: bool = True) -> Path:
         # Interpréteur factice : rend argv, cwd et PYTHONUTF8 en JSON puis sort avec le code 7.
         executable(root / ".venv/bin/python", "#!/bin/sh\n"
                    f"exec {sys.executable} -c 'import json,os,sys; print(json.dumps({{\"argv\": sys.argv[1:], \"cwd\": os.getcwd(), "
-                   "\"utf8\": os.environ.get(\"PYTHONUTF8\"), \"ld\": os.environ.get(\"LD_LIBRARY_PATH\")}))' \"$@\"\n")
+                   "\"utf8\": os.environ.get(\"PYTHONUTF8\"), \"ld\": os.environ.get(\"LD_LIBRARY_PATH\"), "
+                   "\"data\": os.environ.get(\"RAG_DATA_DIR\")}))' \"$@\"\n")
     return root
 
 
@@ -232,6 +233,15 @@ def test_rag_sh_does_not_pass_ld_library_path_to_the_project_interpreter(tmp_pat
     assert result.returncode == 0 and json.loads(result.stdout)["ld"] is None
 
 
+def test_rag_sh_drops_an_inherited_data_root_before_running_the_profile(tmp_path):
+    root = project(tmp_path)
+    result = run(root / "rag.sh", "status", "--profile", "/profils/poste.yaml",
+                 extra_env={"RAG_DATA_DIR": str(root / "accidental-data")})
+    observed = json.loads(result.stdout)
+    assert observed["data"] is None
+    assert observed["argv"][-2:] == ["--profile", "/profils/poste.yaml"]
+
+
 LIBC_REQUIREMENT = "bootstrap.sh exige la glibc 2.28 ou plus récente (roues manylinux_2_28 du verrou)"
 UNKNOWN_LIBC = (f"Bibliothèque C non reconnue (ni getconf GNU_LIBC_VERSION ni ldd --version ne donnent de version de glibc) : "
                 f"{LIBC_REQUIREMENT}.")
@@ -306,13 +316,37 @@ INSTALLED_GUARD = ("Installation de l'atelier : sans --profile, {command} emploi
 
 
 def installed_project(tmp_path: Path) -> Path:
+    """Programme installé : kit-manifest.json à la racine et pointeur `../installation.json` qui le désigne (installateur)."""
     root = project(tmp_path)
+    (root / "kit-manifest.json").write_text('{"format": "atelier-kit-v2"}\n', encoding="utf-8")
+    pointer = {"format": "atelier-installation-v1", "current": {"kit_id": root.name, "program": str(root.resolve())}, "previous": None}
+    (root.parent / "installation.json").write_text(json.dumps(pointer, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return root
+
+
+def uninstalled_kit(tmp_path: Path, *, venv: bool = False) -> Path:
+    """Dossier d'un kit extrait : kit-manifest.json à la racine, aucun pointeur ne le désigne, pas d'environnement isolé."""
+    root = project(tmp_path, venv=venv)
     (root / "kit-manifest.json").write_text('{"format": "atelier-kit-v2"}\n', encoding="utf-8")
     return root
 
 
-@pytest.mark.parametrize("args", [[], ["up"], ["doctor"], ["backup"], ["up", "--model", "qwen3.5:4b"], ["provision", "--offline"]],
-                         ids=["defaut", "up", "doctor", "backup", "up-4b", "provision"])
+KIT_REFUSAL = ("Dossier d'un kit hors ligne : il ne s'exécute pas sur place et ne télécharge rien. Lancer ./installer.sh depuis ce "
+               "dossier (voir LISEZMOI.md) ; rien n'a été exécuté.")
+# REL-U10 : une version installée n'est jamais remplacée sur place ; la reprise passe par le kit d'une autre version
+# (platforms.reinstall_command, doctor), ou, avec le seul kit de cette version, par la section 10.4 du dépannage.
+KIT_NETWORK_REFUSAL = ("{command} télécharge des artefacts ou un modèle : refusé dans un kit hors ligne, dont les artefacts et les "
+                       "modèles sont déjà livrés. Lancer ./installer.sh depuis ce dossier (voir LISEZMOI.md) ; rien n'a été téléchargé.")
+REINSTALL = ("mettre à jour depuis le kit d'une autre version (<dossier du kit>/installer.sh update --destination {destination}), une "
+             "version installée n'étant jamais remplacée sur place ; avec le seul kit de cette version : "
+             "docs/exploitation/DEPANNAGE.md, section 10.4")
+INSTALLED_NETWORK_REFUSAL = ("{command} télécharge des artefacts ou un modèle : refusé dans une installation hors ligne, dont les "
+                             "artefacts et les modèles viennent du kit. Pour un fichier du programme manquant, " + REINSTALL
+                             + " ; rien n'a été téléchargé.")
+
+
+@pytest.mark.parametrize("args", [[], ["up"], ["doctor"], ["backup"], ["up", "--model", "qwen3.5:4b"]],
+                         ids=["defaut", "up", "doctor", "backup", "up-4b"])
 def test_rag_sh_in_an_installation_refuses_the_shipped_profile(tmp_path, args):
     # Sans cette garde, `./rag.sh up` d'une installation écrivait .runtime/data et .runtime/control dans le dossier programme.
     result = run(installed_project(tmp_path) / "rag.sh", *args)
@@ -329,3 +363,47 @@ def test_rag_sh_in_an_installation_accepts_a_user_profile_and_profile_free_comma
     result = run(installed_project(tmp_path) / "rag.sh", *args)
     assert result.returncode == 0, result.stderr
     assert json.loads(result.stdout)["argv"][2] == args[0]
+
+
+# --- KIT4-21 et KIT4-13 : dossier de kit et commandes réseau ---------------------------------------------------------------
+
+@pytest.mark.parametrize("venv", [False, True], ids=["sans-environnement", "avec-environnement"])
+@pytest.mark.parametrize("args", [["up"], [], ["doctor"]], ids=["up", "defaut", "doctor"])
+def test_rag_sh_in_an_uninstalled_kit_points_to_installer_sh(tmp_path, args, venv):
+    result = run(uninstalled_kit(tmp_path, venv=venv) / "rag.sh", *args)
+    assert result.returncode == 1 and result.stdout == "" and result.stderr.strip() == KIT_REFUSAL
+    assert "bootstrap.sh" not in result.stderr and "provision" not in result.stderr
+
+
+@pytest.mark.parametrize("folder", ["installation", "kit"])
+@pytest.mark.parametrize("args", [["provision", "--profile", "/donnees/profile.yaml"], ["provision", "--offline"],
+                                  ["pull-model", "--profile", "/donnees/profile.yaml"], ["pull-model"]],
+                         ids=["provision-profil", "provision", "pull-model-profil", "pull-model"])
+def test_rag_sh_refuses_network_commands_in_an_installation_or_a_kit(tmp_path, args, folder):
+    root = installed_project(tmp_path) if folder == "installation" else uninstalled_kit(tmp_path, venv=True)
+    result = run(root / "rag.sh", *args)
+    assert result.returncode == 1 and result.stdout == ""
+    expected = INSTALLED_NETWORK_REFUSAL if folder == "installation" else KIT_NETWORK_REFUSAL
+    assert result.stderr.strip() == expected.format(command=args[0], destination=root.resolve().parent)
+
+
+def test_rag_sh_of_an_installation_without_its_environment_names_the_reinstallation(tmp_path):
+    root = installed_project(tmp_path)
+    (root / ".venv/bin/python").unlink()
+    result = run(root / "rag.sh", "status", "--profile", "/donnees/profile.yaml")
+    assert result.returncode == 1 and "bootstrap.sh" not in result.stderr
+    assert result.stderr.strip() == ("Programme installé incomplet (environnement isolé absent) : "
+                                     + REINSTALL.format(destination=root.resolve().parent) + " ; rien n'a été exécuté.")
+
+
+def test_rag_sh_quotes_a_destination_with_a_space_in_the_reinstall_command(tmp_path):
+    (tmp_path / "dossier avec espace").mkdir()
+    root = installed_project(tmp_path / "dossier avec espace")
+    result = run(root / "rag.sh", "provision", "--offline")
+    assert f"update --destination '{root.resolve().parent}')" in result.stderr
+
+
+def test_rag_sh_of_a_clone_keeps_its_network_commands(tmp_path):
+    root = project(tmp_path)
+    result = run(root / "rag.sh", "provision", "--offline")
+    assert result.returncode == 0 and json.loads(result.stdout)["argv"][2] == "provision"

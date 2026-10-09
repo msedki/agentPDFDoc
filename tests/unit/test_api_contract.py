@@ -62,7 +62,7 @@ def test_contract_public_paths_match_the_session_boundary():
 
 
 def emitted_event_types():
-    """Types littéraux passés à Database.add_event ou insérés directement dans la table events, dans tout services/api.
+    """Types littéraux passés à Database.add_event (directement ou via database_call) ou insérés dans events.
 
     Seule l'implémentation de Database.add_event insère un type variable (son paramètre `kind`) ; tout autre
     type non littéral ferait échouer le test, car il échapperait à la comparaison avec le contrat.
@@ -75,8 +75,11 @@ def emitted_event_types():
         for node in ast.walk(tree):
             if not isinstance(node, ast.Call):
                 continue
-            if isinstance(node.func, ast.Attribute) and node.func.attr == "add_event" and len(node.args) >= 2:
-                kind = node.args[1]
+            direct = isinstance(node.func, ast.Attribute) and node.func.attr == "add_event" and len(node.args) >= 2
+            offloaded = (isinstance(node.func, ast.Name) and node.func.id == "database_call" and len(node.args) >= 3
+                         and isinstance(node.args[0], ast.Attribute) and node.args[0].attr == "add_event")
+            if direct or offloaded:
+                kind = node.args[2 if offloaded else 1]
                 assert isinstance(kind, ast.Constant) and isinstance(kind.value, str), f"type d'événement non littéral dans {source.name}:{node.lineno}"
                 found.add(kind.value)
             first = node.args[0] if node.args else None
@@ -98,6 +101,23 @@ def test_contract_event_types_are_those_emitted_by_the_api_and_listened_by_the_i
     listened = re.search(r"export const QUERY_EVENT_TYPES = \[([^\]]*)\]", types)
     assert listened, "liste QUERY_EVENT_TYPES introuvable dans apps/web/src/lib/types.ts"
     assert set(re.findall(r'"([a-z_]+)"', listened.group(1))) == contract
+
+
+@pytest.mark.parametrize("expression", ["db.add_event('q', 'status', {})", "database_call(db.add_event, 'q', 'status', {})"])
+def test_event_oracle_recognizes_direct_and_offloaded_literal_types(tmp_path, monkeypatch, expression):
+    source = tmp_path / "literal.py"
+    source.write_text(expression, encoding="utf-8")
+    monkeypatch.setitem(globals(), "API_SOURCES", [source])
+    assert emitted_event_types() == {"status"}
+
+
+@pytest.mark.parametrize("expression", ["db.add_event('q', dynamic, {})", "database_call(db.add_event, 'q', dynamic, {})"])
+def test_event_oracle_keeps_refusing_dynamic_types_in_direct_and_offloaded_calls(tmp_path, monkeypatch, expression):
+    source = tmp_path / "dynamic.py"
+    source.write_text(expression, encoding="utf-8")
+    monkeypatch.setitem(globals(), "API_SOURCES", [source])
+    with pytest.raises(AssertionError, match="type d'événement non littéral"):
+        emitted_event_types()
 
 
 def literal_states(table):

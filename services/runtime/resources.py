@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 import json
 import os
 import shutil
@@ -396,7 +397,9 @@ class ResourceGovernor:
                     raise
                 if on_wait is not None and not announced:
                     announced = True
-                    on_wait(refused.snapshot)
+                    result = on_wait(refused.snapshot)
+                    if inspect.isawaitable(result):
+                        await result
             await asyncio.sleep(2)
 
     async def readmit_generation(self, loaded: dict[str, Any] | None = None) -> dict[str, Any]:

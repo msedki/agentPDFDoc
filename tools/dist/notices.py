@@ -48,11 +48,25 @@ LINUX_GAPS = ("texte de licence d'uv absent : `bootstrap.sh` n'extrait que les e
               "(libjpeg, libpng, libtiff, zlib…), non livrées : leurs licences relèvent de la distribution du poste")
 JETPACK5_GAP = ("conditions de licence NVIDIA (CUDA 11.4, cuBLAS) des bibliothèques du complément JetPack 5 d'Ollama "
                 "(`lib/ollama/cuda_jetpack5`), livrées sans texte de licence propre")
+# Manques communs relevés par l'analyse de distribution, propres à aucune plateforme. Le kit Windows garde son texte
+# (DLL de la copie Tesseract, bibliothèques CUDA de l'archive Windows d'Ollama) ; le kit Linux n'en reprend que ce qui le
+# concerne, sans renvoi à une section d'un document du dépôt qu'il ne livre pas (KIT4-29).
+COMMON_GAPS = ("texte de licence propre à Qdrant et à Ollama absent des archives officielles", "titulaire du copyright d'E5",
+               "textes Apache-2.0 de Docling Heron et CDLA-Permissive-2.0 de TableFormer à joindre",
+               "avis des paquets npm regroupés dans les scripts de l'interface")
+QWEN_4B_SECTION = ["## Modification du modèle Qwen3.5-4B", "",
+                   "Le modèle `qwen3.5:4b-text` livré est dérivé localement du modèle Qwen3.5-4B publié sous licence Apache-2.0 : les "
+                   "tenseurs de l'encodeur de vision (`v.*`, `mm.*`) ont été retirés, les autres tenseurs sont repris à l'identique et "
+                   "vérifiés un à un (décision W006 du projet). Cette mention répond à l'obligation de signaler les fichiers modifiés "
+                   "(Apache-2.0, section 4 b).", ""]
 
 
 def third_party_notices(root: Path, files: list[str], version: str, platform: str = "windows-x86_64", *,
-                        lock: dict[str, Any] | None = None, gpu: str | None = None) -> str:
-    """`lock` : verrou lu dans le commit du kit (kit Linux) ; à défaut, celui de l'arbre de travail (kit Windows)."""
+                        lock: dict[str, Any] | None = None, gpu: str | None = None, models: tuple[str, ...] | None = None) -> str:
+    """`lock` : verrou lu dans le commit du kit (kit Linux) ; à défaut, celui de l'arbre de travail (kit Windows).
+
+    `models` : jeux de modèles livrés (`model_sets` du kit Linux) ; la mention de la modification du 4B ne figure que si
+    `4b` en fait partie. Sans valeur (kit Windows), elle figure toujours. Le texte du kit Windows est inchangé."""
     if lock is None:
         lock = json.loads((root / "config/artifacts.lock.json").read_text(encoding="utf-8"))
     rows = artifact_rows(lock, files, platform)
@@ -72,16 +86,16 @@ def third_party_notices(root: Path, files: list[str], version: str, platform: st
         present = license_files(files, prefix)
         lines.append(f"| {name} | — | — | voir les textes | — | {'<br>'.join(f'`{t}`' for t in present) or 'aucun'} |")
     lines += ["", "Les paquets Python du runtime apportent leurs avis dans leurs métadonnées (`*.dist-info`) ; ils arrivent avec le cache uv "
-              "du kit puis dans `.venv` à l'installation.", "",
-              "## Modification du modèle Qwen3.5-4B", "",
-              "Le modèle `qwen3.5:4b-text` livré est dérivé localement du modèle Qwen3.5-4B publié sous licence Apache-2.0 : les tenseurs "
-              "de l'encodeur de vision (`v.*`, `mm.*`) ont été retirés, les autres tenseurs sont repris à l'identique et vérifiés un à un "
-              "(décision W006 du projet). Cette mention répond à l'obligation de signaler les fichiers modifiés (Apache-2.0, section 4 b).", "",
-              "## Manques connus", "",
-              "Relevés par l'analyse de distribution (section 6), non résolus par ce kit : texte de licence propre à Qdrant et à Ollama "
-              "absent des archives officielles ; licences des DLL tierces de la copie Tesseract ; titulaire du copyright d'E5 ; textes "
-              "Apache-2.0 de Docling Heron et CDLA-Permissive-2.0 de TableFormer à joindre ; avis des paquets npm regroupés dans les "
-              "scripts de l'interface ; conditions NVIDIA des bibliothèques CUDA d'Ollama tant qu'elles sont livrées (P3)."]
-    if platform.startswith("linux"):
-        lines += ["", "Manques propres au kit Linux :", ""] + [f"- {gap}." for gap in (*LINUX_GAPS, *((JETPACK5_GAP,) if gpu == "jetpack5" else ()))]
+              "du kit puis dans `.venv` à l'installation.", ""]
+    lines += QWEN_4B_SECTION if models is None or "4b" in models else []
+    lines += ["## Manques connus", ""]
+    if not platform.startswith("linux"):
+        lines += ["Relevés par l'analyse de distribution (section 6), non résolus par ce kit : texte de licence propre à Qdrant et à Ollama "
+                  "absent des archives officielles ; licences des DLL tierces de la copie Tesseract ; titulaire du copyright d'E5 ; textes "
+                  "Apache-2.0 de Docling Heron et CDLA-Permissive-2.0 de TableFormer à joindre ; avis des paquets npm regroupés dans les "
+                  "scripts de l'interface ; conditions NVIDIA des bibliothèques CUDA d'Ollama tant qu'elles sont livrées (P3)."]
+        return "\n".join(lines) + "\n"
+    gaps = (*COMMON_GAPS, *LINUX_GAPS, *((JETPACK5_GAP,) if gpu == "jetpack5" else ()))
+    lines += ["Manques relevés par l'analyse de distribution, document du dépôt du projet, non livré avec ce kit. Ils ne sont pas "
+              "résolus par ce kit :", ""] + [f"- {gap}." for gap in gaps]
     return "\n".join(lines) + "\n"

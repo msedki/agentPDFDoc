@@ -218,6 +218,20 @@ async def test_generation_admission_waits_for_memory_then_admits(tmp_path, monke
 
 
 @pytest.mark.asyncio
+async def test_generation_awaits_the_resource_wait_callback_before_admitting(tmp_path, monkeypatch):
+    item = _admission_governor(tmp_path, 30, monkeypatch, [4723, 5100])
+    waits = []
+    monkeypatch.setattr("services.runtime.resources.asyncio.sleep", _instant_sleep)
+
+    async def waiting(sample):
+        await asyncio.to_thread(waits.append, sample)
+
+    async with item.generation(on_wait=waiting):
+        assert len(waits) == 1
+    assert waits[0]["admission"]["required_available_mib"] == 3456 + 1536
+
+
+@pytest.mark.asyncio
 async def test_generation_admission_without_wait_refuses_immediately(tmp_path, monkeypatch):
     item = _admission_governor(tmp_path, 0, monkeypatch, [4723])
     waits = []

@@ -1,5 +1,6 @@
 import asyncio
 import json
+import threading
 
 import pytest
 from test_api_storage import FakeEmbedding, import_fixture
@@ -249,4 +250,255 @@ def test_api_cancel_waiting_or_unstarted_query_writes_one_terminal_event(storage
         assert db.one("SELECT state FROM query_runs WHERE id=?", (first,))["state"] == "done"
         assert service.cancel_events == {} and service.tasks == {} and service.started == set()
         assert service.cancel(second)["state"] == "cancelled" and cancelled_events(db, second) == 1
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("cancelled", [False, True])
+def test_api_delta_persistence_keeps_the_loop_live_and_finishes_before_cancelled(storage, monkeypatch, cancelled):
+    """SQLite réelle ; une barrière de thread remplace seulement la durée de persistance d'un delta."""
+    service, db, conversation, _ = query_fixture(storage, "Quelle tension CCU-21 ?")
+    entered, release = threading.Event(), threading.Event()
+    original_add_event = db.add_event
+    persistence_threads = []
+
+    class AnsweringOllama:
+        async def stream(self, messages, cancellation, output_tokens):
+            yield {"type": "delta", "text": "72 V [S001]"}
+            yield {"type": "done", "finish_reason": "stop", "metrics": {}}
+
+    def delayed_event(query_id, kind, data):
+        if kind == "delta":
+            persistence_threads.append(threading.get_ident())
+            entered.set()
+            assert release.wait(3), "La boucle doit pouvoir libérer le thread SQLite."
+        return original_add_event(query_id, kind, data)
+
+    service.ollama = AnsweringOllama()
+    monkeypatch.setattr(db, "add_event", delayed_event)
+
+    async def scenario():
+        loop_thread = threading.get_ident()
+        query_id = service.create(QueryRequest(question="Quelle tension CCU-21 ?", scope=Scope(kind="library"),
+                                               conversation_id=conversation))["query_id"]
+        task = service.tasks[query_id]
+        try:
+            # Le délai de préparation inclut les fsync SD ; l'oracle porte sur le thread et la barrière, pas sur sa latence.
+            assert await asyncio.wait_for(asyncio.to_thread(entered.wait, 15), 16)
+            assert len(persistence_threads) == 1 and persistence_threads[0] != loop_thread
+            assert not task.done()
+            if cancelled:
+                service.cancel(query_id)
+                await asyncio.sleep(0)
+                assert not task.done(), "L'annulation doit attendre la fin de l'écriture déjà admise."
+            release.set()
+            await asyncio.wait_for(task, 10)
+            events = db.rows("SELECT id,type FROM events WHERE query_id=? ORDER BY id", (query_id,))
+            assert events[-1]["type"] == ("cancelled" if cancelled else "done")
+            assert [event["type"] for event in events].count("delta") == 1
+            assert [event["id"] for event in events] == list(range(1, len(events) + 1))
+            row = db.one("SELECT state,last_event_id FROM query_runs WHERE id=?", (query_id,))
+            assert row == {"state": "cancelled" if cancelled else "done", "last_event_id": events[-1]["id"]}
+        finally:
+            release.set()
+            await service.close()
+
+    asyncio.run(scenario())
+
+
+def test_api_question_queue_remains_fifo_when_the_first_queued_event_is_slow(storage, monkeypatch):
+    import_fixture(storage)
+    settings, db, vectors, _ = storage
+    entered, release = threading.Event(), threading.Event()
+    calls = []
+    first = None
+    original_add_event = db.add_event
+
+    def delayed_event(query_id, kind, data):
+        if query_id == first and kind == "status" and data.get("state") == "queued":
+            entered.set()
+            assert release.wait(3)
+        return original_add_event(query_id, kind, data)
+
+    monkeypatch.setattr(db, "add_event", delayed_event)
+
+    class RecordingSearch(BlockingSearch):
+        async def search(self, question, snapshot, mode="question"):
+            calls.append(question)
+            return await super().search(question, snapshot, mode)
+
+    async def scenario():
+        nonlocal first
+        search = RecordingSearch()
+        service = QueryService(db, ScopeResolver(db), search, ContextBuilder(settings, CharTokenizer()), None, settings)
+        first = service.create(QueryRequest(question="Première question", scope=Scope(kind="library")))["query_id"]
+        second = service.create(QueryRequest(question="Deuxième question", scope=Scope(kind="library")))["query_id"]
+        try:
+            assert await asyncio.wait_for(asyncio.to_thread(entered.wait, 15), 16)
+            await asyncio.sleep(0)
+            assert calls == []
+            release.set()
+            for _ in range(100):
+                if calls:
+                    break
+                await asyncio.sleep(0.01)
+            assert calls == ["Première question"]
+            assert db.one("SELECT state FROM query_runs WHERE id=?", (second,))["state"] == "queued"
+            search.release.set()
+            await asyncio.gather(*service.tasks.values())
+            assert calls == ["Première question", "Deuxième question"]
+        finally:
+            release.set()
+            search.release.set()
+            await service.close()
+
+    asyncio.run(scenario())
+
+
+def test_api_cancellation_before_the_terminal_transaction_prevents_done(storage, monkeypatch):
+    service, db, conversation, _ = query_fixture(storage, "Quelle tension CCU-21 ?")
+    entered, release = threading.Event(), threading.Event()
+    original_finish = service.finish
+
+    class AnsweringOllama:
+        async def stream(self, messages, cancellation, output_tokens):
+            yield {"type": "delta", "text": "72 V [S001]"}
+            yield {"type": "done", "finish_reason": "stop", "metrics": {}}
+
+    def delayed_finish(*args):
+        entered.set()
+        assert release.wait(3)
+        return original_finish(*args)
+
+    service.ollama = AnsweringOllama()
+    monkeypatch.setattr(service, "finish", delayed_finish)
+
+    async def scenario():
+        query_id = service.create(QueryRequest(question="Quelle tension CCU-21 ?", scope=Scope(kind="library"),
+                                               conversation_id=conversation))["query_id"]
+        task = service.tasks[query_id]
+        try:
+            assert await asyncio.wait_for(asyncio.to_thread(entered.wait, 15), 16)
+            assert service.cancel(query_id)["state"] == "cancel_requested"
+            release.set()
+            await asyncio.wait_for(task, 10)
+            assert db.one("SELECT state FROM query_runs WHERE id=?", (query_id,))["state"] == "cancelled"
+            assert [event["type"] for event in db.rows("SELECT type FROM events WHERE query_id=? AND type IN ('done','cancelled')", (query_id,))] == ["cancelled"]
+            assert db.one("SELECT count(*) AS n FROM messages WHERE query_id=? AND role='assistant'", (query_id,))["n"] == 0
+        finally:
+            release.set()
+            await service.close()
+
+    asyncio.run(scenario())
+
+
+def test_api_async_cancellation_does_not_block_the_loop_on_a_real_sqlite_write_lock(storage):
+    service, db, _, _ = query_fixture(storage, "Quelle tension CCU-21 ?")
+    query_id = db.one("SELECT id FROM query_runs")["id"]
+    db.busy_timeout_ms = 400
+
+    async def scenario():
+        with db.transaction() as connection:
+            connection.execute("UPDATE query_runs SET cancel_requested=0 WHERE id=?", (query_id,))
+            cancellation = asyncio.create_task(service.cancel_async(query_id))
+            # Ce tick doit se produire alors que le vrai WRITE lock est encore tenu par le test.
+            await asyncio.sleep(0.05)
+            assert not cancellation.done(), "La boucle a attendu la fin du busy_timeout SQLite."
+        response = await asyncio.wait_for(cancellation, 3)
+        assert response == {"query_id": query_id, "state": "done"}
+        assert db.one("SELECT cancel_requested FROM query_runs WHERE id=?", (query_id,))["cancel_requested"] == 1
+
+    asyncio.run(scenario())
+
+
+def test_api_async_query_admission_is_serialized_and_keeps_asyncio_tasks_on_the_loop(storage):
+    import_fixture(storage)
+    settings, db, _, _ = storage
+
+    async def scenario():
+        search = BlockingSearch()
+        service = QueryService(db, ScopeResolver(db), search, ContextBuilder(settings, CharTokenizer()), None, settings)
+        results = await asyncio.gather(*(service.create_async(QueryRequest(question=f"Question {index}", scope=Scope(kind="library")))
+                                        for index in range(6)), return_exceptions=True)
+        try:
+            accepted = [result for result in results if isinstance(result, dict)]
+            refused = [result for result in results if isinstance(result, Exception)]
+            assert len(accepted) == 3 and len(refused) == 3
+            assert all(error.code == "query_queue_full" for error in refused)
+            assert db.one("SELECT count(*) AS n FROM query_runs WHERE state IN ('queued','running')")["n"] == 3
+            assert all(task.get_loop() is asyncio.get_running_loop() for task in service.tasks.values())
+        finally:
+            await service.close()
+
+    asyncio.run(scenario())
+
+
+def test_api_cancelled_async_creation_does_not_leave_an_unstarted_queued_query(storage, monkeypatch):
+    import_fixture(storage)
+    settings, db, _, _ = storage
+    service = QueryService(db, ScopeResolver(db), BlockingSearch(), ContextBuilder(settings, CharTokenizer()), None, settings)
+    entered, release = threading.Event(), threading.Event()
+    original_prepare = service.prepare_query
+
+    def delayed_prepare(request):
+        result = original_prepare(request)
+        entered.set()
+        assert release.wait(3)
+        return result
+
+    monkeypatch.setattr(service, "prepare_query", delayed_prepare)
+
+    async def scenario():
+        creation = asyncio.create_task(service.create_async(QueryRequest(question="Question annulée", scope=Scope(kind="library"))))
+        try:
+            assert await asyncio.wait_for(asyncio.to_thread(entered.wait, 15), 16)
+            creation.cancel()
+            await asyncio.sleep(0)
+            assert not creation.done()
+            release.set()
+            with pytest.raises(asyncio.CancelledError):
+                await asyncio.wait_for(creation, 10)
+            assert not service.tasks and not service.cancel_events
+            assert [row["state"] for row in db.rows("SELECT state FROM query_runs")] == ["cancelled"]
+            assert db.one("SELECT count(*) AS n FROM events WHERE type='cancelled'")["n"] == 1
+        finally:
+            release.set()
+            await service.close()
+
+    asyncio.run(scenario())
+
+
+def test_api_cancelled_cancel_request_still_signals_the_query_on_the_loop(storage, monkeypatch):
+    import_fixture(storage)
+    settings, db, _, _ = storage
+    entered, release = threading.Event(), threading.Event()
+    service = QueryService(db, ScopeResolver(db), BlockingSearch(), ContextBuilder(settings, CharTokenizer()), None, settings)
+    original_persist = service.request_cancellation
+
+    def delayed_persist(query_id):
+        result = original_persist(query_id)
+        entered.set()
+        assert release.wait(3)
+        return result
+
+    monkeypatch.setattr(service, "request_cancellation", delayed_persist)
+
+    async def scenario():
+        query_id = service.create(QueryRequest(question="Question en cours", scope=Scope(kind="library")))["query_id"]
+        task = service.tasks[query_id]
+        cancellation = asyncio.create_task(service.cancel_async(query_id))
+        try:
+            assert await asyncio.wait_for(asyncio.to_thread(entered.wait, 15), 16)
+            cancellation.cancel()
+            await asyncio.sleep(0)
+            release.set()
+            with pytest.raises(asyncio.CancelledError):
+                await asyncio.wait_for(cancellation, 10)
+            await asyncio.wait_for(task, 10)
+            assert db.one("SELECT state,cancel_requested FROM query_runs WHERE id=?", (query_id,)) == {"state": "cancelled", "cancel_requested": 1}
+            assert not service.tasks and not service.cancel_events
+            assert cancelled_events(db, query_id) == 1
+        finally:
+            release.set()
+            await service.close()
+
     asyncio.run(scenario())
