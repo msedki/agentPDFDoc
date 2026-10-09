@@ -118,11 +118,11 @@ def test_rag_sh_starts_the_4b_by_default_and_the_2b_on_request(tmp_path):
     usage = run(root / "rag.sh", "--help").stdout
     assert "qwen3.5:4b (défaut)" in usage and "--model qwen3.5:2b pour le 2B" in usage and "qwen3.5:2b (défaut)" not in usage
     default = json.loads(run(root / "rag.sh", "up").stdout)
-    assert default["argv"] == ["-m", "services.runtime.cli", "up", "--profile", str(root.resolve() / "config/local16-4b.yaml")]
+    assert default["argv"] == ["-B", "-m", "services.runtime.cli", "up", "--profile", str(root.resolve() / "config/local16-4b.yaml")]
     two = json.loads(run(root / "rag.sh", "up", "--model", "qwen3.5:2b").stdout)
-    assert two["argv"] == ["-m", "services.runtime.cli", "up", "--model", "qwen3.5:2b"]
+    assert two["argv"] == ["-B", "-m", "services.runtime.cli", "up", "--model", "qwen3.5:2b"]
     explicit = json.loads(run(root / "rag.sh", "up", "--profile", "/profils/poste-2b.yaml").stdout)
-    assert explicit["argv"] == ["-m", "services.runtime.cli", "up", "--profile", "/profils/poste-2b.yaml"]
+    assert explicit["argv"] == ["-B", "-m", "services.runtime.cli", "up", "--profile", "/profils/poste-2b.yaml"]
 
 
 @pytest.mark.parametrize(("args", "message"), [
@@ -151,15 +151,34 @@ def test_rag_sh_maps_every_option_like_rag_ps1_and_returns_the_cli_exit_code(tmp
                  "--only", "qdrant", "--report", "r.json", "--qdrant-storage", "/q", "--ports", "1,2,3", cwd=elsewhere)
     observed = json.loads(result.stdout)
     assert result.returncode == 0
-    assert observed["argv"] == ["-m", "services.runtime.cli", "restore", "--profile", str(root.resolve() / "config/local16-4b.yaml"),
+    assert observed["argv"] == ["-B", "-m", "services.runtime.cli", "restore", "--profile", str(root.resolve() / "config/local16-4b.yaml"),
                                 "--only", "qdrant", "--offline", "--skip-model", "--path", "sauvegarde",
                                 "--target", "racine neuve", "--report", "r.json", "--qdrant-storage", "/q", "--ports", "1,2,3"]
     # Comme Push-Location dans rag.ps1 : la CLI s'exécute depuis la racine du projet, en UTF-8.
     assert observed["cwd"] == str(root.resolve()) and observed["utf8"] == "1"
     default = json.loads(run(root / "rag.sh", "--profile", "/profils/poste.yaml").stdout)
-    assert default["argv"] == ["-m", "services.runtime.cli", "doctor", "--profile", "/profils/poste.yaml"]
+    assert default["argv"] == ["-B", "-m", "services.runtime.cli", "doctor", "--profile", "/profils/poste.yaml"]
     executable(root / ".venv/bin/python", "#!/bin/sh\nexit 7\n")
     assert run(root / "rag.sh", "status").returncode == 7
+
+
+def test_rag_sh_real_python_imports_do_not_create_bytecode(tmp_path):
+    """CLI synthétique, vrai interpréteur : imports de paquet sans caches, même avec un cache hérité."""
+    root = project(tmp_path, venv=False)
+    python = root / ".venv/bin/python"
+    python.parent.mkdir(parents=True)
+    python.symlink_to(sys.executable)
+    package = root / "services/runtime"
+    package.mkdir(parents=True)
+    (root / "services/__init__.py").write_text("", encoding="utf-8")
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (package / "cli.py").write_text("import sys\nprint(sys.dont_write_bytecode)\n", encoding="utf-8")
+    cache = tmp_path / "cache hérité"
+    result = run(root / "rag.sh", "doctor", extra_env={"PYTHONPYCACHEPREFIX": str(cache)})
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "True"
+    assert not list(root.rglob("*.pyc"))
+    assert not cache.exists()
 
 
 @pytest.mark.parametrize(("system", "machine"), [("Linux", "armv7l"), ("Linux", "riscv64"), ("Linux", "i686"),
@@ -303,9 +322,9 @@ def test_rag_sh_passes_no_browser_to_the_cli_and_keeps_the_browser_by_default(tm
     profile = str(root.resolve() / "config/local16-4b.yaml")
     result = run(root / "rag.sh", "open", "--no-browser")
     assert result.returncode == 0, result.stderr
-    assert json.loads(result.stdout)["argv"] == ["-m", "services.runtime.cli", "open", "--profile", profile, "--no-browser"]
+    assert json.loads(result.stdout)["argv"] == ["-B", "-m", "services.runtime.cli", "open", "--profile", profile, "--no-browser"]
     default = run(root / "rag.sh", "open")
-    assert json.loads(default.stdout)["argv"] == ["-m", "services.runtime.cli", "open", "--profile", profile]
+    assert json.loads(default.stdout)["argv"] == ["-B", "-m", "services.runtime.cli", "open", "--profile", profile]
 
 
 # --- Garde d'une installation depuis un kit (R26-KIT-01, défaut C7) -------------------------------------------------------
@@ -362,7 +381,7 @@ def test_rag_sh_in_an_installation_refuses_the_shipped_profile(tmp_path, args):
 def test_rag_sh_in_an_installation_accepts_a_user_profile_and_profile_free_commands(tmp_path, args):
     result = run(installed_project(tmp_path) / "rag.sh", *args)
     assert result.returncode == 0, result.stderr
-    assert json.loads(result.stdout)["argv"][2] == args[0]
+    assert json.loads(result.stdout)["argv"][3] == args[0]
 
 
 # --- KIT4-21 et KIT4-13 : dossier de kit et commandes réseau ---------------------------------------------------------------
@@ -406,4 +425,4 @@ def test_rag_sh_quotes_a_destination_with_a_space_in_the_reinstall_command(tmp_p
 def test_rag_sh_of_a_clone_keeps_its_network_commands(tmp_path):
     root = project(tmp_path)
     result = run(root / "rag.sh", "provision", "--offline")
-    assert result.returncode == 0 and json.loads(result.stdout)["argv"][2] == "provision"
+    assert result.returncode == 0 and json.loads(result.stdout)["argv"][3] == "provision"

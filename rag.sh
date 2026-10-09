@@ -149,7 +149,7 @@ case "$profile" in
     *) resolved_profile=$project_root/$profile ;;
 esac
 
-set -- -m services.runtime.cli "$command_name"
+set -- -B -m services.runtime.cli "$command_name"
 if [ -z "$model" ] || [ "$profile_seen" -eq 1 ]; then
     set -- "$@" --profile "$resolved_profile"
 fi

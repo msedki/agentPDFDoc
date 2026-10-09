@@ -64,9 +64,13 @@ test("persisted Q06 passages cover their entire native text without counting rep
     expect(expected.text).toBe(expected.blocks.map(block => block.text).join("\n"));
     expect(expected.bboxes).toEqual(expected.blocks.map(block => block.bbox));
     expect(expected.block_ids).toEqual(expected.blocks.map(block => block.id));
+    expect(expected).not.toHaveProperty("extraction_methods");
+    for (const block of expected.blocks) expect(block).not.toHaveProperty("extraction_method");
+    const historicalSource = { ...expected, extraction_methods: ["unknown"],
+      blocks: expected.blocks.map(block => ({ ...block, extraction_method: "unknown" })) };
     const response = await request.get(`${target.origin}/api/v1/citations/${expected.query_id}/${expected.source_id}`);
     expect(response.status()).toBe(200);
-    expect(await response.json()).toEqual(expected);
+    expect(await response.json()).toEqual(historicalSource);
     registryBindings.push(`${expected.query_id}/${expected.source_id}`);
   }
 

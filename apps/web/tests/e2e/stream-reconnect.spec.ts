@@ -27,6 +27,7 @@ test("real progressive response reconnects the same query, then a second generat
   const cleanupErrors: string[] = [];
   let primaryError: unknown;
   const modelDigest = process.env.RAG_E2E_NATIVE_DIGEST ?? "";
+  const expectedModel = process.env.RAG_E2E_MODEL;
   const cdp = await context.newCDPSession(page);
   await cdp.send("Network.enable");
   // Passive CDP observation of native EventSource: no constructor override, route or synthetic event.
@@ -121,12 +122,13 @@ test("real progressive response reconnects the same query, then a second generat
     throw new Error(`No real ${expected} terminal in the bounded window`);
   };
   try {
-    expect(modelDigest, "ROOT must provide the actual pinned local 2B digest").toMatch(/^[0-9a-f]{64}$/);
+    expect(expectedModel, "ROOT must provide the chosen model from the runtime lock").toMatch(/^(qwen3\.5:2b|qwen3\.5:4b-text)$/);
+    expect(modelDigest, "ROOT must provide the actual pinned local model digest").toMatch(/^[0-9a-f]{64}$/);
     await page.goto("/workspace/");
     const jobsResponse = await page.request.get("/api/v1/jobs");
     expect(jobsResponse.status()).toBe(200);
     const configuredGeneration = (await jobsResponse.json()).generation;
-    expect(configuredGeneration).toMatchObject({ model: "qwen3.5:2b", device: "gpu", fallback: false });
+    expect(configuredGeneration).toMatchObject({ model: expectedModel, device: "gpu", fallback: false });
     snapshots.push({ phase: "configured-model", generation: configuredGeneration, expectedDigest: modelDigest });
     const treeResponse = await page.request.get("/api/v1/library/tree");
     expect(treeResponse.status()).toBe(200);
@@ -212,7 +214,7 @@ test("real progressive response reconnects the same query, then a second generat
     const releasedJobsResponse = await page.request.get("/api/v1/jobs");
     expect(releasedJobsResponse.status()).toBe(200);
     const releasedGeneration = (await releasedJobsResponse.json()).generation;
-    expect(releasedGeneration).toMatchObject({ model: "qwen3.5:2b", device: "gpu", fallback: false });
+    expect(releasedGeneration).toMatchObject({ model: expectedModel, device: "gpu", fallback: false });
     snapshots.push({ phase: "cancelled-model", generation: releasedGeneration });
     await monitorBrowser(browser, "after-stream-cancelled-release", info);
     await expect(page.getByTestId("scope-summary")).toContainText(fixtureName);

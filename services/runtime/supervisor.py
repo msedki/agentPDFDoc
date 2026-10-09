@@ -258,7 +258,7 @@ def environment(profile: dict, directory: Path, profile_path: Path) -> dict[str,
     else:
         env = posix_environment(directory)
     env.update({
-        "PYTHONUTF8": "1", "PYTHONUNBUFFERED": "1", "RAG_PROFILE": str(profile_path.resolve()),
+        "PYTHONDONTWRITEBYTECODE": "1", "PYTHONUTF8": "1", "PYTHONUNBUFFERED": "1", "RAG_PROFILE": str(profile_path.resolve()),
         "RAG_DATA_DIR": str(directory), "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1",
         "HF_HUB_DISABLE_TELEMETRY": "1", "HF_HOME": str(runtime_location(profile, "huggingface_cache_dir")),
         "DOCLING_ARTIFACTS_PATH": str(ROOT / profile["pdf"]["artifacts_path"]),

@@ -666,8 +666,8 @@ def test_the_profile_forms_cover_the_legacy_form_and_every_accelerator_value():
 
 
 def _common_snapshot(directory: Path, profile_path: Path) -> dict[str, str]:
-    """Variables fixées par environment() avant W024 (révision ba945af), pour le profil livré sous chacune de ses formes."""
-    return {"PYTHONUTF8": "1", "PYTHONUNBUFFERED": "1", "RAG_PROFILE": str(profile_path.resolve()),
+    """Référence avant W024 (ba945af), avec la protection du bytecode R27-RT-02 ; chaque forme du profil livré."""
+    return {"PYTHONDONTWRITEBYTECODE": "1", "PYTHONUTF8": "1", "PYTHONUNBUFFERED": "1", "RAG_PROFILE": str(profile_path.resolve()),
             "RAG_DATA_DIR": str(directory), "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1",
             "HF_HUB_DISABLE_TELEMETRY": "1", "HF_HOME": str((ROOT / ".runtime/cache/huggingface").resolve()),
             "DOCLING_ARTIFACTS_PATH": str(ROOT / ".runtime/models/docling"),
@@ -677,6 +677,33 @@ def _common_snapshot(directory: Path, profile_path: Path) -> dict[str, str]:
             "OLLAMA_NO_CLOUD": "1", "OLLAMA_NUM_PARALLEL": "1", "OLLAMA_MAX_LOADED_MODELS": "1",
             "OLLAMA_MAX_QUEUE": "2", "OLLAMA_CONTEXT_LENGTH": "8192", "OLLAMA_KEEP_ALIVE": "10m",
             "LLAMA_ARG_CACHE_RAM": "256", "LLAMA_ARG_CTX_CHECKPOINTS": "2"}
+
+
+@pytest.mark.parametrize("platform", ["linux", "win32"])
+def test_python_service_and_worker_imports_preserve_program_files(tmp_path, monkeypatch, platform):
+    """Vrais imports Python dans deux processus, environnement runtime puis worker ; Windows est simulé."""
+    from services.api.jobs import worker_environment
+
+    program = tmp_path / "programme avec espace"
+    program.mkdir()
+    (program / "service_fixture.py").write_text("value = 27\n", encoding="utf-8")
+    (program / "worker_fixture.py").write_text("value = 28\n", encoding="utf-8")
+    before = {p.relative_to(program).as_posix(): p.read_bytes() for p in program.rglob("*") if p.is_file()}
+    monkeypatch.delenv("PYTHONDONTWRITEBYTECODE", raising=False)
+    monkeypatch.setenv("PYTHONPYCACHEPREFIX", str(tmp_path / "cache hérité"))
+    profile_path = ROOT / "config/local16-4b.yaml"
+    with monkeypatch.context() as target:
+        target.setattr(sys, "platform", platform)
+        service_env = environment(load_profile(profile_path), tmp_path / "donnees", profile_path)
+    for module, expected, child_env in (("service_fixture", 27, service_env),
+                                        ("worker_fixture", 28, worker_environment(service_env))):
+        done = subprocess.run([sys.executable, "-c", f"import {module}; print({module}.value)"],
+                              cwd=program, env=child_env, capture_output=True, text=True, timeout=30)
+        assert done.returncode == 0, done.stderr
+        assert done.stdout.strip() == str(expected)
+    after = {p.relative_to(program).as_posix(): p.read_bytes() for p in program.rglob("*") if p.is_file()}
+    assert after == before
+    assert not (tmp_path / "cache hérité").exists()
 
 
 def test_ollama_environment_under_simulated_windows_matches_the_reference_snapshot(tmp_path, monkeypatch):

@@ -8,6 +8,9 @@ import { readFileSync } from "node:fs";
 import { e2eTarget } from "./target.ts";
 
 const tokenFile = e2eTarget().tokenFile;
+// Le binding de recette fournit la commande installée ; le checkout garde son lanceur natif.
+const expectedOpenCommand = process.env.RAG_E2E_OPEN_COMMAND
+  ?? (process.platform === "win32" ? ".\\rag.ps1 open" : "./rag.sh open");
 
 async function openingLink(request: APIRequestContext): Promise<string> {
   const response = await request.post("/api/v1/admin/session-links", { headers: { "X-RAG-Control-Token": readFileSync(tokenFile, "ascii").trim() } });
@@ -19,11 +22,11 @@ test.describe("sans session", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
   test("l'atelier affiche la commande d'ouverture au lieu de l'espace de travail", async ({ page, request }) => {
-    // Le service annonce la commande de son poste (W018) : rag.ps1 sous Windows, rag.sh sous Linux.
+    // L'attente provient du binding revu, indépendamment de l'annonce /health et du rendu.
     const health = await request.get("/api/v1/health");
     expect(health.ok()).toBe(true);
     const announced = (await health.json() as { commands?: { open?: unknown } }).commands?.open;
-    expect(announced).toBe(process.platform === "win32" ? ".\\rag.ps1 open" : "./rag.sh open");
+    expect(announced).toBe(expectedOpenCommand);
     await page.goto("/workspace/");
     await expect(page.getByRole("heading", { level: 1, name: "Session requise" })).toBeVisible();
     await expect(page.getByText(String(announced), { exact: true })).toBeVisible();

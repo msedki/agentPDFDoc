@@ -7,6 +7,7 @@ import { watchPage } from "./guards.ts";
 import { withImportPriority } from "./import-priority.ts";
 import { fixture, uploadFromUi, waitJob } from "./lifecycle-target.ts";
 import { monitorBrowser } from "./resources";
+import { waitOriginalBitmap } from "./canvas-paint.ts";
 
 const fixtureSha = "dbec1b85f93d253842b6ae34a156fbb32ce5f49d6dee96b82ae292245bf47387";
 const terminalJobs = ["ready", "ready_partial", "cancelled", "error"];
@@ -198,6 +199,7 @@ test("real geometric OCR selection retains its exact revision, hash and Unicode 
       });
       expect(selectionVisible).toBe(true);
       await expect(page.locator(".selection-action")).toContainText(text);
+      const bitmap = await waitOriginalBitmap(page, info, `ocr-original-bitmap-${viewport.width}`, { pageIndex: 0, anchorSelector: `.ocr-text-layer > span[data-block-id="${block.id}"]`, viewport, zoom: "100 %" });
       await page.screenshot({ path: info.outputPath(`ocr-selection-${viewport.width}.png`), fullPage: true });
       await page.locator(".selection-action").getByRole("button", { name: "Analyser la sélection", exact: true }).click();
       await expect(page.getByTestId("scope-summary")).toContainText("Texte sélectionné dans le document");
@@ -218,7 +220,7 @@ test("real geometric OCR selection retains its exact revision, hash and Unicode 
       expect(result.results[0]!.blocks![0]).toMatchObject({ id: block.id, text, extraction_revision_id: binding.extraction_revision_id, source_text_hash: sourceHash, start_offset: span.startOffset, end_offset: span.endOffset });
       expect(Array.from(raw).slice(span.startOffset, span.endOffset).join("")).toBe(text);
       await expect(page.getByTestId("source-card").first()).toContainText(text);
-      evidence.push({ viewport, selected_text: text, geometry, selection_visible: selectionVisible, request: actualRequest, response: result });
+      evidence.push({ viewport, selected_text: text, geometry, bitmap, selection_visible: selectionVisible, request: actualRequest, response: result });
       await monitorBrowser(browser, `ocr-selection-${viewport.width}`, info);
     }
   } catch (error) { primaryError = error; }

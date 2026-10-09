@@ -8,6 +8,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { readOnlyApi } from "./guards";
+import { waitOriginalBitmap } from "./canvas-paint.ts";
 
 const fixtureName = "Atelier 1 - Banc pneumatique DA-P01.pdf";
 const outputRoot = process.env.RAG_E2E_VISUAL_QA_DIR ?? path.resolve(process.cwd(), "reports/visual-qa");
@@ -21,7 +22,7 @@ async function capture(page: Page, name: string) {
 }
 
 for (const viewport of [{ width: 1366, height: 768 }, { width: 1920, height: 1080 }]) {
-  test(`états principaux de l'atelier à ${viewport.width}×${viewport.height}`, async ({ page }) => {
+  test(`états principaux de l'atelier à ${viewport.width}×${viewport.height}`, async ({ page }, info) => {
     const blocked: string[] = [];
     await readOnlyApi(page, blocked);
     await page.setViewportSize(viewport);
@@ -33,6 +34,7 @@ for (const viewport of [{ width: 1366, height: 768 }, { width: 1920, height: 108
     await expect(page.getByRole("heading", { name: fixtureName })).toBeVisible();
     // Capture après lecture de la couche texte : une attente fixe a déjà saisi une page encore blanche.
     await expect(page.locator('[data-page-index="0"] .page-caption')).toContainText(/Texte natif|Texte OCR|Page blanche|Aucun texte extrait/);
+    await waitOriginalBitmap(page, info, `native-original-bitmap-${viewport.width}`, { pageIndex: 0, anchorSelector: ".textLayer span", viewport, zoom: "100 %" });
     await capture(page, "02-document-ouvert");
 
     await page.getByRole("button", { name: /Périmètre/ }).first().click();

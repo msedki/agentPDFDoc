@@ -15,7 +15,7 @@ from services.runtime.artifacts import ROOT
 
 RAG_PS1 = ROOT / "rag.ps1"
 CLI_SOURCE = ROOT / "services/runtime/cli.py"
-BASE = "$arguments = @('-m','services.runtime.cli',$Command)"
+BASE = "$arguments = @('-B','-m','services.runtime.cli',$Command)"
 PROFILE_BRANCH = "if (-not $Model -or $PSBoundParameters.ContainsKey('Profile')) { $arguments += @('--profile',$resolvedProfile) }"
 CALL = "& $projectPython @arguments"
 SWITCH = re.compile(r"^if \(\$(?P<name>\w+)\) \{ \$arguments \+= '(?P<flag>--[a-z-]+)' \}$")
@@ -40,7 +40,7 @@ PROFILE = "C:\\atelier\\" + default_profile(script()).replace("/", "\\")
 # Toutes les options de rag.ps1, comme dans le test de correspondance de rag.sh (test_runtime_launchers_sh.py).
 ALL_OPTIONS = {"Only": "qdrant", "Offline": True, "SkipModel": True, "Path": "sauvegarde", "Target": "racine neuve",
                "Report": "r.json", "QdrantStorage": "/q", "Ports": "1,2,3"}
-ALL_ARGUMENTS = ["-m", "services.runtime.cli", "restore", "--profile", PROFILE, "--only", "qdrant", "--offline",
+ALL_ARGUMENTS = ["-B", "-m", "services.runtime.cli", "restore", "--profile", PROFILE, "--only", "qdrant", "--offline",
                  "--skip-model", "--path", "sauvegarde", "--target", "racine neuve", "--report", "r.json",
                  "--qdrant-storage", "/q", "--ports", "1,2,3"]
 
@@ -72,7 +72,7 @@ def cli_arguments(text: str, command: str, bound: dict[str, str | bool]) -> list
     assert lines.index(BASE) < lines.index(PROFILE_BRANCH) < lines.index(CALL)
     declared, mapping = parameters(text), options(text)
     assert declared["Profile"] == "string" and declared["Model"] == "string"
-    arguments = ["-m", "services.runtime.cli", command]
+    arguments = ["-B", "-m", "services.runtime.cli", command]
     if not bound.get("Model") or "Profile" in bound:
         arguments += ["--profile", str(bound.get("Profile", PROFILE))]
     for name, (kind, flag) in mapping.items():
@@ -91,7 +91,7 @@ def test_rag_ps1_defaults_to_the_4b_profile_and_keeps_the_model_choice():
     text = script()
     assert default_profile(text) == "config/local16-4b.yaml" and PROFILE == r"C:\atelier\config\local16-4b.yaml"
     assert "[ValidateSet('qwen3.5:2b','qwen3.5:4b')]" in text
-    assert cli_arguments(text, "up", {}) == ["-m", "services.runtime.cli", "up", "--profile", PROFILE]
+    assert cli_arguments(text, "up", {}) == ["-B", "-m", "services.runtime.cli", "up", "--profile", PROFILE]
 
 
 def test_rag_ps1_no_browser_is_a_switch_that_adds_the_cli_option():
@@ -100,13 +100,13 @@ def test_rag_ps1_no_browser_is_a_switch_that_adds_the_cli_option():
     assert options(text)["NoBrowser"] == ("switch", "--no-browser")
     # Déclaration et transmission, nulle part ailleurs.
     assert text.count("$NoBrowser") == 2
-    assert cli_arguments(text, "open", {"NoBrowser": True}) == ["-m", "services.runtime.cli", "open", "--profile", PROFILE,
+    assert cli_arguments(text, "open", {"NoBrowser": True}) == ["-B", "-m", "services.runtime.cli", "open", "--profile", PROFILE,
                                                                 "--no-browser"]
 
 
 def test_rag_ps1_arguments_are_unchanged_without_no_browser():
     text = script()
-    assert cli_arguments(text, "open", {}) == ["-m", "services.runtime.cli", "open", "--profile", PROFILE]
+    assert cli_arguments(text, "open", {}) == ["-B", "-m", "services.runtime.cli", "open", "--profile", PROFILE]
     assert cli_arguments(text, "restore", ALL_OPTIONS) == ALL_ARGUMENTS
     assert cli_arguments(text, "restore", {**ALL_OPTIONS, "NoBrowser": True}) == [*ALL_ARGUMENTS, "--no-browser"]
 
@@ -122,9 +122,9 @@ def test_rag_ps1_passes_exactly_the_options_of_the_cli():
 def test_rag_ps1_model_omits_the_default_profile_and_reaches_the_cli(monkeypatch, capsys, model, name):
     """Lignes PowerShell interprétées, CLI réel ; démarrage explicitement doublé, aucun PowerShell ni service."""
     arguments = cli_arguments(script(), "up", {"Model": model})
-    assert arguments == ["-m", "services.runtime.cli", "up", "--model", model]
+    assert arguments == ["-B", "-m", "services.runtime.cli", "up", "--model", model]
     started = []
-    monkeypatch.setattr(sys, "argv", ["rag", *arguments[2:]])
+    monkeypatch.setattr(sys, "argv", ["rag", *arguments[3:]])
     monkeypatch.setattr(cli, "start", lambda path: started.append(path) or {"status": "explicit_start_double"})
     assert cli.main() == 0 and started == [ROOT / "config" / name]
     assert json.loads(capsys.readouterr().out)["status"] == "explicit_start_double"
@@ -132,11 +132,11 @@ def test_rag_ps1_model_omits_the_default_profile_and_reaches_the_cli(monkeypatch
 
 def test_rag_ps1_keeps_an_explicit_profile_and_cli_refuses_combining_it_with_model(monkeypatch, capsys):
     supplied = r"C:\atelier utilisateur\profil.yaml"
-    assert cli_arguments(script(), "up", {"Profile": supplied}) == ["-m", "services.runtime.cli", "up", "--profile", supplied]
+    assert cli_arguments(script(), "up", {"Profile": supplied}) == ["-B", "-m", "services.runtime.cli", "up", "--profile", supplied]
     arguments = cli_arguments(script(), "up", {"Profile": supplied, "Model": "qwen3.5:2b"})
-    assert arguments == ["-m", "services.runtime.cli", "up", "--profile", supplied, "--model", "qwen3.5:2b"]
+    assert arguments == ["-B", "-m", "services.runtime.cli", "up", "--profile", supplied, "--model", "qwen3.5:2b"]
     started = []
-    monkeypatch.setattr(sys, "argv", ["rag", *arguments[2:]])
+    monkeypatch.setattr(sys, "argv", ["rag", *arguments[3:]])
     monkeypatch.setattr(cli, "start", lambda path: started.append(path))
     assert cli.main() == 1 and started == []
     assert json.loads(capsys.readouterr().out)["error"] == "ValueError"

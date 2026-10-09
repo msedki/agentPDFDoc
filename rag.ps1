@@ -28,7 +28,7 @@ $resolvedProfile = if ([System.IO.Path]::IsPathRooted($Profile)) {
 } else {
     Join-Path $projectRoot $Profile
 }
-$arguments = @('-m','services.runtime.cli',$Command)
+$arguments = @('-B','-m','services.runtime.cli',$Command)
 if (-not $Model -or $PSBoundParameters.ContainsKey('Profile')) { $arguments += @('--profile',$resolvedProfile) }
 if ($Model) { $arguments += @('--model',$Model) }
 if ($Only) { $arguments += @('--only',$Only) }
