@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et relue, corrections R27 publiées, recette Linux aarch64 exécutée avec réserve du bureau, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C terminée avec réserve du bureau ; historique conservé · **Mis à jour :** 2026-10-10 01:15 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et relue, corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · **Mis à jour :** 2026-10-10 02:10 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 ## R28 — étude de l'extension DOCX/XLSX avant implémentation
 
@@ -177,7 +177,7 @@ sont confrontées au code, et leurs corrections sont suivies ici.
 | R27-RT-01 | Runtime/distribution | Baseline B01/B07/F08/F09/F19 ; lot kit préexistant | Racine effective conforme au profil validé ; réserve de backup sur volume cible réel ; cause primaire et échec de reprise conservés ; erreurs de verrou correctement distinguées ; oracle physique/lexical sans affaiblissement. Tests rouge/vert, mypy deux plateformes simulées et revue | VALIDÉ SUR TESTS ISOLÉS — 162 PASS/1 SKIP ciblés, ressources21 PASS ; unités/API du gel commun et mypy deux plateformes verts. Recette native du kit dans INT-01. `runtime/report.md`, `review/milestone.md` dans les preuves R27 |
 | R27-RT-02 | Immutabilité du programme installé | DIST-02 rouge réel du kit B ; R27-INT-01 | Interdire les caches d’import Python au CLI et dans les services/workers, tout en gardant la précompilation explicite de l’installation. Témoins réels rouge/vert, revue, publication puis kit corrigé et inventaire strict avant/après up/selftest/down ; aucune exclusion ou suppression masquant le défaut | VALIDÉ SUR LINUX AARCH64 — B a ajouté 4 394 `.pyc` (95 510 227 octets), échec conservé. Correctif `aabb9808` : `-B` dans rag.sh/rag.ps1 et variable interne fixe dans supervisor.environment ; trois témoins FAIL avant correction, 153 PASS/11 SKIP après, Ruff/mypy ciblés et revue de précompilation GOe89049e6…. Kit C fabriqué, vérifié, archivé et extrait ; installation neuve, selftest réel huit étapes, launcher/session, arrêt et redémarrage hors ligne exécutés. Comparaison0116 stricte PASS : 65 125 fichiers et 1 191 liens identiques, zéro ajout/retrait/changement, sans nettoyage. Avis indépendant GO971b598b…, `review/native-final/c-restart-program-immutability-review.json` et native0101–0116. Contrôle final0130/0131 après maintenance strictement identique, GO3967c9d8… ; aucun PASS Windows/x86-64/CPU16Go déduit. |
 | R27-DOC-01 | Intégration/documentation | Corrections et preuves | Registre des skills haché correctement, acceptation Playwright alignée sur décision, brief régénéré depuis sources, état R26-KIT-04 réel, CHANGELOG/journal/références affectées synchronisés. Contrôles docs/pack conformes et relecture ; baseline conservée | VALIDÉ DOCUMENTAIRE — docs7/7, pack11/11, brief/skills/SVG conformes, 62 tests docs et avis indépendant R28 ; état code/test distinct du native. `root/r28-docs/`, journal du 9 octobre. |
-| R27-INT-01 | Intégration/recette Linux | Lots corrigés/revus ; commit vérifié ; export lié à ce commit | Suites Python/web et contrôles pertinents verts ; publication ; build/export/provenance ; fabrication et transport ; installation, mise à jour avec backup, rollback et retrait isolés hors ligne ; inventaires programme/données et E2E. Finalise R26-KIT-02/04/RT-01 avec preuves, pas par les unités | PARTIEL — gel `5204d2e` : 2 661 unités PASS/20 SKIP, API88 PASS/1 SKIP, web433/lint/types et58 cas navigateur applicables validés indépendamment. Correctif RT-02 publié `aabb9808`, export243 fichiers conforme ; kit C fabriqué/transporté/installé, selftest8, launcher/session et redémarrage hors ligne verts, inventaire0116 strict identique. Backup réel B restauré sur C,22 anciennes citations/quatre historiques conservés et nouvelle question4B/arrêt vérifiés (GO7b087e94…). CPU C huit étapes/100%CPU validés (GO10bea0d7…), CUDA/Tegra toutefois présents. Mise à jour A→C avec sauvegarde automatique, principal2B conservé,15 citations anciennes et une nouvelle question4B vérifiés, programme65125/1191 inchangé après arrêt (GO8009f32a…). Rollback réel vers A dans une nouvelle racine,15 citations et nouvelle question4B/arrêt vérifiés (GOef9e2dfa…). Retraits B et C abandonné exécutés, données conservées (GOda18d029…). Refus cible absente0411 acquis (GObbca7530…), comparaison finale0130/0131 inchangée et retrait C frais avec30fichiers de données conservés acquis (GO3967c9d8…). Bureau privé0403 rouge avant activation (interfaces GNOME indisponibles, cause inconnue), réservé dans KIT-04 ; clôture des processus/ressources validée (GOe3ece2ea…), broker arrêté ; documentation et relecture finales validées (Fdb86ff07…/R9cb2a984…). NF09 reste réservé, aucune clôture globale. Preuves natives et `review/native-final/`, journal du9octobre ; aucune recette globale déduite. |
+| R27-INT-01 | Intégration/recette Linux | Lots corrigés/revus ; commit vérifié ; export lié à ce commit | Suites Python/web et contrôles pertinents verts ; publication ; build/export/provenance ; fabrication et transport ; installation, mise à jour avec backup, rollback et retrait isolés hors ligne ; inventaires programme/données et E2E. Finalise R26-KIT-02/04/RT-01 avec preuves, pas par les unités | PARTIEL — gel `5204d2e` : 2 661 unités PASS/20 SKIP, API88 PASS/1 SKIP, web433/lint/types et58 cas navigateur applicables validés indépendamment. Correctif RT-02 publié `aabb9808`, export243 fichiers conforme ; kit C fabriqué/transporté/installé, selftest8, launcher/session et redémarrage hors ligne verts, inventaire0116 strict identique. Backup réel B restauré sur C,22 anciennes citations/quatre historiques conservés et nouvelle question4B/arrêt vérifiés (GO7b087e94…). CPU C huit étapes/100%CPU validés (GO10bea0d7…), CUDA/Tegra toutefois présents. Mise à jour A→C avec sauvegarde automatique, principal2B conservé,15 citations anciennes et une nouvelle question4B vérifiés, programme65125/1191 inchangé après arrêt (GO8009f32a…). Rollback réel vers A dans une nouvelle racine,15 citations et nouvelle question4B/arrêt vérifiés (GOef9e2dfa…). Retraits B et C abandonné exécutés, données conservées (GOda18d029…). Refus cible absente0411 acquis (GObbca7530…), comparaison finale0130/0131 inchangée et retrait C frais avec30fichiers de données conservés acquis (GO3967c9d8…). Bureau privé0403 rouge avant activation (interfaces GNOME indisponibles, cause inconnue), réservé dans KIT-04 ; clôture des processus/ressources validée (GOe3ece2ea…), broker arrêté ; documentation et relecture finales validées (Fdb86ff07…/R9cb2a984…). NF09 reste réservé : recette menu C du10octobre rouge, menu absent/session non acquise ; diagnostic et retrait QA séparé avec data21 conservées relus (`7556e7ad…`), dossier terminal ci-dessous. Aucune clôture globale. Preuves natives et `review/native-final/`, journal du9octobre ; aucune recette globale déduite. |
 | R27-QUAL-01 | Qualification finale / validation indépendante | Lots locaux et préconditions QUALIFICATION | Matrice D01–D11 à jour : critères réellement acquis, échecs, données/mesures nécessaires et plateformes exactes ; avis indépendant final avant annonce de clôture. Ne pas assimiler Linux aarch64/GPU61Gio à Windows/x86-64/CPU16Go | LIVRABLE MATRICE/RELECTURE VALIDÉ — 89 critères, seuils et cases verbatim conservés ; DoD SHAa6e04c15… et matrice/revues indépendantes à jour. Avis documentaire final Fdb86ff07…/R9cb2a984…, journal du10octobre. Qualification globale non acquise : bureau NF09 rouge, Windows différé, Linux x86-64 et CPU16Go indisponibles, autres réserves conservées ; aucune cible absente reclassée en PASS |
 
 **Points vérifiés et conservés :** baseline relue indépendamment, HEAD et
@@ -205,7 +205,7 @@ conformes. Campagne navigateur exécutée : 58 cas uniques dans23 fichiers appli
 avec revue indépendante. Listing complet réellement collecté : 60 cas/24
 fichiers ; 58 applicables, deux D06.5 exclus. Tous les58 sont exécutés et
 relus par lot, union finale validée indépendamment. DIST-02 a échoué sur B : 4 394 caches ajoutés, échec conservé. Le correctif RT-02 publié `aabb9808` est maintenant vérifié sur C après installation, selftest et redémarrage : comparaison stricte0116 identique, avis indépendant GO971b598b…. D06.5 ne sera pas remesuré et aucune nouvelle campagne2B ne sera lancée. Estimation locale révisée à22:55 UTC : 35–60min pour restauration/question4B, CPU4B, A→C/rollback/retrait et documentation ; fenêtre GNOME distincte bornée après ces cycles. La clôture globale reste non chiffrable sans les entrées absentes.
-**Prochaine action du chantier :** préparer puis faire relire la recette menu/atelier sur une installation C neuve, après le prérequis X11/GNOME04 vérifié ci-dessous ; reprendre les qualifications manquantes lorsque leurs hôtes/corpus autorisés sont disponibles. La publication du lot documentaire vérifié suit la politique du dépôt et reste traçable par Git et `root/docs-c-final/publication-result.json`. Bureau privé0403 rouge avant activation ; aucune reprise identique autorisée sans nouveau diagnostic discriminant. Restauration B→C, CPU4B, mise à jour A→C, rollback et retraits B/C abandonné vérifiés indépendamment. L’étude Office est clôturée ; les lots I-01→08 restent proposés et aucune implémentation Office n’est engagée.
+**Prochaine action du chantier :** NF09 reste ouvert après recette rouge, diagnostic et disposition QA vérifiés. Aucun nouvel essai GUI n’est engagé ; une suite éventuelle exige une mesure discriminante du menu et des budgets de démarrage/session cohérents, avec un nouveau gel vérifié. Reprendre les qualifications manquantes lorsque leurs hôtes/corpus autorisés sont disponibles. La publication du lot documentaire vérifié suit la politique du dépôt et reste traçable par Git et `root/docs-c-final/publication-result.json`. Bureau privé0403 rouge avant activation ; aucune reprise identique autorisée sans nouveau diagnostic discriminant. Restauration B→C, CPU4B, mise à jour A→C, rollback et retraits B/C abandonné vérifiés indépendamment. L’étude Office est clôturée ; les lots I-01→08 restent proposés et aucune implémentation Office n’est engagée.
 
 ### Diagnostic NF09 du 10 octobre — prérequis X11 observé
 
@@ -314,6 +314,114 @@ navigateur, capture ou question lancé par les sondes00–04. Estimation
 révisée : 15–25 min pour préparation/revue, puis5–10 min de recette si
 préconditions acquises. Clôture globale toujours non chiffrable sans les
 hôtes/corpus/décisions manquants ; étude Office et propositions I inchangées.
+
+### NF09 — recette C neuve du 10 octobre, état à01:47 UTC
+
+Gel préparatoire v1 refusé indépendamment (`144bc8eb…`, avis `f94b2b44…`) :
+un timeout du retrait aurait laissé ses nouveaux descendants sans la
+fermeture/relecture finale requise. Aucun produit lancé avec ce gel.
+Copie v2 `e643ea8d…`, manifeste `6467a696…`, child `4bd85964…` inchangé :
+seul le `finally` du retrait évolue. Témoin réel de timeout500ms à01:39 UTC,
+acteur et petit-enfant absents, `remaining` frais vide, rouge primaire
+conservé (`e52e0f75…`). AST3.8/check-only/négatifs PASS (`b73345a6…`).
+Avis opératoire indépendant `c6bbe45c…` acquis à01:44 UTC et liaison UI
+`af55c4b7…` : mêmes cinq oracles, aucun assouplissement ni replay produit.
+
+ROOT revalide les26 entrées et autorise une seule commande exacte.
+Recette réellement lancée à01:46:13 UTC, reçu
+`native/gnome-menu-c-execution-01.json` encore RUNNING au présent relevé.
+Installation par défaut4B, kit/export aabb conservés, HOME/XDG/gm5 neufs,
+nouveaux namespaces utilisateur/réseau sans capacités, boucle locale
+seule. Terminal réel et navigateur doivent partager ce namespace ; aucun
+bus hôte, broker/DNS simulé ou choix de navigateur forcé. À01:46:58 UTC,
+copie53 %/6,00 sur11,16Gio, worker UID1000/caps0 ; aucune API encore
+démarrée. Ressources : RAM disponible46,90Gio/SD62,66Gio libres,
+racine3,25Gio, CPU27,6 %. Estimation restante4–8min à ce jalon.
+
+Résultats réels, profilFirefox privé et privacy/pixels restent à constater
+avant toute clôture NF09 ; le GET/session200 navigateur n'est pas
+directement mesuré, distinct de l'audit et du rendu derrière SessionGate.
+La documentation b8bdc3f est publiée et relue ; produit/kit restent aabb.
+DoD, réserves de plateforme/corpus/D06.5 et propositions Office inchangées.
+
+### NF09 — résultat terminal et diagnostic ciblé du 10 octobre
+
+La recette unique lancée à01:46:13 s’est terminée le01:51:32 UTC,
+exit1/318,641s (`native/gnome-menu-c-execution-01.json`). Installation
+exit0/152,732s, inventaire initial65125 fichiers/1191 liens ; Shell3.36.9
+READY et TerminalFactory3.36.2 réellement possédés dans les namespaces
+privés. Activation de la même entrée par DesktopAppInfo, lanceur observé
+et API C health200 acquis. Ils ne prouvent pas le menu ou l’atelier.
+
+**NF09 FAIL :** PNG préalable réel ne montre ni grille ni icône/entrée
+Atelier. Session/audit, fin du lanceur et fenêtre Firefox non acquis,
+aucune capture atelier. L’oracle cesse après90s. Avis indépendants
+`review/native-final/gnome-menu-c-v2-executed-failure-review.json`
+(`dc20f041…`) et UI `bb8c0615…` ; aucune clôture par health ou booléen Gio.
+
+Diagnostic en lecture seule `native/gnome-menu-c-readonly-diagnostic-01.json`
+(`6f696a39…`), revu `77bf3f11…` : budget QA90s inférieur au contrat up150s
+et health API120s, alors qu’il englobe encore ouverture/session/navigateur.
+Contrats dans `tools/dist/linux_install.py:236/3960–3964`,
+`services/runtime/supervisor.py:662/748–751` et ouverture séparée dans
+`services/runtime/cli.py:931–945`, code et copies C liés au diagnostic.
+Premier échantillon running environ87,358s après création du lanceur,
+pas heure exacte de transition ni origine exacte de l’oracle. Aucun
+événement de session ni profil Firefox ; cela ne prouve ni un défaut
+produit ni qu’une attente supérieure aurait réussi. Métadonnées de
+fenêtres non interrogées, car leurs préconditions n’ont pas été atteintes.
+
+Un avertissement modalgrab non horodaté est présent. Cause et moment
+restent inconnus. Sources Shell3.36.9 confrontées aux clauses installées
+(`cafb0ff4…`, NF09-S11) : état startup/coverPane puis overview/grab/page
+peuvent fournir une mesure future en lecture seule avant les pixels ;
+proposition non exécutée, aucun critère produit changé. Le toast apparaît
+après startup-complete ; il ne prouve pas un démarrage jamais terminé.
+
+Down réel exit0/12,588s. Nettoyage relu :56 identités de durée de vie
+absentes (55 descendants et parent connu) ; workerPID absent sans heure
+de création conservée. Sept chemins auth/tmp/X absents, X0 inchangé après
+normalisation UID namespace/hôte. Observer arrêté ;36 échantillons réseau
+boucle locale, pas preuve d’absence de tous les transitoires.23 mesures
+ressources : CPUmax33,8 %, RAMdisponiblemin46,196Gio,
+SDlibremin56,840Gio/racinemin3,249Gio. Aucune pression mémoire observée.
+Programme/data conservés à la fin de l’essai ; retrait et inventaire
+après essai non exécutés par cette recette. Leur disposition séparée reste
+à vérifier sans effacer la preuve rouge. Pas de replay, import, question,
+selftest, build ni suite58 supplémentaires. DoD/Office/plateformes inchangés.
+
+Estimation révisée à02:06 UTC :5–10min pour disposition isolée, relecture
+et publication documentaire ; NF09 et clôture globale non chiffrables
+sans preuve de menu/session et préconditions de qualification distinctes.
+
+### NF09 — disposition QA vérifiée, sans qualification du bureau
+
+Retrait gm5 séparé exécuté à02:05–02:06 UTC après diagnostic : inventaire
+programme65125 fichiers/1191 liens strictement identique à l’installation,
+puis uninstall standard exit0/19,509s (lot60,036s). Version installée,
+menu/icône/commandes QA retirés, pointeurcurrent/previous null et registre
+sans cette destination. Racine programme avec reçu et HOME gardés ;
+données21 fichiers/0 liens et deux profils byte-identiques. Source kit,
+12 gels/rouges et preuves gardés.13 nouveaux descendants absents, cinq
+chemins produit retirés et sept chemins auth/tmp/X toujours absents.
+Ces inventaires complètent la preuve d’immutabilité de cette installation,
+mais le retrait ne qualifie ni menu, session ni navigateur.
+
+Résultat `native/gnome-menu-c-retirement-01/result.json` (`16053d03…`),
+postcheck `066aca68…`, revue indépendante
+`review/native-final/gnome-menu-c-retirement-executed-review.json`
+(`7556e7ad…`). SD68,107Gio libres après retrait, RAMdisponible46,978Gio,
+racine3,241Gio. Aucun autre programme/data/corpus déplacé ou supprimé.
+NF09 reste FAIL ; seules une préparation future distincte et les preuves
+manquantes permettraient de le réexaminer. DoD/Office/plateformes inchangés.
+
+Le dossier est contrôlé par brief/docs/pack et revue indépendante du gel
+exact ; preuves sous `root/nf09-terminal-dossier/`. Aucun rejeu des62
+unités documentaires ni des tests produit : validateurs et code inchangés.
+Publication selon la politique du dépôt ; reçu attendu
+`root/nf09-terminal-dossier/publication-result.json`, parent documentaire
+b8bdc3f, produit/kit aabb9808. Git donne le commit réellement publié.
+Le journal local du2 octobre reste préservé et exclu du lot.
 
 ## R26 — reprise autorisée du 6 octobre : réserves Linux et distribution interne Linux
 
