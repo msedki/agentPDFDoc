@@ -1,6 +1,6 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5204d2e` et consultations R26/R27/R28 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-10 02:10 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5204d2e` et consultations R26/R27/R28 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-10 02:53 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## NF09 — diagnostic graphique ciblé du 10 octobre 2026
 
@@ -28,6 +28,15 @@ Préparation et résultat local liés dans
 `native/xvfb-gtk-prerequisite-final-preparation.json` et la revue terminale
 `review/native-final/xvfb-gtk-prerequisite-executed-review.json`.
 Ces références n'établissent aucune cause historique de g3 ni de PASS NF09.
+La limite « observations futures non exécutées » de NF09-S11 décrit le
+diagnostic v2. La recette distincte v3 a ensuite observé startup/coverPane
+puis overview/page et capturé le menu réel : gelc9ea94e8, avis UI774839a3,
+terminalbbeb128b et contrôle frais7eed3bd9 sous les preuves R27. Ces faits
+locaux ne reconstituent pas la cause du grab v2. Le helper privé de
+nettoyage accepte les zombies dans `matching()`/`remaining()` ; sans état
+live/zombie dans le snapshot v3, ce constat source ne prouve pas la cause
+des onze identités restantes. Le rouge initial est conservé, sans nouveau
+contrat externe ni modification du comportement livré.
 
 ## R28 — sources de l'étude DOCX/XLSX du 9 octobre 2026
 

@@ -1275,7 +1275,7 @@ Pour chaque skill retenu, vérifier une tâche pertinente et une tâche hors pé
 
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; notes et preuves datées ci-dessous, compléments R27 sur produits `5204d2e`/`aabb9808`, historique conservé · **Mis à jour :** 2026-10-09 23:55 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; notes et preuves datées ci-dessous, compléments R27 sur produits `5204d2e`/`aabb9808`, historique conservé · **Mis à jour :** 2026-10-10 02:53 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Livraison locale avec réserves — W038, 6 octobre 2026.** L'utilisateur
 retient la livraison pour le poste Linux aarch64 et met en attente la
@@ -1756,14 +1756,24 @@ Ils sont distincts de la qualification globale.
   sans repli. Bibliothèques CUDA/Tegra effectivement chargées sur cet hôte :
   ce résultat ne qualifie ni un kit sans CUDA ni un poste physique de 16 Go.
 
-Le bureau privé C reste non validé : interfaces GNOME indisponibles,
-refus avant activation et arrêt vérifié ; cause exacte inconnue. Le refus
+Le bureau privé C n’est pas globalement qualifié. Le 9 octobre, les
+interfaces GNOME étaient indisponibles : refus avant activation et arrêt
+vérifié, cause exacte inconnue. Le 10 octobre, une recette distincte v2 a
+atteint l’API mais échoué avant session/navigateur et sans menu visible ;
+budget QA inférieur au contrat de démarrage, cause du grab inconnue.
+La recette v3 a atteint menu, activation et session/Firefox réels, mais son
+enveloppe reste rouge sur onze identités Firefox au snapshot de nettoyage.
+Au contrôle frais,78 lifetimes sont absentes sans signal supplémentaire ;
+l’état live/zombie des onze au snapshot initial n’est pas enregistré.
+Les observations et la disposition QA sont distinctes de cette recette rouge.
+Le refus
 de cible absente (retour 3, audit attendu seul ajouté), l’inventaire final
 0130/0131 strictement identique et le retrait C frais avec données conservées
 sont vérifiés indépendamment ; clôture et limites restent suivies dans
 [R27-INT-01](PLAN.md#r27--poursuite-autorisée-du-9-octobre-à-partir-de-la-baseline).
 Les preuves datées, configurations, commandes, échecs et avis indépendants
-sont au [journal du 9 octobre](journal/2026-10-09.md). Windows natif est différé,
+sont aux journaux des [9 octobre](journal/2026-10-09.md) et
+[10 octobre](journal/2026-10-10.md). Windows natif est différé,
 Linux x86-64 et CPU physique de 16 Go restent non exercés ; les réserves métier,
 D06.5 et les autres critères non prouvés ne sont pas clôturés.
 L’étude DOCX/XLSX R28 est finalisée ; aucun support Office produit n’est livré.
@@ -1780,7 +1790,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et relue, corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · **Mis à jour :** 2026-10-10 02:10 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et relue, corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · **Mis à jour :** 2026-10-10 02:53 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 ## R28 — étude de l'extension DOCX/XLSX avant implémentation
 
@@ -1985,7 +1995,7 @@ conformes. Campagne navigateur exécutée : 58 cas uniques dans23 fichiers appli
 avec revue indépendante. Listing complet réellement collecté : 60 cas/24
 fichiers ; 58 applicables, deux D06.5 exclus. Tous les58 sont exécutés et
 relus par lot, union finale validée indépendamment. DIST-02 a échoué sur B : 4 394 caches ajoutés, échec conservé. Le correctif RT-02 publié `aabb9808` est maintenant vérifié sur C après installation, selftest et redémarrage : comparaison stricte0116 identique, avis indépendant GO971b598b…. D06.5 ne sera pas remesuré et aucune nouvelle campagne2B ne sera lancée. Estimation locale révisée à22:55 UTC : 35–60min pour restauration/question4B, CPU4B, A→C/rollback/retrait et documentation ; fenêtre GNOME distincte bornée après ces cycles. La clôture globale reste non chiffrable sans les entrées absentes.
-**Prochaine action du chantier :** NF09 reste ouvert après recette rouge, diagnostic et disposition QA vérifiés. Aucun nouvel essai GUI n’est engagé ; une suite éventuelle exige une mesure discriminante du menu et des budgets de démarrage/session cohérents, avec un nouveau gel vérifié. Reprendre les qualifications manquantes lorsque leurs hôtes/corpus autorisés sont disponibles. La publication du lot documentaire vérifié suit la politique du dépôt et reste traçable par Git et `root/docs-c-final/publication-result.json`. Bureau privé0403 rouge avant activation ; aucune reprise identique autorisée sans nouveau diagnostic discriminant. Restauration B→C, CPU4B, mise à jour A→C, rollback et retraits B/C abandonné vérifiés indépendamment. L’étude Office est clôturée ; les lots I-01→08 restent proposés et aucune implémentation Office n’est engagée.
+**Prochaine action du chantier :** NF09-QA-03 est terminal en FAIL documenté, avec parcours réel acquis et disposition gm6 vérifiée indépendamment. Le lot documentaire suit la publication après contrôle final et revue exacte ; le reçu privé établit le commit publié. Reprendre uniquement les qualifications manquantes lorsque leurs hôtes/corpus autorisés sont disponibles, ou une investigation discriminante justifiée. Aucune recette identique supplémentaire autorisée ; NF09 reste non qualifié à portée complète. Les cycles déjà vérifiés ne sont pas rejoués. L’étude Office est clôturée ; I-01→08 restent proposés, sans implémentation Office.
 
 ### Diagnostic NF09 du 10 octobre — prérequis X11 observé
 
@@ -2202,6 +2212,65 @@ Publication selon la politique du dépôt ; reçu attendu
 `root/nf09-terminal-dossier/publication-result.json`, parent documentaire
 b8bdc3f, produit/kit aabb9808. Git donne le commit réellement publié.
 Le journal local du2 octobre reste préservé et exclu du lot.
+
+### NF09-QA-03 — recette distincte des mesures menu/démarrage
+
+**Périmètre autorisé :** poursuite du goal le10 octobre, préparation QA
+privée v3, puis au plus une recette après gel et revues F/R/ROOT.
+**Dépendances :** FAIL v2, diagnostic budget90<up150/API120, sourcecafb0ff4
+et critèred0f42 ; la cause du grab précédent reste inconnue.
+**État :** TERMINAL FAIL conservé. Une seule exécution de02:32:43 à02:38:49
+UTC, retour1/365,450s, reçu `native/gnome-menu-c-execution-v3-01.json`
+(`bbeb128b…`). Gelc9ea94e8,53 entrées exactes, avis UI774839a3/opératoire
+51a08b3f et autorisation `root/nf09-v3/unique-execution-authorization.json`.
+Le parcours réel est acquis à portée bornée ; l’enveloppe est rouge sur
+onze identités Firefox au snapshot final du nettoyage. Leur état initial
+live/zombie et la cause temporelle restent inconnus.
+**Livrable :** copie v3 sous preuve native, HOME/cible/identité neufs,
+manifeste exact, delta et contrôles sûrs avant toute GUI. Observer startup
+et coverPane avant unique FocusApp, puis overview/grab/animation/page
+avant la capture réelle ; ne pas écrire ces états. Budgets QA dérivés des
+contrats produit pour démarrage puis ouverture/session/navigateur, sans
+modifier le code livré ni présenter plus d’attente comme une réussite.
+**Critère de clôture :** les mêmes cinq preuves MENU/ACTIVATION/
+INSTANCE_SESSION/BROWSER_RENDER/CLOSE, privacy et pixels indépendants ;
+inventaire strict et nettoyage avec données conservées. Un FAIL de garde
+menu doit conserver ses mesures et arrêter l’activation inutile.
+
+Native possède helpers/preuves, F la revue UI/source et pixels, R la revue
+opératoire/finale ; ROOT intègre suivi et donne le GO unique. Au plus ces
+trois sous-agents ; opérations lourdes sérialisées sur SD. Aucun import,
+question, build, nouvelle suite globale ou implémentation Office.
+Départ : SD68,107Gio libres, RAMdisponible46,982Gio/racine3,236Gio ;
+`root/nf09-v3/initial-state.json`. Préparation pure :39 contrôles, check-only
+et AST3.8 conformes. Gardes startup/menu réellement acquises avant Gio
+unique ; premier health à90,341s depuis Gio, audit issued→opened, vrai
+Firefox sous HOMEgm6 et atelier rendu. Revue pixels F74d1071b et revue
+terminale indépendante Ra0083d2b : menu/icône et atelier visibles ; popover
+de traduction masquant une partie haute conservé. Aucun GET/session200 ni
+clic physique mesuré ; ces mesures ne remplacent pas les cinq oracles.
+
+Contrôle frais7eed3bd9 :78 lifetimes absentes, onze chemins privés absents,
+aucun signal supplémentaire, runtime arrêté et X0 normalisé identique.
+Seul xauthority gm6 a nécessité un retrait manuel. Le helper QA inclut les
+zombies dans `remaining()` ; l’absence d’état initial interdit de lui
+attribuer le refus observé. Les70 échantillons réseau enregistrés sont
+loopback, sans prétendre à une capture exhaustive.
+
+Disposition distincte : inventaire programme65 125 fichiers/1 191 liens
+strictement identique, puis retrait standard gm6 retour0/18,926s ; lot
+59,607s,22 fichiers de données/0 liens identiques et HOME/profils/PNG
+conservés (`native/gnome-menu-c-retirement-v3-01/result.json`,164932f8).
+Contrôle frais après retraitb4fc50aa :12 nouvelles lifetimes et13 chemins
+privés absents, données byte-exactes, pointeurs current/previous nuls et
+destination absente du registre. Avis indépendant84cfb69e favorable à cette
+disposition séparée ; rouge de la recette conservé. Ressources finales : SD68,063Gio, RAM46,909Gio/racine3,236Gio ; CPU25 %.
+Aucune nouvelle GUI/recette ; NF09 et DoD globale non clôturés.
+Premier contrôle documentaire à02:51 UTC :7/7 espace,11/11 pack, brief
+synchronisé et12 avertissements préexistants. Gel final et publication
+suivent le contrôle du delta daté ; reçus au journal du10 octobre.
+Estimation locale révisée :5–10min pour cette revue et publication ; durée
+globale inconnue sans les plateformes/corpus requis.
 
 ## R26 — reprise autorisée du 6 octobre : réserves Linux et distribution interne Linux
 
@@ -6038,7 +6107,7 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5204d2e` et consultations R26/R27/R28 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-10 02:10 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5204d2e` et consultations R26/R27/R28 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-10 02:53 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## NF09 — diagnostic graphique ciblé du 10 octobre 2026
 
@@ -6066,6 +6135,15 @@ Préparation et résultat local liés dans
 `native/xvfb-gtk-prerequisite-final-preparation.json` et la revue terminale
 `review/native-final/xvfb-gtk-prerequisite-executed-review.json`.
 Ces références n'établissent aucune cause historique de g3 ni de PASS NF09.
+La limite « observations futures non exécutées » de NF09-S11 décrit le
+diagnostic v2. La recette distincte v3 a ensuite observé startup/coverPane
+puis overview/page et capturé le menu réel : gelc9ea94e8, avis UI774839a3,
+terminalbbeb128b et contrôle frais7eed3bd9 sous les preuves R27. Ces faits
+locaux ne reconstituent pas la cause du grab v2. Le helper privé de
+nettoyage accepte les zombies dans `matching()`/`remaining()` ; sans état
+live/zombie dans le snapshot v3, ce constat source ne prouve pas la cause
+des onze identités restantes. Le rouge initial est conservé, sans nouveau
+contrat externe ni modification du comportement livré.
 
 ## R28 — sources de l'étude DOCX/XLSX du 9 octobre 2026
 

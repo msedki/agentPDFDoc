@@ -1,17 +1,20 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** produits publiés `5204d2e` et `aabb9808`, recette native R27 exécutée avec réserve du bureau · **Mis à jour :** 2026-10-10 02:10 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** produits publiés `5204d2e` et `aabb9808`, recette native R27 exécutée avec réserve du bureau · **Mis à jour :** 2026-10-10 02:53 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
 [Clôture documentaire, publication et diagnostic NF09 du 10 octobre](2026-10-10.md) :
-suite de la recette du 9 octobre, contrôles et réserves conservés ;
-prérequis X11/GLX puis vraies interfaces GNOME privées acquis, échecs et
-limites conservés. Recette C menu/atelier unique exécutée et rouge : menu
-absent de la capture, session/navigateur non acquis. Budget QA90s inférieur
-au démarrage150s ; cause du grab inconnue, pas de relance identique.
-Installation QA retirée ensuite avec21 fichiers de données conservés ;
-inventaire programme strictement inchangé avant retrait et avis indépendant.
+suite de la recette du 9 octobre, prérequis X11/GLX puis vraies interfaces
+GNOME privées acquis. Recette v2 rouge : menu absent, session/navigateur
+non acquis ; budget QA90s inférieur au contrat de démarrage150s, cause du
+grab inconnue. Disposition gm5 vérifiée avec21 fichiers de données conservés.
+Recette distincte v3 : menu Atelier, activation et atelier Firefox réels,
+captures relues ; enveloppe rouge sur onze identités au snapshot nettoyage,
+état initial inconnu. Contrôle frais78 lifetimes absentes sans signal
+supplémentaire ; disposition gm6, inventaire programme inchangé avant
+retrait et22 fichiers de données conservés. Qualifications complète et
+plateformes absentes restent ouvertes ; aucune implémentation Office.
 
 [Baseline et reprise d'exécution du 9 octobre](2026-10-09.md) : état réel
 conservé avant corrections ; reprise R27, anomalies vérifiées et suite de

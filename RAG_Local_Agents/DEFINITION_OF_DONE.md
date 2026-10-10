@@ -1,6 +1,6 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; notes et preuves datées ci-dessous, compléments R27 sur produits `5204d2e`/`aabb9808`, historique conservé · **Mis à jour :** 2026-10-09 23:55 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; notes et preuves datées ci-dessous, compléments R27 sur produits `5204d2e`/`aabb9808`, historique conservé · **Mis à jour :** 2026-10-10 02:53 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Livraison locale avec réserves — W038, 6 octobre 2026.** L'utilisateur
 retient la livraison pour le poste Linux aarch64 et met en attente la
@@ -481,14 +481,24 @@ Ils sont distincts de la qualification globale.
   sans repli. Bibliothèques CUDA/Tegra effectivement chargées sur cet hôte :
   ce résultat ne qualifie ni un kit sans CUDA ni un poste physique de 16 Go.
 
-Le bureau privé C reste non validé : interfaces GNOME indisponibles,
-refus avant activation et arrêt vérifié ; cause exacte inconnue. Le refus
+Le bureau privé C n’est pas globalement qualifié. Le 9 octobre, les
+interfaces GNOME étaient indisponibles : refus avant activation et arrêt
+vérifié, cause exacte inconnue. Le 10 octobre, une recette distincte v2 a
+atteint l’API mais échoué avant session/navigateur et sans menu visible ;
+budget QA inférieur au contrat de démarrage, cause du grab inconnue.
+La recette v3 a atteint menu, activation et session/Firefox réels, mais son
+enveloppe reste rouge sur onze identités Firefox au snapshot de nettoyage.
+Au contrôle frais,78 lifetimes sont absentes sans signal supplémentaire ;
+l’état live/zombie des onze au snapshot initial n’est pas enregistré.
+Les observations et la disposition QA sont distinctes de cette recette rouge.
+Le refus
 de cible absente (retour 3, audit attendu seul ajouté), l’inventaire final
 0130/0131 strictement identique et le retrait C frais avec données conservées
 sont vérifiés indépendamment ; clôture et limites restent suivies dans
 [R27-INT-01](PLAN.md#r27--poursuite-autorisée-du-9-octobre-à-partir-de-la-baseline).
 Les preuves datées, configurations, commandes, échecs et avis indépendants
-sont au [journal du 9 octobre](journal/2026-10-09.md). Windows natif est différé,
+sont aux journaux des [9 octobre](journal/2026-10-09.md) et
+[10 octobre](journal/2026-10-10.md). Windows natif est différé,
 Linux x86-64 et CPU physique de 16 Go restent non exercés ; les réserves métier,
 D06.5 et les autres critères non prouvés ne sont pas clôturés.
 L’étude DOCX/XLSX R28 est finalisée ; aucun support Office produit n’est livré.
