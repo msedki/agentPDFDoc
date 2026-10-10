@@ -8,6 +8,7 @@ import os
 import secrets
 import signal
 import socket
+import stat
 import subprocess
 import sys
 import tempfile
@@ -411,6 +412,31 @@ def acquire_qdrant_lock(directory: Path):
     return handle
 
 
+def write_runtime_secret(path: Path, value: str) -> None:
+    if sys.platform == "win32":
+        path.write_text(value, encoding="ascii")
+        return
+    try:
+        previous = path.lstat()
+    except FileNotFoundError:
+        previous = None
+    if previous is not None and (not stat.S_ISREG(previous.st_mode) or previous.st_nlink != 1
+                                 or previous.st_uid != os.geteuid()):
+        raise ValueError("Jeton runtime : fichier régulier appartenant à l'utilisateur, sans lien, exigé")
+    # mkstemp crée exclusivement en 0600 ; remplacer l'inode évite toute écriture dans une cible de lien.
+    descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}-", dir=path.parent)
+    handle = None
+    try:
+        handle = os.fdopen(descriptor, "w", encoding="ascii")
+        with handle:
+            handle.write(value)
+        os.replace(temporary, path)
+    finally:
+        if handle is None:
+            os.close(descriptor)
+        Path(temporary).unlink(missing_ok=True)
+
+
 def issue_qdrant_key(control: Path) -> str:
     """Clé `service.api_key` propre à une vie de Qdrant, lisible par les outils locaux de l'instance.
 
@@ -418,7 +444,7 @@ def issue_qdrant_key(control: Path) -> str:
     `api-key` est refusée : une page web servie par un domaine étranger ne peut plus lire la collection.
     """
     key = secrets.token_urlsafe(32)
-    (control / "qdrant-api-key").write_text(key, encoding="ascii")
+    write_runtime_secret(control / "qdrant-api-key", key)
     return key
 
 
@@ -572,7 +598,7 @@ def supervise(profile_path: Path) -> int:
     profile = load_profile(profile_path)
     directory = data_path(profile)
     control = directory / "control"
-    control.mkdir(parents=True, exist_ok=True)
+    control.mkdir(mode=0o777 if sys.platform == "win32" else 0o700, parents=True, exist_ok=True)
     # Byte-lock Windows (flock sous Linux) conservé durant toute la vie du superviseur.
     lock = (control / "runtime.lock").open("a+b")
     if lock.tell() == 0:
@@ -614,9 +640,12 @@ def supervise(profile_path: Path) -> int:
     state_path = control / "runtime.json"
     job = None
     qdrant_lock = None
+    admin_key_issued = False
+    qdrant_key_issued = False
     try:
         # Jeton, journaux et Job dans le try (C11) : un échec à ce stade passe aussi par le nettoyage du finally.
-        secret_path.write_text(secrets.token_urlsafe(32), encoding="ascii")
+        write_runtime_secret(secret_path, secrets.token_urlsafe(32))
+        admin_key_issued = True
         log_root.mkdir(parents=True, exist_ok=True)
         job = ProcessJob()
         ports = [profile["app"]["port"], urlsplit(profile["qdrant"]["url"]).port,
@@ -636,6 +665,7 @@ def supervise(profile_path: Path) -> int:
         state["qdrant_config_sha256"] = file_hash(qconfig)
         state["qdrant_data_dir"] = str(qdrant_data_path(profile, directory))
         qdrant_key = issue_qdrant_key(control)
+        qdrant_key_issued = True
         state["qdrant_auth"] = "api_key"
         write_json_atomic(state_path, state)
         qdrant = job.launch([str(binaries["qdrant"]), "--config-path", str(qconfig), "--disable-telemetry"],
@@ -698,8 +728,10 @@ def supervise(profile_path: Path) -> int:
         if qdrant_lock is not None:
             qdrant_lock.close()
         write_json_atomic(state_path, state)
-        secret_path.unlink(missing_ok=True)
-        (control / "qdrant-api-key").unlink(missing_ok=True)
+        if sys.platform == "win32" or admin_key_issued:
+            secret_path.unlink(missing_ok=True)
+        if sys.platform == "win32" or qdrant_key_issued:
+            (control / "qdrant-api-key").unlink(missing_ok=True)
         lock.seek(0)
         if sys.platform == "win32":
             msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
@@ -728,7 +760,7 @@ def start(profile_path: Path) -> dict:
         raise RuntimeError(f"Processus de l'instance précédente encore actifs ({listed}) ; aucun n'est arrêté "
                            f"automatiquement : les arrêter, puis relancer {again}")
     control = directory / "control"
-    control.mkdir(parents=True, exist_ok=True)
+    control.mkdir(mode=0o777 if sys.platform == "win32" else 0o700, parents=True, exist_ok=True)
     log = (control / "supervisor-start.log").open("ab")
     try:
         if sys.platform == "win32":

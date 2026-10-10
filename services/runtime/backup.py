@@ -148,7 +148,7 @@ def create_backup(profile_path: Path, output: Path | None = None) -> dict:
     existing = next(parent for parent in (output.parent, *output.parent.parents) if parent.exists())
     if shutil.disk_usage(existing).free < 2 * 1024**3:
         raise RuntimeError("Réserve disque de 2 Gio insuffisante avant sauvegarde")
-    output.mkdir(parents=True)
+    output.mkdir(mode=0o777 if os.name == "nt" else 0o700, parents=True)
     origin, verify = app_origin(profile)
     api = origin + "/api/v1"
     headers = {"X-RAG-Control-Token": token}
@@ -298,7 +298,7 @@ def restore_backup(folder: Path, target: Path, *, qdrant_port: int = 6343) -> di
                              f"donne {len(str(short_store / 'storage'))} caractères pour 57 ; choisir une cible de {57 - len(chr(92) + 'qdrant' + chr(92) + 'storage')} caractères au plus")
         profile["qdrant"]["storage_dir"] = str(short_store)
     qdrant_directory = qdrant_data_path(profile, target)
-    target.mkdir(parents=True)
+    target.mkdir(mode=0o777 if os.name == "nt" else 0o700, parents=True)
     report = {"state": "restoring", "backup_id": manifest["backup_id"], "data_dir": str(target),
               "qdrant_data_dir": str(qdrant_directory),
               "qdrant_storage_relocated_for_windows_path_limit": bool(profile["qdrant"].get("storage_dir")),
@@ -325,7 +325,7 @@ def restore_backup(folder: Path, target: Path, *, qdrant_port: int = 6343) -> di
         profile["sqlite"]["path"] = str(target / "app.sqlite3")
         profile["qdrant"]["url"] = f"http://127.0.0.1:{qdrant_port}"
         control = target / "control"
-        control.mkdir()
+        control.mkdir(mode=0o777 if os.name == "nt" else 0o700)
         config = write_qdrant_config(profile, target, control)
         # Le serveur de restauration exige lui aussi une clé, propre à cette restauration.
         restore_key = issue_qdrant_key(control)
