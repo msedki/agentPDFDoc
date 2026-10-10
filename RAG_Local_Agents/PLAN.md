@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et relue, corrections R27 publiées, recette Linux aarch64 exécutée avec réserve du bureau, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C terminée avec réserve du bureau ; historique conservé · **Mis à jour :** 2026-10-10 00:06 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et relue, corrections R27 publiées, recette Linux aarch64 exécutée avec réserve du bureau, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C terminée avec réserve du bureau ; historique conservé · **Mis à jour :** 2026-10-10 01:15 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 ## R28 — étude de l'extension DOCX/XLSX avant implémentation
 
@@ -205,7 +205,115 @@ conformes. Campagne navigateur exécutée : 58 cas uniques dans23 fichiers appli
 avec revue indépendante. Listing complet réellement collecté : 60 cas/24
 fichiers ; 58 applicables, deux D06.5 exclus. Tous les58 sont exécutés et
 relus par lot, union finale validée indépendamment. DIST-02 a échoué sur B : 4 394 caches ajoutés, échec conservé. Le correctif RT-02 publié `aabb9808` est maintenant vérifié sur C après installation, selftest et redémarrage : comparaison stricte0116 identique, avis indépendant GO971b598b…. D06.5 ne sera pas remesuré et aucune nouvelle campagne2B ne sera lancée. Estimation locale révisée à22:55 UTC : 35–60min pour restauration/question4B, CPU4B, A→C/rollback/retrait et documentation ; fenêtre GNOME distincte bornée après ces cycles. La clôture globale reste non chiffrable sans les entrées absentes.
-**Prochaine action du chantier :** établir un nouveau diagnostic discriminant du bureau sur un environnement adapté, puis reprendre les qualifications manquantes lorsque leurs hôtes/corpus autorisés sont disponibles. La publication du lot documentaire vérifié suit la politique du dépôt et reste traçable par Git et `root/docs-c-final/publication-result.json`. Bureau privé0403 rouge avant activation ; aucune reprise identique autorisée sans nouveau diagnostic discriminant. Restauration B→C, CPU4B, mise à jour A→C, rollback et retraits B/C abandonné vérifiés indépendamment. L’étude Office est clôturée ; les lots I-01→08 restent proposés et aucune implémentation Office n’est engagée.
+**Prochaine action du chantier :** préparer puis faire relire la recette menu/atelier sur une installation C neuve, après le prérequis X11/GNOME04 vérifié ci-dessous ; reprendre les qualifications manquantes lorsque leurs hôtes/corpus autorisés sont disponibles. La publication du lot documentaire vérifié suit la politique du dépôt et reste traçable par Git et `root/docs-c-final/publication-result.json`. Bureau privé0403 rouge avant activation ; aucune reprise identique autorisée sans nouveau diagnostic discriminant. Restauration B→C, CPU4B, mise à jour A→C, rollback et retraits B/C abandonné vérifiés indépendamment. L’étude Office est clôturée ; les lots I-01→08 restent proposés et aucune implémentation Office n’est engagée.
+
+### Diagnostic NF09 du 10 octobre — prérequis X11 observé
+
+Le relevé hôte actuel expose les interfaces GNOME 3.36.9 sur une session
+X11 active ; son bus reste distinct du bus privé de g3. Ce constat n'établit
+ni la disponibilité passée pendant g3, ni la cause de son timeout.
+`native/nf09-desktop-readonly-20261010.json` et avis indépendant
+`review/native-final/nf09-host-metadata-independent-review-20261010.json`
+(`b5352b6c…`) ; producteur inline non conservé, limite explicitement retenue.
+
+Une sonde distincte, sans Shell ni projet, a réellement réussi en 1,348 s :
+Xvfb privé, GTK 3.24.20/GdkX11, contexte GLX 1.4 courant, llvmpipe et
+OpenGL 4.5/Mesa 21.2.6. Quatre identités de processus et les 12 chemins
+nommés d'authentification, temporaires et sockets sont absents après arrêt ;
+marqueurs X0 identiques. Source gelée `bacc2eb1…`, reçu
+`native/xvfb-gtk-prerequisite-execution.json`, résultat
+`native/xvfb-gtk-prerequisite-01/result.json`, contrôle après exécution
+`native/xvfb-gtk-prerequisite-post-execution.json` et revue indépendante
+`review/native-final/xvfb-gtk-prerequisite-executed-review.json`
+(`0e41f6a7…`). Défauts du préparateur corrigés avant cet essai : blocage
+sur sorties non drainées reproduit puis corrigé sur 131 072 octets par
+flux, et entrée pendante étrangère désormais refusée ; premiers gels et
+rouges conservés. Aucun code produit, kit, modèle ou corpus modifié.
+
+**Prochaine étape au relevé de 00:35 UTC :** préparation puis revue d'une seule sonde de
+readiness des interfaces Shell/Screenshot/version/owner sur X11 et bus
+privés ; SessionManager absent déclaré, aucune session GNOME complète
+présentée comme acquise. Aucun Shell de cette nouvelle sonde n'a encore
+été lancé à ce relevé. Estimation : 8–12 min de préparation/revue, puis
+fenêtre bornée distincte. Activation du produit et menu C frais restent
+ultérieurs. NF09, KIT-04, INT-01 et la DoD globale restent ouverts ; aucune
+preuve Windows, x86-64, CPU physique de 16 Go ou cause historique déduite.
+
+**Sonde distincte exécutée à 00:42 UTC :** gel `ae107001…`, manifeste
+`fc4e7cc6…`, revue préparatoire `5f95636e…`. Xvfb/GTK/GLX réussissent sur
+le nouvel écran privé, mais le Shell termine réellement avec exit1 avant
+interfaces (owner obtenu en 0,413 s, sept probes). Son journal montre un
+accès `Gio.DBus.system` dans LoginManagerSystemd alors que ce bus a été
+volontairement rendu inexistant dans la composition QA. Échec conservé :
+`native/gnome-x11-01/result.json` (`b101133a…`), exécution unique
+`native/gnome-x11-readiness-execution.json` en 3,014 s, contrôle terminal
+`native/gnome-x11-readiness-post-execution.json` (`18199d12…`). Huit
+lifetimes capturées et les 12 chemins nommés sont absents ; nettoyage
+sans erreur et marqueurs X0 identiques. Aucun menu, lanceur, RAG,
+navigateur ou capture engagé. Ce constat distingue cette sonde de g3,
+sans établir la cause de g3 ni un défaut du produit.
+
+Avis terminal indépendant acquis :
+`review/native-final/gnome-x11-readiness-executed-version-clarified-review.json`
+(`471df2de…`), FAIL réel conservé et nettoyage PASS. LoginManager installé
+est identique au tag GNOME3.36.9 ; GLib chargée2.64.6, constantes GI2.64.2
+et code GDBusProxy des deux tags identique. Une préparation distincte est
+retenue : second vrai daemon D-Bus privé vide, sans service ni activation,
+pour tester le transport système joignable ; aucune simulation de logind
+ni connexion au bus hôte. La préparation seule est autorisée à ce relevé,
+avec revue indépendante avant une unique exécution.
+
+À ce relevé de 00:42 UTC, la suite locale dépend du contrat exact de LoginManager et
+d'une composition réelle isolée ; aucun accès implicite du Shell au bus
+système hôte ni mock de service autorisé. Relecture terminale et examen
+ciblé des sources en cours, aucune reprise identique.
+
+**Sonde deux transports exécutée à 00:54 UTC :** gel `ebe37c17…`,
+manifeste `ebfb058f…`, GO préparatoire `01844682…`. GTK/GLX réussissent,
+mais le premier daemon D-Bus refuse « Socket name too long » ; exit1 en
+1,806 s, avant tout Shell. La garde de préparation `<108` octets n'a pas
+suffi pour les 105 octets du chemin session dans la bibliothèque réelle.
+Résultat `native/gnome-x11-02/result.json` (`b91d6333…`), reçu
+`native/gnome-x11-two-bus-readiness-execution.json` (`5573b2e5…`), contrôle
+`native/gnome-x11-two-bus-readiness-post-execution.json` (`1df5be87…`).
+Quatre lifetimes connues (trois capturées et owner) sont absentes, ainsi que le PID du daemon
+rapide dont la lifetime n'a pas été capturée ; 14 chemins privés absents,
+X0 inchangé et aucun cleanup error. À ce relevé de 00:54 UTC, source
+officielle D-Bus1.12.16 et relecture terminale en cours pour corriger uniquement ces chemins QA,
+sans reprise identique ni conclusion produit/NF09.
+
+**Erreur de binding03 et correction04 vérifiées :** chemins courts03
+(`4c464805…`/`87c3a185…`) démarrent les deux daemons réels, puis le
+préparateur Python échoue sur `Gio.DBus.system`, API des overrides GJS.
+Erreur commune préparation/relecture conservée, aucun Shell ni replyPID
+RPC ; sept lifetimes et14 chemins absents, avis rouge `cbf38e12…`.
+Copie04 `335cee63…`/`c2dbe4c7…`, nouvelle cible gx4, vraie API
+`Gio.bus_get_sync(SYSTEM,None)` et préfixe import/assertions contrôlé sur
+Python3.8.10/PyGObject3.36 sans connexion ; GO préparation `d2814c31…`.
+
+Exécution unique04 à **01:09 UTC : PASS exit0 en 3,610 s**, deux replies
+PID des daemons liés à leurs lifetimes/exe/UID réels, trois absences
+SessionManager/login1/GDM NO_AUTO_START vérifiées avant Shell. GTK/GLX
+sur le même Xvfb privé et interfaces Shell/Screenshot/version3.36.9
+READY en1,957 s/dix probes, propriétaire strict444795. Source04 et
+résultat `native/gx4/result.json` (`98bf1b4e…`), reçu `49f1e29e…`,
+postpreuve `e32b674f…` et avis indépendant
+`review/native-final/gnome-x11-python-bus-readiness-executed-review.json`
+(`7cf91a3a…`). Quatorze lifetimes (13 capturées + owner, enfants IBus
+inclus) et14 chemins absents après arrêt, X0 inchangé, aucun cleanup
+error. Logs conservent avertissements services/moniteur et JSerror
+NetworkManager ; aucun rendu ou session GNOME complète déduit.
+
+**État actuel / prochaine action :** prérequis interfaces acquis sur ce
+poste, NF09/menu/KIT-04/INT-01 toujours réservés. Préparation distincte
+d'une installation C neuve et du parcours menu → lanceur → session API
+→ vrai navigateur/rendu → arrêt/inventaires/retrait. Le C frais précédent
+a été retiré, il n'est pas réactivé ; kit/export `aabb9808` conservés,
+aucun rebuild pour les commits documentaires. Aucun produit, menu,
+navigateur, capture ou question lancé par les sondes00–04. Estimation
+révisée : 15–25 min pour préparation/revue, puis5–10 min de recette si
+préconditions acquises. Clôture globale toujours non chiffrable sans les
+hôtes/corpus/décisions manquants ; étude Office et propositions I inchangées.
 
 ## R26 — reprise autorisée du 6 octobre : réserves Linux et distribution interne Linux
 

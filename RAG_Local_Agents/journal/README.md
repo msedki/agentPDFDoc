@@ -1,11 +1,13 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** produits publiés `5204d2e` et `aabb9808`, recette native R27 exécutée avec réserve du bureau · **Mis à jour :** 2026-10-10 00:06 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** produits publiés `5204d2e` et `aabb9808`, recette native R27 exécutée avec réserve du bureau · **Mis à jour :** 2026-10-10 01:15 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
-[Clôture documentaire et publication du 10 octobre](2026-10-10.md) :
-suite de la recette du 9 octobre, contrôles et réserves conservés.
+[Clôture documentaire, publication et diagnostic NF09 du 10 octobre](2026-10-10.md) :
+suite de la recette du 9 octobre, contrôles et réserves conservés ;
+prérequis X11/GLX puis vraies interfaces GNOME privées acquis, échecs et
+limites conservés. Menu/atelier encore non exercés, préparation distincte.
 
 [Baseline et reprise d'exécution du 9 octobre](2026-10-09.md) : état réel
 conservé avant corrections ; reprise R27, anomalies vérifiées et suite de

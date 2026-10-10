@@ -1,6 +1,32 @@
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5204d2e` et consultations R26/R27/R28 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-09 21:55 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5204d2e` et consultations R26/R27/R28 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-10 01:15 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+
+## NF09 — diagnostic graphique ciblé du 10 octobre 2026
+
+Sources primaires consultées avant la sonde X11/GTK, sans migration du
+poste ni de la pile du projet. La preuve de comportement reste le reçu
+local, distinct des contrats documentaires ; [journal](journal/2026-10-10.md#nf09--diagnostic-hôte-et-prérequis-x11-privé--0035-utc).
+
+| ID | Source officielle / version | Apport et limite |
+|---|---|---|
+| NF09-S01 | [X.Org Xvfb](https://xorg.freedesktop.org/releases/X11R6.8.2/doc/Xvfb.1.html), manuel historique ; binaire local1.20.13 contrôlé | Affichage virtuel et options d'écran ; flags auth/nolisten et extensions vérifiés dans le binaire, capacité GLX établie uniquement par la sonde locale. |
+| NF09-S02 | [Mutter/Cogl3.36.9 GLX](https://raw.githubusercontent.com/GNOME/mutter/3.36.9/cogl/cogl/winsys/cogl-winsys-glx.c), [GTK3.24.20 X11 GLContext](https://raw.githubusercontent.com/GNOME/gtk/3.24.20/gdk/x11/gdkglcontext-x11.c) | GLX et configurations de rendu requis, backend exact ; ne prouve pas que tout Shell/session fonctionne sur Xvfb. |
+| NF09-S03 | GTK3/3.24 : [realize](https://docs.gtk.org/gdk3/method.GLContext.realize.html), [make_current](https://docs.gtk.org/gdk3/method.GLContext.make_current.html), [get_version](https://docs.gtk.org/gdk3/method.GLContext.get_version.html), disponibles depuis3.16 | Version lue après réalisation et contexte courant réellement établi ; application observée sur GTK3.24.20/GdkX11, aucune règle GTK4 appliquée. |
+| NF09-S04 | [Khronos GLX1.4](https://registry.khronos.org/OpenGL/specs/gl/glx1.4.pdf),16/12/2005 §§3.3.1/3.3.7 ; [glGetString, source mainteneur](https://raw.githubusercontent.com/KhronosGroup/OpenGL-Refpages/main/gl4/glGetString.xml) | Version GLX négociée, contexte/display courant et chaînes réelles. Route XHTML échoue à l'outil avec400 content-type ; route brute officielle ouverte. Aucun rendu ni bureau qualifié par une chaîne seule. |
+| NF09-S05 | [Mesa, variables](https://docs.mesa3d.org/envvars.html), documentation actuelle ; bibliothèques locales21.2.6 | Rendu logiciel demandé et cache local ; renderer effectivement lu comme llvmpipe dans la sonde. Aucune version GL forcée, erreur désactivée ou qualification CPU16Go extrapolée. |
+| NF09-S06 | [GNOME, tests automatisés](https://blogs.gnome.org/shell-dev/2022/12/02/automated-testing-of-gnome-shell/),02/12/2022 | Dépendances d'une session complète et substitutions explicites en CI ; publication plus récente que3.36.9, aucun framework de mocks adopté pour la sonde locale. |
+| NF09-S07 | [D-Bus daemon](https://dbus.freedesktop.org/doc/dbus-daemon.1.html), documentation mainteneur actuelle ; [archive officielle1.12.16](https://dbus.freedesktop.org/releases/dbus/dbus-1.12.16.tar.gz), Last-Modified11/06/2019 ; binaire1.12.16 installé | Configuration Unix EXTERNAL sans include/dossier de service. `dbus-sysdeps-unix.c:877/1135/1183–1188` fixe99 octets et refuse un chemin plus long : chemins locaux105/104, premier daemon refusé sur105 ; réussite précédente97. Garde QA108 insuffisante, marge locale90 appliquée aux sondes03–04. GitLab/cgit inaccessibles, archive200 lue sélectivement sans exécution ; signature non vérifiée, SHA et deux sources conservés dans `review/native-final/dbus-socket-primary-source/access-and-hashes.json`. Aucun service système ni session GNOME complète qualifié. |
+| NF09-S08 | GNOME Shell3.36.9 : [LoginManager](https://raw.githubusercontent.com/GNOME/gnome-shell/3.36.9/js/misc/loginManager.js), [background](https://raw.githubusercontent.com/GNOME/gnome-shell/3.36.9/js/ui/background.js), [main](https://raw.githubusercontent.com/GNOME/gnome-shell/3.36.9/js/ui/main.js) | Connexion système avant les proxies, démarrage UI et appels automatiques GDM/polkit. LoginManager extrait du binaire installé est byte-identique au tag officiel (`native/gnome-x11-runtime-source/comparison.json`, `012384dc…`). Route web ROOT Cache miss conservée, acquisition directe/lecture indépendante officielle réussie. Bus hôte exclu pour cette QA ; cause g3 non déduite. |
+| NF09-S09 | [GLib2.64.6 GDBusProxy](https://raw.githubusercontent.com/GNOME/glib/2.64.6/gio/gdbusproxy.c), [2.64.2](https://raw.githubusercontent.com/GNOME/glib/2.64.2/gio/gdbusproxy.c), [GJS1.64.5 Gio](https://raw.githubusercontent.com/GNOME/gjs/1.64.5/modules/core/overrides/Gio.js) | Proxies sans propriétaire possibles après ServiceUnknown/NameHasNoOwner ; transport joignable ne prouve pas UI fonctionnelle. Les deux fichiers GLib sont identiques (`e576e64b…`). Constantes GI2.64.2 distinctes des exports version de la bibliothèque effectivement chargée2.64.6 ; observation ROOT séparée, aucun comportement GUI extrapolé. |
+| NF09-S10 | [GIO bus_get_sync](https://docs.gtk.org/gio/func.bus_get_sync.html), API2.0, documentation bibliothèque2.91.0/since2.26 ; [PyGObject GI](https://pygobject.gnome.org/guide/api/api.html), docs actuelles | API Python `Gio.bus_get_sync(SYSTEM,None)` confrontée à la vraie signature introspectée Python3.8.10/PyGObject3.36.0/GLib chargée2.64.6. `Gio.DBus.system` appartient à GJS, sa transposition au préparateur Python a réellement échoué avant Shell ; erreur commune préparation/relecture conservée. Préfixe import/assertions sans connexion vérifié ; reçu04 séparé confirmant le transport privé réel. Route tutoriel Gio inaccessible, aucune recette hôte ni comportement produit extrapolé. |
+
+Trace ROOT des contrats et limites :
+`root/nf09-x11-source-review-20261010.json` sous les preuves R27.
+Préparation et résultat local liés dans
+`native/xvfb-gtk-prerequisite-final-preparation.json` et la revue terminale
+`review/native-final/xvfb-gtk-prerequisite-executed-review.json`.
+Ces références n'établissent aucune cause historique de g3 ni de PASS NF09.
 
 ## R28 — sources de l'étude DOCX/XLSX du 9 octobre 2026
 
