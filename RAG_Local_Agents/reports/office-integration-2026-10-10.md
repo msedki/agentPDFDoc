@@ -1,6 +1,6 @@
 # Intégration DOCX/XLSX — preuves locales du 10 octobre 2026
 
-**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-10 20:18 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
+**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-10 21:14 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
 
 La phase d'étude a précédé l'implémentation. DOCX et XLSX complètent maintenant
 PDF dans l'import, l'extraction, les représentations, la recherche et les
@@ -470,6 +470,55 @@ programme restent exacts. Les relevés observent CPU maximum 89,2 %, RAM
 minimum 47 094 MiB et SD minimum 15,093 Gio. Ce succès technique préserve
 l’échec sémantique décrit ci-dessus.
 
+## DA-P01 — localisation des causes, 10 octobre 20:29–20:36 UTC
+
+Lecture ciblée des trois réponses DEV existantes, sans nouveau modèle, API,
+corpus ou test : les cinq modules `context.py`, `query.py`, `retrieval.py`,
+`claims.py` et `ollama.py` sont identiques au programme installé `22fd828`.
+Le motif de `retrieval.py:19` accepte tout composé alphabétique avec tiret.
+Ainsi « doit-il » devient DOIT-IL requis ; seule DA-P01 est couverte, d'où
+0,5 et deux avertissements injustifiés. Cette question a pourtant reçu une
+réponse correcte. Le faux refus historique avait une couverture de 1,0 :
+les deux défauts sont distincts, sans lien causal établi.
+
+Les cinq preuves sont conservées et intégralement transmises ; le refus
+figure dans le texte réellement généré. Les avertissements sont des
+métadonnées SSE, pas des messages injectés au modèle. Le vérificateur de
+citations/nombres ne prouve pas la relation sémantique ni sa négation.
+La cause interne précise du refus reste inconnue ; modifier le prompt,
+la température ou la seed n'est pas un correctif démontré. W037 reste
+applicable, sans filtre de réponse, synonymie forcée ni boucle de tuning.
+
+Proposition distincte, non implémentée : séparer candidats textuels et
+références obligatoires avec une classification commune. Exiger partout
+un chiffre supprimerait aussi de vrais AB-CD. L’utilisateur confirme une
+codification hétérogène, lettres/chiffres et séparateurs `-`, `_`, `/` ;
+une occurrence de mot composé ne prouve toutefois pas son rôle métier.
+Normes, sections, limites exactes, tirets
+Unicode, codes alphabétiques reconnus et focus doivent être conservés.
+Les sources officielles expliquent regex et paramètres de génération,
+sans définir la grammaire métier ni garantir la qualité d'une réponse.
+
+Préparation ciblée `reference-resolution-preparation-01.json` (`c3f4d0eb`),
+18 sources épinglées, puis témoin sur code courant `current-code-terminal-01.json`
+(`2b1a1438`) : six observations, dont trois rouges de comportement. DOIT-IL
+fausse la couverture ; focus ABC et abc inconnu sont acceptés mais n’apparaissent
+ni dans les obligations ni dans les exacts. Contrôles acquis à préserver :
+AB-CD/aa-il réellement présents dans le contexte final malgré six passages
+écartés par budget, candidat alphabétique empêchant un nouvel héritage
+implicite, DA-P99 obligatoire et absent. SQLite/FTS/index/Scope/Search/Context
+sont réels ; embedding, moteur vectoriel, tokenizer et extraction sont des
+doubles explicitement déclarés. Exécution 4,382 s, enfant réellement récolté
+et fraîchement absent. Exit0 signifie collecte de défauts, aucun PASS du
+correctif ni qualification native ; source produit encore inchangée.
+
+Diagnostic conservé :
+`frontend-semantic-da-p01-20261010/source-diagnosis-20261010/source-cause-and-corrections-01.json`
+(`12ce5024`) ; revue indépendante en lecture seule
+`final-review/da-p01-source-diagnosis-independent-review.json` (`868d888f`),
+14 empreintes exactes et mêmes cinq preuves/provenances. Aucune correction
+produit ni nouvelle mesure de qualité n'est revendiquée.
+
 ## Crash pendant migration SQLite — 10 octobre, 18:34 UTC
 
 Une base synthétique minimale v3 isolée réutilise la fixture versionnée
@@ -508,6 +557,52 @@ ouverts. Revue terminale indépendante acquise :
 (`aae6ec0d`), avec relecture exacte des tables/FTS/backups et absence fraîche
 du parent et de l’enfant. Les limites WAL vide et autres plateformes sont
 explicitement maintenues.
+
+## WAL validé non vide et crash de migration — 10 octobre 20:50–20:55 UTC
+
+Cette variante distincte réutilise la petite fixture v3 publique et le
+programme installé `22fd828`. Python 3.12.14 et SQLite 3.53.1 sont réellement
+exécutés ; ni module DB, ni migration produit, ni original ne sont modifiés.
+Un lecteur QA conserve son ancienne transaction. Un écrivain QA valide
+uniquement un marqueur dans `documents.name`, sans changer le texte source,
+son hash ou les citations, avec autocheckpoint désactivé dans sa connexion.
+
+Le WAL conservé contient **4 152 octets**, dont une frame de 4 096 octets
+validée. Le témoin base seule ne contient pas le marqueur ; la connexion
+normale DB+WAL et la sauvegarde SQLite en ligne le contiennent. Le checkpoint
+PASSIVE QA est une opération explicite, non une lecture : résultat `[0,1,0]`,
+aucune frame recopiée en présence de l'ancien lecteur. Un marqueur de trace
+positif observe ensuite la migration réelle après DROP et avant RENAME/COMMIT.
+L'enfant migration reçoit SIGKILL et est réellement récolté à −9.
+
+DB, WAL et SHM sont conservés avant fermeture des deux autres acteurs.
+La reprise à froid utilise une copie DB+WAL et une connexion SQLite normale,
+sans `immutable=1` ; le SHM est reconstruit. Les 26 tables v3 et le marqueur
+validé sont exacts. L'initialisation réelle aboutit à 31 tables v4, avec les
+25 tables héritées préservées et les cinq tables Office vides. Deux backups
+v3 complets contiennent le marqueur ; une nouvelle initialisation laisse
+schéma, données et backups inchangés. Intégrité, FK et FTS sont vérifiés.
+
+Exécution native **3,141 s**, enveloppe possédée **3,840 s**, exit 0,
+erreurs primaire/nettoyage absentes. Les quatre identités PID/naissance
+(parent et trois acteurs) sont absentes après récolte. Le témoin antérieur
+avec WAL vide reste conservé dans sa portée propre. Aucun service, API ou
+LLM n'est lancé pour ce contrôle.
+
+Preuves sous `c02-wal-nonempty-preparation/` : préparation `bd6a1b26`,
+GO ROOT `80738fba`, `execution-terminal-01.json` (`e2d99957`),
+`scratch-01/wal-before-migration.json` (`82a38b2f`),
+`scratch-01/completion.json` (`35f52cc8`) et `terminal-handoff-01.json`
+(`5e049ee6`), 33 fichiers/1 614 190 octets conservés. Revue indépendante
+`final-review/c02-committed-nonempty-wal-terminal-independent-review.json`
+(`b80460f0`) : empreintes, quatre absences fraîches et cinq bases arrêtées
+relues, schémas/lignes/backups/FTS exacts. R28-S20/S26 donnent les contrats
+officiels ; la récupération logique constitue la preuve d'exécution.
+
+Portée : petite fixture DEV Linux aarch64, une frame de métadonnée validée
+et un SIGKILL synchronisé. Ni débordement WAL de données non validées,
+ni panne électrique, grosse base, hôte physique de 16 Go, Windows ou Linux
+x86-64 ne sont qualifiés par cet essai. C02 global reste partiel.
 
 ## Classeurs jumeaux et classement autorisé C08 — 10 octobre 18:52–19:10 UTC
 
@@ -645,8 +740,8 @@ Les points Qdrant sont prouvés avant down, aucune lecture live après arrêt.
 SD minimum 15,020 GiB, disque système minimum 3,094 GiB. Hôte physique
 62 800,5 MiB, Linux aarch64, fixtures synthétiques DEV : aucune qualification
 CPU 16 Go, Windows, x86-64 ou métier/finale. C10 runtime complet utilise
-les fixtures scale-01 existantes, sans nouveau benchmark de parsing ; son
-exécution en cours ne constitue pas encore une qualification.
+les fixtures scale-01 existantes, sans nouveau benchmark de parsing ;
+la recette locale distincte ci-dessous n’est pas une qualification CPU 16 Go.
 
 
 ## R28-QA-01 — session des recettes web, 10 octobre 20:11–20:16 UTC
@@ -693,4 +788,119 @@ d'exclusivité NFS ou de durabilité par fsync. La garantie d'erreurs couvre
 le writer et ses FD/temp ; la double panne API/setup plus disposal n'est
 pas testée. Aucun build, navigateur, recette C05 ou runtime produit n'est
 rejoué : les sources fonctionnelles et le kit `22fd828` sont inchangés.
-Publication du correctif encore à confirmer au présent relevé.
+Publication acquise `4e8f6b637edeebc69d4aed0bc554e646b6309763` à 20:26 UTC
+(21:26 Casablanca) : dix fichiers exacts, quatre commandes Git à 0 et
+propriétaire 20665 réellement récolté à 0. Reçu `root/final-publication-authstate-docs-01.json`
+(`cdef5658`) ; contrelecture `final-review/qa-authstate-ten-files-postpublication-independent-review.json`
+(`10387418`). DoD, 89 critères et journal Oct2 protégés ; seule la
+modification préexistante de ce dernier reste hors lot.
+
+
+## C10 — volumétrie, reprises et quotas natifs — 10 octobre 20:11–21:00 UTC
+
+Le kit installé `22fd828`, son profil CPU et les fixtures publiques scale-01
+sont gelés avant essai. Une seule stack QA Linux aarch64 est restaurée puis
+démarrée hors réseau dans son espace réseau dédié. Aucun corpus privé,
+nouvelle question RAG ou appel LLM ne participe à cette recette.
+
+| Entrée | Résultat réellement observé | Durée et portée |
+|---|---|---|
+| DOCX 3 000 paragraphes | READY, 3 000 blocs et fragments publiés, sources exactes | 82,742 s selon le reçu de publication. |
+| XLSX 10 000 cellules présentes | READY, 5 000 blocs/fragments, 10 000 cellules | 153,479 s selon le reçu de publication. |
+| XLSX 100 000 cellules présentes | Même job et version ; une génération publiée à l’essai4, READY après crash/pause/annulation et reprises ; 50 000 blocs/fragments et 100 000 cellules | Création→publication 1 472,124 s, soit 24 min 32,124 s, interruptions comprises. |
+| XLSX 1 000 000 cellules présentes | Refus HTTP 400 avant création de job/version/original ; code `office_limit_exceeded` effectivement capturé sur la deuxième requête | 9,921 s pour cette requête distincte. Taille refusée, aucune ingestion/indexation 1M qualifiée. |
+
+Le job 100k `63bbba77-08b2-435d-ad67-30ccedf1d694`, version
+`8b49daf4-6bd0-4997-8087-6326020e1469`, publie la génération
+`2685a461-a183-43ca-b536-460a1b7f2dd8` à 20:46:09,557 UTC.
+Crash→resume→pause→resume→cancel→resume produit quatre essais sans nouvelle
+version ni duplication. Les unités achevées peuvent être réutilisées ; une
+feuille interrompue est rejouée entière. Il n’existe pas ici de checkpoint
+par cellule. Le débit global est 33,965 fragments/s, interruptions comprises ;
+le débit ponctuel observé d’environ 35,4/s et le cache disponible ne prouvent
+pas une campagne purement froide d’embedding. L’attente distincte finale de
+0,114 s observe READY et n’est jamais utilisée comme durée du pipeline.
+
+Trois résultats QA rouges sont conservés séparément. Le premier oracle
+attendait une liste brute de vecteurs au lieu de `dense` nommé (384/Cosine,
+pas de sparse) : échec avant import. Son correctif QA est revu `f52759c7` et
+la même stack continue, sans restore/up supplémentaires. Le second run atteint
+la borne QA de 1 200 s alors que le même job100k indexe encore ; reçu rouge
+`4906d890` et résumé `5cb0ecde` restent inchangés. D07 ne définit pas une
+borne universelle d’indexation à 1 200 s ; cette observation ultérieure ne
+transforme donc ni le rouge en PASS, ni la durée en qualification D07.
+
+Le troisième run observe READY puis échoue parce que le runner attendait
+un job en erreur pour 1M. Le code réel valide le paquet OOXML avant de
+déplacer l’original et de l’enregistrer. La première réponse HTTP400 est
+prouvée, mais son corps n’a pas été conservé : son code exact reste inconnu.
+Diagnostic indépendant `83c988ef`, aucune reconstruction du corps historique.
+Le gel suivant autorise une seule deuxième requête1M, sans réindexation100k.
+Sa réponse de 161 octets est conservée avant assertion : code
+`office_limit_exceeded`, message « Le document dépasse une limite d’ingestion
+Office. », détails vides, request_id UUID. La fixture contient 2 500 002
+éléments XML, au-delà du quota inchangé de 2 000 000 ; aucune limite n’est
+augmentée pour obtenir un résultat vert. Refus `f75263cc`, capture `e02363ab`.
+
+Oracles finaux réellement passés (`c709247a`, 135,546 s d’enveloppe ; résumé
+`8a293c2d`, 133,617 s) : **58 014 points actifs** exactement égaux aux UUID
+SQL, vecteurs `dense` finis en dimension384 et payloads sources épinglés ;
+14 anciens vecteurs/payloads inchangés. Les six originaux stockés sont
+hachés depuis leurs chemins DB, les trois nouveaux correspondent aux
+fixtures ; le refus1M ne crée aucun septième original. Avant/après refus,
+31 comptes de tables, six versions/jobs/générations, historiques de deux
+requêtes et 14 citations restent identiques, uploads vides. Les plages
+A1 et XFD1 sont réellement contrôlées sans matérialiser le rectangle vide.
+Le nombre initial attendu de sept originaux était une hypothèse QA erronée,
+corrigée par le contrat de refus avant enregistrement.
+
+Les trois reprises autorisées gardent leurs gels, revues et contrôles ROOT :
+`ad23f045` pour le vecteur nommé, `fc122160` pour l’observation distincte
+900 s du même job, `6a802b39` pour la seconde réponse quota et les oracles.
+La surveillance propre à chaque étape est stoppée sans erreur : 45 439
+échantillons au run avec timeout, 292 à l’observation suivante, 3 848 aux
+oracles finaux. Il existe un intervalle entre ces surveillances ; aucune
+couverture continue de tout le pipeline n’est revendiquée.
+
+Fermeture continue 12–15 réellement effectuée, sans nouveau GO de routine :
+down exit0 en 7,675 s (`b529c1a2`), inventaire `f71e`, comparaison stricte
+`2a1f`, finish `82036`, puis handle possédé17629 réellement récolté à 0
+(chunk `32efcf`, reçu `69657426`). Les 196 identités PID/naissance observées
+sont absentes lors du contrôle frais, sans considérer un zombie comme absent.
+La capture hôte arrêtée `host-stopped-01.json` (`2d6945e8`, 19,479 s)
+confirme 31 tables, intégrité ok, zéro erreur FK, WAL vide, six versions
+et générations, deux requêtes terminées/14 citations et six originaux.
+Aucune lecture Qdrant live après down : ses valeurs sont celles conservées
+avant arrêt. Les 65 131 fichiers et 1 188 liens du programme installé
+sont strictement inchangés. Terminal `native-terminal-01.json` (`bf5910b8`),
+382 empreintes gelées avec protections DoD/Oct2/sources/fixtures/backups ;
+revue terminale indépendante acquise : `final-review/c10-final-native-closure-independent-review.json` (`20e35df4`), 38 pièces nouvelles confrontées et 196 absences fraîches indépendantes. Les quatre captures où exe est un répertoire restent bornées à ascendance/PID/naissance ; aucun exécutable fictif n’est déduit.
+
+Ressources hôte, 573 observations pendant le broker possédé : CPU maximum
+68,4 %, RAM disponible minimum50 028,27 MiB, SD minimum13,937 GiB,
+racine minimum3,055 GiB. Ces valeurs incluent les autres tâches du poste.
+RSS maximum échantillonné : API1 148,96 MiB, worker100k1 251,28 MiB,
+Qdrant513,79 MiB, sans somme des pages partagées ni pic noyau certifié.
+Les intervalles entre moniteurs par processus sont explicitement conservés :
+337,834 s,251,900 s et536,376 s ; le suivi des ressources hôte est distinct.
+Observation réseau :134 lignes de sockets, aucune hors boucle locale dans
+l’espace QA ; DNS substitué explicitement par SERVFAIL, pas une résolution
+DNS réelle. La capture SQL finale s’effectue sur l’hôte après fermeture.
+
+Portée locale DEV CPU/Linux aarch64, mémoire physique 62 800,5 MiB.
+Les preuves ci-dessus démontrent publication, reprise et refus borné,
+sans qualifier Windows, Linux x86-64, un CPU physique de 16 Go, les questions
+de performance D07 ou le corpus métier/final. Les rouges QA restent ouverts
+comme résultats historiques explicables, pas comme une réussite globale.
+
+
+Après fermeture réelle, seul le cache Node du TMPDIR QA est retiré :
+un fichier dérivé, 101 884 octets logiques et 102 400 octets alloués au
+fichier, puis ses deux répertoires vides. Contrôles de chemin/propriétaire,
+fichier ordinaire sans lien et 196 absences fraîches ; les 382 empreintes
+restent exactes avant/après, terminal et programme inchangés.
+Compagnon distinct `node-compile-cache-cleanup-01.json` (`a28cf6eb`),
+revue ciblée `final-review/c10-derived-cache-cleanup-companion-independent-review.json`
+(`e1d2f540`) : cible absente, terminal et avis C10 inchangés.
+Aucune variation globale d’espace libre SD n’est attribuée à ce seul retrait.
+DB, WAL, backups, originaux, extractions, logs et preuves restent conservés.
