@@ -1,19 +1,25 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** commit publié `5204d2e` et recette native R27 en cours · **Mis à jour :** 2026-10-09 22:04 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** produits publiés `5204d2e` et `aabb9808`, recette native R27 exécutée avec réserve du bureau · **Mis à jour :** 2026-10-10 00:06 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Clôture documentaire et publication du 10 octobre](2026-10-10.md) :
+suite de la recette du 9 octobre, contrôles et réserves conservés.
 
 [Baseline et reprise d'exécution du 9 octobre](2026-10-09.md) : état réel
 conservé avant corrections ; reprise R27, anomalies vérifiées et suite de
 la recette du kit Linux, avec 58 cas navigateur applicables exécutés et relus par lot, union finale validée indépendamment et cycles de
-distribution encore en cours. Étude Office R28 et plan détaillé sans implémentation ;
+distribution terminés avec anciennes citations et nouvelles questions vérifiées,
+refus/retraits avec conservation des données et inventaire final strictement identique.
+Le bureau privé reste non qualifié. Étude Office R28 et plan détaillé sans implémentation ;
 mesures de parseurs et qualification produit sont distinguées.
 
 [Reprise R26 : réserves Linux et kit Linux](2026-10-06.md#r26--reprise-des-réserves-linux-et-distribution-interne-linux),
 [suite du 7 octobre](2026-10-07.md#r26--suite-du-7-octobre) : réserves exécutables traitées avec preuves,
 kit Linux aarch64 fabriqué et installé sans réseau (phase 1), refonte de l'installateur relue ;
-mise à jour, retours arrière et retrait réels encore à recetter. DoD globale non déclarée.
+cycles de maintien désormais exercés dans R27 le 9 octobre, avec leurs portées
+et réserves distinctes. DoD globale non déclarée.
 
 [Plafonds de réponse et avertissement unique](2026-10-06.md#r25-len-01--plafonds-de-réponse-et-avertissement-unique) :
 correctif local R25-LEN-01/W039 ; budgets réels contrôlés sur GPU,

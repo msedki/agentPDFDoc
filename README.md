@@ -1,15 +1,17 @@
 # Atelier documentaire local
 
-**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** Stabilisé · **Référence :** produit publié `5204d2e`, corrections R27 et étude préalable Office R28 du 9 octobre ; recette Linux R26 en cours, preuves et limites dans le PLAN et le journal · **Mis à jour :** 2026-10-09 22:04 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
+**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** Stabilisé · **Référence :** produits publiés `5204d2e` et `aabb9808`, corrections R27 et étude préalable Office R28 du 9 octobre ; recette Linux aarch64 exécutée avec réserve du bureau, preuves et limites dans le PLAN et le journal · **Mis à jour :** 2026-10-09 23:55 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
 
 Poste de lecture et d'analyse de PDF pour Windows 11, sans WSL, Docker ni service distant. La recette de performance vise un poste physique de 16 Go au plus en calcul CPU. Le code comporte aussi une voie Linux native aarch64 et x86-64 ([W018](RAG_Local_Agents/DECISIONS.md#w018-double-plateforme--windows-11-x86-64-et-linux-aarch64-natifs)) ; seule aarch64 a été exercée sur le poste Jetson du chantier. La génération peut passer sur un GPU NVIDIA là où cette voie est qualifiée. Le modèle local répond à partir de passages enregistrés pour la question, et une citation valide s'ouvre dans le PDF à sa version, sa page et son bloc d'origine. La recette complète reste ouverte, notamment ses exigences de performance sur cet hôte.
 
 **État du chantier au 9 octobre 2026.** Les corrections R27 et l’étude
-DOCX/XLSX R28 sont publiées sur `origin/main` (`5204d2e`). Les suites Python/API
+DOCX/XLSX R28 sont publiées sur `origin/main` (`5204d2e`), ainsi que le
+correctif d’immuabilité du programme installé (`aabb9808`), vérifié sur le kit C. Les suites Python/API
 et web, le typage, le lint et le build sont conformes à leurs contrôles ;
 le kit Linux aarch64 a été fabriqué, transporté, vérifié et installé hors
-ligne sous un compte utilisateur isolé. Sa recette de livraison est en
-cours ; les résultats et les réserves restent dans le
+ligne sous un compte utilisateur isolé. Sauvegarde/restauration, mise à jour,
+retour arrière avec restauration et retraits sont vérifiés ; la recette du
+bureau reste non validée. Les résultats et les réserves sont dans le
 [plan](RAG_Local_Agents/PLAN.md#r27--poursuite-autorisée-du-9-octobre-à-partir-de-la-baseline)
 et la [synthèse Linux](RAG_Local_Agents/reports/livraison-locale-linux-2026-10-06.md).
 Cette recette sur Jetson ne qualifie ni Windows ni Linux x86-64 ni le poste

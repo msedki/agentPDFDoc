@@ -1,6 +1,6 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; base publiée `5fb5dc8` et note de livraison datée ci-dessous, historique conservé · **Mis à jour :** 2026-10-06 09:36 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; notes et preuves datées ci-dessous, compléments R27 sur produits `5204d2e`/`aabb9808`, historique conservé · **Mis à jour :** 2026-10-09 23:55 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Livraison locale avec réserves — W038, 6 octobre 2026.** L'utilisateur
 retient la livraison pour le poste Linux aarch64 et met en attente la
@@ -454,6 +454,44 @@ d'une attente P7 périmée. 55 unités ciblées, lint/typage conformes et avis
 indépendant source favorable. Ce complément ne qualifie ni le kit Windows,
 ni la qualité des réponses 2B, ni la DoD globale.
 [Exécution et limites](journal/2026-10-06.md#r23-lic-01--modèle-2b-ajouté-au-registre).
+
+## Complément Linux R27 — preuves du 9 octobre 2026
+
+Les critères D01–D11 et les cases par plateforme restent inchangés. Les
+contrôles ci-dessous portent sur le compte utilisateur Linux aarch64 du
+Jetson, les profils et corpus QA identifiés dans le journal, hors réseau.
+Ils sont distincts de la qualification globale.
+
+- Source `5204d2e` : 2 661 unités Python PASS/20 SKIP, API : 88 PASS/1 SKIP,
+  web : 433 PASS et 58 parcours navigateur applicables validés indépendamment.
+  Deux scénarios D06.5 exclus par décision ; son FAIL historique est conservé.
+- Correctif d’immuabilité `aabb9808` : trois témoins réels rouges avant
+  correction, 153 PASS/11 SKIP ciblés ensuite ; kit C fabriqué, vérifié,
+  transporté et installé. Selftest réel huit étapes et redémarrage hors
+  ligne réussis ; inventaire strict 0116 : 65 125 fichiers et 1 191 liens
+  inchangés, zéro ajout/retrait/changement, sans nettoyage ni exclusion.
+- Sauvegarde B réellement restaurée sur C : 22 anciennes citations et
+  quatre historiques conservés, puis nouvelle question 4B et arrêt vérifiés.
+  Mise à jour A→C avec sauvegarde automatique avant bascule, maintien du
+  choix principal 2B, 15 anciennes citations et nouvelle question 4B vérifiés.
+  Retour arrière vers A avec restauration dans une autre racine, anciennes
+  citations et nouvelle question 4B vérifiés. Le retour arrière sans
+  restauration n’a pas été exercé par cette recette.
+- Selftest C forcé en CPU : huit étapes réelles réussies, calcul 100 % CPU
+  sans repli. Bibliothèques CUDA/Tegra effectivement chargées sur cet hôte :
+  ce résultat ne qualifie ni un kit sans CUDA ni un poste physique de 16 Go.
+
+Le bureau privé C reste non validé : interfaces GNOME indisponibles,
+refus avant activation et arrêt vérifié ; cause exacte inconnue. Le refus
+de cible absente (retour 3, audit attendu seul ajouté), l’inventaire final
+0130/0131 strictement identique et le retrait C frais avec données conservées
+sont vérifiés indépendamment ; clôture et limites restent suivies dans
+[R27-INT-01](PLAN.md#r27--poursuite-autorisée-du-9-octobre-à-partir-de-la-baseline).
+Les preuves datées, configurations, commandes, échecs et avis indépendants
+sont au [journal du 9 octobre](journal/2026-10-09.md). Windows natif est différé,
+Linux x86-64 et CPU physique de 16 Go restent non exercés ; les réserves métier,
+D06.5 et les autres critères non prouvés ne sont pas clôturés.
+L’étude DOCX/XLSX R28 est finalisée ; aucun support Office produit n’est livré.
 
 ## Rapport final exigé
 
