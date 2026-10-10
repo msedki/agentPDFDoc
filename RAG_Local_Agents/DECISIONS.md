@@ -1551,6 +1551,37 @@ décision de l'utilisateur. **Retour arrière :** `atelier modele` avec
 l'ancien modèle, ou retrait de la commande, l'option `--modele` au
 lancement restant disponible.
 
+## W055 Intégration Office après clôture de son étude préalable
+
+**Date :** 10 octobre 2026, 12:30 UTC. **Statut :** réalisation engagée,
+validations isolées acquises ; recette native et revue en cours.
+
+**Contexte :** l’utilisateur a demandé d’ajouter DOCX/XLSX puis de ne pas
+commencer l’implémentation avant la finalisation de l’étude et du plan.
+ST-01→04 sont finalisés et relus. La condition temporelle est satisfaite ;
+la demande d’intégration demeure autorisée. L’interprétation antérieure
+« absence d’action locale autorisée » reste applicable aux hôtes de
+qualification manquants, mais était trop restrictive pour le produit Office.
+La correction de cette interprétation a été expliquée à l’utilisateur.
+
+**Choix :** reprendre I-01→08 dans le PLAN existant. L’OOXML original est
+autoritaire pour DOCX Strict/Transitional et XLSX ; python-docx sert aux
+fixtures/outils, openpyxl3.1.5 aux conversions typées, dates et formules.
+Aucun double load_workbook ni rescans cellule-par-cellule : extraction
+sparse bornée, formules et caches distincts, aucune exécution/recalcul.
+Les versions déjà verrouillées restent inchangées. Dispatch worker Office
+séparé pour préserver l’empreinte de la voie PDF parent.
+
+**Conséquences :** migration004 avec sauvegarde SQLite cohérente préalable,
+représentation par génération (archives exactes), lectures bornées et
+reprise par unités complètes. Une plage XLSX est projetée avant FTS5/BM25,
+identifiants, embeddings et classement ; budgets visibles, cache dense
+existant et aucune collection par plage. Le lecteur structurel conserve les
+localisateurs natifs et les limites d’extraction. Les findings de revue sont
+corrigés et testés avant publication ; aucune qualification 16Go, Windows ou
+x86-64 extrapolée. W053/W054 restent les décisions historiques de l’étude,
+amendées pour l’entrée en réalisation et la lecture streaming native.
+
 ## W054 Cible technique de l'étude Office : extraction native structurée
 
 **Date :** 9 octobre 2026, 18:04 UTC. **Statut :** choix retenu pour le plan

@@ -1,5 +1,6 @@
 import json
 import re
+import shutil
 import sqlite3
 from contextlib import contextmanager
 from datetime import UTC, datetime
@@ -22,7 +23,7 @@ def json_dump(value):
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
 
 
-def relative_pdf_path(value: str):
+def relative_document_path(value: str, formats=("pdf", "docx", "xlsx")):
     if len(value) > 1024:
         raise ApiError("invalid_path", "Chemin trop long.")
     decoded = value
@@ -36,9 +37,14 @@ def relative_pdf_path(value: str):
     if (not decoded or PurePosixPath(decoded).is_absolute() or PureWindowsPath(decoded).drive
         or any(p in {"", ".", ".."} or p.endswith((".", " ")) or re.search(r'[\x00-\x1f<>:"|?*]', p) for p in parts)
         or any(re.fullmatch(r"(?i)(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\..*)?", p) for p in parts)
-        or not parts[-1].lower().endswith(".pdf")):
-        raise ApiError("invalid_path", "Un chemin relatif PDF sûr est requis.")
+        or Path(parts[-1]).suffix.lower().lstrip(".") not in formats):
+        raise ApiError("invalid_path", "Un chemin relatif sûr vers un PDF, DOCX ou XLSX est requis.")
     return "/".join(parts)
+
+
+def relative_pdf_path(value: str):
+    """Legacy PDF-only callers retain their validation boundary."""
+    return relative_document_path(value, ("pdf",))
 
 
 MIGRATIONS = Path(__file__).parent / "migrations"
@@ -127,9 +133,12 @@ class Database:
             if current > supported:
                 raise ApiError("database_schema_too_new", f"Base au schéma v{current}, plus récent que le code (v{supported}) ; aucune migration descendante.", 503,
                                {"database_version": current, "supported_version": supported})
+            if 0 < current < supported:
+                self.backup_before_upgrade(connection, current)
             connection.execute("PRAGMA journal_mode=WAL")
-            for _, path in scripts:
-                self.migrate(connection, path.read_text(encoding="utf-8"))
+            for number, path in scripts:
+                if number > current:
+                    self.migrate(connection, path.read_text(encoding="utf-8"))
             connection.execute("CREATE VIRTUAL TABLE temp.fts_probe USING fts5(text)")
             connection.execute("INSERT INTO temp.fts_probe VALUES('contrôle')")
             assert connection.execute("SELECT count(*) FROM temp.fts_probe WHERE fts_probe MATCH 'controle'").fetchone()[0] == 1
@@ -141,6 +150,30 @@ class Database:
                 event_id = row["last_event_id"] + 1
                 connection.execute("UPDATE query_runs SET state='interrupted',last_event_id=?,updated_at=? WHERE id=?", (event_id, timestamp, row["id"]))
                 connection.execute("INSERT INTO events VALUES(?,?,?,?,?)", (row["id"], event_id, "error", json_dump({"code": "interrupted", "message": "Génération interrompue par le redémarrage."}), timestamp))
+
+    def backup_before_upgrade(self, connection, version):
+        """A consistent, integrity-checked SQLite copy precedes schema changes.
+
+        This schema backup complements the full application backup (originals
+        and Qdrant); it is never advertised as a complete application restore.
+        """
+        size = connection.execute("PRAGMA page_count").fetchone()[0] * connection.execute("PRAGMA page_size").fetchone()[0]
+        if shutil.disk_usage(self.path.parent).free < size + 16 * 1024 * 1024:
+            raise ApiError("migration_backup_no_space", "Espace insuffisant pour sauvegarder la base avant migration.", 503)
+        directory = self.path.parent / "schema-backups"
+        directory.mkdir(exist_ok=True)
+        path = directory / (f"{self.path.name}.v{version}." + uid() + ".sqlite3")
+        temporary = path.with_suffix(".partial")
+        try:
+            with sqlite3.connect(temporary) as destination:
+                connection.backup(destination)
+                if destination.execute("PRAGMA integrity_check").fetchone()[0] != "ok" \
+                        or destination.execute("PRAGMA foreign_key_check").fetchone():
+                    raise ApiError("migration_backup_integrity_failure", "La copie de la base n'est pas conforme ; migration refusée.", 503)
+            temporary.replace(path)
+        except BaseException:
+            temporary.unlink(missing_ok=True)
+            raise
 
     def rows(self, sql, parameters=()):
         with self.connect() as connection:
@@ -206,8 +239,13 @@ class Database:
         with self.transaction() as connection:
             return self.align_document_states(connection, [document_id])
 
-    def import_original(self, relative_path, sha256, blob_path):
-        relative_path = relative_pdf_path(relative_path)
+    def import_original(self, relative_path, sha256, blob_path, document_format=None):
+        relative_path = relative_document_path(relative_path)
+        document_format = document_format or Path(relative_path).suffix.lower().lstrip(".")
+        if document_format != Path(relative_path).suffix.lower().lstrip("."):
+            raise ApiError("format_mismatch", "Le contenu ne correspond pas à l'extension du document.")
+        from services.ingestion.office.models import OFFICE_MIME
+        mime_type = "application/pdf" if document_format == "pdf" else OFFICE_MIME[document_format]
         timestamp = now()
         with self.transaction() as connection:
             components = relative_path.split("/")
@@ -232,7 +270,7 @@ class Database:
                     return {**suspended, "resume_required": True} if job["state"] == "paused" else suspended
             else:
                 version_id = uid()
-                connection.execute("INSERT INTO document_versions(id,document_id,sha256,blob_path,created_at) VALUES(?,?,?,?,?)", (version_id, document_id, sha256, str(blob_path), timestamp))
+                connection.execute("INSERT INTO document_versions(id,document_id,sha256,blob_path,created_at,format,mime_type) VALUES(?,?,?,?,?,?,?)", (version_id, document_id, sha256, str(blob_path), timestamp, document_format, mime_type))
             job_id = uid()
             connection.execute("INSERT INTO jobs(id,document_id,version_id,state,stage,created_at,updated_at) VALUES(?,?,?,'queued','queued',?,?)", (job_id, document_id, version_id, timestamp, timestamp))
             if not document or not document["active_generation_id"]:
@@ -241,11 +279,14 @@ class Database:
 
     def move_document(self, document_id, relative_path):
         """Déplace ou renomme dans l'arborescence : ni job, ni version, ni génération, ni embedding."""
-        relative_path = relative_pdf_path(relative_path)
+        relative_path = relative_document_path(relative_path)
         with self.transaction() as connection:
             document = connection.execute("SELECT relative_path,folder_id,name,deleted_at FROM documents WHERE id=?", (document_id,)).fetchone()
             if not document or document["deleted_at"]:
                 raise ApiError("document_not_found", "Document inconnu.", 404)
+            source_format = connection.execute("SELECT format FROM document_versions WHERE document_id=? ORDER BY created_at DESC LIMIT 1", (document_id,)).fetchone()
+            if source_format and source_format["format"] != Path(relative_path).suffix.lower().lstrip("."):
+                raise ApiError("format_change_not_allowed", "Renommer un document ne peut changer son format.")
             folder_id, name = document["folder_id"], document["name"]
             if relative_path != document["relative_path"]:
                 if connection.execute("SELECT 1 FROM documents WHERE relative_path=? AND id<>?", (relative_path, document_id)).fetchone():

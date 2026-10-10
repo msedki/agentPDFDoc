@@ -1,4 +1,5 @@
 "use client";
+import { documentLocation, formatLabel, versionFormat } from "@/lib/document-format";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Ellipsis, Play, RefreshCw, Trash2 } from "lucide-react";
@@ -63,8 +64,9 @@ export function DocumentTools({ document }: { document: DocumentDetail }) {
       <div className="document-tools-menu">
         <label>Version affichée<select aria-label="Version affichée" value={state.opened?.versionId ?? ""} disabled={removing} onChange={event => {
           const version = document.versions.find(item => item.id === event.target.value);
-          if (version) state.open({ documentId: document.id, versionId: version.id, pageIndex: typeof version.page_count === "number" ? Math.max(0, Math.min(state.opened?.pageIndex ?? 0, version.page_count - 1)) : state.opened?.pageIndex ?? 0 });
-        }}>{document.versions.map(version => <option key={version.id} value={version.id}>{version.id.slice(0, 8)} · {typeof version.page_count === "number" ? `${version.page_count} p.` : "nombre de pages inconnu"}{version.id === (document.active_version_id ?? document.version_id) ? " · version active" : ""}</option>)}</select></label>
+          const currentPage = state.opened && "pageIndex" in state.opened ? state.opened.pageIndex : 0;
+          if (version) state.open(documentLocation(document.id, version.id, versionFormat(document, version), typeof version.page_count === "number" ? Math.max(0, Math.min(currentPage, version.page_count - 1)) : currentPage));
+        }}>{document.versions.map(version => <option key={version.id} value={version.id}>{version.id.slice(0, 8)} · {versionFormat(document, version) === "pdf" ? typeof version.page_count === "number" ? `${version.page_count} p.` : "nombre de pages inconnu" : formatLabel(versionFormat(document, version))}{version.id === (document.active_version_id ?? document.version_id) ? " · version active" : ""}</option>)}</select></label>
         <p className="document-tools-hash" title={shown?.sha256}>Empreinte SHA-256 <span className="mono">{shown?.sha256?.slice(0, 16) ?? "non communiquée"}</span></p>
         <ActionButton variant="secondary" size="sm" disabled={removing || !reindexable} title={reindexable ? undefined : reindexUnavailableReason(document.state)} onAction={reindex} pendingLabel="Demande de réindexation…"><RefreshCw size={16} />Réindexer ce document</ActionButton>
         <Button variant="danger" size="sm" disabled={removing || document.state === "deleted"} onClick={() => { setRemoveError(null); setConfirming(true); }}><Trash2 size={16} />Retirer de la bibliothèque</Button>

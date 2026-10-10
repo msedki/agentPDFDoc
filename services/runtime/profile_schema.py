@@ -135,6 +135,22 @@ class Pdf(Section):
     ocr_min_word_confidence: Ratio = 0.8
 
 
+class Office(Section):
+    max_members: PositiveInt = 10_000
+    max_total_bytes: PositiveInt = 268_435_456
+    max_part_bytes: PositiveInt = 67_108_864
+    max_compression_ratio: PositiveInt = 1_000
+    max_xml_depth: PositiveInt = 128
+    max_elements: PositiveInt = 2_000_000
+    max_blocks: PositiveInt = 100_000
+    max_cells: PositiveInt = 100_000
+    max_shared_strings: PositiveInt = 100_000
+    max_units: PositiveInt = 10_000
+    max_text_chars: PositiveInt = 20_000_000
+    max_cell_chars: PositiveInt = 100_000
+    max_block_chars: PositiveInt = 8_000
+
+
 class Chunking(Section):
     tokenizer: str = "embedding"
     target_tokens: PositiveInt = 320
@@ -269,6 +285,7 @@ class Profile(Section):
     llm: Llm
     embedding: Embedding = Field(default_factory=Embedding)
     pdf: Pdf = Field(default_factory=Pdf)
+    office: Office = Field(default_factory=Office)
     chunking: Chunking = Field(default_factory=Chunking)
     retrieval: Retrieval = Field(default_factory=Retrieval)
     qdrant: Qdrant
@@ -383,6 +400,9 @@ def validate_profile(config: dict, *, consumer: Literal["api", "runtime"]) -> di
             missing.append("sqlite")
         if missing:
             raise ProfileValidationError("Clés requises par le runtime absentes : " + ", ".join(missing) + ".", missing)
+    if profile.office.max_part_bytes > profile.office.max_total_bytes:
+        refuse_relation("Une partie Office dépasse le budget total du conteneur.",
+                        "office.max_part_bytes", "office.max_total_bytes")
     chunk = profile.chunking
     if chunk.target_tokens > chunk.max_prefixed_tokens:
         refuse_relation("La cible des fragments dépasse leur budget préfixé.",

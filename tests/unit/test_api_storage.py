@@ -300,16 +300,16 @@ def test_api_migration_003_upgrades_existing_v2_idempotently(tmp_path, patched):
     db = Database(path)
     db.initialize()
     db.initialize()
-    assert [row["version"] for row in db.rows("SELECT version FROM schema_version ORDER BY version")] == [1, 2, 3]
+    assert [row["version"] for row in db.rows("SELECT version FROM schema_version ORDER BY version")] == [1, 2, 3, 4]
     assert db.one("SELECT resolution_json FROM query_runs WHERE id='legacy'")["resolution_json"] == "{}"
     assert db.one("SELECT pause_requested FROM jobs WHERE id='j'")["pause_requested"] == 0
     assert [row["name"] for row in db.rows("PRAGMA table_info(jobs)")].count("pause_requested") == 1
 
 
-def test_api_migration_fresh_database_reaches_v3(tmp_path):
+def test_api_migration_fresh_database_reaches_v4(tmp_path):
     db = Database(tmp_path / "fresh.sqlite")
     db.initialize()
-    assert [row["version"] for row in db.rows("SELECT version FROM schema_version ORDER BY version")] == [1, 2, 3]
+    assert [row["version"] for row in db.rows("SELECT version FROM schema_version ORDER BY version")] == [1, 2, 3, 4]
     assert {"resolution_json"} <= {row["name"] for row in db.rows("PRAGMA table_info(query_runs)")}
     assert {"chunks_ai", "chunks_ad", "chunks_au"} == {row["name"] for row in db.rows("SELECT name FROM sqlite_master WHERE type='trigger'")}
 
@@ -320,10 +320,10 @@ def test_api_refuses_database_newer_than_code_without_touching_it(tmp_path):
     db.initialize()
     query_id = uid()
     db.execute("INSERT INTO query_runs(id,question,scope_json,snapshot_json,state,created_at,updated_at) VALUES(?,?,?,?,'running',?,?)", (query_id, "fixture", "{}", "{}", now(), now()))
-    db.execute("INSERT INTO schema_version VALUES(4)")
+    db.execute("INSERT INTO schema_version VALUES(5)")
     with pytest.raises(ApiError) as caught:
         db.initialize()
-    assert caught.value.code == "database_schema_too_new" and caught.value.details == {"database_version": 4, "supported_version": 3}
+    assert caught.value.code == "database_schema_too_new" and caught.value.details == {"database_version": 5, "supported_version": 4}
     assert db.one("SELECT state FROM query_runs WHERE id=?", (query_id,))["state"] == "running"
 
 

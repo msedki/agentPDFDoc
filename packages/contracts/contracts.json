@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "api_prefix": "/api/v1",
   "coordinate_system": "Unrotated PDF user-space points; retain MediaBox/CropBox/page rotation; page_index is zero-based and UI page_number is index+1",
   "routes": [
@@ -35,7 +35,11 @@
     "POST /admin/quiesce",
     "POST /admin/resume",
     "GET /admin/status",
-    "POST /admin/evaluation/context"
+    "POST /admin/evaluation/context",
+    "GET /versions/{version_id}/representation",
+    "GET /versions/{version_id}/units/{unit_id:path}/blocks",
+    "GET /versions/{version_id}/sheets/{sheet_id:path}/cells",
+    "GET /versions/{version_id}/assets/{asset_id}"
   ],
   "access": {
     "public": [
@@ -62,7 +66,7 @@
     }
   },
   "scope": {
-    "kind": "library|folder|documents|section|pages|selection",
+    "kind": "library|folder|documents|section|pages|selection|sheet|cell_range",
     "folderId": "uuid optional",
     "recursive": true,
     "documentIds": [
@@ -81,7 +85,13 @@
         "startOffset": 0,
         "endOffset": 1
       }
-    ]
+    ],
+    "extractionRevisionId": "uuid optional; mandatory for sheet/cell_range; exact published revision, no latest substitution",
+    "sheetId": "opaque source unit ID optional; mandatory for sheet/cell_range",
+    "rowStart": "one-based inclusive optional (1..1048576)",
+    "rowEnd": "one-based inclusive optional (1..1048576)",
+    "columnStart": "one-based inclusive optional (1..16384)",
+    "columnEnd": "one-based inclusive optional (1..16384)"
   },
   "document": {
     "id": "uuid",
@@ -96,7 +106,10 @@
       "total": 0,
       "processed": 0,
       "ocr": 0
-    }
+    },
+    "format": "pdf|docx|xlsx",
+    "mime_type": "validated exact format MIME",
+    "active_extraction_revision_id": "uuid|null"
   },
   "job": {
     "id": "uuid",
@@ -325,19 +338,22 @@
     "document_id": "uuid",
     "version_id": "uuid",
     "name": "string",
-    "page_index": 0,
-    "page_number": 1,
+    "page_index": "integer >= 0 for PDF; null for DOCX/XLSX",
+    "page_number": "page_index + 1 for PDF; null for DOCX/XLSX",
     "label": "string|null",
     "block_ids": [],
     "text": "string",
     "bboxes": [],
-    "precision": "span|block|table|page",
+    "precision": "span|block|table|page|element|cell|range",
     "extraction_revision_id": "uuid",
     "extraction_methods": [
-      "native|ocr|mixed|unknown"
+      "native|ocr|mixed|unknown",
+      "office_native"
     ],
-    "block_extraction_method": "native|ocr|mixed|unknown",
-    "extraction_provenance_rule": "extraction_methods lists, sorted and deduplicated, the metadata.extraction_method that the ingestion recorded for each block behind the source, as stored, and blocks[].extraction_method gives it per block; unknown when a block has none, never native. Carried by the sources and done.citations events, GET /citations and POST /search results (R26-OCR-01, 2026-10-06). A citation or event recorded before that date has neither field: read it as extraction_methods [\"unknown\"] and extraction_method unknown. The context sent to the model is unchanged: evidence lines keep source_id, version_id, pages and text only."
+    "block_extraction_method": "native|ocr|mixed|unknown|office_native",
+    "extraction_provenance_rule": "extraction_methods lists, sorted and deduplicated, the metadata.extraction_method that the ingestion recorded for each block behind the source, as stored, and blocks[].extraction_method gives it per block; unknown when a block has none, never native. Carried by the sources and done.citations events, GET /citations and POST /search results (R26-OCR-01, 2026-10-06). A citation or event recorded before that date has neither field: read it as extraction_methods [\"unknown\"] and extraction_method unknown. PDF evidence retains source_id, version_id, pages and text. Office evidence additionally carries format, extraction_revision_id, exact source locators and typed cell facts; formula caches have unknown freshness and formulas are never executed. Table headers are included only for broad sheet/document scopes, never injected into cell_range or text-selection evidence. XLSX selections clip bindings to the authorized Unicode spans.",
+    "format": "pdf|docx|xlsx",
+    "locator": "Office: revision-pinned docx_element or xlsx_cells locator; no synthetic PDF pages"
   },
   "query_events": {
     "types": [
@@ -507,7 +523,8 @@
       "version_id",
       "cancel_path"
     ],
-    "worker_module": "services.ingestion.worker"
+    "worker_module": "services.ingestion.worker",
+    "office_worker_module": "services.ingestion.office.worker"
   },
   "governor_boundary": "services.runtime.resources.ResourceGovernor(settings=None, host_lock_path=None) is built by services.api.main.create_app with the loaded profile (app.data_dir resolved) and runtime_location(profile, 'host_lock_path'), or injected into create_app(governor=...). It exposes snapshot(), begin_interactive(), finish_interactive(), should_checkpoint(), allow_ingestion(), resume_ingestion(), request_ingestion_pause(), the async context managers ingestion() and generation(on_wait=None), and readmit_generation(loaded=None), a new admission inside the current generation lease that the API awaits before regenerating on CPU after a GPU load failure (W025); the API sets the hooks before_ingestion, after_resource_violation and before_generation. Generation and ingestion leases are mutually exclusive; heavy admission is enforced, failures are explicit.",
   "governor_interface": {
@@ -558,5 +575,12 @@
       "uuid"
     ],
     "rule": "Fields added to GET /readiness by R26-IDX-02 (2026-10-06). dense_migration_incomplete names a degraded but non blocking state: status and HTTP code are unchanged (200 when every check passes), documents_to_reindex lists the document IDs whose active generation has no point in the current collection (all active documents with fragments when the collection is absent); unverifiable when Qdrant is unreachable or a count failed; not_applicable with a vector test double without counts. Document names are only given behind the session (dense_coverage of GET /diagnostics, warning dense_identity_mismatch)."
+  },
+  "office": {
+    "locations": "Opaque package/element or sheet/cell locators, not PDF pages. IDs may include slashes; path converters match registered IDs only. No client part or XPath is evaluated.",
+    "pagination": "representation/blocks cursor zero-based, limit 1..100; reader sparse cells maximum 10000 positions",
+    "cell_range_search": "Projection before FTS5 statistics, exact identifiers, dense scoring, RRF and top-k. At most 1000 present cells, 200000 characters and 2048 fragments; larger scopes rejected explicitly. Full-identity embedding cache; no Qdrant collection per range.",
+    "assets": "Only registered raster sources, verified type/pixel limit; unsupported SVG/OLE/HTML never inline.",
+    "formulas": "Never execute or recalculate; formula and source cached value kept separately; cache freshness unknown."
   }
 }

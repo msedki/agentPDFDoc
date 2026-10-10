@@ -1,8 +1,10 @@
 # Contrats et instructions d'implémentation — V2.1
 
+**Rôle :** exigences d’implémentation V2.1 et extension documentaire Office · **Propriétaire :** contrats applicatifs · **Statut :** Stabilisé · **Référence :** baseline V2.1 conservée ; Office R28, base `64e191f` et modifications locales du 10/10/2026, tests isolés et chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · **Mis à jour :** 2026-10-10 13:28 (UTC) · **Source de vérité :** exigences et décisions de ce dossier ; API réelle dans `docs/interfaces/API.md` et `packages/contracts/contracts.json` · **Remplace :** aucun document
+
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)). **W024 et W025 (01/10/2026) : le CPU reste le socle, le repli et la référence de la recette D07 ; seule la génération par Ollama peut passer sur GPU, automatiquement sur les voies qualifiées par un essai réel** ([W025](DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024)). Les options envoyées à Ollama selon le mode sont précisées en section 7.
 
-Baseline RAG-LOCAL-16 v2.1. Ce document décrit l'application **à réaliser**. Les routes, modules et commandes ci-dessous sont ses contrats cibles ; ils ne sont pas annoncés comme déjà exécutables dans ce dossier documentaire.
+Baseline RAG-LOCAL-16 v2.1 : les sections 1 à 10 conservent les contrats cibles et leurs évolutions documentées. L’extension Office implémentée le 10/10/2026 est définie en section 11 ; son statut de recette reste dans PLAN.md. La référence de l’API réellement déclarée est docs/interfaces/API.md. Les exigences non exercées ne sont pas annoncées comme qualifiées.
 
 ## 1. Structure de dépôt cible
 
@@ -228,6 +230,23 @@ La priorité interactive demande une pause coopérative sans kill à délai fixe
 
 Le budget du viewer est suivi sur les dimensions raster effectivement allouées, `somme(width × height)` des canvases vivants, et non seulement sur le nombre de pages. Annuler les render tasks obsolètes et libérer les canvases sortis du budget. Les 24 millions de pixels représentent environ 96 Mo d'un seul stockage RGBA, **pas** la consommation totale garantie du navigateur. Mesurer celle-ci séparément.
 
+
+## 11. Extension Office implémentée — R28
+
+DOCX et XLSX complètent le PDF dans l’import, les versions et les traitements. L’[étude du 9 octobre](reports/extension-office-2026-10-09.md) et ses benchmarks restent des preuves exploratoires datées. L’implémentation du 10 octobre (base `64e191f` et modifications locales) comporte des contrôles isolés ; la chaîne native DEV Linux aarch64 est vérifiée. Les statuts et critères R28 sont suivis uniquement dans le [PLAN](PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation), sans transférer une preuve aarch64 vers Windows, x86-64 ou un hôte CPU/16 Go.
+
+| Frontière | Contrat implémenté | Source de vérité |
+|---|---|---|
+| Original/version | Format et MIME validés, copie immuable SHA-256 et extension ; réimport/déplacement/conservation des anciennes versions | [db.py](../services/api/db.py), [API, import](../docs/interfaces/API.md#43-bibliothèque-et-documents) |
+| Extraction | Worker Office isolé, OOXML Strict/Transitional, unités complètes vérifiées avant reprise ; structures et limites conservées | [pipeline.py](../services/ingestion/office/pipeline.py), [architecture Office](../docs/architecture/ARCHITECTURE.md#41-documents-docx-et-xlsx) |
+| Persistance | SQLite, schéma 4 : format/MIME, pages nulles pour Office, unités/documents/cellules/bindings liés aux générations ; sauvegarde de schéma avant migration | [migration004](../services/api/migrations/004_office_documents.sql), [sauvegarde](../docs/exploitation/SAUVEGARDE-RESTAURATION.md) |
+| Lecture | Contrat HTTP de version 3 : représentation et blocs paginés, fenêtre sparse XLSX, images DOCX enregistrées et raster vérifiées ; version/révision épinglées | [API, versions](../docs/interfaces/API.md#44-versions-et-lecture), [contrat partagé](../packages/contracts/contracts.json) |
+| Périmètre/RAG | Feuille ou plage avec révision exacte ; projection de plage avant lexical/dense/top-k ; en-têtes/parents/focus exclus hors plage ; aucun calcul de formule | [office_search.py](../services/api/office_search.py), [API, scopes](../docs/interfaces/API.md#6-corps-de-requête) |
+| Citation | Élément DOCX ou feuille/cellules XLSX, hash source et révision immuables ; aucune page PDF fictive ni résolution silencieuse à la dernière version | [scope.py](../services/api/scope.py), [query.py](../services/api/query.py) |
+
+Les valeurs, types, formats numériques, formules et caches XLSX restent distincts. Une valeur du cache n’atteste pas un recalcul récent ; une chaîne explicitement vide n’est pas un cache absent. Les images DOCX restent des sources enregistrées, sans OCR ou analyse visuelle implicite. Les deux adaptateurs exposent couverture et avertissements ; un élément non interprété n’est pas déclaré intégralement couvert. Les structures ne sont pas remplacées par leur texte d’indexation dérivé.
+
+Les scopes `sheet` et `cell_range` exigent `versionId`, `extractionRevisionId` et `sheetId` ; la plage exige quatre bornes entières inclusives à partir de 1. Les scopes et sélections PDF gardent leurs contrats antérieurs. Pour les shapes exactes, codes de refus, limites de recherche et pagination, consulter l’API et le contrat partagé ; ce document ne duplique pas leurs listes de champs.
 
 ## Discipline externe pour les contrats et migrations
 

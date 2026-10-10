@@ -4,8 +4,8 @@ import type { Tone } from "./status.ts";
  * Méthode d'extraction d'une source ou d'une citation (contrat R26-OCR-01, `extraction_methods`).
  * Un champ absent (citation ou événement enregistrés avant le 2026-10-06) se lit « inconnue », jamais « native ».
  */
-export type ExtractionMethod = "native" | "ocr" | "mixed" | "unknown";
-const vocabulary: ReadonlySet<string> = new Set<ExtractionMethod>(["native", "ocr", "mixed", "unknown"]);
+export type ExtractionMethod = "native" | "office_native" | "ocr" | "mixed" | "unknown";
+const vocabulary: ReadonlySet<string> = new Set<ExtractionMethod>(["native", "office_native", "ocr", "mixed", "unknown"]);
 
 /**
  * Erreurs que le seuil de confiance OCR ne repère pas : sur la fixture DA-P02, « ± » lu « + », « N·m » lu « N-m »
@@ -22,7 +22,7 @@ export function sourceExtractionMethods(source: { extraction_methods?: unknown }
 export type ExtractionBadge = { method: "ocr" | "mixed" | "unknown"; label: string; tone: Tone; title: string };
 
 /** Badge d'une source : texte lu par OCR en tout ou partie, méthode inconnue, ou rien pour un texte natif. */
-export function extractionBadge(source: { extraction_methods?: unknown }): ExtractionBadge | null {
+export function extractionBadge(source: { extraction_methods?: unknown; format?: string }): ExtractionBadge | null {
   const methods = sourceExtractionMethods(source);
   if (methods.length === 1 && methods[0] === "ocr") {
     return { method: "ocr", label: "Lu par OCR", tone: "warning", title: `Texte de cette source reconnu par OCR : même sans alerte de faible confiance, ${OCR_MISREADINGS} ; comparez-les à la page originale.` };
@@ -32,13 +32,14 @@ export function extractionBadge(source: { extraction_methods?: unknown }): Extra
   }
   if (methods.includes("unknown")) {
     const part = methods.length === 1 ? "de cette source" : "d'une partie de cette source";
+    if (source.format === "docx" || source.format === "xlsx") return { method: "unknown", label: "Méthode d'extraction inconnue", tone: "neutral", title: `La méthode d'extraction ${part} n'est pas fournie. Comparez le texte, les types et les localisations au document original.` };
     return { method: "unknown", label: "Méthode d'extraction inconnue", tone: "neutral", title: `La méthode d'extraction ${part} n'est pas connue (citation enregistrée ou document indexé avant l'ajout de cette information) : son texte a pu être lu par OCR. Comparez signes, unités et références à la page originale.` };
   }
   return null;
 }
 
 /** Titre d'un lien de citation complété par la méthode d'extraction lorsqu'elle appelle une vérification. */
-export function withExtractionLabel(title: string, source: { extraction_methods?: unknown }): string {
+export function withExtractionLabel(title: string, source: { extraction_methods?: unknown; format?: string }): string {
   const badge = extractionBadge(source);
   return badge ? `${title} · ${badge.label}` : title;
 }

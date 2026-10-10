@@ -15,6 +15,16 @@ test("la liste du service est relue sans doublon ; un champ absent, vide ou hors
   assert.deepEqual(sourceExtractionMethods({ extraction_methods: ["native", "vlm", 3] }), ["native", "unknown"]);
 });
 
+test("la méthode Office native réelle reste connue sans faux badge, sans masquer OCR ni une méthode manquante", () => {
+  assert.deepEqual(sourceExtractionMethods({ extraction_methods: ["office_native", "office_native"] }), ["office_native"]);
+  for (const format of ["docx", "xlsx"]) {
+    assert.equal(extractionBadge({ format, extraction_methods: ["office_native"] }), null);
+    assert.equal(withExtractionLabel("Ouvrir le passage", { format, extraction_methods: ["office_native"] }), "Ouvrir le passage");
+    assert.equal(extractionBadge({ format, extraction_methods: ["office_native", "unknown"] })?.method, "unknown");
+    assert.equal(extractionBadge({ format, extraction_methods: ["office_native", "ocr"] })?.method, "mixed");
+  }
+});
+
 test("OCR seul, OCR partiel, méthode inconnue ou texte natif donnent chacun un badge distinct ou aucun", () => {
   const ocr = extractionBadge({ extraction_methods: ["ocr"] });
   assert.equal(ocr?.label, "Lu par OCR");

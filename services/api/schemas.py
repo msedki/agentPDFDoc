@@ -31,7 +31,7 @@ class SelectedSpan(BaseModel):
 
 class Scope(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    kind: Literal["library", "folder", "documents", "section", "pages", "selection"]
+    kind: Literal["library", "folder", "documents", "section", "pages", "selection", "sheet", "cell_range"]
     folderId: str | None = None
     recursive: Literal[True] = True
     documentIds: list[str] = Field(default_factory=list, max_length=1000)
@@ -40,6 +40,12 @@ class Scope(BaseModel):
     pageStart: StrictInt | None = Field(default=None, ge=0)
     pageEnd: StrictInt | None = Field(default=None, ge=0)
     spans: list[SelectedSpan] = Field(default_factory=list, max_length=128)
+    extractionRevisionId: str | None = Field(default=None, min_length=1, max_length=128)
+    sheetId: str | None = Field(default=None, min_length=1, max_length=256)
+    rowStart: StrictInt | None = Field(default=None, ge=1, le=1048576)
+    rowEnd: StrictInt | None = Field(default=None, ge=1, le=1048576)
+    columnStart: StrictInt | None = Field(default=None, ge=1, le=16384)
+    columnEnd: StrictInt | None = Field(default=None, ge=1, le=16384)
 
     @model_validator(mode="after")
     def required_values(self):
@@ -47,7 +53,7 @@ class Scope(BaseModel):
             raise ValueError("Un dossier est requis.")
         if self.kind == "documents" and not self.documentIds:
             raise ValueError("Au moins un document est requis.")
-        if self.kind in {"pages", "section", "selection"} and not self.versionId:
+        if self.kind in {"pages", "section", "selection", "sheet", "cell_range"} and not self.versionId:
             raise ValueError("Une version est requise.")
         if self.kind == "section" and not self.sectionId:
             raise ValueError("Une section est requise.")
@@ -55,6 +61,13 @@ class Scope(BaseModel):
             raise ValueError("Une sélection est requise.")
         if self.kind == "pages" and (self.pageStart is None or self.pageEnd is None or self.pageStart > self.pageEnd):
             raise ValueError("Une plage de pages valide est requise.")
+        if self.kind in {"sheet", "cell_range"}:
+            if not self.extractionRevisionId or not self.sheetId:
+                raise ValueError("Une feuille et sa révision d'extraction sont requises.")
+            if self.kind == "cell_range" and (self.rowStart is None or self.rowEnd is None
+                    or self.columnStart is None or self.columnEnd is None
+                    or self.rowStart > self.rowEnd or self.columnStart > self.columnEnd):
+                raise ValueError("Une plage de cellules ordonnée est requise.")
         return self
 
 

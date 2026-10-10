@@ -18,8 +18,8 @@ import { readSource, stripScriptComments } from "./theme-support.ts";
 const contract = JSON.parse(readFileSync(new URL("../../../../packages/contracts/contracts.json", import.meta.url), "utf8"));
 const values = (field: string) => field.split("|");
 
-test("the contract read is the versioned schema 2", () => {
-  assert.equal(contract.schema_version, 2);
+test("the contract read is the versioned schema 3", () => {
+  assert.equal(contract.schema_version, 3);
   assert.equal(contract.api_prefix, "/api/v1");
 });
 

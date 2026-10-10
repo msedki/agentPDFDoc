@@ -7,6 +7,7 @@ import { renderToString } from "react-dom/server";
 import { api, ApiError } from "../../src/lib/api.ts";
 import { launcherCommandsFrom } from "../../src/lib/launcher.ts";
 import { citationLinkIds } from "../../src/lib/citation-link.ts";
+import { parseCellRange } from "../../src/lib/office-reader.ts";
 import { linkInvalidFromSearch, SESSION_ENDED_EVENT } from "../../src/lib/session.ts";
 import { checkSession, readLauncherCommands } from "../../src/lib/session-check.ts";
 import { readSource } from "./theme-support.ts";
@@ -241,13 +242,16 @@ test("launcher: the same 33 ASCII controls are refused, valid strings and UTF-16
 });
 
 test("workspace entry pure function: exact citation, no bad-citation fallback, plain link and zero-based page", () => {
-  const readEntry = loadFunction("components/workspace.tsx", "readWorkspaceEntry", { citationLinkIds, URLSearchParams }) as (search: string) => { kind: string; error?: unknown };
+  const readEntry = loadFunction("components/workspace.tsx", "readWorkspaceEntry", { citationLinkIds, parseCellRange, URLSearchParams }) as (search: string) => { kind: string; error?: unknown };
   assert.deepEqual(readEntry("?citation_query=q&citation_source=S1&document=other&version=other"), { kind: "citation", queryId: "q", sourceId: "S1" });
   const invalid = readEntry("?citation_query=q&document=other&version=other");
   assert.equal(invalid.kind, "error");
   assert.ok(invalid.error instanceof Error);
   assert.match(invalid.error.message, /deux identifiants valides/);
   assert.deepEqual(readEntry("?document=d&version=v&page=2"), { kind: "document", documentId: "d", versionId: "v", pageIndex: 1 });
+  assert.deepEqual(readEntry("?document=d&version=v&unit=xlsx%3Axl%2Fworksheets%2Fsheet1.xml&range=B2%3AD12&revision=old"), { kind: "document", documentId: "d", versionId: "v", pageIndex: 0, unitId: "xlsx:xl/worksheets/sheet1.xml", range: "B2:D12", revision: "old" });
+  assert.equal(readEntry("?document=d&version=v&range=B0").kind, "error");
+  assert.equal(readEntry("?document=d&version=v&unit=bad%00unit").kind, "error");
   for (const search of ["?document=d&version=v&page=0", "?document=d&version=v&page=1.5", "?document=bad%2Fid&version=v&page=1"]) assert.deepEqual(readEntry(search), { kind: "none" });
 });
 

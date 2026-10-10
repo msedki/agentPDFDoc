@@ -1,10 +1,11 @@
 "use client";
+import { DOCUMENT_ACCEPT, documentLocation, supportedDocumentName, versionFormat } from "@/lib/document-format";
 import { useEffect, useImperativeHandle, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronDown, ChevronRight, CircleAlert, Crosshair, FileText, Folder as FolderIcon, FolderPlus, ListChecks, Play, RefreshCw, Search, Upload } from "lucide-react";
 import { api } from "@/lib/api";
 import { useWorkspace } from "@/lib/store";
-import { importOutcome, resumedNotice, resumeLabel } from "@/lib/import-outcome";
+import { importOutcome, resumedNotice, resumeLabel, type ImportRefusal } from "@/lib/import-outcome";
 import { documentRecordStatus } from "@/lib/status";
 import { isServiceUnavailable, libraryView, selectedDocumentsSentence } from "@/lib/panel-state";
 import type { DocumentRecord, Folder, LibraryTree } from "@/lib/types";
@@ -29,7 +30,7 @@ export const NO_FILE_NOTICE = "Aucun fichier n'a été transmis par la boîte de
 export function LibraryRail({ selectedCount, onImport, onFilter, onSelection }: { selectedCount: number; onImport: () => void; onFilter: () => void; onSelection: () => void }) {
   const selection = `${selectedDocumentsSentence(selectedCount)} : afficher la bibliothèque pour définir le périmètre`;
   return <div className="library-rail" role="group" aria-label="Bibliothèque repliée">
-    <Button variant="ghost" size="icon" onClick={onImport} aria-label="Importer des PDF" title="Importer des PDF : la bibliothèque se rouvre pour suivre le transfert"><Upload size={16} /></Button>
+    <Button variant="ghost" size="icon" onClick={onImport} aria-label="Importer des documents" title="Importer des documents : la bibliothèque se rouvre pour suivre le transfert"><Upload size={16} /></Button>
     <Button variant="ghost" size="icon" onClick={onFilter} aria-label="Filtrer la bibliothèque" title="Filtrer la bibliothèque par nom ou chemin de fichier"><Search size={16} /></Button>
     <Button variant="ghost" size="icon" className="rail-selection" onClick={onSelection} aria-label={selection} title={selection}><ListChecks size={16} /><span className="rail-count" aria-hidden="true">{selectedCount}</span></Button>
   </div>;
@@ -45,6 +46,7 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
   const [closed, setClosed] = useState(new Set<string>());
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [notice, setNotice] = useState("");
+  const [rejections, setRejections] = useState<ImportRefusal[]>([]);
   // Traitements en pause renvoyés par l'import d'un fichier identique (`resume_required`), à reprendre.
   const [resumeJobs, setResumeJobs] = useState<string[]>([]);
   // Échec d'ouverture gardé tel quel : son texte se calcule au rendu (useErrorText).
@@ -52,7 +54,7 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
   const errorText = useErrorText();
   const [importIssue, setImportIssue] = useState("");
   const [importOrigin, setImportOrigin] = useState<"files" | "folder">("files");
-  // PDF déposés depuis le gestionnaire de fichiers : voie d'import qui ne dépend pas de la boîte de choix du navigateur
+  // Documents déposés depuis le gestionnaire de fichiers : voie d'import qui ne dépend pas de la boîte de choix du navigateur
   // (sous Chromium installé en snap, elle peut se refermer sans transmettre de fichier).
   const [dropping, setDropping] = useState(false);
   const dragDepth = useRef(0);
@@ -64,7 +66,7 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
     mutationFn: (files: File[]) => api.import(files, setUploadProgress),
     onSuccess: (response, files) => {
       const outcome = importOutcome(response, files.length, ignored.current);
-      setNotice(outcome.notice); setResumeJobs(outcome.resumeJobs);
+      setNotice(outcome.notice); setResumeJobs(outcome.resumeJobs); setRejections(outcome.rejections ?? []);
       setUploadProgress(null);
       void client.invalidateQueries({ queryKey: ["tree"] }); void client.invalidateQueries({ queryKey: ["jobs"] });
     },
@@ -86,22 +88,24 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
     setOpenError(null);
     try {
       let version = document.active_version_id ?? document.version_id;
+      let format = document.format ?? "pdf";
       if (!version) {
         const detail = await client.fetchQuery({ queryKey: ["document", document.id], queryFn: ({ signal }) => api.document(document.id, signal), staleTime: 0 });
         version = detail.versions[0]?.id;
+        format = versionFormat(detail, detail.versions[0]);
       }
       if (requestId !== openRequest.current) return;
-      if (version) state.open({ documentId: document.id, versionId: version, pageIndex: 0 });
+      if (version) state.open(documentLocation(document.id, version, format));
       else setOpenError({ error: new Error(`« ${document.name} » n'a pas encore de version consultable : attendez la fin de son import dans le Suivi.`) });
     } catch (failure) { if (requestId === openRequest.current) setOpenError({ error: failure }); }
   };
   const imported = (files: FileList | null) => {
     if (!files?.length) return;
-    importMutation.reset(); setImportIssue(""); setNotice(""); setResumeJobs([]);
-    const pdfs = [...files].filter(file => file.name.toLocaleLowerCase().endsWith(".pdf"));
-    ignored.current = files.length - pdfs.length;
-    if (!pdfs.length) { setImportIssue("Aucun fichier PDF dans cette sélection : seuls les PDF sont importés."); return; }
-    setUploadProgress(0); importMutation.mutate(pdfs);
+    importMutation.reset(); setImportIssue(""); setNotice(""); setResumeJobs([]); setRejections([]);
+    const documents = [...files].filter(file => supportedDocumentName(file.name));
+    ignored.current = files.length - documents.length;
+    if (!documents.length) { setImportIssue("Aucun document pris en charge dans cette sélection : choisissez des PDF, DOCX ou XLSX."); return; }
+    setUploadProgress(0); importMutation.mutate(documents);
   };
   const chooseFiles = (origin: "files" | "folder") => { setImportOrigin(origin); (origin === "files" ? fileInput : folderInput).current?.click(); };
   const carriesFiles = (event: React.DragEvent) => event.dataTransfer.types.includes("Files");
@@ -139,7 +143,7 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
   };
   const renderDocument = (document: DocumentRecord, depth: number) => <div className={`tree-document ${state.opened?.documentId === document.id ? "is-open" : ""}`} key={document.id} style={{ paddingLeft: depth * 16 + 12 }}>
     <input type="checkbox" aria-label={`Sélectionner ${document.name}`} checked={state.selectedIds.includes(document.id)} onChange={() => state.toggleDocument(document.id)} />
-    <button onClick={() => void openDocument(document)} title={document.relative_path}><FileText size={16} /><span><strong>{document.name}</strong><small><StatusIndicator status={documentRecordStatus(document)} />{typeof document.page_count === "number" && document.page_count > 0 && <span className="tabular"> · {document.page_count} p.</span>}{document.coverage && document.coverage.total > 0 && document.coverage.processed < document.coverage.total && <span className="tabular"> · {document.coverage.processed}/{document.coverage.total} p. traitées</span>}</small></span></button>
+    <button onClick={() => void openDocument(document)} title={document.relative_path}><FileText size={16} /><span><strong>{document.name}</strong><small><StatusIndicator status={documentRecordStatus(document)} />{typeof document.page_count === "number" && document.page_count > 0 && <span className="tabular"> · {document.page_count} p.</span>}{document.coverage && document.coverage.total > 0 && document.coverage.processed < document.coverage.total && <span className="tabular"> · {document.coverage.processed}/{document.coverage.total} {document.format && document.format !== "pdf" ? "unités traitées" : "p. traitées"}</span>}</small></span></button>
   </div>;
   const renderFolder = (folder: Folder, depth: number, ancestors: string[] = []): React.ReactNode => {
     if (ancestors.includes(folder.id) || filter && !folderHasMatch(folder.id)) return null;
@@ -148,25 +152,26 @@ export function LibraryPanel({ controller, headerAction }: { controller?: RefObj
   };
   const selectedDocuments = live.filter(document => state.selectedIds.includes(document.id));
   return <aside className={`library-panel${dropping ? " is-dropping" : ""}`} aria-labelledby="library-heading" onDragEnter={dragEnter} onDragOver={dragOver} onDragLeave={dragLeave} onDrop={drop}>
-    {dropping && <div className="library-drop" role="status">{importMutation.isPending ? "Un import est déjà en cours : attendez sa fin pour déposer d'autres PDF." : "Déposez les PDF pour les importer dans la bibliothèque."}</div>}
+    {dropping && <div className="library-drop" role="status">{importMutation.isPending ? "Un import est déjà en cours : attendez sa fin pour déposer d'autres documents." : "Déposez les PDF, DOCX ou XLSX pour les importer dans la bibliothèque."}</div>}
     <PanelHeader title="Bibliothèque" id="library-heading"><div className="panel-heading-actions">{tree.data && <span className="count-pill" title="Documents présents dans la bibliothèque"><span className="sr-only">Documents présents : </span>{data.total_documents ?? live.length}</span>}{headerAction}</div></PanelHeader>
     {tree.isError && <PanelError title={isServiceUnavailable(tree.error) ? "Service local indisponible" : "Lecture de la bibliothèque impossible"} message={view === "unavailable" ? errorText(tree.error) : `${errorText(tree.error)} La liste affichée date de la dernière lecture réussie.`} onRetry={() => void tree.refetch()} />}
     {view === "loading" && <PanelLoading label="Chargement de la bibliothèque…" />}
     <div className="import-actions">
-      <ActionButton variant="secondary" size="sm" onAction={() => chooseFiles("files")} disabled={importMutation.isPending} pending={importMutation.isPending && importOrigin === "files"} pendingLabel="Import en cours…" error={importOrigin === "files" ? importFailure : ""}><Upload size={16} />Importer des PDF</ActionButton>
+      <ActionButton variant="secondary" size="sm" onAction={() => chooseFiles("files")} disabled={importMutation.isPending} pending={importMutation.isPending && importOrigin === "files"} pendingLabel="Import en cours…" error={importOrigin === "files" ? importFailure : ""}><Upload size={16} />Importer des documents</ActionButton>
       <ActionButton variant="secondary" size="sm" onAction={() => chooseFiles("folder")} disabled={importMutation.isPending} pending={importMutation.isPending && importOrigin === "folder"} pendingLabel="Import en cours…" error={importOrigin === "folder" ? importFailure : ""}><FolderPlus size={16} />Importer un dossier</ActionButton>
       <Button variant="ghost" size="icon" onClick={() => void tree.refetch()} aria-label="Actualiser la bibliothèque" title="Actualiser la bibliothèque" disabled={tree.isFetching}><RefreshCw size={16} /></Button>
     </div>
-    <input ref={fileInput} type="file" accept="application/pdf,.pdf" multiple hidden onChange={event => { imported(event.target.files); event.target.value = ""; }} />
+    <input ref={fileInput} type="file" accept={DOCUMENT_ACCEPT} multiple hidden onChange={event => { imported(event.target.files); event.target.value = ""; }} />
     <input ref={folderInput} type="file" multiple hidden {...({ webkitdirectory: "", directory: "" } as React.InputHTMLAttributes<HTMLInputElement>)} onChange={event => { imported(event.target.files); event.target.value = ""; }} />
     {uploadProgress !== null && <div className="upload-progress" role="status"><span>Transfert des fichiers · <span className="tabular">{Math.round(uploadProgress * 100)} %</span></span><progress max={1} value={uploadProgress} aria-label="Transfert des fichiers" /></div>}
     {notice && <p className="library-notice" role="status">{notice}</p>}
+    {rejections.length > 0 && <ul className="library-import-refusals" aria-label="Fichiers refusés lors de l'import">{rejections.map((refusal, index) => <li key={`${refusal.path}:${index}`}><strong>{refusal.path}</strong><span title={refusal.code}>{refusal.message}</span></li>)}</ul>}
     {resumeJobs.length > 0 && <div className="library-resume"><ActionButton variant="secondary" size="sm" onAction={resumeImported} pendingLabel="Reprise…"><Play size={16} />{resumeLabel(resumeJobs.length)}</ActionButton></div>}
     {openError && <p className="library-notice action-error" role="alert"><CircleAlert size={14} aria-hidden="true" />{errorText(openError.error)}</p>}
     <label className="library-filter"><Search size={14} aria-hidden="true" /><input ref={filterInput} aria-label="Filtrer les fichiers" placeholder="Nom ou chemin de fichier…" value={filter} onChange={event => setFilter(event.target.value)} /></label>
     <button className={`library-all ${state.scope.kind === "library" ? "is-active" : ""}`} title="Définir le périmètre sur toute la bibliothèque" aria-pressed={state.scope.kind === "library"} onClick={() => state.setScope({ kind: "library" }, "Toute la bibliothèque")}><FolderIcon size={16} /><span>Toute la bibliothèque</span>{state.scope.kind === "library" && <Check size={14} aria-hidden="true" />}</button>
     <div className="tree" role="navigation" aria-label="Arborescence documentaire">
-      {view === "no-documents" ? <PanelEmpty reason="no-documents" title="Aucun document dans la bibliothèque" description="Importez des fichiers avec « Importer des PDF », tout un dossier avec « Importer un dossier », ou déposez des PDF sur ce panneau depuis votre gestionnaire de fichiers. Les fichiers originaux sont conservés tels quels." />
+      {view === "no-documents" ? <PanelEmpty reason="no-documents" title="Aucun document dans la bibliothèque" description="Importez des fichiers avec « Importer des documents », tout un dossier avec « Importer un dossier », ou déposez des PDF, DOCX ou XLSX sur ce panneau depuis votre gestionnaire de fichiers. Les fichiers originaux sont conservés tels quels." />
         : view === "no-match" ? <PanelEmpty reason="no-match" title={`Aucun fichier ne correspond à « ${filter} »`} description="Le filtre porte sur le nom et le chemin relatif des fichiers." action={<Button variant="secondary" size="sm" onClick={() => setFilter("")}>Effacer le filtre</Button>} />
         : view === "content" ? <>{data.folders.filter(folder => !folder.parent_id || !data.folders.some(parent => parent.id === folder.parent_id)).map(folder => renderFolder(folder, 0))}{data.documents.filter(document => !document.folder_id && document.state !== "deleted" && matches(document)).map(document => renderDocument(document, 0))}</> : null}
     </div>

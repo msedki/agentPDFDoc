@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import datetime
 import fnmatch
 import io
 import os
@@ -219,8 +220,14 @@ def test_no_document_denies_the_linux_kit():
     assert len(aarch64) == 1 and "R26-KIT-02" in aarch64[0][2]
     assert len(x86_64) == 1 and "R26-KIT-03" in x86_64[0][2]
     fields = check_docs.header_fields(ROOT / DEPLOIEMENT)
-    assert "78ec95c" in fields["reference"] and "2026-10-07" in fields["mis a jour"]
-    for source in ("tools/dist/linux_kit.py", "tools/dist/linux_install.py", "tools/dist/install.sh", "tools/dist/linux_profiles.py"):
+    assert "78ec95c" in fields["reference"]
+    sources = ("tools/dist/linux_kit.py", "tools/dist/linux_install.py", "tools/dist/install.sh", "tools/dist/linux_profiles.py")
+    # A maintained document must follow the real source revision, not retain its initial publication date.
+    changed_at = subprocess.run(["git", "-C", str(ROOT), "log", "-1", "--format=%cI", "--", *sources],
+                                check=True, capture_output=True, text=True).stdout.strip()
+    source_date = datetime.datetime.fromisoformat(changed_at).astimezone(datetime.UTC).date()
+    assert datetime.date.fromisoformat(fields["mis a jour"][:10]) >= source_date
+    for source in sources:
         assert source in fields["source de verite"], source
 
 

@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et relue, corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · **Mis à jour :** 2026-10-10 03:14 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, publication en finition ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · **Mis à jour :** 2026-10-10 13:29 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 ## R28 — étude de l'extension DOCX/XLSX avant implémentation
 
@@ -14,10 +14,14 @@ locales R27, bibliothèques verrouillées, sources officielles versionnées,
 **Résultat attendu de cette phase :** candidats comparés et mesurés,
 architecture et contrats proposés, lots exécutables et critères précis.
 
-La phase actuelle autorise lecture, recherche officielle, prototypes isolés
-de benchmark et documentation ; aucun code produit Office n'est livré.
-Le plan d'implémentation ci-dessous est une proposition, pas une annonce
-de réalisation ni une autorisation anticipée pendant l'étude.
+La phase d’étude ST-01→04 est clôturée. Le 10 octobre, l’intégration produit
+est engagée conformément à la demande initiale d’ajouter DOCX/XLSX :
+« avant d’avoir finalisé l’étude et le plan » constitue son prérequis,
+désormais satisfait, sans nouvelle approbation requise. La mention antérieure
+« proposés / non commencés » décrivait l’étude ; son interprétation comme
+absence durable d’autorisation était trop restrictive (décision W055).
+La chaîne native DEV est désormais exercée ; ses contrôles ne clôturent pas
+les réserves de qualification I-07/08 sur les hôtes et corpus absents.
 CPU, au plus 16 Go de RAM et sans GPU requis ; Windows natif et GNU/Linux
 aarch64/x86-64 sous prérequis documentés, sans dépendance Jetson/Ubuntu
 dans l'extraction Office. Windows sera recetté plus tard par l'utilisateur.
@@ -38,19 +42,19 @@ ne constituent pas un corpus métier représentatif. Les gros fichiers et
 mesures CPU 16 Go restent à exécuter. Étude détaillée et chiffres dans le
 rapport ; actions et statuts uniquement dans ce PLAN.
 
-### R28.2 — choix techniques proposés et frontières
+### R28.2 — choix retenus et frontières (W055)
 
 | Sujet | Choix justifié / effet sur l'existant | Gate avant livraison |
 |---|---|---|
-| DOCX | python-docx 1.2.0 pour helpers publics et OOXML borné pour texte/parties/ancrages ; Strict et Transitional. Docling Office non retenu comme vérité : pertes littérales et ancrage absent obligeraient un second parcours. | Qualifier styles/listes/révisions/notes/objets et namespaces ; aucun succès silencieux sur contenu perdu. |
-| XLSX | openpyxl 3.1.5 read_only + complément streaming OOXML pour valeur brute, `<f>/<v>`, tables/fusions/métadonnées. Pas de recalcul. | Jointure exacte cellules/cache, formules shared/array, types/dates, Strict/Transitional et sparse ; budget styles/sharedStrings mesuré. |
+| DOCX | OOXML natif borné pour texte/parties/ancrages ; python-docx1.2.0 pour les fixtures et la comparaison ; Strict et Transitional. Docling Office non retenu comme vérité : pertes littérales et ancrage absent obligeraient un second parcours. | Qualifier styles/listes/révisions/notes/objets et namespaces ; aucun succès silencieux sur contenu perdu. |
+| XLSX | OOXML streaming sparse pour valeur brute, `<f>/<v>`, tables/fusions/métadonnées ; helpers openpyxl3.1.5 pour dates/formules, sans double chargement Workbook. Pas de recalcul. | Jointure exacte cellules/cache, formules shared/array, types/dates, Strict/Transitional et sparse ; budget styles/sharedStrings mesuré. |
 | Socle | SQLite, Qdrant, FTS5/RRF, E5 ONNX CPU, Ollama et export Next statique conservés. Pas de GraphRAG, nouveau framework/DB/runtime Java/bureautique. | Recherche/scopes/citations mixtes réels et non-régression PDF. |
-| Architecture | Dispatch Office dans jobs vers `services/ingestion/office/` proposé ; voie PDF inchangée. Localisateurs `pdf_page`/`docx_element`/`xlsx_cells` et sortie Office structurée immutable. | Empreinte PDF conservée si sa voie est inchangée ; changement partagé réellement nécessaire = identité actualisée honnêtement. |
+| Architecture | Dispatch Office dans jobs vers `services/ingestion/office/` implémenté ; voie PDF inchangée. Localisateurs `pdf_page`/`docx_element`/`xlsx_cells` et sortie Office structurée immutable. | Empreinte PDF conservée si sa voie est inchangée ; changement partagé réellement nécessaire = identité actualisée honnêtement. |
 | Données | Migration versionnée, pages nullables Office, locators, unités et cellules sparse avec bindings texte ; version/révision/génération inchangées comme principes. | Backup, FK/invariants/citations/FTS avant-après, crash/rollback, compatibilité SQLite de chaque cible ; aucune pseudo-page. |
 | Frontend | Même bibliothèque/analyses, lecteur React depuis extraction canonique, grille par fenêtres de lignes et colonnes, liens query/source conservés. | Sélection/hash/offsets, révision archivée, clavier/rendu, budgets ; PDF.js ne charge jamais Office. |
 | Visuel et calcul | Lecture structurée, images/légendes/relations. Pas de pagination Word garantie ni d'analyse image implicite. LibreOffice/Pandoc/Mammoth non requis. | Limites visibles ; éventuel dérivé visuel ou moteur de calcul constitue un lot ultérieur justifié. |
 
-Politique initiale proposée : DOCX en vue finale des révisions (insertions
+Politique retenue : DOCX en vue finale des révisions (insertions
 incluses, suppressions conservées hors texte de lecture, état signalé) ;
 notes/commentaires/en-têtes/pieds gardent leur rôle et ancrage. XLSX conserve
 toutes les feuilles/visibilités ; un scope « classeur entier » inclut les
@@ -59,29 +63,46 @@ Caches présents = fraîcheur inconnue, caches absents = absents. Aucun lien,
 macro, formule ou objet externe exécuté. Les documents privés ne sont pas
 requis pour l'implémentation ; leur recette métier restera distincte.
 
-### R28.3 — lots d'implémentation proposés, non commencés
+### R28.3 — lots d'implémentation en cours
 
-Tous les lots ci-dessous sont **PROPOSÉS / NON COMMENCÉS**. Un propriétaire
-unique tient contrats, migration et lockfile ; extraction DOCX et XLSX
-peuvent ensuite avancer séparément. Frontend travaille sur contrat gelé,
-avec intégration verticale précoce, pas sur un mock annoncé réel.
+État au 10 octobre, 13:12 UTC, base `64e191f5` + modifications locales :
+**I-01→06 implémentés et vérifiés localement ; I-07 partiellement validé,
+I-08 documenté et vérifié localement, publication en finition**. Les preuves consolidées
+sont dans le [rapport d'intégration](reports/office-integration-2026-10-10.md).
+La suite Python large passe2760 cas,20 cas Windows sautés ; les deltas
+postérieurs du contexte typé/contrat sont contrôlés séparément (38PASS).
+Trois imports natifs sont publiés, les lecteurs/citations/scopes et la
+comparaison PDF/DOCX fonctionnent avec E5/Qdrant et Ollama4B CPU réels.
+Six requêtes DEV couvrent8/8 faits attendus à Recall@10 et Context, sans
+fuite observée ; ce micro-jeu ne qualifie ni le métier ni le jeu final.
+Une inférence Critique a étendu à tort le cache aux cellules littérales :
+preuve conservée, provenance contextuelle précisée et reprise ciblée conforme.
+Le badge Office inconnu détecté sur capture est corrigé et revalidé en rendu.
+Le collecteur Critique2 retourne143 après rapport complet ; cause inconnue,
+réponse DONE et citations persistées vérifiées, pas de PASS collecteur déduit.
+Un nouveau cas C2 confirme formule/source et résultat calculé absent ; son
+collecteur isolé termine0. Source03 arrêtée proprement après5 questions DONE,
+3 générations ready et contrôles integrity/FK, données et preuves conservées.
+Preuves sous `.runtime/qa/r28-implementation/` et
+`.runtime/qa/r28-20261010/frontend/` ; adaptateurs sous
+`.runtime/qa/r28-docx-20261010/` et `.runtime/qa/r28-office/`.
+Aucun statut global ni qualification des hôtes absents.
+| Action | Couche / fichiers concernés | Dépendances | Livrable et critère de clôture | État actuel |
+|---|---|---|---|---|
+| R28-I-01 | Contrats, sécurité et configuration : `packages/contracts/contracts.json`, `services/api/schemas.py`, `db.py`, `main.py`, `services/runtime/profile_schema.py`, `tools/corpus/import_folder.py`, `pyproject.toml`/`uv.lock`, sous-package Office | ST-04 finalisée | Format réel/MIME/chemins sûrs, modèles locators/structures/coverage versionnés, préflight OPC/quotas/DOCTYPE/entities, dépendances directes à versions conservées. Types API/web et profil strict concordent ; conteneurs hostiles refusés sans parseur dangereux. Critères C01/C02/C09/C12. | IMPLÉMENTÉ, contrôles locaux acquis ; C12 plateformes absent reste ouvert. |
+| R28-I-02 | Persistance/API de lecture : migration004, `db.py`, `main.py`, `scope.py` ; unités/cellules/bindings | I-01 | Migration portable v3→v4, stockages sparse, endpoints de représentations/unités/plages bornés et épinglés, téléchargement MIME correct. PDF anciens/citations/FTS intacts, FK et query plans vérifiés ; interruption ne laisse pas un schéma semi-migré. C02/C05/C08/C11. | IMPLÉMENTÉ, migration/API/archives isolées conformes ; SQLite des autres cibles non recetté. |
+| R28-I-03 | Extraction DOCX : sous-package Office/worker/checkpoints, dispatch `services/api/jobs.py` | I-01 ; contrat I-02 pour intégration | V1 : titre, texte répété, table et ancrages ; V2 : Strict/Transitional, styles/listes/révisions/notes/images/légendes/parties et métadonnées. Texte exact, ordre, structures et couverture testés ; reprise sans doublons ni changement d'original. C03/C05/C09/C10. | IMPLÉMENTÉ,30 tests DOCX et lecteur/citation natifs ; performance16Go non qualifiée. |
+| R28-I-04 | Extraction XLSX : même sous-package, worker/checkpoints ; cellules structurées | I-01 ; contrat I-02 pour intégration | V1 : deux feuilles, cellules typées, formule/cache et plage ; V2 : tables/fusions/noms/visibilité, shared/array, relations et métadonnées, Strict/Transitional, dates 1900/1904/sparse. Lecture streaming et valeur brute préservées, caches absents/périmés déclarés, aucune évaluation. C04/C05/C09/C10. | IMPLÉMENTÉ,61 tests XLSX et lecteur/citation natifs ; tailles10k/100k mesurées,1M refusé ; performance16Go non qualifiée. |
+| R28-I-05 | Indexation et RAG : `indexing.py`, `scope.py`, `retrieval.py`, `context.py`, `query.py`, `comparison.py` | I-02 + V1 I-03/04 ; clôture après V2 | Projection narrative/tableaux bornée avec bindings cellule/texte, identité chunker Office distincte, index/caches/publication existants ; sheet/cell_range autoritaires avant top-k et contexte. Recherche/question/analyse/comparaison mixtes avec citations exactes et annulation/SSE ; aucun total exhaustif inventé par top-k. C05/C06/C07/C08/C11. | IMPLÉMENTÉ, recherche hybride et contexte DEV8/8 ; affinage littéral/cache revalidé sur réponse native et citations exactes. |
+| R28-I-06 | Frontend : `library-panel.tsx`, `workspace.tsx`, `document-tools.tsx`, `scope-control.tsx`, lecteurs Office, `types.ts`, `store.ts`, sélection/cache/citation helpers | I-01/02 contrats gelés + V1 I-03/04/I-05 | Import mixte et jobs réels, mêmes panneaux, lecteurs structurés et fenêtres bornées ; sélection sections/feuilles/plages, inspecteur type/formule/cache, citations/retour exacts. Action critique explicitement liée au mode `analysis` existant et limites. Lint/types/unités/build et rendu/E2E API réelle ; C05/C07/C08/C11/C12. | IMPLÉMENTÉ,454 unités et build3 ; badgeOffice corrigé, rendu aux deux tailles et citations relus indépendamment. |
+| R28-I-07 | Qualification et non-régression indépendante : fixtures annotées versionnées, suites unitaires/API/E2E, corpus autorisé | Vertical V1 puis I-01→06 finalisés | Contrat→extraction→DB→FTS/Qdrant→RAG→citation→lecteur réellement exercé ; corpus/métriques gelés, grands/adverses/reprise, CPU 16 Go et plateformes séparées. Aucun mock ne clôture chaîne réelle ; avis indépendant et écarts corrigés. Tous C01→C12. | PARTIEL : chaîne native DEV/revue locale acquises ; CPU physique16Go, x86-64/Windows, métier/final manquent. |
+| R28-I-08 | Livraison/documentation : PLAN, décisions, sources, CHANGELOG, docs de contrats/exploitation et kits affectés | I-07 preuves acquises | Documentation livrée alignée, dépendances et notices/kits Windows/Linux vérifiés hors ligne, backup/migration/reprise exécutables ; commit/push selon politique. Pas de clôture globale DoD tant que ses réserves distinctes restent ouvertes. C10/C11/C12. | EN FINITION : documentation/preuves/publication ; nouveaux kits Office hors ligne non fabriqués/recettés. |
 
-| Action | Couche / fichiers concernés | Dépendances | Livrable et critère de clôture |
-|---|---|---|---|
-| R28-I-01 | Contrats, sécurité et configuration : `packages/contracts/contracts.json`, `services/api/schemas.py`, `db.py`, `main.py`, `services/runtime/profile_schema.py`, `tools/corpus/import_folder.py`, `pyproject.toml`/`uv.lock`, sous-package Office proposé | ST-04 finalisée | Format réel/MIME/chemins sûrs, modèles locators/structures/coverage versionnés, préflight OPC/quotas/DOCTYPE/entities, dépendances directes à versions conservées. Types API/web et profil strict concordent ; conteneurs hostiles refusés sans parseur dangereux. Critères C01/C02/C09/C12. |
-| R28-I-02 | Persistance/API de lecture : migration004 proposée, `db.py`, `main.py`, `scope.py` ; unités/cellules/bindings | I-01 | Migration portable v3→v4, stockages sparse, endpoints de représentations/unités/plages bornés et épinglés, téléchargement MIME correct. PDF anciens/citations/FTS intacts, FK et query plans vérifiés ; interruption ne laisse pas un schéma semi-migré. C02/C05/C08/C11. |
-| R28-I-03 | Extraction DOCX : sous-package Office/worker/checkpoints proposés, dispatch `services/api/jobs.py` | I-01 ; contrat I-02 pour intégration | V1 : titre, texte répété, table et ancrages ; V2 : Strict/Transitional, styles/listes/révisions/notes/images/légendes/parties et métadonnées. Texte exact, ordre, structures et couverture testés ; reprise sans doublons ni changement d'original. C03/C05/C09/C10. |
-| R28-I-04 | Extraction XLSX : même sous-package, worker/checkpoints ; cellules structurées | I-01 ; contrat I-02 pour intégration | V1 : deux feuilles, cellules typées, formule/cache et plage ; V2 : tables/fusions/noms/visibilité, shared/array, relations et métadonnées, Strict/Transitional, dates 1900/1904/sparse. Lecture streaming et valeur brute préservées, caches absents/périmés déclarés, aucune évaluation. C04/C05/C09/C10. |
-| R28-I-05 | Indexation et RAG : `indexing.py`, `scope.py`, `retrieval.py`, `context.py`, `query.py`, `comparison.py` | I-02 + V1 I-03/04 ; clôture après V2 | Projection narrative/tableaux bornée avec bindings cellule/texte, identité chunker Office distincte, index/caches/publication existants ; sheet/cell_range autoritaires avant top-k et contexte. Recherche/question/analyse/comparaison mixtes avec citations exactes et annulation/SSE ; aucun total exhaustif inventé par top-k. C05/C06/C07/C08/C11. |
-| R28-I-06 | Frontend : `library-panel.tsx`, `workspace.tsx`, `document-tools.tsx`, `scope-control.tsx`, lecteurs Office proposés, `types.ts`, `store.ts`, sélection/cache/citation helpers | I-01/02 contrats gelés + V1 I-03/04/I-05 | Import mixte et jobs réels, mêmes panneaux, lecteurs structurés et fenêtres bornées ; sélection sections/feuilles/plages, inspecteur type/formule/cache, citations/retour exacts. Action critique explicitement liée au mode `analysis` existant et limites. Lint/types/unités/build et rendu/E2E API réelle ; C05/C07/C08/C11/C12. |
-| R28-I-07 | Qualification et non-régression indépendante : fixtures annotées versionnées, suites unitaires/API/E2E, corpus autorisé | Vertical V1 puis I-01→06 finalisés | Contrat→extraction→DB→FTS/Qdrant→RAG→citation→lecteur réellement exercé ; corpus/métriques gelés, grands/adverses/reprise, CPU 16 Go et plateformes séparées. Aucun mock ne clôture chaîne réelle ; avis indépendant et écarts corrigés. Tous C01→C12. |
-| R28-I-08 | Livraison/documentation : PLAN, décisions, sources, CHANGELOG, docs de contrats/exploitation et kits affectés | I-07 preuves acquises | Documentation livrée alignée, dépendances et notices/kits Windows/Linux vérifiés hors ligne, backup/migration/reprise exécutables ; commit/push selon politique. Pas de clôture globale DoD tant que ses réserves distinctes restent ouvertes. C10/C11/C12. |
-
-**Premier jalon exécutable après étude :** fixer les modèles et quotas I-01,
-puis brancher un petit DOCX et un petit XLSX dans la chaîne réelle I-02/03/04
-V1→I-05→I-06. Faire échouer les tests sur la voie PDF-only actuelle, vérifier
-chaque citation source/lecteur, puis compléter V2. Aucun grand corpus privé
-ni campagne finale protégé n'est nécessaire à ce jalon.
+**Jalon courant :** précisions de provenance RAG et badge Office revalidées,
+grands fichiers mesurés et contrôles documentaires acquis. Terminer la revue
+indépendante et publier les sources vérifiées, puis fabriquer et recetter
+un kit Linux aarch64 Office CPU hors ligne dans une cible isolée. Les recettes métier/finale, physique16Go et plateformes absentes
+restent distinctes ; aucun grand corpus privé ni campagne protégée utilisé.
 
 ### R28.4 — critères d'acceptation et tests
 
@@ -97,7 +118,7 @@ corpus et commande ; échecs et reprises gardés séparément.
 | R28-C03 | DOCX annotés réels Strict/Transitional, répétitions, styles/listes, tables 1×1/imbriquées/fusions, images/légendes, notes/commentaires/révisions/parties | 100% faits attendus de l'oracle et localisations exacts ; ordre source et texte littéral conservés ; chaque élément non couvert identifié et statut partiel, jamais succès silencieux. |
 | R28-C04 | XLSX multi-feuilles/table/noms/fusions, nombres exacts/dates 1900-1904/erreurs/vides, shared/array, caches présents/absents/périmés et refs externes | Valeur/type/format/formule/cache/adresse distincts et exacts ; aucun cache absent inventé ni fraîcheur certifiée ; tables et relations préservées selon oracle, aucun calcul/lien exécuté. |
 | R28-C05 | Requête puis clic de toutes citations de l'oracle, texte répété/Unicode, cellule/plage, changement de version/réindexation | 100% citations testées résolvent version/révision/source exactes et ouvrent l'élément ; aucun `page1`, latest implicite ou hash texte client autoritaire. |
-| R28-C06 | JeuDEV Office annoté et gelé : retrieval lexical/dense/identifiant, questions mixtes, absence de preuve | EvidenceRecall@10 et EvidenceCoverage@Context au moins0,90 selon D04 sur preuves annotées ; réponses/incertitude/abstentions évaluées avec dénominateurs explicites, sans tuning sur jeu final. Ces scores restent NOT_RUN aujourd'hui. |
+| R28-C06 | JeuDEV Office annoté et gelé : retrieval lexical/dense/identifiant, questions mixtes, absence de preuve | EvidenceRecall@10 et EvidenceCoverage@Context au moins0,90 selon D04 sur preuves annotées ; réponses/incertitude/abstentions évaluées avec dénominateurs explicites, sans tuning sur jeu final. Scores DEV exécutés :8/8 faits requis sur6 questions,0 fuite observée ; réponse et abstention restent des contrôles distincts. |
 | R28-C07 | Question/analyse critique/comparaison 2–4 PDF/DOCX/XLSX ; formule sans cache, total hors contexte | Faits et inférences distingués, sources correctes, limites/couverture annoncées ; pas de résultat de calcul non exécuté ni synthèse top-k prétendument exhaustive. Modeanalysis/API existant et UI réelle vérifiés. |
 | R28-C08 | Feuille/plage/section/sélection, chunk chevauchant deux plages et en-têtes hors plage, archive/source supprimée ; deux classeurs différant uniquement hors plage | Contenu ET classement/identifiants recherchés calculés sur projections autorisées avant tout top-k ; mêmes preuves autorisées = rang/adresses/identifiants couverts invariants, pas UUID interversions. Petite plage = extraits directs ; frontières larges = projections/FTS5 avec statistiques du scope/E5/cache bornés ou limite visible. Intersection bindings exacte, parent/focus/historique sans fuite, aucun élargissement ni collection par plage. |
 | R28-C09 | Archives/XML corrompus, CRC, faux types, traversal/doublons, bombes bornées, DTD/XXE, macros/liens/images/objets | Refus avant allocation/exécution dangereuse, code exploitable ; aucune connexion externe, lecture arbitraire, script ou formule ; quotas réels et temporaires contrôlés, aucun original changé. |
@@ -135,15 +156,11 @@ pas de commande de recette Office présentée comme existante aujourd'hui.
   ajoutés au lot initial ; les résultats RAG restent bornés aux preuves et
   aux opérations réellement exécutées.
 
-Étude clôturée après relecture indépendante et contrôles documentaires
-finaux : aucun travail restant pour ST-01→04. Les huit lots produit sont
-proposés, non commencés ; le prochain jalon décrit ci-dessus est I-01. La
-suite Python/API R27 est distincte et sa reprise complète est verte ;
-ses résultats ne constituent pas une qualification Office. Pour l'implémentation : chiffrage à réviser après vertical V1 ;
-ordre de grandeur de planification 5–8 journées d'ingénierie avec deux axes
-indépendants après contrats, puis recettes natives/métier selon disponibilité.
-Ce chiffre n'est ni une mesure ni un engagement de performance. La durée de
-clôture DoD globale reste dépendante de ses préconditions antérieures.
+Étude ST-01→04 clôturée ; implémentation locale réalisée et chaîne DEV native
+exercée. Estimation réévaluée à13:12UTC :preuves natives et grands fichiers acquises à13:28UTC ;5–10min restants
+pour contrôles documentaires, revue et publication. La clôture DoD globale reste non chiffrable tant
+que les hôtes et corpus requis ne sont pas disponibles. Les essais identiques
+sur des entrées inchangées ne remplacent aucune de ces preuves manquantes.
 
 ## R27 — poursuite autorisée du 9 octobre à partir de la baseline
 
@@ -205,7 +222,7 @@ conformes. Campagne navigateur exécutée : 58 cas uniques dans23 fichiers appli
 avec revue indépendante. Listing complet réellement collecté : 60 cas/24
 fichiers ; 58 applicables, deux D06.5 exclus. Tous les58 sont exécutés et
 relus par lot, union finale validée indépendamment. DIST-02 a échoué sur B : 4 394 caches ajoutés, échec conservé. Le correctif RT-02 publié `aabb9808` est maintenant vérifié sur C après installation, selftest et redémarrage : comparaison stricte0116 identique, avis indépendant GO971b598b…. D06.5 ne sera pas remesuré et aucune nouvelle campagne2B ne sera lancée. Estimation locale révisée à22:55 UTC : 35–60min pour restauration/question4B, CPU4B, A→C/rollback/retrait et documentation ; fenêtre GNOME distincte bornée après ces cycles. La clôture globale reste non chiffrable sans les entrées absentes.
-**Prochaine action du chantier :** les cinq preuves minimales NF09 sont acquises sur le poste Linux aarch64 après disposition finale vérifiée ; le retour1 initial et le préflight trop large restent consignés. NF09-QA-03 ne devient pas une recette stricte verte ni une qualification des autres plateformes. Reprendre uniquement les qualifications manquantes lorsque leurs hôtes/corpus autorisés sont disponibles, ou une investigation discriminante justifiée. Aucune recette identique supplémentaire autorisée. Les cycles déjà vérifiés ne sont pas rejoués. L’étude Office est clôturée ; I-01→08 restent proposés, sans implémentation Office.
+**Prochaine action du chantier :** les cinq preuves minimales NF09 sont acquises sur le poste Linux aarch64 après disposition finale vérifiée ; le retour1 initial et le préflight trop large restent consignés. NF09-QA-03 ne devient pas une recette stricte verte ni une qualification des autres plateformes. Reprendre uniquement les qualifications manquantes lorsque leurs hôtes/corpus autorisés sont disponibles, ou une investigation discriminante justifiée. Aucune recette identique supplémentaire autorisée. Les cycles déjà vérifiés ne sont pas rejoués. L’étude Office est clôturée ; l’intégration I-01→06 est désormais engagée après satisfaction de ce prérequis (W055), avec validation native isolée et relecture à poursuivre.
 
 ### Diagnostic NF09 du 10 octobre — prérequis X11 observé
 

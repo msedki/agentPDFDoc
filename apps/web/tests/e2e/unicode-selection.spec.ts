@@ -78,7 +78,7 @@ test("native Unicode selection round-trips through the API in code points or is 
   // contexte puis rétablie à la priorité trouvée dans un finally (import-priority.ts).
   await withImportPriority(page, page.request, info, async () => {
     const chooser = page.waitForEvent("filechooser");
-    await page.getByRole("button", { name: "Importer des PDF", exact: true }).click();
+    await page.getByRole("button", { name: "Importer des documents", exact: true }).click();
     await (await chooser).setFiles(fixturePath);
     await expect(documentButton).toContainText("Prêt", { timeout: 540000 });
   });

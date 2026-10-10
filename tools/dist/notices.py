@@ -54,6 +54,8 @@ JETPACK5_GAP = ("conditions de licence NVIDIA (CUDA 11.4, cuBLAS) des bibliothè
 COMMON_GAPS = ("texte de licence propre à Qdrant et à Ollama absent des archives officielles", "titulaire du copyright d'E5",
                "textes Apache-2.0 de Docling Heron et CDLA-Permissive-2.0 de TableFormer à joindre",
                "avis des paquets npm regroupés dans les scripts de l'interface")
+OFFICE_GAP = ("textes MIT d'openpyxl 3.1.5 et d'et-xmlfile 2.0.0 absents des distributions Python installées "
+              "contrôlées pour l'extension Office ; la déclaration de licence des métadonnées ne remplace pas ces textes")
 QWEN_4B_SECTION = ["## Modification du modèle Qwen3.5-4B", "",
                    "Le modèle `qwen3.5:4b-text` livré est dérivé localement du modèle Qwen3.5-4B publié sous licence Apache-2.0 : les "
                    "tenseurs de l'encodeur de vision (`v.*`, `mm.*`) ont été retirés, les autres tenseurs sont repris à l'identique et "
@@ -85,17 +87,17 @@ def third_party_notices(root: Path, files: list[str], version: str, platform: st
     for name, prefix in bundled.items():
         present = license_files(files, prefix)
         lines.append(f"| {name} | — | — | voir les textes | — | {'<br>'.join(f'`{t}`' for t in present) or 'aucun'} |")
-    lines += ["", "Les paquets Python du runtime apportent leurs avis dans leurs métadonnées (`*.dist-info`) ; ils arrivent avec le cache uv "
-              "du kit puis dans `.venv` à l'installation.", ""]
+    lines += ["", "Les avis présents des paquets Python du runtime sont conservés dans leurs métadonnées (`*.dist-info`) ; ils arrivent avec le cache uv "
+              "du kit puis dans `.venv` à l'installation. Leur présence n'est pas garantie pour chaque paquet ; les absences contrôlées figurent ci-dessous.", ""]
     lines += QWEN_4B_SECTION if models is None or "4b" in models else []
     lines += ["## Manques connus", ""]
     if not platform.startswith("linux"):
         lines += ["Relevés par l'analyse de distribution (section 6), non résolus par ce kit : texte de licence propre à Qdrant et à Ollama "
                   "absent des archives officielles ; licences des DLL tierces de la copie Tesseract ; titulaire du copyright d'E5 ; textes "
                   "Apache-2.0 de Docling Heron et CDLA-Permissive-2.0 de TableFormer à joindre ; avis des paquets npm regroupés dans les "
-                  "scripts de l'interface ; conditions NVIDIA des bibliothèques CUDA d'Ollama tant qu'elles sont livrées (P3)."]
+                  "scripts de l'interface ; conditions NVIDIA des bibliothèques CUDA d'Ollama tant qu'elles sont livrées (P3).", "", OFFICE_GAP + "."]
         return "\n".join(lines) + "\n"
-    gaps = (*COMMON_GAPS, *LINUX_GAPS, *((JETPACK5_GAP,) if gpu == "jetpack5" else ()))
+    gaps = (*COMMON_GAPS, OFFICE_GAP, *LINUX_GAPS, *((JETPACK5_GAP,) if gpu == "jetpack5" else ()))
     lines += ["Manques relevés par l'analyse de distribution, document du dépôt du projet, non livré avec ce kit. Ils ne sont pas "
               "résolus par ce kit :", ""] + [f"- {gap}." for gap in gaps]
     return "\n".join(lines) + "\n"

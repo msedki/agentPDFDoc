@@ -46,7 +46,8 @@ test("named zones: aside Bibliothèque, main Lecteur, aside Analyse", () => {
   const analysis = code("components/analysis-panel.tsx");
   assert.match(analysis, /<aside className="analysis-panel" aria-labelledby="analysis-heading">/);
   assert.match(analysis, /<PanelHeader title="Analyse" id="analysis-heading">/);
-  assert.match(workspace, /<main id="lecteur" className="reader-slot" aria-label="Lecteur" tabIndex=\{-1\}><PdfViewer \/><\/main>/);
+  assert.match(workspace, /<main id="lecteur" className="reader-slot" aria-label="Lecteur" tabIndex=\{-1\}>/);
+  assert.match(workspace, /\{state\.opened && "format" in state\.opened && state\.opened\.format !== "pdf" \? <OfficeReader key=\{state\.opened\.versionId\} \/> : <PdfViewer \/>\}<\/main>/);
   assert.ok(components.length >= 10, `${components.length} composants examinés`);
   const mains = components.filter(file => /<main\b/.test(code(file)));
   assert.deepEqual(mains, ["components/session-gate.tsx", "components/workspace.tsx"], "un <main> pour l'atelier, un pour l'écran de session");

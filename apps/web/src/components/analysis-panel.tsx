@@ -4,13 +4,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowUpRight, Ban, BookOpen, Check, CircleAlert, Layers, MessageSquare, RefreshCw, Search, Send } from "lucide-react";
 import { api } from "@/lib/api";
 import { connectQueryStream } from "@/lib/stream";
-import { sourcePage } from "@/lib/selection";
 import { useWorkspace } from "@/lib/store";
 import { mergeQueryWarnings, warningNotices, type WarningNotice } from "@/lib/warnings";
 import { answerBlocks, type Inline } from "@/lib/answer-format";
 import { citationParts, citedSourceIds } from "@/lib/citations";
 import { tabKeyTarget } from "@/lib/keyboard";
-import { sourceLocalization } from "@/lib/source-location";
+import { sourceLocalization, sourceLocationLabel } from "@/lib/source-location";
 import { withExtractionLabel } from "@/lib/extraction-provenance";
 import { queryStatus } from "@/lib/status";
 import { unindexedInScope, unindexedSentence } from "@/lib/panel-state";
@@ -24,7 +23,7 @@ import { StatusIndicator } from "./ui/status-indicator";
 
 function textValue(value: unknown, fallback = "") { return typeof value === "string" ? value : fallback; }
 function passagesFound(count: number) { return count === 0 ? "Aucun passage retrouvé" : count === 1 ? "1 passage retrouvé" : `${count} passages retrouvés`; }
-const analysisTabs = [{ id: "question", label: "Question", Icon: MessageSquare }, { id: "search", label: "Recherche", Icon: Search }, { id: "comparison", label: "Comparer", Icon: Layers }] as const;
+const analysisTabs = [{ id: "question", label: "Question", Icon: MessageSquare }, { id: "search", label: "Recherche", Icon: Search }, { id: "analysis", label: "Critique", Icon: BookOpen }, { id: "comparison", label: "Comparer", Icon: Layers }] as const;
 
 function CitedSegment({ text, sources, onCitation }: { text: string; sources: Source[]; onCitation: (source: Source) => void }) {
   return citationParts(text, sources).map((part, index) => part.kind === "text" ? <span key={index}>{part.text}</span>
@@ -43,7 +42,7 @@ export function CitationText({ text, sources, onCitation }: { text: string; sour
 }
 
 /** Titre d'un lien vers une source enregistrée : document, page et méthode d'extraction à vérifier. */
-function citationTitle(source: Source) { return withExtractionLabel(`Ouvrir ${source.name ?? source.document_name}, page ${sourcePage(source) + 1}`, source); }
+function citationTitle(source: Source) { return withExtractionLabel(`Ouvrir ${source.name ?? source.document_name}, ${sourceLocationLabel(source) ?? "localisation non disponible"}`, source); }
 
 /**
  * Avis d'une recherche ou d'une réponse : texte contrôlé, puis valeurs et sources signalées. Une source
@@ -62,10 +61,10 @@ function WarningNotices({ notices, sources = [], onSource }: { notices: WarningN
 /** Carte de source : identifiant, document, page, précision, extrait de trois lignes et une seule action. */
 export function SourceCard({ source, onOpen }: { source: Source; onOpen: () => void }) {
   const titleId = useId();
-  const page = sourcePage(source) + 1;
+  const place = sourceLocationLabel(source);
   const location = sourceLocalization(source);
   return <article className="source-card" data-testid="source-card" aria-labelledby={titleId}>
-    <div className="source-card-meta"><span className="source-id">{source.source_id ?? "Passage"}</span>{location.family !== "unlocated" && <span className="tabular">p. {page}{source.label && source.label !== String(page) ? ` · folio ${source.label}` : ""}</span>}<Badge tone={location.tone} title={location.title}>{location.label}</Badge><ExtractionBadge source={source} /></div>
+    <div className="source-card-meta"><span className="source-id">{source.source_id ?? "Passage"}</span>{place && <span className="tabular">{place}{source.label && source.locator?.kind !== "docx_element" && source.locator?.kind !== "xlsx_cells" && source.label !== String((source.page_index ?? source.page_indices?.[0] ?? 0) + 1) ? ` · folio ${source.label}` : ""}</span>}<Badge tone={location.tone} title={location.title}>{location.label}</Badge><ExtractionBadge source={source} /></div>
     <h3 className="source-card-title" id={titleId}>{source.name ?? source.document_name ?? "Document sans nom"}</h3>
     <p className="source-card-excerpt">{source.text}</p>
     <div className="source-card-footer"><span title={source.version_id}>version <span className="mono">{source.version_id.slice(0, 8)}</span></span><Button type="button" variant="secondary" size="sm" onClick={onOpen} aria-describedby={titleId}><ArrowUpRight size={16} />Ouvrir le passage</Button></div>
@@ -74,7 +73,7 @@ export function SourceCard({ source, onOpen }: { source: Source; onOpen: () => v
 
 export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: Source, queryId?: string) => Promise<void>; headerAction?: ReactNode }) {
   const state = useWorkspace();
-  const [tab, setTab] = useState<"question" | "search" | "comparison">("question");
+  const [tab, setTab] = useState<typeof analysisTabs[number]["id"]>("question");
   const [question, setQuestion] = useState("");
   const [queries, setQueries] = useState<QueryState[]>([]);
   const [search, setSearch] = useState<SearchResponse | null>(null);
@@ -163,7 +162,7 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
       searchPending.current = requestId;
       searchMutation.mutate({ text: question.trim(), scope: snapshot, scopeLabel: state.scopeLabel, requestId });
     }
-    else { submission.mutate({ text: question.trim(), scope: snapshot, scopeLabel: state.scopeLabel, mode: tab === "comparison" ? "comparison" : snapshot.kind === "selection" ? "selection" : snapshot.kind === "section" ? "section" : "question" }); setQuestion(""); }
+    else { submission.mutate({ text: question.trim(), scope: snapshot, scopeLabel: state.scopeLabel, mode: tab === "comparison" ? "comparison" : tab === "analysis" ? "analysis" : snapshot.kind === "selection" ? "selection" : snapshot.kind === "section" ? "section" : "question" }); setQuestion(""); }
   };
   const cancel = async () => {
     if (!active) return;
@@ -195,7 +194,7 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
         ? <PanelEmpty reason="index-incomplete" title="Index incomplet pour ce périmètre" description={`Aucun passage retrouvé dans les documents déjà indexés. ${unindexedSentence(searchScope.unindexed)}. Consultez le Suivi pour vérifier leur état et les actions possibles, puis relancez la recherche lorsqu'ils sont interrogeables.`} />
         : <PanelEmpty reason="no-match" title="Aucun passage retrouvé" description="La recherche n'a retrouvé aucun passage dans ce périmètre. Une recherche sans résultat ne prouve pas l'absence de l'information : reformulez ou élargissez le périmètre." />)}{search.results.map((result, index) => { const source = ("source" in result && result.source ? result.source : result) as Source; return source.version_id ? <SourceCard key={`${source.source_id}:${index}`} source={source} onOpen={() => openSource(source, source.query_id)} /> : <p key={index} className="inline-warning">Ce résultat ne désigne aucune version de document : il ne peut pas être ouvert dans le lecteur.</p>; })}</div>
         : <PanelEmpty reason="not-started" icon={<Search size={32} strokeWidth={1.5} aria-hidden="true" />} title="Retrouver un passage" description="Recherchez un code, une expression ou une notion dans le périmètre actif. La recherche lit l'index sans appeler le modèle de réponse." />
-        : !queries.length ? <PanelEmpty reason="not-started" icon={<BookOpen size={32} strokeWidth={1.5} aria-hidden="true" />} title={tab === "comparison" ? "Comparer des documents" : "Aucune question posée"} description={tab === "comparison" ? "Définissez un périmètre de deux à quatre documents, puis posez votre question de comparaison. Chaque source indique son document et sa page." : "Posez une question sur le périmètre actif. Si la réponse cite des sources, ouvrez-les pour vérifier la page et le texte utilisés."} /> : queries.map(query => <article className="query-turn" key={query.id} data-testid="query-turn">
+        : !queries.length ? <PanelEmpty reason="not-started" icon={<BookOpen size={32} strokeWidth={1.5} aria-hidden="true" />} title={tab === "comparison" ? "Comparer des documents" : "Aucune question posée"} description={tab === "comparison" ? "Définissez un périmètre de deux à quatre documents, puis posez votre question de comparaison. Chaque source indique son document et sa localisation." : "Posez une question sur le périmètre actif. Si la réponse cite des sources, ouvrez-les pour vérifier le contenu source utilisé."} /> : queries.map(query => <article className="query-turn" key={query.id} data-testid="query-turn">
         <div className="question-message"><p>{query.question}</p><small>{query.scopeLabel}</small></div>
         <div className="query-status" role="status"><StatusIndicator status={queryStatus(query.status)} active={query.connection !== "closed"} />{query.connection === "reconnecting" && <Button variant="ghost" size="sm" onClick={() => connect(query.id, `/api/v1/queries/${encodeURIComponent(query.id)}/events`, query.lastEventId)}><RefreshCw size={16} />Reconnecter</Button>}</div>
         {query.text && <CitationText text={query.text} sources={query.sources} onCitation={source => openSource(source, query.id)} />}
@@ -206,6 +205,7 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
       </article>)}
     </div>
     <div className="composer-area">
+      {tab === "analysis" && <p className="inline-warning">L'analyse critique porte sur les sources retrouvées dans le périmètre actif. Elle ne vérifie pas exhaustivement le document et ne recalcule aucune formule de classeur.</p>}
       {state.selection && <div className="selection-action"><span>{state.selection.text.slice(0, 95)}{state.selection.text.length > 95 ? "…" : ""}</span><Button size="sm" variant="secondary" onClick={() => state.setScope({ kind: "selection", versionId: state.selection!.versionId, spans: state.selection!.spans }, "Texte sélectionné dans le document")}>Analyser la sélection</Button></div>}
       {state.selection && <p className="inline-warning">Le bouton « Analyser la sélection » définit le périmètre de la prochaine recherche ou question, sans lancer de traitement.</p>}
       {tab === "comparison" && !compareAllowed && <p className="inline-warning">Définissez un périmètre de deux à quatre documents pour comparer.</p>}

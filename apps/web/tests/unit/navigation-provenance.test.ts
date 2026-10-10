@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { useWorkspace } from "../../src/lib/store.ts";
+import { isPdfLocation, useWorkspace } from "../../src/lib/store.ts";
 import type { Source } from "../../src/lib/types.ts";
 
 const archived: Source = { document_id: "document", version_id: "version", query_id: "query-old", source_id: "S001", extraction_revision_id: "revision-old", page_index: 1, text: "Ancienne preuve" };
@@ -16,12 +16,12 @@ test("return between citations retains their respective extraction revisions and
   useWorkspace.getState().open({ documentId: "document", versionId: "version", pageIndex: 3 }, current);
   useWorkspace.getState().back();
   assert.deepEqual(useWorkspace.getState().source, archived);
-  assert.equal(useWorkspace.getState().opened?.pageIndex, 1);
+  const before = useWorkspace.getState().opened; assert.ok(isPdfLocation(before)); assert.equal(before.pageIndex, 1);
   assert.deepEqual(useWorkspace.getState().scope, scope);
   assert.equal(useWorkspace.getState().scopeLabel, "Périmètre choisi");
   useWorkspace.getState().back();
   assert.deepEqual(useWorkspace.getState().source, current);
-  assert.equal(useWorkspace.getState().opened?.pageIndex, 3);
+  const after = useWorkspace.getState().opened; assert.ok(isPdfLocation(after)); assert.equal(after.pageIndex, 3);
 });
 
 test("ordinary navigation can return to an archived citation and retains its own unpinned state", () => {

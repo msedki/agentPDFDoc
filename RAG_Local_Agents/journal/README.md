@@ -14,7 +14,9 @@ captures relues ; enveloppe rouge sur onze identités au snapshot nettoyage,
 état initial inconnu. Contrôle frais78 lifetimes absentes sans signal
 supplémentaire ; disposition gm6, inventaire programme inchangé avant
 retrait et22 fichiers de données conservés. Qualifications complète et
-plateformes absentes restent ouvertes ; aucune implémentation Office.
+plateformes absentes restent ouvertes. L'[intégration Office du10octobre](2026-10-10.md)
+est ensuite implémentée : extraction native, structures DB/API, recherche,
+citations et lecteurs ; recette DEV réelle et revue indépendante en cours.
 
 [Baseline et reprise d'exécution du 9 octobre](2026-10-09.md) : état réel
 conservé avant corrections ; reprise R27, anomalies vérifiées et suite de

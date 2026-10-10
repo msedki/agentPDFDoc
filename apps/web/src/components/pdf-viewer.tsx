@@ -141,7 +141,7 @@ function PdfPage({ document, versionId, pageIndex, width, zoom, rotation, source
 
 export function PdfViewer() {
   const state = useWorkspace();
-  const opened = state.opened;
+  const opened = state.opened && "pageIndex" in state.opened ? state.opened : null;
   const versionId = opened?.versionId;
   const pageIndex = opened?.pageIndex;
   const readingSource = state.source;
@@ -211,7 +211,7 @@ export function PdfViewer() {
       const loaded = await loading.promise;
       if (disposed) { await loading.destroy(); return; }
       const latestOpened = useWorkspace.getState().opened;
-      if (latestOpened?.versionId !== versionId) { await loading.destroy(); return; }
+      if (!latestOpened || !("pageIndex" in latestOpened) || latestOpened.versionId !== versionId) { await loading.destroy(); return; }
       setDocument(loaded);
       const nextPage = Math.max(0, Math.min(loaded.numPages - 1, latestOpened.pageIndex));
       currentCenter.current = nextPage;
@@ -300,7 +300,7 @@ export function PdfViewer() {
     {binding.error ? <p className="viewer-notice inline-warning" role="status">{binding.error}</p> : !provenanceReady && <p className="viewer-notice" role="status">Original consultable ; son extraction n'est pas encore publiée. Les passages, le sommaire et l'analyse de page seront disponibles après publication de l'extraction. Consultez le Suivi : une extraction partielle peut demander votre accord.</p>}
     {binding.actions.reason && !binding.error && <p className="viewer-notice" role="status">{binding.actions.reason}</p>}
     {state.source && <div className="source-navigation" role="status"><strong>{state.source.source_id ?? "Passage retrouvé"}</strong><span>{sourcePrecisionLabel(state.source)} · version <span className="mono">{opened.versionId.slice(0, 8)}</span>{binding.revision ? <> · révision <span className="mono">{binding.revision.slice(0, 8)}</span></> : null}</span><ExtractionBadge source={state.source} /></div>}
-    {outlineVisible && <nav className="outline" aria-label="Sommaire"><h3>Sommaire</h3>{outline.isLoading ? <p role="status">Chargement du sommaire…</p> : outline.isError ? <p role="alert" className="inline-error">Sommaire indisponible : {errorText(outline.error)}</p> : !outline.data?.sections.length ? <p>{provenanceReady ? "Aucune section extraite pour cette version." : "Le sommaire sera disponible après publication de l'extraction."}</p> :outline.data.sections.map(section => <div key={section.id}><button onClick={() => state.page(section.page_index)}>{section.title}<span>p. {section.page_index + 1}</span></button><Button variant="ghost" size="sm" aria-label={`Analyser la section ${section.title}`} disabled={!binding.actions.allowed} title={binding.actions.reason ?? undefined} onClick={() => { if (binding.actions.allowed) state.setScope({ kind: "section", versionId: opened.versionId, sectionId: section.id }, section.title); }}>Analyser</Button></div>)}</nav>}
+    {outlineVisible && <nav className="outline" aria-label="Sommaire"><h3>Sommaire</h3>{outline.isLoading ? <p role="status">Chargement du sommaire…</p> : outline.isError ? <p role="alert" className="inline-error">Sommaire indisponible : {errorText(outline.error)}</p> : !outline.data?.sections.length ? <p>{provenanceReady ? "Aucune section extraite pour cette version." : "Le sommaire sera disponible après publication de l'extraction."}</p> :outline.data.sections.filter((section): section is typeof section & { page_index: number } => typeof section.page_index === "number").map(section => <div key={section.id}><button onClick={() => state.page(section.page_index)}>{section.title}<span>p. {section.page_index + 1}</span></button><Button variant="ghost" size="sm" aria-label={`Analyser la section ${section.title}`} disabled={!binding.actions.allowed} title={binding.actions.reason ?? undefined} onClick={() => { if (binding.actions.allowed) state.setScope({ kind: "section", versionId: opened.versionId, sectionId: section.id }, section.title); }}>Analyser</Button></div>)}</nav>}
     <div className="pdf-scroll" ref={scroll} onScroll={onScroll} data-testid="pdf-scroll" style={{ overflowAnchor: "none" }}>
       {loadError ? <PanelError title={loadError.error instanceof PdfJsLoadError ? "Lecteur PDF indisponible" : "Lecture de l'original impossible"} message={errorText(loadError.error)} onRetry={() => window.location.reload()} retryLabel="Recharger la page" /> : !document ? <PanelLoading label="Chargement de l'original PDF…" /> : <>
         <div aria-hidden="true" style={{ height: offsets[visible[0] ?? 0] }} />

@@ -13,10 +13,11 @@
 /** États renvoyés avec `job_state` par l'import (contrat `import_outcomes`). */
 export const IMPORT_SUSPENDED_STATES = ["paused", "pausing"] as const;
 
-export type ImportOutcome = { notice: string; resumeJobs: string[] };
+export type ImportRefusal = { path: string; code: string; message: string };
+export type ImportOutcome = { notice: string; resumeJobs: string[]; rejections?: ImportRefusal[] };
 
-export function receivedSentence(count: number) { return count === 1 ? "1 PDF reçu par le service" : `${count} PDF reçus par le service`; }
-export function ignoredSentence(count: number) { return count === 1 ? "1 fichier non PDF ignoré" : `${count} fichiers non PDF ignorés`; }
+export function receivedSentence(count: number) { return count === 1 ? "1 document reçu par le service" : `${count} documents reçus par le service`; }
+export function ignoredSentence(count: number) { return count === 1 ? "1 fichier non pris en charge ignoré" : `${count} fichiers non pris en charge ignorés`; }
 export function resumeLabel(count: number) { return count === 1 ? "Reprendre le traitement" : `Reprendre les ${count} traitements`; }
 export function resumedNotice(count: number) { return count === 1 ? "Reprise demandée : sa progression s'affiche dans le Suivi." : "Reprises demandées : leur progression s'affiche dans le Suivi."; }
 
@@ -47,12 +48,22 @@ function suspendedSentence(state: string, count: number, received: number): stri
 }
 
 /**
- * Avis et traitements en pause à proposer à la reprise. `received` est le nombre de PDF envoyés et
- * `ignored` celui des fichiers non PDF écartés avant l'envoi. Une réponse illisible donne l'avis d'avant.
+ * Avis et traitements en pause à proposer à la reprise. `received` est le nombre de documents envoyés et
+ * `ignored` celui des fichiers non pris en charge écartés avant l'envoi. Une réponse illisible donne l'avis d'avant.
  */
 export function importOutcome(response: unknown, received: number, ignored: number): ImportOutcome {
   const imports = response && typeof response === "object" ? (response as { imports?: unknown }).imports : undefined;
   const items: unknown[] = Array.isArray(imports) ? imports : [];
+  const errors = response && typeof response === "object" ? (response as { errors?: unknown }).errors : undefined;
+  if (Array.isArray(errors) && errors.length) {
+    const rejections = errors.map((error): ImportRefusal => {
+      const value = error && typeof error === "object" ? error as Record<string, unknown> : {};
+      return { path: typeof value.relative_path === "string" ? value.relative_path : "Fichier non identifié", code: typeof value.code === "string" ? value.code : "IMPORT_REFUSED", message: typeof value.message === "string" ? value.message : "Le service a refusé ce fichier. Consultez son format et les journaux du service." };
+    });
+    const accepted = items.filter(item => item && typeof item === "object" && typeof (item as { document_id?: unknown }).document_id === "string" && typeof (item as { version_id?: unknown }).version_id === "string");
+    const outcome = accepted.length ? importOutcome({ imports: accepted }, accepted.length, ignored) : { notice: `Aucun document accepté dans cet import${ignored ? ` ; ${ignoredSentence(ignored)}` : ""}.`, resumeJobs: [] };
+    return { ...outcome, notice: `${outcome.notice} ${rejections.length === 1 ? "1 fichier refusé" : `${rejections.length} fichiers refusés`} par le service ; les autres résultats sont conservés.`, rejections };
+  }
   const withState = (item: unknown) => Boolean(item) && typeof item === "object" && typeof (item as { job_state?: unknown }).job_state === "string" && (item as { job_state: string }).job_state !== "";
   const suspended = items.filter((item): item is { job_id?: unknown; job_state: string; resume_required?: unknown } => withState(item));
   const unchanged = items.filter(item => !withState(item) && Boolean(item) && typeof item === "object" && (item as { reused?: unknown }).reused === true).length;

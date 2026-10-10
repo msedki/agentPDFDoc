@@ -112,6 +112,16 @@ def test_notices_state_internal_use_and_preserve_known_gaps(repository):
     assert "Qdrant et à Ollama" in notices and "licences des DLL tierces" in notices
 
 
+@pytest.mark.parametrize("platform", ["windows-x86_64", "linux-aarch64", "linux-x86_64"])
+def test_notices_disclose_missing_office_license_texts_on_both_platforms(repository, platform):
+    from tools.dist.notices import third_party_notices
+
+    notices = third_party_notices(repository, [], "0.1.0", platform)
+    assert "openpyxl 3.1.5" in notices and "et-xmlfile 2.0.0" in notices
+    assert "la déclaration de licence des métadonnées ne remplace pas ces textes" in notices
+    assert "absence" in notices and "W030" in notices
+
+
 def test_notices_cover_every_locked_artifact_of_the_repository():
     from tools.dist.build_kit import ROOT
     from tools.dist.notices import third_party_notices

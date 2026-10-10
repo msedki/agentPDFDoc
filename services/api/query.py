@@ -148,6 +148,19 @@ class QueryService:
                 source = json.loads(source_row["source_json"])
                 if source["generation_id"] not in snapshot.generations:
                     raise ApiError("focus_outside_scope", "Cette référence n'est plus autorisée dans le périmètre.", 409)
+                if snapshot.scope["kind"] == "cell_range":
+                    scope = snapshot.scope
+                    ranges = []
+                    for source_block in source.get("blocks", []):
+                        locator = source_block.get("locator", {})
+                        if (locator.get("sheet_id") != scope["sheetId"]
+                                or not scope["rowStart"] <= locator.get("row_start", 0) <= locator.get("row_end", 0) <= scope["rowEnd"]
+                                or not scope["columnStart"] <= locator.get("column_start", 0) <= locator.get("column_end", 0) <= scope["columnEnd"]):
+                            raise ApiError("focus_outside_scope", "La citation ciblée comporte des cellules hors de cette plage.", 409)
+                        ranges.append({key: locator[key] for key in ("row_start", "row_end", "column_start", "column_end")})
+                    if not ranges:
+                        raise ApiError("focus_outside_scope", "Cette citation ne possède pas de cellules autorisées.", 409)
+                    snapshot.cell_ranges = ranges
                 focus = {**focus, "version_id": source["version_id"], "block_id": source["block_ids"][0]}
             if "version_id" in focus:
                 generations = [generation for generation in snapshot.generations if snapshot.versions[generation] == focus["version_id"]]
@@ -176,6 +189,8 @@ class QueryService:
         choices: list[dict[str, Any]] = []
         for row in rows:
             previous = json.loads(row["snapshot_json"])
+            if snapshot.cell_ranges is not None and previous.get("cell_ranges") != snapshot.cell_ranges:
+                continue
             if not set(previous.get("generations", [])) & set(snapshot.generations):
                 continue
             for code in identifiers(row["question"]):
@@ -196,11 +211,14 @@ class QueryService:
                 version = self.db.version(source["version_id"])
                 item = dict(source)
                 item.update({"query_id": query_id, "name": version["document_name"], "document_name": version["document_name"],
-                             "page_index": source["page_indices"][0], "page_number": source["page_indices"][0] + 1,
+                             "page_index": source["page_indices"][0] if source["page_indices"] else None, "page_number": source["page_indices"][0] + 1 if source["page_indices"] else None,
                              "label": source["blocks"][0]["page"].get("label"), "block_ids": [block["id"] for block in source["blocks"]],
                              "bboxes": [block["bbox"] for block in source["blocks"] if block.get("bbox")],
                              "precision": "page" if not any(block.get("bbox") for block in source["blocks"]) else "block",
                              "citation_url": f"/api/v1/citations/{query_id}/{source['source_id']}"})
+                if version["format"] != "pdf":
+                    item.update({"format": version["format"], "locator": source.get("locator") or source["blocks"][0].get("locator"),
+                                 "precision": source.get("precision", source["blocks"][0].get("precision", "element"))})
                 connection.execute("INSERT INTO citations VALUES(?,?,?,?,?)", (query_id, item["source_id"], item["version_id"], item["document_id"], json_dump(item)))
                 prepared.append(item)
         return prepared

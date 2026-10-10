@@ -1,4 +1,5 @@
-import type { DocumentDetail, JobsResponse, LibraryTree, Outline, PageBlocks, QueryCreated, Readiness, ReindexResponse, Scope, SearchResponse, Source } from "./types.ts";
+import type { CellRange, DocumentDetail, JobsResponse, LibraryTree, OfficeBlocks, OfficeCells, OfficeRepresentation, Outline, PageBlocks, QueryCreated, Readiness, ReindexResponse, Scope, SearchResponse, Source } from "./types.ts";
+import { verifyOfficeBlocks, verifyOfficeCells, verifyOfficeRepresentation } from "./office-reader.ts";
 import { ApiError, localFailure } from "./api-error.ts";
 import { blocksPath, outlinePath, verifyPinnedBlocks, verifyPinnedOutline } from "./provenance-revision.ts";
 import { httpFailureMessage, serviceUnreachableMessage } from "./warnings.ts";
@@ -78,6 +79,10 @@ export const api = {
   document: (id: string, signal?: AbortSignal, background = false) => request<DocumentDetail>(`/documents/${encodeURIComponent(id)}`, { signal, headers: background ? BACKGROUND : {} }),
   outline: (versionId: string, signal?: AbortSignal, revision?: string | null) => request<Outline>(outlinePath(versionId, revision), { signal }).then(result => verifyPinnedOutline(result, versionId, revision)),
   blocks: (versionId: string, page: number, signal?: AbortSignal, revision?: string | null) => request<PageBlocks>(blocksPath(versionId, page, revision), { signal }).then(result => verifyPinnedBlocks(result, versionId, page, revision)),
+  representation: (versionId: string, signal?: AbortSignal, revision?: string | null, cursor = 0) => request<OfficeRepresentation>(`/versions/${encodeURIComponent(versionId)}/representation?cursor=${cursor}&limit=50${revision ? `&extraction_revision_id=${encodeURIComponent(revision)}` : ""}`, { signal }).then(result => verifyOfficeRepresentation(result, versionId, revision)),
+  officeBlocks: (versionId: string, unitId: string, revision: string, cursor = 0, signal?: AbortSignal, blockId?: string) => request<OfficeBlocks>(`/versions/${encodeURIComponent(versionId)}/units/${encodeURIComponent(unitId)}/blocks?extraction_revision_id=${encodeURIComponent(revision)}&cursor=${cursor}&limit=50${blockId ? `&block_id=${encodeURIComponent(blockId)}` : ""}`, { signal }).then(result => verifyOfficeBlocks(result, versionId, unitId, revision)),
+  officeCells: (versionId: string, sheetId: string, revision: string, range: CellRange, signal?: AbortSignal) => request<OfficeCells>(`/versions/${encodeURIComponent(versionId)}/sheets/${encodeURIComponent(sheetId)}/cells?extraction_revision_id=${encodeURIComponent(revision)}&row_start=${range.rowStart}&row_end=${range.rowEnd}&column_start=${range.columnStart}&column_end=${range.columnEnd}`, { signal }).then(result => verifyOfficeCells(result, versionId, sheetId, revision, range)),
+  assetUrl: (versionId: string, assetId: string, revision: string) => sameOriginPath(`${prefix}/versions/${encodeURIComponent(versionId)}/assets/${encodeURIComponent(assetId)}?extraction_revision_id=${encodeURIComponent(revision)}`),
   jobs: (signal?: AbortSignal) => request<JobsResponse>("/jobs", { signal, headers: BACKGROUND }),
   import: (files: File[], onProgress?: (progress: number) => void) => new Promise<unknown>((resolve, reject) => {
     const form = new FormData();

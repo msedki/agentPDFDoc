@@ -9,7 +9,7 @@ export function utf16ToCodePointOffset(text: string, offset: number): number {
 export function wholeBlockSpan(block: Block): SelectedSpan | null {
   const hash = block.source_text_hash ?? block.source_text_sha256;
   if (!block.extraction_revision_id || !hash || !/^[a-fA-F0-9]{64}$/.test(hash)) return null;
-  return { extractionRevisionId: block.extraction_revision_id, blockId: block.id, blockTextSha256: hash, offsetUnit: "unicode_code_point", startOffset: 0, endOffset: Array.from(block.raw_text ?? block.text).length };
+  return { extractionRevisionId: block.extraction_revision_id, blockId: block.id, blockTextSha256: hash, offsetUnit: "unicode_code_point", startOffset: 0, endOffset: Array.from(block.source_text ?? block.raw_text ?? block.text).length };
 }
 
 function normalizedWithMap(text: string) {
@@ -30,7 +30,7 @@ function normalizedWithMap(text: string) {
 export function reconcileSelection(selectedText: string, blocks: Block[]): SelectedSpan[] | null {
   const selected = normalizedWithMap(selectedText).normalized;
   if (!selected) return null;
-  const segments = blocks.map(block => ({ block, sourceText: block.raw_text ?? block.text })).filter(segment => segment.sourceText.trim()).map(segment => ({ ...segment, ...normalizedWithMap(segment.sourceText) }));
+  const segments = blocks.map(block => ({ block, sourceText: block.source_text ?? block.raw_text ?? block.text })).filter(segment => segment.sourceText.trim()).map(segment => ({ ...segment, ...normalizedWithMap(segment.sourceText) }));
   let documentText = "";
   const locations: { segment: typeof segments[number]; start: number; end: number }[] = [];
   for (const segment of segments) {
@@ -56,7 +56,7 @@ export function boundedCanvasSize(width: number, height: number, devicePixelRati
   return { width: Math.max(1, Math.floor(width * scale)), height: Math.max(1, Math.floor(height * scale)), scale };
 }
 
-export function sourcePage(source: { page_index?: number; page_indices?: number[] }): number {
+export function sourcePage(source: { page_index?: number | null; page_indices?: number[] }): number {
   return source.page_index ?? source.page_indices?.[0] ?? 0;
 }
 export function visiblePageWindow(center: number, total: number): number[] {

@@ -88,6 +88,8 @@ export function scopeKindLabel(kind: Scope["kind"]): string {
     case "section": return "Section";
     case "pages": return "Pages";
     case "selection": return "Texte sélectionné";
+    case "sheet": return "Feuille";
+    case "cell_range": return "Plage de cellules";
   }
 }
 

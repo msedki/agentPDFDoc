@@ -1,8 +1,18 @@
 import type { Bbox, Block, Precision, Source } from "./types.ts";
 import type { Tone } from "./status.ts";
+import { locatorRange, rangeLabel } from "./office-reader.ts";
 
-type Located = Pick<Source, "version_id" | "precision" | "blocks" | "bboxes" | "page_index" | "page_indices">;
-const labels: Record<Precision, string> = { page: "Localisation à la page", table: "Table source", span: "Passage source", block: "Bloc source" };
+type Located = Pick<Source, "version_id" | "precision" | "blocks" | "bboxes" | "page_index" | "page_indices" | "locator" | "format">;
+const labels: Record<Precision, string> = { page: "Localisation à la page", table: "Table source", span: "Passage source", block: "Bloc source", element: "Élément source", cell: "Cellule source", range: "Plage source" };
+
+export function sourceLocationLabel(source: Located): string | null {
+  const locator = source.locator;
+  if (locator?.kind === "docx_element") return locator.element_path ? `Élément · ${locator.part}` : null;
+  if (locator?.kind === "xlsx_cells") { const range = locatorRange(locator); return range ? `${locator.sheet_name} · ${rangeLabel(range)}` : null; }
+  if (source.format === "docx" || source.format === "xlsx") return null;
+  const page = source.page_index ?? source.page_indices?.[0];
+  return Number.isInteger(page) && page! >= 0 ? `p. ${page! + 1}` : null;
+}
 
 function box(value: unknown): value is Bbox {
   return Array.isArray(value) && value.length === 4 && value.every(item => typeof item === "number" && Number.isFinite(item)) && value[2] > value[0] && value[3] > value[1];
@@ -11,6 +21,8 @@ function regionBlock(block: Block): boolean { return block.precision !== "page" 
 
 /** Précision réellement affichable : une région déclarée sans géométrie valide reste une localisation à la page. */
 export function sourcePrecision(source: Located): Precision {
+  if (source.locator?.kind === "docx_element") return "element";
+  if (source.locator?.kind === "xlsx_cells" && locatorRange(source.locator)) return source.precision === "cell" ? "cell" : "range";
   const declared = source.precision ?? source.blocks?.[0]?.precision ?? "page";
   if (!(declared in labels) || declared === "page") return "page";
   const geometry = source.blocks?.length ? source.blocks.some(regionBlock) : Boolean(source.bboxes?.some(box));
@@ -28,7 +40,10 @@ export function sourcePrecisionLabel(source: Located): string { return labels[so
  */
 export type SourceLocalization = { family: "exact" | "page" | "unlocated"; label: string; tone: Tone; title: string };
 export function sourceLocalization(source: Located): SourceLocalization {
-  if (source.page_index === undefined && !source.page_indices?.length) return { family: "unlocated", label: "Source non localisée", tone: "warning", title: "Aucune page n'est associée à cette source : le lecteur ne peut pas la situer." };
+  if (source.locator?.kind === "docx_element" && source.locator.unit_id && source.locator.part && source.locator.element_path) return { family: "exact", label: labels.element, tone: "info", title: "L'élément de cette révision est repéré dans le lecteur. Cette localisation ne garantit pas l'exactitude de son contenu." };
+  if (source.locator?.kind === "xlsx_cells" && source.locator.unit_id === source.locator.sheet_id && locatorRange(source.locator)) return { family: "exact", label: labels[sourcePrecision(source)], tone: "info", title: "Les cellules sources de cette révision sont repérées dans le lecteur ; les formules ne sont pas recalculées." };
+  if (source.format === "docx" || source.format === "xlsx" || source.locator?.kind === "docx_element" || source.locator?.kind === "xlsx_cells") return { family: "unlocated", label: "Source non localisée", tone: "warning", title: "Cette source Office ne fournit pas de localisation native valide." };
+  if (source.page_index == null && !source.page_indices?.length) return { family: "unlocated", label: "Source non localisée", tone: "warning", title: "Aucune page n'est associée à cette source : le lecteur ne peut pas la situer." };
   const precision = sourcePrecision(source);
   return precision === "page"
     ? { family: "page", label: labels.page, tone: "neutral", title: "Seule la page est connue : aucune zone n'y est surlignée." }
@@ -37,6 +52,7 @@ export function sourceLocalization(source: Located): SourceLocalization {
 
 /** Régions à surligner sur une page affichée ; aucune bbox fabriquée ni reportée d'une autre page. */
 export function sourceRegionBoxes(source: Located | null, versionId: string, pageIndex: number): Bbox[] {
+  if (source?.format === "docx" || source?.format === "xlsx" || source?.locator?.kind === "docx_element" || source?.locator?.kind === "xlsx_cells") return [];
   if (!source || source.version_id !== versionId || sourcePrecision(source) === "page") return [];
   if (source.blocks?.length) return source.blocks.filter(block => block.page_index === pageIndex && regionBlock(block)).map(block => block.bbox!);
   const page = source.page_index ?? source.page_indices?.[0] ?? 0;

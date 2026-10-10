@@ -25,7 +25,7 @@ test("a PDF dropped on the library is imported, with the usual notice", async ({
   await expect(page.getByText("Déposez les PDF pour les importer dans la bibliothèque.")).toBeVisible();
   await library.dispatchEvent("drop", { dataTransfer: transfer });
   await expect.poll(() => imports, { timeout: 30000 }).toEqual([202]);
-  await expect(library.locator(".library-notice").first()).toContainText("1 PDF reçu par le service");
+  await expect(library.locator(".library-notice").first()).toContainText("1 document reçu par le service");
   await expect(page.getByText("Déposez les PDF pour les importer dans la bibliothèque.")).toBeHidden();
 });
 

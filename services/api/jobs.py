@@ -123,7 +123,7 @@ class WorkerWatchdog:
     cpu_probe_interval_seconds = 5.0
     # Part d'un cœur, sur l'intervalle de mesure, au-dessous de laquelle le worker est tenu pour inactif.
     cpu_active_ratio = 0.1
-    activity_patterns = ("docling-*.json", "preflight.json", "worker-lifecycle.jsonl", "extraction.json")
+    activity_patterns = ("docling-*.json", "preflight.json", "worker-lifecycle.jsonl", "extraction.json", "office-progress.json", "office-units/*.json")
 
     def __init__(self, directory, pid, no_progress_seconds, window_seconds, clock=time.monotonic, cpu_seconds=None):
         self.directory, self.no_progress_seconds, self.window_seconds = Path(directory), no_progress_seconds, window_seconds
@@ -361,7 +361,7 @@ class JobSupervisor:
         # Le résultat d'une exécution précédente (reprise après pause) ne doit jamais être relu comme le nouveau.
         result_path.unlink(missing_ok=True)
         request = {"path": version["blob_path"], "output_dir": str(directory), "config": worker_profile(self.settings.profile),
-                   "version_id": version["id"], "cancel_path": str(cancel_path)}
+                   "version_id": version["id"], "format": version.get("format", "pdf"), "cancel_path": str(cancel_path)}
         self.db.execute("UPDATE jobs SET state='extracting',stage='extracting',attempts=attempts+1,progress=?,heartbeat_at=?,updated_at=? WHERE id=?", (EXTRACTION_PROGRESS_START, now(), now(), job["id"]))
         cached = await asyncio.to_thread(self.cached_extraction, version) if not self.ingestion_runner else None
         if cached:
@@ -377,7 +377,8 @@ class JobSupervisor:
                 import subprocess
                 kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
             progress = ExtractionProgress(directory)
-            process = await asyncio.create_subprocess_exec(sys.executable, "-m", "services.ingestion.worker", "--request", str(request_path), "--result", str(result_path), **kwargs)
+            worker_module = "services.ingestion.office.worker" if version.get("format", "pdf") != "pdf" else "services.ingestion.worker"
+            process = await asyncio.create_subprocess_exec(sys.executable, "-m", worker_module, "--request", str(request_path), "--result", str(result_path), **kwargs)
             self.record_extraction(job, "native_worker")
             self._process = process
             self.db.execute("UPDATE jobs SET lease_pid=? WHERE id=?", (process.pid, job["id"]))
@@ -443,7 +444,11 @@ class JobSupervisor:
         with self._telemetry_lock:
             self._telemetry["cache_checks"] += 1
         from services.ingestion import extraction_fingerprint
-        fingerprint = extraction_fingerprint(worker_profile(self.settings.profile))
+        if version.get("format", "pdf") == "pdf":
+            fingerprint = extraction_fingerprint(worker_profile(self.settings.profile))
+        else:
+            from services.ingestion.office.pipeline import office_fingerprint
+            fingerprint = office_fingerprint(worker_profile(self.settings.profile), version["format"])
         root = (self.settings.data_dir / "extractions").resolve()
         for revision in self.db.rows("SELECT * FROM extraction_revisions WHERE version_id=? AND fingerprint=? AND path IS NOT NULL ORDER BY created_at DESC", (version["id"], fingerprint)):
             path = Path(revision["path"]).resolve()
@@ -468,8 +473,9 @@ class JobSupervisor:
         # Une extraction partielle n'est reprise que si l'identité d'index (embedding, découpage) diffère de la
         # dernière génération de cette révision ; à identité égale, le réindex relance le worker pour retenter
         # les pages en échec (erreurs page-locales éventuellement transitoires).
-        latest = self.db.one("SELECT fingerprint FROM index_generations WHERE extraction_revision_id=? ORDER BY created_at DESC, rowid DESC LIMIT 1", (revision_id,))
-        current = self.indexer.generation_fingerprint(extraction_fingerprint) if hasattr(self.indexer, "generation_fingerprint") else None
+        latest = self.db.one("SELECT g.fingerprint,v.format FROM index_generations g JOIN document_versions v ON v.id=g.version_id WHERE g.extraction_revision_id=? ORDER BY g.created_at DESC,g.rowid DESC LIMIT 1", (revision_id,))
+        current = (self.indexer.generation_fingerprint(extraction_fingerprint, latest["format"])
+                   if latest and latest["format"] != "pdf" else self.indexer.generation_fingerprint(extraction_fingerprint)) if hasattr(self.indexer, "generation_fingerprint") else None
         return bool(latest and current) and latest["fingerprint"] != current
 
     @staticmethod

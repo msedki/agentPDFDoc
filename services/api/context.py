@@ -272,7 +272,20 @@ class ContextBuilder:
     def evidence(source):
         # Pages physiques numérotées à partir de 1, comme les citations et la visionneuse : avec les index (pages_zero_based),
         # le modèle écrivait « page 0 » (J8, L9). Les sources rendues gardent page_indices.
-        return json.dumps({"source_id": source["source_id"], "version_id": source["version_id"], "pages": [index + 1 for index in source["page_indices"]], "text": source["text"]}, ensure_ascii=False)
+        item = {"source_id": source["source_id"], "version_id": source["version_id"], "pages": [index + 1 for index in source["page_indices"]], "text": source["text"]}
+        if source.get("format") in {"docx", "xlsx"}:
+            item.update({"format": source["format"], "locators": [block.get("locator") for block in source["blocks"]],
+                         "extraction_revision_id": source["extraction_revision_id"]})
+            if source["format"] == "xlsx":
+                item["cell_facts"] = source.get("cell_facts", [])
+                if item["cell_facts"] and all(not fact["formula_present"] for fact in item["cell_facts"]):
+                    item["limitations"] = "Cellules sources sans formule : les valeurs présentes sont littérales, aucun cache de calcul utilisé. Aucun recalcul effectué."
+                else:
+                    item["limitations"] = "Formules jamais exécutées. Seules les cellules avec formule utilisent un résultat de cache source s'il est présent, de fraîcheur inconnue ; les autres valeurs sont littérales. Un cache absent ne fournit aucun résultat calculé."
+                if not source.get("scope_projected") and source.get("scope_kind") != "selection":
+                    item["table_contexts"] = [context for block in source["blocks"]
+                                              for context in block.get("structure", {}).get("table_contexts", [])]
+        return json.dumps(item, ensure_ascii=False)
 
 
 def validate_answer(text, known_ids):

@@ -2,6 +2,7 @@ import json
 from dataclasses import dataclass, field
 
 from .errors import ApiError
+from .office import cell_semantics
 from .schemas import Scope
 
 # Méthode d'extraction d'un bloc sans métadonnée d'ingestion (index antérieur, extraction contrôlée) : jamais « native ».
@@ -17,6 +18,36 @@ def block_extraction_method(metadata_json):
 
 def extraction_methods(blocks):
     return sorted({block.get("extraction_method") or UNKNOWN_METHOD for block in blocks})
+
+
+def selected_office_metadata(metadata, start, end):
+    """Keep source coordinates, but disclose only cells intersecting the selected span."""
+    result = {key: metadata[key] for key in ("locator", "structure", "bindings") if key in metadata}
+    locator = result.get("locator", {})
+    if locator.get("kind") != "xlsx_cells":
+        return result
+    bindings = []
+    for binding in metadata.get("bindings", []):
+        low, high = max(start, binding["start"]), min(end, binding["end"])
+        if low < high:
+            source_start = binding.get("source_start", 0) + low - binding["start"]
+            bindings.append({**binding, "start": low, "end": high,
+                             "source_start": source_start, "source_end": source_start + high - low})
+    addresses = list(dict.fromkeys(binding["address"] for binding in bindings))
+    result["bindings"] = bindings
+    result["structure"] = {**metadata.get("structure", {}), "addresses": addresses, "table_contexts": []}
+    if not bindings:
+        # Address prefixes and separators alone provide no selected cell value.
+        result.pop("locator", None)
+        result["precision"] = "block"
+        return result
+    result["locator"] = {**locator, "cell_range": addresses[0] if len(addresses) == 1 else f"{addresses[0]}:{addresses[-1]}",
+                         "row_start": min(binding["row"] for binding in bindings),
+                         "row_end": max(binding["row"] for binding in bindings),
+                         "column_start": min(binding["column"] for binding in bindings),
+                         "column_end": max(binding["column"] for binding in bindings)}
+    result["precision"] = "cell" if len(addresses) == 1 else "range"
+    return result
 
 
 def with_extraction_provenance(source):
@@ -37,15 +68,16 @@ class ScopeSnapshot:
     block_ids: list[str] | None = None
     spans: list[dict] = field(default_factory=list)
     warnings: list[dict] = field(default_factory=list)
+    cell_ranges: list[dict] | None = None
 
     def as_dict(self):
         # Les avertissements accompagnent la réponse ; le snapshot persisté reste le seul périmètre autoritaire.
-        return {key: value for key, value in self.__dict__.items() if key != "warnings"}
+        return {key: value for key, value in self.__dict__.items() if key != "warnings" and (key != "cell_ranges" or value is not None)}
 
     def narrowed(self, document_id):
         generations = [g for g in self.generations if self.documents[g] == document_id]
         return ScopeSnapshot(self.scope, generations, {g: self.versions[g] for g in generations},
-                             {g: document_id for g in generations}, self.page_indices, self.block_ids, self.spans)
+                             {g: document_id for g in generations}, self.page_indices, self.block_ids, self.spans, cell_ranges=self.cell_ranges)
 
     def sql_filter(self, alias="c"):
         if not self.generations:
@@ -114,7 +146,7 @@ class ScopeResolver:
                     query += " AND d.folder_id IN (WITH RECURSIVE subtree(id) AS (SELECT id FROM folders WHERE id=? UNION ALL SELECT f.id FROM folders f JOIN subtree s ON f.parent_id=s.id) SELECT id FROM subtree)"
                     parameters.append(scope.folderId)
             else:
-                version = connection.execute("SELECT v.page_count,d.deleted_at FROM document_versions v JOIN documents d ON d.id=v.document_id WHERE v.id=?", (scope.versionId,)).fetchone()
+                version = connection.execute("SELECT v.page_count,v.format,d.deleted_at FROM document_versions v JOIN documents d ON d.id=v.document_id WHERE v.id=?", (scope.versionId,)).fetchone()
                 if not version or version["deleted_at"]:
                     raise ApiError("source_removed", "Version absente ou supprimée.", 404)
                 query += " AND g.version_id=?"
@@ -125,6 +157,11 @@ class ScopeResolver:
                         raise ApiError("invalid_selection", "Une sélection doit appartenir à une seule révision d'extraction.")
                     query += " AND g.extraction_revision_id=?"
                     parameters.append(next(iter(revisions)))
+                elif scope.extractionRevisionId:
+                    query += " AND g.extraction_revision_id=?"
+                    parameters.append(scope.extractionRevisionId)
+                if scope.kind in {"sheet", "cell_range"} and version["format"] != "xlsx":
+                    raise ApiError("invalid_document_format", "Ce périmètre nécessite un classeur XLSX.")
                 query += " ORDER BY g.published_at DESC LIMIT 1"
                 if scope.kind == "pages":
                     # Bornes présentes et ordonnées : garanties par la validation de Scope.
@@ -133,21 +170,32 @@ class ScopeResolver:
                         raise ApiError("invalid_page_range", "Plage hors du document.")
                     pages = list(range(scope.pageStart, scope.pageEnd + 1))
             rows = connection.execute(query, parameters).fetchall()
-            if scope.kind == "selection" and not rows:
+            if (scope.kind == "selection" or scope.extractionRevisionId) and not rows:
                 raise ApiError("extraction_revision_not_found", "Révision absente ou non publiée pour cette version.", 404)
             warnings = self.document_warnings(connection, document_ids, rows, mode) if scope.kind == "documents" else []
             # Une génération remplacée reste citable mais ses vecteurs sont retirés : la branche dense ne peut rien rendre.
-            if scope.kind in {"pages", "section"} and rows and rows[0]["id"] != rows[0]["active_generation_id"] \
+            if scope.kind in {"pages", "section", "sheet"} and rows and rows[0]["id"] != rows[0]["active_generation_id"] \
                     and connection.execute("SELECT 1 FROM vector_cleanup WHERE generation_id=? AND state='complete'", (rows[0]["id"],)).fetchone():
                 warnings.append({"code": "dense_unavailable_for_historical_revision", "generation_id": rows[0]["id"], "version_id": rows[0]["version_id"],
                                  "extraction_revision_id": rows[0]["extraction_revision_id"],
                                  "message": "Révision historique : vecteurs retirés, recherche lexicale seule sur ce périmètre."})
             generations = [row["id"] for row in rows]
+            if scope.kind in {"sheet", "cell_range"} and generations:
+                unit = connection.execute("SELECT 1 FROM office_units WHERE generation_id=? AND id=? AND kind='xlsx_sheet'", (generations[0], scope.sheetId)).fetchone()
+                if not unit:
+                    raise ApiError("sheet_not_found", "Feuille absente de cette révision.", 404)
+                if scope.kind == "sheet":
+                    blocks = [row[0] for row in connection.execute("SELECT block_id FROM office_unit_blocks WHERE generation_id=? AND unit_id=? ORDER BY order_index", (generations[0], scope.sheetId))]
+                else:
+                    blocks = [row[0] for row in connection.execute("SELECT DISTINCT block_id FROM office_cell_bindings WHERE generation_id=? AND unit_id=? AND row_index BETWEEN ? AND ? AND column_index BETWEEN ? AND ?", (generations[0], scope.sheetId, scope.rowStart, scope.rowEnd, scope.columnStart, scope.columnEnd))]
             if scope.kind == "section" and generations:
-                section = connection.execute("SELECT 1 FROM sections WHERE generation_id=? AND id=?", (generations[0], scope.sectionId)).fetchone()
+                section = connection.execute("SELECT block_ids_json FROM sections WHERE generation_id=? AND id=?", (generations[0], scope.sectionId)).fetchone()
                 if not section:
                     raise ApiError("section_not_found", "Section inconnue.", 404)
-                blocks = [row[0] for row in connection.execute("SELECT id FROM blocks WHERE generation_id=? AND section_id=?", (generations[0], scope.sectionId))]
+                if version["format"] == "docx":
+                    blocks = json.loads(section["block_ids_json"])
+                else:
+                    blocks = [row[0] for row in connection.execute("SELECT id FROM blocks WHERE generation_id=? AND section_id=?", (generations[0], scope.sectionId))]
             if scope.kind == "selection" and generations:
                 blocks = []
                 for span in scope.spans:
@@ -164,7 +212,9 @@ class ScopeResolver:
         generation_id = chunk["generation_id"]
         if generation_id not in snapshot.generations:
             return None
-        rows = self.db.rows("SELECT s.*,b.text,b.bbox_json,b.precision,b.kind,b.section_id,b.extraction_revision_id,b.source_text_hash,b.metadata_json,p.geometry_json FROM chunk_sources s JOIN blocks b ON b.generation_id=? AND b.id=s.block_id JOIN pages p ON p.generation_id=b.generation_id AND p.page_index=b.page_index WHERE s.chunk_uuid=? ORDER BY s.position", (generation_id, chunk["chunk_uuid"]))
+        if snapshot.scope["kind"] == "cell_range":
+            raise ApiError("scope_projection_required", "La plage de cellules exige une projection avant la recherche.", 409)
+        rows = self.db.rows("SELECT s.*,b.text,b.bbox_json,b.precision,b.kind,b.section_id,b.extraction_revision_id,b.source_text_hash,b.metadata_json,p.geometry_json FROM chunk_sources s JOIN blocks b ON b.generation_id=? AND b.id=s.block_id LEFT JOIN pages p ON p.generation_id=b.generation_id AND p.page_index=b.page_index WHERE s.chunk_uuid=? ORDER BY s.position", (generation_id, chunk["chunk_uuid"]))
         allowed = []
         for row in rows:
             if snapshot.page_indices is not None and row["page_index"] not in snapshot.page_indices:
@@ -177,19 +227,42 @@ class ScopeResolver:
             for range_start, range_end in ranges:
                 if range_start >= range_end:
                     continue
-                geometry = json.loads(row["geometry_json"])
+                geometry = json.loads(row["geometry_json"] or "{}")
                 allowed.append({"id": row["block_id"], "block_id": row["block_id"], "page_index": row["page_index"],
                                 "text": row["text"][range_start:range_end], "start_offset": range_start, "end_offset": range_end,
                                 "bbox": json.loads(row["bbox_json"]) if row["bbox_json"] else None,
                                 "precision": row["precision"], "type": row["kind"], "page": geometry,
                                 "extraction_revision_id": row["extraction_revision_id"], "source_text_hash": row["source_text_hash"],
                                 "extraction_method": block_extraction_method(row["metadata_json"])})
+                if row["page_index"] is None:
+                    metadata = json.loads(row["metadata_json"])
+                    allowed[-1].update(selected_office_metadata(metadata, range_start, range_end) if snapshot.spans
+                                       else {key: metadata[key] for key in ("locator", "structure", "bindings") if key in metadata})
         if not allowed:
             return None
-        return {"chunk_id": chunk["chunk_uuid"], "generation_id": generation_id, "extraction_revision_id": chunk["extraction_revision_id"],
+        result = {"chunk_id": chunk["chunk_uuid"], "generation_id": generation_id, "extraction_revision_id": chunk["extraction_revision_id"],
                 "version_id": snapshot.versions[generation_id], "document_id": snapshot.documents[generation_id],
                 "text": "\n".join(row["text"] for row in allowed), "blocks": allowed, "extraction_methods": extraction_methods(allowed),
-                "page_indices": sorted({row["page_index"] for row in allowed}), "parent_id": chunk.get("parent_id")}
+                "page_indices": sorted({row["page_index"] for row in allowed if row["page_index"] is not None}), "parent_id": chunk.get("parent_id")}
+        if not result["page_indices"]:
+            result.update({"format": self.db.version(result["version_id"])["format"], "locator": allowed[0].get("locator"),
+                           "precision": allowed[0]["precision"], "scope_kind": snapshot.scope["kind"]})
+            if result["format"] == "xlsx":
+                result["cell_facts"] = self.cell_facts(generation_id, allowed)
+        return result
+
+    def cell_facts(self, generation_id, blocks):
+        facts = {}
+        for block in blocks:
+            for binding in block.get("bindings", []):
+                if max(block["start_offset"], binding["start"]) >= min(block["end_offset"], binding["end"]):
+                    continue
+                key = (block["locator"]["unit_id"], binding["row"], binding["column"])
+                if key not in facts:
+                    cell = self.db.one("SELECT data_json FROM office_cells WHERE generation_id=? AND unit_id=? AND row_index=? AND column_index=?", (generation_id, *key))
+                    if cell:
+                        facts[key] = cell_semantics(json.loads(cell["data_json"]))
+        return list(facts.values())
 
     def selected_sources(self, snapshot):
         if not snapshot.generations:
@@ -198,25 +271,32 @@ class ScopeResolver:
         generation = self.db.one("SELECT state,coverage_json,warnings_json FROM index_generations WHERE id=?", (generation_id,))
         sources = []
         for span in snapshot.spans:
-            row = self.db.one("SELECT b.*,p.geometry_json FROM blocks b JOIN pages p ON p.generation_id=b.generation_id AND p.page_index=b.page_index WHERE b.generation_id=? AND b.id=?", (generation_id, span["blockId"]))
+            row = self.db.one("SELECT b.*,p.geometry_json FROM blocks b LEFT JOIN pages p ON p.generation_id=b.generation_id AND p.page_index=b.page_index WHERE b.generation_id=? AND b.id=?", (generation_id, span["blockId"]))
             text = row["text"][span["startOffset"]:span["endOffset"]]
             block = {"id": row["id"], "block_id": row["id"], "text": text, "page_index": row["page_index"],
                      "start_offset": span["startOffset"], "end_offset": span["endOffset"], "type": row["kind"],
                      "bbox": json.loads(row["bbox_json"]) if row["bbox_json"] else None,
-                     "precision": row["precision"], "page": json.loads(row["geometry_json"]),
+                     "precision": row["precision"], "page": json.loads(row["geometry_json"] or "{}"),
                      "extraction_revision_id": row["extraction_revision_id"], "source_text_hash": row["source_text_hash"],
                      "extraction_method": block_extraction_method(row["metadata_json"])}
+            if row["page_index"] is None:
+                metadata = json.loads(row["metadata_json"])
+                block.update(selected_office_metadata(metadata, span["startOffset"], span["endOffset"]))
             sources.append({"chunk_id": None, "generation_id": generation_id, "extraction_revision_id": row["extraction_revision_id"],
                             "version_id": snapshot.versions[generation_id], "document_id": snapshot.documents[generation_id],
                             "coverage": json.loads(generation["coverage_json"]), "extraction_state": generation["state"],
                             "extraction_warnings": json.loads(generation["warnings_json"]),
                             "text": text, "blocks": [block], "extraction_methods": extraction_methods([block]),
-                            "page_indices": [row["page_index"]], "parent_id": row["id"]})
+                            "page_indices": [row["page_index"]] if row["page_index"] is not None else [], "parent_id": row["id"]})
+            if row["page_index"] is None:
+                sources[-1].update({"format": self.db.version(snapshot.versions[generation_id])["format"], "locator": block.get("locator"), "precision": block["precision"], "scope_kind": "selection"})
+                if sources[-1]["format"] == "xlsx":
+                    sources[-1]["cell_facts"] = self.cell_facts(generation_id, [block])
         return sources
 
     def expand_parent(self, source, snapshot, tokenizer, maximum_tokens=900):
         """Expand a block only through source records authorized by the same snapshot."""
-        if snapshot.spans or source["generation_id"] not in snapshot.generations:
+        if snapshot.spans or snapshot.scope["kind"] == "cell_range" or source["generation_id"] not in snapshot.generations:
             return source
         expanded = []
         for block in source["blocks"]:

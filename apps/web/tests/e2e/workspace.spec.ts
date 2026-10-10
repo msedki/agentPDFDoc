@@ -72,7 +72,7 @@ test("real import, reading, scoped search and source navigation", async ({ page,
       await info.attach("reused-controlled-document", { body: Buffer.from(JSON.stringify(detail, null, 2)), contentType: "application/json" });
     } else {
       const chooser = page.waitForEvent("filechooser");
-      await page.getByRole("button", { name: "Importer des PDF", exact: true }).click();
+      await page.getByRole("button", { name: "Importer des documents", exact: true }).click();
       await (await chooser).setFiles(nativeDevPath);
     }
     await expect(documentButton).toBeVisible();

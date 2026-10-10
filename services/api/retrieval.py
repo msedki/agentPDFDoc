@@ -345,11 +345,17 @@ class QdrantStore:
 
 
 class SearchService:
-    def __init__(self, db, resolver, embedding, vectors, settings, dense=None):
+    def __init__(self, db, resolver, embedding, vectors, settings, dense=None, projector=None):
         self.db, self.resolver, self.embedding, self.vectors, self.settings = db, resolver, embedding, vectors, settings
         self.dense = dense
+        self.projector = projector
 
     def lexical(self, question, snapshot):
+        if snapshot.scope["kind"] == "cell_range":
+            from .office_search import lexical_projection, projection_fragments
+            sources = projection_fragments(self.db, snapshot, self.embedding)
+            ranked, exact = lexical_projection(question, sources, self.settings.value("retrieval", "lexical_top_k", 24))
+            return [sources[i]["chunk_id"] for i in ranked], [sources[i]["chunk_id"] for i in exact]
         clause, parameters = snapshot.sql_filter()
         limit = self.settings.value("retrieval", "lexical_top_k", 24)
         exact = []
@@ -373,6 +379,8 @@ class SearchService:
         return list(dict.fromkeys(exact + ranked))[:limit], exact
 
     async def _candidates(self, question, snapshot, dense_available=True):
+        if snapshot.scope["kind"] == "cell_range":
+            return await self._projected_candidates(question, snapshot)
         lexical_task = asyncio.create_task(asyncio.to_thread(self.lexical, question, snapshot))
         try:
             dense = []
@@ -389,6 +397,22 @@ class SearchService:
         exact_set = set(exact)
         scores.sort(key=lambda pair: (pair[0] not in exact_set, -pair[1], pair[0]))
         return await asyncio.to_thread(self.source_candidates, scores, exact_set, snapshot)
+
+    async def _projected_candidates(self, question, snapshot):
+        from .office_search import lexical_projection, projection_fragments
+        sources = await asyncio.to_thread(projection_fragments, self.db, snapshot, self.embedding)
+        if not sources:
+            return []
+        lexical, exact = await asyncio.to_thread(lexical_projection, question, sources, self.settings.value("retrieval", "lexical_top_k", 24))
+        query = (await asyncio.to_thread(self.embedding.embed, [question], False))[0]
+        if self.projector is not None:
+            vectors = await asyncio.to_thread(self.projector.cached_embeddings, sources)
+        else:
+            vectors = await asyncio.to_thread(self.embedding.embed, [source["text"] for source in sources])
+        dense = sorted(range(len(sources)), key=lambda i: (-sum(a * b for a, b in zip(query, vectors[i], strict=True)), i))[:self.settings.value("retrieval", "dense_top_k", 24)]
+        scores = rrf(lexical, dense, self.settings.value("retrieval", "rrf_k", 60))
+        scores.sort(key=lambda pair: (pair[0] not in exact, -pair[1], pair[0]))
+        return [{**sources[index], "score": score, "exact_identifier": index in exact} for index, score in scores]
 
     def source_candidates(self, scores, exact_set, snapshot):
         """Toutes les relectures de provenance d'un lot restent hors de la boucle de requêtes."""
@@ -415,6 +439,10 @@ class SearchService:
                     raise ApiError("source_removed", "Source absente ou supprimée.", 404)
                 documents[document_id] = document
             document = documents[document_id]
+            if not source["page_indices"]:
+                source.update({"name": document["name"], "document_name": document["name"], "relative_path": document["relative_path"],
+                               "page_index": None, "page_number": None, "label": None})
+                continue
             page_index = source["page_indices"][0]
             page = next(block["page"] for block in source["blocks"] if block["page_index"] == page_index)
             source.update({"name": document["name"], "document_name": document["name"],
@@ -425,7 +453,7 @@ class SearchService:
         start = time.perf_counter()
         warnings = []
         dense_available = True
-        if self.dense is not None and snapshot.scope["kind"] != "selection" and snapshot.generations:
+        if self.dense is not None and snapshot.scope["kind"] not in {"selection", "cell_range"} and snapshot.generations:
             # Avertissement de périmètre : documents servis par la seule branche lexicale (identité dense changée, R26-IDX-02).
             scoped = set(snapshot.generations)
             coverage = await self.dense.status()

@@ -7,9 +7,10 @@ import { api } from "@/lib/api";
 import { useWorkspace } from "@/lib/store";
 import { restorePanelPreferences, savePanelPreferences } from "@/lib/panel-storage";
 import { clampPanelWidth, COMPACT_LAYOUT_QUERY, isLibraryShortcut, nextLibraryMode, PANEL_WIDTH_MAX, PANEL_WIDTH_MIN, panelGridColumns } from "@/lib/panel-preferences";
-import { sourcePage } from "@/lib/selection";
 import { serviceDetail } from "@/lib/warnings";
-import { citationLinkIds, registeredCitationLocation } from "@/lib/citation-link";
+import { citationLinkIds, registeredCitationLocation, sourceLocation } from "@/lib/citation-link";
+import { documentLocation, versionFormat } from "@/lib/document-format";
+import { parseCellRange, rangeLabel } from "@/lib/office-reader";
 import { isActiveJobState, serviceStatus } from "@/lib/status";
 import { isServiceUnavailable, pendingIndexCount } from "@/lib/panel-state";
 import { readGeneration } from "@/lib/generation";
@@ -20,6 +21,7 @@ import { ContextBand } from "./context-band";
 import { JobsPanel } from "./jobs-panel";
 import { LibraryPanel, LibraryRail, type LibraryController } from "./library-panel";
 import { PdfViewer } from "./pdf-viewer";
+import { OfficeReader } from "./office-reader";
 import { Button } from "./ui/button";
 import { useErrorText, type Failure } from "./ui/error-text";
 import { Sheet } from "./ui/sheet";
@@ -59,7 +61,7 @@ function usePanelNode(slotRef: RefObject<HTMLDivElement | null>) {
 function nextFrame(action: () => void) { requestAnimationFrame(() => requestAnimationFrame(action)); }
 
 type WorkspaceEntry = { kind: "none" } | { kind: "citation"; queryId: string; sourceId: string }
-  | { kind: "document"; documentId: string; versionId: string; pageIndex: number } | { kind: "error"; error: unknown };
+  | { kind: "document"; documentId: string; versionId: string; pageIndex: number; unitId?: string; range?: string; revision?: string } | { kind: "error"; error: unknown };
 
 /** Le lien initial est lu une fois ; une citation invalide ne se rabat pas sur un document courant. */
 function readWorkspaceEntry(search: string): WorkspaceEntry {
@@ -68,7 +70,9 @@ function readWorkspaceEntry(search: string): WorkspaceEntry {
     const citation = citationLinkIds(params);
     if (citation) return { kind: "citation", ...citation };
     const documentId = params.get("document"); const versionId = params.get("version"); const page = Number(params.get("page") ?? "1");
-    if (documentId && versionId && /^[\w-]{1,128}$/.test(documentId) && /^[\w-]{1,128}$/.test(versionId) && Number.isInteger(page) && page >= 1) return { kind: "document", documentId, versionId, pageIndex: page - 1 };
+    const unitId = params.get("unit") ?? undefined, range = params.get("range") ?? undefined, revision = params.get("revision") ?? undefined;
+    if (unitId && (unitId.length > 1024 || [...unitId].some(character => character.codePointAt(0)! < 32 || character.codePointAt(0) === 127)) || revision && !/^[\w-]{1,128}$/.test(revision) || range && !parseCellRange(range)) throw new Error("Le lien fournit une unité, une révision ou une plage de cellules invalide.");
+    if (documentId && versionId && /^[\w-]{1,128}$/.test(documentId) && /^[\w-]{1,128}$/.test(versionId) && Number.isInteger(page) && page >= 1) return { kind: "document", documentId, versionId, pageIndex: page - 1, ...(unitId ? { unitId } : {}), ...(range ? { range } : {}), ...(revision ? { revision } : {}) };
     return { kind: "none" };
   } catch (error) { return { kind: "error", error }; }
 }
@@ -116,13 +120,22 @@ function WorkspaceBody() {
         const location = registeredCitationLocation(source, entry.queryId, entry.sourceId);
         if (!disposed) open(location, source);
       }).catch(failure => { if (!disposed) setFailure({ error: failure }); });
-    } else if (entry.kind === "document") open({ documentId: entry.documentId, versionId: entry.versionId, pageIndex: entry.pageIndex });
+    } else if (entry.kind === "document") {
+      void api.document(entry.documentId).then(metadata => {
+        const version = metadata.versions.find(item => item.id === entry.versionId);
+        if (!version) throw new Error("La version indiquée par ce lien n'appartient pas au document. Aucune version courante n'est substituée.");
+        const location = documentLocation(entry.documentId, entry.versionId, versionFormat(metadata, version), entry.pageIndex);
+        if (!disposed) open("pageIndex" in location ? location : { ...location, unitId: entry.unitId, extractionRevisionId: entry.revision, ...(entry.range ? { cellRange: parseCellRange(entry.range)! } : {}) });
+      }).catch(error => { if (!disposed) setFailure({ error }); });
+    }
     const unsubscribe = useWorkspace.subscribe((next, previous) => { if (next.libraryMode !== previous.libraryMode || next.analysisMode !== previous.analysisMode || next.panelWidths !== previous.panelWidths) savePanelPreferences(); });
     return () => { disposed = true; unsubscribe(); };
   }, [entry, open]);
   useEffect(() => {
     if (!state.opened) return;
-    const params = new URLSearchParams({ document: state.opened.documentId, version: state.opened.versionId, page: String(state.opened.pageIndex + 1) });
+    const params = new URLSearchParams({ document: state.opened.documentId, version: state.opened.versionId });
+    if ("pageIndex" in state.opened) params.set("page", String(state.opened.pageIndex + 1));
+    else { params.set("format", state.opened.format); if (state.opened.unitId) params.set("unit", state.opened.unitId); if (state.opened.cellRange) params.set("range", rangeLabel(state.opened.cellRange)); if (state.opened.extractionRevisionId) params.set("revision", state.opened.extractionRevisionId); }
     if (state.source?.source_id && state.source.query_id && state.source.extraction_revision_id) { params.set("citation_query", state.source.query_id); params.set("citation_source", state.source.source_id); }
     window.history.replaceState(null, "", `/workspace/?${params}`);
   }, [state.opened, state.source]);
@@ -169,7 +182,7 @@ function WorkspaceBody() {
     if (queryId && !source.source_id) throw new Error("Cette citation ne possède pas d'identifiant enregistré : elle ne peut pas être ouverte.");
     const exact = queryId ? await api.citation(queryId, source.source_id!) : source;
     if (!exact.version_id || !exact.document_id) throw new Error("Cette source ne désigne aucune version de document consultable.");
-    state.open(queryId ? registeredCitationLocation(exact, queryId, source.source_id!) : { documentId: exact.document_id, versionId: exact.version_id, pageIndex: sourcePage(exact) }, exact);
+    state.open(queryId ? registeredCitationLocation(exact, queryId, source.source_id!) : sourceLocation(exact), exact);
   };
   const resize = (side: 0 | 1, element: HTMLElement, pointerId: number) => {
     element.setPointerCapture(pointerId);
@@ -212,7 +225,7 @@ function WorkspaceBody() {
       {/* Matériel de la génération (W025) : après une lecture du suivi en échec, l'instance a pu redémarrer dans un autre mode. */}
       <ContextBand scope={state.scope} tree={tree.data} treeFailed={tree.isError && !tree.data} blockers={blockers} error={failure ? errorText(failure.error) : ""} onDismissError={() => setFailure(null)} service={service}
         generation={jobs.isError ? null : readGeneration(jobs.data?.generation)} />
-      {comparisonDocuments.length > 0 && <nav className="comparison-documents" aria-label="Documents comparés"><span>Comparer {comparisonDocuments.length} documents</span>{comparisonDocuments.map(document => <button key={document.id} className={state.opened?.documentId === document.id ? "is-active" : ""} disabled={!document.active_version_id && !document.version_id} title={!document.active_version_id && !document.version_id ? "Ce document n'a pas encore de version consultable." : undefined} onClick={() => state.open({ documentId: document.id, versionId: document.active_version_id ?? document.version_id!, pageIndex: 0 })}><FileText size={14} aria-hidden="true" />{document.name}</button>)}</nav>}
+      {comparisonDocuments.length > 0 && <nav className="comparison-documents" aria-label="Documents comparés"><span>Comparer {comparisonDocuments.length} documents</span>{comparisonDocuments.map(document => <button key={document.id} className={state.opened?.documentId === document.id ? "is-active" : ""} disabled={!document.active_version_id && !document.version_id} title={!document.active_version_id && !document.version_id ? "Ce document n'a pas encore de version consultable." : undefined} onClick={() => state.open(documentLocation(document.id, document.active_version_id ?? document.version_id!, document.format ?? "pdf"))}><FileText size={14} aria-hidden="true" />{document.name}</button>)}</nav>}
       <div className="workspace-layout" ref={layout} style={{ gridTemplateColumns: panelGridColumns({ compact, library: state.libraryMode, analysis: state.analysisMode, widths: state.panelWidths }) }}>
         <div className="library-column" data-mode={compact ? "sheet" : state.libraryMode}>
           {!compact && state.libraryMode === "rail" && <LibraryRail selectedCount={state.selectedIds.length}
@@ -222,7 +235,7 @@ function WorkspaceBody() {
           <div className="panel-wrapper library-wrapper" ref={attachLibrary} hidden={!libraryExpanded} />
         </div>
         <div className="panel-resizer resizer-library" hidden={!libraryExpanded} role="separator" aria-label="Largeur de la bibliothèque" aria-orientation="vertical" aria-valuemin={PANEL_WIDTH_MIN} aria-valuemax={PANEL_WIDTH_MAX} aria-valuenow={state.panelWidths[0]} tabIndex={libraryExpanded ? 0 : -1} onPointerDown={event => resize(0, event.currentTarget, event.pointerId)} onKeyDown={event => { if (["ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); adjustKeyboard(0, event.key === "ArrowLeft" ? -1 : 1); } }} />
-        <main id="lecteur" className="reader-slot" aria-label="Lecteur" tabIndex={-1}><PdfViewer /></main>
+        <main id="lecteur" className="reader-slot" aria-label="Lecteur" tabIndex={-1}>{state.opened && "format" in state.opened && state.opened.format !== "pdf" ? <OfficeReader key={state.opened.versionId} /> : <PdfViewer />}</main>
         <div className="panel-resizer resizer-analysis" hidden={!analysisExpanded} role="separator" aria-label="Largeur de l'analyse" aria-orientation="vertical" aria-valuemin={PANEL_WIDTH_MIN} aria-valuemax={PANEL_WIDTH_MAX} aria-valuenow={state.panelWidths[1]} tabIndex={analysisExpanded ? 0 : -1} onPointerDown={event => resize(1, event.currentTarget, event.pointerId)} onKeyDown={event => { if (["ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); adjustKeyboard(1, event.key === "ArrowLeft" ? 1 : -1); } }} />
           <div className="panel-wrapper analysis-wrapper" ref={attachAnalysis} hidden={!analysisExpanded} />
       </div>

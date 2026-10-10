@@ -322,7 +322,15 @@ def test_contract_ingestion_boundary_matches_the_ingestion_package():
         assert list(inspect.signature(getattr(ingestion, name)).parameters) == interface[name], name
     assert importlib.util.find_spec(interface["worker_module"]) is not None
     jobs = (ROOT / "services/api/jobs.py").read_text(encoding="utf-8")
-    assert f'"-m", "{interface["worker_module"]}"' in jobs
+    tree = ast.parse(jobs)
+    dispatch = next(node.value for node in ast.walk(tree) if isinstance(node, ast.Assign)
+                    and any(isinstance(target, ast.Name) and target.id == "worker_module" for target in node.targets))
+    assert isinstance(dispatch, ast.IfExp)
+    assert importlib.util.find_spec(interface["office_worker_module"]) is not None
+    for document_format in ("pdf", "docx", "xlsx"):
+        module = eval(compile(ast.Expression(dispatch), "worker_dispatch", "eval"), {}, {"version": {"format": document_format}})
+        assert module == interface["worker_module" if document_format == "pdf" else "office_worker_module"]
+    assert 'sys.executable, "-m", worker_module, "--request"' in jobs
 
 
 def test_contract_integration_entry_matches_create_app_and_the_real_launcher():
@@ -466,7 +474,12 @@ def test_contract_source_extraction_methods_are_the_ingestion_vocabulary():
         return {value.value}
     produced = set().union(*(returned(node.value) for node in ast.walk(function) if isinstance(node, ast.Return) and node.value is not None))
     described = CONTRACT["source"]
-    assert alternatives(described["extraction_methods"][0]) == alternatives(described["block_extraction_method"]) == produced | {UNKNOWN_METHOD}
+    # The PDF adapter keeps its vocabulary; the independent Office adapter adds its recorded method.
+    office_tree = ast.parse((ROOT / "services/ingestion/office/pipeline.py").read_text(encoding="utf-8"))
+    office_methods = {node.value for node in ast.walk(office_tree) if isinstance(node, ast.Constant) and node.value == "office_native"}
+    assert office_methods == {"office_native"}
+    source_methods = set().union(*(alternatives(value) for value in described["extraction_methods"]))
+    assert source_methods == alternatives(described["block_extraction_method"]) == produced | office_methods | {UNKNOWN_METHOD}
     assert "never native" in described["extraction_provenance_rule"] and 'read it as extraction_methods ["unknown"]' in described["extraction_provenance_rule"]
 
 

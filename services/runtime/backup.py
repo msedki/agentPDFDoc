@@ -74,8 +74,10 @@ def database_summary(path: Path) -> dict:
     with closing(sqlite3.connect(path.as_uri() + "?mode=ro&immutable=1", uri=True)) as connection:
         integrity = connection.execute("PRAGMA integrity_check").fetchone()[0]
         foreign_keys = connection.execute("PRAGMA foreign_key_check").fetchall()
+        present = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        office = tuple(table for table in ("office_documents", "office_units", "office_unit_blocks", "office_cells", "office_cell_bindings") if table in present)
         counts = {table: connection.execute(f'SELECT count(*) FROM "{table}"').fetchone()[0]
-                  for table in TABLES}
+                  for table in TABLES + office}
         schema = [row[0] for row in connection.execute("SELECT version FROM schema_version ORDER BY version")]
     if integrity != "ok" or foreign_keys:
         raise ValueError("La base n'a pas satisfait integrity_check et foreign_key_check")

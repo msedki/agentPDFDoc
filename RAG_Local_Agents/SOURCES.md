@@ -64,6 +64,20 @@ disponible n'est converti en preuve d'intégration Office du projet.
 | R28-S13 | [SQLite ALTER TABLE §6/8](https://sqlite.org/lang_altertable.html), [FK](https://sqlite.org/foreignkeys.html), [JSON](https://sqlite.org/json1.html), [query planner](https://sqlite.org/queryplanner.html) ; SQLite3.53.1 exécuté, ALTER COLUMN introduit3.53.0 | Sonde schéma v3 mémoire et DROP NOT NULL réel ; reconstruction portable si version antérieure, FK avant transaction et colonnes explicites. Contrats PK/FK/index sparse proposés, aucune migration persistante. |
 | R28-S14 | [Pydantic unions discriminées](https://docs.pydantic.dev/latest/concepts/unions/#discriminated-unions-with-str-discriminators), [React HTML](https://react.dev/reference/react-dom/components/common#dangerously-setting-the-inner-html) ; Pydantic2.13.5/React19.3.0 installés | Modèles typés et rendu échappé pour locators/source ; une structure d'API ou un composant ne prouve pas provenance, lecteur ou chaîne RAG. |
 
+
+## R28 — contrats utilisés pour l’implémentation du 10 octobre 2026
+
+Consultés le 10/10/2026 UTC après l’étude ; versions du verrou conservées.
+La preuve d’application est dans les tests, la revue et la recette Office,
+liés depuis le PLAN. Une publication reste distincte d’une preuve d’exécution.
+
+| ID | Source primaire | Apport et limite |
+|---|---|---|
+| R28-S15 | [Microsoft ST_Xstring](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oi29500/d34ae755-c53f-4a44-a363-c6dd3ee018a4), [CellValue](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.spreadsheet.cellvalue?view=openxml-3.0.1), [Extension](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.spreadsheet.extension?view=openxml-3.0.1) | Contrat OOXML : décodage unique des escapes, paires UTF-16 valides, chaîne vide mise en cache distincte d’un cache absent, extensions explicitement conservées ou signalées. APIs .NET citées pour le schéma, sans nouvelle dépendance .NET ; contre-exemples et reprises dans `xlsx-refine/summary.json`. |
+| R28-S16 | [SQLite FTS5, BM25](https://www.sqlite.org/fts5.html#the_bm25_function), [Online Backup API](https://www.sqlite.org/backup.html) | Les statistiques du corpus interviennent dans BM25 : projection FTS5 indépendante du contenu exclu pour une plage stricte. Sauvegarde cohérente d’une base ouverte, y compris WAL, avant migration atomique. Les budgets locaux et preuves de rollback/restauration viennent du code et des tests, jamais de la publication. |
+| R28-S17 | [Python3.12 zipfile](https://docs.python.org/3.12/library/zipfile.html), [defusedxml](https://github.com/tiran/defusedxml), [lxml parsing](https://lxml.de/parsing.html) | CRC, membres ZIP, validation XML sans DTD/entités/réseau ; quotas globaux du package et parties validées une seule fois. Versions exécutées conservées : CPython3.12.14, defusedxml0.7.1 et lxml6.1.3. Refus et ressources mesurés dans la suite OPC ; aucune qualification Windows déduite. |
+| R28-S18 | [Pillow Image](https://pillow.readthedocs.io/en/stable/reference/Image.html) | Vérification raster et bombes de décompression ; seule une image interne enregistrée, hashée, à MIME et dimensions bornés peut être servie. Documentation stable mobile confrontée aux signatures exécutées et tests, sans mise à jour du paquet ; SVG/HTML/OLE ne sont jamais affichés par cette route. |
+
 ## R27 — sources des corrections du 9 octobre 2026
 
 La baseline du 9 octobre fournit les observations initiales ; les rapports

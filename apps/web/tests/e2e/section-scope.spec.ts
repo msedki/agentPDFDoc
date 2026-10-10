@@ -11,7 +11,7 @@ const sectionId = "1596e7ff-f739-5811-9645-298946d0ff02";
 const sectionTitle = "Document long QLONG-14 — page 2 sur 14";
 const fixtureSha = "994c37186d9985af8ecf5fbde4e2194dcdc061c0fca4f3025dcc643acadf3f86";
 type SectionTarget = LifecycleTarget & { section_scope: { section_id: string; block_ids: string[]; allowed_chunk_ids: string[]; generation_id: string } };
-type FragmentBlock = Block & { start_offset: number; end_offset: number };
+type FragmentBlock = Block & { page_index: number; start_offset: number; end_offset: number };
 type Fragment = Source & { chunk_id: string; blocks: FragmentBlock[] };
 type Search = { results: Fragment[]; scope_snapshot: { scope: unknown; generations: string[]; versions: Record<string, string>; documents: Record<string, string>; page_indices: number[] | null; block_ids: string[] | null; spans: unknown[] } };
 
@@ -141,7 +141,7 @@ test("outline section action limits real search to its published blocks without 
       expect(source.chunk_id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
       expect(allowedChunks.has(source.chunk_id)).toBe(true);
       expect(source.blocks.length).toBeGreaterThan(0);
-      expect(source.page_indices).toEqual([...new Set(source.blocks.map(block => block.page_index))].sort((a, b) => a - b));
+      expect(source.page_indices).toEqual([...new Set(source.blocks.map(block => { expect(typeof block.page_index).toBe("number"); if (typeof block.page_index !== "number") throw new Error("PDF source block has no page index"); return block.page_index; }))].sort((a, b) => a - b));
       for (const fragment of source.blocks) {
         expect(allowed.has(fragment.id)).toBe(true);
         expect((await originalBlock(fragment)).section_id).toBe(sectionId);

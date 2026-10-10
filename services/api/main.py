@@ -21,11 +21,12 @@ from starlette.staticfiles import StaticFiles
 from services.runtime.platforms import launcher_command, launcher_instruction, launcher_kind
 
 from .context import ContextBuilder, LlmTokenizer
-from .db import Database, json_dump, now, relative_pdf_path, uid
+from .db import Database, json_dump, now, relative_document_path, uid
 from .embedding import EmbeddingService
 from .errors import ApiError, request_validation_message
 from .indexing import Indexer
 from .jobs import JobSupervisor
+from .office import registered_asset, representation, sheet_cells, unit_blocks
 from .ollama import OllamaGateway
 from .query import QueryService
 from .reconcile import Reconciler
@@ -112,8 +113,8 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     resolver = ScopeResolver(db)
     # Couverture dense de l'identité courante (R26-IDX-02) : avertissement de recherche et état nommé de /readiness.
     dense_coverage = DenseCoverage(db, vectors)
-    search = SearchService(db, resolver, embedding, vectors, settings, dense=dense_coverage)
     indexer = Indexer(db, embedding, vectors, settings, tokenizer)
+    search = SearchService(db, resolver, embedding, vectors, settings, dense=dense_coverage, projector=indexer)
     queries = QueryService(db, resolver, search, ContextBuilder(settings, tokenizer), ollama, settings, governor)
     jobs = JobSupervisor(db, indexer, settings, governor, ingestion_runner)
     reconciler = Reconciler(db, vectors)
@@ -462,9 +463,10 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
                             status_code=200 if all(checks.values()) else 503)
 
     def document_rows(where="d.deleted_at IS NULL", parameters=(), limit=100, offset=0):
-        rows = db.rows("SELECT d.*,g.version_id AS active_version_id,g.extraction_revision_id,v.sha256,v.page_count,g.coverage_json FROM documents d LEFT JOIN index_generations g ON g.id=d.active_generation_id LEFT JOIN document_versions v ON v.id=g.version_id WHERE " + where + " ORDER BY d.relative_path LIMIT ? OFFSET ?", tuple(parameters) + (limit, offset))
+        rows = db.rows("SELECT d.*,g.version_id AS active_version_id,g.extraction_revision_id,v.sha256,v.page_count,COALESCE(v.format,(SELECT x.format FROM document_versions x WHERE x.document_id=d.id ORDER BY x.created_at DESC LIMIT 1),'pdf') AS format,COALESCE(v.mime_type,(SELECT x.mime_type FROM document_versions x WHERE x.document_id=d.id ORDER BY x.created_at DESC LIMIT 1),'application/pdf') AS mime_type,g.coverage_json FROM documents d LEFT JOIN index_generations g ON g.id=d.active_generation_id LEFT JOIN document_versions v ON v.id=g.version_id WHERE " + where + " ORDER BY d.relative_path LIMIT ? OFFSET ?", tuple(parameters) + (limit, offset))
         for row in rows:
             row["version_id"] = row["active_version_id"]
+            row["active_extraction_revision_id"] = row["extraction_revision_id"]
             row["coverage"] = json.loads(row.pop("coverage_json") or "{}")
         return rows
 
@@ -505,31 +507,46 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
             raise ApiError("invalid_paths", "La liste de chemins est invalide.") from error
         if not isinstance(paths, list) or len(paths) != len(files) or not all(isinstance(path, str) for path in paths):
             raise ApiError("invalid_paths", "Un chemin relatif est requis par fichier.")
-        paths = [relative_pdf_path(path) for path in paths]
         imports = []
+        errors = []
         originals = settings.data_dir / "originals"
         temporary_root = settings.data_dir / "uploads"
         temporary_root.mkdir(parents=True, exist_ok=True)
-        for upload, relative_path in zip(files, paths, strict=True):
+        for upload, requested_path in zip(files, paths, strict=True):
             temporary = temporary_root / (uid() + ".part")
             digest = hashlib.sha256()
             total = 0
             signature = b""
             try:
+                relative_path = relative_document_path(requested_path)
+                document_format = Path(relative_path).suffix.lower().lstrip(".")
                 with temporary.open("xb") as output:
                     while content := await upload.read(1024 * 1024):
                         total += len(content)
                         if total > maximum_upload:
-                            raise ApiError("file_too_large", "PDF trop volumineux.", 413)
+                            raise ApiError("file_too_large", "Document trop volumineux.", 413)
                         signature = (signature + content)[:1024] if len(signature) < 1024 else signature
                         digest.update(content)
                         output.write(content)
                     output.flush()
                     os.fsync(output.fileno())
-                if not signature.lstrip().startswith(b"%PDF-"):
-                    raise ApiError("invalid_pdf", "Signature PDF absente.")
+                if document_format == "pdf":
+                    if not signature.lstrip().startswith(b"%PDF-"):
+                        raise ApiError("invalid_pdf", "Signature PDF absente.")
+                else:
+                    from services.ingestion.errors import IngestionError
+                    from services.ingestion.office.models import OfficeLimits
+                    from services.ingestion.office.opc import OfficePackage
+
+                    def verify_office(source=temporary, expected=document_format):
+                        with OfficePackage(source, expected, OfficeLimits.from_mapping(settings.profile)):
+                            pass
+                    try:
+                        await asyncio.to_thread(verify_office)
+                    except IngestionError as error:
+                        raise ApiError(error.code.lower(), error.message) from error
                 sha256 = digest.hexdigest()
-                blob_path = originals / (sha256 + ".pdf")
+                blob_path = originals / (sha256 + "." + document_format)
                 if blob_path.exists():
                     with blob_path.open("rb") as original:
                         existing_hash = hashlib.file_digest(original, "sha256").hexdigest()
@@ -538,11 +555,15 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
                 else:
                     os.replace(temporary, blob_path)
                 imports.append(db.import_original(relative_path, sha256, blob_path))
+            except ApiError as error:
+                if len(files) == 1:
+                    raise
+                errors.append({"relative_path": requested_path, "code": error.code, "message": error.message})
             finally:
                 if temporary.exists():
                     temporary.unlink()
                 await upload.close()
-        return {"imports": imports, **(imports[0] if len(imports) == 1 else {})}
+        return {"imports": imports, **({"errors": errors} if errors else {}), **(imports[0] if len(imports) == 1 else {})}
 
     @application.get(prefix + "/documents/{document_id}")
     async def document(document_id: str):
@@ -550,7 +571,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         if not rows:
             raise ApiError("document_not_found", "Document inconnu.", 404)
         result = rows[0]
-        result["versions"] = db.rows("SELECT id,document_id,sha256,page_count,created_at FROM document_versions WHERE document_id=? ORDER BY created_at DESC", (document_id,))
+        result["versions"] = db.rows("SELECT id,document_id,sha256,page_count,format,mime_type,created_at FROM document_versions WHERE document_id=? ORDER BY created_at DESC", (document_id,))
         for version in result["versions"]:
             version["file_url"] = f"{prefix}/versions/{version['id']}/file"
         result["jobs"] = job_rows("j.document_id=?", (document_id,))
@@ -601,7 +622,24 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         etag = '"' + version["sha256"] + '"'
         if request.headers.get("if-none-match") == etag:
             return Response(status_code=304, headers={"ETag": etag, "Cache-Control": "private, max-age=31536000, immutable"})
-        return FileResponse(path, media_type="application/pdf", filename=version["document_name"], content_disposition_type="inline", headers={"ETag": etag, "Cache-Control": "private, max-age=31536000, immutable", "Accept-Ranges": "bytes"})
+        return FileResponse(path, media_type=version["mime_type"], filename=version["document_name"], content_disposition_type="inline" if version["format"] == "pdf" else "attachment", headers={"ETag": etag, "Cache-Control": "private, max-age=31536000, immutable", "Accept-Ranges": "bytes"})
+
+    @application.get(prefix + "/versions/{version_id}/representation")
+    async def office_representation(version_id: str, extraction_revision_id: str | None = None, cursor: int = 0, limit: int = 50):
+        return await asyncio.to_thread(representation, db, settings, version_id, extraction_revision_id, cursor, limit)
+
+    @application.get(prefix + "/versions/{version_id}/units/{unit_id:path}/blocks")
+    async def office_blocks(version_id: str, unit_id: str, extraction_revision_id: str | None = None, cursor: int = 0, limit: int = 50, block_id: str | None = None):
+        return await asyncio.to_thread(unit_blocks, db, version_id, unit_id, extraction_revision_id, cursor, limit, block_id)
+
+    @application.get(prefix + "/versions/{version_id}/sheets/{sheet_id:path}/cells")
+    async def office_cells(version_id: str, sheet_id: str, extraction_revision_id: str | None = None, row_start: int = 1, row_end: int = 50, column_start: int = 1, column_end: int = 20):
+        return await asyncio.to_thread(sheet_cells, db, version_id, sheet_id, extraction_revision_id, row_start, row_end, column_start, column_end)
+
+    @application.get(prefix + "/versions/{version_id}/assets/{asset_id}")
+    async def office_asset(version_id: str, asset_id: str, extraction_revision_id: str | None = None):
+        data, mime = await asyncio.to_thread(registered_asset, db, settings, version_id, asset_id, extraction_revision_id)
+        return Response(data, media_type=mime, headers={"X-Content-Type-Options": "nosniff", "Cache-Control": "private, max-age=31536000, immutable"})
 
     @application.get(prefix + "/versions/{version_id}/outline")
     async def outline(version_id: str, extraction_revision_id: str | None = None):
@@ -609,6 +647,10 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         sections = db.rows("SELECT id,title,page_index,block_ids_json FROM sections WHERE generation_id=? ORDER BY page_index,id", (generation["id"],))
         for section in sections:
             section["block_ids"] = json.loads(section.pop("block_ids_json"))
+        if db.version(version_id)["format"] != "pdf":
+            snapshot = db.one("SELECT metadata_json FROM office_documents WHERE generation_id=?", (generation["id"],))
+            if snapshot:
+                sections = json.loads(snapshot["metadata_json"]).get("sections", sections)
         return {"version_id": version_id, "generation_id": generation["id"], "extraction_revision_id": generation["extraction_revision_id"], "sections": sections}
 
     @application.get(prefix + "/versions/{version_id}/pages/{page_index}/blocks")

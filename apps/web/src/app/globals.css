@@ -194,9 +194,12 @@ kbd { display: inline-block; min-width: 20px; padding: 0 4px; border: 1px solid 
 .tree-document small { display: flex; align-items: center; gap: 4px; font-size: 11px; color: hsl(var(--muted-foreground)); white-space: nowrap; }
 .library-selection { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px 16px; border-top: 1px solid hsl(var(--border)); background: hsl(var(--card)); color: hsl(var(--muted-foreground)); font-size: 12px; }
 .library-notice { margin: 0; padding: 4px 16px 8px; font-size: 12px; line-height: 1.5; color: hsl(var(--muted-foreground)); }
-/* Dépôt de PDF : cadre en pointillés sur tout le panneau, message centré ; le panneau reste lisible dessous. */
+/* Dépôt de documents : cadre en pointillés sur tout le panneau ; la bibliothèque reste lisible dessous. */
 .library-drop { position: absolute; inset: 8px; z-index: 5; display: flex; align-items: center; justify-content: center; padding: 16px; border: 2px dashed hsl(var(--primary)); border-radius: var(--radius); background: hsl(var(--sidebar) / 0.92); color: hsl(var(--sidebar-foreground)); font-size: 14px; font-weight: 600; text-align: center; pointer-events: none; }
 .library-notice.action-error { color: hsl(var(--destructive)); }
+.library-import-refusals { margin: 0; padding: 8px 16px 8px 32px; color: hsl(var(--destructive)); font-size: 12px; line-height: 1.5; }
+.library-import-refusals li { margin-bottom: 8px; }
+.library-import-refusals strong, .library-import-refusals span { display: block; overflow-wrap: anywhere; }
 /* Reprise des traitements en pause renvoyés par l'import d'un fichier identique, sous l'avis d'import. */
 .library-resume { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 0 16px 8px; }
 .library-resume .action-error { flex-basis: 100%; }
@@ -227,6 +230,49 @@ progress { display: block; width: 100%; height: 4px; margin-top: 8px; accent-col
 .outline > div > button:first-child { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; padding: 4px 0; border: 0; background: none; color: inherit; font-size: 12px; text-align: left; }
 .outline > div > button:first-child span { margin-left: auto; color: hsl(var(--muted-foreground)); font-size: 11px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .pdf-scroll { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+/* Lecteurs Office : mêmes panneaux et tokens, fenêtres bornées et provenance source. */
+.office-viewer { display: flex; flex-direction: column; height: 100%; min-height: 0; color: hsl(var(--foreground)); }
+.office-toolbar { display: flex; flex: none; align-items: center; gap: 8px; min-height: 56px; padding: 8px 12px; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); font-size: 12px; }
+.office-toolbar > strong { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.office-toolbar > span { color: hsl(var(--muted-foreground)); }
+.office-original { display: inline-flex; align-items: center; gap: 4px; color: inherit; text-decoration: none; }
+.office-unit-controls, .office-window-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; font-size: 12px; }
+.office-unit-controls { flex: none; padding: 8px 12px; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
+.office-unit-controls label { flex: 1; min-width: 160px; }
+.office-unit-controls label, .office-window-controls label { display: flex; flex-direction: column; gap: 4px; }
+.office-viewer select, .office-window-controls input { max-width: 100%; padding: 8px; border: 1px solid hsl(var(--input)); border-radius: var(--radius-small); background: hsl(var(--background)); color: inherit; font-size: 12px; }
+.office-viewer > .inline-warning, .office-viewer > .inline-error, .office-viewer > p[role="status"] { margin: 0; padding: 8px 12px; }
+.office-reading-area { flex: 1; min-height: 0; overflow: auto; padding: 16px; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.office-element { margin-bottom: 12px; padding: 16px; border: 1px solid hsl(var(--border)); border-radius: var(--radius-small); background: hsl(var(--card)); overflow-wrap: anywhere; }
+.office-element.is-cited, .office-spreadsheet td.is-cited { background: hsl(var(--accent)); outline: 2px solid hsl(var(--primary) / 0.6); outline-offset: -2px; }
+.office-element :is(h2, h3, h4, h5, h6) { margin: 0 0 8px; font-size: 18px; font-weight: 600; }
+.office-source-text, .office-textbox p, .office-table-block p { margin: 0 0 8px; white-space: pre-wrap; line-height: 1.65; }
+.office-numbering { display: block; margin-bottom: 4px; color: hsl(var(--muted-foreground)); }
+.office-element > button { margin-top: 12px; }
+.office-element details, .office-metadata { margin-top: 12px; font-size: 12px; }
+.office-element summary, .office-metadata summary, .office-outline summary { cursor: pointer; font-weight: 500; }
+.office-metadata h3 { margin: 12px 0 4px; font-size: 12px; font-weight: 600; }
+.office-outline { flex: none; max-height: 190px; overflow: auto; padding: 8px 12px; border-bottom: 1px solid hsl(var(--border)); background: hsl(var(--card)); font-size: 12px; }
+.office-outline nav > div { display: flex; align-items: start; justify-content: space-between; gap: 8px; }
+.office-outline nav > div > button:first-child { min-width: 0; white-space: normal; height: auto; text-align: left; }
+.office-help { margin: 8px 0; color: hsl(var(--muted-foreground)); font-size: 12px; line-height: 1.6; }
+.office-viewer > .office-help { flex: none; margin: 0; padding: 8px 12px; }
+.office-table-scroll { max-width: 100%; overflow: auto; margin: 12px 0; border: 1px solid hsl(var(--border)); border-radius: var(--radius-small); }
+.office-table-scroll table { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 12px; }
+.office-table-scroll caption { padding: 8px; text-align: left; color: hsl(var(--muted-foreground)); }
+.office-table-scroll th, .office-table-scroll td { padding: 8px; min-width: 90px; max-width: 360px; border: 1px solid hsl(var(--border)); vertical-align: top; white-space: pre-wrap; overflow-wrap: anywhere; }
+.office-table-scroll th { background: hsl(var(--muted)); font-weight: 600; }
+.office-table-scroll small, .office-figure small { display: block; margin-top: 4px; color: hsl(var(--muted-foreground)); font-size: 11px; }
+.office-cell { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-width: 100px; min-height: 28px; color: inherit; text-align: left; }
+.office-cell[aria-pressed="true"] { color: hsl(var(--primary)); font-weight: 600; }
+.office-cell-inspector { padding: 12px; background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius-small); font-size: 12px; }
+.office-cell-inspector h3 { margin: 0 0 8px; font-family: var(--font-family-mono); font-size: 14px; }
+.office-viewer dl { display: grid; grid-template-columns: minmax(90px, 1fr) minmax(0, 3fr); gap: 8px 12px; margin: 8px 0; }
+.office-viewer dt { color: hsl(var(--muted-foreground)); }
+.office-viewer dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.office-figure { margin: 12px 0; }
+.office-figure img { display: block; max-width: 100%; height: auto; max-height: 600px; object-fit: contain; }
+.office-figure figcaption { margin-top: 8px; font-size: 12px; line-height: 1.5; color: hsl(var(--muted-foreground)); }
 /* 8 + 20 + 24 = 52 px de hauteur hors page : valeur reprise par pdf-viewer.tsx pour les offsets. */
 .pdf-page-slot { display: flex; flex-direction: column; align-items: center; width: max-content; min-width: 100%; padding: 8px 24px 24px; }
 .page-caption { display: flex; justify-content: space-between; width: 100%; height: 20px; font-size: 11px; color: hsl(var(--muted-foreground)); font-variant-numeric: tabular-nums; }

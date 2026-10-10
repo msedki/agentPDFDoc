@@ -1,7 +1,7 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "./api";
-import { useWorkspace } from "./store";
+import { isOfficeLocation, useWorkspace } from "./store";
 import { citedRevision, revisionActionGuard } from "./provenance-revision";
 
 export function useCitationRevision() {
@@ -13,7 +13,10 @@ export function useCitationRevision() {
   const activeGeneration = tree.data?.documents.find(document => document.id === opened?.documentId)?.active_generation_id;
   const latest = useQuery({
     queryKey: ["current-extraction-revision", opened?.versionId, source?.query_id, source?.source_id, binding.revision, activeGeneration],
-    queryFn: ({ signal }) => api.outline(opened!.versionId, signal),
+    queryFn: async ({ signal }) => {
+      const result = isOfficeLocation(opened) ? await api.representation(opened.versionId, signal) : await api.outline(opened!.versionId, signal);
+      return { extraction_revision_id: result.extraction_revision_id };
+    },
     enabled: Boolean(opened) && Boolean(binding.revision), staleTime: 0,
   });
   const currentRevision = latest.isFetching ? undefined : latest.data?.extraction_revision_id;
