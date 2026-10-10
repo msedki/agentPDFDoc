@@ -1,6 +1,6 @@
 # Intégration DOCX/XLSX — preuves locales du 10 octobre 2026
 
-**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-10 19:45 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
+**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-10 20:18 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
 
 La phase d'étude a précédé l'implémentation. DOCX et XLSX complètent maintenant
 PDF dans l'import, l'extraction, les représentations, la recherche et les
@@ -626,7 +626,7 @@ Après fin native, seul cet authstate de 554 octets logiques est supprimé
 (`b100723a`) ; six PNG et rapport restent identiques. Le compagnon fermé
 `06fdf9f9` complète les reçus historiques sans les réécrire. La cause QA
 source writeFile sans mode est reproduite sur fichier synthétique réel
-(`254ff340`), à corriger dans R28-QA-01 ; aucun changement produit déduit.
+(`254ff340`) ; son correctif R28-QA-01 est vérifié ci-dessous, sans changement du produit.
 
 Arrêt **7,398 s**, inventaire **29,994 s**, comparaison **1,381 s**, tous à 0 ;
 finish natif puis propriétaire 83739 effectivement récolté à 0 (`f32cb035`).
@@ -644,5 +644,53 @@ Les points Qdrant sont prouvés avant down, aucune lecture live après arrêt.
 406 observations hôte : CPU max 48,4 %, RAM disponible minimum 50 474,57 MiB,
 SD minimum 15,020 GiB, disque système minimum 3,094 GiB. Hôte physique
 62 800,5 MiB, Linux aarch64, fixtures synthétiques DEV : aucune qualification
-CPU 16 Go, Windows, x86-64 ou métier/finale. C10 runtime complet se prépare
-sur les fixtures scale-01 existantes, sans nouveau benchmark de parsing.
+CPU 16 Go, Windows, x86-64 ou métier/finale. C10 runtime complet utilise
+les fixtures scale-01 existantes, sans nouveau benchmark de parsing ; son
+exécution en cours ne constitue pas encore une qualification.
+
+
+## R28-QA-01 — session des recettes web, 10 octobre 20:11–20:16 UTC
+
+La cause du mode 0664 est corrigée dans
+`apps/web/tests/e2e/storage-state.ts` et `tests/global-setup.ts` : obtenir
+l'état Playwright en mémoire, sérialiser avant création, ouvrir un temporaire
+exclusif privé dès sa création POSIX (0600), fermer l'écriture complète puis
+remplacer la cible propre. Liens symboliques, entrées étrangères ou non régulières,
+parent modifiable par d'autres comptes et changement observé de la cible
+sont refusés. Une erreur secondaire de fermeture ou de retrait est rapportée
+avec l'erreur initiale, conservée comme cause d'AggregateError. La résolution
+du chemin, le bootstrap et le finally de disposal existants sont conservés.
+
+Le témoin vérifie réellement le mode dès open sous umask 002 et la
+conservation de l'ancien inode pendant son remplacement. Les pannes
+partielles/rename/close/unlink sont injectées explicitement sur fichiers et
+descripteurs réels ; le propriétaire étranger est un double de métadonnées
+UID. Ces substitutions ne sont pas des essais d'accès entre deux comptes.
+18 tests ciblés et 467 unités web passent, aucun échec ni skip ; lint et
+typecheck sont conformes. Durées monotones des contrôles : 0,723 s,
+10,027 s, 3,788 s et 15,045 s respectivement. Le minuscule champ de durée du
+diagnostic initial est invalide et n'est pas utilisé quantitativement.
+
+Preuves conservées sous
+`.runtime/qa/r28-implementation/frontend-authstate-mode-diagnostic-20261010/` :
+`qa-authstate-completion-01.json` (`94677871`), logs et reçus des quatre
+contrôles, préimages des deux helpers avant changement (`7fd5a350`),
+reproductions rouges et diff (`252ff655`). Revue indépendante en lecture
+seule : `final-review/qa-authstate-source-independent-review.json`
+(`f2bbbc13`), 31 empreintes exactes et aucun défaut bloquant identifié.
+
+Les dix TMPDIR de ces contrôles sont retirés après leurs résultats terminaux :
+17 751 096 octets logiques de caches dérivés, 36 preuves rehashées identiques
+(`check-temps-cleanup-after-01.json`, `8ba96581`). Huit producteurs Node
+sont récoltés et leur /proc absent ; les deux premiers dossiers vides sont
+bornés à leurs retours terminaux sans PID historique reconstruit. Le delta
+libre du volume est une observation globale et ne mesure pas seul l'espace
+physique récupéré par ce nettoyage.
+
+Preuve Linux aarch64/Node 24.16.0 ; code POSIX et voie Windows distincts,
+aucune garantie d'ACL Windows, de résistance à une course d'un même UID,
+d'exclusivité NFS ou de durabilité par fsync. La garantie d'erreurs couvre
+le writer et ses FD/temp ; la double panne API/setup plus disposal n'est
+pas testée. Aucun build, navigateur, recette C05 ou runtime produit n'est
+rejoué : les sources fonctionnelles et le kit `22fd828` sont inchangés.
+Publication du correctif encore à confirmer au présent relevé.

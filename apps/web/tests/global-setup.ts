@@ -4,9 +4,8 @@
  * de stockage partagé par les pages et le contexte `request` des tests.
  */
 import { request, type FullConfig } from "@playwright/test";
-import { mkdirSync, readFileSync } from "node:fs";
-import path from "node:path";
-import { storageStatePath } from "./e2e/storage-state.ts";
+import { readFileSync } from "node:fs";
+import { storageStatePath, writeStorageStatePrivate } from "./e2e/storage-state.ts";
 import { e2eTarget } from "./e2e/target.ts";
 
 export const STORAGE_STATE = storageStatePath();
@@ -23,8 +22,7 @@ export default async function globalSetup(config: FullConfig) {
     const { path: openPath } = await link.json() as { path: string };
     const opened = await context.get(openPath, { maxRedirects: 0 });
     if (opened.status() !== 303 || opened.headers()["location"] !== "/workspace/") throw new Error(`Ouverture de session refusée (${opened.status()})`);
-    mkdirSync(path.dirname(STORAGE_STATE), { recursive: true });
-    await context.storageState({ path: STORAGE_STATE });
+    writeStorageStatePrivate(STORAGE_STATE, await context.storageState());
   } finally {
     await context.dispose();
   }

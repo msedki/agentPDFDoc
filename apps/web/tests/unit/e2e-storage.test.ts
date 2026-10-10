@@ -25,6 +25,8 @@ test("session E2E : préparation et configuration utilisent le même résolveur"
   const setup = readFileSync(new URL("../global-setup.ts", import.meta.url), "utf8");
   const config = readFileSync(new URL("../../playwright.config.ts", import.meta.url), "utf8");
   assert.match(setup, /export const STORAGE_STATE = storageStatePath\(\)/);
-  assert.match(setup, /storageState\(\{ path: STORAGE_STATE \}\)/);
+  assert.match(setup, /writeStorageStatePrivate\(STORAGE_STATE, await context.storageState\(\)\)/);
+  assert.doesNotMatch(setup, /storageState\(\{\s*path:/);
+  assert.match(setup, /finally\s*\{\s*await context.dispose\(\)/);
   assert.match(config, /storageState: storageStatePath\(\)/);
 });

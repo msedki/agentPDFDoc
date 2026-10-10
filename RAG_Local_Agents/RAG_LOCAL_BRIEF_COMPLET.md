@@ -1816,7 +1816,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` · **Mis à jour :** 2026-10-10 19:45 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` · **Mis à jour :** 2026-10-10 20:18 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 ## R28 — étude de l'extension DOCX/XLSX avant implémentation
 
@@ -1917,7 +1917,7 @@ Aucun statut global ni qualification des hôtes absents.
 | R28-I-08 | Livraison/documentation : PLAN, décisions, sources, CHANGELOG, docs de contrats/exploitation et kits affectés | I-07 preuves acquises | Documentation livrée alignée, dépendances et notices/kits Windows/Linux vérifiés hors ligne, backup/migration/reprise exécutables ; commit/push selon politique. Pas de clôture globale DoD tant que ses réserves distinctes restent ouvertes. C10/C11/C12. | PARTIEL : Office publié `57f7f0a`, correctif POSIX publié `22fd828`. Nouveau kit Linux aarch64 CPU : cinq étapes conformes, 1 162,656 s, archive SHA `478c48a9`. Installation hors réseau, restauration, permissions natives, Qdrant et anciennes citations, sauvegarde et arrêt nominal vérifiés ; programme inchangé et revue finale acquise. `permission-native-preflight/native-terminal-01.json`. Windows, x86-64, hôte physique de 16 Go et qualification métier/finale restent ouverts. |
 | R28-RT-01 | Runtime et protection du stockage : `services/runtime/backup.py`, `supervisor.py`, tests de permissions | Défaut confirmé durant I-08 | Sous umask POSIX002, nouvelles racines de restauration privées et jetons réservés au propriétaire ; refus de cibles de jeton non régulières sans altérer leur destination. Rotation, nettoyage et fonctionnement Windows conservés. Rouge/vert filesystem réel, régression runtime et revue indépendante ; nouvelle source/kit liés honnêtement. | VALIDÉ LOCALEMENT : source `22fd828`, régression 93 PASS/1 SKIP puis 18 PASS recouvrants, Ruff/mypy Linux et Win32 ciblés conformes. Nouveau kit CPU réellement restauré sous umask 002 : racine/control/sauvegarde 0700, jetons admin/Qdrant 0600, clé temporaire observée sans lecture ni chmod de QA. Reprise des anciennes réponses sans nouvelle inférence, backup vérifié, programme strictement inchangé, finish et propriétaire à 0, absence fraîche après récolte ; revue indépendante. `permission-native-preflight/native-terminal-01.json`. Aucune qualification Windows native déduite. |
 | R28-RT-02 | Distribution et avis de licences : `tools/dist/notices.py`, tests de kit | Faux manque Office confirmé dans I-08 | Inventorier LICENCE/LICENSE du cache réellement livré ; déclarer les manques par paquet uniquement si absents. Tests présents/partiels/absents sur les trois branches, génération depuis le manifeste réel et rectificatif séparé lié à l’archive inchangée. | VALIDÉ LOCALEMENT et rectificatif joint au kit `22fd828` : 6 rouges initiaux puis 13 PASS (2,341 s), Ruff/mypy ciblés conformes ; trois textes/hash/RECORD vérifiés. `notices-fix/completion.json` et `root/notices-addendum-delivery-01.json`. Aucune nouvelle fabrication ni qualification native Windows/x86-64 déduite ; revue indépendante source GO `71dfe354`, lot de dix fichiers publié `8200eba`, publication contrevérifiée (`aaa3bc77`/`807b9749`). |
-| R28-QA-01 | Authentification des recettes web : `apps/web/tests/global-setup.ts`, `storage-state.ts`, tests directs | Défaut réel observé durant C05 ; fermeture et publication du lot de preuves C05 | Écrire le storageState QA avec permissions privées dès création POSIX ; temporaire exclusif, cible régulière propre, fermeture/nettoyage en erreur et remplacement après écriture complète. Préserver Windows sans promettre de garantie ACL POSIX. Rouge/vert sur fichiers réels, contrôles web ciblés et revue indépendante. | AUTORISÉ, À CORRIGER : `context.storageState({path})` délègue à writeFile sans mode ; 0664 observé sous umask 002. Parent 0700 puis fchmod 0600 avant lecture ont borné C05 ; fichier exact retiré après arrêt. Témoin filesystem rouge et diagnostic `254ff340`, références R28-S22 ; aucune correction source encore réalisée. |
+| R28-QA-01 | Authentification des recettes web : `apps/web/tests/global-setup.ts`, `storage-state.ts`, tests directs | Défaut réel observé durant C05 ; fermeture et publication du lot de preuves C05 | Écrire le storageState QA avec permissions privées dès création POSIX ; temporaire exclusif, cible régulière propre, fermeture/nettoyage en erreur et remplacement après écriture complète. Préserver Windows sans promettre de garantie ACL POSIX. Rouge/vert sur fichiers réels, contrôles web ciblés et revue indépendante. | VALIDÉ LOCAL : création 0600 dès open POSIX sous umask 002, remplacement complet de la cible propre, refus des liens symboliques, UID/parent et erreurs primaire/secondaires préservées. 18 tests ciblés, 467 unités web, lint/types conformes ; revue indépendante `f2bbbc13`, témoin `94677871`. Préimages/rouges conservés, caches de contrôles retirés `8ba96581`. Windows/ACL et API/navigateur natifs non rejoués ; publication du correctif en préparation. |
 
 **Jalon courant :** intégration Office et correctif POSIX publiés, kit CPU
 du commit `22fd828` installé et recetté hors réseau. La restauration
@@ -1983,9 +1983,38 @@ cinq historiques et anciens originaux sont contrôlés ; programme inchangé
 authstate QA est supprimé après fermeture (`b100723a`).
 Sa création initiale en 0664 sous umask 002 reste un défaut QA confirmé,
 protégé ici par son parent 0700 et corrigé temporairement en 0600 avant
-lecture. Sa cause source sera traitée dans R28-QA-01, sans rejouer C05.
-Fin estimée C05 avec revue/documentation : **21 h 00–21 h 15 Casablanca** ;
-estimation globale conditionnelle ci-dessous.
+lecture. Sa cause source est corrigée et vérifiée dans R28-QA-01, sans rejouer C05.
+Le lot de six documents est publié `e57fd08a` le 10 octobre à **20 h 56
+Casablanca**, contrevérifié `e4ea4c19` : quatre commandes Git et propriétaire
+à 0, DoD/89 critères et journal Oct2 protégés. C05/C08 restent bornés aux
+scénarios explicitement acquis, sans clôture globale.
+
+**Suite autorisée, 20:13 UTC, actualisée après revue :** R28-QA-01 est
+implémenté et vérifié dans les helpers de session et leurs tests.
+C10 est réellement lancé à 20:11 UTC sur les fixtures scale-01 inchangées :
+DOCX 3000 paragraphes, XLSX 10k/100k et refus 1M ; pause, annulation et
+crash d'un worker propre puis reprises et publication finale. L'ordre
+crash→resume→pause→resume→cancel→resume respecte retry_limit, sans réduire
+les quotas. Le gel final `054c89cf` et l'addendum indépendant `6d5d6197`
+remplacent les préparations antérieures conservées ; ROOT vérifie 205
+empreintes et des cibles absentes, puis autorise les quinze étapes continues
+(`4d756396`), fermeture comprise. X détient le handle réel 17629 ; READY
+ne vaut ni publication ni fin. Deux défauts de garde QA ont été corrigés
+avant lancement : progression périmée et erreur de monitoring masquée.
+Les sept originaux stockés attendus seront vérifiés depuis leurs chemins
+DB et confrontés aux hashes des sources, y compris le refus 1M.
+QA-01 est testé et relu (`94677871`/`f2bbbc13`) ; publication estimée
+**21 h 20–21 h 30 Casablanca**. Premier step11 C10 rouge avant import :
+l'oracle exigeait un vecteur brut, alors que le contrat réel est nommé
+`dense`, dimension 384, sans sparse ; source, réponse native et échec
+conservés. Correction QA distincte relue (`f52759c7`) ; seize empreintes
+exactes et sortie neuve vérifiées par ROOT (`ad23f045`), puis reprise unique
+dans la stack possédée, sans restauration ni réimport. Recette C10 locale et consolidation
+estimées **21 h 45–22 h 25**, à réviser selon le débit réel. Les
+annotations héritées du preflight ne créent aucune attente d'approbation UI
+et sa borne 8–15 min est remplacée par l'estimation du gel de 15–30 min.
+Hôte physique 16 Go et plateformes absentes restent distincts ; estimation
+globale conditionnelle ci-dessous.
 
 ### R28.4 — critères d'acceptation et tests
 
@@ -2061,11 +2090,14 @@ jalons. Le lot précédent Office/avis/nettoyage a été publié `8200eba`.
 La continuation migration native, témoin du garde NF09 et diagnostic DEV 4B
 est publiée `f13d5f3` le **10 octobre à 19 h 58 Casablanca (UTC+1)**.
 C08 classeurs jumeaux est vérifié et relu à **20 h 10 Casablanca**.
-La recette C05 et sa consolidation sont estimées vers
-**21 h 00–21 h 15 Casablanca**, selon les résultats et la revue des preuves.
+La recette C05 dans son périmètre et ses six documents sont publiés et
+contrevalidés à **20 h 56 Casablanca** (`e57fd08a`). La correction QA-01
+est estimée vers **21 h 20–21 h 30**, la recette C10 locale vers
+**21 h 45–22 h 25**, à réviser depuis le débit réellement observé.
 Les durées natives déjà acquises ne sont pas refacturées comme travail restant.
-Les variantes C05/C08 non couvertes, C10 en runtime complet, la correction
-QA R28-QA-01 et les variantes C02 non couvertes restent dans la charge globale ;
+Les variantes C05/C08 non couvertes, C10 en runtime complet et les variantes
+C02 non couvertes restent dans la charge globale ; QA-01 est désormais testé
+et relu, sa publication reste à confirmer ;
 les seuls prérequis externes ne résument pas le reste du chantier.
 
 Pour la clôture intégrale, **environ 40–90 heures effectives**, soit
@@ -6335,7 +6367,7 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5204d2e` et consultations R26/R27/R28 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-10 19:45 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5204d2e` et consultations R26/R27/R28 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-10 20:18 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## NF09 — diagnostic graphique ciblé du 10 octobre 2026
 
@@ -6418,6 +6450,7 @@ liés depuis le PLAN. Une publication reste distincte d’une preuve d’exécut
 | R28-S20 | [SQLite WAL §2/4/5](https://www.sqlite.org/wal.html), [Atomic Commit](https://www.sqlite.org/atomiccommit.html), mainteneur, consultés le 10/10/2026 UTC ; moteur installé réellement observé 3.53.1 | Une transaction WAL n’est publiée qu’avec son marqueur de commit ; le fichier WAL peut persister après un arrêt brutal. Le protocole C02 conserve les fichiers avant reprise et utilise une connexion SQLite normale, sans lecture immutable qui ignorerait le WAL. Le crash synchronisé pendant la transaction doit être observé avant de conclure ; cette source ne constitue ni preuve d’exécution, ni recette de panne électrique ou multihôte. |
 | R28-S21 | [CPython 3.12, sqlite3 : gestionnaire de connexion](https://docs.python.org/3.12/library/sqlite3.html#how-to-use-the-connection-context-manager), [contextlib.closing](https://docs.python.org/3.12/library/contextlib.html#contextlib.closing), mainteneur, consultation du 10/10/2026 UTC ; documentation de branche 3.12 affichant 3.12.15, interpréteur exécuté 3.12.14 | Le gestionnaire d’une connexion SQLite règle la transaction mais ne ferme pas la connexion. La fermeture explicite, également en cas d’exception, motive les sept corrections du runner QA C05 et leurs témoins en mémoire. Ce contrat documentaire ne prouve ni ingestion, ni résultat de recette native ; aucun changement du service DB produit n’est déduit. |
 | R28-S22 | [Node.js fs 24.16.0](https://nodejs.org/download/release/v24.16.0/docs/api/fs.html#fspromiseswritefilefile-data-options), [flags](https://nodejs.org/download/release/v24.16.0/docs/api/fs.html#file-system-flags), [Playwright APIRequestContext.storageState](https://playwright.dev/docs/api/class-apirequestcontext#api-request-context-storage-state), consultés le 10/10/2026 à 19:44–19:45 UTC ; Node24.16.0/Playwright1.63 exécutés | Sans path, Playwright retourne l'état sans fichier. Node crée par défaut en 0666 masqué par umask ; mode ne corrige pas une cible existante. wx refuse une entrée existante/lien POSIX ; close et temporaire propre restent à gérer. Limites NFS, flags et permissions Windows distinctes. Contrat pour R28-QA-01 : aucune correction source ni qualification déduite de ces documents. |
+| R28-S23 | [Qdrant Named Vectors](https://qdrant.tech/documentation/manage-data/vectors/#named-vectors), [Scroll points](https://api.qdrant.tech/api-reference/points/scroll-points), mainteneur, consultés le 10/10/2026 à 20:16 UTC ; documentation courante, runtime verrouillé 1.19.1 | Les vecteurs nommés sont enregistrés sous leurs noms, avec configurations propres ; scroll peut inclure leurs valeurs. Motive la correction de l'oracle QA C10 qui attendait une liste brute. Le nom dense, la dimension 384, l'absence de sparse et les 14 points conservés viennent du code/configuration/réponse réels, pas de cette documentation. Aucune modification de collection ni migration vers un autre schéma n'en découle. |
 
 ## R27 — sources des corrections du 9 octobre 2026
 
