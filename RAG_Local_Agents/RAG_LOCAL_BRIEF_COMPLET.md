@@ -1809,7 +1809,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU recetté avec réserve de permissions Linux en correction ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · **Mis à jour :** 2026-10-10 15:23 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 · **Mis à jour :** 2026-10-10 17:14 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 ## R28 — étude de l'extension DOCX/XLSX avant implémentation
 
@@ -1907,20 +1907,23 @@ Aucun statut global ni qualification des hôtes absents.
 | R28-I-05 | Indexation et RAG : `indexing.py`, `scope.py`, `retrieval.py`, `context.py`, `query.py`, `comparison.py` | I-02 + V1 I-03/04 ; clôture après V2 | Projection narrative/tableaux bornée avec bindings cellule/texte, identité chunker Office distincte, index/caches/publication existants ; sheet/cell_range autoritaires avant top-k et contexte. Recherche/question/analyse/comparaison mixtes avec citations exactes et annulation/SSE ; aucun total exhaustif inventé par top-k. C05/C06/C07/C08/C11. | IMPLÉMENTÉ, recherche hybride et contexte DEV8/8 ; affinage littéral/cache revalidé sur réponse native et citations exactes. |
 | R28-I-06 | Frontend : `library-panel.tsx`, `workspace.tsx`, `document-tools.tsx`, `scope-control.tsx`, lecteurs Office, `types.ts`, `store.ts`, sélection/cache/citation helpers | I-01/02 contrats gelés + V1 I-03/04/I-05 | Import mixte et jobs réels, mêmes panneaux, lecteurs structurés et fenêtres bornées ; sélection sections/feuilles/plages, inspecteur type/formule/cache, citations/retour exacts. Action critique explicitement liée au mode `analysis` existant et limites. Lint/types/unités/build et rendu/E2E API réelle ; C05/C07/C08/C11/C12. | IMPLÉMENTÉ,454 unités et build3 ; badgeOffice corrigé, rendu aux deux tailles et citations relus indépendamment. |
 | R28-I-07 | Qualification et non-régression indépendante : fixtures annotées versionnées, suites unitaires/API/E2E, corpus autorisé | Vertical V1 puis I-01→06 finalisés | Contrat→extraction→DB→FTS/Qdrant→RAG→citation→lecteur réellement exercé ; corpus/métriques gelés, grands/adverses/reprise, CPU 16 Go et plateformes séparées. Aucun mock ne clôture chaîne réelle ; avis indépendant et écarts corrigés. Tous C01→C12. | PARTIEL : chaîne native DEV/revue locale acquises ; CPU physique16 Go, x86-64/Windows, métier/final manquent. |
-| R28-I-08 | Livraison/documentation : PLAN, décisions, sources, CHANGELOG, docs de contrats/exploitation et kits affectés | I-07 preuves acquises | Documentation livrée alignée, dépendances et notices/kits Windows/Linux vérifiés hors ligne, backup/migration/reprise exécutables ; commit/push selon politique. Pas de clôture globale DoD tant que ses réserves distinctes restent ouvertes. C10/C11/C12. | PARTIEL : documentation et sources publiées `57f7f0a`, revue indépendante acquise ; kit Linux aarch64 CPU fabriqué, vérifié, archivé et extrait (5 étapes, 1 102,960 s ; reçu `kit-preflight/office-kit-manufacturer-closeout.json`). Installation hors réseau, backup/restore Office, données/vecteurs/citations/lecteurs et programme inchangé vérifiés ; défaut de permissions Linux corrigé en source/tests/revue R28-RT-01, nouveau kit et recette native du correctif attendus. Autres cibles ouvertes. |
-| R28-RT-01 | Runtime et protection du stockage : `services/runtime/backup.py`, `supervisor.py`, tests de permissions | Défaut confirmé durant I-08 | Sous umask POSIX002, nouvelles racines de restauration privées et jetons réservés au propriétaire ; refus de cibles de jeton non régulières sans altérer leur destination. Rotation, nettoyage et fonctionnement Windows conservés. Rouge/vert filesystem réel, régression runtime et revue indépendante ; nouvelle source/kit liés honnêtement. | SOURCE VÉRIFIÉE : backup, restore et control nouveaux 0700 POSIX, jetons 0600 et remplacement atomique ;8 reproductions rouges initiaux +2 reproductions rouges backup,93 PASS/1 SKIP puis18 PASS ciblés recouvrants, Ruff/mypy et revue indépendante GO. `permission-fix/completion.json`, `final-review/office-runtime-private-permissions-source-review.json`. Kit `57f7f0a` intact, aucun chmod de QA ; nouveau kit/native attendu. |
+| R28-I-08 | Livraison/documentation : PLAN, décisions, sources, CHANGELOG, docs de contrats/exploitation et kits affectés | I-07 preuves acquises | Documentation livrée alignée, dépendances et notices/kits Windows/Linux vérifiés hors ligne, backup/migration/reprise exécutables ; commit/push selon politique. Pas de clôture globale DoD tant que ses réserves distinctes restent ouvertes. C10/C11/C12. | PARTIEL : Office publié `57f7f0a`, correctif POSIX publié `22fd828`. Nouveau kit Linux aarch64 CPU : cinq étapes conformes, 1 162,656 s, archive SHA `478c48a9`. Installation hors réseau, restauration, permissions natives, Qdrant et anciennes citations, sauvegarde et arrêt nominal vérifiés ; programme inchangé et revue finale acquise. `permission-native-preflight/native-terminal-01.json`. Windows, x86-64, hôte physique de 16 Go et qualification métier/finale restent ouverts. |
+| R28-RT-01 | Runtime et protection du stockage : `services/runtime/backup.py`, `supervisor.py`, tests de permissions | Défaut confirmé durant I-08 | Sous umask POSIX002, nouvelles racines de restauration privées et jetons réservés au propriétaire ; refus de cibles de jeton non régulières sans altérer leur destination. Rotation, nettoyage et fonctionnement Windows conservés. Rouge/vert filesystem réel, régression runtime et revue indépendante ; nouvelle source/kit liés honnêtement. | VALIDÉ LOCALEMENT : source `22fd828`, régression 93 PASS/1 SKIP puis 18 PASS recouvrants, Ruff/mypy Linux et Win32 ciblés conformes. Nouveau kit CPU réellement restauré sous umask 002 : racine/control/sauvegarde 0700, jetons admin/Qdrant 0600, clé temporaire observée sans lecture ni chmod de QA. Reprise des anciennes réponses sans nouvelle inférence, backup vérifié, programme strictement inchangé, finish et propriétaire à 0, absence fraîche après récolte ; revue indépendante. `permission-native-preflight/native-terminal-01.json`. Aucune qualification Windows native déduite. |
+| R28-RT-02 | Distribution et avis de licences : `tools/dist/notices.py`, tests de kit | Faux manque Office confirmé dans I-08 | Inventorier LICENCE/LICENSE du cache réellement livré ; déclarer les manques par paquet uniquement si absents. Tests présents/partiels/absents sur les trois branches, génération depuis le manifeste réel et rectificatif séparé lié à l’archive inchangée. | VALIDÉ LOCALEMENT et rectificatif joint au kit `22fd828` : 6 rouges initiaux puis 13 PASS (2,341 s), Ruff/mypy ciblés conformes ; trois textes/hash/RECORD vérifiés. `notices-fix/completion.json` et `root/notices-addendum-delivery-01.json`. Aucune nouvelle fabrication ni qualification native Windows/x86-64 déduite ; revue indépendante source GO `71dfe354`, relecture documentaire finale avant publication. |
 
-**Jalon courant :** recette fonctionnelle du kit publié `57f7f0a` terminée :
-3 formats,8/8 faits DEV,2 réponses puis restauration et1 nouvelle réponse,
-3 anciennes citations et9 captures conformes ; programme65131 fichiers/1188
-liens inchangé,2 instances arrêtées et199 lifetimes absentes. Le broker QA
-reçoit SIGTERM15 après les arrêts/inventaires : cause inconnue conservée,
-comparaison seule terminée ensuite sur hôte ; aucun PASS global du collecteur.
-Source R28-RT-01 vérifiée ; publier avec sa documentation, fabriquer un kit
-CPU lié au nouveau commit, vérifier les modes et la chaîne restaurée sans
-réexécuter les campagnes Office inchangées.
-Les recettes métier/finale, physique 16 Go et plateformes absentes
-restent distinctes ; aucun grand corpus privé ni campagne protégée utilisé.
+**Jalon courant :** intégration Office et correctif POSIX publiés, kit CPU
+du commit `22fd828` installé et recetté hors réseau. La restauration
+conserve les trois formats, 31 tables SQL, 14 points Qdrant et leurs
+sources ; deux anciennes réponses et citations sont relues sans génération.
+Les modes privés sont observés dans le runtime réel. Sauvegarde, arrêt,
+finish et récolte sont conformes ; programme inchangé et revue indépendante
+acquise. Le refus initial de place et le broker historique interrompu
+restent documentés. Archives et données conservées ; seuls les duplicatas
+de fabrication devenus inutiles ont été retirés après contrôle.
+Les recettes Windows, Linux x86-64, physique 16 Go et métier/finale
+ainsi que la réserve de recette stricte NF09 restent ouvertes. Les textes
+de licences Office sont présents ; leur avis erroné est rectifié dans
+R28-RT-02. Aucun critère DoD n’est assoupli.
 
 ### R28.4 — critères d'acceptation et tests
 
@@ -1983,9 +1986,60 @@ de permissions Linux est corrigé/revu en source. À15:23 UTC, nouvelle
 livraison CPU et vérification native estimées25–40 min ; archive précédente
 SHA intégralement recontrôlé avant nettoyage de son extrait redondant.
 Aucun ancien kit ne bénéficie rétroactivement du correctif.
-Aucune durée de clôture globale déduite. La clôture DoD globale reste non chiffrable tant
-que les hôtes et corpus requis ne sont pas disponibles. Les essais identiques
-sur des entrées inchangées ne remplacent aucune de ces preuves manquantes.
+Ces durées natives ne permettent pas de déduire une date de clôture globale.
+Une estimation conditionnelle du travail restant figure ci-dessous ; sa date
+dépend des hôtes et corpus requis. Les essais identiques sur des entrées
+inchangées ne remplacent aucune de ces preuves manquantes.
+
+### Estimation transversale de fin — 2026-10-10 17:14 UTC
+
+Demande du 10 octobre : annoncer une heure locale de fin pour chaque lot
+et une estimation pour la totalité du plan, puis les réviser après les
+jalons. La fin du lot local de recette Office, avis, nettoyage SD et
+publication est estimée au **10 octobre, vers 18 h 25 Casablanca (UTC+1)**,
+après le dernier nettoyage vérifié et la revue avant publication.
+Les durées natives déjà acquises ne sont pas refacturées comme travail restant.
+
+Pour la clôture intégrale, **environ 40–90 heures effectives**, soit
+**5–12 journées équivalentes de 8 heures**, sont estimées après T0. T0 est
+la dernière disponibilité des hôtes Windows natif et Linux x86-64, d’un
+hôte physique CPU de 16 Go maximum, du corpus autorisé exploitable et
+annoté et des conditions d’autorisation des investigations ciblées. Le
+poste Windows ou Linux peut aussi porter la qualification 16 Go ; aucun
+troisième hôte n’est obligatoirement nécessaire. Les disponibilités ont
+été demandées à l’utilisateur et restent inconnues.
+
+| Travail restant | Charge estimée, non mesurée | Condition / limite |
+|---|---:|---|
+| Installation et recette Windows native | 6–10 h | Poste accessible, compte standard, entrées hors ligne prêtes. |
+| Fabrication et recette Linux x86-64 | 4–8 h | Architecture réellement distincte ; aucun PASS aarch64 transféré. |
+| D07 et gros Office sur CPU physique ≤16 Go | 3–6 h supplémentaires | Mutualisé avec l’un des deux postes ; ≥25 000 chunks, ≥30 questions de performance et usage mixte 30 min. |
+| Contrats natifs encore partiellement qualifiés | 6–12 h | Extraction/indexation/scopes/archives et changement d’embedding selon protocole. |
+| Final gelé : 100 questions et assertions/citations/métriques | 4–8 h | Corpus et annotations prêts ; 80 répondables/20 sans réponse, sans tuning sur final. |
+| Investigation discriminante NF09 et recette stricte | 2–6 h | Sous conditions d’autorisation applicables ; aucune répétition identique des recettes rouges. |
+| Consolidation finale unique | 15–30 min | Preuves par machine/commit/corpus, revue indépendante et documentation. |
+| Campagnes prévues | Environ 25–51 h | Charge cumulée ; paralléliser uniquement les axes réellement indépendants. |
+| Provision distincte de corrections révélées par les réserves | 16–40 h | Incertitude OCR/ancres/qualité ; aucun défaut nouveau présumé. |
+
+Sources des volumes et critères : [QUALIFICATION](QUALIFICATION.md),
+sections 6 et 8 ; [DoD](DEFINITION_OF_DONE.md), D05, D07 et « Jeu
+d’évaluation minimal ». La revue indépendante de l’estimation distingue
+les scores DEV historiques 4B du code courant non qualifié. Les travaux
+2B annulés par W045 ne sont pas rouverts. Les réserves OCR P02, D06.5 et
+NF09 restent distinctes ; aucune nouvelle mesure identique n’est autorisée.
+
+Confiance moyenne sur les campagnes, faible sur la provision. Les 61 PDF
+en pause de R19 ont une volumétrie restante de pages/chunks inconnue :
+leur traitement et la préparation d’annotations ne sont pas artificiellement
+chiffrés et doivent être intégrés avant de fixer T0. Aucun inventaire du
+corpus privé ni accès au jeu final n’a été réalisé pour cette estimation.
+Les attentes externes et défauts nouveaux peuvent déplacer l’échéance.
+
+**Scénario conditionnel, sans date d’accès acquise :** si tout est prêt
+le lundi 12 octobre au matin et si le calendrier est de 8 h/jour du lundi
+au vendredi, la fin serait entre le **16 et le 27 octobre vers 18 h
+Casablanca**. Recaler cette fenêtre sur T0 réel, puis après les premières
+recettes natives et mesures CPU ; ce n’est ni un résultat ni une garantie.
 
 ## R27 — poursuite autorisée du 9 octobre à partir de la baseline
 
@@ -6190,7 +6244,7 @@ Les nouvelles règles s'appliquent aux agents de développement et ne modifient 
 
 # Sources officielles et traçabilité — V2.1
 
-**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5204d2e` et consultations R26/R27/R28 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-10 15:23 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
+**Rôle :** registre des sources consultées, versions, apports et limites · **Propriétaire :** traçabilité technique du chantier · **Statut :** Vivant · **Référence :** base publiée `5204d2e` et consultations R26/R27/R28 datées ci-dessous ; historique conservé · **Mis à jour :** 2026-10-10 16:58 (UTC) · **Source de vérité :** ce registre pour les consultations ; publications liées pour les faits externes, code et rapports pour les résultats locaux
 
 ## NF09 — diagnostic graphique ciblé du 10 octobre 2026
 
@@ -6247,7 +6301,7 @@ disponible n'est converti en preuve d'intégration Office du projet.
 | R28-S06 | [Microsoft SpreadsheetML formules](https://learn.microsoft.com/en-us/office/open-xml/spreadsheet/working-with-formulas), mise à jour14/01/2025 | `<f>` formule et `<v>` valeur de dernier calcul distinctes ; refs feuille/classeur/noms. Présence du cache ne garantit ni fraîcheur ni exactitude ; absence conservée dans les probes. |
 | R28-S07 | [lxml parsing](https://lxml.de/parsing.html), [defusedxml mainteneur](https://github.com/tiran/defusedxml), [OWASP File Upload](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html) ; lxml6.1.3/defusedxml0.7.1 réels | Options XML/protection et contrôle upload ; micro-tests installés : entités non expansées ou refus explicite selon parser. Préflight DOCTYPE/entities/ZIP nécessaire ; aucune certification sécurité du produit Office absent. |
 | R28-S08 | [Python3.12 zipfile](https://docs.python.org/3.12/library/zipfile.html), [tempfile](https://docs.python.org/3.12/library/tempfile.html) ; documentation3.12.15, CPython3.12.14 exécuté | Tailles/CRC/chemins et handles temporaires Windows ; préflight et cleanup bornés à prévoir. Documentation de famille ne vaut pas recette Windows. |
-| R28-S09 | Publications PyPI [python-docx1.2.0](https://pypi.org/project/python-docx/1.2.0/), [openpyxl3.1.5](https://pypi.org/project/openpyxl/3.1.5/), [lxml6.1.3](https://pypi.org/project/lxml/6.1.3/), [defusedxml0.7.1](https://pypi.org/project/defusedxml/0.7.1/), [et-xmlfile2.0.0](https://pypi.org/project/et-xmlfile/2.0.0/), [typing-extensions4.16.0](https://pypi.org/project/typing-extensions/4.16.0/) | Douze roues du verrou confrontées à noms/hashes publiés, inventaire installé et avis. Textes openpyxl/et-xmlfile absents de leurs distributions installées : inclusion réelle à vérifier. Aucune installation Windows/x86 ou disponibilité de chaque cache offline prouvée. |
+| R28-S09 | Publications PyPI [python-docx1.2.0](https://pypi.org/project/python-docx/1.2.0/), [openpyxl3.1.5](https://pypi.org/project/openpyxl/3.1.5/), [lxml6.1.3](https://pypi.org/project/lxml/6.1.3/), [defusedxml0.7.1](https://pypi.org/project/defusedxml/0.7.1/), [et-xmlfile2.0.0](https://pypi.org/project/et-xmlfile/2.0.0/), [typing-extensions4.16.0](https://pypi.org/project/typing-extensions/4.16.0/) | Douze roues du verrou confrontées à noms/hashes publiés, inventaire installé et avis. Rectification R28-RT-02 du 10/10/2026 : la sonde historique omettait les noms LICENCE. Textes MIT openpyxl/et-xmlfile et LICENCE.python réellement présents dans le cache livré du kit 22fd828 ; octets, METADATA, RECORD et SHA256SUMS concordants, hashes dans le [rapport Office](reports/office-integration-2026-10-10.md). Aucune installation Windows/x86 ou disponibilité de chaque cache offline prouvée. |
 | R28-S10 | [PyPA tags](https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/), [PEP600](https://peps.python.org/pep-0600/), [lxml installation](https://lxml.de/installation.html) ; roues CPython3.12 et ELF aarch64 local | manylinux/ABI ; glibc locale du module et minimum de la pile entière distingués. GNU/Linux sous prérequis, pas Linux universel/musl ni dépendance Jetson/GPU introduite par Office. |
 | R28-S11 | Mainteneurs [Calamine](https://github.com/tafia/calamine), [Mammoth Python](https://github.com/mwilliamson/python-mammoth), [Mammoth JS](https://github.com/mwilliamson/mammoth.js), [docx-preview](https://github.com/VolodymyrBaydalka/docxjs), [SheetJS cellules](https://docs.sheetjs.com/docs/csf/cell/), [MarkItDown](https://github.com/microsoft/markitdown), [Tika3.2.3 formats](https://tika.apache.org/3.2.3/formats.html) | Comparaison documentaire des représentations, rendu, sécurité, runtime et intégration ; solutions non installées/non benchmarkées ici. Versions mobiles ne sont pas des dépendances retenues ni des gains mesurés. |
 | R28-S12 | [LibreOffice paramètres](https://help.libreoffice.org/latest/en-US/text/shared/guide/start_parameters.html), documentation latest26.8 ; paquets locaux6.4.7 constatés | Headless/conversion et profil utilisateur ; aucun convertisseur exécuté, rendu/calcul/fidélité/offline multihôte NOT_RUN. Dérivé éventuel distinct, pas moteur requis. |

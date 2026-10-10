@@ -42,6 +42,22 @@ def artifact_rows(lock: dict[str, Any], files: list[str], platform: str = "windo
     return list(rows.values())
 
 
+def office_rows(files: list[str]) -> list[dict[str, Any]]:
+    """Textes réellement livrés pour les deux distributions Office verrouillées, sans lire le poste hôte."""
+    rows = []
+    for component, version in (("openpyxl", "3.1.5"), ("et-xmlfile", "2.0.0")):
+        directory = f"{component.replace('-', '_')}-{version}.dist-info"
+        folders = set()
+        for name in files:
+            parts = name.split("/")
+            if directory in parts[:-1]:
+                folders.add("/".join(parts[:parts.index(directory) + 1]))
+        texts = sorted({name for folder in folders for name in license_files(files, folder)})
+        rows.append({"component": component, "version": version, "publisher": "—",
+                     "license": "MIT (métadonnées)", "source": "—", "texts": texts})
+    return rows
+
+
 # Manques propres aux kits Linux (R26-KIT-01) : constatés sur le contenu livré, non résolus par le kit.
 LINUX_GAPS = ("texte de licence d'uv absent : `bootstrap.sh` n'extrait que les exécutables `uv` et `uvx` de l'archive officielle",
               "Tesseract et Leptonica construits depuis les sources verrouillées et liés aux bibliothèques du système "
@@ -54,8 +70,6 @@ JETPACK5_GAP = ("conditions de licence NVIDIA (CUDA 11.4, cuBLAS) des bibliothè
 COMMON_GAPS = ("texte de licence propre à Qdrant et à Ollama absent des archives officielles", "titulaire du copyright d'E5",
                "textes Apache-2.0 de Docling Heron et CDLA-Permissive-2.0 de TableFormer à joindre",
                "avis des paquets npm regroupés dans les scripts de l'interface")
-OFFICE_GAP = ("textes MIT d'openpyxl 3.1.5 et d'et-xmlfile 2.0.0 absents des distributions Python installées "
-              "contrôlées pour l'extension Office ; la déclaration de licence des métadonnées ne remplace pas ces textes")
 QWEN_4B_SECTION = ["## Modification du modèle Qwen3.5-4B", "",
                    "Le modèle `qwen3.5:4b-text` livré est dérivé localement du modèle Qwen3.5-4B publié sous licence Apache-2.0 : les "
                    "tenseurs de l'encodeur de vision (`v.*`, `mm.*`) ont été retirés, les autres tenseurs sont repris à l'identique et "
@@ -68,12 +82,17 @@ def third_party_notices(root: Path, files: list[str], version: str, platform: st
     """`lock` : verrou lu dans le commit du kit (kit Linux) ; à défaut, celui de l'arbre de travail (kit Windows).
 
     `models` : jeux de modèles livrés (`model_sets` du kit Linux) ; la mention de la modification du 4B ne figure que si
-    `4b` en fait partie. Sans valeur (kit Windows), elle figure toujours. Le texte du kit Windows est inchangé."""
+    `4b` en fait partie. Sans valeur (kit Windows), elle figure toujours."""
     if lock is None:
         lock = json.loads((root / "config/artifacts.lock.json").read_text(encoding="utf-8"))
-    rows = artifact_rows(lock, files, platform)
+    office = office_rows(files)
+    rows = artifact_rows(lock, files, platform) + office
+    office_gaps = [f"absence de texte de licence repéré dans les fichiers du kit pour {row['component']} {row['version']} ; "
+                   "la déclaration de licence des métadonnées ne remplace pas ces textes"
+                   for row in office if not row["texts"]]
     lines = [f"# Avis de tiers — Atelier documentaire {version}", "",
-             "Composants livrés par ce kit, avec la licence déclarée par le verrou du projet (`config/artifacts.lock.json`) et les textes "
+             "Composants livrés par ce kit, avec la licence déclarée par le verrou du projet (`config/artifacts.lock.json`) pour les artefacts "
+             "et par les métadonnées Python pour les paquets Office (openpyxl et et-xmlfile), ainsi que les textes "
              "de licence effectivement présents dans le kit. Ce document n'est pas un avis juridique. Le projet est d'usage interne, "
              "sans redistribution hors de l'organisation (décision W030). Les manques connus restent listés en fin de document. "
              "Une redistribution hors de l'organisation rouvrirait le contrôle des licences et avis manquants.", "",
@@ -95,9 +114,10 @@ def third_party_notices(root: Path, files: list[str], version: str, platform: st
         lines += ["Relevés par l'analyse de distribution (section 6), non résolus par ce kit : texte de licence propre à Qdrant et à Ollama "
                   "absent des archives officielles ; licences des DLL tierces de la copie Tesseract ; titulaire du copyright d'E5 ; textes "
                   "Apache-2.0 de Docling Heron et CDLA-Permissive-2.0 de TableFormer à joindre ; avis des paquets npm regroupés dans les "
-                  "scripts de l'interface ; conditions NVIDIA des bibliothèques CUDA d'Ollama tant qu'elles sont livrées (P3).", "", OFFICE_GAP + "."]
+                  "scripts de l'interface ; conditions NVIDIA des bibliothèques CUDA d'Ollama tant qu'elles sont livrées (P3).", ""]
+        lines += [f"- {gap}." for gap in office_gaps]
         return "\n".join(lines) + "\n"
-    gaps = (*COMMON_GAPS, OFFICE_GAP, *LINUX_GAPS, *((JETPACK5_GAP,) if gpu == "jetpack5" else ()))
+    gaps = (*COMMON_GAPS, *office_gaps, *LINUX_GAPS, *((JETPACK5_GAP,) if gpu == "jetpack5" else ()))
     lines += ["Manques relevés par l'analyse de distribution, document du dépôt du projet, non livré avec ce kit. Ils ne sont pas "
               "résolus par ce kit :", ""] + [f"- {gap}." for gap in gaps]
     return "\n".join(lines) + "\n"

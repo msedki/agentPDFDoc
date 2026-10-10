@@ -1,6 +1,6 @@
 # Intégration DOCX/XLSX — preuves locales du 10 octobre 2026
 
-**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · **Mis à jour :** 2026-10-10 15:14 UTC · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
+**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-10 16:58 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
 
 La phase d'étude a précédé l'implémentation. DOCX et XLSX complètent maintenant
 PDF dans l'import, l'extraction, les représentations, la recherche et les
@@ -228,3 +228,104 @@ bbbccdaa. Sept dossiers temporaires de tests ont été supprimés après relevé
 de leurs métadonnées ; preuves rouges/vertes et snapshots sont conservés.
 Le kit `57f7f0a` reste intact avec son défaut. La recette d’un nouveau kit
 corrigé est encore NOT_RUN à ce jalon.
+
+
+### Kit corrigé et recette native terminés — 2026-10-10 16:51 UTC
+
+Le correctif est publié sur `origin/main` au commit `22fd828`. Le nouveau
+build web termine à 0 en 62,84 s, avec 243 fichiers et provenance vérifiée.
+Les cinq étapes de fabrication, vérification, archive et extraction du kit
+`0.1.0+22fd828c8ab0-linux-aarch64-none-2b4b` terminent à 0 en 1 162,656 s.
+Archive : 11 185 633 280 octets, SHA `478c48a9`; manifeste GPU `none`,
+aucun complément JetPack requis, modèle source 4B par défaut. Ce résultat
+sur l’hôte Ubuntu 20.04/glibc 2.31 aarch64 ne qualifie pas les autres Linux.
+
+L’installation initiale refuse proprement la place disponible (code 3,
+14,9 Gio pour 15,4 requis). Reçu et diagnostic sont conservés. Après relecture
+complète de l’archive historique SHA `298e26bf` (128,512 s), le seul ancien
+duplicata de fabrication est retiré : 10,455 Gio récupérés. Archive, six
+métadonnées, installation historique, données et preuves du défaut restent
+disponibles. Le nouveau duplicata de fabrication avait également été retiré
+après relecture de son archive. Les caches recherchés pour débloquer cette installation n’ont pas été supprimés.
+Les gardes portent sur les identités QA capturées et les éléments observables ;
+les cinq accès hôte inconnus et six zombies préexistants restent hors assertion.
+
+| Contrôle du nouveau kit | Résultat réel |
+|---|---|
+| Installation sans menu, démarrage ni navigateur | Reprise distincte à 0, 364,780 s ; refus 3 initial préservé. |
+| Restauration sous umask 002 | 6,444 s ; racine et contrôle en 0700, clé Qdrant temporaire en 0600 réellement observée. Aucun chmod ni lecture de sa valeur. |
+| Profil et services | Copie QA explicite : seuls quatre chemins runtime redirigés vers les nouvelles données ; profils brut/restauré et installé inchangés. Up et doctor conformes, CPU 4B. |
+| Permissions des services actifs | Racine et contrôle en 0700, admin-token et qdrant-api-key en 0600, propriétaire et lien unique contrôlés. |
+| Données et ancienne exploitation | Schéma4, intégrité ok/FK 0, 31 tables normalisées, originaux/extractions/FTS/générations et 14 citations identiques ; 14 points Qdrant avec payloads/vecteurs/configuration identiques. |
+| Relecture API | Deux anciennes réponses DONE/SSE et citations PDF/DOCX/XLSX exactes ; requêtes GET uniquement, zéro nouveau POST de question et zéro nouvel appel modèle. Les métriques de génération sont historiques. |
+| Nouvelle sauvegarde | Création et verify à 0, nouvelle racine en 0700 et 31 tables/sources identiques à l’état restauré avant API. |
+| Arrêt et conservation | Down conforme, programme 65131 fichiers/1188 liens strictement inchangé ; finish explicite, broker et propriétaire à 0, récolte prouvée et 185 identités capturées absentes au contrôle frais. Capture SQL finale en lecture seule sur hôte, après clôture et hors namespace. |
+
+Reçus : `kit-preflight/permission-kit-22fd828-manufacturer-closeout-01.json`
+(`db9d49eb`), `permission-kit-22fd828-archive-readback-01.json` (`d4765219`),
+`permission-kit-old-57f7-cleanup-after-01.json` (`cc0f5bcb`),
+`permission-native-preflight/native-terminal-01.json` et avis indépendant
+`office-permissions-native-terminal-independent-review.json`. Les modes sont qualifiés dans la chaîne native,
+en complément des tests source ; aucune nouvelle campagne LLM/UI inchangée.
+Typecheck des deux modules modifiés aussi conforme sous `--platform win32`
+(4,158 s, reçu `root/mypy-permissions-win32-01.json`), sans recette Windows.
+Deux captures rapides ont pour champ exécutable le répertoire du dépôt :
+leur absence est établie par ascendance, PID et naissance, sans qualifier
+leur exécutable. Le reçu initial est conservé et borné par la revue indépendante.
+
+Sur 359 échantillons hôte : RAM disponible minimum
+51 350,68 MiB, RAM totale
+62 800,50 MiB, CPU maximum
+32,0 %, SD minimum
+14,837 Gio et racine minimum
+3,151 Gio. Les observations réseau concernent
+le namespace QA isolé ; aucun socket non loopback observé. Le DNS SERVFAIL
+est un double déclaré et l’échantillonnage peut manquer un socket transitoire.
+Ces mesures ne qualifient pas un hôte physique de 16 Go. Source03, son profil,
+journal protégé et DoD sont inchangés. Windows, Linux x86-64, qualification
+métier/finale et recette stricte NF09 restent des réserves distinctes.
+Les textes MIT d’openpyxl/et-xmlfile sont présents dans le kit. L’avis
+historique qui les déclarait absents est rectifié par R28-RT-02 ; aucun texte
+supplémentaire n’a été téléchargé et les archives sont conservées inchangées.
+
+
+### R28-RT-02 — rectification des avis Office — 2026-10-10 16:57 UTC
+
+Le manque de textes MIT annoncé durant l’étude était un faux constat :
+la sonde `inspect_metadata.py` cherchait « license » et omettait « licence ».
+Le générateur `tools/dist/notices.py` reprenait ce constat inconditionnellement.
+Le correctif inventorie les noms réels des distributions verrouillées dans
+les fichiers du kit, y compris le cache uv, et conserve les autres manques.
+Une absence n’est déclarée que pour le paquet sans texte repéré. Les
+distributions d’une autre version et licences sans lien sont exclues.
+
+Les six nouvelles reproductions échouent avant correction (0,920 s).
+La sélection finale passe 13 tests en 2,341 s (commande : 3,497 s), avec
+branches Windows-x86-64/Linux-aarch64/Linux-x86-64, sans recette native
+des hôtes absents. Ruff termine à 0 en 0,071 s, mypy ciblé en 0,418 s.
+Reçu `notices-fix/completion.json`, SHA `53216923` ; aucun test existant
+affaibli, aucun changement du pipeline Office ni nouvelle dépendance.
+
+L’inventaire réel des 35 624 fichiers du kit CPU `22fd828` et les trois
+petits textes sont contrôlés : openpyxl 3.1.5 et et-xmlfile 2.0.0 contiennent
+chacun `LICENCE.rst` (1 131 octets), SHA256
+`0c84bb42f5d367e5ebf9fc2dde35b16141df5ee0fdc189250858bc6c5560f69e` ;
+et-xmlfile contient aussi `LICENCE.python` (14 688 octets), SHA256
+`4ccdaaebc0f44b83720ec0399bb7ab329adce067dd62f73c5535a2dc05628ab2`.
+METADATA, RECORD et SHA256SUMS concordent. La notice régénérée depuis
+cet inventaire est un artefact QA distinct (SHA `9322c5de`), pas une nouvelle
+archive. Le reçu `notices-fix/actual-kit-rectification.json` conserve les
+identités/hashes avant-après de l’archive, manifeste et avis original.
+
+Le rectificatif `0.1.0+22fd828c8ab0-linux-aarch64-none-2b4b.LICENCES-RECTIFICATIF.md` est joint dans `delivery/`, hors archive,
+avec le SHA256 complet `478c48a928552b6caa913da9c4a5eb70f45bd7737d1b61fded3df014d3b61686`.
+Son SHA256 est `85a502a06eccd1b48dbd5901e4e760d4207c04564e9ae4e90fcb2eda47d7e292` ; reçu
+`root/notices-addendum-delivery-01.json`. Archive, extrait et installation
+ne sont pas modifiés. R28-S09 corrige explicitement le constat historique ;
+le journal initial reste conservé. W030 et les autres réserves restent
+inchangés. Aucun téléchargement, recalcul, service ni nouvelle fabrication.
+
+Revue indépendante du générateur et des inventaires :
+`final-review/office-notice-inventory-source-and-rectification-review.json`,
+SHA `71dfe354`, GO ciblé ; temporaires pytest/mypy supprimés après contrôle
+(`notices-fix/cleanup-after.json`, SHA `9cbdf1cf`), preuves préservées.

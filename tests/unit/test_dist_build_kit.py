@@ -122,6 +122,39 @@ def test_notices_disclose_missing_office_license_texts_on_both_platforms(reposit
     assert "absence" in notices and "W030" in notices
 
 
+@pytest.mark.parametrize("platform", ["windows-x86_64", "linux-aarch64", "linux-x86_64"])
+def test_notices_reference_office_licence_files_in_the_delivered_cache(repository, platform):
+    from tools.dist.notices import third_party_notices
+
+    files = [".runtime/cache/uv/archive-v0/a/openpyxl-3.1.5.dist-info/LICENCE.rst",
+             ".runtime/cache/uv/archive-v0/b/et_xmlfile-2.0.0.dist-info/LICENCE.rst",
+             ".runtime/cache/uv/archive-v0/b/et_xmlfile-2.0.0.dist-info/LICENCE.python"]
+    notices = third_party_notices(repository, files, "0.1.0", platform)
+    for name in files:
+        assert f"`{name}`" in notices
+    assert "par les métadonnées Python pour les paquets Office (openpyxl et et-xmlfile)" in notices
+    gaps = notices.split("## Manques connus", 1)[1]
+    assert "openpyxl" not in gaps and "et-xmlfile" not in gaps
+    assert "la déclaration de licence des métadonnées ne remplace pas ces textes" not in notices
+    assert "W030" in notices and "Qdrant et à Ollama" in gaps
+
+
+@pytest.mark.parametrize("platform", ["windows-x86_64", "linux-aarch64", "linux-x86_64"])
+def test_notices_report_only_the_office_component_without_delivered_texts(repository, platform):
+    from tools.dist.notices import third_party_notices
+
+    files = [".runtime/cache/uv/archive-v0/a/openpyxl-3.1.5.dist-info/licenses/LICENSE",
+             ".runtime/cache/uv/archive-v0/b/et_xmlfile-2.0.0.dist-info/METADATA",
+             ".runtime/cache/uv/archive-v0/c/et_xmlfile-1.1.0.dist-info/LICENCE.rst",
+             ".runtime/cache/uv/archive-v0/other/LICENSE"]
+    notices = third_party_notices(repository, files, "0.1.0", platform)
+    assert f"`{files[0]}`" in notices
+    assert files[2] not in notices and files[3] not in notices
+    gaps = notices.split("## Manques connus", 1)[1]
+    assert "openpyxl" not in gaps and "et-xmlfile 2.0.0" in gaps
+    assert "la déclaration de licence des métadonnées ne remplace pas ces textes" in gaps
+
+
 def test_notices_cover_every_locked_artifact_of_the_repository():
     from tools.dist.build_kit import ROOT
     from tools.dist.notices import third_party_notices
