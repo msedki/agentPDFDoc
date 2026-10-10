@@ -9,6 +9,7 @@ import pytest
 from docx import Document
 from openpyxl import Workbook
 from test_api_storage import FakeEmbedding, FakeLlmTokenizer, FakeVectors
+from test_retrieval import CharTokenizer
 
 from services.api.context import ContextBuilder
 from services.api.db import Database, now, uid
@@ -16,7 +17,7 @@ from services.api.errors import ApiError
 from services.api.indexing import Indexer
 from services.api.office_search import projection_fragments
 from services.api.query import QueryService
-from services.api.retrieval import SearchService
+from services.api.retrieval import SearchService, resolve_references
 from services.api.schemas import QueryRequest, Scope
 from services.api.scope import ScopeResolver
 from services.api.settings import Settings
@@ -69,6 +70,24 @@ def range_scope(imported, extraction, **changes):
     values = {"kind": "cell_range", "versionId": imported["version_id"], "extractionRevisionId": extraction["extraction_revision_id"],
               "sheetId": extraction["units"][0]["id"], "rowStart": 2, "rowEnd": 4, "columnStart": 1, "columnEnd": 1}
     return Scope(**{**values, **changes})
+
+
+def test_office_range_passes_same_focus_resolution_without_outside_attestation(rag):
+    imported, extraction = workbook(rag, outside="AB-CD aa-il : tension 999 V")
+    settings, _, _, _, resolver, search = rag
+    snapshot = resolver.resolve(range_scope(imported, extraction))
+    references = resolve_references("Quelle tension nominale ?", "CCU-21")
+    result = asyncio.run(search.search("Quelle tension nominale ?", snapshot, references=references))
+    _, sources, metrics, _ = ContextBuilder(settings, CharTokenizer()).build(
+        "Quelle tension nominale ?", result["results"], references=references)
+    assert sources and metrics["exact_identifiers_required"] == ["CCU-21"]
+    assert metrics["identifier_coverage_at_context"] == 1
+    occurrences = metrics["reference_resolution"]["occurrences"]["context_final"]
+    assert occurrences and all(item["locator"]["column_start"] == item["locator"]["column_end"] == 1 for item in occurrences)
+    excluded = resolve_references("Quelle tension nominale ?", "AB-CD")
+    result = asyncio.run(search.search("Quelle tension nominale ?", snapshot, references=excluded))
+    assert not result["reference_resolution"]["occurrences"]["retrieval_final"]
+    assert any(warning.get("identifier") == "AB-CD" for warning in result["warnings"])
 
 
 def test_range_projection_precedes_lexical_dense_and_context(rag):

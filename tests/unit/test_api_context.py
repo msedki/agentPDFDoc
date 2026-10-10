@@ -8,7 +8,7 @@ from test_retrieval import CharTokenizer
 
 from services.api.context import HISTORY_PREFIX, ContextBuilder, validate_answer
 from services.api.errors import ApiError
-from services.api.retrieval import answer_terms, text_language
+from services.api.retrieval import answer_terms, resolve_references, text_language
 from services.api.settings import Settings
 
 # Jeu DEV synthétique (CC0) de la qualification v2.1 : questions réelles du lot L8 de J8.
@@ -19,6 +19,51 @@ DEV_QUESTIONS = {question["id"]: question for question in json.loads(
 def fragment(document_id, text, index=0, exact=False):
     return {"version_id": "v-" + document_id, "document_id": document_id, "chunk_id": f"{document_id}-{index}",
             "page_indices": [0], "text": text, "exact_identifier": exact}
+
+
+def test_context_doit_il_does_not_falsify_obligation_coverage(tmp_path):
+    question = "À quelle périodicité le contrôle de DA-P01 doit-il être réalisé ?"
+    references = resolve_references(question)
+    _, retained, metrics, warnings = ContextBuilder(Settings(tmp_path), CharTokenizer()).build(question,
+        [fragment("d", "Le contrôle de DA-P01 est réalisé à une périodicité de 1020 h.", exact=True)], references=references)
+    assert retained and metrics["exact_identifiers_required"] == ["DA-P01"]
+    assert metrics["identifier_coverage_at_context"] == 1
+    assert not any(warning["code"] == "exact_identifier_not_in_context" for warning in warnings)
+    assert {item["normalized"] for item in metrics["reference_resolution"]["candidates"]} == {"DA-P01", "DOIT-IL"}
+
+
+def test_context_explicit_unknown_alpha_remains_obligatory_without_reparsing_focus_note(tmp_path):
+    original = "Quelle tension nominale ?"
+    references = resolve_references(original, "abcinconnu")
+    effective = original + "\nRéférence ciblée : abcinconnu hors-code"
+    _, _, metrics, warnings = ContextBuilder(Settings(tmp_path), CharTokenizer()).build(effective,
+        [fragment("d", "Une tension nominale de 72 V.")], references=references)
+    assert metrics["exact_identifiers_required"] == ["ABCINCONNU"]
+    assert metrics["identifier_coverage_states"] == {"ABCINCONNU": "not_found_in_scope"}
+    assert metrics["identifier_coverage_at_context"] == 0
+    assert warnings[0]["identifiers"] == ["ABCINCONNU"]
+    assert "HORS-CODE" not in {row["normalized"] for row in metrics["reference_resolution"]["candidates"]}
+
+
+@pytest.mark.parametrize("source_text,source_language,state,warned", [
+    ("LE-LE-LE : la température de fonctionnement.", "fr", "identifier_present_languages_differ", False),
+    ("LE-LE-LE is the operating temperature of the unit and it is given in the manual.",
+     "en", "identifier_present_no_answer_evidence", True),
+    ("LE-LE-LE : les performances de la machine.", "fr", "covered", False),
+])
+def test_context_language_comparison_uses_original_question_with_explicit_alpha_focus(
+        tmp_path, source_text, source_language, state, warned):
+    original = "What are the performances?"
+    effective = original + "\nRéférence ciblée : LE-LE-LE"
+    references = resolve_references(original, "LE-LE-LE")
+    assert text_language(original) == "en" and text_language(effective) is None
+    assert text_language(source_text) == source_language
+    _, retained, metrics, warnings = ContextBuilder(Settings(tmp_path), CharTokenizer()).build(
+        effective, [fragment("d", source_text, exact=True)], references=references)
+    assert retained and metrics["exact_identifiers_required"] == ["LE-LE-LE"]
+    assert metrics["identifier_coverage_at_context"] == 1
+    assert metrics["identifier_coverage_states"] == {"LE-LE-LE": state}
+    assert any(warning["code"] == "identifier_present_no_answer_evidence" for warning in warnings) is warned
 
 
 def test_context_identifier_without_question_terms_is_not_answer_evidence(tmp_path):

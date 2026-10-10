@@ -13,6 +13,7 @@ from services.api.retrieval import (
     identifiers,
     match_expression,
     normalized_identifier,
+    resolve_references,
     rrf,
 )
 from services.api.schemas import QueryRequest, Scope
@@ -25,6 +26,104 @@ def test_retrieval_safe_fts_and_identifiers():
     assert normalized_identifier("en   50155") == "EN 50155"
     assert set(identifiers("CCU-21, EN 50155, UIC 556, section 4.2")) == {"CCU-21", "EN 50155", "UIC 556", "4.2"}
     assert rrf(["exact"], ["other"], 60)[0][1] == 1 / 61
+
+
+def test_reference_candidates_preserve_alpha_without_making_prose_obligatory():
+    references = resolve_references("Quelle périodicité DA-P01 doit-il avoir avec AB-CD/aa-il ?")
+    assert {item.normalized for item in references.candidates} == {"DA-P01", "DOIT-IL", "AB-CD", "AA-IL"}
+    assert references.obligations == {"DA-P01": "structured_syntax"}
+    assert all(item.ambiguous for item in references.candidates if item.normalized != "DA-P01")
+    assert resolve_references("Quelle valeur DA-P99 ?").obligations == {"DA-P99": "structured_syntax"}
+    assert resolve_references("Quelle valeur ?", "   ").obligations == {}
+    assert resolve_references("Quelle valeur ?", "doit-il").obligations == {"DOIT-IL": "focus.identifier"}
+    assert {row["normalized"] for row in resolve_references("P01 EN 50155 section 3.4").as_dict()["obligations"]} == {"P01", "EN 50155", "3.4"}
+
+
+@pytest.mark.parametrize("focus,source", [("ABC", "ＡＢＣ"), ("fix", "ﬁx"), ("STRASSE", "Straße"),
+                                         ("é", "e\u0301"), ("code_bleu", "code_bleu"), ("aa/il", "aa/il")])
+def test_focus_unicode_is_found_by_real_search_with_original_source_offsets(storage, focus, source):
+    text = "😀 " + source + " : tension nominale 72 V."
+    imported, _ = import_fixture(storage, text=text)
+    search, snapshot, db = library_search(storage)
+    references = resolve_references("Quelle tension nominale ?", focus)
+    result = asyncio.run(search.search("Quelle tension nominale ?", snapshot, references=references))
+    assert result["results"] and result["results"][0]["exact_identifier"]
+    code = normalized_identifier(focus)
+    occurrences = result["reference_resolution"]["occurrences"]["retrieval_final"]
+    occurrence = next(item for item in occurrences if item["identifier"] == code)
+    block = db.one("SELECT * FROM blocks WHERE id=? AND generation_id=?", (occurrence["block_id"], occurrence["generation_id"]))
+    assert normalized_identifier(block["text"][occurrence["start_offset"]:occurrence["end_offset"]]) == code
+    assert block["text"][occurrence["start_offset"]:occurrence["end_offset"]] == source
+    assert occurrence["version_id"] == imported["version_id"] and occurrence["source_text_hash"] == block["source_text_hash"]
+    _, retained, metrics, _ = ContextBuilder(storage[0], CharTokenizer()).build("Quelle tension nominale ?", result["results"], references=references)
+    assert retained and metrics["exact_identifiers_required"] == [code] and metrics["identifier_coverage_at_context"] == 1
+
+
+@pytest.mark.parametrize("source", ["XABC", "ABC-X", "ABC_1", "X/ABC", "X.ABC", "ABC.1", "ß"])
+def test_focused_bare_reference_does_not_accept_prefix_or_partial_expansion(storage, source):
+    import_fixture(storage, text=source + " tension nominale 72 V")
+    search, snapshot, _ = library_search(storage)
+    references = resolve_references("Quelle tension ?", "S" if source == "ß" else "ABC")
+    result = asyncio.run(search.search("Quelle tension ?", snapshot, references=references))
+    assert not search.lexical("Quelle tension ?", snapshot, references)[1]
+    assert not result["reference_resolution"]["occurrences"]["retrieval_final"]
+    assert any(warning["code"] == "identifier_not_found_in_scope" for warning in result["warnings"])
+
+
+def test_focused_search_scans_authorized_sources_before_any_hit_cap(storage):
+    pages = [{"page_index": 0, "width": 595, "height": 842, "blocks":
+              [{"id": f"false{i}", "text": "ABC-X tension nominale " * 10} for i in range(30)] +
+              [{"id": "true", "text": "ＡＢＣ : tension nominale 72 V."}]},
+             {"page_index": 1, "width": 595, "height": 842, "blocks": [{"id": "outside", "text": "outsideOnly : 999 V"}]}]
+    imported, _ = import_fixture(storage, pages=pages)
+    search, _, _ = library_search(storage)
+    snapshot = search.resolver.resolve(Scope(kind="pages", versionId=imported["version_id"], pageStart=0, pageEnd=0))
+    references = resolve_references("Quelle tension ?", "ABC")
+    result = asyncio.run(search.search("Quelle tension ?", snapshot, references=references))
+    assert result["results"][0]["blocks"][0]["id"] == "true"
+    excluded = resolve_references("Quelle tension ?", "outsideOnly")
+    result = asyncio.run(search.search("Quelle tension ?", snapshot, references=excluded))
+    assert not result["reference_resolution"]["occurrences"]["retrieval_final"]
+    assert all(source["page_indices"] == [0] for source in result["results"])
+    assert any(warning.get("identifier") == "OUTSIDEONLY" for warning in result["warnings"])
+
+
+def test_alpha_exact_priority_survives_actual_constrained_final_context(storage):
+    noise = [{"id": f"noise{i}", "text": f"Tension nominale du circuit voisin {i} " + "alimentation nominale " * 16} for i in range(8)]
+    import_fixture(storage, pages=[{"page_index": 0, "width": 595, "height": 842, "blocks": noise +
+        [{"id": "upper", "text": "AB-CD : tension nominale 72 V."}, {"id": "lower", "text": "aa-il : tension nominale 110 V."}]}])
+    search, snapshot, _ = library_search(storage)
+    storage[0].profile["retrieval"] = {"evidence_tokens_by_mode": {"factual": 180}, "max_evidence_llm_tokens": 220}
+    question = "Quelle tension nominale pour AB-CD et aa-il ?"
+    references = resolve_references(question)
+    result = asyncio.run(search.search(question, snapshot, references=references))
+    assert len(result["results"]) == 8  # cap historique des plusieurs candidats, pas des obligations seules
+    expanded = [search.resolver.expand_parent(source, snapshot, CharTokenizer()) for source in result["results"]]
+    _, retained, metrics, warnings = ContextBuilder(storage[0], CharTokenizer()).build(question, expanded, references=references)
+    assert all(any(references.matches(source["text"], code) for source in retained) for code in ("AB-CD", "AA-IL"))
+    assert metrics["exact_identifiers_required"] == [] and metrics["identifier_coverage_at_context"] is None
+    assert metrics["context_fragments_excluded_by_budget"] == 6
+    assert not any(warning["code"] == "exact_identifier_not_in_context" for warning in warnings)
+    assert {row["identifier"] for row in metrics["reference_resolution"]["occurrences"]["context_final"]} == {"AB-CD", "AA-IL"}
+
+
+def test_focused_scan_skips_irrelevant_reconstruction_and_stops_at_authorized_cap(storage, monkeypatch):
+    blocks = [{"id": f"absent{i}", "text": f"Tension nominale circuit voisin {i}."} for i in range(30)]
+    blocks += [{"id": f"focus{i}", "text": f"ＡＢＣ : tension nominale 72 V, repère {i}."} for i in range(32)]
+    import_fixture(storage, pages=[{"page_index": 0, "width": 595, "height": 842, "blocks": blocks}])
+    search, snapshot, _ = library_search(storage)
+    calls = []
+    original = search.resolver.source_for_chunk
+
+    def reconstructed(chunk, scope):
+        calls.append(chunk["parent_id"])
+        return original(chunk, scope)
+
+    monkeypatch.setattr(search.resolver, "source_for_chunk", reconstructed)
+    _, exact = search.lexical("Quelle tension nominale ?", snapshot, resolve_references("Quelle tension nominale ?", "ABC"))
+    assert len(exact) == 24 and len(calls) == 24
+    assert all(parent.startswith("focus") for parent in calls)
+    assert len(set(calls)) == 24  # huit vraies occurrences suivantes ne sont pas reconstruites
 
 
 def test_retrieval_scope_filters_precede_topk(storage):
@@ -322,8 +421,8 @@ def test_retrieval_mandatory_identifier_prefers_fragment_with_question_terms(sto
     import_fixture(storage, pages=[{"page_index": 0, "width": 595, "height": 842, "blocks": blocks}])
     search, snapshot, _ = library_search(storage)
     original = search._candidates
-    async def reference_first(question, scope, dense_available=True):
-        return sorted(await original(question, scope, dense_available), key=lambda source: source["parent_id"] != "reference")
+    async def reference_first(question, scope, dense_available=True, references=None):
+        return sorted(await original(question, scope, dense_available, references), key=lambda source: source["parent_id"] != "reference")
     search._candidates = reference_first
     result = asyncio.run(search.search("Quelle tension nominale pour CCU-21 ?", snapshot))
     assert result["results"][0]["parent_id"] == "answer" and result["results"][0]["required_identifiers"] == ["CCU-21"]
@@ -359,8 +458,8 @@ def test_retrieval_followup_resolution_uses_maximal_identifiers(storage):
     db.execute("INSERT INTO query_runs(id,conversation_id,question,scope_json,snapshot_json,state,created_at,updated_at) VALUES(?,?,?,?,?,'done',?,?)",
                (uid(), conversation, "Quelle tension DA-P01 ?", "{}", json_dump(snapshot.as_dict()), now(), now()))
     service = QueryService(db, search.resolver, search, ContextBuilder(settings, CharTokenizer()), None, settings)
-    question, resolution, choices = service.resolve_followup(QueryRequest(question="Et sa tolérance ?", scope=Scope(kind="library"), conversation_id=conversation), snapshot)
+    question, resolution, choices, _ = service.resolve_followup(QueryRequest(question="Et sa tolérance ?", scope=Scope(kind="library"), conversation_id=conversation), snapshot)
     assert resolution["method"] == "unique_user_referent" and not choices and question.endswith(": DA-P01")
     # « en 2020 » n'est plus une référence explicite : la relance pronominale reste résolue par le référent utilisateur.
-    _, resolution, _ = service.resolve_followup(QueryRequest(question="Et sa valeur en 2020 ?", scope=Scope(kind="library"), conversation_id=conversation), snapshot)
+    _, resolution, _, _ = service.resolve_followup(QueryRequest(question="Et sa valeur en 2020 ?", scope=Scope(kind="library"), conversation_id=conversation), snapshot)
     assert resolution["method"] == "unique_user_referent"

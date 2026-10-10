@@ -5,6 +5,7 @@ import json
 import re
 import time
 import unicodedata
+from dataclasses import dataclass, field
 from typing import Any
 
 import httpx
@@ -74,6 +75,132 @@ def identifier_spans(text):
 
 def identifiers(text):
     return sorted({text[start:end] for start, end in identifier_spans(text)})
+
+
+@functools.lru_cache(maxsize=128)
+def _normalized_offsets(text):
+    """NFKC/casse avec offsets dans le texte original, y compris expansions/compositions."""
+    folded: list[str] = []
+    offsets: list[tuple[int, int]] = []
+    position = 0
+    while position < len(text):
+        start = position
+        position += 1
+        while position < len(text):
+            char = text[position]
+            if unicodedata.category(char).startswith("M"):
+                position += 1
+                continue
+            piece = text[start:position]
+            if unicodedata.normalize("NFKC", piece + char) == unicodedata.normalize("NFKC", piece) + unicodedata.normalize("NFKC", char):
+                break
+            position += 1
+        for char in unicodedata.normalize("NFKC", text[start:position]).translate(DASHES).upper():
+            if char.isspace():
+                if folded and folded[-1] == " ":
+                    offsets[-1] = (offsets[-1][0], position)
+                    continue
+                char = " "
+            folded.append(char)
+            offsets.append((start, position))
+    return "".join(folded), offsets
+
+
+@functools.lru_cache(maxsize=1024)
+def reference_spans(text, identifier):
+    """Occurrences littérales maximales ; les spans retournés restent en points de code source."""
+    target = normalized_identifier(identifier)
+    if not target:
+        return ()
+    folded, offsets = _normalized_offsets(text)
+    if target in _identifiers_in(target):
+        spans = identifier_spans(folded) + [match.span() for match in CASELESS_STANDARD.finditer(folded)]
+        matches = [(lo, hi) for lo, hi in spans if normalized_identifier(folded[lo:hi]) == target]
+    else:
+        # Une valeur de focus nue n'est pas une sous-référence de ABC-X/ABC_1/X/ABC.
+        pattern = re.compile(r"(?<![\w\-_/\.])" + re.escape(target) + r"(?![\w\-_/]|\.\w)")
+        matches = [match.span() for match in pattern.finditer(folded)]
+    result = []
+    for lo, hi in matches:
+        start, end = offsets[lo][0], offsets[hi - 1][1]
+        if normalized_identifier(text[start:end]) == target:
+            result.append((start, end))
+    return tuple(sorted(set(result)))
+
+
+@dataclass(frozen=True)
+class ReferenceCandidate:
+    raw: str
+    normalized: str
+    origin: str
+    syntax: str
+    ambiguous: bool
+    question_start: int | None = None
+    question_end: int | None = None
+
+
+@dataclass
+class ReferenceResolution:
+    """Décision par requête : candidats exacts distincts des obligations de couverture."""
+    original_question: str
+    candidates: tuple[ReferenceCandidate, ...]
+    obligations: dict[str, str]
+    occurrences: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
+
+    @property
+    def priority(self):
+        return {candidate.normalized for candidate in self.candidates}
+
+    def matches(self, text, code):
+        return bool(reference_spans(text, code))
+
+    def source_matches(self, source, code):
+        blocks = source.get("blocks")
+        return any(self.matches(block["text"], code) for block in blocks) if blocks else self.matches(source["text"], code)
+
+    def attest(self, sources, stage):
+        occurrences = []
+        seen = set()
+        for source in sources:
+            for block in source.get("blocks", []):
+                for code in sorted(self.priority):
+                    for start, end in reference_spans(block["text"], code):
+                        offset = block.get("start_offset", 0)
+                        item = {"identifier": code, "role": "text_occurrence", "version_id": source["version_id"],
+                                "generation_id": source["generation_id"], "extraction_revision_id": block["extraction_revision_id"],
+                                "block_id": block["id"], "source_text_hash": block["source_text_hash"],
+                                "start_offset": offset + start, "end_offset": offset + end,
+                                "page_index": block.get("page_index"), "locator": block.get("locator")}
+                        key = (code, source["generation_id"], block["id"], offset + start, offset + end)
+                        if key not in seen:
+                            seen.add(key)
+                            occurrences.append(item)
+        self.occurrences[stage] = occurrences
+
+    def as_dict(self):
+        return {"candidates": [{"raw": item.raw, "normalized": item.normalized, "origin": item.origin,
+                                "syntax": item.syntax, "ambiguous": item.ambiguous,
+                                "question_start": item.question_start, "question_end": item.question_end}
+                               for item in self.candidates],
+                "obligations": [{"normalized": code, "reason": reason} for code, reason in sorted(self.obligations.items())],
+                "occurrences": {stage: list(items) for stage, items in self.occurrences.items()}}
+
+
+def resolve_references(question, focus_identifier=None, focus_origin="focus.identifier"):
+    candidates = []
+    obligations = {}
+    for start, end in identifier_spans(question):
+        raw = question[start:end]
+        code = normalized_identifier(raw)
+        structured = any(char.isdecimal() for char in code)
+        candidates.append(ReferenceCandidate(raw, code, "question", "structured" if structured else "alphabetic_compound",
+                                             not structured, start, end))
+        if structured:
+            obligations[code] = "structured_syntax"
+    if focus_identifier and (code := normalized_identifier(focus_identifier)):
+        candidates.append(ReferenceCandidate(focus_identifier, code, focus_origin, "explicit_nomination", False))
+        obligations[code] = focus_origin
+    return ReferenceResolution(question, tuple(candidates), obligations)
 
 
 def _folded_words(text):
@@ -350,16 +477,17 @@ class SearchService:
         self.dense = dense
         self.projector = projector
 
-    def lexical(self, question, snapshot):
+    def lexical(self, question, snapshot, references=None):
+        references = references or resolve_references(question)
         if snapshot.scope["kind"] == "cell_range":
             from .office_search import lexical_projection, projection_fragments
             sources = projection_fragments(self.db, snapshot, self.embedding)
-            ranked, exact = lexical_projection(question, sources, self.settings.value("retrieval", "lexical_top_k", 24))
+            ranked, exact = lexical_projection(question, sources, self.settings.value("retrieval", "lexical_top_k", 24), references)
             return [sources[i]["chunk_id"] for i in ranked], [sources[i]["chunk_id"] for i in exact]
         clause, parameters = snapshot.sql_filter()
         limit = self.settings.value("retrieval", "lexical_top_k", 24)
         exact = []
-        codes = sorted({normalized_identifier(value) for value in identifiers(question)})
+        codes = sorted(references.priority)
         expression = match_expression(question)
         if codes:
             # Un seul passage FTS5 : BM25 de la question pour classer les occurrences exactes (NULL en dernier),
@@ -369,8 +497,39 @@ class SearchService:
                    f"WHERE {clause} AND i.normalized IN ({','.join('?' for _ in codes)}) ORDER BY f.score IS NULL,f.score ASC,c.chunk_uuid ASC")
             per_code: dict[str, list[Any]] = {code: [] for code in codes}
             for row in self.db.rows(sql, [expression] + parameters + codes):
-                if len(per_code[row["code"]]) < limit and contains_identifier(row["text"], row["code"]):
+                if len(per_code[row["code"]]) < limit and references.matches(row["text"], row["code"]):
                     per_code[row["code"]].append(row["chunk_uuid"])
+            focused = {item.normalized for item in references.candidates if item.origin != "question"}
+            if focused:
+                # unicode61 n'est pas un préfiltre complet de NFKC (ﬁ/fi, Ａ/Ａ, ß/SS).
+                # Parcours scoped paginé en mémoire, sans coupe avant preuve exacte autorisée.
+                scan = (f"SELECT c.*,f.score FROM chunks c LEFT JOIN (SELECT rowid id,bm25(chunks_fts,2.0,1.0) score "
+                        f"FROM chunks_fts WHERE chunks_fts MATCH ?) f ON f.id=c.id WHERE {clause} "
+                        "ORDER BY f.score IS NULL,f.score ASC,c.chunk_uuid ASC")
+                focused_matches: dict[str, list[str]] = {code: [] for code in focused}
+                with self.db.connect() as connection:
+                    cursor = connection.execute(scan, [expression] + parameters)
+                    while rows := cursor.fetchmany(128):
+                        for row in rows:
+                            if all(len(items) >= limit for items in focused_matches.values()):
+                                break
+                            # Les sources sont des sous-chaînes des blocs de ce fragment (jointes par LF).
+                            # Une occurrence attestée dans un bloc doit donc aussi être une sous-chaîne
+                            # normalisée du fragment. Aucun test de frontières avant la projection.
+                            raw = normalized_identifier(row["text"])
+                            pending = [code for code in focused if len(focused_matches[code]) < limit and code in raw]
+                            if not pending:
+                                continue
+                            source = self.resolver.source_for_chunk(dict(row), snapshot)
+                            if source is None:
+                                continue
+                            for code in pending:
+                                if references.source_matches(source, code):
+                                    focused_matches[code].append(row["chunk_uuid"])
+                        if all(len(items) >= limit for items in focused_matches.values()):
+                            break
+                for code in focused:
+                    per_code[code] = focused_matches[code]
             exact = list(dict.fromkeys(chunk for position in range(limit) for matches in per_code.values() for chunk in matches[position:position + 1]))[:limit]
         ranked = []
         if expression:
@@ -378,10 +537,10 @@ class SearchService:
             ranked = [row["chunk_uuid"] for row in self.db.rows(sql, parameters + [expression, limit])]
         return list(dict.fromkeys(exact + ranked))[:limit], exact
 
-    async def _candidates(self, question, snapshot, dense_available=True):
+    async def _candidates(self, question, snapshot, dense_available=True, references=None):
         if snapshot.scope["kind"] == "cell_range":
-            return await self._projected_candidates(question, snapshot)
-        lexical_task = asyncio.create_task(asyncio.to_thread(self.lexical, question, snapshot))
+            return await self._projected_candidates(question, snapshot, references)
+        lexical_task = asyncio.create_task(asyncio.to_thread(self.lexical, question, snapshot, references))
         try:
             dense = []
             if dense_available:
@@ -398,12 +557,12 @@ class SearchService:
         scores.sort(key=lambda pair: (pair[0] not in exact_set, -pair[1], pair[0]))
         return await asyncio.to_thread(self.source_candidates, scores, exact_set, snapshot)
 
-    async def _projected_candidates(self, question, snapshot):
+    async def _projected_candidates(self, question, snapshot, references=None):
         from .office_search import lexical_projection, projection_fragments
         sources = await asyncio.to_thread(projection_fragments, self.db, snapshot, self.embedding)
         if not sources:
             return []
-        lexical, exact = await asyncio.to_thread(lexical_projection, question, sources, self.settings.value("retrieval", "lexical_top_k", 24))
+        lexical, exact = await asyncio.to_thread(lexical_projection, question, sources, self.settings.value("retrieval", "lexical_top_k", 24), references)
         query = (await asyncio.to_thread(self.embedding.embed, [question], False))[0]
         if self.projector is not None:
             vectors = await asyncio.to_thread(self.projector.cached_embeddings, sources)
@@ -449,7 +608,8 @@ class SearchService:
                            "relative_path": document["relative_path"], "page_index": page_index,
                            "page_number": page_index + 1, "label": page.get("label")})
 
-    async def search(self, question, snapshot, mode="question"):
+    async def search(self, question, snapshot, mode="question", references=None):
+        references = references or resolve_references(question)
         start = time.perf_counter()
         warnings = []
         dense_available = True
@@ -469,7 +629,7 @@ class SearchService:
         elif mode == "comparison":
             per_document = []
             for document_id in dict.fromkeys(snapshot.documents.values()):
-                candidates = await self._candidates(question, snapshot.narrowed(document_id), dense_available)
+                candidates = await self._candidates(question, snapshot.narrowed(document_id), dense_available, references)
                 if not candidates:
                     warnings.append({"code": "comparison_gap", "document_id": document_id, "message": "Aucun passage retrouvé pour ce document."})
                 per_document.append(candidates)
@@ -479,11 +639,12 @@ class SearchService:
                     if position < len(candidates):
                         results.append(candidates[position])
         else:
-            results = await self._candidates(question, snapshot, dense_available)
+            results = await self._candidates(question, snapshot, dense_available, references)
         await asyncio.to_thread(self.decorate_sources, results)
         top10 = list(results[:10])
-        required = {normalized_identifier(value) for value in identifiers(question)}
-        terms = answer_terms(question)
+        priority = references.priority
+        required = set(references.obligations)
+        terms = answer_terms(references.original_question)
         mandatory = []
         covered: set[str] = set()
         mandatory_ids = set()
@@ -492,9 +653,10 @@ class SearchService:
             for source in results:
                 if id(source) in mandatory_ids or (answer_only and not has_answer_terms(source["text"], terms)):
                     continue
-                newly_covered = {code for code in required - covered if contains_identifier(source["text"], code)}
+                newly_covered = {code for code in priority - covered if references.source_matches(source, code)}
                 if newly_covered:
-                    source["required_identifiers"] = sorted(newly_covered)
+                    source["required_identifiers"] = sorted(newly_covered & required)
+                    source["exact_identifiers"] = sorted(newly_covered)
                     mandatory.append(source)
                     mandatory_ids.add(id(source))
                     covered.update(newly_covered)
@@ -505,12 +667,12 @@ class SearchService:
         parents = set()
         texts = set()
         retained_identifiers: set[str] = set()
-        maximum = self.settings.value("retrieval", "constrained_max_fragments", 8) if mode == "comparison" or len(required) > 1 else self.settings.value("retrieval", "final_max_fragments", 6)
+        maximum = self.settings.value("retrieval", "constrained_max_fragments", 8) if mode == "comparison" or len(priority) > 1 else self.settings.value("retrieval", "final_max_fragments", 6)
         for source in results:
             key = (source["version_id"], source.get("parent_id") or source.get("chunk_id"))
             # Texte identique (en-tête répété sur plusieurs pages) : un seul fragment, par document en comparaison.
             text_key = (source.get("document_id") if mode == "comparison" else None, hashlib.sha256(source["text"].encode("utf-8")).hexdigest())
-            newly_covered = {code for code in required - retained_identifiers if contains_identifier(source["text"], code)}
+            newly_covered = {code for code in priority - retained_identifiers if references.source_matches(source, code)}
             if (key in parents or text_key in texts) and not newly_covered:
                 continue
             parents.add(key)
@@ -523,5 +685,7 @@ class SearchService:
             warnings.append({"code": "partial_extraction", "document_id": document_id, "message": PARTIAL_EXTRACTION_MESSAGE})
         # Recherche seule (POST /search, évaluation) : passages finals ; une question le recalcule sur les sources retenues.
         warnings.extend(ocr_evidence_warnings(unique))
+        references.attest(top10, "retrieval_top10")
+        references.attest(unique, "retrieval_final")
         return {"results": unique, "top10": top10, "scope_snapshot": snapshot.as_dict(), "warnings": warnings,
-                "elapsed_ms": round((time.perf_counter() - start) * 1000, 2)}
+                "elapsed_ms": round((time.perf_counter() - start) * 1000, 2), "reference_resolution": references.as_dict()}

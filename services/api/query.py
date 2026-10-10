@@ -11,7 +11,7 @@ from .claims import answer_warnings
 from .context import validate_answer
 from .db import json_dump, now, uid
 from .errors import ApiError
-from .retrieval import identifiers, ocr_evidence_warnings
+from .retrieval import identifiers, ocr_evidence_warnings, resolve_references
 
 
 @asynccontextmanager
@@ -71,7 +71,7 @@ class QueryService:
         if pending >= 1 + self.settings.value("llm", "max_pending_generations", 2):
             raise ApiError("query_queue_full", "La file de questions est pleine.", 429)
         snapshot = self.resolver.resolve(request.scope, request.mode)
-        effective_question, resolution, choices = self.resolve_followup(request, snapshot)
+        effective_question, resolution, choices, references = self.resolve_followup(request, snapshot)
         query_id = uid()
         conversation_id = request.conversation_id
         with self.db.transaction() as connection:
@@ -89,16 +89,16 @@ class QueryService:
         if choices:
             response["state"] = "needs_clarification"
         resolved_request = request.model_copy(update={"question": effective_question})
-        return response, resolved_request, snapshot
+        return response, resolved_request, snapshot, references
 
     def start_query(self, prepared):
-        response, resolved_request, snapshot = prepared
+        response, resolved_request, snapshot, references = prepared
         if response.get("state") == "needs_clarification":
             return response
         query_id = response["query_id"]
         event = asyncio.Event()
         self.cancel_events[query_id] = event
-        task = asyncio.create_task(self.run(query_id, resolved_request, snapshot, event))
+        task = asyncio.create_task(self.run(query_id, resolved_request, snapshot, event, references))
         self.tasks[query_id] = task
         task.add_done_callback(lambda finished: self.forget(query_id))
         return response
@@ -133,7 +133,14 @@ class QueryService:
             if acquired:
                 self.generation_lock.release()
 
-    def resolve_followup(self, request, snapshot, prior_user_questions=None):
+    def resolve_followup(self, request, snapshot, prior_user_questions=None, *, allow_implicit=True):
+        def resolved(question, resolution, choices):
+            focus = resolution.get("focus", {})
+            origin = "focus.identifier" if resolution["method"] == "explicit_focus" else "previous_user_referent"
+            references = resolve_references(request.question, focus.get("identifier"), origin)
+            resolution["reference_resolution"] = references.as_dict()
+            return question, resolution, choices, references
+
         resolution = {"method": "explicit_question", "history_is_evidence": False}
         focus = request.focus or {}
         if focus:
@@ -175,12 +182,12 @@ class QueryService:
                 snapshot.versions = {generation: snapshot.versions[generation] for generation in generations}
                 snapshot.documents = {generation: snapshot.documents[generation] for generation in generations}
             resolution = {"method": "explicit_focus", "focus": focus, "history_is_evidence": False}
-            return request.question + ("\nRéférence ciblée : " + focus["identifier"] if "identifier" in focus else ""), resolution, []
-        if identifiers(request.question) or (not request.conversation_id and not prior_user_questions):
-            return request.question, resolution, []
+            return resolved(request.question + ("\nRéférence ciblée : " + focus["identifier"] if "identifier" in focus else ""), resolution, [])
+        if not allow_implicit or identifiers(request.question) or (not request.conversation_id and not prior_user_questions):
+            return resolved(request.question, resolution, [])
         followup = bool(request.followup_of) or bool(re.search(r"(?i)\b(?:elle|celui|celle|son|sa|ses|leur|its|it|this|that)\b", request.question))
         if not followup:
-            return request.question, resolution, []
+            return resolved(request.question, resolution, [])
         rows = prior_user_questions if prior_user_questions is not None else self.db.rows("SELECT id,question,snapshot_json FROM query_runs WHERE conversation_id=? ORDER BY created_at DESC LIMIT 8", (request.conversation_id,))
         if request.followup_of:
             rows = [row for row in rows if row["id"] == request.followup_of]
@@ -199,10 +206,10 @@ class QueryService:
             if choices:
                 break
         if len(choices) == 1:
-            return request.question + "\nRéférence utilisateur précédente : " + choices[0]["identifier"], {"method": "unique_user_referent", "focus": choices[0], "history_is_evidence": False}, []
+            return resolved(request.question + "\nRéférence utilisateur précédente : " + choices[0]["identifier"], {"method": "unique_user_referent", "focus": choices[0], "history_is_evidence": False}, [])
         if len(choices) > 1:
-            return request.question, {"method": "ambiguous_user_referent", "history_is_evidence": False}, choices[:4]
-        return request.question, {"method": "no_authorized_referent", "history_is_evidence": False}, []
+            return resolved(request.question, {"method": "ambiguous_user_referent", "history_is_evidence": False}, choices[:4])
+        return resolved(request.question, {"method": "no_authorized_referent", "history_is_evidence": False}, [])
 
     def register_sources(self, query_id, sources):
         prepared = []
@@ -277,7 +284,8 @@ class QueryService:
                                (answer, json_dump(metrics), event_id, now(), query_id))
             connection.execute("INSERT INTO events VALUES(?,?,?,?,?)", (query_id, event_id, "error", json_dump(event), now()))
 
-    async def run(self, query_id, request, snapshot, cancelled):
+    async def run(self, query_id, request, snapshot, cancelled, references=None):
+        references = references or resolve_references(request.question, (request.focus or {}).get("identifier"))
         self.started.add(query_id)
         started = time.perf_counter()
         first_token_at = None
@@ -302,14 +310,14 @@ class QueryService:
                         raise ApiError("scope_authorization_changed", "Un document du périmètre a été retiré pendant l'attente.", 409)
                     await database_call(self.db.execute, "UPDATE query_runs SET state='running',updated_at=? WHERE id=?", (now(), query_id))
                     await database_call(self.db.add_event, query_id, "status", {"state": "searching"})
-                    search_result = await self.search.search(request.question, snapshot, request.mode)
+                    search_result = await self.search.search(request.question, snapshot, request.mode, references)
                     metrics["retrieval_ms"] = search_result["elapsed_ms"]
                     warnings.extend(search_result["warnings"])
                     if search_result["results"]:
                         search_result["results"] = await asyncio.to_thread(lambda: [self.resolver.expand_parent(source, snapshot, self.context.tokenizer, self.settings.value("chunking", "parent_expand_max_llm_tokens", 900)) for source in search_result["results"]])
                         history = await database_call(self.authorized_history, query_id, request, snapshot)
                         context_started = time.perf_counter()
-                        messages, retained, context_metrics, context_warnings = await asyncio.to_thread(self.context.build, request.question, search_result["results"], request.mode, history)
+                        messages, retained, context_metrics, context_warnings = await asyncio.to_thread(self.context.build, request.question, search_result["results"], request.mode, history, references)
                         metrics.update(context_metrics)
                         metrics["context_ms"] = round((time.perf_counter() - context_started) * 1000, 2)
                         warnings.extend(context_warnings)
@@ -318,6 +326,11 @@ class QueryService:
                         warnings = [warning for warning in warnings if warning.get("code") != "ocr_evidence"] + ocr_evidence_warnings(sources)
                     else:
                         messages = []
+                    metrics["reference_resolution"] = references.as_dict()
+                    resolution_row = await database_call(self.db.one, "SELECT resolution_json FROM query_runs WHERE id=?", (query_id,))
+                    resolution = json.loads(resolution_row["resolution_json"])
+                    resolution["reference_resolution"] = references.as_dict()
+                    await database_call(self.db.execute, "UPDATE query_runs SET resolution_json=? WHERE id=?", (json_dump(resolution), query_id))
                     await database_call(self.db.add_event, query_id, "sources", {"sources": sources})
                     for warning in warnings:
                         await database_call(self.db.add_event, query_id, "warning", warning)

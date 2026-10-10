@@ -1,6 +1,6 @@
 # Intégration DOCX/XLSX — preuves locales du 10 octobre 2026
 
-**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-10 21:14 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
+**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-10 22:48 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
 
 La phase d'étude a précédé l'implémentation. DOCX et XLSX complètent maintenant
 PDF dans l'import, l'extraction, les représentations, la recherche et les
@@ -518,6 +518,138 @@ Diagnostic conservé :
 `final-review/da-p01-source-diagnosis-independent-review.json` (`868d888f`),
 14 empreintes exactes et mêmes cinq preuves/provenances. Aucune correction
 produit ni nouvelle mesure de qualité n'est revendiquée.
+
+## R28-RAG-01 — résolution partagée des références
+
+**État au 2026-10-10 22:48 UTC :** correctif local sur base `18dc8f8`, contrat
+`9885a5e6`, gel03 `3b44fbf8`. Le contre-exemple de langue est corrigé et vérifié ;
+les neuf cas isolés ont été repris sur le gel actuel et les neuf contrôles HTTP
+natifs ont réussi sans LLM. Recette fermée, revue terminale et publication
+encore en cours. Le programme installé `22fd828` ne contient pas ce correctif ;
+il est conservé inchangé. Les diagnostics précédents restent historiques.
+
+Le scénario initial, question ordinaire contenant « doit-il » et DA-P01,
+créait une obligation DOIT-IL absente et faussait la couverture. Les sources
+`services/api/retrieval.py`, `context.py`, `query.py`, `office_search.py`,
+`main.py` et `comparison.py` partagent maintenant `ReferenceResolution` :
+
+- les candidats lexicaux conservent leur priorité exacte ; un composé
+  alphabétique ambigu ne devient pas automatiquement une obligation ;
+- les familles structurées déjà prises en charge restent obligatoires ; un
+  focus explicite normalisé non vide nomme une obligation, même alphabétique
+  ou inconnue, après validation du périmètre ;
+- les occurrences sont reliées à un bloc autorisé, version, génération,
+  révision, empreinte et offsets du texte original. Deux fragments assemblés
+  ne peuvent fabriquer une occurrence ;
+- le matching NFKC, casse et tirets conserve les coordonnées originales.
+  Le fallback scoped parcourt par buffers de 128, préteste le texte avant sa
+  reconstruction. Chaque référence focalisée est plafonnée par
+  `retrieval.lexical_top_k` (24 dans les profils livrés) ; un identifiant absent
+  peut demander tout le parcours du périmètre, sans coût constant prétendu ;
+- les quatre voies Query/Search/évaluation/comparaison partagent cette
+  résolution. Search n’hérite pas d’un référent implicite ; un focus hors
+  périmètre est refusé avant création de question. Aucun schéma DB, index,
+  réextraction, modèle, prompt ou paramètre de génération n’est modifié.
+
+La décision [W056](../DECISIONS.md#w056-références-candidates-et-obligations-de-couverture-distinctes)
+relie le choix aux références officielles S24/S25 : Python3.12, Unicode UAX15
+et SQLiteFTS5, confrontés aux versions installées. Ces sources expliquent les
+mécanismes ; elles ne définissent aucune grammaire métier universelle et ne
+prouvent pas une supériorité SOTA. Le faux refus génératif français observé
+précédemment avait déjà une couverture de 1,0 et reste ouvert.
+
+Preuves privées sous `.runtime/qa/r28-implementation/` :
+
+| Frontière | Résultat réellement acquis | Preuve et limite |
+|---|---|---|
+| API/contextes et régressions, gel02 historique | Union 767 PASS + 1 SKIP Windows/768, dont TLS 4 PASS | F `source-diagnosis-20261010/implementation-01/completion-01.json`, `11601dc0` ; impact05 et reprise06 conservés séparément |
+| Typage configuré, gel02 historique | Linux 109 fichiers PASS 14,316 s ; Win32 statique 109 PASS 156,857 s | Même completion ; pas de qualification Windows native |
+| Neuf cas × quatre voies, gel02 historique | 36 évaluations PASS 27,384 s | X `rag-reference-validation-20261010/black-box-terminal-01.json`, `51215a70` ; SQLite/FTS/ASGI réels, extraction/embedding/vectoriel/tokenizer/flux de génération substitués explicitement |
+| Deux procédures Linux présumées rouges |2PASS15,71 s pytest/16,932 s enveloppe | ROOT `root/rag-doc-procedure-regression-01/execution.json`, log `31bfb378` ; programmes et installateurs simulés, aucune installation native |
+| Revue préparatoire et périmètre | Sources/wrappers sans défaut matériel relevé,30 fichiers de tests proportionnés | R `14b53254`/`cb2897f6` ; antérieur au contre-exemple supplémentaire de langue |
+
+La première suite générale reste rouge/incomplète : borne QA de 1200 s, exit−9
+à 1205,374 s, quatre F dans le journal, aucun JUnit ni nombre de tests réussis
+reconstitué. Deux fixtures réellement reproduites sont corrigées : signature
+du double lexical et provenance incomplète du témoin de prompt. Toutes les
+assertions et l’empreinte historique du prompt sont conservées. Les deux
+positions restantes du journal étaient seulement une orientation ; leurs
+reprises fraîches réussissent sans correction produit ni cause inventée.
+
+Le contrôle supplémentaire ROOT porte sur « What are the performances? »,
+focus LE-LE-LE et texte français de température : la note ajoutée change la
+langue détectée et produit un état de couverture inadapté. La correction
+limitée utilise la question originale pour la comparaison de langue, comme
+pour les termes contextuels. Le témoin avant correction donne 1FAIL/2PASS ;
+la reprise complète du module contexte et de l’empreinte du prompt donne
+23PASS en 3,033s. Les trois variantes couvrent langues différentes sans terme
+commun, même langue sans terme commun et terme commun réellement présent.
+Gel03 `3b44fbf8`, seul delta produit `context.py` (`1987577e`) ; les treize
+autres empreintes du gel02 sont inchangées. Les nouveaux contrôles sont des
+preuves distinctes, sans attribuer la suite historique au nouveau gel.
+Le contrôle actuel du delta est `language-delta-completion-01.json`,
+`d143f3fd` : 21 empreintes de preuves et 15 sources, typage configuré de 109
+fichiers Linux en 155,169 s et Win32 statique en 157,730 s, lint/diff réussis.
+La revue indépendante du delta et des preuves isolées est `4e18fdc6`.
+
+La reprise B02, `black-box-terminal-02.json` (`e7c6ce18`), donne 36 évaluations
+réussies sur neuf cas et quatre voies, en 20,401 s ; les doubles restent ceux
+annoncés au tableau. Le manifeste actuel `source-manifest-02.json` (`74fd4172`)
+contient 69 sources : six modules modifiés, 61 supports et deux helpers QA.
+Les propriétaires sont réellement récoltés et les neuf jetons QA retirés,
+sans lire leurs valeurs. Cette durée n’est pas un benchmark d’amélioration.
+
+Le terminal `native-terminal-01.json` (`63be302f`) lie 241 empreintes à ce même
+manifeste, au binding réel de l’API (`969c2819`) et à la recette de 14 étapes
+(`7274103a`). Les neuf oracles HTTP réels sont réussis : focus exact, « doit-il »
+sans obligation parasite, code alphabétique présent, focus pleine largeur,
+code proche refusé, plage XLSX sans preuve extérieure, deux refus de focus
+hors périmètre et comparaison équilibrée. Aucun appel LLM, import, réindexation
+ou action de job ; la seule question HTTP est un refus 409 avant persistance.
+Une question positive et la qualité de réponse ne sont donc pas qualifiées.
+
+Les propriétaires 85204 et 11185 sont réellement récoltés, exit 0. Les 61
+lifetimes capturées sont absentes lors du contrôle hôte frais ; un champ
+exécutable capturé comme répertoire ne prouve que l’ascendance/PID/naissance,
+pas l’identité d’un binaire. Après arrêt, les 31 tables sont identiques,
+avec trois versions, deux questions DONE et 14 citations. Les 14 points denses
+ont été contrôlés inchangés avant l’arrêt de Qdrant ; aucune connexion à Qdrant
+arrêté n’est prétendue. Le programme installé reste strictement identique.
+
+Ressources : 80 échantillons de l’hôte, CPU maximal observé 36,7 %, RAM disponible
+minimale 50 482,73 Mio, carte SD libre minimale 12,412 Gio, intervalle maximal
+5,627 s. Ces mesures portent sur l’hôte de 62 800,5 Mio physiques ; elles ne
+qualifient ni un CPU/16 Gio, ni Windows, ni Linux x86-64, ni le corpus final.
+Le réseau est un namespace isolé avec loopback et double DNS SERVFAIL déclaré,
+sans qualification réseau générale.
+
+
+La revue native indépendante `reference-resolution-native-terminal-independent-review-01.json`
+(`57883f9e`) contrôle 90 nouvelles preuves, les 69 sources, les 67 services
+sélectionnés dans le manifeste runtime, les neuf réponses et leurs occurrences,
+les 31 tables, les 14 points Qdrant et l’inventaire du programme installé
+(65 131 fichiers, 1 188 liens). Verdict : GO natif local, sans LLM ni qualification
+globale. Les protocoles et sources inchangés ne sont pas réaudités.
+
+Le nettoyage des neuf basetemps/cache privés F est réellement terminé en
+16,464 s, reçu `temporary-disposition-cleanup-01.json` (`c2ab683e`), clôture
+acteur `76bb6988`. Racines/inodes/UID et absence de producteurs recontrôlés,
+suppression par descripteurs parents sans suivre les liens. Les neuf racines
+sont absentes et 17 empreintes de preuves, l’archive d’échecs de 8 273 920 octets
+et le gel03 restent identiques. Gain libre SD observé 1 532 559 360 octets,
+soit environ 1,427 Gio ; ce relevé de filesystem n’attribue pas toutes les
+écritures de l’hôte. Aucun modèle, jeu de données ou original retiré.
+
+
+QA documentaire ROOT : 62 tests PASS/5,95 s pytest (7,020 s enveloppe),
+`root/rag-reference-documentation-01/execution.json` (`60dba2d9`), propriétaire
+88080 réellement récolté exit 0. Brief déterministe, liens/métadonnées, schémas
+SVG, pack et diff vérifiés (`cli-completion.json`, `917a0508`) ; le pack conserve
+12 avertissements de fichiers tiers mal rangés dans `.agents/skills/`, sans
+les masquer ni les assimiler à une qualification produit. Deux basetemps
+ROOT supplémentaires, correspondant aux seuls tests documentaires 2 + 62 PASS,
+sont retirés sans suivre les liens ; 24 preuves conservées (`2075fd98`).
+Aucun fichier de source ou preuve native n’est retiré.
 
 ## Crash pendant migration SQLite — 10 octobre, 18:34 UTC
 

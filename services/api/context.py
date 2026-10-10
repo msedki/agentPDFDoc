@@ -10,10 +10,8 @@ from .errors import ApiError
 from .retrieval import (
     answer_terms,
     answer_terms_comparable,
-    contains_identifier,
     has_answer_terms,
-    identifiers,
-    normalized_identifier,
+    resolve_references,
 )
 
 SYSTEM_INSTRUCTION = (
@@ -164,7 +162,8 @@ class ContextBuilder:
     def __init__(self, settings, tokenizer):
         self.settings, self.tokenizer = settings, tokenizer
 
-    def build(self, question, sources, mode="question", history=None):
+    def build(self, question, sources, mode="question", history=None, references=None):
+        references = references or resolve_references(question)
         instruction_budget = self.settings.value("retrieval", "max_instructions_question_llm_tokens", 1024)
         if self.tokenizer.count(SYSTEM_INSTRUCTION + "\n" + question) > instruction_budget:
             raise ApiError("question_too_long", "La question est trop longue pour le contexte du modèle local. Raccourcissez-la, puis renvoyez-la.")
@@ -177,7 +176,8 @@ class ContextBuilder:
             budget, mode_key = 1536, "factual"
         budget = self.settings.value("retrieval", "evidence_tokens_by_mode", {}).get(mode_key, budget)
         budget = min(budget, self.settings.value("retrieval", "max_evidence_llm_tokens", 5120))
-        required = {normalized_identifier(value) for value in identifiers(question)}
+        required = set(references.obligations)
+        priority = references.priority
         compared = list(dict.fromkeys(source["document_id"] for source in sources if source.get("document_id"))) if mode == "comparison" else []
         sources = sorted(sources, key=lambda source: (not source.get("exact_identifier", False))) if mode != "comparison" else sources
         retained: list[dict[str, Any]] = []
@@ -188,8 +188,8 @@ class ContextBuilder:
             item["source_id"] = f"S{len(retained)+1:03d}"
             token_count = self.tokenizer.count(self.evidence(item))
             if evidence_tokens + token_count > budget:
-                covered_so_far = {code for retained_source in retained for code in required if contains_identifier(retained_source["text"], code)}
-                mandatory = any(contains_identifier(source["text"], value) and value not in covered_so_far for value in required) or (
+                covered_so_far = {code for retained_source in retained for code in priority if references.source_matches(retained_source, code)}
+                mandatory = any(references.source_matches(source, value) and value not in covered_so_far for value in priority) or (
                     source.get("document_id") in compared and all(kept.get("document_id") != source["document_id"] for kept in retained))
                 if mandatory and evidence_tokens + token_count <= self.settings.value("retrieval", "max_evidence_llm_tokens", 5120):
                     budget = evidence_tokens + token_count
@@ -215,8 +215,8 @@ class ContextBuilder:
         while retained and self.tokenizer.count_messages(messages) > max_input:
             # Retirer d'abord un fragment facultatif : ni seul porteur d'un identifiant demandé, ni dernier fragment d'un document comparé.
             optional = [index for index, source in enumerate(retained) if all(
-                not contains_identifier(source["text"], code) or any(contains_identifier(other["text"], code) for position, other in enumerate(retained) if position != index)
-                for code in required) and (source.get("document_id") not in compared or any(
+                not references.source_matches(source, code) or any(references.source_matches(other, code) for position, other in enumerate(retained) if position != index)
+                for code in priority) and (source.get("document_id") not in compared or any(
                 other.get("document_id") == source["document_id"] for position, other in enumerate(retained) if position != index))]
             retained.pop(optional[-1] if optional else len(retained) - 1)
             excluded += 1
@@ -224,25 +224,25 @@ class ContextBuilder:
         prompt_tokens = self.tokenizer.count_messages(messages)
         if prompt_tokens > max_input:
             raise ApiError("context_too_long", "Les passages et la question dépassent la capacité de contexte du modèle. Réduisez le périmètre ou raccourcissez la question.")
-        final_covered = {value for value in required if any(contains_identifier(source["text"], value) for source in retained)}
+        final_covered = {value for value in required if any(references.source_matches(source, value) for source in retained)}
         if required - final_covered:
             warnings.append({"code": "exact_identifier_not_in_context", "identifiers": sorted(required - final_covered), "message": "Certains identifiants demandés ne figurent pas dans les preuves finales ; couverture partielle."})
-        terms = answer_terms(question)
+        terms = answer_terms(references.original_question)
         states = {}
         for identifier in required:
-            holders = [source for source in retained if contains_identifier(source["text"], identifier)]
+            holders = [source for source in retained if references.source_matches(source, identifier)]
             if holders:
                 # Sans terme commun, l'absence de réponse n'est conclue que si aucune preuve n'est dans une autre langue
                 # reconnue que la question : sinon l'état dit seulement que la comparaison lexicale n'a pas eu lieu, sans
                 # affirmer de réponse ni l'avertissement « ne pas en déduire de réponse » (D04.7, J8, revue C1).
                 if any(has_answer_terms(source["text"], terms) for source in holders):
                     states[identifier] = "covered"
-                elif any(not answer_terms_comparable(question, source["text"]) for source in holders):
+                elif any(not answer_terms_comparable(references.original_question, source["text"]) for source in holders):
                     states[identifier] = "identifier_present_languages_differ"
                 else:
                     states[identifier] = "identifier_present_no_answer_evidence"
             else:
-                states[identifier] = "not_covered_due_to_budget" if any(contains_identifier(source["text"], identifier) for source in sources) else "not_found_in_scope"
+                states[identifier] = "not_covered_due_to_budget" if any(references.source_matches(source, identifier) for source in sources) else "not_found_in_scope"
         no_answer = sorted(identifier for identifier, state in states.items() if state == "identifier_present_no_answer_evidence")
         if no_answer:
             warnings.append({"code": "identifier_present_no_answer_evidence", "identifiers": no_answer, "message": "Référence présente dans les preuves sans terme de la question ; ne pas en déduire de réponse."})
@@ -266,6 +266,8 @@ class ContextBuilder:
                    "identifier_coverage_at_context": coverage, "evidence_coverage_at_context": coverage}
         if mode == "comparison":
             metrics.update({"required_documents": compared, "required_documents_in_context": in_context})
+        references.attest(retained, "context_final")
+        metrics["reference_resolution"] = references.as_dict()
         return messages, retained, metrics, warnings
 
     @staticmethod

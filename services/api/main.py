@@ -288,7 +288,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     prefix = "/api/v1"
 
     def selector_identity():
-        files = ["scope.py", "retrieval.py", "context.py", "query.py", "embedding.py"]
+        files = ["scope.py", "retrieval.py", "context.py", "query.py", "embedding.py", "office_search.py"]
         hashes = {name: hashlib.sha256((Path(__file__).parent / name).read_bytes()).hexdigest() for name in files}
         return hashlib.sha256(json.dumps(hashes, sort_keys=True).encode()).hexdigest()
 
@@ -377,15 +377,16 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
             raise ApiError("query_active", "Attendre la fin des questions avant une évaluation reproductible.", 409)
         snapshot = await asyncio.to_thread(resolver.resolve, body.scope, body.mode)
         prior = [{"id": "evaluation_prior_user", "question": body.prior_user_question, "snapshot_json": json_dump(snapshot.as_dict())}] if body.prior_user_question else None
-        question, resolution, choices = await asyncio.to_thread(queries.resolve_followup, body, snapshot, prior)
+        question, resolution, choices, references = await asyncio.to_thread(queries.resolve_followup, body, snapshot, prior)
         profile_sha = hashlib.sha256(json.dumps(settings.profile, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
         if choices:
             return {"state": "needs_clarification", "choices": choices, "resolution": resolution, "scope_snapshot": snapshot.as_dict(), "model_called": False, "profile_sha256": profile_sha}
         governor.begin_interactive() if governor else None
         try:
-            retrieved = await search.search(question, snapshot, body.mode)
+            retrieved = await search.search(question, snapshot, body.mode, references)
             expanded = await asyncio.to_thread(lambda: [resolver.expand_parent(source, snapshot, tokenizer, settings.value("chunking", "parent_expand_max_llm_tokens", 900)) for source in retrieved["results"]])
-            messages, sources, metrics, warnings = await asyncio.to_thread(queries.context.build, question, expanded, body.mode, [])
+            messages, sources, metrics, warnings = await asyncio.to_thread(queries.context.build, question, expanded, body.mode, [], references)
+            resolution["reference_resolution"] = references.as_dict()
             return {"state": "context_ready", "effective_question": question, "resolution": resolution,
                     "scope_snapshot": snapshot.as_dict(), "retrieval_top10": retrieved["top10"], "retrieval_final": retrieved["results"],
                     "context_sources": sources, "metrics": metrics, "warnings": snapshot.warnings + retrieved["warnings"] + warnings,
@@ -675,7 +676,10 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     @application.post(prefix + "/search")
     async def search_request(body: QueryRequest):
         snapshot = await asyncio.to_thread(resolver.resolve, body.scope, body.mode)
-        result = await search.search(body.question, snapshot, body.mode)
+        question, resolution, _, references = await asyncio.to_thread(queries.resolve_followup, body, snapshot, allow_implicit=False)
+        result = await search.search(question, snapshot, body.mode, references)
+        resolution["reference_resolution"] = references.as_dict()
+        result["resolution"] = resolution
         result["warnings"] = snapshot.warnings + result["warnings"]
         return result
 

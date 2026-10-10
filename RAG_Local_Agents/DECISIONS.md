@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** registre des décisions acquises et propositions · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base `75df760` ; décisions W050–W054 du 9 octobre, historique conservé · **Mis à jour :** 2026-10-09 18:31 (UTC) · **Source de vérité :** ce registre pour les choix ; PLAN pour les actions et rapports pour les exécutions
+**Rôle :** registre des décisions acquises et propositions · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base historique `75df760` ; décisions W050–W054 du 9 octobre, W055 Office et W056 références ; source publiée `18dc8f8` et modifications locales R28-RAG-01, historique conservé · **Mis à jour :** 2026-10-10 21:35 (UTC) · **Source de vérité :** ce registre pour les choix ; PLAN pour les actions et rapports pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -1550,6 +1550,43 @@ commande pour passer au 4B. Aucune bascule automatique : l'arrêt reste une
 décision de l'utilisateur. **Retour arrière :** `atelier modele` avec
 l'ancien modèle, ou retrait de la commande, l'option `--modele` au
 lancement restant disponible.
+
+## W056 Références candidates et obligations de couverture distinctes
+
+**Date :** 10 octobre 2026 UTC. **Statut :** décision implémentée et vérifiée en tests ciblés et HTTP natif
+Linux aarch64, revue indépendante acquise ; publication en cours, qualification globale non acquise.
+
+**Contexte :** R28-RAG-01 reproduit DOIT-IL obligatoire dans une question
+ordinaire, tandis que le focus typé ABC est accepté sans obligation exacte.
+Les six témoins `2b1a1438` distinguent trois rouges et trois comportements
+à préserver. L’utilisateur confirme des références hétérogènes, avec
+lettres, chiffres, tirets, soulignés et barres obliques. Aucun indice syntaxique
+ne permet à lui seul de reconnaître tous les codes métier alphabétiques.
+
+**Choix :** conserver les candidats de l’extraction lexicale et leur priorité
+exacte jusqu’au contexte final, indépendamment du dénominateur de couverture.
+Les familles structurées existantes restent obligatoires par compatibilité ;
+les composés alphabétiques sont ambigus. Le focus explicite normalisé non vide
+nomme directement une obligation, même sans chiffre ou inconnue du corpus.
+Un objet interne unique porte candidats, raisons et occurrences autorisées,
+avec version, génération, révision, empreinte et offsets du texte original.
+Le matching NFKC/casse/tirets n’altère ni les sources ni leurs offsets.
+Le fallback scoped conserve le rappel sans considérer FTS5 unicode61 comme
+un préfiltre complet de NFKC. Aucun registre métier ou nouvel index ajouté.
+
+**Conséquences :** Query, Search, évaluation et comparaison partagent cette
+résolution ; le focus ne peut étendre le périmètre. Les budgets et la priorité
+des candidats alphabétiques sont conservés. Aucun nouvel héritage implicite
+avec un candidat courant, ni ancienne réponse utilisée comme preuve. La trace
+API est additive. La couverture lexicale n’est ni l’EvidenceCoverage sur
+preuves annotées, ni un jugement de réponse ; D04/D05 restent inchangés.
+Le faux refus génératif historique, dont la couverture était déjà 1,0, est
+un constat distinct non corrigé par ce lot. La question originale gouverne
+les termes et la comparaison de langue : une note de focus ne doit pas changer
+la langue évaluée. Contre-cas Unicode/frontières/scopes/budget et quatre voies
+vérifiés ; recette locale sans génération acquise (`63be302f`). Résultats et
+limites détaillés dans le rapport Office, section R28-RAG-01. Références : SOURCES S24/S25,
+skills hybrid-rag-api et rag-retrieval-evaluation ; suivi dans R28-RAG-01.
 
 ## W055 Intégration Office après clôture de son étude préalable
 

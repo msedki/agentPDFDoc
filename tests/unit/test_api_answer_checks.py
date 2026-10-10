@@ -213,12 +213,21 @@ MESSAGES_SHA256 = "2d2d0a20f4ce2b17ffadbd35ed8a31502ff785b4d0a55db7e51ef0103657f
 def test_prompt_sent_to_the_model_is_byte_identical_to_the_pre_r26_prompt(tmp_path):
     assert hashlib.sha256(SYSTEM_INSTRUCTION.encode()).hexdigest() == SYSTEM_INSTRUCTION_SHA256
     assert hashlib.sha256(HISTORY_PREFIX.encode()).hexdigest() == HISTORY_PREFIX_SHA256
-    # Mêmes entrées que la référence, enrichies de la provenance R26 : le prompt n'en porte rien.
-    blocks = [{"id": "b0", "extraction_method": "ocr"}]
-    sources = [{"version_id": "v-A", "document_id": "A", "chunk_id": "A-0", "page_indices": [0], "exact_identifier": True,
-                "text": "La tolérance de pression de DA-P02 est de + 3.0 %.", "extraction_methods": ["ocr"], "blocks": blocks},
-               {"version_id": "v-A", "document_id": "A", "chunk_id": "A-1", "page_indices": [1], "extraction_methods": ["unknown"],
-                "text": "Le couple de serrage prescrit pour DA-P02 est de 14 N-m."}]
+    # Sources synthétiques : mêmes textes que la référence, provenance complète du contrat ScopeResolver.
+    # Génération, révision, hash et offsets servent à l'attestation ; le prompt historique n'en porte rien.
+    texts = ["La tolérance de pression de DA-P02 est de + 3.0 %.",
+             "Le couple de serrage prescrit pour DA-P02 est de 14 N-m."]
+    methods = ["ocr", "unknown"]
+    sources = []
+    for index, text in enumerate(texts):
+        block = {"id": f"b{index}", "block_id": f"b{index}", "page_index": index, "text": text,
+                 "start_offset": 0, "end_offset": len(text), "bbox": None, "precision": "block", "type": "paragraph", "page": {},
+                 "extraction_revision_id": "synthetic-revision-A", "source_text_hash": hashlib.sha256(text.encode()).hexdigest(),
+                 "extraction_method": methods[index]}
+        sources.append({"version_id": "v-A", "document_id": "A", "chunk_id": f"A-{index}", "page_indices": [index],
+                        "generation_id": "synthetic-generation-A", "extraction_revision_id": "synthetic-revision-A",
+                        "text": text, "extraction_methods": [methods[index]], "blocks": [block], "parent_id": None,
+                        **({"exact_identifier": True} if index == 0 else {})})
     history = [{"role": "user", "content": "Quelle pression DA-P02 ?"}, {"role": "assistant", "content": "3.2 bar [S001]"}]
     messages, _, _, _ = ContextBuilder(Settings(tmp_path), CharTokenizer()).build("Quelle est la tolérance de pression de DA-P02 ?", sources, history=history)
     assert hashlib.sha256(json.dumps(messages, ensure_ascii=False, sort_keys=True).encode()).hexdigest() == MESSAGES_SHA256

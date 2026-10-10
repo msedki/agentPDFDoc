@@ -1141,11 +1141,11 @@ def test_api_short_selection_never_triggers_dense_or_global_lexical_search(tmp_p
         client.portal.call(app.state.indexer.index, imported["job_id"], extraction)
         block = client.get(f"/api/v1/versions/{imported['version_id']}/pages/0/blocks").json()["blocks"][0]
         lexical = app.state.search.lexical
-        def lexical_spy(question, snapshot):
+        def lexical_spy(question, snapshot, references):
             calls.append("search.lexical")
             if embedding.strict:
                 raise AssertionError("Une sélection courte ne doit pas lancer de recherche FTS5")
-            return lexical(question, snapshot)
+            return lexical(question, snapshot, references)
         app.state.search.lexical = lexical_spy
         embedding.armed = vectors.armed = embedding.strict = vectors.strict = True
         span = {"extractionRevisionId": block["extraction_revision_id"], "blockId": "b0", "blockTextSha256": block["source_text_hash"],

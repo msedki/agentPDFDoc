@@ -330,7 +330,46 @@
     "results": [],
     "scope_snapshot": {},
     "warnings": [],
-    "elapsed_ms": 0
+    "elapsed_ms": 0,
+    "reference_resolution": {},
+    "resolution": {}
+  },
+  "reference_resolution": {
+    "candidates": [
+      {
+        "raw": "string",
+        "normalized": "string",
+        "origin": "question|focus.identifier|previous_user_referent",
+        "syntax": "structured|alphabetic_compound|explicit_nomination",
+        "ambiguous": "boolean",
+        "question_start": "Unicode code-point offset in the original question|null",
+        "question_end": "exclusive Unicode code-point offset in the original question|null"
+      }
+    ],
+    "obligations": [
+      {
+        "normalized": "string",
+        "reason": "structured_syntax|focus.identifier|previous_user_referent"
+      }
+    ],
+    "occurrences": {
+      "<stage>": [
+        {
+          "identifier": "string",
+          "role": "text_occurrence",
+          "version_id": "uuid",
+          "generation_id": "uuid",
+          "extraction_revision_id": "uuid",
+          "block_id": "string",
+          "source_text_hash": "SHA-256 of the original source block text",
+          "start_offset": "Unicode code-point offset in the original source block",
+          "end_offset": "exclusive Unicode code-point offset in the original source block",
+          "page_index": "integer|null",
+          "locator": "object|null"
+        }
+      ]
+    },
+    "rule": "R28-RAG-01: additive trace shared by POST /search reference_resolution, query resolution_json.reference_resolution and final context metrics.reference_resolution (queries and evaluation). Stages are retrieval_top10, retrieval_final and context_final when those stages ran. Candidate occurrence and regex/index presence do not certify a business code or create an obligation. The resolution is built once after scope/focus authorization from the original question and explicit nomination, then passed through search, Office projection and context. NFKC/case/dash matching preserves exact original Unicode offsets and source bindings; no rewritten text becomes a source. Alphabetic candidates keep exact retrieval and context priority under existing budgets. Explicit focus cannot enlarge the authorized scope; standalone search applies explicit focus validation with implicit follow-up disabled. An alphabetic candidate in the current question still blocks implicit inheritance; assistant replies are never reference evidence."
   },
   "source": {
     "source_id": "S001",
@@ -399,9 +438,10 @@
           "fallback": "boolean: true when this answer was regenerated on CPU after a GPU load failure of the same request (W025)",
           "rule": "present only when the model was called (model_called true), absent from the done of an abstention; mode is the execution mode requested from Ollama for this answer (num_gpu omitted in gpu mode, num_gpu: 0 in cpu mode), not the observed placement of the model, which jobs_response.generation.processor and doctor report"
         },
+        "reference_resolution": {},
         "identifier_coverage_states": {
           "<identifier>": "covered|identifier_present_no_answer_evidence|identifier_present_languages_differ|not_covered_due_to_budget|not_found_in_scope",
-          "rule": "one entry per exact identifier of the question (normalized); present once the search returned passages and the context was built ({} for a question without identifier), absent otherwise; covered: a passage of the final context carries the identifier and a term of the question; identifier_present_no_answer_evidence: the identifier is in the context without any term of the question, reported by the warning of the same code; identifier_present_languages_differ: no shared term, but question and at least one passage carrying the identifier are written in two different recognised languages (fr, en), so the lexical check asserts neither an answer nor its absence and adds no warning; not_covered_due_to_budget: found but cut from the context; not_found_in_scope: absent from the passages retrieved in the scope"
+          "rule": "One entry per normalized coverage obligation resolved from the original question and authorized explicit focus, not per regex candidate; present once passages and context were built ({} without obligations), absent otherwise. Existing structured syntax remains obligatory; purely alphabetic compounds remain searched and exact-priority candidates without automatic obligation, and any nonempty normalized focus.identifier is an explicit obligation. covered: final context carries the exact reference and a question term; identifier_present_no_answer_evidence: reference present without any question term, reported by the warning of the same code; identifier_present_languages_differ: no shared term, but question and a carrying passage use different recognised languages (fr, en), so the lexical check asserts neither an answer nor its absence and adds no warning; not_covered_due_to_budget: found but cut; not_found_in_scope: absent from the passages retrieved in the authorized scope. These are lexical signals, never semantic answer validation."
         }
       },
       "warnings": []

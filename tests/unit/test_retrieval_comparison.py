@@ -1,4 +1,5 @@
 """Pure candidate-contract and isolated SQLite tests; no models or servers."""
+import asyncio
 import hashlib
 import json
 import sqlite3
@@ -7,6 +8,9 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
+from test_api_storage import FakeEmbedding, import_fixture
+from test_api_storage import storage as storage
+from test_retrieval import CharTokenizer
 
 from services.api.embedding_comparison import (
     FrozenDatabase,
@@ -16,6 +20,37 @@ from services.api.embedding_comparison import (
 )
 from services.api.errors import ApiError
 from services.api.settings import Settings
+
+
+def test_comparison_evaluation_transports_same_explicit_focus_resolution(storage, monkeypatch):
+    from services.api.comparison import evaluate_context
+    from services.api.context import ContextBuilder
+    from services.api.retrieval import SearchService
+    from services.api.scope import ScopeResolver
+
+    imported, _ = import_fixture(storage, text="ﬁx : tension nominale 72 V.")
+    settings, db, vectors, _ = storage
+    resolver = ScopeResolver(db)
+    search = SearchService(db, resolver, FakeEmbedding(), vectors, settings)
+    seen = []
+    original_search, original_build = search.search, ContextBuilder.build
+
+    async def searched(question, snapshot, mode, references):
+        seen.append(references)
+        return await original_search(question, snapshot, mode, references)
+
+    def built(self, question, sources, mode, history, references):
+        seen.append(references)
+        return original_build(self, question, sources, mode, history, references)
+
+    monkeypatch.setattr(search, "search", searched)
+    monkeypatch.setattr(ContextBuilder, "build", built)
+    result = asyncio.run(evaluate_context({"question": "Quelle tension nominale ?", "scope_resolved":
+        {"kind": "documents", "documentIds": [imported["document_id"]]}, "focus": {"identifier": "fix"}},
+        db, resolver, search, CharTokenizer(), settings))
+    assert len(seen) == 2 and seen[0] is seen[1]
+    assert result["metrics"]["exact_identifiers_required"] == ["FIX"]
+    assert result["metrics"]["identifier_coverage_at_context"] == 1 and result["model_called"] is False
 
 
 def contracts():

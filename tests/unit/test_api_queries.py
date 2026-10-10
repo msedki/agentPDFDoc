@@ -9,6 +9,7 @@ from test_retrieval import CharTokenizer
 
 from services.api.context import ContextBuilder
 from services.api.db import json_dump, now, uid
+from services.api.errors import ApiError
 from services.api.query import QueryService
 from services.api.retrieval import SearchService
 from services.api.schemas import QueryRequest, Scope
@@ -35,11 +36,48 @@ def query_fixture(storage, question, *, text="CCU-21 tension 72 V et CCU-22 tens
     return service, db, conversation, snapshot
 
 
+def test_query_alpha_current_question_keeps_existing_no_inheritance_guard(storage):
+    service, _, conversation, snapshot = query_fixture(storage, "Quelle tension CCU-21 ?")
+    request = QueryRequest(question="Et sa tension pour AB-CD ?", scope=Scope(kind="library"), conversation_id=conversation)
+    effective, resolution, choices, references = service.resolve_followup(request, snapshot)
+    assert effective == request.question and resolution["method"] == "explicit_question" and choices == []
+    assert references.obligations == {} and references.priority == {"AB-CD"}
+
+
+def test_query_shares_authorized_focus_resolution_until_context_before_any_llm(storage, monkeypatch):
+    service, db, _, _ = query_fixture(storage, "Quelle tension ?", text="ＡＢＣ : tension nominale 72 V.")
+    seen = []
+    original_search, original_build = service.search.search, service.context.build
+
+    async def search(question, snapshot, mode, references):
+        seen.append(references)
+        return await original_search(question, snapshot, mode, references)
+
+    def build(question, sources, mode, history, references):
+        seen.append(references)
+        original_build(question, sources, mode, history, references)
+        raise ApiError("qa_stop_before_generation", "Témoin : arrêt avant toute génération.")
+
+    monkeypatch.setattr(service.search, "search", search)
+    monkeypatch.setattr(service.context, "build", build)
+
+    async def scenario():
+        prepared = service.prepare_query(QueryRequest(question="Quelle tension nominale ?", scope=Scope(kind="library"), focus={"identifier": "ABC"}))
+        references = prepared[3]
+        response = service.start_query(prepared)
+        await service.tasks[response["query_id"]]
+        assert len(seen) == 2 and all(item is references for item in seen)
+        run = db.one("SELECT metrics_json FROM query_runs WHERE id=?", (response["query_id"],))
+        assert json.loads(run["metrics_json"])["model_called"] is False
+
+    asyncio.run(scenario())
+
+
 def test_api_followup_unique_user_referent_ignores_assistant(storage):
     service, db, conversation, snapshot = query_fixture(storage, "Quelle tension CCU-21 ?")
     previous = db.one("SELECT id FROM query_runs")["id"]
     db.execute("INSERT INTO messages VALUES(?,?,?,?,?,?)", (uid(), conversation, previous, "assistant", "La réponse mentionne CCU-22 sans preuve", now()))
-    question, resolution, choices = service.resolve_followup(QueryRequest(question="Et sa tolérance ?", scope=Scope(kind="library"), conversation_id=conversation), snapshot)
+    question, resolution, choices, _ = service.resolve_followup(QueryRequest(question="Et sa tolérance ?", scope=Scope(kind="library"), conversation_id=conversation), snapshot)
     assert "CCU-21" in question and "CCU-22" not in question
     assert resolution["method"] == "unique_user_referent" and not choices
 
@@ -56,7 +94,7 @@ def test_api_followup_ambiguous_does_not_search_or_generate(storage):
 
 def test_api_named_reference_overrides_user_history(storage):
     service, _, conversation, snapshot = query_fixture(storage, "Quelle tension CCU-21 ?")
-    question, resolution, choices = service.resolve_followup(QueryRequest(question="Et CCU-22 ?", scope=Scope(kind="library"), conversation_id=conversation), snapshot)
+    question, resolution, choices, _ = service.resolve_followup(QueryRequest(question="Et CCU-22 ?", scope=Scope(kind="library"), conversation_id=conversation), snapshot)
     assert question == "Et CCU-22 ?" and resolution["method"] == "explicit_question" and not choices
 
 
@@ -212,7 +250,7 @@ class BlockingSearch:
     def __init__(self):
         self.release = asyncio.Event()
 
-    async def search(self, question, snapshot, mode="question"):
+    async def search(self, question, snapshot, mode="question", references=None):
         await self.release.wait()
         return {"results": [], "warnings": [], "elapsed_ms": 0}
 
@@ -322,9 +360,9 @@ def test_api_question_queue_remains_fifo_when_the_first_queued_event_is_slow(sto
     monkeypatch.setattr(db, "add_event", delayed_event)
 
     class RecordingSearch(BlockingSearch):
-        async def search(self, question, snapshot, mode="question"):
+        async def search(self, question, snapshot, mode="question", references=None):
             calls.append(question)
-            return await super().search(question, snapshot, mode)
+            return await super().search(question, snapshot, mode, references)
 
     async def scenario():
         nonlocal first

@@ -1816,7 +1816,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` · **Mis à jour :** 2026-10-10 21:14 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` · **Mis à jour :** 2026-10-10 22:48 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 ## R28 — étude de l'extension DOCX/XLSX avant implémentation
 
@@ -1918,7 +1918,7 @@ Aucun statut global ni qualification des hôtes absents.
 | R28-RT-01 | Runtime et protection du stockage : `services/runtime/backup.py`, `supervisor.py`, tests de permissions | Défaut confirmé durant I-08 | Sous umask POSIX002, nouvelles racines de restauration privées et jetons réservés au propriétaire ; refus de cibles de jeton non régulières sans altérer leur destination. Rotation, nettoyage et fonctionnement Windows conservés. Rouge/vert filesystem réel, régression runtime et revue indépendante ; nouvelle source/kit liés honnêtement. | VALIDÉ LOCALEMENT : source `22fd828`, régression 93 PASS/1 SKIP puis 18 PASS recouvrants, Ruff/mypy Linux et Win32 ciblés conformes. Nouveau kit CPU réellement restauré sous umask 002 : racine/control/sauvegarde 0700, jetons admin/Qdrant 0600, clé temporaire observée sans lecture ni chmod de QA. Reprise des anciennes réponses sans nouvelle inférence, backup vérifié, programme strictement inchangé, finish et propriétaire à 0, absence fraîche après récolte ; revue indépendante. `permission-native-preflight/native-terminal-01.json`. Aucune qualification Windows native déduite. |
 | R28-RT-02 | Distribution et avis de licences : `tools/dist/notices.py`, tests de kit | Faux manque Office confirmé dans I-08 | Inventorier LICENCE/LICENSE du cache réellement livré ; déclarer les manques par paquet uniquement si absents. Tests présents/partiels/absents sur les trois branches, génération depuis le manifeste réel et rectificatif séparé lié à l’archive inchangée. | VALIDÉ LOCALEMENT et rectificatif joint au kit `22fd828` : 6 rouges initiaux puis 13 PASS (2,341 s), Ruff/mypy ciblés conformes ; trois textes/hash/RECORD vérifiés. `notices-fix/completion.json` et `root/notices-addendum-delivery-01.json`. Aucune nouvelle fabrication ni qualification native Windows/x86-64 déduite ; revue indépendante source GO `71dfe354`, lot de dix fichiers publié `8200eba`, publication contrevérifiée (`aaa3bc77`/`807b9749`). |
 | R28-QA-01 | Authentification des recettes web : `apps/web/tests/global-setup.ts`, `storage-state.ts`, tests directs | Défaut réel observé durant C05 ; fermeture et publication du lot de preuves C05 | Écrire le storageState QA avec permissions privées dès création POSIX ; temporaire exclusif, cible régulière propre, fermeture/nettoyage en erreur et remplacement après écriture complète. Préserver Windows sans promettre de garantie ACL POSIX. Rouge/vert sur fichiers réels, contrôles web ciblés et revue indépendante. | VALIDÉ LOCAL : création 0600 dès open POSIX sous umask 002, remplacement complet de la cible propre, refus des liens symboliques, UID/parent et erreurs primaire/secondaires préservées. 18 tests ciblés, 467 unités web, lint/types conformes ; revue indépendante `f2bbbc13`, témoin `94677871`. Préimages/rouges conservés, caches de contrôles retirés `8ba96581`. Windows/ACL et API/navigateur natifs non rejoués ; publié `4e8f6b6`, revue postpublication `10387418`, dix fichiers exacts et quatre commandes Git à 0. |
-| R28-RAG-01 | Classification des références : `services/api/retrieval.py`, contexte et focus | Diagnostic DEV existant, codification hétérogène confirmée | Un mot composé ordinaire ne devient pas une référence obligatoire ; vrais codes, variantes proches, normes, sections, tirets Unicode et focus conservés. Même classification dans les couches concernées, tests de contre-exemples ; aucun faux PASS de qualité générative. | BUG CONFIRMÉ : « doit-il » produit DOIT-IL obligatoire, couverture 0,5 et deux avertissements injustifiés. Diagnostic `12ce5024`, revue `868d888f`. Cause distincte du faux refus historique, dont la couverture est 1,0. Correction non implémentée ; préparation `c3f4d0eb` et six observations déterministes `2b1a1438` (trois rouges, doubles déclarés). Codification hétérogène confirmée par l’utilisateur : lettres, chiffres, `-`, `_`, `/` à préserver, aucune règle universelle exigeant un chiffre adoptée. |
+| R28-RAG-01 | Classification des références : `services/api/retrieval.py`, contexte et focus | Diagnostic DEV existant, codification hétérogène confirmée | Un mot composé ordinaire ne devient pas une référence obligatoire ; vrais codes, variantes proches, normes, sections, tirets Unicode et focus conservés. Même classification dans les couches concernées, tests de contre-exemples ; aucun faux PASS de qualité générative. | IMPLÉMENTÉ ET VÉRIFIÉ LOCAL, CLÔTURE DOCUMENTAIRE EN COURS : W056, contrat `9885a5e6`, gel03 `3b44fbf8`. Union historique gel02 de 767 PASS + 1 SKIP Windows/768, dont TLS 4 PASS (`11601dc0`), puis correction langue originale reproduite 1 FAIL/2 PASS et module contexte + prompt repris 23 PASS. Typage configuré actuel Linux/Win32 statique 109 fichiers PASS, lint/diff PASS (`d143f3fd`). Neuf cas isolés × quatre voies repris 36 PASS (`e7c6ce18`, manifeste69 `74fd4172`) ; neuf oracles HTTP natifs Linux aarch64 PASS sans LLM, 14 étapes fermées, 31 tables et historique/vecteurs inchangés (`63be302f`). Revues source/delta/B02 `4e18fdc6` et native `57883f9e` acquises ; neuf temporaires retirés, gain SD observé 1,427 Gio (`c2ab683e`), preuves conservées. QA documentaire 62 PASS, brief/liens/SVG/pack/diff PASS (`60dba2d9`/`917a0508`, 12 avertissements tiers conservés) ; revue documentaire finale et publication à acquérir. Première suite générale rouge/incomplète conservée : exit−9/1205,374s, quatre F, aucun JUnit ni total PASS reconstitué (`39788601`) ; deux fixtures QA reproduites et corrigées, deux procédures documentaires reprises 2 PASS. Faux refus génératif historique distinct toujours ouvert. |
 
 **Jalon courant :** intégration Office et correctif POSIX publiés, kit CPU
 du commit `22fd828` installé et recetté hors réseau. La restauration
@@ -2018,12 +2018,14 @@ dans la stack possédée, sans restauration ni réimport. La recette C10 locale
 publie les trois tailles admises ; les oracles finaux passent puis arrêt,
 inventaire, comparaison stricte et récolte réelle du propriétaire17629
 terminent à 0 avant21:00UTC. WAL arrêté vide et 196 identités absentes.
-La revue terminale indépendante `20e35df4` est acquise ; la publication
-documentaire reste visée avant **22 h 25 Casablanca**, sans qualification
+La revue terminale indépendante `20e35df4` est acquise ; le lot documentaire
+est publié `18dc8f8` à **22 h 21 Casablanca**, propriétaire réellement récolté
+à **22 h 23**, revue postpublication `0b5c1f82` acquise, sans qualification
 CPU physique de 16 Go. Seul le cache Node QA dérivé est retiré (`a28cf6eb`),
 101 884 octets logiques, 382 empreintes de preuves inchangées. Le correctif
-R28-RAG-01 est préparé `c3f4d0eb` ; réalisation/tests/revue estimés
-**23 h 20–00 h 05 Casablanca**, à réviser au premier jalon vérifié. Les
+R28-RAG-01 est en cours depuis le GO source de **22 h 26 Casablanca** ;
+recette native terminée ; revue finale, nettoyage et publication estimés
+**23 h 55–00 h 20 Casablanca** (10–11 octobre), à réviser au prochain jalon vérifié. Préparation `c3f4d0eb` et témoins rouges conservés. Les
 annotations héritées du preflight ne créent aucune attente d'approbation UI
 et sa borne 8–15 min est remplacée par l'estimation du gel de 15–30 min.
 Hôte physique 16 Go et plateformes absentes restent distincts ; estimation
@@ -2106,14 +2108,16 @@ C08 classeurs jumeaux est vérifié et relu à **20 h 10 Casablanca**.
 La recette C05 dans son périmètre et ses six documents sont publiés et
 contrevalidés à **20 h 56 Casablanca** (`e57fd08a`). Le correctif QA-01 est publié et contrevalidé à **21 h 26 Casablanca**
 (`4e8f6b6`). C10 termine les oracles et sa fermeture native avant21:00UTC ;
-revue terminale indépendante acquise, publication documentaire prévue avant **22 h 25 Casablanca**.
+revue terminale et publication documentaire `18dc8f8` acquises à **22 h 21 Casablanca**,
+récolte propriétaire à **22 h 23**, postpublication indépendante `0b5c1f82`.
 R28-RAG-01, classification partagée sans perte des codes hétérogènes, est
-préparé ; correctif/tests/revue estimés **23 h 20–00 h 05 Casablanca**.
+en cours depuis **22 h 26** ; neuf contrôles HTTP natifs terminés,
+revue finale/nettoyage/publication estimés **23 h 55–00 h 20 Casablanca** (10–11 octobre).
 Les durées natives déjà acquises ne sont pas refacturées comme travail restant.
 Les variantes C05/C08 non couvertes, C10 sur CPU physique16 Go et les variantes
 C02 non couvertes restent dans la charge globale ; C02 nonemptyWAL et C10
 locaux ne sont pas refacturés comme manquants. QA-01 est testé, relu et publié ;
-R28-RAG-01 reste à implémenter et tester, faux refus génératif distinct conservé ;
+R28-RAG-01 est testé dans les sources actuelles et recetté sans LLM ; documentation et publication restent en cours ; faux refus génératif distinct conservé ;
 les seuls prérequis externes ne résument pas le reste du chantier.
 
 Pour la clôture intégrale, **environ 40–90 heures effectives**, soit
@@ -4563,7 +4567,7 @@ Reprise du 03/10 à 03:33 UTC : build du frontend corrigé PASS et export de 243
 
 # Registre des décisions — V2.1
 
-**Rôle :** registre des décisions acquises et propositions · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base `75df760` ; décisions W050–W054 du 9 octobre, historique conservé · **Mis à jour :** 2026-10-09 18:31 (UTC) · **Source de vérité :** ce registre pour les choix ; PLAN pour les actions et rapports pour les exécutions
+**Rôle :** registre des décisions acquises et propositions · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base historique `75df760` ; décisions W050–W054 du 9 octobre, W055 Office et W056 références ; source publiée `18dc8f8` et modifications locales R28-RAG-01, historique conservé · **Mis à jour :** 2026-10-10 21:35 (UTC) · **Source de vérité :** ce registre pour les choix ; PLAN pour les actions et rapports pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -6113,6 +6117,43 @@ commande pour passer au 4B. Aucune bascule automatique : l'arrêt reste une
 décision de l'utilisateur. **Retour arrière :** `atelier modele` avec
 l'ancien modèle, ou retrait de la commande, l'option `--modele` au
 lancement restant disponible.
+
+## W056 Références candidates et obligations de couverture distinctes
+
+**Date :** 10 octobre 2026 UTC. **Statut :** décision implémentée et vérifiée en tests ciblés et HTTP natif
+Linux aarch64, revue indépendante acquise ; publication en cours, qualification globale non acquise.
+
+**Contexte :** R28-RAG-01 reproduit DOIT-IL obligatoire dans une question
+ordinaire, tandis que le focus typé ABC est accepté sans obligation exacte.
+Les six témoins `2b1a1438` distinguent trois rouges et trois comportements
+à préserver. L’utilisateur confirme des références hétérogènes, avec
+lettres, chiffres, tirets, soulignés et barres obliques. Aucun indice syntaxique
+ne permet à lui seul de reconnaître tous les codes métier alphabétiques.
+
+**Choix :** conserver les candidats de l’extraction lexicale et leur priorité
+exacte jusqu’au contexte final, indépendamment du dénominateur de couverture.
+Les familles structurées existantes restent obligatoires par compatibilité ;
+les composés alphabétiques sont ambigus. Le focus explicite normalisé non vide
+nomme directement une obligation, même sans chiffre ou inconnue du corpus.
+Un objet interne unique porte candidats, raisons et occurrences autorisées,
+avec version, génération, révision, empreinte et offsets du texte original.
+Le matching NFKC/casse/tirets n’altère ni les sources ni leurs offsets.
+Le fallback scoped conserve le rappel sans considérer FTS5 unicode61 comme
+un préfiltre complet de NFKC. Aucun registre métier ou nouvel index ajouté.
+
+**Conséquences :** Query, Search, évaluation et comparaison partagent cette
+résolution ; le focus ne peut étendre le périmètre. Les budgets et la priorité
+des candidats alphabétiques sont conservés. Aucun nouvel héritage implicite
+avec un candidat courant, ni ancienne réponse utilisée comme preuve. La trace
+API est additive. La couverture lexicale n’est ni l’EvidenceCoverage sur
+preuves annotées, ni un jugement de réponse ; D04/D05 restent inchangés.
+Le faux refus génératif historique, dont la couverture était déjà 1,0, est
+un constat distinct non corrigé par ce lot. La question originale gouverne
+les termes et la comparaison de langue : une note de focus ne doit pas changer
+la langue évaluée. Contre-cas Unicode/frontières/scopes/budget et quatre voies
+vérifiés ; recette locale sans génération acquise (`63be302f`). Résultats et
+limites détaillés dans le rapport Office, section R28-RAG-01. Références : SOURCES S24/S25,
+skills hybrid-rag-api et rag-retrieval-evaluation ; suivi dans R28-RAG-01.
 
 ## W055 Intégration Office après clôture de son étude préalable
 

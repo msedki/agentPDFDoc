@@ -110,11 +110,12 @@ def projection_fragments(db, snapshot, embedding):
     return result
 
 
-def lexical_projection(question, sources, limit):
-    from .retrieval import contains_identifier, identifiers, match_expression, normalized_identifier
+def lexical_projection(question, sources, limit, references=None):
+    from .retrieval import match_expression, resolve_references
+    references = references or resolve_references(question)
     expression = match_expression(question)
     exact = []
-    codes = sorted({normalized_identifier(value) for value in identifiers(question)})
+    codes = sorted(references.priority)
     # Independent FTS5 corpus: excluded cells cannot alter document frequency/BM25.
     with sqlite3.connect(":memory:") as connection:
         connection.execute("CREATE VIRTUAL TABLE evidence USING fts5(text)")
@@ -122,6 +123,6 @@ def lexical_projection(question, sources, limit):
         ranked = [row[0] - 1 for row in connection.execute("SELECT rowid FROM evidence WHERE evidence MATCH ? ORDER BY bm25(evidence),rowid LIMIT ?", (expression, limit))] if expression else []
         order = ranked + [i for i in range(len(sources)) if i not in ranked]
         for code in codes:
-            exact.extend([i for i in order if contains_identifier(sources[i]["text"], code)][:limit])
+            exact.extend([i for i in order if references.source_matches(sources[i], code)][:limit])
     exact = list(dict.fromkeys(exact))[:limit]
     return list(dict.fromkeys(exact + ranked))[:limit], exact

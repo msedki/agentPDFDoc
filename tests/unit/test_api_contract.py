@@ -4,6 +4,7 @@ Routes montées, types d'événements SSE émis et écoutés par l'interface, é
 frontières du gouverneur, de l'ingestion et du lancement : le contrat doit décrire ce que le code fait.
 """
 import ast
+import asyncio
 import hashlib
 import importlib.util
 import inspect
@@ -16,7 +17,8 @@ from pathlib import Path
 import pytest
 from fastapi.routing import APIRoute
 from pydantic import ValidationError
-from test_api_storage import FakeEmbedding, FakeLlmTokenizer, FakeVectors
+from test_api_storage import FakeEmbedding, FakeLlmTokenizer, FakeVectors, import_fixture
+from test_api_storage import storage as storage
 
 from services.api.db import Database
 from services.api.main import create_app
@@ -26,6 +28,33 @@ from services.api.settings import Settings
 ROOT = Path(__file__).resolve().parents[2]
 API_SOURCES = sorted((ROOT / "services/api").glob("*.py"))
 CONTRACT = json.loads((ROOT / "packages/contracts/contracts.json").read_text(encoding="utf-8"))
+
+
+def test_contract_reference_trace_matches_actual_scoped_search_and_context(storage):
+    from test_retrieval import CharTokenizer
+
+    from services.api.context import ContextBuilder
+    from services.api.retrieval import SearchService, resolve_references
+    from services.api.scope import ScopeResolver
+
+    import_fixture(storage, text="ＡＢＣ : tension nominale 72 V.")
+    settings, db, vectors, _ = storage
+    resolver = ScopeResolver(db)
+    references = resolve_references("Quelle tension nominale ?", "ABC")
+    result = asyncio.run(SearchService(db, resolver, FakeEmbedding(), vectors, settings).search(
+        references.original_question, resolver.resolve(Scope(kind="library")), references=references))
+    _, _, metrics, _ = ContextBuilder(settings, CharTokenizer()).build(references.original_question,
+        result["results"], references=references)
+    trace = metrics["reference_resolution"]
+    contract = CONTRACT["reference_resolution"]
+    assert {"candidates", "obligations", "occurrences"} == set(trace)
+    assert all(set(item) == set(contract["candidates"][0]) for item in trace["candidates"])
+    assert all(set(item) == set(contract["obligations"][0]) for item in trace["obligations"])
+    assert set(trace["occurrences"]) == {"retrieval_top10", "retrieval_final", "context_final"}
+    for occurrences in trace["occurrences"].values():
+        assert occurrences
+        assert all(set(item) == set(contract["occurrences"]["<stage>"][0]) for item in occurrences)
+    assert "reference_resolution" in CONTRACT["search_response"]
 
 
 def alternatives(value):
