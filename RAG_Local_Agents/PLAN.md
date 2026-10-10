@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` · **Mis à jour :** 2026-10-10 18:42 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` · **Mis à jour :** 2026-10-10 19:45 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 ## R28 — étude de l'extension DOCX/XLSX avant implémentation
 
@@ -97,10 +97,11 @@ Aucun statut global ni qualification des hôtes absents.
 | R28-I-04 | Extraction XLSX : même sous-package, worker/checkpoints ; cellules structurées | I-01 ; contrat I-02 pour intégration | V1 : deux feuilles, cellules typées, formule/cache et plage ; V2 : tables/fusions/noms/visibilité, shared/array, relations et métadonnées, Strict/Transitional, dates 1900/1904/sparse. Lecture streaming et valeur brute préservées, caches absents/périmés déclarés, aucune évaluation. C04/C05/C09/C10. | IMPLÉMENTÉ,61 tests XLSX et lecteur/citation natifs ; tailles10k/100k mesurées,1M refusé ; performance16 Go non qualifiée. |
 | R28-I-05 | Indexation et RAG : `indexing.py`, `scope.py`, `retrieval.py`, `context.py`, `query.py`, `comparison.py` | I-02 + V1 I-03/04 ; clôture après V2 | Projection narrative/tableaux bornée avec bindings cellule/texte, identité chunker Office distincte, index/caches/publication existants ; sheet/cell_range autoritaires avant top-k et contexte. Recherche/question/analyse/comparaison mixtes avec citations exactes et annulation/SSE ; aucun total exhaustif inventé par top-k. C05/C06/C07/C08/C11. | IMPLÉMENTÉ, recherche hybride et contexte DEV8/8 ; affinage littéral/cache revalidé sur réponse native et citations exactes. |
 | R28-I-06 | Frontend : `library-panel.tsx`, `workspace.tsx`, `document-tools.tsx`, `scope-control.tsx`, lecteurs Office, `types.ts`, `store.ts`, sélection/cache/citation helpers | I-01/02 contrats gelés + V1 I-03/04/I-05 | Import mixte et jobs réels, mêmes panneaux, lecteurs structurés et fenêtres bornées ; sélection sections/feuilles/plages, inspecteur type/formule/cache, citations/retour exacts. Action critique explicitement liée au mode `analysis` existant et limites. Lint/types/unités/build et rendu/E2E API réelle ; C05/C07/C08/C11/C12. | IMPLÉMENTÉ,454 unités et build3 ; badgeOffice corrigé, rendu aux deux tailles et citations relus indépendamment. |
-| R28-I-07 | Qualification et non-régression indépendante : fixtures annotées versionnées, suites unitaires/API/E2E, corpus autorisé | Vertical V1 puis I-01→06 finalisés | Contrat→extraction→DB→FTS/Qdrant→RAG→citation→lecteur réellement exercé ; corpus/métriques gelés, grands/adverses/reprise, CPU 16 Go et plateformes séparées. Aucun mock ne clôture chaîne réelle ; avis indépendant et écarts corrigés. Tous C01→C12. | PARTIEL : chaîne native DEV/revue locale et migration/redémarrage C02 acquis. Restent localement C05 changement de version/réindexation, C08 classeurs jumeaux et C10 reprise/volumétrie en runtime complet ; C02 crash acquis sur petite fixture, sans WAL non vide ; CPU physique de 16 Go, x86-64/Windows et métier/final restent distincts. |
+| R28-I-07 | Qualification et non-régression indépendante : fixtures annotées versionnées, suites unitaires/API/E2E, corpus autorisé | Vertical V1 puis I-01→06 finalisés | Contrat→extraction→DB→FTS/Qdrant→RAG→citation→lecteur réellement exercé ; corpus/métriques gelés, grands/adverses/reprise, CPU 16 Go et plateformes séparées. Aucun mock ne clôture chaîne réelle ; avis indépendant et écarts corrigés. Tous C01→C12. | PARTIEL : chaîne native DEV/revue locale et migration/redémarrage C02 acquis. C08 classeurs jumeaux acquis sur A2:A4/A2:A10 avec revue `1c70c806`, sans qualification de tout C08. C05 réindexation/changement de version et lecture native de 13 citations anciennes acquis dans leur périmètre ; clic de chat historique non exercé. Reste localement C10 reprise/volumétrie en runtime complet ; C02 crash acquis sur petite fixture, sans WAL non vide ; CPU physique de 16 Go, x86-64/Windows et métier/final restent distincts. |
 | R28-I-08 | Livraison/documentation : PLAN, décisions, sources, CHANGELOG, docs de contrats/exploitation et kits affectés | I-07 preuves acquises | Documentation livrée alignée, dépendances et notices/kits Windows/Linux vérifiés hors ligne, backup/migration/reprise exécutables ; commit/push selon politique. Pas de clôture globale DoD tant que ses réserves distinctes restent ouvertes. C10/C11/C12. | PARTIEL : Office publié `57f7f0a`, correctif POSIX publié `22fd828`. Nouveau kit Linux aarch64 CPU : cinq étapes conformes, 1 162,656 s, archive SHA `478c48a9`. Installation hors réseau, restauration, permissions natives, Qdrant et anciennes citations, sauvegarde et arrêt nominal vérifiés ; programme inchangé et revue finale acquise. `permission-native-preflight/native-terminal-01.json`. Windows, x86-64, hôte physique de 16 Go et qualification métier/finale restent ouverts. |
 | R28-RT-01 | Runtime et protection du stockage : `services/runtime/backup.py`, `supervisor.py`, tests de permissions | Défaut confirmé durant I-08 | Sous umask POSIX002, nouvelles racines de restauration privées et jetons réservés au propriétaire ; refus de cibles de jeton non régulières sans altérer leur destination. Rotation, nettoyage et fonctionnement Windows conservés. Rouge/vert filesystem réel, régression runtime et revue indépendante ; nouvelle source/kit liés honnêtement. | VALIDÉ LOCALEMENT : source `22fd828`, régression 93 PASS/1 SKIP puis 18 PASS recouvrants, Ruff/mypy Linux et Win32 ciblés conformes. Nouveau kit CPU réellement restauré sous umask 002 : racine/control/sauvegarde 0700, jetons admin/Qdrant 0600, clé temporaire observée sans lecture ni chmod de QA. Reprise des anciennes réponses sans nouvelle inférence, backup vérifié, programme strictement inchangé, finish et propriétaire à 0, absence fraîche après récolte ; revue indépendante. `permission-native-preflight/native-terminal-01.json`. Aucune qualification Windows native déduite. |
 | R28-RT-02 | Distribution et avis de licences : `tools/dist/notices.py`, tests de kit | Faux manque Office confirmé dans I-08 | Inventorier LICENCE/LICENSE du cache réellement livré ; déclarer les manques par paquet uniquement si absents. Tests présents/partiels/absents sur les trois branches, génération depuis le manifeste réel et rectificatif séparé lié à l’archive inchangée. | VALIDÉ LOCALEMENT et rectificatif joint au kit `22fd828` : 6 rouges initiaux puis 13 PASS (2,341 s), Ruff/mypy ciblés conformes ; trois textes/hash/RECORD vérifiés. `notices-fix/completion.json` et `root/notices-addendum-delivery-01.json`. Aucune nouvelle fabrication ni qualification native Windows/x86-64 déduite ; revue indépendante source GO `71dfe354`, lot de dix fichiers publié `8200eba`, publication contrevérifiée (`aaa3bc77`/`807b9749`). |
+| R28-QA-01 | Authentification des recettes web : `apps/web/tests/global-setup.ts`, `storage-state.ts`, tests directs | Défaut réel observé durant C05 ; fermeture et publication du lot de preuves C05 | Écrire le storageState QA avec permissions privées dès création POSIX ; temporaire exclusif, cible régulière propre, fermeture/nettoyage en erreur et remplacement après écriture complète. Préserver Windows sans promettre de garantie ACL POSIX. Rouge/vert sur fichiers réels, contrôles web ciblés et revue indépendante. | AUTORISÉ, À CORRIGER : `context.storageState({path})` délègue à writeFile sans mode ; 0664 observé sous umask 002. Parent 0700 puis fchmod 0600 avant lecture ont borné C05 ; fichier exact retiré après arrêt. Témoin filesystem rouge et diagnostic `254ff340`, références R28-S22 ; aucune correction source encore réalisée. |
 
 **Jalon courant :** intégration Office et correctif POSIX publiés, kit CPU
 du commit `22fd828` installé et recetté hors réseau. La restauration
@@ -138,9 +139,36 @@ qualité du diagnostic, sensibilité au libellé prouvée dans ce témoin, cause
 racine et correction encore à établir. Aucun score global ou PASS D06 déduit.
 La clôture technique est acquise (`051545af`) : trois DONE, sept commandes,
 finish et propriétaire à 0, 79 identités absentes ; données non concernées et
-programme inchangés. Elle conserve l’échec qualité du diagnostic. C08 prépare
-séparément la recette native de deux classeurs différant uniquement hors plage.
-Fin estimée de ce lot : **20 h 05 Casablanca** au relevé de 18:52 UTC ;
+programme inchangés. Elle conserve l’échec qualité du diagnostic. Le lot de
+sept fichiers documentaires est publié `f13d5f3`, contrevérifié `099a0815`.
+
+**Continuation C08/C05 du 10 octobre, 19:10 UTC :** C08 natif est exécuté et
+relu (`aac17d5d`/`1c70c806`) : deux classeurs qui diffèrent uniquement hors
+plage, quatre contextes, même classement/texte/adresses/identifiant CCU-21
+sur A2:A4 et A2:A10. E5 CPU et cache projeté sont réellement observés ;
+aucune requête Qdrant de classement ni inférence LLM revendiquée. Arrêt,
+finish et propriétaire à 0, 90 identités absentes, 65 131 fichiers/1 188 liens
+inchangés. Ce cas ne qualifie pas tout C08, les autres plateformes ou 16 Go.
+C05 est lancé sur une copie neuve après cette fermeture. Le contrôle QA11
+s’arrête avant toute mutation : il compare le repère complet d’une ligne XLSX
+au repère de cellule projeté de sa citation. Le rouge est conservé ; le
+contrat est corrigé dans une copie QA distincte, sans changement produit
+(avis `7bfd9d41`, GO ROOT `f675b171`). La reprise réelle termine à 0 en
+21,366 s : quatre publications, 13 citations anciennes et deux réponses
+persistées exactes aux trois phases, points actifs SQL/Qdrant concordants,
+aucun nouvel appel LLM (`29ecfa3f`/`c76a2362`). Le navigateur réel termine
+à 0 en 26,489 s : un test, 13 liens anciens et deux retours, six captures
+originales aux deux tailles relues indépendamment (`4ebf8a99`). Les boutons
+d'un ancien chat ne sont pas restaurés par ce panneau et ne sont pas simulés.
+Down, inventaire et comparaison à 0, finish puis propriétaire réellement
+récolté à 0 ; 208 identités fraîchement absentes. Les 31 tables arrêtées,
+cinq historiques et anciens originaux sont contrôlés ; programme inchangé
+(`58c04ed3`), revue finale indépendante acquise `a9e6344d`. Le seul
+authstate QA est supprimé après fermeture (`b100723a`).
+Sa création initiale en 0664 sous umask 002 reste un défaut QA confirmé,
+protégé ici par son parent 0700 et corrigé temporairement en 0600 avant
+lecture. Sa cause source sera traitée dans R28-QA-01, sans rejouer C05.
+Fin estimée C05 avec revue/documentation : **21 h 00–21 h 15 Casablanca** ;
 estimation globale conditionnelle ci-dessous.
 
 ### R28.4 — critères d'acceptation et tests
@@ -214,13 +242,14 @@ inchangées ne remplacent aucune de ces preuves manquantes.
 Demande du 10 octobre : annoncer une heure locale de fin pour chaque lot
 et une estimation pour la totalité du plan, puis les réviser après les
 jalons. Le lot précédent Office/avis/nettoyage a été publié `8200eba`.
-La continuation migration native, témoin du garde NF09, diagnostic DEV 4B et
-publication est estimée au **10 octobre, 20 h 05 Casablanca (UTC+1)**.
-Les recettes locales suivantes sont estimées vers **20 h 25 pour C08**, puis
-**21 h 10 pour C05**, selon les résultats et la revue des preuves.
+La continuation migration native, témoin du garde NF09 et diagnostic DEV 4B
+est publiée `f13d5f3` le **10 octobre à 19 h 58 Casablanca (UTC+1)**.
+C08 classeurs jumeaux est vérifié et relu à **20 h 10 Casablanca**.
+La recette C05 et sa consolidation sont estimées vers
+**21 h 00–21 h 15 Casablanca**, selon les résultats et la revue des preuves.
 Les durées natives déjà acquises ne sont pas refacturées comme travail restant.
-Les recettes locales C05/C08/C10 et les variantes C02 non couvertes restent
-dans la charge globale ;
+Les variantes C05/C08 non couvertes, C10 en runtime complet, la correction
+QA R28-QA-01 et les variantes C02 non couvertes restent dans la charge globale ;
 les seuls prérequis externes ne résument pas le reste du chantier.
 
 Pour la clôture intégrale, **environ 40–90 heures effectives**, soit

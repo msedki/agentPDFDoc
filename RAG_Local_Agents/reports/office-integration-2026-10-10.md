@@ -1,6 +1,6 @@
 # Intégration DOCX/XLSX — preuves locales du 10 octobre 2026
 
-**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-10 18:42 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
+**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-10 19:45 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
 
 La phase d'étude a précédé l'implémentation. DOCX et XLSX complètent maintenant
 PDF dans l'import, l'extraction, les représentations, la recherche et les
@@ -508,3 +508,141 @@ ouverts. Revue terminale indépendante acquise :
 (`aae6ec0d`), avec relecture exacte des tables/FTS/backups et absence fraîche
 du parent et de l’enfant. Les limites WAL vide et autres plateformes sont
 explicitement maintenues.
+
+## Classeurs jumeaux et classement autorisé C08 — 10 octobre 18:52–19:10 UTC
+
+F exécute une nouvelle recette native sur le programme installé `22fd828` et
+un dataset neuf. Les deux XLSX synthétiques sont identiques sur A2:A4 et
+A2:A10 ; ils ne diffèrent que par les cellules hors plage B2:B10. Original1
+SHA `cc3c7a14`, original2 SHA `08bb14c5`. GO préparatoire `2c5d964b`, ROOT
+stage1 `2497e08d` ; quatre commandes à 0, binding réel `74b4d346`, revue
+`b3fb172c` et ROOT stage2 `85ad988f`. Recette stage2 `5e4f8565` : seule
+substitution du SHA de binding dans le modèle, pas un oracle modifié.
+
+Deux imports et quatre contextes réels terminent à 0 en 19,905 s. Dans les
+12 ensembles top10/final/contexte, la preuve positive A2/CCU-21/72 V est
+présente. Rang, scores, textes, adresses et offsets autorisés sont identiques
+entre classeurs pour chaque plage. Les UUID, révisions et hashes intégraux
+interversions ne sont pas artificiellement comparés : chaque source garde
+sa provenance propre vérifiée. Valeurs hors plage absentes des preuves.
+
+Le classement utilise les projections autorisées/FTS5 du code réellement
+épinglé et E5 CPU local ; aucun SQL par requête n’est tracé. Sur les quatre
+contextes, les compteurs indiquent six exécutions ONNX achevées : quatre
+inputs query et neuf inputs passage. Après le premier classeur, le second
+réutilise ses trois puis neuf projections par cache ; aucun nouvel input
+passage pour ces deux appels, mais le query E5 est réellement exécuté.
+Qdrant sert à l’indexation et aux diagnostics, aucune recherche de classement
+Qdrant n’est prétendue pour ces plages. Zéro nouvelle requête RAG et zéro
+inférence LLM ; cela ne signifie pas une absence d’embeddings E5.
+
+Down 8,447 s, pré-finish 0,605 s, inventaire 33,067 s et comparaison 1,278 s
+passent, puis vrai finish et propriétaire de la session 54120 récolté à 0. Post-down
+`dcf0c590` : deux documents, deux versions/générations, zéro query/citation/event.
+Closeout `9d1bf83a` : 90 identités, propriétaire inclus, absentes au contrôle
+frais ; programme 65 131 fichiers/1 188 liens inchangé. Terminal `aac17d5d`
+lie 87 preuves. Revue indépendante terminale `1c70c806` : hashes, sources,
+12 ensembles positifs, compteurs E5/cache, SQL/FK et 90 absences vérifiés.
+
+Deux limites héritées de préparation dans le résumé sont périmées après
+l’exécution ; l’original est conservé et le compagnon terminal rectifie
+explicitement ce texte. Une garde ROOT initiale comparait le hash du fichier
+profil au hash canonique API : rouge QA conservé et contrats distincts
+corrigés, sans mutation produit ou appel API supplémentaire.
+
+120 observations : CPU max 37,7 %, RAM disponible minimum 50 970,61 MiB,
+SD minimum 15,064 Gio, RAM physique 62 800,5 MiB. Vingt-cinq observations
+réseau ne trouvent aucun trafic non loopback observé ; pas de capture réseau
+exhaustive. Le token a été retiré par down : motifs inspectés sans fuite,
+sans prétendre à un scan littéral du secret indisponible. Données/originaux
+conservés, aucun corpus utilisateur touché. Preuves sous
+`.runtime/qa/r28-implementation/frontend-c08-twins-preparation-20261010/`.
+
+Qualification limitée à ce cas natif Linux aarch64. Autres scénarios C08,
+qualité LLM, NF09, métier/final, Windows, x86-64 et physique 16 Go restent
+hors de cette preuve. C05 démarre ensuite dans sa propre restauration.
+
+## Persistance des citations Office C05 — 10 octobre, depuis 19:05 UTC
+
+Une nouvelle restauration du backup Office scellé est exécutée sur le
+programme installé `22fd828`, dans son propre dataset et espace réseau.
+Elle conserve trois documents PDF/DOCX/XLSX, deux réponses enregistrées,
+14 citations dont 13 Office et 14 points Qdrant. Aucun corpus utilisateur
+n'est modifié. Les anciennes citations ne sont pas régénérées par un LLM.
+
+Le premier contrôle QA11 termine à 1 avant toute réindexation ou import.
+Il compare à tort le repère de ligne complet du lecteur XLSX au repère de
+cellule projeté de la citation. Les six cas réels ont un bloc, une version,
+une révision, un hash et une tranche Unicode conformes ; la cellule citée
+est comprise dans la ligne source. Aucun défaut produit n'est établi.
+Le rouge `6e06e042`, le gel `1da8e03f` et la sortie partielle restent
+conservés. Une copie QA distincte `428b82b0` conserve les 66 assertions et
+le finally antérieurs, puis vérifie les coordonnées, le binding littéral
+unique, le texte exact, la valeur typée et l’inclusion du repère XLSX.
+L'égalité stricte DOCX reste exigée. Six cas réels et 14 contre-exemples,
+avis indépendant `7bfd9d41` ; GO ROOT `f675b171` sur les entrées fraîches.
+
+La commande corrigée s'exécute une seule fois dans la session possédée,
+sans nouveau restore/up : sortie distincte `api-persistence-02`, résultat
+`21c9728e`, code 0 en 21,366 s. Deux réindexations des mêmes versions sont
+suivies de deux imports V2 réels. Les quatre jobs sont prêts et publiés.
+Les 13 citations Office et les deux réponses enregistrées restent exactes
+aux trois phases baseline/après réindexation/après V2. Le matériau des
+lecteurs anciens garde le même hash canonique `3c363439`. L'ancien B2 reste
+à 72 V ; le nouveau B2 contient 73 V. C2 conserve `LEN(A2)` sans valeur
+calculée en cache. Les originaux restent exacts.
+
+Les points Qdrant passent de 14 à 14 puis 16 ; chaque ensemble actif est
+contrôlé contre les UUID et payloads SQL, avec vecteurs présents. Le
+nettoyage des générations remplacées est automatique et les points PDF
+restent exacts. E5 indexe réellement les documents ; zéro POST de nouvelle
+requête et zéro nouvel appel LLM. Mode initial rétabli, erreurs primaire
+et de nettoyage nulles. Résumé `29ecfa3f`, reçu natif `c76a2362` liant
+116 fichiers ; preuves sous `.runtime/qa/r28-implementation/c05-native-preflight/`.
+
+La commande navigateur réelle termine à 0 en **26,489 s** (`dd5d1c12`) :
+un test réussi, zéro skip/retry/flaky/unexpected. Elle ouvre 13 citations
+anciennes (7 DOCX/6 XLSX), vérifie DOM/API/hash/slices/repères et exerce
+deux retours depuis la version courante V2 vers l'ancienne source.
+Les 282 requêtes de page sont des GET, sans mutation, destination externe
+ou erreur de page ; le bootstrap d'authentification distinct est déclaré.
+Le panneau d'analyse ne recharge pas les anciens chats : aucun clic de
+bouton historique ni nouvelle question n'est simulé. Ce périmètre ne
+clôture pas à lui seul tous les scénarios du critère C05.
+
+Six PNG originaux sont réellement examinés par le propriétaire, ROOT et
+le relecteur indépendant : S002 DOCX/tableau CCU-21/72 V et S004 XLSX/Mesures
+B2/72 V à 1366×768 et 1920×1080, puis leurs retours à 1366×768. Les identités
+anciennes restent visibles après publication V2. Les autres citations
+sont contrôlées par DOM et preuves natives, sans prétendre à 13 captures.
+Avis pixels/contrats/privacy `4ebf8a99`, terminal UI `ea4b3c11`.
+
+La première vérification de l'authstate refuse son mode **0664** avant
+lecture. Son parent est 0700 ; le propriétaire corrige le fichier exact
+par descripteur en 0600 (`dd32c3ff`). Le scan borné compare trois secrets
+connus en mémoire contre huit sorties et deux corps décodés, sans résultat
+positif (`9379bee0`) ; ce contrôle n'est pas une revue de sécurité exhaustive.
+Après fin native, seul cet authstate de 554 octets logiques est supprimé
+(`b100723a`) ; six PNG et rapport restent identiques. Le compagnon fermé
+`06fdf9f9` complète les reçus historiques sans les réécrire. La cause QA
+source writeFile sans mode est reproduite sur fichier synthétique réel
+(`254ff340`), à corriger dans R28-QA-01 ; aucun changement produit déduit.
+
+Arrêt **7,398 s**, inventaire **29,994 s**, comparaison **1,381 s**, tous à 0 ;
+finish natif puis propriétaire 83739 effectivement récolté à 0 (`f32cb035`).
+Les 208 couples PID/naissance sont fraîchement absents, sans accepter de
+zombie ou d'accès inconnu (`d504a360`). Trois captures d'exécutable sont
+bornées à l'ascendance/PID/naissance : le champ contient le répertoire du
+repo, pas un fichier exécutable. Aucune identité restante connue.
+Programme inchangé ; terminal `58c04ed3` lie 247 preuves, revue finale
+indépendante `a9e6344d` acquise après fermeture et unlink. La capture hôte
+SQLite en lecture seule après arrêt (`07ec179f`) confirme 31 tables,
+intégrité ok, zéro erreur FK, WAL vide, cinq historiques exacts et anciens
+originaux conservés ; cinq versions/révisions et sept générations.
+Les points Qdrant sont prouvés avant down, aucune lecture live après arrêt.
+
+406 observations hôte : CPU max 48,4 %, RAM disponible minimum 50 474,57 MiB,
+SD minimum 15,020 GiB, disque système minimum 3,094 GiB. Hôte physique
+62 800,5 MiB, Linux aarch64, fixtures synthétiques DEV : aucune qualification
+CPU 16 Go, Windows, x86-64 ou métier/finale. C10 runtime complet se prépare
+sur les fixtures scale-01 existantes, sans nouveau benchmark de parsing.
