@@ -1554,7 +1554,8 @@ lancement restant disponible.
 ## W056 Références candidates et obligations de couverture distinctes
 
 **Date :** 10 octobre 2026 UTC. **Statut :** décision implémentée et vérifiée en tests ciblés et HTTP natif
-Linux aarch64, revue indépendante acquise ; publication en cours, qualification globale non acquise.
+Linux aarch64, revue indépendante acquise et source publiée `1af9c0f` ;
+qualification globale non acquise.
 
 **Contexte :** R28-RAG-01 reproduit DOIT-IL obligatoire dans une question
 ordinaire, tandis que le focus typé ABC est accepté sans obligation exacte.

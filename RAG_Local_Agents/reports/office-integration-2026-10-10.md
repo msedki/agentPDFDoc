@@ -1,6 +1,6 @@
 # Intégration DOCX/XLSX — preuves locales du 10 octobre 2026
 
-**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-10 22:48 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
+**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-10 23:00 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
 
 La phase d'étude a précédé l'implémentation. DOCX et XLSX complètent maintenant
 PDF dans l'import, l'extraction, les représentations, la recherche et les
@@ -521,11 +521,11 @@ produit ni nouvelle mesure de qualité n'est revendiquée.
 
 ## R28-RAG-01 — résolution partagée des références
 
-**État au 2026-10-10 22:48 UTC :** correctif local sur base `18dc8f8`, contrat
+**État au 2026-10-10 23:00 UTC :** correctif local sur base `18dc8f8`, contrat
 `9885a5e6`, gel03 `3b44fbf8`. Le contre-exemple de langue est corrigé et vérifié ;
 les neuf cas isolés ont été repris sur le gel actuel et les neuf contrôles HTTP
-natifs ont réussi sans LLM. Recette fermée, revue terminale et publication
-encore en cours. Le programme installé `22fd828` ne contient pas ce correctif ;
+natifs ont réussi sans LLM. Recette fermée, revue indépendante favorable et source publiée `1af9c0f`
+à 22:58 UTC, distant confirmé. Le programme installé `22fd828` ne contient pas ce correctif ;
 il est conservé inchangé. Les diagnostics précédents restent historiques.
 
 Le scénario initial, question ordinaire contenant « doit-il » et DA-P01,
@@ -650,6 +650,18 @@ les masquer ni les assimiler à une qualification produit. Deux basetemps
 ROOT supplémentaires, correspondant aux seuls tests documentaires 2 + 62 PASS,
 sont retirés sans suivre les liens ; 24 preuves conservées (`2075fd98`).
 Aucun fichier de source ou preuve native n’est retiré.
+
+
+Clôture du lot local : revue finale de l’index exact de 24 fichiers `95ee9445`
+(source15 + documentation9), nettoyage F contre-validé `bea63c95`. Publication
+normale `1af9c0fd9590e4968073405c3d3f945a7cc9ad4d` réellement récoltée,
+identité auteur/committer conforme, 15 blobs de source identiques au gel03 et
+`origin/main` confirmé ; reçu ROOT `0643357d`, contrelecture indépendante
+postpublication `65fe0d24`. Aucun corpus, runtime, secret,
+DoD ni modification étrangère du journal du 2 octobre dans ce commit.
+Le reliquat C05 du chat après reload est seulement préparé en lecture seule
+(`f67e7967`) ; il requiert une liste de métadonnées et une restauration des tours dans le chat
+avant une nouvelle recette.
 
 ## Crash pendant migration SQLite — 10 octobre, 18:34 UTC
 
