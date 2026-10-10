@@ -1,6 +1,6 @@
 # Journal des modifications
 
-**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` · **Mis à jour :** 2026-10-10 16:58 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
+**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` · **Mis à jour :** 2026-10-10 18:42 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
 
 Changements notables du poste documentaire local, au format [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) rédigé en français (Ajouté, Modifié, Corrigé, Sécurité). Version déclarée du projet : `0.1.0`, identique dans [`pyproject.toml`](pyproject.toml) et [`apps/web/package.json`](apps/web/package.json) ; aucune version n'est publiée et le dépôt ne porte aucune étiquette Git, si bien que tout relève de la section [Non publié].
 
@@ -77,6 +77,8 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 - API : annulation, changement de mode et recherche n'attendent plus un import en cours ; seule la mise en pause pour sauvegarde attend les mutations admises (`72a10e5`, [tests](RAG_Local_Agents/reports/backend/2026-09-30-lotR4-api-voisins-2.xml)).
 
 ### Corrigé
+
+- Annotation de qualification Office corrigée : la DoD renvoie maintenant à l’intégration locale DOCX/XLSX effectivement publiée et à ses preuves ; ses 89 critères, cases et seuils restent inchangés. Les réserves Windows, Linux x86-64, CPU physique de 16 Go et métier/final restent ouvertes ([DoD](RAG_Local_Agents/DEFINITION_OF_DONE.md), [journal](RAG_Local_Agents/journal/2026-10-10.md)).
 
 - Avis de licences Office du kit : les textes `LICENCE.rst` réellement présents dans le cache uv sont référencés ; un manque est signalé seulement pour la distribution sans texte. Six reproductions rouges puis 13 tests ciblés conformes, Ruff/mypy et inventaire du kit réel vérifiés. Rectificatif séparé joint à l’archive CPU `22fd828` conservée inchangée ([générateur](tools/dist/notices.py), [rapport](RAG_Local_Agents/reports/office-integration-2026-10-10.md)).
 

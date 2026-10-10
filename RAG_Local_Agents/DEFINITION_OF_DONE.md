@@ -1,6 +1,6 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; notes et preuves datées ci-dessous, compléments R27 sur produits `5204d2e`/`aabb9808`, historique conservé · **Mis à jour :** 2026-10-10 02:53 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; notes et preuves datées ci-dessous, compléments R27 sur produits `5204d2e`/`aabb9808`, historique conservé · **Mis à jour :** 2026-10-10 17:31 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
 **Livraison locale avec réserves — W038, 6 octobre 2026.** L'utilisateur
 retient la livraison pour le poste Linux aarch64 et met en attente la
@@ -501,7 +501,14 @@ sont aux journaux des [9 octobre](journal/2026-10-09.md) et
 [10 octobre](journal/2026-10-10.md). Windows natif est différé,
 Linux x86-64 et CPU physique de 16 Go restent non exercés ; les réserves métier,
 D06.5 et les autres critères non prouvés ne sont pas clôturés.
-L’étude DOCX/XLSX R28 est finalisée ; aucun support Office produit n’est livré.
+L’étude DOCX/XLSX R28 est finalisée et l’intégration locale est publiée dans
+`57f7f0a` : DOCX et XLSX complètent PDF dans les voies décrites au
+[rapport de preuve Office](reports/office-integration-2026-10-10.md).
+Le kit CPU Linux aarch64 corrigé `22fd828` a été installé, restauré et
+recetté hors réseau ; les avis et preuves finales sont publiés dans
+`8200eba`. Ces résultats locaux ne qualifient ni Windows, ni Linux x86-64,
+ni un hôte physique CPU de 16 Go, ni le corpus métier ou le jeu final.
+Les lots R28-I-07/I-08 restent partiels et les réserves ci-dessus conservées.
 
 ## Rapport final exigé
 

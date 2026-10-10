@@ -1,6 +1,6 @@
 # Intégration DOCX/XLSX — preuves locales du 10 octobre 2026
 
-**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-10 16:58 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
+**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-10 18:42 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
 
 La phase d'étude a précédé l'implémentation. DOCX et XLSX complètent maintenant
 PDF dans l'import, l'extraction, les représentations, la recherche et les
@@ -329,3 +329,182 @@ Revue indépendante du générateur et des inventaires :
 `final-review/office-notice-inventory-source-and-rectification-review.json`,
 SHA `71dfe354`, GO ciblé ; temporaires pytest/mypy supprimés après contrôle
 (`notices-fix/cleanup-after.json`, SHA `9cbdf1cf`), preuves préservées.
+
+## Migration native SQLite v3→v4 — 10 octobre, 17:48–18:00 UTC
+
+La recette précédente sur le kit `22fd828` restaurait déjà une base v4 ; elle
+ne prouvait pas la migration native. La nouvelle cible QA sur SD réutilise
+le même programme immuable et le backup R27 synthétique scellé de schéma 3 :
+14 documents, 15 versions, 22 citations, quatre historiques et 623 événements.
+Aucun corpus privé/final, nouvel import ou nouvelle question n’est utilisé.
+
+Les quinze commandes avant finish passent : inventaire 32,455 s, vérification
+du backup 3,464 s, restore CLI 6,737 s, up 12,467 s, doctor 5,173 s, down 6,958 s,
+inventaire final 32,783 s et comparaison stricte 1,267 s. La capture avant API
+retrouve exactement les 26 tables v3 ; les modes root/control 0700 et jetons 0600
+sont réellement observés sous umask 002 sans chmod de QA. Les 60 points Qdrant,
+15 originaux, 22 citations et quatre historiques/SSE sont relus ; il n’y a
+aucune nouvelle inférence, les métriques des anciens historiques restent
+historiques.
+
+Le dispatch de finish est fautif : il publie le wrapper `request` au lieu
+de l’objet intérieur `finish:true`. Le broker lève KeyError, le propriétaire
+est effectivement récolté à 1. Ce rouge est conservé ; les quinze commandes
+réussies ne le rendent pas nominal. Après récolte, les 67 lifetimes capturées
+sont absentes au contrôle frais. La capture hôte en lecture seule confirme
+31 tables v4, 25 tables héritées et 68 rowids FTS et catalogues inchangés, cinq tables
+Office vides et un backup automatique dont les 26 tables v3 sont exactes.
+L’idempotence native est encore en attente à ce jalon.
+
+Preuves sous `r28-implementation/v3-native-preflight/` : gel d8586fd8,
+`phase1-terminal-01.json`17e2080c (84 entrées liées),
+`phase1-finish-dispatch-red-01.json`93c7f3f0,
+`phase1-owner-exit-proof-01.json`a483a442,
+`phase1-fresh-lifetimes-01.json`e3dfbe71 et
+`migration-host-after.json`3a7e913a. Relecture indépendante et préparation
+d’une reprise distincte : `final-review/native-v3-phase1-failed-finish-state-and-restart-preparation-review.json`
+deab3838 ; template initial inchangé, ancien retour1 non requalifié.
+
+Le runtime réellement observé est CPython 3.12.14, SQLite 3.53.1, psutil 7.2.2,
+Linux aarch64/glibc 2.31. `_sqlite3` est built-in sans fichier partagé : il est
+lié au SHA du binaire Python réel, pas à un chemin supposé. Première sonde
+métadonnée refusée et reprise RO conservées ; `executed-versions-02.json`
+17e50835. Cette observation ne qualifie pas SQLite Windows/x86-64,
+un crash pendant la transaction ou une machine physique de 16 Go.
+
+## Redémarrage natif et idempotence — 10 octobre, 18:02–18:12 UTC
+
+La reprise utilise un nouveau broker et une recette distincte, sans restore
+ni rejouer la migration. L’ancien template exigeant un premier exit0 reste
+inchangé ; le nouveau préflight conserve explicitement le premier exit1.
+Le dispatcher QA est corrigé : objet finish au bon niveau et publication
+atomique du fichier fermé. Le refus indépendant de la première écriture non
+atomique et les témoins purs rouge/vert restent conservés. Aucun code produit
+ni helper de supervision déjà qualifié n’est modifié.
+
+Les sept commandes réelles passent, puis finish confirme SESSION_FINISHED.
+Up 12,042 s, doctor 5,013 s, permissions 0,334 s, relecture GET 3,563 s,
+down 7,182 s, inventaire 32,591 s et comparaison 1,247 s : 61,972 s de
+commandes cumulées, sans les confondre avec le temps écoulé de la recette.
+Le propriétaire et le broker sont réellement récoltés à 0 ; aucun signal de
+nettoyage, erreur ni processus restant. Les 53 identités PID/naissance sont
+absentes au contrôle frais avec distinction explicite des zombies et inconnues.
+
+Après récolte, la capture hôte retrouve les 31 tables, SQL, FTS, catalogues
+d’originaux/extractions et le même backup v3 exactement inchangés. Integrity
+est ok, aucune erreur FK. Le backup de 1 875 968 octets conserve son SHA
+`112b89c196d9bbf17bcf46990461cb9486c63812cf291ba562924a6471a3d9ca`.
+Les 15 originaux, 22 citations, quatre historiques et 623 événements sont
+relus sans nouvelle inférence ; les modes restent privés. L’inventaire du
+programme retrouve 65 131 fichiers et 1 188 liens sans changement.
+
+Preuves : `v3-native-preflight/recovery-terminal-01.json` (`aa9863f9`),
+`restart-host-after.json` (`7fff8c9c`), `recovery-fresh-lifetimes-01.json`
+(`12b4e229`) et avis indépendant
+`final-review/native-v3-recovery-restart-terminal-independent-review.json`
+(`06574cf5`). Sur 65 relevés : RAM disponible minimum 51 430,64 MiB,
+CPU maximum 29,6 %, SD minimum 15,108 Gio, racine minimum 3,120 Gio.
+Les 26 relevés réseau observent zéro socket non loopback ; l’échantillonnage
+et le DNS SERVFAIL double déclaré gardent leurs limites.
+
+Cet acquis clôt la migration et son redémarrage dans ce périmètre Linux
+aarch64/CPU. C02 reste ouvert pour crash pendant transaction et SQLite des
+hôtes Windows/x86-64 ; C05 versions, C08 classeurs jumeaux, C10 reprise et
+runtime volumineux, qualification physique 16 Go et métier/finale restent
+distincts. Le diagnostic DEV suivant produit de nouvelles questions et est
+séparé de ces captures SQL immuables.
+
+## Diagnostic DEV DA-P01 à preuves constantes — 10 octobre, 18:20–18:35 UTC
+
+Le programme installé `22fd828`, profil CPU/no-think, modèle 4B digest `de8024db`
+et original `791b9535` sont liés à un binding réel relu avant exécution. Les
+captures C02 sont scellées avant les nouvelles questions. Aucun import, reindex,
+restore, retry ou juge modèle supplémentaire. Les trois contextes réels ont
+la même matière ordonnée/provenance/signature `794a6219`, les mêmes budgets et
+aucune troncation ; les messages diffèrent par la question.
+
+La collecte réelle termine à 0 en 217,340 s avec trois DONE/CPU sans fallback.
+Ce retour valide la collecte, pas la qualité. La lecture directe des trois
+réponses et des citations donne :
+
+| Question | Résultat observé |
+|---|---|
+| « Quelle est la intervalle de contrôle indiquée pour DA-P01 ? » | Faux refus : cite dans le texte « toutes les 1020 h » puis nie la valeur et conclut que les preuves manquent. Aucun marqueur de citation valide. DONE `084e660c`. |
+| « À quelle périodicité le contrôle de DA-P01 doit-il être réalisé ? » | Réponse affirmative 1020 heures, `[S001]` résout le bloc exact de page 1 et la bonne version/révision. DONE `9f28df8a`. |
+| « What is the inspection interval specified for DA-P01? » | Réponse en français, conformément au système, affirmative 1020 heures avec la même citation exacte. DONE `9727ec64`. |
+
+Le passage source est « Le contrôle périodique de DA-P01 intervient toutes les
+1020 h. » ; ses offsets sont 0–62 sur le bloc autoritaire. Les comptes
+prompt/sortie sont 764/270, 766/81 et 761/73 ; TTFT respectifs 52,601 s,
+38,972 s et 37,408 s. Ces trois mesures ne qualifient ni D07, ni un hôte
+physique de 16 Go, ni un taux de qualité métier/final.
+
+Ce témoin exclut un manque de récupération de la preuve pour ces trois
+questions et montre une sensibilité au libellé dans cette exécution. Il ne
+prouve ni une cause générale liée à la langue, ni la cause racine du modèle
+ou de l’instruction. Le refus connu 4B reste une réserve à traiter ; aucune
+correction produit ou amélioration de score n’est revendiquée.
+
+Preuves sous `frontend-semantic-da-p01-20261010/fresh-run-01/` : résumé
+`0af5cde7`, comparaison `d9adad9b`, DONE/SSE/citations conservés. Lecture ROOT :
+`root/semantic-da-p01-root-adjudication-01.json`, SHA `0c310e1f`.
+Le résumé copie une ancienne limite « préparation seulement, zéro appel »
+de l’oracle de préparation ; cette limite est périmée pour l’exécution et ne
+contredit pas les trois métriques model_called/SSE observées. L’original reste
+inchangé, cette rectification distingue préparation et exécution.
+
+Revue sémantique indépendante :
+`final-review/da-p01-three-formulations-semantic-adjudication.json`
+(`b609eebe`) concorde avec la lecture ROOT. Résultat qualité global de ce
+seul diagnostic : échec, un faux refus ; deux réponses correctes ne le rendent
+pas conforme. Les critères généraux et les réserves D06 restent inchangés.
+
+La clôture technique distincte est validée indépendamment :
+`v3-native-preflight/semantic-terminal-01.json` (`567dd57a`) et
+`final-review/da-p01-native-terminal-cleanup-independent-review.json`
+(`051545af`). Sept commandes à 0, finish réel, propriétaire/broker récoltés à
+0 et 79 identités absentes au contrôle frais. Les cinq tables de questions,
+conversations, messages, événements et citations changent conformément aux
+trois questions ; les 26 autres tables, originaux/extractions, backup C02 et
+programme restent exacts. Les relevés observent CPU maximum 89,2 %, RAM
+minimum 47 094 MiB et SD minimum 15,093 Gio. Ce succès technique préserve
+l’échec sémantique décrit ci-dessus.
+
+## Crash pendant migration SQLite — 10 octobre, 18:34 UTC
+
+Une base synthétique minimale v3 isolée réutilise la fixture versionnée
+`legacy_database`, sans importer tout le module de tests. Le module DB et
+la migration sont ceux du programme installé `22fd828`, sans SQL/source
+modifié. Le seul dispositif QA est une synchronisation sys.settrace sur la
+ligne réelle avant `ALTER TABLE blocks_v4 RENAME TO blocks`.
+
+Le marqueur positif observe transaction active, schéma 3, ancien `blocks`
+déjà supprimé et `blocks_v4` contenant une ligne. L’enfant PID/naissance
+possédé reçoit SIGKILL, est réellement récolté à -9 et devient absent.
+Parent et enfant sont UID/EUID 1000, sans capacités. La commande termine à 0
+en 2,069 s. Les descripteurs, pipes et connexions SQLite sont fermés ; aucune
+erreur primaire ou de nettoyage, aucune API, service ou génération.
+
+Les fichiers de crash sont conservés avant la connexion normale de reprise :
+DB 229 376 octets, SHM 32 768 et WAL **0 octet**. Il s’agit d’un vrai arrêt
+pendant la transaction ; il ne démontre pas la récupération de pages déjà
+écrites dans un WAL non vide, ni une panne électrique. Les 26 tables v3,
+FTS, identités/citation et original sont exacts après reprise. Initialize
+réel atteint 31 tables v4 ; les 25 héritées sont exactes, les cinq Office
+vides, defaults PDF conformes. Une seconde initialisation ne change ni tables
+ni backups. Deux backups v3 complets sont attendus : un avant le crash, le
+second au redémarrage encore en v3 ; ils ont les mêmes contenus et SHA,
+sans imposer artificiellement un backup unique.
+
+Preuves : `root/c02-crash-command-01.json` (`50e69d91`),
+`root/c02-crash-native-01/completion.json` (`7c70792e`), marqueur `ed63520a`,
+cleanup `47214348` et snapshots avant/reprise/migration. Préparation relue
+`final-review/c02-crash-sqlite-preparation-independent-review.json`
+(`72bc2b7e`). R28-S20 donne la référence SQLite officielle, pas une preuve
+supplémentaire d’exécution. La portée reste cette petite base native Linux
+aarch64 ; SQLite des autres hôtes, volumétrie et qualification 16 Go restent
+ouverts. Revue terminale indépendante acquise :
+`final-review/c02-crash-sqlite-terminal-independent-review.json`
+(`aae6ec0d`), avec relecture exacte des tables/FTS/backups et absence fraîche
+du parent et de l’enfant. Les limites WAL vide et autres plateformes sont
+explicitement maintenues.
