@@ -1,6 +1,6 @@
 # Intégration DOCX/XLSX — preuves locales du 10 octobre 2026
 
-**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · Livraison propre CPU `52abb94b`, fermeture récupérée et retrait du transport revus indépendamment · **Mis à jour :** 2026-10-11 02:09 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
+**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · Livraison propre CPU `52abb94b`, fermeture récupérée et retrait du transport revus indépendamment · **Mis à jour :** 2026-10-11 03:28 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
 
 La phase d'étude a précédé l'implémentation. DOCX et XLSX complètent maintenant
 PDF dans l'import, l'extraction, les représentations, la recherche et les
@@ -1161,3 +1161,125 @@ pack 11/11 et diff brut à 0 ; sorties réelles dans
 Les 12 avertissements tiers historiques demeurent distincts. Aucun outil
 ou SVG modifié : les 62 tests documentaires précédents sont conservés comme
 preuve historique, sans nouveau total inventé ni rejeu produit.
+
+## C09 — trois refus natifs de conteneurs Office — 11 octobre 2026
+
+**Portée :** programme CPU installé `52abb94b`, sources produit inchangées,
+suivi repris sur `e6328dce`. Instance neuve et données isolées sur SD,
+namespace réseau limité au loopback ; aucun document valide, génération,
+recherche ou corpus privé. Python 3.12.14, SQLite 3.53.1, Linux aarch64,
+UID 1000 et capacités effectives nulles. L'hôte physique de
+65 851 092 992 octets ne qualifie pas la limite de 16 Go.
+
+Trois fichiers synthétiques sont réellement soumis à l'import authentifié :
+DOCX avec CRC erroné, XLSX avec membre `xl/workbook.xml` dupliqué, DOCX avec
+DTD en UTF-16. Les trois réponses sont HTTP 400, avec codes et messages
+attendus ; durées respectives des cas complets 0,362 / 0,023 / 0,024 s.
+Les seules requêtes HTTP durent 0,199 / 0,017 / 0,017 s. Après chaque
+refus et à froid, les 31 tables et le schéma restent égaux à la référence,
+l'intégrité et les FK sont conformes. Aucun document, original, version ou
+job persistant n'est créé. Le temporaire d'upload est retiré ; cela ne
+signifie pas qu'aucune allocation temporaire n'a eu lieu.
+
+Le premier contrôle de liaison a échoué avant tout import : un cache de
+compilation Node est observé dans le temporaire du broker durant `doctor`.
+Son horodatage et l'activation du cache par les wrappers Corepack/pnpm
+étayent cette attribution ; le PID individuel du writer n'est pas acquis.
+Le fichier
+de 101 892 octets et ses deux dossiers sont épinglés séparément ; l'oracle
+documentaire reste strictement vide. Le gel QA distinct vérifie ce cache
+exact avant/après chaque refus, sans modifier l'environnement ni relancer
+la stack. Le premier retour 1 reste conservé ; les commandes suivantes
+ont été réellement récoltées à 0, puis `SESSION_FINISHED` et le wait du
+propriétaire ROOT à 0 sont acquis. Le finaliseur froid a aussi un vrai
+retour 0 et une absence fraîche.
+
+Preuves sous `.runtime/qa/r28-implementation/c09-native-preparation-20261011/` :
+`imports-summary-01.json` (`8a7aabc4`),
+`actual-owner-harvest-01.json` (`2c65fd0f`), `host-final-01.json` (`18a819a1`)
+et `external-terminal-01.json` (`bb2d03a9`). Revue indépendante finale
+`.runtime/qa/r28-implementation/c05-history/review/c09-native-independent-final-review-04.json`
+(`b7c78e41`) : 123 identités connues absentes, programme inchangé
+(65 131 fichiers et 1 188 liens), données documentaires vides et cache exact.
+Le contrôle des cinq littéraux secrets porte sur 102 fichiers avant down,
+avec exclusions des fichiers de contrôle explicitement recensées ; il
+ne vaut pas audit de tous les fichiers ultérieurement produits.
+
+Après fermeture, le seul cache devenu inutile est retiré : fichier
+101 892 octets puis ses deux dossiers vides, UID/inodes/modes/empreinte
+recontrôlés. Opération ROOT `7379cb/0`, opérateur fraîchement absent,
+TMP gardé vide ; preuves inchangées. Allocation retirée et gain libre
+observé : 110 592 octets, ce dernier borné par l'activité du volume.
+Reçus `node-cache-retirement-after-01.json` (`344d73aa`) et
+`node-cache-retirement-external-terminal-01.json` (`446c664c`) dans le
+même dossier C09. L'observation antérieure « cache conservé inchangé »
+reste une preuve historique exacte, distincte de ce retrait ultérieur.
+Revue indépendante finale du retrait :
+`.runtime/qa/r28-implementation/c05-history/review/c09-node-cache-retirement-independent-final-review-06.json`
+(`7dba29f2`).
+
+**Limites :** trois cas adverses acquis, sans qualification de toute C09 :
+macros, bombes, traversal, lectures arbitraires et toutes les variantes
+de quotas restent distincts. Aucun PASS d'une plateforme absente ni de
+la DoD globale. Les contrats de ZIP/XML et du cache Node sont reliés dans
+[SOURCES](../SOURCES.md), notamment R28-S30 ; ils ne remplacent pas ces essais.
+
+## C02 — spill WAL non validé et récupération — 11 octobre 2026
+
+**Portée :** même programme installé, `db.py` (`a2093fa2`) et migration004
+(`9f9091f6`) identiques au repo. Fixture SQLite synthétique neuve sur SD :
+10 000 blocs supplémentaires de 8 192 octets, 10 001 blocs au total,
+base de 87 625 728 octets. Le petit marqueur original est un blob `%PDF`,
+pas un PDF valide ni une preuve de rendu. Paramètres livrés conservés :
+cache 32 Mio, `busy_timeout=5000`, spill naturel, sans abaissement artificiel.
+
+Après un commit témoin et pendant la transaction de migration, le WAL
+passe de 4 152 à 58 652 352 octets : 14 235 nouvelles frames, sans nouveau
+marqueur de commit. Préfixe, salts et checksums sont vérifiés. Au point
+d'interruption, schéma 3, transaction active, 10 001 lignes dans la table
+de remplacement et ancienne table supprimée dans la transaction.
+Le processus de migration est réellement arrêté par SIGKILL et récolté
+à −9 ; lecteur et writer sont récoltés à 0.
+
+La copie brute DB/WAL/SHM est conservée avant récupération. SQLite rejoue
+à froid le seul commit validé et retrouve les 26 tables v3 exactes.
+La migration réelle retrouve ensuite 31 tables, conserve les 25 tables
+historiques comparées (hors changement de `schema_version`), avec les
+normalisations PDF attendues, et laisse les cinq tables Office neuves vides.
+Deux sauvegardes v3 logiques restaurables et égales sont acquises ; le
+second `initialize` ne change pas la base et ne crée pas de troisième backup.
+
+L'exécution native de 52,750 s acquiert ces oracles, puis échoue à la
+composition du reçu final : le pilote QA suppose `_sqlite3.__file__`,
+alors que ce module est intégré à l'interpréteur livré. Les retours 1 du
+probe et du wrapper, la trace et l'absence de `completion.json` restent
+conservés. Un finaliseur distinct vérifie les preuves et les empreintes,
+sans connexion DB ni rejeu de fixture/migration/backup. Il lie le module
+builtin à l'interpréteur réellement exécuté, SHA `2fdbcf7d`, et termine
+à 0 en 0,578 s ; ROOT récolte le vrai handle 84639 et constate son absence.
+Ce reçu ne transforme pas la tentative initiale en succès nominal.
+
+Preuves sous `.runtime/qa/r28-implementation/c02-wal-spill-preparation-20261011/` :
+`attempt-02/execution-terminal.json` (`3e6b2b00`),
+`finalization-03/verification.json` (`73937418`) et
+`finalization-03/actual-external-terminal-03.json` (`38b87d1a`).
+Récolte externe sous `.runtime/qa/r28-implementation/` :
+`root/c02-spill-20261011/attempt-02-external-harvest.json` (`536c4838`).
+Les oracles DB/WAL sont dans `/media/safae/devsave1/r28-c02-wal-spill-20261011-01/` :
+`uncommitted-spill-before-kill.json` (`6f90d7d7`),
+`cold-base-and-wal-recovery.json` (`03a4a003`),
+`migration-and-idempotence.json` (`01cfab54`) et
+`ownership-cleanup.json` (`5675171d`). Revue préparatoire distincte
+`.runtime/qa/r28-implementation/c05-history/review/c02-wal-spill-distinct-finalization-independent-preparation-review-04.json`
+(`cf38e8b1`) ; avis fonctionnel indépendant final
+`.runtime/qa/r28-implementation/c05-history/review/c02-wal-spill-independent-functional-final-review-05.json`
+(`a4fe8b0e`) acquis après récolte et absence du finaliseur.
+
+**Ressources et limites :** 11 mesures, pic RSS d'un processus observé
+75 907 072 octets, CPU hôte maximum échantillonné 24,1 %, RAM disponible
+minimum 54 397 534 208 octets ; allocation maximale de la cible
+760 389 632 octets, SD libre minimum 13 700 554 752 octets. Le RSS mesuré
+n'est pas une preuve de fonctionnement sur un hôte physique de 16 Go.
+Cette variante étend la preuve locale C02 ; panne électrique, bases
+arbitraires et SQLite des autres cibles restent non qualifiés.
+Références officielles R28-S28/S29/S31 dans [SOURCES](../SOURCES.md).
