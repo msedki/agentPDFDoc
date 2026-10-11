@@ -1,6 +1,6 @@
 # Intégration DOCX/XLSX — preuves locales du 10 octobre 2026
 
-**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · Livraison propre CPU `52abb94b`, fermeture récupérée et retrait du transport revus indépendamment · **Mis à jour :** 2026-10-11 04:46 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
+**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · Livraison propre CPU `52abb94b`, fermeture récupérée et retrait du transport revus indépendamment · **Mis à jour :** 2026-10-11 05:39 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
 
 La phase d'étude a précédé l'implémentation. DOCX et XLSX complètent maintenant
 PDF dans l'import, l'extraction, les représentations, la recherche et les
@@ -1336,7 +1336,8 @@ Gel `semantic-identity-implementation-01/frozen-final-01.json` (`13f44fb5`).
 dont7 recouvrants ; six nouveaux cas, Ruff4fichiers et mypy ciblé conformes.
 Doubles tokenizer/embedding/vecteurs/Ollama explicitement nommés. Préimages
 et vrais rouges conservés ; revue indépendante source acquise `cff07393`.
-**L’effet sur une réponse réelle du modèle demeure non mesuré.**
+**À ce gel source, l’effet sur une réponse réelle n’était pas mesuré.**
+La recette distincte sur la source publiée est consignée ci-dessous.
 
 **Recette navigateur, résultats distincts :** READERS_ONLY, zéro nouvelle
 question/import/indexation/inférence. UI01 échoue avant tout clic sur
@@ -1371,3 +1372,111 @@ connus absents,42preuves/sources épinglées intactes. Durée0,059s ;
 volume observée+720896octets, sans attribution générale. DATA, programme,
 originaux, deux captures d’échec et preuves conservés.
 Revue finale indépendante du retrait `65f2227e` acquise.
+
+## C07 — recette RAG-02 sur la source publiée — 11 octobre 2026
+
+**Portée :** une comparaison DEV réelle sur Linux aarch64, UID 1000, modèle 4B sur CPU,
+réseau privé et les trois originaux synthétiques PDF/DOCX/XLSX déjà utilisés.
+Les fichiers du dépôt publié `821f0726` sont réellement exécutés ;
+`context.py` SHA `c6db9fa1…`. L’installation `52abb94b` n’est pas modifiée
+et conserve son ancien contexte ; cette recette ne livre pas un nouveau kit.
+Hôte physique d’environ 61,3 Gio : aucune preuve Windows/x86-64/16 Go déduite.
+
+Racine native : `.runtime/qa/r28-implementation/c07-comparison-preparation-20261011/rag02-native-01/`.
+Racine lecteur : `.runtime/qa/r28-implementation/c07-browser-preparation-20261011/rag02-readers-01/`.
+Revues indépendantes : `c05-history/review/` sous la même racine QA.
+
+**Exécution et reprise QA :** l’étape 11 initiale termine réellement à 1
+(`c99954`) avant tout POST : le runner indexait `['points']` sur une
+référence Qdrant réellement représentée par une liste de 14 objets. Les
+snapshots historiques et nouveaux sont identiques ; aucun défaut produit
+n’est déduit de cette erreur QA. Original et rouge conservés. Runner distinct
+`run-recovery-01/` : lecteur strict de cette liste, IDs uniques, trois
+contre-oracles rejetés, seules sortie et lecture de référence adaptées.
+Gel `ae313237`, revue préalable `1971871a`, admission réelle puis reprise
+`4bebc3`/`cacdc9`, code 0, 228,115 s ; trace API 227,627 s. Aucun nouveau
+restore/up et une seule nouvelle question exécutée.
+
+**Faits observés :** query `59dbb726-f5da-4d4b-83dc-2f7991084e98`,
+136 événements SSE dont un done, huit citations enregistrées et trois
+littéralement présentes dans la réponse. Les huit sources retenues sont
+les mêmes que dans l’ancien cas, regroupées en trois document_id réels ;
+2523/4864 tokens de preuve, 2728 tokens de prompt et 140 tokens produits.
+Qwen modèle 4B sur CPU réel, sans fallback ; formule C2 non évaluée et cache absent.
+Réponse : une phrase pour chacun des trois documents puis concordance
+sur72V. Revue sémantique indépendante `rag02-comparison3-independent-semantic-review-19.json`
+SHA `28654c1e…` : PASS pour ce cas et son format demandé. L’ancien FAIL
+`b6a61bac` demeure inchangé ; ni causalité universelle ni supériorité SOTA
+comparative ne sont établies par une seule inférence.
+
+| Citation littérale | Source exacte observée | Limite |
+|---|---|---|
+| S001 | PDF, page physique1/index0,72V | Page originale, aucune pseudo-page Office. |
+| S002 | XLSX A2:C2, valeur littérale B2=72V, offsets33–37 | Citation de plage ; C2=`=LEN(A2)`, cache absent, pas de recalcul ni précision cellule inventée. |
+| S003 | DOCX tableau `/document[1]/body[1]/tbl[9]`, lignes1–2/colonnes1–3,72V | Ancrage structurel, aucune pagination Word garantie. |
+
+**Lecteurs réels :** DTO complet égal au scope SQL, rejeu SSE attendu
+jusqu’au texte DONE et à l’ordre final des trois boutons. Un test Playwright
+réel PASS, zéro retry,69 requêtes GET observées, aucun POST/import/indexation
+ou nouveau LLM. Trois clics/citations avec retour au chat et scope courant
+conservé. Six PNG originales à 1366×768 et 1920×1080 examinées par ROOT puis
+indépendamment par R : page PDF peinte/surlignée, tableau Word 9, plage XLSX
+A2:C2/B2=72/f en C2. À 1366, conclusion sous la ligne de flottaison ; son
+texte complet est vérifié dans le DOM, sans prétendre qu’il est visible
+sur la capture. Avis `rag02-readers-pixels-privacy-independent-review-21.json`,
+SHA `9ecd7c72…`. Scan des 11 artefacts contre les secrets disponibles sans
+fuite, état d’authentification 600 exclu précisément ; contrôle non exhaustif.
+« Mode non enregistré » correspond au contrat historique `mode:null`,
+non à un défaut lecteur (`history-mode-contract-observation-01.json`, `48356c8e`).
+
+**Arrêt et conservation :** down 12 `b60a89/0`, inventaire 13 `6d92a9/0`,
+comparaison 14 `2563f6/0`, finish 15 `e2c0ce/0`. Propriétaire/session15449
+réellement récolté `60430e/0` ;126 identités PID/naissance distinctes sur 130
+enregistrements acquis, fraîchement absentes. Capture SQLite en lecture
+seule puis finaliseur distinct `d4ba34/0` :31 tables froides exactement
+égales au post-query, anciennes lignes/citations conservées, trois originaux
+et14 points Qdrant exacts. Programme52 :65 131 fichiers/1 188 liens inchangés.
+`host-final-recovery-01.json` SHA `12ada0ab…`, récolte `2fdff9cb…`, externe
+`root-external-cold-closure-01.json` SHA `5e5fd7b0…` ; revue indépendante
+`rag02-comparison3-independent-native-closed-review-22.json` SHA `4ab58681…`.
+Le finaliseur réellement terminé n’a pas de PID/naissance capturés : aucune
+absence nominative reconstruite. L’étape 11 initiale reste à 1, sans transformer
+les 15 étapes originales en PASS. Les corrections de lecture de métadonnées
+QA sont distinguées des invariants produit.
+
+**Ressources et artefacts dérivés :** seul cache mypy devenu inutile retiré
+après vérification des producteurs et revue :18 fichiers,
+122 745 056 octets logiques/122 769 408 alloués sélectionnés ; preuve externe
+`mypy-cache-retirement-preparation-01/root-external-after-01.json` SHA `10ac7ed3…`,
+revue `a9325d95…`. Six basetemps/191 liens restent conservés faute de ledger
+complet ; 22 observations préexistantes UNKNOWN restent UNKNOWN. Les dix
+préimages dérivées de reconstruction documentaire, devenues inutiles après
+publication, sont retirées séparément ; diffs, gels et erreurs originaux
+conservés (`redundant-reconstruction-retirement-01.json`). La récupération
+des fins de ligne du gel04 vers05 est conservée, sans normalisation générale.
+Relevé froid à 05:30 UTC :CPU 19 %, RAM disponible 51 473 Mio, SD 12,726 Gio
+libres ; aucune attribution du delta global aux seuls retraits.
+
+**Références et limites :** les choix applicables sont vérifiés dans les
+sources officielles [R28-S03/S05/S06 et R28-S32](../SOURCES.md#r28-s32--relecture-des-contrats-office-et-attente-du-rejeu-historique), avec versions/limites
+explicites. Documentation ≠ preuve d’exécution. Ce résultat ne ferme pas
+la matrice C07 complète, le cas à quatre documents, les analyses métier,
+les gros corpus/final, Windows, Linux x86-64, CPU physique≤16 Go ni NF09.
+RAG-02 est validé localement ; I-07/I-08 et la DoD restent partiels.
+
+**Retrait froid de cette nouvelle recette :** gel `71776ef4`, GO indépendant
+`e05eb166`, GO ROOT `bb6460ce`. Commande réellement terminée `87e92b/0`
+en 0,205 s :32 fichiers (un état d’authentification de 553 octets, trois fichiers Node, 104 196 octets,28 JS/map, 358 140 octets)
+et 17 dossiers cache vides retirés par chemins/inodes/hash épinglés, sans
+rmtree. Deux racines TMP/auth restent privées et vides ; six PNG de succès,
+logs, gels, DATA, originaux et programme conservés. Reçu
+`temporary-retirement-after-03.json` SHA `faff0a5f…` ; contrôle externe
+`root-external-temporary-retirement-03.json` SHA `e960b0fc…` :49 entrées
+absentes,43 pins conservés intacts,126 producteurs acquis et opérateur
+2044723/1791696732.74 fraîchement absents. Sélection :462 889 octets logiques,
+598 016 alloués ; delta libre observé+598 016 octets distinct du bilan global.
+Aucune suppression générale de caches, sources, preuves ou données.
+
+Revue finale indépendante de ce retrait acquise :
+`rag02-cold-temporary-retirement-independent-final-review-24.json`,
+SHA `0c8e4b3d…`, PASS borné.
