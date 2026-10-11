@@ -426,7 +426,15 @@
       "sources": []
     },
     "delta_data": {
-      "text": "string"
+      "text": "string",
+      "citation_spans": [
+        {
+          "source_id": "Sxxx: emitted source ID",
+          "start_offset": "inclusive Unicode code point offset in delta.text",
+          "end_offset": "exclusive Unicode code point offset in delta.text"
+        }
+      ],
+      "citation_spans_rule": "Optional, present on a validated typed answer. The typed contract emits one complete text delta, with positions in that delta. Empty spans preserve all literal citation-like source text; absent means legacy citation parsing."
     },
     "done_data": {
       "message": "string",
@@ -446,7 +454,33 @@
           "rule": "One entry per normalized coverage obligation resolved from the original question and authorized explicit focus, not per regex candidate; present once passages and context were built ({} without obligations), absent otherwise. Existing structured syntax remains obligatory; purely alphabetic compounds remain searched and exact-priority candidates without automatic obligation, and any nonempty normalized focus.identifier is an explicit obligation. covered: final context carries the exact reference and a question term; identifier_present_no_answer_evidence: reference present without any question term, reported by the warning of the same code; identifier_present_languages_differ: no shared term, but question and a carrying passage use different recognised languages (fr, en), so the lexical check asserts neither an answer nor its absence and adds no warning; not_covered_due_to_budget: found but cut; not_found_in_scope: absent from the passages retrieved in the authorized scope. These are lexical signals, never semantic answer validation."
         }
       },
-      "warnings": []
+      "warnings": [],
+      "structured_answer": {
+        "status": "validated|incomplete|no_references: optional typed restitution metadata; only validated carries the plan and positions",
+        "plan": {
+          "references": [
+            "Rxxx: reference in the authorized retained catalogue"
+          ],
+          "comparisons": [
+            {
+              "references": [
+                "Rxxx: distinct selected reference"
+              ]
+            }
+          ]
+        },
+        "schema_sha256": "sha256",
+        "catalogue_sha256": "sha256",
+        "rendered_tokens": "integer: present only for validated rendering",
+        "citation_spans": [
+          {
+            "source_id": "Sxxx: emitted source ID",
+            "start_offset": "inclusive Unicode code point offset in done.text",
+            "end_offset": "exclusive Unicode code point offset in done.text"
+          }
+        ],
+        "rule": "Optional; the model selects references only. Server validates the entire plan before emitting literal facts and authoritative citation positions. Values and formulas come from retained source characters; no formula evaluation. The plan is absent for incomplete/invalid/cancelled output."
+      }
     },
     "error_data": {
       "code": "string",
@@ -516,6 +550,13 @@
         "fields": "code|document_ids|document_names|message",
         "rule": "R26-IDX-02: documents of the scope whose active generation has no point in the collection of the current dense identity (embedding identity changed, partial reindex); the lexical branch still serves them; emitted by the search (POST /search, queries before the first delta and in done.warnings, evaluation), never for a selection scope; non blocking, the message asks to reindex them"
       }
+    },
+    "internal_audit_only": {
+      "types": [
+        "structured_answer",
+        "structured_delta"
+      ],
+      "rule": "Stored in query SQL events only, excluded from both live and replay GET event streams. Cursor advances over hidden event IDs, so public IDs may have gaps. Raw model JSON is never public."
     }
   },
   "query_run": {

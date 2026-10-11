@@ -12,6 +12,7 @@ from .context import validate_answer
 from .db import json_dump, now, uid
 from .errors import ApiError
 from .retrieval import identifiers, ocr_evidence_warnings, resolve_references
+from .structured_answer import StructuredAnswerBuilder
 
 
 @asynccontextmanager
@@ -334,6 +335,8 @@ class QueryService:
         metrics: dict[str, Any] = {"model_called": False}
         sources = []
         finish_reason = "stop"
+        catalogue = None
+        raw_structured = ""
         try:
             if self.governor:
                 self.governor.begin_interactive()
@@ -357,7 +360,19 @@ class QueryService:
                         search_result["results"] = await asyncio.to_thread(lambda: [self.resolver.expand_parent(source, snapshot, self.context.tokenizer, self.settings.value("chunking", "parent_expand_max_llm_tokens", 900)) for source in search_result["results"]])
                         history = await database_call(self.authorized_history, query_id, request, snapshot)
                         context_started = time.perf_counter()
-                        messages, retained, context_metrics, context_warnings = await asyncio.to_thread(self.context.build, request.question, search_result["results"], request.mode, history, references)
+                        # The authorized snapshot, rather than retrieval alone, selects the mixed-format contract.
+                        has_xlsx = await database_call(lambda: any(self.db.version(version)["format"] == "xlsx"
+                                                                 for version in set(snapshot.versions.values())))
+                        structured = StructuredAnswerBuilder(self.db, snapshot) if has_xlsx else None
+                        build_arguments = {"structured": structured} if structured is not None else {}
+                        messages, retained, context_metrics, context_warnings = await asyncio.to_thread(
+                            self.context.build, request.question, search_result["results"], request.mode, history, references, **build_arguments)
+                        if structured is not None:
+                            catalogue = await asyncio.to_thread(structured.catalogue, retained, request.mode)
+                            evidence = catalogue.evidence()
+                            metrics["structured_answer"] = {"status": "pending", "schema_sha256": evidence["schema_sha256"],
+                                                            "catalogue_sha256": evidence["catalogue_sha256"]}
+                            await database_call(self.db.add_event, query_id, "structured_answer", evidence)
                         metrics.update(context_metrics)
                         metrics["context_ms"] = round((time.perf_counter() - context_started) * 1000, 2)
                         warnings.extend(context_warnings)
@@ -374,7 +389,9 @@ class QueryService:
                     await database_call(self.db.add_event, query_id, "sources", {"sources": sources})
                     for warning in warnings:
                         await database_call(self.db.add_event, query_id, "warning", warning)
-                    if not sources:
+                    if not sources or catalogue is not None and not catalogue.references:
+                        if catalogue is not None:
+                            metrics["structured_answer"]["status"] = "no_references"
                         answer = "Les preuves disponibles dans ce périmètre ne suffisent pas pour répondre à cette question."
                         metrics["model_called"] = False
                         await database_call(self.db.add_event, query_id, "delta", {"text": answer})
@@ -400,7 +417,8 @@ class QueryService:
                             await database_call(self.db.add_event, query_id, "status", {"state": "generating"})
                             awaited = False
                             metrics["model_call_attempted"] = True
-                            async for event in self.ollama.stream(messages, cancelled, metrics.get("output_tokens")):
+                            format_arguments = {"response_format": catalogue.schema()} if catalogue is not None else {}
+                            async for event in self.ollama.stream(messages, cancelled, metrics.get("output_tokens"), **format_arguments):
                                 if event["type"] == "cpu_fallback":
                                     # Repli sur CPU admis : après une attente de mémoire, la génération reprend.
                                     if awaited:
@@ -412,8 +430,15 @@ class QueryService:
                                     raise asyncio.CancelledError
                                 if event["type"] == "delta":
                                     first_token_at = first_token_at or time.perf_counter()
-                                    answer += event["text"]
-                                    await database_call(self.db.add_event, query_id, "delta", {"text": event["text"]})
+                                    if catalogue is not None:
+                                        # Audit only: the public SSE route excludes this event type.
+                                        raw_structured += event["text"]
+                                        await database_call(self.db.add_event, query_id, "structured_delta", {"text": event["text"]})
+                                        if len(raw_structured.encode()) > 131_072:
+                                            raise ApiError("structured_answer_invalid", "Le plan généré dépasse la limite de restitution structurée.", 503)
+                                    else:
+                                        answer += event["text"]
+                                        await database_call(self.db.add_event, query_id, "delta", {"text": event["text"]})
                                 else:
                                     metrics.update(event["metrics"])
                                     finish_reason = event["finish_reason"]
@@ -425,25 +450,59 @@ class QueryService:
                         metrics["tokenizer_count_difference"] = difference
                         if abs(difference) > self.settings.value("retrieval", "context_safety_tokens", 256):
                             warnings.append({"code": "tokenizer_template_drift", "difference": difference, "message": "Les comptes de tokens du modèle et du compteur local diffèrent. Vérifiez la configuration du modèle."})
-                    answer, validation_warnings = validate_answer(answer, [source["source_id"] for source in sources])
+                    structured_result = None
+                    structured_cited = None
+                    if catalogue is not None and metrics.get("model_called"):
+                        if finish_reason == "length":
+                            metrics["structured_answer"]["status"] = "incomplete"
+                        elif finish_reason != "stop":
+                            raise ApiError("structured_answer_invalid", "Le plan généré n'a pas de fin complète vérifiable.", 503)
+                        else:
+                            plan = catalogue.validate(raw_structured)
+                            rendered = catalogue.render(
+                                plan, self.context.tokenizer, metrics["output_tokens"],
+                                list(dict.fromkeys(snapshot.documents.values())) if snapshot.scope["kind"] == "documents"
+                                else metrics.get("required_documents", ()))
+                            structured_cited = rendered["source_ids"]
+                            structured_result = {"status": "validated", "plan": plan.model_dump(),
+                                                 "schema_sha256": metrics["structured_answer"]["schema_sha256"],
+                                                 "catalogue_sha256": metrics["structured_answer"]["catalogue_sha256"],
+                                                 "rendered_tokens": rendered["tokens"], "citation_spans": rendered["citation_spans"]}
+                            await database_call(self.db.add_event, query_id, "structured_answer", structured_result)
+                            metrics["structured_answer"] = {key: value for key, value in structured_result.items() if key not in {"plan", "citation_spans"}}
+                            warnings.extend(rendered["warnings"])
+                            if cancelled.is_set():
+                                raise asyncio.CancelledError
+                            answer = rendered["text"]
+                            await database_call(self.db.add_event, query_id, "delta", {"text": answer, "citation_spans": rendered["citation_spans"]})
+                    if catalogue is None:
+                        answer, validation_warnings = validate_answer(answer, [source["source_id"] for source in sources])
+                    else:
+                        validation_warnings = []
                     warnings.extend(validation_warnings)
                     state = "length_limited" if finish_reason == "length" else "done"
                     if state == "length_limited":
                         warnings.append({"code": "answer_length_limit", "message": "Limite de génération atteinte ; réponse incomplète."})
                     metrics.update({"elapsed_ms": round((time.perf_counter() - started) * 1000, 2),
                                     "ttft_ms": round((first_token_at - started) * 1000, 2) if first_token_at else None})
-                    cited_ids = set(re.findall(r"\[(S\d+)\]", answer))
+                    cited_ids = set(structured_cited) if structured_cited is not None else set(re.findall(r"\[(S\d+)\]", answer))
                     citations = [source for source in sources if source["source_id"] in cited_ids]
-                    if metrics.get("model_called") and sources:
+                    if metrics.get("model_called") and sources and catalogue is None:
                         # Signaux seulement (R26-ANS-01/02) : texte, citations et événements déjà émis restent inchangés.
                         warnings.extend(answer_warnings(answer, sources, request.question))
-                    await database_call(self.finish, query_id, state, answer, warnings, metrics,
-                                        {"message": answer, "text": answer, "status": state, "citations": citations,
-                                         "finish_reason": finish_reason, "metrics": metrics, "warnings": warnings})
+                    terminal = {"message": answer, "text": answer, "status": state, "citations": citations,
+                                "finish_reason": finish_reason, "metrics": metrics, "warnings": warnings}
+                    if catalogue is not None:
+                        terminal["structured_answer"] = structured_result or metrics["structured_answer"]
+                    await database_call(self.finish, query_id, state, answer, warnings, metrics, terminal)
         except asyncio.CancelledError:
+            if catalogue is not None and metrics["structured_answer"].get("status") == "pending":
+                metrics["structured_answer"]["status"] = "cancelled"
             metrics["elapsed_ms"] = round((time.perf_counter() - started) * 1000, 2)
             await database_call(self.mark_cancelled, query_id, answer, metrics)
         except Exception as error:
+            if catalogue is not None and metrics["structured_answer"].get("status") == "pending":
+                metrics["structured_answer"]["status"] = "invalid"
             admission_failure = error.__class__.__name__ == "ResourceAdmissionError"
             code = error.code if isinstance(error, ApiError) else ("resource_admission_denied" if admission_failure else "query_failed")
             message = error.message if isinstance(error, ApiError) else (str(error) if admission_failure else

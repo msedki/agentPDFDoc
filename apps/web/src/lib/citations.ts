@@ -1,3 +1,5 @@
+import type { CitationSpan } from "./types.ts";
+
 export type CitationPart<S> =
   | { kind: "text"; text: string }
   | { kind: "citation"; id: string; source: S }
@@ -12,7 +14,24 @@ export function citedSourceIds(text: string): string[] {
 }
 
 /** Découpe une réponse sans jamais interpréter HTML ni Markdown : seuls les IDs enregistrés deviennent cliquables. */
-export function citationParts<S extends { source_id?: string }>(text: string, sources: S[]): CitationPart<S>[] {
+export function citationParts<S extends { source_id?: string }>(text: string, sources: S[], citationSpans?: CitationSpan[]): CitationPart<S>[] {
+  if (citationSpans !== undefined) {
+    const characters = Array.from(text);
+    let cursor = 0;
+    const parts: CitationPart<S>[] = [];
+    for (const span of citationSpans) {
+      const source = sources.find(value => value.source_id === span.source_id);
+      if (!Number.isInteger(span.start_offset) || !Number.isInteger(span.end_offset)
+        || span.start_offset < cursor || span.end_offset <= span.start_offset || span.end_offset > characters.length
+        || !/^S\d{3,}$/.test(span.source_id) || !source
+        || characters.slice(span.start_offset, span.end_offset).join("") !== `[${span.source_id}]`) return [{ kind: "text", text }];
+      if (span.start_offset > cursor) parts.push({ kind: "text", text: characters.slice(cursor, span.start_offset).join("") });
+      parts.push({ kind: "citation", id: span.source_id, source });
+      cursor = span.end_offset;
+    }
+    if (cursor < characters.length) parts.push({ kind: "text", text: characters.slice(cursor).join("") });
+    return parts;
+  }
   const parts: CitationPart<S>[] = [];
   let cursor = 0;
   for (const match of text.matchAll(reference)) {

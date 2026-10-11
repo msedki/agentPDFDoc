@@ -715,6 +715,8 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
                 events = await asyncio.to_thread(db.rows, "SELECT * FROM events WHERE query_id=? AND id>? ORDER BY id LIMIT 128", (query_id, cursor))
                 for event in events:
                     cursor = event["id"]
+                    if event["type"] in {"structured_answer", "structured_delta"}:
+                        continue
                     yield f"id: {cursor}\nevent: {event['type']}\ndata: {event['data_json']}\n\n"
                 row = await asyncio.to_thread(db.one, "SELECT state,last_event_id FROM query_runs WHERE id=?", (query_id,))
                 if row["state"] not in {"queued", "running"} and cursor >= row["last_event_id"]:

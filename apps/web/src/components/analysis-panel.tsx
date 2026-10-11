@@ -14,7 +14,7 @@ import { withExtractionLabel } from "@/lib/extraction-provenance";
 import { applyQueryEvent, createHistoryLoader, historyQueryId, historyQuerySearch, isQueryActive, putHistoricalTurn, sourceFocus, withoutHistoricalTurns } from "@/lib/query-history";
 import { queryStatus } from "@/lib/status";
 import { unindexedInScope, unindexedSentence } from "@/lib/panel-state";
-import type { LibraryTree, QueryState, Scope, SearchResponse, Source } from "@/lib/types";
+import type { CitationSpan, LibraryTree, QueryState, Scope, SearchResponse, Source } from "@/lib/types";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { ExtractionBadge } from "./extraction-badge";
@@ -25,14 +25,15 @@ import { StatusIndicator } from "./ui/status-indicator";
 function passagesFound(count: number) { return count === 0 ? "Aucun passage retrouvé" : count === 1 ? "1 passage retrouvé" : `${count} passages retrouvés`; }
 const analysisTabs = [{ id: "question", label: "Question", Icon: MessageSquare }, { id: "search", label: "Recherche", Icon: Search }, { id: "analysis", label: "Critique", Icon: BookOpen }, { id: "comparison", label: "Comparer", Icon: Layers }] as const;
 
-function CitedSegment({ text, sources, onCitation }: { text: string; sources: Source[]; onCitation: (source: Source) => void }) {
-  return citationParts(text, sources).map((part, index) => part.kind === "text" ? <span key={index}>{part.text}</span>
+function CitedSegment({ text, sources, onCitation, citationSpans }: { text: string; sources: Source[]; onCitation: (source: Source) => void; citationSpans?: CitationSpan[] }) {
+  return citationParts(text, sources, citationSpans).map((part, index) => part.kind === "text" ? <span key={index}>{part.text}</span>
     : part.kind === "citation" ? <button className="inline-citation" key={index} onClick={() => onCitation(part.source)} title={citationTitle(part.source)}>{part.id}</button>
     : <span className="invalid-citation" key={index} title="Cette référence n'est pas enregistrée dans les sources de la réponse : elle n'ouvre aucun passage.">{part.text} (référence inconnue)</span>);
 }
 
 /** Paragraphes, listes et gras de la réponse, rendus en éléments React : aucune balise de la réponse n'est interprétée. */
-export function CitationText({ text, sources, onCitation }: { text: string; sources: Source[]; onCitation: (source: Source) => void }) {
+export function CitationText({ text, sources, onCitation, citationSpans }: { text: string; sources: Source[]; onCitation: (source: Source) => void; citationSpans?: CitationSpan[] }) {
+  if (citationSpans !== undefined) return <div className="answer-text"><p><CitedSegment text={text} sources={sources} onCitation={onCitation} citationSpans={citationSpans} /></p></div>;
   const line = (segments: Inline[]) => segments.map((segment, index) => segment.strong
     ? <strong key={index}><CitedSegment text={segment.text} sources={sources} onCitation={onCitation} /></strong>
     : <CitedSegment key={index} text={segment.text} sources={sources} onCitation={onCitation} />);
@@ -231,7 +232,7 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
         : !queries.length ? <PanelEmpty reason="not-started" icon={<BookOpen size={32} strokeWidth={1.5} aria-hidden="true" />} title={tab === "comparison" ? "Comparer des documents" : "Aucune question posée"} description={tab === "comparison" ? "Définissez un périmètre de deux à quatre documents, puis posez votre question de comparaison. Chaque source indique son document et sa localisation." : "Posez une question sur le périmètre actif. Si la réponse cite des sources, ouvrez-les pour vérifier le contenu source utilisé."} /> : queries.map(query => <article className="query-turn" key={query.id} data-testid="query-turn" data-query-id={query.id}>
         <div className="question-message"><p>{query.question}</p><small>{query.scopeLabel}</small>{query.historicalState !== undefined && <small>Question enregistrée · mode non enregistré · périmètre actif inchangé</small>}</div>
         <div className="query-status" role="status"><StatusIndicator status={queryStatus(query.connection !== "closed" && query.historicalState !== undefined && !isQueryActive(query) ? query.historicalState : query.status)} active={isQueryActive(query)} />{query.connection === "reconnecting" && <Button variant="ghost" size="sm" onClick={() => { if (query.historicalState !== undefined) void historyLoader.current?.select(query.id); else connect(query.id, `/api/v1/queries/${encodeURIComponent(query.id)}/events`, query.lastEventId); }}><RefreshCw size={16} />Reconnecter</Button>}</div>
-        {query.text && <CitationText text={query.text} sources={query.sources} onCitation={source => openSource(source, query.id)} />}
+        {query.text && <CitationText text={query.text} sources={query.sources} citationSpans={query.citationSpans} onCitation={source => openSource(source, query.id)} />}
         {query.error && <p className="inline-error" role="alert"><CircleAlert size={14} aria-hidden="true" />{query.error}</p>}
         {["cancelled", "interrupted"].includes(query.status) && <p className="inline-warning">Cette réponse est incomplète : elle a été annulée ou interrompue avant la fin.</p>}
         <WarningNotices notices={warningNotices(query.warnings, query.finishReason)} sources={query.sources} onSource={source => openSource(source, query.id)} />

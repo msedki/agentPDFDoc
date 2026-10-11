@@ -1818,7 +1818,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · Suivi de livraison publié `d3c1518`, distant confirmé · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-11 18:05 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · Suivi de livraison publié `d3c1518`, distant confirmé · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-11 18:40 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 ## R28 — étude de l'extension DOCX/XLSX avant implémentation
 
@@ -1932,8 +1932,8 @@ Aucun statut global ni qualification des hôtes absents.
 
 | Action | Couche / fichiers concernés | Dépendances | Livrable et critère de clôture | État actuel |
 |---|---|---|---|---|
-| R28-RAG-04 | Restitution XLSX typée et vérifiée, y compris documents mixtes | W059 acquise ; RAG-03 source et Q6 froid | Références modèle autorisées, validation puis rendu serveur des valeurs/formules/caches ; streaming, historique, scopes et citations cohérents, PDF/DOCX préservés. Tests ciblés et recette réelle avec revue indépendante ; FAIL historiques conservés. | EN COURS, NON VALIDÉ : backend et spans de citations en implémentation ; F backend, X compatibilité/tests transport, R revue, ROOT recette/documentation/publication. Contrôles terminaux et recette native encore attendus. |
-| R28-LLM-01 | Profil haute mémoire et sélection automatique selon RAM du poste installé | W060 acquise ; modèle identifié puis qualifié avant usage | Présélection officielle multi-familles, benchmark qualité/RAM/latence adapté au RAG ; seuils mesurés, artefacts/tokenizers/licences vérifiés. Seuls profils qualifiés présents dans le kit admissibles, option manuelle et fonctionnement CPU de base préservés. | AUTORISÉ, PRÉSÉLECTION OFFICIELLE ENGAGÉE : Qwen, Ministral et Gemma comparés au niveau documentaire, aucun candidat retenu ni qualification anticipée. Essais lourds séquentiels et nettoyage des dérivés après preuve. |
+| R28-RAG-04 | Restitution XLSX typée et vérifiée, y compris documents mixtes | W059 acquise ; RAG-03 source et Q6 froid | Références modèle autorisées, validation puis rendu serveur des valeurs/formules/caches ; streaming, historique, scopes et citations cohérents, PDF/DOCX préservés. Tests ciblés et recette réelle avec revue indépendante ; FAIL historiques conservés. | IMPLÉMENTÉ ET CONTRÔLÉ AU NIVEAU SOURCE, NATIF EN ATTENTE : contrat fermé de références, rendu littéral et spans autoritaires livrés ; 37 unités, régression 287+reprise des 3 mêmes cas Office, 18 ASGI et 72 web, lint/types et revue indépendante R121 GO source. Aucun PASS sémantique/navigateur natif anticipé. [Preuves et limites](reports/office-integration-2026-10-10.md#restitution-typée--contrôles-source-du-11-octobre). |
+| R28-LLM-01 | Profil haute mémoire et sélection automatique selon RAM du poste installé | W060 acquise ; modèle identifié puis qualifié avant usage | Présélection officielle multi-familles, benchmark qualité/RAM/latence adapté au RAG ; seuils mesurés, artefacts/tokenizers/licences vérifiés. Seuls profils qualifiés présents dans le kit admissibles, option manuelle et fonctionnement CPU de base préservés. | EN COURS : présélection officielle Qwen/Ministral/Gemma ; Gemma4 GGUF exact identifié et téléchargement isolé en cours, aucun nouveau modèle/profil qualifié. Sélecteur et branchements d’installation en worktree indépendant ; seuils et admissibilité conditionnés aux mesures réelles. Essais lourds séquentiels et nettoyage des dérivés après preuve. |
 
 **Jalon courant — 11 octobre 2026, 17:14 UTC :** Q6 reste **FAIL
 sémantique sur le seul total borné** ; trois autres cas et lecteurs non
@@ -1944,17 +1944,24 @@ coordonnée « ligne 2 » disparaît, celle de valeur5 inventée demeure ; répo
 Q6 inchangée. Aucun nouveau kit ni génération. C07 et livraison corrigée
 restent ouverts. [Preuves et limites](reports/office-integration-2026-10-10.md#retour-system-et-correction-des-avertissements-de-coordonnées).
 
-**Prochaine action :** terminer R28-RAG-04, autorisé par l'accord W059 ;
-correctif source/replay publié `0dfd7e0`, revue finale R119 acquise. Le TAR22
-obsolète est retiré après vérification ; archive/programme f14 et backup
-utiles conservés ([reçu](reports/office-integration-2026-10-10.md#entretien-après-publication-du-correctif--11-octobre-1744-utc)). Reprendre les recettes
-réelles sous le nouveau contrat ; aucun autre variant de consigne libre.
-Cible locale : **22 h 30 Casablanca pour contrat et recettes**, puis
-**23 h 30 pour kit et CPU si les résultats sont verts**. Le nouvel axe
-R28-LLM-01 commence par la présélection officielle puis la qualification ;
-son échéance sera précisée après choix du candidat et mesure du coût réel.
-La clôture globale reste dépendante des hôtes et corpus requis : ancienne
-estimation 40–90 heures effectives après T0, à réévaluer avec ce nouvel axe ;
+**Prochaine action :** publier le contrat W059 contrôlé et produire un export
+web neuf, puis exécuter les quatre cas natifs fixes, en commençant par le
+total borné ; lecteurs, citations, historique et fermeture froide ensuite.
+Le contexte admin de préoracle reste legacy : le vrai catalogue, schéma et
+contexte de la query typée sont vérifiés depuis ses traces SQL/SSE. Aucun
+variant supplémentaire de consigne ni ancienne réponse requalifiée.
+Le TAR22 obsolète et les dérivés de tests sont retirés ; archive/programme
+f14, sauvegarde et preuves nécessaires restent conservés.
+
+Cible réévaluée : **22 h 30 Casablanca le 11 octobre pour la recette XLSX**,
+puis **vers 7 h le 12 octobre pour la livraison locale incluant le profil
+haute mémoire si sa qualification réussit**. Le téléchargement officiel
+isolé d’environ 18 Go est mesuré autour de 0,6 Mio/s, soit 8–9 h au débit observé ;
+la date dépend du réseau et des résultats, pas de la seule présence des poids.
+Le sélecteur RAM est réalisé en parallèle dans un worktree sans dérive du
+code utilisé par la recette. La clôture globale reste dépendante des hôtes
+Windows/Linux x86-64/CPU physique ≤ 16 Go et du corpus final requis : ancienne
+estimation 40–90 h effectives après T0 à réévaluer une fois ces moyens accessibles,
 aucune date absolue fiable ni réserve externe levée. Les checkpoints
 précédents conservent leurs estimations historiques.
 
@@ -6545,7 +6552,8 @@ ne qualifie ni C07 complet, ni une autre plateforme, ni le futur contrat.
 
 **Date :** 11 octobre 2026 ; proposition à 16:59 UTC, accord utilisateur
 consigné le 2026-10-11 17:27 UTC. **Statut :** décision utilisateur acquise ;
-contrat détaillé et implémentation à réaliser, aucun PASS natif acquis.
+contrat implémenté et contrôlé au niveau source le 11 octobre à 18:40 UTC ;
+revue indépendante R121 GO source, recette native encore à établir.
 
 **Contexte :** les faits XLSX transmis sont correctement bornés et typés,
 mais Q6 invente encore une valeur et un état de formule. R118 distingue

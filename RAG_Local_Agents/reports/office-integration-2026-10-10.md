@@ -1,6 +1,6 @@
 # Intégration DOCX/XLSX — preuves locales du 10 octobre 2026
 
-**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · Livraison propre CPU `52abb94b`, fermeture récupérée et retrait du transport revus indépendamment · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-11 17:14 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
+**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · Livraison propre CPU `52abb94b`, fermeture récupérée et retrait du transport revus indépendamment · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-11 18:40 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
 
 La phase d'étude a précédé l'implémentation. DOCX et XLSX complètent maintenant
 PDF dans l'import, l'extraction, les représentations, la recherche et les
@@ -2354,3 +2354,50 @@ Rapports `verify-pack-model-skill-01.json` (`363d524f`) et
 `check-docs-01.json` (`eefe35a5`) sous `cleanup-published-09/`.
 Ces validations portent sur la méthode et la documentation ; aucun modèle
 supplémentaire ni profil automatique n'est ainsi qualifié.
+
+## Restitution typée — contrôles source du 11 octobre
+
+**Référence :** HEAD de base `b232ae4` et modifications W059 gelées à18:40UTC ;
+source seulement, aucun résultat natif nouveau. Le contrat modèle est fermé
+aux références autorisées et aux groupes de comparaison ; valeurs, formules,
+caches et extraits sont rendus depuis le catalogue source retenu, validé contre
+les versions, hashes, scopes et spans. Les branches PDF/DOCX seules sont
+préservées. JSON brut et catalogue complet restent dans les événements SQL
+d’audit internes ; le transport public live/replay publie seulement le rendu
+validé avec ses spans Unicode autoritaires. Les littéraux documentaires
+HTML/Markdown et faux `[Sxxx]` restent du texte, sans lien interprété.
+
+Contrôles réellement récoltés : **37 unités** de restitution ; **287 PASS sur
+290 consommateurs**, puis les **3 mêmes cas Office** adaptés au nouveau double
+refs-only et repris PASS séparément ; **18 ASGI** et **72 tests web affectés**,
+dont6nouveaux, plus9contrats recouvrants. Ruff et mypy cinq modules passent,
+types/lint web passent. Les rouges initiaux restent consignés, aucun total
+fictif de tests distincts. ASGI exerce SQLite/OOXML/stream/history réels avec
+provider/tokenizer/embeddings/vecteurs substitués et extraction PDF explicitement
+substituée : aucun test double ne qualifie un modèle ou une plateforme.
+
+Replay en lecture seule avec le vrai tokenizer Qwen : parité des entrées Q5
+capturées, Q-MIX1239/1536jetons evidence et rendu199/768 ; total borné316/4864
+et rendu132/1536. Aucun appel modèle ni changement DB. La route admin/context
+de préoracle reste legacy ; ses compteurs ne représentent pas les inputs
+typés réels. La recette devra contrôler les mêmes faits dans le catalogue
+effectivement retenu et la query réelle, sans affaiblir ses critères.
+
+Preuves sous la racine QA `root/qmix-document-formula-context-20261011/` :
+`structured-restitution-09/completion-01.json` SHA-256
+`1c104df8396139a22ba61e0c2b9b643ec73f0ddedb8765cfba13367f0ea95d73` ;
+completion transport sous `.runtime/qa/r28-implementation/typed-answer-transport-20261011/`,
+hors de cette racine, SHA-256
+`263cda69ecea1766cee2875634938993710c9701efbfc4f1438a6f4e19ff9d97`.
+Revue indépendante `c05-history/review/typed-xlsx-source-and-public-transport-final-review-121.json`,
+SHA-256 `453460b7c578876c6327980c529f648ed3d4f2228f026188b53e775f480b80c3` :
+GO source, aucun défaut matériel ouvert ; pertinence/complétude du vrai modèle
+et rendu navigateur restent à qualifier sur les quatre cas fixes.
+
+Nettoyage après consignation/terminaux : cinq dérivés F,179506960octets
+logiques, et huit dérivés X,26680817octets logiques, effectivement retirés.
+Préimages, rouges/JUnit/fixtures minimales et reçus sont conservés ; les gains
+libres sur volume partagé ne sont pas attribués exclusivement aux suppressions.
+Données, kit/repli utiles, candidat modèle actif et worktree W060 sont nécessaires
+au chantier et restent présents. Pas de qualification CPU16/Windows/x86-64
+ni de clôture C07/NF09/DoD globale déduite de ces contrôles.

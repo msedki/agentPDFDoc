@@ -1,10 +1,17 @@
 import { citedSourceIds } from "./citations.ts";
 import { mergeQueryWarnings } from "./warnings.ts";
-import type { HistoricalQuery, QueryState, Scope, Source, StreamEvent } from "./types.ts";
+import type { CitationSpan, HistoricalQuery, QueryState, Scope, Source, StreamEvent } from "./types.ts";
 
 const terminalStates = new Set(["done", "completed", "cancelled", "interrupted", "error", "needs_clarification", "insufficient_evidence", "length", "length_limited"]);
 const terminalEvents = new Set(["done", "cancelled", "error", "needs_clarification"]);
 const textValue = (value: unknown, fallback = "") => typeof value === "string" ? value : fallback;
+
+/** Métadonnées invalides : texte littéral, sans repli sur la détection des anciens marqueurs. */
+function readCitationSpans(value: unknown): CitationSpan[] {
+  if (!Array.isArray(value) || !value.every(span => span && typeof span.source_id === "string"
+    && Number.isInteger(span.start_offset) && Number.isInteger(span.end_offset))) return [];
+  return value.map(span => ({ source_id: span.source_id, start_offset: span.start_offset, end_offset: span.end_offset }));
+}
 
 /** L'URL conserve uniquement l'identifiant du tour, jamais sa réponse ni ses preuves. */
 export function historyQueryId(search: string): string | null {
@@ -63,14 +70,21 @@ export function applyQueryEvent(query: QueryState, event: StreamEvent): QuerySta
   switch (event.type) {
     case "status": next.status = textValue(event.data.status ?? event.data.state ?? event.data.stage, query.status); break;
     case "sources": if (Array.isArray(event.data.sources)) next.sources = event.data.sources.filter(source => source && typeof source.source_id === "string" && typeof source.version_id === "string") as Source[]; break;
-    case "delta": next.text += textValue(event.data.text); next.status = "generating"; break;
+    case "delta":
+      next.text += textValue(event.data.text); next.status = "generating";
+      if (Object.hasOwn(event.data, "citation_spans")) next.citationSpans = readCitationSpans(event.data.citation_spans);
+      break;
     case "warning": next.warnings = mergeQueryWarnings(query.warnings, [event.data.warning ?? event.data]); break;
     case "done": {
       next.text = textValue(event.data.text, textValue(event.data.message, query.text)) || query.text;
       next.status = textValue(event.data.status, "done"); next.connection = "closed";
       next.finishReason = textValue(event.data.finish_reason, "stop");
       if (Array.isArray(event.data.warnings)) next.warnings = mergeQueryWarnings(query.warnings, event.data.warnings);
-      if (citedSourceIds(next.text).some(id => !next.sources.some(source => source.source_id === id))) next.warnings = mergeQueryWarnings(next.warnings, ["Une référence non enregistrée dans les sources a été signalée et reste non cliquable."]);
+      const structured = event.data.structured_answer;
+      if (structured && typeof structured === "object" && "status" in structured && structured.status === "validated")
+        next.citationSpans = readCitationSpans("citation_spans" in structured ? structured.citation_spans : undefined);
+      const cited = next.citationSpans === undefined ? citedSourceIds(next.text) : next.citationSpans.map(span => span.source_id);
+      if (cited.some(id => !next.sources.some(source => source.source_id === id))) next.warnings = mergeQueryWarnings(next.warnings, ["Une référence non enregistrée dans les sources a été signalée et reste non cliquable."]);
       break;
     }
     case "cancelled": next.text = textValue(event.data.text, query.text); next.status = "cancelled"; next.connection = "closed"; break;

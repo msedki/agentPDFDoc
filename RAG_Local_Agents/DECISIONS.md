@@ -1785,7 +1785,8 @@ ne qualifie ni C07 complet, ni une autre plateforme, ni le futur contrat.
 
 **Date :** 11 octobre 2026 ; proposition à 16:59 UTC, accord utilisateur
 consigné le 2026-10-11 17:27 UTC. **Statut :** décision utilisateur acquise ;
-contrat détaillé et implémentation à réaliser, aucun PASS natif acquis.
+contrat implémenté et contrôlé au niveau source le 11 octobre à 18:40 UTC ;
+revue indépendante R121 GO source, recette native encore à établir.
 
 **Contexte :** les faits XLSX transmis sont correctement bornés et typés,
 mais Q6 invente encore une valeur et un état de formule. R118 distingue

@@ -219,7 +219,7 @@ class OllamaGateway:
         if cancel_event.is_set():
             raise asyncio.CancelledError
 
-    async def stream(self, messages, cancel_event, output_tokens=None):
+    async def stream(self, messages, cancel_event, output_tokens=None, *, response_format=None):
         if cancel_event.is_set():
             raise asyncio.CancelledError
         model_identity = await self.verify_model_identity()
@@ -231,6 +231,8 @@ class OllamaGateway:
                 body = {"model": self.settings.value("llm", "model", "qwen3.5:4b"), "messages": messages,
                         "stream": True, "think": False, "keep_alive": self.settings.value("llm", "keep_alive", "10m"),
                         "options": self.chat_options(output_tokens, cpu=cpu)}
+                if response_format is not None:
+                    body["format"] = response_format
                 failure = None
                 async with self.client.stream("POST", "/api/chat", json=body) as response:
                     if not cpu and response.status_code == FALLBACK_STATUS:

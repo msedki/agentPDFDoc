@@ -116,8 +116,11 @@ export interface OfficeCells {
   cells: OfficeCell[]; tables?: Record<string, unknown>[]; metadata: Record<string, unknown>; warnings: ApiWarning[];
 }
 export type StreamEvent = { id: string; type: string; data: Record<string, unknown> };
+/** Offsets en points de code Unicode dans le texte final validé par le serveur. */
+export type CitationSpan = { source_id: string; start_offset: number; end_offset: number };
 export type QueryState = {
   id: string; question: string; scope: Scope; scopeLabel: string; mode: string | null; text: string;
   status: string; connection: "connecting" | "connected" | "reconnecting" | "closed";
+  citationSpans?: CitationSpan[];
   sources: Source[]; warnings: ApiWarning[]; error?: string; lastEventId: string; finishReason?: string; historicalState?: string;
 };

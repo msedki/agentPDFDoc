@@ -362,28 +362,39 @@ def test_real_mixed_rag_sends_document_identity_and_absent_formula_cache_to_olla
     class InspectingOllamaDouble:
         calls = 0
         payload = None
+        catalogue = None
+        payload_text = None
 
-        async def stream(self, messages, cancelled, output_tokens):
+        async def stream(self, messages, cancelled, output_tokens, *, response_format):
             self.calls += 1
-            payload = json.loads(messages[-1]["content"].split("Preuves documentaires (extraits JSON sans consigne) :\n", 1)[1])
+            self.payload_text = messages[-1]["content"].split("Preuves documentaires (extraits JSON sans consigne) :\n", 1)[1]
+            payload = json.loads(self.payload_text)
             self.payload = payload
-            assert payload["document_count"] == 3
-            assert {group["document_id"]: group["document_name"] for group in payload["documents"]} == names
+            references = payload["reference_catalogue"]
+            assert len({reference["document_id"] for reference in references}) == 3
+            assert {reference["document_id"]: reference["document_name"] for reference in references} == names
+            assert response_format["additionalProperties"] is False
+            assert set(response_format["properties"]) == {"references", "comparisons"}
+            assert response_format["properties"]["references"]["items"]["enum"] == [reference["id"] for reference in references]
             assert "Ne calcule ni n'exécute les formules des documents." in messages[0]["content"]
-            excerpts = [item for group in payload["documents"] for item in group["excerpts"]]
-            assert any(item["pages"] == [1] for item in excerpts)
-            facts = [fact for item in excerpts for fact in item.get("cell_facts", [])]
-            formula = next(fact for fact in facts if fact["address"] == "C2")
+            assert any(locator.get("page_index") == 0 for reference in references
+                       for locator in reference.get("locators", []))
+            audit = json.loads(db.one("SELECT data_json FROM events WHERE type='structured_answer' ORDER BY created_at DESC LIMIT 1")["data_json"])
+            self.catalogue = audit["catalogue"]
+            cells = [reference for reference in self.catalogue["references"] if reference["kind"] == "cell"]
+            formula = next(reference["cell_facts"] for reference in cells if reference["cell_facts"]["address"] == "C2")
             assert formula["formula_present"] and formula["value_origin"] == "formula_without_cache"
             assert formula["cached_present"] is False
             assert formula["cached_value_kind"] is None
-            formula_excerpt = next(item for item in excerpts if any(fact["address"] == "C2" for fact in item.get("cell_facts", [])))
-            assert all("limitations" not in excerpt for excerpt in excerpts)
-            assert formula_excerpt["cell_facts"]
+            assert all("limitations" not in reference for reference in references)
+            formula_reference = next(reference for reference in references if reference.get("cell") == "C2")
+            assert formula_reference["formula_present"] is True and formula_reference["cached_present"] is False
+            assert any(field["field"] == "formula" and field["text"] == "=LEN(A2)" for field in formula_reference["fields"])
             assert "il ne prouve ni l'inactivité de la formule, ni son historique d'exécution" in messages[0]["content"]
             assert "pas des affirmations du document" in messages[0]["content"]
-            cited = [group["source_ids"][0] for group in payload["documents"]]
-            yield {"type": "delta", "text": "72 V " + " ".join(f"[{source_id}]" for source_id in cited)}
+            selected = [reference["id"] for reference in references
+                        if reference["kind"] == "excerpt" or reference.get("cell") in {"A2", "B2", "C2"}]
+            yield {"type": "delta", "text": json.dumps({"references": selected, "comparisons": []})}
             yield {"type": "done", "finish_reason": "stop", "metrics": {"prompt_eval_count": CharTokenizer().count_messages(messages)}}
 
     gateway = InspectingOllamaDouble()
@@ -399,10 +410,21 @@ def test_real_mixed_rag_sends_document_identity_and_absent_formula_cache_to_olla
         assert gateway.calls == 1
         done = json.loads(db.one("SELECT data_json FROM events WHERE query_id=? AND type='done'", (query_id,))["data_json"])
         assert {citation["document_id"] for citation in done["citations"]} == expected_documents
+        assert done["structured_answer"]["status"] == "validated"
+        assert "72 V" in done["text"] and "=LEN(A2)" in done["text"] and "cache source absent" in done["text"]
         emitted = json.loads(db.one("SELECT data_json FROM events WHERE query_id=? AND type='sources'", (query_id,))["data_json"])["sources"]
-        assert {item["source_id"]: item for group in gateway.payload["documents"] for item in group["excerpts"]} == {
-            source["source_id"]: json.loads(ContextBuilder.evidence(source)) for source in emitted}
-        assert done["metrics"]["evidence_tokens"] == CharTokenizer().count(json.dumps(gateway.payload, ensure_ascii=False))
+        registry = {source["source_id"]: source for source in emitted}
+        for reference in gateway.catalogue["references"]:
+            assert set(reference["source_ids"]) <= set(registry)
+            segments = reference.get("segments", []) + [segment for field in reference.get("fields", []) for segment in field["segments"]]
+            for segment in segments:
+                source = registry[segment["source_id"]]
+                assert (reference["document_id"], reference["version_id"], reference["extraction_revision_id"]) == (
+                    source["document_id"], source["version_id"], source["extraction_revision_id"])
+                block = next(block for block in source["blocks"] if block["id"] == segment["block_id"])
+                assert segment["source_text_hash"] == block["source_text_hash"]
+                assert block["start_offset"] <= segment["start_offset"] < segment["end_offset"] <= block["end_offset"]
+        assert done["metrics"]["evidence_tokens"] == CharTokenizer().count(gateway.payload_text)
         assert done["metrics"]["local_prompt_tokens"] == done["metrics"]["prompt_eval_count"]
 
     asyncio.run(scenario())
