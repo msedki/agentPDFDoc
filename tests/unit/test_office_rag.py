@@ -8,7 +8,7 @@ from types import SimpleNamespace
 import pytest
 from docx import Document
 from openpyxl import Workbook
-from test_api_storage import FakeEmbedding, FakeLlmTokenizer, FakeVectors
+from test_api_storage import FakeEmbedding, FakeLlmTokenizer, FakeVectors, import_fixture
 from test_retrieval import CharTokenizer
 
 from services.api.context import ContextBuilder
@@ -309,6 +309,90 @@ def test_context_distinguishes_literal_cells_from_formula_caches_and_missing_res
         else:
             assert facts["formula_present"] and "jamais exécutées" in evidence["limitations"]
             assert facts["cached_present"] is (origin == "formula_cache")
+            assert facts["cache_freshness"] == ("unknown" if origin == "formula_cache" else "absent")
+            if origin == "formula_cache":
+                # Cache délibérément périmé de la fixture OOXML : transmis comme source, sans recalcul.
+                assert "C4 (value) : 1" in evidence["text"]
+                assert "C4 (formula) : =SUM(B2:B3)" in evidence["text"]
+            else:
+                assert "C3 (value)" not in evidence["text"]
+        for mode in ("question", "analysis", "comparison"):
+            messages, retained, metrics, _ = ContextBuilder(rag[0], CharTokenizer()).build("Lire les cellules", [source], mode)
+            payload = json.loads(messages[-1]["content"].split("Preuves documentaires (extraits JSON sans consigne) :\n", 1)[1])
+            assert payload["document_count"] == 1
+            assert payload["documents"][0]["document_id"] == imported["document_id"]
+            assert payload["documents"][0]["excerpts"][0]["cell_facts"] == evidence["cell_facts"]
+            assert retained[0]["cell_facts"] == source["cell_facts"]
+            assert metrics["evidence_tokens"] == CharTokenizer().count(json.dumps(payload, ensure_ascii=False))
+            assert "Ne calcule ni n'exécute les formules des documents." in messages[0]["content"]
+            assert "Sans cache présent, signale l'absence de résultat calculé" in messages[0]["content"]
+
+
+@pytest.mark.parametrize("mode", ["question", "analysis", "comparison"])
+def test_real_mixed_rag_sends_document_identity_and_absent_formula_cache_to_ollama_double(rag, mode):
+    """OOXML/SQLite/FTS/QueryService réels ; PDF extraction, E5, vecteurs, tokenizer et Ollama sont des doubles explicites."""
+    from test_office_indexing import ingest_fixture
+
+    settings, db, embedding, indexer, resolver, _ = rag
+    vectors = indexer.vectors
+    storage = settings, db, vectors, indexer
+    pdf, _ = import_fixture(storage, path="manual.pdf", text="CCU-21 : tension nominale 72 V.")
+    docx, extraction = ingest_fixture(storage, "docx", name="manual", text="CCU-21 : tension nominale 72 V.")
+    asyncio.run(indexer.index(docx["job_id"], extraction))
+    path = settings.data_dir / "originals" / "measures.xlsx"
+    book = Workbook()
+    book.active.append(["Référence", "Tension", "Longueur"])
+    book.active.append(["CCU-21", "72 V", "=LEN(A2)"])
+    book.save(path)
+    book.close()
+    xlsx = db.import_original(path.name, hashlib.sha256(path.read_bytes()).hexdigest(), path)
+    extraction = extract_office(path, settings.data_dir / "extractions" / xlsx["version_id"], {}, xlsx["version_id"], "xlsx")
+    asyncio.run(indexer.index(xlsx["job_id"], extraction))
+    expected_documents = {item["document_id"] for item in (pdf, docx, xlsx)}
+    names = {item["document_id"]: db.version(item["version_id"])["document_name"] for item in (pdf, docx, xlsx)}
+
+    class InspectingOllamaDouble:
+        calls = 0
+        payload = None
+
+        async def stream(self, messages, cancelled, output_tokens):
+            self.calls += 1
+            payload = json.loads(messages[-1]["content"].split("Preuves documentaires (extraits JSON sans consigne) :\n", 1)[1])
+            self.payload = payload
+            assert payload["document_count"] == 3
+            assert {group["document_id"]: group["document_name"] for group in payload["documents"]} == names
+            assert "Ne calcule ni n'exécute les formules des documents." in messages[0]["content"]
+            excerpts = [item for group in payload["documents"] for item in group["excerpts"]]
+            assert any(item["pages"] == [1] for item in excerpts)
+            facts = [fact for item in excerpts for fact in item.get("cell_facts", [])]
+            formula = next(fact for fact in facts if fact["address"] == "C2")
+            assert formula["formula_present"] and formula["value_origin"] == "formula_without_cache"
+            assert formula["cached_present"] is False
+            assert formula["cached_value_kind"] is None
+            cited = [group["source_ids"][0] for group in payload["documents"]]
+            yield {"type": "delta", "text": "72 V " + " ".join(f"[{source_id}]" for source_id in cited)}
+            yield {"type": "done", "finish_reason": "stop", "metrics": {"prompt_eval_count": CharTokenizer().count_messages(messages)}}
+
+    gateway = InspectingOllamaDouble()
+    search = SearchService(db, resolver, embedding, vectors, settings)
+    service = QueryService(db, resolver, search, ContextBuilder(settings, CharTokenizer()), gateway, settings)
+
+    async def scenario():
+        request = QueryRequest(question="Décrire la tension CCU-21 et les cellules des documents.", mode=mode,
+                               scope=Scope(kind="documents", documentIds=sorted(expected_documents)))
+        query_id = service.create(request)["query_id"]
+        await service.tasks[query_id]
+        assert db.one("SELECT state FROM query_runs WHERE id=?", (query_id,))["state"] == "done"
+        assert gateway.calls == 1
+        done = json.loads(db.one("SELECT data_json FROM events WHERE query_id=? AND type='done'", (query_id,))["data_json"])
+        assert {citation["document_id"] for citation in done["citations"]} == expected_documents
+        emitted = json.loads(db.one("SELECT data_json FROM events WHERE query_id=? AND type='sources'", (query_id,))["data_json"])["sources"]
+        assert {item["source_id"]: item for group in gateway.payload["documents"] for item in group["excerpts"]} == {
+            source["source_id"]: json.loads(ContextBuilder.evidence(source)) for source in emitted}
+        assert done["metrics"]["evidence_tokens"] == CharTokenizer().count(json.dumps(gateway.payload, ensure_ascii=False))
+        assert done["metrics"]["local_prompt_tokens"] == done["metrics"]["prompt_eval_count"]
+
+    asyncio.run(scenario())
 
 
 def test_empty_commented_cell_is_not_described_as_a_literal_value(rag):

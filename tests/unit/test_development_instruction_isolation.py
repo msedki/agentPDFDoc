@@ -72,10 +72,8 @@ def assembled_context(settings, *, mode="question", question=QUESTION, text=EVID
     assert len(retained) == 1 and metrics["context_chunk_ids"] == ["synthetic-chunk"]
     assert warnings == []
     evidence = {"source_id": "S001", "version_id": "synthetic-version", "pages": [1], "text": text}
-    expected_evidence = json.dumps(evidence, ensure_ascii=False)
-    if mode == "comparison":
-        expected_evidence = json.dumps({"document_count": 1, "documents": [{"document_id": "synthetic-document",
-                                      "source_ids": ["S001"], "excerpts": [evidence]}]}, ensure_ascii=False)
+    expected_evidence = json.dumps({"document_count": 1, "documents": [{"document_id": "synthetic-document",
+                                  "document_name": None, "source_ids": ["S001"], "excerpts": [evidence]}]}, ensure_ascii=False)
     assert messages == [
         {"role": "system", "content": SYSTEM_INSTRUCTION},
         {"role": "user", "content": HISTORY_PREFIX + HISTORY[0]["content"]},
@@ -151,4 +149,5 @@ def test_documentary_reference_to_skill_filename_is_not_removed(development_sett
     text = "La fiche mentionne le nom SKILL.md dans son exemple."
     messages = assembled_context(settings, question="Quel nom de fichier figure dans la fiche ?", text=text)
     evidence = json.loads(messages[-1]["content"].splitlines()[-1])
-    assert evidence["text"] == text and "SKILL.md" in evidence["text"]
+    excerpt = evidence["documents"][0]["excerpts"][0]
+    assert excerpt["text"] == text and "SKILL.md" in excerpt["text"]

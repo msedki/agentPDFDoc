@@ -15,6 +15,31 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 ### Ajouté
 
+- Distribution CPU Linux aarch64 `37e8726` : export web243 fichiers, usine,
+  archive, extraction et installation nominales achevés et revus ; inventaire
+  froid : 65 131 fichiers/1 188 liens. Recette C07 non qualifiée : première query
+  native citée résolue mais échec sémantique confirmé (extraits/documents et
+  valeur de formule sans cache). Arrêt et conservation froids vérifiés,
+  trois autres cas suspendus pour correction commune du contexte.
+- Entretien vérifié des dérivés sur la carte SD : caches, copie usine,
+  désinstallation22 et seuls TAR57/TAR52 remplacés ; données, sauvegardes,
+  archive22/37 et programme52 conservés. Réinstallations exactes57/52 perdues,
+  aucune reconstruction bit-identique promise. Gains mesurés sur volume partagé.
+- C09 Office : douze refus HTTP 400 et deux extractions natives inertes,
+  conservation et arrêt revus ; ancienne erreur d’oracle QA conservée,
+  couverture bornée, aucune qualification globale déduite.
+- Installateur Linux : diagnostics de précompilation bornés et conservés,
+  troncature explicite, état incomplet affiché sans changer la poursuite
+  non bloquante de l’installation. Cinq tests ciblés et revue indépendante ;
+  compilateur substitué dans les tests, correctif absent du kit37 installé.
+  [Exécutions, références et limites](RAG_Local_Agents/reports/office-integration-2026-10-10.md#export37e-stockage-et-fabrication-suivante--11-octobre-2026).
+- Contexte RAG : identité et nom des documents regroupés dans tous les modes,
+  distinction entre documents et citations, consigne explicite sur les caches
+  de formules, budget compté sur l’enveloppe complète sans relever les quotas.
+  175 cas ciblés couverts et revue indépendante source ; efficacité native
+  encore à qualifier dans un nouveau kit. Décision W058.
+
+
 - Livraison du kit CPU Linux aarch64 `52abb94b` (11/10/2026) : sources RAG-01/C05 et export propre inclus, installation et restauration hors réseau vérifiées. Deux réponses enregistrées et leurs citations PDF/DOCX/XLSX sont relues sans génération ; recherche E5 CPU réelle. La récupération après interruption QA est validée séparément, sans masquer l’échec initial. Archive, installation et données conservées ; duplicatas devenus inutiles retirés après contrôle indépendant. Windows, x86-64 et CPU physique ≤ 16 Go restent à qualifier ([preuves de livraison](RAG_Local_Agents/reports/office-integration-2026-10-10.md#livraison-du-kit-cpu-52abb94b--11-octobre-2026)).
 
 - Intégration DOCX/XLSX (R28, `57f7f0a`, 10/10/2026) : import mixte, originaux et MIME validés, parseurs OOXML natifs Strict/Transitional, unités complètes reprenables, structures persistées au schéma SQLite de version 4 et contrat HTTP de version 3. Recherche, scopes feuille/plage appliqués avant classement, contexte typé, citations versionnées et lecteurs Office sont implémentés ; chaîne DEV native Linux aarch64 réellement vérifiée. Les formules ne sont jamais exécutées, les caches absents/chaînes vides restent distincts, les échappements ST_Xstring et leurs sources brutes sont préservés, les extensions inconnues deviennent des limites déclarées. Contrôles isolés de migration, parsing, API et scopes ; aucun PASS Windows, Linux x86-64 ou CPU/16 Go n’en est déduit ([architecture](docs/architecture/ARCHITECTURE.md#41-documents-docx-et-xlsx), [API](docs/interfaces/API.md#44-versions-et-lecture), [tests XLSX](tests/unit/test_office_xlsx.py), [plan R28](RAG_Local_Agents/PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation), [journal du 10 octobre](RAG_Local_Agents/journal/2026-10-10.md)).

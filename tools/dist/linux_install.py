@@ -2136,13 +2136,22 @@ def prepare_program(ctx: Context, plan: Plan, report: Report, manifest: dict[str
         raise InstallError(f"Environnement isolé non créé : {(bootstrap.stderr or bootstrap.stdout).strip()[-600:]}")
     report.step("environnement", "ok", "bootstrap.sh --offline --no-dev", screen="créé hors ligne depuis le cache du kit")
     plan.begin("precompilation")
-    # Précompilation de ce qu'importera l'exploitation : le dossier programme ne reçoit plus de bytecode ensuite. Quelques
-    # fichiers d'exemple des paquets ne compilent pas (syntaxe d'un autre Python) : code de sortie consigné, non bloquant.
+    # Le dossier programme ne reçoit plus de bytecode ensuite. Un échec reste non bloquant, mais sa cause n'est pas
+    # présumée : conserver les diagnostics et distinguer une précompilation incomplète d'une réussite.
     stdlib = program / ".runtime/python" / manifest["python"]["key"] / "lib/python3.12"
     compiled = ctx.runner.run([str(venv_python(program)), "-m", "compileall", "-q", "-j", "0", str(stdlib),
                                str(program / ".venv/lib/python3.12/site-packages"), str(program / "services"), str(program / "tools")],
                               cwd=program, timeout=3600)
-    report.step("precompilation", "ok", f"compileall, code {compiled.returncode}", screen="terminée")
+    output_limit = 4096
+    report.data["precompilation"] = {
+        "returncode": compiled.returncode, "stdout": compiled.stdout[:output_limit], "stderr": compiled.stderr[:output_limit],
+        "output_limit_chars": output_limit,
+        "stdout_truncated": len(compiled.stdout) > output_limit, "stderr_truncated": len(compiled.stderr) > output_limit,
+    }
+    status = "orange" if compiled.returncode else "ok"
+    screen = (f"incomplète (code {compiled.returncode}) ; installation poursuivie, diagnostics dans le rapport"
+              if compiled.returncode else "terminée")
+    report.step("precompilation", status, f"compileall, code {compiled.returncode}", screen=screen)
 
 
 def doctor_gate(ctx: Context, report: Report, program: Path, profile: str) -> dict[str, Any]:

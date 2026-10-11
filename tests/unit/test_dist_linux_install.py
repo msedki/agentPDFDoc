@@ -549,6 +549,63 @@ def test_an_existing_profile_or_installation_is_never_replaced(kit, tmp_path):
 
 # --- Installation ---------------------------------------------------------------------------------------------------------
 
+@pytest.mark.parametrize(("returncode", "stdout", "stderr"), [
+    (1, "*** Error compiling 'paquet/exemple.py'...\nSyntaxError: invalid syntax\n", "OSError: lecture impossible\n"),
+    (0, "", ""),
+], ids=["incomplete-nonblocking", "complete"])
+def test_precompilation_retains_diagnostics_and_reports_its_actual_outcome(kit, tmp_path, returncode, stdout, stderr):
+    class PrecompilationSimulee(ProgrammeSimule):
+        """Résultat compileall contrôlé ; aucune compilation native n'est exécutée."""
+
+        def run(self, argv, *, cwd=None, timeout=None):
+            completed = super().run(argv, cwd=cwd, timeout=timeout)
+            if argv[1:3] == ["-m", "compileall"]:
+                return subprocess.CompletedProcess(argv, returncode, stdout, stderr)
+            return completed
+
+    ctx = context(kit, runner=PrecompilationSimulee())
+    destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
+    assert install(ctx, destination, data_root, "--no-start") == 0, screen(ctx)
+    assert ctx.runner.commands() == ["bootstrap", "compileall", "init-profile", "derive", "doctor"]
+    assert pointer_of(destination)["current"]["kit_id"] == manifest_of(kit)["kit_id"]
+    report = json.loads(next(data_root.glob("install-*.json")).read_text(encoding="utf-8"))
+    assert report["status"] == "installed"
+    step = next(item for item in report["steps"] if item["step"] == "precompilation")
+    assert step["status"] == ("orange" if returncode else "ok")
+    assert report["precompilation"] == {
+        "returncode": returncode, "stdout": stdout, "stderr": stderr,
+        "output_limit_chars": 4096, "stdout_truncated": False, "stderr_truncated": False,
+    }
+    if returncode:
+        assert "[orange] Précompilation : incomplète (code 1)" in ctx.out.getvalue()
+        assert "installation poursuivie" in ctx.out.getvalue()
+        assert "[ok] Précompilation : terminée" not in ctx.out.getvalue()
+    else:
+        assert "[ok] Précompilation : terminée" in ctx.out.getvalue()
+        assert "[orange] Précompilation" not in ctx.out.getvalue()
+
+
+def test_precompilation_diagnostics_are_bounded_with_explicit_truncation(kit, tmp_path):
+    stdout = "*** Error compiling 'paquet/exemple.py'...\n" + "A" * 5000
+    stderr = "OSError: lecture impossible\n" + "B" * 5000
+
+    class PrecompilationVerbeuseSimulee(ProgrammeSimule):
+        def run(self, argv, *, cwd=None, timeout=None):
+            completed = super().run(argv, cwd=cwd, timeout=timeout)
+            if argv[1:3] == ["-m", "compileall"]:
+                return subprocess.CompletedProcess(argv, 1, stdout, stderr)
+            return completed
+
+    ctx = context(kit, runner=PrecompilationVerbeuseSimulee())
+    data_root = tmp_path / "donnees"
+    assert install(ctx, tmp_path / "programmes", data_root, "--no-start") == 0, screen(ctx)
+    report = json.loads(next(data_root.glob("install-*.json")).read_text(encoding="utf-8"))
+    assert report["precompilation"] == {
+        "returncode": 1, "stdout": stdout[:4096], "stderr": stderr[:4096],
+        "output_limit_chars": 4096, "stdout_truncated": True, "stderr_truncated": True,
+    }
+
+
 def test_install_runs_the_whole_sequence_and_switches_atomically(kit, tmp_path):
     seen = {}
 

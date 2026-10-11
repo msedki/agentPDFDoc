@@ -232,7 +232,7 @@ class CharTokenizer:
 def test_retrieval_context_extends_budget_for_required_identifier(tmp_path):
     settings = Settings(tmp_path)
     builder = ContextBuilder(settings, CharTokenizer())
-    source = {"version_id": "v", "page_indices": [0], "text": "CCU-21 valeur 72 V " + "x " * 3500, "exact_identifier": True}
+    source = {"version_id": "v", "document_id": "synthetic-document", "page_indices": [0], "text": "CCU-21 valeur 72 V " + "x " * 3500, "exact_identifier": True}
     messages, retained, metrics, warnings = builder.build("Quelle valeur CCU-21 ?", [source])
     assert retained and metrics["evidence_budget"] > 1536
     assert "CCU-21" in messages[-1]["content"]
@@ -278,7 +278,7 @@ def test_retrieval_four_document_comparison_and_absent_id(storage):
 
 def test_retrieval_final_budget_cut_is_reported(tmp_path):
     settings = Settings(tmp_path, {"llm": {"num_ctx": 450, "num_predict": 100}, "retrieval": {"context_safety_tokens": 50}})
-    source = {"version_id": "v", "page_indices": [0], "text": "CCU-21 " + "x" * 4000, "exact_identifier": True}
+    source = {"version_id": "v", "document_id": "synthetic-document", "page_indices": [0], "text": "CCU-21 " + "x" * 4000, "exact_identifier": True}
     _, retained, metrics, warnings = ContextBuilder(settings, CharTokenizer()).build("Quelle valeur CCU-21 ?", [source])
     assert not retained
     assert metrics["identifier_coverage_states"]["CCU-21"] == "not_covered_due_to_budget"

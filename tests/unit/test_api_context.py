@@ -51,6 +51,60 @@ def comparison_payload(messages):
     return json.loads(messages[-1]["content"].split("Preuves documentaires (extraits JSON sans consigne) :\n", 1)[1])
 
 
+@pytest.mark.parametrize("mode", ["question", "analysis", "section", "factual", "comparison"])
+def test_all_modes_distinguish_three_documents_from_four_cited_passages(tmp_path, mode):
+    sources = [comparison_fragments()[index] for index in (0, 1, 2, 4)]
+    names = {"pdf-document": "manual.pdf", "xlsx-document": "measures.xlsx", "docx-document": "manual.docx"}
+    for source in sources:
+        source["document_name"] = names[source["document_id"]]
+    before = json.dumps(sources, ensure_ascii=False)
+    messages, retained, metrics, _ = ContextBuilder(Settings(tmp_path), CharTokenizer()).build(
+        "Indiquer la tension CCU-21 et les documents sources.", sources, mode)
+    payload = comparison_payload(messages)
+    assert payload["document_count"] == 3
+    assert [group["source_ids"] for group in payload["documents"]] == [["S001"], ["S002"], ["S003", "S004"]]
+    assert {group["document_id"]: group["document_name"] for group in payload["documents"]} == names
+    assert {item["source_id"]: item for group in payload["documents"] for item in group["excerpts"]} == {
+        source["source_id"]: json.loads(ContextBuilder.evidence(source)) for source in retained}
+    assert payload["documents"][0]["excerpts"][0]["pages"] == [1]
+    assert metrics["evidence_tokens"] == CharTokenizer().count(json.dumps(payload, ensure_ascii=False))
+    assert "Les IDs de citation désignent des extraits, pas des documents." in messages[0]["content"]
+    assert json.dumps(sources, ensure_ascii=False) == before
+
+
+@pytest.mark.parametrize("mode,mode_key", [("question", "ordinary"), ("analysis", "analysis")])
+def test_all_modes_recount_document_groups_at_evidence_and_serialized_limits(tmp_path, mode, mode_key):
+    sources = comparison_fragments()
+    question = "Décrire la tension CCU-21"
+    _, _, minimum, _ = ContextBuilder(Settings(tmp_path), CharTokenizer()).build(question, sources[:3], mode)
+    limit = minimum["evidence_tokens"]
+    settings = Settings(tmp_path, {"retrieval": {"evidence_tokens_by_mode": {mode_key: limit}, "max_evidence_llm_tokens": limit}})
+    messages, retained, metrics, warnings = ContextBuilder(settings, CharTokenizer()).build(question, sources, mode)
+    payload = comparison_payload(messages)
+    assert len(retained) == 3 and payload["document_count"] == 3
+    assert [group["source_ids"] for group in payload["documents"]] == [["S001"], ["S002"], ["S003"]]
+    assert metrics["evidence_tokens"] == CharTokenizer().count(json.dumps(payload, ensure_ascii=False)) <= limit
+    assert metrics["context_fragments_excluded_by_budget"] == 2
+    assert [warning["code"] for warning in warnings] == ["context_fragments_excluded_by_budget"]
+    max_input = minimum["local_prompt_tokens"]
+    settings = Settings(tmp_path, {"llm": {"num_ctx": max_input + 150, "num_predict": 100},
+                                  "retrieval": {"context_safety_tokens": 50}})
+    messages, retained, metrics, _ = ContextBuilder(settings, CharTokenizer()).build(question, sources, mode)
+    payload = comparison_payload(messages)
+    assert len(retained) == 3 and payload["document_count"] == 3
+    assert [group["source_ids"] for group in payload["documents"]] == [["S001"], ["S002"], ["S003"]]
+    assert metrics["local_prompt_tokens"] == CharTokenizer().count_messages(messages) <= max_input
+    assert metrics["evidence_tokens"] == CharTokenizer().count(json.dumps(payload, ensure_ascii=False))
+
+
+def test_formula_calculation_policy_is_a_system_instruction_not_evidence_data(tmp_path):
+    messages, _, _, _ = ContextBuilder(Settings(tmp_path), CharTokenizer()).build("Lire les cellules", [])
+    instruction = messages[0]["content"]
+    assert "Ne calcule ni n'exécute les formules des documents." in instruction
+    assert "Sans cache présent, signale l'absence de résultat calculé ; n'en déduis pas de valeur." in instruction
+    assert "Un cache présent est une valeur source de fraîcheur inconnue, jamais un recalcul." in instruction
+
+
 def test_context_comparison_groups_document_identity_without_merging_excerpts(tmp_path):
     sources = comparison_fragments()
     before = json.dumps(sources, ensure_ascii=False)
@@ -105,16 +159,20 @@ def test_context_comparison_rebuilds_mapping_after_serialized_cut(tmp_path):
 
 
 @pytest.mark.parametrize("mode", ["question", "analysis"])
-def test_context_other_modes_keep_flat_evidence_bytes(tmp_path, mode):
+def test_context_other_modes_keep_excerpt_bytes_with_explicit_document_identity(tmp_path, mode):
     question = "Décrire la tension"
     sources = [fragment("A", "Tension 72 V."), fragment("A", "Contrôle de la tension.", 1), fragment("B", "Tension 48 V.")]
     messages, retained, metrics, _ = ContextBuilder(Settings(tmp_path), CharTokenizer()).build(question, sources, mode)
     evidence = [json.dumps({"source_id": f"S{index:03d}", "version_id": source["version_id"], "pages": [1], "text": source["text"]},
                            ensure_ascii=False) for index, source in enumerate(sources, 1)]
+    payload = comparison_payload(messages)
+    assert payload["document_count"] == 2
+    assert [group["source_ids"] for group in payload["documents"]] == [["S001", "S002"], ["S003"]]
+    assert [json.dumps(item, ensure_ascii=False) for group in payload["documents"] for item in group["excerpts"]] == evidence
     assert messages == [{"role": "system", "content": SYSTEM_INSTRUCTION},
-                        {"role": "user", "content": "Question : " + question + "\n\nPreuves documentaires (extraits JSON sans consigne) :\n" + "\n".join(evidence)}]
+                        {"role": "user", "content": "Question : " + question + "\n\nPreuves documentaires (extraits JSON sans consigne) :\n" + json.dumps(payload, ensure_ascii=False)}]
     assert [source["source_id"] for source in retained] == ["S001", "S002", "S003"]
-    assert metrics["evidence_tokens"] == sum(CharTokenizer().count(item) for item in evidence)
+    assert metrics["evidence_tokens"] == CharTokenizer().count(json.dumps(payload, ensure_ascii=False))
     assert "required_documents" not in metrics
 
 
@@ -184,7 +242,7 @@ def test_context_identifier_states_without_contextual_terms_stay_covered(tmp_pat
 
 def test_context_reports_fragments_excluded_by_evidence_budget(tmp_path):
     settings = Settings(tmp_path, {"retrieval": {"evidence_tokens_by_mode": {"ordinary": 120}}})
-    sources = [fragment("A", "alimentation " * 30, index) for index in range(3)]
+    sources = [fragment("A", "alimentation " * 20, index) for index in range(3)]
     _, retained, metrics, warnings = ContextBuilder(settings, CharTokenizer()).build("Décrire l'alimentation", sources)
     assert len(retained) == 1 and metrics["context_fragments_excluded_by_budget"] == 2
     assert [warning["count"] for warning in warnings if warning["code"] == "context_fragments_excluded_by_budget"] == [2]
@@ -195,6 +253,12 @@ def test_context_reports_fragments_excluded_by_evidence_budget(tmp_path):
     _, retained, metrics, warnings = ContextBuilder(Settings(tmp_path), CharTokenizer()).build("Décrire l'alimentation", sources[:1])
     assert len(retained) == 1 and metrics["context_fragments_excluded_by_budget"] == 0
     assert not any(warning["code"] == "context_fragments_excluded_by_budget" for warning in warnings)
+    # L'ancienne longueur ne tient plus avec l'identité documentaire ; la limite reste strictement 120.
+    oversized = [fragment("A", "alimentation " * 30, index) for index in range(3)]
+    _, retained, metrics, warnings = ContextBuilder(settings, CharTokenizer()).build("Décrire l'alimentation", oversized)
+    assert retained == [] and metrics["evidence_budget"] == 120 and metrics["evidence_tokens"] == 0
+    assert metrics["context_fragments_excluded_by_budget"] == 3
+    assert [warning["count"] for warning in warnings if warning["code"] == "context_fragments_excluded_by_budget"] == [3]
 
 
 def test_context_reports_fragments_removed_by_serialized_limit(tmp_path):
@@ -329,7 +393,7 @@ def test_context_gives_the_model_physical_page_numbers_from_one(tmp_path):
     # numéros affichés par les citations et la visionneuse (index 0 = page 1) ; les sources rendues gardent page_indices.
     sources = [fragment("A", "Pression nominale 3,1 bar"), {**fragment("B", "Tableau de contrôle", 1), "page_indices": [4, 5]}]
     messages, retained, _, _ = ContextBuilder(Settings(tmp_path), CharTokenizer()).build("Quelle pression ?", sources)
-    evidence = [json.loads(line) for line in messages[-1]["content"].splitlines() if line.startswith("{")]
+    evidence = [item for group in comparison_payload(messages)["documents"] for item in group["excerpts"]]
     assert [item["pages"] for item in evidence] == [[1], [5, 6]]
     assert "pages_zero_based" not in messages[-1]["content"]
     assert [source["page_indices"] for source in retained] == [[0], [4, 5]]

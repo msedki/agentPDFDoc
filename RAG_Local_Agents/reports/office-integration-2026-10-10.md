@@ -1480,3 +1480,360 @@ Aucune suppression générale de caches, sources, preuves ou données.
 Revue finale indépendante de ce retrait acquise :
 `rag02-cold-temporary-retirement-independent-final-review-24.json`,
 SHA `0c8e4b3d…`, PASS borné.
+
+
+## Export37e, stockage et fabrication suivante — 11 octobre 2026
+
+**Rôle :** bilan de preuves locales. **Statut :** export, usine et retraits
+revus et fermés ; C09 complémentaire exécuté et fermé dans son périmètre
+local après correction d’un oracle QA. Extraction37 réellement fermée,
+revue terminale R41 acquise ; TAR52 retiré et revu post-actual R52,
+installation37 nominale réellement récoltée à 0 et revue R53, inventaire
+froid37 acquis ; baseline C07 de quatre documents obtenue après reprise QA ; première query
+Q-MIX exécutée avec FAIL sémantique indépendant et arrêt/conservation froids
+revus. Les trois autres cas restent non exécutés, C07 non qualifié. **Source :**
+`37e8726c7f97`, contexte RAG-02 `c6db9fa1`, installation52 inchangée.
+
+L’export web est réellement reconstruit et récolté à 0 en 64,462 s :
+243 fichiers, 6 616 966 octets, provenance `3b7b3964`. Les 14 identités
+capturées sont fraîches absentes ; deux observations ZombieProcess
+transitoires restent des erreurs. Reçu `root/rag02-export-37e8726-20261011/completion-01.json`
+SHA `cd440134`, revue indépendante R29 `ed3d5f65`. Les 80 entrées source
+et l’export historique52 sont conservés. Un build ne mesure pas la qualité
+générative ni le fonctionnement du nouveau kit.
+
+Seuls 565 fichiers et 9 dossiers de caches sont retirés : 122 662 126 octets
+logiques et 123 916 288 octets d’allocations sélectionnées. Ce dernier total
+inclut les entrées des racines conservées ; il ne mesure pas les seuls
+octets physiquement supprimés. Gains libres observés : SD+5 107 712,
+volume racine+118 411 264 octets, sans attribution exclusive. Deux racines
+privées vides et 579 pins de conservation restent exacts.
+
+Le seul TAR57 remplacé est retiré :
+`/media/safae/devsave1/r28-office-cpu-57f7f0a6f2fe/delivery/0.1.0+57f7f0a6f2fe-linux-aarch64-none-2b4b.tar`.
+Reçu `root/archive57-retirement-20261011/retirement-actual-01.json` SHA
+`61bfce16`, vrai harvest `e4b370/0`, revue R32 `1993d223`. Sélection :
+11 185 633 280 octets logiques et 11 185 639 424 alloués ; gain SD observé
++11 185 639 424 octets distinct d’une attribution générale. L’extraction
+et la réinstallation exacte du kit57 sont désormais perdues. Les six
+métadonnées57, guide, somme et preuves restent gardés ; les archives22/52,
+installation52 et sauvegardeDEV22 sont préservées. Quatre-vingts identités
+historiques et l’opérateur sont constatés absents ; cinq accès FD étrangers
+restent UNKNOWN, sans affirmation d’absence ou d’usage globale.
+
+| Étape usine37e | Résultat réellement récolté | Durée |
+|---|---|---|
+| Dry-run | 0 | 83,418 s |
+| Build | 0 | 99,781 s |
+| Verify | 0 | 30,346 s |
+| Archive | 0 | 469,403 s |
+| Relecture complète de la somme | 0 | 120,004 s |
+
+Le dry-run mesure 11 114 770 730 octets ; garde réel 24 377 025 108 octets
+(`2 × bytes + 2 Gio`), sans abaissement. Le propriétaire `62885` est
+réellement récolté `3bffa1/0`, reçu `16896f70`, progress `acf4320c` ;
+80 identités acquises fraîchement absentes, 47 sources exactes après
+récolte. Archive de 11 185 684 480 octets, SHA
+`ff510738814383f3b69d92de5df4174e8d6a69f2212b134a9ca5f0f3719ef5f7`.
+Revue usine R35 `e44ede0a`, puis retrait exact de sa seule copie `/kit`
+réellement récolté `93597`→`9bff38/0` en 24,649 s : reçu
+`root/rag02-kit-retirement-37e8726-20261011/after.json` SHA `e518c5d0`,
+harvest `49384694`, revue R36. 35 626 fichiers, 1 184 liens, 4 585 dossiers
+sous racine ; sélection de 11 120 562 520 octets logiques et
+11 226 181 632 alloués. Gain SD observé de 11 226 050 560 octets,
+libre frais 13 634 785 280 octets ; ces volumes ne constituent ni une
+attribution exclusive ni une admission de capacité ultérieure. Six
+métadonnées, archive37e complète, guide et somme restent conservés,
+ainsi que les installations22/52, données, modèles, sauvegardes et preuves.
+Aucune faculté de réinstallation exacte37e n’est perdue tant que l’archive
+vérifiée est gardée. Les 80 identités acquises sont constatées absentes
+dans le garde de retrait ; son propriétaire PID2091989, naissance1791700223.5,
+est récolté à 0 puis absent frais. Les 28 gaps étrangers restent UNKNOWN,
+sans conclusion d’absence globale. Source47, DoD et journalOct2 exacts.
+
+L’extraction37 est réellement terminée sous admission distincte :
+relecture complète de la somme d’archive à 0 en 65,383 s puis extraction à 0
+en 120,195 s. Outil 63530, démarrage `e013fc`, vrai harvest `6ed5e6/0` ;
+propriétaire PID2111702/naissance1791701605.11 fraîchement absent.
+Progress `4e5d705b`, harvest `03df409a`, 36 échantillons, observateur
+réellement récolté à 0, erreurs de nettoyage vides et signal reçu null.
+Archive/guide/somme conservés ; source47 et journalOct2 exacts. La revue
+terminale R41 `2ac49f07` est acquise : 35 624 fichiers réguliers et
+1 184 liens déclarés vérifiés, quatre identités connues fraîches absentes
+(propriétaire inclus). Le TERM prévu de l’observateur est distinct d’un
+signal reçu par le pilote ; aucune absence universelle de signal affirmée. Le kit extrait est
+`/media/safae/devsave1/r28-rag02-cpu-37e8726c7f97/transport/0.1.0+37e8726c7f97-linux-aarch64-none-2b4b` ;
+aucun programme installé ou service applicatif démarré par ce pilote.
+Libre SD signalé par ROOT : 2 371 108 864 octets ; installation NO_GO
+au point postextraction, recette native37 non acquise. Les admissions et budgets restent distincts,
+sans attribution exclusive d’espace ni abaissement de garde.
+
+### Installation22 : garde QA refusé puis reprise HOST réelle
+
+Le garde nominal initial termine à 1 avant désinstallation, dont aucun
+résultat n’existe. Le namespace fait apparaître 173 observations UNKNOWN
+contre 11 dans la référence HOST ; une relecture du même PID/naissance côté
+hôte discrimine la visibilité des métadonnées. Revue R43
+`installed22-original-namespace-guard-refusal-and-host-recovery-proposal-review-43.json`
+SHA `8b0421b2` : refus correct au regard des observations, cause QA de
+périmètre et non échec produit de désinstallation. L’installation22 reste
+présente au point de cette preuve. La session initiale est réellement
+fermée, propriétaire `93511`→`6b8429/0`, 58 identités capturées absentes
+(reçu `b0eddee2`) ; R44 `f51ecc7c` confirme 59 identités distinctes
+avec propriétaire. Garde initial1 et absence de désinstallation conservés. Aucune inconnue convertie en absence
+ni généralisation depuis cette unique relecture.
+
+Au jalon R43, la reprise HOST était une voie distincte préparée/proposée,
+sans exécution acquise : conserver les 11 UNKNOWN de référence et refuser toute nouvelle
+inconnue ou tout usage observé ; préserver l’ancien rouge et obtenir
+propre admission, vraie récolte et contrôle froid. La capacité physique
+après un retrait futur restait à relever ; installation37 et recette
+requièrent leurs gardes complets propres, aucune garde abaissée.
+
+### C09 adverse : refus et contenus inertes sur Linux aarch64
+
+Douze refus HTTP 400 réellement capturés : ZIP illisible, XML malformé,
+faux format, membre traversal, membre symlink, relation traversal, macro
+déclarée et cinq quotas livrés (membres, profondeur, ratio, partie, total).
+Les codes sont distincts : `office_invalid_package`×5,
+`office_limit_exceeded`×5, `office_format_mismatch`×1 et
+`office_macros_unsupported`×1. Commande10 réellement à 0 en 3,667 s ;
+statut/corps bruts/erreurs de parsing conservés avant adjudication.
+Les cas partie/total exploitent des métadonnées ZIP hostiles : aucune
+performance de décompression légitime 64/256 Mio n’en est déduite.
+Les trois anciens refus et quota XML2M restent liés à leurs preuves
+antérieures, sans nouvelle exécution.
+
+| Preuve native inerte | Commande réellement récoltée | Interprétation |
+|---|---|---|
+| DOCX sortie 01 | 1, worker à 0 | Oracle QA `parser_complete` non conforme au contrat par format ; rouge conservé |
+| DOCX sortie 02, reprise 17 | 0 en 1,224 s | `ready_partial`, texte littéral et hash SVG exacts, lien/image externes non chargés |
+| XLSX sortie 01 | 0 en 2,145 s | `ready_partial`, quatre cellules exactes, formules/cache 72 contradictoire non évalués, lien externe métadonnée |
+
+Seul l’oracle QA est corrigé après revue R38 `eeab66e3`. Le résultat
+worker DOCX est identique entre les deux sorties ; aucune source produit
+modifiée. Ces extractions natives ne prouvent pas une ingestion positive
+API, une publication d’index ou un job READY. Douze invocations d’import
+refusées ; aucune nouvelle question ni appel modèle par les clients.
+
+Les contrôles positifs observent de vraies opérations autorisées : lecture
+du sentinel synthétique, socket créé/fermé sans connexion, sous-processus
+Python possédé attendu/récolté à 0 puis absent. Les événements positifs sont
+séparés et le relevé remis à zéro avant le worker ; zéro événement CPython
+observé dans chaque worker. Ce hook n’est ni un sandbox ni un traceur de
+syscalls ; les appels natifs non audités et l’absence de toute tentative
+externe ne sont pas démontrés par ce seul résultat.
+
+Down à 0 en 4,702 s ; inventaires PROGRAM52 avant 85,341/après 34,293 s,
+comparaison externe au dernier état froid avant restore à 0 en 1,248 s,
+comparaison stricte à 0 en 1,244 s. 65 131 fichiers/1 188 liens exacts avant
+et après. Le propriétaire PID2098910 (session outil `85208`) est réellement
+récolté `e51f00/0`
+(reçu `5690799c`), puis checker froid réellement récolté à 0 (`a0ef9225`).
+Reçu hôte `root/c09-final-matrix-20261011/host-final.json` SHA `1df0a485` :
+RAW31 exacts, deux tours DONE, 14 citations, 167 événements, 3 jobs,
+3 versions et trois originaux inchangés ; Qdrant LIST14 exact avant/après,
+77 sources produit vérifiées à froid. 81 relevés hôte couvrent
+77 identités PID/naissance strictement absentes ; checker froid absent
+séparément. Aucun zombie ou UNKNOWN transformé en absence.
+
+Revue terminale R39
+`c05-history/review/c09-final-matrix-independent-recovered-terminal-review-39.json`
+SHA `a114a5e2` : clôture fonctionnelle récupérée et bornée. L’ancien
+résultat DOCX à 1 est préservé, sans reconstruction de tous les résultats
+nominaux à 0. Aucun PASS C09 global ni clôture I05/C07 complet, I07/I08 ou
+DoD globale. Windows, Linux x86-64, CPU physique ≤ 16 Go, métier/final,
+réserve générative et NF09 strict restent distincts.
+
+Reconsultation officielle : `root/official-source-check-20261011T0600Z.json`,
+reçu enregistré le 11/10/2026 à 06:02:21.032078 UTC. python-docx 1.2.0 et
+OpenXML relus ; documentation openpyxl 3.1.3 versus version installée 3.1.5
+explicitement distinctes. Mise à jour de trace/date uniquement, sans
+nouvelle décision, benchmark, preuve native ou supériorité SOTA générale.
+
+La reprise HOST retire nominalement l’installation22, sans suppression
+manuelle : garde0 en 0,988627 s, désinstallation0 en 34,417176 s, propriétaire
+réellement récolté `4292`→`dd580f/0`, 18 identités possédées absentes puis
+checker froid absent. Reçus harvest `0177fb2c`, completion `dd4ac4e5`,
+host-final `ed805c95`, harvest froid `1118a37a` ; revue R47 `45e009d2`
+acquise. Aucun namespace hors ligne n’est revendiqué pour cette voie HOST.
+Ancien refus1/no-UNINSTALL et diagnostic de visibilité sont conservés ;
+archives22/52, programme52 de repli, données, sauvegardes et preuves restent
+gardés. Gain SD observé 11 246 563 328 octets, non exclusivement attribué au
+retrait ; libre après 13 613 858 816 octets. Mesure fraîche suivante
+13 613 846 528 octets contre garde install37 de 14 335 994 149 octets :
+déficit exact 722 147 621 octets, installation37 toujours NO_GO à ce point.
+À ce checkpoint, aucun cache éligible d’au moins 1 Gio n’était identifié ;
+la seule archive52 restait à classer. Son retrait réel suivant est décrit
+ci-dessous et ne requalifie pas le déficit antérieur. La version du
+noyau réellement relevée est `5.10.120-tegra`, distincte des man-pages6.19 ;
+les sources officielles expliquent un mécanisme, pas une preuve de recette.
+
+
+### Retrait précis du TAR52 — résultat réel du 11 octobre, 07:57 UTC
+
+Le seul TAR52 de `r28-office-cpu-52abb94b2505/delivery` est ensuite retiré
+par une copie QA02 byte-identique du pilote, sans changer la garde de
+300 s. L’inspection01 périmée reste conservée ; nouvelle inspection
+`85ee6c/0`, reçus `b5ddba6f`/`dd703c77`, après avis préparatoire R51
+`2dd79f4d`. Retrait session80575 réellement récolté `5dbd39/0`,
+contrôle froid `2cf241/0`, reçus `39d6b522`/`5d1f0142` ; opérateur
+PID2162871/naissance1791705455.98 absent frais. Revue post-actual R52 `4b01ae32` acquise :
+88 identités connues absentes et 70 petits pins conservés. Chronologie conservée : R51
+préparatoire, inspection QA02 réellement récoltée, admission ROOT dans
+la garde de 300 s, retrait réel, puis revue R52 post-actual. Cette dernière
+ne reconstitue aucune approbation antérieure. Sélection : 11 185 684 480 octets logiques et
+11 185 688 576 alloués ; gain SD observé 11 185 688 576 octets, sans
+attribution exclusive. À 07:57:55 UTC, SD libre 24 798 777 344 octets et
+volume racine libre 3 252 469 760 octets. Ce checkpoint dépasse les seuils
+préparés d’installation37 ; il ne constitue ni admission ni installation.
+PROGRAM52 de repli, données, sauvegardes, archives22/37, transport37,
+guide, somme, six métadonnées et preuves restent conservés. La nouvelle
+extraction, réparation et réinstallation exactes52 sont désormais perdues ;
+aucune reconstruction bit-identique du TAR52 n’est promise. Les cinq gaps
+FD étrangers restent UNKNOWN, sans conclusion d’absence globale. I08 et C07 complet demeurent ouverts ;
+l’installation nominale37 est consignée séparément ci-dessous.
+
+
+L’installation37 nominale est désormais réellement terminée, sans start ni
+navigateur : garde0 en 0,805 s, verifier0 en 6,129 s puis install0 en
+339,293 s (`4182`→`2e6954`). Finish `2226ac/0`, propriétaire16647 réellement
+récolté `48c4e4/0` ; reçu `e2f4c39e`, 57 identités connues absentes. Checker
+froid `0b9652/0`, host-final `ce3c6259`, harvest `57fdf061`. Rapport nominal
+`121bb007`, pointeur `4a2a2f08` ; programme `37e8726c7f97`, profil4B par
+défaut, aucun traitement lancé sur les données. DATA sélectionnée :
+17 211 octets logiques/28 672 alloués, mesure ponctuelle ; SD libre
+13 551 702 016 octets, volume racine libre 3 247 861 760 octets. Revue R53
+`bfe17d2e` acquise, 59 identités connues absentes, 38 petits pins et six
+métadonnées exacts. Inventaire froid37 réellement récolté `13698`→`3424f1/0`,
+opérateur PID2172274 absent frais : 65 131 fichiers/1 188 liens, baseline
+`01f5afb6`, harvest `75926eeb`, référence37 des recettes suivantes. Le rapport
+signale `compileall, code1` comme précompilation non bloquante ; cause précise
+UNKNOWN historiquement, aucune réussite de compilation de tous les fichiers
+revendiquée. Aucun restore, API, LLM ou parcours C07 acquis par cette
+installation ; I08 reste partiel jusqu’à sa recette utile.
+
+
+### C07 : baseline réelle après reprise QA, cas encore attendus — 08:32 UTC
+
+L’étape11 initiale échoue à 1 avant le premier POST/import, lecture de
+jetons ou écriture du résumé : la QA exigeait à tort les 77 fichiers de
+sa garde dans le manifeste canonique du runtime. Ce dernier sélectionne
+88 fichiers ; 75 des 77 gardes y appartiennent, deux sont volontairement
+hors contrat (`tools/dist/program_inventory.py` et configuration du tokenizer).
+Variante03/revue R54 `31e4f654` : couverture88 exacte contre inventaire
+froid37, empreinte liée à up, unicité et complément77 maintenus, sans skip
+arbitraire. Ancien0011/1 `902d836b` conservé ; reprise17 distincte réellement
+à 0 en 72,582 s (`451afc`, résultat `b7484aa5`). Un seul POST/import DEV
+public, zéro POST/query et zéro appel LLM par cette étape. Baseline obtenue :
+quatre documents distincts et 19 points Qdrant, dont les 14 points antérieurs
+préservés ; les deux anciennes réponses et 14 citations restent exactes.
+Résumé `7a048947`, preuve de projection `a1c08cf6`. Les quatre cas C07 et
+leur fermeture froide ne sont pas acquis par cette baseline.
+
+L’observabilité de la précompilation est corrigée dans la source de
+`tools/dist/linux_install.py`, avec ses tests ciblés : code retour,
+premiers 4 096 caractères de stdout/stderr et troncature explicite conservés
+au rapport ; résultat non nul signalé incomplet, installation non bloquante
+inchangée. Trois témoins rouges puis cinq tests ciblés verts, Ruff et mypy
+Linux/Win32 ciblés à 0, huit producteurs connus absents. Compileur substitué
+par des doubles nommés, opérations de copie/profil/pointeur sur fixtures
+isolées réelles ; aucune compilation native37 rejouée. Completion `f323a440`,
+revue R55 `cd4160d5`. Cette source corrigée n’est pas incluse dans PROGRAM37
+immuable : ancien code1 et stderr non récupérable conservés, cause précise
+UNKNOWN, aucune explication rétroactive inventée. La référence officielle
+compileall/-q est documentaire, pas une preuve d’exécution ou de qualité.
+
+### C07 Q-MIX : échec sémantique et clôture partielle — 08:50–09:04 UTC
+
+Après admission des quatre bindings (R56 `00bbcc75`), le premier contrôle
+QA échoue avant tout POST/query : il attendait `=LEN(A2)` dans le DTO
+cellule, tandis que le XML source et le parseur conservent `LEN(A2)`.
+Ce résultat `665bcd6a/1` et le résumé FAIL demeurent intacts. Le XML C2
+est `<f>LEN(A2)</f><v/>`, B2 vaut littéralement 72V et le cache C2 est absent.
+Variante QA03 : une seule égalité stricte corrigée ; questions, contexte
+humain `=LEN(A2)`, paramètres et oracles sémantiques inchangés. Trois
+mutations du témoin cellule restent refusées ; revue R57 `76cd9506` et
+admission complémentaire `8aebed49` acquises avant l’unique reprise.
+
+Q-MIX03 termine réellement à 0 en 221,273 s, wait `626faf`, résultat
+`0a12c4a8`, résumé `0427aef6`, query `e5070234-7f75-4566-abc4-08424088e41b`.
+Le contrôle mécanique passe : cinq citations résolues vers trois documents,
+versions/révisions/ancrages exacts. Le verdict sémantique **FAIL** est
+indépendamment confirmé par R58 `00c64a6b` :
+
+- Les S001/S003/S005 partagent le même document_id DOCX, mais la réponse les
+  présente comme trois documents, plus S006 PDF. Elle n’attribue pas
+  séparément B2 au classeur dans sa liste nominale.
+- Elle avance « soit 6 » pour LEN alors que S002 indique un cache absent,
+  puis affirme que ce 6 ne peut être confirmé. Le warning natif
+  `value_not_in_context` signale déjà cette valeur. Aucune preuve d’une
+  exécution ou d’un recalcul de formule : le défaut est dans la réponse.
+
+Le sérialiseur installé `c6db9fa1` regroupe document_id uniquement en mode
+comparison ; question/analysis restent plats sans document_id ni nom documentaire ; version_id reste transmis.
+La limitation XLSX était déjà transmise. Ces écarts justifient R28-RAG-03,
+correction commune du contexte et de ses consignes engagée à ce jalon :
+aucune cause interne du modèle ni correction native acquise n’est inventée.
+Les trois autres queries sont suspendues pour traiter ces causes avant
+une nouvelle recette ; aucune génération identique n’est relancée.
+
+Arrêt nominal13 réel0 en9,174s (`3b6777`), snapshot14 réel0 en33,09s
+(`a11507`), comparaison15 réelle0 en1,298s (`de2767`), finish16 réel0
+(`286baf`). Propriétaire97359 réellement récolté `c68968/0`.
+Collecte froide `9eab01/0`, puis collecteur2217103 absent vérifié
+`0caae2/0` : 297 vies connues absentes, RAW31 exactement égal à sql-afterQ,
+3 questions/21 citations avec anciens 2/14 conservés, quatre originaux exacts,
+inventaire programme65 131 fichiers/1 188 liens inchangé. Les19 points
+avaient été vérifiés à la baseline pré-Q ; aucune mesure post-Q des
+vecteurs n’est déduite de la seule conservation SQL.
+
+Preuves dans `root/c07-runtime-companion-37-20261011/` :
+`actual-owner-harvest-partial-01.json` (`f14713fb`),
+`host-partial-failure-final-01.json` (`82a1a5ba`),
+`cold-partial-harvest-01.json` (`1f1b504b`). Revue froide R59 `ed2f2195`
+indépendante, 297 vies connues plus collecteur contrôlés absents.
+Étape12, handoff quatre cas et finalizer quatre cas non exécutés ; aucun
+PASS de matrice C07, CPU16Go physique, autre plateforme ou DoD globale.
+
+Nettoyage des tests compileall : seules les trois cibles privées
+red-01/basetemp, green-02/basetemp et mypy-cache retirées, preuve `642da4f5`
+après outil `47ad20/0`. 5 505 621octets logiques/24 489 984alloués supprimés,
+gain libre observé24 436 736 octets sur volume partagé ; neuf rapports de
+fixtures et les preuves RED/GREEN conservés. Vérification indépendante
+acquise. Préparation lecteurs quatre cas interrompue, reçu `6e6dcd6b` :
+aucune API, aucun navigateur ni POST/query exécuté par cet agent.
+
+### R28-RAG-03 : correction commune vérifiée au niveau source — 09:18 UTC
+
+`services/api/context.py` (`3454f1a5`) expose document_count, document_id,
+document_name réel, source_ids et extraits regroupés dans tous les modes.
+L’enveloppe entière est comptée avant admission, après coupe et dans les
+métriques ; quotas, priorités et couverture restent inchangés. L’instruction
+commune distingue citations et documents, interdit calcul/exécution et
+inférence d’une valeur sans cache ; un cache présent garde une fraîcheur
+inconnue. Aucun cas LEN spécifique, masquage de sortie ou recalcul ajouté.
+`evidence()`, historique, locators et `validate_answer()` restent identiques
+par AST. La représentation envoyée au modèle évolue volontairement ; ni
+schéma DB, ni contrat de citations persistées, ni extraction ne changent.
+
+Gel source/tests :
+`root/rag03-document-formula-context-20261011/frozen.json` (`d51ebd76`),
+rapport et codes réellement récoltés dans ce dossier. RED initial 8 FAIL ;
+union 174 PASS/1 FAIL en 103,80 s, seul golden historique affecté, rouge
+conservé. Reprise du golden : PASS, anciennes trois empreintes pré-R26
+littérales reconstruites indépendamment ; contrôle final du golden et de
+deux gardes renforcées : 3 PASS en 3,57 s. Les 175 cas uniques de l’union
+sont donc couverts, les reprises ne s’ajoutent pas au nombre de cas.
+Budget 120 maintenu avec témoin négatif du passage long ; cache stale C4=1
+conservé sans recalcul, absence de cache toujours sans valeur. Ruff six
+fichiers et mypy context seul avec imports ignorés Linux/Win32 statique PASS.
+
+Revue indépendante R60
+`c05-history/review/rag03-common-document-formula-context-independent-source-final-review-60.json`
+(`c5f2dd7f`) : 45 pins exacts, contrôle AST et goldens indépendants, GO source.
+Transport Ollama, PDF/E5/vecteurs/tokenizer simulés dans les tests concernés ;
+aucune qualification LLM/Windows/x86-64/CPU16Go/final corpus. Les retours
+d’outils de tests ne prouvent pas tous descendants absents. Décision W058.
+La source est validée, l’efficacité native du nouveau kit reste à vérifier ;
+Q-MIX03 FAIL, R58/R59 et PROGRAM37 sont conservés sans altération.

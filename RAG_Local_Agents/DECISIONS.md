@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** registre des décisions acquises et propositions · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base historique `75df760` ; décisions W050–W054 du 9 octobre, W055 Office et W056 références ; source publiée `18dc8f8` et modifications locales R28-RAG-01, historique conservé ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · **Mis à jour :** 2026-10-11 00:09 (UTC) · **Source de vérité :** ce registre pour les choix ; PLAN pour les actions et rapports pour les exécutions
+**Rôle :** registre des décisions acquises et propositions · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base historique `75df760` ; décisions W050–W054 du 9 octobre, W055 Office et W056 références ; source publiée `18dc8f8` et modifications locales R28-RAG-01, historique conservé ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · **Mis à jour :** 2026-10-11 09:18 (UTC) · **Source de vérité :** ce registre pour les choix ; PLAN pour les actions et rapports pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -1550,6 +1550,44 @@ commande pour passer au 4B. Aucune bascule automatique : l'arrêt reste une
 décision de l'utilisateur. **Retour arrière :** `atelier modele` avec
 l'ancien modèle, ou retrait de la commande, l'option `--modele` au
 lancement restant disponible.
+
+## W058 Identité documentaire commune et valeurs de formules dans le contexte RAG
+
+**Date :** 11 octobre 2026 UTC. **Statut :** choix technique implémenté,
+contrôlé et revu indépendamment au niveau source ; efficacité native du
+nouveau kit encore à qualifier. Référence : R28-RAG-03 dans PLAN,
+[rapport de preuves](reports/office-integration-2026-10-10.md#export37e-stockage-et-fabrication-suivante--11-octobre-2026).
+
+**Contexte :** Q-MIX03 native de l’ancien PROGRAM37 possède cinq citations
+résolues vers trois documents, mais sa réponse présente plusieurs extraits
+du même DOCX comme des documents distincts et avance une valeur de formule
+sans cache, puis la contredit. R58 confirme ces défauts ; aucun recalcul
+réel n’est prouvé. En question/analysis, version_id existe déjà, mais ni
+l’identité ni le nom documentaire ne sont explicités ; comparison regroupait
+les extraits. Une consigne générale de non-invention était déjà présente.
+
+**Choix :** `services/api/context.py` regroupe les extraits par document_id
+et expose le nom fourni par la source dans tous les modes. Le budget compte
+l’enveloppe complète avant admission et après chaque coupe, sans relever
+les limites ni changer les priorités. L’instruction commune distingue les
+IDs de citation des documents, interdit calcul/exécution et inférence de
+valeur sans cache ; un cache présent demeure une valeur source de fraîcheur
+inconnue. La représentation des messages évolue volontairement ; aucun
+recalcul, exception LEN, filtre de réponse ou dépendance nouvelle ajouté.
+
+**Justification et preuve :** identité disponible dans les sources réelles,
+contrat formule/cache Microsoft déjà référencé R28-S06 et W054/W055 ;
+gel `d51ebd76`, contexte `3454f1a5`, 175 cas ciblés couverts et revue R60
+`c5f2dd7f`. Les trois anciennes empreintes de prompt restent des témoins
+historiques indépendants ; les nouveaux messages ont leur golden strict.
+
+**Conséquences et limites :** schéma DB, extraction, embeddings, versions,
+ancrages et citations persistées inchangés ; surcoût de tokens désormais
+compté dans les quotas existants. Les tests avec substitutions explicites
+ne prouvent pas l’obéissance du modèle. PROGRAM37, son FAIL et sa clôture
+froide partielle restent intacts ; nouveau kit, cas natifs et lecteurs
+requis avant clôture C07. Réexaminer sur un défaut réellement observé,
+sans changer les questions gelées ni affaiblir la DoD.
 
 ## W057 Consultation des anciens tours par lecture des preuves persistées
 
