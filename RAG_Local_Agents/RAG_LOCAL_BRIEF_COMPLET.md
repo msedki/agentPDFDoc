@@ -1816,7 +1816,7 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · **Mis à jour :** 2026-10-11 02:09 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · Suivi de livraison publié `d3c1518`, distant confirmé · **Mis à jour :** 2026-10-11 02:22 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 ## R28 — étude de l'extension DOCX/XLSX avant implémentation
 
@@ -1935,10 +1935,16 @@ transport 52 ; archive, installation, données, sauvegardes et preuves conservé
 I-08 reste partiel : Windows, Linux x86-64, CPU physique ≤ 16 Go, métier/final,
 réserve générative et NF09 strict restent distincts ; DoD inchangée.
 Contrôles documentaires conformes : brief, liens 7/7, pack 11/11 et diff.
-Prochaine action locale : revue finale de ce suivi, puis publication normale
-selon la politique du dépôt ; preuves Git sous `c05-next-kit/publication-01/`.
-Fin du lot estimée entre **03 h 20 et 03 h 40 Casablanca le 11 octobre** ;
-charge globale conditionnelle de 40–90 h après T0 conservée ci-dessous.
+Lot local livré et suivi publié `d3c1518` sur `origin/main`, confirmé le
+11 octobre à **03 h 22 Casablanca** ; revue documentaire `7880da3f`,
+terminal de publication `d399f5d6` sous `c05-next-kit/publication-01/`.
+Le présent complément consigne cette publication ; aucun nouveau kit ou
+contrôle produit requis pour cette trace. Fin de sa consolidation prévue
+vers **03 h 25–03 h 30 Casablanca**.
+Suite du chantier : qualification séparée sur Windows natif, Linux x86-64
+et CPU physique ≤ 16 Go, corpus autorisé annoté métier/final et réserves
+locales indiquées dans les lots. Charge globale conditionnelle de 40–90 h
+après T0 conservée ci-dessous ; aucun critère global clôturé.
 
 **Continuation du 10 octobre après `8200eba` :** l’annotation périmée de
 la DoD est corrigée sans modifier ses 89 critères, seuils ou cases (SHA des
