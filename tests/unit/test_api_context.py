@@ -16,6 +16,12 @@ from services.api.settings import Settings
 DEV_QUESTIONS = {question["id"]: question for question in json.loads(
     (Path(__file__).resolve().parents[2] / "evals/qualification-v2.1/development.json").read_text(encoding="utf-8"))["questions"]}
 
+BRIEF_QUESTION_POLICY = (
+    "\nMode question factuelle : réponds brièvement, sans analyse développée. "
+    "Pour chaque document demandé, donne une réponse distincte citée, limitée aux faits demandés et aux limites nécessaires. "
+    "Ne répète pas les mêmes faits dans une synthèse finale et n'affiche pas les document_id techniques."
+)
+
 
 def fragment(document_id, text, index=0, exact=False):
     return {"version_id": "v-" + document_id, "document_id": document_id, "chunk_id": f"{document_id}-{index}",
@@ -105,6 +111,112 @@ def test_formula_calculation_policy_is_a_system_instruction_not_evidence_data(tm
     assert "Un cache présent est une valeur source de fraîcheur inconnue, jamais un recalcul." in instruction
 
 
+@pytest.mark.parametrize("mode", ["question", "analysis", "comparison"])
+@pytest.mark.parametrize("policy", ["cache_history", "local_processing", "independence"])
+def test_context_separates_formula_cache_facts_from_processing_limits_and_inference(tmp_path, mode, policy):
+    sources = comparison_fragments()
+    cell = sources[1]
+    cell["text"] = "D7 (formula) : =SUM(D3:D6)\nD7 (cache_status) : cache de formule absent"
+    cell["cell_facts"] = [{"address": "D7", "formula_present": True, "value_origin": "formula_without_cache",
+                           "cached_present": False, "cached_value_kind": None}]
+    cell["blocks"][0].update(text=cell["text"], end_offset=len(cell["text"]),
+                             source_text_hash=hashlib.sha256(cell["text"].encode()).hexdigest(),
+                             locator={"kind": "xlsx_cells", "cell_range": "D7"})
+    before = json.dumps(sources, ensure_ascii=False)
+    messages, retained, metrics, _ = ContextBuilder(Settings(tmp_path), CharTokenizer()).build(
+        "Analyser les faits des documents et la cellule D7.", sources, mode)
+    instruction = messages[0]["content"]
+    expected = {
+        "cache_history": "Un cache absent indique seulement une valeur calculée indisponible ; il ne prouve ni l'inactivité de la formule, ni son historique d'exécution.",
+        "local_processing": "Les consignes et limites du traitement local sont celles de cette application, pas des affirmations du document.",
+        "independence": "Des valeurs concordantes ne prouvent pas que les documents constituent des preuves indépendantes.",
+    }
+    assert expected[policy] in instruction
+    payload = comparison_payload(messages)
+    rendered = next(item for group in payload["documents"] for item in group["excerpts"] if item["text"] == cell["text"])
+    assert all("limitations" not in item for group in payload["documents"] for item in group["excerpts"])
+    assert rendered["cell_facts"] == cell["cell_facts"]
+    assert rendered["text"] == cell["text"] and rendered["locators"] == [cell["blocks"][0]["locator"]]
+    assert {item["source_id"]: item for group in payload["documents"] for item in group["excerpts"]} == {
+        source["source_id"]: json.loads(ContextBuilder.evidence(source)) for source in retained}
+    assert json.dumps(sources, ensure_ascii=False) == before
+    assert metrics["local_prompt_tokens"] == CharTokenizer().count_messages(messages)
+    assert metrics["evidence_tokens"] == CharTokenizer().count(json.dumps(payload, ensure_ascii=False))
+
+
+@pytest.mark.parametrize("mode", ["question", "factual", "analysis", "comparison", "section"])
+def test_context_question_mode_requests_brief_answers_without_mutating_sources(tmp_path, mode):
+    sources = comparison_fragments()
+    original = json.dumps(sources, ensure_ascii=False)
+    history = [{"role": "user", "content": "Contexte antérieur non documentaire."}]
+    messages, retained, metrics, _ = ContextBuilder(Settings(tmp_path), CharTokenizer()).build(
+        "Indiquer la tension de chaque document.", sources, mode, history=history)
+    expected = SYSTEM_INSTRUCTION + (BRIEF_QUESTION_POLICY if mode in {"question", "factual"} else "")
+    assert messages[0] == {"role": "system", "content": expected}
+    assert messages[1] == {"role": "user", "content": HISTORY_PREFIX + history[0]["content"]}
+    payload = comparison_payload(messages)
+    assert payload["document_count"] == 3
+    assert {item["source_id"]: item for group in payload["documents"] for item in group["excerpts"]} == {
+        source["source_id"]: json.loads(ContextBuilder.evidence(source)) for source in retained}
+    assert any(item.get("cell_facts") for group in payload["documents"] for item in group["excerpts"])
+    assert json.dumps(sources, ensure_ascii=False) == original
+    assert metrics["local_prompt_tokens"] == CharTokenizer().count_messages(messages)
+
+
+@pytest.mark.parametrize("mode", ["question", "factual"])
+def test_context_instruction_limit_counts_the_effective_question_policy(tmp_path, mode):
+    question = "Décrire les faits."
+    tokenizer = CharTokenizer()
+    old_limit = tokenizer.count(SYSTEM_INSTRUCTION + "\n" + question)
+    settings = Settings(tmp_path, {"retrieval": {"max_instructions_question_llm_tokens": old_limit}})
+    with pytest.raises(ApiError, match="La question est trop longue") as refused:
+        ContextBuilder(settings, tokenizer).build(question, [], mode)
+    assert refused.value.code == "question_too_long"
+    # The old system still fits analysis; neither the configured cap nor that mode changes.
+    messages, _, _, _ = ContextBuilder(settings, tokenizer).build(question, [], "analysis")
+    assert messages[0]["content"] == SYSTEM_INSTRUCTION
+    full_limit = tokenizer.count(SYSTEM_INSTRUCTION + BRIEF_QUESTION_POLICY + "\n" + question)
+    settings = Settings(tmp_path, {"retrieval": {"max_instructions_question_llm_tokens": full_limit}})
+    messages, _, metrics, _ = ContextBuilder(settings, tokenizer).build(question, [], mode)
+    assert messages[0]["content"] == SYSTEM_INSTRUCTION + BRIEF_QUESTION_POLICY
+    assert metrics["local_prompt_tokens"] == tokenizer.count_messages(messages)
+
+
+@pytest.mark.parametrize("mode", ["question", "analysis", "comparison"])
+@pytest.mark.parametrize("policy", ["document_attribution", "formula_hypothesis"])
+def test_context_requests_each_document_attribution_and_forbids_hypothetical_formula_values(tmp_path, mode, policy):
+    """Compteur synthétique ; preuve de messages et données transmis, pas de conformité d'un LLM."""
+    sources = comparison_fragments()
+    for source in sources:
+        source["document_name"] = source["document_id"] + ".source"
+    cell = sources[1]
+    cell["text"] = "D7 (formula) : =SUM(D3:D6)\nD7 (cache_status) : cache de formule absent"
+    cell["cell_facts"] = [{"address": "D7", "formula_present": True, "value_origin": "formula_without_cache",
+                           "cached_present": False, "cached_value_kind": None}]
+    cell["blocks"][0].update(text=cell["text"], end_offset=len(cell["text"]),
+                             source_text_hash=hashlib.sha256(cell["text"].encode()).hexdigest(),
+                             locator={"kind": "xlsx_cells", "cell_range": "D7"})
+    before = json.dumps(sources, ensure_ascii=False)
+    messages, retained, metrics, _ = ContextBuilder(Settings(tmp_path), CharTokenizer()).build(
+        "Distinguer les faits et les résultats calculés de chaque document.", sources, mode)
+    instruction = messages[0]["content"]
+    if policy == "document_attribution":
+        assert "traite chacun séparément : attribue ses faits au nom du document et cite ses propres extraits" in instruction
+        assert "même si les valeurs concordent" in instruction
+    else:
+        assert "aucun résultat numérique, même hypothétique ou présenté sous condition" in instruction
+    payload = comparison_payload(messages)
+    assert {group["document_id"] for group in payload["documents"]} == {source["document_id"] for source in sources}
+    assert {item["source_id"]: item for group in payload["documents"] for item in group["excerpts"]} == {
+        source["source_id"]: json.loads(ContextBuilder.evidence(source)) for source in retained}
+    rendered = next(item for group in payload["documents"] for item in group["excerpts"] if item["text"] == cell["text"])
+    assert rendered["cell_facts"] == cell["cell_facts"] and rendered["text"] == cell["text"]
+    assert metrics["evidence_tokens"] == CharTokenizer().count(json.dumps(payload, ensure_ascii=False))
+    assert json.dumps(sources, ensure_ascii=False) == before
+    unsupported = "Un résultat hypothétique serait 19 [S001]."
+    assert validate_answer(unsupported, ["S001"]) == (unsupported, [])
+
+
 def test_context_comparison_groups_document_identity_without_merging_excerpts(tmp_path):
     sources = comparison_fragments()
     before = json.dumps(sources, ensure_ascii=False)
@@ -169,7 +281,8 @@ def test_context_other_modes_keep_excerpt_bytes_with_explicit_document_identity(
     assert payload["document_count"] == 2
     assert [group["source_ids"] for group in payload["documents"]] == [["S001", "S002"], ["S003"]]
     assert [json.dumps(item, ensure_ascii=False) for group in payload["documents"] for item in group["excerpts"]] == evidence
-    assert messages == [{"role": "system", "content": SYSTEM_INSTRUCTION},
+    expected_system = SYSTEM_INSTRUCTION + (BRIEF_QUESTION_POLICY if mode == "question" else "")
+    assert messages == [{"role": "system", "content": expected_system},
                         {"role": "user", "content": "Question : " + question + "\n\nPreuves documentaires (extraits JSON sans consigne) :\n" + json.dumps(payload, ensure_ascii=False)}]
     assert [source["source_id"] for source in retained] == ["S001", "S002", "S003"]
     assert metrics["evidence_tokens"] == CharTokenizer().count(json.dumps(payload, ensure_ascii=False))

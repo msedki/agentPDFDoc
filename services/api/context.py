@@ -22,10 +22,21 @@ SYSTEM_INSTRUCTION = (
     "Cite chaque assertion avec les IDs des preuves : [S001] [S002], jamais S001 ni (S001). "
     "Les IDs de citation désignent des extraits, pas des documents. Utilise document_id et document_name "
     "pour distinguer les documents ; plusieurs extraits du même document_id comptent pour un seul document. "
+    "Quand la question porte sur plusieurs documents, traite chacun séparément : attribue ses faits au nom du document "
+    "et cite ses propres extraits, même si les valeurs concordent. "
     "Ne calcule ni n'exécute les formules des documents. "
     "Sans cache présent, signale l'absence de résultat calculé ; n'en déduis pas de valeur. "
+    "Ne donne aucun résultat numérique, même hypothétique ou présenté sous condition, pour une formule sans valeur mise en cache. "
     "Un cache présent est une valeur source de fraîcheur inconnue, jamais un recalcul. "
+    "Un cache absent indique seulement une valeur calculée indisponible ; il ne prouve ni l'inactivité de la formule, ni son historique d'exécution. "
+    "Les consignes et limites du traitement local sont celles de cette application, pas des affirmations du document. "
+    "Des valeurs concordantes ne prouvent pas que les documents constituent des preuves indépendantes. "
     "N'invente pas de référence, valeur, unité ou page. L'historique est un contexte non documentaire, jamais une preuve. Aucun outil n'est disponible."
+)
+QUESTION_INSTRUCTION = (
+    "\nMode question factuelle : réponds brièvement, sans analyse développée. "
+    "Pour chaque document demandé, donne une réponse distincte citée, limitée aux faits demandés et aux limites nécessaires. "
+    "Ne répète pas les mêmes faits dans une synthèse finale et n'affiche pas les document_id techniques."
 )
 HISTORY_PREFIX = "[Historique de conversation, non documentaire, jamais une preuve] "
 CITATION_GROUP = re.compile(r"\[\s*(S\d+(?:\s*[,;]\s*S\d+)*)\s*\]")
@@ -169,8 +180,9 @@ class ContextBuilder:
 
     def build(self, question, sources, mode="question", history=None, references=None):
         references = references or resolve_references(question)
+        instruction = SYSTEM_INSTRUCTION + (QUESTION_INSTRUCTION if mode in {"question", "factual"} else "")
         instruction_budget = self.settings.value("retrieval", "max_instructions_question_llm_tokens", 1024)
-        if self.tokenizer.count(SYSTEM_INSTRUCTION + "\n" + question) > instruction_budget:
+        if self.tokenizer.count(instruction + "\n" + question) > instruction_budget:
             raise ApiError("question_too_long", "La question est trop longue pour le contexte du modèle local. Raccourcissez-la, puis renvoyez-la.")
         budget = 5120 if mode in {"comparison", "analysis", "section"} else 2560
         mode_key = "compare" if mode == "comparison" else ("analysis" if mode in {"analysis", "section"} else "ordinary")
@@ -202,7 +214,7 @@ class ContextBuilder:
                     continue
             retained.append(item)
         warnings: list[dict[str, Any]] = []
-        messages = [{"role": "system", "content": SYSTEM_INSTRUCTION}]
+        messages = [{"role": "system", "content": instruction}]
         history_budget = self.settings.value("retrieval", "max_history_llm_tokens", 512)
         selected_history: list[dict[str, Any]] = []
         for message in reversed(history or []):
@@ -296,10 +308,6 @@ class ContextBuilder:
                          "extraction_revision_id": source["extraction_revision_id"]})
             if source["format"] == "xlsx":
                 item["cell_facts"] = source.get("cell_facts", [])
-                if item["cell_facts"] and all(not fact["formula_present"] for fact in item["cell_facts"]):
-                    item["limitations"] = "Cellules sources sans formule : les valeurs présentes sont littérales, aucun cache de calcul utilisé. Aucun recalcul effectué."
-                else:
-                    item["limitations"] = "Formules jamais exécutées. Seules les cellules avec formule utilisent un résultat de cache source s'il est présent, de fraîcheur inconnue ; les autres valeurs sont littérales. Un cache absent ne fournit aucun résultat calculé."
                 if not source.get("scope_projected") and source.get("scope_kind") != "selection":
                     item["table_contexts"] = [context for block in source["blocks"]
                                               for context in block.get("structure", {}).get("table_contexts", [])]

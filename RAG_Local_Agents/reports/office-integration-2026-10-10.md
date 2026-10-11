@@ -1,6 +1,6 @@
 # Intégration DOCX/XLSX — preuves locales du 10 octobre 2026
 
-**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · Livraison propre CPU `52abb94b`, fermeture récupérée et retrait du transport revus indépendamment · **Mis à jour :** 2026-10-11 05:39 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
+**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · Livraison propre CPU `52abb94b`, fermeture récupérée et retrait du transport revus indépendamment · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-11 17:14 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
 
 La phase d'étude a précédé l'implémentation. DOCX et XLSX complètent maintenant
 PDF dans l'import, l'extraction, les représentations, la recherche et les
@@ -1837,3 +1837,478 @@ aucune qualification LLM/Windows/x86-64/CPU16Go/final corpus. Les retours
 d’outils de tests ne prouvent pas tous descendants absents. Décision W058.
 La source est validée, l’efficacité native du nouveau kit reste à vérifier ;
 Q-MIX03 FAIL, R58/R59 et PROGRAM37 sont conservés sans altération.
+
+## Livraison f14, arrêt C07 et nettoyage des essais — 11 octobre 2026
+
+**Portée :** source commune publiée `f14d87a05dfee315515db9cc53dd6be8bf18fd40`,
+kit Linux aarch64 CPU et fixtures DEV synthétiques. Les tableaux antérieurs
+restent des jalons historiques ; leurs échecs et reprises ne sont pas réécrits.
+Aucune qualification Windows, Linux x86-64, CPU physique ≤ 16 Go ou métier/final.
+
+### Livrable et arrêt partiel réellement acquis
+
+Usine f14 fermée à 0 : `root/rag03-kit-f14d87a-20261011/`
+`factory-actual-owner-closed-01.json` (`ab4914a0`), progress `152ea63e`.
+Archive : 11 185 684 480 octets, SHA-256
+`c8665b8bad62bb52a37a89228548b7a58d10f94b3e9163fba172e01e336b3812`,
+relecture complète acquise. Extraction réellement récoltée à 0, progress
+`d8f37279`, clôture `2489c7eb`. Installation nominale f14 terminée à 0,
+`root/rag03-install-preparation-20261011/actual-owner-harvest.json`
+(`70f2fa16`) et `host-final.json` (`648d5b55`). Le code1 de précompilation
+reste un avertissement non bloquant ; aucun PASS de tous les fichiers compilés.
+Le programme installé et l’archive f14 restent les livrables conservés.
+
+Une seule query Q-MIX est exécutée : 1 POST queries et 1 appel LLM observé,
+**FAIL sémantique maintenu**. A-MIX, A-BOUNDED-TOTAL et CMP4 restent
+**NOT_DISPATCHED**, avec zéro POST pour ces trois cas. Down/finish et vraie
+récolte du propriétaire terminent à 0 ; le froid est explicitement partiel,
+sans handoff ou réussite quatre cas. RAW31 conserve 3 queries/20 citations,
+les anciennes 2 queries/14 citations et quatre originaux exacts ; comparaison
+stricte du programme conforme. Les 19 points sont la baseline préquery ;
+aucune mesure Qdrant postquery n’est déduite de la conservation SQL.
+
+Preuves : `root/c07-rag03-runtime-activation-20261011/runtime/`
+`host-partial-failure-final-01.json` (`0816ed3b`),
+`actual-owner-harvest-partial-01.json` (`750c31d9`) et
+`cold-partial-actual-harvest-01.json` (`0c82e187`). Revue R93
+`c05-history/review/c07-rag03-qmix-partial-cold-and-final-generated-cleanup-independent-review-93.json`
+(`db88f805`) : clôture partielle et préparation du nettoyage exact revues ;
+222 durées de vie absentes indépendamment contrôlées. Ce verdict ne valide
+pas la réponse, ni toute la matrice C07.
+
+### Retraits effectifs et traces conservées
+
+PROGRAM52 est désinstallé nominalement en HOST, revue terminale R88
+`d9d4c74d` ; les deux refus antérieurs restent documentés, sans élargissement
+arbitraire des inconnues. Le seul TAR37 est ensuite retiré réellement à 0,
+`c7755f`→`2eb7e6`, clôture intégrée R90 `cc950299` ; PROGRAM37 est conservé
+comme repli installé, sans promesse de réinstallation exacte depuis ce TAR.
+
+Sous `root/post-c07-generated-cleanup-preparation-20261011/` :
+
+| Opération réelle | Résultat et gain libre observé | Preuve compacte |
+| --- | --- | --- |
+| Quatre payloads kit/transport R27 | 0, 82,713 s ; 48 285 548 544 octets | `actual-cleanup-01/after.json` (`59bfcd5e`), harvest (`478c3aaf`) ; six métadonnées originales par cible gardées |
+| 34 cibles anciennes | 0, 27,835 s ; 37 492 858 880 octets | `actual-final-cleanup-01/after.json` (`3113bec2`), `root-actual-harvest.json` (`b3d9a1b9`), outil `45777f/0` et propriétaire frais absent |
+
+Le second lot comprend 16 clones synthétiques, 11 basetemps pytest, deux TAR
+R27, quatre inventaires bruts et le payload du transport f14. Les protections
+avant/après sont égales. Au checkpoint final : 99 101 138 944 octets libres
+sur SD, soit 92,29 Gio ; les gains sur ce volume partagé restent des observations
+distinctes, non une attribution exclusive ni une estimation de performance.
+
+Cinq pertes explicitement acceptées :
+
+1. Les anciens clones DB/index/extractions, dont les DB/WAL/SHM de crash C02
+   et leurs backups, ne sont plus disponibles pour réinspection binaire.
+   Les oracles natifs compacts et les échecs d’origine sont conservés.
+2. Les deux TAR R27 retirés ne permettent plus leur extraction/réinstallation
+   exacte ; aucune reconstruction bit-identique promise. Livrable f14,
+   PROGRAM37 de repli et archive22 conservés.
+3. Les 11 basetemps générés sont retirés ; préimages, logs, goldens, résumés
+   et gels source sont conservés. Les 191 liens historiques n’ont jamais été suivis.
+4. Les quatre inventaires bruts R27 sont retirés après conservation de résumés,
+   stat et SHA, revue indépendante acquise ; l’énumération initiale complète
+   n’est plus conservée.
+5. Le transport f14 reste composé des six métadonnées originales et de leurs
+   parents ; il n’est plus un kit vérifiable ou exécutable. Archive et programme
+   f14 conservés ; toute reprise exige une extraction fraîche distincte,
+   sans overlay sur ces métadonnées.
+
+Revue finale après opération R94
+`c05-history/review/final-generated-34-target-cleanup-independent-actual-review-94.json`
+(`f31a0e56`) : **nettoyage validé dans ce périmètre**. 34 cibles exactes,
+33 absentes et transport f14 réduit aux métadonnées ; 30 métadonnées originales,
+13 copies C02, quatre inventaires compactés, 117 sources et 115 protections
+avant/après conformes, propriétaire absent. Le GO avait recontrôlé 625 durées
+de vie connues. L’observateur relève 30 UNKNOWN après opération contre 31
+auparavant ; ces limites ne deviennent ni identités absentes ni preuve globale
+d’innocuité. Aucune validation de toute la carte SD ou du système n’est ajoutée.
+
+Les 13 petites preuves C02 sont conservées dans
+`actual-final-cleanup-01/retained-compact-trace/c02/` ; la compaction R27,
+les rapports, échecs, préimages source et preuves d’arrêt restent hors des
+cibles retirées. DATA actuelle C07, originaux, corpus privé, modèles/runtimes
+canoniques, backup DEV22 et archive22 sont conservés. Les UNKNOWN étrangers
+restent bornés ; aucune absence ou innocuité globale n’est affirmée.
+
+### Politique SYSTEM et préparation DEV — 13:27 UTC
+
+La politique commune `4303c85a` est implémentée : attribuer les faits à chaque
+document et ne fournir aucun résultat numérique de formule sans cache.
+Ancienne instruction rétablie seulement en mémoire : six tests réellement
+rouges ; puis 126 tests ciblés PASS, Ruff quatre fichiers et mypy context PASS.
+Huit durées de vie des contrôles sont fraîchement absentes. Completion
+`root/qmix-document-formula-context-20261011/completion-01.json` (`bc7de96b`),
+revue R95 `qmix-context-policy-source-and-dev-gpu-preparation-independent-review-95.json`
+(`632f0859`). Transport/tokenizer et autres doubles restent ceux des tests ;
+aucune efficacité native du modèle ni réussite GPU ne découle de ce résultat.
+Le programme f14 installé conserve sa source antérieure inchangée.
+
+Trois dérivés de ces tests retirés à 0 (`903ee5`), 128 552 305 octets logiques ;
+preuves, préimages et journaux conservés. `cleanup-after-01.json` (`09cdcc14`)
+et `cleanup-harvest-01.json` (`107dbd99`) dans le même dossier. Cette mesure
+logique est distincte du gain libre observé et ne qualifie pas la DoD.
+
+Préparation DEV sous `dev-gpu-01/` : premier backup refusé (`0d5abd44`)
+conservé ; remède de support nominal depuis le programme installé,
+up→backup→down réellement récolté `c19c5c`/40204→`1c2d9f/0`. Backup
+`support-f14-backup-01.json` (`a623e291`) : quatre documents, trois queries et
+20 citations. Garde `support-cold-guard-01.json` (`8e5f301b`) : RAW31 exact,
+zombie possédé2480913 non exécutant, récolte finale encore en attente.
+Aucune absence de ce zombie ni fermeture complète du support n’est déduite.
+
+### DEV source : réponse tronquée et fermeture réelle — 13:42 UTC
+
+La query `84057a66-bc9d-452e-bc53-c26ef552f641` est réellement exécutée,
+`a6289f`/10006→`ae0225/1`, résultat `ca50fde0`, durée 154,453 s,
+1 POST queries et 1 appel LLM. DONE `d3770506` : état `length_limited`,
+768 jetons, texte terminé par « il y a une insuff ». Les trois documents
+DOCX/XLSX/PDF sont correctement attribués et cités avec 72 V ; aucun résultat
+numérique LEN n’est avancé. **FAIL conservé : la réponse n’est pas complète.**
+Les trois autres cas sont non dispatchés et les lecteurs non exécutés.
+
+Revue R97
+`c05-history/review/c07-dev-gpu-qmix-length-limited-independent-actual-adjudication-review-97.json`
+(`c9198597`) : concordance sémantique et citations vérifiées, sans PASS global.
+Les métriques déclarent `llm_execution.mode=gpu`, `fallback=false` ; le runner
+s’arrête avant observation `/api/ps`. La résidence GPU n’est donc pas prouvée,
+ni une mesure comparable de performance matérielle.
+
+Le premier contrôle froid (`da981ad5`) refuse correctement le zombie possédé
+avant finish. Cet ordre QA initial erroné est corrigé sans faux code0 et sans
+attribuer un échec d’arrêt au produit. Après vraie récolte du propriétaire
+75739→`034c62/0`, capture hôte correcte `689aed` (`0393cad69`), finaliseur
+`10490a/0` : `dev-gpu-01/host-final-dev.json` (`ad31d6c7`) conserve RAW31,
+4 queries/26 citations, anciennes 3/20 exactes, quatre originaux et 77 sources/
+export exacts. 130 durées de vie fraîches absentes, dont le zombie support.
+`root-owner-harvest-01.json` (`7a8229bf`) et
+`root-cold-harvest-01.json` (`e2fd206e`) lient les vrais codes0 ; opérateur froid
+2500539 frais absent (`73bcea/0`). Cette fermeture reste partielle et conserve
+le FAIL, les trois cas non exécutés et les limites Qdrant postquery.
+
+### Concision source verte et reprise DEV Q2 — 14:11 UTC
+
+La fermeture Q1 est revue indépendamment R98
+`c07-dev-gpu-partial-cold-closure-independent-terminal-review-98.json`
+(`1def4d5c`) : PASS froid partiel, échec de réponse et trois cas non exécutés
+conservés, aucune réussite quatre cas.
+
+Correction cumulative Question/factuel `f4996d22` implémentée : 101 PASS
+ciblés réellement récoltés (`57a39b/0`), mypy context (`10bfe6/0`) et Ruff
+(`0cd1c0/0`). Completion `question-brief-02/completion-01.json` (`9e63bb6c`)
+sous `root/qmix-document-formula-context-20261011/` ; revue R99
+`question-brief-source-and-dev-existing-data-q2-preparation-independent-review-99.json`
+(`fde6833d`) : source/transport verts, efficacité native en attente.
+Les doubles de tokenizer restent explicites ; pas de nouvel invariant de
+qualité déduit des unités. Trois temporaires retirés, 128 072 250 octets
+logiques ; preuves conservées, `cleanup-after-01.json` (`8b112e73`) et
+`cleanup-harvest-01.json` (`b2afc249`).
+
+Q2, sous `dev-gpu-02/`, réutilise la même DATA : quatre documents,
+quatre queries/26 citations et 19 points à la baseline, aucun import ou
+clone supplémentaire. Deux échecs de readiness QA avant démarrage et appel
+modèle sont conservés : confinement d’un helper Q1 réemployé vers Q2,
+puis `ModuleNotFoundError` dans le namespace. Correction bornée : copies
+exactes des quatre modules Q1 nécessaires, confinement maintenu et
+ownership03 neuf. Aucune réponse ou query de ces tentatives n’est fabriquée.
+
+Démarrage/doctor/baseline en lecture seule réellement récoltés `289e92/0`,
+session69141 : quatre étapes à 0, durées mesurées 35,054/2,130/0,787 s.
+`binding-core.json` (`3cdf9b49`) lie les 77 sources, contexte `f4996d22`,
+fingerprint `e1e921f5` et instance `6bfdb88a`. Handle propriétaire25599 en cours ;
+aucune nouvelle query ou inférence à ce checkpoint. La préparation/cœur
+réel ne constitue pas un verdict natif. **Suite :** poursuivre le cas admis,
+puis revue de réponse/lecteurs et arrêt selon son résultat. Estimation locale
+courante : 15 h 45 Casablanca, conditionnée au cas réel ; aucun PASS GPU
+ou de réponse complète anticipé. Estimation locale courante : 15 h 45 Casablanca, selon le cas ; globale : 40–90 heures effectives après T0 et disponibilité des
+hôtes/corpus requis. C07/I05, I07/I08, NF09 et la DoD restent ouverts.
+
+### DEV Q2 : deux résultats et fermeture partielle — 14:34 UTC
+
+Q-MIX query `61a7a24c-f0c3-4045-ac77-f6a13cc296c8`, `644013/0`,
+87,194 s, DONE `2ed457a2` (`done/stop`, 185 jetons) : **PASS sur ce cas seul**,
+revue R101 `befa2e40`. Les trois documents DOCX/XLSX/PDF portent 72 V avec
+attribution propre ; B2 reste littéral et C2 formule sans cache, sans valeur
+numérique inventée. Six citations persistent, cinq sont réellement employées.
+Résidence Ollama GPU observée après génération : digest exact,
+`size_vram=3107811491`, aucun repli ; aucune qualification matérielle déduite.
+
+A-MIX query `6b56af3c-e960-4c22-9c14-2170c8f21472`, `babe6d/0`,
+109,508 s, DONE/stop/927 jetons : collecte mécanique réussie mais **FAIL
+sémantique**, R102 `fbdd1a18`. L'absence de cache ne prouve ni formule inactive
+ni historique d'exécution ; les consignes locales ne sont pas des faits du
+document et des valeurs concordantes ne prouvent pas l'indépendance des sources.
+Deux POST et deux appels LLM observés au total, GPU résident observé pour
+les deux cas ; A-BOUNDED-TOTAL et CMP4 non dispatchés, lecteurs non exécutés.
+Les résultats historiques DONE et le Q1 `84057a66` tronqué restent inchangés.
+
+Clôture réelle : down/finish puis owner25599→`e3e6d6/0`, capture HOST et
+finalisation froide. `dev-gpu-02/host-final-dev.json` (`d63455f0`),
+`root-cold-harvest-01.json` (`9c9971f9`) et revue R103
+`c07-dev-gpu-q2-partial-cold-closure-independent-terminal-review-103.json`
+(`8e90c03e`) lient RAW31, 6 queries/40 citations, anciennes4/26,
+quatre originaux et source77/export exacts à froid. 192 durées de vie connues
+fraîches absentes ; aucune absence globale revendiquée. Qdrant19 est la
+baseline préquery, sans mesure postquery inventée.
+
+Premier finaliseur QA `aaafe8/1` conservé : un `launcher.log` épinglé est lu
+comme JSON, avant les nouveaux reçus froids ; opérateur frais absent. Préimage
+et `root-finalization-failure-01.json` (`4f968914`) gardées. La correction
+hash seul conserve toutes les gardes ; finaliseur distinct `a83e4c/0`, aucune
+mutation produit ou données, aucun reclassement du rouge en réussite.
+
+### Cache et limites locales : source vérifiée, Q3 préparé — 14:34 UTC
+
+Après la fermeture Q2, correction cumulative contexte `73140f92` : trois
+chaînes précisent résultat calculé indisponible vs activation/historique
+inconnus, limites de cette application vs assertions du document, et
+concordance vs indépendance des preuves. Groupes, citations, locators,
+valeurs/formules sources, scopes, budgets et quotas restent inchangés.
+Completion `cache-semantics-03/completion-01.json` (`2755f95e`) :
+10 RED attendus avec la préimage puis 111 PASS (`572e06/0`), Ruff `a685c1/0`.
+Mypy réel R99 est réutilisé explicitement : AST/types/flux inchangés hors
+les trois constantes chaîne (`typecheck-reuse-01.json`, `2ccb46d3`) ; aucun
+nouveau mypy revendiqué. Goldens historiques stricts conservés, six durées
+de vie de producteurs fraîches absentes. Revue R104
+`cache-local-limits-source-independent-review-104.json` (`1f452278`) :
+**GO source/transport, efficacité native en attente**. Référence Microsoft
+SpreadsheetML reconsultée par ROOT, [R28-S06](../SOURCES.md), contrat cache
+et limite documentaire ; ce n'est pas une preuve d'obéissance du modèle.
+
+Deux basetemps dérivés seulement retirés : 5 811 346 octets logiques,
+6 168 576 octets alloués ; gain SD observé 7 208 960 octets, activité concurrente
+incluse. `cleanup-after-01.json` (`e86a1be3`) et récolte `8a1f7f7b` conservent
+preuves, préimages, RED/GREEN et goldens.
+
+Q3 `dev-gpu-03/preparation.json` (`2386171f`) et préparation lecteurs
+`readers/` (`18f5b9a1`) sont préparés, sans nouvelle inférence/API/navigateur
+revendiqué. Même DATA froide Q2 6/40 et 4 documents/19 points, profils/ports
+inchangés ; quatre modules, runner et oracles byte-exacts. Source77 actuelle,
+admission et bindings réels ROOT/R restent requis ; chaque verdict réel
+précède le cas suivant. ETA 16 h 10 Casablanca conditionnelle aux quatre
+cas, lecteurs et publication source/suivi. Dernier kit corrigé/CPU local
+restent distincts ; C07/I05, I07/I08, NF09 et DoD ouverts. Global :
+40–90 heures effectives après T0 et disponibilité des hôtes/corpus requis,
+autres réserves locales et externes conservées.
+
+### DEV Q3–Q5 : frontière des preuves et deux cas validés — 15:47 UTC
+
+Q3 échoue avant query : un fait PDF requis manque au contexte final,
+`query_id=null`, 0 POST/0 appel modèle. `dev-gpu-03/root-prequery-failure-01.json`
+(`bb66eea9`) conserve ce résultat. Froid réel `host-final-dev.json`
+(`1970c4ee`) et récolte `c1fe7456` : RAW31 6 queries/40 citations inchangé,
+quatre originaux/source77/export exacts, 284 vies connues absentes.
+
+Q4 Q-MIX `5dc9f94e-ed6c-408d-8bb8-4d223fb0f80b` est DONE/stop/255 jetons,
+96,269 s, 1 POST/1 modèle ; **FAIL sémantique**, car le cache absent ne prouve
+pas que la formule « n'a pas été exécutée ». ROOT `4220d918`, revue R109
+`c07-dev-gpu-q4-qmix-independent-actual-adjudication-review-109.json`
+(`801a1c87`). Trois cas non dispatchés. Down/finish puis vrai wait owner0,
+capture HOST/finaliseur0 : `dev-gpu-04/host-final-dev.json` (`b0e67a96`) et
+`root-cold-harvest-01.json` (`55f5f156`), RAW31 7 queries/46 citations,
+anciennes6/40 exactes, quatre originaux/source77/export inchangés ; 335 vies
+connues absentes, sans absence globale. Source exécutée `2e75e418` conservée.
+
+Après ce froid, correction structurelle `72fd5175` : les limites applicatives
+ne sont plus insérées dans les extraits documentaires ; les politiques restent
+SYSTEM. Aucun champ public de source supprimé, ni changement des textes,
+faits cellule, locators, citations, modèles ou quotas. Completion
+`evidence-data-boundary-05/completion-01.json` (`7e73dfd1`) : 14 RED sur la
+préimage puis 112 PASS ciblés, Ruff0, mypy context courant0 sur cache neuf ;
+douze vies connues de ces contrôles fraîches absentes. Replay du contexte
+Q4 avec tokenizer réel, sans API/modèle : 1 524→1 482 jetons, budget 1 536
+inchangé. Source appliquée et replay causal concordent ; preuve de séparation
+données/consignes, aucune cause interne LLM unique affirmée. R110
+`document-evidence-data-boundary-source-and-q4-partial-cold-independent-review-110.json`
+(`0ba76574`) valide source et froid Q4 ; décision W058 actualisée par ROOT.
+Trois dérivés privés seulement retirés : 133 112 056 octets logiques,
+134 844 416 octets alloués ; gain libre observé 134 713 344 octets non exclusif.
+`cleanup-after-01.json` (`7f30e1bc`), vraie récolte `404f3b/0`, opérateur frais
+absent ; préimages, RED/GREEN, replays et goldens conservés.
+
+Q5 sous `root/qmix-document-formula-context-20261011/dev-gpu-05/` réutilise
+la DATA froide Q4 (7/46, quatre documents/19 points), sans import ni clone.
+**Q-MIX PASS sur ce cas seul**, query `71859cd3-ff8c-44b5-8d16-c72478fbd042`,
+97,900 s, DONE/stop/255 jetons. Trois documents nommés et 72 V attribués,
+B2 littérale/C2 formule sans cache ; aucun résultat calculé, historique
+ni fraîcheur inventé. ROOT `cb401aac`, R112
+`c07-dev-gpu-q5-qmix-independent-actual-adjudication-review-112.json`
+(`8bb46309`). **A-MIX PASS sur ce cas seul**, query
+`eaba7542-e1e3-42f1-916e-7f82665f0ba1`, 112,060 s, DONE/stop/947 jetons ;
+faits, concordance et limites correctement séparés, indépendance non déduite.
+ROOT `cbe14062`, R113
+`c07-dev-gpu-q5-amix-independent-actual-adjudication-review-113.json`
+(`475670ef`). SSE/DONE/texte/SQL égaux ; deux POST/2 appels modèle au total,
+mode GPU sans repli et résidence observée `size_vram=3107811491`.
+Après A-MIX : 9 queries/60 citations, anciennes7/46 exactes.
+
+A-BOUNDED-TOTAL : premier helper QA refuse `KeyError: bindings`
+(`9e2672/1`) avant query/modèle ; original conservé, reprise distincte encore
+en préparation. CMP4 non dispatché, lecteurs et froid Q5 non acquis.
+Les anciens FAIL restent des preuves historiques, aucun PASS C07 global
+ni matériel/CPU physique ≤ 16 Go/Windows/x86-64/corpus final déduit. Nouveau
+kit corrigé et recette CPU locale nécessaires après publication ; estimation
+locale à réviser après les cas restants, globale : 40–90 h effectives après T0
+et disponibilité des hôtes/corpus requis.
+
+### DEV Q5 : total borné erroné et fermeture froide — 16:13 UTC
+
+Le checkpoint 15:47 ci-dessus reste historique. Après les PASS Q-MIX/A-MIX,
+A-BOUNDED-TOTAL01 échoue avant query sur le helper QA, `KeyError: bindings` :
+`root-bounded-prequery-failure-01.json` (`c6c60a1e`), summary01 (`ac93125c`),
+résultat1 (`170fb085`), 0 query POST/0 modèle. Les projections cellule ne
+portent pas les bindings du bloc parent ; aucun défaut produit établi.
+Adaptateur QA02 strict, parent hashé/identité/cellule/offsets/exclusion B3
+conservés : trois contextes enregistrés PASS et huit mutations refusées,
+preuve pure `1d26dca5`, R114
+`c07-dev-gpu-q5-bounded-prequery-failure-and-projected-bindings-qa-retry-independent-review-114.json`
+(`89f456af`). Ancien runner/échec01 conservés, source72fd et oracles inchangés.
+
+Reprise02 unique sur la même instance/DATA : query
+`053f0b3a-b167-462a-a347-b23fbe7f3ba9`, 145,039 s, DONE/stop/768 jetons,
+1 POST/1 appel modèle ; SSE/DONE/SQL égaux, collecte mécanique réussie.
+**FAIL sémantique** : résultat théorique LEN=6 donné malgré cache absent,
+capacités d'exécution/simulation attribuées au document sans preuve. Absence
+de total global correctement reconnue, sans compenser ces défauts. ROOT
+`root-bounded-semantic-02.json` (`2beb7eec`), R115
+`c07-dev-gpu-q5-bounded-retry02-independent-actual-adjudication-review-115.json`
+(`7d1b1410`). Deux PASS/1 FAIL au total ; CMP4/lecteurs non dispatchés.
+Cause interne du générateur inconnue, aucun recalcul moteur prouvé.
+
+Fermeture nominale : down/finish, owner20285 réellement récolté `35511a/0`,
+puis capture HOST `59023d/0` et finaliseur distinct `2f73ba/0` (0,477 s).
+`dev-gpu-05/host-final-dev.json` (`f6fbd5b7`),
+`root-cold-harvest-01.json` (`01ff084d`) et RAW31
+`sql-host-stopped-dev-raw31.json` (`205fbf79`) lient 31 tables,
+10 queries/63 citations, anciens7/46 et quatre originaux/source77/export
+exacts ; RAW égal au dernier snapshot du cas02. 521 vies connues fraîches
+absentes, plus opérateur froid2621858/birth1791734824.56 absent après son
+vrai retour0 : 522 total, aucune absence globale. Qdrant19 reste la baseline
+préquery, sans mesure postquery inventée. Finaliseur initial `5d022a23`
+conservé ; version02 `96586781` raccorde le cas02 et garde explicitement
+l'échec01/0query/0modèle avec SQL9/60 égale à A-MIX-after/retry-before.
+
+Prochaine action proposée, sans implémentation anticipée : correction
+candidate des consignes sur les formules, puis Q6 réutilisant la DATA10/63.
+Total borné d'abord ; les trois autres cas ne suivent que si ROOT valide
+la réponse, revue indépendante consolidée avant lecteurs. Aucun changement
+des oracles/questions/quotas, aucune grille de paramètres. Estimation ROOT
+17 h 50–18 h 10 Casablanca correction/recette, puis kit corrigé/CPU
+18 h 50–19 h 20 **si vert**. Ces fenêtres sont conditionnelles ; livraison
+finale, C07/I05, I07/I08, NF09, DoD et plateformes/corpus absents restent
+ouverts. Global : 40–90 h effectives après T0/hôtes/corpus requis ; aucune date
+absolue fiable sans ces préconditions.
+
+### DEV Q6 : échec du total borné et fermeture froide
+
+Relevé du 11 octobre à 16:51 UTC. La proposition du checkpoint Q5 est
+réellement exécutée sous la source `6324f457`, sans modification des faits,
+questions, scopes, modèles ou quotas. R117
+`affirmative-typed-cell-policy-source-and-q6-common-conditional-independent-review-117.json`
+valide le remplacement SYSTEM général et ses contrôles : 23 RED attendus sur
+29 tests de l’ancienne instruction, puis 112 PASS ciblés et Ruff0 ; mypy
+antérieur explicitement réutilisé sur preuve AST/types, aucun nouveau mypy
+revendiqué. Replay corrigé sur les contextes capturés : seules les consignes
+SYSTEM changent, métriques utilisateur/extraits/citations inchangés et budget
+maintenu. L’échec du premier helper de replay reste conservé.
+
+Une seule génération Q6, dossier
+`.runtime/qa/r28-implementation/root/qmix-document-formula-context-20261011/dev-gpu-06/` :
+A-BOUNDED-TOTAL query `19a0902a-0067-4122-a514-c3c792f30599`, 176,221 s,
+DONE/stop/1 032 jetons sur budget 1 536, 1 POST/1 appel modèle. GPU/fallback
+false, résidence observée 3 107 811 491 octets VRAM. SSE/DONE/answer/message
+SQL concordants. **FAIL sémantique** : « CCU-21 » présenté comme cinq
+caractères, résultat LEN=5 non enregistré et formule dite active à partir de
+sa seule présence. Le total global est correctement refusé, B2 littérale
+72 V et C2/cache absent sont conservés, B3 hors scope non transmis ; ces
+faits conformes ne compensent pas les affirmations inventées. Aucun recalcul
+moteur ni cause interne unique du générateur démontrés. ROOT
+`root-bounded-semantic-01.json` (`d5d4e2ea`), R118
+`c07-dev-gpu-q6-bounded-actual-and-typed-contract-independent-review-118.json`
+(`ef00da7b`) conservent ce FAIL. Q-MIX/A-MIX/CMP4 et lecteurs non dispatchés.
+L’avertissement sur la valeur5 correspond au défaut observé ; la valeur2
+est une coordonnée de ligne, faux positif d’avertissement distinct à corriger.
+Les warnings n’altèrent pas la réponse générée.
+
+Fermeture nominale : down `2cda36/0` (7,359 s), finish `bc9f88/0`, owner82422
+réellement récolté `0193c1/0`, puis capture HOST `ec0386/0` et finaliseur
+`0c1e10/0` (0,399 s). Aucun nouveau patch du finaliseur acquis `cb649c1f`.
+`host-final-dev.json` (`72c27b25`), RAW31
+`sql-host-stopped-dev-raw31.json` (`40e2edc9`), manifeste réel
+`cold-manifest-actual-01.json` (`14ab3a37`) et récolte froide
+`root-cold-harvest-01.json` (`d45c9a61`) : 31 tables, 11 queries/66 citations,
+anciens10/63 exacts, quatre originaux/77 sources6324/export exacts à froid,
+RAW égal au dernier snapshot du cas. Union586 vies connues fraîches absentes,
+collecteur compris ; opérateur froid2654893/birth1791737241.4 réellement
+revenu0 puis fraîchement absent : **587 total**, aucune absence globale.
+Qdrant19 est la baseline préquery ; aucune mesure postquery inventée.
+Le statut `DEV_PARTIAL_COLD_CLOSURE_NOT_FOUR_CASE_PASS` qualifie l’arrêt
+et la conservation, sans requalifier la réponse ni les cas non exécutés.
+
+**Suite proposée :** plus de variant de consigne. R118 recommande une
+restitution dont les références sont validées et les valeurs/états rendus
+depuis les faits typés autoritaires. Le nouveau contrat de réponse, son
+streaming/stockage/interface et sa qualification nécessitent un arbitrage
+explicite au regard de W037 ; aucune réécriture cachée de la prose ni
+requalification des FAIL historiques. Le faux positif d’avertissement sur
+le numéro de ligne constitue un correctif indépendant, non réalisé à ce
+checkpoint. Dernier kit et CPU suspendus ; C07/I05, I07/I08, NF09, DoD et
+plateformes/corpus absents restent ouverts. Cible ROOT du jalon : 17 h 50
+Casablanca. Global : 40–90 h effectives après T0/hôtes et corpus requis,
+sans date absolue fiable ni échéance de kit confirmée avant arbitrage.
+
+### Retour SYSTEM et correction des avertissements de coordonnées
+
+Relevé du 11 octobre à 17:14 UTC. Après la fermeture Q6, retrait exact du
+seul candidat SYSTEM `6324f457` et de ses quatre attentes de tests : contexte
+restauré `72fd5175`, reçu `rollback-01.json` (`13142690`). Les corrections
+structurelles déjà vérifiées restent présentes. Le FAIL Q6, sa réponse,
+SSE, citations, données, sources exécutées et reçus froids restent inchangés.
+L’addendum froid indépendant R118 (`011d8d43`) confirme cette fermeture
+partielle, sans requalifier la réponse.
+
+Correction additive dans `services/api/claims.py`, source finale
+`aa858413`, tests answerchecks `d46d622c` : les coordonnées de ligne XLSX
+admises sont distinguées des quantités ; les alertes sur les valeurs non
+étayées demeurent. Replay pur de Q6, sans API ni modèle : anciennes alertes
+2/5, nouvelle alerte 5 seule ; texte/DONE/SSE/citations/contexte et objets
+sources exacts. La correction ne supprime ni ne réécrit l’affirmation erronée
+LEN=5 ou l’activité inventée de la formule, et ne transforme pas Q6 en PASS.
+
+Preuves sous
+`.runtime/qa/r28-implementation/root/qmix-document-formula-context-20261011/row-coordinate-warning-fix-08/` :
+completion `0a47cb37`, replay final03 `16042f/0`, revue source R119
+`typed-row-warning-fix-and-exact-system-rollback-independent-review-119.json`
+(`0a8de5cc`). Première implémentation : **173 PASS** sur cinq suites ciblées,
+dont 16 nouveaux cas, Ruff0. Refus mypy initial `238cd2/1` conservé ;
+raffinement de type du seul garde, puis mypy final `2bb25c/0` (3,001 s),
+Ruff final `3c2671/0` et **16 PASS recouvrants** `848e03/0`. 10 000
+combinaisons du prédicat équivalentes et AST hors helper identique
+(`87453a/0`) justifient le réemploi des contrôles inchangés ; **pas 189 tests
+uniques**, pas typage backend/Win32 entier revendiqué. Premiers contrôles
+rouges et échecs de replay sont conservés séparément.
+
+Nettoyage F réellement récolté `e6377a/0` : quatre dérivés privés retirés,
+138 809 965 octets logiques ; gain libre observé 140 832 768 octets sur volume
+partagé, sans attribution exclusive. 22 producteurs connus et opérateur
+2672828 fraîchement absents ; sources, préimages, journaux et preuves utiles
+retenus, aucune absence globale affirmée. Aucun nouveau runtime ni kit.
+
+**État suivant :** le prototype de restitution XLSX est accepté
+explicitement par l'utilisateur. W059 est acquise ; R28-RAG-04 doit
+implémenter et vérifier le contrat, sans requalifier Q6. Lectures ciblées
+backend et transport/frontend commencées, aucune modification fonctionnelle
+de ce mode encore réalisée. Cible 22 h 30 Casablanca pour contrat/recettes,
+puis 23 h 30 pour kit/CPU si verts. R28-LLM-01/W060 ajoutent la demande de
+profil haute mémoire : comparer aussi d'autres familles que Qwen, identifier,
+qualifier puis sélectionner automatiquement les seuls modèles validés.
+C07/I05, I07/I08, NF09, DoD et hôtes/corpus absents restent ouverts.
+
+Contrôles documentaires ROOT du 11 octobre, 17:15 UTC : 62 tests PASS
+(6,72 s), liens et structure PASS, cinq SVG conformes, brief synchronisé
+et pack PASS. Les 12 avertissements sur le rangement de fichiers tiers
+des skills restent conservés. Preuves sous `root-final-docs-07/` au même
+emplacement QA : JUnit, rapports de contrôles et récolte ROOT ; les
+fixtures temporaires sont retirées après récolte, sans supprimer les preuves.
+Ces contrôles ne constituent pas une qualification RAG ni une clôture DoD.

@@ -1,6 +1,6 @@
 # Journal des modifications
 
-**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Sources C05 publiées `4cb1a2a` ; livraison du kit CPU `52abb94b` vérifiée avec récupération distincte et réserve du broker initial · **Mis à jour :** 2026-10-11 05:39 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
+**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Sources C05 publiées `4cb1a2a` ; livraison du kit CPU `52abb94b` vérifiée avec récupération distincte et réserve du broker initial · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-11 17:14 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
 
 Changements notables du poste documentaire local, au format [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) rédigé en français (Ajouté, Modifié, Corrigé, Sécurité). Version déclarée du projet : `0.1.0`, identique dans [`pyproject.toml`](pyproject.toml) et [`apps/web/package.json`](apps/web/package.json) ; aucune version n'est publiée et le dépôt ne porte aucune étiquette Git, si bien que tout relève de la section [Non publié].
 
@@ -8,12 +8,69 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 ## [Non publié]
 
+### Livraison et entretien — 11 octobre 2026
+
+- Correctif commun publié `f14d87a` : kit CPU Linux aarch64 fabriqué, extrait
+  et installé ; précompilation code1 non bloquant signalée. La seule nouvelle
+  Q-MIX reste en échec sémantique ; trois cas non dispatchés, arrêt froid réel.
+  La politique SYSTEM renforcée est validée au niveau source/transport :
+  attribution à chaque document, aucun résultat numérique de formule sans cache.
+  6 RED puis 126 PASS ciblés, Ruff/mypy et R95 acquis ; efficacité native
+  et voie GPU DEV encore non qualifiées. La query DEV source suivante cite
+  correctement DOCX/XLSX/PDF72V sans résultat numérique LEN, mais atteint
+  768 jetons et reste tronquée : FAIL R97, trois cas et lecteurs non exécutés.
+  Arrêt froid partiel réel revu R98 après correction d’ordre QA. Concision
+  Question/factuel `f4996d22` ensuite validée au niveau source : 101 PASS ciblés,
+  Ruff/mypy et R99 acquis. Q2 réutilise les données : Q-MIX réussit sur ce cas
+  seul (185 jetons, 87,194 s, R101), puis A-MIX échoue sémantiquement malgré
+  DONE (927 jetons, 109,508 s, R102) ; deux autres cas et lecteurs non exécutés.
+  Résidence GPU observée pour ces deux générations, clôture froide partielle
+  revue R103 : RAW31, 6 queries/40 citations et anciens tours/originaux exacts.
+  Correction cumulative `73140f92` ensuite vérifiée au niveau source : cache
+  absent, historique de formule inconnu et limites locales distingués ;
+  10 RED puis 111 PASS, Ruff0, mypy antérieur réutilisé sur preuve AST/types.
+  R104 acquis. Q3 échoue avant query ; Q4 reste FAIL sémantique sur un
+  historique de formule inventé, avec froid RAW31/7 queries/46 citations exact.
+  Correction structurelle `72fd5175` : consignes SYSTEM séparées des données
+  documentaires, textes/citations/quotas conservés ; 14 RED puis 112 PASS,
+  Ruff et mypy actuels, R110 acquis. Q5 valide Q-MIX et A-MIX sur ces seuls
+  cas DEV GPU (R112/R113), sans nouvelle importation. Total borné repris
+  après correction QA distincte (R114) : FAIL sémantique R115, résultat LEN=6
+  sans cache et capacité documentaire inventée. CMP4 et lecteurs non exécutés.
+  Froid réel RAW31/10 queries/63 citations, anciens7/46 et originaux/source77/
+  export exacts, 522 vies connues absentes avec l'opérateur ; pas PASS quatre cas.
+  Correction candidate suivante, nouveau kit et CPU restent à réaliser.
+- Politique affirmative des cellules `6324f457` vérifiée au niveau source
+  (112 tests ciblés PASS, R117) : Q6 reste FAIL sémantique sur le total borné,
+  malgré les faits typés corrects. Arrêt froid et conservation acquis ; trois
+  autres cas et lecteurs non exécutés, kit/CPU suspendus. Restitution typée
+  proposée pour arbitrage, aucun nouveau variant de consigne.
+  [Preuve Q6](RAG_Local_Agents/reports/office-integration-2026-10-10.md#dev-q6--échec-du-total-borné-et-fermeture-froide).
+- Après le FAIL Q6, retour exact à la consigne structurelle `72fd5175` et
+  correction additive des avertissements de coordonnées XLSX (`aa858413`,
+  R119) : « ligne 2 » n’est plus signalée comme quantité inventée, l’alerte
+  sur 5 demeure. Réponse brute et FAIL conservés ; contrôles source/replay
+  conformes, aucune génération ou livraison nouvelle. W059 est acceptée ;
+  restitution structurée et recettes restent à réaliser.
+  [Correctif et preuves](RAG_Local_Agents/reports/office-integration-2026-10-10.md#retour-system-et-correction-des-avertissements-de-coordonnées).
+- Nettoyage effectif : désinstallation HOST du programme52, retrait du TAR37,
+  quatre payloads R27 puis 34 cibles anciennes retirés ou réduits aux métadonnées.
+  Gains SD observés : 48 285 548 544 et 37 492 858 880 octets, mesurés séparément.
+  Livrable f14, repli PROGRAM37, données utiles, backup DEV22 et traces compactes
+  conservés ; cinq pertes explicites consignées, aucune reconstruction ancienne
+  bit-identique promise. Revue finale R94 `f31a0e56` acquise, limitée aux cibles.
+  [Résultats et limites](RAG_Local_Agents/reports/office-integration-2026-10-10.md#livraison-f14-arrêt-c07-et-nettoyage-des-essais--11-octobre-2026).
+
+
 ### Corrigé — identité des documents comparés
 
 - Le contexte du mode comparaison regroupe désormais les passages par identité documentaire réelle : plusieurs citations d’un même DOCX ne constituent plus plusieurs entrées documentaires. L’enveloppe complète est comptée dans le budget et reconstruite après chaque coupe ; textes, ancrages et IDs de citation sont conservés. Les preuves des modes Question et Critique restent identiques. 224 tests uniques affectés au vert, lint et typage ciblés conformes. Source publiée `821f072` : une nouvelle comparaison DEV réelle distingue correctement les trois documents, avec une phrase par document et trois citations littérales exactes. API, six vues lecteur et arrêt froid vérifiés indépendamment ; ce cas unique ne clôture ni tout C07 ni la qualification globale. Le kit installé `52abb94b` reste inchangé et ne contient pas ce correctif. [Recette RAG-02 et limites](RAG_Local_Agents/reports/office-integration-2026-10-10.md#c07--recette-rag-02-sur-la-source-publiée--11-octobre-2026).
 
 
 ### Ajouté
+
+**Entrées historiques de livraison37/52 :** état à leur date ; les retraits et
+la livraison courante figurent dans l’entrée du 11 octobre ci-dessus.
 
 - Distribution CPU Linux aarch64 `37e8726` : export web243 fichiers, usine,
   archive, extraction et installation nominales achevés et revus ; inventaire
@@ -87,7 +144,7 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 - Preuves Office du kit CPU `52abb94b` complétées : trois fichiers DOCX/XLSX malformés réellement refusés à l'import sans état documentaire persistant ; récupération après interruption d'une migration SQLite avec 14 235 frames WAL non validées, migration v4 et idempotence vérifiées. Revues indépendantes acquises. Les échecs du pilote QA restent conservés et sa finalisation distincte ne les transforme pas en succès nominaux ; aucun comportement produit modifié ni PASS global/Windows/x86-64/CPU physique de 16 Go ([refus](RAG_Local_Agents/reports/office-integration-2026-10-10.md#c09--trois-refus-natifs-de-conteneurs-office--11-octobre-2026), [récupération](RAG_Local_Agents/reports/office-integration-2026-10-10.md#c02--spill-wal-non-validé-et-récupération--11-octobre-2026)).
 
-- Preuves Office locales complétées sur le kit `22fd828` : DOCX 3 000 paragraphes et XLSX 10k/100k publiés ; même job100k repris après crash, pause et annulation sans nouvelle version, originaux et historiques préservés. Le classeur1M est explicitement refusé avant enregistrement (`office_limit_exceeded`), sans augmentation de quota ; 58 014 points actifs et six originaux contrôlés, historiques préservés, fermeture native acquise. Variante SQLite distincte : backup en ligne et récupération d’un WAL validé non vide après SIGKILL pendant migration, reprise/idempotence vérifiées et relues indépendamment. Aucun changement fonctionnel pour ce complément de preuves ; CPU physique16 Go, Windows/x86-64 et qualification métier/finale restent ouverts ([rapport](RAG_Local_Agents/reports/office-integration-2026-10-10.md#c10--volumétrie-reprises-et-quotas-natifs--10-octobre-20112100-utc), [WAL](RAG_Local_Agents/reports/office-integration-2026-10-10.md#wal-validé-non-vide-et-crash-de-migration--10-octobre-20502055-utc)).
+- Preuves Office locales complétées sur le kit `22fd828` : DOCX 3 000 paragraphes et XLSX 10k/100k publiés ; même job100k repris après crash, pause et annulation sans nouvelle version, originaux et historiques préservés. Le classeur1M est explicitement refusé avant enregistrement (`office_limit_exceeded`), sans augmentation de quota ; 58 014 points actifs et six originaux contrôlés, historiques préservés, fermeture native acquise. Variante SQLite distincte : backup en ligne et récupération d’un WAL validé non vide après SIGKILL pendant migration, reprise/idempotence vérifiées et relues indépendamment. Aucun changement fonctionnel pour ce complément de preuves ; CPU physique ≤ 16 Go, Windows/x86-64 et qualification métier/finale restent ouverts ([rapport](RAG_Local_Agents/reports/office-integration-2026-10-10.md#c10--volumétrie-reprises-et-quotas-natifs--10-octobre-20112100-utc), [WAL](RAG_Local_Agents/reports/office-integration-2026-10-10.md#wal-validé-non-vide-et-crash-de-migration--10-octobre-20502055-utc)).
 
 - Qualification Office native Linux aarch64 du kit `22fd828` : C08 classeurs jumeaux conserve contenu et classement sur deux plages autorisées ; C05 réindexation et nouvelles versions conservent 13 citations anciennes et deux réponses enregistrées. Quatre publications réelles, ensembles actifs SQL/Qdrant exacts, lecteur des anciennes sources et deux retours vérifiés dans un navigateur réel, six captures relues indépendamment. Fermeture et récolte effectives, programme et données non concernées inchangés ; défaut de permissions du fichier d'authentification QA identifié et suivi séparément. Ces preuves bornées ne clôturent ni tout C05/C08, ni C10, ni les plateformes absentes ou CPU physique de 16 Go ([rapport et limites](RAG_Local_Agents/reports/office-integration-2026-10-10.md#persistance-des-citations-office-c05--10-octobre-depuis-1905-utc), [plan](RAG_Local_Agents/PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)).
 

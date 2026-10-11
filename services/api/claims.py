@@ -10,6 +10,9 @@ from collections.abc import Iterable, Iterator
 from decimal import Decimal
 from typing import Any
 
+from services.ingestion.errors import IngestionError
+from services.ingestion.office.xlsx import address_coordinates
+
 from .retrieval import identifier_spans
 
 VALID_CITATION = re.compile(r"\[(S\d+)\]")
@@ -20,6 +23,8 @@ SEGMENT = re.compile(r"(?<=[.!?;])\s+|\n+")
 LEADING_CITATIONS = re.compile(r"[\s»”\"')\]*_]*((?:\[S\d+\][\s,;.]*)+)")
 # Entier, décimal à virgule ou point, milliers séparés par une espace (« 1 020 ») ; jamais une partie d'un mot ou de « 3.4.2 ».
 NUMBER = re.compile(r"(?<![\w.,])(?:\d{1,3}(?:[ \u00a0\u202f]\d{3})+|\d+)(?:[.,]\d+)?(?![.,]?\d)")
+# Une référence de ligne est vérifiée sur les cellules retenues, jamais masquée sans preuve typée.
+ROW_MENTION = re.compile(r"(?i)\b(?:ligne|row)[ \t\u00a0\u202f]+([1-9]\d*)(?!\w|[.,]\d)")
 PAGE_MENTION = re.compile(r"(?i)\b(?:pages?|pp?\.)\s*\d+(?:\s*(?:[-–—/,]|\bet\b|\band\b|\bà\b|\bto\b)\s*\d+)*")
 LIST_MARKER = re.compile(r"(?m)^[ \t>*#_-]*(\d+)[.)](?=\s)")
 # Références de lecture et rangs, jamais des valeurs : paragraphe (§ 4.3), ordinal (2e, 3ème, 1er, 2nde, 3rd), date.
@@ -123,15 +128,44 @@ def _segments(text: str) -> list[tuple[int, int, list[str]]]:
     return segments
 
 
+def _xlsx_rows(source: dict[str, Any]) -> frozenset[Decimal]:
+    """Lignes des cellules réellement retenues, concordantes avec leurs locateurs ; aucune expansion de plage."""
+    if source.get("format") != "xlsx":
+        return frozenset()
+    rows = set()
+    for fact in source.get("cell_facts", []):
+        address = fact.get("address")
+        if not isinstance(address, str):
+            continue
+        try:
+            row, column = address_coordinates(address)
+        except IngestionError:
+            continue
+        for block in source.get("blocks", []):
+            locator = block.get("locator") or {}
+            bounds = [locator.get(key) for key in ("row_start", "row_end", "column_start", "column_end")]
+            row_start, row_end, column_start, column_end = bounds
+            if (locator.get("kind") == "xlsx_cells" and isinstance(row_start, int) and isinstance(row_end, int)
+                    and isinstance(column_start, int) and isinstance(column_end, int)
+                    and all(type(value) is int for value in bounds)
+                    and row_start <= row <= row_end and column_start <= column <= column_end):
+                rows.add(Decimal(row))
+                break
+    return frozenset(rows)
+
+
 def value_warnings(text: str, sources: list[dict[str, Any]], question: str | None = None) -> list[dict[str, Any]]:
     """R26-ANS-02 : chaque nombre de la réponse, hors identifiants, pages, paragraphes, rangs, dates, citations et numéros
     de liste, comparé en Decimal aux nombres des sources citées dans sa phrase, puis de toutes les sources retenues. Côté
     sources, tous les nombres comptent, groupes séparés par des espaces compris (lecture permissive). Une phrase sans
     citation n'est contrôlée que contre l'ensemble des sources et, si elle est fournie, la question : une abstention qui
-    reprend la condition demandée (« à 20 °C ») n'est pas une valeur absente. Une phrase citée reste contrôlée sans elle."""
+    reprend la condition demandée (« à 20 °C ») n'est pas une valeur absente. Une phrase citée reste contrôlée sans elle.
+    « ligne N / row N » est une coordonnée contrôlée sur les cellules XLSX retenues, pas une quantité."""
     order = [source["source_id"] for source in sources]
     held = {source["source_id"]: frozenset().union(*(values for _, _, values in _numbers(source.get("text") or "", groups=True)))
             for source in sources}
+    rows = {source["source_id"]: _xlsx_rows(source) for source in sources}
+    row_spans = {match.span(1) for match in ROW_MENTION.finditer(text)}
     asked = frozenset().union(*(values for _, _, values in _numbers(question, _masked(question)))) if question else frozenset()
     misattributed: dict[tuple[frozenset[Decimal], tuple[str, ...]], dict[str, Any]] = {}
     absent: dict[tuple[frozenset[Decimal], tuple[str, ...]], dict[str, Any]] = {}
@@ -139,12 +173,17 @@ def value_warnings(text: str, sources: list[dict[str, Any]], question: str | Non
     for start, end, following in _segments(text):
         segment = text[start:end]
         cited = list(dict.fromkeys(source_id for source_id in VALID_CITATION.findall(segment) + following if source_id in held))
-        cited_values = frozenset().union(*(held[source_id] for source_id in cited))
-        for raw, unit, values in _numbers(segment, masked[start:end]):
+        for match in NUMBER.finditer(masked[start:end]):
+            raw, unit, values = match.group(), _unit(segment, match.end()), _values(match.group())
+            is_row = (start + match.start(), start + match.end()) in row_spans
+            if is_row:
+                unit = None
+            available = rows if is_row else held
+            cited_values = frozenset().union(*(available[source_id] for source_id in cited))
             if values & cited_values:
                 continue
-            holders = [source_id for source_id in order if values & held[source_id]]
-            if not cited and (holders or values & asked):
+            holders = [source_id for source_id in order if values & available[source_id]]
+            if not cited and (holders or (not is_row and values & asked)):
                 continue
             item = {"value": raw + (" " + unit if unit else ""), "number": raw, "unit": unit, "cited_source_ids": cited}
             if holders:

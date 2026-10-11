@@ -106,7 +106,8 @@ def test_range_projection_precedes_lexical_dense_and_context(rag):
         assert source["scope_projected"] and source["format"] == "xlsx"
         evidence = json.loads(ContextBuilder.evidence({**source, "source_id": "S001"}))
         assert evidence["pages"] == [] and evidence["locators"][0]["column_start"] == 1
-        assert "cache" in evidence["limitations"]
+        assert "limitations" not in evidence
+        assert evidence["cell_facts"] == source.get("cell_facts", [])
         expanded = resolver.expand_parent(source, snapshot, FakeLlmTokenizer())
         assert expanded == source
         for block in source["blocks"]:
@@ -301,13 +302,13 @@ def test_context_distinguishes_literal_cells_from_formula_caches_and_missing_res
         source = projection_fragments(rag[1], snapshot, rag[2])[0]
         evidence = json.loads(ContextBuilder.evidence({**source, "source_id": "S001"}))
         facts = evidence["cell_facts"][0]
+        assert "limitations" not in evidence
         assert facts["address"] == address
         assert facts["value_origin"] == origin
         if origin == "literal":
-            assert not facts["formula_present"] and "littérales" in evidence["limitations"]
-            assert "valeurs calculées uniquement" not in evidence["limitations"]
+            assert not facts["formula_present"]
         else:
-            assert facts["formula_present"] and "jamais exécutées" in evidence["limitations"]
+            assert facts["formula_present"]
             assert facts["cached_present"] is (origin == "formula_cache")
             assert facts["cache_freshness"] == ("unknown" if origin == "formula_cache" else "absent")
             if origin == "formula_cache":
@@ -322,10 +323,17 @@ def test_context_distinguishes_literal_cells_from_formula_caches_and_missing_res
             assert payload["document_count"] == 1
             assert payload["documents"][0]["document_id"] == imported["document_id"]
             assert payload["documents"][0]["excerpts"][0]["cell_facts"] == evidence["cell_facts"]
+            assert "limitations" not in payload["documents"][0]["excerpts"][0]
             assert retained[0]["cell_facts"] == source["cell_facts"]
             assert metrics["evidence_tokens"] == CharTokenizer().count(json.dumps(payload, ensure_ascii=False))
             assert "Ne calcule ni n'exécute les formules des documents." in messages[0]["content"]
+            assert ("Mode question factuelle : réponds brièvement" in messages[0]["content"]) is (mode == "question")
+            assert "traite chacun séparément : attribue ses faits au nom du document et cite ses propres extraits" in messages[0]["content"]
+            assert "aucun résultat numérique, même hypothétique ou présenté sous condition" in messages[0]["content"]
             assert "Sans cache présent, signale l'absence de résultat calculé" in messages[0]["content"]
+            assert "il ne prouve ni l'inactivité de la formule, ni son historique d'exécution" in messages[0]["content"]
+            assert "pas des affirmations du document" in messages[0]["content"]
+            assert "ne prouvent pas que les documents constituent des preuves indépendantes" in messages[0]["content"]
 
 
 @pytest.mark.parametrize("mode", ["question", "analysis", "comparison"])
@@ -369,6 +377,11 @@ def test_real_mixed_rag_sends_document_identity_and_absent_formula_cache_to_olla
             assert formula["formula_present"] and formula["value_origin"] == "formula_without_cache"
             assert formula["cached_present"] is False
             assert formula["cached_value_kind"] is None
+            formula_excerpt = next(item for item in excerpts if any(fact["address"] == "C2" for fact in item.get("cell_facts", [])))
+            assert all("limitations" not in excerpt for excerpt in excerpts)
+            assert formula_excerpt["cell_facts"]
+            assert "il ne prouve ni l'inactivité de la formule, ni son historique d'exécution" in messages[0]["content"]
+            assert "pas des affirmations du document" in messages[0]["content"]
             cited = [group["source_ids"][0] for group in payload["documents"]]
             yield {"type": "delta", "text": "72 V " + " ".join(f"[{source_id}]" for source_id in cited)}
             yield {"type": "done", "finish_reason": "stop", "metrics": {"prompt_eval_count": CharTokenizer().count_messages(messages)}}

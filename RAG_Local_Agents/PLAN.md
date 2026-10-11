@@ -1,6 +1,6 @@
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · Suivi de livraison publié `d3c1518`, distant confirmé · **Mis à jour :** 2026-10-11 09:18 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · Suivi de livraison publié `d3c1518`, distant confirmé · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-11 17:14 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
 ## R28 — étude de l'extension DOCX/XLSX avant implémentation
 
@@ -89,7 +89,11 @@ Preuves sous `.runtime/qa/r28-implementation/` et
 `.runtime/qa/r28-20261010/frontend/` ; adaptateurs sous
 `.runtime/qa/r28-docx-20261010/` et `.runtime/qa/r28-office/`.
 Aucun statut global ni qualification des hôtes absents.
-| Action | Couche / fichiers concernés | Dépendances | Livrable et critère de clôture | État actuel |
+
+**Tableau historique des lots :** états et preuves acquis jusqu’au jalon de
+09:18 UTC ; les changements ultérieurs figurent dans le jalon courant qui suit.
+
+| Action | Couche / fichiers concernés | Dépendances | Livrable et critère de clôture | État historique |
 |---|---|---|---|---|
 | R28-I-01 | Contrats, sécurité et configuration : `packages/contracts/contracts.json`, `services/api/schemas.py`, `db.py`, `main.py`, `services/runtime/profile_schema.py`, `tools/corpus/import_folder.py`, `pyproject.toml`/`uv.lock`, sous-package Office | ST-04 finalisée | Format réel/MIME/chemins sûrs, modèles locators/structures/coverage versionnés, préflight OPC/quotas/DOCTYPE/entities, dépendances directes à versions conservées. Types API/web et profil strict concordent ; conteneurs hostiles refusés sans parseur dangereux. Critères C01/C02/C09/C12. | IMPLÉMENTÉ, contrôles locaux acquis ; C12 plateformes absent reste ouvert. |
 | R28-I-02 | Persistance/API de lecture : migration004, `db.py`, `main.py`, `scope.py` ; unités/cellules/bindings | I-01 | Migration portable v3→v4, stockages sparse, endpoints de représentations/unités/plages bornés et épinglés, téléchargement MIME correct. PDF anciens/citations/FTS intacts, FK et query plans vérifiés ; interruption ne laisse pas un schéma semi-migré. C02/C05/C08/C11. | IMPLÉMENTÉ : migration native v3→v4 et redémarrage Linux aarch64 vérifiés sur le kit `22fd828` (avis `06574cf5`), 31 tables/FTS/anciennes citations et backup préservés. Crash transactionnel sur petite fixture native vérifié (`aae6ec0d`, WAL vide), puis récupération distincte d’une frame WAL validée non vide et migration idempotente (`b80460f0`) ; spill WAL naturel sur 87 625 728 octets acquis : 14 235 frames non validées, récupération exacte et idempotence, avis fonctionnel distinct `a4fe8b0e` ; pilote natif original à 1 sur métadonnées QA, finaliseur distinct à 0. SQLite des autres cibles, panne électrique et volumétrie arbitraire restent non recettés. |
@@ -106,7 +110,80 @@ Aucun statut global ni qualification des hôtes absents.
 | R28-RAG-02 | Identité documentaire de comparaison : `services/api/context.py` et tests contexte/query/isolation | Défaut C07 natif trois documents/quatre références confirmé ; RAG-01 acquis | Regrouper les seuls extraits retenus par `document_id` réel, avec IDs de citation inchangés ; compter toute l’enveloppe et la reconstruire après chaque coupe. Question/analyse identiques ; une recette réelle distincte doit mesurer l’effet génératif. | VALIDÉ LOCALEMENT : source publiée `821f072`, 224 tests uniques affectés au vert (223 puis 8, dont 7 recouvrants), six nouveaux cas, Ruff quatre fichiers et mypy ciblé conformes ; gel `13f44fb5`, revue source `cff07393`. Une nouvelle comparaison DEV réelle distingue les trois documents et respecte le format demandé, revue `28654c1e` ; API, trois citations littérales/six vues lecteur et arrêt froid vérifiés (`9ecd7c72`/`4ab58681`). Ancien FAIL `b6a61bac` conservé ; aucun C07 global ni qualification des hôtes absents déduit. |
 | R28-C05-01 | Historique réel du chat : métadonnées API, sélection et restauration web | I-02/I-06, C05 ancien arrêté ; SSE persisté existant | Liste authentifiée/paginée, détail autoritaire, relecture GET des événements sans nouveau POST ni LLM ; scope courant conservé, citations historiques exactes après reload et retour. Tests backend/web, build, parcours API/navigateur réel et revue indépendante. | VALIDÉ NATIVE LOCAL : API/SSE et frontend implémentés ; 71 tests backend, typage configuré Linux/Win32 statique, 480 tests web puis 45 affectés recouvrants, 18 gardes CSS recouvrantes et lint/types/build conformes. Deux anciennes réponses restaurées après reload, 4 paires littérales PDF/DOCX/XLSX cliquées avec retour, 6 PNG aux deux tailles ; 31 tables, 16 vecteurs, historiques et originaux conservés. Terminal `cc5384a8`, gel final web `edf34b53`, source backend `19eb4f38`. Revue indépendante finale acquise `520fe2a4`, documentation relue `d1f7f629`, cinq contrôles conformes dont 62 tests ; sources publiées `4cb1a2a` sur `origin/main` ; réserves globales inchangées. |
 
-**Jalon courant — 11 octobre 2026, 09:18 UTC :** export web et kit CPU Linux
+**Lots complémentaires autorisés :**
+
+| Action | Couche / fichiers concernés | Dépendances | Livrable et critère de clôture | État actuel |
+|---|---|---|---|---|
+| R28-RAG-04 | Restitution XLSX typée et vérifiée, y compris documents mixtes | W059 acquise ; RAG-03 source et Q6 froid | Références modèle autorisées, validation puis rendu serveur des valeurs/formules/caches ; streaming, historique, scopes et citations cohérents, PDF/DOCX préservés. Tests ciblés et recette réelle avec revue indépendante ; FAIL historiques conservés. | AUTORISÉ, NON IMPLÉMENTÉ : accord explicite utilisateur après prototype ; F backend, X compatibilité/tests transport, R revue, ROOT recette/documentation/publication. |
+| R28-LLM-01 | Profil haute mémoire et sélection automatique selon RAM du poste installé | W060 acquise ; modèle identifié puis qualifié avant usage | Présélection officielle multi-familles, benchmark qualité/RAM/latence adapté au RAG ; seuils mesurés, artefacts/tokenizers/licences vérifiés. Seuls profils qualifiés présents dans le kit admissibles, option manuelle et fonctionnement CPU de base préservés. | AUTORISÉ, PRÉSÉLECTION À FAIRE : aucune famille ni taille imposée, aucune supériorité ou qualification anticipée. Essais lourds séquentiels et nettoyage des dérivés après preuve. |
+
+**Jalon courant — 11 octobre 2026, 17:14 UTC :** Q6 reste **FAIL
+sémantique sur le seul total borné** ; trois autres cas et lecteurs non
+exécutés, fermeture froide acquise. Le candidat SYSTEM est retiré exactement
+vers le contexte `72fd5175`. La correction additive des avertissements
+`claims aa858413` est validée au niveau source/replay (R119) : l’alerte de
+coordonnée « ligne 2 » disparaît, celle de valeur5 inventée demeure ; réponse
+Q6 inchangée. Aucun nouveau kit ni génération. C07 et livraison corrigée
+restent ouverts. [Preuves et limites](reports/office-integration-2026-10-10.md#retour-system-et-correction-des-avertissements-de-coordonnées).
+
+**Prochaine action :** publier le correctif source vérifié puis réaliser
+R28-RAG-04, autorisé par l'accord utilisateur W059. Reprendre les recettes
+réelles sous le nouveau contrat ; aucun autre variant de consigne libre.
+Cible locale : **22 h 30 Casablanca pour contrat et recettes**, puis
+**23 h 30 pour kit et CPU si les résultats sont verts**. Le nouvel axe
+R28-LLM-01 commence par la présélection officielle puis la qualification ;
+son échéance sera précisée après choix du candidat et mesure du coût réel.
+La clôture globale reste dépendante des hôtes et corpus requis : ancienne
+estimation 40–90 heures effectives après T0, à réévaluer avec ce nouvel axe ;
+aucune date absolue fiable ni réserve externe levée. Les checkpoints
+précédents conservent leurs estimations historiques.
+
+**Jalon historique — 11 octobre 2026, 16:13 UTC :** le kit publié
+`f14d87a` et les précédents échecs restent historiques et conservés.
+La source structurelle `72fd5175`, revue R110, est inchangée pendant Q5.
+Q5 réutilise la DATA sans import ni clone : **Q-MIX et A-MIX PASS sur ces
+deux cas seuls** (R112/R113), puis **A-BOUNDED-TOTAL FAIL sémantique**
+(R115) sur une valeur de formule sans cache et une capacité documentaire
+inventées. Son premier refus QA préquery et sa correction distincte restent
+séparés. CMP4 et lecteurs non exécutés. Fermeture froide réelle : RAW31,
+10 queries/63 citations, anciens7/46 et quatre originaux/source77/export exacts,
+522 vies connues fraîches absentes avec l'opérateur. Aucun PASS quatre cas.
+Les tableaux précédents restent historiques ; C07 et réserves restent ouverts.
+
+| Axe | État courant vérifié | Preuve |
+| --- | --- | --- |
+| Livraison f14 | Archive relue, usine/extraction/installateur nominal réellement récoltés à 0 ; programme installé conservé. Précompilation code1 non bloquant signalée, aucun PASS compileall intégral. | Usine `152ea63e`/`ab4914a0`, extraction `d8f37279`/`2489c7eb`, installation `70f2fa16`/`648d5b55` |
+| C07 f14 — historique | 1 POST queries/1 appel LLM observé, Q-MIX FAIL ; A-MIX, A-BOUNDED-TOTAL et CMP4 non dispatchés. RAW31 : 3 queries/20 citations, anciens 2/14 et quatre originaux exacts, programme inchangé. Aucun succès quatre cas. | Froid `0816ed3b`, harvest `750c31d9`/`0c82e187`, revue R93 `db88f805` |
+| Entretien terminé | **VALIDÉ, limité aux cibles désignées**. PROGRAM52 désinstallé nominalement en HOST, TAR37 retiré ; quatre payloads R27 puis 34 anciennes cibles retirés ou réduits aux métadonnées. Gains SD observés distincts : 48 285 548 544 puis 37 492 858 880 octets. Archive22, archive/PROGRAMf14, PROGRAM37 de repli, DATA utile et sauvegarde DEV22 conservés. | R88 `d9d4c74d`, R90 `cc950299`, R27 `59bfcd5e`/`478c3aaf`, final `3113bec2`/`b3d9a1b9`, revue R94 `f31a0e56` |
+| Suite corrective — historique | Politique SYSTEM `4303c85a` implémentée et validée au niveau source/transport : attribution à chaque document, aucun résultat numérique de formule sans cache. 6 RED avec ancienne instruction puis 126 PASS ciblés, Ruff quatre fichiers/mypy context et huit vies connues absentes. GPU DEV préparé, efficacité native non prouvée. | Completion `bc7de96b`, revue R95 `632f0859` |
+| DEV Q1 — résultat conservé | 1 POST/1 appel LLM, 154,453 s, query `84057a66` ; DOCX/XLSX/PDF72V correctement cités, aucun résultat numérique LEN. DONE `length_limited`, 768 jetons et texte tronqué : **FAIL**, pas réponse complète. Trois autres cas non dispatchés, lecteurs non exécutés. Métriques mode GPU/fallback false ; résidence GPU non observée. | Résultat `ca50fde0`, DONE `d3770506`, R97 `c9198597` |
+| Fermeture DEV Q1 — historique | Refus froid avant finish préservé ; ordre QA corrigé après vraie récolte0. RAW31 : 4 queries/26 citations, anciennes 3/20 et quatre originaux exacts, 77 sources/export exacts. 130 vies connues fraîches absentes, dont le zombie support2480913. Aucune clôture quatre cas ; revue froide indépendante R98 acquise. | Froid `ad31d6c7`, owner `7a8229bf`, cold harvest `e2fd206e`, R98 `1def4d5c` ; ancien refus `da981ad5` |
+| Concision Question/factuel — source précédente | Correction cumulative `f4996d22` implémentée, 101 tests ciblés PASS, Ruff/mypy conformes ; source/transport verts, efficacité native encore non prouvée. Trois temporaires dérivés retirés, 128 072 250 octets logiques, preuves gardées. | Completion `9e63bb6c`, R99 `fde6833d`, cleanup `8b112e73`/`b2afc249` |
+| DEV Q2 — résultats | Deux POST/2 appels LLM observés. Q-MIX PASS local : 185 jetons, 87,194 s, trois documents/72 V et B2 attribués ; A-MIX FAIL sémantique : DONE/927 jetons, 109,508 s, déductions non étayées sur formule/cache et attribution documentaire. GPU résident observé pour ces deux générations, aucun PASS matériel/global. A-BOUNDED-TOTAL/CMP4 et lecteurs non exécutés. | Q-MIX `644013/0`, R101 `befa2e40` ; A-MIX `babe6d/0`, R102 `fbdd1a18` |
+| Fermeture Q2 | Down/finish puis vrai wait owner25599→`e3e6d6/0`, capture HOST et finalisation distincte0. RAW31 : 6 queries/40 citations, anciennes4/26, quatre originaux et source77/export exacts à froid ; 192 durées de vie connues absentes. Ancien finaliseur QA1 sur parsing JSON d'un log brut conservé ; correction hash seul, sans mutation produit/données. | Froid `d63455f0`, cold harvest `9c9971f9`, erreur `4f968914`, R103 `8e90c03e` |
+| Cache et limites locales — source | Correction cumulative `73140f92` : cache absent signifie résultat indisponible, pas formule inactive ni historique connu ; limites de l'application séparées des affirmations du document, concordance distincte de l'indépendance des preuves. 10 RED attendus puis 111 PASS, Ruff0 ; mypy R99 réutilisé après preuve AST/types inchangés hors trois chaînes, aucun nouveau mypy revendiqué. | Completion `2755f95e`, R104 `1f452278`, cleanup `e86a1be3`/`8a1f7f7b` |
+| DEV Q3 — échec conservé | FAIL avant query : fait PDF absent du contexte final ; 0 POST/0 appel modèle. Arrêt froid réel, RAW31 6 queries/40 citations inchangé, quatre originaux/source77/export exacts ; 284 vies connues absentes. | Échec `bb66eea9`, froid `1970c4ee`/`c1fe7456` |
+| DEV Q4 — échec et froid | Q-MIX DONE/255 jetons, 96,269 s, 1 POST/1 appel modèle ; FAIL sémantique sur une non-exécution passée de formule non étayée. Trois cas non dispatchés. Owner réellement récolté0, RAW31 7 queries/46 citations, anciens6/40 et quatre originaux/source77/export exacts ; 335 vies connues absentes. | R109 `801a1c87`, froid `b0e67a96`/`55f5f156`, R110 `0ba76574` |
+| Frontière données/consignes — source actuelle | `72fd5175` retire les limites applicatives des extraits ; politiques SYSTEM conservées, données/formules/citations exactes. 14 RED puis 112 PASS, Ruff0 et mypy context courant0. Replay du contexte acquis : 1 482 jetons sur budget 1 536, aucun relèvement. | Completion `7e73dfd1`, R110 `0ba76574`, décision W058 ; trois dérivés privés retirés `7f30e1bc`/`404f3b` |
+| DEV Q5 — résultats | Q-MIX PASS/255 jetons/97,900 s (R112), A-MIX PASS/947 jetons/112,060 s (R113), A-BOUNDED-TOTAL FAIL/768 jetons/145,039 s (R115) : résultat théorique LEN=6 sans cache et capacité documentaire non étayée. Trois POST/3 appels modèle ; CMP4 et lecteurs non exécutés. | R112 `8bb46309`, R113 `475670ef`, R115 `7d1b1410` ; ROOT bounded `2beb7eec` |
+| DEV Q5 — reprise QA préservée | Premier refus `KeyError: bindings`, 0 query POST/0 modèle ; adaptateur strict des projections cellule validé sur trois contextes capturés et huit mutations refusées, puis reprise02 distincte. Source72fd/modèle/questions/quotas inchangés. | Échec01 `c6c60a1e`, preuve pure `1d26dca5`, R114 `89f456af` |
+| Fermeture Q5 | Owner20285 réellement récolté0, capture HOST puis finaliseur02 réellement0 ; RAW31 10 queries/63 citations, anciens7/46, quatre originaux/source77/export exacts. 521 vies connues puis opérateur froid frais absent (522 total). Deux PASS/1 FAIL conservés, pas clôture quatre cas. | Owner `35511a/0`, finaliseur `2f73ba/0`, froid `f6fbd5b7`, harvest `01ff084d` |
+
+Les cinq pertes acceptées, traces compactes et limites sont détaillées dans le
+[rapport de preuves](reports/office-integration-2026-10-10.md#livraison-f14-arrêt-c07-et-nettoyage-des-essais--11-octobre-2026). Le nettoyage ne clôture ni C07/I05,
+ni I07/I08, NF09 ou la DoD. **Prochaine action unique :** examiner puis
+valider la correction candidate des consignes sur les formules, proposée mais
+non implémentée à ce checkpoint ; Q6 sur la DATA froide10/63, total borné
+d'abord, puis les trois autres cas uniquement après PASS de réponse par ROOT.
+Revue indépendante consolidée avant lecteurs ; aucune grille de paramètres.
+**Estimation locale ROOT : 17 h 50–18 h 10 Casablanca** pour correction/recette ;
+**dernier kit et CPU : 18 h 50–19 h 20 si les résultats sont verts**. Ces fenêtres
+restent conditionnelles ; publication et livraison corrigée non acquises.
+**40–90 heures effectives après T0** pour le chantier,
+une fois les hôtes Windows/Linux x86-64/CPU physique ≤ 16 Go et corpus requis
+disponibles. Les autres réserves locales et externes restent ouvertes.
+
+**Jalon historique — 11 octobre 2026, 09:18 UTC :** export web et kit CPU Linux
 aarch64 `37e8726` fabriqués, archive relue, extraction et installation
 nominales terminées et revues indépendamment. La recette C07 découvre un
 **défaut sémantique confirmé**, reste non qualifiée et est arrêtée proprement.
@@ -394,7 +471,7 @@ R28-RAG-01, classification partagée sans perte des codes hétérogènes,
 a commencé à **22 h 26** ; il est vérifié localement et publié `1af9c0f`
 à **23 h 58 Casablanca**, avec revue indépendante et nettoyage QA conservant les preuves.
 Les durées natives déjà acquises ne sont pas refacturées comme travail restant.
-Les variantes C05/C08 non couvertes, C10 sur CPU physique16 Go et les variantes
+Les variantes C05/C08 non couvertes, C10 sur CPU physique ≤ 16 Go et les variantes
 C02 non couvertes restent dans la charge globale ; C02 nonemptyWAL et C10
 locaux ne sont pas refacturés comme manquants. QA-01 est testé, relu et publié ;
 R28-RAG-01 est testé, recetté sans LLM, relu et publié ; faux refus génératif distinct conservé ;
