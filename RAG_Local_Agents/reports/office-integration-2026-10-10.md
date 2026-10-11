@@ -1,6 +1,6 @@
 # Intégration DOCX/XLSX — preuves locales du 10 octobre 2026
 
-**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-10 23:00 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
+**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-11 00:09 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
 
 La phase d'étude a précédé l'implémentation. DOCX et XLSX complètent maintenant
 PDF dans l'import, l'extraction, les représentations, la recherche et les
@@ -1048,3 +1048,41 @@ revue ciblée `final-review/c10-derived-cache-cleanup-companion-independent-revi
 (`e1d2f540`) : cible absente, terminal et avis C10 inchangés.
 Aucune variation globale d’espace libre SD n’est attribuée à ce seul retrait.
 DB, WAL, backups, originaux, extractions, logs et preuves restent conservés.
+
+
+## R28-C05-01 — restauration des questions enregistrées
+
+**Portée :** base publiée `16690eb` et sources locales C05 ; backend gel `19eb4f38`, web final `edf34b53`, contrat additif v3. Linux aarch64, CPU, hôte physique 62 800,5 MiB. Deux réponses synthétiques DEV existantes ; aucun corpus utilisateur, nouvelle question, inférence, import, réindexation ou installation. Ce complément ne requalifie pas les anciennes réponses.
+
+Le diagnostic `f67e7967` a confirmé une limite réelle : le panneau ne conservait que les tours de la session React. L’implémentation ajoute deux GET authentifiés et réutilise les tables et le SSE existants. La sélection restaure un seul tour et ses citations après reload ; elle garde le périmètre actif, remet à zéro les pointeurs locaux de continuation et affiche le mode ancien comme inconnu. Contrat précis dans l’[API](../../docs/interfaces/API.md#45-recherche-questions-et-citations), choix [W057](../DECISIONS.md#w057-consultation-des-anciens-tours-par-lecture-des-preuves-persistées).
+
+| Contrôle effectué | Résultat et preuve | Portée |
+|---|---|---|
+| Backend | **71 PASS**, 54,44 s pytest ; Ruff et typage configuré Linux/Win32, **109 fichiers** par cible ; terminal `1361b0ab`, revue non-auteur `8976f965` | Historique/auth/pagination/scopes/SSE et consommateurs existants ; Win32 est statique, pas Windows natif |
+| Frontend | **480 PASS** sur gel initial, puis **45 affectés PASS** après correction d’une branche résiduelle de replay ; **18 gardes CSS PASS** après `display:block`, lint/types conformes | Contrôles recouvrants, pas additionnés. Hooks/transport doubles explicités ; courses discriminées rouge/vert et gardes existantes conservées |
+| Export final | **243 fichiers**, build réellement récolté à 0 en **24,064 s**, provenance `fcd78663`, inventaire `c269bb5f`, terminal web `c282bb5d` | Source locale modifiée, base `16690eb` ; aucun nouveau kit propre fabriqué |
+| Copie isolée arrêtée | Préparation `6626be39`, revue `4c89de4f` : backup SQLite et rebasage des seuls chemins connus, 31 tables normalisées exactes ; originaux/extractions identiques | Copie QA Qdrant sur source arrêtée/verrouillée, pas qualification de la sauvegarde produit |
+| Première recette navigateur | **FAILED**, 244,138 s ; QA cherchait le libellé Office « Retour » dans le lecteur PDF qui utilise « Revenir ». Terminal `8903bc16` conserve erreur, captures et clôture | Aucun bug produit déduit de ce sélecteur, aucune promotion en PASS. Typographie de deux mentions collées observée et corrigée séparément |
+| Recette actuelle QA02 | **1 PASS**, zéro skip/retry/flaky/unexpected ; **12,939 s** enveloppe navigateur, **11,243 s** Playwright, **9,171 s** test ; terminal `cc5384a8` | API réelle/cookies réels, aucun mock de réponse. Setup de session isolée autorisé ; lectures du parcours sans mutation documentaire |
+| Conservation et arrêt | Avant/après : **2 DONE, 14 citations, 167 événements, 7 jobs, 16 vecteurs actifs** exacts. Après down/finish et récolte du propriétaire : **31 tables** intègres/FK conformes et fichiers sources inchangés | Les 42 chunks SQL incluent les archives ; l’oracle Qdrant compare les seules générations actives, dimension 384, distance Cosine et valeurs finies |
+
+Les deux réponses sont choisies dans « Anciennes questions », relues puis rechargées. La recette clique les **quatre paires `(query_id, source_id)` réellement inscrites dans leur texte**, distinctes des 13 citations Office enregistrées historiquement :
+
+| Tour | Citation littérale | Passage réellement ouvert |
+|---|---|---|
+| `ffa89ebe-d207-41db-a8a6-e51c2b721f49` | S001 | XLSX, feuille Mesures, **A2 = CCU-21**, version/révision anciennes |
+| même tour | S004 | XLSX, **B2 = 72 V**, même version/révision anciennes |
+| `a90947b4-88d3-4c10-a09a-3fd6a129349f` | S001 | PDF, page 1, bloc source de la tension nominale |
+| même tour | S002 | DOCX, tableau des conditions applicables, **Tension = 72 V** |
+
+Après chaque clic, le retour au passage précédent garde le tour et le périmètre actif « Toute la bibliothèque ». Les sources gardent l’identité du registre ancien ; aucune substitution par les versions plus récentes. Les **six PNG Office** à 1366×768 et 1920×1080 sont les captures originales réellement vues par ROOT : cellule/adresse et tableau correctement surlignés, mentions historiques séparées, aucun débordement horizontal. La capture PDF de l’échec initial n’est pas comptée comme une capture de la recette réussie. Revue indépendante finale du natif, des sources et des six images acquise `520fe2a4`. La sélection et le rechargement de la question sont vérifiés par les assertions DOM réelles ; son texte entier n’est pas toujours visible dans les captures. Le retour PDF de QA02 est vérifié dans le DOM, sans PNG PDF de cette recette.
+
+Lancement actuel : **36,008 s** ; contrôles natifs avant **1,522 s**, après **1,181 s** ; down **4,088 s** : les six commandes ont un code de sortie 0. La septième étape répond `SESSION_FINISHED`, sans code numérique. Propriétaire ROOT, handle 43178, réellement récolté à 0 (`4ce9a6`) ; inspection hôte arrêtée, handle 70686, réellement récoltée à 0 (`3f24f9`). Le wrapper ne signale aucun autre processus : il attend seulement ses zombies capturés dont naissance et PPID correspondent exactement, puis prouve l’absence fraîche de 37 identités de processus, propriétaire compris. Les 38 empreintes du terminal conservent résultats, scripts, sources, logs, provenance, échec initial et six images.
+
+**Ressources :** 25 observations hôte durant QA02, CPU maximum 42,1 %, RAM disponible minimum 50 676,44 MiB, SD minimum 13,538 GiB, système minimum 3,012 GiB. Ce poste physique de 62 800,5 MiB ne qualifie pas CPU physique de 16 Go maximum. Les deux petits fichiers privés `storageState` expirés sont retirés après fermeture, avec métadonnées et empreintes conservées, sans lecture publiée de cookies. Le nettoyage backend de trois dérivés retire 144 748 544 octets alloués ; gain de volume observé 144 658 432 octets, borné par l’activité concurrente, reçu `e24d3871`. Sources/gels/logs/XML et refus de garde initiaux restent exacts.
+
+**Réserves :** autre corpus/qualité des réponses, variantes C05 non exercées, Windows natif, Linux x86-64, CPU physique de 16 Go maximum et nouveau kit des sources actuelles restent distincts. Le faux refus génératif antérieur reste ouvert. Aucun critère DoD modifié ni PASS global ; les sources officielles établissent des mécanismes, pas une supériorité SOTA comparative.
+
+**Documentation et préparation de publication (11 octobre UTC) :** revue indépendante des 12 documents gelés acquise `d1f7f629`. Cinq commandes réellement terminées à 0 : brief synchronisé, `check_docs` 7/7, SVG conformes, **62 tests PASS** sans erreur/échec/skip (6,025 s pytest ; 7,283 s enveloppe), `verify_pack` 11/11. Les 12 avertissements préexistants de classement des fichiers tiers de skills sont conservés ; ils ne constituent pas un nouvel écart C05. Les 14 identités QA capturées sont fraîchement absentes. Le seul `pytest-tmp` a été retiré après récolte, avec 19 preuves conservées : 3 911 680 octets alloués retirés, gain SD observé 3 633 152 octets borné, reçu `ca5f7df4`.
+
+La garde Git brute signalait 65 CR de fin de ligne du panneau TSX historiquement mixte, sans autre blanc fautif. Un attribut `whitespace` ciblé reconnaît ces fins CRLF en conservant les gardes des espaces terminaux et avant tabulation ; aucun octet des 13 sources produit n’est modifié. `git diff --check` brut passe ensuite à 0 ; premier refus conservé et reçu `b47462b0`. L’addendum documentaire fait l’objet des contrôles de structure et d’un contrôle indépendant du gel indexé, sans rejouer les suites produit ou les 62 tests inchangés.

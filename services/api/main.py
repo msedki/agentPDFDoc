@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated, Any
 
-from fastapi import FastAPI, File, Form, Request, UploadFile
+from fastapi import FastAPI, File, Form, Query, Request, UploadFile
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response, StreamingResponse
@@ -686,6 +686,16 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     @application.post(prefix + "/queries", status_code=202)
     async def create_query(body: QueryRequest):
         return await queries.create_async(body)
+
+    @application.get(prefix + "/queries")
+    async def query_history(limit: Annotated[int, Query(ge=1, le=100)] = 20,
+                            cursor: Annotated[str | None, Query(min_length=1, max_length=128)] = None,
+                            conversation_id: Annotated[str | None, Query(min_length=1, max_length=128)] = None):
+        return await asyncio.to_thread(queries.list_runs, limit, cursor, conversation_id)
+
+    @application.get(prefix + "/queries/{query_id}")
+    async def query_detail(query_id: str):
+        return await asyncio.to_thread(queries.run_detail, query_id)
 
     @application.get(prefix + "/queries/{query_id}/events")
     async def query_events(query_id: str, request: Request, after: int = 0):

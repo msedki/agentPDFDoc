@@ -20,6 +20,8 @@
     "GET /versions/{version_id}/pages/{page_index}/blocks",
     "POST /search",
     "POST /queries",
+    "GET /queries",
+    "GET /queries/{query_id}",
     "GET /queries/{query_id}/events",
     "POST /queries/{query_id}/cancel",
     "GET /citations/{query_id}/{source_id}",
@@ -622,5 +624,52 @@
     "cell_range_search": "Projection before FTS5 statistics, exact identifiers, dense scoring, RRF and top-k. At most 1000 present cells, 200000 characters and 2048 fragments; larger scopes rejected explicitly. Full-identity embedding cache; no Qdrant collection per range.",
     "assets": "Only registered raster sources, verified type/pixel limit; unsupported SVG/OLE/HTML never inline.",
     "formulas": "Never execute or recalculate; formula and source cached value kept separately; cache freshness unknown."
+  },
+  "query_history": {
+    "request": {
+      "limit": "integer1..100,default20",
+      "cursor": "opaque last query_id from preceding page;1..128characters,optional",
+      "conversation_id": "stored conversation id;1..128characters,optional"
+    },
+    "response": {
+      "queries": [
+        {
+          "query_id": "opaque stored query id",
+          "conversation_id": "string|null: stored conversation id",
+          "question": "original stored user question",
+          "state": "stored query state, including interrupted; no state reinterpretation",
+          "mode": null,
+          "last_event_id": "nonnegative integer: last persisted event id",
+          "created_at": "stored non-null timestamp",
+          "updated_at": "stored non-null timestamp",
+          "events_url": "same-origin /api/v1/queries/{query_id}/events"
+        }
+      ],
+      "next_cursor": "string|null; last returned query_id only if an older page exists"
+    },
+    "detail": {
+      "query_id": "opaque stored query id",
+      "conversation_id": "string|null: stored conversation id",
+      "question": "original stored user question",
+      "state": "stored query state, including interrupted; no state reinterpretation",
+      "mode": null,
+      "last_event_id": "nonnegative integer: last persisted event id",
+      "created_at": "stored non-null timestamp",
+      "updated_at": "stored non-null timestamp",
+      "events_url": "same-origin /api/v1/queries/{query_id}/events",
+      "scope": "original scope_json decoded; historical scope is not resolved against current generations",
+      "answer": "stored complete or partial answer",
+      "warnings": "stored warnings_json array",
+      "metrics": "stored metrics_json object",
+      "resolution": "stored resolution_json object"
+    },
+    "rules": [
+      "Authenticated read via existing session/control boundary; no query/import/generation mutation.",
+      "Order created_at DESC,id DESC; keyset uses strictly older (created_at,id), parameterizedSQL and limit+1.",
+      "Cursor must identify a stored query within the same optional conversation filter; invalid cursor400 invalid_query_cursor; missingdetail404 query_not_found.",
+      "Legacy mode is not persisted and remains null; neither metrics nor answer/scope reconstruct it.",
+      "Raw server snapshot and source transcript are not copied into detail; replay persisted sources/events with existing GET /queries/{query_id}/events?after=0.",
+      "Choosing history does not restore scope into authorization or implicitly reuse a conversation/followup for future questions."
+    ]
   }
 }

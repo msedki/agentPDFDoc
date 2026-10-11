@@ -1,6 +1,6 @@
 # Registre des décisions — V2.1
 
-**Rôle :** registre des décisions acquises et propositions · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base historique `75df760` ; décisions W050–W054 du 9 octobre, W055 Office et W056 références ; source publiée `18dc8f8` et modifications locales R28-RAG-01, historique conservé · **Mis à jour :** 2026-10-10 21:35 (UTC) · **Source de vérité :** ce registre pour les choix ; PLAN pour les actions et rapports pour les exécutions
+**Rôle :** registre des décisions acquises et propositions · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** base historique `75df760` ; décisions W050–W054 du 9 octobre, W055 Office et W056 références ; source publiée `18dc8f8` et modifications locales R28-RAG-01, historique conservé ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · **Mis à jour :** 2026-10-11 00:09 (UTC) · **Source de vérité :** ce registre pour les choix ; PLAN pour les actions et rapports pour les exécutions
 
 **Statut :** registre vivant. Le tableau D-01 et suivants reprend les décisions de conception et les règles de qualification du pack V2.1 (29/09/2026), sans mesure ; les décisions W001 et suivantes, datées, ajoutent les choix du chantier et les mesures qui les fondent (par exemple W007, W015, W016). Une mesure citée ici ne coche à elle seule aucun critère de [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md).
 
@@ -1550,6 +1550,20 @@ commande pour passer au 4B. Aucune bascule automatique : l'arrêt reste une
 décision de l'utilisateur. **Retour arrière :** `atelier modele` avec
 l'ancien modèle, ou retrait de la commande, l'option `--modele` au
 lancement restant disponible.
+
+## W057 Consultation des anciens tours par lecture des preuves persistées
+
+**Date :** 10 octobre 2026 UTC. **Statut :** implémenté, testé et exécuté en API/navigateur Linux aarch64 ; revue indépendante finale acquise `520fe2a4`. Documentation relue et contrôles conformes `d1f7f629` ; publication selon la politique `main/origin`.
+
+**Contexte :** le chat ne conservait que les tours de la session React alors que questions, réponses, événements et citations existaient déjà dans SQLite. C05 avait vérifié les anciens liens directs après réindexation/changement de version, sans pouvoir cliquer une ancienne réponse après reload.
+
+**Choix :** deux GET authentifiés, liste bornée avec curseur opaque et ordre total, puis détail du tour ; même transport SSE avec `after=0` et mêmes citations versionnées. Un tour choisi reste dans `history_query`, sans réponse ni preuve dans l’URL. Le périmètre actif n’est pas remplacé par celui du tour. Les pointeurs locaux conversation/suivi/focus sont remis à zéro à la sélection ; aucun transcript ou suivi implicite n’est restauré. Le mode non persisté demeure `null`. Aucune migration, nouvelle génération, nouvelle dépendance ou nouveau stockage navigateur.
+
+**Justification :** réutilisation de la persistance et des contrats réels, lecture déterministe et garde contre les callbacks obsolètes. Les deux branches de course détectées par revue ont des témoins de non-régression sur le composant réel sous doubles de hooks/transport. Le parcours final passe sur deux réponses existantes et quatre paires de citations littérales, avec six captures relues, 31 tables et 16 vecteurs actifs inchangés.
+
+**Sources et limites :** [SOURCES.md, R28-S27](SOURCES.md), [rapport C05](reports/office-integration-2026-10-10.md#r28-c05-01--restauration-des-questions-enregistrées), contrat et code cités par l’API. Les bonnes pratiques officielles ne constituent pas un benchmark SOTA. Réutiliser une ancienne réponse ne requalifie pas sa qualité. Windows natif, Linux x86-64, CPU physique de 16 Go, corpus métier/final et nouveau kit de ces sources restent à traiter séparément.
+
+**Réexamen :** besoin métier de transcript complet ou de reprise conversationnelle explicite ; pas d’inférence du mode ancien ni de substitution de ses versions.
 
 ## W056 Références candidates et obligations de couverture distinctes
 

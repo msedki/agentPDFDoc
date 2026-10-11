@@ -7,9 +7,11 @@ import { renderToString } from "react-dom/server";
 import { api, ApiError } from "../../src/lib/api.ts";
 import { launcherCommandsFrom } from "../../src/lib/launcher.ts";
 import { citationLinkIds } from "../../src/lib/citation-link.ts";
+import * as queryHistoryHelpers from "../../src/lib/query-history.ts";
 import { parseCellRange } from "../../src/lib/office-reader.ts";
 import { linkInvalidFromSearch, SESSION_ENDED_EVENT } from "../../src/lib/session.ts";
 import { checkSession, readLauncherCommands } from "../../src/lib/session-check.ts";
+import type { HistoricalQuery, Source, StreamEvent } from "../../src/lib/types.ts";
 import { readSource } from "./theme-support.ts";
 
 function declaration(file: string, name: string) {
@@ -466,28 +468,37 @@ test("client gate, hooks/API doubles: pending logout is single-flight and only a
 });
 
 /** Hooks/mutations are doubles; the actual component handlers and callbacks execute unchanged. */
-function analysisDouble(pending = false) {
+function analysisDouble(pending = false, historical?: HistoricalQuery) {
   const runtime = hookDouble();
   type MutationOptions = Record<string, (...args: unknown[]) => unknown>;
   const calls: { variables: Record<string, unknown>; callbacks: MutationOptions }[] = [];
   let mutationNumber = 0;
+  const reads: string[] = [];
+  const sourcesOpened: { source: Source; queryId?: string }[] = [];
+  const historicalStreams: { url: string; after: string; event: (event: StreamEvent) => void; closed: boolean }[] = [];
+  const navigation = { search: historical ? `?history_query=${historical.query_id}` : "", pathname: "/workspace/", hash: "" };
   const state = { scope: { kind: "library" }, scopeLabel: "Toute la bibliothèque" };
   const environment: Record<string, unknown> = {
-    ...runtime.hooks, React,
+    ...runtime.hooks, React, ...queryHistoryHelpers,
+    window: { location: navigation, history: { replaceState: (_data: unknown, _title: string, url: string) => { navigation.search = new URL(url, "http://localhost").search; } } },
+    connectQueryStream: (url: string, after: string, event: (event: StreamEvent) => void) => { const stream = { url, after, event, closed: false }; historicalStreams.push(stream); return () => { stream.closed = true; }; },
+    useQuery: () => ({ data: historical ? { queries: [historical], next_cursor: null } : undefined, isFetching: false, error: null, refetch: async () => {} }),
     useWorkspace: Object.assign(() => state, { getState: () => state }),
-    useQueryClient: () => ({ getQueryData: () => undefined }),
+    useQueryClient: () => ({ getQueryData: () => undefined, invalidateQueries: async () => {} }),
     useMutation: (callbacks: MutationOptions) => {
       const isSearch = mutationNumber++ === 1;
       return { isPending: isSearch && pending, mutate: (variables: Record<string, unknown>) => { calls.push({ variables, callbacks }); } };
     },
     analysisTabs: [{ id: "question", label: "Question", Icon: "span" }, { id: "search", label: "Recherche", Icon: "span" }],
     passagesFound: loadFunction("components/analysis-panel.tsx", "passagesFound", {}),
-    warningNotices: () => [], api: {}, structuredClone,
+    warningNotices: () => [], api: { historicalQuery: async (id: string) => { reads.push(id); return historical; }, query: () => assert.fail("history must not create a query") }, structuredClone,
+    queryStatus: (status: string) => ({ label: status, tone: "neutral", known: true, code: status }),
   };
-  for (const name of ["PanelHeader", "PanelEmpty", "Search", "BookOpen", "Button", "Send", "WarningNotices", "CircleAlert", "ErrorText", "SourceCard"]) environment[name] = `qa-${name}`;
+  for (const name of ["PanelHeader", "PanelEmpty", "Search", "BookOpen", "Button", "Send", "WarningNotices", "CircleAlert", "ErrorText", "SourceCard", "CitationText", "StatusIndicator", "RefreshCw", "Check", "Ban"]) environment[name] = `qa-${name}`;
   const component = loadFunction("components/analysis-panel.tsx", "AnalysisPanel", environment);
-  const render = () => { mutationNumber = 0; return runtime.render(() => component({ onSource: async () => {} })); };
+  const render = () => { mutationNumber = 0; return runtime.render(() => component({ onSource: async (source: Source, queryId?: string) => { sourcesOpened.push({ source, queryId }); } })); };
   let element = render(); runtime.commit();
+  if (historical) return { runtime, calls, render, key: () => assert.fail("history has no submitted question"), reads, historicalStreams, sourcesOpened, navigation };
   const tablist = findElementOfType(element as React.ReactNode, "div", props => props.role === "tablist");
   assert.ok(tablist);
   const tabs = React.Children.toArray(elementProps(tablist).children as React.ReactNode).filter(React.isValidElement);
@@ -504,8 +515,53 @@ function analysisDouble(pending = false) {
     assert.ok(input);
     return elementProps(input).onKeyDown as (event: unknown) => void;
   };
-  return { runtime, calls, key, render };
+  return { runtime, calls, key, render, reads, historicalStreams, sourcesOpened, navigation };
 }
+
+test("real analysis component, hooks/transport doubles: reload reads the selected tour and invokes the existing source handler without POST", async () => {
+  const record: HistoricalQuery = { query_id: "archived", conversation_id: "past-conversation", question: "Quelle tension ?", state: "done", mode: null,
+    last_event_id: 3, created_at: "2026-10-10T10:00:00+00:00", updated_at: "2026-10-10T10:00:03+00:00", events_url: "/api/v1/queries/archived/events",
+    scope: { kind: "library" }, answer: "72V [S004]", warnings: [], metrics: {}, resolution: {} };
+  const panel = analysisDouble(false, record);
+  await new Promise<void>(resolve => setImmediate(resolve));
+  assert.deepEqual(panel.reads, ["archived"]);
+  assert.equal(panel.historicalStreams.length, 1); assert.equal(panel.historicalStreams[0].after, "0");
+  assert.equal((panel.runtime.peek(2) as { text: string }[])[0].text, "", "metadata answer is not appended before full replay");
+  const stream = panel.historicalStreams[0];
+  const source: Source = { source_id: "S004", query_id: "archived", document_id: "doc", version_id: "old-version", extraction_revision_id: "old-revision", text: "72V" };
+  stream.event({ id: "1", type: "sources", data: { sources: [source] } });
+  stream.event({ id: "2", type: "delta", data: { text: "72V [S004]" } });
+  stream.event({ id: "3", type: "done", data: { text: record.answer } });
+  const tree = panel.render(); panel.runtime.commit();
+  const turn = findElementOfType(tree as React.ReactNode, "article", props => props["data-query-id"] === "archived"); assert.ok(turn);
+  const answer = findElementOfType(turn, "qa-CitationText"); assert.ok(answer);
+  assert.equal(elementProps(answer).text, record.answer);
+  (elementProps(answer).onCitation as (source: Source) => void)(source);
+  assert.deepEqual(panel.sourcesOpened, [{ source, queryId: "archived" }]);
+  assert.equal(panel.calls.length, 0); assert.equal(panel.runtime.peek(7) && (panel.runtime.peek(7) as { current: unknown }).current, null);
+  assert.equal((panel.runtime.peek(8) as { current: unknown }).current, undefined);
+  assert.equal((panel.runtime.peek(9) as { current: unknown }).current, undefined, "archived citation cannot become a future focus even for equal scopes");
+  assert.deepEqual((panel.runtime.peek(2) as { scope: unknown }[])[0].scope, record.scope);
+  assert.equal(panel.navigation.search, "?history_query=archived");
+  panel.runtime.dispose(); assert.equal(stream.closed, true);
+});
+
+test("real analysis component, hooks/transport doubles: selecting a local turn removes the closed partial historical replay", async () => {
+  const record: HistoricalQuery = { query_id: "archived", conversation_id: "past", question: "Archive ?", state: "done", mode: null,
+    last_event_id: 3, created_at: "2026-10-10T10:00:00+00:00", updated_at: "2026-10-10T10:00:03+00:00", events_url: "/api/v1/queries/archived/events",
+    scope: { kind: "library" }, answer: "Ancienne réponse complète", warnings: [], metrics: {}, resolution: {} };
+  const panel = analysisDouble(false, record);
+  await new Promise<void>(resolve => setImmediate(resolve));
+  panel.historicalStreams[0].event({ id: "1", type: "delta", data: { text: "Ancienne réponse partielle" } });
+  const local = { ...queryHistoryHelpers.historicalTurn({ ...record, query_id: "local" }), historicalState: undefined, mode: "question", text: "Réponse locale", connection: "closed" as const };
+  // The query list is a unit hook-double slot; this supplies an already completed local turn.
+  (panel.runtime.peek(2) as unknown[]).push(local);
+  const selector = findElementOfType(panel.render() as React.ReactNode, "select", props => props.id === "query-history-selector"); assert.ok(selector);
+  (elementProps(selector).onChange as (event: unknown) => void)({ target: { value: "local" } });
+  assert.deepEqual((panel.runtime.peek(2) as { id: string }[]).map(turn => turn.id), ["local"]);
+  assert.equal(panel.historicalStreams[0].closed, true); assert.deepEqual(panel.reads, ["archived"]); assert.equal(panel.calls.length, 0);
+  assert.equal(panel.navigation.search, "?history_query=local"); panel.runtime.dispose();
+});
 
 test("real analysis component, hooks/mutation doubles: Ctrl/Meta+Enter respects pending and same-render single-flight", () => {
   for (const modifier of ["ctrlKey", "metaKey"]) {

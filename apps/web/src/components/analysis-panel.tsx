@@ -1,19 +1,20 @@
 "use client";
 import { Fragment, useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowUpRight, Ban, BookOpen, Check, CircleAlert, Layers, MessageSquare, RefreshCw, Search, Send } from "lucide-react";
 import { api } from "@/lib/api";
 import { connectQueryStream } from "@/lib/stream";
 import { useWorkspace } from "@/lib/store";
-import { mergeQueryWarnings, warningNotices, type WarningNotice } from "@/lib/warnings";
+import { warningNotices, type WarningNotice } from "@/lib/warnings";
 import { answerBlocks, type Inline } from "@/lib/answer-format";
-import { citationParts, citedSourceIds } from "@/lib/citations";
+import { citationParts } from "@/lib/citations";
 import { tabKeyTarget } from "@/lib/keyboard";
 import { sourceLocalization, sourceLocationLabel } from "@/lib/source-location";
 import { withExtractionLabel } from "@/lib/extraction-provenance";
+import { applyQueryEvent, createHistoryLoader, historyQueryId, historyQuerySearch, isQueryActive, putHistoricalTurn, sourceFocus, withoutHistoricalTurns } from "@/lib/query-history";
 import { queryStatus } from "@/lib/status";
 import { unindexedInScope, unindexedSentence } from "@/lib/panel-state";
-import type { LibraryTree, QueryState, Scope, SearchResponse, Source, StreamEvent } from "@/lib/types";
+import type { LibraryTree, QueryState, Scope, SearchResponse, Source } from "@/lib/types";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { ExtractionBadge } from "./extraction-badge";
@@ -21,7 +22,6 @@ import { ErrorText, type Failure } from "./ui/error-text";
 import { PanelEmpty, PanelHeader } from "./ui/panel";
 import { StatusIndicator } from "./ui/status-indicator";
 
-function textValue(value: unknown, fallback = "") { return typeof value === "string" ? value : fallback; }
 function passagesFound(count: number) { return count === 0 ? "Aucun passage retrouvé" : count === 1 ? "1 passage retrouvé" : `${count} passages retrouvés`; }
 const analysisTabs = [{ id: "question", label: "Question", Icon: MessageSquare }, { id: "search", label: "Recherche", Icon: Search }, { id: "analysis", label: "Critique", Icon: BookOpen }, { id: "comparison", label: "Comparer", Icon: Layers }] as const;
 
@@ -93,29 +93,42 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
   const searchSequence = useRef(0);
   const searchPending = useRef<number | null>(null);
 
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyCursor, setHistoryCursor] = useState<string | null>(null);
+  const [selectedQueryId, setSelectedQueryId] = useState("");
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState<Failure | null>(null);
+  const historyLoader = useRef<ReturnType<typeof createHistoryLoader> | null>(null);
+  const historyPage = useQuery({ queryKey: ["query-history", historyCursor], queryFn: ({ signal }) => api.queryHistory(historyCursor, signal), enabled: historyOpen });
+  const rememberQuery = (id: string | null) => window.history.replaceState(null, "", `${window.location.pathname}${historyQuerySearch(window.location.search, id)}${window.location.hash}`);
+
+  useEffect(() => {
+    const loader = createHistoryLoader({
+      detail: api.historicalQuery, connect: connectQueryStream,
+      start: id => { setSelectedQueryId(id); setHistoryLoading(true); setHistoryError(null); setQueries(current => withoutHistoricalTurns(current)); },
+      ready: turn => { setQueries(current => putHistoricalTurn(current, turn)); setHistoryLoading(turn.connection !== "closed" && !isQueryActive(turn)); },
+      event: (id, event) => { setQueries(current => current.map(query => query.id === id ? applyQueryEvent(query, event) : query)); if (["done", "error", "cancelled", "needs_clarification"].includes(event.type)) setHistoryLoading(false); },
+      connection: (id, connection) => setQueries(current => current.map(query => query.id === id ? { ...query, connection } : query)),
+      failure: failure => { setHistoryLoading(false); setHistoryError({ error: failure }); },
+    });
+    historyLoader.current = loader;
+    const id = historyQueryId(window.location.search);
+    if (id) void loader.select(id);
+    return () => { loader.cancel(); historyLoader.current = null; };
+  }, []);
+  const chooseHistory = (id: string) => {
+    conversation.current = null; followup.current = undefined; focus.current = undefined;
+    setTab("question"); rememberQuery(id || null);
+    if (!id) {
+      historyLoader.current?.cancel(); setSelectedQueryId(""); setHistoryLoading(false); setHistoryError(null);
+      setQueries(current => withoutHistoricalTurns(current));
+    } else if (queries.some(query => query.id === id && query.historicalState === undefined)) {
+      historyLoader.current?.cancel(); setSelectedQueryId(id); setHistoryLoading(false); setHistoryError(null); setQueries(current => withoutHistoricalTurns(current));
+    } else void historyLoader.current?.select(id);
+  };
+
   const update = (id: string, updater: (query: QueryState) => QueryState) => setQueries(current => current.map(query => query.id === id ? updater(query) : query));
-  const onEvent = (id: string, event: StreamEvent) => update(id, query => {
-    const next = { ...query, lastEventId: event.id || query.lastEventId };
-    switch (event.type) {
-      case "status": next.status = textValue(event.data.status ?? event.data.state ?? event.data.stage, query.status); break;
-      case "sources": if (Array.isArray(event.data.sources)) next.sources = event.data.sources.filter(source => source && typeof source.source_id === "string" && typeof source.version_id === "string") as Source[]; break;
-      case "delta": next.text += textValue(event.data.text); next.status = "generating"; break;
-      case "warning": next.warnings = mergeQueryWarnings(query.warnings, [event.data.warning ?? event.data]); break;
-      case "done": {
-        next.text = textValue(event.data.text, textValue(event.data.message, query.text)) || query.text;
-        next.status = textValue(event.data.status, "done"); next.connection = "closed";
-        next.finishReason = textValue(event.data.finish_reason, "stop");
-        if (Array.isArray(event.data.warnings)) next.warnings = mergeQueryWarnings(query.warnings, event.data.warnings);
-        const mentioned = citedSourceIds(next.text);
-        if (mentioned.some(sourceId => !next.sources.some(source => source.source_id === sourceId))) next.warnings = mergeQueryWarnings(next.warnings, ["Une référence non enregistrée dans les sources a été signalée et reste non cliquable."]);
-        break;
-      }
-      case "cancelled": next.status = "cancelled"; next.connection = "closed"; break;
-      case "needs_clarification": next.status = "needs_clarification"; next.connection = "closed"; next.text = textValue(event.data.message, "Précisez le référent documentaire de votre question."); break;
-      case "error": next.status = textValue(event.data.status, "error"); next.error = textValue(event.data.message, "La réponse a été interrompue par une erreur du service."); next.connection = "closed"; break;
-    }
-    return next;
-  });
+  const onEvent = (id: string, event: Parameters<typeof applyQueryEvent>[1]) => update(id, query => applyQueryEvent(query, event));
   const connect = (id: string, eventsUrl: string, lastEventId = "") => {
     streams.current.get(id)?.();
     streams.current.set(id, connectQueryStream(eventsUrl, lastEventId, event => onEvent(id, event), connection => update(id, query => ({ ...query, connection }))));
@@ -136,7 +149,9 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
       followup.current = created.query_id;
     }
     const query: QueryState = { id: created.query_id, question: text, scope, scopeLabel, mode, text: "", status: "created", connection: "connecting", sources: [], warnings: [], lastEventId: "" };
-    setQueries(current => [...current, query]);
+    setQueries(current => [...current.filter(item => item.id !== query.id), query]);
+    rememberQuery(created.query_id); setSelectedQueryId(created.query_id); setHistoryCursor(null);
+    void client.invalidateQueries({ queryKey: ["query-history"] });
     connect(created.query_id, created.events_url);
     return created;
   }, onError: failure => setError({ error: failure }) });
@@ -149,7 +164,7 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
   }, onSettled: (_response, _failure, variables) => {
     if (searchPending.current === variables.requestId) searchPending.current = null;
   } });
-  const active = queries.findLast(query => query.connection !== "closed");
+  const active = queries.findLast(isQueryActive);
   const compareAllowed = state.scope.kind === "documents" && state.scope.documentIds.length >= 2 && state.scope.documentIds.length <= 4;
   const emptyScope = state.scope.kind === "documents" && !state.scope.documentIds.length;
   const submit = () => {
@@ -162,7 +177,7 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
       searchPending.current = requestId;
       searchMutation.mutate({ text: question.trim(), scope: snapshot, scopeLabel: state.scopeLabel, requestId });
     }
-    else { submission.mutate({ text: question.trim(), scope: snapshot, scopeLabel: state.scopeLabel, mode: tab === "comparison" ? "comparison" : tab === "analysis" ? "analysis" : snapshot.kind === "selection" ? "selection" : snapshot.kind === "section" ? "section" : "question" }); setQuestion(""); }
+    else { historyLoader.current?.cancel(); setHistoryLoading(false); setHistoryError(null); setSelectedQueryId(""); rememberQuery(null); setQueries(current => withoutHistoricalTurns(current)); submission.mutate({ text: question.trim(), scope: snapshot, scopeLabel: state.scopeLabel, mode: tab === "comparison" ? "comparison" : tab === "analysis" ? "analysis" : snapshot.kind === "selection" ? "selection" : snapshot.kind === "section" ? "section" : "question" }); setQuestion(""); }
   };
   const cancel = async () => {
     if (!active) return;
@@ -173,7 +188,7 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
   const openSource = (source: Source, queryId?: string, sourceScope?: Scope) => {
     const fromQuery = queries.find(query => query.id === queryId);
     const usedScope = fromQuery?.scope ?? sourceScope ?? (queryId && source.query_id === queryId ? searchScope?.scope : undefined);
-    focus.current = queryId && source.source_id && usedScope && JSON.stringify(usedScope) === scopeFingerprint ? { query_id: queryId, source_id: source.source_id } : undefined;
+    focus.current = sourceFocus(queryId, source.source_id, usedScope, state.scope, fromQuery?.historicalState !== undefined);
     void onSource(source, queryId).catch(failure => setError({ error: failure }));
   };
 
@@ -188,15 +203,34 @@ export function AnalysisPanel({ onSource, headerAction }: { onSource: (source: S
       {analysisTabs.map(({ id, label, Icon }, index) => <button key={id} ref={element => { tabButtons.current[index] = element; }} type="button" role="tab" id={`analysis-tab-${id}`} aria-selected={tab === id} aria-controls="analysis-tabpanel" tabIndex={tab === id ? 0 : -1} onClick={() => setTab(id)}><Icon size={14} aria-hidden="true" />{label}</button>)}
     </div>
     <div className="scope-summary" data-testid="scope-summary"><span className="eyebrow">Périmètre actif</span><strong>{state.scopeLabel}</strong>{state.scope.kind === "selection" && <span>{state.scope.spans.length === 1 ? "1 passage référencé" : `${state.scope.spans.length} passages référencés`}</span>}</div>
+    <details className="query-history" onToggle={event => setHistoryOpen(event.currentTarget.open)}>
+      <summary>Anciennes questions</summary>
+      <label htmlFor="query-history-selector">Choisir une question enregistrée</label>
+      <select id="query-history-selector" data-testid="query-history-selector" value={selectedQueryId} disabled={!!active || submission.isPending} onChange={event => chooseHistory(event.target.value)}>
+        <option value="">Aucune question sélectionnée</option>
+        {selectedQueryId && !historyPage.data?.queries.some(query => query.query_id === selectedQueryId) && <option value={selectedQueryId}>{queries.find(query => query.id === selectedQueryId)?.question ?? "Question sélectionnée"}</option>}
+        {historyPage.data?.queries.map(query => <option key={query.query_id} value={query.query_id}>{query.question.slice(0, 160)} · {queryStatus(query.state).label}</option>)}
+      </select>
+      <div className="query-history-actions">
+        <Button variant="ghost" size="sm" onClick={() => { if (historyCursor) setHistoryCursor(null); else void historyPage.refetch(); }} disabled={historyPage.isFetching}>Actualiser</Button>
+        {historyCursor && <Button variant="ghost" size="sm" onClick={() => setHistoryCursor(null)}>Plus récentes</Button>}
+        {historyPage.data?.next_cursor && <Button variant="ghost" size="sm" onClick={() => setHistoryCursor(historyPage.data!.next_cursor)} disabled={historyPage.isFetching}>Plus anciennes</Button>}
+      </div>
+      {historyPage.isFetching && <p role="status">Chargement des questions…</p>}
+      {historyPage.data && !historyPage.data.queries.length && <p>Aucune question enregistrée.</p>}
+      {historyPage.error && <p className="inline-error" role="alert"><ErrorText error={historyPage.error} /></p>}
+    </details>
+    {historyLoading && <p className="history-notice" role="status">Chargement de la question enregistrée…</p>}
+    {historyError && <div className="history-notice"><p className="inline-error" role="alert"><ErrorText error={historyError.error} /></p><Button variant="ghost" size="sm" onClick={() => { if (selectedQueryId) void historyLoader.current?.select(selectedQueryId); }}>Réessayer le chargement</Button></div>}
     <div className="analysis-history" ref={history} role="tabpanel" id="analysis-tabpanel" aria-labelledby={`analysis-tab-${tab}`} tabIndex={0}>
       {tab === "search" && search && searchScope && <p className="result-count">Périmètre de cette recherche : {searchScope.label}</p>}
       {tab === "search" ? search ? <div className="search-results"><p className="result-count tabular">{passagesFound(search.results.length)} · {Math.round(search.elapsed_ms)} ms</p><WarningNotices notices={warningNotices(search.warnings ?? [])} />{!search.results.length && (searchScope?.unindexed
         ? <PanelEmpty reason="index-incomplete" title="Index incomplet pour ce périmètre" description={`Aucun passage retrouvé dans les documents déjà indexés. ${unindexedSentence(searchScope.unindexed)}. Consultez le Suivi pour vérifier leur état et les actions possibles, puis relancez la recherche lorsqu'ils sont interrogeables.`} />
         : <PanelEmpty reason="no-match" title="Aucun passage retrouvé" description="La recherche n'a retrouvé aucun passage dans ce périmètre. Une recherche sans résultat ne prouve pas l'absence de l'information : reformulez ou élargissez le périmètre." />)}{search.results.map((result, index) => { const source = ("source" in result && result.source ? result.source : result) as Source; return source.version_id ? <SourceCard key={`${source.source_id}:${index}`} source={source} onOpen={() => openSource(source, source.query_id)} /> : <p key={index} className="inline-warning">Ce résultat ne désigne aucune version de document : il ne peut pas être ouvert dans le lecteur.</p>; })}</div>
         : <PanelEmpty reason="not-started" icon={<Search size={32} strokeWidth={1.5} aria-hidden="true" />} title="Retrouver un passage" description="Recherchez un code, une expression ou une notion dans le périmètre actif. La recherche lit l'index sans appeler le modèle de réponse." />
-        : !queries.length ? <PanelEmpty reason="not-started" icon={<BookOpen size={32} strokeWidth={1.5} aria-hidden="true" />} title={tab === "comparison" ? "Comparer des documents" : "Aucune question posée"} description={tab === "comparison" ? "Définissez un périmètre de deux à quatre documents, puis posez votre question de comparaison. Chaque source indique son document et sa localisation." : "Posez une question sur le périmètre actif. Si la réponse cite des sources, ouvrez-les pour vérifier le contenu source utilisé."} /> : queries.map(query => <article className="query-turn" key={query.id} data-testid="query-turn">
-        <div className="question-message"><p>{query.question}</p><small>{query.scopeLabel}</small></div>
-        <div className="query-status" role="status"><StatusIndicator status={queryStatus(query.status)} active={query.connection !== "closed"} />{query.connection === "reconnecting" && <Button variant="ghost" size="sm" onClick={() => connect(query.id, `/api/v1/queries/${encodeURIComponent(query.id)}/events`, query.lastEventId)}><RefreshCw size={16} />Reconnecter</Button>}</div>
+        : !queries.length ? <PanelEmpty reason="not-started" icon={<BookOpen size={32} strokeWidth={1.5} aria-hidden="true" />} title={tab === "comparison" ? "Comparer des documents" : "Aucune question posée"} description={tab === "comparison" ? "Définissez un périmètre de deux à quatre documents, puis posez votre question de comparaison. Chaque source indique son document et sa localisation." : "Posez une question sur le périmètre actif. Si la réponse cite des sources, ouvrez-les pour vérifier le contenu source utilisé."} /> : queries.map(query => <article className="query-turn" key={query.id} data-testid="query-turn" data-query-id={query.id}>
+        <div className="question-message"><p>{query.question}</p><small>{query.scopeLabel}</small>{query.historicalState !== undefined && <small>Question enregistrée · mode non enregistré · périmètre actif inchangé</small>}</div>
+        <div className="query-status" role="status"><StatusIndicator status={queryStatus(query.connection !== "closed" && query.historicalState !== undefined && !isQueryActive(query) ? query.historicalState : query.status)} active={isQueryActive(query)} />{query.connection === "reconnecting" && <Button variant="ghost" size="sm" onClick={() => { if (query.historicalState !== undefined) void historyLoader.current?.select(query.id); else connect(query.id, `/api/v1/queries/${encodeURIComponent(query.id)}/events`, query.lastEventId); }}><RefreshCw size={16} />Reconnecter</Button>}</div>
         {query.text && <CitationText text={query.text} sources={query.sources} onCitation={source => openSource(source, query.id)} />}
         {query.error && <p className="inline-error" role="alert"><CircleAlert size={14} aria-hidden="true" />{query.error}</p>}
         {["cancelled", "interrupted"].includes(query.status) && <p className="inline-warning">Cette réponse est incomplète : elle a été annulée ou interrompue avant la fin.</p>}

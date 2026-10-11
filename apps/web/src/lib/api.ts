@@ -1,4 +1,4 @@
-import type { CellRange, DocumentDetail, JobsResponse, LibraryTree, OfficeBlocks, OfficeCells, OfficeRepresentation, Outline, PageBlocks, QueryCreated, Readiness, ReindexResponse, Scope, SearchResponse, Source } from "./types.ts";
+import type { HistoricalQuery, QueryHistoryPage, CellRange, DocumentDetail, JobsResponse, LibraryTree, OfficeBlocks, OfficeCells, OfficeRepresentation, Outline, PageBlocks, QueryCreated, Readiness, ReindexResponse, Scope, SearchResponse, Source } from "./types.ts";
 import { verifyOfficeBlocks, verifyOfficeCells, verifyOfficeRepresentation } from "./office-reader.ts";
 import { ApiError, localFailure } from "./api-error.ts";
 import { blocksPath, outlinePath, verifyPinnedBlocks, verifyPinnedOutline } from "./provenance-revision.ts";
@@ -109,6 +109,8 @@ export const api = {
   }),
   search: (question: string, scope: Scope) => post<SearchResponse>("/search", { question, scope }),
   query: (question: string, scope: Scope, mode: string, conversationId: string | null = null, followupOf?: string, focus?: { query_id: string; source_id: string }) => post<QueryCreated>("/queries", { question, scope, mode, conversation_id: conversationId, ...(followupOf ? { followup_of: followupOf } : {}), ...(focus ? { focus } : {}) }),
+  queryHistory: (cursor: string | null = null, signal?: AbortSignal) => request<QueryHistoryPage>(`/queries?limit=20${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`, { signal }),
+  historicalQuery: (id: string, signal?: AbortSignal) => request<HistoricalQuery>(`/queries/${encodeURIComponent(id)}`, { signal }),
   cancelQuery: (id: string) => post(`/queries/${encodeURIComponent(id)}/cancel`, {}),
   cancelJob: (id: string) => post(`/jobs/${encodeURIComponent(id)}/cancel`, {}),
   pauseJob: (id: string) => post(`/jobs/${encodeURIComponent(id)}/pause`, {}),

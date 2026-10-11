@@ -149,8 +149,10 @@ test("des codes, références, détails ou messages différents restent des aver
 
 test("les deux événements SSE alimentent le même dédoublonnage, sans modifier le périmètre", () => {
   const analysis = code("components/analysis-panel.tsx");
-  assert.match(analysis, /case "warning": next\.warnings = mergeQueryWarnings\(query\.warnings, \[event\.data\.warning \?\? event\.data\]\)/);
-  assert.match(analysis, /if \(Array\.isArray\(event\.data\.warnings\)\) next\.warnings = mergeQueryWarnings\(query\.warnings, event\.data\.warnings\)/);
+  const reducer = code("lib/query-history.ts");
+  assert.match(analysis, /query => applyQueryEvent\(query, event\)/);
+  assert.match(reducer, /case "warning": next\.warnings = mergeQueryWarnings\(query\.warnings, \[event\.data\.warning \?\? event\.data\]\)/);
+  assert.match(reducer, /if \(Array\.isArray\(event\.data\.warnings\)\) next\.warnings = mergeQueryWarnings\(query\.warnings, event\.data\.warnings\)/);
   // R26 : les avis sont structurés (sources et valeurs signalées) ; seul leur texte contrôlé est affiché.
   assert.match(analysis, /<WarningNotices notices=\{warningNotices\(query\.warnings, query\.finishReason\)\}/, "le rendu affiche les textes contrôlés en regroupant la limite de génération");
   assert.match(analysis, /<WarningNotices notices=\{warningNotices\(search\.warnings \?\? \[\]\)\}/, "la recherche emploie les mêmes avis");

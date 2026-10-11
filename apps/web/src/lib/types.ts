@@ -73,6 +73,16 @@ export interface Source {
 export interface SearchResult { source?: Source; source_id?: string; score?: number; text?: string; [key: string]: unknown }
 export interface SearchResponse { results: (Source | SearchResult)[]; warnings: ApiWarning[]; scope_snapshot: unknown; elapsed_ms: number }
 export interface QueryCreated { query_id: string; events_url: string; conversation_id?: string; state?: "needs_clarification" }
+/** Métadonnées persistées : le mode historique n'est pas enregistré et reste inconnu. */
+export interface HistoricalQuerySummary {
+  query_id: string; conversation_id: string | null; question: string; state: string; mode: null;
+  last_event_id: number; created_at: string; updated_at: string; events_url: string;
+}
+export interface QueryHistoryPage { queries: HistoricalQuerySummary[]; next_cursor: string | null }
+export interface HistoricalQuery extends HistoricalQuerySummary {
+  scope: Scope; answer: string; warnings: ApiWarning[]; metrics: Record<string, unknown>;
+  resolution: Record<string, unknown>;
+}
 /** `reindex_response` du contrat : `resume_required`, avec `job_state` `paused`, signale le traitement en pause de cette version, à reprendre. */
 export interface ReindexResponse { job_id: string; version_id?: string; reused: boolean; job_state?: string; resume_required?: boolean }
 export interface Job { id: string; document_id?: string; version_id?: string; generation_id?: string; state?: string; status?: string; stage?: string; progress?: number; coverage?: { total: number; processed: number; ocr?: number }; published?: boolean; published_at?: string | null; active?: boolean; warnings?: ApiWarning[]; error?: string; error_message?: string; message?: string }
@@ -107,7 +117,7 @@ export interface OfficeCells {
 }
 export type StreamEvent = { id: string; type: string; data: Record<string, unknown> };
 export type QueryState = {
-  id: string; question: string; scope: Scope; scopeLabel: string; mode: string; text: string;
+  id: string; question: string; scope: Scope; scopeLabel: string; mode: string | null; text: string;
   status: string; connection: "connecting" | "connected" | "reconnecting" | "closed";
-  sources: Source[]; warnings: ApiWarning[]; error?: string; lastEventId: string; finishReason?: string;
+  sources: Source[]; warnings: ApiWarning[]; error?: string; lastEventId: string; finishReason?: string; historicalState?: string;
 };

@@ -47,6 +47,46 @@ class QueryService:
         self.generation_lock = asyncio.Lock()
         self.creation_lock = asyncio.Lock()
 
+    @staticmethod
+    def history_summary(row):
+        return {"query_id": row["id"], "conversation_id": row["conversation_id"], "question": row["question"],
+                "state": row["state"], "mode": None, "last_event_id": row["last_event_id"],
+                "created_at": row["created_at"], "updated_at": row["updated_at"],
+                "events_url": f"/api/v1/queries/{row['id']}/events"}
+
+    def list_runs(self, limit=20, cursor=None, conversation_id=None):
+        """Read a stable keyset page; neither stored scope nor archived sources are resolved anew."""
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 100:
+            raise ApiError("invalid_history_limit", "Choisir entre 1 et 100 questions par page.")
+        clauses: list[str] = []
+        parameters: list[Any] = []
+        if conversation_id is not None:
+            clauses.append("conversation_id=?")
+            parameters.append(conversation_id)
+        with self.db.connect() as connection:
+            if cursor is not None:
+                anchor = connection.execute("SELECT created_at,conversation_id FROM query_runs WHERE id=?", (cursor,)).fetchone()
+                if not anchor or (conversation_id is not None and anchor["conversation_id"] != conversation_id):
+                    raise ApiError("invalid_query_cursor", "Cette page d’historique n’est plus disponible. Rechargez la liste.")
+                clauses.append("(created_at<? OR (created_at=? AND id<?))")
+                parameters.extend([anchor["created_at"], anchor["created_at"], cursor])
+            where = " WHERE " + " AND ".join(clauses) if clauses else ""
+            rows = connection.execute("SELECT id,conversation_id,question,state,last_event_id,created_at,updated_at FROM query_runs"
+                                      + where + " ORDER BY created_at DESC,id DESC LIMIT ?", (*parameters, limit + 1)).fetchall()
+        page = rows[:limit]
+        return {"queries": [self.history_summary(row) for row in page],
+                "next_cursor": page[-1]["id"] if len(rows) > limit else None}
+
+    def run_detail(self, query_id):
+        row = self.db.one("SELECT id,conversation_id,question,scope_json,state,answer,warnings_json,metrics_json,"
+                          "resolution_json,last_event_id,created_at,updated_at FROM query_runs WHERE id=?", (query_id,))
+        if not row:
+            raise ApiError("query_not_found", "Question inconnue.", 404)
+        # The mode was not persisted. Metrics/text are not an authority for reconstructing it.
+        return {**self.history_summary(row), "scope": json.loads(row["scope_json"]), "answer": row["answer"],
+                "warnings": json.loads(row["warnings_json"]), "metrics": json.loads(row["metrics_json"]),
+                "resolution": json.loads(row["resolution_json"])}
+
     def create(self, request):
         return self.start_query(self.prepare_query(request))
 

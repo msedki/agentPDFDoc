@@ -1,8 +1,13 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** produits publiés `5204d2e` et `aabb9808`, recette native R27 exécutée avec réserve du bureau · **Mis à jour :** 2026-10-10 02:53 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** produits publiés `5204d2e` et `aabb9808`, recette native R27 exécutée avec réserve du bureau · **Mis à jour :** 2026-10-11 00:09 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Historique des questions : consolidation du 11 octobre](2026-10-11.md) :
+revue finale indépendante locale acquise, quatre citations après reload et
+conservation vérifiées. Documentation, contrôles et publication du lot C05 ;
+qualification globale et nouveau kit des sources actuelles restent ouverts.
 
 [Clôture documentaire, publication et diagnostic NF09 du 10 octobre](2026-10-10.md) :
 suite de la recette du 9 octobre, prérequis X11/GLX puis vraies interfaces

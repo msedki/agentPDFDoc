@@ -1,4 +1,5 @@
 "use client";
+import { historyQueryId } from "@/lib/query-history";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
@@ -134,6 +135,8 @@ function WorkspaceBody() {
   useEffect(() => {
     if (!state.opened) return;
     const params = new URLSearchParams({ document: state.opened.documentId, version: state.opened.versionId });
+    const selectedQuery = historyQueryId(window.location.search);
+    if (selectedQuery) params.set("history_query", selectedQuery);
     if ("pageIndex" in state.opened) params.set("page", String(state.opened.pageIndex + 1));
     else { params.set("format", state.opened.format); if (state.opened.unitId) params.set("unit", state.opened.unitId); if (state.opened.cellRange) params.set("range", rangeLabel(state.opened.cellRange)); if (state.opened.extractionRevisionId) params.set("revision", state.opened.extractionRevisionId); }
     if (state.source?.source_id && state.source.query_id && state.source.extraction_revision_id) { params.set("citation_query", state.source.query_id); params.set("citation_source", state.source.source_id); }

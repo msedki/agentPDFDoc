@@ -6,6 +6,8 @@
 # Espaces terminaux, lignes vides finales et espaces avant tab restent contrôlés.
 *.md whitespace=trailing-space,space-before-tab,cr-at-eol
 packages/contracts/contracts.json whitespace=trailing-space,space-before-tab,cr-at-eol
+# Ce composant historique conserve des fins de ligne mixtes ; les espaces restent contrôlés.
+apps/web/src/components/analysis-panel.tsx whitespace=trailing-space,space-before-tab,cr-at-eol
 
 *.pdf binary
 *.zip binary
