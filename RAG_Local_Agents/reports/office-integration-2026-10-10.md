@@ -2312,3 +2312,45 @@ des skills restent conservés. Preuves sous `root-final-docs-07/` au même
 emplacement QA : JUnit, rapports de contrôles et récolte ROOT ; les
 fixtures temporaires sont retirées après récolte, sans supprimer les preuves.
 Ces contrôles ne constituent pas une qualification RAG ni une clôture DoD.
+
+
+## Entretien après publication du correctif — 11 octobre, 17:44 UTC
+
+Le lot source/replay/documentation est publié sur `origin/main` :
+`0dfd7e045bca4bec60ba6ce86cfa6db7786a428e`. Commit `47071c/0`, push
+`7985bb/0` et distant `1d27ea/0` réellement récoltés ; 13 fichiers exacts,
+revue finale R119-addendum02 `19317053`, journal du 2 octobre préservé.
+Aucun nouveau PASS sémantique, kit ou hôte de qualification déduit.
+
+À la demande de nettoyage, le seul TAR historique22 devenu inutile est
+retiré après vérification des empreintes complètes du TAR22 et du TAR f14
+conservé, des 51 fichiers du backup DEV courant et de l'installation f14.
+Aucun processus observé ne référence la cible par argument exact ou fichier
+ouvert. `53e229/session85558` est récolté réellement à 0 (`a4da10`) ;
+11 185 633 280 octets logiques et trois dossiers vides sont retirés.
+Le gain libre observé est de 11 185 651 712 octets, mesure non exclusive.
+Les guides, avis, sommes historiques, sources, données, modèles, preuves,
+PROGRAM37 de repli, archive/programme f14 et backup sont conservés.
+
+**Limite explicite :** le TAR22 n'est plus extractible depuis cette livraison
+historique ; ses sidecars n'en permettent pas une reconstruction bit-identique.
+Les observations antérieures « archive22 conservée » décrivent leurs checkpoints,
+pas l'état après ce retrait. Reçus :
+`cleanup-published-09/retirement-before-01.json` et
+`cleanup-published-09/retirement-actual-01.json` (`57bfb0a7`), sous la
+racine QA `root/qmix-document-formula-context-20261011/`.
+
+Revue indépendante R120 acquise :
+`model-method-and-exact-archive22-retirement-readonly-review-120.json`,
+SHA-256 `b82b6045479d6068fee1f4543eb14b04a5585dc9e03a7fd83d7a19c5920ce584`,
+sous `c05-history/review/`. Elle vérifie la cible retirée, les éléments
+conservés et la traçabilité des contrôles réels ; elle ne répète pas les
+hashes complets des archives ni une recette native.
+
+Méthode W060 contrôlée séparément : nouveau skill validé `50c43e/0`,
+registre/format et pack `69236d/0` (11 PASS, 12 avertissements tiers
+conservés), documentation `7ba067/0` (sept PASS, 1 550 liens, cinq SVG).
+Rapports `verify-pack-model-skill-01.json` (`363d524f`) et
+`check-docs-01.json` (`eefe35a5`) sous `cleanup-published-09/`.
+Ces validations portent sur la méthode et la documentation ; aucun modèle
+supplémentaire ni profil automatique n'est ainsi qualifié.

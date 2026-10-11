@@ -1,6 +1,6 @@
 # Journal des modifications
 
-**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Sources C05 publiées `4cb1a2a` ; livraison du kit CPU `52abb94b` vérifiée avec récupération distincte et réserve du broker initial · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-11 17:14 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
+**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Sources C05 publiées `4cb1a2a` ; livraison du kit CPU `52abb94b` vérifiée avec récupération distincte et réserve du broker initial · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-11 18:05 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
 
 Changements notables du poste documentaire local, au format [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) rédigé en français (Ajouté, Modifié, Corrigé, Sécurité). Version déclarée du projet : `0.1.0`, identique dans [`pyproject.toml`](pyproject.toml) et [`apps/web/package.json`](apps/web/package.json) ; aucune version n'est publiée et le dépôt ne porte aucune étiquette Git, si bien que tout relève de la section [Non publié].
 
@@ -61,6 +61,12 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
   bit-identique promise. Revue finale R94 `f31a0e56` acquise, limitée aux cibles.
   [Résultats et limites](RAG_Local_Agents/reports/office-integration-2026-10-10.md#livraison-f14-arrêt-c07-et-nettoyage-des-essais--11-octobre-2026).
 
+
+- Entretien après publication `0dfd7e0` : TAR22 historique devenu inutile
+  retiré après empreintes complètes et vérification du backup51 ;
+  11 185 633 280 octets logiques libérés. Archive/programme f14 et repli
+  conservés ; perte de réextraction du TAR22 explicitement consignée.
+  [Reçu et limites](RAG_Local_Agents/reports/office-integration-2026-10-10.md#entretien-après-publication-du-correctif--11-octobre-1744-utc).
 
 ### Corrigé — identité des documents comparés
 
