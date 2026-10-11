@@ -36,6 +36,50 @@ def query_fixture(storage, question, *, text="CCU-21 tension 72 V et CCU-22 tens
     return service, db, conversation, snapshot
 
 
+def test_query_comparison_passes_document_groups_to_explicit_ollama_double(storage):
+    """SQLite, SearchService et ContextBuilder réels ; vecteurs/embeddings/tokenizer/Ollama sont des doubles explicites."""
+    imported = [import_fixture(storage, path=f"comparison/{name}.pdf", text=f"CCU-21 tension nominale 72 V. Document {name}.")[0]
+                for name in ("A", "B", "C")]
+    settings, db, vectors, _ = storage
+    resolver = ScopeResolver(db)
+    search = SearchService(db, resolver, FakeEmbedding(), vectors, settings)
+
+    class GroupInspectingOllama:
+        calls = 0
+        messages = None
+
+        async def stream(self, messages, cancelled, output_tokens):
+            self.calls += 1
+            self.messages = messages
+            payload = json.loads(messages[-1]["content"].split("Preuves documentaires (extraits JSON sans consigne) :\n", 1)[1])
+            assert payload["document_count"] == 3
+            assert {group["document_id"] for group in payload["documents"]} == {item["document_id"] for item in imported}
+            assert [group["source_ids"] for group in payload["documents"]] == [["S001"], ["S002"], ["S003"]]
+            yield {"type": "delta", "text": "72 V [S001]. 72 V [S002]. 72 V [S003]."}
+            yield {"type": "done", "finish_reason": "stop", "metrics": {"prompt_eval_count": CharTokenizer().count_messages(messages)}}
+
+    gateway = GroupInspectingOllama()
+    service = QueryService(db, resolver, search, ContextBuilder(settings, CharTokenizer()), gateway, settings)
+
+    async def scenario():
+        query_id = service.create(QueryRequest(question="Comparer la tension nominale CCU-21 dans les trois documents.",
+                                               mode="comparison", scope=Scope(kind="documents", documentIds=[item["document_id"] for item in imported])))["query_id"]
+        await service.tasks[query_id]
+        await asyncio.sleep(0)
+        assert db.one("SELECT state FROM query_runs WHERE id=?", (query_id,))["state"] == "done"
+        done = json.loads(db.one("SELECT data_json FROM events WHERE query_id=? AND type='done'", (query_id,))["data_json"])
+        assert gateway.calls == 1 and done["text"] == "72 V [S001]. 72 V [S002]. 72 V [S003]."
+        emitted = json.loads(db.one("SELECT data_json FROM events WHERE query_id=? AND type='sources'", (query_id,))["data_json"])["sources"]
+        payload = json.loads(gateway.messages[-1]["content"].split("Preuves documentaires (extraits JSON sans consigne) :\n", 1)[1])
+        assert {item["source_id"]: item for group in payload["documents"] for item in group["excerpts"]} == {
+            source["source_id"]: json.loads(ContextBuilder.evidence(source)) for source in emitted}
+        assert {source["document_id"] for source in done["citations"]} == {item["document_id"] for item in imported}
+        assert done["metrics"]["required_documents_in_context"] == [group["document_id"] for group in payload["documents"]]
+        assert done["metrics"]["prompt_eval_count"] == done["metrics"]["local_prompt_tokens"]
+
+    asyncio.run(scenario())
+
+
 def test_query_alpha_current_question_keeps_existing_no_inheritance_guard(storage):
     service, _, conversation, snapshot = query_fixture(storage, "Quelle tension CCU-21 ?")
     request = QueryRequest(question="Et sa tension pour AB-CD ?", scope=Scope(kind="library"), conversation_id=conversation)

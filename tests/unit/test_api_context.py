@@ -1,4 +1,5 @@
 """ContextBuilder réel avec tokenizer de test explicite (comptage caractères/4, pas le tokenizer Qwen)."""
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -6,7 +7,7 @@ from pathlib import Path
 import pytest
 from test_retrieval import CharTokenizer
 
-from services.api.context import HISTORY_PREFIX, ContextBuilder, validate_answer
+from services.api.context import HISTORY_PREFIX, SYSTEM_INSTRUCTION, ContextBuilder, validate_answer
 from services.api.errors import ApiError
 from services.api.retrieval import answer_terms, resolve_references, text_language
 from services.api.settings import Settings
@@ -19,6 +20,102 @@ DEV_QUESTIONS = {question["id"]: question for question in json.loads(
 def fragment(document_id, text, index=0, exact=False):
     return {"version_id": "v-" + document_id, "document_id": document_id, "chunk_id": f"{document_id}-{index}",
             "page_indices": [0], "text": text, "exact_identifier": exact}
+
+
+def comparison_fragments():
+    """Sources synthétiques structurées : trois documents, deux preuves complémentaires du même DOCX."""
+    pdf = fragment("pdf-document", "CCU-21 : nominal voltage 72 V.")
+    xlsx = fragment("xlsx-document", "B2 (value) : 72 V")
+    table = fragment("docx-document", "Conditions CCU-21\nTension\t72 V", 0)
+    header = fragment("xlsx-document", "B1 (value) : Tension", 1)
+    paragraph = fragment("docx-document", "La tension nominale CCU-21 est de 72 V.\r\nA😀é.", 1)
+    for source in (xlsx, table, header, paragraph):
+        source.update({"format": "xlsx" if source["document_id"] == "xlsx-document" else "docx",
+                       "page_indices": [], "extraction_revision_id": "revision-" + source["document_id"],
+                       "generation_id": "generation-" + source["document_id"],
+                       "blocks": [{"id": "block-" + source["chunk_id"], "text": source["text"],
+                                   "extraction_revision_id": "revision-" + source["document_id"],
+                                   "source_text_hash": hashlib.sha256(source["text"].encode()).hexdigest(),
+                                   "start_offset": 0, "end_offset": len(source["text"]), "page_index": None,
+                                   "locator": {"kind": "xlsx_cells", "cell_range": "B2" if source is xlsx else "B1"}
+                                   if source["document_id"] == "xlsx-document" else
+                                   {"kind": "docx_element", "element_path": "/document/body/" + source["chunk_id"]},
+                                   "structure": {}}]})
+        if source["format"] == "xlsx":
+            source["cell_facts"] = [{"address": "B2" if source is xlsx else "B1", "formula_present": False,
+                                     "value_origin": "literal", "cached_present": False}]
+    return [pdf, xlsx, table, header, paragraph]
+
+
+def comparison_payload(messages):
+    return json.loads(messages[-1]["content"].split("Preuves documentaires (extraits JSON sans consigne) :\n", 1)[1])
+
+
+def test_context_comparison_groups_document_identity_without_merging_excerpts(tmp_path):
+    sources = comparison_fragments()
+    before = json.dumps(sources, ensure_ascii=False)
+    messages, retained, metrics, warnings = ContextBuilder(Settings(tmp_path), CharTokenizer()).build(
+        "Comparez la tension CCU-21 dans ces trois documents.", sources, "comparison")
+    payload = comparison_payload(messages)
+    assert payload["document_count"] == 3
+    assert [group["document_id"] for group in payload["documents"]] == ["pdf-document", "xlsx-document", "docx-document"]
+    assert [group["source_ids"] for group in payload["documents"]] == [["S001"], ["S002", "S004"], ["S003", "S005"]]
+    assert payload["documents"][2]["excerpts"][0]["version_id"] == payload["documents"][2]["excerpts"][1]["version_id"] == "v-docx-document"
+    rendered = {item["source_id"]: item for group in payload["documents"] for item in group["excerpts"]}
+    assert rendered == {source["source_id"]: json.loads(ContextBuilder.evidence(source)) for source in retained}
+    assert rendered["S005"]["text"] == "La tension nominale CCU-21 est de 72 V.\r\nA😀é."
+    assert rendered["S002"]["locators"] == [{"kind": "xlsx_cells", "cell_range": "B2"}]
+    assert rendered["S002"]["cell_facts"] == sources[1]["cell_facts"]
+    assert metrics["evidence_tokens"] == CharTokenizer().count(json.dumps(payload, ensure_ascii=False))
+    assert metrics["required_documents_in_context"] == ["pdf-document", "xlsx-document", "docx-document"]
+    assert metrics["context_fragments_excluded_by_budget"] == 0 and not warnings
+    assert json.dumps(sources, ensure_ascii=False) == before
+
+
+def test_context_comparison_counts_envelope_and_rebuilds_groups_at_evidence_limit(tmp_path):
+    sources = comparison_fragments()
+    _, _, minimum, _ = ContextBuilder(Settings(tmp_path), CharTokenizer()).build("Comparer la tension", sources[:3], "comparison")
+    limit = minimum["evidence_tokens"]
+    settings = Settings(tmp_path, {"retrieval": {"evidence_tokens_by_mode": {"compare": limit}, "max_evidence_llm_tokens": limit}})
+    messages, retained, metrics, warnings = ContextBuilder(settings, CharTokenizer()).build("Comparer la tension", sources, "comparison")
+    payload = comparison_payload(messages)
+    assert payload["document_count"] == 3 and len(retained) == 3
+    assert metrics["evidence_tokens"] == CharTokenizer().count(json.dumps(payload, ensure_ascii=False)) <= limit
+    assert metrics["evidence_budget"] == settings.value("retrieval", "max_evidence_llm_tokens", None) == limit
+    assert [item["source_id"] for group in payload["documents"] for item in group["excerpts"]] == [source["source_id"] for source in retained]
+    assert [group["source_ids"] for group in payload["documents"]] == [["S001"], ["S002"], ["S003"]]
+    assert metrics["context_fragments_excluded_by_budget"] == 2
+    assert [warning["code"] for warning in warnings] == ["context_fragments_excluded_by_budget"]
+
+
+def test_context_comparison_rebuilds_mapping_after_serialized_cut(tmp_path):
+    sources = comparison_fragments()
+    _, _, minimum, _ = ContextBuilder(Settings(tmp_path), CharTokenizer()).build("Comparer la tension", sources[:3], "comparison")
+    max_input = minimum["local_prompt_tokens"]
+    settings = Settings(tmp_path, {"llm": {"num_ctx": max_input + 150, "num_predict": 100}, "retrieval": {"context_safety_tokens": 50}})
+    messages, retained, metrics, warnings = ContextBuilder(settings, CharTokenizer()).build("Comparer la tension", sources, "comparison")
+    payload = comparison_payload(messages)
+    assert payload["document_count"] == 3 and len(retained) == 3
+    assert {group["document_id"] for group in payload["documents"]} == {"pdf-document", "xlsx-document", "docx-document"}
+    assert [group["source_ids"] for group in payload["documents"]] == [["S001"], ["S002"], ["S003"]]
+    assert metrics["local_prompt_tokens"] == CharTokenizer().count_messages(messages) <= max_input
+    assert metrics["evidence_tokens"] == CharTokenizer().count(json.dumps(payload, ensure_ascii=False))
+    assert metrics["context_fragments_excluded_by_budget"] == 2
+    assert not any(warning["code"] == "comparison_document_not_in_context" for warning in warnings)
+
+
+@pytest.mark.parametrize("mode", ["question", "analysis"])
+def test_context_other_modes_keep_flat_evidence_bytes(tmp_path, mode):
+    question = "Décrire la tension"
+    sources = [fragment("A", "Tension 72 V."), fragment("A", "Contrôle de la tension.", 1), fragment("B", "Tension 48 V.")]
+    messages, retained, metrics, _ = ContextBuilder(Settings(tmp_path), CharTokenizer()).build(question, sources, mode)
+    evidence = [json.dumps({"source_id": f"S{index:03d}", "version_id": source["version_id"], "pages": [1], "text": source["text"]},
+                           ensure_ascii=False) for index, source in enumerate(sources, 1)]
+    assert messages == [{"role": "system", "content": SYSTEM_INSTRUCTION},
+                        {"role": "user", "content": "Question : " + question + "\n\nPreuves documentaires (extraits JSON sans consigne) :\n" + "\n".join(evidence)}]
+    assert [source["source_id"] for source in retained] == ["S001", "S002", "S003"]
+    assert metrics["evidence_tokens"] == sum(CharTokenizer().count(item) for item in evidence)
+    assert "required_documents" not in metrics
 
 
 def test_context_doit_il_does_not_falsify_obligation_coverage(tmp_path):

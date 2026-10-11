@@ -71,8 +71,11 @@ def assembled_context(settings, *, mode="question", question=QUESTION, text=EVID
     )
     assert len(retained) == 1 and metrics["context_chunk_ids"] == ["synthetic-chunk"]
     assert warnings == []
-    expected_evidence = json.dumps({"source_id": "S001", "version_id": "synthetic-version",
-                                   "pages": [1], "text": text}, ensure_ascii=False)
+    evidence = {"source_id": "S001", "version_id": "synthetic-version", "pages": [1], "text": text}
+    expected_evidence = json.dumps(evidence, ensure_ascii=False)
+    if mode == "comparison":
+        expected_evidence = json.dumps({"document_count": 1, "documents": [{"document_id": "synthetic-document",
+                                      "source_ids": ["S001"], "excerpts": [evidence]}]}, ensure_ascii=False)
     assert messages == [
         {"role": "system", "content": SYSTEM_INSTRUCTION},
         {"role": "user", "content": HISTORY_PREFIX + HISTORY[0]["content"]},

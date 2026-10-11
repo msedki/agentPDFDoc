@@ -1,6 +1,6 @@
 # Intégration DOCX/XLSX — preuves locales du 10 octobre 2026
 
-**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · Livraison propre CPU `52abb94b`, fermeture récupérée et retrait du transport revus indépendamment · **Mis à jour :** 2026-10-11 03:28 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
+**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · Livraison propre CPU `52abb94b`, fermeture récupérée et retrait du transport revus indépendamment · **Mis à jour :** 2026-10-11 04:46 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
 
 La phase d'étude a précédé l'implémentation. DOCX et XLSX complètent maintenant
 PDF dans l'import, l'extraction, les représentations, la recherche et les
@@ -1283,3 +1283,91 @@ n'est pas une preuve de fonctionnement sur un hôte physique de 16 Go.
 Cette variante étend la preuve locale C02 ; panne électrique, bases
 arbitraires et SQLite des autres cibles restent non qualifiés.
 Références officielles R28-S28/S29/S31 dans [SOURCES](../SOURCES.md).
+
+
+## C07 — comparaison de trois documents et correctif d’identité — 11 octobre 2026
+
+**Cible et portée :** programme CPU `52abb94b` inchangé, Linux aarch64,
+compte1000, namespace réseau privé ; copie fraîche du backup `22fd828`.
+Trois originaux DEV synthétiques, 14 points Qdrant, CPU4B Qwen/E5 réels.
+L’hôte possède environ61,3 Gio de RAM physique ; ce cas ne qualifie ni
+CPU16Go, ni Windows/x86-64, ni tout C07. Sources et contrôles natifs :
+`r28-implementation/c07-comparison-preparation-20261011/native-02/`.
+
+Une préparation initiale distinguait mal le SHA YAML du profil et son SHA
+canonique API ; elle n’a pas été exécutée. Dans native02, l’étape8 QA
+termine réellement à1 sur `KeyError: storage_dir`, avant up et génération.
+Une récupération distincte conserve l’option absente et utilise le fallback
+réel du superviseur ; seuls chemins et ports changent. Original rouge
+`8056b9ae`, gel distinct `dab52381`, revue `944e8273` et admission ROOT
+`0f522c63` conservés ; étapes1–7 inchangées, étape8 distincte puis9–15.
+
+Une seule question comparative a réellement été exécutée
+(`b1e09a2d-a52c-44fc-82a9-4ab20f2be94f`) : commande191,382 s,
+trace API189,511 s, 267 événements dont1done et262deltas. Avant génération,
+le contexte protégé couvre les trois documents, 2319 tokens de preuve
+sur4864, avec fragments/littéraux72V et ancrages exacts. Réponse et
+citations conservées : DONE `84a94fbd`, context `d96538bd`, SSE `5760bf00`.
+L’unique nouvelle query ajoute8 citations enregistrées ; quatre sont
+effectivement citées dans le texte : S001 PDF page1, S002 XLSX A2:C2
+(littéral B2, offsets33–37), S003 tableau DOCX9 et S005 paragraphe du
+**même** DOCX. C2 porte une formule sans cache ; aucun recalcul n’a eu lieu.
+
+**Échec sémantique prouvé :** la réponse appelle ces quatre passages
+« quatre documents » alors que leurs document_id n’en désignent que
+trois ; elle ne respecte pas une phrase par document. Faits72V et
+attributions sont corrects, ce qui ne valide pas le résultat entier.
+Revue indépendante `b6a61bac` : FAIL cardinalité et format demandé.
+Ni réponse, ni DONE, ni ancien reçu technique n’ont été réécrits.
+
+**Diagnostic et correction RAG-02 :** la recherche assure la couverture
+documentaire ; le rendu de ContextBuilder exposait une liste plate de
+passages et des version_id opaques. Ce manque de représentation est
+confirmé, sans prétendre expliquer seul le comportement du modèle.
+Le mode comparison rend désormais des groupes par document_id réel,
+avec leur liste de source_id et leurs extraits intacts ; document_count
+est dérivé des groupes retenus. Le budget compte toute l’enveloppe et
+chaque coupe reconstruit groupes et mapping. Le système, les quotas et
+les octets de preuve des modes question/analysis restent inchangés.
+Fichiers : `services/api/context.py`, `tests/unit/test_api_context.py`,
+`test_api_queries.py`, `test_development_instruction_isolation.py`.
+Gel `semantic-identity-implementation-01/frozen-final-01.json` (`13f44fb5`).
+224 tests uniques affectés au vert :223 de la passe large puis8 isolation,
+dont7 recouvrants ; six nouveaux cas, Ruff4fichiers et mypy ciblé conformes.
+Doubles tokenizer/embedding/vecteurs/Ollama explicitement nommés. Préimages
+et vrais rouges conservés ; revue indépendante source acquise `cff07393`.
+**L’effet sur une réponse réelle du modèle demeure non mesuré.**
+
+**Recette navigateur, résultats distincts :** READERS_ONLY, zéro nouvelle
+question/import/indexation/inférence. UI01 échoue avant tout clic sur
+un attendu scope minimal au lieu du DTO complet persisté. UI02 utilise
+l’égalité stricte des15champs et13valeurs par défaut puis échoue sur un
+snapshot de deux boutons pendant le rejeu SSE. Le DOM final conservé
+montre déjà S001/S002/S003/S005 : absence permanente non démontrée.
+Diagnostic `ui02-citation-snapshot-diagnosis-01.md` (`80667f7c`) et attente
+stricte préparée selon [R15S31](../SOURCES.md).
+Deux captures d’échec sont gardées, zéro capture de succès lecteur.
+Scan exact des14fichiers de sortie contre les secrets disponibles :
+`privacy-two-failures-01.json` (`034bb8b8`), authstates600 exclus précisément,
+aucune valeur exposée ; limite non exhaustive et ticket consommé inconnu.
+
+**Arrêt réellement acquis :** down12/0, inventaire13/0, comparaison14/0,
+finish15 réel puis propriétaire ROOT51336 récolté à0 (`e94997`).
+65 131 fichiers/1 188 liens du programme inchangés. Finaliseur hôte distinct
+à0 (`e230cc`) :31tables froides égales au post-query réel, trois originaux
+exacts, 14points avant/après exacts. `host-final.json` (`1845113b`),
+`root-external-cold-closure-02.json` (`c38f9e92`) :202 identités PID/naissance distinctes sur 206 enregistrements
+contrôlés, fraîchement absentes, aucun succès sémantique ni navigateur reconstruit.
+Revue terminale indépendante `f66635d5` acquise.
+Une assertion externe QA avait comparé le wrapper de capture au mapping
+SQL brut ; échec1 conservé avec diagnostic de formats, distinct des
+oracles exacts du finaliseur. Après revue `56dec477` et GO ROOT `48e13f4e`,
+retrait réellement acquis `3c7a43/0` :37 fichiers (2auth,3Node,32JS/map)
+et19 dossiers cache vides supprimés, trois racines privées conservées
+vides ; aucun rmtree. Reçu `temporary-retirement-after-02.json` (`832455b2`),
+externe `e874388e` : opérateur2003858 fraîchement absent,202 producteurs
+connus absents,42preuves/sources épinglées intactes. Durée0,059s ;
+564431octets logiques/720896 alloués sélectionnés, variation libre du
+volume observée+720896octets, sans attribution générale. DATA, programme,
+originaux, deux captures d’échec et preuves conservés.
+Revue finale indépendante du retrait `65f2227e` acquise.

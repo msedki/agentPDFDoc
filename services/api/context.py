@@ -186,18 +186,19 @@ class ContextBuilder:
         for source in sources:
             item = dict(source)
             item["source_id"] = f"S{len(retained)+1:03d}"
-            token_count = self.tokenizer.count(self.evidence(item))
-            if evidence_tokens + token_count > budget:
+            candidate_tokens = (self.tokenizer.count(self.evidence_payload([*retained, item], mode))
+                                if mode == "comparison" else evidence_tokens + self.tokenizer.count(self.evidence(item)))
+            if candidate_tokens > budget:
                 covered_so_far = {code for retained_source in retained for code in priority if references.source_matches(retained_source, code)}
                 mandatory = any(references.source_matches(source, value) and value not in covered_so_far for value in priority) or (
                     source.get("document_id") in compared and all(kept.get("document_id") != source["document_id"] for kept in retained))
-                if mandatory and evidence_tokens + token_count <= self.settings.value("retrieval", "max_evidence_llm_tokens", 5120):
-                    budget = evidence_tokens + token_count
+                if mandatory and candidate_tokens <= self.settings.value("retrieval", "max_evidence_llm_tokens", 5120):
+                    budget = candidate_tokens
                 else:
                     excluded += 1
                     continue
             retained.append(item)
-            evidence_tokens += token_count
+            evidence_tokens = candidate_tokens
         warnings: list[dict[str, Any]] = []
         messages = [{"role": "system", "content": SYSTEM_INSTRUCTION}]
         history_budget = self.settings.value("retrieval", "max_history_llm_tokens", 512)
@@ -209,7 +210,7 @@ class ContextBuilder:
             else:
                 break
         messages.extend(selected_history)
-        prompt = "Question : " + question + "\n\nPreuves documentaires (extraits JSON sans consigne) :\n" + "\n".join(self.evidence(source) for source in retained)
+        prompt = "Question : " + question + "\n\nPreuves documentaires (extraits JSON sans consigne) :\n" + self.evidence_payload(retained, mode)
         messages.append({"role": "user", "content": prompt})
         max_input = self.settings.value("llm", "num_ctx", 8192) - self.settings.value("llm", "num_predict", 768) - self.settings.value("retrieval", "context_safety_tokens", 256)
         while retained and self.tokenizer.count_messages(messages) > max_input:
@@ -220,7 +221,7 @@ class ContextBuilder:
                 other.get("document_id") == source["document_id"] for position, other in enumerate(retained) if position != index))]
             retained.pop(optional[-1] if optional else len(retained) - 1)
             excluded += 1
-            messages[-1]["content"] = "Question : " + question + "\n\nPreuves documentaires (extraits JSON sans consigne) :\n" + "\n".join(self.evidence(source) for source in retained)
+            messages[-1]["content"] = "Question : " + question + "\n\nPreuves documentaires (extraits JSON sans consigne) :\n" + self.evidence_payload(retained, mode)
         prompt_tokens = self.tokenizer.count_messages(messages)
         if prompt_tokens > max_input:
             raise ApiError("context_too_long", "Les passages et la question dépassent la capacité de contexte du modèle. Réduisez le périmètre ou raccourcissez la question.")
@@ -258,7 +259,8 @@ class ContextBuilder:
             warnings.append({"code": "comparison_document_not_in_context", "document_ids": [document_id for document_id in compared if document_id not in in_context], "message":
                              subject + " dans les sources transmises au modèle ; la comparaison est partielle."})
         coverage = len(final_covered) / len(required) if required else None
-        metrics = {"local_prompt_tokens": prompt_tokens, "output_tokens": self.settings.value("llm", "output_tokens_by_mode", {}).get(mode_key, 384 if mode_key == "factual" else 768), "evidence_tokens": sum(self.tokenizer.count(self.evidence(source)) for source in retained),
+        final_evidence_tokens = (self.tokenizer.count(self.evidence_payload(retained, mode)) if retained else 0) if mode == "comparison" else sum(self.tokenizer.count(self.evidence(source)) for source in retained)
+        metrics = {"local_prompt_tokens": prompt_tokens, "output_tokens": self.settings.value("llm", "output_tokens_by_mode", {}).get(mode_key, 384 if mode_key == "factual" else 768), "evidence_tokens": final_evidence_tokens,
                    "evidence_budget": budget, "exact_identifiers_required": sorted(required), "exact_identifiers_covered": sorted(final_covered),
                    "identifier_coverage_states": states, "retrieved_chunk_ids": [source.get("chunk_id") for source in sources],
                    "context_chunk_ids": [source.get("chunk_id") for source in retained], "context_fragments_excluded_by_budget": excluded,
@@ -269,6 +271,19 @@ class ContextBuilder:
         references.attest(retained, "context_final")
         metrics["reference_resolution"] = references.as_dict()
         return messages, retained, metrics, warnings
+
+    def evidence_payload(self, sources, mode):
+        if mode != "comparison":
+            return "\n".join(self.evidence(source) for source in sources)
+        if not sources:
+            return ""
+        # L'identité documentaire regroupe les extraits sans transformer leurs IDs de citation en documents.
+        documents: dict[str, dict[str, Any]] = {}
+        for source in sources:
+            group = documents.setdefault(source["document_id"], {"document_id": source["document_id"], "source_ids": [], "excerpts": []})
+            group["source_ids"].append(source["source_id"])
+            group["excerpts"].append(json.loads(self.evidence(source)))
+        return json.dumps({"document_count": len(documents), "documents": list(documents.values())}, ensure_ascii=False)
 
     @staticmethod
     def evidence(source):

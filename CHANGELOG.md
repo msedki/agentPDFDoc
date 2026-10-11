@@ -1,12 +1,17 @@
 # Journal des modifications
 
-**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Sources C05 publiées `4cb1a2a` ; livraison du kit CPU `52abb94b` vérifiée avec récupération distincte et réserve du broker initial · **Mis à jour :** 2026-10-11 03:28 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
+**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Sources C05 publiées `4cb1a2a` ; livraison du kit CPU `52abb94b` vérifiée avec récupération distincte et réserve du broker initial · **Mis à jour :** 2026-10-11 04:46 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
 
 Changements notables du poste documentaire local, au format [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) rédigé en français (Ajouté, Modifié, Corrigé, Sécurité). Version déclarée du projet : `0.1.0`, identique dans [`pyproject.toml`](pyproject.toml) et [`apps/web/package.json`](apps/web/package.json) ; aucune version n'est publiée et le dépôt ne porte aucune étiquette Git, si bien que tout relève de la section [Non publié].
 
 Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit et d'un lien vers sa preuve. Les états intermédiaires, échecs et reprises restent dans le [plan](RAG_Local_Agents/PLAN.md) et le [journal](RAG_Local_Agents/journal/README.md). Ce fichier est distinct du [registre des corrections de la baseline documentaire V2.1](RAG_Local_Agents/CHANGELOG.md).
 
 ## [Non publié]
+
+### Corrigé — identité des documents comparés
+
+- Le contexte du mode comparaison regroupe désormais les passages par identité documentaire réelle : plusieurs citations d’un même DOCX ne constituent plus plusieurs entrées documentaires. L’enveloppe complète est comptée dans le budget et reconstruite après chaque coupe ; textes, ancrages et IDs de citation sont conservés. Les preuves des modes Question et Critique restent identiques. 224 tests uniques affectés au vert, lint et typage ciblés conformes ; efficacité sur la réponse du modèle encore à mesurer. [Preuves RAG-02 et échec natif conservé](RAG_Local_Agents/reports/office-integration-2026-10-10.md#c07--comparaison-de-trois-documents-et-correctif-didentité--11-octobre-2026).
+
 
 ### Ajouté
 
