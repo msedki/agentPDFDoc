@@ -1,6 +1,6 @@
 # Intégration DOCX/XLSX — preuves locales du 10 octobre 2026
 
-**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · **Mis à jour :** 2026-10-11 00:09 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
+**Rôle :** rapport de preuve de l'intégration R28 · **Propriétaire :** intégration et validation · **Statut :** Vivant, contrôles locaux acquis, limites de qualification ouvertes · **Référence :** base `64e191f5d93e7c8e702a3a8b93713a7aac30e458`, sources publiées `57f7f0a6f2feee80adfd35b65bf4d81f6319e74c` et empreintes des sources réellement exécutées · Correctif publié et kit CPU natif vérifié : `22fd828` · Livraison propre CPU `52abb94b`, fermeture récupérée et retrait du transport revus indépendamment · **Mis à jour :** 2026-10-11 02:09 (UTC) · **Source de vérité :** reçus natifs cités ci-dessous ; actions dans [PLAN.md](../PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation)
 
 La phase d'étude a précédé l'implémentation. DOCX et XLSX complètent maintenant
 PDF dans l'import, l'extraction, les représentations, la recherche et les
@@ -1086,3 +1086,78 @@ Lancement actuel : **36,008 s** ; contrôles natifs avant **1,522 s**, après **
 **Documentation et préparation de publication (11 octobre UTC) :** revue indépendante des 12 documents gelés acquise `d1f7f629`. Cinq commandes réellement terminées à 0 : brief synchronisé, `check_docs` 7/7, SVG conformes, **62 tests PASS** sans erreur/échec/skip (6,025 s pytest ; 7,283 s enveloppe), `verify_pack` 11/11. Les 12 avertissements préexistants de classement des fichiers tiers de skills sont conservés ; ils ne constituent pas un nouvel écart C05. Les 14 identités QA capturées sont fraîchement absentes. Le seul `pytest-tmp` a été retiré après récolte, avec 19 preuves conservées : 3 911 680 octets alloués retirés, gain SD observé 3 633 152 octets borné, reçu `ca5f7df4`.
 
 La garde Git brute signalait 65 CR de fin de ligne du panneau TSX historiquement mixte, sans autre blanc fautif. Un attribut `whitespace` ciblé reconnaît ces fins CRLF en conservant les gardes des espaces terminaux et avant tabulation ; aucun octet des 13 sources produit n’est modifié. `git diff --check` brut passe ensuite à 0 ; premier refus conservé et reçu `b47462b0`. L’addendum documentaire fait l’objet des contrôles de structure et d’un contrôle indépendant du gel indexé, sans rejouer les suites produit ou les 62 tests inchangés.
+
+
+## Livraison du kit CPU 52abb94b — 11 octobre 2026
+
+**Périmètre :** livraison `0.1.0+52abb94b2505-linux-aarch64-none-2b4b`,
+source `52abb94b250500a9584a9cce5e84e348e5fc2d2a`, incluant RAG-01 et C05
+publiés. Linux aarch64 natif, variante GPU `none` ; poste physique 62 800,5 MiB.
+Le futur commit de suivi ne change pas cette provenance. L’export local
+sur `16690eb` décrit plus haut demeure une preuve historique distincte.
+
+| Contrôle réel | Résultat | Preuve sous `.runtime/qa/r28-implementation/` |
+|---|---|---|
+| Export propre |243 fichiers/6 616 966 octets ; build 20,676 s/retour 0 | `c05-next-kit/web-build-01/closed-export-receipt-01.json`,464aae3d ; provenance 9071edb7, revue815d |
+| Fabrication/archive |5 commandes à 0 ; dry 144,535/build 118,733/verify 31,158/archive 611,571/readback 128,021 s | `c05-next-kit/factory-01/distribution-office-52abb94b2505-build-archive-01/progress.json`,5c91925a ; owner fermé 4e7cd528 |
+| Transport/extraction | readback 64,742 s et extraction 124,123 s, retours 0 ; cumul 7 commandes : 1 222,883 s, pas temps mural | `c05-next-kit/factory-01/distribution-office-52abb94b2505-extract-01/progress.json`,5f154734 ; owner fermé 3f027cda |
+| Archive |11 185 684 480 octets ; deux lectures complètes réelles conservées | SHA-256 `4a066afb7ffa0aa669a13ab9ab1705e1c6eca65ad3bbb64a1cbbc745fb35f094` ; revue 57e9a36b |
+| Installation/restore/up | retours 0,136,742/27,260/10,805 s ; programme 52, profil322ae38c et manifeste a9823cd7 | `c05-next-kit/installation-preparation-01/runtime52/` ; UUID0247630fadad4a6a89862eb5fd4b4fb2, sources live0f4390f5 |
+| Recherche réelle |1 POST search,1 embedding CPU dense E5 ONNX complet ; 72 V cité sur **B2** avec parent/hash/offsets exacts | `runtime52` ci-dessus : recherche 13–18 admise 8620972d ; aucun POST queries/LLM/import/reindex |
+| Lecteurs/historique | navigateur : 1 PASS, 0 skip/retry/flaky ; 122 GET, 4 paires littérales ; 6 PNG Office 1366×768/1920×1080 réellement vus | mêmes preuves `runtime52`, pixels/privacy76b4875d ; ROOT 957b77d3, revue 5358f6c5 |
+| Incident initial |18 étapes à 0 puis lanceur 68366 réellement récolté à 1 ; SIGTERM 15 d’origine UNKNOWN | `runtime52/owner-interruption-01.json`,18c52183 ; cleanup rouge d7459615 conservé, aucune clôture nominale inventée |
+| Arrêt récupéré | down nominal produit 0, 8,054 s, même UUID/profil ; services connus arrêtés | `runtime52/recovery-01/down.json`, deb50e6a ; actual-start/wait et nominal-stop-handoff e4a96ed5 |
+| Contrôles froids |31 tables exactes, intégrité/FK ; 3 versions, 2 DONE/14 citations ; 14 vecteurs égaux à la référence avant down | `runtime52/recovery-01/host-final.json`, c4760d6b ; aucune lecture live Qdrant après arrêt |
+| Programme/conservation |65 131 fichiers/1 188 liens strictement inchangés ; originaux/extractions/historiques exacts | `runtime52/recovery-01/strict-program-compare.json` et captures avant/après |
+| Clôture indépendante | récupération sans appel supplémentaire API/search/LLM ; 159 identités hôte, 161 terminal et 162 revue, périmètres distincts | `runtime52/recovery-01/terminal-handoff-01.json`,43f15f2b ; revue 4ecb8637 |
+| Retrait transport 52 | seule copie extraite inutile absente ; 26,343 s/outil 6522 réellement 0 ; archive/programme/DATA protégés | `c05-next-kit/transport52-recovery-retirement-01/root-owner-closed-01.json`, b9051d4f ; after 5d7423d5, revue a48e1664 |
+
+Les quatre citations littérales sont celles du tableau C05 ci-dessus : XLSX
+A2/CCU-21 et B2/72 V, PDF page 1 et tableau DOCX « Tension = 72 V », avec version/révision anciennes.
+Le retour et le reload sont contrôlés dans le DOM réel. Six captures Office
+montrent les cellules/adresses/table aux deux tailles ; le PDF est vérifié
+par le DOM et le journal de navigation, pas par une capture PDF réussie.
+Les 2 DONE/14 citations proviennent du backup produit `22fd`, avec 14 points Qdrant
+actifs : ce dataset diffère du clone C05 à 16 points. Cette recette ne mesure
+pas la qualité d’une nouvelle réponse et ne lève pas le faux refus 4B historique.
+
+La clôture récupérée garde original_owner_exit = 1 et nominal_broker_completion
+faux. Le lanceur original n’a ni ended, ni finish, ni owner-closed ; l’arrêt
+coopératif du superviseur utilise le mécanisme nominal du produit. Les erreurs
+QA de sélecteur/texte source ont été corrigées avant exécution ; la publication
+récupérée corrige la seule clé elapsed_seconds vers elapsed_s après un refus
+conservé. La revue de retrait garde son AssertionError sur un champ supposé,
+puis contrôle status ABSENT_FRESH/pid_exists False réels. Aucun garde affaibli,
+rejeu fonctionnel ou signal vers un processus étranger pour obtenir le vert.
+
+**Nettoyage et ressources :** les duplicatas transport 22/usine 52 et ancienne
+installation QA57 ont déjà leurs clôtures distinctes. Le cache `.next` retiré
+libère 194 068 480 octets observés sur racine, zéro sur SD ; export propre conservé.
+Transport 52 contient 35 626 fichiers/1 184 liens internes/4 585 sous-répertoires,
+11 226 185 728 octets alloués. Son retrait par `rmtree` à parentfd vérifié
+observe 11 225 931 776 octets libres supplémentaires, sans attribution exclusive
+sur un poste actif. SD avant 3 263 823 872/après 14 489 755 648 octets ;
+racine après 3 379 273 728 octets. RAM disponible aux deux mesures : 51 587,5 et 51 807,9 MiB,
+CPU 31,4/22,2 % : observations ponctuelles, pas pics certifiés ni surveillance
+continue de toute la récupération. Seul storageState QA expiré 554 octets est
+retiré après absence des producteurs, preuve a4816a7e. Archives 52/57/22,
+installation 52/22, données, sauvegardes, 28 sources, DoD, Oct2 et preuves gardées.
+Dix identités étrangères/28 champs restent UNKNOWN bornés, sans absence
+globale revendiquée ni signal/adoption de ces processus.
+
+**Références et portée :** standards ECMA-376/SpreadsheetML, code exact des
+bibliothèques installées et sources R28-S01→09/KIT11/R28-S27 dans
+[SOURCES](../SOURCES.md) étayent les mécanismes. Formule/cache/type/localisateur
+restent distincts ; aucune formule exécutée. Les benchmarks d’étude comparent
+les candidats sur leur micro-corpus, sans supériorité SOTA générale déduite.
+Linux reste une cible générale sous prérequis documentés, avec recette réelle
+limitée à aarch64 ici. Windows natif/Linux x86-64/CPU physique ≤ 16 Go/corpus
+métier-final, NF09 strict et réserve générative restent ouverts. I-08 PARTIEL,
+89 critères DoD inchangés ; aucune qualification 2B/4B depuis le seul packaging.
+
+**Suivi documentaire du 11 octobre, 02:11 UTC :** brief conforme, liens 7/7,
+pack 11/11 et diff brut à 0 ; sorties réelles dans
+`c05-next-kit/documentation-closure-01/actual-checks-01.json` (`e1c4b256`).
+Les 12 avertissements tiers historiques demeurent distincts. Aucun outil
+ou SVG modifié : les 62 tests documentaires précédents sont conservés comme
+preuve historique, sans nouveau total inventé ni rejeu produit.
