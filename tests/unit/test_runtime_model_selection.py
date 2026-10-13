@@ -52,7 +52,9 @@ def test_every_entry_point_takes_the_same_default_profile():
     shell = [line for line in (ROOT / "rag.sh").read_text(encoding="utf-8").splitlines() if line.startswith("profile=")]
     assert shell == [f"profile={default}"]
     powershell = (ROOT / "rag.ps1").read_text(encoding="utf-8-sig")
-    assert f"[string]$Profile = '{default}'," in powershell and powershell.count("[string]$Profile =") == 1
+    assert "[string]$Profile," in powershell and "[string]$Profile =" not in powershell
+    assert "if ($PSBoundParameters.ContainsKey('Profile'))" in powershell
+    assert 'if [ "$profile_seen" -eq 1 ]; then' in (ROOT / "rag.sh").read_text(encoding="utf-8")
     assert linux_kit.MODEL_PROFILES[linux_kit.DEFAULT_MODEL] == default
     four = yaml.safe_load((ROOT / default).read_text(encoding="utf-8"))
     assert four["llm"]["source_model"] == cli.DEFAULT_MODEL and four["llm"]["model"] == "qwen3.5:4b-text"

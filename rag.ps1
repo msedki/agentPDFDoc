@@ -4,8 +4,7 @@ param(
     [Parameter(Position=0)]
     [ValidateSet('provision','doctor','up','open','status','logs','down','pull-model','backup','restore','verify','init-profile','selftest')]
     [string]$Command = 'doctor',
-    [string]$Profile = 'config/local16-4b.yaml',
-    [ValidateSet('qwen3.5:2b','qwen3.5:4b')]
+    [string]$Profile,
     [string]$Model,
     [string]$Only,
     [switch]$Offline,
@@ -15,6 +14,7 @@ param(
     [string]$Report,
     [string]$QdrantStorage,
     [string]$Ports,
+    [long]$MemoryTotalBytes,
     [switch]$NoBrowser
 )
 $ErrorActionPreference = 'Stop'
@@ -23,13 +23,13 @@ $projectPython = Join-Path $projectRoot '.venv/Scripts/python.exe'
 if (-not (Test-Path -LiteralPath $projectPython -PathType Leaf)) {
     throw 'Environnement isolé absent. Exécuter bootstrap.ps1 pour préparer uv et Python3.12, puis rag.ps1 provision.'
 }
-$resolvedProfile = if ([System.IO.Path]::IsPathRooted($Profile)) {
+$resolvedProfile = if (-not $Profile) { $null } elseif ([System.IO.Path]::IsPathRooted($Profile)) {
     [System.IO.Path]::GetFullPath($Profile)
 } else {
     Join-Path $projectRoot $Profile
 }
 $arguments = @('-B','-m','services.runtime.cli',$Command)
-if (-not $Model -or $PSBoundParameters.ContainsKey('Profile')) { $arguments += @('--profile',$resolvedProfile) }
+if ($PSBoundParameters.ContainsKey('Profile')) { $arguments += @('--profile',$resolvedProfile) }
 if ($Model) { $arguments += @('--model',$Model) }
 if ($Only) { $arguments += @('--only',$Only) }
 if ($Offline) { $arguments += '--offline' }
@@ -39,6 +39,7 @@ if ($Target) { $arguments += @('--target',$Target) }
 if ($Report) { $arguments += @('--report',$Report) }
 if ($QdrantStorage) { $arguments += @('--qdrant-storage',$QdrantStorage) }
 if ($Ports) { $arguments += @('--ports',$Ports) }
+if ($PSBoundParameters.ContainsKey('MemoryTotalBytes')) { $arguments += @('--memory-total-bytes',[string]$MemoryTotalBytes) }
 if ($NoBrowser) { $arguments += '--no-browser' }
 $env:PYTHONUTF8 = '1'
 Push-Location -LiteralPath $projectRoot

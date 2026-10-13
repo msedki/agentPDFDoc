@@ -354,6 +354,65 @@ def build(repository: Path, tmp_path: Path, name: str = "kit", **options) -> tup
 
 # --- Liste blanche et contenu du commit -----------------------------------------------------------------------------------
 
+def test_new_linux_kit_pins_committed_catalogue_and_selector_without_using_dirty_catalogue(repository, tmp_path):
+    from services.runtime import model_profiles
+
+    catalogue = model_profiles.read_catalogue(linux_kit.ROOT)
+    for entry in catalogue["profiles"]:
+        entry["pins"][entry["profile"]] = model_profiles.file_sha256(repository / entry["profile"])
+    write(repository, model_profiles.CATALOGUE_PATH, json.dumps(catalogue))
+    write(repository, "services/runtime/model_profiles.py", Path(model_profiles.__file__).read_text())
+    git(repository, "add", "config/model_profiles.json", "services/runtime/model_profiles.py")
+    git(repository, "commit", "-q", "-m", "synthetic catalogue fixture")
+    web_provenance(repository)
+    committed = (repository / model_profiles.CATALOGUE_PATH).read_bytes()
+    write(repository, model_profiles.CATALOGUE_PATH, "invalid dirty catalogue must never be delivered")
+    kit, manifest = build(repository, tmp_path)
+    assert (kit / model_profiles.CATALOGUE_PATH).read_bytes() == committed
+    assert manifest["model_selection"] == {"catalogue": model_profiles.CATALOGUE_PATH, "catalogue_sha256": hashlib.sha256(committed).hexdigest()}
+    assert (kit / "services/runtime/model_profiles.py").read_bytes() == Path(model_profiles.__file__).read_bytes()
+    assert linux_kit.verify_kit(kit)["status"] == "verified"
+
+
+def test_catalogue_can_add_delivered_manual_model_set_without_qualifying_it(repository, tmp_path):
+    import copy
+
+    import yaml
+
+    from services.runtime import model_profiles
+
+    catalogue = model_profiles.read_catalogue(linux_kit.ROOT)
+    catalogue = copy.deepcopy(catalogue)
+    for entry in catalogue["profiles"]:
+        entry["pins"][entry["profile"]] = model_profiles.file_sha256(repository / entry["profile"])
+    profile = yaml.safe_load(PROFILE_4B)
+    profile["llm"].update(model="synthetic:8b", source_model="synthetic:8b")
+    path = "config/synthetic8.yaml"
+    content = yaml.safe_dump(profile)
+    write(repository, path, content)
+    lock = json.loads((repository / linux_kit.MODELS_LOCK).read_text())
+    metadata = copy.deepcopy(lock["models"]["qwen3.5:4b-text"])
+    original = repository / lock["store"] / metadata["manifest_path"]
+    metadata["manifest_path"] = "manifests/registry.ollama.ai/library/synthetic/8b"
+    write(repository, f'{lock["store"]}/{metadata["manifest_path"]}', original.read_bytes())
+    lock["models"]["synthetic:8b"] = metadata
+    write(repository, linux_kit.MODELS_LOCK, json.dumps(lock))
+    catalogue["profiles"].append({"id": "synthetic-8b", "kit_set": "synthetic8", "model": "synthetic:8b", "served_model": "synthetic:8b",
+                                  "profile": path, "pins": {path: hashlib.sha256(content.encode()).hexdigest()}, "qualification": None})
+    write(repository, model_profiles.CATALOGUE_PATH, json.dumps(catalogue))
+    write(repository, "services/runtime/model_profiles.py", Path(model_profiles.__file__).read_text())
+    git(repository, "add", "config", "services/runtime/model_profiles.py")
+    git(repository, "commit", "-q", "-m", "synthetic extra model fixture")
+    web_provenance(repository)
+    kit, manifest = build(repository, tmp_path, models=("4b", "synthetic8"))
+    assert manifest["model_profiles"] == {"qwen3.5:4b": "config/local16-4b.yaml", "synthetic:8b": path}
+    assert ".runtime/models/qwen3.5-2b-tokenizer/tokenizer.json" not in linux_kit.read_sums(kit)
+    decision = model_profiles.select_local_profile(kit, total_memory_bytes=128 * 1024**3, platform="linux-aarch64", mode="cpu",
+                                                   available_models=set(manifest["model_profiles"]))
+    assert decision["selection"] == "legacy_fallback" and decision["model"] == "qwen3.5:4b"
+    assert all(entry["qualification"] is None for entry in model_profiles.read_catalogue(kit)["profiles"])
+
+
 def test_the_linux_whitelist_takes_the_commit_and_selected_artifacts_only(repository):
     write(repository, "services/api/main.py", "VERSION = 'modification locale'\n")
     write(repository, "services/api/nouveau.py", "")

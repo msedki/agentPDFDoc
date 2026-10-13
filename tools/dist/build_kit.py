@@ -140,6 +140,15 @@ def build_kit(output: Path, *, root: Path = ROOT, version: str, without_gpu: boo
     if output.is_relative_to(root.resolve()) or (output.exists() and any(output.iterdir())):
         raise ValueError("Le kit exige un dossier neuf hors du dépôt")
     files = selected_files(root, without_gpu=without_gpu)
+    from services.runtime.model_profiles import read_catalogue
+
+    catalogue = read_catalogue(root) if "config/model_profiles.json" in files else None
+    if catalogue is not None:
+        if "services/runtime/model_profiles.py" not in files:
+            raise ValueError("Sélecteur absent du kit qui fournit le catalogue de profils")
+        for entry in catalogue["profiles"]:
+            if stream_hash(root / entry["profile"]) != entry["pins"][entry["profile"]]:
+                raise ValueError("Profil différent de l'empreinte du catalogue")
     markers = host_markers(root)
     sums: list[str] = []
     sizes: dict[str, int] = {}
@@ -178,6 +187,10 @@ def build_kit(output: Path, *, root: Path = ROOT, version: str, without_gpu: boo
                 "options": {"gpu_libraries_removed": without_gpu, "qwen_source_model": "included"},
                 "excluded_patterns": list(EXCLUDED), "forbidden_prefixes": list(FORBIDDEN_PREFIXES),
                 "forbidden_nested": list(NESTED_FORBIDDEN),
+                **({"model_selection": {"catalogue": "config/model_profiles.json",
+                                         "catalogue_sha256": stream_hash(output / "config/model_profiles.json")},
+                    "model_profiles": {entry["model"]: entry["profile"] for entry in catalogue["profiles"] if entry["profile"] in files}}
+                   if catalogue is not None else {}),
                 "sha256sums_sha256": hashlib.sha256((output / "SHA256SUMS").read_bytes()).hexdigest()}
     (output / "kit-manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
     return manifest
@@ -250,7 +263,10 @@ def linux_build(args: argparse.Namespace) -> dict[str, Any]:
     if host != args.platform:
         raise ValueError(f"Kit {args.platform} demandé sur un poste {host} : un kit se fabrique sur un poste de sa plateforme")
     models = tuple(part.strip() for part in args.models.split(",") if part.strip())
-    if not models or set(models) - set(linux_kit.MODEL_PROFILES):
+    from services.runtime.model_profiles import read_catalogue
+    catalogue = read_catalogue(ROOT)
+    available_sets = {entry["kit_set"] for entry in catalogue["profiles"]} if catalogue else set(linux_kit.MODEL_PROFILES)
+    if not models or set(models) - available_sets:
         raise ValueError("--models : 4b,2b (défaut) ou 4b")
     if args.dry_run:
         return linux_kit.dry_run(ROOT, platform=args.platform, gpu=args.gpu, models=models)

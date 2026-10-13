@@ -1,12 +1,31 @@
 # Journal des modifications
 
-**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Sources C05 publiées `4cb1a2a` ; livraison du kit CPU `52abb94b` vérifiée avec récupération distincte et réserve du broker initial · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-11 18:40 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
+**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Sources C05 publiées `4cb1a2a` ; livraison du kit CPU `52abb94b` vérifiée avec récupération distincte et réserve du broker initial · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-13 14:43 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
 
 Changements notables du poste documentaire local, au format [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) rédigé en français (Ajouté, Modifié, Corrigé, Sécurité). Version déclarée du projet : `0.1.0`, identique dans [`pyproject.toml`](pyproject.toml) et [`apps/web/package.json`](apps/web/package.json) ; aucune version n'est publiée et le dépôt ne porte aucune étiquette Git, si bien que tout relève de la section [Non publié].
 
 Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit et d'un lien vers sa preuve. Les états intermédiaires, échecs et reprises restent dans le [plan](RAG_Local_Agents/PLAN.md) et le [journal](RAG_Local_Agents/journal/README.md). Ce fichier est distinct du [registre des corrections de la baseline documentaire V2.1](RAG_Local_Agents/CHANGELOG.md).
 
 ## [Non publié]
+
+### Sélection de profil et comparaison GPU — 13 octobre 2026
+
+- Sélection automatique à la création d'un profil et à une nouvelle installation : RAM physique, réserve, plateforme/mode, qualification et présence des artefacts. Choix manuel prioritaire, choix conservé à la mise à jour, aucun téléchargement hors ligne. Aucun profil qualifié ajouté : repli historique4B diagnostiqué explicitement,9B non promu.156 tests ciblés et typage Linux/Windows statique passent ; exécutionWindows reste non qualifiée.
+- Consigne de plan structuré alignée sur la règle de sous-ensemble déjà validée, sans changer schéma/validation/rendu.94 tests de contexte/restitution passent.
+- Screening9B/4B terminé : six paires, douze réponses GPU, relecture aveugle indépendante.9B 5/6 réponses acceptables contre4/6, plus lent ; cas multi-documents incomplet pour les deux. [Résultats et limites](RAG_Local_Agents/reports/local-llm-qualification-2026-10-12.md). Environnements temporaires, vue QA et duplication retirés après fermeture, modèles utiles et preuves conservés.
+
+### Qualification et entretien — 12 octobre 2026
+
+- Comparaison autorisée du seul Qwen3.5 9B Q4_K_M : téléchargement officiel
+  de 6,55 Go vérifié et deux réponses réellement produites sur GPU CUDA.
+  Le cas XLSX borné passe comme sur le 4B ; la question mixte échoue au contrat
+  des références. Arrêt avant la question PDF libre, revue indépendante R133
+  et fermeture réelle. Aucun avantage global établi, modèle par défaut inchangé.
+  [Résultats et limites](RAG_Local_Agents/reports/local-llm-qualification-2026-10-12.md).
+- Deux magasins Gemma abandonnés et seuls caches/home/tmp privés devenus
+  inutiles retirés après conservation des preuves ;2,448 Go de contenus Gemma,
+  puis caches QA mineurs. Données et ressources encore nécessaires préservées.
+  [Exécutions et nettoyage](RAG_Local_Agents/journal/2026-10-12.md).
 
 ### Livraison et entretien — 11 octobre 2026
 

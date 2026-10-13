@@ -68,8 +68,8 @@ Graphie des chemins : le pointeur garde la destination telle qu'elle a été tap
 qu'`installer.sh` transmet le chemin physique d'un programme installé ; toute destination reçue est ramenée à celle du pointeur
 (pointer_destination), et dossiers de version et marques de propriété se comparent par leur chemin réel (same_path).
 
-Profil principal : celui du modèle par défaut du kit (`default_model`, qwen3.5:4b depuis W045) pour une installation
-neuve, sauf `--model`. Une mise à jour garde le profil principal en place sans le convertir ; s'il diffère du modèle par
+Profil principal neuf : choix qualifié du catalogue RAM si admissible, sinon modèle historique du kit (qwen3.5:4b,
+W045), sauf `--model` explicite. Une mise à jour garde le profil principal en place sans le convertir ; s'il diffère du modèle par
 défaut du nouveau kit, le rapport le signale avec les commandes pour employer ce modèle. `atelier modele <modèle>` (ou
 `update --model`) change durablement le modèle principal, sans modifier aucun fichier de profil.
 """
@@ -413,6 +413,15 @@ class SystemProbe:
             for line in Path("/proc/meminfo").read_text(encoding="ascii").splitlines():
                 if line.startswith("MemTotal:"):
                     return int(line.split()[1]) / 1024**2
+        except (OSError, ValueError, IndexError):
+            return None
+        return None
+
+    def memory_total_bytes(self) -> int | None:
+        try:
+            for line in Path("/proc/meminfo").read_text(encoding="ascii").splitlines():
+                if line.startswith("MemTotal:") and line.split()[2] == "kB":
+                    return int(line.split()[1]) * 1024
         except (OSError, ValueError, IndexError):
             return None
         return None
@@ -1915,7 +1924,8 @@ def pre_copy_files(manifest: dict[str, Any]) -> list[str]:
     """Fichiers du kit exécutés ou lus avant la copie : script de dérivation des profils et ses imports possibles
     (PRE_COPY_FILES), profils livrés des modèles (model_profiles)."""
     profiles = [str(path) for path in (manifest.get("model_profiles") or {}).values()]
-    return sorted({*PRE_COPY_FILES, *profiles})
+    selection = ("services/runtime/model_profiles.py", "config/model_profiles.json", "config/models.lock.json") if manifest.get("model_selection") else ()
+    return sorted({*PRE_COPY_FILES, *profiles, *selection})
 
 
 def added_compiled_modules(kit: Path, expected: dict[str, str]) -> list[str]:
@@ -2456,6 +2466,42 @@ def elsewhere_line(ctx: Context) -> str:
             f"un autre emplacement : « {installer_command(ctx.kit, 'update', '--destination')} <dossier des versions> »")
 
 
+def install_model_selection(ctx: Context, manifest: dict[str, Any], manual_model: str | None) -> dict[str, Any] | None:
+    """Nouveau kit seulement : module et catalogue vérifiés avant leur exécution/lecture."""
+    descriptor = manifest.get("model_selection")
+    if descriptor is None:
+        return None
+    if not isinstance(descriptor, dict) or descriptor.get("catalogue") != "config/model_profiles.json":
+        raise InstallError("Catalogue de sélection du kit invalide", EXIT_REFUSED)
+    expected = linux_kit.read_sums(ctx.kit)
+    if manifest.get("sha256sums_sha256") != linux_kit.stream_hash(ctx.kit / linux_kit.SUMS):
+        raise InstallError("SHA256SUMS différent du manifeste avant sélection du modèle", EXIT_REFUSED)
+    for relative in ("services/runtime/model_profiles.py", "config/model_profiles.json", "config/models.lock.json"):
+        path = ctx.kit / relative
+        if path.is_symlink() or not path.is_file() or linux_kit.stream_hash(path) != expected.get(relative):
+            raise InstallError(f"{relative} altéré ou absent avant sélection du modèle", EXIT_REFUSED)
+    if descriptor.get("catalogue_sha256") != expected["config/model_profiles.json"]:
+        raise InstallError("Empreinte du catalogue différente du manifeste", EXIT_REFUSED)
+    script = ctx.kit / "services/runtime/model_profiles.py"
+    source = script.read_bytes()
+    if hashlib.sha256(source).hexdigest() != expected["services/runtime/model_profiles.py"]:
+        raise InstallError("Sélecteur altéré pendant sa lecture", EXIT_REFUSED)
+    # Exécuter les octets vérifiés, sans qu'un __pycache__ puisse se substituer à la source avant la copie.
+    module = ModuleType("_atelier_model_profiles")
+    exec(compile(source, str(script), "exec"), module.__dict__)
+    catalogue = module.read_catalogue(ctx.kit)
+    available = set(manifest.get("model_profiles") or {})
+    for entry in catalogue["profiles"]:
+        if entry["model"] in available and entry.get("qualification"):
+            if any(expected.get(path) != digest for path, digest in entry["pins"].items()):
+                raise InstallError("Artefacts qualifiés différents des empreintes du kit", EXIT_REFUSED)
+            if manifest["model_profiles"][entry["model"]] != entry["profile"]:
+                raise InstallError("Profil qualifié différent du profil livré", EXIT_REFUSED)
+    memory = ctx.probe.memory_total_bytes()
+    return module.select_local_profile(ctx.kit, total_memory_bytes=memory, platform=manifest["platform"], mode="cpu",
+                                       available_models=available, manual_model=manual_model)
+
+
 def install(ctx: Context, args: argparse.Namespace) -> int:
     manifest = read_manifest(ctx.kit)
     found: list[Path] = []
@@ -2490,6 +2536,11 @@ def install(ctx: Context, args: argparse.Namespace) -> int:
     model = args.model or manifest["default_model"]
     start = not args.no_start
     report = Report(ctx, "reprise" if reprise else "install", kit=str(ctx.kit), kit_id=manifest["kit_id"])
+    if not reprise:
+        selection = install_model_selection(ctx, manifest, getattr(args, "model", None))
+        if selection is not None:
+            model = selection["model"]
+            report.data["model_selection"] = selection
     plan = Plan(ctx, report, INSTALL_STEPS + (START_STEPS if start else []))
     while True:
         destination, data_root, relocatable = install_locations(ctx, args)
@@ -2764,15 +2815,25 @@ def install_writes(ctx: Context, args: argparse.Namespace, manifest: dict[str, A
                 profiles[model] = profile
                 report.step("profil", "ok", f"{profile} repris ({model})")
             else:
-                # Modèle toujours explicite : le profil principal ne dépend pas du défaut de rag.sh.
-                arguments = ["--target", str(data_root), "--model", model]
+                # Le choix qualifié est reproduit sur la copie vérifiée avec la même mesure, sans le transformer en choix manuel.
+                arguments = ["--target", str(data_root)]
+                selection = report.data.get("model_selection")
+                if selection is None or getattr(args, "model", None) is not None:
+                    arguments += ["--model", model]
+                if selection is not None:
+                    memory = selection["visible_memory_bytes"]
+                    arguments += ["--memory-total-bytes", str(memory)] if memory is not None else ["--memory-unknown"]
                 arguments += ["--qdrant-storage", str(args.qdrant_storage)] if args.qdrant_storage else []
                 arguments += ["--ports", ports_value] if ports_value else []
                 initialized = rag(ctx, program, "init-profile", *arguments)
                 if initialized.get("status") != "created":
                     raise InstallError(f"Profil non créé : {initialized.get('message')}")
+                if selection is not None and initialized.get("model_selection") != selection:
+                    raise InstallError("La décision de modèle du profil créé diffère de celle vérifiée avant installation")
                 profiles[model] = initialized["profile"]
                 created.append(initialized["profile"])
+                if selection is not None:
+                    created.append(initialized["model_selection_file"])
                 remember(created)
                 report.step("profil", "ok", f"{initialized['profile']} ({model})")
             others = [name for name in manifest.get("model_profiles") or {} if name != model]
@@ -2785,7 +2846,8 @@ def install_writes(ctx: Context, args: argparse.Namespace, manifest: dict[str, A
             plan.begin("doctor")
             doctor_gate(ctx, report, program, profiles[model])
             plan.begin("bascule")
-            entry = version_entry(manifest, program, data_root, dict(profiles), model, installed_utc=ctx.clock().isoformat())
+            entry = version_entry(manifest, program, data_root, dict(profiles), model, installed_utc=ctx.clock().isoformat(),
+                                  **({"model_selection": report.data["model_selection"]} if "model_selection" in report.data else {}))
             # Drapeau écrit (fsync) avant le rename(2) du pointeur : après un arrêt brutal entre la bascule et le retrait du
             # marqueur, celui-ci n'est jamais pris pour une installation jamais activée (interrupted_install).
             marker["bascule"] = True

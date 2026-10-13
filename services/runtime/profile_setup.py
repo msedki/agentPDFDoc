@@ -6,6 +6,7 @@ Rien n'est écrasé : la racine choisie ne doit contenir aucun profil.
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 from typing import Any
@@ -71,11 +72,18 @@ def restore_store_length(directory: Path) -> int:
 
 
 def write_user_profile(base_path: Path, data_root: Path, *, qdrant_storage: Path | None = None, ports: dict[str, int] | None = None,
-                       program_root: Path | None = None, storage_max: int = QDRANT_STORAGE_MAX) -> dict[str, Any]:
+                       program_root: Path | None = None, storage_max: int = QDRANT_STORAGE_MAX,
+                       selection: dict[str, Any] | None = None) -> dict[str, Any]:
     target = data_root.resolve() / "profile.yaml"
     if target.exists():
         raise ValueError(f"Profil déjà présent, jamais remplacé : {target}")
+    selection_path = target.with_name("model-selection.json")
+    if selection is not None and selection_path.exists():
+        raise ValueError(f"Décision de modèle déjà présente, jamais remplacée : {selection_path}")
     base = yaml.safe_load(base_path.read_text(encoding="utf-8"))
+    if selection is not None and (base["llm"].get("source_model", base["llm"]["model"]) != selection["model"]
+                                  or base["llm"]["model"] != selection["served_model"]):
+        raise ValueError("Le profil et la décision de modèle ne désignent pas les mêmes modèles source et servi")
     profile = user_profile(base, data_root, qdrant_storage=qdrant_storage, ports=ports, program_root=program_root, storage_max=storage_max)
     restores = Path(profile["runtime"]["restore_storage_dir"])
     if qdrant_path_bounded() and restore_store_length(restores) > storage_max:
@@ -88,6 +96,11 @@ def write_user_profile(base_path: Path, data_root: Path, *, qdrant_storage: Path
         launcher = "rag.ps1" if platforms.WINDOWS else "rag.sh"
         stream.write("# Profil généré par " + launcher + " init-profile depuis " + base_path.name + " ; données et écritures d'exécution hors du programme.\n")
         yaml.safe_dump(profile, stream, allow_unicode=True, sort_keys=False)
+    if selection is not None:
+        with selection_path.open("x", encoding="utf-8", newline="\n") as stream:
+            json.dump(selection, stream, ensure_ascii=False, indent=2)
+            stream.write("\n")
     return {"status": "created", "profile": str(target), "data_dir": profile["app"]["data_dir"], "qdrant_storage": profile["qdrant"]["storage_dir"],
             "ports": {"app": profile["app"]["port"], "qdrant": profile["qdrant"]["url"], "ollama": profile["llm"]["base_url"]}, "runtime": profile["runtime"],
+            **({"model_selection": selection, "model_selection_file": str(selection_path)} if selection is not None else {}),
             "next": f".\\rag.ps1 up -Profile \"{target}\"" if platforms.WINDOWS else platforms.launcher_command(f"up --profile \"{target}\"")}

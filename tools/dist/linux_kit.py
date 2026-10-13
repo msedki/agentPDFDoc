@@ -539,6 +539,7 @@ class Plan:
     tesseract: str = TESSERACT_BINARY
     web_provenance: dict[str, Any] | None = None
     web_problems: list[str] = field(default_factory=list)
+    profile_paths: dict[str, str] = field(default_factory=lambda: dict(MODEL_PROFILES))
 
     @property
     def kit_id(self) -> str:
@@ -655,13 +656,15 @@ def python_key(bootstrap: str, machine: str) -> str:
     return f"cpython-{match.group(1)}-linux-{machine}-gnu"
 
 
-def model_selection(root: Path, models: tuple[str, ...], profiles: dict[str, dict[str, Any]], lock: dict[str, Any]) -> dict[str, Any]:
+def model_selection(root: Path, models: tuple[str, ...], profiles: dict[str, dict[str, Any]], lock: dict[str, Any],
+                    profile_paths: dict[str, str] | None = None) -> dict[str, Any]:
     """Fichiers du magasin Ollama, tokenizers et manifestes locaux des modèles choisis, contrôlés contre models.lock.json."""
     store = lock.get("store", ".runtime/models/ollama").rstrip("/")
     allowed: set[str] = set()
     records = []
     tokenizers, manifests = {}, {}
-    for key in MODEL_PROFILES:
+    profile_paths = profile_paths if profile_paths is not None else MODEL_PROFILES
+    for key in profile_paths:
         llm = profiles[key]["llm"]
         tokenizers[key] = str(llm.get("tokenizer_dir", "")).rstrip("/")
         manifests[key] = {str(llm.get("model_manifest", "")), str(llm.get("source_model_manifest", ""))} - {""}
@@ -689,7 +692,7 @@ def model_selection(root: Path, models: tuple[str, ...], profiles: dict[str, dic
                     allowed.add(metadata)
             records.append({"name": name, "set": key, "role": entry.get("role"), "manifest_path": manifest_path,
                             "manifest_sha256": entry["manifest_sha256"], "bytes": size})
-    unselected = [key for key in MODEL_PROFILES if key not in models]
+    unselected = [key for key in profile_paths if key not in models]
     kept_tokenizers = {tokenizers[key] for key in models}
     excluded_dirs = [tokenizers[key] for key in unselected if tokenizers[key] and tokenizers[key] not in kept_tokenizers]
     kept_manifests: set[str] = set().union(*(manifests[key] for key in models))
@@ -713,23 +716,43 @@ def plan_kit(root: Path = ROOT, *, platform: str, gpu: str = "none", models: tup
         release = l4t_release()
         if platform != "linux-aarch64" or not release or release.get("major") != 35:
             raise KitError("--gpu jetpack5 ne se fabrique que sur un Jetson Linux R35 (JetPack 5) : le complément vise ce seul poste")
-    models = tuple(key for key in MODEL_PROFILES if key in models)
-    if DEFAULT_MODEL not in models:
-        raise KitError(DEFAULT_MODEL_REFUSAL)
     commit = commit or run_git(root, "rev-parse", "--verify", "HEAD^{commit}").decode().strip()
     tracked = git_tracked(root, commit, TRACKED)
+    catalogue_entry = next((entry for entry in tracked if entry.relative == "config/model_profiles.json"), None)
+    catalogue = None
+    profile_paths = dict(MODEL_PROFILES)
+    if catalogue_entry is not None:
+        from services.runtime.model_profiles import validate_catalogue
+        catalogue = validate_catalogue(json.loads(git_blobs(root, [catalogue_entry.blob])[catalogue_entry.blob]))
+        profile_paths = {entry["kit_set"]: entry["profile"] for entry in catalogue["profiles"]}
+        if not any(entry.relative == "services/runtime/model_profiles.py" for entry in tracked):
+            raise KitError("Sélecteur absent du commit qui fournit le catalogue de profils")
+    if set(models) - set(profile_paths):
+        raise KitError("Ensemble de modèles absent du catalogue du commit")
+    models = tuple(key for key in profile_paths if key in models)
+    if DEFAULT_MODEL not in models:
+        raise KitError(DEFAULT_MODEL_REFUSAL)
     blobs = git_blobs(root, [entry.blob for entry in tracked if entry.relative in {"pyproject.toml", "bootstrap.sh", MODELS_LOCK, WEB_LOCK,
-                                                                                    *MODEL_PROFILES.values()}])
+                                                                                    *profile_paths.values()}])
     by_name = {entry.relative: blobs.get(entry.blob) for entry in tracked}
-    for required in ("pyproject.toml", "bootstrap.sh", MODELS_LOCK, *MODEL_PROFILES.values()):
+    for required in ("pyproject.toml", "bootstrap.sh", MODELS_LOCK, *profile_paths.values()):
         if by_name.get(required) is None:
             raise KitError(f"{required} absent du commit {commit[:12]}")
     version = tomllib.loads(by_name["pyproject.toml"].decode("utf-8"))["project"]["version"]  # type: ignore[union-attr]
     key = python_key(by_name["bootstrap.sh"].decode("utf-8"), machine)  # type: ignore[union-attr]
-    profiles = {name: yaml.safe_load(by_name[path].decode("utf-8")) for name, path in MODEL_PROFILES.items()}  # type: ignore[union-attr]
+    profiles = {name: yaml.safe_load(by_name[path].decode("utf-8")) for name, path in profile_paths.items()}  # type: ignore[union-attr]
+    if catalogue is not None:
+        for entry in catalogue["profiles"]:
+            profile = profiles[entry["kit_set"]]["llm"]
+            profile_bytes = by_name[entry["profile"]]
+            if profile_bytes is None:
+                raise KitError("Profil déclaré dans le catalogue absent du commit")
+            if (hashlib.sha256(profile_bytes).hexdigest() != entry["pins"][entry["profile"]]
+                    or profile.get("source_model", profile["model"]) != entry["model"] or profile["model"] != entry["served_model"]):
+                raise KitError("Profil du commit différent de l'identité du catalogue")
     lock = json.loads(by_name[MODELS_LOCK].decode("utf-8"))  # type: ignore[union-attr]
-    selection = model_selection(root, models, profiles, lock)
-    ports = {selection_label(profiles[name]): profile_ports(MODEL_PROFILES[name], profiles[name]) for name in models}
+    selection = model_selection(root, models, profiles, lock, profile_paths)
+    ports = {selection_label(profiles[name]): profile_ports(profile_paths[name], profiles[name]) for name in models}
 
     entries: dict[str, Entry] = {}
     excluded: dict[str, int] = {}
@@ -808,7 +831,8 @@ def plan_kit(root: Path = ROOT, *, platform: str, gpu: str = "none", models: tup
                 entries=entries, excluded=excluded, rebuilt_links=rebuilt, worktree_modified=worktree_changes(root, TRACKED),
                 model_records=selection["records"], profiles=profiles, ports=ports,
                 missing_for_build=[name for name in required_for_build() if name not in entries],
-                tesseract=tesseract_path(profiles[DEFAULT_MODEL]), web_provenance=web_record, web_problems=web_problems)
+                tesseract=tesseract_path(profiles[DEFAULT_MODEL]), web_provenance=web_record, web_problems=web_problems,
+                profile_paths=profile_paths)
 
 
 def selection_label(profile: dict[str, Any]) -> str:
@@ -1219,8 +1243,11 @@ def kit_manifest(plan: Plan, *, needs: dict[str, Any], sizes: dict[str, int], li
             "gpu": {"variant": plan.gpu, "ollama_libraries": list(GPU_VARIANTS[plan.gpu]),
                     "requires_l4t_major": 35 if plan.gpu == "jetpack5" else None},
             "models": plan.model_records, "model_sets": list(plan.models), "default_model": default,
-            "model_profiles": {selection_label(plan.profiles[key]): path for key, path in MODEL_PROFILES.items() if key in plan.models},
+            "model_profiles": {selection_label(plan.profiles[key]): path for key, path in plan.profile_paths.items() if key in plan.models},
             "profile_ports": plan.ports,
+            **({"model_selection": {"catalogue": "config/model_profiles.json",
+                                     "catalogue_sha256": blob_sha("config/model_profiles.json")}}
+               if "config/model_profiles.json" in plan.entries else {}),
             "requirements": {"memory_gib_min": MEMORY_MIN_GIB, "kit_bytes": total, "install_bytes_min": total + INSTALL_MARGIN},
             "provenance": provenance, "web_provenance": {**(plan.web_provenance or {}), "file": WEB_PROVENANCE},
             "tracked_source": {"commit": plan.commit, "paths": list(TRACKED), "worktree_modified_excluded": plan.worktree_modified},

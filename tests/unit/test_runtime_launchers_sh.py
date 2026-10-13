@@ -112,13 +112,13 @@ def test_rag_sh_help_lists_the_commands_and_options_of_rag_ps1(tmp_path):
 
 
 def test_rag_sh_starts_the_4b_by_default_and_the_2b_on_request(tmp_path):
-    # W045 : sans option, le profil livré du 4B ; --model qwen3.5:2b sélectionne le 2B (le CLI résout son profil) ; un
-    # profil explicite est transmis tel quel.
+    # W060 : sans option, le CLI garde le défaut runtime 4B ; la façade n'injecte pas de choix manuel.
+    # --model qwen3.5:2b et le profil explicite restent transmis tels quels.
     root = project(tmp_path)
     usage = run(root / "rag.sh", "--help").stdout
     assert "qwen3.5:4b (défaut)" in usage and "--model qwen3.5:2b pour le 2B" in usage and "qwen3.5:2b (défaut)" not in usage
     default = json.loads(run(root / "rag.sh", "up").stdout)
-    assert default["argv"] == ["-B", "-m", "services.runtime.cli", "up", "--profile", str(root.resolve() / "config/local16-4b.yaml")]
+    assert default["argv"] == ["-B", "-m", "services.runtime.cli", "up"]
     two = json.loads(run(root / "rag.sh", "up", "--model", "qwen3.5:2b").stdout)
     assert two["argv"] == ["-B", "-m", "services.runtime.cli", "up", "--model", "qwen3.5:2b"]
     explicit = json.loads(run(root / "rag.sh", "up", "--profile", "/profils/poste-2b.yaml").stdout)
@@ -151,7 +151,7 @@ def test_rag_sh_maps_every_option_like_rag_ps1_and_returns_the_cli_exit_code(tmp
                  "--only", "qdrant", "--report", "r.json", "--qdrant-storage", "/q", "--ports", "1,2,3", cwd=elsewhere)
     observed = json.loads(result.stdout)
     assert result.returncode == 0
-    assert observed["argv"] == ["-B", "-m", "services.runtime.cli", "restore", "--profile", str(root.resolve() / "config/local16-4b.yaml"),
+    assert observed["argv"] == ["-B", "-m", "services.runtime.cli", "restore",
                                 "--only", "qdrant", "--offline", "--skip-model", "--path", "sauvegarde",
                                 "--target", "racine neuve", "--report", "r.json", "--qdrant-storage", "/q", "--ports", "1,2,3"]
     # Comme Push-Location dans rag.ps1 : la CLI s'exécute depuis la racine du projet, en UTF-8.
@@ -319,12 +319,11 @@ def test_rag_sh_passes_no_browser_to_the_cli_and_keeps_the_browser_by_default(tm
     # Poste sans navigateur (serveur, session SSH) : `./rag.sh open --no-browser` affiche le lien à usage unique ;
     # l'option était refusée par le lanceur (« Option inconnue »), seul le CLI la connaissait.
     root = project(tmp_path)
-    profile = str(root.resolve() / "config/local16-4b.yaml")
     result = run(root / "rag.sh", "open", "--no-browser")
     assert result.returncode == 0, result.stderr
-    assert json.loads(result.stdout)["argv"] == ["-B", "-m", "services.runtime.cli", "open", "--profile", profile, "--no-browser"]
+    assert json.loads(result.stdout)["argv"] == ["-B", "-m", "services.runtime.cli", "open", "--no-browser"]
     default = run(root / "rag.sh", "open")
-    assert json.loads(default.stdout)["argv"] == ["-B", "-m", "services.runtime.cli", "open", "--profile", profile]
+    assert json.loads(default.stdout)["argv"] == ["-B", "-m", "services.runtime.cli", "open"]
 
 
 # --- Garde d'une installation depuis un kit (R26-KIT-01, défaut C7) -------------------------------------------------------

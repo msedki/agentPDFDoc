@@ -39,6 +39,7 @@ from .accelerator import (
     verified_libraries,
 )
 from .artifacts import ROOT, file_hash, provision_artifacts, write_json_atomic
+from .model_profiles import platform_id, read_catalogue, select_local_profile, visible_memory_bytes
 from .platforms import (
     executable_name,
     installation,
@@ -81,10 +82,17 @@ def model_profile_path(profile: Path | None, model: str | None) -> Path:
     """Un choix au démarrage sélectionne un vrai profil, sans réécrire un profil utilisateur."""
     if profile is not None and model is not None:
         raise ValueError("--model et --profile sont exclusifs ; choisissez le profil utilisateur ou un modèle livré")
-    if model is not None and model not in MODEL_PROFILES:
+    if profile is not None:
+        return profile
+    catalogue = read_catalogue(ROOT)
+    profiles = {entry["model"]: entry["profile"] for entry in catalogue["profiles"]} if catalogue else {
+        name: "config/" + path for name, path in MODEL_PROFILES.items()}
+    if model is not None and model not in profiles:
+        ordered = [name for name in (DEFAULT_MODEL, *profiles) if name in profiles]
+        ordered = list(dict.fromkeys(ordered))
         raise ValueError("Modèle livré inconnu ; choisir "
-                         + " ou ".join(f"{name} (défaut)" if name == DEFAULT_MODEL else name for name in MODEL_PROFILES))
-    return profile if profile is not None else ROOT / "config" / MODEL_PROFILES[model or DEFAULT_MODEL]
+                         + " ou ".join(f"{name} (défaut)" if name == DEFAULT_MODEL else name for name in ordered))
+    return profile if profile is not None else ROOT / profiles[model or DEFAULT_MODEL]
 
 
 def pnpm_required_version() -> str:
@@ -954,7 +962,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["provision", "doctor", "up", "status", "logs", "down", "_serve", "pull-model", "backup", "restore", "verify", "open", "init-profile", "selftest"])
     parser.add_argument("--profile", type=Path, help="Profil utilisateur explicite, exclusif de --model")
-    parser.add_argument("--model", choices=list(MODEL_PROFILES),
+    parser.add_argument("--model",
                         help=f"Modèle du profil livré (défaut : {DEFAULT_MODEL} ; --model qwen3.5:2b pour le 2B)")
     parser.add_argument("--only")
     parser.add_argument("--offline", action="store_true")
@@ -965,9 +973,21 @@ def main() -> int:
     parser.add_argument("--no-browser", action="store_true", help="open : afficher le lien au lieu d'ouvrir le navigateur")
     parser.add_argument("--qdrant-storage", type=Path, help="init-profile : dossier court du stockage Qdrant")
     parser.add_argument("--ports", help="init-profile : ports API,Qdrant,Ollama séparés par des virgules")
+    memory = parser.add_mutually_exclusive_group()
+    memory.add_argument("--memory-total-bytes", type=int, help="init-profile : RAM visible relevée en octets par l'installateur")
+    memory.add_argument("--memory-unknown", action="store_true", help="init-profile : conserver une mesure de RAM indisponible")
     args = parser.parse_args()
     try:
-        args.profile = model_profile_path(args.profile, args.model)
+        selection = None
+        if args.command == "init-profile" and args.profile is None:
+            manifest_path = ROOT / "kit-manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
+            available = set(manifest["model_profiles"]) if manifest.get("model_profiles") else None
+            selection = select_local_profile(ROOT, total_memory_bytes=(None if args.memory_unknown else args.memory_total_bytes
+                                                                       if args.memory_total_bytes is not None else visible_memory_bytes()),
+                                             platform=platform_id(), mode="cpu", available_models=available,
+                                             manual_model=args.model)
+        args.profile = (ROOT / selection["profile"] if selection else model_profile_path(args.profile, args.model))
         # Commandes citées par ce processus dans une installation : modèle et profil de l'utilisateur en usage.
         use_profile(args.profile)
         if args.command == "_serve":
@@ -996,7 +1016,8 @@ def main() -> int:
             if not args.target:
                 raise ValueError("init-profile requiert --target (racine des données de l'utilisateur)")
             ports = dict(zip(("app", "qdrant", "ollama"), map(int, args.ports.split(",")), strict=True)) if args.ports else None
-            result = write_user_profile(args.profile, args.target, qdrant_storage=args.qdrant_storage, ports=ports)
+            arguments: dict[str, Any] = {"selection": selection} if selection is not None else {}
+            result = write_user_profile(args.profile, args.target, qdrant_storage=args.qdrant_storage, ports=ports, **arguments)
         elif args.command == "selftest":
             from .selftest import selftest
             result = selftest(args.profile)

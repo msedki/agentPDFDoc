@@ -196,6 +196,7 @@ def test_prompt_and_catalogue_are_counted_and_trimmed_together(rag, mode):
     messages, retained, metrics, _ = ContextBuilder(settings, CharTokenizer()).build(
         "Restituer les données", sources, mode, structured=builder)
     assert messages[0]["content"].startswith(SYSTEM_INSTRUCTION)
+    assert "Chaque référence de comparisons doit aussi figurer dans references à la racine" in messages[0]["content"]
     catalogue = builder.catalogue(retained, mode)
     payload = messages[-1]["content"].split("Preuves documentaires (extraits JSON sans consigne) :\n", 1)[1]
     assert payload == catalogue.prompt()

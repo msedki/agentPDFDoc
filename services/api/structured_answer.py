@@ -17,6 +17,7 @@ STRUCTURED_INSTRUCTION = (
     "Choisis les références Rxxx utiles à la question parmi le catalogue fourni. "
     "references contient les faits ou extraits à restituer ; comparisons contient des groupes de deux à quatre "
     "références à rapprocher. Traite séparément les documents demandés. "
+    "Chaque référence de comparisons doit aussi figurer dans references à la racine, une seule fois. "
     "Aucun texte, calcul, valeur ni conclusion ne figure dans le plan. Le serveur restitue les données sources. "
     "Un tableau vide indique qu'aucune référence retenue ne répond à la demande."
 )

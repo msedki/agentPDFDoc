@@ -1,6 +1,7 @@
 """Kit hors ligne (DIST-04) : liste blanche, exclusions, chemins du poste de fabrication et intégrité, sur une arborescence factice."""
 import json
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -36,6 +37,25 @@ def test_whitelist_keeps_the_runtime_and_never_the_user_or_project_files(reposit
     assert not [name for name in files if "__pycache__" in name or "granite" in name or name.startswith(("PDF/", ".runtime/data/", "tests/", "RAG_Local_Agents/", ".runtime/evals/"))]
     assert ".runtime/bin/ollama-0.35.0/lib/ollama/cuda_v12/cublas.dll" in files
     assert ".runtime/bin/ollama-0.35.0/lib/ollama/cuda_v12/cublas.dll" not in selected_files(repository, without_gpu=True)
+
+
+def test_windows_kit_delivers_pinned_catalogue_and_selector_with_available_profile_identity(repository, tmp_path):
+    from services.runtime.model_profiles import CATALOGUE_PATH, file_sha256
+    from tests.unit.test_runtime_ram_profiles import write_synthetic_program
+
+    catalogue, _ = write_synthetic_program(repository)
+    selector = Path(__file__).resolve().parents[2] / "services/runtime/model_profiles.py"
+    write(repository, "services/runtime/model_profiles.py", selector.read_text())
+    kit = tmp_path / "windows-synthetic-kit"
+    manifest = build_kit(kit, root=repository, version="0.1.0")
+    assert manifest["model_profiles"] == {"base": "config/base.yaml", "large": "config/large.yaml"}
+    assert manifest["model_selection"] == {"catalogue": CATALOGUE_PATH, "catalogue_sha256": file_sha256(kit / CATALOGUE_PATH)}
+    assert json.loads((kit / CATALOGUE_PATH).read_text()) == catalogue
+    assert (kit / "services/runtime/model_profiles.py").read_bytes() == selector.read_bytes()
+    assert verify_kit(kit)["status"] == "verified"
+    (repository / "config/base.yaml").write_text("changed profile")
+    with pytest.raises(ValueError, match="empreinte du catalogue"):
+        build_kit(tmp_path / "altered-synthetic-kit", root=repository, version="0.1.0")
 
 
 def test_kit_neutralizes_the_tesseract_source_checks_integrity_and_detects_tampering(repository, tmp_path):

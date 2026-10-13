@@ -670,6 +670,105 @@ def test_install_with_another_default_model_and_options_passes_them_to_init_prof
     assert pointer["current"]["profiles"]["qwen3.5:4b"] == str(tmp_path / "donnees/profile-qwen3.5-4b.yaml")
 
 
+def synthetic_ram_catalogue_kit(kit: Path) -> None:
+    """Qualification SYNTHÉTIQUE des petits artefacts de la fixture, sans modèle ni mesure réels."""
+    from services.runtime import model_profiles
+
+    lock = json.loads((kit / "config/models.lock.json").read_text())
+    for metadata in lock["models"].values():
+        manifest_path = kit / lock["store"] / metadata["manifest_path"]
+        manifest_path.write_text(json.dumps({"config": metadata["config"], "layers": metadata["layers"]}))
+        metadata["manifest_sha256"] = sha256(manifest_path)
+    write(kit, "config/models.lock.json", json.dumps(lock))
+    profiles = []
+    for key, model, served, priority in (("2b", "qwen3.5:2b", "qwen3.5:2b", 2), ("4b", "qwen3.5:4b", "qwen3.5:4b-text", 1)):
+        profile = "config/local16.yaml" if key == "2b" else "config/local16-4b.yaml"
+        tokenizer = f".runtime/models/qwen3.5-{key}-tokenizer/tokenizer.json"
+        pins = {path: sha256(kit / path) for path in (profile, tokenizer)}
+        profiles.append({"id": f"synthetic-{key}", "kit_set": key, "model": model, "served_model": served, "profile": profile,
+                         "pins": pins, "tokenizer_pins": {tokenizer: pins[tokenizer]},
+                         "model_manifest_sha256": {name: lock["models"][name]["manifest_sha256"] for name in {model, served}},
+                         "qualification": {"status": "qualified", "minimum_visible_memory_bytes": 6 * GIB,
+                                           "measured_peak_bytes": 4 * GIB, "system_margin_bytes": 2 * GIB, "priority": priority,
+                                           "platforms": ["linux-aarch64"], "modes": ["cpu"],
+                                           "evidence": ["SYNTHETIC_INSTALLER_UNIT_QUALIFICATION_NOT_PRODUCT_MEASUREMENT"]}})
+    write(kit, model_profiles.CATALOGUE_PATH, json.dumps({"schema_version": 1, "legacy_default_model": "qwen3.5:4b", "profiles": profiles}))
+    write(kit, "services/runtime/model_profiles.py", Path(model_profiles.__file__).read_text())
+    expected = linux_kit.read_sums(kit)
+    for path in kit.rglob("*"):
+        relative = path.relative_to(kit).as_posix()
+        if path.is_file() and not path.is_symlink() and relative not in {"SHA256SUMS", "kit-manifest.json"}:
+            expected[relative] = sha256(path)
+    write(kit, "SHA256SUMS", "".join(f"{digest}  {relative}\n" for relative, digest in sorted(expected.items())))
+    with_manifest(kit, model_selection={"catalogue": model_profiles.CATALOGUE_PATH,
+                                      "catalogue_sha256": sha256(kit / model_profiles.CATALOGUE_PATH)},
+                  sha256sums_sha256=sha256(kit / "SHA256SUMS"))
+
+
+@pytest.mark.parametrize("memory,manual,expected,selection_kind", [(16 * GIB, None, "qwen3.5:2b", "automatic"),
+                                                                  (16 * GIB, "qwen3.5:4b", "qwen3.5:4b", "manual_model"),
+                                                                  (None, None, "qwen3.5:4b", "legacy_fallback")])
+def test_new_install_preserves_same_selection_in_profile_report_and_pointer(kit, tmp_path, monkeypatch, memory, manual, expected,
+                                                                          selection_kind):
+    from services.runtime import cli, model_profiles, profile_setup
+
+    synthetic_ram_catalogue_kit(kit)
+    probe = PosteSimule()
+    probe.memory_total_bytes = lambda: memory
+
+    class ProgrammeAvecVraiSelecteur(ProgrammeSimule):
+        """Bootstrap/doctor restent doubles nommés ; init-profile appelle le vrai sélecteur et écrit réellement le profil."""
+        def default(self, program, command, argv):
+            if command != "init-profile":
+                return super().default(program, command, argv)
+            with monkeypatch.context() as scoped:
+                scoped.setattr(cli, "ROOT", program)
+                scoped.setattr(profile_setup, "ROOT", program)
+                scoped.setattr(cli, "platform_id", lambda: "linux-aarch64")
+                scoped.setattr(profile_setup, "port_free", lambda port: True)
+                scoped.setattr(sys, "argv", ["rag", *argv[1:]])
+                scoped.setattr(sys, "stdout", io.StringIO())
+                assert cli.main() == 0
+                return Completed(0, sys.stdout.getvalue())
+
+    ctx = context(kit, probe=probe, runner=ProgrammeAvecVraiSelecteur())
+    destination, data = tmp_path / "programmes", tmp_path / "donnees"
+    extra = ["--model", manual] if manual else []
+    assert install(ctx, destination, data, "--no-start", *extra) == 0, screen(ctx)
+    current = pointer_of(destination)["current"]
+    decision = json.loads((data / "model-selection.json").read_text())
+    report = json.loads(next(data.glob("install-*.json")).read_text())
+    assert current["model"] == expected and decision["selection"] == selection_kind
+    assert decision == current["model_selection"] == report["model_selection"]
+    assert decision["visible_memory_bytes"] == memory and current["started_on_data"] is False
+    assert not ctx.runner.running and "up" not in ctx.runner.commands()
+    assert model_profiles.read_catalogue(kit)["profiles"][0]["qualification"]["evidence"] == ["SYNTHETIC_INSTALLER_UNIT_QUALIFICATION_NOT_PRODUCT_MEASUREMENT"]
+
+
+@pytest.mark.parametrize("operation", ["update", "reprise"])
+def test_new_catalogue_never_reselects_the_principal_of_existing_data(kit, tmp_path, monkeypatch, operation):
+    destination, data, current, _ = installed(kit, tmp_path, "--no-start")
+    principal = (data / "profile.yaml").read_bytes()
+    if operation == "update":
+        new_kit = second_kit(tmp_path, monkeypatch)
+    else:
+        a_backup(data)
+        assert linux_install.main(["uninstall", "--destination", str(destination), "--tout", "--oui"], context(kit)) == 0
+        new_kit = kit
+    synthetic_ram_catalogue_kit(new_kit)  # le catalogue qualifié SYNTHÉTIQUE préférerait le 2B à la création.
+    monkeypatch.setattr(linux_install, "install_model_selection", lambda *args: pytest.fail("existing data must never be reselected"))
+    ctx = context(new_kit)
+    if operation == "update":
+        code = linux_install.main(["update", "--destination", str(destination), "--oui", "--no-start"], ctx)
+    else:
+        code = install(ctx, destination, data, "--reprendre-donnees", "--no-start")
+    assert code == 0, screen(ctx)
+    assert pointer_of(destination)["current"]["model"] == current["model"] == "qwen3.5:4b"
+    assert (data / "profile.yaml").read_bytes() == principal
+    assert not (data / "model-selection.json").exists()
+    assert "init-profile" not in ctx.runner.commands()
+
+
 def test_a_red_doctor_stops_before_the_switch_and_removes_what_this_run_created(kit, tmp_path):
     red = {"verdict": {"level": "rouge", "summary": "Bloqué", "rubrics": [
         {"level": "rouge", "rubric": "programme", "message": "Fichiers du programme absents ou incomplets : .runtime/bin.",

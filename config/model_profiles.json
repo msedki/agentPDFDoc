@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "legacy_default_model": "qwen3.5:4b",
+  "scope": "Historical manual profiles retained. No automatically qualified RAM profile or threshold is declared.",
+  "profiles": [
+    {
+      "id": "qwen35-2b",
+      "kit_set": "2b",
+      "model": "qwen3.5:2b",
+      "served_model": "qwen3.5:2b",
+      "profile": "config/local16.yaml",
+      "pins": {
+        "config/local16.yaml": "6d51003d32df8c4d765ee31d58fad98dd4216911f2e78f4ccf2f4b787e05c212"
+      },
+      "model_manifest_sha256": {
+        "qwen3.5:2b": "0689d44085e06d165161a8a9a1731344278cfb5aade63a3c3dbdb48ab54b130a"
+      },
+      "qualification": null
+    },
+    {
+      "id": "qwen35-4b",
+      "kit_set": "4b",
+      "model": "qwen3.5:4b",
+      "served_model": "qwen3.5:4b-text",
+      "profile": "config/local16-4b.yaml",
+      "pins": {
+        "config/local16-4b.yaml": "7f8743656a250a0a3d1d487b9d97b5e7b73f8b4a1edcf0db4b7c496a0b5e49da"
+      },
+      "model_manifest_sha256": {
+        "qwen3.5:4b": "2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd",
+        "qwen3.5:4b-text": "de8024dbfde0f6e136e9f120ab7c656ca0e304b24360de18a4a287039aa12199"
+      },
+      "qualification": null
+    }
+  ]
+}

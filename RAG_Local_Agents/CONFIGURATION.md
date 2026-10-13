@@ -1,5 +1,7 @@
 # Configuration et provisionnement — V2.1, profil local16
 
+**Rôle :** référence des configurations et de leur qualification · **Propriétaire :** runtime local · **Statut :** stabilisé ; W060 validé en tests ciblés, qualification RAM native non acquise · **Référence W060 :** base `e253e4d` et modifications locales du 13 octobre 2026 ; les baselines historiques ci-dessous restent datées.
+
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)). **W024 et W025 (01/10/2026) : le CPU reste le socle, le repli et la référence de la recette D07 ; seule la génération par Ollama peut passer sur GPU, automatiquement sur les voies qualifiées par un essai réel** ([W025](DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024)). La clé `llm.accelerator` est décrite en [section 3](#3-ollama).
 
 ## 1. Nature des configurations
@@ -11,6 +13,16 @@ Les fichiers Ollama, Next.js, Qdrant et SQL sont des exemples de leurs formats n
 Les valeurs suivantes sont une baseline initiale à qualifier. Aucune n'est présentée comme un optimum universel. La recette ne peut pas être affaiblie après un échec sans changement de baseline explicite.
 
 **Évolution R23 du 4 octobre 2026 :** la table ci-dessous conserve la baseline de conception 4B. Le runtime [config/local16.yaml](../config/local16.yaml) choisit désormais `qwen3.5:2b` Q8_0, source et servi identiques ; [config/local16-4b.yaml](../config/local16-4b.yaml) conserve le 4B Q4_K_M et sa dérivation texte seule. Choix au démarrage, exclusivité modèle/profil et conditions de bascule : [exploitation](../docs/exploitation/EXPLOITATION.md#91-changer-le-modèle-de-génération). Les commandes Ollama brutes de la section 3 et le smoke JSON restent des exemples 4B ; ils ne provisionnent ni ne vérifient le profil 2B. Pour le modèle choisi, utiliser `rag.ps1`/`rag.sh` avec `-Model`/`--model` ou un profil explicite. Les preuves 4B historiques ne qualifient pas le 2B.
+
+### Choix du profil RAM à la création — W060 (13 octobre 2026)
+
+Le [catalogue de profils](../config/model_profiles.json) est versionné séparément de `models.lock.json`, qui garde les identités des artefacts. Le [sélecteur partagé](../services/runtime/model_profiles.py) intervient à la création d'un profil neuf par `init-profile` ou lors d'une nouvelle installation munie de ce catalogue. Un `-Model`/`--model` explicite est prioritaire ; un `-Profile`/`--profile` explicite conserve le profil manuel. Les profils historiques 2B et 4B restent accessibles et leurs paramètres ne sont pas réécrits.
+
+Pour être admissible automatiquement, un candidat doit avoir une qualification acquise et des preuves de plateforme/mode, ses fichiers et manifestes conformes aux pins, ses modèles présents, et une RAM physique visible couvrant le maximum du minimum qualifié et du pic mesuré plus la marge système. La mesure est conservée en octets exacts, sans assimiler une machine annoncée « 16 Go » à une valeur entière de Gio. La création actuelle examine le mode CPU ; aucune qualification GPU ou Windows ne se déduit d'une preuve sur une autre cible. Les gardes mémoire et l'admission des requêtes restent applicables après ce choix.
+
+**État livré : aucun profil RAM qualifié et aucun seuil 9B.** Le repli historique 4B est explicitement **NON QUALIFIÉ pour la sélection automatique** (`selection=legacy_fallback`, `qualification=null`) ; ce repli ne vaut ni promotion ni preuve de qualité. Si aucun candidat admissible ni repli livré n'est disponible, la création est refusée. Le sélecteur n'installe ni ne télécharge de modèle.
+
+La provenance est écrite dans `<données>/model-selection.json` : choix manuel/automatique/repli, modèle source et servi, RAM visible, plateforme, mode, exclusions et empreintes du catalogue/verrou. Les installateurs la reprennent dans leur rapport ; Linux la conserve aussi dans son pointeur. Les installations existantes, mises à jour, restaurations, retours arrière, `status`, `down` et ouvertures ultérieures ne relancent pas la sélection. Les [procédures de déploiement](../docs/deploiement/DEPLOIEMENT.md#2-préparer-un-clone) précisent les commandes et la reprise.
 
 ## 2. Paramètres initiaux et qualification
 

@@ -62,7 +62,7 @@ Date : 30/09/2026 UTC. Statut : acquise pour le chantier autorisé. L’archive 
 
 **Date :** 30 septembre 2026, 02:00 UTC. **Statut :** implémentation fondée sur pilote court, qualification complète pendante.
 
-**Contexte :** l'estimation initiale de chargement Qwen 6144 Mio empêchait toute admission sur le poste occupé ; le pilote froid de 2970 tokens a échoué par latence de préfill, sans série mémoire persistée. Un second pilote contrôlé a réellement exécuté 279 tokens d'entrée et deux sorties de 64 tokens, CPU seul, contexte8192. [Preuve complète](reports/cpu-pilot-short-4threads.json) : somme RSS des processus du pilote, borne supérieure incluant les pages potentiellement partagées, pic3883,39 Mio ; hôte minimum2325,80 Mio. Ce n'est pas une preuve à3000/400tokens ni de résidence totale de l'application.
+**Contexte :** l'estimation initiale de chargement Qwen 6144 Mio empêchait toute admission sur le poste occupé ; le pilote froid de 2970 tokens a échoué par latence de préfill, sans série mémoire persistée. Un second pilote contrôlé a réellement exécuté 279 tokens d'entrée et deux sorties de 64 tokens, CPU seul, contexte 8192. [Preuve complète](reports/cpu-pilot-short-4threads.json) : somme RSS des processus du pilote, borne supérieure incluant les pages potentiellement partagées, pic3883,39 Mio ; hôte minimum2325,80 Mio. Ce n'est pas une preuve à3000/400tokens ni de résidence totale de l'application.
 
 **Choix :** estimation froide4352 Mio (pic mesuré + environ469 Mio de marge), réserve hôte1536 Mio inchangée et surveillance active. Admission chaude distincte selon /api/ps, contexte/quantification/CPU vérifiés, estimation additionnelle512 Mio encore provisoire. Le cache de prompts llama-server est borné à256 Mio et deux checkpoints, au lieu du défaut observé8192 Mio/32 checkpoints. Les paramètres sont confirmés dans `--help` du binaire livré et dans le log du pilote réel. Première parité tokenizerHF/Ollama :279/279 ; autres formes de conversations restent à qualifier.
 
@@ -1816,7 +1816,7 @@ et revue R118 liés depuis le [rapport Office](reports/office-integration-2026-1
 ## W060 Profils de mémoire et sélection automatique des modèles qualifiés
 
 **Date :** 2026-10-11 17:27 UTC. **Statut :** demande utilisateur acquise ;
-présélection et qualification à réaliser, aucun nouveau modèle choisi.
+sélecteur intégré et testé le 13 octobre ; seul9B choisi pour essaiGPU, aucun profil haute mémoire qualifié ou promu.
 
 **Contexte et choix :** l'utilisateur demande un profil pour les machines
 ayant plus de 16 Go de RAM et une sélection automatique lors de l'installation
@@ -1839,6 +1839,44 @@ distinctes. Pas de téléchargement silencieux en usage hors ligne. Les essais
 lourds restent séquentiels ; caches, copies de kits et candidats devenus
 inutiles seront retirés après conservation des résultats et vérification
 des références encore nécessaires. R28-LLM-01 porte ce nouvel axe.
+
+
+**Précision utilisateur — 12 octobre 2026 :** après la présélection multi-familles,
+le seul candidat autorisé à télécharger et tester est `qwen3.5:9b-q4_K_M`
+(6,55 Go), contre le 4B existant et exclusivement sur GPU. Le téléchargement
+Gemma et son tokenizer abandonnés sont retirés après vérification des preuves.
+Les essais 9B n’autorisent aucune promotion automatique, livraison de poids
+supplémentaires ni seuil de sélection RAM non mesuré. Comparaison bornée à
+trois entrées gelées et une réponse par entrée, arrêt au premier FAIL 9B ;
+référence PDF libre 4B historique CPU explicitement qualitative. Résultats et
+limites dans le [rapport de comparaison](reports/local-llm-qualification-2026-10-12.md).
+
+**Pilotage du 12 octobre, critique de méthode :** les deux essais initiaux ne
+permettent pas de juger la qualité générale 9B. La règle de sous-ensemble des
+comparaisons, déjà validée, est rendue explicite dans la consigne sans changer
+le schéma ni le validateur. Une nouvelle cohorte de six scénarios DEV est
+figée avant appels : douze chats4B/9B exclusivementGPU, mêmes preuves/options
+par paire, budgets réels des modes, seed42 et ordre équilibré3/3 ; absence de
+retry/tuning. Les FAIL de contenu sont conservés sans censurer les autres cas.
+Verdicts contrat, couverture/fidélité/citations et coûts séparés ; relecture
+indépendante anonymisée. SourceS42 et protocole du même rapport. Cette
+comparaison ciblée ne remplace ni le mode comparison non exercé, ni la recette
+finale, ni les plateformes absentes ; aucune promotion9B automatique.
+
+
+**Résultat du 13 octobre :** le screening apparié est terminé avec douze chats,
+relecture aveugle et contrôle technique indépendants.4B 4/6 et9B 5/6 réponses
+acceptables ; les deux réponses multi-documents échouent sur la couverture.
+Le9B apporte un gain local de citation/analyse avec coût supérieur, sans
+avantage général démontré. Fin de campagne sans nouveau replay ni promotion.
+Le sélecteur W060 est intégré et couvert par156 tests ciblés et mypy Linux/win32
+statique. Il n'ajoute ni profil 9B, ni qualification, ni seuil mémoire supposé.
+Choix manuel prioritaire ; auto uniquement à création/nouvelle installation,
+profils qualifiés présents compatibles avec plateforme/mode/RAM et réserve.
+Sans candidat qualifié, repli historique4B identifié comme nonqualifié ; aucune
+re-sélection par status/down/miseàjour, aucun téléchargement horsligne.
+Preuves et limites : [journal du 13 octobre](journal/2026-10-13.md),
+[rapport de comparaison](reports/local-llm-qualification-2026-10-12.md).
 
 
 ## W057 Consultation des anciens tours par lecture des preuves persistées
@@ -1968,7 +2006,7 @@ acquis pour l'étude ; aucune implémentation Office commencée.
 
 **Contexte :** après avoir demandé l'ingestion DOCX/XLSX en plus du PDF,
 l'utilisateur précise une étude approfondie des structures, pipelines,
-contrats, usages et solutions, sur CPU16Go sansGPU, puis un PLAN détaillé.
+contrats, usages et solutions, sur CPU de 16 Go sansGPU, puis un PLAN détaillé.
 
 **Choix :** traiter cette phase dans le plan canonique existant, comparer les
 bibliothèques réellement disponibles et les options officielles, mesurer sur

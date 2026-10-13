@@ -7,6 +7,7 @@ param(
     [string]$DataRoot = (Join-Path $env:LOCALAPPDATA 'APDF'),
     [string]$QdrantStorage,
     [string]$Ports,
+    [string]$Model,
     # Dossier des raccourcis : menu Démarrer de l'utilisateur ; une installation d'essai en indique un autre.
     [string]$Menu = (Join-Path ([Environment]::GetFolderPath('Programs')) 'Atelier documentaire'),
     # Mise à jour (DIST-08) : données déjà présentes ; -Previous désigne la version en place si ses raccourcis manquent.
@@ -52,6 +53,7 @@ try {
     if (-not [Environment]::Is64BitOperatingSystem -or [int]$os.BuildNumber -lt 22000) {
         throw "Ce poste n'est pas un Windows 11 64 bits (build $($os.BuildNumber)). Installation arrêtée, aucun fichier copié."
     }
+    $memoryBytes = [long]$os.TotalVisibleMemorySize * 1024
     $memoryGib = [math]::Round($os.TotalVisibleMemorySize / 1MB, 1)
     if ($memoryGib -lt 15) { throw "Ce poste a $memoryGib Gio de mémoire physique ; l'atelier en demande 16. Installation arrêtée, aucun fichier copié." }
     $target = Join-Path $Destination $manifest.version
@@ -70,6 +72,7 @@ try {
 
     # 1 bis. Données déjà présentes : la nouvelle version s'installe à côté de l'actuelle, après une sauvegarde vérifiée.
     $existingProfile = Join-Path $DataRoot 'profile.yaml'
+    if ($Update -and $Model) { throw 'Le choix manuel -Model concerne une installation neuve ; la mise à jour conserve le profil existant.' }
     if (Test-Path -LiteralPath $existingProfile) {
         if (-not $Update) {
             throw "Un atelier est déjà installé avec ces données ($existingProfile). Pour installer la version $($manifest.version) à côté, relancez avec -Update : sauvegarde vérifiée, puis bascule des raccourcis. Rien n'a été installé."
@@ -126,11 +129,14 @@ try {
         Write-Step 'profil' 'ok' "$profilePath repris"
     } else {
         $profileArguments = @('init-profile', '-Target', $DataRoot)
+        if ($manifest.model_selection) { $profileArguments += @('-MemoryTotalBytes', [string]$memoryBytes) }
+        if ($Model) { $profileArguments += @('-Model', $Model) }
         if ($QdrantStorage) { $profileArguments += @('-QdrantStorage', $QdrantStorage) }
         if ($Ports) { $profileArguments += @('-Ports', $Ports) }
         $created = & (Join-Path $target 'rag.ps1') @profileArguments | Out-String | ConvertFrom-Json
         if ($created.status -ne 'created') { throw "Profil non créé : $($created.message)" }
         $profilePath = $created.profile
+        if ($created.model_selection) { $report.model_selection = $created.model_selection }
         Write-Step 'profil' 'ok' $profilePath
     }
 
