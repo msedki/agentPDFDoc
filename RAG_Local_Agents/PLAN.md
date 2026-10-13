@@ -137,12 +137,17 @@ verts ; seuls les profils effectivement qualifiés et présents pourront être
 sélectionnés automatiquement. Le catalogue actuel n'en déclare aucun : le
 repli historique4B est explicite et non qualifié, sans seuil RAM ou profil 9B inventé.
 
-**Prochaine action :** terminer les contrôles documentaires et la revue finale,
-publier le lot vérifié sur main/origin, puis reprendre uniquement les réserves
-exécutables justifiées par leurs preuves. Aucun nouveau screening modèle prévu.
-Livraison de ce lot visée **17 h 45 Casablanca le 13 octobre**, après correction de la fixture PowerShell et revue finale. R28-RAG-04 reste
-partiel : la consigne améliore le contrat, mais les réponses multi-documents
-observées demeurent incomplètes. Les résultats historiques ne sont pas réécrits.
+**Publication du lot acquise :** commit `dcf661c` poussé sur `origin/main`,
+HEAD distant confirmé le 13 octobre à16:37UTC/17:37Casablanca. Revue finale
+indépendante ciblée conforme ; reçu de publication `c047d8b2…` conservé en QA.
+L'estimation17h45 est satisfaite pour ce lot, sans clôtureDoD globale.
+
+**Prochaine action :** reprendre R28-RAG-04 sur l'omission des références XLSX
+dans la restitution multi-documents : cause ciblée dans la sélection et ses
+contrats, correction puis recette de la chaîne existante. Aucun nouveau
+screening modèle prévu. La consigne améliore le contrat, mais les réponses
+multi-documents observées demeurent incomplètes. Les résultats historiques
+ne sont pas réécrits.
 
 La clôture totale de la DoD ne reçoit pas de date inventée : hôtes Windows,
 x86-64/CPU ≤ 16 Go et corpus final restent nécessaires et indisponibles ici.
