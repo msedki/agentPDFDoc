@@ -16,14 +16,14 @@ import re
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
-NUMERIC_POLICY = "numeric_header_ambiguity_row_v2"
+NUMERIC_POLICY = "numeric_header_ambiguity_row_v3"
 NUMERIC_DENSITY_FACTOR = 2
 NUMERIC_DENSITY_MAX_INK_HEIGHT = 24
 SNAPSHOT_MAX_BYTES = 256 * 1024
 SNAPSHOTS_MAX_BYTES = 2 * 1024 * 1024
 NUMERIC_HEADERS = {
     "min": "minimum", "minimum": "minimum", "max": "maximum", "maximum": "maximum",
-    "typ": "typical", "typical": "typical", "typique": "typical", "nominal": "nominal",
+    "typ": "typical", "typical": "typical", "typique": "typical", "nom": "nominal", "nominal": "nominal",
 }
 # Deliberately narrow: no component codes, addresses, ranges or invented unit.
 _UNIT = r"(?:[pnumkMGTµμ]?(?:V|A|Ω|Ohm|W|Hz|s|m|g|F|H|Pa|J|N)|°C|K|%|bar)?"
@@ -78,14 +78,27 @@ def numeric_cell_contexts(cells, baselines, rows, threshold) -> dict[int, dict[s
     if threshold is None or not math.isfinite(threshold):
         return result
     for indices in rows:
-        for index in indices:
-            text = literal(baselines[index])
-            role = NUMERIC_HEADERS.get(text.strip().rstrip(".").casefold())
+        readings = [(index, literal(baselines[index]), _minimum_cell_confidence(baselines[index])) for index in indices]
+        corroborating = [index for index, text, confidence in readings
+                         if NUMERIC_HEADERS.get(text.strip().rstrip(".").casefold()) in {"minimum", "maximum", "typical"}
+                         and confidence is not None and confidence >= threshold]
+        for index, text, confidence in readings:
+            label = text.strip().rstrip(".").casefold()
+            role = NUMERIC_HEADERS.get(label)
             span = (cells[index][0], cells[index][2])
-            confidence = _minimum_cell_confidence(baselines[index])
-            if role and confidence is not None and confidence >= threshold:
-                headers[span] = {"role": role, "header_cell_index": index,
-                                 "header_text": text, "header_raster_bbox": list(cells[index])}
+            if role:
+                # A newly observed but unqualified header invalidates the old
+                # binding. Never carry MIN from an earlier section through a
+                # low-confidence MAX/NOM reading into subsequent numeric cells.
+                headers.pop(span, None)
+                # "Nom" can mean a French name, so the abbreviation alone is
+                # insufficient. Require another qualified numeric header in
+                # this same established grid row, independent of cell values.
+                if confidence is not None and confidence >= threshold and (label != "nom" or corroborating):
+                    headers[span] = {"role": role, "header_cell_index": index,
+                                     "header_text": text, "header_raster_bbox": list(cells[index])}
+                    if label == "nom":
+                        headers[span]["corroborating_header_cell_indices"] = list(corroborating)
             elif span in headers and numeric_ambiguities(text):
                 result[index] = {**headers[span], "ambiguities": list(numeric_ambiguities(text))}
     return result

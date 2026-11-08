@@ -502,12 +502,14 @@ class QueryService:
                         metrics["model_called"] = False
                         await database_call(self.db.add_event, query_id, "delta", {"text": answer})
                     elif deterministic_plan is not None:
-                        # Exact cell reading/arithmetic is already established by
-                        # the authorized catalogue; no generator is needed to
-                        # reselect those same immutable reference IDs.
+                        # Exact cell facts or an explicit scope mismatch are
+                        # established by the authorized catalogue itself.
                         raw_structured = json_dump(deterministic_plan.model_dump())
-                        metrics["response_route"] = "deterministic_cell_contract"
+                        scope_refusal = metrics.get("context_assessment", {}).get("scope_refusal")
+                        metrics["response_route"] = ("deterministic_scope_refusal" if scope_refusal
+                                                     else "deterministic_cell_contract")
                         record_event("answer.deterministic_plan", {"plan": deterministic_plan.model_dump(),
+                                     "scope_refusal": scope_refusal,
                                      "catalogue_sha256": metrics["structured_answer"]["catalogue_sha256"]})
                     else:
                         metrics["response_route"] = "local_4b_generation"

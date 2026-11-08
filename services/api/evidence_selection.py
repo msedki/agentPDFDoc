@@ -11,13 +11,16 @@ import re
 import time
 import unicodedata
 from collections import defaultdict
+from typing import Any
 
 from .errors import ApiError
 
-REVISION = "evidence-bundles-v2"
+REVISION = "evidence-bundles-v3"
+TABLE_RELATIONS_REVISION = "verified-table-relations-v1"
 MAX_TABLE_INSPECT_CHARS = 200_000
 MAX_TABLE_METADATA_CHARS = 2_000_000
 MAX_TABLE_CELLS = 4_096
+MAX_TABLE_HEADER_DEPTH = 8
 MAX_TABLE_RECOVERY_HASHES = 20_000
 MAX_TABLE_RECOVERY_BYTES = 8_388_608
 MAX_TABLE_RECOVERY_SECONDS = .05
@@ -181,7 +184,8 @@ def _row_records(metadata):
             if not isinstance(cell, dict):
                 return None
             row, column = cell.get("start_row_offset_idx"), cell.get("start_col_offset_idx")
-            if type(row) is not int or type(column) is not int or min(row, column) < 0:
+            if (type(row) is not int or type(column) is not int or min(row, column) < 0
+                    or not isinstance(cell.get("text"), str)):
                 return None
             by_row[row].append(cell)
         for row, row_cells in sorted(by_row.items()):
@@ -191,7 +195,7 @@ def _row_records(metadata):
                             "section": any(cell.get("row_section") is True for cell in row_cells),
                             "spans_to": max([row + 1] + [cell.get("end_row_offset_idx", row + 1)
                                 for cell in row_cells if type(cell.get("end_row_offset_idx", row + 1)) is int]),
-                            "merge_origins": []})
+                            "merge_origins": [], "raw_cells": row_cells, "separator": " | ", "format": "pdf"})
     else:
         structure = metadata.get("structure", {})
         if not isinstance(structure, dict) or structure.get("serialization") != "tab_newline_v1":
@@ -212,12 +216,199 @@ def _row_records(metadata):
             records.append({"index": row["row"], "text": "\t".join(cell["text"] for cell in row_cells),
                             "header": row.get("is_header") is True, "section": False, "spans_to": row["row"] + 1,
                             "merge_origins": [origins[cell["merge_origin_id"]] for cell in row_cells
-                                if cell.get("merge_origin_id") in origins]})
+                                if cell.get("merge_origin_id") in origins],
+                            "raw_cells": row_cells, "separator": "\t", "format": "docx"})
     offset = 0
     for record in records:
         record.update(start=offset, end=offset + len(record["text"]))
+        cell_offset, cells = offset, []
+        for cell in record.pop("raw_cells"):
+            if record["format"] == "pdf":
+                row_start, row_end = cell.get("start_row_offset_idx"), cell.get("end_row_offset_idx")
+                column_start, column_end = cell.get("start_col_offset_idx"), cell.get("end_col_offset_idx")
+            else:
+                row_start, column_start = cell.get("row"), cell.get("column")
+                row_span, column_span = cell.get("row_span"), cell.get("column_span")
+                row_end = row_start + row_span if type(row_start) is type(row_span) is int else None
+                column_end = column_start + column_span if type(column_start) is type(column_span) is int else None
+            cells.append({"text": cell["text"], "start_offset": cell_offset,
+                          "end_offset": cell_offset + len(cell["text"]),
+                          "row_start": row_start, "row_end": row_end,
+                          "column_start": column_start, "column_end": column_end,
+                          "column_header": cell.get("column_header") is True if record["format"] == "pdf" else record["header"],
+                          "row_header": cell.get("row_header") is True,
+                          "row_section": cell.get("row_section") is True,
+                          "merge_origin_id": cell.get("merge_origin_id")})
+            cell_offset += len(cell["text"]) + len(record["separator"])
+        record["cells"] = cells
         offset = record["end"] + 1
+    _bind_columns(records)
+    if _explicit_docx_header(records):
+        _bind_columns(records)
     return records or None
+
+
+_HEADER_ROLES = {
+    "min": "minimum", "minimum": "minimum", "minimale": "minimum",
+    "max": "maximum", "maximum": "maximum", "maximale": "maximum",
+    "typ": "typical", "typical": "typical", "typique": "typical",
+    "nom": "nominal", "nominal": "nominal", "nominale": "nominal",
+    "unit": "unit", "units": "unit", "unite": "unit", "unites": "unit",
+    "condition": "condition", "conditions": "condition", "test conditions": "condition",
+    "conditions d'essai": "condition", "conditions de test": "condition",
+    "parameter": "parameter", "parameters": "parameter", "parametre": "parameter",
+    "parametres": "parameter", "grandeur": "parameter",
+}
+
+
+def _header_role(text):
+    # Only explicit labels are interpreted. Numeric values and positions never
+    # establish a role, particularly after sparse PDF columns are serialized.
+    label = " ".join(_fold(text).replace("’", "'").strip().rstrip(".").split())
+    return _HEADER_ROLES.get(label)
+
+
+def _explicit_docx_header(records):
+    """Recognize a complete literal OOXML header without guessing a PDF grid.
+
+    An unmarked first Word row can explicitly name its columns. Accept only a
+    complete, single-row grid with unique known labels, a parameter and unit,
+    and at least two numeric roles. No value from subsequent rows is consulted.
+    """
+    if (len(records) < 2 or records[0]["format"] != "docx" or records[0]["index"] != 0
+            or any(record["header"] for record in records)
+            or not all(record["column_bindings_verified"] for record in records)):
+        return False
+    first = records[0]
+    cells = first["cells"]
+    if not 4 <= len(cells) <= 16 or any(not cell["text"].strip() or cell["merge_origin_id"]
+            or (cell["row_start"], cell["row_end"], cell["column_start"], cell["column_end"]) != (0, 1, index, index + 1)
+            for index, cell in enumerate(cells)):
+        return False
+    roles = [_header_role(cell["text"]) for cell in cells]
+    if (None in roles or len(roles) != len(set(roles)) or not {"parameter", "unit"} <= set(roles)
+            or len(set(roles) & {"minimum", "maximum", "typical", "nominal"}) < 2
+            or any(cell["column_end"] > len(cells) for record in records[1:] for cell in record["cells"])):
+        return False
+    first.update(header=True, header_detection="explicit_labels")
+    for cell in cells:
+        cell["column_header"] = True
+    return True
+
+
+def _bind_columns(records):
+    """Attach geometric header links, pending the caller's text verification.
+
+    Missing/overlapping coordinates disable relations for the table, while its
+    literal rows remain usable. This never interprets compacted pipe ordinals.
+    """
+    cells = [cell for record in records for cell in record["cells"]]
+    indices = [record["index"] for record in records]
+    valid = (indices == sorted(set(indices)) and all(type(value) is int and 0 <= value <= MAX_TABLE_CELLS
+             for cell in cells for value in (cell["row_start"], cell["row_end"], cell["column_start"], cell["column_end"]))
+             and all(cell["row_start"] < cell["row_end"] and cell["column_start"] < cell["column_end"] for cell in cells)
+             and all(cell["row_start"] == record["index"] for record in records for cell in record["cells"]))
+    depth = 0
+    for record in records:
+        depth = depth + 1 if record["header"] else 0
+        if depth > MAX_TABLE_HEADER_DEPTH:
+            # Otherwise a legal-sized 4096-cell metadata block could generate
+            # millions of ancestor dictionaries before the text budget applies.
+            valid = False
+            break
+    if valid:
+        for record in records:
+            # Explicit empty OOXML merge placeholders may overlap their origin;
+            # a nonempty continuation cannot silently replace that origin.
+            active = sorted(_active_cells(cells, record["index"]), key=lambda cell: cell["column_start"])
+            if any(left["column_end"] > right["column_start"] for left, right in zip(active, active[1:], strict=False)):
+                valid = False
+                break
+    headers: list[dict[str, Any]] = []
+    previous_header = ambiguous_roles = False
+    for record in records:
+        record["column_bindings_verified"] = valid
+        if record["header"] and not previous_header:
+            # A repeated header group replaces the preceding group's context.
+            # Within one consecutive group, all geometrically enclosing
+            # ancestors remain relevant (for example TA=25°C above MIN/MAX).
+            headers = []
+        for cell in record["cells"]:
+            matches = [header for header in headers if header["row_end"] <= cell["row_start"]
+                       and header["column_start"] <= cell["column_start"] < cell["column_end"] <= header["column_end"]]
+            cell["headers"] = [{key: header[key] for key in ("text", "start_offset", "end_offset", "row_start", "row_end",
+                                                            "column_start", "column_end")} | {"role": _header_role(header["text"])}
+                               for header in matches]
+            if len({header["role"] for header in cell["headers"] if header["role"] is not None}) > 1:
+                ambiguous_roles = True
+        if valid and record["header"]:
+            headers.extend(cell for cell in record["cells"] if cell["column_header"])
+        previous_header = record["header"]
+    if ambiguous_roles:
+        for record in records:
+            record["column_bindings_verified"] = False
+            for cell in record["cells"]:
+                cell["headers"] = []
+
+
+def _active_cells(cells, row_index):
+    active = [cell for cell in cells if cell["row_start"] <= row_index < cell["row_end"]]
+    # Some PDF serializers retain an empty continuation in the rectangle of an
+    # explicitly spanning origin. It supplies no text; the actual origin does.
+    return [cell for cell in active if cell["text"] or not any(
+        origin["row_start"] < cell["row_start"] and origin["column_start"] <= cell["column_start"]
+        and cell["column_end"] <= origin["column_end"] for origin in active)]
+
+
+def _table_context(records, record, block, chosen):
+    """Publish relations only between exact cells and selected source rows."""
+    if not record["column_bindings_verified"]:
+        return None
+    index = record["index"]
+    cells = _active_cells([cell for row in records for cell in row["cells"]], index)
+    dependencies = {header["row_start"]: "header" for cell in cells for header in cell["headers"]}
+    dependencies.update({cell["row_start"]: "row_span" for cell in cells if cell["row_start"] != index})
+    section = next((row["index"] for row in reversed(records) if row["section"] and row["index"] < index), None)
+    if section is not None:
+        dependencies[section] = "row_section"
+    if not set(dependencies) <= {row["index"] for row in chosen}:
+        return None
+    return {"revision": TABLE_RELATIONS_REVISION, "table_block_id": block["id"],
+            "source_text_hash": block["source_text_hash"], "extraction_revision_id": block["extraction_revision_id"],
+            "serialization_verified": True, "row_index": index,
+            "header_detection": "explicit_labels" if any(row.get("header_detection") == "explicit_labels" for row in records)
+                                else "structural_metadata" if any(row["header"] for row in records) else "unverified",
+            "row_role": "header" if record["header"] else "section" if record["section"] else "data",
+            "cells": [{key: value for key, value in cell.items() if key != "merge_origin_id"} for cell in cells],
+            "dependencies": [{"kind": dependencies[row["index"]], "row_index": row["index"], "text": row["text"],
+                              "start_offset": row["start"], "end_offset": row["end"]}
+                             for row in chosen if row["index"] in dependencies]}
+
+
+def _verified_table_records(parent_text, metadata):
+    records, recovery = None, "unavailable"
+    if not isinstance(parent_text, str) or len(parent_text) > MAX_TABLE_INSPECT_CHARS:
+        return None, recovery
+    try:
+        records = _row_records(metadata)
+        if records is None or "\n".join(record["text"] for record in records) != parent_text:
+            recovered, recovery = _recover_cell_texts(metadata, parent_text)
+            records = _row_records(recovered) if recovered is not None else None
+    except (ValueError, TypeError):
+        records = None
+    if records is not None and "\n".join(record["text"] for record in records) != parent_text:
+        records = None
+    return records, recovery
+
+
+def verified_table_rows(parent_text, metadata):
+    """Rebuild exact rows/cells from registered parent text and its metadata.
+
+    Used by the answer catalogue to independently check supplied relations. The
+    caller must still verify revision/hash and authorize every published span;
+    this helper grants no access and invents no missing source text.
+    """
+    return _verified_table_records(parent_text, metadata)[0]
 
 
 def _parent(db, snapshot, source, block):
@@ -233,7 +424,7 @@ def _parent(db, snapshot, source, block):
         raise ApiError("source_text_integrity_failure", "Le bloc de tableau n'existe plus dans cette révision.", 409)
     if size["text_size"] > MAX_TABLE_INSPECT_CHARS or size["metadata_size"] > MAX_TABLE_METADATA_CHARS:
         return None
-    row = db.one("SELECT text,source_text_hash,extraction_revision_id,metadata_json FROM blocks WHERE generation_id=? AND id=?",
+    row = db.one("SELECT text,source_text_hash,extraction_revision_id,metadata_json,section_id FROM blocks WHERE generation_id=? AND id=?",
                  (generation, block["id"]))
     start, end = block["start_offset"], block["end_offset"]
     if (type(start) is not int or type(end) is not int or not 0 <= start < end <= len(row["text"])
@@ -244,6 +435,52 @@ def _parent(db, snapshot, source, block):
             or row["text"][start:end] != block["text"]):
         raise ApiError("source_text_integrity_failure", "Le tableau ne correspond plus au texte et à la révision de la preuve.", 409)
     return row
+
+
+def _section_heading(db, snapshot, source, block, parent):
+    """Recover a unique explicit section heading, never a nearby guessed title."""
+    section_id = parent.get("section_id")
+    if not section_id:
+        return None
+    rows = db.rows("""SELECT b.id,b.page_index,b.kind,b.text,b.bbox_json,b.precision,b.section_id,
+                     b.source_text_hash,b.extraction_revision_id,b.metadata_json,s.title,s.block_ids_json,p.geometry_json
+                     FROM sections s JOIN blocks b ON b.generation_id=s.generation_id AND b.section_id=s.id
+                     LEFT JOIN pages p ON p.generation_id=b.generation_id AND p.page_index=b.page_index
+                     WHERE s.generation_id=? AND s.id=? AND length(s.block_ids_json)<=?
+                     AND b.kind IN ('heading','section_header') AND b.text=s.title
+                     AND length(b.text)<=? AND length(b.metadata_json)<=? LIMIT 2""",
+                 (source["generation_id"], section_id, MAX_TABLE_METADATA_CHARS, 2_000, MAX_TABLE_METADATA_CHARS))
+    if len(rows) != 1:
+        return None
+    row = rows[0]
+    if (row["kind"] not in {"heading", "section_header"} or row["section_id"] != section_id
+            or row["text"] != row["title"] or not row["text"]
+            or row["extraction_revision_id"] != parent["extraction_revision_id"]
+            or hashlib.sha256(row["text"].encode()).hexdigest() != row["source_text_hash"]
+            or snapshot.page_indices is not None and row["page_index"] not in snapshot.page_indices
+            or snapshot.block_ids is not None and row["id"] not in snapshot.block_ids):
+        return None
+    try:
+        ids = json.loads(row["block_ids_json"])
+        if not isinstance(ids, list) or len(ids) > MAX_TABLE_CELLS or block["id"] not in ids or row["id"] not in ids:
+            return None
+        from .scope import block_extraction_method
+
+        heading = {"id": row["id"], "block_id": row["id"], "page_index": row["page_index"],
+                "type": row["kind"], "text": row["text"], "start_offset": 0, "end_offset": len(row["text"]),
+                "source_text_hash": row["source_text_hash"], "extraction_revision_id": row["extraction_revision_id"],
+                "bbox": json.loads(row["bbox_json"]) if row["bbox_json"] else None,
+                "precision": row["precision"], "page": json.loads(row["geometry_json"] or "{}"),
+                "extraction_method": block_extraction_method(row["metadata_json"])}
+        if row["page_index"] is None:
+            metadata = json.loads(row["metadata_json"])
+            locator = metadata.get("locator")
+            if not isinstance(locator, dict) or locator.get("kind") != "docx_element":
+                return None
+            heading.update({key: metadata[key] for key in ("locator", "structure", "bindings") if key in metadata})
+        return heading
+    except (ValueError, TypeError):
+        return None
 
 
 def table_bundle(db, snapshot, source, *, maximum_chars=12_000, question=None, required_identifiers=(), _table_cache=None):
@@ -272,16 +509,11 @@ def table_bundle(db, snapshot, source, *, maximum_chars=12_000, question=None, r
                 "La structure de ce tableau dépasse la limite de lecture locale ; le fragment original est conservé.", source)]
         key = (source["generation_id"], block["id"], parent["source_text_hash"], parent["extraction_revision_id"])
         if key not in table_cache:
-            records, recovery = None, "unavailable"
             try:
                 metadata = json.loads(parent["metadata_json"])
-                records = _row_records(metadata)
-                if records is None or "\n".join(record["text"] for record in records) != parent["text"]:
-                    recovered, recovery = _recover_cell_texts(metadata, parent["text"])
-                    records = _row_records(recovered) if recovered is not None else None
+                table_cache[key] = _verified_table_records(parent["text"], metadata)
             except (ValueError, TypeError):
-                records = None
-            table_cache[key] = records, recovery
+                table_cache[key] = None, "unavailable"
         records, recovery = table_cache[key]
         if recovery == "budget_exceeded":
             warnings.append(_warning("table_cell_recovery_budget_exceeded",
@@ -326,13 +558,35 @@ def table_bundle(db, snapshot, source, *, maximum_chars=12_000, question=None, r
         if len("\n".join(record["text"] for record in chosen)) > maximum_chars:
             return source, [_warning("table_evidence_bundle_too_large",
                 "Les lignes et en-têtes liés dépassent la limite du paquet de preuves ; le fragment original reste signalé comme partiel.", source)]
+        heading_key = ("section_heading", *key)
+        if heading_key not in table_cache:
+            table_cache[heading_key] = _section_heading(db, snapshot, source, block, parent)
+        heading = table_cache[heading_key]
+        if heading is not None and not any(item["id"] == heading["id"] and item["start_offset"] == 0
+                                          and item["end_offset"] == heading["end_offset"]
+                                          for item in [*source["blocks"], *blocks]):
+            blocks.append(heading)
         for record in chosen:
-            blocks.append({**block, "text": parent["text"][record["start"]:record["end"]],
-                           "start_offset": record["start"], "end_offset": record["end"]})
+            selected_block = {**block, "text": parent["text"][record["start"]:record["end"]],
+                              "start_offset": record["start"], "end_offset": record["end"]}
+            relation = _table_context(records, record, block, chosen)
+            if relation is not None:
+                if heading is not None:
+                    relation["section_heading"] = {"block_id": heading["id"], "section_id": parent["section_id"],
+                        **{key: heading[key] for key in ("text", "start_offset", "end_offset", "source_text_hash",
+                                                        "extraction_revision_id", "page_index")}}
+                selected_block["table_context"] = relation
+            blocks.append(selected_block)
+        if not all(record["column_bindings_verified"] for record in chosen):
+            warnings.append(_warning("table_column_bindings_unverified",
+                "Les lignes exactes sont conservées ; les liens de colonnes ou d'en-têtes sont ambigus ou dépassent les limites de vérification.", source))
         structure.append({"block_id": block["id"], "source_rows": [record["index"] for record in chosen],
                           "header_rows": sorted(headers), "headers_verified": bool(headers),
+                          "header_detection": "explicit_labels" if any(record.get("header_detection") == "explicit_labels" for record in records)
+                                              else "structural_metadata" if headers else "unverified",
                           "whole_table": len(chosen) == len([record for record in records if record["text"]]),
                           "complete_rows": True, "serialization_verified": True,
+                          "column_bindings_verified": all(record["column_bindings_verified"] for record in chosen),
                           "cell_text_verification": recovery if recovery == "hash_verified" else "stored_text",
                           "row_selection": "question_terms" if focused is not None else "retrieved_span"})
     text = "\n".join(block["text"] for block in blocks)
@@ -343,7 +597,8 @@ def table_bundle(db, snapshot, source, *, maximum_chars=12_000, question=None, r
             "L'ensemble des blocs liés dépasse la limite du paquet ; le fragment original reste partiel.", source)]
     identity = _digest([source["generation_id"], [(block["id"], block["start_offset"], block["end_offset"],
                                                  block["source_text_hash"]) for block in blocks]])
-    return {**source, "text": text, "blocks": blocks, "evidence_bundle": {
+    return {**source, "text": text, "blocks": blocks,
+        "page_indices": sorted({block["page_index"] for block in blocks if block.get("page_index") is not None}), "evidence_bundle": {
         "id": identity, "revision": REVISION, "kind": "table_rows" if all(item["serialization_verified"] for item in structure)
         else "table_blocks", "atomic": True, "tables": structure}}, warnings
 
@@ -380,6 +635,7 @@ TERM_GROUPS = (
     frozenset({"range", "plage", "intervalle", "interval", "bornes"}),
     frozenset({"min", "minimum", "minimale", "minimal"}),
     frozenset({"max", "maximum", "maximale", "maximal"}),
+    frozenset({"condition", "conditions", "essai", "essais", "test"}),
 )
 ROLE_GROUPS = {
     "operating": frozenset({"operating", "operation", "fonctionnement", "admissible", "admissibles", "recommended"}),
@@ -402,27 +658,56 @@ def _expanded_terms(question):
 
 
 def _focused_rows(records, question, required_identifiers):
-    """Select complete proven rows; ties too broad retain the retrieved span.
+    """Cover distinct requested terms and explicit roles with complete rows.
 
-    No quantity, numeric result or column role is inferred by this lexical
-    filter. Verified headers, row sections and merged origins are added later.
+    Winner-only overlap discarded a requested range when another row mentioned
+    both the range's subject and a test condition. Preserve maximum-score ties,
+    then cover remaining terms without dropping tied rows arbitrarily. A role
+    contributes only when a nonempty cell binds to its explicit column header.
+    The bounded fallback retains the original retrieved spans.
     """
     from .retrieval import contains_identifier
 
     terms = _expanded_terms(question)
-    ranked = [(len(terms & {word[:5] for word in re.findall(r"\w+", _fold(record["text"])) if len(word) >= 3}), record["index"])
-              for record in records if not record["header"] and not record["section"] and record["text"]]
-    best = max((score for score, _ in ranked), default=0)
+    role_terms = {"condition": {"condi", "essai", "test"}, "minimum": {"min", "minim"},
+                  "maximum": {"max", "maxim"}, "typical": {"typ", "typic", "typiq"},
+                  "nominal": {"nom", "nomin"}, "unit": {"unit", "units", "unite"}}
+    requested_roles = {role for role, aliases in role_terms.items() if aliases & terms}
+    ranked = []
+    for record in records:
+        if record["header"] or record["section"] or not record["text"]:
+            continue
+        words = set(re.findall(r"\w+", _fold(record["text"])))
+        matches = terms & {word[:5] for word in words if len(word) >= 3}
+        roles = {header["role"] for cell in record.get("cells", []) if cell["text"].strip()
+                 for header in cell.get("headers", [])} & requested_roles
+        # Synonyms form one obligation rather than awarding three points for a
+        # single TEST CONDITIONS label.
+        matches.update("role:" + role for role in roles)
+        ranked.append((matches, record["index"]))
+    best = max((len(matches) for matches, _ in ranked), default=0)
     if not best:
         return None
-    selected = {index for score, index in ranked if score == best}
+    selected = {index for matches, index in ranked if len(matches) == best}
     # A generic one-word query is not an authorization to discard an arbitrary
     # tail of equally relevant rows. Keep original span selection in that case.
     if len(selected) > 12:
         return None
+    covered = set().union(*(matches for matches, index in ranked if index in selected))
+    while True:
+        remaining = [(len(matches - covered), len(matches), index, matches) for matches, index in ranked
+                     if index not in selected and matches - covered]
+        if not remaining:
+            break
+        gain, score = max((gain, score) for gain, score, _, _ in remaining)
+        tied = [(index, matches) for new, total, index, matches in remaining if (new, total) == (gain, score)]
+        if len(selected) + len(tied) > 12:
+            return None
+        selected.update(index for index, _ in tied)
+        covered.update(*(matches for _, matches in tied))
     selected.update(record["index"] for record in records
                     if any(contains_identifier(record["text"], code) for code in required_identifiers))
-    return selected
+    return selected if len(selected) <= 12 else None
 
 
 def structural_rerank(question, sources, *, maximum_candidates=48):

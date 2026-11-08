@@ -1,0 +1,937 @@
+{
+  "schema_version": 1,
+  "scope": "EV4B explicit judgments; no model call or automatic semantic grader",
+  "annotations": {
+    "questions": 23,
+    "splits": {
+      "diagnostic": 8,
+      "regression": 15
+    },
+    "sha256": "de785bce796d83f0d691536a7049a0509412eed0d7c6f5490b355df43507e80c"
+  },
+  "runs_sha256": "ba6a3440846858b40b2ce8a1e7047c993d2257cb7ff097c2d955580b31739246",
+  "variants": {
+    "iteration1": {
+      "positions": 23,
+      "submitted": 23,
+      "unique_questions": 23,
+      "documents": 10,
+      "families": 2,
+      "status_counts": {
+        "completed": 20,
+        "error": 3
+      },
+      "outcome_counts": {
+        "abstention": 3,
+        "abstention_with_false_claims": 2,
+        "answer_to_unanswerable": 1,
+        "complete": 7,
+        "correct_abstention": 2,
+        "error": 3,
+        "incomplete": 1,
+        "incorrect": 1,
+        "partial": 3
+      },
+      "judgment_methods": {
+        "agent": 23
+      },
+      "answerable_submitted": 20,
+      "unanswerable_submitted": 3,
+      "confirmed_complete_per_answerable_submission": {
+        "numerator": 7,
+        "denominator": 20,
+        "value": 0.35
+      },
+      "complete_accuracy_reviewed_published": {
+        "numerator": 7,
+        "denominator": 12,
+        "value": 0.5833333333333334
+      },
+      "confirmed_complete_and_supported_per_submission": {
+        "numerator": 7,
+        "denominator": 20,
+        "value": 0.35
+      },
+      "answer_coverage": {
+        "numerator": 12,
+        "denominator": 20,
+        "value": 0.6
+      },
+      "incomplete_or_incorrect_risk_reviewed": {
+        "numerator": 5,
+        "denominator": 12,
+        "value": 0.4166666666666667
+      },
+      "false_claim_risk_reviewed": {
+        "numerator": 1,
+        "denominator": 12,
+        "value": 0.08333333333333333
+      },
+      "false_claim_risk_reviewed_published": {
+        "numerator": 1,
+        "denominator": 12,
+        "value": 0.08333333333333333
+      },
+      "false_claim_risk_reviewed_scope": "Completed, non-abstained responses to answerable questions with an explicit has_false_claims verdict only.",
+      "false_claim_risk_reviewed_completed": {
+        "numerator": 3,
+        "denominator": 20,
+        "value": 0.15
+      },
+      "false_claim_risk_reviewed_completed_scope": "All completed responses with an explicit has_false_claims verdict, including abstentions and unanswerable questions; unknown verdicts and non-completed statuses excluded.",
+      "completed_responses": 20,
+      "false_claims_unreviewed_completed": 0,
+      "abstentions_with_false_claims": 2,
+      "unreviewed_published": 0,
+      "context_fact_recall_reviewed": {
+        "numerator": 35,
+        "denominator": 50,
+        "value": 0.7
+      },
+      "confirmed_context_facts_per_required": {
+        "numerator": 35,
+        "denominator": 50,
+        "value": 0.7
+      },
+      "context_facts_unreviewed": 0,
+      "latency_s_by_status": {
+        "cancelled": {
+          "n": 0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "completed": {
+          "n": 20,
+          "median": 100.2246,
+          "p95": 260.7135905000001,
+          "max": 399.44134
+        },
+        "error": {
+          "n": 3,
+          "median": 301.85358,
+          "p95": 301.97414399999997,
+          "max": 301.98753999999997
+        },
+        "refused": {
+          "n": 0,
+          "median": null,
+          "p95": null,
+          "max": null
+        }
+      },
+      "memory_peak_mib_by_scope": {
+        "sum_RSS_application_owned_Qdrant_Ollama_descendants": {
+          "n": 23,
+          "median": 4319.57421875,
+          "p95": 4404.06796875,
+          "max": 4406.64453125
+        }
+      },
+      "risk_coverage": {
+        "score_is_calibrated_probability": false,
+        "scored_reviewed": 0,
+        "published_excluded": 12,
+        "denominator": 20,
+        "points": []
+      },
+      "provenance_missing": {
+        "request_sha256": 7,
+        "context_sha256": 0,
+        "source_sha256": 0
+      }
+    },
+    "iteration2": {
+      "positions": 23,
+      "submitted": 23,
+      "unique_questions": 23,
+      "documents": 10,
+      "families": 2,
+      "status_counts": {
+        "completed": 16,
+        "error": 7
+      },
+      "outcome_counts": {
+        "complete": 14,
+        "correct_abstention": 2,
+        "error": 7
+      },
+      "judgment_methods": {
+        "agent": 23
+      },
+      "answerable_submitted": 20,
+      "unanswerable_submitted": 3,
+      "confirmed_complete_per_answerable_submission": {
+        "numerator": 14,
+        "denominator": 20,
+        "value": 0.7
+      },
+      "complete_accuracy_reviewed_published": {
+        "numerator": 14,
+        "denominator": 14,
+        "value": 1.0
+      },
+      "confirmed_complete_and_supported_per_submission": {
+        "numerator": 14,
+        "denominator": 20,
+        "value": 0.7
+      },
+      "answer_coverage": {
+        "numerator": 14,
+        "denominator": 20,
+        "value": 0.7
+      },
+      "incomplete_or_incorrect_risk_reviewed": {
+        "numerator": 0,
+        "denominator": 14,
+        "value": 0.0
+      },
+      "false_claim_risk_reviewed": {
+        "numerator": 0,
+        "denominator": 14,
+        "value": 0.0
+      },
+      "false_claim_risk_reviewed_published": {
+        "numerator": 0,
+        "denominator": 14,
+        "value": 0.0
+      },
+      "false_claim_risk_reviewed_scope": "Completed, non-abstained responses to answerable questions with an explicit has_false_claims verdict only.",
+      "false_claim_risk_reviewed_completed": {
+        "numerator": 0,
+        "denominator": 16,
+        "value": 0.0
+      },
+      "false_claim_risk_reviewed_completed_scope": "All completed responses with an explicit has_false_claims verdict, including abstentions and unanswerable questions; unknown verdicts and non-completed statuses excluded.",
+      "completed_responses": 16,
+      "false_claims_unreviewed_completed": 0,
+      "abstentions_with_false_claims": 0,
+      "unreviewed_published": 0,
+      "context_fact_recall_reviewed": {
+        "numerator": 45,
+        "denominator": 50,
+        "value": 0.9
+      },
+      "confirmed_context_facts_per_required": {
+        "numerator": 45,
+        "denominator": 50,
+        "value": 0.9
+      },
+      "context_facts_unreviewed": 0,
+      "latency_s_by_status": {
+        "cancelled": {
+          "n": 0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "completed": {
+          "n": 16,
+          "median": 0.170245,
+          "p95": 268.4627575,
+          "max": 337.83862
+        },
+        "error": {
+          "n": 7,
+          "median": 302.35578000000004,
+          "p95": 302.704696,
+          "max": 302.78044
+        },
+        "refused": {
+          "n": 0,
+          "median": null,
+          "p95": null,
+          "max": null
+        }
+      },
+      "memory_peak_mib_by_scope": {
+        "sum_RSS_application_owned_Qdrant_Ollama_descendants": {
+          "n": 23,
+          "median": 4310.0625,
+          "p95": 4367.839453125,
+          "max": 4392.5703125
+        }
+      },
+      "risk_coverage": {
+        "score_is_calibrated_probability": false,
+        "scored_reviewed": 0,
+        "published_excluded": 14,
+        "denominator": 20,
+        "points": []
+      },
+      "provenance_missing": {
+        "request_sha256": 9,
+        "context_sha256": 0,
+        "source_sha256": 0
+      }
+    }
+  },
+  "repetitions": {
+    "repeated_questions": 0,
+    "questions": []
+  },
+  "comparisons": [
+    {
+      "baseline": "iteration1",
+      "variant": "iteration2",
+      "paired_positions": 23,
+      "paired_unique_questions": 23,
+      "unpaired_baseline_positions": 0,
+      "unpaired_variant_positions": 0,
+      "unreviewed_answerable_pairs": 0,
+      "analysed_answerable_pairs": 20,
+      "complete_response_delta": {
+        "estimate": 0.35,
+        "questions": 20,
+        "families": 2,
+        "seed": 42,
+        "resamples": 2000,
+        "method": "paired_family_percentile_bootstrap",
+        "confidence_level": 0.95,
+        "interval": [
+          0.21428571428571427,
+          0.6666666666666666
+        ],
+        "limitation": "exploratory_few_families"
+      },
+      "interpretation": "Repeated positions are averaged per question; unreviewed pairs are excluded and counted. Refusals/errors count as no complete response."
+    }
+  ],
+  "input_files": {
+    "annotations_sha256": "97b86d5536d2490b405f7de1dbf8d54cb849823818c5fdcf19881a46359aaa28",
+    "runs_sha256": "c59fb9af39edaf05b4858cbac24edace4c269949dd1b498245319c47cee03b98",
+    "reviews": {
+      "ina226-review-v4.jsonl": "a746119d2891324cf908d29ec9d85e1fcdc64bac52df8d87af9db6e4facc1b8a",
+      "tmp117-review-v2.jsonl": "dbd16b30a290ca849bd1407f92546fd2c78aa4ad8c70eeb6e8408c9e2c2bef8a"
+    }
+  },
+  "family_breakdown": {
+    "INA226": {
+      "schema_version": 1,
+      "scope": "EV4B explicit judgments; no model call or automatic semantic grader",
+      "annotations": {
+        "questions": 15,
+        "splits": {
+          "regression": 15
+        },
+        "sha256": "e90dab282f82ede332dd20cdd84b24117e8960e4559229524d3b1221b063e1f6"
+      },
+      "runs_sha256": "920380324b8e53852995a4f5a254ec607cd9bded8c38260bba732ada7c91c79b",
+      "variants": {
+        "iteration1": {
+          "positions": 15,
+          "submitted": 15,
+          "unique_questions": 15,
+          "documents": 6,
+          "families": 1,
+          "status_counts": {
+            "completed": 12,
+            "error": 3
+          },
+          "outcome_counts": {
+            "answer_to_unanswerable": 1,
+            "complete": 7,
+            "error": 3,
+            "incomplete": 1,
+            "incorrect": 1,
+            "partial": 2
+          },
+          "judgment_methods": {
+            "agent": 15
+          },
+          "answerable_submitted": 14,
+          "unanswerable_submitted": 1,
+          "confirmed_complete_per_answerable_submission": {
+            "numerator": 7,
+            "denominator": 14,
+            "value": 0.5
+          },
+          "complete_accuracy_reviewed_published": {
+            "numerator": 7,
+            "denominator": 11,
+            "value": 0.6363636363636364
+          },
+          "confirmed_complete_and_supported_per_submission": {
+            "numerator": 7,
+            "denominator": 14,
+            "value": 0.5
+          },
+          "answer_coverage": {
+            "numerator": 11,
+            "denominator": 14,
+            "value": 0.7857142857142857
+          },
+          "incomplete_or_incorrect_risk_reviewed": {
+            "numerator": 4,
+            "denominator": 11,
+            "value": 0.36363636363636365
+          },
+          "false_claim_risk_reviewed": {
+            "numerator": 1,
+            "denominator": 11,
+            "value": 0.09090909090909091
+          },
+          "false_claim_risk_reviewed_published": {
+            "numerator": 1,
+            "denominator": 11,
+            "value": 0.09090909090909091
+          },
+          "false_claim_risk_reviewed_scope": "Completed, non-abstained responses to answerable questions with an explicit has_false_claims verdict only.",
+          "false_claim_risk_reviewed_completed": {
+            "numerator": 1,
+            "denominator": 12,
+            "value": 0.08333333333333333
+          },
+          "false_claim_risk_reviewed_completed_scope": "All completed responses with an explicit has_false_claims verdict, including abstentions and unanswerable questions; unknown verdicts and non-completed statuses excluded.",
+          "completed_responses": 12,
+          "false_claims_unreviewed_completed": 0,
+          "abstentions_with_false_claims": 0,
+          "unreviewed_published": 0,
+          "context_fact_recall_reviewed": {
+            "numerator": 25,
+            "denominator": 33,
+            "value": 0.7575757575757576
+          },
+          "confirmed_context_facts_per_required": {
+            "numerator": 25,
+            "denominator": 33,
+            "value": 0.7575757575757576
+          },
+          "context_facts_unreviewed": 0,
+          "latency_s_by_status": {
+            "cancelled": {
+              "n": 0,
+              "median": null,
+              "p95": null,
+              "max": null
+            },
+            "completed": {
+              "n": 12,
+              "median": 54.50253,
+              "p95": 294.8285569999999,
+              "max": 399.44134
+            },
+            "error": {
+              "n": 3,
+              "median": 301.85358,
+              "p95": 301.97414399999997,
+              "max": 301.98753999999997
+            },
+            "refused": {
+              "n": 0,
+              "median": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "memory_peak_mib_by_scope": {
+            "sum_RSS_application_owned_Qdrant_Ollama_descendants": {
+              "n": 15,
+              "median": 4313.89453125,
+              "p95": 4406.58984375,
+              "max": 4406.64453125
+            }
+          },
+          "risk_coverage": {
+            "score_is_calibrated_probability": false,
+            "scored_reviewed": 0,
+            "published_excluded": 11,
+            "denominator": 14,
+            "points": []
+          },
+          "provenance_missing": {
+            "request_sha256": 6,
+            "context_sha256": 0,
+            "source_sha256": 0
+          }
+        },
+        "iteration2": {
+          "positions": 15,
+          "submitted": 15,
+          "unique_questions": 15,
+          "documents": 6,
+          "families": 1,
+          "status_counts": {
+            "completed": 11,
+            "error": 4
+          },
+          "outcome_counts": {
+            "complete": 10,
+            "correct_abstention": 1,
+            "error": 4
+          },
+          "judgment_methods": {
+            "agent": 15
+          },
+          "answerable_submitted": 14,
+          "unanswerable_submitted": 1,
+          "confirmed_complete_per_answerable_submission": {
+            "numerator": 10,
+            "denominator": 14,
+            "value": 0.7142857142857143
+          },
+          "complete_accuracy_reviewed_published": {
+            "numerator": 10,
+            "denominator": 10,
+            "value": 1.0
+          },
+          "confirmed_complete_and_supported_per_submission": {
+            "numerator": 10,
+            "denominator": 14,
+            "value": 0.7142857142857143
+          },
+          "answer_coverage": {
+            "numerator": 10,
+            "denominator": 14,
+            "value": 0.7142857142857143
+          },
+          "incomplete_or_incorrect_risk_reviewed": {
+            "numerator": 0,
+            "denominator": 10,
+            "value": 0.0
+          },
+          "false_claim_risk_reviewed": {
+            "numerator": 0,
+            "denominator": 10,
+            "value": 0.0
+          },
+          "false_claim_risk_reviewed_published": {
+            "numerator": 0,
+            "denominator": 10,
+            "value": 0.0
+          },
+          "false_claim_risk_reviewed_scope": "Completed, non-abstained responses to answerable questions with an explicit has_false_claims verdict only.",
+          "false_claim_risk_reviewed_completed": {
+            "numerator": 0,
+            "denominator": 11,
+            "value": 0.0
+          },
+          "false_claim_risk_reviewed_completed_scope": "All completed responses with an explicit has_false_claims verdict, including abstentions and unanswerable questions; unknown verdicts and non-completed statuses excluded.",
+          "completed_responses": 11,
+          "false_claims_unreviewed_completed": 0,
+          "abstentions_with_false_claims": 0,
+          "unreviewed_published": 0,
+          "context_fact_recall_reviewed": {
+            "numerator": 29,
+            "denominator": 33,
+            "value": 0.8787878787878788
+          },
+          "confirmed_context_facts_per_required": {
+            "numerator": 29,
+            "denominator": 33,
+            "value": 0.8787878787878788
+          },
+          "context_facts_unreviewed": 0,
+          "latency_s_by_status": {
+            "cancelled": {
+              "n": 0,
+              "median": null,
+              "p95": null,
+              "max": null
+            },
+            "completed": {
+              "n": 11,
+              "median": 0.13897,
+              "p95": 225.0347,
+              "max": 245.33747
+            },
+            "error": {
+              "n": 4,
+              "median": 302.44187,
+              "p95": 302.742568,
+              "max": 302.78044
+            },
+            "refused": {
+              "n": 0,
+              "median": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "memory_peak_mib_by_scope": {
+            "sum_RSS_application_owned_Qdrant_Ollama_descendants": {
+              "n": 15,
+              "median": 4310.0625,
+              "p95": 4375.362890625,
+              "max": 4392.5703125
+            }
+          },
+          "risk_coverage": {
+            "score_is_calibrated_probability": false,
+            "scored_reviewed": 0,
+            "published_excluded": 10,
+            "denominator": 14,
+            "points": []
+          },
+          "provenance_missing": {
+            "request_sha256": 7,
+            "context_sha256": 0,
+            "source_sha256": 0
+          }
+        }
+      },
+      "repetitions": {
+        "repeated_questions": 0,
+        "questions": []
+      },
+      "comparisons": [
+        {
+          "baseline": "iteration1",
+          "variant": "iteration2",
+          "paired_positions": 15,
+          "paired_unique_questions": 15,
+          "unpaired_baseline_positions": 0,
+          "unpaired_variant_positions": 0,
+          "unreviewed_answerable_pairs": 0,
+          "analysed_answerable_pairs": 14,
+          "complete_response_delta": {
+            "estimate": 0.21428571428571427,
+            "questions": 14,
+            "families": 1,
+            "seed": 42,
+            "resamples": 2000,
+            "method": "paired_family_percentile_bootstrap",
+            "confidence_level": 0.95,
+            "interval": null,
+            "limitation": "not_estimable_with_fewer_than_two_families"
+          },
+          "interpretation": "Repeated positions are averaged per question; unreviewed pairs are excluded and counted. Refusals/errors count as no complete response."
+        }
+      ],
+      "strict_refusals": {
+        "iteration1": {
+          "correct": 0,
+          "expected": 1
+        },
+        "iteration2": {
+          "correct": 1,
+          "expected": 1
+        }
+      },
+      "legacy_outcome_label_note": "The historical outcome() label correct_abstention checks only abstained and false-claim status; it does not validate expected_abstention_satisfied. It is not an approved scoped refusal. Use strict_refusals / strict_correct_refusal as the authoritative refusal outcome, including in family results."
+    },
+    "TMP117": {
+      "schema_version": 1,
+      "scope": "EV4B explicit judgments; no model call or automatic semantic grader",
+      "annotations": {
+        "questions": 8,
+        "splits": {
+          "diagnostic": 8
+        },
+        "sha256": "120fbf6d3c8fd0b771e00ddc47ebb5f1896227ad309d814fc676a9ee7d116172"
+      },
+      "runs_sha256": "fd812464f42b92d756217fa4cc87bc95e0fcc515dcf77a93ebd80cc3c69454ff",
+      "variants": {
+        "iteration1": {
+          "positions": 8,
+          "submitted": 8,
+          "unique_questions": 8,
+          "documents": 4,
+          "families": 1,
+          "status_counts": {
+            "completed": 8
+          },
+          "outcome_counts": {
+            "abstention": 3,
+            "abstention_with_false_claims": 2,
+            "correct_abstention": 2,
+            "partial": 1
+          },
+          "judgment_methods": {
+            "agent": 8
+          },
+          "answerable_submitted": 6,
+          "unanswerable_submitted": 2,
+          "confirmed_complete_per_answerable_submission": {
+            "numerator": 0,
+            "denominator": 6,
+            "value": 0.0
+          },
+          "complete_accuracy_reviewed_published": {
+            "numerator": 0,
+            "denominator": 1,
+            "value": 0.0
+          },
+          "confirmed_complete_and_supported_per_submission": {
+            "numerator": 0,
+            "denominator": 6,
+            "value": 0.0
+          },
+          "answer_coverage": {
+            "numerator": 1,
+            "denominator": 6,
+            "value": 0.16666666666666666
+          },
+          "incomplete_or_incorrect_risk_reviewed": {
+            "numerator": 1,
+            "denominator": 1,
+            "value": 1.0
+          },
+          "false_claim_risk_reviewed": {
+            "numerator": 0,
+            "denominator": 1,
+            "value": 0.0
+          },
+          "false_claim_risk_reviewed_published": {
+            "numerator": 0,
+            "denominator": 1,
+            "value": 0.0
+          },
+          "false_claim_risk_reviewed_scope": "Completed, non-abstained responses to answerable questions with an explicit has_false_claims verdict only.",
+          "false_claim_risk_reviewed_completed": {
+            "numerator": 2,
+            "denominator": 8,
+            "value": 0.25
+          },
+          "false_claim_risk_reviewed_completed_scope": "All completed responses with an explicit has_false_claims verdict, including abstentions and unanswerable questions; unknown verdicts and non-completed statuses excluded.",
+          "completed_responses": 8,
+          "false_claims_unreviewed_completed": 0,
+          "abstentions_with_false_claims": 2,
+          "unreviewed_published": 0,
+          "context_fact_recall_reviewed": {
+            "numerator": 10,
+            "denominator": 17,
+            "value": 0.5882352941176471
+          },
+          "confirmed_context_facts_per_required": {
+            "numerator": 10,
+            "denominator": 17,
+            "value": 0.5882352941176471
+          },
+          "context_facts_unreviewed": 0,
+          "latency_s_by_status": {
+            "cancelled": {
+              "n": 0,
+              "median": null,
+              "p95": null,
+              "max": null
+            },
+            "completed": {
+              "n": 8,
+              "median": 128.85501,
+              "p95": 247.04210899999998,
+              "max": 253.41213
+            },
+            "error": {
+              "n": 0,
+              "median": null,
+              "p95": null,
+              "max": null
+            },
+            "refused": {
+              "n": 0,
+              "median": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "memory_peak_mib_by_scope": {
+            "sum_RSS_application_owned_Qdrant_Ollama_descendants": {
+              "n": 8,
+              "median": 4329.359375,
+              "p95": 4380.7138671875,
+              "max": 4381.58203125
+            }
+          },
+          "risk_coverage": {
+            "score_is_calibrated_probability": false,
+            "scored_reviewed": 0,
+            "published_excluded": 1,
+            "denominator": 6,
+            "points": []
+          },
+          "provenance_missing": {
+            "request_sha256": 1,
+            "context_sha256": 0,
+            "source_sha256": 0
+          }
+        },
+        "iteration2": {
+          "positions": 8,
+          "submitted": 8,
+          "unique_questions": 8,
+          "documents": 4,
+          "families": 1,
+          "status_counts": {
+            "completed": 5,
+            "error": 3
+          },
+          "outcome_counts": {
+            "complete": 4,
+            "correct_abstention": 1,
+            "error": 3
+          },
+          "judgment_methods": {
+            "agent": 8
+          },
+          "answerable_submitted": 6,
+          "unanswerable_submitted": 2,
+          "confirmed_complete_per_answerable_submission": {
+            "numerator": 4,
+            "denominator": 6,
+            "value": 0.6666666666666666
+          },
+          "complete_accuracy_reviewed_published": {
+            "numerator": 4,
+            "denominator": 4,
+            "value": 1.0
+          },
+          "confirmed_complete_and_supported_per_submission": {
+            "numerator": 4,
+            "denominator": 6,
+            "value": 0.6666666666666666
+          },
+          "answer_coverage": {
+            "numerator": 4,
+            "denominator": 6,
+            "value": 0.6666666666666666
+          },
+          "incomplete_or_incorrect_risk_reviewed": {
+            "numerator": 0,
+            "denominator": 4,
+            "value": 0.0
+          },
+          "false_claim_risk_reviewed": {
+            "numerator": 0,
+            "denominator": 4,
+            "value": 0.0
+          },
+          "false_claim_risk_reviewed_published": {
+            "numerator": 0,
+            "denominator": 4,
+            "value": 0.0
+          },
+          "false_claim_risk_reviewed_scope": "Completed, non-abstained responses to answerable questions with an explicit has_false_claims verdict only.",
+          "false_claim_risk_reviewed_completed": {
+            "numerator": 0,
+            "denominator": 5,
+            "value": 0.0
+          },
+          "false_claim_risk_reviewed_completed_scope": "All completed responses with an explicit has_false_claims verdict, including abstentions and unanswerable questions; unknown verdicts and non-completed statuses excluded.",
+          "completed_responses": 5,
+          "false_claims_unreviewed_completed": 0,
+          "abstentions_with_false_claims": 0,
+          "unreviewed_published": 0,
+          "context_fact_recall_reviewed": {
+            "numerator": 16,
+            "denominator": 17,
+            "value": 0.9411764705882353
+          },
+          "confirmed_context_facts_per_required": {
+            "numerator": 16,
+            "denominator": 17,
+            "value": 0.9411764705882353
+          },
+          "context_facts_unreviewed": 0,
+          "latency_s_by_status": {
+            "cancelled": {
+              "n": 0,
+              "median": null,
+              "p95": null,
+              "max": null
+            },
+            "completed": {
+              "n": 5,
+              "median": 91.19324,
+              "p95": 290.58282799999995,
+              "max": 337.83862
+            },
+            "error": {
+              "n": 3,
+              "median": 301.79207,
+              "p95": 302.436137,
+              "max": 302.5077
+            },
+            "refused": {
+              "n": 0,
+              "median": null,
+              "p95": null,
+              "max": null
+            }
+          },
+          "memory_peak_mib_by_scope": {
+            "sum_RSS_application_owned_Qdrant_Ollama_descendants": {
+              "n": 8,
+              "median": 4312.240234375,
+              "p95": 4358.022265625,
+              "max": 4358.51171875
+            }
+          },
+          "risk_coverage": {
+            "score_is_calibrated_probability": false,
+            "scored_reviewed": 0,
+            "published_excluded": 4,
+            "denominator": 6,
+            "points": []
+          },
+          "provenance_missing": {
+            "request_sha256": 2,
+            "context_sha256": 0,
+            "source_sha256": 0
+          }
+        }
+      },
+      "repetitions": {
+        "repeated_questions": 0,
+        "questions": []
+      },
+      "comparisons": [
+        {
+          "baseline": "iteration1",
+          "variant": "iteration2",
+          "paired_positions": 8,
+          "paired_unique_questions": 8,
+          "unpaired_baseline_positions": 0,
+          "unpaired_variant_positions": 0,
+          "unreviewed_answerable_pairs": 0,
+          "analysed_answerable_pairs": 6,
+          "complete_response_delta": {
+            "estimate": 0.6666666666666666,
+            "questions": 6,
+            "families": 1,
+            "seed": 42,
+            "resamples": 2000,
+            "method": "paired_family_percentile_bootstrap",
+            "confidence_level": 0.95,
+            "interval": null,
+            "limitation": "not_estimable_with_fewer_than_two_families"
+          },
+          "interpretation": "Repeated positions are averaged per question; unreviewed pairs are excluded and counted. Refusals/errors count as no complete response."
+        }
+      ],
+      "strict_refusals": {
+        "iteration1": {
+          "correct": 0,
+          "expected": 2
+        },
+        "iteration2": {
+          "correct": 1,
+          "expected": 2
+        }
+      },
+      "legacy_outcome_label_note": "The historical outcome() label correct_abstention checks only abstained and false-claim status; it does not validate expected_abstention_satisfied. It is not an approved scoped refusal. Use strict_refusals / strict_correct_refusal as the authoritative refusal outcome, including in family results."
+    }
+  },
+  "review_versions": {
+    "INA226": "ina226-review-v4.jsonl",
+    "TMP117": "tmp117-review-v2.jsonl"
+  },
+  "interpretation_limits": [
+    "Two nonindependent nonblind engineering families; descriptive counts only.",
+    "Errors remain in submission denominators; absence of an answer is not factual correctness.",
+    "False-claim metric includes contradicted application diagnostics; unsupported-claim metric describes documentary assertions actually made.",
+    "Published review revisions and original judgments are preserved; annotations and native outputs never changed.",
+    "The historical outcome() label correct_abstention checks only abstained and false-claim status; it does not validate expected_abstention_satisfied. It is not an approved scoped refusal. Use strict_refusals / strict_correct_refusal as the authoritative refusal outcome, including in family results."
+  ],
+  "strict_refusals": {
+    "iteration1": {
+      "correct": 0,
+      "expected": 3
+    },
+    "iteration2": {
+      "correct": 2,
+      "expected": 3
+    }
+  },
+  "legacy_outcome_label_note": "The historical outcome() label correct_abstention checks only abstained and false-claim status; it does not validate expected_abstention_satisfied. It is not an approved scoped refusal. Use strict_refusals / strict_correct_refusal as the authoritative refusal outcome, including in family results."
+}

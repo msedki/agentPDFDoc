@@ -4,6 +4,11 @@
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
+[Deuxième itération du 4B, 8 novembre](2026-11-08.md#deuxième-itération--restauration-et-protocole-10441120-utc) :
+restauration vérifiée de I1, deuxième famille TMP117 et protocole gelé de
+23 questions ; révisions réellement distinctes, cas limites reproduits et
+campagne native en cours. Les résultats I1 ci-dessous restent historiques.
+
 [Poursuite et résultats du 4B, 8 novembre](2026-11-08.md) : campagne finale
 achevée, 30 soumissions / 28 réponses terminées / 2 erreurs ; rendement complet
 4/14 → 9/14 et preuves disponibles 19/33 → 31/33, sur une seule famille.
@@ -504,3 +509,9 @@ Nouvelle porte QA E en préparation, anciennes attestations intactes.
 | [5 octobre 2026](2026-10-05.md) | Reprise OCR à densité native sur rangée : 113 tests avec doubles, extraction réelle P03 complète ; erreur de sonde conservée et vérification géométrique séparée. Régression/revue en cours, aucun gate DEV ou Done global acquis |
 | [6 octobre 2026](2026-10-06.md) | Correctifs et diagnostics OCR ciblés ; inventaire du modèle 2B ; passages QLONG ; livraison locale Linux avec réserves W038, qualification intégrale en attente ; ouverture Chromium et correctif local des plafonds de réponse R25-LEN-01/W039, sans nouvelle campagne ; reprise R26 (W040) : provenance OCR, signaux de réponse, identité dense, pilotes d'admission 2B et 4B (W041, W046), campagnes DEV 2B et 4B, 4B par défaut (W045), recette du kit A |
 | [7 octobre 2026](2026-10-07.md) | R26 : audit et refonte de l'expérience du kit Linux (R26-KIT-04, trois rondes de corrections et revues non-auteur), grille 4B arbitrée, corrections du lecteur et des specs E2E (R26-UI-02), Qdrant lancé hors du programme (R26-RT-01) |
+
+Le bilan final I2 du 8 novembre conserve 46 soumissions (deux révisions réelles),
+les revues corrigées avec leurs errata, les gates exécutés et les réserves :
+7/20→14/20 réponses strictement complètes, 0/3→2/3 refus, mais 3→7 erreurs.
+La réception documentaire et la publication distante ne sont pas attestées
+par un simple taux de terminaison ; voir le journal daté et le bilan I2.

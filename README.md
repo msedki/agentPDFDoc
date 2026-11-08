@@ -1,6 +1,6 @@
 # Atelier documentaire local
 
-**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** Stabilisé · **Référence :** base publiée `64e191f`, produits R27 `5204d2e` et `aabb9808` ; intégration Office R28 dans les modifications locales du 10 octobre, contrôles isolés effectués et chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues ; réserves par plateforme dans le PLAN et le journal · **Mis à jour :** 2026-10-10 13:28 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
+**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** Stabilisé · **Référence :** base publiée `64e191f`, produits R27 `5204d2e` et `aabb9808` ; intégration Office R28 dans les modifications locales du 10 octobre, contrôles isolés effectués et chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues ; réserves par plateforme dans le PLAN et le journal · **Mis à jour :** 2026-11-08 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
 
 Poste de lecture et d'analyse de PDF, DOCX et XLSX pour Windows 11, sans WSL, Docker ni service distant. La recette de performance vise un poste physique de 16 Go au plus en calcul CPU. Le code comporte aussi une voie Linux native aarch64 et x86-64 ([W018](RAG_Local_Agents/DECISIONS.md#w018-double-plateforme--windows-11-x86-64-et-linux-aarch64-natifs)) ; seule aarch64 a été exercée sur le poste Jetson du chantier. La génération peut passer sur un GPU NVIDIA là où cette voie est qualifiée. Le modèle local répond à partir de passages enregistrés pour la question, et une citation valide ouvre la version et la révision enregistrées : page/bloc pour le PDF, élément pour le DOCX, feuille/cellule ou plage pour le XLSX. La recette complète reste ouverte, notamment ses exigences de performance sur cet hôte.
 
@@ -26,6 +26,18 @@ physique CPU/16 Go. À cette date, les formats Office restaient au stade de l’
 - **Linux x86-64.** Verrou uv et artefacts résolus ; jamais exécuté, faute de machine de qualification (même tableau de la DoD).
 
 **Accélération GPU de la génération, état au 2 octobre 2026 (commits `4d8ba68` et `c32b759`) :** livrée selon [W024](RAG_Local_Agents/DECISIONS.md#w024-accélération-gpu-détectée-proposée-et-utilisée-automatiquement-quand-elle-est-disponible) et [W025](RAG_Local_Agents/DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024). Seul le modèle de réponse change de matériel ; extraction, OCR et embeddings restent sur CPU. Le GPU n'est employé d'office que sur une voie qualifiée par un essai réel : aujourd'hui un Jetson sous Jetson Linux R35 (JetPack 5) avec le complément officiel d'Ollama, essayé le 2 octobre sur le Jetson AGX Orin du poste Linux aarch64 de développement (provisionnement du complément, démarrage, `doctor`, `selftest` sur GPU puis en CPU imposé, calibration ; [résultats et limites](docs/architecture/ARCHITECTURE.md#51-accélération-gpu-de-la-génération)). Un Jetson de 16 Go en mode GPU n'est pas qualifié : en `auto`, un Jetson de 16 Gio de mémoire totale ou moins, ou dont la mémoire est illisible, reste sur CPU, et `doctor` y propose un essai par `llm.accelerator: gpu`. L'essai suggère qu'une partie de la mémoire prise par le GPU échappe à `MemAvailable`, sur laquelle repose le gouverneur (hypothèse H-GPU-2, non mesurable sans droits root sous Jetson Linux R35.4.1). Sur un Jetson R36 et sur un poste Linux ou Windows doté d'un GPU NVIDIA que découvre Ollama, voies jamais essayées, `doctor` propose un essai par `llm.accelerator: gpu` sans employer le GPU d'office. Un poste sans GPU utilisable, dont le poste Windows de qualification, reste sur CPU avec des requêtes inchangées, ce que vérifient des tests sur plateforme simulée ; son rejeu réel reste à faire. La recette D07 se mesure en calcul CPU imposé ([QUALIFICATION.md, section 8](RAG_Local_Agents/QUALIFICATION.md#8-performance-et-ressources)).
+
+## Deuxième itération 4B — 8 novembre 2026
+
+La branche `enhanced_version` contient les améliorations des relations de
+preuve, de restitution, de calcul et de refus de périmètre. Le
+[bilan I2](RAG_Local_Agents/reports/enhanced-4b-iteration2-results-2026-11-08.md)
+présente les 46 soumissions comparant les révisions réelles et les gates du
+dépôt : davantage de réponses complètes, mais une régression documentaire,
+plus de délais dépassés et des limites de sérialisation/OCR encore ouvertes.
+La qualification globale reste non acquise. Le
+[protocole préalable](RAG_Local_Agents/reports/enhanced-4b-iteration2-protocol-2026-11-08.md)
+et le [plan canonique](RAG_Local_Agents/PLAN.md) donnent les critères et statuts.
 
 ---
 

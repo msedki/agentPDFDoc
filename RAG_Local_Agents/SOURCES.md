@@ -1973,3 +1973,41 @@ les observations aux captures privées et à leurs empreintes. Les journaux
 commandes, résultats négatifs, reprises et limites. Ces exécutions locales
 constituent des mesures sur un hôte Linux x86-64 et une famille documentaire,
 pas une validation générale issue des publications de méthode.
+
+
+## EV4B-I2 — sources de la deuxième itération (8 novembre 2026 UTC)
+
+**Rôle :** fondement des hypothèses et oracles I2 ; **propriétaire :** intégration
+EV4B ; **statut :** sources consultées avant essais natifs, efficacité à mesurer.
+[Protocole et limites](reports/enhanced-4b-iteration2-protocol-2026-11-08.md).
+
+| ID | Source primaire et version | Apport retenu et applicabilité | Limite |
+|---|---|---|---|
+| EV4B-I2-S01 | [Texas Instruments, TMP117](https://www.ti.com/lit/ds/symlink/tmp117.pdf), SNOSD82D, révision interne septembre 2022 ; téléchargement 08/11/2026 à 10:46:28 UTC ; SHA-256 `78212e91e478035a91165397a8de8a90bfc776759dc445243c033537f0c4b789` | Pages physiques 5–6 lues et rendues visuellement : sections 6.1, 6.3 et 6.5. Oracle des limites absolues/recommandées, conditions de température et conversion typique. Reçu HTTP, original et images privés conservés. | Date HTTP distincte de la révision interne. Les témoins Office dérivent de cette fiche ; le témoin divergent est explicitement fictif. Ni leur génération ni la lecture Poppler ne qualifient le parseur produit. |
+| EV4B-I2-S02 | [Ollama, Structured outputs](https://docs.ollama.com/capabilities/structured-outputs) et [Pydantic, Strict Mode](https://pydantic.dev/docs/validation/latest/concepts/strict_mode/), documentation courante consultée le 08/11/2026 | Le schéma de sortie et sa validation locale restent distincts ; le mode strict limite les coercitions. Pydantic installé dans le venv restauré : 2.13.5. Motive un contrôle de types/références maintenu après une éventuelle normalisation des seules redondances autorisées. | Documentation courante, pas preuve du comportement du runtime Ollama ni de la cohérence sémantique des citations. Une référence existante peut rester inadéquate ; les gardes propres au projet doivent être testés. |
+| EV4B-I2-S03 | [Python, decimal](https://docs.python.org/3.12/library/decimal.html), documentation 3.12.16 affichée à la consultation du 08/11/2026 | Représentation décimale, précision, arrondi, exceptions et valeurs non finies distinctes ; motivation des tests de conversions, facteur explicite, division par zéro et refus NaN/infini. | Le contexte de calcul ne résout ni unité, ni provenance, ni scope. La version d'exécution Python est capturée dans les essais ; aucune mise à jour déduite de la page consultée. |
+| EV4B-I2-S04 | [Tesseract, ImproveQuality](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html), documentation mainteneur relue le 08/11/2026 ; complète EV4B-S06 | Segmentation d'une petite région, densité, bordures et inspection de l'image traitée motivent une reprise contrôlée. Le mode, le moteur et l'image effectivement employés doivent être conservés avec le candidat. | Une liste de caractères ou une substitution O→0 ne prouve pas la présence d'un zéro. La correction doit être localisée et confrontée aux cas négatifs ; le gain reste à mesurer. |
+
+Les sources de méthode EV4B-S01 à S05 et les contrats Office R28 restent
+réutilisés dans leurs limites. Les skills locaux lus sont hashés dans la
+preuve privée `protocol/fixture-validation.json` : qualification des fixtures,
+évaluation RAG, documentation, ingestion Office, provenance PDF et qualification
+CPU. Leur lecture ne devient pas une qualification expérimentale.
+
+
+### EV4B-I2-E01 — mesures et revues finales (8 novembre 2026 UTC)
+
+Le [bilan I2](reports/enhanced-4b-iteration2-results-2026-11-08.md), les
+[métriques par famille](reports/enhanced-4b-iteration2-quality-2026-11-08.json),
+la [matrice des observations](reports/enhanced-4b-iteration2-cases-2026-11-08.json),
+le [relevé de validation](reports/enhanced-4b-iteration2-validation-2026-11-08.json)
+et les [errata](reports/enhanced-4b-iteration2-review-errata-2026-11-08.json)
+référencent 46 soumissions réelles, 30 requêtes 4B, leurs traces, états SQLite,
+contextes et citations. Audit mécanique final SHA-256
+`829a513fedd5b35805bd108e9dc6b89e59fe45e23d33195e87bd4621bc08e8c6`.
+Les jugements finaux emploient INA226 v4 et TMP117 v2 ; versions antérieures et
+diffs de jugement conservés, sans modification des questions/oracles ni des
+sorties natives. Le rappel sérialisé, le catalogue applicatif et la réponse
+sont distingués ; les justifications applicatives fausses sont comptées.
+Ces preuves locales ne constituent ni validation humaine indépendante, ni
+transfert aveugle, ni qualification du corpus V2.1, du poste de 16 Go ou de Windows.

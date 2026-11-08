@@ -12,8 +12,8 @@ from __future__ import annotations
 import re
 import unicodedata
 from dataclasses import dataclass, field
-from decimal import Decimal
-from typing import Any
+from decimal import Decimal, localcontext
+from typing import Any, cast
 
 from openpyxl.utils.cell import get_column_letter
 
@@ -28,6 +28,7 @@ from .deterministic_calculations import (
     UNITS,
     CalculationRefusal,
     calculate,
+    convert_relation,
     decimal_text,
     parse_quantity,
 )
@@ -35,10 +36,10 @@ from .deterministic_calculations import (
 VERIFICATION = "bounded_structural_checks"
 LIMITATION = "Contrôles de couverture explicite et de relations locales ; aucune preuve générale de justesse sémantique."
 QUANTITIES = {
-    "voltage": r"\b(?:tensions?|voltages?|vcc|vdd|vss)\b",
+    "voltage": r"\b(?:tensions?|voltages?|vcc|vdd|vss)\b|(?<!\w)v\+(?!\w)",
     "current": r"\b(?:courants?|currents?)\b",
     "temperature": r"\b(?:temperature|temperatures)\b",
-    "power": r"\b(?:puissances?|power)\b",
+    "power": r"\b(?:puissances?|power(?!\s+supply))\b",
     "frequency": r"\b(?:frequences?|frequency|frequencies)\b",
     "resistance": r"\b(?:resistances?|resistors?)\b",
     "pressure": r"\b(?:pressions?|pressures?)\b",
@@ -61,6 +62,7 @@ ROLES = {
     "absolute_maximum": r"\b(?:absolute\s+maximum|absolut[es]?\s+max|maxim\w*\s+absolu\w*|limites?\s+absolu\w*)\b",
     "operating": r"\b(?:operating|recommended|recommande\w*|fonctionnement|admissible\w*)\b",
     "typical": r"\b(?:typical|typically|typique\w*|typ\.)",
+    "nominal": r"\b(?:nominal\w*|nom\.)",
     "characterization": r"\b(?:test\s+conditions?|conditions?\s+d['’ ]essai|characterization|caracterisation|courbes?|curves?|measured\s+at)\b",
 }
 CELL = r"\$?[A-Z]{1,3}\$?[1-9][0-9]{0,6}"
@@ -72,7 +74,7 @@ SCOPE_READ_LANGUAGE = re.compile(
     r"(?:(?:les|la|le|the|des|de|all)\s+)*(?:selection|selected|cellules?|cells?|valeurs?|values?|plage|range|contenu|contents?)\b"
     r"|\b(?:valeurs?|values?|contenu|contents?)\s+(?:des?\s+)?(?:cellules?\s+selectionnees?|selection|selected\s+cells?)\b")
 UNIT_LANGUAGE = re.compile(r"\b(?:unites?|units?)\b")
-INTERVAL_LANGUAGE = re.compile(r"\b(?:plages?|intervalles?|ranges?|bornes?|minimum\s+et\s+maximum|min\s+et\s+max)\b")
+INTERVAL_LANGUAGE = re.compile(r"\b(?:plages?|intervalles?|ranges?|bornes?|minimum\s+et\s+(?:le\s+)?maximum|min\s+et\s+max)\b")
 COMPARISON_LANGUAGE = re.compile(r"\b(?:compar\w*|versus|difference\s+entre)\b")
 MAPPING_LANGUAGE = re.compile(r"\b(?:adresse|address|mapping|correspondance|configuration|configurations|code|codes)\b")
 CALCULATIONS = (
@@ -86,6 +88,9 @@ RANGE_VALUE = re.compile(
     rf"(?<![\w.,])(?P<low>{NUMBER_PATTERN})\s*(?P<low_unit>{UNIT_PATTERN})?\s*"
     rf"(?:\bto\b|\ba\b|à|[-–—…]|\.\.)\s*"
     rf"(?P<high>{NUMBER_PATTERN})\s*(?P<high_unit>{UNIT_PATTERN})(?!\w)", re.IGNORECASE)
+BETWEEN_RANGE = re.compile(
+    rf"\b(?:entre|between)\s+(?P<low>{NUMBER_PATTERN})\s*(?P<low_unit>{UNIT_PATTERN})?\s*"
+    rf"(?:et|and)\s+(?P<high>{NUMBER_PATTERN})\s*(?P<high_unit>{UNIT_PATTERN})(?!\w)", re.IGNORECASE)
 # A labelled min/max relation must stay on one source line. Separate blocks or
 # unlabelled table columns are not stitched into a fact by this checker.
 LABELLED_RANGE = re.compile(
@@ -102,6 +107,18 @@ MAPPING_RELATION = re.compile(
     r"(?P<code>0[xX][0-9a-fA-F]+|0[bB][01]+|[01]{7,})(?!\w)", re.IGNORECASE)
 SUBJECT = re.compile(r"(?<!\w)[A-Za-z][A-Za-z0-9]*(?:[-_][A-Za-z0-9]+)*(?!\w)")
 NOT_SUBJECTS = {"i2c", "i3c", "rs232", "rs485", "usb2", "usb3"}
+UNIT_WORDS = {"millisecondes": "ms", "milliseconde": "ms", "milliseconds": "ms", "millisecond": "ms",
+              "microsecondes": "µs", "microseconde": "µs", "microseconds": "µs", "microsecond": "µs",
+              "secondes": "s", "seconde": "s", "seconds": "s", "second": "s",
+              "millivolts": "mV", "millivolt": "mV", "volts": "V", "volt": "V"}
+PROPERTY_LABELS = {"bus": "tension de bus", "supply": "alimentation", "shunt": "shunt",
+                   "ambient": "température ambiante", "junction": "température de jonction",
+                   "storage": "température de stockage", "input": "entrée", "output": "sortie",
+                   "quiescent": "repos", "leakage": "fuite", "conversion": "temps de conversion"}
+INEQUALITY_RANGE = re.compile(
+    rf"(?P<low>{NUMBER_PATTERN})\s*(?P<low_unit>{UNIT_PATTERN})?\s*(?:≤|<=)\s*"
+    rf"(?P<symbol>[A-Za-z][A-Za-z0-9_+]{{0,15}})\s*(?:≤|<=)\s*"
+    rf"(?P<high>{NUMBER_PATTERN})\s*(?P<high_unit>{UNIT_PATTERN})(?!\w)")
 
 
 def folded(text: str) -> str:
@@ -163,32 +180,86 @@ def _operation(question: str) -> tuple[str | None, str | None]:
     operation = next((name for name, pattern in CALCULATIONS if re.search(pattern, normalized)), None)
     target = None
     matches = list(re.finditer(rf"\b(?:en|into|to)\s+({UNIT_PATTERN})(?!\w)", question))
+    word_matches = list(re.finditer(r"\b(?:en|into|to)\s+(" + "|".join(UNIT_WORDS) + r")\b", normalized))
     # "Conversion time" is a measured property, not an instruction to do
     # arithmetic. A nominal unit-conversion request needs an explicit target;
     # verb requests may still be classified and then refused for a missing unit.
-    if operation is None and matches and re.search(r"\bconversion\b", normalized):
+    if operation is None and (matches or word_matches) and re.search(r"\b(?:conversion|exprimer|exprimez?|express)\b", normalized):
         operation = "convert"
     if operation == "convert" and matches:
         target = matches[-1][1]
+    elif operation == "convert" and word_matches:
+        target = UNIT_WORDS[word_matches[-1][1]]
     return operation, target
+
+
+def _properties(text: str, quantity: str) -> list[str]:
+    normalized = folded(text)
+    properties = [name for name, pattern in QUANTITY_PROPERTIES.get(quantity, {}).items()
+                  if re.search(pattern, normalized)]
+    if quantity == "voltage" and re.search(r"\bVS\b|(?<!\w)V\+(?!\w)", text) and "supply" not in properties:
+        properties.append("supply")
+    return properties
+
+
+def _condition_key(text):
+    """Normalize only a complete SYMBOL + explicit range condition."""
+    raw = text.strip(" .;")
+    raw = re.sub(r"^(?:pour|for|when|lorsque)\s+", "", raw, flags=re.IGNORECASE)
+    symbol = re.match(r"^([A-Z][A-Z0-9_+]{0,10})\s*(?:=|de|from)?\s*", raw)
+    if symbol:
+        rest = raw[symbol.end():]
+        match = RANGE_VALUE.fullmatch(rest) or BETWEEN_RANGE.fullmatch(rest)
+        if match:
+            try:
+                low, unit = parse_quantity(match["low"] + " " + (match["low_unit"] or match["high_unit"]))
+                high, high_unit = parse_quantity(match["high"] + " " + match["high_unit"])
+            except CalculationRefusal:
+                return ("literal", folded(raw))
+            if unit == high_unit and low <= high:
+                return (symbol[1], UNITS[unit][0], decimal_text(low * Decimal(UNITS[unit][1]) + Decimal(UNITS[unit][2])),
+                        decimal_text(high * Decimal(UNITS[unit][1]) + Decimal(UNITS[unit][2])))
+    return ("literal", folded(raw))
+
+
+def _relation(reference, *, quantity, role, values, unit, label, condition, quote, kind, subjects,
+              value_text=None, code=None, dependency_ids=(), decimal_notation_verified=False):
+    properties = _properties(label, quantity)
+    def identifiers(text):
+        return {match[0].casefold() for match in SUBJECT.finditer(text) if any(char.isdigit() for char in match[0])
+                and match[0].casefold() not in NOT_SUBJECTS}
+    clause_ids = identifiers(quote)
+    excerpt_ids = identifiers(reference_text(reference))
+    document_ids = identifiers(reference.get("document_name", ""))
+    # Count competing identifiers, including ones that the question did not
+    # request. A value explicitly attached to DEV456 cannot inherit DEV123 just
+    # because the latter was mentioned elsewhere in the same paragraph.
+    candidates = clause_ids if clause_ids else excerpt_ids if excerpt_ids else document_ids
+    local_subjects = [subject for subject in subjects if _contains_subject(next(iter(candidates)), subject)] if len(candidates) == 1 else []
+    return {"reference_id": reference["id"], "reference_ids": list(dict.fromkeys([reference["id"], *dependency_ids])),
+            "document_id": reference["document_id"], "source_ids": list(reference["source_ids"]),
+            "subjects": local_subjects,
+            "evidence_identifiers": sorted(clause_ids),
+            "kind": kind, "quantity": quantity, "property": properties[0] if len(properties) == 1 else None,
+            "properties": properties, "role": role, "values": [decimal_text(value) for value in values], "unit": unit,
+            "label": folded(label).strip(" :;|="), "condition": condition, "quote": quote,
+            "segments": reference.get("segments", []), "value_text": value_text, "code": code,
+            "decimal_notation_verified": decimal_notation_verified}
 
 
 def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: str | None, subjects: tuple[str, ...]):
     """Yield complete local relations without rewriting their quoted evidence."""
     raw = reference_text(reference)
-    for line in raw.splitlines():
-        if not re.search(QUANTITIES[quantity], folded(line)):
+    # Split at explicit sentence boundaries, never at a decimal point, table
+    # delimiter, or a condition separator. Each resulting quote stays complete.
+    lines = [clause for line in raw.splitlines() for clause in re.split(r"(?<=[.!?])\s+(?=[A-ZÀ-Þ])", line)]
+    for line in lines:
+        if not re.search(QUANTITIES[quantity], folded(line)) and not _properties(line, quantity):
             continue
         role = _role(line)
         if requested_role and role != requested_role or role == "characterization" and requested_role != role:
             continue
-        named = [subject for subject in subjects if _contains_subject(line, subject)
-                 or _contains_subject(reference.get("document_name", ""), subject)]
-        # A component elsewhere in the same complete excerpt can provide its
-        # heading; a name from another reference cannot.
-        if subjects and not named:
-            named = [subject for subject in subjects if _contains_subject(raw, subject)]
-        for pattern in (RANGE_VALUE, LABELLED_RANGE):
+        for pattern in (BETWEEN_RANGE, RANGE_VALUE, LABELLED_RANGE):
             match = pattern.search(line)
             if match is None:
                 continue
@@ -199,14 +270,15 @@ def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: st
                 continue
             if UNITS[low_unit][0] != quantity or UNITS[high_unit][0] != quantity or low_unit != high_unit or low > high:
                 continue
-            yield {"reference_id": reference["id"], "document_id": reference["document_id"],
-                   "source_ids": reference["source_ids"], "subjects": named, "kind": "interval",
-                   "quantity": quantity, "role": role, "values": [decimal_text(low), decimal_text(high)], "unit": high_unit,
-                   "label": folded(line[:match.start()]).strip(" :;|="), "condition": line[match.end():].strip(), "quote": line}
+            yield _relation(reference, quantity=quantity, role=role, values=[low, high], unit=high_unit,
+                            label=line[:match.start()], condition=line[match.end():].strip(), quote=line,
+                            kind="interval", subjects=subjects)
             break
         else:
             measurements = []
             for match in MEASURE.finditer(line):
+                if line[match.end():].startswith("/"):
+                    continue  # a ratio such as mV/V is not a voltage value
                 try:
                     value, unit = parse_quantity(match[0])
                 except CalculationRefusal:
@@ -215,26 +287,261 @@ def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: st
                     measurements.append((match, value, unit))
             if len(measurements) == 1:
                 match, value, unit = measurements[0]
-                yield {"reference_id": reference["id"], "document_id": reference["document_id"],
-                       "source_ids": reference["source_ids"], "subjects": named, "kind": "value",
-                       "quantity": quantity, "role": role, "values": [decimal_text(value)], "unit": unit,
-                       "label": folded(line[:match.start()]).strip(" :;|="), "condition": line[match.end():].strip(), "quote": line}
+                yield _relation(reference, quantity=quantity, role=role, values=[value], unit=unit,
+                                label=line[:match.start()], condition=line[match.end():].strip(), quote=line,
+                                kind="value", subjects=subjects, value_text=match[0])
+
+
+def _cell_roles(cell):
+    return {header["role"] for header in cell.get("headers", []) if header.get("role")}
+
+
+def _table_code(cells):
+    bits = []
+    for cell in cells:
+        value = cell["text"].strip()
+        if value not in {"0", "1"}:
+            continue
+        for header in cell["headers"]:
+            # Bit significance comes from an explicit common prefix + bit index,
+            # not the compressed column ordinal. D8/D7 suffixes stay descriptive.
+            match = re.match(r"^([A-Za-z][A-Za-z_]*)([0-9]+)(?:\s|$)", header["text"].strip())
+            if match:
+                bits.append((match[1], int(match[2]), value))
+    if not 2 <= len(bits) <= 16 or len({item[0] for item in bits}) != 1:
+        return None, None
+    ordered = sorted(bits, key=lambda item: item[1], reverse=True)
+    if [item[1] for item in ordered] != list(range(len(bits) - 1, -1, -1)):
+        return None, None
+    return "".join(item[2] for item in ordered), ordered[0][0]
+
+
+def _decimal_witness(reference, cell, references):
+    """A textual x.xxx needs a same-table/column/unit decimal witness.
+
+    A short fraction such as 1.25 cannot be a three-digit thousands group. Its
+    exact authorized row is retained as a dependency of the interpretation.
+    Mixed decimal marks or a witness from a different table remain unusable.
+    """
+    context = reference["table_context"]
+    try:
+        _, expected_unit = parse_quantity(cell["text"], typed_number=True)
+    except CalculationRefusal:
+        expected_unit = ""
+    marks = set()
+    witnesses = []
+    for candidate in references:
+        other = candidate.get("table_context") or {}
+        if not other.get("catalogue_verified") or (candidate.get("generation_id"), other.get("table_block_id")) != (
+                reference.get("generation_id"), context["table_block_id"]):
+            continue
+        for value in other["cells"]:
+            if (value["column_start"], value["column_end"]) != (cell["column_start"], cell["column_end"]):
+                continue
+            match = re.fullmatch(rf"[+\-−]?[0-9]+([.,])[0-9]{{1,2}}\s*({UNIT_PATTERN})?", value["text"].strip())
+            if match and UNIT_ALIASES.get(match[2] or "", match[2] or "") == expected_unit:
+                marks.add(match[1])
+                witnesses.append(candidate["id"])
+    mark = "," if "," in cell["text"] else "."
+    return witnesses[:1] if marks == {mark} else []
+
+
+def _table_relations(reference, quantity, subjects, references):
+    context = reference.get("table_context") or {}
+    available = {item["id"] for item in references}
+    if not context.get("catalogue_verified") or context.get("row_role") != "data" or not set(context["reference_ids"]) <= available:
+        return []
+    cells = context["cells"]
+    roles = {id(cell): _cell_roles(cell) for cell in cells}
+    label_cells = [cell for cell in cells if "parameter" in roles[id(cell)]
+                   or not roles[id(cell)] and not re.fullmatch(rf"\s*{NUMBER_PATTERN}\s*({UNIT_PATTERN})?\s*", cell["text"])]
+    label = " | ".join(cell["text"].strip() for cell in label_cells)
+    sections = " | ".join(item["text"] for item in context["dependencies"] if item["kind"] == "row_section")
+    conditions = " ; ".join(cell["text"].strip() for cell in cells if "condition" in roles[id(cell)])
+    all_headers = [header for cell in cells for header in cell["headers"]]
+    last_header_row = max((header["row_start"] for header in all_headers), default=-1)
+    ancestor_qualifiers = list(dict.fromkeys(header["text"].strip() for header in all_headers
+                                            if header["row_start"] < last_header_row and not header.get("role")))
+    conditions = " ; ".join(value for value in [*(item for item in ancestor_qualifiers if _role(item) is None), conditions] if value)
+    embedded_condition = re.search(r"[,;]\s*([A-Za-z][A-Za-z0-9_ ]{0,8}\s*=\s*.+)$", label)
+    if embedded_condition:
+        conditions = "; ".join(value for value in (conditions, embedded_condition[1]) if value)
+        label = label[:embedded_condition.start()]
+    section_heading = context.get("section_heading", {}).get("text", "")
+    role = _role(label + " " + sections + " " + section_heading + " " + " ".join(ancestor_qualifiers))
+    code, code_name = _table_code(cells)
+    units = [UNIT_ALIASES.get(cell["text"].strip(), cell["text"].strip()) for cell in cells if "unit" in roles[id(cell)]]
+    unit = units[0] if len(units) == 1 and units[0] in UNITS else ""
+    numeric = []
+    for cell in cells:
+        bound_roles = roles[id(cell)]
+        headers = " ".join(header["text"] for header in cell["headers"])
+        value_role = bound_roles & {"minimum", "maximum", "typical", "nominal"}
+        if not value_role and not (code and re.search(QUANTITIES[quantity], folded(headers))):
+            continue
+        raw = cell["text"].strip()
+        value_text = raw if MEASURE.fullmatch(raw) else raw + (" " + unit if unit else "")
+        witnesses = []
+        try:
+            number, value_unit = parse_quantity(value_text)
+        except CalculationRefusal as error:
+            if error.code != "ambiguous_decimal_separator":
+                continue
+            witnesses = _decimal_witness(reference, cell, references)
+            if not witnesses:
+                continue
+            number, value_unit = parse_quantity(value_text, typed_number=True)
+        if not value_unit or UNITS[value_unit][0] != quantity:
+            continue
+        numeric.append({"number": number, "unit": value_unit, "roles": value_role, "text": value_text,
+                        "header": headers, "witnesses": witnesses})
+    if not numeric:
+        return []
+    if not (re.search(QUANTITIES[quantity], folded(label)) or _properties(label, quantity)
+            or code and any(re.search(QUANTITIES[quantity], folded(item["header"])) for item in numeric)):
+        return []
+    low = [item for item in numeric if "minimum" in item["roles"]]
+    high = [item for item in numeric if "maximum" in item["roles"]]
+    relations = []
+    dependencies = context["reference_ids"]
+    if len(low) == len(high) == 1 and low[0]["unit"] == high[0]["unit"] and low[0]["number"] <= high[0]["number"]:
+        relations.append(_relation(reference, quantity=quantity, role=role, values=[low[0]["number"], high[0]["number"]],
+                                   unit=low[0]["unit"], label=label, condition=conditions, quote=reference_text(reference),
+                                   kind="interval", subjects=subjects, dependency_ids=dependencies))
+    for item in numeric:
+        if item in low or item in high:
+            if relations:
+                continue
+        # A lone MIN/MAX retains its bound role; it cannot satisfy an interval.
+        bound_role = next(iter(item["roles"]), None)
+        relation = _relation(reference, quantity=quantity, role=role, values=[item["number"]], unit=item["unit"],
+                             label=label or item["header"], condition=conditions, quote=reference_text(reference), kind="value",
+                             subjects=subjects, value_text=item["text"], code=code,
+                             dependency_ids=[*dependencies, *item["witnesses"]], decimal_notation_verified=bool(item["witnesses"]))
+        relation.update(bound_role=bound_role, code_name=code_name)
+        relations.append(relation)
+    for relation in relations:
+        relation["table_bound"] = True
+        relation["source_ids"] = list(dict.fromkeys(source_id for item in references if item["id"] in relation["reference_ids"]
+                                                     for source_id in item["source_ids"]))
+    return relations
+
+
+def _table_conditions(reference, references):
+    context = reference.get("table_context") or {}
+    if not context.get("catalogue_verified") or context.get("row_role") != "data":
+        return []
+    if not set(context["reference_ids"]) <= {item["id"] for item in references}:
+        return []
+    facts = []
+    label = " | ".join(cell["text"].strip() for cell in context["cells"]
+                       if not _cell_roles(cell) or "parameter" in _cell_roles(cell))
+    for cell in context["cells"]:
+        if "condition" not in _cell_roles(cell) or not cell["text"].strip():
+            continue
+        facts.append({"reference_id": reference["id"], "reference_ids": context["reference_ids"],
+                      "document_id": reference["document_id"], "source_ids": context["source_ids"],
+                      "kind": "test_condition", "role": "characterization", "label": label,
+                      "condition": cell["text"].strip(), "quote": reference_text(reference)})
+    return facts
+
+
+def _cell_range_relations(references, scope, quantity, subjects):
+    """Read a small, explicitly selected rectangle with a complete header row.
+
+    MIN/MAX/UNIT/PARAMETER are literal headers in the first selected row. Every
+    value and condition is linked by actual sheet coordinates and must survive
+    as a complete authorized field. This does not bind an adjacent cell's unit
+    for general arithmetic or infer headers outside the selected rectangle.
+    """
+    if scope.get("kind") != "cell_range" or type(scope.get("rowStart")) is not int:
+        return []
+    from .evidence_selection import _header_role
+    by_sheet: dict[tuple[Any, ...], dict[tuple[int, int], list[tuple[dict[str, Any], str]]]] = {}
+    for reference in references:
+        if reference["kind"] != "cell":
+            continue
+        field = next((field for field in reference["fields"] if field["field"] == "value" and field["complete"]), None)
+        if field is None or reference["cell_facts"].get("formula_present") and not reference["cell_facts"].get("cached_present"):
+            continue
+        row, column = address_coordinates(reference["cell_facts"]["address"])
+        if not (scope["rowStart"] <= row <= scope.get("rowEnd", row) and scope.get("columnStart", column) <= column <= scope.get("columnEnd", column)):
+            continue
+        key = (reference["document_id"], reference.get("version_id"), reference.get("extraction_revision_id"), reference["locator"]["unit_id"])
+        by_sheet.setdefault(key, {}).setdefault((row, column), []).append((reference, field["text"]))
+    facts = []
+    for cells in by_sheet.values():
+        headers: dict[str, list[tuple[int, dict[str, Any]]]] = {}
+        for (row, column), entries in cells.items():
+            if row != scope["rowStart"] or len(entries) != 1:
+                continue
+            reference, text = entries[0]
+            role = _header_role(text)
+            if folded(text).strip() in {"role / condition", "role / conditions"}:
+                role = "condition"
+            if role:
+                headers.setdefault(role, []).append((column, reference))
+        needed = {"parameter", "minimum", "maximum", "unit"}
+        if any(len(headers.get(role, [])) != 1 for role in needed) or any(len(value) > 1 for value in headers.values()):
+            continue
+        for row in sorted({row for row, _ in cells if row > scope["rowStart"]}):
+            bindings = {role: cells.get((row, choices[0][0]), []) for role, choices in headers.items()}
+            if any(len(bindings[role]) != 1 for role in needed):
+                continue
+            label = bindings["parameter"][0][1]
+            if not (re.search(QUANTITIES[quantity], folded(label)) or _properties(label, quantity)):
+                continue
+            unit = UNIT_ALIASES.get(bindings["unit"][0][1].strip(), bindings["unit"][0][1].strip())
+            if not unit or unit not in UNITS or UNITS[unit][0] != quantity:
+                continue
+            low_reference, low_text = bindings["minimum"][0]
+            high_reference, high_text = bindings["maximum"][0]
+            try:
+                low, low_unit = parse_quantity(low_text + " " + unit, typed_number=low_reference["cell_facts"].get("value_kind") == "number")
+                high, high_unit = parse_quantity(high_text + " " + unit, typed_number=high_reference["cell_facts"].get("value_kind") == "number")
+            except CalculationRefusal:
+                continue
+            if low_unit != high_unit or low > high:
+                continue
+            condition = bindings["condition"][0][1] if len(bindings.get("condition", [])) == 1 else ""
+            if "condition" in headers and not condition:
+                continue  # do not discard a declared but missing condition
+            used = ["parameter", "minimum", "maximum", "unit", *(["condition"] if "condition" in headers else [])]
+            dependencies = [ref for role in used for ref in (headers[role][0][1], bindings[role][0][0])]
+            quote = " ; ".join(f"{role} = {bindings[role][0][1]}" for role in ("parameter", "minimum", "maximum", "unit", "condition") if role in used)
+            fact = _relation(low_reference, quantity=quantity, role=_role(label + " " + condition), values=[low, high], unit=unit,
+                             label=label, condition=condition, quote=quote, kind="interval", subjects=subjects,
+                             dependency_ids=[ref["id"] for ref in dependencies])
+            fact["cell_range_bound"] = True
+            fact["source_ids"] = list(dict.fromkeys(source_id for ref in dependencies for source_id in ref["source_ids"]))
+            facts.append(fact)
+    return facts
 
 
 def _conflicting_relations(facts: list[dict[str, Any]]) -> list[dict[str, Any]]:
     conflicts = []
     groups: dict[tuple, list[dict[str, Any]]] = {}
     for fact in facts:
-        key = (fact["document_id"], fact["quantity"], fact["role"], fact["label"], fact["condition"], fact["kind"])
+        key = (fact["document_id"], fact["quantity"], fact["role"], fact["label"], fact["condition"], fact["kind"],
+               fact.get("code"), fact.get("code_name"), fact.get("bound_role"), tuple(fact.get("evidence_identifiers", [])))
         groups.setdefault(key, []).append(fact)
     for group in groups.values():
-        values = {(tuple((Decimal(value) * Decimal(UNITS[fact["unit"]][1]) + Decimal(UNITS[fact["unit"]][2])).normalize()
-                         for value in fact["values"]), UNITS[fact["unit"]][0]) for fact in group}
+        values = {(_base_values(fact), UNITS[fact["unit"]][0]) for fact in group}
         if len(values) > 1:
             conflicts.append({"requirement": "same_label_conflicting_values",
                               "reference_ids": list(dict.fromkeys(fact["reference_id"] for fact in group)),
                               "quotes": [fact["quote"] for fact in group]})
     return conflicts
+
+
+def _base_values(fact):
+    # Inputs have at most 24 digits and bounded exponents. This precision keeps
+    # every finite scale/offset digit for signatures, unlike Decimal's ambient
+    # default context. Answer calculations still report their own rounding.
+    with localcontext() as context:
+        context.prec = 96
+        return tuple((Decimal(value) * Decimal(UNITS[fact["unit"]][1]) + Decimal(UNITS[fact["unit"]][2])).normalize()
+                     for value in fact["values"])
 
 
 @dataclass
@@ -256,29 +563,74 @@ class AnswerContract:
     requested_properties: list[str] = field(init=False)
     scope_read_requested: bool = field(init=False)
     unit_requested: bool = field(init=False)
+    requested_codes: list[str] = field(init=False)
+    distinguish_roles: bool = field(init=False)
+    comparison_requested: bool = field(init=False)
+    requested_roles: list[str] = field(init=False)
+    required_relation_count: int = field(init=False)
+    requested_condition: tuple | None = field(init=False)
+    operating_guarantee_requested: bool = field(init=False)
 
     def __post_init__(self):
         normalized = folded(self.question)
         quantities = [quantity for quantity, pattern in QUANTITIES.items() if re.search(pattern, normalized)]
+        if not quantities and re.search(r"\b(?:alimentation|supply)\b", normalized):
+            quantities = ["voltage"]
+        # A temperature explicitly attached as a condition to a supply question
+        # is not a second independent requested quantity. Keep that condition in
+        # each relation instead of rejecting the compound request wholesale.
+        conditional_supply = ("voltage" in quantities and "temperature" in quantities
+                              and re.search(r"\b(?:conditions?|s.applique|applies)\b|a quelle plage de temperature", normalized)
+                              and re.search(r"\b(?:alimentation|supply)\b|(?<!\w)v\+(?!\w)", normalized))
+        if conditional_supply:
+            quantities.remove("temperature")
         self.quantity = quantities[0] if len(quantities) == 1 else None
-        self.requested_properties = [name for name, pattern in QUANTITY_PROPERTIES.get(self.quantity or "", {}).items()
-                                     if re.search(pattern, normalized) or self.quantity == "voltage" and name == "supply"
-                                     and re.search(r"\bVS\b", self.question)]
+        self.requested_properties = _properties(self.question, self.quantity or "")
         self.scope_read_requested = bool(SCOPE_READ_LANGUAGE.search(normalized))
         self.unit_requested = bool(UNIT_LANGUAGE.search(normalized))
         self.requested_role = _role(self.question)
+        self.requested_roles = [role for role, pattern in ROLES.items() if re.search(pattern, normalized)]
+        self.distinguish_roles = bool(re.search(r"\b(?:confond\w*|separe\w*|distinct\w*|disting\w*)\b", normalized)
+                                      and re.search(r"\b(?:conditions?|roles?|limites?|absolute|absolu\w*)\b", normalized))
+        if self.distinguish_roles:
+            self.requested_role = None
+            self.requested_roles = [role for role in self.requested_roles if role != "characterization"]
+        if len(self.requested_roles) > 1:
+            self.requested_role = None
+        self.operating_guarantee_requested = ("absolute_maximum" in self.requested_roles
+                                             and bool(re.search(r"\b(?:garanti\w*|guarantee\w*)\b", normalized))
+                                             and bool(re.search(r"\b(?:fonctionnement|operation|operating)\b", normalized)))
+        counts = re.findall(r"\b(deux|trois|quatre|two|three|four|[2-4])\s+(?:plages?|ranges?)\b", normalized)
+        self.required_relation_count = {"deux": 2, "two": 2, "trois": 3, "three": 3, "quatre": 4, "four": 4}.get(
+            counts[0], int(counts[0]) if counts and counts[0].isdigit() else 1) if counts else 1
+        self.comparison_requested = self.mode == "comparison" or bool(COMPARISON_LANGUAGE.search(normalized))
         self.operation, self.target_unit = _operation(self.question)
+        self.requested_condition = None
+        conditional = re.search(r"\b(?:pour|for)\s+([A-Z][A-Z0-9_+]{0,10})\s+(?:(?:de|from)\s+)?", self.question)
+        if conditional:
+            bound = RANGE_VALUE.match(self.question[conditional.end():])
+            if bound:
+                self.requested_condition = _condition_key(conditional[1] + " " + bound[0])
+        self.requested_codes = list(dict.fromkeys(match[0] for match in re.finditer(r"(?<!\w)[01]{2,16}(?!\w)", self.question))) if (
+            MAPPING_LANGUAGE.search(normalized) or self.operation == "convert" and self.quantity == "time") else []
         self.configurations = list(dict.fromkeys((match[1].casefold(), match[2].casefold())
                                                  for match in CONFIGURATION.finditer(self.question)))
         explicit_cell_language = re.search(r"\b(?:cellules?|cells?)\b", normalized)
         cell_context = self.cell_context or self.scope.get("kind") in {"cell_range", "sheet"}
         self.requested_cells, self.parse_failures = _addresses(
             self.question, enabled=bool(explicit_cell_language or cell_context and CELL_LANGUAGE.search(normalized)))
+        mentioned_cells = set(self.requested_cells)
+        if self.quantity and not self.operation and not self.parse_failures and self.scope.get("kind") == "cell_range":
+            scoped_range = CELL_RANGE.search(self.question)
+            if scoped_range and re.search(r"\bdans\s+la\s+plage\s+selectionnee\s*$", folded(self.question[:scoped_range.start()])):
+                bounds = range_coordinates(scoped_range[1] + ":" + scoped_range[2])
+                if list(bounds) == [self.scope.get(key) for key in ("rowStart", "columnStart", "rowEnd", "columnEnd")]:
+                    self.requested_cells = []
         self.requested_field = "formula" if re.search(r"\b(?:formule|formula)\b", normalized) and not re.search(
             r"\b(?:resultat|result|valeur|value|calcul\w*)\b", normalized) else "value"
         self.subjects = tuple(dict.fromkeys(match[0] for match in SUBJECT.finditer(self.question)
                                            if any(char.isdigit() for char in match[0])
-                                           and match[0].upper() not in self.requested_cells
+                                           and match[0].upper() not in mentioned_cells
                                            and match[0].casefold() not in NOT_SUBJECTS))
         if self.operation and self.requested_cells:
             self.kind = "calculation"
@@ -300,8 +652,61 @@ class AnswerContract:
             self.kind = "general"
         if len(quantities) > 1:
             self.parse_failures.append("multiple_quantities_not_decomposed")
-        if len(self.requested_properties) > 1 and self.kind not in {"calculation", "cell_values"}:
-            self.parse_failures.append("multiple_properties_not_decomposed")
+
+    def scope_refusal(self) -> dict[str, Any] | None:
+        """Reject only a scope mismatch established by pinned scope metadata.
+
+        OOXML part names and retained text are not evidence of sheet order. The
+        builder supplies the actual extraction unit ordinal after DB validation.
+        """
+        if self.scope.get("kind") not in {"sheet", "cell_range"}:
+            return None
+        normalized = folded(self.question)
+        sheet = self.scope.get("authorized_sheet") or {}
+        ordinal_words = {"premiere": 1, "premier": 1, "first": 1, "deuxieme": 2, "seconde": 2,
+                         "second": 2, "troisieme": 3, "third": 3, "quatrieme": 4, "fourth": 4}
+        ordinal_match = re.search(r"\b(" + "|".join(ordinal_words) + r")\s+(?:feuille|sheet)\b", normalized)
+        digit_match = re.search(r"\b(?:feuille|sheet)\s+(?:numero\s+|number\s+|n°\s*|#\s*)([1-9][0-9]*)\b", normalized)
+        ordinal = ordinal_words[ordinal_match[1]] if ordinal_match else int(digit_match[1]) if digit_match else None
+        if ordinal is not None and type(sheet.get("ordinal")) is int and ordinal != sheet["ordinal"]:
+            return {"reason": "requested_sheet_outside_scope", "requested_ordinal": ordinal,
+                    "authorized_sheet": sheet,
+                    "message": f"La question demande la feuille {ordinal}, mais le périmètre sélectionné autorise seulement "
+                               f"la feuille {sheet['ordinal']} ({sheet.get('name', sheet.get('id', ''))}). "
+                               "Son contenu extérieur n'a pas été consulté ; élargissez la sélection à cette feuille pour y répondre."}
+        name_match = re.search(r"\b(?:feuille|sheet)\s+(?:(?:nommée|named)\s+)?(?:[\"«“]([^\"»”]+)[\"»”]|([\w][\w -]*))",
+                               self.question, re.IGNORECASE) if ordinal is None else None
+        requested_name = (name_match[1] or name_match[2]).strip() if name_match else None
+        if requested_name and name_match is not None and not name_match[1]:
+            if self.operation == "convert" and self.target_unit:
+                requested_name = re.sub(rf"\s+(?:en|into|to)\s+(?:{UNIT_PATTERN}|{'|'.join(UNIT_WORDS)})\s*$",
+                                        "", requested_name, flags=re.IGNORECASE).strip()
+            if folded(requested_name) in {"selectionnee", "selected", "active", "courante", "current", "du classeur"}:
+                requested_name = None
+        if requested_name and sheet.get("name") and requested_name.casefold() != sheet["name"].casefold():
+            if re.match(re.escape(sheet["name"]) + r"\s", requested_name, re.IGNORECASE):
+                return {"reason": "requested_sheet_not_unambiguous", "requested_name": requested_name,
+                        "authorized_sheet": sheet,
+                        "message": f"Le nom demandé « {requested_name} » ne correspond pas univoquement à la feuille "
+                                   f"sélectionnée « {sheet['name']} ». Aucune valeur n'est attribuée à une autre feuille ; "
+                                   "précisez le nom exact ou adaptez le périmètre sélectionné."}
+            return {"reason": "requested_sheet_outside_scope", "requested_name": requested_name,
+                    "authorized_sheet": sheet,
+                    "message": f"La question demande la feuille {requested_name}, mais le périmètre sélectionné autorise seulement "
+                               f"la feuille {sheet['name']}. Son contenu extérieur n'a pas été consulté ; "
+                               "élargissez la sélection à cette feuille pour y répondre."}
+        bounds = [self.scope.get(key) for key in ("rowStart", "columnStart", "rowEnd", "columnEnd")]
+        if self.scope.get("kind") == "cell_range" and all(type(value) is int for value in bounds):
+            row_start, column_start, row_end, column_end = [cast(int, value) for value in bounds]
+            outside = [address for address in self.requested_cells if not (
+                row_start <= address_coordinates(address)[0] <= row_end
+                and column_start <= address_coordinates(address)[1] <= column_end)]
+            if outside:
+                return {"reason": "requested_cells_outside_scope", "addresses": outside,
+                        "message": "Les cellules demandées " + ", ".join(outside) +
+                                   " sont en dehors du périmètre sélectionné. Leur contenu n'a pas été consulté ; "
+                                   "élargissez la sélection pour les inclure."}
+        return None
 
     def _cells(self, references: list[dict[str, Any]]) -> tuple[dict[str, list[dict[str, Any]]], list[str]]:
         by_address: dict[str, list[dict[str, Any]]] = {}
@@ -319,8 +724,137 @@ class AnswerContract:
     def _facts(self, references: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if self.quantity is None:
             return []
-        return [fact for reference in references for fact in _quantity_lines(reference, self.quantity, self.requested_role, self.subjects)
-                if self.kind != "interval" or fact["kind"] == "interval"]
+        facts: list[dict[str, Any]] = []
+        def eligible(fact):
+            return ((self.kind != "interval" or fact["kind"] == "interval")
+                    and (self.requested_role is None or fact["role"] == self.requested_role
+                         or fact.get("bound_role") == self.requested_role)
+                    and (not self.requested_roles or fact["role"] in self.requested_roles
+                         or fact.get("bound_role") in self.requested_roles))
+        for reference in references:
+            table_facts = _table_relations(reference, self.quantity, self.subjects, references)
+            candidates = table_facts or list(_quantity_lines(reference, self.quantity, self.requested_role, self.subjects))
+            facts.extend(fact for fact in candidates if eligible(fact))
+        facts.extend(fact for fact in _cell_range_relations(references, self.scope, self.quantity, self.subjects) if eligible(fact))
+        if self.requested_condition:
+            facts = [fact for fact in facts if _condition_key(fact["condition"]) == self.requested_condition]
+        return facts
+
+    def _conditions(self, references):
+        if not self.distinguish_roles or not re.search(r"\bconditions?\b", folded(self.question)):
+            return []
+        named = re.findall(r"\b[A-Z][A-Z0-9_]{2,}\b", self.question)
+        return [fact for reference in references for fact in _table_conditions(reference, references)
+                if any(_contains_subject(fact["label"], token) for token in named)]
+
+    def _operating_limitations(self, references):
+        if not self.operating_guarantee_requested:
+            return []
+        facts = []
+        for reference in references:
+            text = reference_text(reference)
+            normalized = folded(text)
+            if (re.search(ROLES["absolute_maximum"], normalized)
+                    and re.search(r"\b(?:do(?:es)?\s+not\s+imply\s+functional\s+operation|"
+                                  r"ne\s+garanti\w*[^.!?]{0,60}\bfonctionnement)\b", normalized)):
+                facts.append({"kind": "operating_guarantee_limitation", "reference_id": reference["id"],
+                              "reference_ids": [reference["id"]], "source_ids": reference["source_ids"],
+                              "document_id": reference["document_id"], "quote": text})
+        return facts
+
+    def _code_facts(self, references):
+        facts = [fact for fact in self._facts(references) if fact.get("code") in self.requested_codes and fact["kind"] == "value"]
+        names: set[str] = {fact["code_name"] for fact in facts if isinstance(fact.get("code_name"), str) and fact["code_name"]}
+        explicitly_named = {name for name in names if _contains_subject(self.question, name)}
+        if explicitly_named:
+            facts = [fact for fact in facts if fact.get("code_name") in explicitly_named]
+        return facts
+
+    def relation_calculations(self, references):
+        if self.operation != "convert" or self.requested_cells or not self.requested_codes:
+            return []
+        if not self.target_unit:
+            raise CalculationRefusal("unit_missing", "La conversion exige une unité cible explicite.")
+        facts = self._code_facts(references)
+        results = []
+        for code in self.requested_codes:
+            candidates = [fact for fact in facts if fact["code"] == code]
+            if len(candidates) != 1:
+                raise CalculationRefusal("code_quantity_missing_or_ambiguous",
+                                         f"Le code {code} n'est pas relié à une durée unique avec son unité dans les preuves retenues.")
+            results.append(convert_relation(candidates[0], self.target_unit))
+        return results
+
+    def _obligations(self, facts, required_documents=()):
+        """One independently checkable obligation per property/document/subject."""
+        if not self.quantity or self.kind in {"cell_values", "calculation", "mapping"}:
+            return []
+        documents = list(dict.fromkeys(required_documents)) or [None]
+        properties: list[str | None] = list(self.requested_properties) or [None]
+        subjects = self.subjects or (None,)
+        roles: list[str | None] = list(self.requested_roles) or [None]
+        obligations = []
+        for document in documents:
+            for subject in subjects:
+                for property_name in properties:
+                    for requested_role in roles:
+                        matching = [fact for fact in facts if (document is None or fact["document_id"] == document)
+                                    and (subject is None or subject in fact["subjects"])
+                                    and (property_name is None or fact.get("property") == property_name)
+                                    and (requested_role is None and fact["role"] != "characterization"
+                                         or requested_role is not None and requested_role in {fact["role"], fact.get("bound_role")} )]
+                        count = len({(_base_values(fact), _condition_key(fact["condition"]), fact["role"], fact.get("bound_role")) for fact in matching})
+                        obligations.append({"document_id": document, "subject": subject, "property": property_name,
+                                            "quantity": self.quantity, "role": requested_role,
+                                            "kind": "interval" if self.kind == "interval" else "value_or_interval",
+                                            "covered": count >= self.required_relation_count,
+                                            "expected_count": self.required_relation_count, "matched_count": count,
+                                            "reference_ids": list(dict.fromkeys(reference_id for fact in matching
+                                                                                for reference_id in fact.get("reference_ids", [fact["reference_id"]])))})
+        return obligations
+
+    def _comparisons(self, facts, required_documents=()):
+        if not self.comparison_requested or not self.quantity:
+            return []
+        documents = list(dict.fromkeys(required_documents)) or list(dict.fromkeys(fact["document_id"] for fact in facts))
+        if len(documents) < 2:
+            return []
+        result = []
+        compared_properties: list[str | None] = list(self.requested_properties) or list(dict.fromkeys(fact.get("property") for fact in facts)) or [None]
+        for subject in self.subjects or (None,):
+            for property_name in compared_properties:
+                groups = [[fact for fact in facts if fact["document_id"] == document
+                           and (subject is None or subject in fact["subjects"])
+                           and fact.get("property") == property_name] for document in documents]
+                if any(not group for group in groups):
+                    continue
+                # Subjects, roles and conditions remain attached to values. An
+                # equal set of anonymous numbers cannot prove a comparison.
+                def local_context(fact):
+                    return (fact["kind"], fact["property"] or fact["label"], fact["role"], fact.get("bound_role"),
+                            _condition_key(fact["condition"]), fact.get("code_name"), fact.get("code"),
+                            tuple(fact.get("evidence_identifiers", [])))
+                preserve_labels = subject is None and any(len({local_context(fact) for fact in group}) < len(group) for group in groups)
+                def identity(fact, keep_labels=preserve_labels):
+                    return (*local_context(fact), fact["label"] if keep_labels else None)
+                def values(fact):
+                    return _base_values(fact)
+                signatures = [{(identity(fact), values(fact)) for fact in group} for group in groups]
+                contexts = [{signature[0] for signature in group} for group in signatures]
+                same_context = all(group == contexts[0] for group in contexts[1:])
+                known_roles = all(fact["role"] is not None or fact.get("bound_role") is not None for group in groups for fact in group)
+                numeric = [{(fact["kind"], fact["property"] or fact["label"], _condition_key(fact["condition"]),
+                             fact.get("code_name"), fact.get("code"), tuple(fact.get("evidence_identifiers", [])),
+                             fact["label"] if preserve_labels else None, values(fact)) for fact in group} for group in groups]
+                agreement = "equal" if all(group == numeric[0] for group in numeric[1:]) else "different"
+                status = ("context_unestablished" if not known_roles else "context_differs" if not same_context
+                          else "equal" if all(group == signatures[0] for group in signatures[1:]) else "different")
+                result.append({"property": property_name, "subject": subject, "quantity": self.quantity,
+                               "document_ids": documents, "status": status, "numeric_agreement": agreement,
+                               "conditions_explicit": all(fact["condition"].strip(" .;") for group in groups for fact in group),
+                               "reference_ids": list(dict.fromkeys(reference_id for group in groups for fact in group
+                                                                  for reference_id in fact.get("reference_ids", [fact["reference_id"]])))})
+        return result
 
     def _mappings(self, references: list[dict[str, Any]]) -> list[dict[str, Any]]:
         facts = []
@@ -335,17 +869,24 @@ class AnswerContract:
         return facts
 
     def required_ids(self, references: list[dict[str, Any]], required_documents=()) -> list[str]:
+        if self.scope_refusal():
+            return []
         by_address, requested = self._cells(references)
         required = [by_address[address][0]["id"] for address in requested if len(by_address.get(address, [])) == 1]
         facts = self._facts(references)
-        groups = [[fact for fact in facts if subject in fact["subjects"]] for subject in self.subjects]
-        groups += [[fact for fact in facts if fact["document_id"] == document] for document in required_documents]
-        if not groups and self.quantity:
-            groups = [facts]
-        for group in groups:
-            candidates = list(dict.fromkeys(fact["reference_id"] for fact in group))
-            if len(candidates) == 1:
-                required.append(candidates[0])
+        for obligation in self._obligations(facts, required_documents):
+            required.extend(obligation["reference_ids"])
+        if self.requested_codes:
+            required.extend(reference_id for fact in self._code_facts(references) for reference_id in fact["reference_ids"])
+        required.extend(reference_id for fact in self._conditions(references) for reference_id in fact["reference_ids"])
+        required.extend(fact["reference_id"] for fact in self._operating_limitations(references))
+        if self.comparison_requested:
+            for reference in references:
+                text = folded(reference_text(reference))
+                if (re.search(r"\b(?:derive\w*|derived)\b", text) and re.search(r"\b(?:provien\w*|source\w*|fiche|from)\b", text)
+                        or re.search(r"\b(?:syntheti\w*|synthetic|ficti\w*)\b", text)
+                        and re.search(r"\b(?:temoin|test|specification|source|document)\b", text)):
+                    required.append(reference["id"])
         for conflict in _conflicting_relations(facts):
             required.extend(conflict["reference_ids"])
         for configuration in self.configurations:
@@ -358,6 +899,8 @@ class AnswerContract:
                   "requested_cells": self.requested_cells, "requested_field": self.requested_field, "requested_subjects": list(self.subjects),
                   "requested_properties": self.requested_properties,
                   "requested_configurations": [list(configuration) for configuration in self.configurations],
+                  "requested_codes": self.requested_codes,
+                  "obligations": self._obligations(self._facts(references)),
                   "required_reference_ids": self.required_ids(references),
                   "coverage_scope": "retained_catalogue_only"}
         if self.kind == "calculation":
@@ -371,6 +914,8 @@ class AnswerContract:
         if self.parse_failures:
             raise CalculationRefusal(self.parse_failures[0], "La demande de calcul ne désigne pas un ensemble d'entrées univoque et borné.")
         if not self.requested_cells:
+            if self.operation == "convert" and self.requested_codes:
+                return None
             raise CalculationRefusal("explicit_cell_operands_required", "Précisez les cellules à utiliser pour le calcul.")
         by_address, _ = self._cells(references)
         if any(len(by_address.get(address, [])) != 1 for address in self.requested_cells):
@@ -397,6 +942,16 @@ class AnswerContract:
                          unit_reference=unit_reference)
 
     def assess(self, references: list[dict[str, Any]], selected_ids: list[str] | None = None, required_documents=()) -> dict[str, Any]:
+        refusal = self.scope_refusal()
+        if refusal:
+            return {"version": 1, "kind": self.kind, "status": "partial", "verification": VERIFICATION,
+                    "coverage_scope": "retained_catalogue_only", "limitation": LIMITATION,
+                    "quantity": self.quantity, "requested_role": self.requested_role,
+                    "requested_properties": self.requested_properties, "requested_cells": self.requested_cells,
+                    "requested_subjects": list(self.subjects), "required_reference_ids": [],
+                    "missing": [{"requirement": refusal["reason"], "message": refusal["message"]}],
+                    "ambiguous": [], "conflicts": [], "matched_relations": [], "obligations": [],
+                    "comparisons": [], "calculation": None, "selected_reference_ids": [], "scope_refusal": refusal}
         selected_set = set(selected_ids) if selected_ids is not None else {reference["id"] for reference in references}
         selected = [reference for reference in references if reference["id"] in selected_set]
         selected_documents = {reference["document_id"] for reference in selected}
@@ -446,6 +1001,19 @@ class AnswerContract:
                                   "source_ids": reference["source_ids"], "raw_text_preserved": True,
                                   "extraction_method": reference.get("extraction_method", "unknown")})
         facts = self._facts(selected)
+        conditions = self._conditions(selected)
+        limitations = self._operating_limitations(selected)
+        if self.operating_guarantee_requested and not limitations:
+            missing.append({"requirement": "absolute_limit_operating_guarantee_not_established"})
+        if self.distinguish_roles and re.search(r"\bconditions?\b", folded(self.question)) and not conditions:
+            missing.append({"requirement": "requested_test_condition"})
+        obligations = self._obligations(facts, required_documents)
+        missing_obligations = [obligation for obligation in obligations if not obligation["covered"]]
+        missing.extend({"requirement": "requested_property_document", **obligation} for obligation in missing_obligations)
+        if missing_obligations and len(self.requested_properties) > 1:
+            # Kept as a stable machine-readable reason for older API clients;
+            # the explicit missing obligations now identify what remains absent.
+            missing.append({"requirement": "multiple_properties_not_decomposed"})
         if self.quantity:
             if not facts:
                 missing.append({"requirement": "same_relation_lower_upper_unit" if self.kind == "interval" else "quantity_value_unit",
@@ -456,7 +1024,7 @@ class AnswerContract:
             for document in required_documents:
                 if document in selected_documents and not any(fact["document_id"] == document for fact in facts):
                     missing.append({"requirement": "same_quantity_for_document", "document_id": document, "quantity": self.quantity})
-            if self.requested_role is None and len({fact["role"] for fact in facts if fact["role"]}) > 1:
+            if self.requested_role is None and not self.requested_roles and not self.distinguish_roles and len({fact["role"] for fact in facts if fact["role"]}) > 1:
                 ambiguous.append({"requirement": "quantity_role_not_specified", "roles": sorted({fact["role"] for fact in facts if fact["role"]})})
         mappings = self._mappings(selected) if self.kind == "mapping" else []
         if self.kind == "mapping":
@@ -484,11 +1052,21 @@ class AnswerContract:
                                       "reference_ids": [fact["reference_id"] for fact in same_document],
                                       "quotes": [fact["quote"] for fact in same_document]})
         calculation = None
+        derived_calculations = []
         if self.kind == "calculation":
             try:
                 calculation = self.calculation(selected)
+                derived_calculations = self.relation_calculations(selected)
             except CalculationRefusal as error:
                 missing.append({"requirement": error.code, "message": error.message})
+        comparisons = self._comparisons(facts, required_documents)
+        for comparison in comparisons:
+            if comparison["status"] == "context_unestablished":
+                missing.append({"requirement": "comparison_role_not_established", "subject": comparison["subject"],
+                                "property": comparison["property"], "reference_ids": comparison["reference_ids"]})
+            elif comparison["status"] == "context_differs":
+                missing.append({"requirement": "comparison_context_differs", "subject": comparison["subject"],
+                                "property": comparison["property"], "reference_ids": comparison["reference_ids"]})
         supported_form = (self.kind in {"cell_values", "calculation", "interval", "value"}
                           or self.kind == "comparison" and self.quantity is not None
                           or self.kind == "mapping" and bool(self.configurations))
@@ -503,11 +1081,15 @@ class AnswerContract:
                 "required_reference_ids": self.required_ids(references, required_documents),
                 "requested_cells": requested, "requested_subjects": list(self.subjects),
                 "missing": missing, "ambiguous": ambiguous, "conflicts": conflicts,
-                "matched_relations": [*facts, *mappings], "calculation": calculation,
+                "matched_relations": [*facts, *mappings, *conditions, *limitations], "calculation": calculation,
+                "derived_calculations": derived_calculations,
+                "obligations": obligations, "comparisons": comparisons,
                 "selected_reference_ids": [reference["id"] for reference in selected]}
 
 
 def assessment_message(assessment: dict[str, Any]) -> str | None:
+    if assessment.get("scope_refusal"):
+        return assessment["scope_refusal"]["message"]
     status = assessment["status"]
     if status == "conflict":
         return "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée."
@@ -515,7 +1097,7 @@ def assessment_message(assessment: dict[str, Any]) -> str | None:
         return "Une ambiguïté subsiste dans les preuves retenues (lecture, adresse ou rôle de la grandeur). Les données brutes sont conservées ; aucune correction n'est supposée."
     if status == "partial":
         if any(item["requirement"] == "multiple_properties_not_decomposed" for item in assessment["missing"]):
-            return "La demande porte sur plusieurs propriétés distinctes. Les extraits cités sont disponibles, mais les contrôles ne valident pas séparément la couverture de chacune ; une seule plage ne suffit pas à toutes les établir."
+            return "La demande porte sur plusieurs propriétés distinctes. Certaines propriétés ne sont pas établies pour chaque document demandé ; une seule plage ne suffit pas à toutes les couvrir."
         if assessment["kind"] == "calculation":
             if assessment.get("calculation") is not None:
                 return "Le calcul ci-dessous utilise les entrées citées ; la couverture des autres éléments demandés reste partielle."
@@ -524,6 +1106,8 @@ def assessment_message(assessment: dict[str, Any]) -> str | None:
                     "Le calcul demandé ne peut pas être établi à partir d'entrées complètes et univoques dans les preuves retenues.")
         if any(item["requirement"] == "requested_unit_not_provided" for item in assessment["missing"]):
             return "L'unité demandée n'est pas établie par les champs des cellules retenues. Les valeurs brutes sont restituées ; aucune unité d'une cellule extérieure n'est supposée."
+        if assessment.get("quantity") and not assessment.get("matched_relations"):
+            return "La grandeur demandée n'est pas établie par les preuves retenues dans le périmètre sélectionné. Je ne peux pas donner une valeur fiable à partir de cette sélection."
         if assessment["kind"] == "interval":
             return "La plage demandée n'est pas entièrement établie : les preuves retenues ne relient pas toutes les bornes, unités, grandeurs ou conditions demandées. Cela ne démontre pas l'absence de ces données dans les documents."
         return "Restitution partielle : certains faits demandés ne sont pas établis dans les preuves retenues. Cela ne démontre pas leur absence dans les documents."

@@ -1832,6 +1832,50 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 **Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · Suivi de livraison publié `d3c1518`, distant confirmé · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-13 14:43 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
+## EV4B-I2 — deuxième itération 4B, bilan du 8 novembre 2026 (UTC)
+
+**Objectif :** corriger les relations de preuve et leur rendu, les calculs et les
+refus encore incomplets, puis mesurer le transfert sur une seconde famille.
+**Autorisation :** deuxième itération, essais, commit et push sur la même branche
+`enhanced_version`. **Référence I1 :** `4356fd0678c1e85a35e1e2eb1aef753a5e8c7806`,
+restaurée depuis le bundle conservé ; aucune publication distante n’est déduite
+de cette restauration. **Périmètre :** générateur Qwen3-4B verrouillé, corrections
+génériques ; aucune valeur INA226/TMP117 codée comme règle de réponse.
+
+Le [protocole préalable et la DoD](reports/enhanced-4b-iteration2-protocol-2026-11-08.md)
+restent gelés. Le [bilan I2](reports/enhanced-4b-iteration2-results-2026-11-08.md)
+relie les [46 observations](reports/enhanced-4b-iteration2-cases-2026-11-08.json),
+les [métriques](reports/enhanced-4b-iteration2-quality-2026-11-08.json),
+les [gates exécutés](reports/enhanced-4b-iteration2-validation-2026-11-08.json)
+et les [errata de revue](reports/enhanced-4b-iteration2-review-errata-2026-11-08.json).
+Les deux révisions applicatives réelles sont comparées ; aucun score historique
+n’est réattribué au nouveau code.
+
+**Réception documentaire non acquise.** Les réponses complètes, soutenues et
+sans affirmation fausse passent de 7/20 à 14/20, les refus corrects de 0/3 à 2/3.
+Dix paires progressent, une régresse et douze restent égales sur ce critère
+binaire ; des égalités masquent aussi des réponses partielles devenues erreurs.
+I1 termine 20 réponses avec 3 erreurs, I2 16 avec 7 erreurs. La régression
+`pdf_conversion_codes`, le transfert 4/6 réponses et 1/2 refus, la sérialisation
+incomplète de certains rôles et le zéro OCR maintiennent leurs critères ouverts.
+
+| Action | Objet et critère | État I2 et preuve |
+|---|---|---|
+| EV4B-I2-01 | Référence I1 restaurée et révisions réellement isolées | Réalisé : 1 500 preuves vérifiées, I1 au commit exact, quatre blocs achevés, sources stables ; audit des 46 soumissions PASS. |
+| EV4B-I2-02 | Normaliser les références autorisées sans accepter types, clés ou références étrangères | Réalisé et contrôlé : 182 tests ciblés PASS ; DOCX à consigne intégrée corrigé nativement, sans ajouter de preuve. |
+| EV4B-I2-03 | Relations valeur–unité–rôle–condition et propriété × document jusque dans contexte/rendu | Partiel : catalogue et rendu enrichis, revue AR01–AR08 et tests ciblés passent ; certains bindings ne figurent pas dans le wire, comparaisons I2 en erreur. |
+| EV4B-I2-04 | Calcul explicite et refus limité au scope | Conversions /1000 et ×1000 complètes, deux refus de feuille corrects sans génération ; refus PDF hors page en erreur. Aucun emprunt hors scope observé. |
+| EV4B-I2-05 | Récupération OCR prouvée par image/provenance, ambiguïtés refusées | Non acquis : deux pilotes de quatre appels Tesseract 5.5.0 négatifs ; aucune segmentation/compaction promue, gardes conservés. |
+| EV4B-I2-06 | 15 cas INA226 + 8 cas TMP117 gelés, deux bras, 50 faits par révision | Exécuté : 46/46 soumissions ; 9 documents, PDF partiels déclarés, 30 requêtes 4B capturées, aucune reprise favorable substituée. |
+| EV4B-I2-07 | Gates, relecture des faits/citations, coûts et régressions conservés | Exécuté avec réserves : 3 637 PASS/2 anciens FAIL Python, attentes reproduites sur I1 puis corrigées (HTTP 73 PASS) ; intégration 34 PASS/6 FAIL faute de Tesseract verrouillé/4 SKIP ; frontend 487 tests/build, Mypy (123 fichiers) et Ruff (13 fichiers) PASS. Revues finales INA226 v4/TMP117 v2 ; les comptes ciblés se recouvrent. |
+| EV4B-I2-08 | Bilan, identité exacte, commit et push autorisés, SHA distant vérifié | Sources/tests/bilan prêts dans cette révision ; identité locale exacte vérifiée. Précontrôle Git d’écriture bloqué faute d’identification ; publication distante non attestée, reçu final de commit/push séparé. |
+
+Le transfert reste non aveugle et limité à deux familles ; les témoins Office
+dérivés ne sont pas indépendants. Les corrections de relecture préservent
+leurs versions initiales et les annotations. V2.1, D07, Windows et recette
+graphique restent ouverts selon leurs propres exigences. Sources EV4B-I2-S01
+à S04 et EV4B-I2-E01 ; décisions EV4B-D06/D07 ; journal du 8 novembre.
+
 ## EV4B — amélioration du 4B et qualification, 7–8 novembre 2026 (UTC)
 
 **Objectif :** améliorer la préservation et l'exploitation des preuves avec Qwen3-4B,
@@ -7132,6 +7176,87 @@ les limites d’atomicité entre SQLite et fichier restent déclarées.
 **Preuves :** [attestation](reports/enhanced-4b-terminal-fix-2026-11-08.json),
 [bilan](reports/enhanced-4b-results-2026-11-07.md) et journal du 8 novembre.
 
+
+## EV4B-D06 — comparer les révisions réelles et geler le transfert I2 (2026-11-08 UTC)
+
+**Statut :** protocole retenu avant les essais ; résultats à mesurer.
+**Contexte :** la deuxième itération doit corriger les échecs I1 sans faire
+passer la désactivation d'options du nouveau code pour l'ancien comportement.
+**Choix :** référence applicative au commit
+`4356fd0678c1e85a35e1e2eb1aef753a5e8c7806`, checkout isolé, améliorations I1
+actives ; sources I2 gelées séparément ; harnais commun et configuration
+identifiés. Modèle 4B, documents, périmètres et conditions de mesure restent
+contrôlés. Aucun résultat historique n'est réattribué à I2.
+
+Les quinze questions INA226 restent inchangées. Huit nouveaux cas TMP117 sont
+gelés avant sorties natives, avec source officielle hashée et témoins Office
+dérivés, dont un divergent explicitement fictif. Ce transfert est non aveugle,
+et ses documents ne constituent pas quatre familles indépendantes. Les UUID
+restent non résolus jusqu'à l'extraction/indexation réelle ; les résolutions de
+chemins/bindings produisent un manifeste dérivé sans modifier le gel.
+
+**Conséquences :** 23 questions, 46 soumissions primaires, scores par fait et
+scope ; erreurs, refus et répétitions restent visibles. Cible documentaire,
+réception technique et livraison sont distinctes. Les gates manqués ne sont
+pas clos par la rédaction du bilan ; V2.1, D07 et plateformes restent ouverts
+selon leurs recettes. Commit/push sur `enhanced_version` sont déjà autorisés ;
+l'identité exacte et le SHA distant restent à vérifier lors de la publication.
+**Preuve du gel :** annotations SHA-256
+`3eb39fd5b4c722b3389598ddfb11f1b978a5296c5898d670eedb16cc97bea5d0` ;
+[protocole I2](reports/enhanced-4b-iteration2-protocol-2026-11-08.md), sources
+EV4B-I2-S01 à S04 et contrôles de fixtures privés, sans inférence native.
+
+
+## EV4B-D07 — distinguer catalogue applicatif et contexte sérialisé (2026-11-08 UTC)
+
+**Statut :** règle de relecture appliquée ; erratum conservé.
+**Contexte :** la revue TMP117 révèle que des coordonnées et liens d’en-tête
+correctement conservés côté backend ne figurent pas tous dans les références
+textuelles envoyées au modèle. Une ligne dont la cellule NOM/TYP vide a été
+compactée conserve les nombres sans certifier tous leurs rôles de colonne.
+**Choix :** sur une voie LLM, juger `in_context` à partir des messages réellement
+sérialisés et de leurs relations explicites. Le catalogue riche sert à vérifier
+la provenance et le rendu, sans combler rétroactivement un binding absent du
+wire. Sur une voie déterministe, la frontière est le catalogue réellement
+consommé par le traitement. Le statut `covered` du contrat n’est pas un oracle.
+
+**Conséquences :** sept verdicts `in_context` de cinq revues INA226 passent de
+vrai à faux ; dix notes sont clarifiées. Les 27 revues originales restent
+intactes (SHA-256 `f25b16f43a280f6cc9fc188b1500f510baef23d3e49cd5223bbe48cfd36c3d2d`).
+La v2, produite par le même outil d’enregistrement, et l’erratum daté explicitent
+les changements. Oracles, réponses, citations, faux énoncés et refus ne sont
+pas renotés par ce correctif de frontière. Aucun code produit n’est modifié
+pendant la campagne. La sélection backend PSRR 1/3→3/3 est distincte du rappel
+qualifié du texte transmis 0/3→2/3. Une phrase autonome peut établir les bornes
+sans géométrie ; deux nombres dans une ligne ambiguë ne suffisent pas.
+**Preuves :** répertoire privé `reviews/`, erratum
+`ina226-context-erratum-2026-11-08.json`, SHA-256
+`a096eecd0deede4134e72bd48fa7faa4492c878a23d876c3c0124b1e691335b9`,
+et journal du 8 novembre, section de relecture des frontières.
+
+
+**Complément de contrôle de complétude et de diagnostics, 13:11 UTC.** Le
+§6.2 du protocole s’applique aussi au texte final : une citation riche ne
+complète pas une relation de borne absente du rendu. La v3 INA226 corrige les
+deux faits de `pdf_bus_supply` I1 sans toucher aux nombres ni aux sources.
+L’erratum de complétude conserve le diff et la v2, SHA-256
+`69d7932e19820f7e7579ef17124f767e5dc2f48d4c6ee9358847cb37f23ff530`.
+
+Le §6.3 impose de compter les justifications fausses : dans les XLSX INA226
+et TMP117 I1, le préambule affirme que les preuves ne relient pas les bornes,
+unités ou grandeurs, alors que les adresses affichées établissent les trois
+relations. Les faits restent corrects et cités ; le diagnostic applicatif est
+faux et disqualifie la réussite globale. `has_unsupported_claims` reste faux
+pour les assertions documentaires fidèles ; la fausse justification est
+explicitement comptée dans `has_false_claims`. La prudence distincte décrivant
+ce que « les contrôles ne valident pas » n’est pas requalifiée par simple
+analogie. La v4 INA226 conserve v1/v2/v3 et corrige ce seul verdict global ;
+erratum SHA-256 `f5c13268c1bcfc2f5ac2f56a5acf0982e010d20cde28f40e6ed65c5fc799acc5`.
+Le même critère s’applique au DOCX TMP117 I1 dont le préambule identique est
+contredit par les relations présentes dans le contexte : sa correction
+versionnée est conservée dans l’erratum TMP117. Ces corrections de relecture
+ne changent aucun oracle, paramètre, code ou résultat natif.
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -9157,6 +9282,44 @@ les observations aux captures privées et à leurs empreintes. Les journaux
 commandes, résultats négatifs, reprises et limites. Ces exécutions locales
 constituent des mesures sur un hôte Linux x86-64 et une famille documentaire,
 pas une validation générale issue des publications de méthode.
+
+
+## EV4B-I2 — sources de la deuxième itération (8 novembre 2026 UTC)
+
+**Rôle :** fondement des hypothèses et oracles I2 ; **propriétaire :** intégration
+EV4B ; **statut :** sources consultées avant essais natifs, efficacité à mesurer.
+[Protocole et limites](reports/enhanced-4b-iteration2-protocol-2026-11-08.md).
+
+| ID | Source primaire et version | Apport retenu et applicabilité | Limite |
+|---|---|---|---|
+| EV4B-I2-S01 | [Texas Instruments, TMP117](https://www.ti.com/lit/ds/symlink/tmp117.pdf), SNOSD82D, révision interne septembre 2022 ; téléchargement 08/11/2026 à 10:46:28 UTC ; SHA-256 `78212e91e478035a91165397a8de8a90bfc776759dc445243c033537f0c4b789` | Pages physiques 5–6 lues et rendues visuellement : sections 6.1, 6.3 et 6.5. Oracle des limites absolues/recommandées, conditions de température et conversion typique. Reçu HTTP, original et images privés conservés. | Date HTTP distincte de la révision interne. Les témoins Office dérivent de cette fiche ; le témoin divergent est explicitement fictif. Ni leur génération ni la lecture Poppler ne qualifient le parseur produit. |
+| EV4B-I2-S02 | [Ollama, Structured outputs](https://docs.ollama.com/capabilities/structured-outputs) et [Pydantic, Strict Mode](https://pydantic.dev/docs/validation/latest/concepts/strict_mode/), documentation courante consultée le 08/11/2026 | Le schéma de sortie et sa validation locale restent distincts ; le mode strict limite les coercitions. Pydantic installé dans le venv restauré : 2.13.5. Motive un contrôle de types/références maintenu après une éventuelle normalisation des seules redondances autorisées. | Documentation courante, pas preuve du comportement du runtime Ollama ni de la cohérence sémantique des citations. Une référence existante peut rester inadéquate ; les gardes propres au projet doivent être testés. |
+| EV4B-I2-S03 | [Python, decimal](https://docs.python.org/3.12/library/decimal.html), documentation 3.12.16 affichée à la consultation du 08/11/2026 | Représentation décimale, précision, arrondi, exceptions et valeurs non finies distinctes ; motivation des tests de conversions, facteur explicite, division par zéro et refus NaN/infini. | Le contexte de calcul ne résout ni unité, ni provenance, ni scope. La version d'exécution Python est capturée dans les essais ; aucune mise à jour déduite de la page consultée. |
+| EV4B-I2-S04 | [Tesseract, ImproveQuality](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html), documentation mainteneur relue le 08/11/2026 ; complète EV4B-S06 | Segmentation d'une petite région, densité, bordures et inspection de l'image traitée motivent une reprise contrôlée. Le mode, le moteur et l'image effectivement employés doivent être conservés avec le candidat. | Une liste de caractères ou une substitution O→0 ne prouve pas la présence d'un zéro. La correction doit être localisée et confrontée aux cas négatifs ; le gain reste à mesurer. |
+
+Les sources de méthode EV4B-S01 à S05 et les contrats Office R28 restent
+réutilisés dans leurs limites. Les skills locaux lus sont hashés dans la
+preuve privée `protocol/fixture-validation.json` : qualification des fixtures,
+évaluation RAG, documentation, ingestion Office, provenance PDF et qualification
+CPU. Leur lecture ne devient pas une qualification expérimentale.
+
+
+### EV4B-I2-E01 — mesures et revues finales (8 novembre 2026 UTC)
+
+Le [bilan I2](reports/enhanced-4b-iteration2-results-2026-11-08.md), les
+[métriques par famille](reports/enhanced-4b-iteration2-quality-2026-11-08.json),
+la [matrice des observations](reports/enhanced-4b-iteration2-cases-2026-11-08.json),
+le [relevé de validation](reports/enhanced-4b-iteration2-validation-2026-11-08.json)
+et les [errata](reports/enhanced-4b-iteration2-review-errata-2026-11-08.json)
+référencent 46 soumissions réelles, 30 requêtes 4B, leurs traces, états SQLite,
+contextes et citations. Audit mécanique final SHA-256
+`829a513fedd5b35805bd108e9dc6b89e59fe45e23d33195e87bd4621bc08e8c6`.
+Les jugements finaux emploient INA226 v4 et TMP117 v2 ; versions antérieures et
+diffs de jugement conservés, sans modification des questions/oracles ni des
+sorties natives. Le rappel sérialisé, le catalogue applicatif et la réponse
+sont distingués ; les justifications applicatives fausses sont comptées.
+Ces preuves locales ne constituent ni validation humaine indépendante, ni
+transfert aveugle, ni qualification du corpus V2.1, du poste de 16 Go ou de Windows.
 
 ---
 

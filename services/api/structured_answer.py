@@ -6,13 +6,14 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, ValidationError
 
 from services.ingestion.office.xlsx import _cell_fields, address_coordinates
 
-from .answer_contract import AnswerContract, assessment_message, folded
+from .answer_contract import PROPERTY_LABELS, AnswerContract, assessment_message, folded
 from .deterministic_calculations import calculation_text
 from .errors import ApiError
+from .evidence_selection import verified_table_rows
 from .office import cell_semantics
 
 STRUCTURED_INSTRUCTION = (
@@ -56,6 +57,11 @@ class AnswerPlan(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     references: list[str]
     comparisons: list[Comparison]
+    _normalization: list[dict[str, Any]] = PrivateAttr(default_factory=list)
+
+    @property
+    def normalization(self):
+        return list(self._normalization)
 
 
 @dataclass
@@ -118,11 +124,42 @@ class Catalogue:
             plan = AnswerPlan.model_validate(json.loads(raw, object_pairs_hook=unique_object))
             ids = {reference["id"] for reference in self.references}
             selected = plan.references
+            if self.contract is not None:
+                # Validate every original reference before repairing redundancy.
+                # A known group member may be restored to the root selection;
+                # unknown references, extra fields and invalid JSON never are.
+                if len(selected) > max(4, len(ids) * 4) or len(plan.comparisons) > max(4, len(ids) * 4):
+                    raise ValueError("plan redundancy limit")
+                if set(selected) - ids or any(set(group.references) - ids for group in plan.comparisons):
+                    raise ValueError("unknown reference")
+                normalized = list(dict.fromkeys(selected))
+                events: list[dict[str, Any]] = []
+                if normalized != selected:
+                    events.append({"operation": "deduplicate_root_references"})
+                normalized_groups: list[Comparison] = []
+                seen = set()
+                for comparison in plan.comparisons:
+                    group = list(dict.fromkeys(comparison.references))
+                    for reference in group:
+                        if reference not in normalized:
+                            normalized.append(reference)
+                            events.append({"operation": "restore_group_reference", "reference_id": reference})
+                    key = tuple(sorted(group))
+                    if len(group) < 2 or key in seen:
+                        events.append({"operation": "remove_redundant_comparison", "reference_ids": group})
+                        continue
+                    if group != comparison.references:
+                        events.append({"operation": "deduplicate_group_references", "reference_ids": group})
+                    normalized_groups.append(Comparison(references=group))
+                    seen.add(key)
+                plan = AnswerPlan(references=normalized, comparisons=normalized_groups)
+                plan._normalization = events
+                return plan
             if len(selected) > len(ids) or len(selected) != len(set(selected)) or set(selected) - ids:
                 raise ValueError("invalid selection")
             if len(plan.comparisons) > len(ids):
                 raise ValueError("too many comparisons")
-            groups = []
+            groups: list[tuple[str, ...]] = []
             for comparison in plan.comparisons:
                 group = comparison.references
                 if len(group) != len(set(group)) or set(group) - set(selected):
@@ -205,7 +242,7 @@ class Catalogue:
         # One bounded completion using only references already included in the
         # counted prompt. Exact cell requests and a unique local quantity proof
         # must not disappear merely because the model omitted their IDs.
-        selected_ids = list(dict.fromkeys([*required, *plan.references]))
+        selected_ids = [] if self.contract.scope_refusal() else list(dict.fromkeys([*required, *plan.references]))
         initial = self.assess(selected_ids, required_documents)
         parts = []
         calculation = initial.get("calculation")
@@ -215,14 +252,28 @@ class Catalogue:
         if calculation:
             parts.append({"text": calculation_text(calculation), "source_ids": calculation["source_ids"],
                           "reference_ids": calculation_ids, "kind": "calculation"})
+        derived = initial.get("derived_calculations", [])
+        represented = set(calculation_ids)
+        if derived:
+            derived_ids = list(dict.fromkeys(reference_id for result in derived for reference_id in result["reference_ids"]))
+            text = "\n\n".join([*(calculation_text(result) for result in derived),
+                                  *(render_reference(by_id[reference_id], include_document=True) for reference_id in derived_ids)])
+            parts.append({"text": text, "source_ids": list(dict.fromkeys(source_id for result in derived for source_id in result["source_ids"])),
+                          "reference_ids": derived_ids, "kind": "relation_calculations"})
+            represented.update(derived_ids)
         for reference_id in selected_ids:
             # The operation already reproduces its exact input values, labels
             # and source citations; avoid repeating a whole cell paragraph.
-            if reference_id in calculation_ids:
+            if reference_id in represented:
                 continue
             reference = by_id[reference_id]
-            parts.append({"text": render_reference(reference, include_document=True),
-                          "source_ids": reference["source_ids"], "reference_ids": [reference_id], "kind": "reference"})
+            context = reference.get("table_context") or {}
+            bundle = [item for item in context.get("reference_ids", []) if item in selected_ids]
+            bundle = list(dict.fromkeys([*bundle, reference_id]))
+            parts.append({"text": "\n".join(render_reference(by_id[item], include_document=True) for item in bundle),
+                          "source_ids": list(dict.fromkeys(source_id for item in bundle for source_id in by_id[item]["source_ids"])),
+                          "reference_ids": bundle, "kind": "reference"})
+            represented.update(bundle)
 
         def compose(parts, assessment, omitted):
             answer = ""
@@ -237,6 +288,41 @@ class Catalogue:
                     start = len(answer)
                     answer += f"[{source_id}]"
                     spans.append({"source_id": source_id, "start_offset": start, "end_offset": len(answer)})
+            for comparison in assessment.get("comparisons", []):
+                label = PROPERTY_LABELS.get(comparison["property"], comparison["property"] or comparison["quantity"])
+                if comparison.get("subject"):
+                    label += " — " + comparison["subject"]
+                names = ", ".join(dict.fromkeys(by_id[reference_id]["document_name"] for reference_id in comparison["reference_ids"]))
+                qualification = (" dans les mêmes conditions explicites" if comparison["conditions_explicit"] else
+                                 " sous les rôles indiqués ; aucune équivalence de conditions d'essai supplémentaires n'est établie")
+                conclusion = {"equal": "les valeurs citées concordent" + qualification,
+                              "different": "les valeurs citées divergent" + qualification,
+                              "context_differs": "les rôles ou conditions cités diffèrent ; aucune conclusion d'accord n'est établie",
+                              "context_unestablished": "le rôle d'au moins une valeur n'est pas établi ; aucune conclusion d'accord n'est établie"}[comparison["status"]]
+                answer += ("\n\n" if answer else "") + f"Comparaison — {label} ({names}) : {conclusion}."
+                for source_id in dict.fromkeys(source for reference_id in comparison["reference_ids"]
+                                              for source in by_id[reference_id]["source_ids"]):
+                    answer += " "
+                    start = len(answer)
+                    answer += f"[{source_id}]"
+                    spans.append({"source_id": source_id, "start_offset": start, "end_offset": len(answer)})
+            for condition in (fact for fact in assessment.get("matched_relations", []) if fact["kind"] == "test_condition"):
+                answer += ("\n\n" if answer else "") + (f"Condition d'essai de {condition['label']} : {condition['condition']}. "
+                    "Le lien vérifié porte sur la colonne des conditions d'essai ; cette condition ne définit pas à elle seule une limite de la grandeur mesurée.")
+                for source_id in condition["source_ids"]:
+                    answer += " "
+                    start = len(answer)
+                    answer += f"[{source_id}]"
+                    spans.append({"source_id": source_id, "start_offset": start, "end_offset": len(answer)})
+            for limitation in (fact for fact in assessment.get("matched_relations", []) if fact["kind"] == "operating_guarantee_limitation"):
+                answer += ("\n\n" if answer else "") + "La source précise que les limites absolues ne garantissent pas le fonctionnement normal."
+                for source_id in limitation["source_ids"]:
+                    answer += " "
+                    start = len(answer)
+                    answer += f"[{source_id}]"
+                    spans.append({"source_id": source_id, "start_offset": start, "end_offset": len(answer)})
+            if assessment.get("comparisons"):
+                answer += " La concordance éventuelle des valeurs n'établit pas l'indépendance des documents."
             if omitted:
                 answer += ("\n\n" if answer else "") + "Restitution limitée par le budget de réponse : certaines références entières ne sont pas affichées."
             if not answer:
@@ -257,8 +343,12 @@ class Catalogue:
                 assessment["status"] = "partial"
             assessment.update({"model_selected_reference_ids": plan.references, "added_reference_ids": added,
                                "omitted_reference_ids": omitted, "rendered_reference_ids": displayed})
+            if plan.normalization:
+                assessment["plan_normalization"] = plan.normalization
             if not any(part["kind"] == "calculation" for part in candidate_parts):
                 assessment["calculation"] = None
+            if not any(part["kind"] == "relation_calculations" for part in candidate_parts):
+                assessment["derived_calculations"] = []
             answer, spans = compose(candidate_parts, assessment, omitted)
             tokens = tokenizer.count(answer)
             return displayed, omitted, assessment, answer, spans, tokens
@@ -279,6 +369,9 @@ class Catalogue:
             if tokens > output_tokens:
                 raise ApiError("structured_answer_render_budget_exceeded", "Le budget de restitution ne permet pas même d'afficher les limites de la réponse.", 503)
         warnings = []
+        if plan.normalization:
+            warnings.append({"code": "answer_contract_plan_normalized", "operations": plan.normalization,
+                             "message": "Les références autorisées ont été préservées et les doublons retirés du plan."})
         message = assessment_message(assessment)
         if message:
             warnings.append({"code": "answer_contract_" + assessment["status"], "message": message,
@@ -317,6 +410,8 @@ class Catalogue:
         this path. The existing builder has already checked source identities.
         """
         contract = self.contract
+        if contract is not None and contract.scope_refusal():
+            return AnswerPlan(references=[], comparisons=[])
         if (contract is None or contract.scope.get("kind") != "cell_range"
                 or contract.kind not in {"cell_values", "calculation"}
                 or not contract.requested_cells or contract.parse_failures or contract.subjects):
@@ -344,7 +439,15 @@ def quoted(text):
 def render_reference(reference, include_document=False):
     heading = f"{quoted(reference['document_name'])} — " if include_document else ""
     if reference["kind"] == "excerpt":
-        return heading + "Extrait : « " + quoted(reference["text"]) + " »"
+        text = heading + "Extrait : « " + quoted(reference["text"]) + " »"
+        context = reference.get("table_context") or {}
+        if context.get("catalogue_verified") and context.get("row_role") == "data":
+            bound = [(cell, [header for header in cell["headers"] if header.get("role") in
+                            {"minimum", "maximum", "typical", "nominal", "condition", "unit"}]) for cell in context["cells"]]
+            labels = [f"{header['text'].strip()} = {cell['text'].strip()}" for cell, headers in bound for header in headers]
+            if labels:
+                text += " Liaisons aux en-têtes : " + "; ".join(labels) + "."
+        return text
     facts = reference["cell_facts"]
     fields = {field["field"]: field for field in reference["fields"]}
     heading += quoted(reference["locator"].get("sheet_name") or reference["locator"]["unit_id"]) + " / " + facts["address"] + " : "
@@ -387,7 +490,7 @@ class StructuredAnswerBuilder:
             integrity_failure()
         key = (generation, block["id"])
         if key not in self.parents:
-            row = self.db.one("SELECT text,source_text_hash,extraction_revision_id,metadata_json FROM blocks WHERE generation_id=? AND id=?", key)
+            row = self.db.one("SELECT text,page_index,source_text_hash,extraction_revision_id,metadata_json FROM blocks WHERE generation_id=? AND id=?", key)
             if not row:
                 integrity_failure()
             self.parents[key] = dict(row)
@@ -397,6 +500,7 @@ class StructuredAnswerBuilder:
                 or parent["source_text_hash"] != block["source_text_hash"]
                 or hashlib.sha256(parent["text"].encode()).hexdigest() != block["source_text_hash"]
                 or parent["extraction_revision_id"] != block["extraction_revision_id"]
+                or block.get("page_index") != parent["page_index"]
                 or source["extraction_revision_id"] != block["extraction_revision_id"]
                 or parent["text"][start:end] != block["text"]):
             integrity_failure()
@@ -453,6 +557,8 @@ class StructuredAnswerBuilder:
                     item["segments"].append(segment)
                     if self.enforce_contract:
                         item["extraction_method"] = block.get("extraction_method", "unknown")
+                        if block.get("table_context"):
+                            item["_table_context"] = block["table_context"]
                     if source["source_id"] not in item["source_ids"]:
                         item["source_ids"].append(source["source_id"])
                     continue
@@ -508,6 +614,109 @@ class StructuredAnswerBuilder:
                     piece.pop("text")
                 field["text"], field["complete"] = text, complete and seen_end == len(value)
         references = [{"id": f"R{index:03d}", **item} for index, item in enumerate(entries.values(), 1)]
-        contract = AnswerContract(self.question or "", mode, self.snapshot.scope,
+        if self.enforce_contract:
+            self.bind_table_context(references)
+        contract_scope = dict(self.snapshot.scope)
+        if self.enforce_contract and contract_scope.get("kind") in {"sheet", "cell_range"}:
+            # The physical XML filename is not a sheet-order guarantee. Read
+            # only the already authorized unit's pinned extraction metadata.
+            sheet_id = contract_scope.get("sheetId")
+            for generation in self.snapshot.generations:
+                row = self.db.one("SELECT id,title,order_index FROM office_units WHERE generation_id=? AND id=?",
+                                  (generation, sheet_id))
+                if row and type(row["order_index"]) is int:
+                    contract_scope["authorized_sheet"] = {"id": row["id"], "name": row["title"], "ordinal": row["order_index"] + 1}
+                    break
+        contract = AnswerContract(self.question or "", mode, contract_scope,
                                   cell_context=any(reference["kind"] == "cell" for reference in references)) if self.enforce_contract else None
         return Catalogue(mode, references, contract)
+
+    def bind_table_context(self, references):
+        """Rebuild row geometry from pinned DB metadata, then bind visible IDs.
+
+        Source-block metadata is a hint, never authority. Even exact header text
+        is insufficient if its coordinates were changed or its span lies outside
+        the counted catalogue. In that case only the literal excerpt survives.
+        """
+        records_cache = {}
+        for reference in references:
+            proposed = reference.pop("_table_context", None)
+            if proposed is None:
+                continue
+            block_id = proposed.get("table_block_id")
+            key = (reference["generation_id"], block_id)
+            parent = self.parents.get(key)
+            if parent is None:
+                continue
+            if key not in records_cache:
+                records_cache[key] = verified_table_rows(parent["text"], json.loads(parent["metadata_json"]))
+            records = records_cache[key]
+            if (not records or proposed.get("revision") != "verified-table-relations-v1"
+                    or proposed.get("source_text_hash") != parent["source_text_hash"]
+                    or proposed.get("extraction_revision_id") != parent["extraction_revision_id"]):
+                continue
+            record = next((item for item in records if item["index"] == proposed.get("row_index")), None)
+            if record is None or not record.get("column_bindings_verified"):
+                continue
+            if reference["text"] != record["text"] or not any(
+                    segment["block_id"] == block_id and segment["source_text_hash"] == parent["source_text_hash"]
+                    and segment["start_offset"] == record["start"] and segment["end_offset"] == record["end"]
+                    for segment in reference.get("segments", [])):
+                continue  # another authorized row's context is not this row's proof
+            # Reconstruct only from DB rows; compare geometry/header bindings as
+            # well as text to prevent an altered MIN/MAX label from being trusted.
+            from .evidence_selection import _table_context
+            expected = _table_context(records, record, {"id": block_id, "source_text_hash": parent["source_text_hash"],
+                                      "extraction_revision_id": parent["extraction_revision_id"]}, records)
+            heading = proposed.get("section_heading")
+            if expected is None or canonical(expected) != canonical({key: value for key, value in proposed.items() if key != "section_heading"}):
+                continue
+            scoped = [item for item in references if item["generation_id"] == reference["generation_id"]]
+
+            def covering_ids(piece, parent=parent, scoped=scoped, block_id=block_id):
+                low, high = piece["start_offset"], piece["end_offset"]
+                if type(low) is not int or type(high) is not int or not 0 <= low <= high <= len(parent["text"]):
+                    return []
+                if parent["text"][low:high] != piece["text"]:
+                    return []
+                return [item["id"] for item in scoped if any(segment["block_id"] == block_id
+                        and segment["source_text_hash"] == parent["source_text_hash"]
+                        and segment["start_offset"] <= low <= high <= segment["end_offset"]
+                        for segment in item.get("segments", []))]
+
+            pieces = [*expected["dependencies"], *expected["cells"],
+                      *(header for cell in expected["cells"] for header in cell["headers"])]
+            bindings = [covering_ids(piece) for piece in pieces]
+            if any(not binding for binding in bindings):
+                continue
+            ids = list(dict.fromkeys([reference["id"], *(binding[0] for binding in bindings)]))
+            if heading:
+                sections = self.db.rows(
+                    "SELECT b.section_id,s.title,s.block_ids_json,h.id heading_id,h.kind heading_kind,h.section_id heading_section "
+                    "FROM blocks b JOIN sections s ON s.generation_id=b.generation_id AND s.id=b.section_id "
+                    "JOIN blocks h ON h.generation_id=b.generation_id AND h.section_id=s.id "
+                    "WHERE b.generation_id=? AND b.id=? AND h.kind IN ('heading','section_header') AND h.text=s.title LIMIT 2",
+                    key)
+                section = sections[0] if len(sections) == 1 else None
+                heading_parent = self.parents.get((reference["generation_id"], heading.get("block_id")))
+                heading_refs = [item for item in scoped if any(segment["block_id"] == heading.get("block_id")
+                                and segment["start_offset"] <= heading.get("start_offset", -1)
+                                and heading.get("end_offset", -1) <= segment["end_offset"]
+                                and segment["source_text_hash"] == heading.get("source_text_hash")
+                                for segment in item.get("segments", []))]
+                if (not section or not heading_parent or not heading_refs
+                        or section["heading_kind"] not in {"heading", "section_header"}
+                        or section["section_id"] != heading.get("section_id") or section["heading_section"] != section["section_id"]
+                        or heading.get("block_id") != section["heading_id"]
+                        or not {block_id, heading["block_id"]} <= set(json.loads(section["block_ids_json"]))
+                        or heading.get("start_offset") != 0 or heading.get("end_offset") != len(heading_parent["text"])
+                        or heading.get("text") != section["title"] or heading["text"] != heading_parent["text"]
+                        or heading.get("source_text_hash") != heading_parent["source_text_hash"]
+                        or heading.get("extraction_revision_id") != parent["extraction_revision_id"]):
+                    continue
+                expected["section_heading"] = heading
+                ids = list(dict.fromkeys([*ids, heading_refs[0]["id"]]))
+            expected["reference_ids"] = ids
+            expected["source_ids"] = list(dict.fromkeys(source_id for item in scoped if item["id"] in ids for source_id in item["source_ids"]))
+            expected["catalogue_verified"] = True
+            reference["table_context"] = expected

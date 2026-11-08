@@ -2235,3 +2235,84 @@ Les trente essais ont été audités non affectés. Les cas limites passent et
 les limites d’atomicité entre SQLite et fichier restent déclarées.
 **Preuves :** [attestation](reports/enhanced-4b-terminal-fix-2026-11-08.json),
 [bilan](reports/enhanced-4b-results-2026-11-07.md) et journal du 8 novembre.
+
+
+## EV4B-D06 — comparer les révisions réelles et geler le transfert I2 (2026-11-08 UTC)
+
+**Statut :** protocole retenu avant les essais ; résultats à mesurer.
+**Contexte :** la deuxième itération doit corriger les échecs I1 sans faire
+passer la désactivation d'options du nouveau code pour l'ancien comportement.
+**Choix :** référence applicative au commit
+`4356fd0678c1e85a35e1e2eb1aef753a5e8c7806`, checkout isolé, améliorations I1
+actives ; sources I2 gelées séparément ; harnais commun et configuration
+identifiés. Modèle 4B, documents, périmètres et conditions de mesure restent
+contrôlés. Aucun résultat historique n'est réattribué à I2.
+
+Les quinze questions INA226 restent inchangées. Huit nouveaux cas TMP117 sont
+gelés avant sorties natives, avec source officielle hashée et témoins Office
+dérivés, dont un divergent explicitement fictif. Ce transfert est non aveugle,
+et ses documents ne constituent pas quatre familles indépendantes. Les UUID
+restent non résolus jusqu'à l'extraction/indexation réelle ; les résolutions de
+chemins/bindings produisent un manifeste dérivé sans modifier le gel.
+
+**Conséquences :** 23 questions, 46 soumissions primaires, scores par fait et
+scope ; erreurs, refus et répétitions restent visibles. Cible documentaire,
+réception technique et livraison sont distinctes. Les gates manqués ne sont
+pas clos par la rédaction du bilan ; V2.1, D07 et plateformes restent ouverts
+selon leurs recettes. Commit/push sur `enhanced_version` sont déjà autorisés ;
+l'identité exacte et le SHA distant restent à vérifier lors de la publication.
+**Preuve du gel :** annotations SHA-256
+`3eb39fd5b4c722b3389598ddfb11f1b978a5296c5898d670eedb16cc97bea5d0` ;
+[protocole I2](reports/enhanced-4b-iteration2-protocol-2026-11-08.md), sources
+EV4B-I2-S01 à S04 et contrôles de fixtures privés, sans inférence native.
+
+
+## EV4B-D07 — distinguer catalogue applicatif et contexte sérialisé (2026-11-08 UTC)
+
+**Statut :** règle de relecture appliquée ; erratum conservé.
+**Contexte :** la revue TMP117 révèle que des coordonnées et liens d’en-tête
+correctement conservés côté backend ne figurent pas tous dans les références
+textuelles envoyées au modèle. Une ligne dont la cellule NOM/TYP vide a été
+compactée conserve les nombres sans certifier tous leurs rôles de colonne.
+**Choix :** sur une voie LLM, juger `in_context` à partir des messages réellement
+sérialisés et de leurs relations explicites. Le catalogue riche sert à vérifier
+la provenance et le rendu, sans combler rétroactivement un binding absent du
+wire. Sur une voie déterministe, la frontière est le catalogue réellement
+consommé par le traitement. Le statut `covered` du contrat n’est pas un oracle.
+
+**Conséquences :** sept verdicts `in_context` de cinq revues INA226 passent de
+vrai à faux ; dix notes sont clarifiées. Les 27 revues originales restent
+intactes (SHA-256 `f25b16f43a280f6cc9fc188b1500f510baef23d3e49cd5223bbe48cfd36c3d2d`).
+La v2, produite par le même outil d’enregistrement, et l’erratum daté explicitent
+les changements. Oracles, réponses, citations, faux énoncés et refus ne sont
+pas renotés par ce correctif de frontière. Aucun code produit n’est modifié
+pendant la campagne. La sélection backend PSRR 1/3→3/3 est distincte du rappel
+qualifié du texte transmis 0/3→2/3. Une phrase autonome peut établir les bornes
+sans géométrie ; deux nombres dans une ligne ambiguë ne suffisent pas.
+**Preuves :** répertoire privé `reviews/`, erratum
+`ina226-context-erratum-2026-11-08.json`, SHA-256
+`a096eecd0deede4134e72bd48fa7faa4492c878a23d876c3c0124b1e691335b9`,
+et journal du 8 novembre, section de relecture des frontières.
+
+
+**Complément de contrôle de complétude et de diagnostics, 13:11 UTC.** Le
+§6.2 du protocole s’applique aussi au texte final : une citation riche ne
+complète pas une relation de borne absente du rendu. La v3 INA226 corrige les
+deux faits de `pdf_bus_supply` I1 sans toucher aux nombres ni aux sources.
+L’erratum de complétude conserve le diff et la v2, SHA-256
+`69d7932e19820f7e7579ef17124f767e5dc2f48d4c6ee9358847cb37f23ff530`.
+
+Le §6.3 impose de compter les justifications fausses : dans les XLSX INA226
+et TMP117 I1, le préambule affirme que les preuves ne relient pas les bornes,
+unités ou grandeurs, alors que les adresses affichées établissent les trois
+relations. Les faits restent corrects et cités ; le diagnostic applicatif est
+faux et disqualifie la réussite globale. `has_unsupported_claims` reste faux
+pour les assertions documentaires fidèles ; la fausse justification est
+explicitement comptée dans `has_false_claims`. La prudence distincte décrivant
+ce que « les contrôles ne valident pas » n’est pas requalifiée par simple
+analogie. La v4 INA226 conserve v1/v2/v3 et corrige ce seul verdict global ;
+erratum SHA-256 `f5c13268c1bcfc2f5ac2f56a5acf0982e010d20cde28f40e6ed65c5fc799acc5`.
+Le même critère s’applique au DOCX TMP117 I1 dont le préambule identique est
+contredit par les relations présentes dans le contexte : sa correction
+versionnée est conservée dans l’erratum TMP117. Ces corrections de relecture
+ne changent aucun oracle, paramètre, code ou résultat natif.

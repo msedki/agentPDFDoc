@@ -312,8 +312,13 @@ def test_api_search_returns_actual_document_and_page_metadata_without_citations(
         assert app.state.db.one("SELECT count(*) AS n FROM citations")["n"] == 0
 
 
-@pytest.mark.parametrize("loaded,resident,available,expected_release", [(False, False, 5000, True), (False, False, 5888, False), (True, True, 2300, False), (False, True, 5000, False)])
-def test_api_releases_e5_only_for_cold_insufficient_memory(tmp_path, loaded, resident, available, expected_release):
+@pytest.mark.parametrize("loaded,resident,available,expected_release", [
+    (False, False, 5000, True), (False, False, 5888, False),
+    (True, True, 2300, False), (False, True, 5000, True),
+    (True, True, 2000, True), (True, True, 2048, False),
+])
+def test_api_releases_caches_for_the_verified_admission_requirement(tmp_path, loaded, resident, available, expected_release):
+    """La présence seule ne prouve pas la compatibilité ; froid et chaud gardent la réserve hôte."""
     class ControlledEmbedding(FakeEmbedding):
         released = 0
         tokenizers_released = 0
@@ -345,6 +350,13 @@ def test_api_releases_e5_only_for_cold_insufficient_memory(tmp_path, loaded, res
         assert ("embedding_release" in state) is expected_release
         assert bool(embedding.tokenizers_released) is expected_release and bool(tokenizer.released) is expected_release
         assert ("llm_tokenizer_release" in state) is expected_release
+        assert state["resident"] is resident
+        if expected_release:
+            release = state["generation_cache_release"]
+            assert release["reason"] == ("warm_admission_shortfall" if loaded else "cold_admission_shortfall")
+            assert release["required_available_mib"] == (2048 if loaded else 5888)
+            assert release["host_reserve_mib"] == 1536
+            assert release["runtime_resident"] is resident
         assert governor.after_resource_violation == governor.before_ingestion
 
 
@@ -548,9 +560,21 @@ def test_api_ocr_provenance_reaches_sources_citations_and_warnings(tmp_path, arm
             fetched = client.get(f"/api/v1/citations/{query['query_id']}/{citation['source_id']}").json()
             assert fetched["extraction_methods"] == citation["extraction_methods"]
             assert [block["extraction_method"] for block in fetched["blocks"]] == [block["extraction_method"] for block in citation["blocks"]]
-        # Le contexte transmis au modèle ne porte pas la provenance : mêmes champs de preuve qu'avant R26.
-        evidence = [json.loads(line) for line in runtime.requests[-1][-1]["content"].splitlines() if line.startswith("{")]
+        # Les extraits restent sans métadonnées OCR ; leur conteneur porte l'identité documentaire.
+        payloads = [json.loads(line) for line in runtime.requests[-1][-1]["content"].splitlines() if line.startswith("{")]
+        assert len(payloads) == 1 and set(payloads[0]) == {"document_count", "documents"}
+        payload = payloads[0]
+        assert payload["document_count"] == len(payload["documents"]) == 1
+        group = payload["documents"][0]
+        assert set(group) == {"document_id", "document_name", "source_ids", "excerpts"}
+        assert group["document_id"] == imported["document_id"] and group["document_name"] == name
+        evidence = group["excerpts"]
         assert evidence and all(set(item) == {"source_id", "version_id", "pages", "text"} for item in evidence)
+        assert group["source_ids"] == [item["source_id"] for item in evidence]
+        assert set(group["source_ids"]) == {source["source_id"] for source in sources}
+        assert all(item["version_id"] == imported["version_id"] for item in evidence)
+        assert {item["source_id"]: item["text"] for item in evidence} == {
+            source["source_id"]: source["text"] for source in sources}
 
 
 def test_api_citation_recorded_before_r26_reads_unknown_provenance_never_native(tmp_path):

@@ -2,6 +2,50 @@
 
 **Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · Suivi de livraison publié `d3c1518`, distant confirmé · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-13 14:43 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
+## EV4B-I2 — deuxième itération 4B, bilan du 8 novembre 2026 (UTC)
+
+**Objectif :** corriger les relations de preuve et leur rendu, les calculs et les
+refus encore incomplets, puis mesurer le transfert sur une seconde famille.
+**Autorisation :** deuxième itération, essais, commit et push sur la même branche
+`enhanced_version`. **Référence I1 :** `4356fd0678c1e85a35e1e2eb1aef753a5e8c7806`,
+restaurée depuis le bundle conservé ; aucune publication distante n’est déduite
+de cette restauration. **Périmètre :** générateur Qwen3-4B verrouillé, corrections
+génériques ; aucune valeur INA226/TMP117 codée comme règle de réponse.
+
+Le [protocole préalable et la DoD](reports/enhanced-4b-iteration2-protocol-2026-11-08.md)
+restent gelés. Le [bilan I2](reports/enhanced-4b-iteration2-results-2026-11-08.md)
+relie les [46 observations](reports/enhanced-4b-iteration2-cases-2026-11-08.json),
+les [métriques](reports/enhanced-4b-iteration2-quality-2026-11-08.json),
+les [gates exécutés](reports/enhanced-4b-iteration2-validation-2026-11-08.json)
+et les [errata de revue](reports/enhanced-4b-iteration2-review-errata-2026-11-08.json).
+Les deux révisions applicatives réelles sont comparées ; aucun score historique
+n’est réattribué au nouveau code.
+
+**Réception documentaire non acquise.** Les réponses complètes, soutenues et
+sans affirmation fausse passent de 7/20 à 14/20, les refus corrects de 0/3 à 2/3.
+Dix paires progressent, une régresse et douze restent égales sur ce critère
+binaire ; des égalités masquent aussi des réponses partielles devenues erreurs.
+I1 termine 20 réponses avec 3 erreurs, I2 16 avec 7 erreurs. La régression
+`pdf_conversion_codes`, le transfert 4/6 réponses et 1/2 refus, la sérialisation
+incomplète de certains rôles et le zéro OCR maintiennent leurs critères ouverts.
+
+| Action | Objet et critère | État I2 et preuve |
+|---|---|---|
+| EV4B-I2-01 | Référence I1 restaurée et révisions réellement isolées | Réalisé : 1 500 preuves vérifiées, I1 au commit exact, quatre blocs achevés, sources stables ; audit des 46 soumissions PASS. |
+| EV4B-I2-02 | Normaliser les références autorisées sans accepter types, clés ou références étrangères | Réalisé et contrôlé : 182 tests ciblés PASS ; DOCX à consigne intégrée corrigé nativement, sans ajouter de preuve. |
+| EV4B-I2-03 | Relations valeur–unité–rôle–condition et propriété × document jusque dans contexte/rendu | Partiel : catalogue et rendu enrichis, revue AR01–AR08 et tests ciblés passent ; certains bindings ne figurent pas dans le wire, comparaisons I2 en erreur. |
+| EV4B-I2-04 | Calcul explicite et refus limité au scope | Conversions /1000 et ×1000 complètes, deux refus de feuille corrects sans génération ; refus PDF hors page en erreur. Aucun emprunt hors scope observé. |
+| EV4B-I2-05 | Récupération OCR prouvée par image/provenance, ambiguïtés refusées | Non acquis : deux pilotes de quatre appels Tesseract 5.5.0 négatifs ; aucune segmentation/compaction promue, gardes conservés. |
+| EV4B-I2-06 | 15 cas INA226 + 8 cas TMP117 gelés, deux bras, 50 faits par révision | Exécuté : 46/46 soumissions ; 9 documents, PDF partiels déclarés, 30 requêtes 4B capturées, aucune reprise favorable substituée. |
+| EV4B-I2-07 | Gates, relecture des faits/citations, coûts et régressions conservés | Exécuté avec réserves : 3 637 PASS/2 anciens FAIL Python, attentes reproduites sur I1 puis corrigées (HTTP 73 PASS) ; intégration 34 PASS/6 FAIL faute de Tesseract verrouillé/4 SKIP ; frontend 487 tests/build, Mypy (123 fichiers) et Ruff (13 fichiers) PASS. Revues finales INA226 v4/TMP117 v2 ; les comptes ciblés se recouvrent. |
+| EV4B-I2-08 | Bilan, identité exacte, commit et push autorisés, SHA distant vérifié | Sources/tests/bilan prêts dans cette révision ; identité locale exacte vérifiée. Précontrôle Git d’écriture bloqué faute d’identification ; publication distante non attestée, reçu final de commit/push séparé. |
+
+Le transfert reste non aveugle et limité à deux familles ; les témoins Office
+dérivés ne sont pas indépendants. Les corrections de relecture préservent
+leurs versions initiales et les annotations. V2.1, D07, Windows et recette
+graphique restent ouverts selon leurs propres exigences. Sources EV4B-I2-S01
+à S04 et EV4B-I2-E01 ; décisions EV4B-D06/D07 ; journal du 8 novembre.
+
 ## EV4B — amélioration du 4B et qualification, 7–8 novembre 2026 (UTC)
 
 **Objectif :** améliorer la préservation et l'exploitation des preuves avec Qwen3-4B,

@@ -133,6 +133,47 @@ graphique ne sont pas exercés : le runner appelle directement `QueryService`.
 Ces limites restent attachées aux résultats, même si la génération Ollama et les
 composants de recherche ont réellement été exécutés.
 
+## Comparer deux révisions applicatives du 4B
+
+`revision_campaign.py` charge les services depuis `--application-root` avant
+tout import applicatif. Il refuse un mélange de modules provenant de plusieurs
+révisions et exige les quatre mécanismes `enhanced` actifs. Une invocation
+exécute un seul bloc d'une seule révision ; le même fichier de harnais sert aux
+deux révisions. Le [protocole I2](../../RAG_Local_Agents/reports/enhanced-4b-iteration2-protocol-2026-11-08.md)
+définit les questions, les hypothèses et les critères de cette comparaison.
+
+```bash
+.venv/bin/python tools/qualification/revision_campaign.py \
+  --application-root /chemin/du/checkout-iteration1 \
+  --revision-label iteration1 \
+  --profile /chemin/du/profil-commun.yaml \
+  --inputs /chemin/des/entrees-gelees.json \
+  --output .runtime/qa/<nouveau-bloc> \
+  --service-pid <pid-ollama> \
+  --service-pid <pid-qdrant>
+```
+
+Les mêmes options s'appliquent à `--revision-label iteration2`, avec son propre
+checkout. `--case-id` est répétable et limite le bloc aux identifiants connus,
+sans changer leur ordre dans le manifeste. Chaque question conserve sa propre
+conversation. Le dossier de sortie doit être neuf et les services doivent être
+des instances de qualification isolées ; les variables `RAG_DATA_DIR` et
+`RAG_DB_PATH` sont refusées pour empêcher une redirection du stockage. Les
+originaux, extractions PDF et autorisations de publication partielle suivent le
+contrat du harnais précédent. Les chemins E5 doivent aussi correspondre aux
+cibles résolues du verrou d'artefacts du checkout choisi : un profil absolu
+partagé ne dispense pas de ce contrôle d'identité.
+
+Le gel conserve le profil, les entrées, les sources de services, HEAD, le diff,
+l'état Git et le harnais commun. La stabilité des sources est contrôlée à la
+fin du bloc. Une tentative est enregistrée avant la résolution du périmètre ;
+une exception de préparation, d'admission ou de harnais reste dans
+`block-failure.json`, avec l'identifiant de requête lorsqu'il a été obtenu.
+Les erreurs terminales du produit restent des résultats, et aucune nouvelle
+soumission favorable n'est lancée automatiquement. Les résultats demandent
+toujours une revue des faits et citations ; ils ne qualifient ni le transport
+HTTP public, ni l'interface, ni une autre plateforme.
+
 
 ## Inspection et rejeu d'une trace effective — enhanced 4B
 
