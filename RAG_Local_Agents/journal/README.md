@@ -9,7 +9,10 @@ achevée, 30 soumissions / 28 réponses terminées / 2 erreurs ; rendement compl
 4/14 → 9/14 et preuves disponibles 19/33 → 31/33, sur une seule famille.
 Résidence adaptative naturelle observée, évaluateur complété et 40 tests ciblés
 PASS dont 31 recouvrants et 9 nouveaux ; réserves documentaires conservées.
-Publication en cours, à confirmer par son reçu.
+Implémenté et testé avec réserves ; commit de code local `63487f63` sur
+`enhanced_version`, push bloqué techniquement et EV4B-12 ouverte. Les contrôles
+du paquet séparé sont attestés après le commit documentaire dans ses reçus ;
+les motifs du blocage sont consignés au journal.
 
 [Amélioration du 4B, 7 novembre](2026-11-07.md) : branche `enhanced_version`,
 protocole scientifique et DoD EV4B établis avant les essais ; v1 conserve trente

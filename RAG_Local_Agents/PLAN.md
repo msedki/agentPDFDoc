@@ -21,6 +21,13 @@ Les conditions de réception détaillées restent celles de ce protocole. Le
 [bilan actuel](reports/enhanced-4b-results-2026-11-07.md) relie les résultats aux
 preuves et précise les limites ; aucun critère n'est abaissé après observation.
 
+**Livraison au 8 novembre :** améliorations implémentées et testées avec les
+réserves ci-dessous ; commit de code local
+`63487f63b947ada00db180e474d944a5ea3ed810` sur `enhanced_version`, auteur et
+committer `MOHAMED SEDKI <mohamed.sedki@live.fr>`. Le push est bloqué
+techniquement ; les [tentatives](journal/2026-11-08.md#commit-local-et-push-bloqué)
+sont consignées au journal et EV4B-12 reste ouverte.
+
 **État au 8 novembre :** campagne finale achevée, **30 soumissions, 28 `done` et
 2 `error`**. Ces états d'exécution ne sont pas des scores de justesse. La référence
 est instrumentée dans le code courant, avec quinze questions sur une seule famille
@@ -42,7 +49,7 @@ métier, du poste cible ou des plateformes du projet.
 | EV4B-09 | Hypothèse : contexte/KV | 01, 02 | Budget complet et variantes réellement appliquées | [x] **Complet borné** : prompt/sortie/marge contrôlés ; f16/q8_0/q4_0 effectifs à 4 096/8 192, douze générations sur un contexte figé. La saturation des fenêtres et D07 restent non qualifiés. [Matrice native](reports/enhanced-4b-runtime-2026-11-07.md) |
 | EV4B-10 | Hypothèse : résidence et continuité | 02, 09 | Séquences réelles et coûts complets | [ ] **Partiel** : conserver/décharger/adaptative et transitions `/api/ps` exercés ; déchargements adaptatifs naturels observés dans la campagne applicative. Continuité/annulation sur la cible et coût complet non qualifiés ; effet propre du hook de caches non isolé du changement de résidence. [Runtime](reports/enhanced-4b-runtime-2026-11-07.md), [bilan](reports/enhanced-4b-results-2026-11-07.md) |
 | EV4B-11 | Amélioration : protocole/évaluation | 02 | JSONL, dénominateurs, hashes, paires et répétitions | [x] **Complet borné** : annotations et paires vérifiables, inconnus explicites, risque des affirmations fausses incluant les abstentions ; 40 tests ciblés (31 recouvrants, 9 nouveaux). Une famille, aucune incertitude inter-familles ni validation humaine indépendante acquise. [Validation](reports/enhanced-4b-validation-2026-11-07.json), [bilan](reports/enhanced-4b-results-2026-11-07.md) |
-| EV4B-12 | Livraison | 01–11 | Diff, résultats, réserves, commit/push sur branche demandée | [ ] **Publication en attente** : contrôles documentaires finaux, archive privée et reçu de publication à finaliser ; commit local, branche `enhanced_version` et SHA distant à confirmer. Aucun succès de push présumé. |
+| EV4B-12 | Livraison | 01–11 | Diff, résultats, réserves, commit/push sur branche demandée | [ ] **Commit local ; push bloqué** : `63487f63` acquis. HTTPS sans identifiant utilisable, `gh` déconnecté ; identité auteur/committer non garantie par le connecteur ; SSH refusé sur les permissions de configuration. Conservation séparée du code et des preuves selon le bilan §8 ; SHA distant non confirmé. [Détail](journal/2026-11-08.md#commit-local-et-push-bloqué) |
 
 **Points vérifiés et conformes :** cible principale agentPDFDoc ; base distante
 `main` identifiée ; branche locale `enhanced_version` créée ; autorisation de
@@ -68,10 +75,14 @@ rapportés dans leur périmètre réellement mesuré. Ni corpus indépendant, ni
 qualification métier, ni D07, ni nouvelle recette Windows/interface ne sont
 acquis par ce lot. Les résultats historiques ne sont pas réattribués à la révision.
 
-**Prochaine action :** terminer la consolidation documentaire et la conservation
-des preuves, puis publier le code sur la branche autorisée et vérifier le SHA
-distant. Les critères partiels restent ouverts avec leurs limites, même après
-livraison des améliorations et des résultats.
+**Prochaine action de publication :** reprendre le push autorisé avec une
+authentification Git utilisable et l'identité exigée, puis vérifier le SHA
+distant. Les autres critères restent inchangés. La clôture documentaire précède
+la construction du paquet séparé `Enhanced_version_4B_preuves_2026-11-08.zip` :
+son manifeste et `.runtime/qa/enhanced-4b/publication/publication-blocked.json`
+attestent les contrôles effectivement réalisés sur le bundle autonome et les
+preuves. La confirmation de conservation est fournie au compte rendu de livraison ;
+elle ne vaut pas publication GitHub.
 
 ## R28 — étude de l'extension DOCX/XLSX avant implémentation
 

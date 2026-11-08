@@ -1,6 +1,6 @@
 # EV4B — implémentation, essais et limites
 
-**Rôle :** bilan de livraison du chantier 4B · **Propriétaire :** intégration EV4B · **Statut :** résultats consolidés, publication en cours ; qualification documentaire partielle · **Dates :** 7–8 novembre 2026, UTC · **Référence :** base `59d47e98a47fc652b5506727673b6b477c92eb9d`, branche `enhanced_version` · **Source de vérité :** ce bilan pour la synthèse ; [protocole](enhanced-4b-protocol-2026-11-07.md) pour les critères ; traces et jugements individuels pour les observations.
+**Rôle :** bilan de livraison du chantier 4B · **Propriétaire :** intégration EV4B · **Statut :** implémenté et testé avec réserves, commit local acquis, push bloqué ; qualification documentaire partielle · **Dates :** 7–8 novembre 2026, UTC · **Référence :** base `59d47e98a47fc652b5506727673b6b477c92eb9d`, branche `enhanced_version`, commit de code local `63487f63b947ada00db180e474d944a5ea3ed810` · **Source de vérité :** ce bilan pour la synthèse ; [protocole](enhanced-4b-protocol-2026-11-07.md) pour les critères ; traces et jugements individuels pour les observations.
 
 ## 1. Objectif et périmètre livré
 
@@ -359,8 +359,8 @@ entre leur SQLite, leur artefact et leur trace, et aucune annulation demandée.
 Les scores restent donc attribués au snapshot qui les a produits. **Aucune
 nouvelle inférence native n'a été effectuée après ce correctif de trace.**
 L'[attestation du delta](enhanced-4b-terminal-fix-2026-11-08.json) conserve les
-empreintes avant/après et les preuves de validation ; l'archive conserve aussi
-les 75 sources réellement expérimentées. Le code livré diffère explicitement
+empreintes avant/après et les preuves de validation ; l'archive prévue contiendra
+aussi les 75 sources réellement expérimentées. Le code livré diffère explicitement
 de ce snapshot par ce seul correctif applicatif.
 
 ## 7. Definition of Done et réserves
@@ -383,7 +383,7 @@ acquise ; il n'est pas coché pour obtenir une clôture artificielle.
 | EV4B-09 — contexte/KV | **Complet dans le périmètre testé** | Budgets contrôlés et six cellules runtime réellement exécutées ; aucune clôture D07 de qualité sur la cible |
 | EV4B-10 — résidence | **Partiel** | Trois politiques et déchargements naturels vérifiés ; activité mixte/annulation sur cible non qualifiées et gain propre du hook cache non isolé |
 | EV4B-11 — évaluation | **Complet pour l'outil et le protocole** | Trente jugements reliés aux preuves, erreurs/dénominateurs/révisions conservés ; aucune validation externe ou intervalle non estimable fabriqué |
-| EV4B-12 — publication | **En cours** | Diff et contrôles documentaires à clôturer, puis SHA distant et conservation durable à vérifier |
+| EV4B-12 — publication | **Ouvert : commit local, push bloqué** | `63487f63` acquis ; HTTPS sans identifiant utilisable, identité auteur/committer non garantie par le connecteur, SSH refusé sur les permissions de configuration. Conservation séparée selon le §8 ; SHA distant non confirmé |
 <!-- DOD_RESULTS_END -->
 
 Les conclusions sont bornées aux cinq fichiers et à l'hôte effectivement
@@ -414,5 +414,18 @@ originaux nécessaires, extractions, logs, mesures et scripts de consolidation.
 Les modèles, binaires et index volumineux ne sont pas ajoutés à Git. Les sources
 réutilisables, rapports compacts et empreintes y sont versionnés.
 
-La publication et le SHA distant sont rapportés après vérification dans le
-compte rendu de livraison ; aucun succès de push n'est présumé dans ce document.
+Le commit de code local `63487f63b947ada00db180e474d944a5ea3ed810` est acquis
+sur `enhanced_version` avec l'identité auteur/committer exigée. Le push est
+bloqué techniquement ; les motifs HTTPS, connecteur et SSH sont détaillés au
+[journal](../journal/2026-11-08.md#commit-local-et-push-bloqué) et dans
+`.runtime/qa/enhanced-4b/publication/publication-attempts.json`.
+Aucun commit API ni aucune modification de branche distante n'ont été effectués.
+
+Le mode de conservation est un paquet séparé,
+`Enhanced_version_4B_preuves_2026-11-08.zip`, avec bundle Git autonome de clôture,
+manifestes SHA et preuves privées. Ce commit documentaire précède sa construction :
+le manifeste de l'archive et le reçu
+`.runtime/qa/enhanced-4b/publication/publication-blocked.json` portent les contrôles
+effectivement réalisés. La confirmation de conservation est fournie au compte
+rendu de livraison. L'archive reste hors du push Git et ne vaut pas publication.
+EV4B-12 reste ouverte ; les autres résultats et critères demeurent inchangés.
