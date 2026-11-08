@@ -32,7 +32,7 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
   **0/2 réponses complètes et 1/4 relation demandée par bras**, sur extraction
   `ready_partial` limitée à la page d'index 0 ; OCR non qualifié. I3-D04 garde
   une réserve de communication, I3-D08 n'est pas atteint, DoD globale ouverte.
-  Publication du lot attendue, aucun SHA distant supposé.
+  Commit technique [fdc51187](https://github.com/msedki/agentPDFDoc/commit/fdc51187aabbdfd16e561dc32c50ac1c107e15bc) publié et arbre distant vérifié ; reçu conservé.
   [Bilan](RAG_Local_Agents/reports/grounded-4b-results-2026-11-08.md),
   [protocole](RAG_Local_Agents/reports/grounded-4b-protocol-2026-11-08.md),
   [reproduction](RAG_Local_Agents/reports/grounded-4b-reproduce-2026-11-08.md).

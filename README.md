@@ -83,8 +83,10 @@ globale reste ouverte.** Le
 le [protocole préalable](RAG_Local_Agents/reports/grounded-4b-protocol-2026-11-08.md)
 et les [commandes de reproduction](RAG_Local_Agents/reports/grounded-4b-reproduce-2026-11-08.md)
 distinguent contrôles logiciels, mesures avec doubles, exécution native et
-recette cible. Le lot est préparé pour publication sur `enhanced_version` ;
-la confirmation distante et son SHA ne sont pas anticipés ici.
+recette cible. Le commit technique [fdc51187](https://github.com/msedki/agentPDFDoc/commit/fdc51187aabbdfd16e561dc32c50ac1c107e15bc) est publié sur
+`enhanced_version`, avec arbre distant identique et mise à jour sans force. Le
+[reçu de publication](RAG_Local_Agents/reports/grounded-4b-publication-2026-11-08.json)
+conserve le contrôle et la correspondance avec le commit local d’origine.
 
 ## Deuxième itération 4B — 8 novembre 2026
 

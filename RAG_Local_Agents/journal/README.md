@@ -4,6 +4,10 @@
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
+[Publication technique I3 vérifiée](2026-11-08.md#i3--publication-technique-vérifiée) :
+commit [fdc51187](https://github.com/msedki/agentPDFDoc/commit/fdc51187aabbdfd16e561dc32c50ac1c107e15bc), arbre identique et publication sans force ;
+[reçu](../reports/grounded-4b-publication-2026-11-08.json). Les réserves D04/D08 restent ouvertes.
+
 [I3 — relecture finale et reprises natives](2026-11-08.md#i3--relecture-finale-et-reprises-natives) :
 relecture par agent non aveugle 9/12 → 11/12 réponses complètes sans réserve
 injustifiée ; score automatique 9/12 → 12/12 conservé, faux positif P01 explicité.

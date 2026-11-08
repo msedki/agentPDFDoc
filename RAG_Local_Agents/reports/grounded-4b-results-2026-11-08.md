@@ -404,7 +404,7 @@ ou le simple fait de citer un document en réussite de la réponse.
 | I3-D06 — reproductibilité | **Atteint avec conditions explicites** | Deux révisions, corpus figé, poids et paramètres verrouillés, snapshots stables, traces et hashes. Ressources/caches différents, doubles séparés et reprise distincte ; aucune promesse de performance générale. |
 | I3-D07 — non-régression | **Exécuté avec réserves préexistantes** | 3 801 PASS, cinq mêmes FAIL ; intégrations et contrôles statiques exécutés. OCR, acceptance, slow, Windows et cible physique non couverts. |
 | I3-D08 — essais natifs | **Non atteint** | Trois erreurs primaires, disponibilité Office en baisse et deux réponses PDF incomplètes. La reprise ne remplace pas ces résultats. |
-| I3-D09 — livraison | **À vérifier lors de la publication** | Documentation et commandes préparées ; commit, mise à jour sans force et égalité de l'arbre distant à constater dans le reçu de livraison. |
+| I3-D09 — livraison | **Atteint pour la livraison technique** | Commit [fdc51187](https://github.com/msedki/agentPDFDoc/commit/fdc51187aabbdfd16e561dc32c50ac1c107e15bc) publié sans force sur `enhanced_version` ; parent, SHA et arbre distant vérifiés identiques à la livraison locale. [Reçu et identités](grounded-4b-publication-2026-11-08.json). |
 
 **La DoD I3 complète n'est pas atteinte.** Le lot apporte des mécanismes vérifiés
 et des gains mesurés dans leur périmètre ; il ne constitue pas une réception

@@ -8,7 +8,7 @@
 **Référence :** `3956491a2d7f1f16cefebfe79e92c638b6662c10` ; branche `enhanced_version`.
 **Exclusions :** autre générateur, changement de poids, qualification Windows ou sémantique générale présumée.
 **Critères préalables :** [protocole et DoD I3](reports/grounded-4b-protocol-2026-11-08.md).
-**État :** implémentation et essais terminés avec réserves ; publication autorisée, dernière étape en cours.
+**État :** implémentation et essais terminés avec réserves ; commit technique [fdc51187](https://github.com/msedki/agentPDFDoc/commit/fdc51187aabbdfd16e561dc32c50ac1c107e15bc) publié et arbre distant vérifié. Le présent suivi clôt la livraison documentaire.
 
 | Action | Dépendances, livrable et acceptation | État et preuve |
 |---|---|---|
@@ -17,13 +17,13 @@
 | I3-03 | Registre et contrôles de relations/rendu ; I3-D01/D02/D05 | Réalisé dans les contrôles bornés : pré/post-registres, plans par IDs, conditions/négations/conflits, calculs et blocage des altérations. |
 | I3-04 | Intégration, identité 4B, erreurs bornées ; I3-D06/D08 | Implémenté : manifeste 4.0B/qwen3/Q4_K_M vérifié à froid/chaud ; natif réel exécuté, mais I3-D08 non atteint. |
 | I3-05 | Matrice appariée, non-régression, coûts et limites ; I3-D04/D07/D08 | Exécuté : relecture stricte 9/12 → 11/12 positifs, 15/18 → 18/18 limites, cinq gains et zéro régression contrôlée. Portable 3 801 PASS/cinq FAIL préexistants. Office primaire 5/8 stricts, disponibilité 8/8 → 5/8 ; reprise distincte 2/3 stricts. PDF 0/2 complets dans les deux bras. |
-| I3-06 | Bilan, commit et push vérifiés ; I3-D09 | Documentation et preuves préparées ; contrôles documentaires puis publication sans force via le connecteur demandé, à constater au reçu. |
+| I3-06 | Bilan, commit et push vérifiés ; I3-D09 | Livré : [fdc51187](https://github.com/msedki/agentPDFDoc/commit/fdc51187aabbdfd16e561dc32c50ac1c107e15bc), arbre `715cad621c8ca34ca046061200b9d7d0abb19c6e` identique, mise à jour sans force et GET/fetch vérifiés ; [reçu](reports/grounded-4b-publication-2026-11-08.json). Pack et brief PASS. |
 
 **Points vérifiés :** seulement le 4B génératif verrouillé a été utilisé ; source stable dans chaque bras, mêmes originaux et paramètres, plans adverses non publiés, calculs tracés, reprises séparées. Le score automatique 12/12 C2 garde un faux positif P01 et n’est pas le verdict final.
 
 **Points ouverts :** I3-D04 partiel (réserve P01 inutile), I3-D08 non atteint (trois erreurs d’admission primaires et réponses PDF incomplètes), OCR réel et cible physique non qualifiés. Les trois relations PDF manquantes existent dans l’extraction mais sont perdues dans recherche/sélection ; pistes structurelles et allocation par propriété restent différées avec critères au bilan. Aucun arbitrage de modèle supplémentaire n’est demandé.
 
-**Preuves et reprise :** [bilan et DoD](reports/grounded-4b-results-2026-11-08.md), [relecture des sorties](reports/grounded-4b-output-review-2026-11-08.json), [campagnes natives](reports/grounded-4b-native-2026-11-08.json), [gates](reports/grounded-4b-validation-2026-11-08.json) et [commandes](reports/grounded-4b-reproduce-2026-11-08.md). Prochaine action autorisée : vérifier le pack, publier l’arbre exact et contrôler le SHA distant. Les pistes de qualification restent ouvertes après cette livraison.
+**Preuves et reprise :** [bilan et DoD](reports/grounded-4b-results-2026-11-08.md), [relecture des sorties](reports/grounded-4b-output-review-2026-11-08.json), [campagnes natives](reports/grounded-4b-native-2026-11-08.json), [gates](reports/grounded-4b-validation-2026-11-08.json) et [commandes](reports/grounded-4b-reproduce-2026-11-08.md). Livraison technique publiée et vérifiée ; le présent reçu documentaire est ajouté à la même branche. Les pistes de qualification restent ouvertes après cette livraison, sans gain supposé ni essai supplémentaire attribué au code.
 
 ## Publication GitHub confirmée — 8 novembre 2026
 
