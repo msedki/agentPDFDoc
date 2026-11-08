@@ -1,6 +1,6 @@
 # EV4B — implémentation, essais et limites
 
-**Rôle :** bilan de livraison du chantier 4B · **Propriétaire :** intégration EV4B · **Statut :** implémenté et testé avec réserves, commit local acquis, push bloqué ; qualification documentaire partielle · **Dates :** 7–8 novembre 2026, UTC · **Référence :** base `59d47e98a47fc652b5506727673b6b477c92eb9d`, branche `enhanced_version`, commit de code local `63487f63b947ada00db180e474d944a5ea3ed810` · **Source de vérité :** ce bilan pour la synthèse ; [protocole](enhanced-4b-protocol-2026-11-07.md) pour les critères ; traces et jugements individuels pour les observations.
+**Rôle :** bilan de livraison du chantier 4B · **Propriétaire :** intégration EV4B · **Statut :** implémenté, testé avec réserves et publié via le connecteur ; qualification documentaire partielle · **Dates :** 7–8 novembre 2026, UTC · **Référence :** base `59d47e98a47fc652b5506727673b6b477c92eb9d`, branche `enhanced_version`, commit de code local `63487f63b947ada00db180e474d944a5ea3ed810` · **Source de vérité :** ce bilan pour la synthèse ; [protocole](enhanced-4b-protocol-2026-11-07.md) pour les critères ; traces et jugements individuels pour les observations.
 
 ## 1. Objectif et périmètre livré
 
@@ -383,7 +383,7 @@ acquise ; il n'est pas coché pour obtenir une clôture artificielle.
 | EV4B-09 — contexte/KV | **Complet dans le périmètre testé** | Budgets contrôlés et six cellules runtime réellement exécutées ; aucune clôture D07 de qualité sur la cible |
 | EV4B-10 — résidence | **Partiel** | Trois politiques et déchargements naturels vérifiés ; activité mixte/annulation sur cible non qualifiées et gain propre du hook cache non isolé |
 | EV4B-11 — évaluation | **Complet pour l'outil et le protocole** | Trente jugements reliés aux preuves, erreurs/dénominateurs/révisions conservés ; aucune validation externe ou intervalle non estimable fabriqué |
-| EV4B-12 — publication | **Ouvert : commit local, push bloqué** | `63487f63` acquis ; HTTPS sans identifiant utilisable, identité auteur/committer non garantie par le connecteur, SSH refusé sur les permissions de configuration. Conservation séparée selon le §8 ; SHA distant non confirmé |
+| EV4B-12 — publication | **Publié** | I1 sous `be9378d3` puis `42c8444c`, arbres identiques aux commits locaux ; [reçu vérifié](enhanced-4b-publication-2026-11-08.json). Les blocages initiaux du §8 sont historiques. |
 <!-- DOD_RESULTS_END -->
 
 Les conclusions sont bornées aux cinq fichiers et à l'hôte effectivement
@@ -428,4 +428,8 @@ le manifeste de l'archive et le reçu
 `.runtime/qa/enhanced-4b/publication/publication-blocked.json` portent les contrôles
 effectivement réalisés. La confirmation de conservation est fournie au compte
 rendu de livraison. L'archive reste hors du push Git et ne vaut pas publication.
-EV4B-12 reste ouverte ; les autres résultats et critères demeurent inchangés.
+Cette description conserve l’état avant publication. Le 8 novembre, la demande
+renouvelée d’utiliser le connecteur a permis de publier I1 puis I2 sur
+`enhanced_version` ; le [reçu](enhanced-4b-publication-2026-11-08.json) confirme
+les trois arbres exacts et les métadonnées du compte `msedki`. EV4B-12 est
+clôturée pour cette publication ; les autres résultats et critères restent inchangés.

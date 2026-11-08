@@ -1832,6 +1832,17 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 **Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · Suivi de livraison publié `d3c1518`, distant confirmé · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-13 14:43 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
+## Publication GitHub confirmée — 8 novembre 2026
+
+Les deux itérations sont publiées sur [`enhanced_version`](https://github.com/msedki/agentPDFDoc/tree/enhanced_version).
+Le commit technique I2 est [`3cfc004a`](https://github.com/msedki/agentPDFDoc/commit/3cfc004a30baf655a78f9927d92d8f608381c812).
+Les trois arbres complets sont identiques aux commits locaux d’origine ; le
+[reçu de publication](reports/enhanced-4b-publication-2026-11-08.json) conserve
+les correspondances et le contrôle distant. La demande renouvelée de publier
+via le connecteur est exécutée avec le compte `msedki` et ses métadonnées GitHub.
+Les commits locaux d’origine sont conservés. Les anciens blocages ci-dessous
+restent historiques ; les réserves de qualification documentaire restent ouvertes.
+
 ## EV4B-I2 — deuxième itération 4B, bilan du 8 novembre 2026 (UTC)
 
 **Objectif :** corriger les relations de preuve et leur rendu, les calculs et les
@@ -1868,7 +1879,7 @@ incomplète de certains rôles et le zéro OCR maintiennent leurs critères ouve
 | EV4B-I2-05 | Récupération OCR prouvée par image/provenance, ambiguïtés refusées | Non acquis : deux pilotes de quatre appels Tesseract 5.5.0 négatifs ; aucune segmentation/compaction promue, gardes conservés. |
 | EV4B-I2-06 | 15 cas INA226 + 8 cas TMP117 gelés, deux bras, 50 faits par révision | Exécuté : 46/46 soumissions ; 9 documents, PDF partiels déclarés, 30 requêtes 4B capturées, aucune reprise favorable substituée. |
 | EV4B-I2-07 | Gates, relecture des faits/citations, coûts et régressions conservés | Exécuté avec réserves : 3 637 PASS/2 anciens FAIL Python, attentes reproduites sur I1 puis corrigées (HTTP 73 PASS) ; intégration 34 PASS/6 FAIL faute de Tesseract verrouillé/4 SKIP ; frontend 487 tests/build, Mypy (123 fichiers) et Ruff (13 fichiers) PASS. Revues finales INA226 v4/TMP117 v2 ; les comptes ciblés se recouvrent. |
-| EV4B-I2-08 | Bilan, identité exacte, commit et push autorisés, SHA distant vérifié | Sources/tests/bilan prêts dans cette révision ; identité locale exacte vérifiée. Précontrôle Git d’écriture bloqué faute d’identification ; publication distante non attestée, reçu final de commit/push séparé. |
+| EV4B-I2-08 | Bilan, publication autorisée et vérification des identités, contenus et SHA distants | Publié via le connecteur demandé : `3cfc004a`, arbre I2 exact. Compte auteur/committer GitHub `msedki`, métadonnées locales d’origine conservées ; [correspondances et preuve](reports/enhanced-4b-publication-2026-11-08.json). |
 
 Le transfert reste non aveugle et limité à deux familles ; les témoins Office
 dérivés ne sont pas indépendants. Les corrections de relecture préservent
@@ -1895,7 +1906,7 @@ Les conditions de réception détaillées restent celles de ce protocole. Le
 [bilan actuel](reports/enhanced-4b-results-2026-11-07.md) relie les résultats aux
 preuves et précise les limites ; aucun critère n'est abaissé après observation.
 
-**Livraison au 8 novembre :** améliorations implémentées et testées avec les
+**Historique de la livraison avant publication par connecteur :** améliorations implémentées et testées avec les
 réserves ci-dessous ; commit de code local
 `63487f63b947ada00db180e474d944a5ea3ed810` sur `enhanced_version`, auteur et
 committer `MOHAMED SEDKI <mohamed.sedki@live.fr>`. Le push est bloqué
@@ -1923,7 +1934,7 @@ métier, du poste cible ou des plateformes du projet.
 | EV4B-09 | Hypothèse : contexte/KV | 01, 02 | Budget complet et variantes réellement appliquées | [x] **Complet borné** : prompt/sortie/marge contrôlés ; f16/q8_0/q4_0 effectifs à 4 096/8 192, douze générations sur un contexte figé. La saturation des fenêtres et D07 restent non qualifiés. [Matrice native](reports/enhanced-4b-runtime-2026-11-07.md) |
 | EV4B-10 | Hypothèse : résidence et continuité | 02, 09 | Séquences réelles et coûts complets | [ ] **Partiel** : conserver/décharger/adaptative et transitions `/api/ps` exercés ; déchargements adaptatifs naturels observés dans la campagne applicative. Continuité/annulation sur la cible et coût complet non qualifiés ; effet propre du hook de caches non isolé du changement de résidence. [Runtime](reports/enhanced-4b-runtime-2026-11-07.md), [bilan](reports/enhanced-4b-results-2026-11-07.md) |
 | EV4B-11 | Amélioration : protocole/évaluation | 02 | JSONL, dénominateurs, hashes, paires et répétitions | [x] **Complet borné** : annotations et paires vérifiables, inconnus explicites, risque des affirmations fausses incluant les abstentions ; 40 tests ciblés (31 recouvrants, 9 nouveaux). Une famille, aucune incertitude inter-familles ni validation humaine indépendante acquise. [Validation](reports/enhanced-4b-validation-2026-11-07.json), [bilan](reports/enhanced-4b-results-2026-11-07.md) |
-| EV4B-12 | Livraison | 01–11 | Diff, résultats, réserves, commit/push sur branche demandée | [ ] **Commit local ; push bloqué** : `63487f63` acquis. HTTPS sans identifiant utilisable, `gh` déconnecté ; identité auteur/committer non garantie par le connecteur ; SSH refusé sur les permissions de configuration. Conservation séparée du code et des preuves selon le bilan §8 ; SHA distant non confirmé. [Détail](journal/2026-11-08.md#commit-local-et-push-bloqué) |
+| EV4B-12 | Livraison | 01–11 | Diff, résultats, réserves, commit/push sur branche demandée | [x] **Publication acquise** : I1 publié sous `be9378d3` puis `42c8444c`, I2 sous `3cfc004a` ; trois arbres exacts et référence distante vérifiés. Conservation des preuves I1 attestée séparément ; réserves métier inchangées. [Reçu](reports/enhanced-4b-publication-2026-11-08.json). |
 
 **Points vérifiés et conformes :** cible principale agentPDFDoc ; base distante
 `main` identifiée ; branche locale `enhanced_version` créée ; autorisation de
@@ -1949,9 +1960,9 @@ rapportés dans leur périmètre réellement mesuré. Ni corpus indépendant, ni
 qualification métier, ni D07, ni nouvelle recette Windows/interface ne sont
 acquis par ce lot. Les résultats historiques ne sont pas réattribués à la révision.
 
-**Prochaine action de publication :** reprendre le push autorisé avec une
-authentification Git utilisable et l'identité exigée, puis vérifier le SHA
-distant. Les autres critères restent inchangés. La clôture documentaire précède
+**Blocage de publication résolu :** le connecteur du compte autorisé a publié
+les commits et le SHA distant a été vérifié. Le reçu en tête de ce plan
+remplace l’ancien point de reprise ; les autres critères restent inchangés. La clôture documentaire précède
 la construction du paquet séparé `Enhanced_version_4B_preuves_2026-11-08.zip` :
 son manifeste et `.runtime/qa/enhanced-4b/publication/publication-blocked.json`
 attestent les contrôles effectivement réalisés sur le bundle autonome et les

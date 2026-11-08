@@ -4,20 +4,21 @@
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
-[Deuxième itération du 4B, 8 novembre](2026-11-08.md#deuxième-itération--restauration-et-protocole-10441120-utc) :
-restauration vérifiée de I1, deuxième famille TMP117 et protocole gelé de
-23 questions ; révisions réellement distinctes, cas limites reproduits et
-campagne native en cours. Les résultats I1 ci-dessous restent historiques.
+[Publication GitHub du 8 novembre](2026-11-08.md#publication-github-par-le-connecteur-du-compte-autorisé) :
+I1 et I2 publiées sur `enhanced_version`, dernier commit technique `3cfc004a` ;
+les trois arbres complets correspondent aux versions locales, contrôle distant
+et revue indépendante conformes. Métadonnées du compte connecté `msedki` ;
+commits locaux originaux conservés. Les échecs scientifiques restent documentés.
 
-[Poursuite et résultats du 4B, 8 novembre](2026-11-08.md) : campagne finale
-achevée, 30 soumissions / 28 réponses terminées / 2 erreurs ; rendement complet
-4/14 → 9/14 et preuves disponibles 19/33 → 31/33, sur une seule famille.
-Résidence adaptative naturelle observée, évaluateur complété et 40 tests ciblés
-PASS dont 31 recouvrants et 9 nouveaux ; réserves documentaires conservées.
-Implémenté et testé avec réserves ; commit de code local `63487f63` sur
-`enhanced_version`, push bloqué techniquement et EV4B-12 ouverte. Les contrôles
-du paquet séparé sont attestés après le commit documentaire dans ses reçus ;
-les motifs du blocage sont consignés au journal.
+[Deuxième itération du 4B, 8 novembre](2026-11-08.md#deuxième-itération--restauration-et-protocole-10441120-utc) :
+46 soumissions sur 23 questions, deux révisions réelles et deux familles ;
+7/20 → 14/20 réponses complètes et soutenues, 0/3 → 2/3 refus corrects.
+Une régression documentaire et sept erreurs I2 maintiennent la réception ouverte.
+
+[Poursuite et résultats de la première itération](2026-11-08.md) :
+30 soumissions, 28 réponses terminées et deux erreurs ; 4/14 → 9/14 réponses
+complètes et soutenues. Résultats et preuves I1 conservés, sans réattribution à I2.
+Les tentatives de publication initiales restent au journal comme historique.
 
 [Amélioration du 4B, 7 novembre](2026-11-07.md) : branche `enhanced_version`,
 protocole scientifique et DoD EV4B établis avant les essais ; v1 conserve trente

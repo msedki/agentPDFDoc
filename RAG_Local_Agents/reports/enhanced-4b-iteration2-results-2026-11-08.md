@@ -313,7 +313,7 @@ indépendantes ni une ingestion complète Docling/OCR.
 | OCR : zéro établi par image et provenance | Deux pilotes négatifs, aucune promotion | Ouvert |
 | Intégration OCR verrouillée | Six échecs TESSERACT_UNAVAILABLE | Non validée sur cet hôte |
 | Traçabilité des 46 soumissions | Audit mécanique + revues explicites ; échecs conservés | Acquis |
-| Publication Git | Voir reçu de livraison et journal | Ne vaut pas une confirmation de SHA distant |
+| Publication Git | `3cfc004a` sur `enhanced_version`, arbre exact de I2 ; [reçu](enhanced-4b-publication-2026-11-08.json) | Acquise via le connecteur du compte demandé |
 
 Les pistes restantes portent sur la réduction du coût du contexte sans perte de relations, la restitution native des comparaisons, la clarté des préambules partiels et l'OCR réellement discriminant. Toute nouvelle variante devra recevoir son propre gel et sa comparaison ; les présents scores ne seront pas transférés à un correctif ultérieur. Aucun seuil ni délai n'a été relevé pour transformer ces échecs en succès.
 
@@ -342,11 +342,13 @@ Empreintes de liaison :
 - Revue TMP117 v2 : `dbd16b30a290ca849bd1407f92546fd2c78aa4ad8c70eeb6e8408c9e2c2bef8a`.
 - Audit final des 46 soumissions : `829a513fedd5b35805bd108e9dc6b89e59fe45e23d33195e87bd4621bc08e8c6`.
 
-La livraison conserve la branche `enhanced_version`, son ascendance I1 et
-l’identité auteur/committer `MOHAMED SEDKI <mohamed.sedki@live.fr>`. Aucun
-force-push ni remplacement de l’historique n’est prévu. Le client Git local
-échouait au précontrôle d’écriture faute d’identification ; l’autorisation
-utilisateur du commit et du push est acquise. Ce rapport ne prétend pas
-attester un SHA distant : le reçu Git final consignera le commit créé, la
-tentative réelle de push et la lecture de la référence distante. Un dépôt
-public reste soumis à l’authentification pour l’écriture.
+La publication est acquise sur `enhanced_version` via le connecteur du compte
+`msedki`, conformément à la demande renouvelée du 8 novembre. Le commit distant
+I2 est `3cfc004a30baf655a78f9927d92d8f608381c812`, arbre
+`3496b8d87b54a2fe6c88b5a03346e6fe9be8934e`, exactement égal au commit local
+`852ce436`. Les deux commits I1 sont également publiés avec des arbres identiques.
+Les nouveaux SHA et les métadonnées du compte connecté sont explicités dans le
+[reçu](enhanced-4b-publication-2026-11-08.json). Les commits locaux portant
+l’identité d’origine sont conservés ; aucun force-push distant ni changement
+applicatif n’accompagne cette publication. Les limites expérimentales et les
+échecs ci-dessus restent inchangés.
