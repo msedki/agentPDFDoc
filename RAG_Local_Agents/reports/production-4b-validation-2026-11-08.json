@@ -1,0 +1,2476 @@
+{
+  "schema_version": "production-4b-I4-validation-v1",
+  "generated_utc": "2026-11-08T19:21:27.890187+00:00",
+  "status": "VERIFICATION_COMPLETE_QUALIFICATION_FAILED_PUBLICATION_PENDING",
+  "production_readiness": "NOT_READY_REQUIRED_GATE_FAILED",
+  "scope": "Public compact aggregation of observed development and paired native evidence; no raw logs, full answers, questions/oracles or original documents.",
+  "reference_commit": "fa3eabce5ab0c309b1ca8f01602fced2eb7f1dd8",
+  "candidate_commit": null,
+  "protocol": {
+    "path": "RAG_Local_Agents/reports/production-4b-protocol-2026-11-08.md",
+    "sha256": "7ae9c5a2c583bc05a5a652b2afbe7f1921f62ba55162d865316d3a62e656f3de",
+    "criteria_changed": false
+  },
+  "model": {
+    "generator_count": 1,
+    "name": "qwen3-4b-enhanced:q4km",
+    "family": "Qwen3",
+    "parameters": "4B",
+    "quantization": "Q4_K_M",
+    "gguf_sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
+    "ollama": "0.35.0",
+    "native_accelerator": "cpu"
+  },
+  "pre_freeze_gates": {
+    "portable": {
+      "passed": 4085,
+      "skipped": 25,
+      "deselected": 45,
+      "seconds": 499.01
+    },
+    "integration_non_ocr_non_slow": {
+      "passed": 27,
+      "skipped": 3,
+      "deselected": 93,
+      "seconds": 21.59
+    },
+    "typing_regression": {
+      "passed": 91,
+      "seconds": 7.73
+    },
+    "mypy": {
+      "passed": true,
+      "files": 134,
+      "initial_typing_errors": 6
+    },
+    "ruff": {
+      "passed": true,
+      "scope": [
+        "services",
+        "tests",
+        "tools"
+      ]
+    },
+    "final_list_subject_delta": {
+      "targeted_passed": 284,
+      "seconds": 9.58,
+      "mypy_files_passed": 134,
+      "ruff_scope": [
+        "services",
+        "tests",
+        "tools"
+      ],
+      "full_portable_rerun_before_freeze": false
+    }
+  },
+  "junit_summaries": {
+    "portable-final.xml": {
+      "tests": 4064,
+      "failures": 15,
+      "errors": 0,
+      "skipped": 25,
+      "passed": 4024,
+      "junit_seconds": 549.397
+    },
+    "portable-external.xml": {
+      "tests": 4110,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 25,
+      "passed": 4085,
+      "junit_seconds": 498.734
+    },
+    "integration-final.xml": {
+      "tests": 30,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 3,
+      "passed": 27,
+      "junit_seconds": 21.572
+    },
+    "typing-regression.xml": {
+      "tests": 91,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 91,
+      "junit_seconds": 7.691
+    },
+    "ocr-baseline.xml": {
+      "tests": 8,
+      "failures": 5,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 3,
+      "junit_seconds": 150.85
+    },
+    "ocr-candidate.xml": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 8,
+      "junit_seconds": 178.74
+    },
+    "operational-fixture-fixed.xml": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 9,
+      "junit_seconds": 8.459
+    },
+    "harness-reviewed.xml": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 8,
+      "junit_seconds": 0.883
+    },
+    "trace-compaction-before.xml": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 0,
+      "junit_seconds": 0.618
+    },
+    "trace-compaction-final.xml": {
+      "tests": 121,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 121,
+      "junit_seconds": 4.803
+    },
+    "list-subject-before.xml": {
+      "tests": 20,
+      "failures": 12,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 8,
+      "junit_seconds": 3.477
+    },
+    "list-subject-after.xml": {
+      "tests": 284,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 284,
+      "junit_seconds": 9.57
+    },
+    "portable-frozen-final.xml": {
+      "tests": 4130,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 25,
+      "passed": 4105,
+      "junit_seconds": 577.583
+    }
+  },
+  "controlled": {
+    "execution_kind": "real native Office extraction,SQLite,FTS,application contracts with named embedding/vector/tokenizer/generator doubles; no native4B or OCR",
+    "review_kind": "independent non-blind agent review, not human or blinded",
+    "baseline_automatic_positive": 12,
+    "baseline_strict": {
+      "positive_pass": 11,
+      "positive_total": 12,
+      "limit_pass": 18,
+      "limit_total": 18,
+      "strict_pass": 29,
+      "total": 30,
+      "positive_documentary_completeness": 12,
+      "unjustified_positive_reservations": 1,
+      "positive_total_refusals": 0,
+      "done": 27,
+      "expected_terminal_errors": 3,
+      "unexpected_terminal_errors": 0,
+      "citation_objects_reviewed": 32,
+      "citation_objects_literal_or_cell_fidelity": 32,
+      "unsupported_documentary_additions_observed": 0,
+      "scope_leakage_observed": 0
+    },
+    "candidate_strict": {
+      "positive_pass": 12,
+      "positive_total": 12,
+      "limit_pass": 18,
+      "limit_total": 18,
+      "strict_pass": 30,
+      "total": 30,
+      "positive_documentary_completeness": 12,
+      "unjustified_positive_reservations": 0,
+      "positive_total_refusals": 0,
+      "done": 27,
+      "expected_terminal_errors": 3,
+      "unexpected_terminal_errors": 0,
+      "citation_objects_reviewed": 31,
+      "citation_objects_literal_or_cell_fidelity": 31,
+      "unsupported_documentary_additions_observed": 0,
+      "scope_leakage_observed": 0
+    },
+    "paired": {
+      "strict_positive_before": 11,
+      "strict_positive_after": 12,
+      "strict_limits_before": 18,
+      "strict_limits_after": 18,
+      "improvements": 1,
+      "unchanged": 29,
+      "regressions": 0,
+      "improved_case_ids": [
+        "P01_general_condition"
+      ],
+      "positive_facts_complete_before": 12,
+      "positive_facts_complete_after": 12,
+      "positive_total_refusals_before": 0,
+      "positive_total_refusals_after": 0,
+      "improvement_is_removed_unjustified_reservation_not_new_fact_or_increased_abstention": true,
+      "candidate_positive_selector_calls": 0,
+      "native_model_quality_inference": false
+    },
+    "context_literal_proxy": {
+      "baseline": [
+        14,
+        15
+      ],
+      "candidate": [
+        14,
+        15
+      ],
+      "limitation": "P05 deterministic table route; source/header support verified, message-pattern proxy not semantic recall"
+    },
+    "native_model_inference": "NOT_RUN_IN_THIS_CONTROLLED_BLOCK"
+  },
+  "native": {
+    "reference_office": {
+      "status": "EXECUTED_REVIEWED",
+      "aggregate": {
+        "cases": 8,
+        "available_done": 8,
+        "strict_success": 7,
+        "positives": 4,
+        "positive_strict_success": 3,
+        "positive_documentary_completeness": 4,
+        "limits": 4,
+        "appropriate_limits": 4,
+        "unjustified_positive_reservations": 1,
+        "total_refusals": 0,
+        "citations_reviewed": 9,
+        "citations_literal_fidelity": 9,
+        "model_called_cases": 5
+      },
+      "latency_caveat": "A Mypy process overlapped part of the reference Office block; its CPU/RAM impact was not sampled. Functional results remain observed, isolated latency improvement cannot be inferred."
+    },
+    "reference_development_pdf": {
+      "status": "EXECUTED_PRIMARY_ERRORS_PRESERVED",
+      "submissions": 2,
+      "done": 0,
+      "errors": 2,
+      "native_model_calls": 0,
+      "error": "trace_budget_exceeded",
+      "trace_mode": "full",
+      "trace_max_bytes_per_query": 8388608,
+      "default_profile_equivalence_claim": false,
+      "full_pages_processed": [
+        41,
+        50
+      ],
+      "extraction_status": [
+        "ready_partial",
+        "ready_partial"
+      ],
+      "extraction_ocr_pages": [
+        0,
+        0
+      ]
+    },
+    "candidate_office": {
+      "status": "EXECUTED_TWO_SEPARATE_REVIEWS_AGREE",
+      "aggregate": {
+        "cases": 8,
+        "available_done": 8,
+        "strict_success": 8,
+        "positives": 4,
+        "positive_strict_success": 4,
+        "positive_documentary_completeness": 4,
+        "limits": 4,
+        "appropriate_limits": 4,
+        "unjustified_positive_reservations": 0,
+        "total_refusals": 0,
+        "citations_reviewed": 9,
+        "citation_blocks_checked_in_second_review": 13,
+        "citations_literal_fidelity": 9,
+        "citation_marker_occurrences": 10,
+        "model_called_cases": 4,
+        "deterministic_cases": 4
+      },
+      "strict_delta": {
+        "gain": 1,
+        "same": 7,
+        "regression": 0,
+        "gained_case": "P01_general_condition"
+      },
+      "review_disagreements": [],
+      "separate_non_scoring_findings": [
+        {
+          "case_id": "L16_table_note",
+          "kind": "new_presentation_redundancy",
+          "detail": "Two markers reference the same S001 table header; extra repeated header is exact but less concise. Retained as a presentation regression outside frozen factual strict score."
+        },
+        {
+          "case_ids": [
+            "P10_decimal_sum",
+            "P11_conversion"
+          ],
+          "kind": "preexisting_warning_inconsistency",
+          "detail": "identifier_present_no_answer_evidence remains despite valid traced deterministic calculations, in both arms. Answer correctness is distinguished from warning usability."
+        }
+      ],
+      "services_stopped": true,
+      "changed_since_freeze": [],
+      "real_4b_inference_gain_claim": false
+    },
+    "candidate_development_pdf": {
+      "status": "EXECUTED_TWO_REVIEWS_AGREE_STRICT_1_OF_2",
+      "extractions": [
+        {
+          "document": "ina226",
+          "status": "ready_partial",
+          "coverage": {
+            "ocr": 1,
+            "processed": 41,
+            "total": 41,
+            "unresolved": 38,
+            "unresolved_regions": 71
+          },
+          "block_count": 1699,
+          "extraction_methods": {
+            "native": 1638,
+            "unknown": 1,
+            "ocr": 60
+          },
+          "worker_completed_and_reaped": true,
+          "elapsed_seconds": 272.69297986499805,
+          "rss_sum_peak_bytes": 2254065664,
+          "timeout": false
+        },
+        {
+          "document": "tmp117",
+          "status": "ready_partial",
+          "coverage": {
+            "ocr": 0,
+            "processed": 50,
+            "total": 50,
+            "unresolved": 47,
+            "unresolved_regions": 108
+          },
+          "block_count": 2067,
+          "extraction_methods": {
+            "native": 2067
+          },
+          "worker_completed_and_reaped": true,
+          "elapsed_seconds": 284.0223834040007,
+          "rss_sum_peak_bytes": 2290917376,
+          "timeout": false
+        }
+      ],
+      "changed_source_files": [],
+      "additional_ina_ocr": {
+        "physical_page": 13,
+        "page_index": 12,
+        "new_text_fragments": 59,
+        "reported_noisy": true,
+        "graphic_interpretation_unavailable_retained": true,
+        "word_confidence_available": false,
+        "new_visual_verification": false,
+        "unresolved_regions_baseline": 72,
+        "unresolved_regions_candidate": 71,
+        "ocr_fidelity_gain_demonstrated": false,
+        "question_page0_text_geometry_unchanged": true,
+        "review_receipt": "pdf-extraction-review-conclusion.json"
+      },
+      "interpretation": "Full pages processed does not mean all content interpreted; region-count reduction is not a demonstrated OCR fidelity improvement.",
+      "aggregate": {
+        "cases": 2,
+        "required_relations": 4,
+        "baseline_done": 0,
+        "baseline_errors_before_model": 2,
+        "baseline_strict_success": 0,
+        "candidate_done": 2,
+        "candidate_strict_success": 1,
+        "candidate_documentary_complete_cases": 2,
+        "candidate_relations_retrieved_top10": 4,
+        "candidate_relations_retained_selection": 4,
+        "candidate_relations_retained_context": 4,
+        "candidate_relations_rendered_and_source_supported": 4,
+        "candidate_unjustified_reservation_cases": 1,
+        "candidate_total_refusals": 0,
+        "candidate_unsupported_documentary_additions_observed": 0,
+        "candidate_used_citation_records": 3,
+        "candidate_citation_marker_occurrences": 4,
+        "candidate_exact_quote_occurrences": 8,
+        "candidate_model_called": 1,
+        "candidate_traces_valid_with_terminal_done": 2
+      },
+      "second_review": {
+        "disagreements": [],
+        "used_citation_objects_checked": 3,
+        "used_citation_blocks_checked": 11,
+        "existing_page0_images_viewed": 2,
+        "new_renders": 0
+      },
+      "final_traces": [
+        {
+          "case_id": "N_ina226",
+          "sha256": "7447e3bebe4f2d43d7d8b99ae0be221a35707edd01524b987280e682b4d590f7",
+          "stored_bytes": 1042270,
+          "events": 13,
+          "schema_version_counts": {
+            "1": 9,
+            "2": 4
+          },
+          "expanded_payload_bytes": 7881531,
+          "verified_reader_passed": true,
+          "last_phase": "query.done",
+          "source_unchanged_during_read": true,
+          "run_metrics_snapshot_stage": "before_terminal_persistence",
+          "run_metrics_terminal_captured": false
+        },
+        {
+          "case_id": "N_tmp117",
+          "sha256": "bc93e8a71fff74d1a87f64e6dd60a5f65241dd51dc8990d1ad2c0c2c77c700a2",
+          "stored_bytes": 764867,
+          "events": 8,
+          "schema_version_counts": {
+            "1": 6,
+            "2": 2
+          },
+          "expanded_payload_bytes": 6693789,
+          "verified_reader_passed": true,
+          "last_phase": "query.done",
+          "source_unchanged_during_read": true,
+          "run_metrics_snapshot_stage": "before_terminal_persistence",
+          "run_metrics_terminal_captured": false
+        }
+      ],
+      "case_results": [
+        {
+          "case_id": "N_ina226",
+          "strict_success": false,
+          "documentary_complete": true,
+          "required_relations_supported": 2,
+          "unjustified_coverage_notice": true,
+          "metrics": {
+            "model_called": true,
+            "response_route": "local_4b_generation",
+            "elapsed_ms": 206806.87,
+            "ttft_ms": 189030.88,
+            "prompt_eval_count": 2575,
+            "eval_count": 57
+          },
+          "memory": {
+            "rss_sum_peak_mib": 4208.03515625,
+            "available_min_mib": 3042.41796875,
+            "samples": 374,
+            "pss_sum_peak_mib": 4200.287109375,
+            "uss_sum_peak_mib": 4195.49609375
+          }
+        },
+        {
+          "case_id": "N_tmp117",
+          "strict_success": true,
+          "documentary_complete": true,
+          "required_relations_supported": 2,
+          "unjustified_coverage_notice": false,
+          "metrics": {
+            "model_called": false,
+            "response_route": "deterministic_evidence_contract",
+            "elapsed_ms": 3774.06,
+            "ttft_ms": null,
+            "prompt_eval_count": null,
+            "eval_count": null
+          },
+          "memory": {
+            "rss_sum_peak_mib": 4285.296875,
+            "available_min_mib": 3095.67578125,
+            "samples": 7,
+            "pss_sum_peak_mib": 4276.919921875,
+            "uss_sum_peak_mib": 4272.12890625
+          }
+        }
+      ],
+      "source_records_vs_citations": {
+        "retained_source_records": 9,
+        "used_citation_records": 3,
+        "citation_markers": 4
+      },
+      "services_stopped": true,
+      "semantic_limit": "INA has complete cited facts but falsely announces missing property coverage; no global claim of zero unsupported statements is made."
+    },
+    "transfer": {
+      "status": "PRIMARY_PAIRED_REVIEW_COMPLETE_FAILED_RELEASE_CRITERIA",
+      "originals": 3,
+      "positive_cases": 6,
+      "limit_cases": 2,
+      "oracles_not_disclosed": false,
+      "oracles_published_after_product_freeze": true,
+      "baseline_extraction": {
+        "status": "MATERIAL_INTEGRITY_REVIEWED_PARTIAL_CONTENT",
+        "documents": [
+          {
+            "id": "D01",
+            "status": "ready_partial",
+            "coverage": {
+              "ocr": 0,
+              "processed": 7,
+              "total": 7,
+              "unresolved": 6,
+              "unresolved_regions": 16
+            },
+            "block_count": 287,
+            "tesseract_binary_sha256": "d6433dab06f0c58ff3536560b208e92c156664f7fe48210f00f7a17f75e0c3ac"
+          },
+          {
+            "id": "D02",
+            "status": "ready_partial",
+            "coverage": {
+              "ocr": 0,
+              "processed": 11,
+              "total": 11,
+              "unresolved": 8,
+              "unresolved_regions": 21
+            },
+            "block_count": 720,
+            "tesseract_binary_sha256": "d6433dab06f0c58ff3536560b208e92c156664f7fe48210f00f7a17f75e0c3ac"
+          },
+          {
+            "id": "D03",
+            "status": "ready_partial",
+            "coverage": {
+              "ocr": 0,
+              "processed": 14,
+              "total": 14,
+              "unresolved": 11,
+              "unresolved_regions": 228
+            },
+            "block_count": 1202,
+            "tesseract_binary_sha256": "d6433dab06f0c58ff3536560b208e92c156664f7fe48210f00f7a17f75e0c3ac"
+          }
+        ],
+        "total_blocks": 2209,
+        "material_integrity_does_not_prove_semantic_extraction": true,
+        "observed_defects": [
+          "H02 visible body absent from blocks",
+          "H01 supply row merged in first column",
+          "H03 nominal-output value assignedMin instead ofTyp",
+          "H07 paired conditions/values merged per cell and general header fragmented"
+        ],
+        "downstream_answer_verdict_inferred": false
+      },
+      "baseline_review": {
+        "aggregate": {
+          "cases_total": 8,
+          "done": 6,
+          "technical_errors": 2,
+          "strict_success_total": 0,
+          "positive_cases": 6,
+          "positive_strict_success": 0,
+          "limit_cases": 2,
+          "limit_strict_success": 0,
+          "technical_error_case_ids": [
+            "H06",
+            "H08"
+          ],
+          "technical_errors_counted_in_denominator": true,
+          "unsupported_documentary_binding_cases": [
+            "H03"
+          ],
+          "unsupported_documentary_claim_cases": 1,
+          "scope_leakage_cases": 0,
+          "explicit_scoped_refusal_without_extrapolation_cases": [
+            "H03"
+          ],
+          "model_called_cases": 6,
+          "used_citation_records": 10,
+          "published_citation_markers": 27,
+          "exact_quote_occurrences": 27,
+          "done_cases_literal_span_checks_pass": 6,
+          "done_cases_support_before_delta_pass": 6
+        },
+        "review_role": "Auteur du contrat candidat ; revue non aveugle du bras de référence après gel du produit et publication des oracles. Aucun résultat candidat de transfert consulté dans cette revue.",
+        "cases": [
+          {
+            "case_id": "H01",
+            "strict_success": false,
+            "state": "done",
+            "reason": "Le rendu contient la température garantie 0–100 °C, les conditions générales et les trois valeurs de la ligne de tension. Il conserve une réserve globale. La ligne de tension n’explicite pas quelle valeur est minimale, typique ou maximale ; cette correspondance est visible dans le tableau original, tandis que l’extraction a fusionné cette ligne. La réponse ne satisfait pas le critère strict."
+          },
+          {
+            "case_id": "H02",
+            "strict_success": false,
+            "state": "done",
+            "reason": "Aucun des trois circuits demandés n’est nommé dans la réponse. Elle restitue des mentions de pied de page sans rapport avec la question. Le paragraphe pertinent est visible sur la page originale mais manque déjà dans l’extraction ; l’absence ne doit pas être attribuée au seul moteur de recherche. La fidélité littérale de ces citations n’en fait pas une réponse utile."
+          },
+          {
+            "case_id": "H03",
+            "strict_success": false,
+            "state": "done",
+            "reason": "La réponse s’abstient de donner une tension à 150 °C, mais ne conserve pas la limite garantie à 100 °C. Elle publie en outre une liaison de colonne fausse : la valeur 0,25 V à 0 °C est présentée sous Min, alors que l’original la place sous Typ. L’abstention ne neutralise pas cette affirmation structurelle non étayée."
+          },
+          {
+            "case_id": "H04",
+            "strict_success": false,
+            "state": "done",
+            "reason": "Les deux plages sont présentes dans les passages rendus : alimentation simple 2,7–7,0 V et fonctionnement −40 à +150 °C. Les signes et le rôle de fonctionnement sont conservés. Le préambule affirme néanmoins que des faits demandés ne sont pas établis ; cette réserve est injustifiée pour les deux relations rendues."
+          },
+          {
+            "case_id": "H05",
+            "strict_success": false,
+            "state": "done",
+            "reason": "La réponse conserve la sortie à collecteur ouvert, la condition de dépassement de la consigne programmée et le rôle de l’hystérésis contre les commutations rapides. Les propositions répondent à la question et sont visibles sur l’original. La réserve générale sur l’interprétation complète est pourtant maintenue, contrairement au critère figé."
+          },
+          {
+            "case_id": "H06",
+            "strict_success": false,
+            "state": "error",
+            "reason": "Erreur trace_budget_exceeded avant appel au modèle ; aucune réponse publiée. Les deux plages de l’oracle figurent sur l’original, mais cette tentative ne les restitue pas. Elle reste un échec technique dans le dénominateur."
+          },
+          {
+            "case_id": "H07",
+            "strict_success": false,
+            "state": "done",
+            "reason": "Le rendu conserve une ligne aplatie contenant les deux overdrives, les deux délais, leur rôle typique et la capacité d’essai. Il n’explicite pas les deux associations valeur–condition. Surtout, les conditions générales TA = 25 °C, V+ = 5 V et V− = GND = 0 V, sauf indication contraire, sont absentes de la réponse alors qu’elles restent dans la citation S003. Le texte relatif au repère de garantie est coupé au milieu de sa phrase. La réponse est incomplète."
+          },
+          {
+            "case_id": "H08",
+            "strict_success": false,
+            "state": "error",
+            "reason": "Erreur trace_budget_exceeded avant appel au modèle ; aucune réponse publiée. Il n’y a donc pas d’abstention documentaire expliquant l’absence de garantie maximale à 1 mV et préservant la condition de 10 mV. Cette erreur n’est pas comptée comme une abstention pertinente."
+          }
+        ]
+      },
+      "oracle_role_separation": {
+        "selection_contract_ingestion_authors_did_not_consult_before_freeze": true,
+        "validation_author_prepared_oracles": true,
+        "validation_author_later_authored_product_trace_codec": true,
+        "absolute_separation_of_all_product_authors": false,
+        "frozen_receipt_unchanged": true,
+        "historical_implementers_have_not_consulted_boolean_requires_role_qualification": true,
+        "no_native_transfer_output_before_product_freeze": true,
+        "no_post_freeze_product_harness_oracle_tuning": true,
+        "shared_workspace_access_barrier": false
+      },
+      "candidate_review": {
+        "aggregate": {
+          "cases_total": 8,
+          "positive_cases": 6,
+          "positive_strict_success": 0,
+          "limit_cases": 2,
+          "limit_strict_success": 1,
+          "strict_success_total": 1,
+          "done": 7,
+          "technical_errors": 1,
+          "technical_error_case_ids": [
+            "H06"
+          ],
+          "technical_error_codes": {
+            "H06": "ollama_timeout"
+          },
+          "errors_retained_in_denominator": true,
+          "complete_positive_fact_cases": 1,
+          "complete_positive_fact_case_ids": [
+            "H05"
+          ],
+          "positive_cases_with_zero_requested_information": [
+            "H02",
+            "H06"
+          ],
+          "positive_explicit_total_refusals_without_useful_information": 0,
+          "positive_partial_abstention_case_ids": [
+            "H07"
+          ],
+          "unjustified_global_reservation_cases": [
+            "H04",
+            "H05"
+          ],
+          "unsupported_documentary_binding_cases": [
+            "H03"
+          ],
+          "scope_leakage_observed": 0,
+          "model_request_attempt_cases": 8,
+          "provider_nonempty_response_cases": 7,
+          "provider_generation_completed_cases": 7,
+          "raw_model_called_true_cases": 7,
+          "raw_model_called_false_does_not_imply_no_attempt": [
+            "H06"
+          ],
+          "used_citation_records": 12,
+          "used_block_occurrences": 53,
+          "published_citation_markers": 29,
+          "exact_quote_occurrences": 30,
+          "literal_quote_occurrences_found_in_used_sources": 30,
+          "literal_guard_passed_done_cases": 7,
+          "semantic_citation_precision_percent": null,
+          "semantic_citation_precision_not_collapsed_reason": "Provenance and exact quotation checks do not establish role/condition entailment; H03 has an unsupported column binding and H02 irrelevant quotations."
+        },
+        "review_role": "Préparateur des oracles et auteur des harnais/codec de trace ; pas auteur du sélecteur, du contrat de réponse ou des corrections d’ingestion. Relecture séparée contre les images originales gelées, les questions, les passages et le rendu.",
+        "method_limit": "Le booléen gelé implementers_have_not_consulted ne décrit pas une séparation absolue : le préparateur des oracles a ensuite écrit le codec produit. Les auteurs des modifications de sélection/contrat/ingestion n’ont pas consulté les oracles avant gel ; aucune sortie native de transfert avant gel, aucun ajustement après gel.",
+        "cases": [
+          {
+            "case_id": "H01",
+            "strict_success": false,
+            "state": "done",
+            "reason": "Two of three requested fact groups are complete; the operating-voltage roles are flattened rather than explicitly recovered. StrictFAIL even though relevant numbers are present. Original page is clear; insufficiency belongs to extraction/association.",
+            "failure_types": [
+              "incomplete_value_role_association",
+              "ambiguous_extraction_propagated",
+              "redundant_repeated_header"
+            ],
+            "unjustified_global_reservation": false,
+            "technical_error": null,
+            "model_call_attempted": true,
+            "model_called": true,
+            "unsupported_documentary_binding_observed": false,
+            "used_source_ids": [
+              "S001",
+              "S003"
+            ]
+          },
+          {
+            "case_id": "H02",
+            "strict_success": false,
+            "state": "done",
+            "reason": "None of the three requested circuit concepts is present. Literal citations of a document footer remain irrelevant. This is a no-useful-answer failure, not a technical error and not counted as an explicit total refusal.",
+            "failure_types": [
+              "upstream_body_omission",
+              "irrelevant_citations",
+              "zero_requested_information",
+              "no_explicit_scoped_insufficiency_explanation"
+            ],
+            "unjustified_global_reservation": false,
+            "technical_error": null,
+            "model_call_attempted": true,
+            "model_called": true,
+            "unsupported_documentary_binding_observed": false,
+            "used_source_ids": [
+              "S001"
+            ]
+          },
+          {
+            "case_id": "H03",
+            "strict_success": false,
+            "state": "done",
+            "reason": "The source image unambiguously places0.25 inTyp. Rendering it underMin adds an unsupported role association despite literal extraction-span verification and abstention at150°C. D01 fidelity failure.",
+            "failure_types": [
+              "unsupported_table_column_binding",
+              "missing_scope_limit_100C"
+            ],
+            "unjustified_global_reservation": false,
+            "technical_error": null,
+            "model_call_attempted": true,
+            "model_called": true,
+            "unsupported_documentary_binding_observed": true,
+            "used_source_ids": [
+              "S001",
+              "S003"
+            ]
+          },
+          {
+            "case_id": "H04",
+            "strict_success": false,
+            "state": "done",
+            "reason": "FAIL for omitted supply interval despite its presence in the used source. The temperature remains correct. This is an observed fact-completeness regression relative to baseline, which renderedboth ranges; strictFAIL remainsunchanged.",
+            "failure_types": [
+              "generator_plan_or_final_selection_omission",
+              "unjustified_coverage_notice",
+              "irrelevant_LED_detail"
+            ],
+            "unjustified_global_reservation": true,
+            "technical_error": null,
+            "model_call_attempted": true,
+            "model_called": true,
+            "unsupported_documentary_binding_observed": false,
+            "used_source_ids": [
+              "S001"
+            ]
+          },
+          {
+            "case_id": "H05",
+            "strict_success": false,
+            "state": "done",
+            "reason": "Both facts and their condition are correct, including approximate/typical qualifiers on additional hysteresis values. The excessive global reservation violates the frozen positive criterion. No added physical explanation inferred.",
+            "failure_types": [
+              "unjustified_global_reservation",
+              "irrelevant_additional_feature_details"
+            ],
+            "unjustified_global_reservation": true,
+            "technical_error": null,
+            "model_call_attempted": true,
+            "model_called": true,
+            "unsupported_documentary_binding_observed": false,
+            "used_source_ids": [
+              "S001",
+              "S003"
+            ]
+          },
+          {
+            "case_id": "H06",
+            "strict_success": false,
+            "state": "error",
+            "reason": "Actual4B request and server prompt work observed, but no content or done before configured transport timeout. No public answer/delta; all facts absent because the attempt fails technically.",
+            "failure_types": [
+              "provider_timeout_after_request_before_content"
+            ],
+            "unjustified_global_reservation": false,
+            "technical_error": "ollama_timeout",
+            "model_call_attempted": true,
+            "model_called": null,
+            "unsupported_documentary_binding_observed": false,
+            "used_source_ids": []
+          },
+          {
+            "case_id": "H07",
+            "strict_success": false,
+            "state": "done",
+            "reason": "FAIL : la ligne aplatie ne rétablit pas les deux couples délai/overdrive et omet les conditions générales. Aucune garantie maximale ni garantie sur toute la plage thermique n’est inventée.",
+            "failure_types": [
+              "incomplete_value_condition_pairing",
+              "omitted_general_conditions",
+              "truncated_table_header_qualification"
+            ],
+            "unjustified_global_reservation": false,
+            "technical_error": null,
+            "model_call_attempted": true,
+            "model_called": true,
+            "unsupported_documentary_binding_observed": false,
+            "used_source_ids": [
+              "S002",
+              "S003"
+            ]
+          },
+          {
+            "case_id": "H08",
+            "strict_success": true,
+            "state": "done",
+            "reason": "PASS limite : la réponse refuse de certifier la grandeur demandée dans cette sélection et cite exactement le délai à 10 mV. Elle n’affirme ni maximum garanti à 1 mV ni rôle typique absent de cette page.",
+            "failure_types": [],
+            "unjustified_global_reservation": false,
+            "technical_error": null,
+            "model_call_attempted": true,
+            "model_called": true,
+            "unsupported_documentary_binding_observed": false,
+            "used_source_ids": [
+              "S001",
+              "S002"
+            ]
+          }
+        ],
+        "citation_integrity": {
+          "totals": {
+            "used_citation_records": 12,
+            "used_block_occurrences": 53,
+            "published_citation_markers": 29,
+            "exact_quote_occurrences": 30,
+            "literal_quote_occurrences_found_in_used_sources": 30
+          },
+          "integrity_errors": [],
+          "all_original_hashes_verified": true,
+          "semantic_limit": "All stored span/hash/locator checks pass, including the false Min association in H03; visual original-source assessment remains necessary."
+        },
+        "cleanup": {
+          "all_owned_services_stopped": true,
+          "remaining_group_members": [
+            [],
+            []
+          ],
+          "changed_since_freeze": []
+        }
+      },
+      "comparison": {
+        "baseline_strict_total": 0,
+        "candidate_strict_total": 1,
+        "fixed_denominator": 8,
+        "strict_gains": [
+          "H08"
+        ],
+        "strict_unchanged": [
+          "H01",
+          "H02",
+          "H03",
+          "H04",
+          "H05",
+          "H06",
+          "H07"
+        ],
+        "strict_regressions": [],
+        "baseline_complete_positive_fact_cases": 2,
+        "candidate_complete_positive_fact_cases": 1,
+        "complete_positive_fixed_denominator": 6,
+        "factual_completeness_regressions": [
+          {
+            "case_id": "H04",
+            "baseline_complete_groups": 2,
+            "candidate_complete_groups": 1,
+            "total_groups": 2,
+            "prompt_retains_omitted_fact": true,
+            "model_selected_references": [
+              "R002",
+              "R005"
+            ],
+            "omitted_supply_reference": "R003"
+          }
+        ],
+        "not_a_claim_of_no_regression": true,
+        "global_causal_ablation": false,
+        "baseline_errors_before_model": [
+          "H06",
+          "H08"
+        ],
+        "candidate_timeout_after_real_request": [
+          "H06"
+        ]
+      },
+      "paired_extraction": {
+        "source_blocks_total": 2209,
+        "text_text_hash_bbox_metadata_order_identical": true,
+        "changed_fields_only": [
+          "identities",
+          "revisions",
+          "sections"
+        ],
+        "upstream_semantic_defects_unchanged": [
+          "H01",
+          "H02",
+          "H03",
+          "H07"
+        ],
+        "all_documents_ready_partial": true,
+        "ocr_pages_baseline": 0,
+        "ocr_pages_candidate": 0,
+        "receipt": "transfer-extraction-before-after-review.json",
+        "ocr_coverage_zero_does_not_imply_no_attempt": true,
+        "observed_ocr_attempts": {
+          "document_id": "D03",
+          "page_index": 6,
+          "route": "regional_ocr",
+          "osd_records_each_arm": 190,
+          "resolved": false,
+          "recognition_skipped": true,
+          "no_accepted_ocr_text": true
+        },
+        "ocr_documentary_gain_demonstrated": false
+      }
+    },
+    "derived_scans": {
+      "status": "PRIMARY_PAIRED_REVIEW_COMPLETE_FAILED_FIDELITY",
+      "scan_pairs": 2,
+      "baseline_review": {
+        "aggregate": {
+          "cases": 2,
+          "technical_done": 2,
+          "technical_errors": 0,
+          "documents_with_text": 0,
+          "ocr_pages": 0,
+          "strict_documentary_success": 0,
+          "positive_cases_total": 2,
+          "total_abstentions": 2,
+          "abstentions_justified_given_empty_extraction": 2,
+          "complete_useful_answers": 0,
+          "model_called": 0,
+          "citations": 0,
+          "invented_documentary_claims_observed": 0,
+          "scope_leakage_cases": 0
+        },
+        "citations_precision": "NOT_APPLICABLE_NO_CITATIONS",
+        "useful_answer_denominator": 2,
+        "safe_refusal_does_not_satisfy_positive_oracle": true,
+        "receipt": "native-baseline-ocr-review.json"
+      },
+      "paired_extraction": {
+        "summary": {
+          "ocr_pages_before": 0,
+          "ocr_pages_after": 2,
+          "baseline_nonempty_text_blocks": 0,
+          "candidate_nonempty_text_blocks": 39,
+          "candidate_ocr_spans_checked": 319,
+          "candidate_table_cells_checked": 97,
+          "candidate_integrity_errors": 0,
+          "candidate_documents_still_ready_partial": 2,
+          "requested_ranges_SCAN1_recovered": true,
+          "complete_requested_units_and_conditions_SCAN2_demonstrated": false,
+          "final_answer_verdicts_not_assessed_here": true,
+          "overall_OCR_fidelity_not_qualified": true
+        },
+        "same_frozen_rasters": true,
+        "candidate_fidelity_gate": "FAIL",
+        "candidate_issues": [
+          "SCAN2 µs transcription altered; value-condition pairs flattened.",
+          "SCAN2 COUT, V+, 0 V have transcription artifacts; not all intersect declared low-confidence regions.",
+          "Signs ± elsewhere in the page are altered without consistent low-confidence flagging."
+        ],
+        "baseline_empty_logs_do_not_prove_new_SIGFPE": true,
+        "receipt": "ocr-scan-before-after-review.json"
+      },
+      "candidate_review": {
+        "aggregate": {
+          "cases": 2,
+          "technical_done_baseline": 2,
+          "technical_done_candidate": 2,
+          "technical_errors_each_arm": 0,
+          "documents_with_text_baseline": 0,
+          "documents_with_text_candidate": 2,
+          "ocr_pages_baseline": 0,
+          "ocr_pages_candidate": 2,
+          "strict_documentary_success_baseline": 0,
+          "strict_documentary_success_candidate": 0,
+          "total_abstentions_baseline": 2,
+          "total_abstentions_candidate": 0,
+          "required_fact_groups_total": 6,
+          "complete_required_fact_groups_candidate": 2,
+          "complete_useful_cases_candidate": 0,
+          "cases_with_original_transcription_errors_in_output": 2,
+          "model_called_baseline": 0,
+          "actual_model_exchanges_candidate": 2,
+          "used_citation_records_candidate": 3,
+          "citation_marker_occurrences_candidate": 4,
+          "exact_quote_occurrences_candidate": 4,
+          "scope_leakage_cases_candidate": 0
+        },
+        "review_role": "Auteur du contrat, revue non aveugle après gel des sources.",
+        "cases": [
+          {
+            "case_id": "SCAN1_H04",
+            "state": "done",
+            "strict_documentary_success": false,
+            "reason": "Les deux plages demandées sont correctement restituées depuis le scan : 2,7–7,0 V et −40 à +150 °C. Le préambule reste une réserve globale injustifiée pour ces deux relations. Surtout, le paragraphe d’alimentation reproduit une unité de puissance OCR erronée hors question : HW à la place de µW. La citation est exacte par rapport à l’extraction, pas entièrement fidèle à l’original.",
+            "complete_required_fact_groups": 2,
+            "required_fact_groups": 2,
+            "total_abstention": false,
+            "unjustified_global_reservation": true,
+            "transcription_errors_republished": [
+              {
+                "rendered": "230 HW",
+                "original": "230 µW",
+                "kind": "power_unit",
+                "within_requested_facts": false,
+                "source_id": "S001"
+              }
+            ],
+            "model_called": true,
+            "actual_model_exchange_observed": true,
+            "elapsed_ms": 201536.32,
+            "memory_observed": {
+              "rss_sum_peak_mib": 4037.64453125,
+              "available_min_mib": 3268.8125,
+              "samples": 363,
+              "pss_sum_peak_mib": 4029.84765625,
+              "uss_sum_peak_mib": 4025.0078125
+            }
+          },
+          {
+            "case_id": "SCAN2_H07",
+            "state": "done",
+            "strict_documentary_success": false,
+            "reason": "Les nombres des délais et des overdrives sont récupérés, mais leurs sous-lignes sont aplaties, les unités de temps sont mal transcrites et les signes du bandeau sont corrompus. La réponse indique qu’elle ne peut donner une valeur fiable ; cette prudence est cohérente avec ces preuves dégradées, sans fournir les associations et conditions exactes demandées. Des fragments OCR inexacts sont néanmoins reproduits et associés à des en-têtes.",
+            "complete_required_fact_groups": 0,
+            "required_fact_groups": 4,
+            "total_abstention": false,
+            "unjustified_global_reservation": false,
+            "transcription_errors_republished": [
+              {
+                "rendered": "us ys",
+                "original": "µs pour chacun des deux délais",
+                "kind": "time_units",
+                "within_requested_facts": true,
+                "source_id": "S002"
+              },
+              {
+                "rendered": "Cour",
+                "original": "COUT",
+                "kind": "test_parameter",
+                "within_requested_facts": true,
+                "source_id": "S002"
+              },
+              {
+                "rendered": "V*",
+                "original": "V+",
+                "kind": "supply_polarity",
+                "within_requested_facts": true,
+                "source_id": "S003"
+              },
+              {
+                "rendered": "OV",
+                "original": "0V",
+                "kind": "letter_instead_of_zero",
+                "within_requested_facts": true,
+                "source_id": "S003"
+              }
+            ],
+            "model_called": true,
+            "actual_model_exchange_observed": true,
+            "elapsed_ms": 188466.12,
+            "memory_observed": {
+              "rss_sum_peak_mib": 4250.265625,
+              "available_min_mib": 2996.20703125,
+              "samples": 344,
+              "pss_sum_peak_mib": 4242.46875,
+              "uss_sum_peak_mib": 4237.703125
+            }
+          }
+        ],
+        "separate_cross_review": {
+          "aggregate": {
+            "cases": 2,
+            "strict_success": 0,
+            "disagreements_with_first_review": 0,
+            "requested_groups_complete": 2,
+            "requested_groups_total": 6,
+            "cases_with_transcription_error_published": 2,
+            "used_citation_records": 3,
+            "used_block_occurrences": 19
+          },
+          "role": "Separate non-blind agent review by oracle/harness/trace-codec author, not answer-contract author; no new render, engine call, test or product change.",
+          "receipt": "native-candidate-ocr-cross-review.json"
+        },
+        "scope_limit": "All cited locators are derived page 1; original physical-page mapping is review provenance only.",
+        "complete_requested_groups_not_full_response_fidelity": true
+      }
+    },
+    "http_sse": {
+      "status": "OPERATIONAL_AND_DECLARED_DOCUMENTARY_CASE_PASS",
+      "operational_passed": true,
+      "all_owned_services_stopped": true,
+      "transport": "real HTTP/SSE via owned native API",
+      "native_ingestion": {
+        "cache_checks": 3,
+        "cache_hits": 0,
+        "cache_misses": 3,
+        "extraction_reuses": 0,
+        "native_worker_launches": 3,
+        "injected_runner_calls": 0,
+        "last_extraction": {
+          "job_id": "6dd4138e-09fb-4ae5-a788-90eede10ad55",
+          "version_id": "ab87b4af-557d-48c3-ac2a-ad195276344e",
+          "method": "native_worker",
+          "extraction_revision_id": null,
+          "pipeline_fingerprint": null
+        },
+        "scope": "current_process",
+        "reuse_definition": "Verified ready extraction revision, or ready_partial one when the index identity changed, used without launching a worker; partial state and warnings are kept",
+        "worker_definition": "Successful create_subprocess_exec of the native ingestion worker; OCR work is reported by extraction provenance"
+      },
+      "publication_passed": true,
+      "versions_passed": true,
+      "resume_after_terminal_is_empty": true,
+      "source_unchanged": true,
+      "operational_verdict_separate_from_documentary_review": true,
+      "documentary_judgment": "PASS_ONE_FIXED_CASE",
+      "api_stopped_gracefully": true,
+      "parent_measurement_process": {
+        "transport": "http",
+        "pid": 103,
+        "deadline_seconds": 1500,
+        "harness_timeout": false,
+        "observed_returncode": 0
+      },
+      "documentary_case": {
+        "id": "HTTP01",
+        "state": "done",
+        "availability_pass": true,
+        "strict_documentary_pass": true,
+        "answer_sha256": "51df052a635518643258cc942048b02a84949da5758472b8519f29944cd07d91",
+        "fact_groups_expected": 2,
+        "fact_groups_complete": 2,
+        "explicit_divergence": true,
+        "condition_preserved": "70 °C pour les deux valeurs",
+        "no_arbitration": true,
+        "no_extrapolation_or_calculation": true,
+        "note": "A indique 2,8 V et B 3,2 V pour AX71 à 70 °C. Le préambule signale explicitement la différence sans choisir une valeur. Les deux paragraphes cités justifient intégralement ces données. Le rôle Min/Typ/Max n’est pas fourni par les originaux ; sa non-attribution est exacte, mais la phrase générale sur l’indépendance des documents est superflue. Elle ne crée aucune donnée documentaire nouvelle.",
+        "abstention": false,
+        "unnecessary_complete_refusal": false
+      },
+      "citation_summary": {
+        "published_unique_sources": 2,
+        "published_markers": 4,
+        "quoted_paragraph_occurrences": 2,
+        "semantic_accuracy_of_published_quotes": {
+          "supported": 2,
+          "total": 2
+        },
+        "all_published_marker_offsets_verified": true
+      },
+      "publication_order_observed": [
+        {
+          "event_id": 63,
+          "support_validated_utc": "2026-11-08T19:01:24.565948+00:00",
+          "delta_persisted_utc": "2026-11-08T19:01:24.586014+00:00",
+          "delta_observed_utc": "2026-11-08T19:01:24.673629+00:00",
+          "ordered": true
+        }
+      ],
+      "performance": {
+        "elapsed_ms_application": 87161.87,
+        "elapsed_seconds_http_observer": 87.42817037999703,
+        "timing_scope": "Une seule exécution, sans bras HTTP baseline ; aucune conclusion comparative de latence.",
+        "public_delta_arrival_from_api_created_at_seconds": 87.248525
+      },
+      "trace_summary": {
+        "trace_chain_payloads_verified": true,
+        "trace_bytes": 78681,
+        "trace_events": 11,
+        "terminal_query_done_verified": true,
+        "real_model_requests": 1,
+        "real_model_received_done": 1,
+        "model_plan_only": true
+      },
+      "version_checks": {
+        "same_document_new_version": true,
+        "old_original_hashes_unchanged": true,
+        "new_original_matches_frozen_replacement": true,
+        "old_citations_unchanged": true,
+        "old_query_unchanged": true,
+        "published_citation_affected_by_replacement": true,
+        "old_citations_bound_to_original_versions": true
+      },
+      "version_scope": "L’ancienne réponse et ses citations restent liées à leurs versions ; aucune seconde question après remplacement n’était prévue.",
+      "cross_review": {
+        "agrees": true,
+        "strict_documentary_pass": true,
+        "role": "Harnais HTTP et oracles écrits par ce relecteur ; pas auteur du contrat. Seconde lecture non aveugle, pas évaluation humaine ni audit entièrement extérieur à l’implémentation."
+      },
+      "limitations": [
+        "Un seul cas synthétique de contradiction DOCX, avec deux sources et un remplacement.",
+        "Le test porte sur HTTP/SSE loopback authentifié ; aucun navigateur ni ergonomie utilisateur n’a été exercé.",
+        "Le verdict sémantique relève de cette relecture des originaux ; le statut du contrat et le contrôle cryptographique ne constituent pas une preuve générale d’entailment.",
+        "Aucune qualification globale de production ou de domaine ne découle de ce PASS."
+      ]
+    },
+    "office_matched_model_performance": {
+      "status": "OBSERVED_PRIMARY_MEASUREMENTS",
+      "summary": {
+        "same_native_model_cases": 4,
+        "baseline_elapsed_median_ms": 38459.765,
+        "candidate_elapsed_median_ms": 64809.325,
+        "candidate_slower_cases": 3,
+        "candidate_faster_cases": 1
+      },
+      "cases": [
+        {
+          "case_id": "L01_condition_mismatch",
+          "baseline": {
+            "measurement_sha256": "d2cd5811e982276cc9e2c6456dd909777b159432f0a4a352fd51e33cb7088dfc",
+            "elapsed_ms": 104399.23,
+            "provider_private_ttft_ms": 86250.56,
+            "local_prompt_tokens": 991,
+            "evidence_tokens": 311,
+            "prompt_eval_count": 991,
+            "prompt_eval_cached_count": 0,
+            "eval_count": 50,
+            "rss_sum_peak_mib": 3981.51171875,
+            "total_duration_ms": 68475.459785,
+            "load_duration_ms": 10184.844661,
+            "prompt_eval_duration_ms": 41160.291,
+            "eval_duration_ms": 17081.771
+          },
+          "candidate": {
+            "measurement_sha256": "bec22fd0ae50811b857b84759bf425e046872cfab51f050c1ceee6658d353820",
+            "elapsed_ms": 98356.22,
+            "provider_private_ttft_ms": 65310.7,
+            "local_prompt_tokens": 999,
+            "evidence_tokens": 319,
+            "prompt_eval_count": 999,
+            "prompt_eval_cached_count": 0,
+            "eval_count": 50,
+            "rss_sum_peak_mib": 3962.640625,
+            "total_duration_ms": 98078.539492,
+            "load_duration_ms": 12582.011377,
+            "prompt_eval_duration_ms": 52421.54,
+            "eval_duration_ms": 33014.322
+          },
+          "elapsed_difference_ms": -6043.01
+        },
+        {
+          "case_id": "L06_cross_document_conflict",
+          "baseline": {
+            "measurement_sha256": "63bad75cbbd8260a5a8504e06fd761d5df466426cbed104e107074dde169b3f4",
+            "elapsed_ms": 42273.26,
+            "provider_private_ttft_ms": 29291.46,
+            "local_prompt_tokens": 1165,
+            "evidence_tokens": 480,
+            "prompt_eval_count": 1165,
+            "prompt_eval_cached_count": 639,
+            "eval_count": 52,
+            "rss_sum_peak_mib": 4400.25,
+            "total_duration_ms": 40481.384989,
+            "load_duration_ms": 6.497394,
+            "prompt_eval_duration_ms": 27441.994,
+            "eval_duration_ms": 12947.968
+          },
+          "candidate": {
+            "measurement_sha256": "e4b3be5d82b05614a0e18a0d0332d9bf5492a93ecb3e100811f8a45fb69d894e",
+            "elapsed_ms": 78119.02,
+            "provider_private_ttft_ms": 42350.79,
+            "local_prompt_tokens": 1179,
+            "evidence_tokens": 494,
+            "prompt_eval_count": 1179,
+            "prompt_eval_cached_count": 639,
+            "eval_count": 52,
+            "rss_sum_peak_mib": 3967.44921875,
+            "total_duration_ms": 77619.322392,
+            "load_duration_ms": 7.51079,
+            "prompt_eval_duration_ms": 41820.403,
+            "eval_duration_ms": 35716.003
+          },
+          "elapsed_difference_ms": 35845.76
+        },
+        {
+          "case_id": "L13_negated_value",
+          "baseline": {
+            "measurement_sha256": "6fecb38a90f6a5046f8e8f3fb746b8baf7fd406f0a8edb6b198a36438eb59d34",
+            "elapsed_ms": 27424.07,
+            "provider_private_ttft_ms": 17040.52,
+            "local_prompt_tokens": 944,
+            "evidence_tokens": 272,
+            "prompt_eval_count": 944,
+            "prompt_eval_cached_count": 639,
+            "eval_count": 45,
+            "rss_sum_peak_mib": 4398.13671875,
+            "total_duration_ms": 27117.882821,
+            "load_duration_ms": 3.403461,
+            "prompt_eval_duration_ms": 16724.282,
+            "eval_duration_ms": 10326.644
+          },
+          "candidate": {
+            "measurement_sha256": "9eaa854e569b48747b5f91975bb7309b3afffb29a7efb9e1338afe081c14fe7d",
+            "elapsed_ms": 40932.67,
+            "provider_private_ttft_ms": 16438.54,
+            "local_prompt_tokens": 952,
+            "evidence_tokens": 280,
+            "prompt_eval_count": 952,
+            "prompt_eval_cached_count": 639,
+            "eval_count": 45,
+            "rss_sum_peak_mib": 3977.2109375,
+            "total_duration_ms": 40687.733252,
+            "load_duration_ms": 3.411789,
+            "prompt_eval_duration_ms": 16210.756,
+            "eval_duration_ms": 24424.76
+          },
+          "elapsed_difference_ms": 13508.6
+        },
+        {
+          "case_id": "L16_table_note",
+          "baseline": {
+            "measurement_sha256": "0fc39949874db677b3aaa1fb9e08f9b4b398c13f10348abf13020d4b269a8ba8",
+            "elapsed_ms": 34646.27,
+            "provider_private_ttft_ms": 23739.13,
+            "local_prompt_tokens": 1148,
+            "evidence_tokens": 465,
+            "prompt_eval_count": 1148,
+            "prompt_eval_cached_count": 639,
+            "eval_count": 45,
+            "rss_sum_peak_mib": 4399.2734375,
+            "total_duration_ms": 34347.167349,
+            "load_duration_ms": 2.518615,
+            "prompt_eval_duration_ms": 23460.01,
+            "eval_duration_ms": 10850.999
+          },
+          "candidate": {
+            "measurement_sha256": "ea4a8e1ee3d90f7b501ae2250456eb86e19b23405d43f5a014a40653cfd3a6cf",
+            "elapsed_ms": 51499.63,
+            "provider_private_ttft_ms": 27935.63,
+            "local_prompt_tokens": 1153,
+            "evidence_tokens": 470,
+            "prompt_eval_count": 1153,
+            "prompt_eval_cached_count": 639,
+            "eval_count": 52,
+            "rss_sum_peak_mib": 3979.296875,
+            "total_duration_ms": 51164.555149,
+            "load_duration_ms": 3.426214,
+            "prompt_eval_duration_ms": 27591.637,
+            "eval_duration_ms": 23507.433
+          },
+          "elapsed_difference_ms": 16853.36
+        }
+      ],
+      "interpretation_limits": [
+        "One observation per case/arm, no distribution or causal performance claim.",
+        "Baseline Office overlapped a separate Mypy process; its CPU/RAM burden was not sampled.",
+        "P01 has switched from native model selection to deterministic answer and is excluded from this matched four-model-call comparison.",
+        "P01 model removal also changes which request first loads the model; observed load_duration is reported, not used to invent an isolated cause.",
+        "ttft is first private provider plan fragment, not a validated public answer delta.",
+        "RSS is monitored process-sum peak, not full host memory.",
+        "Token counts and durations describe different executed plans; no equal-work inference benchmark is claimed."
+      ]
+    },
+    "transfer_matched_model_performance": {
+      "status": "OBSERVED_PRIMARY_MEASUREMENTS",
+      "summary": {
+        "total_fixed_cases": 8,
+        "same_completed_model_cases": 6,
+        "same_completed_baseline_elapsed_median_ms": 138632.53999999998,
+        "same_completed_candidate_elapsed_median_ms": 136945.04,
+        "same_completed_candidate_slower_cases": 3,
+        "candidate_model_completed_elapsed_min_ms": 61060.91,
+        "candidate_model_completed_elapsed_max_ms": 190724.95,
+        "candidate_timeout_elapsed_ms": 303168.69,
+        "candidate_rss_peak_min_mib": 4201.12890625,
+        "candidate_rss_peak_max_mib": 4467.17578125,
+        "candidate_available_min_mib": 2919.359375
+      },
+      "cases": [
+        {
+          "case_id": "H01",
+          "baseline": {
+            "measurement_sha256": "ffc7e2f32173e98d0920bb9f08a1b5f7c7f254fb246a51d4fb211a2d4d9316e1",
+            "state": "done",
+            "error_code": null,
+            "elapsed_ms": 145741.22,
+            "private_provider_ttft_ms": 120360.38,
+            "model_call_attempted": true,
+            "model_called_raw": true,
+            "prompt_eval_count": 2149,
+            "eval_count": 99,
+            "rss_sum_peak_mib": 4202.953125,
+            "available_min_mib": 3009.7109375,
+            "total_duration_ns": 144883172400,
+            "load_duration_ns": 10573726870,
+            "prompt_eval_duration_ns": 109068336000,
+            "eval_duration_ns": 25201451000
+          },
+          "candidate": {
+            "measurement_sha256": "c57e6cbf302071c39b5be090c17b2d4d24c07c7c60251c533a7818fd0c411695",
+            "state": "done",
+            "error_code": null,
+            "elapsed_ms": 165646.87,
+            "private_provider_ttft_ms": 138953.43,
+            "model_call_attempted": true,
+            "model_called_raw": true,
+            "prompt_eval_count": 2184,
+            "eval_count": 79,
+            "rss_sum_peak_mib": 4201.12890625,
+            "available_min_mib": 3086.8515625,
+            "total_duration_ns": 164799921926,
+            "load_duration_ns": 10473964435,
+            "prompt_eval_duration_ns": 127647561000,
+            "eval_duration_ns": 26628434000
+          },
+          "same_completed_model_route": true
+        },
+        {
+          "case_id": "H02",
+          "baseline": {
+            "measurement_sha256": "771d5e3fdebb74aa93598a63d4ce7f63a95c105ac586601ba45628c11e0341fa",
+            "state": "done",
+            "error_code": null,
+            "elapsed_ms": 43177.93,
+            "private_provider_ttft_ms": 27105.72,
+            "model_call_attempted": true,
+            "model_called_raw": true,
+            "prompt_eval_count": 1251,
+            "eval_count": 78,
+            "rss_sum_peak_mib": 4374.50390625,
+            "available_min_mib": 3009.5859375,
+            "total_duration_ns": 42755005306,
+            "load_duration_ns": 6241444,
+            "prompt_eval_duration_ns": 25941529000,
+            "eval_duration_ns": 16031027000
+          },
+          "candidate": {
+            "measurement_sha256": "77bf6da0bd59255d4afbca00c8a5aaddf136a7bc491062adcd0dcdf192b94a2b",
+            "state": "done",
+            "error_code": null,
+            "elapsed_ms": 61060.91,
+            "private_provider_ttft_ms": 35851.88,
+            "model_call_attempted": true,
+            "model_called_raw": true,
+            "prompt_eval_count": 1266,
+            "eval_count": 78,
+            "rss_sum_peak_mib": 4373.890625,
+            "available_min_mib": 3021.0078125,
+            "total_duration_ns": 60507749938,
+            "load_duration_ns": 10733982,
+            "prompt_eval_duration_ns": 34639987000,
+            "eval_duration_ns": 25187774000
+          },
+          "same_completed_model_route": true
+        },
+        {
+          "case_id": "H03",
+          "baseline": {
+            "measurement_sha256": "22107c5af1ad94532c227349e52143c064a4893a099b5a7d6b6fa6e7fd093fed",
+            "state": "done",
+            "error_code": null,
+            "elapsed_ms": 114515.27,
+            "private_provider_ttft_ms": 88939.24,
+            "model_call_attempted": true,
+            "model_called_raw": true,
+            "prompt_eval_count": 1776,
+            "eval_count": 78,
+            "rss_sum_peak_mib": 4376.1171875,
+            "available_min_mib": 3009.48828125,
+            "total_duration_ns": 113770929891,
+            "load_duration_ns": 4922534,
+            "prompt_eval_duration_ns": 88068682000,
+            "eval_duration_ns": 25532583000
+          },
+          "candidate": {
+            "measurement_sha256": "18d5251b3171439be886ac8fbb2024e08e12c94398f53161eda00c4dba889986",
+            "state": "done",
+            "error_code": null,
+            "elapsed_ms": 83443.37,
+            "private_provider_ttft_ms": 61991.24,
+            "model_call_attempted": true,
+            "model_called_raw": true,
+            "prompt_eval_count": 1801,
+            "eval_count": 78,
+            "rss_sum_peak_mib": 4375.34765625,
+            "available_min_mib": 3028.01171875,
+            "total_duration_ns": 82811916615,
+            "load_duration_ns": 4946832,
+            "prompt_eval_duration_ns": 61260222000,
+            "eval_duration_ns": 21388665000
+          },
+          "same_completed_model_route": true
+        },
+        {
+          "case_id": "H04",
+          "baseline": {
+            "measurement_sha256": "2761dd018c7f9b4ddf7da3d1ab1a670f8472c1c981614d2283f9b878269d124d",
+            "state": "done",
+            "error_code": null,
+            "elapsed_ms": 188776.54,
+            "private_provider_ttft_ms": 160873.36,
+            "model_call_attempted": true,
+            "model_called_raw": true,
+            "prompt_eval_count": 2274,
+            "eval_count": 57,
+            "rss_sum_peak_mib": 4451.453125,
+            "available_min_mib": 2797.8671875,
+            "total_duration_ns": 187784161180,
+            "load_duration_ns": 6362086,
+            "prompt_eval_duration_ns": 159343750000,
+            "eval_duration_ns": 27839219000
+          },
+          "candidate": {
+            "measurement_sha256": "b5966ee1b593b611a3f611b6c1085eedaae5739ceff06f195d290362fe6689fb",
+            "state": "done",
+            "error_code": null,
+            "elapsed_ms": 143717.75,
+            "private_provider_ttft_ms": 125293.68,
+            "model_call_attempted": true,
+            "model_called_raw": true,
+            "prompt_eval_count": 2251,
+            "eval_count": 52,
+            "rss_sum_peak_mib": 4467.17578125,
+            "available_min_mib": 2919.359375,
+            "total_duration_ns": 142320757938,
+            "load_duration_ns": 9867565,
+            "prompt_eval_duration_ns": 123409369000,
+            "eval_duration_ns": 18384675000
+          },
+          "same_completed_model_route": true
+        },
+        {
+          "case_id": "H05",
+          "baseline": {
+            "measurement_sha256": "c8e069b2199704e7a295bfd68b58706b76f67849e6afe95e97779935a21aafbf",
+            "state": "done",
+            "error_code": null,
+            "elapsed_ms": 151350.03,
+            "private_provider_ttft_ms": 135130.7,
+            "model_call_attempted": true,
+            "model_called_raw": true,
+            "prompt_eval_count": 2195,
+            "eval_count": 52,
+            "rss_sum_peak_mib": 4450.01171875,
+            "available_min_mib": 2893.26953125,
+            "total_duration_ns": 150318284053,
+            "load_duration_ns": 7331715,
+            "prompt_eval_duration_ns": 133517282000,
+            "eval_duration_ns": 16071800000
+          },
+          "candidate": {
+            "measurement_sha256": "6d049546dca4c3b2a6d8fefc9648c6a895258e9d697c83517bb082358c18a98e",
+            "state": "done",
+            "error_code": null,
+            "elapsed_ms": 130172.33,
+            "private_provider_ttft_ms": 114385.22,
+            "model_call_attempted": true,
+            "model_called_raw": true,
+            "prompt_eval_count": 2174,
+            "eval_count": 52,
+            "rss_sum_peak_mib": 4463.45703125,
+            "available_min_mib": 2939.046875,
+            "total_duration_ns": 128939235500,
+            "load_duration_ns": 10646197,
+            "prompt_eval_duration_ns": 112507048000,
+            "eval_duration_ns": 15731408000
+          },
+          "same_completed_model_route": true
+        },
+        {
+          "case_id": "H06",
+          "baseline": {
+            "measurement_sha256": "69ce883f427ada870d9ac23baae26825f7804386ed765b547175295a6cc8cc72",
+            "state": "error",
+            "error_code": "trace_budget_exceeded",
+            "elapsed_ms": 1594.14,
+            "private_provider_ttft_ms": null,
+            "model_call_attempted": false,
+            "model_called_raw": false,
+            "prompt_eval_count": null,
+            "eval_count": null,
+            "rss_sum_peak_mib": 4395.1953125,
+            "available_min_mib": 2973.71875,
+            "total_duration_ns": null,
+            "load_duration_ns": null,
+            "prompt_eval_duration_ns": null,
+            "eval_duration_ns": null
+          },
+          "candidate": {
+            "measurement_sha256": "0acc54299945040f8992f5e7095c383b93c66c675854762fea90b38b57cf7c14",
+            "state": "error",
+            "error_code": "ollama_timeout",
+            "elapsed_ms": 303168.69,
+            "private_provider_ttft_ms": null,
+            "model_call_attempted": true,
+            "model_called_raw": false,
+            "prompt_eval_count": null,
+            "eval_count": null,
+            "rss_sum_peak_mib": 4459.40234375,
+            "available_min_mib": 2932.62109375,
+            "total_duration_ns": null,
+            "load_duration_ns": null,
+            "prompt_eval_duration_ns": null,
+            "eval_duration_ns": null
+          },
+          "same_completed_model_route": false
+        },
+        {
+          "case_id": "H07",
+          "baseline": {
+            "measurement_sha256": "56d990df2a49ff7ed834c6bfc9542d3a01859c29febe0cce87a06e4e66e9f372",
+            "state": "done",
+            "error_code": null,
+            "elapsed_ms": 131523.86,
+            "private_provider_ttft_ms": 103614.97,
+            "model_call_attempted": true,
+            "model_called_raw": true,
+            "prompt_eval_count": 1980,
+            "eval_count": 85,
+            "rss_sum_peak_mib": 4373.1640625,
+            "available_min_mib": 2958.2109375,
+            "total_duration_ns": 130945728756,
+            "load_duration_ns": 7619228,
+            "prompt_eval_duration_ns": 102343214000,
+            "eval_duration_ns": 27855755000
+          },
+          "candidate": {
+            "measurement_sha256": "b769344e14967848bb325afa795f000e8f45b1106cd5bcde0324f08c5fbc4a7b",
+            "state": "done",
+            "error_code": null,
+            "elapsed_ms": 155396.06,
+            "private_provider_ttft_ms": 123460.51,
+            "model_call_attempted": true,
+            "model_called_raw": true,
+            "prompt_eval_count": 1975,
+            "eval_count": 85,
+            "rss_sum_peak_mib": 4401.41796875,
+            "available_min_mib": 2975.6015625,
+            "total_duration_ns": 154063049036,
+            "load_duration_ns": 13411671,
+            "prompt_eval_duration_ns": 90524911000,
+            "eval_duration_ns": 31878772000
+          },
+          "same_completed_model_route": true
+        },
+        {
+          "case_id": "H08",
+          "baseline": {
+            "measurement_sha256": "aad2a21f83c66f23b55d5adbd9b843ab37fc9eea934b4e4f1d9f3d8bf0ef6299",
+            "state": "error",
+            "error_code": "trace_budget_exceeded",
+            "elapsed_ms": 1761.7,
+            "private_provider_ttft_ms": null,
+            "model_call_attempted": false,
+            "model_called_raw": false,
+            "prompt_eval_count": null,
+            "eval_count": null,
+            "rss_sum_peak_mib": 4393.84765625,
+            "available_min_mib": 2979.99609375,
+            "total_duration_ns": null,
+            "load_duration_ns": null,
+            "prompt_eval_duration_ns": null,
+            "eval_duration_ns": null
+          },
+          "candidate": {
+            "measurement_sha256": "e42b9547129ec0d705a11f5eefd639bbc21c322915d70ce6eb95322d7c488614",
+            "state": "done",
+            "error_code": null,
+            "elapsed_ms": 190724.95,
+            "private_provider_ttft_ms": 170025.58,
+            "model_call_attempted": true,
+            "model_called_raw": true,
+            "prompt_eval_count": 2867,
+            "eval_count": 57,
+            "rss_sum_peak_mib": 4454.21484375,
+            "available_min_mib": 2934.0,
+            "total_duration_ns": 188141001795,
+            "load_duration_ns": 6634077,
+            "prompt_eval_duration_ns": 166931981000,
+            "eval_duration_ns": 20619542000
+          },
+          "same_completed_model_route": false
+        }
+      ],
+      "limits": [
+        "One observed primary run per case and arm; no variance estimate or causal attribution.",
+        "Same-completed-route comparison excludes H06 and H08 from its own timing denominator but preserves their failures in the full eight-case table.",
+        "Private provider TTFT does not measure validated public-answer arrival.",
+        "Raw model_called=false for candidate H06 means no accepted provider stream event, not no request; see separate timeout diagnostic.",
+        "RSS sums concern monitored process trees and may include resident model memory; not total host RAM."
+      ]
+    },
+    "direct_execution_route_counts": {
+      "scope": "20 primary direct cases per arm: Office8 + PDF2 + transfer8 + derived scans2. HTTP separate. Execution route counts do not pool documentary quality scores.",
+      "summary": {
+        "baseline": {
+          "total_fixed": 20,
+          "done": 16,
+          "errors": 4,
+          "completed_model_routes": 11,
+          "attempted_failed_model_routes": 0,
+          "completed_without_model_attempt": 5,
+          "errors_without_model_attempt": 4
+        },
+        "candidate": {
+          "total_fixed": 20,
+          "done": 19,
+          "errors": 1,
+          "completed_model_routes": 14,
+          "attempted_failed_model_routes": 1,
+          "completed_without_model_attempt": 5,
+          "errors_without_model_attempt": 0
+        }
+      },
+      "receipt": "native-execution-counts-review.json",
+      "model_called_semantic_caveat": "model_called is a raw received-stream-event indicator; candidate H06 made a real request before timeout. Completion for14candidate routes also attested in the saved native reviews/traces."
+    }
+  },
+  "ocr_development": {
+    "execution_kind": "real locked Tesseract5.4.0 and native pipeline integration; no model generation",
+    "ocr_test_count": 7,
+    "font_prerequisite_test_count": 1,
+    "baseline_ocr_passed": 2,
+    "baseline_ocr_failed": 5,
+    "candidate_ocr_passed": 7,
+    "candidate_ocr_failed": 0,
+    "font_passed_both": true,
+    "baseline_cli_seconds": 150.85,
+    "candidate_cli_seconds": 178.75,
+    "reserved_scan_success_inferred": false,
+    "baseline_tesseract_sha256": "d6433dab06f0c58ff3536560b208e92c156664f7fe48210f00f7a17f75e0c3ac",
+    "candidate_tesseract_sha256": "61461b50cb385288c9c1a0382c5836202bdb7ded69b899b04f83122399959c97",
+    "paired_preparations_use_arm_specific_ocr": true,
+    "shared_weights_only": [
+      "Docling",
+      "multilingual-E5-small",
+      "Qwen3-4B"
+    ],
+    "global_comparison_scope": "Product changes plus OCR runtime fix; separate local normmatch ablation does not establish global causal attribution.",
+    "source_fix_ablation": {
+      "kind": "incremental_upstream_source_fix_ablation",
+      "original_exit_code": -8,
+      "candidate_exit_code": 0,
+      "candidate_orientation_degrees_clockwise": 0,
+      "same_raw_raster_sha256": true,
+      "same_osd_model_sha256": true,
+      "raw_raster_sha256": "a5b899ec216980cc14d3e074e405524b5bdcdede1540e2012c30fecf24b70f53",
+      "original_binary_sha256": "d6433dab06f0c58ff3536560b208e92c156664f7fe48210f00f7a17f75e0c3ac",
+      "candidate_binary_sha256": "61461b50cb385288c9c1a0382c5836202bdb7ded69b899b04f83122399959c97",
+      "changed_compiled_objects": [
+        "CMakeFiles/libtesseract.dir/src/classify/normmatch.cpp.o"
+      ],
+      "reused_objects": 223,
+      "fresh_full_build": false,
+      "first_attempt_failed_configuration_guard": true,
+      "first_attempt_retained": true,
+      "resume_compilation_repeated": false,
+      "resume_metadata_allowance": "Only two generated compiler_depend.make listings; source/options/cache/rules/other object isolation stayed checked.",
+      "scope": "One OSD raster; not recognition accuracy or general OCR qualification."
+    },
+    "separate_artifact_review": {
+      "receipt": "ocr-before-after-review.json",
+      "review_outcome": "reviewed_controls_satisfied_with_explicit_limits",
+      "comparability": {
+        "same_host": true,
+        "same_test_names": true,
+        "same_font_evidence": true,
+        "six_pdf_inputs_byte_identical": true,
+        "five_page_input_difference": "Only PDFium CreationDate and trailer ID differ; all remaining PDF bytes and all five OSD raster hashes are identical.",
+        "adapter_difference": "The only docling_adapter change adds the pure annotate_explicit_lists call after extraction. No list annotations occur in any of the 16 reviewed pages; regional OCR, thresholds and cell recognition code are byte-identical.",
+        "causal_scope": "The one-raster native ablation isolates the source backport. The seven ingestion controls additionally include I4 structural-list metadata code, with no observed binding or source-text mutation in this corpus."
+      },
+      "counts": {
+        "candidate_pages": 16,
+        "candidate_pages_using_ocr": 9,
+        "candidate_blocks": 69,
+        "list_annotations": 0,
+        "nominal_tables": 8,
+        "nominal_cell_boxes": 96,
+        "table_cells_total": 126,
+        "cell_ocr_traces": 105
+      },
+      "limits": [
+        "This is a non-blind post-run artifact review, not a new OCR execution or general production qualification.",
+        "Negative numeric values, plus/minus OCR, scientific notation and decimal commas are not covered by these seven integration controls; typed units, decimal points, identifier hyphens and degree/middle-dot/slash unit symbols are covered by the retained assertions.",
+        "Confidence is a rejection threshold, not evidence of textual correctness: exact controlled cell values and their geometry were compared separately.",
+        "The suite is ingestion-only and loads no generative model; it does not qualify the final 4B RAG response.",
+        "No independent per-worker binary-hash attestation or peak-RSS measurement is present in these worker result artifacts.",
+        "Suite wall time rose from 150.85 s to 178.75 s while previously skipped recognition actually ran; this is not an isolated latency-efficiency comparison or a repeated statistical timing experiment.",
+        "All four warnings in each arm concern pytest record_property with xunit2, not extraction failures."
+      ]
+    }
+  },
+  "trace_storage_fix": {
+    "primary_failures_preserved": true,
+    "default_profile_mode": "hashes",
+    "default_profile_physical_per_query_bytes": 2097152,
+    "native_qualification_mode": "full",
+    "native_qualification_physical_per_query_bytes": 8388608,
+    "physical_quotas_changed": false,
+    "expanded_payload_max_event_bytes": 33554432,
+    "expanded_payload_max_trace_bytes": 67108864,
+    "offline_reencoded_primary_trace": {
+      "original_file_bytes": 7902770,
+      "reencoded_file_bytes": 735199,
+      "payload_count": 7,
+      "all_original_payloads_exact": true,
+      "new_queries": 0,
+      "model_calls": 0
+    },
+    "logical_bounds_are_not_measured_python_peak_memory": true
+  },
+  "prior_attempts": {
+    "portable_inside_repository": {
+      "passed": 4024,
+      "failed": 15,
+      "skipped": 25,
+      "deselected": 45,
+      "cause": "basetemp inside real repository conflicts with isolation/path assertions; preserved"
+    },
+    "portable_collection_difference": {
+      "new_tests": 46,
+      "removed_tests": 0,
+      "new_module": "tests.unit.test_i4_materialization",
+      "not61_product_bug_fixes": true
+    },
+    "mypy_initial_errors": 6,
+    "operational_initial_setup_errors": 9,
+    "all_raw_attempts_retained": true
+  },
+  "definition_of_done": {
+    "D01": {
+      "status": "FAIL",
+      "failure": "Heldout H03 publishes Min = C 0.25 V instead of the original Typ relation; both derived scan outputs also copy erroneous recognized units/signs, including SCAN1 230 HW instead of 230 µW.",
+      "strict_original_source_review": true,
+      "abstention_does_not_neutralize_false_association": true,
+      "failures_not_neutralized_by_scoped_refusal_or_warning": true
+    },
+    "D02": {
+      "status": "PASS_WITHIN_DECLARED_MATRIX",
+      "evidence": "Eight selection frontiers and exactR04/R05; INA bus+supply retained through rendered answer.",
+      "scope_limit": "Candidate INA still fails strict answer quality because of an unwarranted coverage notice."
+    },
+    "D03": {
+      "status": "PASS_WITHIN_DECLARED_MATRIX",
+      "evidence": "Eight structure frontiers,38 targeted tests and both TMP native interval/temperature relations with exact list dependencies.",
+      "scope_limit": "Repeated closing-resolution quote remains an irrelevant presentation defect."
+    },
+    "D04": {
+      "status": "PARTIAL",
+      "declared_local_matrix_status": "PASS",
+      "evidence": "Controlled strict 12/12 positives + 18/18 limits; qualitative development controls; final frozen Office 4/4 positives + 4/4 limits.",
+      "objective_limit": "Transfer H05 has complete requested facts and retains an unnecessary global reserve; the general simple-answer objective is not fully met.",
+      "temporal_scope": "Controlled30 preceded the final list-subject fix; 284 targeted tests and native Office follow it."
+    },
+    "D05": {
+      "status": "FAIL",
+      "development_matrix": "Seven real OCR integration tests pass, separate font prerequisite also passes.",
+      "failure": "Heldout SCAN2 units/conditions and other signs remain mistranscribed; 39 recovered text blocks and correct provenance do not demonstrate faithful OCR.",
+      "remaining": "No remaining scan execution; 0/2 strict candidate and both published responses have original transcription errors. Seven integration successes do not satisfy this heldout fidelity gate."
+    },
+    "D06": {
+      "status": "PASS_WITH_PLATFORM_SCOPE",
+      "full_exact_freeze_portable_rerun": {
+        "status": "PASS",
+        "passed": 4105,
+        "skipped": 25,
+        "deselected": 45,
+        "failures": 0,
+        "errors": 0,
+        "cli_seconds": 578.02,
+        "junit_seconds": 577.583,
+        "source_changes_since_freeze": false,
+        "receipt": "portable-frozen-final-receipt.json",
+        "temporary_directory_outside_repository": true
+      },
+      "evidence": "Exact-freeze portable4105 PASS; relevant integrations27 PASS; Mypy134/Ruff PASS; real HTTP operational and documentary PASS; synchronized brief and11 pack checks PASS.",
+      "scope_limit": "Windows and other unexecuted target/acceptance suites remain NOT_RUN. Software gate does not qualify documentary fidelity or production readiness."
+    },
+    "D07": {
+      "status": "FAIL",
+      "failure": "Candidate primary INA has an unnecessary missing-property notice; heldout transfer strict 0/6 positives + 1/2 limits fails the frozen 6/6 + 2/2 target.",
+      "acquired": "Office 7/8 → 8/8 strict; PDF 0/2 → 1/2 strict and candidate facts complete 2/2. Transfer 0/8 → 1/8 strict, with a content-completeness regression H04.",
+      "errors_retained_in_denominator": true,
+      "remaining": "No remaining direct native/scan runs; HTTP documentary result is separate and cannot erase the primary failures."
+    },
+    "D08": {
+      "status": "PARTIAL",
+      "remaining": "HTTP/SSE operational gate and terminal receipt consolidation pass; baseline Office heavy overlap remains NOT_SATISFIED. No general production latency or platform/resource qualification follows.",
+      "subcriteria": {
+        "no_heavy_overlap": {
+          "status": "NOT_SATISFIED",
+          "affected_block": "native-baseline-office",
+          "reason": "Mypy overlap observed and preserved; CPU/RAM impact not measured."
+        },
+        "owned_service_stops_completed_blocks": {
+          "status": "PASS",
+          "does_not_compensate_for_overlap": true
+        },
+        "real_http_sse": {
+          "status": "PASS_OPERATIONAL",
+          "documentary_status": "PASS_ONE_FIXED_CASE",
+          "does_not_override_other_quality_gates": true
+        }
+      }
+    },
+    "D09": {
+      "status": "PARTIAL",
+      "acquired": "Protocol, sources/oracles, hashes, immutable baseline, final candidate freeze and exact offline materialization; primary paired Office/PDF/transfer runs preserved.",
+      "limits": [
+        "Oracle preparer subsequently authored product trace codec, so not an absolute division between all product developers and validation.",
+        "No output-informed tuning after final freeze; other selection/contract/ingestion authors were kept from oracles before freeze.",
+        "One native measurement per case; baseline Office Mypy overlap; fresh network materialization failed DNS."
+      ],
+      "remaining": "Execution and review records complete. Final delivery evidence aggregation remains; role, timing, and attribution limitations persist."
+    },
+    "D10": {
+      "status": "PENDING",
+      "remaining": "Commit,push,remote SHA/tree verification. Implementation,experiments,reviews and documentation checks are complete."
+    }
+  },
+  "private_evidence": {
+    "root_relative": ".runtime/qa/production-i4-20261108",
+    "not_bundled_in_public_repository": true,
+    "files": {
+      "pre-freeze-gates.json": {
+        "sha256": "9cfa5eb853306231e444630234f932af78811eed62e62166cb0b34ecfbf32354",
+        "bytes": 1082
+      },
+      "protocol-freeze.json": {
+        "sha256": "2a056ae12cdc1ac576ba691d0095cd23b30e7dc449ea3423c1853dc8b5d830c5",
+        "bytes": 307
+      },
+      "controlled-baseline.json": {
+        "sha256": "86d357e04efa1c3b4cf25b806ed330ed4216dd2091bf6d5301b7533778c5775e",
+        "bytes": 3889722
+      },
+      "controlled-candidate.json": {
+        "sha256": "d7df1d870fc6e0052afa4421796e9bfaf1649669401201b86c6cea161aa6700d",
+        "bytes": 3897459
+      },
+      "controlled-baseline-review.json": {
+        "sha256": "2ba3b28424fae0015807ffd1aa3d3570d4d89448fc19296f4e92e28e24e80099",
+        "bytes": 46806
+      },
+      "controlled-candidate-review.json": {
+        "sha256": "a979513ef8a9fc3ada36e5ff2ff40472d4608ae0d9a985bea7d06152dd42da6d",
+        "bytes": 53493
+      },
+      "native-baseline-office-review.json": {
+        "sha256": "e02940122cca8b37515d253a8ba7564b6faa808b0996ab63043eaadb47012428",
+        "bytes": 19734
+      },
+      "portable-final.xml": {
+        "sha256": "cab128b5ebc4f399867904eaebbf0bf3376f062dee49fc10bc9cf0bba0d33299",
+        "bytes": 742622
+      },
+      "portable-final.log": {
+        "sha256": "c615c2f55fd0d8367709796af0c413291468482758721f435c65a3cbcf642cbf",
+        "bytes": 80844
+      },
+      "portable-external.xml": {
+        "sha256": "69cb983d8c9510989acce852d0b173cf982b1eae61472e7e5b9352d5373db020",
+        "bytes": 672063
+      },
+      "portable-external.log": {
+        "sha256": "607b595fb3ee4fab1e04549e455ea5b9c57ce1933aea01e782bbc523de9223d7",
+        "bytes": 5212
+      },
+      "integration-final.xml": {
+        "sha256": "c6e9f3c00f50b4c140613459c15ceff3d377936d682cd5accb6c84ece557ee4b",
+        "bytes": 5308
+      },
+      "integration-final.log": {
+        "sha256": "b58b6485bda91437596f8385792205588ae727b9a52ff1f3c2008ecdd7b237ac",
+        "bytes": 1048
+      },
+      "typing-regression.xml": {
+        "sha256": "b5e2ac708173244f80a84e75c18df0d4037b083b92e591175019b7a5dad43fd8",
+        "bytes": 14494
+      },
+      "mypy-final-all.log": {
+        "sha256": "05514c8efea082a18c7e275da0cc7cc8a4d34786093fdca062ec1dc58bd22a5e",
+        "bytes": 1640
+      },
+      "mypy-typing-fixed.log": {
+        "sha256": "6c36b089391100a72a8cc523a2cfb38ccdc66db71c1dbd9ae2315ed9f61ce7eb",
+        "bytes": 45
+      },
+      "ruff-typing-final.log": {
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      },
+      "ocr-baseline.xml": {
+        "sha256": "a0ff05cc66accdbe34a0061090b9bcc1c42d478a7cbc9b3b2a6452308114ef5a",
+        "bytes": 11603
+      },
+      "ocr-candidate.xml": {
+        "sha256": "6fec645c7cf59818fe79afa72d87517f9ac486099d1c6f05d1b6a71f7ececfac",
+        "bytes": 2669
+      },
+      "operational-fixture-fixed.xml": {
+        "sha256": "90a7453f6f7d060d8aa84909bb281e4e55ae50f689a5474e27024df231ec73f4",
+        "bytes": 1541
+      },
+      "harness-reviewed.xml": {
+        "sha256": "c6b1f7398c343681498cd0be5058d4f9567ad91cf5ffc0bfaf07c7d6ef0e82d0",
+        "bytes": 1468
+      },
+      "trace-compaction-protocol.json": {
+        "sha256": "66b0a8bd55ab7f86f4862a370a4bd08636a942420d1469a16bc42eda7fb56f73",
+        "bytes": 2070
+      },
+      "trace-compaction-before.xml": {
+        "sha256": "4bcb97486b7406e81d6e1e079d9264ee733c9ef88692b5ad7d6fc577723ca071",
+        "bytes": 2733
+      },
+      "trace-compaction-final.xml": {
+        "sha256": "110d7c4944dfb3f194acbcf6b0667dd9339f9318151f73a7dd9a4aa0b932e1db",
+        "bytes": 18542
+      },
+      "trace-compaction-checks.json": {
+        "sha256": "575ea3af675f4ceb7084bcc44f854d5d0f686e04c0f02e7942388ff2a7583990",
+        "bytes": 2714
+      },
+      "trace-compaction-typing-note.json": {
+        "sha256": "a89e670eade45dd4498ef2cc0bb815b19c945722a60e3b330623a063fec1bc22",
+        "bytes": 581
+      },
+      "trace-compaction-offline-review.json": {
+        "sha256": "974fdbf918c1c7698bb385b0710e60c0ff3444be2c0a5101869a0dadc2f06d1c",
+        "bytes": 3899
+      },
+      "trace-metadata-diagnostic.json": {
+        "sha256": "5bad0fa1f4edf9880379b4562f81a8c96de6b01b851255d3069a1e45017d9146",
+        "bytes": 1456
+      },
+      "structure-mypy-overlap-receipt.json": {
+        "sha256": "3ec49108398b7c5562f302576e63f039732678c777d0bcbc8d74eab904fbe2f7",
+        "bytes": 1957
+      },
+      "agreement-r05-before.json": {
+        "sha256": "a15448c87cbbb42ca1746dbc93f392f29423eac3867d83e09780c930fdc313a7",
+        "bytes": 8262
+      },
+      "agreement-r05-after.json": {
+        "sha256": "4ddb5715fada6468f7c19a4405e18d63bb81d5d0d90d3a4b748aaafee0ea35e6",
+        "bytes": 12844
+      },
+      "list-subject-before.json": {
+        "sha256": "64438944c3bb11575dec1e90899249ba971425154e8f953b49273fda1eb8c5f8",
+        "bytes": 18097
+      },
+      "list-subject-before.xml": {
+        "sha256": "055dc66dee67f4f2d70f3e980aa10375e13af43f2770705b541b1090b195c738",
+        "bytes": 21508
+      },
+      "candidate-freeze.json": {
+        "sha256": "be7ad4c46c89de7c3c351fa0f3fc7a79369c8e336542474b01f7586467c37d9b",
+        "bytes": 16396
+      },
+      "list-subject-after.xml": {
+        "sha256": "210c6667e6176c61202e89ef0e9d33fdf1a8943f05ec859eb2cf0a00da26d82e",
+        "bytes": 53984
+      },
+      "mypy-subject-final.log": {
+        "sha256": "6c36b089391100a72a8cc523a2cfb38ccdc66db71c1dbd9ae2315ed9f61ce7eb",
+        "bytes": 45
+      },
+      "ruff-subject-final.log": {
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      },
+      "materialization-independent-review.json": {
+        "sha256": "50c7b24fae8cc424ce45936e65d2e54d6aa0be40ff5d92e99958844f2cb456f1",
+        "bytes": 8425
+      },
+      "heldout-materialized-offline/materialization-receipt.json": {
+        "sha256": "d9973460cd2a057048cbb28c6e5270d6d5a6af3b65dd9ed89fd7ccd951234b8a",
+        "bytes": 3508
+      },
+      "heldout-materialized/materialization-receipt.json": {
+        "sha256": "20e108c15dd3ce2db0bc95c0528cf13ee06cea46e6d5b54cc97888da3a726b7f",
+        "bytes": 1969
+      },
+      "native-candidate-office-review.json": {
+        "sha256": "1cbf9c7a100e313fb3d301f8a433729ce0deaa2927f416a1d65eb4a33abea4d4",
+        "bytes": 70260
+      },
+      "native-candidate-office-cross-review.json": {
+        "sha256": "be5dd5fada1ec15730c11a189539ac9bf1ebdacbbd80441a6cd43a395ed11a4e",
+        "bytes": 17019
+      },
+      "native-office-paired-performance.json": {
+        "sha256": "e5e5bd0c7223d4a61c3c0b10631036a10b1622274c1f86bdac0bc310ee5d0fbb",
+        "bytes": 6252
+      },
+      "native-candidate-office/service-stop.json": {
+        "sha256": "c31a4242ca4e3884e91b6017a609df01129799ae1f3e142cbfb61e0ceb654060",
+        "bytes": 393
+      },
+      "native-candidate-office/measurements/source-stability.json": {
+        "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+        "bytes": 33
+      },
+      "transfer-review-readiness.json": {
+        "sha256": "611d5e96352ff8939284ac1e0e307bdab6c4ec9b6f737a0c86e55d5bb114b25f",
+        "bytes": 5417
+      },
+      "pdf-extraction-review-final.json": {
+        "sha256": "c9847dac7b5f319a6bd29d4e520f89b2b1464f2a8a2385061aed436eadab3c2a",
+        "bytes": 123730
+      },
+      "pdf-candidate-preparation/preparation-receipt.json": {
+        "sha256": "86ff575d6ef504ee41709080f7c27a31d74f87c9131777688b041386626d64b4",
+        "bytes": 929
+      },
+      "pdf-extraction-review-conclusion.json": {
+        "sha256": "b62a8f7d851433b2b4c3e6a388557dd88a2efa690ec0bbce4e65c1855a9f14bd",
+        "bytes": 20979
+      },
+      "native-candidate-pdf-review.json": {
+        "sha256": "10db11011653e6358ad80fd441686f6440d24f9e339889f46f6256ecbd8625ac",
+        "bytes": 47862
+      },
+      "native-candidate-pdf-cross-review.json": {
+        "sha256": "0af24d5e6af017634d17b500e998fc67d5f58b8a9241049b101eeb59b2207035",
+        "bytes": 11857
+      },
+      "native-candidate-pdf/service-stop.json": {
+        "sha256": "c31a4242ca4e3884e91b6017a609df01129799ae1f3e142cbfb61e0ceb654060",
+        "bytes": 393
+      },
+      "native-candidate-pdf/measurements/source-stability.json": {
+        "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+        "bytes": 33
+      },
+      "transfer-source-review-after-freeze.json": {
+        "sha256": "2e86f9f2e208f08f147c1aa730fbd63f2e4e19330df9017e838583d6b1950b8a",
+        "bytes": 3151
+      },
+      "transfer-baseline-extraction-review.json": {
+        "sha256": "9de2cdcc10e70b311b0f9ca6e9e6da42b47b461bdacf00c4866a0474a94deb84",
+        "bytes": 52111
+      },
+      "native-baseline-transfer-review.json": {
+        "sha256": "53584f41774e6c2d65497cbe483bf10713563a5e5beada2b11671cf86d209327",
+        "bytes": 51132
+      },
+      "native-candidate-transfer-review.json": {
+        "sha256": "de77550c3844d91143a5a3da5fca28601fd1f8320ec220638dcc98c82e80a6ae",
+        "bytes": 32117
+      },
+      "native-candidate-transfer-trace-review.json": {
+        "sha256": "7ab3683c650113272328f996b1b04000e4d3ad42f73619522857cc6614998f02",
+        "bytes": 6603
+      },
+      "native-transfer-paired-performance.json": {
+        "sha256": "1efeda3c7fb9ff1f1b3910e03a4d0bcb3e13798d473e6c77d97f13372ef7a27e",
+        "bytes": 12230
+      },
+      "transfer-extraction-before-after-review.json": {
+        "sha256": "66687ce2c7cb2956b6bfb0135731b2b5b9e640ec907c12923116946eb65977c1",
+        "bytes": 74751
+      },
+      "transfer-h04-omission-diagnostic.json": {
+        "sha256": "d55a069e365b02a78f060bb7a71e9850218c9be717d6a92cf533219c386d570e",
+        "bytes": 1784
+      },
+      "transfer-h06-timeout-diagnostic.json": {
+        "sha256": "0c524c4c8fbc717cc0070fce7f70ca7d837d429624e090d98f57d1f06781b7f7",
+        "bytes": 4585
+      },
+      "native-candidate-transfer/service-stop.json": {
+        "sha256": "c31a4242ca4e3884e91b6017a609df01129799ae1f3e142cbfb61e0ceb654060",
+        "bytes": 393
+      },
+      "native-candidate-transfer/measurements/source-stability.json": {
+        "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+        "bytes": 33
+      },
+      "ocr-scan-baseline-extraction-review.json": {
+        "sha256": "4104b2e6836ac5668ad3db84aeb271bbfe3a47df2f65ec4f7be154d5dcada617",
+        "bytes": 27510
+      },
+      "native-baseline-ocr-review.json": {
+        "sha256": "90a764f2d05af79010336b2e0ed6882b58cbd71c47b5cbacf4b77f2228cad7f9",
+        "bytes": 13536
+      },
+      "ocr-scan-before-after-review.json": {
+        "sha256": "4449379a8d43484010ef897c7893629e12a71eef34bfba2ba176da7fbe0bd1a1",
+        "bytes": 119100
+      },
+      "native-candidate-ocr-review.json": {
+        "sha256": "7042c5162482a3a4c0693dd821537bf96409267b9f8e5e06a188bfba35602e97",
+        "bytes": 29329
+      },
+      "native-candidate-ocr-cross-review.json": {
+        "sha256": "e96432b6d1c8495d3c142c048a41b43e37c79d0a9fd45dde4e7f6c7989725c1f",
+        "bytes": 3263
+      },
+      "native-execution-counts-review.json": {
+        "sha256": "9926774ea7fba3847c3b7cde560dd79523ca1d1b0c4e4ed3c006138a6c43fbb7",
+        "bytes": 16437
+      },
+      "native-candidate-http/http-final-result.json": {
+        "sha256": "1c21e6f04fdadc60ad2b23a6d332845fc111d1884629ae084e140560f015c3e5",
+        "bytes": 1578
+      },
+      "completion-runtime-audit.json": {
+        "sha256": "3e04c64ed909f638c39c3ab2cff07a21bdd85c3047a12e5ec1fa707b222397bb",
+        "bytes": 5897
+      },
+      "i4-final-freeze-identity-and-git-review.json": {
+        "sha256": "764cc60a4d4f74d0bec81acb9e98b295a50a66d0c73fa2f03e4a8ecd33a0b2a0",
+        "bytes": 44898
+      },
+      "ocr-osd-diagnostic/receipt.json": {
+        "sha256": "7efd5d422b2bbb684ea6dc493675a0f491dcc665a72c25ddd9f4accd07659c2f",
+        "bytes": 1626
+      },
+      "ocr-ablation-pr4259/ablation-receipt.json": {
+        "sha256": "fe14e9790abd969d8832c01b3c1d8262e7e416dcab8152c92691e5dedd357b67",
+        "bytes": 84953
+      },
+      "ocr-ablation-pr4259-resume/ablation-receipt.json": {
+        "sha256": "b5f9e89aa33ef2cb4e33c70fd09f1f0bb8b9c67a73f6aa28e53eb1b9769926c9",
+        "bytes": 88963
+      },
+      "ocr-before-after-review.json": {
+        "sha256": "c7b1556a965fc9cf7869f1371c9b8741a50e126ba7f19b4326e4fb5eee423ee0",
+        "bytes": 25535
+      },
+      "native-candidate-http-review.json": {
+        "sha256": "3e6625ae592d5f232d7352d40c96d098604bb48c2ca984a0f0c256c2b6edc591",
+        "bytes": 11259
+      },
+      "native-candidate-http-cross-review.json": {
+        "sha256": "c7860b3e47c3f560f3327df4e49c79f7162e9afd57b26e95a6cad9abf4b3a90a",
+        "bytes": 2527
+      },
+      "portable-frozen-final.xml": {
+        "sha256": "71e60fd9aee0f3c8d2c88b6058b22b09f458a43475972eccf0f3a09c5c0f5d02",
+        "bytes": 675555
+      },
+      "portable-frozen-final.log": {
+        "sha256": "0bac4c2b2e5993e4fb31b4dc85e3e041d949be5836a6e5d75aaaffde86451e25",
+        "bytes": 5212
+      },
+      "portable-frozen-final-receipt.json": {
+        "sha256": "8b92830e09cd7d4a7276af3a3df80dcd9865997ee9c9b9dbfa8f0a38466f763d",
+        "bytes": 1002
+      }
+    }
+  },
+  "limitations": [
+    "No sum across overlapping unit,integration,controlled,native or retry populations.",
+    "Development/test doubles do not qualify native4B inference.",
+    "Private provider TTFT is not public validated-response latency.",
+    "Logical trace reconstruction limits are not an empirical RSS bound.",
+    "No Windows qualification or production deployment inferred.",
+    "Literal citation integrity is distinct from documentary fidelity: heldout H03 violates a table-column relation despite passing exact-span checks.",
+    "Strict transfer gains do not imply positive usefulness gains: 0/6 positive strict successes in both arms, factual completeness 2/6 → 1/6 with H04 regression.",
+    "Oracle preparer also authored product trace codec; historical frozen separation boolean must be read with this explicit role limitation.",
+    "OCR warnings and exact copying of OCR spans do not prove fidelity to the original image; both candidate scan responses retain wrong transcriptions.",
+    "All primary native/scan/HTTP executions and documentary reviews are complete. HTTP is one candidate-only loopback case, not a browser or general production qualification.",
+    "Earlier full portable4085 run is preserved; final exact-freeze4105 run adds20 subject tests and removes none. Test-count difference is not a defect-count estimate."
+  ],
+  "candidate_freeze": {
+    "status": "FROZEN_VERIFIED",
+    "frozen_at_utc": "2026-11-08T17:38:49.575804+00:00",
+    "public_receipt": "production-4b-candidate-freeze-2026-11-08.json",
+    "sha256": "be7ad4c46c89de7c3c351fa0f3fc7a79369c8e336542474b01f7586467c37d9b",
+    "product_config_files": 88,
+    "qualification_harness_files": 46,
+    "checked_file_mismatches": [],
+    "runtime": {
+      "candidate_tesseract_sha256": "61461b50cb385288c9c1a0382c5836202bdb7ded69b899b04f83122399959c97",
+      "baseline_tesseract_sha256": "d6433dab06f0c58ff3536560b208e92c156664f7fe48210f00f7a17f75e0c3ac",
+      "model_manifest_sha256": "aca799db2a4683a3cbd9002592ca065ed110ab29c5f4059ee65a10012348921e",
+      "candidate_tesseract_manifest_sha256": "64622c779bf9d436548ce01c176434975331ae940f9b427586a4304b36a64951"
+    },
+    "no_product_tuning_after_heldout_opening": true
+  },
+  "pending_development_fix": {
+    "type": "list_subject_attribution_bug",
+    "status": "CORRECTED_REVIEWED_FROZEN",
+    "scope": "Explicit list-heading subject must not be replaced by a different subject inferred from the filename.",
+    "tests": "tests/unit/test_i4_list_subjects.py",
+    "product": "services/api/answer_contract.py",
+    "prior_gates_do_not_qualify_this_delta": true,
+    "before_tests": {
+      "tests": 20,
+      "failures": 12,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 8
+    },
+    "after_targeted_tests": {
+      "passed": 284,
+      "failed": 0,
+      "seconds": 9.58
+    },
+    "mypy_files_passed": 134,
+    "ruff_passed": true,
+    "reviewer": "audit_ingestion",
+    "review_blockers": [],
+    "reserved_oracles_consulted_by_subject_fix_authors": false,
+    "separate_oracle_author_later_wrote_codec": true
+  },
+  "pre_freeze_gate_temporal_scope": {
+    "portable_run_before_final_list_subject_fix": true,
+    "next_gate": "Experiments complete; brief/pack and publication metadata pending.",
+    "controlled_30_run_before_final_list_subject_fix": true,
+    "final_exact_freeze_full_portable_run_completed": true,
+    "final_exact_freeze_result_reference": "final_exact_freeze_portable"
+  },
+  "corpus_materialization": {
+    "status": "EXACT_LOCAL_MATERIALIZATION_VERIFIED",
+    "public_manifests_directory": "production-i4-corpus",
+    "public_manifest_count": 4,
+    "originals": 3,
+    "derived_scan_pairs": 2,
+    "materializer_receipt_sha256": "d9973460cd2a057048cbb28c6e5270d6d5a6af3b65dd9ed89fd7ccd951234b8a",
+    "review_receipt_sha256": "50c7b24fae8cc424ce45936e65d2e54d6aa0be40ff5d92e99958844f2cb456f1",
+    "fresh_official_download_qualified": false,
+    "prior_network_attempt": {
+      "status": "FAILED_DNS",
+      "receipt_sha256": "20e108c15dd3ce2db0bc95c0528cf13ee06cea46e6d5b54cc97888da3a726b7f",
+      "preserved": true
+    },
+    "review_kind": "Non-blind artifact and existing-image review by the materializer implementer; not an independent renderer reimplementation or an OCR/answer result.",
+    "all_material_checks_passed": true
+  },
+  "public_corpus_manifests": {
+    "freeze-receipt.json": {
+      "sha256": "becadc6f097cf60a67d52f7e37a3b1d4cdfe6d921ec4afc1d228fce793a2052d",
+      "bytes": 3579
+    },
+    "questions-oracles.json": {
+      "sha256": "748affc2f4d4ccc7d9cf60aed65af88945388e1140883ad8424d3d3b7291a241",
+      "bytes": 13953
+    },
+    "scan-transformations.json": {
+      "sha256": "483b82e78074d7f75d68ee250bf92a6764b82f8a127654ef280da874962a97d0",
+      "bytes": 2748
+    },
+    "sources.json": {
+      "sha256": "4082cb4921aded1b05a63fd855e21aebe42b001c870810e5aeda50251c50be85",
+      "bytes": 1757
+    }
+  },
+  "review_roles": {
+    "method": "Separate non-blind agent review; not human evaluation or a claim that all reviewers are independent of all implementations.",
+    "audit_validation": "Authored frozen oracles, qualification harnesses and product trace codec; did not author selection, answer contract or structural ingestion corrections. Not fully independent of all product implementation.",
+    "audit_grounding": "Authored answer contract; reviews native outputs, with separate cross-review where recorded.",
+    "audit_ingestion": "Authored structural extraction and materializer; reviews material integrity and other components.",
+    "verdict_basis": "Question, actual sources and response, not contract status or lexical grading alone.",
+    "disagreements": "Retained and described when observed.",
+    "oracle_separation_limit": {
+      "selection_contract_ingestion_authors_did_not_consult_before_freeze": true,
+      "validation_author_prepared_oracles": true,
+      "validation_author_later_authored_product_trace_codec": true,
+      "absolute_separation_of_all_product_authors": false,
+      "frozen_receipt_unchanged": true,
+      "historical_implementers_have_not_consulted_boolean_requires_role_qualification": true,
+      "no_native_transfer_output_before_product_freeze": true,
+      "no_post_freeze_product_harness_oracle_tuning": true,
+      "shared_workspace_access_barrier": false
+    }
+  },
+  "runtime_completion": {
+    "receipt": "completion-runtime-audit.json",
+    "scope": "Read-only consolidation of primary runner receipts; no new native run or independent process-namespace inspection. Existing unrelated services are outside scope.",
+    "native_blocks": 9,
+    "paired_direct_blocks": 8,
+    "http_blocks": 1,
+    "preparations": 6,
+    "workers": 14,
+    "all_native_stops_passed": true,
+    "all_native_sources_unchanged": true,
+    "product_files": 88,
+    "harness_files": 46,
+    "changed_since_freeze": [],
+    "public_freeze_byte_identical": true,
+    "qualification_passed": false,
+    "independent_OS_process_namespace_inspection": false
+  },
+  "reproduction_guide": {
+    "path": "RAG_Local_Agents/reports/production-4b-reproduce-2026-11-08.md",
+    "sha256": "462b35814006f0c44c278fc037851d2845c911400ac4541919d2fec78a60218a",
+    "bash_syntax_blocks_checked": 22,
+    "syntax_validation_is_not_campaign_execution": true
+  },
+  "final_exact_freeze_portable": {
+    "status": "PASS",
+    "passed": 4105,
+    "skipped": 25,
+    "deselected": 45,
+    "failures": 0,
+    "errors": 0,
+    "warnings": 1,
+    "cli_seconds": 578.02,
+    "junit_seconds": 577.583,
+    "junit_tests": 4130,
+    "warning_scope": "Starlette test-client transport deprecation",
+    "all_native_services_stopped_before_run": true,
+    "no_other_heavy_work_concurrent": true,
+    "post_run_freeze_unchanged": true,
+    "product_config_files": 88,
+    "harness_files": 46,
+    "collection_comparison_to_previous_full_run": {
+      "previous_passed": 4085,
+      "additional_cases": 20,
+      "removed_cases": 0,
+      "new_case_class": "tests.unit.test_i4_list_subjects",
+      "not_twenty_additional_bugs_fixed": true
+    },
+    "receipt": "portable-frozen-final-receipt.json",
+    "platform_scope": "Linux; unavailable Windows tests remain skipped/NOT_RUN"
+  },
+  "documentation_checks": {
+    "status": "PASS",
+    "scope": "Documentation pack only; no native product inference from these checks.",
+    "brief_synchronized": true,
+    "brief_sha256": "4e830755d9057ea26c52696c7cef3f45d2dc4ccbde8e5f2f8cb8a914ab7e49db",
+    "pack_checks_passed": 11,
+    "pack_warning_count": 12,
+    "pack_warnings_scope": "Existing third-party skill files placement; preserved, not corrected by this lot.",
+    "pack_receipt": "pack-prepublication.json",
+    "pack_receipt_sha256": "358e7996b2145ab44772451c1d2c7f35fc62f53ffed53ae638beef651cfdf16e",
+    "brief_log": "brief-prepublication.log",
+    "brief_log_sha256": "ba027670c3af147c1125fd9572f70d6ffcdad9a5a6d421b66e95d93704864d88"
+  }
+}

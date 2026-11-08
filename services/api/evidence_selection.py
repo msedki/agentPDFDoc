@@ -13,6 +13,15 @@ import unicodedata
 from collections import defaultdict
 from typing import Any
 
+from services.ingestion.pdf_structure import (
+    LIST_STRUCTURE_REVISION,
+    MAX_LIST_PAGE_BLOCKS,
+    MAX_LIST_PAGE_CHARS,
+    explicit_list_groups,
+    list_annotation,
+    list_context,
+)
+
 from .errors import ApiError
 
 REVISION = "evidence-bundles-v4"
@@ -52,6 +61,115 @@ def deduplicate_expanded_sources(sources):
             seen.add(key)
             results.append(source)
     return results
+
+
+def _registered_list_contexts(db, snapshot, generation_id, page_index):
+    """Rebuild layout solely from bounded, authorized immutable DB records."""
+    generation = db.one("SELECT g.version_id,g.extraction_revision_id,g.state,v.document_id FROM index_generations g "
+                        "JOIN document_versions v ON v.id=g.version_id WHERE g.id=?", (generation_id,))
+    if (not generation or generation["state"] not in {"ready", "ready_partial"}
+            or generation["version_id"] != snapshot.versions.get(generation_id)
+            or generation["document_id"] != snapshot.documents.get(generation_id)
+            or snapshot.page_indices is not None and page_index not in snapshot.page_indices):
+        return {}
+    clause, parameters = "generation_id=? AND page_index=?", [generation_id, page_index]
+    allowed_ids = set(snapshot.block_ids) if snapshot.block_ids is not None else None
+    if snapshot.spans:
+        selected_ids = {span["blockId"] for span in snapshot.spans}
+        allowed_ids = selected_ids if allowed_ids is None else allowed_ids & selected_ids
+    if allowed_ids is not None:
+        if not allowed_ids or len(allowed_ids) > MAX_LIST_PAGE_BLOCKS:
+            return {}
+        clause += " AND id IN (" + ",".join("?" for _ in allowed_ids) + ")"
+        parameters.extend(sorted(allowed_ids))
+    sizes = db.rows("SELECT id,length(text) text_size,length(metadata_json) metadata_size FROM blocks WHERE " + clause + " LIMIT ?",
+                    (*parameters, MAX_LIST_PAGE_BLOCKS + 1))
+    if (not sizes or len(sizes) > MAX_LIST_PAGE_BLOCKS or sum(row["text_size"] for row in sizes) > MAX_LIST_PAGE_CHARS
+            or sum(row["metadata_size"] for row in sizes) > MAX_TABLE_METADATA_CHARS):
+        return {}
+    page_row = db.one("SELECT geometry_json FROM pages WHERE generation_id=? AND page_index=?", (generation_id, page_index))
+    if not page_row:
+        return {}
+    try:
+        page = json.loads(page_row["geometry_json"])
+        if not isinstance(page, dict) or page.get("page_index") != page_index:
+            return {}
+        blocks = []
+        for row in db.rows("SELECT * FROM blocks WHERE " + clause + " LIMIT ?", (*parameters, MAX_LIST_PAGE_BLOCKS + 1)):
+            if (row["extraction_revision_id"] != generation["extraction_revision_id"]
+                    or hashlib.sha256(row["text"].encode()).hexdigest() != row["source_text_hash"]):
+                return {}
+            if snapshot.spans and not any(span["blockId"] == row["id"] and span["startOffset"] == 0
+                    and span["endOffset"] == len(row["text"]) and span["extractionRevisionId"] == row["extraction_revision_id"]
+                    and span["blockTextSha256"] == row["source_text_hash"] for span in snapshot.spans):
+                continue
+            metadata = json.loads(row["metadata_json"])
+            if not isinstance(metadata, dict):
+                return {}
+            blocks.append({**metadata, "id": row["id"], "page_index": row["page_index"], "type": row["kind"],
+                           "text": row["text"], "raw_text": row["text"], "bbox": json.loads(row["bbox_json"] or "null"),
+                           "source_text_hash": row["source_text_hash"], "extraction_revision_id": row["extraction_revision_id"]})
+        page["blocks"] = blocks
+        contexts: dict[str, dict] = {}
+        owners: dict[str, list[dict]] = {}
+        for group in explicit_list_groups(page):
+            for item in group["items"]:
+                if item["verified"] and item["block"].get("list_structure") == list_annotation(group, item):
+                    owners.setdefault(item["block"]["id"], []).append(list_context(group, item))
+        for block_id, candidates in owners.items():
+            if len(candidates) == 1:
+                contexts[block_id] = candidates[0]
+        return contexts
+    except (ValueError, TypeError, KeyError, AttributeError):
+        return {}
+
+
+def verified_list_context(db, snapshot, generation_id, item_block_id, *, _cache=None):
+    """Return a reconstructed written-list relation, never a metadata assertion.
+
+    Callers must additionally bind every returned piece to visible, exact source
+    spans in their current context/catalogue. No extra source is fetched for the
+    response and no relation from another revision or scope can be certified.
+    """
+    if generation_id not in snapshot.generations or snapshot.block_ids is not None and item_block_id not in snapshot.block_ids:
+        return None
+    if snapshot.spans and item_block_id not in {span["blockId"] for span in snapshot.spans}:
+        return None
+    row = db.one("SELECT page_index,metadata_json FROM blocks WHERE generation_id=? AND id=? AND length(metadata_json)<=?",
+                 (generation_id, item_block_id, MAX_TABLE_METADATA_CHARS))
+    if not row or row["page_index"] is None:
+        return None
+    try:
+        annotation = json.loads(row["metadata_json"]).get("list_structure")
+        if not isinstance(annotation, dict) or annotation.get("revision") != LIST_STRUCTURE_REVISION:
+            return None
+    except (ValueError, TypeError, AttributeError):
+        return None
+    cache: dict = {} if _cache is None else _cache
+    key = (generation_id, row["page_index"], _digest(snapshot.as_dict()))
+    if key not in cache:
+        cache[key] = _registered_list_contexts(db, snapshot, generation_id, row["page_index"])
+    return cache[key].get(item_block_id)
+
+
+def attach_list_contexts(db, snapshot, source, candidate_ids):
+    """Attach only relations whose complete proof is already in this source."""
+    cache: dict = {}
+    for block in source["blocks"]:
+        if block["id"] not in candidate_ids:
+            continue
+        block.pop("list_context", None)
+        context = verified_list_context(db, snapshot, source["generation_id"], block["id"], _cache=cache)
+        if context is None:
+            continue
+        pieces = [context["heading"], context["item"], *context["dependencies"]]
+        if all(any(visible["id"] == piece["block_id"] and visible["source_text_hash"] == piece["source_text_hash"]
+                   and visible["extraction_revision_id"] == piece["extraction_revision_id"]
+                   and visible["start_offset"] <= piece["start_offset"] < piece["end_offset"] <= visible["end_offset"]
+                   and visible["text"][piece["start_offset"] - visible["start_offset"]:piece["end_offset"] - visible["start_offset"]] == piece["text"]
+                   for visible in source["blocks"]) for piece in pieces):
+            block["list_context"] = context
+    return source
 
 
 def _column(index):

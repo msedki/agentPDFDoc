@@ -646,8 +646,25 @@ def reserve_available(root, monkeypatch):
     return disk_space(monkeypatch, root, 2 * 1024**3)
 
 
+@pytest.fixture
+def stubbed_cmake_toolchain(root, monkeypatch):
+    """Metadata for the explicitly substituted CMake build, independent of the host.
+
+    The tests still compile and inspect a real C binary and exercise installation,
+    source verification and locking. They never execute CMake or C++ compilation;
+    their version commands must therefore be named doubles too. The real CMake
+    build and prerequisite tests keep the unmodified tool discovery.
+    """
+    found = provisioning.build_tools()
+    for name in ("cmake", "c++", "make"):
+        found[name] = str(executable(root / "metadata-doubles" / name,
+                                     f'echo "{name} metadata-only test double"\n'))
+    monkeypatch.setattr(provisioning, "build_tools", lambda search_path=None: dict(found))
+    return found
+
+
 @POSIX
-@pytest.mark.usefixtures("reserve_available")
+@pytest.mark.usefixtures("reserve_available", "stubbed_cmake_toolchain")
 def test_build_installs_verified_binary_then_reuses_it(root, monkeypatch):
     tools = provisioning.build_tools()
     if not all(tools.get(name) for name in ("cc", "ldd", "readelf")):
@@ -688,6 +705,7 @@ def test_build_installs_verified_binary_then_reuses_it(root, monkeypatch):
     assert all(item["path"] is None or item["path"].startswith(provisioning.SYSTEM_LIBRARY_DIRS)
                for item in manifest["dynamic_dependencies"])
     assert manifest["toolchain"]["cc"]["path"] == tools["cc"] and manifest["offline"] is True
+    assert manifest["toolchain"]["cmake"]["version"] == "cmake metadata-only test double"
     assert not list(target.parent.parent.glob("tesseract-5.4.0.tmp-*"))
     assert (root / provisioning.BUILD_DIR / provisioning.BUILD_MARKER).is_file()
     assert not (root / ".runtime/manifests/tesseract-installed-copy.json").exists()
@@ -789,7 +807,7 @@ def test_build_is_refused_while_another_process_holds_the_build_lock(root, monke
 
 
 @POSIX
-@pytest.mark.usefixtures("reserve_available")
+@pytest.mark.usefixtures("reserve_available", "stubbed_cmake_toolchain")
 def test_build_lock_is_held_by_a_real_flock_during_compilation(root, monkeypatch):
     require_real_tools()
     prepared_sources(root)
@@ -809,7 +827,7 @@ def test_build_lock_is_held_by_a_real_flock_during_compilation(root, monkeypatch
 
 
 @POSIX
-@pytest.mark.usefixtures("reserve_available")
+@pytest.mark.usefixtures("reserve_available", "stubbed_cmake_toolchain")
 def test_failed_copy_removes_the_staging_directory_and_installs_nothing(root, monkeypatch):
     require_real_tools()
     prepared_sources(root)
@@ -947,7 +965,7 @@ def test_content_digest_refuses_links(tmp_path):
 
 
 @POSIX
-@pytest.mark.usefixtures("reserve_available")
+@pytest.mark.usefixtures("reserve_available", "stubbed_cmake_toolchain")
 def test_regenerated_cached_archive_with_identical_content_is_accepted_and_recorded(root, monkeypatch, no_network, capsys):
     require_real_tools()
     _, tess, digest = prepared_sources(root)
@@ -981,7 +999,7 @@ class Served(io.BytesIO):
 
 
 @POSIX
-@pytest.mark.usefixtures("reserve_available")
+@pytest.mark.usefixtures("reserve_available", "stubbed_cmake_toolchain")
 @pytest.mark.parametrize("same_content", [True, False])
 def test_online_regenerated_archive_is_accepted_only_if_its_content_matches(root, monkeypatch, same_content):
     require_real_tools()

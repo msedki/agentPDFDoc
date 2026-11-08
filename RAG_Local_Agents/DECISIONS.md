@@ -2327,3 +2327,50 @@ ne changent aucun oracle, paramètre, code ou résultat natif.
 **F07 :** une voie lexicale vide peut être reprise une fois avec les alias techniques statiques existants, sans élargissement du périmètre, des plafonds ou des identifiants. Une condition de température explicitement attachée à une plage d'alimentation reste une condition, dont la valeur doit être présente dans chaque relation source. Les questions de température et les demandes mixtes gardent leurs contrôles distincts.
 
 **Conséquences :** ablation du repli, positifs, abstentions et erreurs restent évalués séparément ; aucun refus supplémentaire ne vaut amélioration à lui seul. Les publications de méthode référencées dans [SOURCES.md](SOURCES.md#ev4b-i3--méthode-et-preuves-i3f07-8-novembre-2026-utc) motivent les essais, sans servir de preuve de benchmark local, de qualification métier ou de recette globale.
+
+
+## EV4B-I4-D01 — préserver les preuves utiles aux deux budgets (8 novembre 2026 UTC)
+
+**Statut :** décision implémentée, essais ciblés exécutés ; transfert et qualification globale suivis dans le [bilan I4](reports/production-4b-results-2026-11-08.md).
+
+La sélection par rang perdait une propriété minoritaire pourtant retrouvée. Après correction de cette frontière, deux tests ont montré une seconde perte lors du budget de contexte. Le choix retenu est une sélection monotone des relations réellement justifiées, puis un préfixe de preuves non redondantes, sans relever les caps. Les variantes de condition et les divergences restent distinctes. Une perte faute de place entre dans le registre de réponse ; les informations hors question ne sont pas comptées comme des obligations manquantes.
+
+Les listes PDF utilisent les marques écrites et leurs dépendances exactes. La voie structurée peut intégrer une puce au bloc ; ce bloc reste entier, sans coordonnées reconstruites pour le glyphe. Les relations de voisinage seules restent insuffisantes. La grammaire qualitative FR/EN reste bornée et les rôles inconnus restent inconnus, y compris lorsque des nombres concordent.
+
+Conséquences : davantage de réponses simples peuvent être produites sans réserve globale inutile et sans modèle ; les questions hors grammaire, les dépendances tronquées ou l'insuffisance de preuves demeurent partielles. Ce choix ne constitue pas une preuve générale d'implication sémantique. Les oracles de transfert sont réservés jusqu'au gel du code ; aucun réglage produit ne sera fait sur leurs sorties.
+
+## EV4B-I4-D02 — corriger le crash OCR sans changer les lectures attendues (8 novembre 2026 UTC)
+
+**Statut :** backport exact implémenté et ablation native exécutée sur Linux x86-64 ; redistribution et cible Windows non qualifiées.
+
+Tesseract 5.4.0 s'arrêtait par SIGFPE pendant l'OSD d'un raster de test exact. Le mode de produit scalaire générique reproduisait le même arrêt. Le correctif amont `dac6b18a4764d13d670e7f304bbdb80f756b8431` évite le dépassement flottant lorsque la liste de prototypes est vide. Il a été repris exactement, avec hashes avant/après, sans supprimer les exceptions flottantes, modifier tessdata ou imposer 0° par défaut.
+
+La construction initiale et son binaire sont conservés. Une ablation incrémentale a recompilé un objet, `normmatch.cpp.o`, et réutilisé 223 objets, avec options, compilateur et Leptonica inchangés. Le premier contrôle du harnais a refusé à tort deux fichiers de dépendances Make régénérables ; cet échec est conservé. Une reprise vérifiée, sans recompilation, a exécuté la sonde unique : mêmes pixels et modèle, exit 0 et angle explicite au lieu de SIGFPE. Les sept intégrations OCR et le contrôle de police passent ensuite, avec assertions inchangées, contre cinq échecs et trois réussites avant. Les deux scans de transfert restent une gate distincte.
+
+Conséquences : tout nouveau build source applique le correctif verrouillé et son manifeste est vérifié avant réutilisation. L'ancien binaire n'est pas remplacé silencieusement ; son SHA distinct invalide normalement le cache d'extraction. Le helper Debian 13 utilise des outils et en-têtes vérifiés dans un préfixe utilisateur, sans droits administrateur ni modification globale du poste. Une construction complète corrigée et un binaire redistribuable ne sont pas déduits de cette ablation incrémentale.
+
+
+## EV4B-I4-D03 — factorisation exacte des traces de pages (8 novembre 2026 UTC)
+
+**Statut :** implémenté et contrôles ciblés exécutés avant qualification finale.
+
+Les deux requêtes PDF de référence se sont arrêtées avant génération par `trace_budget_exceeded` dans le mode `full` de la campagne native (8 Mio). La géométrie complète d'une même page était recopiée dans chaque bloc : 93,27 % d'un événement de recherche INA provenaient de cette répétition. Le défaut concerne cette capture complète ; il ne prouve pas un échec identique dans le mode applicatif par défaut `hashes` (quota de 2 Mio).
+
+Le choix retenu factorise sans perte les dictionnaires de page répétés à l'intérieur d'un événement. Les petits événements restent au format v1. Au format v2, un registre local par SHA et des chemins typés explicitent chaque occurrence ; aucune référence externe ni marqueur documentaire n'est interprété. La chaîne stockée est vérifiée avant reconstruction, puis la taille et le SHA du payload original. Les octets HTTP originaux et le contenu du prompt restent inchangés.
+
+Les quotas physiques ne changent pas. Les nouvelles bornes logiques de décodage sont 32 Mio par événement et 64 Mio par trace, 1 048 576 et 2 097 152 nœuds respectivement, profondeur 64, 4 096 références et 512 pages uniques. Elles préviennent une expansion non bornée ; elles ne mesurent pas le pic mémoire Python. La factorisation commence à 256 Kio, exige un gain de 4 Kio et conserve les mêmes échecs fermés avant envoi au modèle.
+
+La reproduction synthétique a échoué avant correction ; les contrôles ciblés finaux comprennent 121 réussites avec les tests historiques de rejeu et de terminaux. La conversion hors ligne de la trace INA conserve ses sept payloads exactement, de 7 902 770 à 735 199 octets. Elle ne remplace ni l'échec primaire ni une nouvelle réponse native ; le dernier gel et les essais de bout en bout relèvent du bilan I4.
+
+
+## EV4B-I4-D04 — refuser la qualification sur une relation documentaire fausse (8 novembre 2026 UTC)
+
+**Statut :** décision de qualification appliquée au candidat gelé ; aucune diffusion de production qualifiée.
+
+La relecture des sources originales du transfert identifie une association de colonne fausse dans H03 : une valeur typique devient une valeur minimale dans l'extraction et cette relation est publiée. Les hashes, la chaîne de provenance et les spans cités sont valides. Ils attestent l'intégrité de l'extraction, sans certifier l'interprétation du tableau original. L'abstention sur une autre valeur non fournie par le document ne rend pas cette affirmation correcte. Le critère I4-D01 est donc non satisfait.
+
+Le choix est de conserver le résultat primaire et le gel, de documenter l'échec sémantique et de poursuivre les vérifications indépendantes déjà prévues. Aucun statut interne `covered`, test unitaire réussi ou taux de citations présentes ne remplace la comparaison entre affirmation et passage original. Les scores stricts, la complétude par fait, les erreurs techniques et les abstentions restent distincts. Cela rend notamment visible H04 : son verdict strict échoue dans les deux bras, mais la réponse candidate perd une plage d'alimentation présente dans la référence et dans son propre contexte.
+
+Les nouveaux besoins de preuve portent sur la couverture réelle du corps des pages, l'association géométrique des cellules aux colonnes et sous-lignes, et la conservation des propriétés demandées jusqu'au plan et au rendu. Ils restent non résolus dans ce gel. Une nouvelle correction devra utiliser des cas de développement distincts et une qualification renouvelée ; les sorties de ce transfert ne servent à aucun réglage produit pendant cette campagne. Les limites de ressources, le générateur 4B et les critères préalables ne sont pas assouplis.
+
+**Preuves :** [bilan I4](reports/production-4b-results-2026-11-08.md), [protocole figé](reports/production-4b-protocol-2026-11-08.md), revues conservées du transfert et comparaison des deux extractions. Cette décision porte sur la qualification ; elle ne prétend pas qu'un mécanisme de diffusion en production a été exécuté.

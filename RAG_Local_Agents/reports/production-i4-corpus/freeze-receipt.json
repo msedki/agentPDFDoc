@@ -1,0 +1,114 @@
+{
+  "schema_version": "i4-heldout-freeze-receipt-v1",
+  "frozen_at_utc": "2026-11-08T15:52:55.859703+00:00",
+  "baseline_commit": "fa3eabce5ab0c309b1ca8f01602fced2eb7f1dd8",
+  "application_or_model_executed": false,
+  "counts": {
+    "original_documents": 3,
+    "original_pages": 32,
+    "transfer_cases": 8,
+    "answerable_cases": 6,
+    "limit_cases": 2,
+    "derived_scan_pages": 2,
+    "separate_ocr_pairs": 2
+  },
+  "private_files": [
+    {
+      "path": ".runtime/qa/production-i4-20261108/heldout/sources.json",
+      "sha256": "4082cb4921aded1b05a63fd855e21aebe42b001c870810e5aeda50251c50be85",
+      "bytes": 1757
+    },
+    {
+      "path": ".runtime/qa/production-i4-20261108/heldout/questions-oracles.json",
+      "sha256": "748affc2f4d4ccc7d9cf60aed65af88945388e1140883ad8424d3d3b7291a241",
+      "bytes": 13953
+    },
+    {
+      "path": ".runtime/qa/production-i4-20261108/heldout/scan-transformations.json",
+      "sha256": "483b82e78074d7f75d68ee250bf92a6764b82f8a127654ef280da874962a97d0",
+      "bytes": 2748
+    }
+  ],
+  "originals": [
+    {
+      "id": "D01",
+      "sha256": "6c5d9ad1464aa70fbf4c1baba92b8a039f5c9081dded13f3679d7ac4de7cabad",
+      "bytes": 533470,
+      "pages": 7
+    },
+    {
+      "id": "D02",
+      "sha256": "23df2e90992f09b7f79a6e045368e0a7d63dd7f789e65054fa6cf5a5d1a5d1a5",
+      "bytes": 220322,
+      "pages": 11
+    },
+    {
+      "id": "D03",
+      "sha256": "50b9965880829dadf08c4871031c4f48d59a6086368d9ce2ec698554f5ba2662",
+      "bytes": 208760,
+      "pages": 14
+    }
+  ],
+  "scans": [
+    {
+      "id": "SCAN1",
+      "sha256": "c442b6247a9cfaf23017ec0333f69ec4310deb624b39ba09160a40354d5a8aca",
+      "bytes": 248303,
+      "embedded_text": false
+    },
+    {
+      "id": "SCAN2",
+      "sha256": "823d2207342d191c410014ae6076a9e805d3509cfd47d0468f465bdffa49e901",
+      "bytes": 168610,
+      "embedded_text": false
+    }
+  ],
+  "review_artifacts": [
+    {
+      "path": "source-review/1540fb-p0.png",
+      "sha256": "b3f9f0a32ae46895e57d3aa6e397ef110051f9ec2241708af91386b10f7cf4c0",
+      "bytes": 347662
+    },
+    {
+      "path": "source-review/1540fb-p2.png",
+      "sha256": "d488996f39fd4c194476fb746405702fed4b5be276304bfd0ebaf7688a03f695",
+      "bytes": 184556
+    },
+    {
+      "path": "source-review/1540fb-pages.json",
+      "sha256": "414c23a87adf60ebcc50547322fb454659d525afb3ecc03802142e87e4198ad6",
+      "bytes": 32168
+    },
+    {
+      "path": "source-review/AD22103-p0.png",
+      "sha256": "d2b4e7c8a45d87ae6cfc402d0a490bedb75deb492f04f7cc5199ff4d09c73e85",
+      "bytes": 307294
+    },
+    {
+      "path": "source-review/AD22103-p1.png",
+      "sha256": "0a9034dc2f8fb8a73def553d3ee663edf1d55fdc7f4dcbe97efebff30d7c44e9",
+      "bytes": 144957
+    },
+    {
+      "path": "source-review/AD22103-pages.json",
+      "sha256": "177010f81fe5dcbf21315692d88c8974e76bcfd6fc2244589fb9ca6318292a02",
+      "bytes": 17776
+    },
+    {
+      "path": "source-review/ad22105-p0.png",
+      "sha256": "2c83457fe1df455fef4d7eab1e89fdb334e1db2c59570d53d516494ee80aabe5",
+      "bytes": 269564
+    },
+    {
+      "path": "source-review/ad22105-p2.png",
+      "sha256": "42370cecb087de8c10081e4b2f34b26f2e00d9024d27e928f6e95d783e21aec2",
+      "bytes": 135323
+    },
+    {
+      "path": "source-review/ad22105-pages.json",
+      "sha256": "e98d152999f6e025ce7d2ad17168a224da0c8bbbdee6a026901adab352d9cff8",
+      "bytes": 27744
+    }
+  ],
+  "withholding": "Questions, expected facts and source relationships not sent to implementers until final source freeze; no filesystem access-control guarantee claimed."
+}

@@ -267,3 +267,32 @@ Avant la génération, le catalogue relit les identités et localisations autori
 Après le plan, `verify_rendered` reconstruit chaque segment publié depuis ses preuves ou son calcul vérifié, contrôle offsets, citations et empreintes, puis bloque une restitution divergente avant les événements de réponse publics. Les registres avant/après et le résultat du contrôle sont rattachés à la requête dans [query.py](../services/api/query.py). Cette fidélité au texte enregistré ne certifie ni l'exactitude de l'extraction initiale ni une implication sémantique générale : `general_semantic_entailment_verified` et `original_extraction_fidelity_verified` restent faux dans le registre préalable. Les contrôles de grandeur, unité, rôle, condition et négation restent bornés aux formes reconnues. Notes non reconnues, conditions implicites, OCR incertain et contradictions non détectées demeurent des limites à mesurer ; aucun succès de test n'établit une qualification globale du corpus ou de la cible Windows/16 Go.
 
 **Complément F07 — grandeur principale et condition explicite.** Le contrat distingue une demande de plage d'alimentation accompagnée de « ses/leurs conditions de température » de la température elle-même demandée. Seule la mention de température dans cet attachement explicite, français ou anglais, est retirée du classement des grandeurs ; une autre température demandée reste une obligation indépendante. Chaque plage comptée doit conserver son propre point ou intervalle de température source, sans inférence numérique. Une condition absente laisse la couverture partielle ; les demandes mixtes non décomposées restent signalées. Le repli lexical associé est décrit dans [CONFIGURATION.md](CONFIGURATION.md#i3--profil-actif-enhanced-4b-8-novembre-2026) et isolé par désactivation dans l'[addendum F07](reports/grounded-4b-addendum-2026-11-08.md).
+
+
+## 13. I4 — dépendances écrites et couverture jusqu'au rendu
+
+**Statut :** implémentation du 8 novembre 2026 ; qualification par critère dans le [bilan I4](reports/production-4b-results-2026-11-08.md), sans validation générale de diffusion présumée.
+
+`services/ingestion/pdf_structure.py` reconnaît une liste seulement si les marques écrites, le titre terminé par deux-points, l'indentation, la colonne et une fermeture au niveau du parent concordent. Les glyphes séparés et les puces intégrées dans un bloc `list_item` sont traités avec leurs blocs originaux. Aucun texte, offset, titre ou rectangle n'est créé pour compléter une structure. Un trou OCR connu dans le couloir de la liste interdit la complétude, même lorsqu'il ne touche aucun élément déjà lu. Un bloc ambigu ou une dépendance hors portée ne reçoit pas de lien certifié.
+
+L'index regroupe les pièces exactes et répète leurs dépendances lors d'un découpage borné. La résolution de portée reconstruit le lien depuis les enregistrements épinglés en base ; le catalogue exige que titre, élément, marqueurs et fermeture soient réellement visibles avec les mêmes versions, hashes et offsets. Les différents rôles d'un même bloc inline sont dédupliqués avant le budget, sans fabriquer de bloc. Une liste partiellement présente ne devient pas complète parce que ses éléments visibles sont corrects.
+
+`services/api/evidence_coverage.py` utilise le même contrat de relations que la publication. Il privilégie les propriétés demandées absentes puis leurs variantes de condition ou de valeur, parmi les candidats déjà autorisés. Un remplacement préserve les relations, identifiants et documents comparés déjà couverts. Un préfixe de premières preuves complètes précède les occurrences redondantes ; le tri d'identifiants ne doit pas annuler cette priorité. Ce choix glouton ne promet pas un optimum global. Les catalogues avant/après budget sont comparés sur les seules obligations de la question ; perdre un bus non demandé ne justifie pas de dégrader une réponse complète sur l'alimentation.
+
+Les pertes inévitables deviennent `evidence_coverage_incomplete`, dans un schéma fermé de compteurs. La limite entre dans le hash du catalogue et le registre avant génération, interdit une conclusion complète et reste visible après validation du rendu. Le générateur ne reçoit aucune autorisation nouvelle : il choisit et organise des IDs ; les textes publics, citations, conditions, réserves et calculs restent produits et vérifiés par le serveur. Les relations qualitatives simples s'appuient sur des formes FR/EN explicites ; un pronom non résolu, une cause absente ou une condition inconnue restent signalés.
+
+L'ablation OCR et les contrôles de défaillance opérationnelle sont distincts de cette preuve documentaire. Le backport Tesseract vérifié corrige un arrêt natif observé ; ni un angle valide, ni une confiance élevée, ni la présence d'une citation ne certifient à eux seuls une réponse.
+
+
+### Limite sémantique établie par le transfert I4
+
+Le contrôle de provenance compare les sources publiées aux données d’extraction
+immuables. Il ne constitue pas une lecture indépendante de l’image PDF. Dans le
+cas H03 du [bilan I4](reports/production-4b-results-2026-11-08.md), une cellule
+est affectée à Min alors que l’original place sa valeur dans Typ ; cette liaison
+incorrecte traverse le contrat et la restitution malgré des hashes valides.
+L’abstention sur une autre condition ne neutralise pas ce fait erroné affiché.
+Le critère de fidélité reste donc en échec sur le gel, et la qualification de
+diffusion demeure bloquée. Les validations géométriques et sémantiques restant
+nécessaires sont suivies dans le plan et le bilan, sans attribuer au générateur
+la capacité de réparer les données extraites.

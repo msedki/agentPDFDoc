@@ -51,6 +51,15 @@ def complementary_terms(assessment):
     return terms[:6]
 
 
+def _retrieval_limitations(result, context_metrics=None):
+    diagnostic = result.get("evidence_selection") or {}
+    missing = diagnostic.get("missing_relation_variants", 0)
+    lost = ((context_metrics or {}).get("verified_relation_coverage") or {}).get("lost_relation_variants", 0)
+    missing = (missing if type(missing) is int and missing > 0 else 0) + (lost if type(lost) is int and lost > 0 else 0)
+    return ([{"code": "evidence_coverage_incomplete", "missing_relation_variants": missing}]
+            if type(missing) is int and missing > 0 else [])
+
+
 class QueryService:
     def __init__(self, db, resolver, search, context, ollama, settings, governor=None):
         self.db, self.resolver, self.search, self.context, self.ollama, self.settings = db, resolver, search, context, ollama, settings
@@ -428,6 +437,7 @@ class QueryService:
                     search_result = await self.search.search(request.question, snapshot, request.mode, references)
                     record_event("retrieval", search_result)
                     metrics["retrieval_ms"] = search_result["elapsed_ms"]
+                    metrics["evidence_selection"] = search_result.get("evidence_selection")
                     warnings.extend(search_result["warnings"])
                     if search_result["results"]:
                         search_result["results"] = await asyncio.to_thread(lambda: [source if source.get("evidence_bundle") else self.resolver.expand_parent(source, snapshot, self.context.tokenizer, self.settings.value("chunking", "parent_expand_max_llm_tokens", 900)) for source in search_result["results"]])
@@ -446,6 +456,7 @@ class QueryService:
                         if structured is not None:
                             catalogue = await asyncio.to_thread(structured.catalogue, retained, request.mode)
                             if enforce_contract:
+                                catalogue.retrieval_limitations = _retrieval_limitations(search_result, context_metrics)
                                 required_documents = (list(dict.fromkeys(snapshot.documents.values()))
                                                       if snapshot.scope["kind"] == "documents" else ())
                                 assessment = catalogue.assess(required_documents=required_documents)
@@ -469,8 +480,11 @@ class QueryService:
                                             self.context.build, request.question, refined["results"], request.mode,
                                             history, references, **build_arguments)
                                         catalogue = await asyncio.to_thread(structured.catalogue, retained, request.mode)
+                                        catalogue.retrieval_limitations = _retrieval_limitations(refined, context_metrics)
                                         metrics["context_assessment_initial"] = assessment
                                         assessment = catalogue.assess(required_documents=required_documents)
+                                        metrics["evidence_selection"] = refined.get("evidence_selection")
+                                        warnings = [item for item in warnings if item.get("code") != "evidence_coverage_incomplete"]
                                         warnings.extend(refined.get("warnings", []))
                                     metrics["retrieval_ms"] = refined["elapsed_ms"]
                                 metrics["context_assessment"] = assessment

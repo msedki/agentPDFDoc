@@ -205,6 +205,8 @@ evaluation_targets:
 baseline: EV4B-2026-11-07; Qwen3-4B 7485fe6f; qualification scope in RAG_Local_Agents/reports/enhanced-4b-protocol-2026-11-07.md
 enhanced:
   preserve_evidence: true
+  explicit_pdf_lists: true
+  property_coverage_selection: true
   lexical_alias_fallback: true
   structural_reranking: true
   rerank_max_candidates: 48

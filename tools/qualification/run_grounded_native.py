@@ -31,6 +31,13 @@ def available_port(port):
         probe.bind(("127.0.0.1", port))
 
 
+def measurement_script(transport):
+    if transport not in {"direct", "http"}:
+        raise ValueError("Transport de qualification inconnu.")
+    name = "production_i4_http.py" if transport == "http" else "revision_campaign.py"
+    return ROOT / "tools/qualification" / name
+
+
 def stop_owned(process):
     from services.runtime.posix_process import group_members
 
@@ -55,6 +62,8 @@ def run(args):
         raise ValueError("Ce pilote de services est réservé à Linux ; utiliser revision_campaign.py avec les runtimes natifs sur une autre plateforme.")
     from services.runtime.posix_process import PosixJob
 
+    transport = getattr(args, "transport", "direct")
+    worker = measurement_script(transport)
     for port in (args.ollama_port, args.qdrant_port, args.qdrant_port + 1):
         available_port(port)
     output = args.output.resolve()
@@ -124,7 +133,7 @@ def run(args):
         subprocess.run([sys.executable, str(ROOT / "tools/qualification/provision_enhanced_4b.py"),
                         "--profile", str(profile_path), "--ollama", str(executable)],
                        cwd=ROOT, env=env, check=True, timeout=600)
-        command = [sys.executable, str(ROOT / "tools/qualification/revision_campaign.py"),
+        command = [sys.executable, str(worker),
                    "--application-root", str(source), "--revision-label", args.label,
                    "--profile", str(profile_path), "--inputs", str(args.inputs.resolve()),
                    "--output", str(output / "measurements")]
@@ -134,6 +143,19 @@ def run(args):
             command += ["--case-id", case]
         # Le harnais de révision importe lui-même le checkout demandé.
         measurement_env = {k: v for k, v in env.items() if k != "PYTHONPATH"}
+        if transport == "http":
+            # Le parcours HTTP crée aussi de vrais workers d'import : son groupe
+            # reste possédé jusqu'au reçu d'arrêt, même si l'API échoue ou expire.
+            measured = job.launch(command, cwd=source, env=measurement_env, log_path=output / "measurement.log")
+            processes.append(measured)
+            deadline = time.monotonic() + 1500
+            while measured.poll() is None and time.monotonic() < deadline:
+                time.sleep(0.25)
+            expired = measured.poll() is None
+            (output / "measurement-process.json").write_text(json.dumps({
+                "transport": transport, "pid": measured.pid, "deadline_seconds": 1500,
+                "harness_timeout": expired, "observed_returncode": measured.poll()}, indent=2) + "\n")
+            return 124 if expired else measured.poll()
         completed = subprocess.run(command, cwd=source, env=measurement_env, check=False)
         return completed.returncode
     finally:
@@ -141,10 +163,24 @@ def run(args):
         for process in reversed(processes):
             stopped.append(stop_owned(process))
         job.close()
+        all_stopped = all(item["owned_group_empty"] and item["leader_reaped"] for item in stopped)
         (output / "service-stop.json").write_text(json.dumps({
             "owned_services": stopped,
-            "all_owned_services_stopped": all(item["owned_group_empty"] and item["leader_reaped"] for item in stopped),
+            "all_owned_services_stopped": all_stopped,
             "data_preserved": True}, indent=2) + "\n")
+        if transport == "http":
+            measured_path = output / "measurement-process.json"
+            outcome_path = output / "measurements/transport-result.json"
+            measurement = json.loads(measured_path.read_text()) if measured_path.exists() else {}
+            result = json.loads(outcome_path.read_text()) if outcome_path.exists() else {}
+            passed = (all_stopped and measurement.get("observed_returncode") == 0
+                      and measurement.get("harness_timeout") is False and result.get("operational_passed") is True)
+            (output / "http-final-result.json").write_text(json.dumps({
+                "operational_passed": passed, "all_owned_services_stopped": all_stopped,
+                "measurement": measurement, "api_path_result": result,
+                "documentary_judgment": "separate independent review required"}, indent=2) + "\n")
+            if not all_stopped:
+                raise RuntimeError("Arrêt des processus natifs possédés non confirmé ; aucun PASS HTTP global.")
 
 
 def main():
@@ -156,6 +192,7 @@ def main():
     parser.add_argument("--ollama-port", type=int, default=11439)
     parser.add_argument("--qdrant-port", type=int, default=6339)
     parser.add_argument("--case-id", action="append", default=[])
+    parser.add_argument("--transport", choices=("direct", "http"), default="direct")
     args = parser.parse_args()
     raise SystemExit(run(args))
 

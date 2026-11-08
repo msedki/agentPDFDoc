@@ -444,6 +444,18 @@
         "size": 1900009,
         "sha256": "30ceffd9b86780f01cbf4eaf9b7fc59abddfcbaf5bbd52f9a633c6528cb183fd",
         "content_sha256": "cae42d918e81414e34d56eb8c68abbe24ba8a7337badbabc9d5fc596415d89f7",
+        "source_fixes": [
+          {
+            "id": "tesseract-5.4.0-normmatch-pr4259",
+            "upstream_commit": "dac6b18a4764d13d670e7f304bbdb80f756b8431",
+            "upstream_url": "https://github.com/tesseract-ocr/tesseract/commit/dac6b18a4764d13d670e7f304bbdb80f756b8431",
+            "file": "src/classify/normmatch.cpp",
+            "before_sha256": "cecd5abbc2394a39f353b94552f45a77590ef0a4d66176999da0daa508f3ab1f",
+            "after_sha256": "9ac54083f9b944f47d5710c28fb841a9045495eecd2f7c47c51c9de0f35c338b",
+            "patch": "config/source-fixes/tesseract-5.4.0-normmatch.json",
+            "patch_sha256": "7762a52377f54de8650d45ae5f8052a678b1279ab4ba0cac060a5bb9ef7b457e"
+          }
+        ],
         "target": ".runtime/cache/downloads/tesseract-5.4.0-source.tar.gz",
         "consulted_at_utc": "2026-10-01",
         "note": "Archive du tag 5.4.0 générée par GitHub (aucun asset de release ; commentaire pax : commit 1be261dc226d49bdcad0ab2fcb10f8395edc1225) ; empreinte d'archive calculée au premier téléchargement le 01/10/2026. GitHub ne garantit pas la stabilité octet par octet de ces archives : content_sha256 est le SHA-256 du listing `find tesseract-5.4.0 -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum` (728 fichiers) ; une archive d'empreinte différente mais de contenu identique est acceptée et consignée au manifeste de construction."

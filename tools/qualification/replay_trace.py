@@ -80,7 +80,7 @@ def _verified(path: Path):
     except (KeyError, TypeError, AttributeError) as error:
         raise ValueError("Malformed trace event") from error
     after = hashlib.sha256(path.read_bytes()).hexdigest()
-    if before != after or not rows or any(row.get("schema_version") != 1 for row in rows):
+    if before != after or not rows or any(row.get("schema_version") not in {1, 2} for row in rows):
         raise ValueError("Empty, changed or nonregular trace")
     return rows, after
 

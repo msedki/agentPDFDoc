@@ -3,7 +3,8 @@
 Windows (W001) : copie vérifiée d'une installation Tesseract 5.4.0 existante.
 Linux (W018) : Leptonica puis Tesseract 5.4.0 compilés depuis les sources du groupe `tesseract-source`
 de `config/artifacts.lock.json`, sous `.runtime/build/`, en un exécutable lié statiquement à ces deux
-bibliothèques et dynamiquement aux seules bibliothèques du système.
+bibliothèques et dynamiquement aux seules bibliothèques du système. Les correctifs amont éventuels
+du verrou sont vérifiés et consignés séparément : une construction corrigée n'est pas une archive vanilla.
 """
 
 from __future__ import annotations
@@ -197,6 +198,100 @@ def _source_records(sources: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
              "url": entry["url"], "size": entry.get("size"), "sha256": entry["sha256"],
              "content_sha256": entry.get("content_sha256"), "archive": entry["target"]}
             for name, entry in sorted(sources.items())]
+
+
+_SOURCE_FIX_FIELDS = ("id", "upstream_commit", "upstream_url", "file", "before_sha256", "after_sha256", "patch", "patch_sha256")
+
+
+def _fix_relative_path(value: str) -> Path:
+    path = Path(value)
+    if (not value or "\\" in value or ":" in value or path.is_absolute() or ".." in path.parts
+            or path.as_posix() != value or value == "."):
+        raise ValueError(f"Chemin de correctif source non relatif ou non canonique : {value!r}")
+    return path
+
+
+def _source_fix_records(sources: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    """Provenance attendue, indépendante du dossier de construction et de sa réutilisation."""
+    records: list[dict[str, Any]] = []
+    targets: set[tuple[str, str]] = set()
+    identifiers: set[str] = set()
+    for name, entry in sorted(sources.items()):
+        fixes = entry.get("source_fixes", [])
+        if not isinstance(fixes, list) or len(fixes) > 16:
+            raise ValueError(f"Correctifs sources invalides pour {name}")
+        for fix in fixes:
+            if not isinstance(fix, dict) or any(not isinstance(fix.get(key), str) or not fix[key] for key in _SOURCE_FIX_FIELDS):
+                raise ValueError(f"Provenance de correctif source incomplète pour {name}")
+            if (not re.fullmatch(r"[0-9a-f]{40}", fix["upstream_commit"])
+                    or any(not re.fullmatch(r"[0-9a-f]{64}", fix[key]) for key in ("before_sha256", "after_sha256", "patch_sha256"))
+                    or fix["before_sha256"] == fix["after_sha256"]
+                    or fix["upstream_url"] != f"https://github.com/{entry['publisher']}/commit/{fix['upstream_commit']}"):
+                raise ValueError(f"Identité amont ou empreintes du correctif source invalides : {fix['id']}")
+            for key in ("file", "patch"):
+                _fix_relative_path(fix[key])
+            target = (name, fix["file"])
+            if target in targets or fix["id"] in identifiers:
+                raise ValueError(f"Correctif source dupliqué ou plusieurs correctifs sur un même fichier : {fix['id']}")
+            targets.add(target)
+            identifiers.add(fix["id"])
+            records.append({"source": name, "version": entry["version"], **{key: fix[key] for key in _SOURCE_FIX_FIELDS}})
+    return records
+
+
+def apply_source_fixes(source_dirs: dict[str, Path], *, sources: dict[str, dict[str, Any]] | None = None) -> list[dict[str, Any]]:
+    """Applique les remplacements exacts verrouillés aux seuls fichiers extraits.
+
+    Tous les fichiers et résultats sont vérifiés avant la première écriture.
+    Une source déjà corrigée doit porter exactement l'empreinte attendue et
+    produit le même reçu. Les archives d'origine ne sont jamais modifiées.
+    """
+    records = _source_fix_records(locked_tesseract_sources() if sources is None else sources)
+    pending: list[tuple[Path, bytes, bytes]] = []
+    for record in records:
+        patch = ROOT / _fix_relative_path(record["patch"])
+        if (not patch.resolve().is_relative_to(ROOT.resolve()) or patch.is_symlink() or not patch.is_file()
+                or patch.stat().st_size > 256 * 1024 or file_hash(patch) != record["patch_sha256"]):
+            raise ValueError(f"Fichier du correctif source différent du verrou : {record['id']}")
+        rule = json.loads(patch.read_text(encoding="utf-8"))
+        if (not isinstance(rule, dict) or rule.get("schema_version") != 1
+                or any(not isinstance(rule.get(key), str) or not rule[key] for key in ("before", "after"))):
+            raise ValueError(f"Remplacement exact du correctif source invalide : {record['id']}")
+        source_root = source_dirs.get(record["source"])
+        if source_root is None:
+            raise ValueError(f"Dossier source absent pour le correctif : {record['source']}")
+        path = source_root / _fix_relative_path(record["file"])
+        if not path.resolve().is_relative_to(source_root.resolve()) or path.is_symlink() or not path.is_file():
+            raise ValueError(f"Fichier source absent ou hors du dossier extrait : {record['file']}")
+        original = path.read_bytes()
+        digest = hashlib.sha256(original).hexdigest()
+        if digest == record["after_sha256"]:
+            continue
+        if digest != record["before_sha256"]:
+            raise ValueError(f"Empreinte source avant correctif différente du verrou : {record['file']}")
+        before, after = rule["before"].encode("utf-8"), rule["after"].encode("utf-8")
+        if original.count(before) != 1:
+            raise ValueError(f"Remplacement source non unique : {record['file']}")
+        corrected = original.replace(before, after, 1)
+        if hashlib.sha256(corrected).hexdigest() != record["after_sha256"]:
+            raise ValueError(f"Empreinte source après correctif différente du verrou : {record['file']}")
+        pending.append((path, original, corrected))
+    for path, original, corrected in pending:
+        if path.read_bytes() != original:
+            raise ValueError(f"Source modifiée pendant le contrôle du correctif : {_display(path)}")
+        temporary: Path | None = None
+        try:
+            with tempfile.NamedTemporaryFile(dir=path.parent, prefix=f".{path.name}.", suffix=".fix", delete=False) as stream:
+                temporary = Path(stream.name)
+                stream.write(corrected)
+            temporary.chmod(path.stat().st_mode)
+            os.replace(temporary, path)
+            if file_hash(path) != hashlib.sha256(corrected).hexdigest():
+                raise ValueError(f"Fichier source écrit différent du correctif vérifié : {_display(path)}")
+        finally:
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
+    return records
 
 
 def _cmake_options() -> dict[str, list[str]]:
@@ -449,6 +544,8 @@ def verify_built_copy(target: Path, manifest_path: Path, sources: dict[str, dict
         problems.append(f"manifeste {manifest.get('kind')} pour {manifest.get('platform')}")
     if manifest.get("sources") != _source_records(sources):
         problems.append("archives sources différentes du verrou")
+    if manifest.get("source_fixes", []) != _source_fix_records(sources):
+        problems.append("correctifs sources différents du verrou")
     if manifest.get("cmake_options") != _cmake_options():
         problems.append("options CMake différentes")
     binary = manifest.get("binary") or {}
@@ -759,6 +856,7 @@ def build_tesseract(profile: dict, *, offline: bool = False, jobs: int | None = 
                 raise RuntimeError(f"Espace disque insuffisant sous {_display(existing)} pour compiler Tesseract, réserve 2 Gio")
             _prepare_build_root(build_root)
             source_dirs, archive_records = _extract_verified_sources(sources, archives, build_root / "src")
+            source_fixes = apply_source_fixes(source_dirs, sources=sources)
         except BaseException:
             # Archive servie (`.part`) pas encore vérifiée par son contenu ni publiée dans le cache : retirée.
             for name, (archive, _) in archives.items():
@@ -780,6 +878,7 @@ def build_tesseract(profile: dict, *, offline: bool = False, jobs: int | None = 
             "cpu_count": os.cpu_count(), "started_at_utc": started_at.isoformat(timespec="seconds"),
             "built_at_utc": datetime.now(UTC).isoformat(timespec="seconds"), "duration_seconds": duration, "jobs": jobs,
             "offline": offline, "sources": _source_records(sources), "source_archives": archive_records,
+            "source_fixes": source_fixes,
             "cmake_options": _cmake_options(),
             "file_prefix_map": {"token": BUILD_ROOT_TOKEN, "flags": file_prefix_map_flags(build_root)},
             "cmake_paths": {"install_prefix": _display(prefix), "leptonica_dir": _display(prefix / "lib/cmake/leptonica"),

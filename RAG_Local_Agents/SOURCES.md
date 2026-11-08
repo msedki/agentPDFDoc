@@ -2026,3 +2026,41 @@ transfert aveugle, ni qualification du corpus V2.1, du poste de 16 Go ou de Wind
 **EV4B-I3-E01 — preuves internes.** Base active au début du lot : `3956491a2d7f1f16cefebfe79e92c638b6662c10`, puis modifications I3/F07. Protocole SHA-256 `a6c36e87fcee36b1b44be64313f2335c4ceb62f2c338df5935b7cb6b47e8a74e` ; [addendum F07](reports/grounded-4b-addendum-2026-11-08.md) SHA-256 `8793bcab3d98680a21a028f24545455f02b63899e3cd7f07817e226e63baee04` ; [questions et oracles contrôlés](../tests/fixtures/grounded_cases.json) SHA-256 `68a997cee3c6e3dcd1d8625d534c17631cb7ddaebedb1bfd3efa316c678fd476`.
 
 Les mécanismes sont vérifiables dans [retrieval.py](../services/api/retrieval.py), [evidence_selection.py](../services/api/evidence_selection.py), [answer_contract.py](../services/api/answer_contract.py) et [structured_answer.py](../services/api/structured_answer.py), avec les tests [de conservation/recherche](../tests/unit/test_grounded_retrieval.py) et [de relations/rendu](../tests/unit/test_grounded_evidence_contract.py). Le [harnais contrôlé](../tools/qualification/grounded_campaign.py) distingue explicitement ses doubles des [essais natifs](../tools/qualification/run_grounded_native.py). Les révisions candidates, mesures, échecs et limites appartiennent au bilan ; ces liens et empreintes n'établissent pas à eux seuls une réussite expérimentale.
+
+
+## EV4B-I4 — preuves et correctif OCR (8 novembre 2026 UTC)
+
+**Statut :** références utilisées pour la réalisation I4. Les résultats exécutés et leurs limites relèvent du [bilan](reports/production-4b-results-2026-11-08.md), les critères du [protocole figé](reports/production-4b-protocol-2026-11-08.md).
+
+| Source primaire | Version/section et apport | Limite |
+|---|---|---|
+| [Tesseract, commit dac6b18](https://github.com/tesseract-ocr/tesseract/commit/dac6b18a4764d13d670e7f304bbdb80f756b8431) | `src/classify/normmatch.cpp`, PR 4259, +7/-3 lignes ; cause et correctif du débordement avec liste de prototypes vide. Fichier final SHA-256 `9ac54083f9b944f47d5710c28fb841a9045495eecd2f7c47c51c9de0f35c338b`. | Le correctif publié n'établissait pas à lui seul la cause de notre crash ; la sonde appariée native et les tests OCR l'ont éprouvé localement. |
+| [Tesseract, issue 4257](https://github.com/tesseract-ocr/tesseract/issues/4257) | Régression OSD 5.4.0 et diagnostic `NormEvidenceOf`. | La proposition initiale du fil ne remplace pas le commit fusionné utilisé. |
+| [Tesseract, compilation](https://tesseract-ocr.github.io/tessdoc/Compiling.html) | Construction dans un préfixe utilisateur, bibliothèques et outils requis. | La recette locale Debian 13 est spécifique à cet hôte, sans preuve Windows ni installateur redistribuable. |
+| [CMake 3.31.12](https://github.com/Kitware/CMake/releases/tag/v3.31.12) | Archive Linux x86-64 et SHA officiel `0dc2e9a6860f06bf10bd8fadc03e35d9eeb4df46e33763a7e480e987758f385c`. | Outil de qualification isolé ; pas de changement de PATH global. |
+| Archives officielles Debian `libpng-dev`, `libjpeg62-turbo-dev`, `libtiff-dev` | Versions, URLs et SHA exacts dans `tools/qualification/provision_production_ocr.py` et le reçu d'environnement ; extraction des en-têtes, liaison aux bibliothèques système déjà présentes. | Aucun paquet système installé ; les bibliothèques dynamiques sont celles réellement inventoriées dans le manifeste. |
+| Code `fa3eabce5ab0c309b1ca8f01602fced2eb7f1dd8`, sources I3 et nouvelles traces I4 | Référence exécutée : sélection, contexte, qualitatives, OCR, Office et PDF complets. Les jeux exacts et erreurs premières restent conservés. | Le score automatique ne remplace pas la relecture de chaque relation ni la mesure de disponibilité. |
+
+Les pages Docling, Tesseract ImproveQuality et Ollama Structured Outputs déjà citées dans le protocole restent utilisées avec les contrats des versions installées. Le corpus électronique public de transfert et ses oracles sont gelés séparément ; leurs sources exactes seront publiées avec le bilan sans inclure les PDF ou modèles dans Git.
+
+
+### I4 — sources du transfert ouvertes après le gel
+
+Les [manifestes gelés](reports/production-i4-corpus/sources.json), les
+[questions/oracles](reports/production-i4-corpus/questions-oracles.json) et les
+[transformations de scans](reports/production-i4-corpus/scan-transformations.json)
+sont publiés octet pour octet après le gel du produit à 17:38:49 UTC. Ils
+conservent URL officielle, révision déclarée, SHA-256, nombre de pages et portées ;
+les identifiants de version/génération du produit ne sont créés qu’à l’import.
+
+| Source primaire figée | Version et usage dans le transfert | Limite |
+|---|---|---|
+| [Analog Devices AD22103](https://www.analog.com/media/en/technical-documentation/data-sheets/AD22103.pdf) | Révision B, juillet 2017, 7 pages ; spécifications, description générale et question sans valeur applicable. | Corpus électronique public ; ne qualifie aucun autre domaine. |
+| [Analog Devices AD22105](https://www.analog.com/media/en/technical-documentation/data-sheets/ad22105.pdf) | Révision A, octobre 2018, 11 pages ; plages et conditions de sortie/hystérésis, scan dérivé de la première page. | Un scan dérivé porte sa propre page 1, sans inventer de localisation d’un autre document. |
+| [Analog Devices LTC1540](https://www.analog.com/media/en/technical-documentation/data-sheets/1540fb.pdf) | Révision B, août 2017, 14 pages ; alimentations, délais typiques avec conditions et garantie non établie ; scan de la page originale 3. | Les valeurs typiques ne deviennent ni des maxima ni une garantie de pleine plage thermique. |
+
+La reconstruction locale de ces entrées est exécutée et vérifiée ; le nouveau
+téléchargement HTTPS direct a échoué sur la résolution DNS de cet hôte. Les deux
+résultats sont conservés séparément. Les documents originaux et images restent
+hors Git ; les manifestes suffisent à vérifier leur identité, pas à garantir la
+disponibilité future des URL publiques.

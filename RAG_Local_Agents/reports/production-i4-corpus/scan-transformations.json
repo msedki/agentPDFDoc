@@ -1,0 +1,78 @@
+{
+  "schema_version": "i4-heldout-scan-pairs-v1",
+  "frozen_at_utc": "2026-11-08T15:52:55.859703+00:00",
+  "versions": {
+    "pypdfium2": "5.13.0",
+    "reportlab": "5.0.1",
+    "Pillow": "12.3.0"
+  },
+  "question_and_oracle_policy": "Exactly reuse the named original question and facts; only the admissible source becomes the derived single-page PDF. Original 8-case transfer and 2-case OCR pair results remain separate.",
+  "scans": [
+    {
+      "id": "SCAN1",
+      "original_document_id": "D02",
+      "original_page_index": 0,
+      "original_physical_page": 1,
+      "derived_page_index": 0,
+      "derived_physical_page": 1,
+      "case_id": "H04",
+      "file": "scans/SCAN1.pdf",
+      "sha256": "c442b6247a9cfaf23017ec0333f69ec4310deb624b39ba09160a40354d5a8aca",
+      "bytes": 248303,
+      "raster_sha256": "c75628dc8b72219d9290b707112758e103f13d4171649c8ed57c45c811205538",
+      "raster_dimensions": [
+        1700,
+        2200
+      ],
+      "page_size_points": [
+        612.0,
+        792.0
+      ],
+      "transform": {
+        "render_dpi": 200,
+        "scale": 2.7777777777777777,
+        "rotation_degrees": 0,
+        "color": "8-bit grayscale",
+        "resizing_after_render": false,
+        "augmentation": null,
+        "embedded_text": false,
+        "reportlab_invariant": true
+      },
+      "original_sha256": "23df2e90992f09b7f79a6e045368e0a7d63dd7f789e65054fa6cf5a5d1a5d1a5",
+      "citation_rule": "Product citations must identify the derived document page 1; original physical-page mapping is review provenance, not an invented product locator."
+    },
+    {
+      "id": "SCAN2",
+      "original_document_id": "D03",
+      "original_page_index": 2,
+      "original_physical_page": 3,
+      "derived_page_index": 0,
+      "derived_physical_page": 1,
+      "case_id": "H07",
+      "file": "scans/SCAN2.pdf",
+      "sha256": "823d2207342d191c410014ae6076a9e805d3509cfd47d0468f465bdffa49e901",
+      "bytes": 168610,
+      "raster_sha256": "de6116ebf7c8bee81fc4f6d16e25e59be0694d24045b7c3232e7b14b885eee77",
+      "raster_dimensions": [
+        1700,
+        2200
+      ],
+      "page_size_points": [
+        612.0,
+        792.0
+      ],
+      "transform": {
+        "render_dpi": 200,
+        "scale": 2.7777777777777777,
+        "rotation_degrees": 0,
+        "color": "8-bit grayscale",
+        "resizing_after_render": false,
+        "augmentation": null,
+        "embedded_text": false,
+        "reportlab_invariant": true
+      },
+      "original_sha256": "50b9965880829dadf08c4871031c4f48d59a6086368d9ce2ec698554f5ba2662",
+      "citation_rule": "Product citations must identify the derived document page 1; original physical-page mapping is review provenance, not an invented product locator."
+    }
+  ]
+}

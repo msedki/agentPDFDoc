@@ -820,6 +820,15 @@ class SearchService:
                     retain(match)
         for source in ordered:
             retain(source)
+        coverage_diagnostic = None
+        if (self.settings.value("enhanced", "preserve_evidence", False)
+                and self.settings.value("enhanced", "property_coverage_selection", False)):
+            from .evidence_coverage import select_evidence_coverage
+            coverage_selected, coverage_notices, coverage_diagnostic = await asyncio.to_thread(
+                select_evidence_coverage, self.db, snapshot, question, mode, ordered, previous["results"], maximum, references)
+            if coverage_diagnostic["status"] in {"retained_candidate_relations", "incomplete"}:
+                selected = coverage_selected
+            notices.extend(coverage_notices)
         diagnostic.update(attempted=True, performed=True, reason="new_evidence", candidate_count=len(candidates),
                           new_evidence_count=len(new_sources),
                           retained_new_evidence_count=sum(identity(source) not in prior_ids for source in selected),
@@ -827,7 +836,9 @@ class SearchService:
         references.attest(ordered[:10], "retrieval_top10")
         references.attest(selected, "retrieval_final")
         return {**previous, "results": selected, "top10": ordered[:10], "refinement": diagnostic,
-                "warnings": [*previous.get("warnings", []), *notices],
+                "evidence_selection": coverage_diagnostic,
+                "warnings": [*(warning for warning in previous.get("warnings", [])
+                               if coverage_diagnostic is None or warning.get("code") != "evidence_coverage_incomplete"), *notices],
                 "reference_resolution": references.as_dict(),
                 "elapsed_ms": round(previous.get("elapsed_ms", 0) + diagnostic["elapsed_ms"], 2)}
 
@@ -944,9 +955,16 @@ class SearchService:
             unique.append(source)
             if len(unique) >= maximum:
                 break
+        coverage_diagnostic = None
+        if preserve_evidence and self.settings.value("enhanced", "property_coverage_selection", False):
+            from .evidence_coverage import select_evidence_coverage
+            unique, notices, coverage_diagnostic = await asyncio.to_thread(
+                select_evidence_coverage, self.db, snapshot, question, mode, results, unique, maximum, references)
+            warnings.extend(notices)
         # Recherche seule (POST /search, évaluation) : passages finals ; une question le recalcule sur les sources retenues.
         warnings.extend(ocr_evidence_warnings(unique))
         references.attest(top10, "retrieval_top10")
         references.attest(unique, "retrieval_final")
         return {"results": unique, "top10": top10, "scope_snapshot": snapshot.as_dict(), "warnings": warnings,
+                "evidence_selection": coverage_diagnostic,
                 "elapsed_ms": round((time.perf_counter() - start) * 1000, 2), "reference_resolution": references.as_dict()}

@@ -96,7 +96,7 @@ def test_unfinished_reference_plan_publishes_no_text(rag, finish_reason, complet
 
     service = service_for(rag, TruncatedGateway())
     query_id, result = run(service, QueryRequest(
-        question="Dans quelle condition le boîtier est-il étanche ?",
+        question="Décris le fonctionnement du boîtier à partir de ce passage.",
         scope=Scope(kind="documents", documentIds=[imported["document_id"]])))
     assert result["state"] == "error"
     assert result["metrics"]["model_call_attempted"] is True

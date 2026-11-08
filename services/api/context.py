@@ -199,7 +199,17 @@ class ContextBuilder:
         required = set(references.obligations)
         priority = references.priority
         compared = list(dict.fromkeys(source["document_id"] for source in sources if source.get("document_id"))) if mode == "comparison" else []
-        sources = sorted(sources, key=lambda source: (not source.get("exact_identifier", False))) if mode != "comparison" else sources
+        property_coverage = (structured is not None
+                             and self.settings.value("enhanced", "preserve_evidence", False)
+                             and self.settings.value("enhanced", "property_coverage_selection", False))
+        if property_coverage:
+            # This rank orders verified proof dependencies before redundant
+            # occurrences. An exact-identifier sort must not undo that order.
+            sources = sorted(sources, key=lambda source: (
+                source.get("evidence_coverage_rank", len(sources)),
+                not source.get("exact_identifier", False) if mode != "comparison" else False))
+        elif mode != "comparison":
+            sources = sorted(sources, key=lambda source: (not source.get("exact_identifier", False)))
         retained: list[dict[str, Any]] = []
         excluded = 0
         for source in sources:
@@ -295,6 +305,22 @@ class ContextBuilder:
                     warnings.append({"code": "evidence_bundle_excluded_by_budget",
                                      "bundle_ids": bundles["excluded_bundle_ids"],
                                      "message": "Des preuves structurées retrouvées ont été écartées en entier par la limite de contexte ; leurs valeurs ne sont pas déclarées absentes du document."})
+        if property_coverage:
+            from .evidence_coverage import quantitative_relation_keys
+            # Rebuild from the exact final text and dependencies, including any
+            # authorized parent expansion. Ranking metadata cannot credit a
+            # fact, and an unavoidable loss remains visible to the final gate.
+            identified = [{**source, "source_id": f"C{index:03d}"} for index, source in enumerate(sources)]
+            available_relations = quantitative_relation_keys(structured.catalogue(identified, mode), mode)
+            retained_relations = quantitative_relation_keys(structured.catalogue(retained, mode), mode)
+            lost_relations = len(available_relations - retained_relations)
+            metrics["verified_relation_coverage"] = {
+                "scope": "selected_sources_only", "available_relation_variants": len(available_relations),
+                "retained_relation_variants": len(retained_relations), "lost_relation_variants": lost_relations}
+            if lost_relations:
+                warnings.append({"code": "evidence_coverage_incomplete", "stage": "context",
+                                 "missing_relation_variants": lost_relations,
+                                 "message": "La limite de contexte a écarté des relations quantitatives justifiées retrouvées ; la réponse reste partielle."})
         references.attest(retained, "context_final")
         metrics["reference_resolution"] = references.as_dict()
         return messages, retained, metrics, warnings

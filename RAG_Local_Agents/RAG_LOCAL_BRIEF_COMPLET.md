@@ -904,6 +904,35 @@ Après le plan, `verify_rendered` reconstruit chaque segment publié depuis ses 
 
 **Complément F07 — grandeur principale et condition explicite.** Le contrat distingue une demande de plage d'alimentation accompagnée de « ses/leurs conditions de température » de la température elle-même demandée. Seule la mention de température dans cet attachement explicite, français ou anglais, est retirée du classement des grandeurs ; une autre température demandée reste une obligation indépendante. Chaque plage comptée doit conserver son propre point ou intervalle de température source, sans inférence numérique. Une condition absente laisse la couverture partielle ; les demandes mixtes non décomposées restent signalées. Le repli lexical associé est décrit dans [CONFIGURATION.md](CONFIGURATION.md#i3--profil-actif-enhanced-4b-8-novembre-2026) et isolé par désactivation dans l'[addendum F07](reports/grounded-4b-addendum-2026-11-08.md).
 
+
+## 13. I4 — dépendances écrites et couverture jusqu'au rendu
+
+**Statut :** implémentation du 8 novembre 2026 ; qualification par critère dans le [bilan I4](reports/production-4b-results-2026-11-08.md), sans validation générale de diffusion présumée.
+
+`services/ingestion/pdf_structure.py` reconnaît une liste seulement si les marques écrites, le titre terminé par deux-points, l'indentation, la colonne et une fermeture au niveau du parent concordent. Les glyphes séparés et les puces intégrées dans un bloc `list_item` sont traités avec leurs blocs originaux. Aucun texte, offset, titre ou rectangle n'est créé pour compléter une structure. Un trou OCR connu dans le couloir de la liste interdit la complétude, même lorsqu'il ne touche aucun élément déjà lu. Un bloc ambigu ou une dépendance hors portée ne reçoit pas de lien certifié.
+
+L'index regroupe les pièces exactes et répète leurs dépendances lors d'un découpage borné. La résolution de portée reconstruit le lien depuis les enregistrements épinglés en base ; le catalogue exige que titre, élément, marqueurs et fermeture soient réellement visibles avec les mêmes versions, hashes et offsets. Les différents rôles d'un même bloc inline sont dédupliqués avant le budget, sans fabriquer de bloc. Une liste partiellement présente ne devient pas complète parce que ses éléments visibles sont corrects.
+
+`services/api/evidence_coverage.py` utilise le même contrat de relations que la publication. Il privilégie les propriétés demandées absentes puis leurs variantes de condition ou de valeur, parmi les candidats déjà autorisés. Un remplacement préserve les relations, identifiants et documents comparés déjà couverts. Un préfixe de premières preuves complètes précède les occurrences redondantes ; le tri d'identifiants ne doit pas annuler cette priorité. Ce choix glouton ne promet pas un optimum global. Les catalogues avant/après budget sont comparés sur les seules obligations de la question ; perdre un bus non demandé ne justifie pas de dégrader une réponse complète sur l'alimentation.
+
+Les pertes inévitables deviennent `evidence_coverage_incomplete`, dans un schéma fermé de compteurs. La limite entre dans le hash du catalogue et le registre avant génération, interdit une conclusion complète et reste visible après validation du rendu. Le générateur ne reçoit aucune autorisation nouvelle : il choisit et organise des IDs ; les textes publics, citations, conditions, réserves et calculs restent produits et vérifiés par le serveur. Les relations qualitatives simples s'appuient sur des formes FR/EN explicites ; un pronom non résolu, une cause absente ou une condition inconnue restent signalés.
+
+L'ablation OCR et les contrôles de défaillance opérationnelle sont distincts de cette preuve documentaire. Le backport Tesseract vérifié corrige un arrêt natif observé ; ni un angle valide, ni une confiance élevée, ni la présence d'une citation ne certifient à eux seuls une réponse.
+
+
+### Limite sémantique établie par le transfert I4
+
+Le contrôle de provenance compare les sources publiées aux données d’extraction
+immuables. Il ne constitue pas une lecture indépendante de l’image PDF. Dans le
+cas H03 du [bilan I4](reports/production-4b-results-2026-11-08.md), une cellule
+est affectée à Min alors que l’original place sa valeur dans Typ ; cette liaison
+incorrecte traverse le contrat et la restitution malgré des hashes valides.
+L’abstention sur une autre condition ne neutralise pas ce fait erroné affiché.
+Le critère de fidélité reste donc en échec sur le gel, et la qualification de
+diffusion demeure bloquée. Les validations géométriques et sémantiques restant
+nécessaires sont suivies dans le plan et le bilan, sans attribuer au générateur
+la capacité de réparer les données extraites.
+
 ---
 
 ## Fichier : `CONFIGURATION.md`
@@ -1080,6 +1109,22 @@ Les options `enhanced.preserve_evidence` et `enhanced.answer_contract` activent 
 Les mesures comparatives imposent le même 4B verrouillé, corpus et paramètres explicités, avec CPU forcé pour le protocole I3 ; la valeur applicative `llm.accelerator: auto` n'est pas une preuve d'exécution CPU. Les routes sans appel au modèle sont comptées séparément des générations effectives. Aucun réglage ni résultat ponctuel n'établit à lui seul la qualification de la latence, de la mémoire ou de la DoD globale.
 
 **Complément F07.** `enhanced.lexical_alias_fallback: true` dans le profil `enhanced-4b` active une seule reprise FTS quand les candidats lexicaux et les occurrences exactes initiales sont tous deux vides. Sa valeur par défaut dans le schéma reste `false`, ce qui permet l'ablation. Au plus 16 alias complets des groupes techniques existants sont admis, hors spans d'identifiants ; filtre SQL et `lexical_top_k` restent identiques. La question, les références et l'entrée dense ne sont pas réécrites. Sélections littérales et plages de cellules gardent leur parcours. La trace privée `retrieval.lexical_alias_fallback` indique route, alias, empreintes et compte de candidats ; [hypothèse et acceptation](reports/grounded-4b-addendum-2026-11-08.md).
+
+
+## I4 — couverture des preuves et moteur OCR corrigé, 8 novembre 2026
+
+**Statut :** configuration implémentée et contrôles ciblés exécutés ; les gates de diffusion sont suivies dans le [bilan I4](reports/production-4b-results-2026-11-08.md).
+
+`enhanced.explicit_pdf_lists: true` active le regroupement des listes PDF écrites, fermées et vérifiables. `enhanced.property_coverage_selection: true`, avec `preserve_evidence`, active la sélection des relations demandées et leur priorité au budget de contexte. Les deux options restent `false` par défaut dans le schéma, pour permettre une ablation explicite ; elles sont actives dans `config/enhanced-4b.yaml`. Leurs effets ne changent ni les 48 candidats vérifiables, ni les six fragments ordinaires, ni les budgets de tokens ou la réserve mémoire. Les listes restent bornées à 64 éléments, 12 000 caractères par groupe et 1 024 blocs/200 000 caractères par page inspectée.
+
+Le contrat qualitatif fait partie de `enhanced.answer_contract`. Ses formes FR/EN sont bornées et exigent un sujet, un prédicat et des conditions ancrés dans le texte. « Même tension » demande une comparaison ; des nombres égaux ne prouvent pas des rôles équivalents lorsque ces rôles sont inconnus. Aucun paramètre ne permet au générateur d'ajouter une explication libre.
+
+Le verrou d'artefacts ajoute au Tesseract 5.4.0 compilé le correctif amont `dac6b18a4764d13d670e7f304bbdb80f756b8431`, défini dans `config/source-fixes/tesseract-5.4.0-normmatch.json`. Les archives restent celles du verrou ; les empreintes avant/après et du correctif sont vérifiées. Le manifeste de construction doit porter le même reçu `source_fixes`. Une installation antérieure n'est pas écrasée implicitement : la conserver avec son manifeste avant une reconstruction documentée. Le SHA réel de l'exécutable participe déjà à l'identité d'extraction ; conserver le même numéro `5.4.0` ne permet pas de réutiliser une ancienne extraction sans reconnaître le changement du moteur. La copie Windows préexistante n'est pas qualifiée par cette compilation Linux.
+
+Le modèle génératif et les paramètres de la section I3 restent inchangés. Le [protocole](reports/production-4b-protocol-2026-11-08.md) et le [guide de reproduction](reports/production-4b-reproduce-2026-11-08.md) donnent les identités, commandes et limites des essais ; le provisionnement n'autorise aucun téléchargement implicite en exploitation.
+
+
+**Capture complète I4.** Les géométries de page identiques peuvent être factorisées dans des événements v2, lus et vérifiés par `read_verified_trace` ; les petits événements restent v1. Il s'agit d'un encodage de stockage sans perte. Le profil livré reste `trace.mode: hashes`, 2 Mio par requête et 64 Mio cumulés ; le harnais natif demande explicitement `full` avec 8 Mio par requête, comme dans la référence. Les limites logiques de reconstruction sont des bornes internes supplémentaires, distinctes des budgets RAG et des quotas physiques ; voir EV4B-I4-D03 dans DECISIONS.md.
 
 ---
 
@@ -1859,13 +1904,48 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 
 **Terminé = application exploitable + preuve bout en bout + qualification sur la cible déclarée + défauts/limites résiduels explicités.**
 
+
+## Qualification complémentaire I4 — profil enhanced-4b
+
+Les critères préalables, corpus, seuils et résultats propres aux améliorations
+4B du 8 novembre 2026 sont définis dans le
+[protocole I4](reports/production-4b-protocol-2026-11-08.md) et évalués dans le
+[bilan I4](reports/production-4b-results-2026-11-08.md). Ce lot ne remplace pas
+les critères D01–D11 ni leurs qualifications par plateforme. Une réussite sur
+le poste de développement Linux x86-64 ne clôt ni la cible Windows ni les
+mesures de performance CPU sur la machine physique visée.
+
+La qualification de diffusion I4 est refusée sur le gel du 8 novembre :
+I4-D01 (fidélité des affirmations), I4-D05 (fidélité des scans) et I4-D07
+(résultats natifs/transfert) ne sont pas satisfaits. Les progrès de sélection,
+structure et OCR, ainsi que les contrôles logiciels réussis, conservent leur
+périmètre de preuve propre. Le tableau complet, les régressions, les exécutions
+manquantes et les limites méthodologiques restent dans le bilan, source de
+vérité de cette campagne.
+
 ---
 
 ## Fichier : `PLAN.md`
 
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · Suivi de livraison publié `d3c1518`, distant confirmé · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-13 14:43 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · Suivi de livraison publié `d3c1518`, distant confirmé · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-11-08 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+
+## I4 — fiabilité documentaire avant diffusion, 8 novembre 2026 (UTC)
+
+**Objectif :** réaliser les pistes différées I3 pour une application de confiance, générateur Qwen3-4B seul. **Référence :** `fa3eabce5ab0c309b1ca8f01602fced2eb7f1dd8`, branche `enhanced_version`. **Exclusions :** autre générateur, valeurs du corpus codées comme règles, qualification cible ou release de production supposée. **Critères préalables :** [protocole I4](reports/production-4b-protocol-2026-11-08.md), fixé avant code ; worktree de référence propre et 75 fichiers de service identiques au gel natif I3.
+
+| Action | Livrable, dépendance et acceptation | État |
+|---|---|---|
+| I4-01 | Protocole, environnement, matrice et transfert réservé ; I4-D09 | Protocole SHA 7ae9c5a…3de figé ; transfert de 3 PDF / 8 questions / 2 scans gelé avant produit, oracles tenus à l’écart. |
+| I4-02 | Liaisons PDF explicites, indexation et scope ; I4-D03 | Liaisons et scope vérifiés ; huit cas 2 PASS / 6 FAIL → 8 PASS, 45 contrôles de structure PASS. TMP117 natif restitue les deux plages avec conditions et dépendances exactes ; fermeture de liste affichée hors question, concision à améliorer. |
+| I4-03 | Sélection par propriétés à budget constant ; I4-D02 | Sélection monotone au cap 6 et budget contexte vérifiés (21 tests ciblés) ; quatre relations PDF présentes à tous les étages jusqu’au rendu. Le contrat INA226 conserve une réserve injustifiée malgré la preuve d’alimentation présente : échec strict maintenu, aucun réglage après gel. |
+| I4-04 | Contrat extractif qualitatif et limites ; I4-D01/D04 | Implémenté, objectif PARTIAL : contrôlé 12/12 positifs et 18/18 limites, Office natif 7/8 → 8/8 strict. Garde de sujet corrigée avant gel, 284 tests pertinents PASS. Sur transfert, H05 garde une réserve inutile ; H03 publie un rôle Min/Typ faux issu de l’extraction, ce qui fait échouer I4-D01. |
+| I4-05 | Provisionnement OCR/CMake et contrôles opérationnels ; I4-D05/D06/D08 | Implémenté et vérifié localement : cinq échecs de provisionnement corrigés, 90 PASS / 3 SKIP ; OSD corrigé par ablation native, sept intégrations OCR et police 8 PASS. Scans : OCR0 → 2 pages reconnues, mais unités/signes/conditions non tous fidèles ; I4-D05 échoue. Parcours HTTP/SSE réel opérationnel PASS, services arrêtés ; fidélité documentaire évaluée séparément, caps inchangés. |
+| I4-06 | Régressions, natif, transfert tenu à l’écart et coûts ; I4-D07/D09 | Exécuté avec échecs conservés : gel be7ad4…37d9b ; portable final sur gel exact 4 105 PASS / 25 SKIP / 45 désélectionnés, plus 284 ciblés et Mypy/Ruff finaux PASS ; historique 4 085 conservé. Office 7/8 → 8/8 ; PDF 0/2 → 1/2 strict ; transfert 0/8 → 1/8 strict, complétude positive 2/6 → 1/6 (régression H04), 2 erreurs → 1 timeout. I4-D07 FAIL. Scans et HTTP détaillés au bilan ; chevauchement Mypy de référence et rôles oracles/codec explicités. |
+| I4-07 | Bilan des gates de diffusion, documentation, commit/push ; I4-D10 | Essais/relectures terminés, brief régénéré et pack documentaire PASS. I4-D01/D05/D07 FAIL, D04/D08/D09 PARTIAL conservés ; publication sur enhanced_version et contrôle du SHA/arbre distant en cours. |
+
+**Points vérifiés :** référence isolée, générateur 4B verrouillé, intégrité des sources/traces et progrès locaux ; voir les dénominateurs du bilan. **Points ouverts :** fidélité des tableaux et de l’OCR, complétude jusqu’au plan final, réserve qualitative, coût CPU et plateformes cibles. **Qualification de diffusion refusée** : I4-D01/D05/D07 non satisfaits. Les contrôles techniques ne ferment pas ces gates documentaires.
 
 ## I3 — fiabilisation des preuves jusqu’à la réponse, 8 novembre 2026 (UTC)
 
@@ -7337,6 +7417,53 @@ ne changent aucun oracle, paramètre, code ou résultat natif.
 
 **Conséquences :** ablation du repli, positifs, abstentions et erreurs restent évalués séparément ; aucun refus supplémentaire ne vaut amélioration à lui seul. Les publications de méthode référencées dans [SOURCES.md](SOURCES.md#ev4b-i3--méthode-et-preuves-i3f07-8-novembre-2026-utc) motivent les essais, sans servir de preuve de benchmark local, de qualification métier ou de recette globale.
 
+
+## EV4B-I4-D01 — préserver les preuves utiles aux deux budgets (8 novembre 2026 UTC)
+
+**Statut :** décision implémentée, essais ciblés exécutés ; transfert et qualification globale suivis dans le [bilan I4](reports/production-4b-results-2026-11-08.md).
+
+La sélection par rang perdait une propriété minoritaire pourtant retrouvée. Après correction de cette frontière, deux tests ont montré une seconde perte lors du budget de contexte. Le choix retenu est une sélection monotone des relations réellement justifiées, puis un préfixe de preuves non redondantes, sans relever les caps. Les variantes de condition et les divergences restent distinctes. Une perte faute de place entre dans le registre de réponse ; les informations hors question ne sont pas comptées comme des obligations manquantes.
+
+Les listes PDF utilisent les marques écrites et leurs dépendances exactes. La voie structurée peut intégrer une puce au bloc ; ce bloc reste entier, sans coordonnées reconstruites pour le glyphe. Les relations de voisinage seules restent insuffisantes. La grammaire qualitative FR/EN reste bornée et les rôles inconnus restent inconnus, y compris lorsque des nombres concordent.
+
+Conséquences : davantage de réponses simples peuvent être produites sans réserve globale inutile et sans modèle ; les questions hors grammaire, les dépendances tronquées ou l'insuffisance de preuves demeurent partielles. Ce choix ne constitue pas une preuve générale d'implication sémantique. Les oracles de transfert sont réservés jusqu'au gel du code ; aucun réglage produit ne sera fait sur leurs sorties.
+
+## EV4B-I4-D02 — corriger le crash OCR sans changer les lectures attendues (8 novembre 2026 UTC)
+
+**Statut :** backport exact implémenté et ablation native exécutée sur Linux x86-64 ; redistribution et cible Windows non qualifiées.
+
+Tesseract 5.4.0 s'arrêtait par SIGFPE pendant l'OSD d'un raster de test exact. Le mode de produit scalaire générique reproduisait le même arrêt. Le correctif amont `dac6b18a4764d13d670e7f304bbdb80f756b8431` évite le dépassement flottant lorsque la liste de prototypes est vide. Il a été repris exactement, avec hashes avant/après, sans supprimer les exceptions flottantes, modifier tessdata ou imposer 0° par défaut.
+
+La construction initiale et son binaire sont conservés. Une ablation incrémentale a recompilé un objet, `normmatch.cpp.o`, et réutilisé 223 objets, avec options, compilateur et Leptonica inchangés. Le premier contrôle du harnais a refusé à tort deux fichiers de dépendances Make régénérables ; cet échec est conservé. Une reprise vérifiée, sans recompilation, a exécuté la sonde unique : mêmes pixels et modèle, exit 0 et angle explicite au lieu de SIGFPE. Les sept intégrations OCR et le contrôle de police passent ensuite, avec assertions inchangées, contre cinq échecs et trois réussites avant. Les deux scans de transfert restent une gate distincte.
+
+Conséquences : tout nouveau build source applique le correctif verrouillé et son manifeste est vérifié avant réutilisation. L'ancien binaire n'est pas remplacé silencieusement ; son SHA distinct invalide normalement le cache d'extraction. Le helper Debian 13 utilise des outils et en-têtes vérifiés dans un préfixe utilisateur, sans droits administrateur ni modification globale du poste. Une construction complète corrigée et un binaire redistribuable ne sont pas déduits de cette ablation incrémentale.
+
+
+## EV4B-I4-D03 — factorisation exacte des traces de pages (8 novembre 2026 UTC)
+
+**Statut :** implémenté et contrôles ciblés exécutés avant qualification finale.
+
+Les deux requêtes PDF de référence se sont arrêtées avant génération par `trace_budget_exceeded` dans le mode `full` de la campagne native (8 Mio). La géométrie complète d'une même page était recopiée dans chaque bloc : 93,27 % d'un événement de recherche INA provenaient de cette répétition. Le défaut concerne cette capture complète ; il ne prouve pas un échec identique dans le mode applicatif par défaut `hashes` (quota de 2 Mio).
+
+Le choix retenu factorise sans perte les dictionnaires de page répétés à l'intérieur d'un événement. Les petits événements restent au format v1. Au format v2, un registre local par SHA et des chemins typés explicitent chaque occurrence ; aucune référence externe ni marqueur documentaire n'est interprété. La chaîne stockée est vérifiée avant reconstruction, puis la taille et le SHA du payload original. Les octets HTTP originaux et le contenu du prompt restent inchangés.
+
+Les quotas physiques ne changent pas. Les nouvelles bornes logiques de décodage sont 32 Mio par événement et 64 Mio par trace, 1 048 576 et 2 097 152 nœuds respectivement, profondeur 64, 4 096 références et 512 pages uniques. Elles préviennent une expansion non bornée ; elles ne mesurent pas le pic mémoire Python. La factorisation commence à 256 Kio, exige un gain de 4 Kio et conserve les mêmes échecs fermés avant envoi au modèle.
+
+La reproduction synthétique a échoué avant correction ; les contrôles ciblés finaux comprennent 121 réussites avec les tests historiques de rejeu et de terminaux. La conversion hors ligne de la trace INA conserve ses sept payloads exactement, de 7 902 770 à 735 199 octets. Elle ne remplace ni l'échec primaire ni une nouvelle réponse native ; le dernier gel et les essais de bout en bout relèvent du bilan I4.
+
+
+## EV4B-I4-D04 — refuser la qualification sur une relation documentaire fausse (8 novembre 2026 UTC)
+
+**Statut :** décision de qualification appliquée au candidat gelé ; aucune diffusion de production qualifiée.
+
+La relecture des sources originales du transfert identifie une association de colonne fausse dans H03 : une valeur typique devient une valeur minimale dans l'extraction et cette relation est publiée. Les hashes, la chaîne de provenance et les spans cités sont valides. Ils attestent l'intégrité de l'extraction, sans certifier l'interprétation du tableau original. L'abstention sur une autre valeur non fournie par le document ne rend pas cette affirmation correcte. Le critère I4-D01 est donc non satisfait.
+
+Le choix est de conserver le résultat primaire et le gel, de documenter l'échec sémantique et de poursuivre les vérifications indépendantes déjà prévues. Aucun statut interne `covered`, test unitaire réussi ou taux de citations présentes ne remplace la comparaison entre affirmation et passage original. Les scores stricts, la complétude par fait, les erreurs techniques et les abstentions restent distincts. Cela rend notamment visible H04 : son verdict strict échoue dans les deux bras, mais la réponse candidate perd une plage d'alimentation présente dans la référence et dans son propre contexte.
+
+Les nouveaux besoins de preuve portent sur la couverture réelle du corps des pages, l'association géométrique des cellules aux colonnes et sous-lignes, et la conservation des propriétés demandées jusqu'au plan et au rendu. Ils restent non résolus dans ce gel. Une nouvelle correction devra utiliser des cas de développement distincts et une qualification renouvelée ; les sorties de ce transfert ne servent à aucun réglage produit pendant cette campagne. Les limites de ressources, le générateur 4B et les critères préalables ne sont pas assouplis.
+
+**Preuves :** [bilan I4](reports/production-4b-results-2026-11-08.md), [protocole figé](reports/production-4b-protocol-2026-11-08.md), revues conservées du transfert et comparaison des deux extractions. Cette décision porte sur la qualification ; elle ne prétend pas qu'un mécanisme de diffusion en production a été exécuté.
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -9415,6 +9542,44 @@ transfert aveugle, ni qualification du corpus V2.1, du poste de 16 Go ou de Wind
 **EV4B-I3-E01 — preuves internes.** Base active au début du lot : `3956491a2d7f1f16cefebfe79e92c638b6662c10`, puis modifications I3/F07. Protocole SHA-256 `a6c36e87fcee36b1b44be64313f2335c4ceb62f2c338df5935b7cb6b47e8a74e` ; [addendum F07](reports/grounded-4b-addendum-2026-11-08.md) SHA-256 `8793bcab3d98680a21a028f24545455f02b63899e3cd7f07817e226e63baee04` ; [questions et oracles contrôlés](../tests/fixtures/grounded_cases.json) SHA-256 `68a997cee3c6e3dcd1d8625d534c17631cb7ddaebedb1bfd3efa316c678fd476`.
 
 Les mécanismes sont vérifiables dans [retrieval.py](../services/api/retrieval.py), [evidence_selection.py](../services/api/evidence_selection.py), [answer_contract.py](../services/api/answer_contract.py) et [structured_answer.py](../services/api/structured_answer.py), avec les tests [de conservation/recherche](../tests/unit/test_grounded_retrieval.py) et [de relations/rendu](../tests/unit/test_grounded_evidence_contract.py). Le [harnais contrôlé](../tools/qualification/grounded_campaign.py) distingue explicitement ses doubles des [essais natifs](../tools/qualification/run_grounded_native.py). Les révisions candidates, mesures, échecs et limites appartiennent au bilan ; ces liens et empreintes n'établissent pas à eux seuls une réussite expérimentale.
+
+
+## EV4B-I4 — preuves et correctif OCR (8 novembre 2026 UTC)
+
+**Statut :** références utilisées pour la réalisation I4. Les résultats exécutés et leurs limites relèvent du [bilan](reports/production-4b-results-2026-11-08.md), les critères du [protocole figé](reports/production-4b-protocol-2026-11-08.md).
+
+| Source primaire | Version/section et apport | Limite |
+|---|---|---|
+| [Tesseract, commit dac6b18](https://github.com/tesseract-ocr/tesseract/commit/dac6b18a4764d13d670e7f304bbdb80f756b8431) | `src/classify/normmatch.cpp`, PR 4259, +7/-3 lignes ; cause et correctif du débordement avec liste de prototypes vide. Fichier final SHA-256 `9ac54083f9b944f47d5710c28fb841a9045495eecd2f7c47c51c9de0f35c338b`. | Le correctif publié n'établissait pas à lui seul la cause de notre crash ; la sonde appariée native et les tests OCR l'ont éprouvé localement. |
+| [Tesseract, issue 4257](https://github.com/tesseract-ocr/tesseract/issues/4257) | Régression OSD 5.4.0 et diagnostic `NormEvidenceOf`. | La proposition initiale du fil ne remplace pas le commit fusionné utilisé. |
+| [Tesseract, compilation](https://tesseract-ocr.github.io/tessdoc/Compiling.html) | Construction dans un préfixe utilisateur, bibliothèques et outils requis. | La recette locale Debian 13 est spécifique à cet hôte, sans preuve Windows ni installateur redistribuable. |
+| [CMake 3.31.12](https://github.com/Kitware/CMake/releases/tag/v3.31.12) | Archive Linux x86-64 et SHA officiel `0dc2e9a6860f06bf10bd8fadc03e35d9eeb4df46e33763a7e480e987758f385c`. | Outil de qualification isolé ; pas de changement de PATH global. |
+| Archives officielles Debian `libpng-dev`, `libjpeg62-turbo-dev`, `libtiff-dev` | Versions, URLs et SHA exacts dans `tools/qualification/provision_production_ocr.py` et le reçu d'environnement ; extraction des en-têtes, liaison aux bibliothèques système déjà présentes. | Aucun paquet système installé ; les bibliothèques dynamiques sont celles réellement inventoriées dans le manifeste. |
+| Code `fa3eabce5ab0c309b1ca8f01602fced2eb7f1dd8`, sources I3 et nouvelles traces I4 | Référence exécutée : sélection, contexte, qualitatives, OCR, Office et PDF complets. Les jeux exacts et erreurs premières restent conservés. | Le score automatique ne remplace pas la relecture de chaque relation ni la mesure de disponibilité. |
+
+Les pages Docling, Tesseract ImproveQuality et Ollama Structured Outputs déjà citées dans le protocole restent utilisées avec les contrats des versions installées. Le corpus électronique public de transfert et ses oracles sont gelés séparément ; leurs sources exactes seront publiées avec le bilan sans inclure les PDF ou modèles dans Git.
+
+
+### I4 — sources du transfert ouvertes après le gel
+
+Les [manifestes gelés](reports/production-i4-corpus/sources.json), les
+[questions/oracles](reports/production-i4-corpus/questions-oracles.json) et les
+[transformations de scans](reports/production-i4-corpus/scan-transformations.json)
+sont publiés octet pour octet après le gel du produit à 17:38:49 UTC. Ils
+conservent URL officielle, révision déclarée, SHA-256, nombre de pages et portées ;
+les identifiants de version/génération du produit ne sont créés qu’à l’import.
+
+| Source primaire figée | Version et usage dans le transfert | Limite |
+|---|---|---|
+| [Analog Devices AD22103](https://www.analog.com/media/en/technical-documentation/data-sheets/AD22103.pdf) | Révision B, juillet 2017, 7 pages ; spécifications, description générale et question sans valeur applicable. | Corpus électronique public ; ne qualifie aucun autre domaine. |
+| [Analog Devices AD22105](https://www.analog.com/media/en/technical-documentation/data-sheets/ad22105.pdf) | Révision A, octobre 2018, 11 pages ; plages et conditions de sortie/hystérésis, scan dérivé de la première page. | Un scan dérivé porte sa propre page 1, sans inventer de localisation d’un autre document. |
+| [Analog Devices LTC1540](https://www.analog.com/media/en/technical-documentation/data-sheets/1540fb.pdf) | Révision B, août 2017, 14 pages ; alimentations, délais typiques avec conditions et garantie non établie ; scan de la page originale 3. | Les valeurs typiques ne deviennent ni des maxima ni une garantie de pleine plage thermique. |
+
+La reconstruction locale de ces entrées est exécutée et vérifiée ; le nouveau
+téléchargement HTTPS direct a échoué sur la résolution DNS de cet hôte. Les deux
+résultats sont conservés séparément. Les documents originaux et images restent
+hors Git ; les manifestes suffisent à vérifier leur identité, pas à garantir la
+disponibilité future des URL publiques.
 
 ---
 

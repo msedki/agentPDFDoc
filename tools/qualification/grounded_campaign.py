@@ -479,7 +479,8 @@ async def run_case(application, case, settings, folder: Path, tokenizer_director
     db.initialize()
     embedding, vectors = ConstantEmbeddingDouble(), LexicalOnlyVectorDouble()
     indexer = application.Indexer(db, embedding, vectors, settings, tokenizer)
-    resolver = application.ScopeResolver(db)
+    resolver = (application.ScopeResolver(db, explicit_pdf_lists=True)
+                if settings.value("enhanced", "explicit_pdf_lists", False) else application.ScopeResolver(db))
     search = RecordingSearch(application.SearchService(db, resolver, embedding, vectors, settings, projector=indexer),
                              case.get("retrieval_fault"))
     selector = ControlledSelectorDouble(case.get("gateway", "all"))

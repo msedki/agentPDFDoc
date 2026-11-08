@@ -4,6 +4,15 @@
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
+[I4 — fiabilisation et qualification documentaire](2026-11-08.md#i4--transfert-terminé-et-qualification-documentaire-refusée) :
+sélection, structure PDF, contrat qualitatif, OCR et traces implémentés ;
+campagnes distinctes avant/après et échecs conservés. La fidélité de colonne
+sur le transfert échoue et une omission nouvelle reste visible dans la réponse
+finale : la qualification de diffusion n'est pas acquise.
+[Bilan I4 et critères](../reports/production-4b-results-2026-11-08.md),
+[protocole](../reports/production-4b-protocol-2026-11-08.md) et
+[reproduction](../reports/production-4b-reproduce-2026-11-08.md).
+
 [Publication technique I3 vérifiée](2026-11-08.md#i3--publication-technique-vérifiée) :
 commit [fdc51187](https://github.com/msedki/agentPDFDoc/commit/fdc51187aabbdfd16e561dc32c50ac1c107e15bc), arbre identique et publication sans force ;
 [reçu](../reports/grounded-4b-publication-2026-11-08.json). Les réserves D04/D08 restent ouvertes.

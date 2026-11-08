@@ -3,7 +3,7 @@
 import hashlib
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, ValidationError
@@ -13,7 +13,7 @@ from services.ingestion.office.xlsx import _cell_fields, address_coordinates
 from .answer_contract import PROPERTY_LABELS, AnswerContract, assessment_message, folded
 from .deterministic_calculations import calculation_text
 from .errors import ApiError
-from .evidence_selection import verified_table_rows
+from .evidence_selection import verified_list_context, verified_table_rows
 from .office import cell_semantics
 from .scope import block_extraction_method
 
@@ -60,6 +60,8 @@ RENDER_NOTICES = {
     "comparison_independence": "La concordance éventuelle des valeurs n'établit pas l'indépendance des documents.",
     "output_omitted": "Restitution limitée par le budget de réponse : certaines références entières ne sont pas affichées.",
     "empty": "Aucune référence sélectionnée dans les preuves retenues ne permet de répondre à la demande.",
+    "retrieval_coverage_incomplete": ("La sélection au budget disponible n'a pas conservé toutes les variantes de relations retrouvées. "
+                                      "La réponse reste partielle ; aucune conclusion globale ni résolution d'un éventuel conflit n'est établie."),
 }
 
 
@@ -97,11 +99,23 @@ class Catalogue:
     mode: str
     references: list[dict[str, Any]]
     contract: AnswerContract | None = None
+    retrieval_limitations: list[dict[str, Any]] = field(default_factory=list)
+
+    def _retrieval_limitations(self):
+        """Only a bounded machine code/count may cross the renderer boundary."""
+        if (not isinstance(self.retrieval_limitations, list) or len(self.retrieval_limitations) > 1
+                or any(not isinstance(item, dict) or set(item) != {"code", "missing_relation_variants"}
+                       or item["code"] != "evidence_coverage_incomplete"
+                       or type(item["missing_relation_variants"]) is not int
+                       or not 0 < item["missing_relation_variants"] <= 4096 for item in self.retrieval_limitations)):
+            raise ApiError("invalid_retrieval_limitation", "Le diagnostic de couverture de la recherche n'est pas vérifiable.", 503)
+        return [dict(item) for item in self.retrieval_limitations]
 
     def as_dict(self):
         value: dict[str, Any] = {"version": 1, "mode": self.mode, "references": self.references}
         if self.contract is not None:
             value["question_contract"] = self.contract.prompt(self.references)
+            value["retrieval_limitations"] = self._retrieval_limitations()
         return value
 
     def schema(self):
@@ -132,13 +146,24 @@ class Catalogue:
         payload: dict[str, Any] = {"reference_catalogue": items}
         if self.contract is not None:
             payload["question_contract"] = self.contract.prompt(self.references)
+            payload["retrieval_limitations"] = self._retrieval_limitations()
         return canonical(payload)
 
     def assess(self, selected_ids=None, required_documents=()):
         """Passive context/selection diagnosis; no retrieval and no model call."""
         if self.contract is None:
             return {"status": "disabled", "verification": "not_requested"}
-        return self.contract.assess(self.references, selected_ids, required_documents)
+        assessment = self.contract.assess(self.references, selected_ids, required_documents)
+        limitations = self._retrieval_limitations()
+        if limitations:
+            assessment["retrieval_limitations"] = limitations
+            assessment["missing"].extend({"requirement": "retrieval_coverage_incomplete", **item} for item in limitations)
+            if assessment["status"] not in {"conflict", "ambiguous"}:
+                assessment["status"] = "partial"
+            # A value agreement on the retained subset cannot resolve an
+            # omitted variant. Exact facts/calculation inputs remain literal.
+            assessment["comparisons"] = []
+        return assessment
 
     def evidence(self):
         schema, catalogue = self.schema(), self.as_dict()
@@ -161,7 +186,8 @@ class Catalogue:
         for reference in self.references:
             item = {key: reference.get(key) for key in (
                 "id", "kind", "document_id", "document_name", "version_id", "generation_id",
-                "extraction_revision_id", "source_file_sha256", "source_ids", "extraction_method", "index_generation_state")}
+                "extraction_revision_id", "source_file_sha256", "source_ids", "extraction_method", "index_generation_state",
+                "source_span_complete")}
             item["locators"] = reference.get("locators") or ([reference["locator"]] if reference.get("locator") else [])
             literal: list[dict[str, Any]] | dict[str, Any]
             if reference["kind"] == "cell":
@@ -176,8 +202,12 @@ class Catalogue:
                 "original_extraction_fidelity_verified": False,
                 "partial_generation_ids": list(dict.fromkeys(reference.get("generation_id") for reference in self.references
                                                               if reference.get("index_generation_state") == "ready_partial")),
-                "references": references, "relations": assessment.get("matched_relations", []),
-                "rejected_relations": assessment.get("rejected_relations", []),
+                "references": references, "relations": [*assessment.get("matched_relations", []),
+                                                          *assessment.get("matched_qualitative_relations", [])],
+                "qualitative_request": assessment.get("qualitative_request"),
+                "retrieval_limitations": self._retrieval_limitations(),
+                "rejected_relations": [*assessment.get("rejected_relations", []),
+                                       *assessment.get("rejected_qualitative_relations", [])],
                 "conflicts": assessment.get("conflicts", [])}
 
     def validate(self, raw):
@@ -330,7 +360,7 @@ class Catalogue:
             if reference_id in represented:
                 continue
             reference = by_id[reference_id]
-            context = reference.get("table_context") or {}
+            context = reference.get("table_context") or reference.get("list_context") or {}
             bundle = [item for item in context.get("reference_ids", []) if item in selected_ids]
             bundle = list(dict.fromkeys([*bundle, reference_id]))
             parts.append({"text": "\n".join(render_reference(by_id[item], include_document=True) for item in bundle),
@@ -358,6 +388,8 @@ class Catalogue:
                     spans.append({"source_id": source_id, "start_offset": support[-1]["start_offset"],
                                   "end_offset": support[-1]["end_offset"]})
 
+            if assessment.get("retrieval_limitations"):
+                append_text(RENDER_NOTICES["retrieval_coverage_incomplete"], "notice", notice="retrieval_coverage_incomplete")
             message = assessment_message(assessment)
             if message:
                 append_text(message, "notice", notice="assessment")
@@ -497,10 +529,11 @@ class Catalogue:
             if (assessment["status"] != expected_status or assessment["omitted_reference_ids"] != omitted
                     or assessment["rendered_reference_ids"] != displayed):
                 raise ValueError("coverage changed after rendering")
-            for field in ("matched_relations", "comparisons", "conflicts"):
+            for field in ("matched_relations", "matched_qualitative_relations", "comparisons", "conflicts"):
                 if canonical(assessment.get(field, [])) != canonical(checked.get(field, [])):
                     raise ValueError("unsupported relation or comparison")
-            for field in ("kind", "quantity", "missing", "scope_refusal", "rejected_relations"):
+            for field in ("kind", "quantity", "missing", "scope_refusal", "rejected_relations", "qualitative_request",
+                          "rejected_qualitative_relations", "retrieval_limitations"):
                 if canonical(assessment.get(field)) != canonical(checked.get(field)):
                     raise ValueError("unsupported coverage explanation")
             expected_ambiguities = (initial.get("ambiguous", []) if initial["status"] in {"conflict", "ambiguous"}
@@ -574,6 +607,7 @@ class Catalogue:
                         notice = segment["notice"]
                         if (notice == "output_omitted" and not omitted
                                 or notice == "comparison_independence" and not checked["comparisons"]
+                                or notice == "retrieval_coverage_incomplete" and not checked.get("retrieval_limitations")
                                 or notice == "empty" and displayed):
                             raise ValueError("unsupported notice")
                         expected = assessment_message(assessment) if notice == "assessment" else RENDER_NOTICES[notice]
@@ -598,7 +632,7 @@ class Catalogue:
 
         Expected deterministic refusals (missing formula cache, division by
         zero, unavailable unit) still render their actual reason and sources.
-        General prose, scope-wide discovery, incomplete relations and ambiguous
+        Unmatched prose, scope-wide discovery, incomplete relations and ambiguous
         cells keep the reference-selection route. Source identities have already
         been checked by the builder; completeness is rechecked after rendering.
         """
@@ -607,7 +641,8 @@ class Catalogue:
             return AnswerPlan(references=[], comparisons=[])
         if (contract is not None and not contract.parse_failures
                 and (contract.kind in {"value", "interval", "comparison"} and contract.quantity is not None
-                     or contract.kind == "mapping" and bool(contract.configurations))):
+                     or contract.kind == "mapping" and bool(contract.configurations)
+                     or contract.kind == "qualitative")):
             required = contract.required_ids(self.references, required_documents)
             if required and self.assess(required, required_documents)["status"] == "covered":
                 # Selection is already established by local relation checks.
@@ -763,7 +798,8 @@ class StructuredAnswerBuilder:
                         "extraction_revision_id": source["extraction_revision_id"]}
                 if self.enforce_contract:
                     base.update(index_generation_state=self.generations[source["generation_id"]]["state"],
-                                extraction_method=block_extraction_method(parent["metadata_json"]))
+                                extraction_method=block_extraction_method(parent["metadata_json"]),
+                                source_span_complete=block["start_offset"] == 0 and block["end_offset"] == len(parent["text"]))
                 segment = {"source_id": source["source_id"], "block_id": block["id"],
                            "source_text_hash": block["source_text_hash"], "start_offset": block["start_offset"],
                            "end_offset": block["end_offset"]}
@@ -787,6 +823,8 @@ class StructuredAnswerBuilder:
                     if self.enforce_contract:
                         if block.get("table_context"):
                             item["_table_context"] = block["table_context"]
+                        if block.get("list_context"):
+                            item["_list_context"] = block["list_context"]
                     if source["source_id"] not in item["source_ids"]:
                         item["source_ids"].append(source["source_id"])
                     continue
@@ -844,6 +882,7 @@ class StructuredAnswerBuilder:
         references = [{"id": f"R{index:03d}", **item} for index, item in enumerate(entries.values(), 1)]
         if self.enforce_contract:
             self.bind_table_context(references)
+            self.bind_list_context(references)
         contract_scope = dict(self.snapshot.scope)
         if self.enforce_contract and contract_scope.get("kind") in {"sheet", "cell_range"}:
             # The physical XML filename is not a sheet-order guarantee. Read
@@ -858,6 +897,60 @@ class StructuredAnswerBuilder:
         contract = AnswerContract(self.question or "", mode, contract_scope,
                                   cell_context=any(reference["kind"] == "cell" for reference in references)) if self.enforce_contract else None
         return Catalogue(mode, references, contract)
+
+    def bind_list_context(self, references):
+        """Verify written list structure and bind its exact, visible pieces.
+
+        The heading remains a separate citation. Its nearest geometric
+        neighbour alone never qualifies an otherwise unlabelled number.
+        """
+        cache: dict[tuple, Any] = {}
+        for reference in references:
+            proposed = reference.pop("_list_context", None)
+            if not isinstance(proposed, dict) or not isinstance(proposed.get("item"), dict):
+                continue
+            expected = verified_list_context(self.db, self.snapshot, reference["generation_id"],
+                                             proposed["item"].get("block_id"), _cache=cache)
+            if expected is None or canonical(expected) != canonical(proposed):
+                continue
+            item = expected["item"]
+            if reference["text"] != item["text"] or not any(
+                    segment["block_id"] == item["block_id"] and segment["source_text_hash"] == item["source_text_hash"]
+                    and segment["start_offset"] == item["start_offset"] and segment["end_offset"] == item["end_offset"]
+                    for segment in reference.get("segments", [])):
+                continue
+            scoped = [candidate for candidate in references if candidate["generation_id"] == reference["generation_id"]]
+
+            def covering_ids(piece, scoped=scoped):
+                covered = []
+                for candidate in scoped:
+                    if candidate["extraction_revision_id"] != piece["extraction_revision_id"]:
+                        continue
+                    for segment in candidate.get("segments", []):
+                        if (segment["block_id"] == piece["block_id"] and segment["source_text_hash"] == piece["source_text_hash"]
+                                and segment["start_offset"] <= piece["start_offset"] < piece["end_offset"] <= segment["end_offset"]
+                                and candidate["text"][piece["start_offset"] - segment["start_offset"]:
+                                                      piece["end_offset"] - segment["start_offset"]] == piece["text"]):
+                            covered.append(candidate["id"])
+                            break
+                return covered
+
+            bindings = [covering_ids(piece) for piece in [expected["heading"], item, *expected["dependencies"]]]
+            if any(not binding for binding in bindings):
+                continue
+            ids = list(dict.fromkeys([bindings[0][0], reference["id"], *(binding[0] for binding in bindings[1:])]))
+            reference["list_context"] = {**expected, "reference_ids": ids, "catalogue_verified": True,
+                "source_ids": list(dict.fromkeys(source for candidate in scoped if candidate["id"] in ids
+                                                   for source in candidate["source_ids"]))}
+        for reference in references:
+            context = reference.get("list_context")
+            if not context:
+                continue
+            visible = {candidate["list_context"]["item_index"] for candidate in references if candidate.get("list_context")
+                       and candidate["generation_id"] == reference["generation_id"]
+                       and candidate["list_context"]["group_id"] == context["group_id"]}
+            context["visible_item_count"] = len(visible)
+            context["catalogue_group_complete"] = context["complete"] and visible == set(range(context["item_count"]))
 
     def bind_table_context(self, references):
         """Rebuild row geometry from pinned DB metadata, then bind visible IDs.

@@ -357,7 +357,7 @@ async def run(args):
         raise ValueError("The E5 production collection is strictly read-only")
     source, dataset = development_inputs(args.source_dataset, args.dataset)
     db = FrozenDatabase(args.snapshot, args.snapshot_sha256)
-    resolver = ScopeResolver(db)
+    resolver = ScopeResolver(db, explicit_pdf_lists=settings.value("enhanced", "explicit_pdf_lists", False))
     chunks = corpus_chunks(db, resolver, dataset["questions"])
     engine = EmbeddingService(settings) if args.model == "e5" else GraniteEmbedding(settings)
     embedding = TimedEmbedding(engine)

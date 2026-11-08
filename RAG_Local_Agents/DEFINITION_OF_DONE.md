@@ -515,3 +515,22 @@ Les lots R28-I-07/I-08 restent partiels et les réserves ci-dessus conservées.
 Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, corpus, résultat et chemin de preuve. Ajouter un tableau des métriques avec dénominateurs, mesures chaud/froid, limitations et écarts. Résumer uniquement ce qui est réellement exécuté ; ne pas substituer un discours de conformité aux résultats.
 
 **Terminé = application exploitable + preuve bout en bout + qualification sur la cible déclarée + défauts/limites résiduels explicités.**
+
+
+## Qualification complémentaire I4 — profil enhanced-4b
+
+Les critères préalables, corpus, seuils et résultats propres aux améliorations
+4B du 8 novembre 2026 sont définis dans le
+[protocole I4](reports/production-4b-protocol-2026-11-08.md) et évalués dans le
+[bilan I4](reports/production-4b-results-2026-11-08.md). Ce lot ne remplace pas
+les critères D01–D11 ni leurs qualifications par plateforme. Une réussite sur
+le poste de développement Linux x86-64 ne clôt ni la cible Windows ni les
+mesures de performance CPU sur la machine physique visée.
+
+La qualification de diffusion I4 est refusée sur le gel du 8 novembre :
+I4-D01 (fidélité des affirmations), I4-D05 (fidélité des scans) et I4-D07
+(résultats natifs/transfert) ne sont pas satisfaits. Les progrès de sélection,
+structure et OCR, ainsi que les contrôles logiciels réussis, conservent leur
+périmètre de preuve propre. Le tableau complet, les régressions, les exécutions
+manquantes et les limites méthodologiques restent dans le bilan, source de
+vérité de cette campagne.

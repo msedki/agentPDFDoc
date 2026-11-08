@@ -346,12 +346,12 @@ def test_calculation_support_preserves_verified_inputs_and_does_not_accept_an_al
         cat.verify_rendered(rendered)
 
 
-def test_general_question_keeps_useful_exact_conditions_without_claiming_semantic_certification():
+def test_simple_question_without_complete_source_span_keeps_its_useful_quote_and_limit():
     source = "Le boîtier est étanche uniquement lorsque le couvercle est fermé."
     cat = catalogue("Dans quelle condition le boîtier est-il étanche ?", [excerpt("R001", source)])
     rendered = render(cat, ["R001"])
-    assert rendered["answer_contract"]["status"] == "unassessed"
-    assert source in rendered["text"] and "Restitution littérale" in rendered["text"]
+    assert rendered["answer_contract"]["status"] == "partial"
+    assert source in rendered["text"] and "passage source complet n'est pas vérifié" in rendered["text"]
     assert rendered["support_validation"]["general_semantic_entailment_verified"] is False
     assert cat.deterministic_plan() is None
 

@@ -133,7 +133,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
                         "additional_peak_mib": 0, "cpu_fallback": True}
                 await governor.readmit_generation(await release_before_generation_admission(cold))
             ollama.before_cpu_fallback = before_cpu_fallback
-    resolver = ScopeResolver(db)
+    resolver = ScopeResolver(db, explicit_pdf_lists=settings.value("enhanced", "explicit_pdf_lists", False))
     # Couverture dense de l'identité courante (R26-IDX-02) : avertissement de recherche et état nommé de /readiness.
     dense_coverage = DenseCoverage(db, vectors)
     indexer = Indexer(db, embedding, vectors, settings, tokenizer)

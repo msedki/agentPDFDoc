@@ -288,6 +288,8 @@ class Enhanced(Section):
     """Mécanismes expérimentaux indépendants, inactifs dans les profils historiques."""
 
     preserve_evidence: bool = False
+    explicit_pdf_lists: bool = False
+    property_coverage_selection: bool = False
     lexical_alias_fallback: bool = False
     structural_reranking: bool = False
     rerank_max_candidates: Annotated[int, Field(ge=1, le=96)] = 48

@@ -13,6 +13,7 @@ from typing import Any
 from .config import OCR_RENDER_SCALE, IngestionConfig, project_path
 from .errors import IngestionError
 from .geometry import docling_box_to_pdf
+from .pdf_structure import annotate_explicit_lists
 
 
 def verify_tesseract(config: IngestionConfig):
@@ -431,4 +432,5 @@ def document_to_pages(document, preflight_pages, version_id, revision_id, route,
             page["extraction_state"] = "error"
         if route == "regional_ocr" and not page["ocr_used"] and page["extraction_state"] != "error":
             page["extraction_state"] = "native"
+        annotate_explicit_lists(page)
     return list(pages.values()), warnings

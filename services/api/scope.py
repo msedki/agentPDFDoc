@@ -109,8 +109,9 @@ class ScopeSnapshot:
 
 
 class ScopeResolver:
-    def __init__(self, db):
+    def __init__(self, db, *, explicit_pdf_lists=False):
         self.db = db
+        self.explicit_pdf_lists = explicit_pdf_lists
 
     @staticmethod
     def document_warnings(connection, requested, rows, mode):
@@ -216,6 +217,7 @@ class ScopeResolver:
             raise ApiError("scope_projection_required", "La plage de cellules exige une projection avant la recherche.", 409)
         rows = self.db.rows("SELECT s.*,b.text,b.bbox_json,b.precision,b.kind,b.section_id,b.extraction_revision_id,b.source_text_hash,b.metadata_json,p.geometry_json FROM chunk_sources s JOIN blocks b ON b.generation_id=? AND b.id=s.block_id LEFT JOIN pages p ON p.generation_id=b.generation_id AND p.page_index=b.page_index WHERE s.chunk_uuid=? ORDER BY s.position", (generation_id, chunk["chunk_uuid"]))
         allowed = []
+        list_candidates = set()
         for row in rows:
             if snapshot.page_indices is not None and row["page_index"] not in snapshot.page_indices:
                 continue
@@ -238,6 +240,10 @@ class ScopeResolver:
                     metadata = json.loads(row["metadata_json"])
                     allowed[-1].update(selected_office_metadata(metadata, range_start, range_end) if snapshot.spans
                                        else {key: metadata[key] for key in ("locator", "structure", "bindings") if key in metadata})
+                elif self.explicit_pdf_lists:
+                    metadata = json.loads(row["metadata_json"])
+                    if isinstance(metadata.get("list_structure"), dict):
+                        list_candidates.add(row["block_id"])
         if not allowed:
             return None
         result = {"chunk_id": chunk["chunk_uuid"], "generation_id": generation_id, "extraction_revision_id": chunk["extraction_revision_id"],
@@ -249,6 +255,10 @@ class ScopeResolver:
                            "precision": allowed[0]["precision"], "scope_kind": snapshot.scope["kind"]})
             if result["format"] == "xlsx":
                 result["cell_facts"] = self.cell_facts(generation_id, allowed)
+        if list_candidates:
+            from .evidence_selection import attach_list_contexts
+
+            result = attach_list_contexts(self.db, snapshot, result, list_candidates)
         return result
 
     def cell_facts(self, generation_id, blocks):

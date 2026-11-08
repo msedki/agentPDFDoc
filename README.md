@@ -2,7 +2,7 @@
 
 **Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** Stabilisé · **Référence :** base publiée `64e191f`, produits R27 `5204d2e` et `aabb9808` ; intégration Office R28 dans les modifications locales du 10 octobre, contrôles isolés effectués et chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues ; réserves par plateforme dans le PLAN et le journal · **Mis à jour :** 2026-11-08 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
 
-Poste de lecture et d'analyse de PDF, DOCX et XLSX pour Windows 11, sans WSL, Docker ni service distant. La recette de performance vise un poste physique de 16 Go au plus en calcul CPU. Le code comporte aussi une voie Linux native aarch64 et x86-64 ([W018](RAG_Local_Agents/DECISIONS.md#w018-double-plateforme--windows-11-x86-64-et-linux-aarch64-natifs)) ; seule aarch64 a été exercée sur le poste Jetson du chantier. La génération peut passer sur un GPU NVIDIA là où cette voie est qualifiée. Le modèle local répond à partir de passages enregistrés pour la question, et une citation valide ouvre la version et la révision enregistrées : page/bloc pour le PDF, élément pour le DOCX, feuille/cellule ou plage pour le XLSX. La recette complète reste ouverte, notamment ses exigences de performance sur cet hôte.
+Poste de lecture et d'analyse de PDF, DOCX et XLSX pour Windows 11, sans WSL, Docker ni service distant. La recette de performance vise un poste physique de 16 Go au plus en calcul CPU. Le code comporte aussi une voie Linux native aarch64 et x86-64 ([W018](RAG_Local_Agents/DECISIONS.md#w018-double-plateforme--windows-11-x86-64-et-linux-aarch64-natifs)) ; aarch64 a été exercée sur le poste Jetson du chantier, puis les campagnes 4B de novembre ont utilisé un hôte de développement Linux x86-64, avec leurs limites documentées ci-dessous. La génération peut passer sur un GPU NVIDIA là où cette voie est qualifiée. Le modèle local répond à partir de passages enregistrés pour la question, et une citation valide ouvre la version et la révision enregistrées : page/bloc pour le PDF, élément pour le DOCX, feuille/cellule ou plage pour le XLSX. La recette complète reste ouverte, notamment ses exigences de performance sur cet hôte.
 
 **État au 10 octobre 2026.** L’ingestion Office est implémentée dans l’arbre de travail : import mixte, extraction native OOXML, structures persistées, recherche et citations typées, lecteurs DOCX/XLSX. Les parseurs et les frontières DB/API/RAG disposent de tests isolés ; la chaîne native DEV Linux aarch64 est vérifiée. Les preuves sont consolidées dans le [rapport d’intégration Office](RAG_Local_Agents/reports/office-integration-2026-10-10.md) ; les résultats acquis et le reste à vérifier sont dans [R28 du plan](RAG_Local_Agents/PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation). Cette intégration ne qualifie pas encore Windows, Linux x86-64 ou un poste physique CPU/16 Go.
 
@@ -26,6 +26,32 @@ physique CPU/16 Go. À cette date, les formats Office restaient au stade de l’
 - **Linux x86-64.** Verrou uv et artefacts résolus ; jamais exécuté, faute de machine de qualification (même tableau de la DoD).
 
 **Accélération GPU de la génération, état au 2 octobre 2026 (commits `4d8ba68` et `c32b759`) :** livrée selon [W024](RAG_Local_Agents/DECISIONS.md#w024-accélération-gpu-détectée-proposée-et-utilisée-automatiquement-quand-elle-est-disponible) et [W025](RAG_Local_Agents/DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024). Seul le modèle de réponse change de matériel ; extraction, OCR et embeddings restent sur CPU. Le GPU n'est employé d'office que sur une voie qualifiée par un essai réel : aujourd'hui un Jetson sous Jetson Linux R35 (JetPack 5) avec le complément officiel d'Ollama, essayé le 2 octobre sur le Jetson AGX Orin du poste Linux aarch64 de développement (provisionnement du complément, démarrage, `doctor`, `selftest` sur GPU puis en CPU imposé, calibration ; [résultats et limites](docs/architecture/ARCHITECTURE.md#51-accélération-gpu-de-la-génération)). Un Jetson de 16 Go en mode GPU n'est pas qualifié : en `auto`, un Jetson de 16 Gio de mémoire totale ou moins, ou dont la mémoire est illisible, reste sur CPU, et `doctor` y propose un essai par `llm.accelerator: gpu`. L'essai suggère qu'une partie de la mémoire prise par le GPU échappe à `MemAvailable`, sur laquelle repose le gouverneur (hypothèse H-GPU-2, non mesurable sans droits root sous Jetson Linux R35.4.1). Sur un Jetson R36 et sur un poste Linux ou Windows doté d'un GPU NVIDIA que découvre Ollama, voies jamais essayées, `doctor` propose un essai par `llm.accelerator: gpu` sans employer le GPU d'office. Un poste sans GPU utilisable, dont le poste Windows de qualification, reste sur CPU avec des requêtes inchangées, ce que vérifient des tests sur plateforme simulée ; son rejeu réel reste à faire. La recette D07 se mesure en calcul CPU imposé ([QUALIFICATION.md, section 8](RAG_Local_Agents/QUALIFICATION.md#8-performance-et-ressources)).
+
+## I4 — robustesse documentaire et qualification avant diffusion
+
+**Qualification de diffusion non acquise.** Le transfert réservé révèle
+encore une association de colonne non étayée : une valeur typique est affichée
+sous un en-tête minimum après une mauvaise affectation de cellule. Le contrôle
+des hashes et des citations ne détecte pas cette erreur sémantique de l’extraction.
+Le [bilan détaillé](RAG_Local_Agents/reports/production-4b-results-2026-11-08.md)
+conserve cet échec, les omissions et les réserves excessives ; les réussites
+logicielles ci-dessous ne valent pas validation de la fidélité générale.
+
+Les pistes différées d’I3 sont implémentées dans le profil `enhanced-4b` : sélection
+par propriété à budget constant, conservation des titres et conditions des listes
+PDF, restitution littérale des faits qualitatifs, signalement des pertes de contexte,
+OCR Tesseract corrigé par un backport amont vérifié et traces complètes compactées
+sans perte. Le générateur reste exclusivement **Qwen3-4B Q4_K_M** et choisit des
+références contrôlées contre l’extraction ; le serveur vérifie leur intégrité et restitue les éléments autorisés. La relation au document original reste la limite de fidélité exposée ci-dessus.
+
+Le [protocole I4](RAG_Local_Agents/reports/production-4b-protocol-2026-11-08.md)
+a fixé les critères avant code. Le [bilan I4](RAG_Local_Agents/reports/production-4b-results-2026-11-08.md)
+distingue les mesures contrôlées, les moteurs natifs, le transfert réservé et les
+limites restantes. Les [commandes de reproduction](RAG_Local_Agents/reports/production-4b-reproduce-2026-11-08.md)
+précisent versions, sources, hashes, prérequis et artefacts d’échec conservés.
+Ces travaux préparent la diffusion ; ils ne valent pas qualification globale
+Windows/Linux ni autorisation de déploiement. Le statut exact des critères reste
+celui du bilan, sans seuil abaissé ni réponse refusée comptée comme amélioration.
 
 ## I3 — fiabilisation de la chaîne 4B, 8 novembre 2026
 
