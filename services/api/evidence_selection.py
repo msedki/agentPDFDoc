@@ -15,7 +15,7 @@ from typing import Any
 
 from .errors import ApiError
 
-REVISION = "evidence-bundles-v3"
+REVISION = "evidence-bundles-v4"
 TABLE_RELATIONS_REVISION = "verified-table-relations-v1"
 MAX_TABLE_INSPECT_CHARS = 200_000
 MAX_TABLE_METADATA_CHARS = 2_000_000
@@ -24,10 +24,34 @@ MAX_TABLE_HEADER_DEPTH = 8
 MAX_TABLE_RECOVERY_HASHES = 20_000
 MAX_TABLE_RECOVERY_BYTES = 8_388_608
 MAX_TABLE_RECOVERY_SECONDS = .05
+MAX_TABLE_NOTE_LINKS = 64
 
 
 def _digest(value):
     return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def deduplicate_expanded_sources(sources):
+    """Drop identical expanded evidence before assigning public source IDs.
+
+    Only retrieval bookkeeping may differ. All source text, block spans,
+    version/provenance, table relations and identifier obligations participate
+    in the key. Incomplete records remain separate for later validation.
+    """
+    bookkeeping = {"chunk_id", "parent_id", "score", "rerank_features", "rerank_revision", "parent_expanded"}
+    required = {"document_id", "version_id", "generation_id", "extraction_revision_id", "text", "blocks"}
+    block_fields = {"id", "start_offset", "end_offset", "source_text_hash", "extraction_revision_id", "text"}
+    results, seen = [], set()
+    for source in sources:
+        if (not required <= source.keys() or not source["blocks"]
+                or any(not block_fields <= block.keys() for block in source["blocks"])):
+            results.append(source)
+            continue
+        key = _digest({field: value for field, value in source.items() if field not in bookkeeping})
+        if key not in seen:
+            seen.add(key)
+            results.append(source)
+    return results
 
 
 def _column(index):
@@ -245,6 +269,7 @@ def _row_records(metadata):
     _bind_columns(records)
     if _explicit_docx_header(records):
         _bind_columns(records)
+    _bind_notes(records)
     return records or None
 
 
@@ -256,6 +281,8 @@ _HEADER_ROLES = {
     "unit": "unit", "units": "unit", "unite": "unit", "unites": "unit",
     "condition": "condition", "conditions": "condition", "test conditions": "condition",
     "conditions d'essai": "condition", "conditions de test": "condition",
+    "note": "note", "notes": "note", "remark": "note", "remarks": "note",
+    "remarque": "note", "remarques": "note",
     "parameter": "parameter", "parameters": "parameter", "parametre": "parameter",
     "parametres": "parameter", "grandeur": "parameter",
 }
@@ -360,6 +387,62 @@ def _active_cells(cells, row_index):
         and cell["column_end"] <= origin["column_end"] for origin in active)]
 
 
+_NOTE_MARKER = re.compile(
+    r"\((\d{1,3})\)|\[(\d{1,3})\]|(?<!\*)(\*{1,3}|[†‡])(?![\w*])|\bnote\s+(\d{1,3})\b", re.IGNORECASE)
+_NOTE_DEFINITION = re.compile(
+    r"^\s*(?:(?:note|remarque)\s+(?:\((\d{1,3})\)|\[(\d{1,3})\]|(\d{1,3}))\s*[:.)-]?\s*"
+    r"|(?:\((\d{1,3})\)|\[(\d{1,3})\]|(\*{1,3}|[†‡]))\s+)(?=\S)", re.IGNORECASE)
+
+
+def _bind_notes(records):
+    """Link explicit table-local note markers, never a guessed nearby footnote.
+
+    A definition starts the first nonempty cell and has a textual body. Repeated
+    definitions remain ambiguous: all their exact rows are retained, but none is
+    chosen as authoritative. Bounds apply before constructing row dependencies.
+    """
+    definitions: dict[str, list[int]] = defaultdict(list)
+    for record in records:
+        first = next((cell["text"] for cell in record["cells"] if cell["text"].strip()), "")
+        match = _NOTE_DEFINITION.match(first) if not record["header"] and not record["section"] else None
+        marker = next((value for value in match.groups() if value is not None), None) if match else None
+        if match and not any(char.isalpha() for char in first[match.end():]):
+            marker = None
+        record["note_marker"] = marker
+        if marker is not None:
+            definitions[marker].append(record["index"])
+        record.update(note_rows=[], note_markers=[], unresolved_note_markers=[], ambiguous_note_markers=[],
+                      note_scan_complete=True)
+    links = 0
+    for record in records:
+        markers = set()
+        for cell in record["cells"]:
+            # Parenthesized numbers in a numeric column are not a note by
+            # themselves. Their raw interpretation remains the extractor's.
+            if (re.fullmatch(r"\s*\(\d{1,3}\)\s*", cell["text"])
+                    and any(header["role"] in {"minimum", "maximum", "typical", "nominal"} for header in cell["headers"])):
+                continue
+            for match in _NOTE_MARKER.finditer(cell["text"]):
+                marker = next(value for value in match.groups() if value is not None)
+                if marker != record["note_marker"]:
+                    markers.add(marker)
+                if len(markers) > MAX_TABLE_NOTE_LINKS:
+                    break
+            if len(markers) > MAX_TABLE_NOTE_LINKS:
+                break
+        links += sum(max(1, len(definitions.get(marker, []))) for marker in markers)
+        if links > MAX_TABLE_NOTE_LINKS:
+            # No partial list may acquire the appearance of complete note proof.
+            for item in records:
+                item.update(note_rows=[], note_markers=[], unresolved_note_markers=[],
+                            ambiguous_note_markers=[], note_scan_complete=False)
+            return
+        record["note_markers"] = sorted(markers)
+        record["note_rows"] = sorted({index for marker in markers for index in definitions.get(marker, [])})
+        record["unresolved_note_markers"] = sorted(marker for marker in markers if marker not in definitions)
+        record["ambiguous_note_markers"] = sorted(marker for marker in markers if len(definitions.get(marker, [])) > 1)
+
+
 def _table_context(records, record, block, chosen):
     """Publish relations only between exact cells and selected source rows."""
     if not record["column_bindings_verified"]:
@@ -371,6 +454,20 @@ def _table_context(records, record, block, chosen):
     section = next((row["index"] for row in reversed(records) if row["section"] and row["index"] < index), None)
     if section is not None:
         dependencies[section] = "row_section"
+    # Notes on a relied-upon header, merged origin or note are also required.
+    # Each row is visited once, including cycles such as (1) -> (2) -> (1).
+    by_index = {row["index"]: row for row in records}
+    relevant = {index, *dependencies}
+    pending = list(relevant)
+    while pending:
+        current = pending.pop()
+        for note in by_index[current].get("note_rows", []):
+            if note != index:
+                dependencies[note] = "note"
+            if note not in relevant:
+                relevant.add(note)
+                pending.append(note)
+    note_context = [by_index[row] for row in relevant]
     if not set(dependencies) <= {row["index"] for row in chosen}:
         return None
     return {"revision": TABLE_RELATIONS_REVISION, "table_block_id": block["id"],
@@ -378,7 +475,11 @@ def _table_context(records, record, block, chosen):
             "serialization_verified": True, "row_index": index,
             "header_detection": "explicit_labels" if any(row.get("header_detection") == "explicit_labels" for row in records)
                                 else "structural_metadata" if any(row["header"] for row in records) else "unverified",
-            "row_role": "header" if record["header"] else "section" if record["section"] else "data",
+            "row_role": "header" if record["header"] else "section" if record["section"] else "note" if record.get("note_marker") else "data",
+            "note_markers": sorted({marker for row in note_context for marker in row.get("note_markers", [])}),
+            "unresolved_note_markers": sorted({marker for row in note_context for marker in row.get("unresolved_note_markers", [])}),
+            "ambiguous_note_markers": sorted({marker for row in note_context for marker in row.get("ambiguous_note_markers", [])}),
+            "note_scan_complete": all(row.get("note_scan_complete", True) for row in note_context),
             "cells": [{key: value for key, value in cell.items() if key != "merge_origin_id"} for cell in cells],
             "dependencies": [{"kind": dependencies[row["index"]], "row_index": row["index"], "text": row["text"],
                               "start_offset": row["start"], "end_offset": row["end"]}
@@ -544,6 +645,7 @@ def table_bundle(db, snapshot, source, *, maximum_chars=12_000, question=None, r
         while pending:
             selected_row = pending.pop()
             dependencies = set(by_index[selected_row]["merge_origins"])
+            dependencies.update(by_index[selected_row].get("note_rows", []))
             section = next((record["index"] for record in reversed(records)
                             if record["section"] and record["index"] <= selected_row), None)
             if section is not None:
@@ -555,8 +657,21 @@ def table_bundle(db, snapshot, source, *, maximum_chars=12_000, question=None, r
                     selected.add(dependency)
                     pending.append(dependency)
         chosen = [record for record in records if record["index"] in selected and record["text"]]
+        unresolved_notes = sorted({marker for record in chosen for marker in record.get("unresolved_note_markers", [])})
+        ambiguous_notes = sorted({marker for record in chosen for marker in record.get("ambiguous_note_markers", [])})
+        if unresolved_notes:
+            warnings.append({**_warning("table_note_unresolved",
+                "Un renvoi de note du tableau n'est pas résolu dans les preuves autorisées ; ses conditions d'application restent inconnues.", source),
+                "markers": unresolved_notes})
+        if ambiguous_notes:
+            warnings.append({**_warning("table_note_ambiguous",
+                "Plusieurs notes portent le même renvoi dans ce tableau ; leurs textes sont conservés sans en choisir une.", source),
+                "markers": ambiguous_notes})
+        if not all(record.get("note_scan_complete", True) for record in chosen):
+            warnings.append(_warning("table_note_verification_limit",
+                "Les renvois de notes dépassent la limite de vérification ; leur couverture n'est pas établie.", source))
         if len("\n".join(record["text"] for record in chosen)) > maximum_chars:
-            return source, [_warning("table_evidence_bundle_too_large",
+            return source, [*warnings, _warning("table_evidence_bundle_too_large",
                 "Les lignes et en-têtes liés dépassent la limite du paquet de preuves ; le fragment original reste signalé comme partiel.", source)]
         heading_key = ("section_heading", *key)
         if heading_key not in table_cache:
@@ -593,11 +708,13 @@ def table_bundle(db, snapshot, source, *, maximum_chars=12_000, question=None, r
     if not structure:
         return source, []
     if len(text) > maximum_chars:
-        return source, [_warning("table_evidence_bundle_too_large",
+        return source, [*warnings, _warning("table_evidence_bundle_too_large",
             "L'ensemble des blocs liés dépasse la limite du paquet ; le fragment original reste partiel.", source)]
     identity = _digest([source["generation_id"], [(block["id"], block["start_offset"], block["end_offset"],
                                                  block["source_text_hash"]) for block in blocks]])
-    return {**source, "text": text, "blocks": blocks,
+    from .scope import extraction_methods
+
+    return {**source, "text": text, "blocks": blocks, "extraction_methods": extraction_methods(blocks),
         "page_indices": sorted({block["page_index"] for block in blocks if block.get("page_index") is not None}), "evidence_bundle": {
         "id": identity, "revision": REVISION, "kind": "table_rows" if all(item["serialization_verified"] for item in structure)
         else "table_blocks", "atomic": True, "tables": structure}}, warnings
@@ -675,7 +792,7 @@ def _focused_rows(records, question, required_identifiers):
     requested_roles = {role for role, aliases in role_terms.items() if aliases & terms}
     ranked = []
     for record in records:
-        if record["header"] or record["section"] or not record["text"]:
+        if record["header"] or record["section"] or record.get("note_marker") or not record["text"]:
             continue
         words = set(re.findall(r"\w+", _fold(record["text"])))
         matches = terms & {word[:5] for word in words if len(word) >= 3}

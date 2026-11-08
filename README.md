@@ -27,6 +27,65 @@ physique CPU/16 Go. À cette date, les formats Office restaient au stade de l’
 
 **Accélération GPU de la génération, état au 2 octobre 2026 (commits `4d8ba68` et `c32b759`) :** livrée selon [W024](RAG_Local_Agents/DECISIONS.md#w024-accélération-gpu-détectée-proposée-et-utilisée-automatiquement-quand-elle-est-disponible) et [W025](RAG_Local_Agents/DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024). Seul le modèle de réponse change de matériel ; extraction, OCR et embeddings restent sur CPU. Le GPU n'est employé d'office que sur une voie qualifiée par un essai réel : aujourd'hui un Jetson sous Jetson Linux R35 (JetPack 5) avec le complément officiel d'Ollama, essayé le 2 octobre sur le Jetson AGX Orin du poste Linux aarch64 de développement (provisionnement du complément, démarrage, `doctor`, `selftest` sur GPU puis en CPU imposé, calibration ; [résultats et limites](docs/architecture/ARCHITECTURE.md#51-accélération-gpu-de-la-génération)). Un Jetson de 16 Go en mode GPU n'est pas qualifié : en `auto`, un Jetson de 16 Gio de mémoire totale ou moins, ou dont la mémoire est illisible, reste sur CPU, et `doctor` y propose un essai par `llm.accelerator: gpu`. L'essai suggère qu'une partie de la mémoire prise par le GPU échappe à `MemAvailable`, sur laquelle repose le gouverneur (hypothèse H-GPU-2, non mesurable sans droits root sous Jetson Linux R35.4.1). Sur un Jetson R36 et sur un poste Linux ou Windows doté d'un GPU NVIDIA que découvre Ollama, voies jamais essayées, `doctor` propose un essai par `llm.accelerator: gpu` sans employer le GPU d'office. Un poste sans GPU utilisable, dont le poste Windows de qualification, reste sur CPU avec des requêtes inchangées, ce que vérifient des tests sur plateforme simulée ; son rejeu réel reste à faire. La recette D07 se mesure en calcul CPU imposé ([QUALIFICATION.md, section 8](RAG_Local_Agents/QUALIFICATION.md#8-performance-et-ressources)).
 
+## I3 — fiabilisation de la chaîne 4B, 8 novembre 2026
+
+Le profil `enhanced-4b` conserve **Qwen3-4B Q4_K_M comme seul générateur**,
+avec contrôle du digest, de la famille `qwen3` et de la taille `4.0B` avant
+l'envoi des sources. Les passages, notes de tableaux, conditions et versions
+sont conservés jusqu'au rendu. Le modèle organise les références d'un catalogue
+vérifié ; le serveur restitue les extraits et effectue les calculs autorisés.
+Un registre avant génération et un contrôle des segments après restitution
+bloquent les ajouts non étayés. Ces mécanismes restent des contrôles locaux
+bornés, sans certification sémantique générale ni garantie de lecture OCR.
+
+L'activation du [profil renforcé](config/enhanced-4b.yaml) est explicite,
+après installation des [prérequis](#9-prérequis-du-poste) et provisionnement
+des artefacts verrouillés :
+
+```bash
+./rag.sh up --profile config/enhanced-4b.yaml
+```
+
+Le lancement par défaut conserve le profil 4B historique. Les anciens profils,
+y compris 2B, restent accessibles ; leur présence ne constitue ni une activation
+automatique du profil renforcé ni un essai d'un autre générateur dans ce lot.
+
+Sur la matrice contrôlée, dont les doubles sont explicitement identifiés,
+la relecture indépendante par agent, non aveugle, des 24 sorties des cas
+répondables distingue le résultat strict de l'oracle automatique conservé :
+
+| Mesure | Référence | C2 |
+|---|---:|---:|
+| Réponses complètes sans réserve injustifiée — relecture | 9/12 | 11/12 |
+| Réponses complètes — oracle automatique historique | 9/12 | 12/12 |
+| Contrôles limites conformes — oracle automatique | 15/18 | 18/18 |
+| Faits requis restitués et soutenus | 12/15 | 15/15 |
+| Rappel littéral des faits au top 10 | 12/15 | 15/15 |
+
+P04 et P06 progressent. P01 conserve son fait complet mais une réserve inutile
+dans les deux bras ; le 12/12 automatique comprend donc un faux positif au
+candidat. La relecture des 18 contrôles limites confirme 15/18 → 18/18.
+Le gain de rappel et de faits restitués ne suffit pas à clore la qualité de
+communication.
+
+**La disponibilité de la campagne native Office primaire passe de 8/8 à 5/8**,
+avec trois `resource_admission_denied` au candidat. La reprise séparée termine
+les trois cas, avec trois générations réelles et **2/3 réponses strictes** après
+relecture ; la réserve inutile de P01 persiste. Cette reprise n'efface pas les
+erreurs primaires. Les PDF donnent **0/2 réponses complètes et 1/4 relation
+demandée dans chaque bras** : les six citations par bras sont fidèles au texte,
+mais une seule appuie une relation demandée. L'extraction est limitée à la page
+d'index 0 en `ready_partial` ; l'OCR n'est pas qualifié.
+
+**I3-D04 reste ouvert sur la communication, I3-D08 n'est pas atteint et la DoD
+globale reste ouverte.** Le
+[bilan et ses limites](RAG_Local_Agents/reports/grounded-4b-results-2026-11-08.md),
+le [protocole préalable](RAG_Local_Agents/reports/grounded-4b-protocol-2026-11-08.md)
+et les [commandes de reproduction](RAG_Local_Agents/reports/grounded-4b-reproduce-2026-11-08.md)
+distinguent contrôles logiciels, mesures avec doubles, exécution native et
+recette cible. Le lot est préparé pour publication sur `enhanced_version` ;
+la confirmation distante et son SHA ne sont pas anticipés ici.
+
 ## Deuxième itération 4B — 8 novembre 2026
 
 La branche `enhanced_version` contient les améliorations des relations de

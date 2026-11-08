@@ -1,0 +1,963 @@
+{
+  "schema_version": 1,
+  "protocol_id": "G4B-2026-11-08-CONTROLLED-V1",
+  "frozen_utc": "2026-11-08",
+  "purpose": "Comparaison appariée de code sur fixtures synthétiques contrôlées, extraction Office/SQLite/FTS/QueryService réels; embedding, vecteur et génération remplacés explicitement par doubles. Aucun score 4B natif ou de généralisation.",
+  "acceptance": {
+    "answerable_complete": 12,
+    "answerable_total": 12,
+    "limit_controls_pass": 18,
+    "limit_controls_total": 18,
+    "scope_leakage_count": 0,
+    "invented_claim_count": 0,
+    "citation_integrity_ratio": 1.0
+  },
+  "cases": [
+    {
+      "id": "P01_general_condition",
+      "question": "Dans quelle condition le boîtier est-il étanche ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Le boîtier est étanche uniquement lorsque le couvercle est fermé."
+          ]
+        }
+      ],
+      "answerable": true,
+      "facts": [
+        {
+          "id": "sealed",
+          "document": "a",
+          "source_patterns": [
+            "étanche",
+            "uniquement lorsque le couvercle est fermé"
+          ],
+          "answer_patterns": [
+            "étanche",
+            "uniquement lorsque le couvercle est fermé"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P02_zero_cell",
+      "question": "Quelle valeur contient exactement la cellule A1 ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "xlsx",
+          "sheets": [
+            {
+              "name": "Parametres",
+              "cells": {
+                "A1": 0,
+                "B1": 36
+              }
+            }
+          ]
+        }
+      ],
+      "answerable": true,
+      "scope": {
+        "kind": "cell_range",
+        "range": "A1:B1"
+      },
+      "facts": [
+        {
+          "id": "zero",
+          "document": "a",
+          "source_patterns": [
+            "(?<![\\d])0(?![\\d])"
+          ],
+          "answer_patterns": [
+            "(?:littérale|A1)[^\\n]*\\b0\\b"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P03_negative_interval",
+      "question": "Quelle plage de température de stockage est indiquée ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Storage temperature: -40 to 85 °C."
+          ]
+        }
+      ],
+      "answerable": true,
+      "facts": [
+        {
+          "id": "range",
+          "document": "a",
+          "source_patterns": [
+            "-40",
+            "85",
+            "°C"
+          ],
+          "answer_patterns": [
+            "[−–-]40",
+            "85",
+            "°C"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P04_two_conditions",
+      "question": "Donne les deux plages d'alimentation recommandées avec leurs conditions de température.",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Recommended supply voltage: 1.5 to 4.5 V for TA = -40 to 125 °C.",
+            "Recommended supply voltage: 1.8 to 4.5 V for TA = -55 to 150 °C."
+          ]
+        }
+      ],
+      "answerable": true,
+      "facts": [
+        {
+          "id": "condition1",
+          "document": "a",
+          "source_patterns": [
+            "1\\.5",
+            "4\\.5",
+            "125",
+            "-40"
+          ],
+          "answer_patterns": [
+            "1\\.5",
+            "4\\.5",
+            "125",
+            "-40"
+          ]
+        },
+        {
+          "id": "condition2",
+          "document": "a",
+          "source_patterns": [
+            "1\\.8",
+            "4\\.5",
+            "150",
+            "-55"
+          ],
+          "answer_patterns": [
+            "1\\.8",
+            "4\\.5",
+            "150",
+            "-55"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P05_sparse_table",
+      "question": "Quelle plage de tension de bus est indiquée avec ses bornes et son unité ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [],
+          "tables": [
+            [
+              [
+                "Parameter",
+                "MIN",
+                "TYP",
+                "MAX",
+                "UNIT"
+              ],
+              [
+                "Bus voltage range",
+                "0",
+                "",
+                "36",
+                "V"
+              ]
+            ]
+          ]
+        }
+      ],
+      "answerable": true,
+      "facts": [
+        {
+          "id": "range",
+          "document": "a",
+          "source_patterns": [
+            "Bus voltage",
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ],
+          "answer_patterns": [
+            "(?i)bus",
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b",
+            "(?i)min",
+            "(?i)max"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P06_roles",
+      "question": "Quelle est la plage de tension d'alimentation recommandée ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Absolute maximum supply voltage: 6 V.",
+            "Recommended operating supply voltage: 2 to 5 V."
+          ]
+        }
+      ],
+      "answerable": true,
+      "facts": [
+        {
+          "id": "recommended",
+          "document": "a",
+          "source_patterns": [
+            "Recommended operating supply voltage",
+            "2 to 5 V"
+          ],
+          "answer_patterns": [
+            "(?i)recommended|recommand",
+            "(?<!\\d)2(?!\\d)",
+            "(?<!\\d)5(?!\\d)",
+            "\\bV\\b"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P07_duplicates",
+      "question": "Quelle est la plage de tension de bus ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Operating bus voltage: 0 to 36 V.",
+            "Operating bus voltage: 0 to 36 V."
+          ]
+        }
+      ],
+      "answerable": true,
+      "facts": [
+        {
+          "id": "range",
+          "document": "a",
+          "source_patterns": [
+            "Operating bus voltage",
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ],
+          "answer_patterns": [
+            "(?i)bus",
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P08_comparison_equal",
+      "question": "Comparer les plages de tension de bus des deux documents.",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Operating bus voltage: 0 to 36 V."
+          ]
+        },
+        {
+          "key": "b",
+          "format": "docx",
+          "paragraphs": [
+            "Operating bus voltage: 0 to 36 V."
+          ]
+        }
+      ],
+      "answerable": true,
+      "mode": "comparison",
+      "facts": [
+        {
+          "id": "a",
+          "document": "a",
+          "source_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ],
+          "answer_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ]
+        },
+        {
+          "id": "b",
+          "document": "b",
+          "source_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ],
+          "answer_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ]
+        }
+      ],
+      "required_answer_patterns": [
+        "(?i)concord|identique|mêmes? valeurs"
+      ]
+    },
+    {
+      "id": "P09_comparison_different",
+      "question": "Comparer les plages de tension de bus des deux documents.",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Operating bus voltage: 0 to 36 V."
+          ]
+        },
+        {
+          "key": "b",
+          "format": "docx",
+          "paragraphs": [
+            "Operating bus voltage: 0 to 40 V."
+          ]
+        }
+      ],
+      "answerable": true,
+      "mode": "comparison",
+      "facts": [
+        {
+          "id": "a",
+          "document": "a",
+          "source_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ],
+          "answer_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ]
+        },
+        {
+          "id": "b",
+          "document": "b",
+          "source_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<!\\d)40(?!\\d)",
+            "\\bV\\b"
+          ],
+          "answer_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<!\\d)40(?!\\d)",
+            "\\bV\\b"
+          ]
+        }
+      ],
+      "required_answer_patterns": [
+        "(?i)diverg|différ|different"
+      ]
+    },
+    {
+      "id": "P10_decimal_sum",
+      "question": "Calcule la somme des cellules A1 et B1.",
+      "documents": [
+        {
+          "key": "a",
+          "format": "xlsx",
+          "sheets": [
+            {
+              "name": "Parametres",
+              "cells": {
+                "A1": 1.25,
+                "B1": 2.75
+              }
+            }
+          ]
+        }
+      ],
+      "answerable": true,
+      "scope": {
+        "kind": "cell_range",
+        "range": "A1:B1"
+      },
+      "facts": [
+        {
+          "id": "sum",
+          "document": "a",
+          "source_patterns": [
+            "1\\.25",
+            "2\\.75"
+          ],
+          "answer_patterns": [
+            "(?<![\\d.])4(?![\\d.])",
+            "(?i)somme|sum|\\+"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P11_conversion",
+      "question": "Convertir la cellule A1 en millisecondes, avec l'unité portée par la cellule B1.",
+      "documents": [
+        {
+          "key": "a",
+          "format": "xlsx",
+          "sheets": [
+            {
+              "name": "Parametres",
+              "cells": {
+                "A1": 125,
+                "B1": "µs"
+              }
+            }
+          ]
+        }
+      ],
+      "answerable": true,
+      "scope": {
+        "kind": "cell_range",
+        "range": "A1:B1"
+      },
+      "facts": [
+        {
+          "id": "conversion",
+          "document": "a",
+          "source_patterns": [
+            "125",
+            "[µμ]s"
+          ],
+          "answer_patterns": [
+            "0[.,]125",
+            "\\bms\\b",
+            "1000"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P12_cached_formula",
+      "question": "Quelle valeur calculée est disponible pour la cellule A1 ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "xlsx",
+          "sheets": [
+            {
+              "name": "Parametres",
+              "cells": {
+                "A1": "=1+2"
+              }
+            }
+          ],
+          "formula_cache": {
+            "A1": "3"
+          }
+        }
+      ],
+      "answerable": true,
+      "scope": {
+        "kind": "cell_range",
+        "range": "A1"
+      },
+      "facts": [
+        {
+          "id": "cache",
+          "document": "a",
+          "source_patterns": [
+            "(?<!\\d)3(?!\\d)"
+          ],
+          "answer_patterns": [
+            "(?<!\\d)3(?!\\d)",
+            "(?i)cache",
+            "(?i)inconnue"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "L01_condition_mismatch",
+      "question": "Quel courant de sortie est établi à TA = 85 °C ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Output current: 10 mA at TA = 25 °C."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "limitation",
+      "must_limit": true
+    },
+    {
+      "id": "L02_empty",
+      "question": "Quelle est la tension nominale ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            ""
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "limitation",
+      "must_limit": true
+    },
+    {
+      "id": "L03_scope_sheet",
+      "question": "Quel marqueur figure dans la deuxième feuille du classeur ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "xlsx",
+          "sheets": [
+            {
+              "name": "Parametres",
+              "cells": {
+                "A1": 10
+              }
+            },
+            {
+              "name": "Archive",
+              "cells": {
+                "A1": "SECRET_SCOPE_777"
+              }
+            }
+          ]
+        }
+      ],
+      "answerable": false,
+      "scope": {
+        "kind": "cell_range",
+        "range": "A1"
+      },
+      "expected": "limitation",
+      "must_limit": true,
+      "forbidden_answer_patterns": [
+        "SECRET_SCOPE_777"
+      ]
+    },
+    {
+      "id": "L04_unit_outside",
+      "question": "Convertir la cellule A1 en millisecondes.",
+      "documents": [
+        {
+          "key": "a",
+          "format": "xlsx",
+          "sheets": [
+            {
+              "name": "Parametres",
+              "cells": {
+                "A1": 140,
+                "B1": "µs"
+              }
+            }
+          ]
+        }
+      ],
+      "answerable": false,
+      "scope": {
+        "kind": "cell_range",
+        "range": "A1"
+      },
+      "expected": "limitation",
+      "must_limit": true,
+      "forbidden_answer_patterns": [
+        "0[.,]14\\s*ms"
+      ]
+    },
+    {
+      "id": "L05_uncached_formula",
+      "question": "Quelle valeur calculée est disponible pour la cellule A1 ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "xlsx",
+          "sheets": [
+            {
+              "name": "Parametres",
+              "cells": {
+                "A1": "=11+13"
+              }
+            }
+          ]
+        }
+      ],
+      "answerable": false,
+      "scope": {
+        "kind": "cell_range",
+        "range": "A1"
+      },
+      "expected": "limitation",
+      "must_limit": true,
+      "required_answer_patterns": [
+        "(?i)(sans cache|cache[^.\\n]*(absent|indisponible)|résultat[^.\\n]*indisponible)"
+      ],
+      "forbidden_answer_patterns": [
+        "(?<!\\d)24(?!\\d)"
+      ]
+    },
+    {
+      "id": "L06_cross_document_conflict",
+      "question": "Quelle est la tension d'alimentation recommandée à TA = 25 °C selon les deux documents ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Recommended supply voltage: 3.0 V at TA = 25 °C."
+          ]
+        },
+        {
+          "key": "b",
+          "format": "docx",
+          "paragraphs": [
+            "Recommended supply voltage: 3.6 V at TA = 25 °C."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "conflict",
+      "required_answer_patterns": [
+        "(?i)contradic|diverg|différ|different|conflit"
+      ],
+      "facts": [
+        {
+          "id": "a",
+          "document": "a",
+          "source_patterns": [
+            "3\\.0",
+            "25"
+          ],
+          "answer_patterns": [
+            "3(?:\\.0)?\\s*V",
+            "25"
+          ]
+        },
+        {
+          "id": "b",
+          "document": "b",
+          "source_patterns": [
+            "3\\.6",
+            "25"
+          ],
+          "answer_patterns": [
+            "3\\.6",
+            "25"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "L07_ocr_ambiguous",
+      "question": "Quelle est la plage de tension de bus en fonctionnement ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Operating bus voltage: OV to 36 V."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "limitation",
+      "must_limit": true,
+      "fixture_note": "Texte synthétique simulant une erreur OCR; aucun moteur OCR invoqué.",
+      "forbidden_answer_patterns": [
+        "(?i)0\\s*(?:V\\s*)?(?:to|à|[-–])\\s*36"
+      ]
+    },
+    {
+      "id": "L08_partial_extraction",
+      "question": "Quelles plages de tension de bus et d'alimentation sont établies ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Operating bus voltage: 0 to 36 V.",
+            "Operating supply voltage: 2 to 5 V."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "limitation",
+      "must_limit": true,
+      "extraction_fault": {
+        "kind": "drop_text",
+        "contains": "Operating supply voltage"
+      },
+      "fixture_note": "Un bloc natif est supprimé de la fixture extraite; publication partielle explicite. Ce cas simule une extraction incomplète.",
+      "facts": [
+        {
+          "id": "bus",
+          "document": "a",
+          "source_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ],
+          "answer_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "L09_long_qualification",
+      "question": "Quelle plage de tension d'alimentation est établie à TA = 85 °C ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Operating supply voltage: 2 to 5 V. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. This range applies only at TA = 25 °C; no range is established at TA = 85 °C."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "limitation",
+      "must_limit": true,
+      "fixture_note": "La réserve est en fin de paragraphe long; aucun oracle ne permet de l'inventer si elle est absente du contexte."
+    },
+    {
+      "id": "L10_absent_location",
+      "question": "Quelle plage de tension de bus est indiquée ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Operating bus voltage: 0 to 36 V."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "provenance",
+      "retrieval_fault": "remove_locator",
+      "must_not_invent_page": true,
+      "allowed_errors": [
+        "source_text_integrity_failure",
+        "invalid_source_locator"
+      ],
+      "fixture_note": "Localisateur supprimé après la recherche réelle pour contrôler la frontière de provenance."
+    },
+    {
+      "id": "L11_plan_prose",
+      "question": "Quelle propriété du boîtier est décrite ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Le boîtier reste fermé pendant le lavage."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "invalid_plan",
+      "gateway": "invented_field",
+      "allowed_errors": [
+        "structured_answer_invalid"
+      ],
+      "forbidden_answer_patterns": [
+        "UNSOURCED_GENERATOR_999"
+      ],
+      "fixture_note": "Le double de génération retourne une clé texte supplémentaire; ce cas ne mesure pas le modèle4B."
+    },
+    {
+      "id": "L12_unknown_reference",
+      "question": "Quelle propriété du boîtier est décrite ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Le boîtier reste fermé pendant le lavage."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "invalid_plan",
+      "gateway": "unknown_reference",
+      "allowed_errors": [
+        "structured_answer_invalid"
+      ],
+      "forbidden_answer_patterns": [
+        "R999"
+      ],
+      "fixture_note": "Le double de génération retourne une référence absente du catalogue."
+    },
+    {
+      "id": "L13_negated_value",
+      "question": "Quel courant de sortie est établi ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "The output current is not 10 mA. The output current is not established by this document."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "limitation",
+      "must_limit": true,
+      "forbidden_answer_patterns": [
+        "(?i)^(?:Le )?courant[^\\n]*est (?:de )?10\\s*mA"
+      ]
+    },
+    {
+      "id": "L14_wrong_property",
+      "question": "Quelle est la plage de tension d'alimentation ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Operating bus voltage: 0 to 36 V. Supply voltage is not specified."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "limitation",
+      "must_limit": true
+    },
+    {
+      "id": "L15_wrong_role",
+      "question": "Quelle est la plage admissible de tension de bus en fonctionnement ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Test conditions for bus voltage: 3 to 5 V. This is a characterization sweep."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "limitation",
+      "must_limit": true
+    },
+    {
+      "id": "L16_table_note",
+      "question": "Quelle plage de tension d'alimentation est établie à TA = 85 °C ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [],
+          "tables": [
+            [
+              [
+                "Parameter",
+                "MIN",
+                "MAX",
+                "UNIT",
+                "NOTE"
+              ],
+              [
+                "Operating supply voltage",
+                "2",
+                "5",
+                "V",
+                "Only at TA = 25 °C; not established at TA = 85 °C."
+              ]
+            ]
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "limitation",
+      "must_limit": true
+    },
+    {
+      "id": "L17_source_hash",
+      "question": "Quelle plage de tension de bus est indiquée ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Operating bus voltage: 0 to 36 V."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "provenance",
+      "retrieval_fault": "tamper_source_text",
+      "allowed_errors": [
+        "source_text_integrity_failure",
+        "source_hash_mismatch"
+      ],
+      "fixture_note": "Texte altéré après recherche, offsets/hash SQLite inchangés; corruption injectée explicite.",
+      "forbidden_answer_patterns": [
+        "TAMPERED_SOURCE_999"
+      ]
+    },
+    {
+      "id": "L18_intra_document_conflict",
+      "question": "Quelle est la tension d'alimentation recommandée à TA = 25 °C ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Recommended supply voltage: 3.0 V at TA = 25 °C.",
+            "Recommended supply voltage: 4.0 V at TA = 25 °C."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "conflict",
+      "required_answer_patterns": [
+        "(?i)contradic|diverg|différ|different|conflit"
+      ],
+      "facts": [
+        {
+          "id": "a",
+          "document": "a",
+          "source_patterns": [
+            "3\\.0",
+            "4\\.0",
+            "25"
+          ],
+          "answer_patterns": [
+            "3(?:\\.0)?\\s*V",
+            "4(?:\\.0)?\\s*V",
+            "25"
+          ]
+        }
+      ]
+    }
+  ]
+}

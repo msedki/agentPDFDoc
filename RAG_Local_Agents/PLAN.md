@@ -2,6 +2,29 @@
 
 **Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · Suivi de livraison publié `d3c1518`, distant confirmé · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-13 14:43 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
+## I3 — fiabilisation des preuves jusqu’à la réponse, 8 novembre 2026 (UTC)
+
+**Objectif :** chaîne RAG et restitution fondées sur les preuves, générateur Qwen3-4B uniquement dans le profil renforcé.
+**Référence :** `3956491a2d7f1f16cefebfe79e92c638b6662c10` ; branche `enhanced_version`.
+**Exclusions :** autre générateur, changement de poids, qualification Windows ou sémantique générale présumée.
+**Critères préalables :** [protocole et DoD I3](reports/grounded-4b-protocol-2026-11-08.md).
+**État :** implémentation et essais terminés avec réserves ; publication autorisée, dernière étape en cours.
+
+| Action | Dépendances, livrable et acceptation | État et preuve |
+|---|---|---|
+| I3-01 | Référence immuable, défauts reproduits, protocole avant code | Réalisé : worktree exact, sondes conservées, corpus/oracles figés et addendum F07 antérieur à ses corrections. |
+| I3-02 | Conservation des passages/notes/provenance ; I3-D03 | Réalisé sur les sondes : 0/4 → 4/4 ; déduplication des occurrences, notes explicites, couverture partielle et provenance. |
+| I3-03 | Registre et contrôles de relations/rendu ; I3-D01/D02/D05 | Réalisé dans les contrôles bornés : pré/post-registres, plans par IDs, conditions/négations/conflits, calculs et blocage des altérations. |
+| I3-04 | Intégration, identité 4B, erreurs bornées ; I3-D06/D08 | Implémenté : manifeste 4.0B/qwen3/Q4_K_M vérifié à froid/chaud ; natif réel exécuté, mais I3-D08 non atteint. |
+| I3-05 | Matrice appariée, non-régression, coûts et limites ; I3-D04/D07/D08 | Exécuté : relecture stricte 9/12 → 11/12 positifs, 15/18 → 18/18 limites, cinq gains et zéro régression contrôlée. Portable 3 801 PASS/cinq FAIL préexistants. Office primaire 5/8 stricts, disponibilité 8/8 → 5/8 ; reprise distincte 2/3 stricts. PDF 0/2 complets dans les deux bras. |
+| I3-06 | Bilan, commit et push vérifiés ; I3-D09 | Documentation et preuves préparées ; contrôles documentaires puis publication sans force via le connecteur demandé, à constater au reçu. |
+
+**Points vérifiés :** seulement le 4B génératif verrouillé a été utilisé ; source stable dans chaque bras, mêmes originaux et paramètres, plans adverses non publiés, calculs tracés, reprises séparées. Le score automatique 12/12 C2 garde un faux positif P01 et n’est pas le verdict final.
+
+**Points ouverts :** I3-D04 partiel (réserve P01 inutile), I3-D08 non atteint (trois erreurs d’admission primaires et réponses PDF incomplètes), OCR réel et cible physique non qualifiés. Les trois relations PDF manquantes existent dans l’extraction mais sont perdues dans recherche/sélection ; pistes structurelles et allocation par propriété restent différées avec critères au bilan. Aucun arbitrage de modèle supplémentaire n’est demandé.
+
+**Preuves et reprise :** [bilan et DoD](reports/grounded-4b-results-2026-11-08.md), [relecture des sorties](reports/grounded-4b-output-review-2026-11-08.json), [campagnes natives](reports/grounded-4b-native-2026-11-08.json), [gates](reports/grounded-4b-validation-2026-11-08.json) et [commandes](reports/grounded-4b-reproduce-2026-11-08.md). Prochaine action autorisée : vérifier le pack, publier l’arbre exact et contrôler le SHA distant. Les pistes de qualification restent ouvertes après cette livraison.
+
 ## Publication GitHub confirmée — 8 novembre 2026
 
 Les deux itérations sont publiées sur [`enhanced_version`](https://github.com/msedki/agentPDFDoc/tree/enhanced_version).

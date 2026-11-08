@@ -1,0 +1,856 @@
+{
+  "review_id": "controlled-literal-review-20261108-v2",
+  "created_utc": "2026-11-08T14:35:25.971926+00:00",
+  "reviewer": "independent validation subagent; no product or fixture edits",
+  "purpose": "Audit four suspected grader false negatives against frozen cases; apply the same mechanical grading to both existing arms.",
+  "fixtures": {
+    "path": "tests/fixtures/grounded_cases.json",
+    "sha256": "68a997cee3c6e3dcd1d8625d534c17631cb7ddaebedb1bfd3efa316c678fd476",
+    "changed": false,
+    "positive_denominator": 12,
+    "control_denominator": 18
+  },
+  "grader": {
+    "path": "tools/qualification/grounded_campaign.py",
+    "sha256": "054e3f36af90ac54766a11b7e3778c78ff44371d37b11c33ba6e9a3c0375fa8b",
+    "revision": "literal-review-20261108-v2",
+    "test_path": "tests/unit/test_grounded_campaign.py",
+    "test_sha256": "3541510ad1c848e6a3e344a0e718377b29e81beb6bd1e135458a96ac9add7c17",
+    "test_results": {
+      "pytest": "24 passed in 0.78s",
+      "ruff": "PASS",
+      "mypy": "PASS: 1 source file"
+    },
+    "commands": [
+      ".venv/bin/python -m pytest tests/unit/test_grounded_campaign.py -q -p no:cacheprovider",
+      ".venv/bin/python -m ruff check tools/qualification/grounded_campaign.py tests/unit/test_grounded_campaign.py",
+      ".venv/bin/python -m mypy tools/qualification/grounded_campaign.py"
+    ]
+  },
+  "method": {
+    "new_queries": 0,
+    "new_generation": false,
+    "product_status_used_as_oracle": false,
+    "changed_acceptance_criteria": false,
+    "raw_reports_preserved": true,
+    "only_case_judgments_and_aggregate_summaries_recomputed": true,
+    "all_nonjudgment_case_fields_compared_unchanged": true,
+    "citation_identity_checks": "Reused immutable per-case database checks recorded during each actual controlled submission; full conflict assertion presence checked independently again.",
+    "stage_metrics": "Retrieval/context original measurements are preserved, including their original single-bundle definition for conflict controls. Positive-only aggregate recall is unchanged.",
+    "scope": "Controlled named doubles; this report does not re-evaluate or qualify native 4B inference."
+  },
+  "prior_review": {
+    "path": ".runtime/qa/grounded-20261108/controlled-baseline-reviewed.json",
+    "sha256": "7bb9d775ef1a00c5c78c2a817d5d13d32a12e37c82a8ebc578f3e2d829ef2a8d",
+    "preserved": true,
+    "baseline_increment_since_prior_review": {
+      "control_pass": "+1 (L18, also corrected in candidate)",
+      "positive_pass": "unchanged at 9/12"
+    }
+  },
+  "reports": {
+    "baseline": {
+      "raw_path": ".runtime/qa/grounded-20261108/controlled-baseline.json",
+      "raw_sha256": "c27f846325e0b59e08d0877fabdea9ae669dd62008f85191b00f5c36bbcd392a",
+      "reviewed_path": ".runtime/qa/grounded-20261108/controlled-baseline-reviewed-v2.json",
+      "reviewed_sha256": "1d95cea7a8e5cb76ad374079ff25cba954597b0e8179daead24770b5660c9d90",
+      "raw_summary": {
+        "submissions": 30,
+        "answerable_pass": 8,
+        "answerable_total": 12,
+        "control_pass": 13,
+        "control_total": 18,
+        "errors": 2,
+        "answerable_with_limitation_notice": 3,
+        "answerable_errors": 0,
+        "literal_facts_rendered_and_supported": 11,
+        "required_literal_facts": 15,
+        "retrieval_fact_recall_at_10": {
+          "found": 12,
+          "total": 15
+        },
+        "context_literal_fact_coverage": {
+          "found": 11,
+          "total": 15
+        },
+        "citation_integrity": {
+          "valid": 27,
+          "total": 27
+        },
+        "forbidden_publication_cases": 0,
+        "query_latency_ms": {
+          "n": 30,
+          "median": 116.245,
+          "max": 324.26,
+          "scope": "controlled QueryService with named doubles, not model latency"
+        }
+      },
+      "reviewed_summary": {
+        "submissions": 30,
+        "answerable_pass": 9,
+        "answerable_total": 12,
+        "control_pass": 15,
+        "control_total": 18,
+        "errors": 2,
+        "answerable_with_limitation_notice": 3,
+        "answerable_errors": 0,
+        "literal_facts_rendered_and_supported": 12,
+        "required_literal_facts": 15,
+        "retrieval_fact_recall_at_10": {
+          "found": 12,
+          "total": 15
+        },
+        "context_literal_fact_coverage": {
+          "found": 11,
+          "total": 15
+        },
+        "citation_integrity": {
+          "valid": 27,
+          "total": 27
+        },
+        "forbidden_publication_cases": 0,
+        "query_latency_ms": {
+          "n": 30,
+          "median": 116.245,
+          "max": 324.26,
+          "scope": "controlled QueryService with named doubles, not model latency"
+        }
+      },
+      "changed_case_ids": [
+        "P10_decimal_sum",
+        "L03_scope_sheet",
+        "L18_intra_document_conflict"
+      ],
+      "remaining_failures": [
+        "P01_general_condition",
+        "P04_two_conditions",
+        "P06_roles",
+        "L01_condition_mismatch",
+        "L06_cross_document_conflict",
+        "L09_long_qualification"
+      ],
+      "errors": [
+        {
+          "case_id": "L11_plan_prose",
+          "code": "structured_answer_invalid",
+          "answerable": false,
+          "allowed_by_frozen_control": true
+        },
+        {
+          "case_id": "L12_unknown_reference",
+          "code": "structured_answer_invalid",
+          "answerable": false,
+          "allowed_by_frozen_control": true
+        }
+      ]
+    },
+    "candidate": {
+      "raw_path": ".runtime/qa/grounded-20261108/controlled-candidate.json",
+      "raw_sha256": "c46ae6af7dc3f493d72e0717c4a550318c8f7371b8753814af31b16c92bff2eb",
+      "reviewed_path": ".runtime/qa/grounded-20261108/controlled-candidate-reviewed-v2.json",
+      "reviewed_sha256": "00af1dfd9c1614f4ac8005a604205bc833e492b431099171bde5cadaf7663d03",
+      "raw_summary": {
+        "submissions": 30,
+        "answerable_pass": 10,
+        "answerable_total": 12,
+        "control_pass": 14,
+        "control_total": 18,
+        "errors": 3,
+        "answerable_with_limitation_notice": 2,
+        "answerable_errors": 0,
+        "literal_facts_rendered_and_supported": 12,
+        "required_literal_facts": 15,
+        "retrieval_fact_recall_at_10": {
+          "found": 12,
+          "total": 15
+        },
+        "context_literal_fact_coverage": {
+          "found": 11,
+          "total": 15
+        },
+        "citation_integrity": {
+          "valid": 27,
+          "total": 27
+        },
+        "forbidden_publication_cases": 0,
+        "query_latency_ms": {
+          "n": 30,
+          "median": 106.625,
+          "max": 216.3,
+          "scope": "controlled QueryService with named doubles, not model latency"
+        }
+      },
+      "reviewed_summary": {
+        "submissions": 30,
+        "answerable_pass": 10,
+        "answerable_total": 12,
+        "control_pass": 18,
+        "control_total": 18,
+        "errors": 3,
+        "answerable_with_limitation_notice": 2,
+        "answerable_errors": 0,
+        "literal_facts_rendered_and_supported": 12,
+        "required_literal_facts": 15,
+        "retrieval_fact_recall_at_10": {
+          "found": 12,
+          "total": 15
+        },
+        "context_literal_fact_coverage": {
+          "found": 11,
+          "total": 15
+        },
+        "citation_integrity": {
+          "valid": 27,
+          "total": 27
+        },
+        "forbidden_publication_cases": 0,
+        "query_latency_ms": {
+          "n": 30,
+          "median": 106.625,
+          "max": 216.3,
+          "scope": "controlled QueryService with named doubles, not model latency"
+        }
+      },
+      "changed_case_ids": [
+        "L01_condition_mismatch",
+        "L09_long_qualification",
+        "L16_table_note",
+        "L18_intra_document_conflict"
+      ],
+      "remaining_failures": [
+        "P04_two_conditions",
+        "P06_roles"
+      ],
+      "errors": [
+        {
+          "case_id": "L10_absent_location",
+          "code": "invalid_source_locator",
+          "answerable": false,
+          "allowed_by_frozen_control": true
+        },
+        {
+          "case_id": "L11_plan_prose",
+          "code": "structured_answer_invalid",
+          "answerable": false,
+          "allowed_by_frozen_control": true
+        },
+        {
+          "case_id": "L12_unknown_reference",
+          "code": "structured_answer_invalid",
+          "answerable": false,
+          "allowed_by_frozen_control": true
+        }
+      ]
+    }
+  },
+  "case_reviews": [
+    {
+      "case_id": "L01_condition_mismatch",
+      "question": "Quel courant de sortie est établi à TA = 85 °C ?",
+      "frozen_oracle": {
+        "answerable": false,
+        "expected": "limitation",
+        "must_limit": true
+      },
+      "defect": "The active construction n’établissent pas was absent from the limitation lexicon.",
+      "frozen_requirement": "must_limit=true; the sources only establish 10 mA at 25 °C, while the question asks 85 °C.",
+      "decision": "Candidate explicitly declines to transfer the value to the requested condition. Baseline gives only the 25 °C quotation with no qualification and remains a failure.",
+      "arms": {
+        "baseline": {
+          "answer": "L01_condition_mismatch_a.docx — Extrait : « Output current: 10 mA at TA = 25 °C. » [S001]",
+          "answer_sha256": "873a37a5faa5c17d2adebef25e5b949d589a15ab8f620b477f28412ef5e8e19c",
+          "public_deltas_sha256": "f6cea38c5de6a8c76181fcff6b5ae37cb933ceb4ae25795a24e576c07ae768dd",
+          "original_case_record_sha256": "e29bf66ec52ff26d5966f1a86d356027157c74fa57ac2d489c00df54f05fb5d7",
+          "preamble": "L01_condition_mismatch_a.docx — Extrait : « Output current: 10 mA at TA = 25 °C. » [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_id": "e0beaea6-df45-43d6-889d-eb4d83a01179",
+              "version_id": "150ad2ce-74fa-4df4-a057-d506603dbddb",
+              "extraction_revision_id": "153ef48f-25e2-5270-a0d5-c023a22271d3",
+              "text": "Output current: 10 mA at TA = 25 °C.",
+              "citation_record_sha256": "e9693472ba1dd2ef5a9d8dcd6e62f8db9792db7ab59a7c7faa1b0c876213993c"
+            }
+          ],
+          "existing_citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "previous_judgment": {
+            "passed": false,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "reviewed_judgment": {
+            "passed": false,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "outputs_unchanged": true
+        },
+        "candidate": {
+          "answer": "Les preuves retenues n'établissent pas la valeur dans les conditions demandées. Les valeurs associées à d'autres conditions ne sont pas transposées.\n\nL01_condition_mismatch_a.docx — Extrait : « Output current: 10 mA at TA = 25 °C. » [S001]",
+          "answer_sha256": "3ac608ae3c71bd48d104cd8d9bc7127a18f6d6e2aae8248f57ece9c6a93933f3",
+          "public_deltas_sha256": "10358340b13f3de2a7670f4b4ef6dd0ecdb6e83984b865a29eaa4b2327ea16d4",
+          "original_case_record_sha256": "7164bb6ff5fe30cfc1ad54acb73591209ab883ac12d09c351209adb63a768713",
+          "preamble": "Les preuves retenues n'établissent pas la valeur dans les conditions demandées. Les valeurs associées à d'autres conditions ne sont pas transposées.",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_id": "8e6ec4b1-5cfa-4684-904d-9d779ef14984",
+              "version_id": "b6fb818f-7f23-413f-8641-172d21360f8b",
+              "extraction_revision_id": "b58d5a95-17ce-545f-8ab2-13bec94654f0",
+              "text": "Output current: 10 mA at TA = 25 °C.",
+              "citation_record_sha256": "371c0cf5d3fa2cd2bd5bdcbfffa9c3b7f8e77aa1c2c6b0ef43fcc55f02867724"
+            }
+          ],
+          "existing_citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "previous_judgment": {
+            "passed": false,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "reviewed_judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "outputs_unchanged": true
+        }
+      }
+    },
+    {
+      "case_id": "L09_long_qualification",
+      "question": "Quelle plage de tension d'alimentation est établie à TA = 85 °C ?",
+      "frozen_oracle": {
+        "answerable": false,
+        "expected": "limitation",
+        "must_limit": true
+      },
+      "defect": "Same unrecognized active limitation construction.",
+      "frozen_requirement": "must_limit=true; the limitation remains attached to the long source and must not be invented from outside the selected scope.",
+      "decision": "Candidate expressly declines to establish the requested value. Its cited tail preserves only at 25 °C / no range established at 85 °C. Baseline has no qualification preamble and remains a failure.",
+      "arms": {
+        "baseline": {
+          "answer": "L09_long_qualification_a.docx — Extrait : « Operating supply voltage: 2 to 5 V. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire  » [S001]\n\nL09_long_qualification_a.docx — Extrait : « ntaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. This range applies only at TA = 25 °C; no range is established at TA = 85 °C. » [S002]",
+          "answer_sha256": "1d6fc5c190dbdd493de9b14ef9c41a089383009cbbf24088930fcd8994d49f55",
+          "public_deltas_sha256": "a1aad8b2a2596e85fc59a45ed82102b952a017d0e30d9cc79f6c90e6dcac45cb",
+          "original_case_record_sha256": "d5405506c4baa9e258e04251c2788c8a0ecd8891e3498bc3595090cf2c8e8f9d",
+          "preamble": "L09_long_qualification_a.docx — Extrait : « Operating supply voltage: 2 to 5 V. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire  » [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_id": "d8031652-ded8-4d4c-81ff-9083362e7a35",
+              "version_id": "ab6a1095-cc33-48ff-ad3a-ae43dbc29dcb",
+              "extraction_revision_id": "75f3da10-73ae-5a0c-8e7a-f122b75ddad7",
+              "text": "Operating supply voltage: 2 to 5 V. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire ",
+              "citation_record_sha256": "ab1885ed9f2c5f8007e784cc6b65eca76609765bcb514a269d3e8f2b4e3ffa0f"
+            },
+            {
+              "source_id": "S002",
+              "document_id": "d8031652-ded8-4d4c-81ff-9083362e7a35",
+              "version_id": "ab6a1095-cc33-48ff-ad3a-ae43dbc29dcb",
+              "extraction_revision_id": "75f3da10-73ae-5a0c-8e7a-f122b75ddad7",
+              "text": "ntaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. This range applies only at TA = 25 °C; no range is established at TA = 85 °C.",
+              "citation_record_sha256": "5bad24fa237597d241e971988b24e2a144134e0cb56e7700ae6fa03b178e1f7a"
+            }
+          ],
+          "existing_citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "previous_judgment": {
+            "passed": false,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "reviewed_judgment": {
+            "passed": false,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "outputs_unchanged": true
+        },
+        "candidate": {
+          "answer": "Les preuves retenues n'établissent pas la valeur dans les conditions demandées. Les valeurs associées à d'autres conditions ne sont pas transposées.\n\nL09_long_qualification_a.docx — Extrait : « Operating supply voltage: 2 to 5 V. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire  » [S001]\n\nL09_long_qualification_a.docx — Extrait : « ntaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. This range applies only at TA = 25 °C; no range is established at TA = 85 °C. » [S002]",
+          "answer_sha256": "86405f6b5f32b36b6694adb977b91be4bf939956f8bd7b491377ac1d0a927f97",
+          "public_deltas_sha256": "c9688c96afeb03a3bdb5f4459cc811da0ac0ebba1729d16c74e413ca76dfd4df",
+          "original_case_record_sha256": "a016a54c390d8df6ea43812c0932bf728f94d6b66a9d4518ac4f570c3e2e6db0",
+          "preamble": "Les preuves retenues n'établissent pas la valeur dans les conditions demandées. Les valeurs associées à d'autres conditions ne sont pas transposées.",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_id": "3e1cdadf-b4e4-4d3a-8578-7ed6330ad89c",
+              "version_id": "e90ea7c6-8027-4b4d-a785-c8af8d98efb9",
+              "extraction_revision_id": "b67cbc4a-a939-53b9-a6cc-60ff144722df",
+              "text": "Operating supply voltage: 2 to 5 V. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire ",
+              "citation_record_sha256": "7743ee872208005b3f736716cc2957edb2187fa089549aa26420cf7ceb2e17d0"
+            },
+            {
+              "source_id": "S002",
+              "document_id": "3e1cdadf-b4e4-4d3a-8578-7ed6330ad89c",
+              "version_id": "e90ea7c6-8027-4b4d-a785-c8af8d98efb9",
+              "extraction_revision_id": "b67cbc4a-a939-53b9-a6cc-60ff144722df",
+              "text": "ntaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. This range applies only at TA = 25 °C; no range is established at TA = 85 °C.",
+              "citation_record_sha256": "1363f3857d87fdf7ea0c25c8584d437859076bce55c1f5408e57b9f927e76b3e"
+            }
+          ],
+          "existing_citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "previous_judgment": {
+            "passed": false,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "reviewed_judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "outputs_unchanged": true
+        }
+      }
+    },
+    {
+      "case_id": "L16_table_note",
+      "question": "Quelle plage de tension d'alimentation est établie à TA = 85 °C ?",
+      "frozen_oracle": {
+        "answerable": false,
+        "expected": "limitation",
+        "must_limit": true
+      },
+      "defect": "The explicit phrase n’est pas retenu comme valeur affirmée was absent from the limitation lexicon.",
+      "frozen_requirement": "must_limit=true for a question about 85 °C; the table note limits the range to 25 °C.",
+      "decision": "Both outputs decline to establish the requested value. Candidate preserves the entire table note and states nonassertion; it is a limitation under the frozen rule, without relying on answer_contract status.",
+      "remaining_limit": "The candidate wording describes negation generically; this review does not establish ideal linguistic treatment of every negated condition.",
+      "arms": {
+        "baseline": {
+          "answer": "La grandeur demandée n'est pas établie par les preuves retenues dans le périmètre sélectionné. Je ne peux pas donner une valeur fiable à partir de cette sélection.\n\nL16_table_note_a.docx — Extrait : « Parameter\tMIN\tMAX\tUNIT\tNOTE » [S001]\n\nL16_table_note_a.docx — Extrait : « Operating supply voltage\t2\t5\tV\tOnly at TA = 25 °C; not established at TA = 85 °C. » [S001]",
+          "answer_sha256": "f2061f447540c9c3694c6655e55ef9c5ba627b49275dc5fd7106030930921a10",
+          "public_deltas_sha256": "901c06013377f9e94cf03a199eec10417c24915ffae0ce926ca1b94462c6ba8e",
+          "original_case_record_sha256": "aed3026070fb0937b180c4b600526f8f212e116e18911d40f2ac8898d307d382",
+          "preamble": "La grandeur demandée n'est pas établie par les preuves retenues dans le périmètre sélectionné. Je ne peux pas donner une valeur fiable à partir de cette sélection.",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_id": "562d5fcc-dea5-403e-a00d-4fa3b22cb6d3",
+              "version_id": "e6fcc0ae-9aea-43ea-84b6-b8364c9dc23f",
+              "extraction_revision_id": "4ef5a944-4e0a-5459-a97a-f4d360f88b6c",
+              "text": "Parameter\tMIN\tMAX\tUNIT\tNOTE\nOperating supply voltage\t2\t5\tV\tOnly at TA = 25 °C; not established at TA = 85 °C.",
+              "citation_record_sha256": "728cdfa1b4e539f31e8f0e09e0c000bff54aeb672f157458d00bb98454f8f2c9"
+            }
+          ],
+          "existing_citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "previous_judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "reviewed_judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "outputs_unchanged": true
+        },
+        "candidate": {
+          "answer": "Le passage contient une négation portant sur la donnée repérée. Son nombre n'est pas retenu comme valeur affirmée ; l'extrait conserve la formulation source.\n\nL16_table_note_a.docx — Extrait : « Parameter\tMIN\tMAX\tUNIT\tNOTE » [S001]\n\nL16_table_note_a.docx — Extrait : « Operating supply voltage\t2\t5\tV\tOnly at TA = 25 °C; not established at TA = 85 °C. » Liaisons aux en-têtes : MIN = 2; MAX = 5; UNIT = V.\nL16_table_note_a.docx — Extrait : « Parameter\tMIN\tMAX\tUNIT\tNOTE » [S001]",
+          "answer_sha256": "7ff2d8c67f21b520c65e0c2561d4432b16cf4048fdfc54ca96503bb57bac8c05",
+          "public_deltas_sha256": "4d8b35827af53e53eca8b0967c3187fbb6e307fc3fdfc05aabb1ff5846117bce",
+          "original_case_record_sha256": "c1f12b97e28adacd2a7ab2571aaec18857bfb658b071c1f0d2da9b83f7010334",
+          "preamble": "Le passage contient une négation portant sur la donnée repérée. Son nombre n'est pas retenu comme valeur affirmée ; l'extrait conserve la formulation source.",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_id": "89ea7498-a97f-4b62-8019-6ec2efcda9af",
+              "version_id": "0599db0b-ba5e-4ff3-b3be-560b9e4beae0",
+              "extraction_revision_id": "83a8f6c9-005e-518b-875a-306005174264",
+              "text": "Parameter\tMIN\tMAX\tUNIT\tNOTE\nOperating supply voltage\t2\t5\tV\tOnly at TA = 25 °C; not established at TA = 85 °C.",
+              "citation_record_sha256": "706d8379b71f57f1ef154e9e2aa2e0b6669e98873cfe92e6d8751acdbc3bc6e2"
+            }
+          ],
+          "existing_citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "previous_judgment": {
+            "passed": false,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "reviewed_judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "outputs_unchanged": true
+        }
+      }
+    },
+    {
+      "case_id": "L18_intra_document_conflict",
+      "question": "Quelle est la tension d'alimentation recommandée à TA = 25 °C ?",
+      "frozen_oracle": {
+        "answerable": false,
+        "expected": "conflict",
+        "facts": [
+          {
+            "id": "a",
+            "document": "a",
+            "source_patterns": [
+              "3\\.0",
+              "4\\.0",
+              "25"
+            ],
+            "answer_patterns": [
+              "3(?:\\.0)?\\s*V",
+              "4(?:\\.0)?\\s*V",
+              "25"
+            ]
+          }
+        ],
+        "required_answer_patterns": [
+          "(?i)contradic|diverg|différ|different|conflit"
+        ]
+      },
+      "defect": "The relation reader required both independent conflicting assertions inside one citation bundle, although the frozen control asks to disclose a contradiction between two source paragraphs.",
+      "frozen_requirement": "expected=conflict; report different values, preserve 3.0 V, 4.0 V and 25 °C, and support each in the indicated document.",
+      "decision": "Both arms quote each complete original assertion, including recommended supply voltage and TA = 25 °C, with its own valid citation, and explicitly decline to arbitrate. Both must pass.",
+      "restriction": "Only expected=conflict controls may use this route; each complete frozen paragraph must be present in the answer and in one citation from the expected document and version. No recombination of opposite range ends, conditions, documents, or versions is allowed.",
+      "arms": {
+        "baseline": {
+          "answer": "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée.\n\nL18_intra_document_conflict_a.docx — Extrait : « Recommended supply voltage: 4.0 V at TA = 25 °C. » [S001]\n\nL18_intra_document_conflict_a.docx — Extrait : « Recommended supply voltage: 3.0 V at TA = 25 °C. » [S002]",
+          "answer_sha256": "d2a8bd391ddcb091e31be1b0f8b7b18d0035f0fcc49b647300bad81094ad09d7",
+          "public_deltas_sha256": "087178d1aeebfbbce3898d91bb34cf4334a63343dc9de0dec0ec9a2b5c7755a4",
+          "original_case_record_sha256": "739a3b69b8c04e03a472576d8daab4b67ec8101916eeefbc7cde0ee2da929ffa",
+          "preamble": "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée.",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_id": "2ac6a871-3d83-4e7c-b7f8-7bc0565d860a",
+              "version_id": "f64acf32-1b0f-4a5a-b9a1-95420f2b9af3",
+              "extraction_revision_id": "d6f3aa43-8b1d-5344-ac09-fd0cce19dc3b",
+              "text": "Recommended supply voltage: 4.0 V at TA = 25 °C.",
+              "citation_record_sha256": "d162bc0f5d37c860a42621f3ca9c80507a2b22f4f258408b59da93137ad8805c"
+            },
+            {
+              "source_id": "S002",
+              "document_id": "2ac6a871-3d83-4e7c-b7f8-7bc0565d860a",
+              "version_id": "f64acf32-1b0f-4a5a-b9a1-95420f2b9af3",
+              "extraction_revision_id": "d6f3aa43-8b1d-5344-ac09-fd0cce19dc3b",
+              "text": "Recommended supply voltage: 3.0 V at TA = 25 °C.",
+              "citation_record_sha256": "7ef7dcb4bbcf988b4622dd0f5232d262d117c031ad6db22003b66aa8692c74a0"
+            }
+          ],
+          "existing_citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "previous_judgment": {
+            "passed": false,
+            "answerable": false,
+            "facts": [
+              {
+                "id": "a",
+                "rendered": true,
+                "literal_source_support": false,
+                "rendered_and_supported": false
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "reviewed_judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [
+              {
+                "id": "a",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "outputs_unchanged": true,
+          "independent_complete_assertions": [
+            {
+              "source_assertion": "Recommended supply voltage: 3.0 V at TA = 25 °C.",
+              "entire_assertion_rendered": true,
+              "matching_cited_source_ids": [
+                "S002"
+              ]
+            },
+            {
+              "source_assertion": "Recommended supply voltage: 4.0 V at TA = 25 °C.",
+              "entire_assertion_rendered": true,
+              "matching_cited_source_ids": [
+                "S001"
+              ]
+            }
+          ]
+        },
+        "candidate": {
+          "answer": "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée.\n\nL18_intra_document_conflict_a.docx — Extrait : « Recommended supply voltage: 3.0 V at TA = 25 °C. » [S001]\n\nL18_intra_document_conflict_a.docx — Extrait : « Recommended supply voltage: 4.0 V at TA = 25 °C. » [S002]",
+          "answer_sha256": "d8cbcc15b7d12f3911e42e3392324594e50078815014622b291ca274695afbcd",
+          "public_deltas_sha256": "ce267ba584a313b55e483e522f45eeb70fe938f4cb2818f84bf447fa88c0e049",
+          "original_case_record_sha256": "355123ccdbfb988e3e074695adc22e256e027b754b4d3fc21124c494da3b519a",
+          "preamble": "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée.",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_id": "5b0da646-ebb8-412c-95fe-a537ebc0eb12",
+              "version_id": "6d65b3e1-c62d-4f08-a1c3-89b200c01fd9",
+              "extraction_revision_id": "3f99d328-eb07-5744-bbbf-e60ee08df6e1",
+              "text": "Recommended supply voltage: 3.0 V at TA = 25 °C.",
+              "citation_record_sha256": "3eb14588e1f5540198c46b161bcb9fbaeae32f638bdda5c2fb4ed7ce024815d5"
+            },
+            {
+              "source_id": "S002",
+              "document_id": "5b0da646-ebb8-412c-95fe-a537ebc0eb12",
+              "version_id": "6d65b3e1-c62d-4f08-a1c3-89b200c01fd9",
+              "extraction_revision_id": "3f99d328-eb07-5744-bbbf-e60ee08df6e1",
+              "text": "Recommended supply voltage: 4.0 V at TA = 25 °C.",
+              "citation_record_sha256": "26a71b56f762d0a2fc60b15412b25bb5feebc39710a752838b1256b181d6bfac"
+            }
+          ],
+          "existing_citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "previous_judgment": {
+            "passed": false,
+            "answerable": false,
+            "facts": [
+              {
+                "id": "a",
+                "rendered": true,
+                "literal_source_support": false,
+                "rendered_and_supported": false
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "reviewed_judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [
+              {
+                "id": "a",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "outputs_unchanged": true,
+          "independent_complete_assertions": [
+            {
+              "source_assertion": "Recommended supply voltage: 3.0 V at TA = 25 °C.",
+              "entire_assertion_rendered": true,
+              "matching_cited_source_ids": [
+                "S001"
+              ]
+            },
+            {
+              "source_assertion": "Recommended supply voltage: 4.0 V at TA = 25 °C.",
+              "entire_assertion_rendered": true,
+              "matching_cited_source_ids": [
+                "S002"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "paired_findings": {
+    "positive_pass_before_after": [
+      9,
+      10
+    ],
+    "positive_denominator": 12,
+    "control_pass_before_after": [
+      15,
+      18
+    ],
+    "control_denominator": 18,
+    "answerable_limitation_notices_before_after": [
+      3,
+      2
+    ],
+    "required_supported_facts_before_after": [
+      12,
+      12
+    ],
+    "required_fact_denominator": 15,
+    "positive_gate_met": false,
+    "control_gate_met": true,
+    "remaining_positive_failures": [
+      "P04_two_conditions",
+      "P06_roles"
+    ],
+    "interpretation": "The controlled improvement is +1 useful positive and +3 controls. L18 was already correct in the baseline output; its newly recognized pass is not a product gain. No increase in refusal explains the apparent improvement: positive limitation notices decrease, but complete positive coverage remains unproven."
+  }
+}

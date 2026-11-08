@@ -75,6 +75,12 @@ SCOPE_READ_LANGUAGE = re.compile(
     r"|\b(?:valeurs?|values?|contenu|contents?)\s+(?:des?\s+)?(?:cellules?\s+selectionnees?|selection|selected\s+cells?)\b")
 UNIT_LANGUAGE = re.compile(r"\b(?:unites?|units?)\b")
 INTERVAL_LANGUAGE = re.compile(r"\b(?:plages?|intervalles?|ranges?|bornes?|minimum\s+et\s+(?:le\s+)?maximum|min\s+et\s+max)\b")
+SUPPLY_RANGE_LANGUAGE = re.compile(
+    r"\bplages?\s+(?:d['’]\s*|de\s+l['’]\s*)alimentation\b"
+    r"|\b(?:power\s+)?supply(?:\s+voltages?)?\s+ranges?\b")
+TEMPERATURE_CONDITION_ATTACHMENT = re.compile(
+    r"\bavec\s+(?:(?:leurs?|ses|les|des)\s+)?conditions?\s+de\s+temperatures?\b"
+    r"|\bwith\s+(?:(?:their|its|the)\s+)?temperature\s+conditions?\b")
 COMPARISON_LANGUAGE = re.compile(r"\b(?:compar\w*|versus|difference\s+entre)\b")
 MAPPING_LANGUAGE = re.compile(r"\b(?:adresse|address|mapping|correspondance|configuration|configurations|code|codes)\b")
 CALCULATIONS = (
@@ -119,6 +125,75 @@ INEQUALITY_RANGE = re.compile(
     rf"(?P<low>{NUMBER_PATTERN})\s*(?P<low_unit>{UNIT_PATTERN})?\s*(?:≤|<=)\s*"
     rf"(?P<symbol>[A-Za-z][A-Za-z0-9_+]{{0,15}})\s*(?:≤|<=)\s*"
     rf"(?P<high>{NUMBER_PATTERN})\s*(?P<high_unit>{UNIT_PATTERN})(?!\w)")
+BOUND_ROLES = {
+    "minimum": r"\b(?:minimum|minimal\w*|min\.?|lower\s+(?:bound|limit))\b",
+    "maximum": r"\b(?:maximum|maximal\w*|max\.?|upper\s+(?:bound|limit))\b",
+}
+# These are rejection signals, not a general language-understanding model. A
+# negated or uncertain clause remains visible as a quotation, but its number
+# cannot become an asserted value or feed a comparison/calculation.
+NEGATED_ASSERTION = re.compile(
+    r"\b(?:not|never|neither|cannot|can't|isn't|aren't|wasn't|weren't|"
+    r"no\s+(?:range|value|voltage|current|guarantee|evidence|proof)\b|"
+    r"n['’](?:est|etait|atteint)\s+(?:pas|plus|jamais)|ne\s+[^.!?;]{0,50}\b(?:pas|plus|jamais)|"
+    r"ni|aucun\w*|non\s+(?:garanti\w*|valid\w*|verifi\w*))\b")
+UNCERTAIN_ASSERTION = re.compile(
+    r"\b(?:may|might|could|perhaps|possibly|approximately|approx\.?|estimated|"
+    r"unverified|preliminary|environ|approximati\w*|estime\w*|indicatif\w*|"
+    r"incertain\w*|provisoire\w*|preliminaire\w*|a\s+confirmer|peut[- ]etre)\b|[~≈]")
+CONDITION_MEASURE = re.compile(
+    rf"(?<!\w)(?:(?i:at|à|a|when|for|pour|sous)\s+"
+    rf"(?:(?P<prefixed_symbol>[A-Za-z][A-Za-z0-9_+]{{0,15}})\s*=\s*)?"
+    rf"|(?P<symbol>[A-Za-z][A-Za-z0-9_+]{{0,15}})\s*=\s*)"
+    rf"(?P<value>{NUMBER_PATTERN})\s*(?P<unit>{UNIT_PATTERN})(?![\w/])")
+
+
+def _assertion_status(text):
+    normalized = folded(text)
+    if NEGATED_ASSERTION.search(normalized):
+        return "negated"
+    if UNCERTAIN_ASSERTION.search(normalized) or "?" in text:
+        return "uncertain"
+    return "asserted"
+
+
+def _bound_role(text):
+    roles = [role for role, pattern in BOUND_ROLES.items() if re.search(pattern, folded(text))]
+    return roles[0] if len(roles) == 1 else None
+
+
+def _condition_measures(text):
+    """Recognize explicit point conditions without guessing a variable name.
+
+    ``at 25 °C`` is a temperature condition; it is not silently called ambient
+    temperature. ``TJ = 25 °C`` keeps TJ distinct from TA. Unit conversion for
+    matching uses the same checked Decimal registry as answer calculations.
+    """
+    measures = []
+    for match in CONDITION_MEASURE.finditer(text):
+        if re.match(rf"\s*(?:(?i:to|a|à)|[-–—])\s*{NUMBER_PATTERN}", text[match.end():]):
+            continue  # a range endpoint is not a separately asserted point
+        try:
+            value, unit = parse_quantity(match["value"] + " " + match["unit"])
+        except CalculationRefusal:
+            continue
+        dimension, scale, offset = UNITS[unit]
+        with localcontext() as context:
+            context.prec = 96
+            base = decimal_text(value * Decimal(scale) + Decimal(offset))
+        measures.append({"quantity": dimension, "symbol": match["prefixed_symbol"] or match["symbol"],
+                         "value": base, "text": match[0], "start": match.start(), "end": match.end()})
+    return measures
+
+
+def _local_condition(line, start, end):
+    # The old suffix-only representation lost conditions placed before a
+    # quantity, allowing two temperatures to be compared as one context.
+    # A preceding assertion separated by a semicolon cannot donate its own
+    # temperature condition to the next quantity.
+    before = [item["text"] for item in _condition_measures(line[:start].rsplit(";", 1)[-1])]
+    after = line[end:].strip()
+    return " ; ".join([*before, *([after] if after.strip(" .;") else [])])
 
 
 def folded(text: str) -> str:
@@ -202,9 +277,73 @@ def _properties(text: str, quantity: str) -> list[str]:
     return properties
 
 
+def _requested_quantities(normalized: str) -> list[str]:
+    """Separate an explicitly attached condition from the requested quantity.
+
+    Only the temperature mention inside ``with its temperature conditions``
+    (or its French equivalent) can be removed from quantity classification.
+    Other temperature mentions remain independent requirements. This changes
+    neither the original question nor any source condition or numeric value.
+    """
+    quantity_text = normalized
+    supply_range = False
+    attachment = TEMPERATURE_CONDITION_ATTACHMENT.search(normalized)
+    if attachment:
+        primary = normalized[:attachment.start()]
+        supply_range = bool(SUPPLY_RANGE_LANGUAGE.search(primary))
+        supply_voltage = bool(re.search(QUANTITIES["voltage"], primary)
+                              and re.search(QUANTITY_PROPERTIES["voltage"]["supply"] + r"|(?<!\w)v\+(?!\w)", primary))
+        if supply_range or supply_voltage:
+            quantity_text = normalized[:attachment.start()] + " " + normalized[attachment.end():]
+    quantities = [quantity for quantity, pattern in QUANTITIES.items() if re.search(pattern, quantity_text)]
+    if supply_range and "voltage" not in quantities:
+        # The established supply-range alias is explicit here even when another
+        # independently requested quantity makes the whole question ambiguous.
+        quantities.append("voltage")
+    if not quantities and re.search(r"\b(?:alimentation|supply)\b", normalized):
+        quantities = ["voltage"]
+    return quantities
+
+
+def _temperature_condition_present(text: str) -> bool:
+    """Require a temperature explicitly attached to this quantity's clause.
+
+    An independent ``storage temperature: ...`` assertion in the suffix is not
+    a condition on the voltage. Do not search past such an intervening clause,
+    even when it contains its own ``at`` or ``for`` phrase.
+    """
+    condition = text.lstrip(" \t.,;:").split(";", 1)[0].strip(" \t.,")
+    attachment = re.match(r"^(?:at|a|à|for|pour|when|lorsque)\s+", condition, re.IGNORECASE)
+    if attachment is None:
+        return False
+    points = _condition_measures(condition)
+    if any(point["quantity"] == "temperature" and point["start"] == 0 and point["end"] == len(condition)
+           for point in points):
+        return True
+    remainder = condition[attachment.end():]
+    # A named variable is preserved in the source, never supplied by the parser.
+    remainder = re.sub(r"^[A-Z][A-Z0-9_+]{0,10}\s*(?:=|de\b|from\b)?\s*", "", remainder)
+    for pattern in (BETWEEN_RANGE, RANGE_VALUE, LABELLED_RANGE, INEQUALITY_RANGE):
+        match = pattern.fullmatch(remainder)
+        if match is None:
+            continue
+        try:
+            low, low_unit = parse_quantity(match["low"] + " " + (match["low_unit"] or match["high_unit"]))
+            high, high_unit = parse_quantity(match["high"] + " " + match["high_unit"])
+        except CalculationRefusal:
+            continue
+        if low_unit == high_unit and UNITS[low_unit][0] == "temperature" and low <= high:
+            return True
+    return False
+
+
 def _condition_key(text):
     """Normalize only a complete SYMBOL + explicit range condition."""
     raw = text.strip(" .;")
+    points = _condition_measures(raw)
+    if len(points) == 1 and points[0]["start"] == 0 and points[0]["end"] == len(raw):
+        point = points[0]
+        return ("point", point["quantity"], point["symbol"], point["value"])
     raw = re.sub(r"^(?:pour|for|when|lorsque)\s+", "", raw, flags=re.IGNORECASE)
     symbol = re.match(r"^([A-Z][A-Z0-9_+]{0,10})\s*(?:=|de|from)?\s*", raw)
     if symbol:
@@ -224,6 +363,20 @@ def _condition_key(text):
 
 def _relation(reference, *, quantity, role, values, unit, label, condition, quote, kind, subjects,
               value_text=None, code=None, dependency_ids=(), decimal_notation_verified=False):
+    context = reference.get("table_context") or {}
+    note_issues = []
+    if context.get("catalogue_verified"):
+        notes = [item["text"] for item in context.get("dependencies", []) if item["kind"] == "note"]
+        notes.extend(cell["text"].strip() for cell in context.get("cells", [])
+                     if "note" in _cell_roles(cell) and cell["text"].strip())
+        condition = " ; ".join(dict.fromkeys(part for part in [condition, *notes] if part))
+        if context.get("unresolved_note_markers"):
+            note_issues.append("table_note_unresolved")
+        if context.get("ambiguous_note_markers"):
+            note_issues.append("table_note_ambiguous")
+        if context.get("note_scan_complete") is False:
+            note_issues.append("table_note_scan_incomplete")
+        dependency_ids = [*dependency_ids, *context.get("reference_ids", [])]
     properties = _properties(label, quantity)
     def identifiers(text):
         return {match[0].casefold() for match in SUBJECT.finditer(text) if any(char.isdigit() for char in match[0])
@@ -237,12 +390,17 @@ def _relation(reference, *, quantity, role, values, unit, label, condition, quot
     candidates = clause_ids if clause_ids else excerpt_ids if excerpt_ids else document_ids
     local_subjects = [subject for subject in subjects if _contains_subject(next(iter(candidates)), subject)] if len(candidates) == 1 else []
     return {"reference_id": reference["id"], "reference_ids": list(dict.fromkeys([reference["id"], *dependency_ids])),
-            "document_id": reference["document_id"], "source_ids": list(reference["source_ids"]),
+            "document_id": reference["document_id"],
+            "source_ids": list(context.get("source_ids", reference["source_ids"])) if context.get("catalogue_verified") else list(reference["source_ids"]),
+            "version_id": reference.get("version_id"), "generation_id": reference.get("generation_id"),
+            "extraction_revision_id": reference.get("extraction_revision_id"),
             "subjects": local_subjects,
             "evidence_identifiers": sorted(clause_ids),
             "kind": kind, "quantity": quantity, "property": properties[0] if len(properties) == 1 else None,
             "properties": properties, "role": role, "values": [decimal_text(value) for value in values], "unit": unit,
             "label": folded(label).strip(" :;|="), "condition": condition, "quote": quote,
+            "assertion_status": _assertion_status(quote + " " + condition), "bound_role": _bound_role(label) if kind == "value" else None,
+            "note_issues": note_issues,
             "segments": reference.get("segments", []), "value_text": value_text, "code": code,
             "decimal_notation_verified": decimal_notation_verified}
 
@@ -271,7 +429,7 @@ def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: st
             if UNITS[low_unit][0] != quantity or UNITS[high_unit][0] != quantity or low_unit != high_unit or low > high:
                 continue
             yield _relation(reference, quantity=quantity, role=role, values=[low, high], unit=high_unit,
-                            label=line[:match.start()], condition=line[match.end():].strip(), quote=line,
+                            label=line[:match.start()], condition=_local_condition(line, match.start(), match.end()), quote=line,
                             kind="interval", subjects=subjects)
             break
         else:
@@ -288,7 +446,7 @@ def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: st
             if len(measurements) == 1:
                 match, value, unit = measurements[0]
                 yield _relation(reference, quantity=quantity, role=role, values=[value], unit=unit,
-                                label=line[:match.start()], condition=line[match.end():].strip(), quote=line,
+                                label=line[:match.start()], condition=_local_condition(line, match.start(), match.end()), quote=line,
                                 kind="value", subjects=subjects, value_text=match[0])
 
 
@@ -431,6 +589,9 @@ def _table_conditions(reference, references):
     context = reference.get("table_context") or {}
     if not context.get("catalogue_verified") or context.get("row_role") != "data":
         return []
+    if (context.get("unresolved_note_markers") or context.get("ambiguous_note_markers")
+            or context.get("note_scan_complete") is False):
+        return []
     if not set(context["reference_ids"]) <= {item["id"] for item in references}:
         return []
     facts = []
@@ -518,8 +679,8 @@ def _cell_range_relations(references, scope, quantity, subjects):
     return facts
 
 
-def _conflicting_relations(facts: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    conflicts = []
+def _conflicting_relations(facts: list[dict[str, Any]], *, cross_document=False) -> list[dict[str, Any]]:
+    conflicts: list[dict[str, Any]] = []
     groups: dict[tuple, list[dict[str, Any]]] = {}
     for fact in facts:
         key = (fact["document_id"], fact["quantity"], fact["role"], fact["label"], fact["condition"], fact["kind"],
@@ -531,6 +692,29 @@ def _conflicting_relations(facts: list[dict[str, Any]]) -> list[dict[str, Any]]:
             conflicts.append({"requirement": "same_label_conflicting_values",
                               "reference_ids": list(dict.fromkeys(fact["reference_id"] for fact in group)),
                               "quotes": [fact["quote"] for fact in group]})
+    if cross_document:
+        # A direct value request cannot silently choose among two documents
+        # naming the same entity. Anonymous quantities in different documents
+        # are not presumed to refer to the same equipment. An explicit compare
+        # request reports the divergence through _comparisons instead.
+        external: dict[tuple, list[dict[str, Any]]] = {}
+        for fact in facts:
+            identifiers = tuple(fact.get("evidence_identifiers", []))
+            if len(identifiers) > 1 or fact["role"] is None:
+                continue
+            external_key = (identifiers, fact["quantity"], fact["role"], fact["label"], _condition_key(fact["condition"]),
+                            fact["kind"], fact.get("code"), fact.get("code_name"), fact.get("bound_role"))
+            external.setdefault(external_key, []).append(fact)
+        for group in external.values():
+            if len({fact["document_id"] for fact in group}) < 2 or len({_base_values(fact) for fact in group}) < 2:
+                continue
+            entity_known = bool(group[0].get("evidence_identifiers"))
+            conflicts.append({"requirement": ("same_entity_cross_document_conflicting_values" if entity_known else
+                                               "same_label_cross_document_value_discrepancy"),
+                              "document_ids": list(dict.fromkeys(fact["document_id"] for fact in group)),
+                              "reference_ids": list(dict.fromkeys(reference_id for fact in group for reference_id in fact["reference_ids"])),
+                              "quotes": [fact["quote"] for fact in group], "precedence_inferred": False,
+                              "entity_identity_established": entity_known})
     return conflicts
 
 
@@ -570,22 +754,19 @@ class AnswerContract:
     required_relation_count: int = field(init=False)
     requested_condition: tuple | None = field(init=False)
     operating_guarantee_requested: bool = field(init=False)
+    requested_bound: str | None = field(init=False)
+    requested_point_conditions: list[dict[str, Any]] = field(init=False)
+    requested_temperature_conditions: bool = field(init=False)
 
     def __post_init__(self):
         normalized = folded(self.question)
-        quantities = [quantity for quantity, pattern in QUANTITIES.items() if re.search(pattern, normalized)]
-        if not quantities and re.search(r"\b(?:alimentation|supply)\b", normalized):
-            quantities = ["voltage"]
-        # A temperature explicitly attached as a condition to a supply question
-        # is not a second independent requested quantity. Keep that condition in
-        # each relation instead of rejecting the compound request wholesale.
-        conditional_supply = ("voltage" in quantities and "temperature" in quantities
-                              and re.search(r"\b(?:conditions?|s.applique|applies)\b|a quelle plage de temperature", normalized)
-                              and re.search(r"\b(?:alimentation|supply)\b|(?<!\w)v\+(?!\w)", normalized))
-        if conditional_supply:
-            quantities.remove("temperature")
+        quantities = _requested_quantities(normalized)
         self.quantity = quantities[0] if len(quantities) == 1 else None
+        self.requested_temperature_conditions = (self.quantity == "voltage"
+                                                 and bool(TEMPERATURE_CONDITION_ATTACHMENT.search(normalized)))
         self.requested_properties = _properties(self.question, self.quantity or "")
+        self.requested_bound = _bound_role(self.question)
+        self.requested_point_conditions = _condition_measures(self.question)
         self.scope_read_requested = bool(SCOPE_READ_LANGUAGE.search(normalized))
         self.unit_requested = bool(UNIT_LANGUAGE.search(normalized))
         self.requested_role = _role(self.question)
@@ -721,7 +902,7 @@ class AnswerContract:
             requested = list(by_address)
         return by_address, requested
 
-    def _facts(self, references: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def _fact_candidates(self, references: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if self.quantity is None:
             return []
         facts: list[dict[str, Any]] = []
@@ -739,6 +920,40 @@ class AnswerContract:
         if self.requested_condition:
             facts = [fact for fact in facts if _condition_key(fact["condition"]) == self.requested_condition]
         return facts
+
+    def _relation_rejections(self, fact):
+        reasons = list(fact.get("note_issues", []))
+        if fact.get("assertion_status", "asserted") != "asserted":
+            reasons.append("source_assertion_" + fact["assertion_status"])
+        if (self.requested_bound and fact["kind"] == "value"
+                and fact.get("bound_role") != self.requested_bound):
+            reasons.append("requested_bound_not_established")
+        if self.requested_temperature_conditions and not _temperature_condition_present(fact["condition"]):
+            reasons.append("requested_temperature_condition_not_established")
+        available = _condition_measures(fact["condition"])
+        for requested in self.requested_point_conditions:
+            if not any(point["quantity"] == requested["quantity"] and point["value"] == requested["value"]
+                       and (not requested["symbol"] or requested["symbol"] == point["symbol"])
+                       for point in available):
+                reasons.append("requested_condition_not_established")
+                break
+        return reasons
+
+    def _facts(self, references: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        return [fact for fact in self._fact_candidates(references) if not self._relation_rejections(fact)]
+
+    def _rejected_relations(self, references):
+        rejected = []
+        for fact in self._fact_candidates(references):
+            if self.subjects and not any(subject in fact["subjects"] for subject in self.subjects):
+                continue
+            if self.requested_properties and fact.get("property") not in self.requested_properties:
+                continue
+            reasons = self._relation_rejections(fact)
+            if reasons:
+                rejected.append({"reference_ids": fact["reference_ids"], "source_ids": fact["source_ids"],
+                                 "quote": fact["quote"], "condition": fact["condition"], "reasons": reasons})
+        return rejected
 
     def _conditions(self, references):
         if not self.distinguish_roles or not re.search(r"\bconditions?\b", folded(self.question)):
@@ -860,6 +1075,8 @@ class AnswerContract:
         facts = []
         for reference in references:
             for line in reference_text(reference).splitlines():
+                if _assertion_status(line) != "asserted":
+                    continue
                 for match in MAPPING_RELATION.finditer(line):
                     configuration = (match["key"].casefold(), match["value"].casefold())
                     if configuration in self.configurations:
@@ -887,7 +1104,7 @@ class AnswerContract:
                         or re.search(r"\b(?:syntheti\w*|synthetic|ficti\w*)\b", text)
                         and re.search(r"\b(?:temoin|test|specification|source|document)\b", text)):
                     required.append(reference["id"])
-        for conflict in _conflicting_relations(facts):
+        for conflict in _conflicting_relations(facts, cross_document=not self.comparison_requested):
             required.extend(conflict["reference_ids"])
         for configuration in self.configurations:
             required.extend(fact["reference_id"] for fact in self._mappings(references)
@@ -896,6 +1113,7 @@ class AnswerContract:
 
     def prompt(self, references: list[dict[str, Any]]) -> dict[str, Any]:
         result: dict[str, Any] = {"kind": self.kind, "quantity": self.quantity, "requested_role": self.requested_role,
+                  "requested_bound": self.requested_bound, "requested_point_conditions": self.requested_point_conditions,
                   "requested_cells": self.requested_cells, "requested_field": self.requested_field, "requested_subjects": list(self.subjects),
                   "requested_properties": self.requested_properties,
                   "requested_configurations": [list(configuration) for configuration in self.configurations],
@@ -1001,6 +1219,15 @@ class AnswerContract:
                                   "source_ids": reference["source_ids"], "raw_text_preserved": True,
                                   "extraction_method": reference.get("extraction_method", "unknown")})
         facts = self._facts(selected)
+        rejected = self._rejected_relations(references)
+        for item in rejected:
+            if "source_assertion_uncertain" in item["reasons"]:
+                ambiguous.append({"requirement": "source_assertion_uncertain", "reference_ids": item["reference_ids"],
+                                  "source_ids": item["source_ids"], "raw_text_preserved": True})
+        if not facts:
+            for reason in dict.fromkeys(reason for item in rejected for reason in item["reasons"]):
+                if reason != "source_assertion_uncertain":
+                    missing.append({"requirement": reason})
         conditions = self._conditions(selected)
         limitations = self._operating_limitations(selected)
         if self.operating_guarantee_requested and not limitations:
@@ -1041,7 +1268,7 @@ class AnswerContract:
                     missing.append({"requirement": "mapping_subject", "subject": subject})
         # Inspect all counted evidence so model omission cannot arbitrate a
         # contradiction. Other documents or different conditions stay distinct.
-        conflicts = _conflicting_relations(self._facts(references))
+        conflicts = _conflicting_relations(self._facts(references), cross_document=not self.comparison_requested)
         all_mappings = self._mappings(references) if self.kind == "mapping" else []
         for configuration in self.configurations:
             group = [fact for fact in all_mappings if tuple(fact["configuration"]) == configuration]
@@ -1077,11 +1304,14 @@ class AnswerContract:
         return {"version": 1, "kind": self.kind, "status": status, "verification": VERIFICATION,
                 "coverage_scope": "retained_catalogue_only", "limitation": LIMITATION,
                 "quantity": self.quantity, "requested_role": self.requested_role,
+                "requested_bound": self.requested_bound, "requested_point_conditions": self.requested_point_conditions,
+                "requested_temperature_conditions": self.requested_temperature_conditions,
                 "requested_properties": self.requested_properties,
                 "required_reference_ids": self.required_ids(references, required_documents),
                 "requested_cells": requested, "requested_subjects": list(self.subjects),
                 "missing": missing, "ambiguous": ambiguous, "conflicts": conflicts,
                 "matched_relations": [*facts, *mappings, *conditions, *limitations], "calculation": calculation,
+                "rejected_relations": rejected,
                 "derived_calculations": derived_calculations,
                 "obligations": obligations, "comparisons": comparisons,
                 "selected_reference_ids": [reference["id"] for reference in selected]}
@@ -1094,8 +1324,12 @@ def assessment_message(assessment: dict[str, Any]) -> str | None:
     if status == "conflict":
         return "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée."
     if status == "ambiguous":
+        if any(item["requirement"] == "source_assertion_uncertain" for item in assessment["ambiguous"]):
+            return "La source qualifie une donnée d'incertaine ou d'approximative. Cette réserve est conservée ; aucune valeur certaine n'en est déduite."
         return "Une ambiguïté subsiste dans les preuves retenues (lecture, adresse ou rôle de la grandeur). Les données brutes sont conservées ; aucune correction n'est supposée."
     if status == "partial":
+        if any(item["requirement"].startswith("table_note_") for item in assessment["missing"]):
+            return "Une note applicable au tableau est absente, ambiguë ou n'a pas pu être entièrement vérifiée. La valeur ne permet pas d'établir une réponse sans cette réserve."
         if any(item["requirement"] == "multiple_properties_not_decomposed" for item in assessment["missing"]):
             return "La demande porte sur plusieurs propriétés distinctes. Certaines propriétés ne sont pas établies pour chaque document demandé ; une seule plage ne suffit pas à toutes les couvrir."
         if assessment["kind"] == "calculation":
@@ -1106,11 +1340,19 @@ def assessment_message(assessment: dict[str, Any]) -> str | None:
                     "Le calcul demandé ne peut pas être établi à partir d'entrées complètes et univoques dans les preuves retenues.")
         if any(item["requirement"] == "requested_unit_not_provided" for item in assessment["missing"]):
             return "L'unité demandée n'est pas établie par les champs des cellules retenues. Les valeurs brutes sont restituées ; aucune unité d'une cellule extérieure n'est supposée."
+        if any(item["requirement"] == "requested_condition_not_established" for item in assessment["missing"]):
+            return "Les preuves retenues n'établissent pas la valeur dans les conditions demandées. Les valeurs associées à d'autres conditions ne sont pas transposées."
+        if any(item["requirement"] == "requested_temperature_condition_not_established" for item in assessment["missing"]):
+            return "Les contrôles n'établissent pas toutes les conditions de température demandées dans les passages retenus. Les extraits sont conservés sans supposer de condition manquante."
+        if any(item["requirement"] == "requested_bound_not_established" for item in assessment["missing"]):
+            return "La borne demandée n'est pas établie. Une valeur typique, nominale ou dépourvue de rôle explicite ne permet pas de déduire ce minimum ou ce maximum."
+        if any(item["requirement"] == "source_assertion_negated" for item in assessment["missing"]):
+            return "Le passage contient une négation portant sur la donnée repérée. Son nombre n'est pas retenu comme valeur affirmée ; l'extrait conserve la formulation source."
         if assessment.get("quantity") and not assessment.get("matched_relations"):
             return "La grandeur demandée n'est pas établie par les preuves retenues dans le périmètre sélectionné. Je ne peux pas donner une valeur fiable à partir de cette sélection."
         if assessment["kind"] == "interval":
             return "La plage demandée n'est pas entièrement établie : les preuves retenues ne relient pas toutes les bornes, unités, grandeurs ou conditions demandées. Cela ne démontre pas l'absence de ces données dans les documents."
         return "Restitution partielle : certains faits demandés ne sont pas établis dans les preuves retenues. Cela ne démontre pas leur absence dans les documents."
     if status == "unassessed":
-        return "Les extraits ci-dessous sont restitués avec leurs sources. La couverture complète de cette demande n'est pas établie par les contrôles disponibles."
+        return "Restitution littérale des sources. Les contrôles vérifient la provenance des extraits ; l'interprétation complète de la question reste à vérifier."
     return None

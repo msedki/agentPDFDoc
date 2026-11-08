@@ -1,0 +1,52 @@
+{
+  "recorded_at": "2026-11-08T14:07:29.629136+00:00",
+  "repository": "/workspace/scratch/2c21e54d224c/agentPDFDoc-baseline",
+  "commit": "3956491a2d7f1f16cefebfe79e92c638b6662c10",
+  "script_sha256": "8bfae4059de846e834c4ba66de23326ef1ee3938192ee09a7d636d5d1288ab86",
+  "limitations": "Synthetic extraction; named embedding/vector/tokenizer doubles; no OCR, E5 or 4B execution.",
+  "observations": [
+    {
+      "case": "long_parent",
+      "elapsed_ms": 122.633,
+      "question": "What are the supply voltage and ambient temperature?",
+      "source_sha256": "53eaeb84c1380bd13aedef921d2ef61ddec8e16915b7233bf256ae88551db908",
+      "parent_tokens_named_double": 1365,
+      "candidates": 5,
+      "candidate_facts": 2,
+      "retained": 1,
+      "retained_facts": 1,
+      "expanded_facts": 1,
+      "required_facts": 2,
+      "accepted": false
+    },
+    {
+      "case": "footnote",
+      "elapsed_ms": 36.565,
+      "source_text": "Parameter | Min | Max | Unit\nSupply voltage (1) | 0 | 36 | V\n(1) Valid only indoors.",
+      "selected_text": "Parameter | Min | Max | Unit\nSupply voltage (1) | 0 | 36 | V",
+      "warnings": [],
+      "accepted": false
+    },
+    {
+      "case": "partial_empty",
+      "elapsed_ms": 41.398,
+      "result_count": 0,
+      "warnings": [],
+      "accepted": false
+    },
+    {
+      "case": "mixed_ocr",
+      "elapsed_ms": 28.006,
+      "block_methods": [
+        "ocr",
+        "native",
+        "native"
+      ],
+      "source_methods": [
+        "native"
+      ],
+      "warning_codes": [],
+      "accepted": false
+    }
+  ]
+}

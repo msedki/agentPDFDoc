@@ -4,6 +4,17 @@
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
+[I3 — relecture finale et reprises natives](2026-11-08.md#i3--relecture-finale-et-reprises-natives) :
+relecture par agent non aveugle 9/12 → 11/12 réponses complètes sans réserve
+injustifiée ; score automatique 9/12 → 12/12 conservé, faux positif P01 explicité.
+Les limites sont confirmées à 15/18 → 18/18 par relecture finale. Office : trois
+refus primaires conservés, reprise distincte terminée avec 2/3 réponses strictes.
+PDF : 0/2 réponses complètes et 1/4 relation demandée par bras, extraction
+`ready_partial`, OCR non qualifié. Réserve I3-D04, I3-D08 non atteint, DoD globale
+ouverte ; publication du lot encore attendue.
+[Bilan](../reports/grounded-4b-results-2026-11-08.md) et
+[reproduction](../reports/grounded-4b-reproduce-2026-11-08.md).
+
 [Publication GitHub du 8 novembre](2026-11-08.md#publication-github-par-le-connecteur-du-compte-autorisé) :
 I1 et I2 publiées sur `enhanced_version`, dernier commit technique `3cfc004a` ;
 les trois arbres complets correspondent aux versions locales, contrôle distant

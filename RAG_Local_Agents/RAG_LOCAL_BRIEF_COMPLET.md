@@ -890,6 +890,20 @@ Tout ajout/modification d'API, option native, format, modèle ou mécanisme de p
 
 Les skills choisis dans [SKILLS.md](SKILLS.md) assistent le développement, sans être embarqués comme outils du LLM local. Une migration exige une procédure de retour arrière et la conservation des références documentaires ; aucune « mise à jour SOTA » implicite au démarrage.
 
+## 12. I3 — preuves jusqu'à la réponse, profil 4B
+
+**Statut :** mécanismes implémentés sur `enhanced_version` ; portée des essais et limites dans le [bilan I3](reports/grounded-4b-results-2026-11-08.md). Le [protocole préalable](reports/grounded-4b-protocol-2026-11-08.md) fixe les critères de ce lot, sans remplacer la DoD globale. Cette section décrit le profil `enhanced-4b` ; les prescriptions et observations historiques ci-dessus gardent leur date.
+
+La sélection conserve les passages disjoints d'un parent trop long pour être développé. Après expansion, seule une preuve identique est dédupliquée : document, version, génération, révision, blocs, positions, hashes, texte, contexte de tableau et obligations d'identifiants restent distingués. Les plafonds de fragments et de contexte continuent de s'appliquer. Une génération autorisée `ready_partial` est signalée même si elle ne produit aucun passage retenu ; l'absence de résultat ne prouve pas l'absence d'information dans l'original.
+
+Les tableaux conservent les notes explicitement appelées dans leur texte et retrouvées dans le même tableau autorisé, leurs dépendances transitives et les réserves des colonnes explicitement intitulées « Note » ou « Remarque ». Les liens sont bornés à 64 ; note manquante, libellé ambigu ou vérification incomplète empêchent d'établir la couverture de la relation concernée. Aucun texte hors sélection n'est importé pour combler une note. Les méthodes native/OCR sont recalculées à partir des blocs effectivement assemblés, titres compris. La sérialisation source, les positions et les empreintes ne sont pas réécrites : [sélection](../services/api/evidence_selection.py), [recherche](../services/api/retrieval.py).
+
+Avant la génération, le catalogue relit les identités et localisations autoritaires et établit un registre `support_ledger` : littéraux, références, versions, révisions, méthodes d'extraction, relations localement vérifiées, relations rejetées et conflits. Le 4B peut sélectionner et organiser uniquement les références de ce catalogue dans un plan structuré. La restitution assemble les extraits et les formulations contrôlées ; aucun texte libre du modèle n'est publié. Les relations complètes reconnues et certains calculs sur cellules passent par une voie déterministe sans appel génératif. Les calculs autorisés gardent leurs entrées, unités, méthode et références : [contrat](../services/api/answer_contract.py), [restitution](../services/api/structured_answer.py).
+
+Après le plan, `verify_rendered` reconstruit chaque segment publié depuis ses preuves ou son calcul vérifié, contrôle offsets, citations et empreintes, puis bloque une restitution divergente avant les événements de réponse publics. Les registres avant/après et le résultat du contrôle sont rattachés à la requête dans [query.py](../services/api/query.py). Cette fidélité au texte enregistré ne certifie ni l'exactitude de l'extraction initiale ni une implication sémantique générale : `general_semantic_entailment_verified` et `original_extraction_fidelity_verified` restent faux dans le registre préalable. Les contrôles de grandeur, unité, rôle, condition et négation restent bornés aux formes reconnues. Notes non reconnues, conditions implicites, OCR incertain et contradictions non détectées demeurent des limites à mesurer ; aucun succès de test n'établit une qualification globale du corpus ou de la cible Windows/16 Go.
+
+**Complément F07 — grandeur principale et condition explicite.** Le contrat distingue une demande de plage d'alimentation accompagnée de « ses/leurs conditions de température » de la température elle-même demandée. Seule la mention de température dans cet attachement explicite, français ou anglais, est retirée du classement des grandeurs ; une autre température demandée reste une obligation indépendante. Chaque plage comptée doit conserver son propre point ou intervalle de température source, sans inférence numérique. Une condition absente laisse la couverture partielle ; les demandes mixtes non décomposées restent signalées. Le repli lexical associé est décrit dans [CONFIGURATION.md](CONFIGURATION.md#i3--profil-actif-enhanced-4b-8-novembre-2026) et isolé par désactivation dans l'[addendum F07](reports/grounded-4b-addendum-2026-11-08.md).
+
 ---
 
 ## Fichier : `CONFIGURATION.md`
@@ -1045,6 +1059,27 @@ Après chaque changement canonique : régénérer le brief avec `python tools/bu
 Avant toute décision significative de configuration ou mise à jour, consulter les sources officielles actuelles et le schéma de la version verrouillée conformément à [RECHERCHE_ET_SKILLS.md](RECHERCHE_ET_SKILLS.md). Capturer les paramètres effectivement acceptés par le runtime ; ne pas transposer une option de branche récente à un ancien binaire.
 
 Les recherches des agents ne sont pas une option réseau du profil `local16`. Aucun changement ici n'active la navigation, le téléchargement de skills ou la mise à jour automatique dans le produit. Les valeurs initiales restent à qualifier ; les changements et skills utilisés sont traçables dans les registres.
+
+## I3 — profil actif `enhanced-4b`, 8 novembre 2026
+
+**Statut :** configuration du lot I3, dont la qualification reste limitée aux essais du [bilan](reports/grounded-4b-results-2026-11-08.md). Le [protocole préalable](reports/grounded-4b-protocol-2026-11-08.md) distingue tests de composants, exécution native et recette cible. Les anciens profils et résultats 2B/4B ci-dessus restent historiques ; le seul générateur utilisé dans ce lot est Qwen3-4B.
+
+La source de vérité est [config/enhanced-4b.yaml](../config/enhanced-4b.yaml), avec son [verrou](../config/enhanced-4b.lock.json). Les contraintes d'identité sont exécutables :
+
+| Clé du profil | Valeur obligatoire |
+|---|---|
+| `llm.model` | `qwen3-4b-enhanced:q4km` |
+| `llm.required_parameter_size` | `4.0B` |
+| `llm.required_family` | `qwen3` |
+| `llm.required_quantization` | `Q4_K_M` |
+
+Le manifeste provisionné doit correspondre au nom, digest et détails requis. Le runtime compare également digest, famille et taille avec l'identité exposée par Ollama avant tout envoi documentaire ; identité absente ou divergente : génération refusée, sans substitution de modèle. Les champs sont validés par [profile_schema.py](../services/runtime/profile_schema.py) et appliqués par [ollama.py](../services/api/ollama.py).
+
+Les options `enhanced.preserve_evidence` et `enhanced.answer_contract` activent conservation des preuves et registre/contrôle avant-après décrits dans [IMPLEMENTATION.md](IMPLEMENTATION.md#12-i3--preuves-jusquà-la-réponse-profil-4b). Les limites de paquets, de contexte et de restitution restent celles du YAML ; les 64 liens de notes constituent une borne interne de vérification, pas un paramètre OCR. Le mode `trace.mode: hashes` conserve les empreintes par défaut ; une campagne avec texte complet exige le mode explicitement prévu et ses limites de stockage. Ces options ne créent ni nouvelle extraction ni preuve sémantique universelle.
+
+Les mesures comparatives imposent le même 4B verrouillé, corpus et paramètres explicités, avec CPU forcé pour le protocole I3 ; la valeur applicative `llm.accelerator: auto` n'est pas une preuve d'exécution CPU. Les routes sans appel au modèle sont comptées séparément des générations effectives. Aucun réglage ni résultat ponctuel n'établit à lui seul la qualification de la latence, de la mémoire ou de la DoD globale.
+
+**Complément F07.** `enhanced.lexical_alias_fallback: true` dans le profil `enhanced-4b` active une seule reprise FTS quand les candidats lexicaux et les occurrences exactes initiales sont tous deux vides. Sa valeur par défaut dans le schéma reste `false`, ce qui permet l'ablation. Au plus 16 alias complets des groupes techniques existants sont admis, hors spans d'identifiants ; filtre SQL et `lexical_top_k` restent identiques. La question, les références et l'entrée dense ne sont pas réécrites. Sélections littérales et plages de cellules gardent leur parcours. La trace privée `retrieval.lexical_alias_fallback` indique route, alias, empreintes et compte de candidats ; [hypothèse et acceptation](reports/grounded-4b-addendum-2026-11-08.md).
 
 ---
 
@@ -1831,6 +1866,29 @@ Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, 
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
 **Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · Suivi de livraison publié `d3c1518`, distant confirmé · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-13 14:43 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+
+## I3 — fiabilisation des preuves jusqu’à la réponse, 8 novembre 2026 (UTC)
+
+**Objectif :** chaîne RAG et restitution fondées sur les preuves, générateur Qwen3-4B uniquement dans le profil renforcé.
+**Référence :** `3956491a2d7f1f16cefebfe79e92c638b6662c10` ; branche `enhanced_version`.
+**Exclusions :** autre générateur, changement de poids, qualification Windows ou sémantique générale présumée.
+**Critères préalables :** [protocole et DoD I3](reports/grounded-4b-protocol-2026-11-08.md).
+**État :** implémentation et essais terminés avec réserves ; publication autorisée, dernière étape en cours.
+
+| Action | Dépendances, livrable et acceptation | État et preuve |
+|---|---|---|
+| I3-01 | Référence immuable, défauts reproduits, protocole avant code | Réalisé : worktree exact, sondes conservées, corpus/oracles figés et addendum F07 antérieur à ses corrections. |
+| I3-02 | Conservation des passages/notes/provenance ; I3-D03 | Réalisé sur les sondes : 0/4 → 4/4 ; déduplication des occurrences, notes explicites, couverture partielle et provenance. |
+| I3-03 | Registre et contrôles de relations/rendu ; I3-D01/D02/D05 | Réalisé dans les contrôles bornés : pré/post-registres, plans par IDs, conditions/négations/conflits, calculs et blocage des altérations. |
+| I3-04 | Intégration, identité 4B, erreurs bornées ; I3-D06/D08 | Implémenté : manifeste 4.0B/qwen3/Q4_K_M vérifié à froid/chaud ; natif réel exécuté, mais I3-D08 non atteint. |
+| I3-05 | Matrice appariée, non-régression, coûts et limites ; I3-D04/D07/D08 | Exécuté : relecture stricte 9/12 → 11/12 positifs, 15/18 → 18/18 limites, cinq gains et zéro régression contrôlée. Portable 3 801 PASS/cinq FAIL préexistants. Office primaire 5/8 stricts, disponibilité 8/8 → 5/8 ; reprise distincte 2/3 stricts. PDF 0/2 complets dans les deux bras. |
+| I3-06 | Bilan, commit et push vérifiés ; I3-D09 | Documentation et preuves préparées ; contrôles documentaires puis publication sans force via le connecteur demandé, à constater au reçu. |
+
+**Points vérifiés :** seulement le 4B génératif verrouillé a été utilisé ; source stable dans chaque bras, mêmes originaux et paramètres, plans adverses non publiés, calculs tracés, reprises séparées. Le score automatique 12/12 C2 garde un faux positif P01 et n’est pas le verdict final.
+
+**Points ouverts :** I3-D04 partiel (réserve P01 inutile), I3-D08 non atteint (trois erreurs d’admission primaires et réponses PDF incomplètes), OCR réel et cible physique non qualifiés. Les trois relations PDF manquantes existent dans l’extraction mais sont perdues dans recherche/sélection ; pistes structurelles et allocation par propriété restent différées avec critères au bilan. Aucun arbitrage de modèle supplémentaire n’est demandé.
+
+**Preuves et reprise :** [bilan et DoD](reports/grounded-4b-results-2026-11-08.md), [relecture des sorties](reports/grounded-4b-output-review-2026-11-08.json), [campagnes natives](reports/grounded-4b-native-2026-11-08.json), [gates](reports/grounded-4b-validation-2026-11-08.json) et [commandes](reports/grounded-4b-reproduce-2026-11-08.md). Prochaine action autorisée : vérifier le pack, publier l’arbre exact et contrôler le SHA distant. Les pistes de qualification restent ouvertes après cette livraison.
 
 ## Publication GitHub confirmée — 8 novembre 2026
 
@@ -7268,6 +7326,17 @@ contredit par les relations présentes dans le contexte : sa correction
 versionnée est conservée dans l’erratum TMP117. Ces corrections de relecture
 ne changent aucun oracle, paramètre, code ou résultat natif.
 
+
+## EV4B-I3-D01 — générateur 4B et preuves jusqu'à la réponse, I3/F07 (8 novembre 2026 UTC)
+
+**Statut :** choix mis en œuvre ; résultats et limites exclusivement dans le [bilan I3](reports/grounded-4b-results-2026-11-08.md). **Référence de départ :** `3956491a2d7f1f16cefebfe79e92c638b6662c10` ; [protocole](reports/grounded-4b-protocol-2026-11-08.md) et [addendum F07](reports/grounded-4b-addendum-2026-11-08.md) fixés avant leurs essais respectifs.
+
+**Choix :** garder Qwen3-4B Q4_K_M comme seul générateur de ce lot, avec famille et taille contrôlées avant envoi documentaire. Le modèle organise uniquement les références du catalogue vérifié. Conservation des notes et provenances, registre avant génération, calculs par code et vérification du rendu avant publication empêchent l'ajout de prose libre du modèle ; ils ne certifient pas toute interprétation sémantique ni l'exactitude de l'OCR initial.
+
+**F07 :** une voie lexicale vide peut être reprise une fois avec les alias techniques statiques existants, sans élargissement du périmètre, des plafonds ou des identifiants. Une condition de température explicitement attachée à une plage d'alimentation reste une condition, dont la valeur doit être présente dans chaque relation source. Les questions de température et les demandes mixtes gardent leurs contrôles distincts.
+
+**Conséquences :** ablation du repli, positifs, abstentions et erreurs restent évalués séparément ; aucun refus supplémentaire ne vaut amélioration à lui seul. Les publications de méthode référencées dans [SOURCES.md](SOURCES.md#ev4b-i3--méthode-et-preuves-i3f07-8-novembre-2026-utc) motivent les essais, sans servir de preuve de benchmark local, de qualification métier ou de recette globale.
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -9331,6 +9400,21 @@ sorties natives. Le rappel sérialisé, le catalogue applicatif et la réponse
 sont distingués ; les justifications applicatives fausses sont comptées.
 Ces preuves locales ne constituent ni validation humaine indépendante, ni
 transfert aveugle, ni qualification du corpus V2.1, du poste de 16 Go ou de Windows.
+
+
+## EV4B-I3 — méthode et preuves I3/F07 (8 novembre 2026 UTC)
+
+**Statut :** références déjà consultées pour le [protocole I3](reports/grounded-4b-protocol-2026-11-08.md), réutilisées dans leurs limites ; résultats locaux distincts dans le [bilan](reports/grounded-4b-results-2026-11-08.md).
+
+| ID | Source primaire | Usage et limite |
+|---|---|---|
+| EV4B-I3-S01 | [Ollama, Structured outputs](https://docs.ollama.com/capabilities/structured-outputs), documentation consultée le 08/11/2026 | Schéma du plan et validation côté application ; aucune garantie de vérité ou d'adéquation d'une référence à la question. |
+| EV4B-I3-S02 | [Gao et al., ALCE, EMNLP 2023](https://aclanthology.org/2023.emnlp-main.398/), reprise EV4B-S02 | Séparer justesse de réponse et soutien effectif des citations ; aucun score publié transféré au 4B local. |
+| EV4B-I3-S03 | [Joren et al., Sufficient Context, arXiv:2411.06037v3](https://arxiv.org/abs/2411.06037v3), reprise EV4B-S01 | Distinguer contexte insuffisant et mauvaise exploitation de preuves disponibles ; ni classificateur local validé ni promesse de couverture. |
+
+**EV4B-I3-E01 — preuves internes.** Base active au début du lot : `3956491a2d7f1f16cefebfe79e92c638b6662c10`, puis modifications I3/F07. Protocole SHA-256 `a6c36e87fcee36b1b44be64313f2335c4ceb62f2c338df5935b7cb6b47e8a74e` ; [addendum F07](reports/grounded-4b-addendum-2026-11-08.md) SHA-256 `8793bcab3d98680a21a028f24545455f02b63899e3cd7f07817e226e63baee04` ; [questions et oracles contrôlés](../tests/fixtures/grounded_cases.json) SHA-256 `68a997cee3c6e3dcd1d8625d534c17631cb7ddaebedb1bfd3efa316c678fd476`.
+
+Les mécanismes sont vérifiables dans [retrieval.py](../services/api/retrieval.py), [evidence_selection.py](../services/api/evidence_selection.py), [answer_contract.py](../services/api/answer_contract.py) et [structured_answer.py](../services/api/structured_answer.py), avec les tests [de conservation/recherche](../tests/unit/test_grounded_retrieval.py) et [de relations/rendu](../tests/unit/test_grounded_evidence_contract.py). Le [harnais contrôlé](../tools/qualification/grounded_campaign.py) distingue explicitement ses doubles des [essais natifs](../tools/qualification/run_grounded_native.py). Les révisions candidates, mesures, échecs et limites appartiennent au bilan ; ces liens et empreintes n'établissent pas à eux seuls une réussite expérimentale.
 
 ---
 

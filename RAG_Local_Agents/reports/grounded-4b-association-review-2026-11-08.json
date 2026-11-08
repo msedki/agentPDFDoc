@@ -1,0 +1,161 @@
+{
+  "review_id": "f07-association-review",
+  "created_utc": "2026-11-08T14:43:34.059029+00:00",
+  "mode": "Read-only independent review; no product or fixture changes.",
+  "observation_phase": "Before corrective edit following this finding; C1 source freeze is retained.",
+  "source_basis": {
+    "campaign": ".runtime/qa/grounded-20261108/controlled-candidate-final.json",
+    "campaign_sha256": "518e2831f2633b373988df3134f0294b4775df1ba6096780698bd550bfb2fb4a",
+    "answer_contract_sha256_in_C1": "ffec545fdb4b0f6cf245339dc3ebaa32ee0bf9671f9c999683618174cac8e157",
+    "fixture_sha256": "68a997cee3c6e3dcd1d8625d534c17631cb7ddaebedb1bfd3efa316c678fd476"
+  },
+  "question": "Donne la plage d'alimentation recommandée avec ses conditions de température.",
+  "observations": [
+    {
+      "kind": "positive_control",
+      "source": "Recommended supply voltage: 1.5 to 4.5 V for TA = -40 to 125 °C.",
+      "observed_status": "covered",
+      "expected_status": "covered",
+      "condition": "for TA = -40 to 125 °C.",
+      "deterministic_plan": {
+        "references": [
+          "R001"
+        ],
+        "comparisons": []
+      }
+    },
+    {
+      "kind": "new_adverse_case_outside_frozen_30",
+      "source": "Recommended supply voltage: 1.5 to 4.5 V; storage temperature: -40 to 125 °C.",
+      "observed_status": "covered",
+      "expected_status": "partial",
+      "condition": "; storage temperature: -40 to 125 °C.",
+      "missing": [],
+      "deterministic_plan": {
+        "references": [
+          "R001"
+        ],
+        "comparisons": []
+      },
+      "rendered": "document-1 — Extrait : « Recommended supply voltage: 1.5 to 4.5 V; storage temperature: -40 to 125 °C. » [S001]"
+    },
+    {
+      "kind": "negative_control",
+      "source": "Recommended supply voltage: 1.5 to 4.5 V; the display temperature reads 25 °C.",
+      "observed_status": "partial",
+      "expected_status": "partial",
+      "matched_relations": [],
+      "deterministic_plan": null
+    }
+  ],
+  "finding": {
+    "kind": "unsupported_relationship_classified_as_covered",
+    "cause": "_local_condition takes the complete suffix after the voltage. _temperature_condition_present accepts any numeric temperature range in that suffix, including an independent storage-temperature assertion after a semicolon.",
+    "impact": "The rendered quotation remains literally faithful, but the contract marks supply-temperature applicability covered, offers a deterministic plan and suppresses the insufficient-evidence notice even though the source does not establish that association.",
+    "expected": "Preserve both independent assertions as source quotations; do not certify storage temperature as a condition of the supply voltage without an explicit link.",
+    "scope": "New regression outside the frozen 30 cases; do not replace an original case or retroactively change its oracle."
+  },
+  "reproduction": {
+    "working_directory": "/workspace/scratch/2c21e54d224c/agentPDFDoc",
+    "interpreter": ".venv/bin/python",
+    "script": "import json, sys\nsys.path.insert(0, 'tests/unit')\nfrom test_enhanced_answers import catalogue, excerpt, render\nquestion = \"Donne la plage d'alimentation recommandée avec ses conditions de température.\"\nfor source in (\n    'Recommended supply voltage: 1.5 to 4.5 V for TA = -40 to 125 °C.',\n    'Recommended supply voltage: 1.5 to 4.5 V; storage temperature: -40 to 125 °C.',\n    'Recommended supply voltage: 1.5 to 4.5 V; the display temperature reads 25 °C.',\n):\n    cat = catalogue(question, [excerpt('R001', source)])\n    output = render(cat, ['R001'])\n    assessment = output['answer_contract']\n    plan = cat.deterministic_plan()\n    print(json.dumps({'question': question, 'source': source, 'status': assessment['status'],\n        'matched_relations': [{'values': fact['values'], 'condition': fact['condition']} for fact in assessment['matched_relations']],\n        'missing': assessment['missing'], 'deterministic_plan': plan.model_dump() if plan else None,\n        'rendered': output['text']}, ensure_ascii=False))\n",
+    "executed": true,
+    "native_model_or_services": false,
+    "files_changed": false
+  },
+  "lexical_review": {
+    "scope_leak_demonstrated": false,
+    "observations": [
+      "Fallback reuses the initial SQL scope filter and candidate limit.",
+      "Fallback is bounded to 16 static alias terms; identifiers and numeric values are not added.",
+      "Literal selections and cell-range projection bypass this fallback.",
+      "Nonempty exact or lexical lanes are unchanged."
+    ],
+    "limit": "Static alias matching is a retrieval aid; it does not establish that a found passage answers the question."
+  },
+  "c1_observed_summary": {
+    "submissions": 30,
+    "answerable_pass": 12,
+    "answerable_total": 12,
+    "control_pass": 18,
+    "control_total": 18,
+    "errors": 3,
+    "answerable_with_limitation_notice": 0,
+    "answerable_errors": 0,
+    "literal_facts_rendered_and_supported": 15,
+    "required_literal_facts": 15,
+    "retrieval_fact_recall_at_10": {
+      "found": 15,
+      "total": 15
+    },
+    "context_literal_fact_coverage": {
+      "found": 14,
+      "total": 15
+    },
+    "citation_integrity": {
+      "valid": 32,
+      "total": 32
+    },
+    "forbidden_publication_cases": 0,
+    "query_latency_ms": {
+      "n": 30,
+      "median": 123.32499999999999,
+      "max": 367.81,
+      "scope": "controlled QueryService with named doubles, not model latency"
+    }
+  },
+  "c1_source_stability": {
+    "changed_during_run": []
+  },
+  "p05_context_metric_diagnostic": {
+    "case_id": "P05_sparse_table",
+    "original_record_metric": {
+      "range": false
+    },
+    "trace_path": ".runtime/qa/grounded-20261108/controlled-candidate-final/P05_sparse_table/data/traces/aa997330-32a2-457b-aed7-fced72ff8189.jsonl",
+    "trace_sha256": "aafec51af3154e50174d88130970eaee52c57514d26858daed0eb835a397618a",
+    "raw_prompt_sha256": "1b140bdb5ada8a6e1c5d58ee83504fa26922203218b6071dc2f0f3c99b8bd34a",
+    "raw_serialized_pattern_checks": [
+      {
+        "pattern": "Bus voltage",
+        "matched": true
+      },
+      {
+        "pattern": "(?<![\\d])0(?![\\d])",
+        "matched": true
+      },
+      {
+        "pattern": "(?<![\\d])36(?![\\d])",
+        "matched": true
+      },
+      {
+        "pattern": "\\bV\\b",
+        "matched": false
+      }
+    ],
+    "decoded_catalogue_fact_checks": {
+      "range": true
+    },
+    "decoded_supporting_reference": {
+      "document_id": "b5f79727-27ab-4da0-9e3d-3bc01a4905a2",
+      "document_name": "P05_sparse_table_a.docx",
+      "id": "R002",
+      "kind": "excerpt",
+      "locators": [
+        {
+          "element_path": "/document[1]/body[1]/tbl[1]",
+          "kind": "docx_element",
+          "part": "word/document.xml",
+          "unit_id": "unit-a74dd42a2ddab1b2fc59a9a6"
+        }
+      ],
+      "source_ids": [
+        "S001"
+      ],
+      "text": "Bus voltage range\t0\t\t36\tV"
+    },
+    "cause": "Regex word boundary before V fails against raw JSON escape sequence \\tV because the immediately preceding character is the letter t. JSON decoding restores the actual tab separator and the same frozen regex succeeds.",
+    "conclusion": "The table value/unit is present in retained sources and the structured context. This is a serialization-level metric false negative, not lost context.",
+    "changes_made": "None: raw 14/15 aggregate retained; no grader edit, campaign rerun or criterion change."
+  }
+}

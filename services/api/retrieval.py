@@ -12,6 +12,7 @@ import httpx
 
 from .embedding import EmbeddingService
 from .errors import ApiError
+from .execution_trace import fingerprint, record_event
 
 # Tirets Unicode U+2010 à U+2015 et signe moins U+2212 : même séparateur que « - » (1 caractère pour 1, offsets conservés).
 DASHES = str.maketrans(dict.fromkeys(map(chr, [*range(0x2010, 0x2016), 0x2212]), "-"))
@@ -247,6 +248,36 @@ def match_expression(text):
     return " OR ".join('"' + term.replace('"', '""') + '"' for term in terms)
 
 
+MAX_LEXICAL_ALIAS_TERMS = 16
+
+
+def lexical_alias_terms(question):
+    """Known whole-word aliases for an empty lexical lane, never new facts.
+
+    Identifier spans are excluded before matching. Singular/plural ``s`` forms
+    may activate an existing group, but every emitted word is already in that
+    static vocabulary. Ranking prefixes are deliberately not FTS search terms.
+    """
+    from .evidence_selection import TERM_GROUPS
+
+    parts, cursor = [], 0
+    for start, end in identifier_spans(question):
+        parts.append(question[cursor:start])
+        cursor = max(cursor, end)
+    words = set(_folded_words(" ".join(parts + [question[cursor:]])))
+    recognized = words | {word[:-1] for word in words if word.endswith("s")}
+    aliases = []
+    for group in TERM_GROUPS:
+        if not recognized & group:
+            continue
+        for word in sorted(group - words):
+            if word not in aliases:
+                aliases.append(word)
+                if len(aliases) == MAX_LEXICAL_ALIAS_TERMS:
+                    return aliases
+    return aliases
+
+
 # Méthodes d'extraction d'un bloc dont le texte vient, au moins en partie, de la reconnaissance de caractères (ingestion).
 OCR_METHODS = frozenset({"ocr", "mixed"})
 # Valable pour une recherche comme pour une question : aucune mention de « la réponse ».
@@ -275,6 +306,25 @@ def ocr_evidence_warnings(sources):
                         " lus par reconnaissance optique de caractères (OCR) : des signes, unités ou références peuvent être faux même "
                         "sans alerte de faible confiance. Comparez les valeurs utilisées avec la page originale."}
             for document_id, entry in documents.items()]
+
+
+def evidence_identity(source):
+    """An exact source occurrence, not its whole parent or matching prose.
+
+    Equal text at two locations can have distinct conditions and provenance.
+    Keeping those occurrences does not claim that they are independent evidence.
+    """
+    generation = source.get("generation_id")
+    bundle = source.get("evidence_bundle", {}).get("id")
+    if bundle:
+        return (generation, "bundle", bundle)
+    blocks = source.get("blocks", [])
+    if blocks:
+        spans = tuple(sorted((block["id"], block["start_offset"], block["end_offset"],
+                              block.get("source_text_hash") or "", block.get("extraction_revision_id") or "") for block in blocks))
+        return (generation, "spans", spans)
+    return (generation, "chunk", source.get("chunk_id") or source.get("parent_id"),
+            hashlib.sha256(source["text"].encode("utf-8")).hexdigest())
 
 
 def dense_identity_warning(documents):
@@ -477,6 +527,27 @@ class SearchService:
         self.dense = dense
         self.projector = projector
 
+    def partial_scope_warnings(self, snapshot):
+        """Describe incomplete authorized revisions even when retrieval is empty."""
+        warnings = []
+        # Bound each SQL parameter list without scanning documents outside scope.
+        for start in range(0, len(snapshot.generations), 200):
+            generations = snapshot.generations[start:start + 200]
+            rows = self.db.rows(
+                "SELECT g.id,g.version_id,g.extraction_revision_id,v.document_id,d.name "
+                "FROM index_generations g JOIN document_versions v ON v.id=g.version_id "
+                "JOIN documents d ON d.id=v.document_id WHERE g.state='ready_partial' AND d.deleted_at IS NULL "
+                f"AND g.id IN ({','.join('?' for _ in generations)}) ORDER BY g.id", generations)
+            for row in rows:
+                if (snapshot.versions.get(row["id"]) != row["version_id"]
+                        or snapshot.documents.get(row["id"]) != row["document_id"]):
+                    raise ApiError("scope_leakage", "La révision partielle ne correspond pas au périmètre autorisé.", 409)
+                warnings.append({"code": "partial_extraction", "document_id": row["document_id"],
+                                 "document_name": row["name"], "version_id": row["version_id"],
+                                 "generation_id": row["id"], "extraction_revision_id": row["extraction_revision_id"],
+                                 "basis": "authorized_scope", "message": PARTIAL_EXTRACTION_MESSAGE})
+        return warnings
+
     def lexical(self, question, snapshot, references=None):
         references = references or resolve_references(question)
         if snapshot.scope["kind"] == "cell_range":
@@ -532,9 +603,23 @@ class SearchService:
                     per_code[code] = focused_matches[code]
             exact = list(dict.fromkeys(chunk for position in range(limit) for matches in per_code.values() for chunk in matches[position:position + 1]))[:limit]
         ranked = []
+        sql = f"SELECT c.chunk_uuid,bm25(chunks_fts,2.0,1.0) score FROM chunks_fts JOIN chunks c ON c.id=chunks_fts.rowid WHERE {clause} AND chunks_fts MATCH ? ORDER BY score ASC,c.chunk_uuid ASC LIMIT ?"
         if expression:
-            sql = f"SELECT c.chunk_uuid,bm25(chunks_fts,2.0,1.0) score FROM chunks_fts JOIN chunks c ON c.id=chunks_fts.rowid WHERE {clause} AND chunks_fts MATCH ? ORDER BY score ASC,c.chunk_uuid ASC LIMIT ?"
             ranked = [row["chunk_uuid"] for row in self.db.rows(sql, parameters + [expression, limit])]
+        if (not exact and not ranked and snapshot.generations and not snapshot.spans
+                and snapshot.scope["kind"] != "selection"
+                and self.settings.value("enhanced", "lexical_alias_fallback", False)):
+            started = time.perf_counter()
+            aliases = lexical_alias_terms(question)
+            if aliases:
+                ranked = [row["chunk_uuid"] for row in self.db.rows(sql, parameters + [match_expression(" ".join(aliases)), limit])]
+            record_event("retrieval.lexical_alias_fallback", {
+                "revision": "static-term-groups-v1", "attempted": bool(aliases),
+                "reason": "initial_lexical_empty" if aliases else "no_known_alias",
+                "question_sha256": hashlib.sha256(question.encode()).hexdigest(),
+                "scope_sha256": fingerprint(snapshot.as_dict()), "alias_terms": aliases,
+                "max_alias_terms": MAX_LEXICAL_ALIAS_TERMS, "candidate_count": len(ranked), "limit": limit,
+                "elapsed_ms": round((time.perf_counter() - started) * 1000, 3)})
         return list(dict.fromkeys(exact + ranked))[:limit], exact
 
     async def _candidates(self, question, snapshot, dense_available=True, references=None):
@@ -704,7 +789,7 @@ class SearchService:
             source["exact_identifier"] = any(references.source_matches(source, code) for code in references.priority)
 
         def identity(source):
-            return (source.get("generation_id"), source.get("evidence_bundle", {}).get("id") or source.get("chunk_id"))
+            return evidence_identity(source)
 
         prior_ids = {identity(source) for source in previous["results"]}
         new_sources = [source for source in candidates if identity(source) not in prior_ids]
@@ -749,7 +834,7 @@ class SearchService:
     async def search(self, question, snapshot, mode="question", references=None):
         references = references or resolve_references(question)
         start = time.perf_counter()
-        warnings = []
+        warnings = await asyncio.to_thread(self.partial_scope_warnings, snapshot)
         preserve_evidence = self.settings.value("enhanced", "preserve_evidence", False)
         exhaustive = None
         if preserve_evidence and snapshot.scope["kind"] == "cell_range":
@@ -842,12 +927,14 @@ class SearchService:
         maximum = self.settings.value("retrieval", "constrained_max_fragments", 8) if mode == "comparison" or len(priority) > 1 else self.settings.value("retrieval", "final_max_fragments", 6)
         for source in results:
             bundle_id = source.get("evidence_bundle", {}).get("id")
-            key = (source["version_id"], bundle_id or source.get("parent_id") or source.get("chunk_id"))
-            # Texte identique (en-tête répété sur plusieurs pages) : un seul fragment, par document en comparaison.
-            # Des lignes structurées de même texte mais de coordonnées différentes
-            # restent des observations distinctes, notamment deux zéros sources.
-            text_key = (source.get("document_id") if mode == "comparison" or bundle_id else None,
-                        bundle_id or hashlib.sha256(source["text"].encode("utf-8")).hexdigest())
+            key = (evidence_identity(source) if preserve_evidence else
+                   (source["version_id"], bundle_id or source.get("parent_id") or source.get("chunk_id")))
+            # Le profil historique déduplique les textes répétés. La voie avec
+            # conservation des preuves ne confond pas deux positions distinctes
+            # avec le même parent ou le même texte (conditions/provenances propres).
+            text_key = (key if preserve_evidence else
+                        (source.get("document_id") if mode == "comparison" or bundle_id else None,
+                         bundle_id or hashlib.sha256(source["text"].encode("utf-8")).hexdigest()))
             newly_covered = {code for code in priority - retained_identifiers if references.source_matches(source, code)}
             if (key in parents or text_key in texts) and not newly_covered:
                 continue
@@ -857,8 +944,6 @@ class SearchService:
             unique.append(source)
             if len(unique) >= maximum:
                 break
-        for document_id in {source["document_id"] for source in unique if source.get("extraction_state") == "ready_partial"}:
-            warnings.append({"code": "partial_extraction", "document_id": document_id, "message": PARTIAL_EXTRACTION_MESSAGE})
         # Recherche seule (POST /search, évaluation) : passages finals ; une question le recalcule sur les sources retenues.
         warnings.extend(ocr_evidence_warnings(unique))
         references.attest(top10, "retrieval_top10")

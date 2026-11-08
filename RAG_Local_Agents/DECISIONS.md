@@ -2316,3 +2316,14 @@ Le même critère s’applique au DOCX TMP117 I1 dont le préambule identique es
 contredit par les relations présentes dans le contexte : sa correction
 versionnée est conservée dans l’erratum TMP117. Ces corrections de relecture
 ne changent aucun oracle, paramètre, code ou résultat natif.
+
+
+## EV4B-I3-D01 — générateur 4B et preuves jusqu'à la réponse, I3/F07 (8 novembre 2026 UTC)
+
+**Statut :** choix mis en œuvre ; résultats et limites exclusivement dans le [bilan I3](reports/grounded-4b-results-2026-11-08.md). **Référence de départ :** `3956491a2d7f1f16cefebfe79e92c638b6662c10` ; [protocole](reports/grounded-4b-protocol-2026-11-08.md) et [addendum F07](reports/grounded-4b-addendum-2026-11-08.md) fixés avant leurs essais respectifs.
+
+**Choix :** garder Qwen3-4B Q4_K_M comme seul générateur de ce lot, avec famille et taille contrôlées avant envoi documentaire. Le modèle organise uniquement les références du catalogue vérifié. Conservation des notes et provenances, registre avant génération, calculs par code et vérification du rendu avant publication empêchent l'ajout de prose libre du modèle ; ils ne certifient pas toute interprétation sémantique ni l'exactitude de l'OCR initial.
+
+**F07 :** une voie lexicale vide peut être reprise une fois avec les alias techniques statiques existants, sans élargissement du périmètre, des plafonds ou des identifiants. Une condition de température explicitement attachée à une plage d'alimentation reste une condition, dont la valeur doit être présente dans chaque relation source. Les questions de température et les demandes mixtes gardent leurs contrôles distincts.
+
+**Conséquences :** ablation du repli, positifs, abstentions et erreurs restent évalués séparément ; aucun refus supplémentaire ne vaut amélioration à lui seul. Les publications de méthode référencées dans [SOURCES.md](SOURCES.md#ev4b-i3--méthode-et-preuves-i3f07-8-novembre-2026-utc) motivent les essais, sans servir de preuve de benchmark local, de qualification métier ou de recette globale.

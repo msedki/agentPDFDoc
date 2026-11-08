@@ -65,11 +65,22 @@ class OllamaGateway:
                 raise ValueError("Invalid provisioned model manifest")
             model = self.settings.value("llm", "model", "qwen3.5:4b")
             digest = record.get("digest")
+            details = record.get("details", {})
+            if not isinstance(details, dict):
+                raise ValueError("Invalid provisioned model details")
             if (record.get("name", record.get("model")) != model or not isinstance(digest, str)
                     or not re.fullmatch(r"[0-9a-f]{64}", digest)
-                    or record.get("details", {}).get("quantization_level") != self.settings.value("llm", "required_quantization", "Q4_K_M")):
+                    or details.get("quantization_level") != self.settings.value("llm", "required_quantization", "Q4_K_M")):
                 raise ValueError("Invalid provisioned model identity")
-            return {"model": model, "digest": digest, "manifest_sha256": hashlib.sha256(data).hexdigest()}
+            required = {key: self.settings.value("llm", setting, "") for key, setting in (
+                ("parameter_size", "required_parameter_size"), ("family", "required_family"))
+                if self.settings.value("llm", setting, "")}
+            if any(details.get(key) != value for key, value in required.items()):
+                raise ValueError("Provisioned model is outside the configured generator identity")
+            identity: dict[str, Any] = {"model": model, "digest": digest, "manifest_sha256": hashlib.sha256(data).hexdigest()}
+            if required:
+                identity["required_details"] = required
+            return identity
         except (OSError, ValueError, KeyError, TypeError) as error:
             raise ApiError("llm_identity_unverified", "Manifest local Qwen absent ou incompatible ; génération refusée.", 503) from error
 
@@ -77,6 +88,10 @@ class OllamaGateway:
     def verify_digest(record, identity):
         if record.get("digest") != identity["digest"]:
             raise ApiError("llm_identity_mismatch", "Digest Qwen différent ou inconnu ; génération refusée avant envoi du contexte.", 503)
+        details = record.get("details", {})
+        if not isinstance(details, dict) or any(
+                details.get(key) != value for key, value in identity.get("required_details", {}).items()):
+            raise ApiError("llm_identity_mismatch", "La famille ou la taille du modèle ne correspond pas au profil autorisé.", 503)
 
     async def verify_model_identity(self):
         state = await self.loaded_state()
@@ -351,6 +366,8 @@ class OllamaGateway:
                 yield {"type": "cpu_fallback"}
             if not received_done:
                 raise ApiError("incomplete_generation", "Flux Ollama terminé sans marqueur final.", 503)
+        except httpx.TimeoutException as error:
+            raise ApiError("ollama_timeout", "Le moteur local n'a pas répondu dans le délai configuré.", 503) from error
         except (httpx.HTTPError, ValueError) as error:
             raise ApiError("ollama_unavailable", "Runtime Ollama local indisponible.", 503) from error
         finally:

@@ -11,6 +11,7 @@ from .claims import answer_warnings
 from .context import validate_answer
 from .db import json_dump, now, uid
 from .errors import ApiError
+from .evidence_selection import deduplicate_expanded_sources
 from .execution_trace import CURRENT_TRACE, ExecutionTrace, fingerprint, record_event
 from .retrieval import identifiers, ocr_evidence_warnings, resolve_references
 from .structured_answer import Catalogue, StructuredAnswerBuilder
@@ -430,6 +431,7 @@ class QueryService:
                     warnings.extend(search_result["warnings"])
                     if search_result["results"]:
                         search_result["results"] = await asyncio.to_thread(lambda: [source if source.get("evidence_bundle") else self.resolver.expand_parent(source, snapshot, self.context.tokenizer, self.settings.value("chunking", "parent_expand_max_llm_tokens", 900)) for source in search_result["results"]])
+                        search_result["results"] = deduplicate_expanded_sources(search_result["results"])
                         history = await database_call(self.authorized_history, query_id, request, snapshot)
                         context_started = time.perf_counter()
                         # The authorized snapshot, rather than retrieval alone, selects the mixed-format contract.
@@ -462,6 +464,7 @@ class QueryService:
                                                 source, snapshot, self.context.tokenizer,
                                                 self.settings.value("chunking", "parent_expand_max_llm_tokens", 900))
                                             for source in refined["results"]])
+                                        refined["results"] = deduplicate_expanded_sources(refined["results"])
                                         messages, retained, context_metrics, context_warnings = await asyncio.to_thread(
                                             self.context.build, request.question, refined["results"], request.mode,
                                             history, references, **build_arguments)
@@ -472,8 +475,13 @@ class QueryService:
                                     metrics["retrieval_ms"] = refined["elapsed_ms"]
                                 metrics["context_assessment"] = assessment
                             evidence = catalogue.evidence()
+                            if enforce_contract:
+                                record_event("evidence.ledger", {"ledger": evidence["support_ledger"],
+                                             "sha256": evidence["support_ledger_sha256"]})
                             metrics["structured_answer"] = {"status": "pending", "schema_sha256": evidence["schema_sha256"],
                                                             "catalogue_sha256": evidence["catalogue_sha256"]}
+                            if enforce_contract:
+                                metrics["structured_answer"]["support_ledger_sha256"] = evidence["support_ledger_sha256"]
                             await database_call(self.db.add_event, query_id, "structured_answer", evidence)
                         metrics.update(context_metrics)
                         metrics["context_ms"] = round((time.perf_counter() - context_started) * 1000, 2)
@@ -494,7 +502,9 @@ class QueryService:
                     for warning in warnings:
                         await database_call(self.db.add_event, query_id, "warning", warning)
                     if catalogue is not None and self.settings.value("enhanced", "answer_contract", False):
-                        deterministic_plan = catalogue.deterministic_plan()
+                        deterministic_plan = catalogue.deterministic_plan(
+                            list(dict.fromkeys(snapshot.documents.values())) if snapshot.scope["kind"] == "documents"
+                            else metrics.get("required_documents", ()))
                     if not sources or catalogue is not None and not catalogue.references:
                         if catalogue is not None:
                             metrics["structured_answer"]["status"] = "no_references"
@@ -502,12 +512,14 @@ class QueryService:
                         metrics["model_called"] = False
                         await database_call(self.db.add_event, query_id, "delta", {"text": answer})
                     elif deterministic_plan is not None:
+                        assert catalogue is not None
                         # Exact cell facts or an explicit scope mismatch are
                         # established by the authorized catalogue itself.
                         raw_structured = json_dump(deterministic_plan.model_dump())
                         scope_refusal = metrics.get("context_assessment", {}).get("scope_refusal")
                         metrics["response_route"] = ("deterministic_scope_refusal" if scope_refusal
-                                                     else "deterministic_cell_contract")
+                                                     else "deterministic_cell_contract" if catalogue.contract and catalogue.contract.requested_cells
+                                                     else "deterministic_evidence_contract")
                         record_event("answer.deterministic_plan", {"plan": deterministic_plan.model_dump(),
                                      "scope_refusal": scope_refusal,
                                      "catalogue_sha256": metrics["structured_answer"]["catalogue_sha256"]})
@@ -578,6 +590,8 @@ class QueryService:
                     if catalogue is not None and (metrics.get("model_called") or deterministic_plan is not None):
                         if finish_reason == "length":
                             metrics["structured_answer"]["status"] = "incomplete"
+                            if self.settings.value("enhanced", "answer_contract", False):
+                                raise ApiError("structured_answer_incomplete", "Le plan a atteint sa limite avant validation ; aucun texte non vérifié n'est publié.", 503)
                         elif finish_reason != "stop":
                             raise ApiError("structured_answer_invalid", "Le plan généré n'a pas de fin complète vérifiable.", 503)
                         else:
@@ -586,12 +600,19 @@ class QueryService:
                                 plan, self.context.tokenizer, metrics["output_tokens"],
                                 list(dict.fromkeys(snapshot.documents.values())) if snapshot.scope["kind"] == "documents"
                                 else metrics.get("required_documents", ()))
+                            if self.settings.value("enhanced", "answer_contract", False):
+                                support_validation = catalogue.verify_rendered(rendered)
+                                record_event("answer.support_validation", support_validation)
+                                metrics["answer_support_validation"] = support_validation
                             structured_cited = rendered["source_ids"]
                             structured_result = {"status": "validated", "plan": plan.model_dump(),
                                                  "plan_origin": "deterministic_contract" if deterministic_plan is not None else "model",
                                                  "schema_sha256": metrics["structured_answer"]["schema_sha256"],
                                                  "catalogue_sha256": metrics["structured_answer"]["catalogue_sha256"],
                                                  "rendered_tokens": rendered["tokens"], "citation_spans": rendered["citation_spans"]}
+                            if "support_ledger_sha256" in metrics["structured_answer"]:
+                                structured_result["support_ledger_sha256"] = metrics["structured_answer"]["support_ledger_sha256"]
+                                structured_result["rendered_support_ledger_sha256"] = rendered["support_ledger_sha256"]
                             if "answer_contract" in rendered:
                                 structured_result["answer_contract"] = rendered["answer_contract"]
                                 structured_result["effective_plan"] = rendered.get("effective_plan")

@@ -8,6 +8,35 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 ## [Non publié]
 
+### I3 — preuves jusqu'à la réponse, 8 novembre 2026
+
+- Générateur unique du lot : Qwen3-4B Q4_K_M, identité vérifiée avant envoi
+  documentaire. Le modèle produit un plan de références ; registre préalable,
+  calculs par code et reconstruction du rendu contrôlent les segments publiés.
+- Conservation des passages disjoints, notes et conditions de tableaux,
+  déduplication exacte après expansion, provenance native/OCR effective et
+  extraction partielle signalée même sans résultat. Repli lexical unique sur
+  les alias connus lorsque les voies lexicale et exacte sont vides, sans
+  changement de portée ni de plafonds. Contrôles de rôle, borne, négation,
+  incertitude, condition et divergence documentaire renforcés.
+- Relecture indépendante par agent, non aveugle : réponses complètes sans
+  réserve injustifiée **9/12 → 11/12**. Le résultat automatique historique
+  **9/12 → 12/12** reste conservé ; son 12/12 comprend un faux positif P01,
+  dont le fait est complet mais accompagné d'une réserve inutile. Faits
+  soutenus et rappel **12/15 → 15/15** inchangés ; limites automatiques
+  **15/18 → 18/18**, confirmé par relecture finale. Ces essais avec doubles
+  ne qualifient pas toute la pipeline native.
+- Limite native conservée : disponibilité Office primaire **8/8 → 5/8**,
+  trois refus d'admission au candidat. Reprise séparée : trois cas terminés,
+  **2/3 stricts** après relecture, sans effacer les erreurs primaires. PDF :
+  **0/2 réponses complètes et 1/4 relation demandée par bras**, sur extraction
+  `ready_partial` limitée à la page d'index 0 ; OCR non qualifié. I3-D04 garde
+  une réserve de communication, I3-D08 n'est pas atteint, DoD globale ouverte.
+  Publication du lot attendue, aucun SHA distant supposé.
+  [Bilan](RAG_Local_Agents/reports/grounded-4b-results-2026-11-08.md),
+  [protocole](RAG_Local_Agents/reports/grounded-4b-protocol-2026-11-08.md),
+  [reproduction](RAG_Local_Agents/reports/grounded-4b-reproduce-2026-11-08.md).
+
 ### Amélioration de la chaîne 4B — 7–8 novembre 2026
 
 - Profil explicite `enhanced-4b`, Qwen3-4B Q4_K_M et artefacts verrouillés,

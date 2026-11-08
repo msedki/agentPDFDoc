@@ -2011,3 +2011,18 @@ sorties natives. Le rappel sérialisé, le catalogue applicatif et la réponse
 sont distingués ; les justifications applicatives fausses sont comptées.
 Ces preuves locales ne constituent ni validation humaine indépendante, ni
 transfert aveugle, ni qualification du corpus V2.1, du poste de 16 Go ou de Windows.
+
+
+## EV4B-I3 — méthode et preuves I3/F07 (8 novembre 2026 UTC)
+
+**Statut :** références déjà consultées pour le [protocole I3](reports/grounded-4b-protocol-2026-11-08.md), réutilisées dans leurs limites ; résultats locaux distincts dans le [bilan](reports/grounded-4b-results-2026-11-08.md).
+
+| ID | Source primaire | Usage et limite |
+|---|---|---|
+| EV4B-I3-S01 | [Ollama, Structured outputs](https://docs.ollama.com/capabilities/structured-outputs), documentation consultée le 08/11/2026 | Schéma du plan et validation côté application ; aucune garantie de vérité ou d'adéquation d'une référence à la question. |
+| EV4B-I3-S02 | [Gao et al., ALCE, EMNLP 2023](https://aclanthology.org/2023.emnlp-main.398/), reprise EV4B-S02 | Séparer justesse de réponse et soutien effectif des citations ; aucun score publié transféré au 4B local. |
+| EV4B-I3-S03 | [Joren et al., Sufficient Context, arXiv:2411.06037v3](https://arxiv.org/abs/2411.06037v3), reprise EV4B-S01 | Distinguer contexte insuffisant et mauvaise exploitation de preuves disponibles ; ni classificateur local validé ni promesse de couverture. |
+
+**EV4B-I3-E01 — preuves internes.** Base active au début du lot : `3956491a2d7f1f16cefebfe79e92c638b6662c10`, puis modifications I3/F07. Protocole SHA-256 `a6c36e87fcee36b1b44be64313f2335c4ceb62f2c338df5935b7cb6b47e8a74e` ; [addendum F07](reports/grounded-4b-addendum-2026-11-08.md) SHA-256 `8793bcab3d98680a21a028f24545455f02b63899e3cd7f07817e226e63baee04` ; [questions et oracles contrôlés](../tests/fixtures/grounded_cases.json) SHA-256 `68a997cee3c6e3dcd1d8625d534c17631cb7ddaebedb1bfd3efa316c678fd476`.
+
+Les mécanismes sont vérifiables dans [retrieval.py](../services/api/retrieval.py), [evidence_selection.py](../services/api/evidence_selection.py), [answer_contract.py](../services/api/answer_contract.py) et [structured_answer.py](../services/api/structured_answer.py), avec les tests [de conservation/recherche](../tests/unit/test_grounded_retrieval.py) et [de relations/rendu](../tests/unit/test_grounded_evidence_contract.py). Le [harnais contrôlé](../tools/qualification/grounded_campaign.py) distingue explicitement ses doubles des [essais natifs](../tools/qualification/run_grounded_native.py). Les révisions candidates, mesures, échecs et limites appartiennent au bilan ; ces liens et empreintes n'établissent pas à eux seuls une réussite expérimentale.

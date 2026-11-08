@@ -1,0 +1,684 @@
+{
+  "baseline_commit": "3956491a2d7f1f16cefebfe79e92c638b6662c10",
+  "host": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "python": "3.12.14",
+  "ram_bytes": 10451423232,
+  "cpu_count": 9,
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "swap_bytes": 0,
+  "versions": {
+    "pytest": "9.1.1",
+    "httpx": "0.28.1",
+    "pydantic": "2.13.5",
+    "fastapi": "0.142.1",
+    "psutil": "7.2.2",
+    "tokenizers": "0.23.2",
+    "docling": "2.131.0",
+    "docling-core": "2.99.0",
+    "pypdfium2": "5.13.0",
+    "torch": "2.14.0+cpu",
+    "onnxruntime": "1.30.0",
+    "reportlab": "5.0.1",
+    "ruff": "0.16.9",
+    "mypy": "2.3.1"
+  },
+  "model": {
+    "name": "qwen3-4b-enhanced:q4km",
+    "model": "qwen3-4b-enhanced:q4km",
+    "modified_at": "2026-11-08T15:15:08.589056086+01:00",
+    "size": 2497280476,
+    "digest": "0d75b13ba9d0cd42fb445d6979708adacb2679a777fb4cf717d4e6b907bccfdf",
+    "details": {
+      "parent_model": "Qwen3-4B-Q4_K_M.gguf",
+      "format": "gguf",
+      "family": "qwen3",
+      "families": [
+        "qwen3"
+      ],
+      "parameter_size": "4.0B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 40960,
+      "embedding_length": 2560
+    },
+    "capabilities": [
+      "tools",
+      "thinking",
+      "completion"
+    ]
+  },
+  "source_sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
+  "model_lock_sha256": "a54216caeb794243fbb7e35118ade70a533fe25db4f4eea73c1b673aaff24f88",
+  "source_revisions": {
+    "gguf": "bc640142c66e1fdd12af0bd68f40445458f3869b",
+    "tokenizer": "1cfa9a7208912126459214e8b04321603b3df60c"
+  },
+  "verified_model_inputs": {
+    "gguf_sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
+    "tokenizer_sha256": {
+      "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+      "tokenizer_config.json": "d5d09f07b48c3086c508b30d1c9114bd1189145b74e982a265350c923acd8101"
+    },
+    "tokenizer_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8"
+  },
+  "active_profile_sha256": "40bf94d9cd351d8b0c5018f90e3b49659980dc0e963aadca2c07d902d6966815",
+  "artifact_lock_sha256": "5f66e46ce6afebfd7565f035103ae5f9ed7a8e973675664f0ff663fc2e70be78",
+  "uv_lock_sha256": "898b33d18e9ba76ccfabdf255cb2faa71df7c3cbd41321ed0fc7643e82c3ae37",
+  "inference": {
+    "ollama": "0.35.0",
+    "qdrant": "1.19.1",
+    "num_ctx": 8192,
+    "num_predict_profile_max": 1536,
+    "factual_output_tokens_observed": 768,
+    "temperature": 0.2,
+    "top_p": 0.9,
+    "seed": 0,
+    "think": false,
+    "threads_max": 4,
+    "kv_cache_type": "q8_0",
+    "flash_attention": true,
+    "accelerator": "cpu",
+    "residency_policy": "adaptive"
+  },
+  "native_inputs": {
+    "protocol": "grounded-4b-native-I3",
+    "frozen_utc": "2026-11-08T14:13:09.000621+00:00",
+    "fixture_sha256": "68a997cee3c6e3dcd1d8625d534c17631cb7ddaebedb1bfd3efa316c678fd476",
+    "documents": [
+      {
+        "key": "ina226",
+        "sha256": "c9b67f886d4a5241a5e070723f7b61867409eeb27eed768b9cdd9cb17e03ca2d",
+        "format": "pdf",
+        "url": "https://www.ti.com/lit/ds/symlink/ina226.pdf",
+        "revision_observed": "SBOS547C, revised August 2026",
+        "allow_partial": true,
+        "extraction_sha256": "13eb3426d0a7807cf4f5a2537cce72ae33a5c1f2479038e4c9de764f387a87cd",
+        "extraction_provenance": "real_native_window_page_1",
+        "original_filename": "ina226.pdf",
+        "extraction_filename": "ina226.extraction.json",
+        "extraction_quality": {
+          "status": "ready_partial",
+          "coverage": {
+            "total": 41,
+            "processed": 1,
+            "ocr": 0,
+            "unresolved": 40
+          },
+          "warnings": [
+            {
+              "code": "PREFLIGHT_TEXT_MAPPING_UNCERTAIN",
+              "page_index": 0,
+              "component": "preflight_text"
+            },
+            {
+              "code": "NATIVE_QUALITY_FAILED",
+              "page_index": 0
+            },
+            {
+              "code": "qualification_first_page_only",
+              "message": "Fenêtre native limitée volontairement à la première page de l'original."
+            }
+          ],
+          "pages": [
+            {
+              "index": 0,
+              "state": "error",
+              "blocks": 113,
+              "native_quality": {
+                "passed": false,
+                "alphanumeric_coverage_ratio": 1.0,
+                "localized": true,
+                "monotonic_vertical_order": false
+              },
+              "ocr_used": false
+            }
+          ]
+        }
+      },
+      {
+        "key": "tmp117",
+        "sha256": "78212e91e478035a91165397a8de8a90bfc776759dc445243c033537f0c4b789",
+        "format": "pdf",
+        "url": "https://www.ti.com/lit/ds/symlink/tmp117.pdf",
+        "revision_observed": "SNOSD82D, revised September 2022",
+        "allow_partial": true,
+        "extraction_sha256": "806283259b0405a6f8f04891762eeeaafec4d59b87d7af70ad524ae09530f9aa",
+        "extraction_provenance": "real_native_window_page_1",
+        "original_filename": "tmp117.pdf",
+        "extraction_filename": "tmp117.extraction.json",
+        "extraction_quality": {
+          "status": "ready_partial",
+          "coverage": {
+            "total": 50,
+            "processed": 1,
+            "ocr": 0,
+            "unresolved": 49
+          },
+          "warnings": [
+            {
+              "code": "NATIVE_QUALITY_FAILED",
+              "page_index": 0
+            },
+            {
+              "code": "qualification_first_page_only",
+              "message": "Fenêtre native limitée volontairement à la première page de l'original."
+            }
+          ],
+          "pages": [
+            {
+              "index": 0,
+              "state": "error",
+              "blocks": 178,
+              "native_quality": {
+                "passed": false,
+                "alphanumeric_coverage_ratio": 1.0,
+                "localized": true,
+                "monotonic_vertical_order": false
+              },
+              "ocr_used": false
+            }
+          ]
+        }
+      },
+      {
+        "key": "P01_general_condition_a",
+        "sha256": "441add7c3b76e6a992639782af6194263b58b1330e288f14cbeacb877ab7271c",
+        "format": "docx",
+        "extraction_provenance": "native_office_repeated_each_arm",
+        "original_filename": "P01_general_condition_a.docx"
+      },
+      {
+        "key": "P05_sparse_table_a",
+        "sha256": "d51a87b4b181272d5b1e3072cd850a00a2dae8e36cd8a03ab1f68be3dbf063dc",
+        "format": "docx",
+        "extraction_provenance": "native_office_repeated_each_arm",
+        "original_filename": "P05_sparse_table_a.docx"
+      },
+      {
+        "key": "P10_decimal_sum_a",
+        "sha256": "3887f2c88750784a0b0270b3baa6d2afc88032952e581539c38fdc6096bab300",
+        "format": "xlsx",
+        "extraction_provenance": "native_office_repeated_each_arm",
+        "original_filename": "P10_decimal_sum_a.xlsx"
+      },
+      {
+        "key": "P11_conversion_a",
+        "sha256": "64e2c3cbab4235eb006b5ff7a2de57a84690cbc2c43d008a535bcff9806c8e3c",
+        "format": "xlsx",
+        "extraction_provenance": "native_office_repeated_each_arm",
+        "original_filename": "P11_conversion_a.xlsx"
+      },
+      {
+        "key": "L01_condition_mismatch_a",
+        "sha256": "398a72104746614b27b5eb49fb2db9c799ba57a4a397578cf6948a1f71bab866",
+        "format": "docx",
+        "extraction_provenance": "native_office_repeated_each_arm",
+        "original_filename": "L01_condition_mismatch_a.docx"
+      },
+      {
+        "key": "L06_cross_document_conflict_a",
+        "sha256": "77c73a9001f96ffd4875e16857676d92687147a5d7612839fb52b23dcf831f02",
+        "format": "docx",
+        "extraction_provenance": "native_office_repeated_each_arm",
+        "original_filename": "L06_cross_document_conflict_a.docx"
+      },
+      {
+        "key": "L06_cross_document_conflict_b",
+        "sha256": "91e210ab0a9ac3874ba6932c9703319b8f68753014509f7beb9c01ffc546311e",
+        "format": "docx",
+        "extraction_provenance": "native_office_repeated_each_arm",
+        "original_filename": "L06_cross_document_conflict_b.docx"
+      },
+      {
+        "key": "L13_negated_value_a",
+        "sha256": "7503dffce5f6007570225d88956754e7fdd50d4e701c3ba38d8fc31c71bf4ec1",
+        "format": "docx",
+        "extraction_provenance": "native_office_repeated_each_arm",
+        "original_filename": "L13_negated_value_a.docx"
+      },
+      {
+        "key": "L16_table_note_a",
+        "sha256": "ae1073a7b3bad1f30b835a21e8b176f9b8bd206efca9f2c7592afdfadccd86d3",
+        "format": "docx",
+        "extraction_provenance": "native_office_repeated_each_arm",
+        "original_filename": "L16_table_note_a.docx"
+      }
+    ],
+    "cases": [
+      {
+        "id": "N_ina226",
+        "document_key": "ina226",
+        "question": "Quelles sont les plages de tension de bus et d'alimentation de l'INA226 ?",
+        "scope": {
+          "kind": "pages",
+          "document_key": "ina226",
+          "page_start": 0,
+          "page_end": 0
+        },
+        "oracle": {
+          "answerable": true,
+          "required_facts": [
+            "bus 0–36 V",
+            "alimentation 2,7–5,5 V"
+          ],
+          "support": "Every numeric relationship and its condition must appear in the cited source."
+        }
+      },
+      {
+        "id": "N_tmp117",
+        "document_key": "tmp117",
+        "question": "Quelles sont les deux plages d'alimentation du TMP117 avec leurs conditions de température ?",
+        "scope": {
+          "kind": "pages",
+          "document_key": "tmp117",
+          "page_start": 0,
+          "page_end": 0
+        },
+        "oracle": {
+          "answerable": true,
+          "required_facts": [
+            "1,7–5,5 V pour −55–70 °C",
+            "1,8–5,5 V pour −55–150 °C"
+          ],
+          "support": "Every numeric relationship and its condition must appear in the cited source."
+        }
+      },
+      {
+        "id": "P01_general_condition",
+        "question": "Dans quelle condition le boîtier est-il étanche ?",
+        "document_key": "P01_general_condition_a",
+        "oracle": {
+          "id": "P01_general_condition",
+          "question": "Dans quelle condition le boîtier est-il étanche ?",
+          "documents": [
+            {
+              "key": "a",
+              "format": "docx",
+              "paragraphs": [
+                "Le boîtier est étanche uniquement lorsque le couvercle est fermé."
+              ]
+            }
+          ],
+          "answerable": true,
+          "facts": [
+            {
+              "id": "sealed",
+              "document": "a",
+              "source_patterns": [
+                "étanche",
+                "uniquement lorsque le couvercle est fermé"
+              ],
+              "answer_patterns": [
+                "étanche",
+                "uniquement lorsque le couvercle est fermé"
+              ]
+            }
+          ]
+        },
+        "scope": {
+          "kind": "documents",
+          "document_keys": [
+            "P01_general_condition_a"
+          ]
+        }
+      },
+      {
+        "id": "P05_sparse_table",
+        "question": "Quelle plage de tension de bus est indiquée avec ses bornes et son unité ?",
+        "document_key": "P05_sparse_table_a",
+        "oracle": {
+          "id": "P05_sparse_table",
+          "question": "Quelle plage de tension de bus est indiquée avec ses bornes et son unité ?",
+          "documents": [
+            {
+              "key": "a",
+              "format": "docx",
+              "paragraphs": [],
+              "tables": [
+                [
+                  [
+                    "Parameter",
+                    "MIN",
+                    "TYP",
+                    "MAX",
+                    "UNIT"
+                  ],
+                  [
+                    "Bus voltage range",
+                    "0",
+                    "",
+                    "36",
+                    "V"
+                  ]
+                ]
+              ]
+            }
+          ],
+          "answerable": true,
+          "facts": [
+            {
+              "id": "range",
+              "document": "a",
+              "source_patterns": [
+                "Bus voltage",
+                "(?<![\\d])0(?![\\d])",
+                "(?<![\\d])36(?![\\d])",
+                "\\bV\\b"
+              ],
+              "answer_patterns": [
+                "(?i)bus",
+                "(?<![\\d])0(?![\\d])",
+                "(?<![\\d])36(?![\\d])",
+                "\\bV\\b",
+                "(?i)min",
+                "(?i)max"
+              ]
+            }
+          ]
+        },
+        "scope": {
+          "kind": "documents",
+          "document_keys": [
+            "P05_sparse_table_a"
+          ]
+        }
+      },
+      {
+        "id": "P10_decimal_sum",
+        "question": "Calcule la somme des cellules A1 et B1.",
+        "document_key": "P10_decimal_sum_a",
+        "oracle": {
+          "id": "P10_decimal_sum",
+          "question": "Calcule la somme des cellules A1 et B1.",
+          "documents": [
+            {
+              "key": "a",
+              "format": "xlsx",
+              "sheets": [
+                {
+                  "name": "Parametres",
+                  "cells": {
+                    "A1": 1.25,
+                    "B1": 2.75
+                  }
+                }
+              ]
+            }
+          ],
+          "answerable": true,
+          "scope": {
+            "kind": "cell_range",
+            "range": "A1:B1"
+          },
+          "facts": [
+            {
+              "id": "sum",
+              "document": "a",
+              "source_patterns": [
+                "1\\.25",
+                "2\\.75"
+              ],
+              "answer_patterns": [
+                "(?<![\\d.])4(?![\\d.])",
+                "(?i)somme|sum|\\+"
+              ]
+            }
+          ]
+        },
+        "scope": {
+          "kind": "cell_range",
+          "range": "A1:B1",
+          "document_key": "P10_decimal_sum_a",
+          "sheet_name": "Parametres"
+        }
+      },
+      {
+        "id": "P11_conversion",
+        "question": "Convertir la cellule A1 en millisecondes, avec l'unité portée par la cellule B1.",
+        "document_key": "P11_conversion_a",
+        "oracle": {
+          "id": "P11_conversion",
+          "question": "Convertir la cellule A1 en millisecondes, avec l'unité portée par la cellule B1.",
+          "documents": [
+            {
+              "key": "a",
+              "format": "xlsx",
+              "sheets": [
+                {
+                  "name": "Parametres",
+                  "cells": {
+                    "A1": 125,
+                    "B1": "µs"
+                  }
+                }
+              ]
+            }
+          ],
+          "answerable": true,
+          "scope": {
+            "kind": "cell_range",
+            "range": "A1:B1"
+          },
+          "facts": [
+            {
+              "id": "conversion",
+              "document": "a",
+              "source_patterns": [
+                "125",
+                "[µμ]s"
+              ],
+              "answer_patterns": [
+                "0[.,]125",
+                "\\bms\\b",
+                "1000"
+              ]
+            }
+          ]
+        },
+        "scope": {
+          "kind": "cell_range",
+          "range": "A1:B1",
+          "document_key": "P11_conversion_a",
+          "sheet_name": "Parametres"
+        }
+      },
+      {
+        "id": "L01_condition_mismatch",
+        "question": "Quel courant de sortie est établi à TA = 85 °C ?",
+        "document_key": "L01_condition_mismatch_a",
+        "oracle": {
+          "id": "L01_condition_mismatch",
+          "question": "Quel courant de sortie est établi à TA = 85 °C ?",
+          "documents": [
+            {
+              "key": "a",
+              "format": "docx",
+              "paragraphs": [
+                "Output current: 10 mA at TA = 25 °C."
+              ]
+            }
+          ],
+          "answerable": false,
+          "expected": "limitation",
+          "must_limit": true
+        },
+        "scope": {
+          "kind": "documents",
+          "document_keys": [
+            "L01_condition_mismatch_a"
+          ]
+        }
+      },
+      {
+        "id": "L06_cross_document_conflict",
+        "question": "Quelle est la tension d'alimentation recommandée à TA = 25 °C selon les deux documents ?",
+        "document_key": "L06_cross_document_conflict_a",
+        "oracle": {
+          "id": "L06_cross_document_conflict",
+          "question": "Quelle est la tension d'alimentation recommandée à TA = 25 °C selon les deux documents ?",
+          "documents": [
+            {
+              "key": "a",
+              "format": "docx",
+              "paragraphs": [
+                "Recommended supply voltage: 3.0 V at TA = 25 °C."
+              ]
+            },
+            {
+              "key": "b",
+              "format": "docx",
+              "paragraphs": [
+                "Recommended supply voltage: 3.6 V at TA = 25 °C."
+              ]
+            }
+          ],
+          "answerable": false,
+          "expected": "conflict",
+          "required_answer_patterns": [
+            "(?i)contradic|diverg|différ|different|conflit"
+          ],
+          "facts": [
+            {
+              "id": "a",
+              "document": "a",
+              "source_patterns": [
+                "3\\.0",
+                "25"
+              ],
+              "answer_patterns": [
+                "3(?:\\.0)?\\s*V",
+                "25"
+              ]
+            },
+            {
+              "id": "b",
+              "document": "b",
+              "source_patterns": [
+                "3\\.6",
+                "25"
+              ],
+              "answer_patterns": [
+                "3\\.6",
+                "25"
+              ]
+            }
+          ]
+        },
+        "scope": {
+          "kind": "documents",
+          "document_keys": [
+            "L06_cross_document_conflict_a",
+            "L06_cross_document_conflict_b"
+          ]
+        }
+      },
+      {
+        "id": "L13_negated_value",
+        "question": "Quel courant de sortie est établi ?",
+        "document_key": "L13_negated_value_a",
+        "oracle": {
+          "id": "L13_negated_value",
+          "question": "Quel courant de sortie est établi ?",
+          "documents": [
+            {
+              "key": "a",
+              "format": "docx",
+              "paragraphs": [
+                "The output current is not 10 mA. The output current is not established by this document."
+              ]
+            }
+          ],
+          "answerable": false,
+          "expected": "limitation",
+          "must_limit": true,
+          "forbidden_answer_patterns": [
+            "(?i)^(?:Le )?courant[^\\n]*est (?:de )?10\\s*mA"
+          ]
+        },
+        "scope": {
+          "kind": "documents",
+          "document_keys": [
+            "L13_negated_value_a"
+          ]
+        }
+      },
+      {
+        "id": "L16_table_note",
+        "question": "Quelle plage de tension d'alimentation est établie à TA = 85 °C ?",
+        "document_key": "L16_table_note_a",
+        "oracle": {
+          "id": "L16_table_note",
+          "question": "Quelle plage de tension d'alimentation est établie à TA = 85 °C ?",
+          "documents": [
+            {
+              "key": "a",
+              "format": "docx",
+              "paragraphs": [],
+              "tables": [
+                [
+                  [
+                    "Parameter",
+                    "MIN",
+                    "MAX",
+                    "UNIT",
+                    "NOTE"
+                  ],
+                  [
+                    "Operating supply voltage",
+                    "2",
+                    "5",
+                    "V",
+                    "Only at TA = 25 °C; not established at TA = 85 °C."
+                  ]
+                ]
+              ]
+            }
+          ],
+          "answerable": false,
+          "expected": "limitation",
+          "must_limit": true
+        },
+        "scope": {
+          "kind": "documents",
+          "document_keys": [
+            "L16_table_note_a"
+          ]
+        }
+      }
+    ],
+    "order": "baseline then candidate; fresh stores and conversations; same source bytes and model; no favorable retries",
+    "limitations": [
+      "Two official PDF page windows; eight controlled Office cases are not independent external documents",
+      "QueryService and native engines; public HTTP and browser covered separately, not by this campaign",
+      "Case-level explicit review required; automatic contract status is not the oracle"
+    ],
+    "erratum": {
+      "previous_manifest_sha256": "a12be952db4ccb9b88e017a86381afe1d9c1406ef20111555dbdc31af0175e95",
+      "reason": "ScopeResolver pages are zero-based; first page was incorrectly requested as index1. Original pilot and two empty retrievals preserved. No change to source/extraction/question/oracle.",
+      "changed_fields": [
+        "N_ina226.scope.page_start",
+        "N_ina226.scope.page_end",
+        "N_tmp117.scope.page_start",
+        "N_tmp117.scope.page_end"
+      ]
+    }
+  },
+  "native_inputs_original_sha256": "a12be952db4ccb9b88e017a86381afe1d9c1406ef20111555dbdc31af0175e95",
+  "native_inputs_corrected_sha256": "f271dcf35218fe4c0133226f9b12531456d3c6297b34f8590ec1760fcab07a27",
+  "limitations": [
+    "Linux container, not Windows or physical target qualification.",
+    "Native PDF page windows retain failed ordering-quality checks.",
+    "OCR assets were not provisioned for this iteration."
+  ],
+  "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
+  "cgroup_limits": {}
+}

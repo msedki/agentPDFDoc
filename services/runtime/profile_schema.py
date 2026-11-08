@@ -50,6 +50,8 @@ class Llm(Section):
     model_manifest: str = ""
     source_model_manifest: str = ""
     required_quantization: str = ""
+    required_parameter_size: str = ""
+    required_family: str = ""
     num_ctx: PositiveInt = 8192
     num_predict: PositiveInt = 768
     temperature: NonNegativeNumber = 0.2
@@ -286,6 +288,7 @@ class Enhanced(Section):
     """Mécanismes expérimentaux indépendants, inactifs dans les profils historiques."""
 
     preserve_evidence: bool = False
+    lexical_alias_fallback: bool = False
     structural_reranking: bool = False
     rerank_max_candidates: Annotated[int, Field(ge=1, le=96)] = 48
     exhaustive_range_max_cells: Annotated[int, Field(ge=1, le=256)] = 64

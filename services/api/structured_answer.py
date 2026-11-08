@@ -15,6 +15,7 @@ from .deterministic_calculations import calculation_text
 from .errors import ApiError
 from .evidence_selection import verified_table_rows
 from .office import cell_semantics
+from .scope import block_extraction_method
 
 STRUCTURED_INSTRUCTION = (
     "\nRestitution structurée : produis uniquement le plan JSON demandé, avec references et comparisons. "
@@ -33,6 +34,33 @@ def canonical(value):
 
 def digest(value):
     return hashlib.sha256(canonical(value).encode()).hexdigest()
+
+
+def comparison_text(comparison, by_id):
+    label = PROPERTY_LABELS.get(comparison["property"], comparison["property"] or comparison["quantity"])
+    if comparison.get("subject"):
+        label += " — " + comparison["subject"]
+    names = ", ".join(dict.fromkeys(by_id[reference_id]["document_name"] for reference_id in comparison["reference_ids"]))
+    qualification = (" dans les mêmes conditions explicites" if comparison["conditions_explicit"] else
+                     " sous les rôles indiqués ; aucune équivalence de conditions d'essai supplémentaires n'est établie")
+    conclusion = {"equal": "les valeurs citées concordent" + qualification,
+                  "different": "les valeurs citées divergent" + qualification,
+                  "context_differs": "les rôles ou conditions cités diffèrent ; aucune conclusion d'accord n'est établie",
+                  "context_unestablished": "le rôle d'au moins une valeur n'est pas établi ; aucune conclusion d'accord n'est établie"}[comparison["status"]]
+    return f"Comparaison — {label} ({names}) : {conclusion}."
+
+
+def condition_text(condition):
+    return (f"Condition d'essai de {condition['label']} : {condition['condition']}. "
+            "Le lien vérifié porte sur la colonne des conditions d'essai ; cette condition ne définit pas à elle seule une limite de la grandeur mesurée.")
+
+
+RENDER_NOTICES = {
+    "operating_guarantee_limitation": "La source précise que les limites absolues ne garantissent pas le fonctionnement normal.",
+    "comparison_independence": "La concordance éventuelle des valeurs n'établit pas l'indépendance des documents.",
+    "output_omitted": "Restitution limitée par le budget de réponse : certaines références entières ne sont pas affichées.",
+    "empty": "Aucune référence sélectionnée dans les preuves retenues ne permet de répondre à la demande.",
+}
 
 
 def integrity_failure():
@@ -114,8 +142,43 @@ class Catalogue:
 
     def evidence(self):
         schema, catalogue = self.schema(), self.as_dict()
-        return {"schema": schema, "catalogue": catalogue,
-                "schema_sha256": digest(schema), "catalogue_sha256": digest(catalogue), "mode": self.mode}
+        result = {"schema": schema, "catalogue": catalogue,
+                  "schema_sha256": digest(schema), "catalogue_sha256": digest(catalogue), "mode": self.mode}
+        if self.contract is not None:
+            ledger = self.support_ledger()
+            result.update(support_ledger=ledger, support_ledger_sha256=digest(ledger))
+        return result
+
+    def support_ledger(self):
+        """Bind each available literal or local relation to the counted sources.
+
+        A quote proves its own source wording, not general semantic entailment.
+        Keeping that distinction here prevents a copied but irrelevant passage
+        from being reported as a fully established answer to the question.
+        """
+        assessment = self.assess()
+        references = []
+        for reference in self.references:
+            item = {key: reference.get(key) for key in (
+                "id", "kind", "document_id", "document_name", "version_id", "generation_id",
+                "extraction_revision_id", "source_file_sha256", "source_ids", "extraction_method", "index_generation_state")}
+            item["locators"] = reference.get("locators") or ([reference["locator"]] if reference.get("locator") else [])
+            literal: list[dict[str, Any]] | dict[str, Any]
+            if reference["kind"] == "cell":
+                literal = [{key: value.get(key) for key in ("field", "text", "complete", "segments")}
+                           for value in reference["fields"]]
+            else:
+                literal = {"text": reference["text"], "segments": reference.get("segments", [])}
+            item.update(literal=literal, literal_sha256=digest(literal), support_kind="source_literal")
+            references.append(item)
+        return {"version": 1, "scope": "retained_catalogue_only", "verification": assessment.get("verification"),
+                "question_status": assessment["status"], "general_semantic_entailment_verified": False,
+                "original_extraction_fidelity_verified": False,
+                "partial_generation_ids": list(dict.fromkeys(reference.get("generation_id") for reference in self.references
+                                                              if reference.get("index_generation_state") == "ready_partial")),
+                "references": references, "relations": assessment.get("matched_relations", []),
+                "rejected_relations": assessment.get("rejected_relations", []),
+                "conflicts": assessment.get("conflicts", [])}
 
     def validate(self, raw):
         try:
@@ -278,56 +341,48 @@ class Catalogue:
         def compose(parts, assessment, omitted):
             answer = ""
             spans = []
+            support = []
+
+            def append_text(text, kind, reference_ids=(), source_ids=(), *, index=None, notice=None, separator="\n\n"):
+                nonlocal answer
+                answer += separator if answer else ""
+                start = len(answer)
+                answer += text
+                support.append({"kind": kind, "reference_ids": list(reference_ids), "source_ids": list(source_ids),
+                                "start_offset": start, "end_offset": len(answer), "index": index, "notice": notice})
+
+            def append_citations(source_ids, reference_ids):
+                for source_id in source_ids:
+                    linked = [reference_id for reference_id in reference_ids if source_id in by_id[reference_id]["source_ids"]]
+                    append_text(f"[{source_id}]", "citation", linked, [source_id], separator=" ")
+                    spans.append({"source_id": source_id, "start_offset": support[-1]["start_offset"],
+                                  "end_offset": support[-1]["end_offset"]})
+
             message = assessment_message(assessment)
             if message:
-                answer = message
+                append_text(message, "notice", notice="assessment")
             for part in parts:
-                answer += ("\n\n" if answer else "") + part["text"]
-                for source_id in part["source_ids"]:
-                    answer += " "
-                    start = len(answer)
-                    answer += f"[{source_id}]"
-                    spans.append({"source_id": source_id, "start_offset": start, "end_offset": len(answer)})
-            for comparison in assessment.get("comparisons", []):
-                label = PROPERTY_LABELS.get(comparison["property"], comparison["property"] or comparison["quantity"])
-                if comparison.get("subject"):
-                    label += " — " + comparison["subject"]
-                names = ", ".join(dict.fromkeys(by_id[reference_id]["document_name"] for reference_id in comparison["reference_ids"]))
-                qualification = (" dans les mêmes conditions explicites" if comparison["conditions_explicit"] else
-                                 " sous les rôles indiqués ; aucune équivalence de conditions d'essai supplémentaires n'est établie")
-                conclusion = {"equal": "les valeurs citées concordent" + qualification,
-                              "different": "les valeurs citées divergent" + qualification,
-                              "context_differs": "les rôles ou conditions cités diffèrent ; aucune conclusion d'accord n'est établie",
-                              "context_unestablished": "le rôle d'au moins une valeur n'est pas établi ; aucune conclusion d'accord n'est établie"}[comparison["status"]]
-                answer += ("\n\n" if answer else "") + f"Comparaison — {label} ({names}) : {conclusion}."
-                for source_id in dict.fromkeys(source for reference_id in comparison["reference_ids"]
-                                              for source in by_id[reference_id]["source_ids"]):
-                    answer += " "
-                    start = len(answer)
-                    answer += f"[{source_id}]"
-                    spans.append({"source_id": source_id, "start_offset": start, "end_offset": len(answer)})
-            for condition in (fact for fact in assessment.get("matched_relations", []) if fact["kind"] == "test_condition"):
-                answer += ("\n\n" if answer else "") + (f"Condition d'essai de {condition['label']} : {condition['condition']}. "
-                    "Le lien vérifié porte sur la colonne des conditions d'essai ; cette condition ne définit pas à elle seule une limite de la grandeur mesurée.")
-                for source_id in condition["source_ids"]:
-                    answer += " "
-                    start = len(answer)
-                    answer += f"[{source_id}]"
-                    spans.append({"source_id": source_id, "start_offset": start, "end_offset": len(answer)})
-            for limitation in (fact for fact in assessment.get("matched_relations", []) if fact["kind"] == "operating_guarantee_limitation"):
-                answer += ("\n\n" if answer else "") + "La source précise que les limites absolues ne garantissent pas le fonctionnement normal."
-                for source_id in limitation["source_ids"]:
-                    answer += " "
-                    start = len(answer)
-                    answer += f"[{source_id}]"
-                    spans.append({"source_id": source_id, "start_offset": start, "end_offset": len(answer)})
+                append_text(part["text"], part["kind"], part["reference_ids"], part["source_ids"])
+                append_citations(part["source_ids"], part["reference_ids"])
+            for index, comparison in enumerate(assessment.get("comparisons", [])):
+                refs = comparison["reference_ids"]
+                sources = list(dict.fromkeys(source for reference_id in refs for source in by_id[reference_id]["source_ids"]))
+                append_text(comparison_text(comparison, by_id), "comparison", refs, sources, index=index)
+                append_citations(sources, refs)
+            for index, fact in enumerate(assessment.get("matched_relations", [])):
+                if fact["kind"] not in {"test_condition", "operating_guarantee_limitation"}:
+                    continue
+                text = condition_text(fact) if fact["kind"] == "test_condition" else RENDER_NOTICES[fact["kind"]]
+                refs = fact["reference_ids"]
+                append_text(text, fact["kind"], refs, fact["source_ids"], index=index)
+                append_citations(fact["source_ids"], refs)
             if assessment.get("comparisons"):
-                answer += " La concordance éventuelle des valeurs n'établit pas l'indépendance des documents."
+                append_text(RENDER_NOTICES["comparison_independence"], "notice", notice="comparison_independence", separator=" ")
             if omitted:
-                answer += ("\n\n" if answer else "") + "Restitution limitée par le budget de réponse : certaines références entières ne sont pas affichées."
+                append_text(RENDER_NOTICES["output_omitted"], "notice", notice="output_omitted")
             if not answer:
-                answer = "Aucune référence sélectionnée dans les preuves retenues ne permet de répondre à la demande."
-            return answer, spans
+                append_text(RENDER_NOTICES["empty"], "notice", notice="empty")
+            return answer, spans, support
 
         def evaluate(candidate_parts):
             displayed = list(dict.fromkeys(reference for part in candidate_parts for reference in part["reference_ids"]))
@@ -349,15 +404,15 @@ class Catalogue:
                 assessment["calculation"] = None
             if not any(part["kind"] == "relation_calculations" for part in candidate_parts):
                 assessment["derived_calculations"] = []
-            answer, spans = compose(candidate_parts, assessment, omitted)
+            answer, spans, support = compose(candidate_parts, assessment, omitted)
             tokens = tokenizer.count(answer)
-            return displayed, omitted, assessment, answer, spans, tokens
+            return displayed, omitted, assessment, answer, spans, support, tokens
 
         # Admit whole references in stable priority order. An oversized first
         # excerpt must not erase later useful excerpts that fit. Evaluate all
         # first: intermediate partial-coverage notices can cost more than the
         # complete answer's notice. Never truncate a fact/condition/calculation.
-        displayed, omitted, assessment, answer, spans, tokens = evaluate(parts)
+        displayed, omitted, assessment, answer, spans, support, tokens = evaluate(parts)
         if tokens > output_tokens:
             admitted: list[dict[str, Any]] = []
             for part in parts:
@@ -365,7 +420,7 @@ class Catalogue:
                 if evaluate(candidate)[-1] <= output_tokens:
                     admitted.append(part)
             parts = admitted
-            displayed, omitted, assessment, answer, spans, tokens = evaluate(parts)
+            displayed, omitted, assessment, answer, spans, support, tokens = evaluate(parts)
             if tokens > output_tokens:
                 raise ApiError("structured_answer_render_budget_exceeded", "Le budget de restitution ne permet pas même d'afficher les limites de la réponse.", 503)
         warnings = []
@@ -397,21 +452,167 @@ class Catalogue:
         effective_plan = {"references": displayed,
                           "comparisons": [comparison.model_dump() for comparison in plan.comparisons
                                           if set(comparison.references) <= set(displayed)]}
-        return {"text": answer, "source_ids": list(dict.fromkeys(source for part in parts for source in part["source_ids"])),
-                "warnings": warnings, "tokens": tokens, "citation_spans": spans,
-                "answer_contract": assessment, "effective_plan": effective_plan}
+        result = {"text": answer, "source_ids": list(dict.fromkeys(source for part in parts for source in part["source_ids"])),
+                  "warnings": warnings, "tokens": tokens, "citation_spans": spans,
+                  "answer_contract": assessment, "effective_plan": effective_plan,
+                  "support_ledger": {"version": 1, "catalogue_sha256": digest(self.as_dict()),
+                                     "required_documents": list(required_documents), "segments": support,
+                                     "answer_sha256": hashlib.sha256(answer.encode()).hexdigest()}}
+        result["support_ledger_sha256"] = digest(result["support_ledger"])
+        result["support_validation"] = self.verify_rendered(result)
+        return result
 
-    def deterministic_plan(self) -> AnswerPlan | None:
-        """Exact, explicitly named cells in a pinned range need no model choice.
+    def verify_rendered(self, rendered):
+        """Reconstruct each output segment from sources or checked operations.
+
+        Model text never enters this contract. The check also detects an added
+        tail, an altered number, an uncited quotation, a forged source ID and a
+        catalogue changed between planning and publication. Source truth and
+        unrestricted semantic entailment remain outside this structural gate.
+        """
+        if self.contract is None:
+            return {"status": "disabled", "method": "legacy_catalogue"}
+        try:
+            text, ledger = rendered["text"], rendered["support_ledger"]
+            if (not isinstance(text, str) or ledger["version"] != 1
+                    or rendered["support_ledger_sha256"] != digest(ledger)
+                    or ledger["catalogue_sha256"] != digest(self.as_dict())
+                    or ledger["answer_sha256"] != hashlib.sha256(text.encode()).hexdigest()):
+                raise ValueError("answer or catalogue digest mismatch")
+            by_id = {reference["id"]: reference for reference in self.references}
+            displayed = rendered["effective_plan"]["references"]
+            if len(displayed) != len(set(displayed)) or set(displayed) - by_id.keys():
+                raise ValueError("unknown or repeated rendered reference")
+            assessment = rendered["answer_contract"]
+            required_documents = ledger["required_documents"]
+            checked = self.assess(displayed, required_documents)
+            selected = ([] if self.contract.scope_refusal() else list(dict.fromkeys([
+                *self.contract.required_ids(self.references, required_documents), *assessment["model_selected_reference_ids"]])))
+            if set(selected) - by_id.keys():
+                raise ValueError("unknown initial reference")
+            omitted = [reference_id for reference_id in selected if reference_id not in displayed]
+            initial = self.assess(selected, required_documents)
+            expected_status = (initial["status"] if initial["status"] in {"conflict", "ambiguous"}
+                               else "partial" if omitted else checked["status"])
+            if (assessment["status"] != expected_status or assessment["omitted_reference_ids"] != omitted
+                    or assessment["rendered_reference_ids"] != displayed):
+                raise ValueError("coverage changed after rendering")
+            for field in ("matched_relations", "comparisons", "conflicts"):
+                if canonical(assessment.get(field, [])) != canonical(checked.get(field, [])):
+                    raise ValueError("unsupported relation or comparison")
+            for field in ("kind", "quantity", "missing", "scope_refusal", "rejected_relations"):
+                if canonical(assessment.get(field)) != canonical(checked.get(field)):
+                    raise ValueError("unsupported coverage explanation")
+            expected_ambiguities = (initial.get("ambiguous", []) if initial["status"] in {"conflict", "ambiguous"}
+                                    else checked.get("ambiguous", []))
+            if canonical(assessment.get("ambiguous", [])) != canonical(expected_ambiguities):
+                raise ValueError("ambiguity explanation changed")
+            segments, cursor, seen_references, citation_spans = ledger["segments"], 0, [], []
+            if not isinstance(segments, list) or len(segments) > 4096:
+                raise ValueError("invalid support segment count")
+            pending_citations: list[str] = []
+            expected: str | None
+            for segment in segments:
+                start, end = segment["start_offset"], segment["end_offset"]
+                if (type(start) is not int or type(end) is not int or not cursor <= start < end <= len(text)
+                        or text[cursor:start].strip()):
+                    raise ValueError("uncovered text or invalid support offsets")
+                refs, sources = segment["reference_ids"], segment["source_ids"]
+                if set(refs) - set(displayed) or len(refs) != len(set(refs)) or len(sources) != len(set(sources)):
+                    raise ValueError("support outside displayed references")
+                expected_sources = list(dict.fromkeys(source_id for reference_id in refs for source_id in by_id[reference_id]["source_ids"]))
+                kind = segment["kind"]
+                if kind == "citation":
+                    if len(sources) != 1 or not refs or sources[0] not in expected_sources or not pending_citations:
+                        raise ValueError("citation without supporting content")
+                    if sources[0] != pending_citations.pop(0):
+                        raise ValueError("citation does not match preceding claim")
+                    expected = f"[{sources[0]}]"
+                    citation_spans.append({"source_id": sources[0], "start_offset": start, "end_offset": end})
+                else:
+                    if pending_citations:
+                        raise ValueError("uncited documentary content")
+                    if set(sources) != set(expected_sources):
+                        raise ValueError("missing or substituted documentary source")
+                    if kind == "reference":
+                        expected = "\n".join(render_reference(by_id[reference_id], include_document=True) for reference_id in refs)
+                        seen_references.extend(refs)
+                    elif kind == "calculation":
+                        calculation = checked.get("calculation")
+                        if not calculation or canonical(calculation) != canonical(assessment.get("calculation")):
+                            raise ValueError("unverified calculation")
+                        expected = calculation_text(calculation)
+                        expected_refs = [item["reference_id"] for item in calculation["inputs"]]
+                        if calculation.get("unit_reference"):
+                            expected_refs.append(calculation["unit_reference"]["reference_id"])
+                        if refs != expected_refs:
+                            raise ValueError("calculation inputs lost")
+                        seen_references.extend(refs)
+                    elif kind == "relation_calculations":
+                        calculations = checked.get("derived_calculations")
+                        if not calculations or canonical(calculations) != canonical(assessment.get("derived_calculations")):
+                            raise ValueError("unverified relation calculation")
+                        expected_refs = list(dict.fromkeys(reference_id for result in calculations for reference_id in result["reference_ids"]))
+                        if refs != expected_refs:
+                            raise ValueError("relation calculation dependencies lost")
+                        expected = "\n\n".join([*(calculation_text(result) for result in calculations),
+                                               *(render_reference(by_id[reference_id], include_document=True) for reference_id in refs)])
+                        seen_references.extend(refs)
+                    elif kind == "comparison":
+                        comparison = checked["comparisons"][segment["index"]]
+                        if refs != comparison["reference_ids"]:
+                            raise ValueError("comparison dependencies lost")
+                        expected = comparison_text(comparison, by_id)
+                    elif kind in {"test_condition", "operating_guarantee_limitation"}:
+                        fact = checked["matched_relations"][segment["index"]]
+                        if fact["kind"] != kind or refs != fact["reference_ids"]:
+                            raise ValueError("relation dependencies lost")
+                        expected = condition_text(fact) if kind == "test_condition" else RENDER_NOTICES[kind]
+                    elif kind == "notice":
+                        if refs or sources:
+                            raise ValueError("notice impersonates a documentary claim")
+                        notice = segment["notice"]
+                        if (notice == "output_omitted" and not omitted
+                                or notice == "comparison_independence" and not checked["comparisons"]
+                                or notice == "empty" and displayed):
+                            raise ValueError("unsupported notice")
+                        expected = assessment_message(assessment) if notice == "assessment" else RENDER_NOTICES[notice]
+                    else:
+                        raise ValueError("unknown support kind")
+                    pending_citations = list(sources)
+                if not expected or text[start:end] != expected:
+                    raise ValueError("published content differs from its support")
+                cursor = end
+            if (pending_citations or text[cursor:].strip() or list(dict.fromkeys(seen_references)) != displayed
+                    or citation_spans != rendered["citation_spans"]
+                    or list(dict.fromkeys(item["source_id"] for item in citation_spans)) != rendered["source_ids"]):
+                raise ValueError("incomplete output support")
+            return {"status": "passed", "method": "deterministic_source_reconstruction", "segments_checked": len(segments),
+                    "unsupported_characters": 0, "question_status": assessment["status"],
+                    "general_semantic_entailment_verified": False, "answer_sha256": ledger["answer_sha256"]}
+        except (KeyError, IndexError, TypeError, ValueError) as error:
+            raise ApiError("structured_answer_support_invalid", "La restitution ne correspond pas intégralement à ses preuves vérifiées.", 503) from error
+
+    def deterministic_plan(self, required_documents=()) -> AnswerPlan | None:
+        """Complete local relations or exact scoped cells need no model choice.
 
         Expected deterministic refusals (missing formula cache, division by
         zero, unavailable unit) still render their actual reason and sources.
-        General properties, scope-wide discovery and ambiguous cells do not use
-        this path. The existing builder has already checked source identities.
+        General prose, scope-wide discovery, incomplete relations and ambiguous
+        cells keep the reference-selection route. Source identities have already
+        been checked by the builder; completeness is rechecked after rendering.
         """
         contract = self.contract
         if contract is not None and contract.scope_refusal():
             return AnswerPlan(references=[], comparisons=[])
+        if (contract is not None and not contract.parse_failures
+                and (contract.kind in {"value", "interval", "comparison"} and contract.quantity is not None
+                     or contract.kind == "mapping" and bool(contract.configurations))):
+            required = contract.required_ids(self.references, required_documents)
+            if required and self.assess(required, required_documents)["status"] == "covered":
+                # Selection is already established by local relation checks.
+                # Running a model cannot add a useful fact to this exact set.
+                return AnswerPlan(references=required, comparisons=[])
         if (contract is None or contract.scope.get("kind") != "cell_range"
                 or contract.kind not in {"cell_values", "calculation"}
                 or not contract.requested_cells or contract.parse_failures or contract.subjects):
@@ -481,6 +682,7 @@ class StructuredAnswerBuilder:
         self.parents: dict[tuple[str, str], dict[str, Any]] = {}
         self.cells: dict[tuple[str, str, int, int], dict[str, Any]] = {}
         self.versions: dict[str, dict[str, Any]] = {}
+        self.generations: dict[str, dict[str, Any]] = {}
 
     def parent(self, source, block):
         generation = source["generation_id"]
@@ -535,28 +737,54 @@ class StructuredAnswerBuilder:
     def catalogue(self, sources, mode) -> Catalogue:
         entries: dict[tuple, dict[str, Any]] = {}
         for source in sources:
+            if (source["generation_id"] not in self.snapshot.generations
+                    or self.snapshot.versions[source["generation_id"]] != source["version_id"]
+                    or self.snapshot.documents[source["generation_id"]] != source["document_id"]):
+                integrity_failure()
             version_id = source["version_id"]
             if version_id not in self.versions:
                 self.versions[version_id] = dict(self.db.version(version_id))
             version = self.versions[version_id]
             if source.get("format", "pdf") != version["format"]:
                 integrity_failure()
+            if self.enforce_contract and source["generation_id"] not in self.generations:
+                generation = self.db.one("SELECT state,version_id,extraction_revision_id FROM index_generations WHERE id=?",
+                                         (source["generation_id"],))
+                if (not generation or generation["version_id"] != source["version_id"]
+                        or generation["extraction_revision_id"] != source["extraction_revision_id"]):
+                    integrity_failure()
+                self.generations[source["generation_id"]] = dict(generation)
             for block in source["blocks"]:
                 parent, metadata = self.parent(source, block)
                 base = {"source_ids": [source["source_id"]], "document_id": source["document_id"],
                         "document_name": version["document_name"],
                         "version_id": source["version_id"], "generation_id": source["generation_id"],
+                        "source_file_sha256": version.get("sha256"),
                         "extraction_revision_id": source["extraction_revision_id"]}
+                if self.enforce_contract:
+                    base.update(index_generation_state=self.generations[source["generation_id"]]["state"],
+                                extraction_method=block_extraction_method(parent["metadata_json"]))
                 segment = {"source_id": source["source_id"], "block_id": block["id"],
                            "source_text_hash": block["source_text_hash"], "start_offset": block["start_offset"],
                            "end_offset": block["end_offset"]}
                 if source.get("format") != "xlsx":
+                    locator = block.get("locator") or {"page_index": block["page_index"]}
+                    if self.enforce_contract:
+                        if version["format"] == "docx":
+                            stored_locator = metadata.get("locator")
+                            if (not isinstance(stored_locator, dict) or stored_locator.get("kind") != "docx_element"
+                                    or canonical(block.get("locator")) != canonical(stored_locator)):
+                                raise ApiError("invalid_source_locator", "Le passage ne possède pas de localisateur documentaire vérifiable.", 409)
+                            locator = stored_locator
+                        else:
+                            # A PDF page is the registered physical page; an
+                            # arbitrary locator hint cannot rename its section.
+                            locator = {"page_index": parent["page_index"]}
                     key = (source["generation_id"], block["id"], block["start_offset"], block["end_offset"])
                     item = entries.setdefault(key, {**base, "kind": "excerpt", "text": block["text"],
-                                                   "locators": [block.get("locator") or {"page_index": block["page_index"]}], "segments": []})
+                                                   "locators": [locator], "segments": []})
                     item["segments"].append(segment)
                     if self.enforce_contract:
-                        item["extraction_method"] = block.get("extraction_method", "unknown")
                         if block.get("table_context"):
                             item["_table_context"] = block["table_context"]
                     if source["source_id"] not in item["source_ids"]:

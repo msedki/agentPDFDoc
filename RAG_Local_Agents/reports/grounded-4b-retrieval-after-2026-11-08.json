@@ -1,0 +1,66 @@
+{
+  "recorded_at": "2026-11-08T14:24:06.595929+00:00",
+  "repository": "/workspace/scratch/2c21e54d224c/agentPDFDoc",
+  "commit": "3956491a2d7f1f16cefebfe79e92c638b6662c10",
+  "script_sha256": "8bfae4059de846e834c4ba66de23326ef1ee3938192ee09a7d636d5d1288ab86",
+  "limitations": "Synthetic extraction; named embedding/vector/tokenizer doubles; no OCR, E5 or 4B execution.",
+  "observations": [
+    {
+      "case": "long_parent",
+      "elapsed_ms": 68.089,
+      "question": "What are the supply voltage and ambient temperature?",
+      "source_sha256": "53eaeb84c1380bd13aedef921d2ef61ddec8e16915b7233bf256ae88551db908",
+      "parent_tokens_named_double": 1365,
+      "candidates": 5,
+      "candidate_facts": 2,
+      "retained": 5,
+      "retained_facts": 2,
+      "expanded_facts": 2,
+      "required_facts": 2,
+      "accepted": true
+    },
+    {
+      "case": "footnote",
+      "elapsed_ms": 24.218,
+      "source_text": "Parameter | Min | Max | Unit\nSupply voltage (1) | 0 | 36 | V\n(1) Valid only indoors.",
+      "selected_text": "Parameter | Min | Max | Unit\nSupply voltage (1) | 0 | 36 | V\n(1) Valid only indoors.",
+      "warnings": [],
+      "accepted": true
+    },
+    {
+      "case": "partial_empty",
+      "elapsed_ms": 18.66,
+      "result_count": 0,
+      "warnings": [
+        {
+          "code": "partial_extraction",
+          "document_id": "85bd2796-d767-41c4-83a4-58fbdbcc0e57",
+          "document_name": "manual.pdf",
+          "version_id": "0e2e72e4-b2c2-4f03-ba3d-1162da33d95d",
+          "generation_id": "5a24230e-ebfb-4489-bf3e-fa102749c211",
+          "extraction_revision_id": "e51dc8f1-157f-5f76-b4bd-e852e63718d3",
+          "basis": "authorized_scope",
+          "message": "Extraction partielle : des pages ou des régions de ce document sont absentes de l'extraction ou ont été lues avec une confiance insuffisante. Des informations peuvent manquer ; vérifiez les passages retrouvés sur la page originale."
+        }
+      ],
+      "accepted": true
+    },
+    {
+      "case": "mixed_ocr",
+      "elapsed_ms": 60.054,
+      "block_methods": [
+        "ocr",
+        "native",
+        "native"
+      ],
+      "source_methods": [
+        "native",
+        "ocr"
+      ],
+      "warning_codes": [
+        "ocr_evidence"
+      ],
+      "accepted": true
+    }
+  ]
+}

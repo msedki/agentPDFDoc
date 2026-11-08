@@ -149,3 +149,24 @@ Après chaque changement canonique : régénérer le brief avec `python tools/bu
 Avant toute décision significative de configuration ou mise à jour, consulter les sources officielles actuelles et le schéma de la version verrouillée conformément à [RECHERCHE_ET_SKILLS.md](RECHERCHE_ET_SKILLS.md). Capturer les paramètres effectivement acceptés par le runtime ; ne pas transposer une option de branche récente à un ancien binaire.
 
 Les recherches des agents ne sont pas une option réseau du profil `local16`. Aucun changement ici n'active la navigation, le téléchargement de skills ou la mise à jour automatique dans le produit. Les valeurs initiales restent à qualifier ; les changements et skills utilisés sont traçables dans les registres.
+
+## I3 — profil actif `enhanced-4b`, 8 novembre 2026
+
+**Statut :** configuration du lot I3, dont la qualification reste limitée aux essais du [bilan](reports/grounded-4b-results-2026-11-08.md). Le [protocole préalable](reports/grounded-4b-protocol-2026-11-08.md) distingue tests de composants, exécution native et recette cible. Les anciens profils et résultats 2B/4B ci-dessus restent historiques ; le seul générateur utilisé dans ce lot est Qwen3-4B.
+
+La source de vérité est [config/enhanced-4b.yaml](../config/enhanced-4b.yaml), avec son [verrou](../config/enhanced-4b.lock.json). Les contraintes d'identité sont exécutables :
+
+| Clé du profil | Valeur obligatoire |
+|---|---|
+| `llm.model` | `qwen3-4b-enhanced:q4km` |
+| `llm.required_parameter_size` | `4.0B` |
+| `llm.required_family` | `qwen3` |
+| `llm.required_quantization` | `Q4_K_M` |
+
+Le manifeste provisionné doit correspondre au nom, digest et détails requis. Le runtime compare également digest, famille et taille avec l'identité exposée par Ollama avant tout envoi documentaire ; identité absente ou divergente : génération refusée, sans substitution de modèle. Les champs sont validés par [profile_schema.py](../services/runtime/profile_schema.py) et appliqués par [ollama.py](../services/api/ollama.py).
+
+Les options `enhanced.preserve_evidence` et `enhanced.answer_contract` activent conservation des preuves et registre/contrôle avant-après décrits dans [IMPLEMENTATION.md](IMPLEMENTATION.md#12-i3--preuves-jusquà-la-réponse-profil-4b). Les limites de paquets, de contexte et de restitution restent celles du YAML ; les 64 liens de notes constituent une borne interne de vérification, pas un paramètre OCR. Le mode `trace.mode: hashes` conserve les empreintes par défaut ; une campagne avec texte complet exige le mode explicitement prévu et ses limites de stockage. Ces options ne créent ni nouvelle extraction ni preuve sémantique universelle.
+
+Les mesures comparatives imposent le même 4B verrouillé, corpus et paramètres explicités, avec CPU forcé pour le protocole I3 ; la valeur applicative `llm.accelerator: auto` n'est pas une preuve d'exécution CPU. Les routes sans appel au modèle sont comptées séparément des générations effectives. Aucun réglage ni résultat ponctuel n'établit à lui seul la qualification de la latence, de la mémoire ou de la DoD globale.
+
+**Complément F07.** `enhanced.lexical_alias_fallback: true` dans le profil `enhanced-4b` active une seule reprise FTS quand les candidats lexicaux et les occurrences exactes initiales sont tous deux vides. Sa valeur par défaut dans le schéma reste `false`, ce qui permet l'ablation. Au plus 16 alias complets des groupes techniques existants sont admis, hors spans d'identifiants ; filtre SQL et `lexical_top_k` restent identiques. La question, les références et l'entrée dense ne sont pas réécrites. Sélections littérales et plages de cellules gardent leur parcours. La trace privée `retrieval.lexical_alias_fallback` indique route, alias, empreintes et compte de candidats ; [hypothèse et acceptation](reports/grounded-4b-addendum-2026-11-08.md).

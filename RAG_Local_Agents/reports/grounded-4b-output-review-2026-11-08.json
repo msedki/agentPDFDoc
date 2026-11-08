@@ -1,0 +1,2268 @@
+{
+  "schema_version": "independent-controlled-response-review-v1",
+  "created_utc": "2026-11-08T15:19:33.347691+00:00",
+  "reviewer": "audit_validation; relecture indépendante et non aveugle par agent, ayant contribué au harnais ; aucune prétention d’évaluation humaine externe",
+  "scope": "Les 12 positifs puis les 18 contrôles limites, dans les deux bras conservés. Aucune nouvelle requête, inférence, extraction ou exécution de test.",
+  "criterion_application": "Appliquer symétriquement les exigences gelées de réponse complète et utile. Une réserve globale non justifiée par la source de P01 échoue dans les deux formulations. Une citation complète peut rester utile sans constituer un succès strict. Les réserves circonscrites à des informations réellement absentes (P08/P09/P12) ne sont pas traitées comme des refus. Aucun verdict answer_contract, regex de limitation ou gain attendu ne sert d’oracle à cette relecture.",
+  "source_basis": "Lecture des spécifications originales figées, questions, réponses et textes cités ; contrôles d’identités/hashes/offsets réutilisés tels qu’enregistrés dans les soumissions. Deux calculs revérifiés par Decimal. Pas de nouvelle validation OOXML/OCR native.",
+  "inputs": {
+    "baseline": {
+      "path": ".runtime/qa/grounded-20261108/controlled-baseline-reviewed-v2.json",
+      "sha256": "1d95cea7a8e5cb76ad374079ff25cba954597b0e8179daead24770b5660c9d90"
+    },
+    "C2": {
+      "path": ".runtime/qa/grounded-20261108/controlled-candidate-c2.json",
+      "sha256": "ceda73872d45e0587dee87087ac1a964db8d8288f69037587c4fa1ce54a72391"
+    }
+  },
+  "fixture": {
+    "path": "tests/fixtures/grounded_cases.json",
+    "sha256": "68a997cee3c6e3dcd1d8625d534c17631cb7ddaebedb1bfd3efa316c678fd476",
+    "unchanged": true,
+    "acceptance_unchanged": {
+      "answerable_complete": 12,
+      "answerable_total": 12,
+      "limit_controls_pass": 18,
+      "limit_controls_total": 18,
+      "scope_leakage_count": 0,
+      "invented_claim_count": 0,
+      "citation_integrity_ratio": 1.0
+    }
+  },
+  "automatic_historical_scores_preserved": {
+    "baseline": {
+      "positive_pass": 9,
+      "positive_total": 12,
+      "control_pass": 15,
+      "control_total": 18,
+      "positive_limitation_detector_count": 3
+    },
+    "C2": {
+      "positive_pass": 12,
+      "positive_total": 12,
+      "control_pass": 18,
+      "control_total": 18,
+      "positive_limitation_detector_count": 0
+    }
+  },
+  "independent_review_summary": {
+    "baseline": {
+      "positive_pass": 9,
+      "positive_total": 12,
+      "positives_with_all_required_fact_content": 10,
+      "positive_total_refusals": 2,
+      "positive_unnecessary_reservations": 1,
+      "control_pass": 15,
+      "control_total": 18,
+      "strict_total_pass": 24,
+      "total": 30
+    },
+    "C2": {
+      "positive_pass": 11,
+      "positive_total": 12,
+      "positives_with_all_required_fact_content": 12,
+      "positive_total_refusals": 0,
+      "positive_unnecessary_reservations": 1,
+      "control_pass": 18,
+      "control_total": 18,
+      "strict_total_pass": 29,
+      "total": 30
+    },
+    "improved_case_ids": [
+      "P04_two_conditions",
+      "P06_roles",
+      "L01_condition_mismatch",
+      "L06_cross_document_conflict",
+      "L09_long_qualification"
+    ],
+    "improved_count": 5,
+    "unchanged_count": 25,
+    "regressed_case_ids": [],
+    "positive_DoD_gate_met": false,
+    "control_gate_met": true,
+    "new_automated_false_positive_identified": [
+      "C2/P01_general_condition"
+    ],
+    "interpretation": "Gain positif strict +2, contrôles limites +3, soit cinq gains globaux et vingt-cinq verdicts inchangés. P01 reste un fait utile complet assorti d’une réserve injustifiée ; il n’est pas un refus total et aucun gain strict ne lui est attribué. Le score automatique historique 12/12 n’est pas effacé ni présenté comme le verdict strict. I3-D04 reste partiel à 11/12."
+  },
+  "positive_cases": [
+    {
+      "case_id": "P01_general_condition",
+      "question": "Dans quelle condition le boîtier est-il étanche ?",
+      "frozen_expected": "answerable_complete",
+      "arms": {
+        "baseline": {
+          "source_case_record_sha256": "84c34567dcbf1bc1074b97239c9b6ede89ff96048a78fb25ed6babf8e57b5d08",
+          "answer_sha256": "159485099fe1f4ab63d5cbaf10b0d30ec0b06675487e9f992a27e04e22a8b55a",
+          "automated_historical_pass": false,
+          "independent_review_pass": false,
+          "state": "done",
+          "error_code": null,
+          "reason": "La source unique répond exactement à la seule condition demandée, couvercle fermé, avec la restriction 'uniquement'. Le fait est intégralement cité et utile. Le préambule affirme néanmoins que la couverture complète n'est pas établie par les contrôles. Cette réserve sur la capacité du vérificateur n'est pas une lacune documentaire de ce cas : échec du critère strict de réponse complète sans réserve injustifiée, sans refus total ni fabrication du fait.",
+          "answer": "Les extraits ci-dessous sont restitués avec leurs sources. La couverture complète de cette demande n'est pas établie par les contrôles disponibles.\n\nP01_general_condition_a.docx — Extrait : « Le boîtier est étanche uniquement lorsque le couvercle est fermé. » [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P01_general_condition_a.docx",
+              "text": "Le boîtier est étanche uniquement lorsque le couvercle est fermé.",
+              "document_id": "33d237e1-6787-4a3e-92ff-83c7cf78d2dc",
+              "version_id": "d00370b3-30e5-44eb-a246-a5b0f487daa6",
+              "sha256_record": "8f6d601b57f6127b0aa813179d52afdbd38419222330583cfbba5fad6651a87f"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": true,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        },
+        "C2": {
+          "source_case_record_sha256": "81098a3eda641464e614ae1bbc830fb1a4aa0cde2c1ef1c38e7859ccb762c005",
+          "answer_sha256": "750f80b76da1df59767d1bc6d6d82bcb246002b31c9fd48c60a249cb8ce4fcb2",
+          "automated_historical_pass": true,
+          "independent_review_pass": false,
+          "state": "done",
+          "error_code": null,
+          "reason": "Le même fait complet et utile est cité. Le préambule 'l’interprétation complète de la question reste à vérifier' conserve une réserve sur la réponse à cette question simple, sans incertitude ou manque dans sa source. Appliquer le même critère que pour le préambule baseline impose le même verdict strict. Une formulation absente du détecteur automatique n'est pas une exception au critère. Ce n'est pas un refus total.",
+          "answer": "Restitution littérale des sources. Les contrôles vérifient la provenance des extraits ; l'interprétation complète de la question reste à vérifier.\n\nP01_general_condition_a.docx — Extrait : « Le boîtier est étanche uniquement lorsque le couvercle est fermé. » [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P01_general_condition_a.docx",
+              "text": "Le boîtier est étanche uniquement lorsque le couvercle est fermé.",
+              "document_id": "1edafc80-bd22-4596-afdc-603588d53026",
+              "version_id": "dc24732b-a53f-4cc6-8b4d-5e56df30e195",
+              "sha256_record": "62076f83a59cda4da5c40b3f4d2e0e3b71e3248967730f3b7bb778383d904239"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": true,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        }
+      },
+      "frozen_source_specifications": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Le boîtier est étanche uniquement lorsque le couvercle est fermé."
+          ]
+        }
+      ],
+      "frozen_fact_requirements": [
+        {
+          "id": "sealed",
+          "document": "a",
+          "source_patterns": [
+            "étanche",
+            "uniquement lorsque le couvercle est fermé"
+          ],
+          "answer_patterns": [
+            "étanche",
+            "uniquement lorsque le couvercle est fermé"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "P02_zero_cell",
+      "question": "Quelle valeur contient exactement la cellule A1 ?",
+      "frozen_expected": "answerable_complete",
+      "arms": {
+        "baseline": {
+          "source_case_record_sha256": "b58e671a68e0a323aff627e23b39b0b02b4dde27bd572775fd4c918356227d51",
+          "answer_sha256": "64931d9610c3c39ef73953264b63a813d79a862ea4e43ceec9af25c684e4c87a",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "A1 est exactement 0 dans le classeur et dans la citation. Le zéro est restitué, sans confusion avec la cellule B1 ni réserve inutile.",
+          "answer": "P02_zero_cell_a.xlsx — Parametres / A1 : Valeur littérale « 0 ». [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P02_zero_cell_a.xlsx",
+              "text": "A1 (value) : 0\nB1 (value) : 36",
+              "document_id": "d9c9ddce-abd1-4118-932d-c9c96f82e1ee",
+              "version_id": "4df0f393-cd1b-4fbd-ac1f-04c97e4ae1f9",
+              "sha256_record": "75ae3abce8743a786b9e16ddd0565969afa80df0ee6e4c3bc7b73da400afe7c5"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        },
+        "C2": {
+          "source_case_record_sha256": "8ffed7744b360128b14e5080c187dd98b9dbfb6f8c01d7479b9d7aa6c4cfd021",
+          "answer_sha256": "64931d9610c3c39ef73953264b63a813d79a862ea4e43ceec9af25c684e4c87a",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "A1 est exactement 0 dans le classeur et dans la citation. Le zéro est restitué, sans confusion avec la cellule B1 ni réserve inutile.",
+          "answer": "P02_zero_cell_a.xlsx — Parametres / A1 : Valeur littérale « 0 ». [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P02_zero_cell_a.xlsx",
+              "text": "A1 (value) : 0\nB1 (value) : 36",
+              "document_id": "0b654c0b-1179-47d1-87bc-fc110937f3b7",
+              "version_id": "131cf35c-fea4-4ad2-81f2-a5134bc04e31",
+              "sha256_record": "a9c59870a87d2ef3522d278fee62876ab251dd3998ed632c49de4cde8393e811"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        }
+      },
+      "frozen_source_specifications": [
+        {
+          "key": "a",
+          "format": "xlsx",
+          "sheets": [
+            {
+              "name": "Parametres",
+              "cells": {
+                "A1": 0,
+                "B1": 36
+              }
+            }
+          ]
+        }
+      ],
+      "frozen_fact_requirements": [
+        {
+          "id": "zero",
+          "document": "a",
+          "source_patterns": [
+            "(?<![\\d])0(?![\\d])"
+          ],
+          "answer_patterns": [
+            "(?:littérale|A1)[^\\n]*\\b0\\b"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "P03_negative_interval",
+      "question": "Quelle plage de température de stockage est indiquée ?",
+      "frozen_expected": "answerable_complete",
+      "arms": {
+        "baseline": {
+          "source_case_record_sha256": "e2a47b971ffdca08baf081a2e0071a6f504b5bd579f2c51ec9d892f82e67fd99",
+          "answer_sha256": "b8d6bf406309ac39af671c728d78084bd8b67f5bb8bdcac45271289448331a1c",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "L'intervalle de stockage -40 à 85 °C conserve le signe négatif, les deux bornes, l'unité et le rôle stockage. La citation répond directement à la question.",
+          "answer": "P03_negative_interval_a.docx — Extrait : « Storage temperature: -40 to 85 °C. » [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P03_negative_interval_a.docx",
+              "text": "Storage temperature: -40 to 85 °C.",
+              "document_id": "aace7660-994a-4dad-88a5-7a2baad6f49b",
+              "version_id": "e51e5d04-e7d1-4ca1-9a59-a5297becb7a8",
+              "sha256_record": "0bb68aff210dfff3365ceccd9d69136cc4bf4893a08ce5ed6a0fda031abfacb2"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        },
+        "C2": {
+          "source_case_record_sha256": "d7bb3cfab70c8e9f78a9368116e0343c6e1b7e07abd8689f2ab66b3adbb9b372",
+          "answer_sha256": "b8d6bf406309ac39af671c728d78084bd8b67f5bb8bdcac45271289448331a1c",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "L'intervalle de stockage -40 à 85 °C conserve le signe négatif, les deux bornes, l'unité et le rôle stockage. La citation répond directement à la question.",
+          "answer": "P03_negative_interval_a.docx — Extrait : « Storage temperature: -40 to 85 °C. » [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P03_negative_interval_a.docx",
+              "text": "Storage temperature: -40 to 85 °C.",
+              "document_id": "649a833e-3c25-42f0-90a2-4c4bffcb7478",
+              "version_id": "27b324b5-39aa-4e45-9f1d-d6d6b4d0022b",
+              "sha256_record": "33b77aaec03f1088ba9c89933677500b45cc526771597199f0aa876664e48c92"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        }
+      },
+      "frozen_source_specifications": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Storage temperature: -40 to 85 °C."
+          ]
+        }
+      ],
+      "frozen_fact_requirements": [
+        {
+          "id": "range",
+          "document": "a",
+          "source_patterns": [
+            "-40",
+            "85",
+            "°C"
+          ],
+          "answer_patterns": [
+            "[−–-]40",
+            "85",
+            "°C"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "P04_two_conditions",
+      "question": "Donne les deux plages d'alimentation recommandées avec leurs conditions de température.",
+      "frozen_expected": "answerable_complete",
+      "arms": {
+        "baseline": {
+          "source_case_record_sha256": "2ec5f64cf5ffa79870dd4575d441c94c35cd2d7d3e97748b2889fe078c0d156c",
+          "answer_sha256": "21a168525409a236300283f576778f03bb5705f7e96c416d7ade3693e4a88da7",
+          "automated_historical_pass": false,
+          "independent_review_pass": false,
+          "state": "done",
+          "error_code": null,
+          "reason": "Les deux relations répondables existent dans les sources figées. La sortie ne fournit aucune relation ni citation et déclare les preuves insuffisantes : refus total sur un cas répondable.",
+          "answer": "Les preuves disponibles dans ce périmètre ne suffisent pas pour répondre à cette question.",
+          "citations": [],
+          "all_required_fact_content_present": false,
+          "useful_fact_content": false,
+          "total_refusal": true,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": []
+        },
+        "C2": {
+          "source_case_record_sha256": "e96fb2b48446810fea6b86968fce17d3cfab7a11b9d98897018d4cc4b9f7f2fd",
+          "answer_sha256": "2367c49cc40a7bbe62e3e1cc60eb200b58d653914d2b82a84dbb088781d71837",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "Les deux plages recommandées 1.5–4.5 V et 1.8–4.5 V sont restituées avec leurs propres conditions TA=-40–125 °C et TA=-55–150 °C. L'ordre des extraits change sans déplacer les conditions. Réponse complète, sans réserve injustifiée.",
+          "answer": "P04_two_conditions_a.docx — Extrait : « Recommended supply voltage: 1.8 to 4.5 V for TA = -55 to 150 °C. » [S001]\n\nP04_two_conditions_a.docx — Extrait : « Recommended supply voltage: 1.5 to 4.5 V for TA = -40 to 125 °C. » [S002]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P04_two_conditions_a.docx",
+              "text": "Recommended supply voltage: 1.8 to 4.5 V for TA = -55 to 150 °C.",
+              "document_id": "711e2631-7344-484b-8d9b-bb253ce34307",
+              "version_id": "27ecb861-acf1-4ed3-bd62-f4a4db7dfc0d",
+              "sha256_record": "36a2a948e42536b67f149ca7b9ae7f06cd131e84dca3021d6505134973f320d4"
+            },
+            {
+              "source_id": "S002",
+              "document_name": "P04_two_conditions_a.docx",
+              "text": "Recommended supply voltage: 1.5 to 4.5 V for TA = -40 to 125 °C.",
+              "document_id": "711e2631-7344-484b-8d9b-bb253ce34307",
+              "version_id": "27ecb861-acf1-4ed3-bd62-f4a4db7dfc0d",
+              "sha256_record": "bbfb6c63b181b3df9d4ca3fb0fbb659762a03f692972db31d2d22ff01ab6b31e"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        }
+      },
+      "frozen_source_specifications": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Recommended supply voltage: 1.5 to 4.5 V for TA = -40 to 125 °C.",
+            "Recommended supply voltage: 1.8 to 4.5 V for TA = -55 to 150 °C."
+          ]
+        }
+      ],
+      "frozen_fact_requirements": [
+        {
+          "id": "condition1",
+          "document": "a",
+          "source_patterns": [
+            "1\\.5",
+            "4\\.5",
+            "125",
+            "-40"
+          ],
+          "answer_patterns": [
+            "1\\.5",
+            "4\\.5",
+            "125",
+            "-40"
+          ]
+        },
+        {
+          "id": "condition2",
+          "document": "a",
+          "source_patterns": [
+            "1\\.8",
+            "4\\.5",
+            "150",
+            "-55"
+          ],
+          "answer_patterns": [
+            "1\\.8",
+            "4\\.5",
+            "150",
+            "-55"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "P05_sparse_table",
+      "question": "Quelle plage de tension de bus est indiquée avec ses bornes et son unité ?",
+      "frozen_expected": "answerable_complete",
+      "arms": {
+        "baseline": {
+          "source_case_record_sha256": "392f3b13fec5198e22d3d169f516dce8d30a374a3b8367b9ae76997470221a23",
+          "answer_sha256": "9d553a79e7ccebb76c0328e94e92cae40284d9bfbfba5185c16cb7e8c96f1775",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "La ligne conserve MIN=0, TYP vide, MAX=36 et UNIT=V ; les en-têtes sont cités. Aucun glissement de colonne et aucune valeur typique inventée. Le faux négatif séparé de métrique JSON n'affecte pas cette réponse.",
+          "answer": "P05_sparse_table_a.docx — Extrait : « Bus voltage range\t0\t\t36\tV » Liaisons aux en-têtes : MIN = 0; TYP = ; MAX = 36; UNIT = V.\nP05_sparse_table_a.docx — Extrait : « Parameter\tMIN\tTYP\tMAX\tUNIT » [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P05_sparse_table_a.docx",
+              "text": "Parameter\tMIN\tTYP\tMAX\tUNIT\nBus voltage range\t0\t\t36\tV",
+              "document_id": "188ba981-b7ba-454b-87b6-b6eb285c922d",
+              "version_id": "dcd44eb3-b7a4-4df4-b9d0-bd8bdf246921",
+              "sha256_record": "f657394daa5097e3585d42ac9b039843f4bcd0c42c91ae818be1421958291715"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        },
+        "C2": {
+          "source_case_record_sha256": "e6ac6304c7e9ca604a21e51548319f86e61432ec10d7d339285790e8d90e16e7",
+          "answer_sha256": "9d553a79e7ccebb76c0328e94e92cae40284d9bfbfba5185c16cb7e8c96f1775",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "La ligne conserve MIN=0, TYP vide, MAX=36 et UNIT=V ; les en-têtes sont cités. Aucun glissement de colonne et aucune valeur typique inventée. Le faux négatif séparé de métrique JSON n'affecte pas cette réponse.",
+          "answer": "P05_sparse_table_a.docx — Extrait : « Bus voltage range\t0\t\t36\tV » Liaisons aux en-têtes : MIN = 0; TYP = ; MAX = 36; UNIT = V.\nP05_sparse_table_a.docx — Extrait : « Parameter\tMIN\tTYP\tMAX\tUNIT » [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P05_sparse_table_a.docx",
+              "text": "Parameter\tMIN\tTYP\tMAX\tUNIT\nBus voltage range\t0\t\t36\tV",
+              "document_id": "5567d100-14a9-4162-a212-9aae8e06041c",
+              "version_id": "78eb1ce9-2001-4284-8ec2-efe7b9243f36",
+              "sha256_record": "902ecee17355ed4c0c73e5160eedcbc1b4340f5fd7e49c2464cd064f7d6f8e95"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        }
+      },
+      "frozen_source_specifications": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [],
+          "tables": [
+            [
+              [
+                "Parameter",
+                "MIN",
+                "TYP",
+                "MAX",
+                "UNIT"
+              ],
+              [
+                "Bus voltage range",
+                "0",
+                "",
+                "36",
+                "V"
+              ]
+            ]
+          ]
+        }
+      ],
+      "frozen_fact_requirements": [
+        {
+          "id": "range",
+          "document": "a",
+          "source_patterns": [
+            "Bus voltage",
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ],
+          "answer_patterns": [
+            "(?i)bus",
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b",
+            "(?i)min",
+            "(?i)max"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "P06_roles",
+      "question": "Quelle est la plage de tension d'alimentation recommandée ?",
+      "frozen_expected": "answerable_complete",
+      "arms": {
+        "baseline": {
+          "source_case_record_sha256": "516cddd81059852d1ba919e45af75fa18b8996a9a64107d8f9e689ea04e50cad",
+          "answer_sha256": "21a168525409a236300283f576778f03bb5705f7e96c416d7ade3693e4a88da7",
+          "automated_historical_pass": false,
+          "independent_review_pass": false,
+          "state": "done",
+          "error_code": null,
+          "reason": "La plage recommandée 2–5 V existe dans l'original mais la réponse se limite à une insuffisance sans citation : refus total sur cas répondable.",
+          "answer": "Les preuves disponibles dans ce périmètre ne suffisent pas pour répondre à cette question.",
+          "citations": [],
+          "all_required_fact_content_present": false,
+          "useful_fact_content": false,
+          "total_refusal": true,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": []
+        },
+        "C2": {
+          "source_case_record_sha256": "42162181f84701b60373074ebdd7cd0cb98c231c6e8830813abbce678d13a2f8",
+          "answer_sha256": "e9fb7d4a3297dbaba9b5b5ba0161a5e7763589ef0212c53510657d98c2ddcb22",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "La plage recommandée de fonctionnement 2–5 V est citée. Le maximum absolu 6 V n'est pas substitué à cette plage ; réponse complète sans réserve injustifiée.",
+          "answer": "P06_roles_a.docx — Extrait : « Recommended operating supply voltage: 2 to 5 V. » [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P06_roles_a.docx",
+              "text": "Recommended operating supply voltage: 2 to 5 V.",
+              "document_id": "c5e8d29b-7071-47cd-b304-f75527826570",
+              "version_id": "fb9964f9-e411-4c2c-8e30-e74ed1466f67",
+              "sha256_record": "ce77590587c199d7f2baeed79a734c8be5e19e00d0c4017f1c6c6c504618eb68"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        }
+      },
+      "frozen_source_specifications": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Absolute maximum supply voltage: 6 V.",
+            "Recommended operating supply voltage: 2 to 5 V."
+          ]
+        }
+      ],
+      "frozen_fact_requirements": [
+        {
+          "id": "recommended",
+          "document": "a",
+          "source_patterns": [
+            "Recommended operating supply voltage",
+            "2 to 5 V"
+          ],
+          "answer_patterns": [
+            "(?i)recommended|recommand",
+            "(?<!\\d)2(?!\\d)",
+            "(?<!\\d)5(?!\\d)",
+            "\\bV\\b"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "P07_duplicates",
+      "question": "Quelle est la plage de tension de bus ?",
+      "frozen_expected": "answerable_complete",
+      "arms": {
+        "baseline": {
+          "source_case_record_sha256": "72d1256f8ebf65de74983a35fec1327f91d6c01f1ac543b2496d17fa8408b71b",
+          "answer_sha256": "965b505139a9f2cda753c6d7f3f9661b5822c384cbc3e582c73dd17006b5cf90",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "La plage de bus 0–36 V est correcte. Le candidat cite deux occurrences identiques du même document ; cette redondance n'invente ni seconde mesure ni indépendance des preuves et ne modifie pas le verdict gelé.",
+          "answer": "P07_duplicates_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P07_duplicates_a.docx",
+              "text": "Operating bus voltage: 0 to 36 V.",
+              "document_id": "82eddcbc-3c66-4204-9171-53ea9a6d51b1",
+              "version_id": "5db4c51e-35f8-4f2d-aa46-4b5c891b1717",
+              "sha256_record": "5fbb382dcbeb00c64c5dc3ea6b780da7d17d85e9f3f9c41e5dbf2c88bd6e1dd9"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        },
+        "C2": {
+          "source_case_record_sha256": "8896b8d7c70efb2b896605d8ab69c1728f2de205d07e35b67eafcc891dbeb317",
+          "answer_sha256": "a7560639e870a5e871fa7327ebff430884a6ed48b5ad0f43701bb97726039f6c",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "La plage de bus 0–36 V est correcte. Le candidat cite deux occurrences identiques du même document ; cette redondance n'invente ni seconde mesure ni indépendance des preuves et ne modifie pas le verdict gelé.",
+          "answer": "P07_duplicates_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]\n\nP07_duplicates_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S002]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P07_duplicates_a.docx",
+              "text": "Operating bus voltage: 0 to 36 V.",
+              "document_id": "214aa7b8-e9cd-4919-b2ef-abfe61bfa5ef",
+              "version_id": "309b1778-4a5d-42b5-931d-be8fba846ef8",
+              "sha256_record": "1e61761a55635f1e8a465f2cdcda796496200739fa2177b5b375b7246acc37ed"
+            },
+            {
+              "source_id": "S002",
+              "document_name": "P07_duplicates_a.docx",
+              "text": "Operating bus voltage: 0 to 36 V.",
+              "document_id": "214aa7b8-e9cd-4919-b2ef-abfe61bfa5ef",
+              "version_id": "309b1778-4a5d-42b5-931d-be8fba846ef8",
+              "sha256_record": "fc043d1a7400bbf9721ca63236e7ab902378ac9fa202aa956718f21d1b991c6e"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        }
+      },
+      "frozen_source_specifications": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Operating bus voltage: 0 to 36 V.",
+            "Operating bus voltage: 0 to 36 V."
+          ]
+        }
+      ],
+      "frozen_fact_requirements": [
+        {
+          "id": "range",
+          "document": "a",
+          "source_patterns": [
+            "Operating bus voltage",
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ],
+          "answer_patterns": [
+            "(?i)bus",
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "P08_comparison_equal",
+      "question": "Comparer les plages de tension de bus des deux documents.",
+      "frozen_expected": "answerable_complete",
+      "arms": {
+        "baseline": {
+          "source_case_record_sha256": "af04816f3bcfa1233efe0d73dca812f302429b5a428cbd5a34bdfe6402395462",
+          "answer_sha256": "9406651a77cc2a14484488139c7ea7987e39e69315833d5c803baf1a0feb1d5f",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "Les deux documents attribués séparément portent 0–36 V, rôle operating. La concordance des valeurs citées est justifiée. La réserve sur d'éventuelles conditions d'essai supplémentaires et sur l'indépendance des documents borne des propriétés réellement non établies ; elle ne retire pas la comparaison demandée et n'est pas assimilée à la réserve globale P01.",
+          "answer": "P08_comparison_equal_b.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]\n\nP08_comparison_equal_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S002]\n\nComparaison — tension de bus (P08_comparison_equal_b.docx, P08_comparison_equal_a.docx) : les valeurs citées concordent sous les rôles indiqués ; aucune équivalence de conditions d'essai supplémentaires n'est établie. [S001] [S002] La concordance éventuelle des valeurs n'établit pas l'indépendance des documents.",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P08_comparison_equal_b.docx",
+              "text": "Operating bus voltage: 0 to 36 V.",
+              "document_id": "06f10c6f-e846-4890-91f8-e0ef01ed413f",
+              "version_id": "4d5e3e9e-d13a-441b-a6cf-929570e53a90",
+              "sha256_record": "d685d236c50419d0d09a8ade5f2749c90d77916214f3d9ed3320cff72e5d43b1"
+            },
+            {
+              "source_id": "S002",
+              "document_name": "P08_comparison_equal_a.docx",
+              "text": "Operating bus voltage: 0 to 36 V.",
+              "document_id": "a64f28a9-b61c-4683-866c-e60d51283952",
+              "version_id": "ee6d76ca-84a3-4d4b-a2ce-4f655a695386",
+              "sha256_record": "6596b60c6be5dea503cc5804d4376e0a1ffbc930c900f7de263a9e5b7ac38efb"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        },
+        "C2": {
+          "source_case_record_sha256": "8beda4884afd084e38386780b2950e8c6462df03421a51ca93849eab1c74d617",
+          "answer_sha256": "9406651a77cc2a14484488139c7ea7987e39e69315833d5c803baf1a0feb1d5f",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "Les deux documents attribués séparément portent 0–36 V, rôle operating. La concordance des valeurs citées est justifiée. La réserve sur d'éventuelles conditions d'essai supplémentaires et sur l'indépendance des documents borne des propriétés réellement non établies ; elle ne retire pas la comparaison demandée et n'est pas assimilée à la réserve globale P01.",
+          "answer": "P08_comparison_equal_b.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]\n\nP08_comparison_equal_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S002]\n\nComparaison — tension de bus (P08_comparison_equal_b.docx, P08_comparison_equal_a.docx) : les valeurs citées concordent sous les rôles indiqués ; aucune équivalence de conditions d'essai supplémentaires n'est établie. [S001] [S002] La concordance éventuelle des valeurs n'établit pas l'indépendance des documents.",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P08_comparison_equal_b.docx",
+              "text": "Operating bus voltage: 0 to 36 V.",
+              "document_id": "1618877e-cc33-4f4a-830b-12bd0b19b6c2",
+              "version_id": "26c87889-94af-47e3-826f-8d4f6d0917aa",
+              "sha256_record": "3bc61154b2b370710c5b56cffbaa8627b345913102ea36baf2545807a2a506af"
+            },
+            {
+              "source_id": "S002",
+              "document_name": "P08_comparison_equal_a.docx",
+              "text": "Operating bus voltage: 0 to 36 V.",
+              "document_id": "5a52ba8c-6e93-4793-bab4-645ec7339bc6",
+              "version_id": "dba397ef-9dd5-4bf1-8c40-26324b6df0b1",
+              "sha256_record": "9fcf94698405cfb323e79b59d01ca3c82b03e7609ada564ca6a34d3eae99c4cc"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        }
+      },
+      "frozen_source_specifications": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Operating bus voltage: 0 to 36 V."
+          ]
+        },
+        {
+          "key": "b",
+          "format": "docx",
+          "paragraphs": [
+            "Operating bus voltage: 0 to 36 V."
+          ]
+        }
+      ],
+      "frozen_fact_requirements": [
+        {
+          "id": "a",
+          "document": "a",
+          "source_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ],
+          "answer_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ]
+        },
+        {
+          "id": "b",
+          "document": "b",
+          "source_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ],
+          "answer_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "P09_comparison_different",
+      "question": "Comparer les plages de tension de bus des deux documents.",
+      "frozen_expected": "answerable_complete",
+      "arms": {
+        "baseline": {
+          "source_case_record_sha256": "f3d9857171f4113e702ca3ddea134ef8dd1275e7ef28961d677e5067ead56143",
+          "answer_sha256": "7caec80926a913cf4ee3eee92a9aa76cfd1e3e2e777da48739fe02ab5c1e4378",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "Chaque document garde sa plage, 0–36 V ou 0–40 V. Le constat de divergence est justifié, sans arbitrage. La réserve sur les conditions supplémentaires borne les informations absentes sans empêcher la comparaison demandée.",
+          "answer": "P09_comparison_different_b.docx — Extrait : « Operating bus voltage: 0 to 40 V. » [S001]\n\nP09_comparison_different_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S002]\n\nComparaison — tension de bus (P09_comparison_different_b.docx, P09_comparison_different_a.docx) : les valeurs citées divergent sous les rôles indiqués ; aucune équivalence de conditions d'essai supplémentaires n'est établie. [S001] [S002] La concordance éventuelle des valeurs n'établit pas l'indépendance des documents.",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P09_comparison_different_b.docx",
+              "text": "Operating bus voltage: 0 to 40 V.",
+              "document_id": "5557f56a-23ec-431f-991e-f6b67ba3a591",
+              "version_id": "5f33e8e3-bb97-4036-9195-37daafa529bf",
+              "sha256_record": "8dc917084bb798d69be5b937aed1fe440efbfad79edb8d257f4698ec3b88f0dc"
+            },
+            {
+              "source_id": "S002",
+              "document_name": "P09_comparison_different_a.docx",
+              "text": "Operating bus voltage: 0 to 36 V.",
+              "document_id": "d8b642a6-a8ef-4618-a6b5-7952cb047014",
+              "version_id": "57b5392a-009a-44a3-b34f-1f7c6e5a2036",
+              "sha256_record": "3585c7a08eb74ccbd12a2941f3d3ed3e06443072ea670c3cdb5964195b1fad55"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        },
+        "C2": {
+          "source_case_record_sha256": "8e707fd5d9fd5c19db60036c9b01580dba281467f29542fa4b4ae4ffc91816b8",
+          "answer_sha256": "7caec80926a913cf4ee3eee92a9aa76cfd1e3e2e777da48739fe02ab5c1e4378",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "Chaque document garde sa plage, 0–36 V ou 0–40 V. Le constat de divergence est justifié, sans arbitrage. La réserve sur les conditions supplémentaires borne les informations absentes sans empêcher la comparaison demandée.",
+          "answer": "P09_comparison_different_b.docx — Extrait : « Operating bus voltage: 0 to 40 V. » [S001]\n\nP09_comparison_different_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S002]\n\nComparaison — tension de bus (P09_comparison_different_b.docx, P09_comparison_different_a.docx) : les valeurs citées divergent sous les rôles indiqués ; aucune équivalence de conditions d'essai supplémentaires n'est établie. [S001] [S002] La concordance éventuelle des valeurs n'établit pas l'indépendance des documents.",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P09_comparison_different_b.docx",
+              "text": "Operating bus voltage: 0 to 40 V.",
+              "document_id": "4e92440a-b324-4a86-ae74-9aad9443ff7e",
+              "version_id": "3dd79d44-229e-4795-a004-5db692510256",
+              "sha256_record": "5fc7096fe7226a032901d7a7a3d9175c580ead43479ada2252c1cc92efdc325c"
+            },
+            {
+              "source_id": "S002",
+              "document_name": "P09_comparison_different_a.docx",
+              "text": "Operating bus voltage: 0 to 36 V.",
+              "document_id": "dbbf81f1-38dc-412e-b6a5-ff6433ba0cea",
+              "version_id": "8e242b7d-2b44-49a5-9443-ec17457418b8",
+              "sha256_record": "2435bfeb7ef4b031722a052d8bd0815e34a2c757e743e7a28e3b8e09abd3c4b1"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        }
+      },
+      "frozen_source_specifications": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Operating bus voltage: 0 to 36 V."
+          ]
+        },
+        {
+          "key": "b",
+          "format": "docx",
+          "paragraphs": [
+            "Operating bus voltage: 0 to 40 V."
+          ]
+        }
+      ],
+      "frozen_fact_requirements": [
+        {
+          "id": "a",
+          "document": "a",
+          "source_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ],
+          "answer_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<![\\d])36(?![\\d])",
+            "\\bV\\b"
+          ]
+        },
+        {
+          "id": "b",
+          "document": "b",
+          "source_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<!\\d)40(?!\\d)",
+            "\\bV\\b"
+          ],
+          "answer_patterns": [
+            "(?<![\\d])0(?![\\d])",
+            "(?<!\\d)40(?!\\d)",
+            "\\bV\\b"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "P10_decimal_sum",
+      "question": "Calcule la somme des cellules A1 et B1.",
+      "frozen_expected": "answerable_complete",
+      "arms": {
+        "baseline": {
+          "source_case_record_sha256": "39b0abe3cc0073e1aa705bb5d7df75b7871aae0bc1420e64e309b99e874ae1ff",
+          "answer_sha256": "a119e1d142f7b0c125eed22f359beefbd6f47717847f85ac7ef4bdf6a2f1216c",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "Les entrées A1=1.25 et B1=2.75, l'opération somme et le résultat 4 sont présents, avec citation des entrées. Vérification indépendante Decimal : 1.25+2.75=4.00. Le résultat est identifié comme calcul, pas comme valeur source.",
+          "answer": "Calcul déterministe — Somme : A1 = 1.25; B1 = 2.75 ; résultat = 4. [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P10_decimal_sum_a.xlsx",
+              "text": "A1 (value) : 1.25\nB1 (value) : 2.75",
+              "document_id": "10c55ec0-c271-4bb2-9486-f096e66ff9e4",
+              "version_id": "ff378d62-ea7f-4c6a-8bd5-c7d44815785d",
+              "sha256_record": "41b1268d5515fac151e878b11a9d2279eddd38618fe4d24c22291ba7b9508d2e"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "independent_calculation": {
+            "expression": "Decimal(1.25)+Decimal(2.75)",
+            "result": "4.00"
+          }
+        },
+        "C2": {
+          "source_case_record_sha256": "dbf78f529577f2553e94053f031ca27df985b71737a8085d01e71d04805058b1",
+          "answer_sha256": "a119e1d142f7b0c125eed22f359beefbd6f47717847f85ac7ef4bdf6a2f1216c",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "Les entrées A1=1.25 et B1=2.75, l'opération somme et le résultat 4 sont présents, avec citation des entrées. Vérification indépendante Decimal : 1.25+2.75=4.00. Le résultat est identifié comme calcul, pas comme valeur source.",
+          "answer": "Calcul déterministe — Somme : A1 = 1.25; B1 = 2.75 ; résultat = 4. [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P10_decimal_sum_a.xlsx",
+              "text": "A1 (value) : 1.25\nB1 (value) : 2.75",
+              "document_id": "93b136bd-6bd1-4933-b41b-0be47bf6a29f",
+              "version_id": "2f46d09a-d2da-4ed6-b76c-83364629ec8a",
+              "sha256_record": "df55188827ea7e865e345314401777371b804d178564fc0f2b2d576a88a3ff5f"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "independent_calculation": {
+            "expression": "Decimal(1.25)+Decimal(2.75)",
+            "result": "4.00"
+          }
+        }
+      },
+      "frozen_source_specifications": [
+        {
+          "key": "a",
+          "format": "xlsx",
+          "sheets": [
+            {
+              "name": "Parametres",
+              "cells": {
+                "A1": 1.25,
+                "B1": 2.75
+              }
+            }
+          ]
+        }
+      ],
+      "frozen_fact_requirements": [
+        {
+          "id": "sum",
+          "document": "a",
+          "source_patterns": [
+            "1\\.25",
+            "2\\.75"
+          ],
+          "answer_patterns": [
+            "(?<![\\d.])4(?![\\d.])",
+            "(?i)somme|sum|\\+"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "P11_conversion",
+      "question": "Convertir la cellule A1 en millisecondes, avec l'unité portée par la cellule B1.",
+      "frozen_expected": "answerable_complete",
+      "arms": {
+        "baseline": {
+          "source_case_record_sha256": "f922f3095436ea1b362f0da285ee9efd58d2b9df6bef69139185141fca994f94",
+          "answer_sha256": "9668c30352542fb1c4905366c550b3cb4457600dbf199f209ab8a9d6845c4b09",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "A1=125, l'unité source B1=µs, la méthode /1000 et le résultat 0.125 ms sont présents. Vérification indépendante Decimal : 125/1000=0.125. Aucune unité extérieure au périmètre n'est empruntée.",
+          "answer": "Calcul déterministe — Conversion : A1 = 125 ; unité source B1 = µs ; résultat = 0.125 ms. Conversion d'unité : (125 / 1000) ms = 0.125 ms. [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P11_conversion_a.xlsx",
+              "text": "A1 (value) : 125\nB1 (value) : µs",
+              "document_id": "1077e45a-0997-43fd-9183-72d063848641",
+              "version_id": "f40a11e9-6d01-4c6e-9f72-b14f9de69a54",
+              "sha256_record": "4dfbeacdf0da5ca32b0ffe8fb658f9ee9b556d4f38519b7bad6bd2520b11206c"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "independent_calculation": {
+            "expression": "Decimal(125)/Decimal(1000)",
+            "result": "0.125"
+          }
+        },
+        "C2": {
+          "source_case_record_sha256": "fabdbdd8f51cd82cdb371b640c4216d4469858061a37f6ed4ff9c3d6ff53ccb7",
+          "answer_sha256": "9668c30352542fb1c4905366c550b3cb4457600dbf199f209ab8a9d6845c4b09",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "A1=125, l'unité source B1=µs, la méthode /1000 et le résultat 0.125 ms sont présents. Vérification indépendante Decimal : 125/1000=0.125. Aucune unité extérieure au périmètre n'est empruntée.",
+          "answer": "Calcul déterministe — Conversion : A1 = 125 ; unité source B1 = µs ; résultat = 0.125 ms. Conversion d'unité : (125 / 1000) ms = 0.125 ms. [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P11_conversion_a.xlsx",
+              "text": "A1 (value) : 125\nB1 (value) : µs",
+              "document_id": "53baa585-2682-40ed-bfbb-5d593eb0caae",
+              "version_id": "7c5f06fc-e8a7-4abf-b0dc-f2b294ae6c75",
+              "sha256_record": "387e26811112e0b1dcc6077efae6696569a913f037ebf490f8e6de2719d62ee8"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "independent_calculation": {
+            "expression": "Decimal(125)/Decimal(1000)",
+            "result": "0.125"
+          }
+        }
+      },
+      "frozen_source_specifications": [
+        {
+          "key": "a",
+          "format": "xlsx",
+          "sheets": [
+            {
+              "name": "Parametres",
+              "cells": {
+                "A1": 125,
+                "B1": "µs"
+              }
+            }
+          ]
+        }
+      ],
+      "frozen_fact_requirements": [
+        {
+          "id": "conversion",
+          "document": "a",
+          "source_patterns": [
+            "125",
+            "[µμ]s"
+          ],
+          "answer_patterns": [
+            "0[.,]125",
+            "\\bms\\b",
+            "1000"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "P12_cached_formula",
+      "question": "Quelle valeur calculée est disponible pour la cellule A1 ?",
+      "frozen_expected": "answerable_complete",
+      "arms": {
+        "baseline": {
+          "source_case_record_sha256": "1c860e82fae64ddd06c2bf1e85e42e970a20dca26a0d2b2d9277fb0915eb7535",
+          "answer_sha256": "39bf03d98d9aba4c31840bac6607e051241adb2318c032399734979fce42f24a",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "Le cache source 3 et la formule =1+2 sont restitués. La fraîcheur inconnue et l'absence de recalcul sont des réserves justifiées par les données disponibles et expressément requises par l'oracle ; elles ne constituent pas un refus ni une réserve injustifiée sur le fait demandé.",
+          "answer": "P12_cached_formula_a.xlsx — Parametres / A1 : Cache source « 3 »; Formule enregistrée « =1+2 »; cache enregistré de fraîcheur inconnue; aucun calcul effectué par cette application ; activité et historique d'exécution non établis. [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P12_cached_formula_a.xlsx",
+              "text": "A1 (cache_status) : cache de formule : fraîcheur inconnue\nA1 (formula) : =1+2\nA1 (value) : 3",
+              "document_id": "47c68f88-c78a-4c60-abf7-3cd72406e0b2",
+              "version_id": "997ba928-7079-4df0-9686-d6213f350889",
+              "sha256_record": "3250bbebe619fc7af7a311980977e9c956947f6cab1ff9e91a5961d241d5fe1e"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        },
+        "C2": {
+          "source_case_record_sha256": "83614f00f2e5ba14b164d7f92757700a33ff264e3f140fd4696df7aa7b67fa75",
+          "answer_sha256": "39bf03d98d9aba4c31840bac6607e051241adb2318c032399734979fce42f24a",
+          "automated_historical_pass": true,
+          "independent_review_pass": true,
+          "state": "done",
+          "error_code": null,
+          "reason": "Le cache source 3 et la formule =1+2 sont restitués. La fraîcheur inconnue et l'absence de recalcul sont des réserves justifiées par les données disponibles et expressément requises par l'oracle ; elles ne constituent pas un refus ni une réserve injustifiée sur le fait demandé.",
+          "answer": "P12_cached_formula_a.xlsx — Parametres / A1 : Cache source « 3 »; Formule enregistrée « =1+2 »; cache enregistré de fraîcheur inconnue; aucun calcul effectué par cette application ; activité et historique d'exécution non établis. [S001]",
+          "citations": [
+            {
+              "source_id": "S001",
+              "document_name": "P12_cached_formula_a.xlsx",
+              "text": "A1 (cache_status) : cache de formule : fraîcheur inconnue\nA1 (formula) : =1+2\nA1 (value) : 3",
+              "document_id": "6e36b5c2-17f2-42e6-a280-707f541eae38",
+              "version_id": "c046efe0-a11b-479a-bc94-d0d4b8be8a7c",
+              "sha256_record": "620cec4cc9576ff11f820b2968cd3f818499056ab40e6e7319e9cbf070fad3cb"
+            }
+          ],
+          "all_required_fact_content_present": true,
+          "useful_fact_content": true,
+          "total_refusal": false,
+          "unnecessary_reservation": false,
+          "source_citation_checks_recorded": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ]
+        }
+      },
+      "frozen_source_specifications": [
+        {
+          "key": "a",
+          "format": "xlsx",
+          "sheets": [
+            {
+              "name": "Parametres",
+              "cells": {
+                "A1": "=1+2"
+              }
+            }
+          ],
+          "formula_cache": {
+            "A1": "3"
+          }
+        }
+      ],
+      "frozen_fact_requirements": [
+        {
+          "id": "cache",
+          "document": "a",
+          "source_patterns": [
+            "(?<!\\d)3(?!\\d)"
+          ],
+          "answer_patterns": [
+            "(?<!\\d)3(?!\\d)",
+            "(?i)cache",
+            "(?i)inconnue"
+          ]
+        }
+      ]
+    }
+  ],
+  "limit_controls_review": {
+    "case_count_per_arm": 18,
+    "cases": [
+      {
+        "case_id": "L01_condition_mismatch",
+        "question": "Quel courant de sortie est établi à TA = 85 °C ?",
+        "frozen_expected": "limitation",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "e29bf66ec52ff26d5966f1a86d356027157c74fa57ac2d489c00df54f05fb5d7",
+            "answer_sha256": "873a37a5faa5c17d2adebef25e5b949d589a15ab8f620b477f28412ef5e8e19c",
+            "automated_historical_pass": false,
+            "independent_review_pass": false,
+            "state": "done",
+            "error_code": null,
+            "reason": "La citation justifie 10 mA à 25 °C, pas la condition demandée 85 °C. Aucun signal explicite de non-transposition. Échec ; la sortie ne fabrique toutefois pas littéralement 10 mA à 85 °C.",
+            "answer_excerpt": "L01_condition_mismatch_a.docx — Extrait : « Output current: 10 mA at TA = 25 °C. » [S001]",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          },
+          "C2": {
+            "source_case_record_sha256": "7b10c9b5bd579a4364c78c780ea20389c50da329f593eddfa4eb1d04279d547d",
+            "answer_sha256": "3ac608ae3c71bd48d104cd8d9bc7127a18f6d6e2aae8248f57ece9c6a93933f3",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "La réponse signale explicitement que la valeur n'est pas établie dans les conditions demandées et conserve la citation à 25 °C. Réussite.",
+            "answer_excerpt": "Les preuves retenues n'établissent pas la valeur dans les conditions demandées. Les valeurs associées à d'autres conditions ne sont pas transposées.\n\nL01_condition_mismatch_a.docx — Extrait : « Output current: 10 mA at TA = 25 °C. » [S001]",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "L02_empty",
+        "question": "Quelle est la tension nominale ?",
+        "frozen_expected": "limitation",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "92882fc13c9bdb5938c7bc4773e5ba20450ce91981748387ba443d85eebac65b",
+            "answer_sha256": "21a168525409a236300283f576778f03bb5705f7e96c416d7ade3693e4a88da7",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "Document vide : insuffisance explicite, aucune valeur ni citation fabriquée.",
+            "answer_excerpt": "Les preuves disponibles dans ce périmètre ne suffisent pas pour répondre à cette question.",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 0,
+            "public_delta_count": 1,
+            "selector_calls": 0,
+            "source_citation_checks_recorded": []
+          },
+          "C2": {
+            "source_case_record_sha256": "e07d35ecb2219fb859024433ddda2c33de2e8b795db2568a42ace73838804a64",
+            "answer_sha256": "21a168525409a236300283f576778f03bb5705f7e96c416d7ade3693e4a88da7",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "Document vide : insuffisance explicite, aucune valeur ni citation fabriquée.",
+            "answer_excerpt": "Les preuves disponibles dans ce périmètre ne suffisent pas pour répondre à cette question.",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 0,
+            "public_delta_count": 1,
+            "selector_calls": 0,
+            "source_citation_checks_recorded": []
+          }
+        }
+      },
+      {
+        "case_id": "L03_scope_sheet",
+        "question": "Quel marqueur figure dans la deuxième feuille du classeur ?",
+        "frozen_expected": "limitation",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "dacf9074f830617a26cddcf61f50b28fd38d3597979840d94e5e9f2715478878",
+            "answer_sha256": "c1f858bfa765f5f468d711cca58a476358080b1e3749951c1ea79079b41173af",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "La question vise une deuxième feuille hors sélection A1/Parametres. La réponse explique la limite et ne publie pas SECRET_SCOPE_777.",
+            "answer_excerpt": "La question demande la feuille 2, mais le périmètre sélectionné autorise seulement la feuille 1 (Parametres). Son contenu extérieur n'a pas été consulté ; élargissez la sélection à cette feuille pour y répondre.",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 0,
+            "public_delta_count": 1,
+            "selector_calls": 0,
+            "source_citation_checks_recorded": []
+          },
+          "C2": {
+            "source_case_record_sha256": "8b72d3b19b18bfeb2a8e32c8fd13902e8b6e13e9fe4f746370a64eb777995488",
+            "answer_sha256": "c1f858bfa765f5f468d711cca58a476358080b1e3749951c1ea79079b41173af",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "La question vise une deuxième feuille hors sélection A1/Parametres. La réponse explique la limite et ne publie pas SECRET_SCOPE_777.",
+            "answer_excerpt": "La question demande la feuille 2, mais le périmètre sélectionné autorise seulement la feuille 1 (Parametres). Son contenu extérieur n'a pas été consulté ; élargissez la sélection à cette feuille pour y répondre.",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 0,
+            "public_delta_count": 1,
+            "selector_calls": 0,
+            "source_citation_checks_recorded": []
+          }
+        }
+      },
+      {
+        "case_id": "L04_unit_outside",
+        "question": "Convertir la cellule A1 en millisecondes.",
+        "frozen_expected": "limitation",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "0ca338b75f3c8f58485b998463ddb684f0f3f8efc7b7e440f5802fc359d086c5",
+            "answer_sha256": "2c61ea9785dfc291dc472877325b1162dc17dcacb4a3e9689d0b3f9de80e55b9",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "La cellule A1 autorisée contient 140 sans unité. La conversion est refusée, B1 hors sélection n'est pas empruntée, la valeur source 140 est citée.",
+            "answer_excerpt": "Le calcul demandé n'est pas établi : La conversion exige une unité source et une unité cible explicites.\n\nL04_unit_outside_a.xlsx — Parametres / A1 : Valeur littérale « 140 ». [S001]",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 0,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          },
+          "C2": {
+            "source_case_record_sha256": "046058c9453046f1257cac264bfae613a68a3e9b13a8f4b5bcb70f6fb04919ec",
+            "answer_sha256": "2c61ea9785dfc291dc472877325b1162dc17dcacb4a3e9689d0b3f9de80e55b9",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "La cellule A1 autorisée contient 140 sans unité. La conversion est refusée, B1 hors sélection n'est pas empruntée, la valeur source 140 est citée.",
+            "answer_excerpt": "Le calcul demandé n'est pas établi : La conversion exige une unité source et une unité cible explicites.\n\nL04_unit_outside_a.xlsx — Parametres / A1 : Valeur littérale « 140 ». [S001]",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 0,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "L05_uncached_formula",
+        "question": "Quelle valeur calculée est disponible pour la cellule A1 ?",
+        "frozen_expected": "limitation",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "552f36ac348d9480ca2962ed7ea6793ce9a76a17669756f9183ff9d909a9a384",
+            "answer_sha256": "c8adeb1246e9c9337eb6f7667a5fb4b7cd0ab2e27605740fa9e1ba5ccbd99ca1",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "La formule =11+13 est citée sans cache. La sortie indique l'indisponibilité et ne calcule pas 24 comme résultat documentaire.",
+            "answer_excerpt": "Restitution partielle : certains faits demandés ne sont pas établis dans les preuves retenues. Cela ne démontre pas leur absence dans les documents.\n\nL05_uncached_formula_a.xlsx — Parametres / A1 : Formule enregistrée «  ...  : Formule enregistrée « =11+13 »; résultat indisponible : cache source absent; aucun calcul effectué par cette application ; activité et historique d'exécution non établis. [S001]",
+            "answer_excerpt_is_complete": false,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 0,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          },
+          "C2": {
+            "source_case_record_sha256": "5708ad6321a880ef30f7038b0291e482a943f44642a814559cca0af07cb28e3a",
+            "answer_sha256": "c8adeb1246e9c9337eb6f7667a5fb4b7cd0ab2e27605740fa9e1ba5ccbd99ca1",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "La formule =11+13 est citée sans cache. La sortie indique l'indisponibilité et ne calcule pas 24 comme résultat documentaire.",
+            "answer_excerpt": "Restitution partielle : certains faits demandés ne sont pas établis dans les preuves retenues. Cela ne démontre pas leur absence dans les documents.\n\nL05_uncached_formula_a.xlsx — Parametres / A1 : Formule enregistrée «  ...  : Formule enregistrée « =11+13 »; résultat indisponible : cache source absent; aucun calcul effectué par cette application ; activité et historique d'exécution non établis. [S001]",
+            "answer_excerpt_is_complete": false,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 0,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "L06_cross_document_conflict",
+        "question": "Quelle est la tension d'alimentation recommandée à TA = 25 °C selon les deux documents ?",
+        "frozen_expected": "conflict",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "e9540845e807a06775ab897e8645afd4c43274b460c25364585548e746259184",
+            "answer_sha256": "15c618d8fcb7f19cbaa61c04a3427fda781c8ea2e3a75e2a23621de009577076",
+            "automated_historical_pass": false,
+            "independent_review_pass": false,
+            "state": "done",
+            "error_code": null,
+            "reason": "Deux citations exactes 3.0 V/3.6 V à 25 °C, mais aucun signal explicite de divergence. Le contrôle gelé de conflit n'est pas satisfait.",
+            "answer_excerpt": "L06_cross_document_conflict_b.docx — Extrait : « Recommended supply voltage: 3.6 V at TA = 25 °C. » [S002]\n\nL06_cross_document_conflict_a.docx — Extrait : « Recommended supply voltage: 3.0 V at TA = 25 °C. » [S001]",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 2,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              },
+              {
+                "source_id": "S002",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          },
+          "C2": {
+            "source_case_record_sha256": "8a0dcd3383be00d0331de1ed8665865e7cd6f119c78ff2ccde6a033f011d592a",
+            "answer_sha256": "6dff5549362e4089fd951f612304b1a252a3970f2216d6959cb7d58e81640e8d",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "Les deux valeurs et leurs documents sont cités avec un signal explicite de divergence ; aucune valeur choisie et aucune identité commune d'équipement inventée.",
+            "answer_excerpt": "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée.\n\nL06_cross_document_conflict_b.docx — Extrait : « Re ...  — Extrait : « Recommended supply voltage: 3.6 V at TA = 25 °C. » [S002]\n\nL06_cross_document_conflict_a.docx — Extrait : « Recommended supply voltage: 3.0 V at TA = 25 °C. » [S001]",
+            "answer_excerpt_is_complete": false,
+            "citation_count": 2,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              },
+              {
+                "source_id": "S002",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "L07_ocr_ambiguous",
+        "question": "Quelle est la plage de tension de bus en fonctionnement ?",
+        "frozen_expected": "limitation",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "d855c84486387be001c35afadf4094179e9ddc421d52ec84dd5edd14b64303e0",
+            "answer_sha256": "a06d5bca8435b5fef9649e5e17fc82ebf8a033cbdbe40580b7780623611b3748",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "OV reste OV ; la lecture ambiguë est signalée. Aucun 0 n'est inféré. Il s'agit d'un texte synthétique, pas d'une mesure d'OCR réel.",
+            "answer_excerpt": "Une ambiguïté subsiste dans les preuves retenues (lecture, adresse ou rôle de la grandeur). Les données brutes sont conservées ; aucune correction n'est supposée.\n\nL07_ocr_ambiguous_a.docx — Extrait : « Operating bus voltage: OV to 36 V. » [S001]",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          },
+          "C2": {
+            "source_case_record_sha256": "6186a3abb378c5b9217779196b52f1191c117f64b4e2e46c3d4b1443bd35c8af",
+            "answer_sha256": "a06d5bca8435b5fef9649e5e17fc82ebf8a033cbdbe40580b7780623611b3748",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "OV reste OV ; la lecture ambiguë est signalée. Aucun 0 n'est inféré. Il s'agit d'un texte synthétique, pas d'une mesure d'OCR réel.",
+            "answer_excerpt": "Une ambiguïté subsiste dans les preuves retenues (lecture, adresse ou rôle de la grandeur). Les données brutes sont conservées ; aucune correction n'est supposée.\n\nL07_ocr_ambiguous_a.docx — Extrait : « Operating bus voltage: OV to 36 V. » [S001]",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "L08_partial_extraction",
+        "question": "Quelles plages de tension de bus et d'alimentation sont établies ?",
+        "frozen_expected": "limitation",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "308a427e2bc38db50a8dc75ef539eff2f0945b4734ca83abc6a71446f096daed",
+            "answer_sha256": "0c7512414e79e7b1241210ea15834b9c65403dea8fa639984d433f98bb170012",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "Le défaut d'extraction injecté retire l'alimentation. La réponse ne donne que le bus disponible, signale la couverture partielle et n'invente pas la plage supprimée.",
+            "answer_excerpt": "La demande porte sur plusieurs propriétés distinctes. Certaines propriétés ne sont pas établies pour chaque document demandé ; une seule plage ne suffit pas à toutes les couvrir.\n\nL08_partial_extraction_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          },
+          "C2": {
+            "source_case_record_sha256": "1de6a04877056cb19504ab4632183784ebf425c6bfb85e06a88455d22201a074",
+            "answer_sha256": "0c7512414e79e7b1241210ea15834b9c65403dea8fa639984d433f98bb170012",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "Le défaut d'extraction injecté retire l'alimentation. La réponse ne donne que le bus disponible, signale la couverture partielle et n'invente pas la plage supprimée.",
+            "answer_excerpt": "La demande porte sur plusieurs propriétés distinctes. Certaines propriétés ne sont pas établies pour chaque document demandé ; une seule plage ne suffit pas à toutes les couvrir.\n\nL08_partial_extraction_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "L09_long_qualification",
+        "question": "Quelle plage de tension d'alimentation est établie à TA = 85 °C ?",
+        "frozen_expected": "limitation",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "d5405506c4baa9e258e04251c2788c8a0ecd8891e3498bc3595090cf2c8e8f9d",
+            "answer_sha256": "1d6fc5c190dbdd493de9b14ef9c41a089383009cbbf24088930fcd8994d49f55",
+            "automated_historical_pass": false,
+            "independent_review_pass": false,
+            "state": "done",
+            "error_code": null,
+            "reason": "La réserve 25/85 est bien présente à la fin du second long extrait ; elle n'a pas entièrement disparu. La sortie commence pourtant par la plage 2–5 V sans qualification distincte de la réponse. Selon le contrôle must_limit gelé, qui demande un signal de limitation de la réponse et ne confond pas une négation citée avec ce signal, le cas reste un échec de présentation/qualification. Aucune valeur 2–5 V à 85 °C n'est littéralement fabriquée.",
+            "answer_excerpt": "L09_long_qualification_a.docx — Extrait : « Operating supply voltage: 2 to 5 V. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. Trace ... aire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. This range applies only at TA = 25 °C; no range is established at TA = 85 °C. » [S002]",
+            "answer_excerpt_is_complete": false,
+            "citation_count": 2,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              },
+              {
+                "source_id": "S002",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          },
+          "C2": {
+            "source_case_record_sha256": "785e266c3e2bf6fe527247490745866997178ce5d3292c3ff4ebb1a4457ddcd9",
+            "answer_sha256": "86405f6b5f32b36b6694adb977b91be4bf939956f8bd7b491377ac1d0a927f97",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "La limitation dans les conditions demandées est énoncée explicitement avant les extraits ; les passages et la réserve finale 25/85 restent présents. Réussite.",
+            "answer_excerpt": "Les preuves retenues n'établissent pas la valeur dans les conditions demandées. Les valeurs associées à d'autres conditions ne sont pas transposées.\n\nL09_long_qualification_a.docx — Extrait : « Operating supply voltage:  ... aire locale. Trace documentaire locale. Trace documentaire locale. Trace documentaire locale. This range applies only at TA = 25 °C; no range is established at TA = 85 °C. » [S002]",
+            "answer_excerpt_is_complete": false,
+            "citation_count": 2,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              },
+              {
+                "source_id": "S002",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "L10_absent_location",
+        "question": "Quelle plage de tension de bus est indiquée ?",
+        "frozen_expected": "provenance",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "ec11b03bb305e406f803b1b646bb33efbc70f5ecb31a06e823198e3bf1d98527",
+            "answer_sha256": "8c378ff1b47496fcb170697e9fc2f7a4189bea31fba326e7a1c24afe0a8d99a0",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "La source est citée sans inventer de numéro de page Office ou de localisateur manquant ; ses identités et offsets disponibles ont passé les vérifications enregistrées. Conforme au contrôle de provenance gelé, qui autorise aussi un rejet.",
+            "answer_excerpt": "L10_absent_location_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          },
+          "C2": {
+            "source_case_record_sha256": "0b974c7a88b3537d30629da1de6cf28626e1cbedcc68bb4a99b986d556e0ff6a",
+            "answer_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "error",
+            "error_code": "invalid_source_locator",
+            "reason": "Rejet invalid_source_locator avant tout texte public, explicitement autorisé dans ce contrôle. Ce rejet n'est ni une réponse documentaire utile ni un nouveau gain de score.",
+            "answer_excerpt": "",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 0,
+            "public_delta_count": 0,
+            "selector_calls": 0,
+            "source_citation_checks_recorded": []
+          }
+        }
+      },
+      {
+        "case_id": "L11_plan_prose",
+        "question": "Quelle propriété du boîtier est décrite ?",
+        "frozen_expected": "invalid_plan",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "ac07912b2e0aef6cce5588821c41dfca5133dfa6e559052eca21b229ad9e7dec",
+            "answer_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "error",
+            "error_code": "structured_answer_invalid",
+            "reason": "Le plan adverse avec champ answer et UNSOURCED_GENERATOR_999 est effectivement enregistré en privé ; structured_answer_invalid est émis et aucun delta public ni fait ajouté n'est publié.",
+            "answer_excerpt": "",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 0,
+            "public_delta_count": 0,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [],
+            "private_adversarial_plan_observed": [
+              "{\"references\": [\"R001\"], \"comparisons\": [], \"answer\": \"UNSOURCED_GENERATOR_999\"}"
+            ]
+          },
+          "C2": {
+            "source_case_record_sha256": "24a375869a067dd189410e8463571df995d867871cb0b626b3995dc2fdba68b7",
+            "answer_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "error",
+            "error_code": "structured_answer_invalid",
+            "reason": "Le plan adverse avec champ answer et UNSOURCED_GENERATOR_999 est effectivement enregistré en privé ; structured_answer_invalid est émis et aucun delta public ni fait ajouté n'est publié.",
+            "answer_excerpt": "",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 0,
+            "public_delta_count": 0,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [],
+            "private_adversarial_plan_observed": [
+              "{\"references\": [\"R001\"], \"comparisons\": [], \"answer\": \"UNSOURCED_GENERATOR_999\"}"
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "L12_unknown_reference",
+        "question": "Quelle propriété du boîtier est décrite ?",
+        "frozen_expected": "invalid_plan",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "0f174035b4d374c8d661634506c5ed304b4be9b88bbff31937025292f910882f",
+            "answer_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "error",
+            "error_code": "structured_answer_invalid",
+            "reason": "Le plan adverse R999 est effectivement enregistré en privé ; structured_answer_invalid est émis, sans texte public ni référence inconnue publiée.",
+            "answer_excerpt": "",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 0,
+            "public_delta_count": 0,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [],
+            "private_adversarial_plan_observed": [
+              "{\"references\": [\"R999\"], \"comparisons\": []}"
+            ]
+          },
+          "C2": {
+            "source_case_record_sha256": "37100c8b5f0dd3556958d27f4c26b2ee3efb5af9e5537e5453ebb8ddf5218019",
+            "answer_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "error",
+            "error_code": "structured_answer_invalid",
+            "reason": "Le plan adverse R999 est effectivement enregistré en privé ; structured_answer_invalid est émis, sans texte public ni référence inconnue publiée.",
+            "answer_excerpt": "",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 0,
+            "public_delta_count": 0,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [],
+            "private_adversarial_plan_observed": [
+              "{\"references\": [\"R999\"], \"comparisons\": []}"
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "L13_negated_value",
+        "question": "Quel courant de sortie est établi ?",
+        "frozen_expected": "limitation",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "947a95af6877a80e6883ba6f2c7f2b7bf8fb8064e3ef07d223828e3bc42cb698",
+            "answer_sha256": "21a168525409a236300283f576778f03bb5705f7e96c416d7ade3693e4a88da7",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "Aucun courant établi dans la source. Baseline signale une insuffisance ; C2 conserve en plus la négation exacte et explicite la non-assertion. Les deux satisfont le contrôle ; le gain d'explication n'est pas un gain binaire supplémentaire.",
+            "answer_excerpt": "Les preuves disponibles dans ce périmètre ne suffisent pas pour répondre à cette question.",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 0,
+            "public_delta_count": 1,
+            "selector_calls": 0,
+            "source_citation_checks_recorded": []
+          },
+          "C2": {
+            "source_case_record_sha256": "416b67eda1c441099740a111602dd509be21f111c723acbd62b7b2ea391de0da",
+            "answer_sha256": "17480035abf18efca91393ab443072727a2247f40887a1315ff0cc1300f42dc4",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "Aucun courant établi dans la source. Baseline signale une insuffisance ; C2 conserve en plus la négation exacte et explicite la non-assertion. Les deux satisfont le contrôle ; le gain d'explication n'est pas un gain binaire supplémentaire.",
+            "answer_excerpt": "Le passage contient une négation portant sur la donnée repérée. Son nombre n'est pas retenu comme valeur affirmée ; l'extrait conserve la formulation source.\n\nL13_negated_value_a.docx — Extrait : « The output current is not 10 mA. The output current is not established by this document. » [S001]",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "L14_wrong_property",
+        "question": "Quelle est la plage de tension d'alimentation ?",
+        "frozen_expected": "limitation",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "7b9ae689995ba25d84010716ee323c9f4fbc998809d91a81cf6afdca49243300",
+            "answer_sha256": "21a168525409a236300283f576778f03bb5705f7e96c416d7ade3693e4a88da7",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "La tension de bus ne devient jamais une tension d'alimentation. Baseline refuse, C2 signale la limite avec le passage source. Les deux contrôles passent.",
+            "answer_excerpt": "Les preuves disponibles dans ce périmètre ne suffisent pas pour répondre à cette question.",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 0,
+            "public_delta_count": 1,
+            "selector_calls": 0,
+            "source_citation_checks_recorded": []
+          },
+          "C2": {
+            "source_case_record_sha256": "9902c92e682268974cb5a54b4cf45b72c2edee9938a7b8e55ee06a4564be11ee",
+            "answer_sha256": "857fbeac8e426c14abf5ab4cf909ed21948f93f6d6f354ed1a52d1353b985a2a",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "La tension de bus ne devient jamais une tension d'alimentation. Baseline refuse, C2 signale la limite avec le passage source. Les deux contrôles passent.",
+            "answer_excerpt": "La plage demandée n'est pas entièrement établie : les preuves retenues ne relient pas toutes les bornes, unités, grandeurs ou conditions demandées. Cela ne démontre pas l'absence de ces données dans les documents.\n\nL14_w ... la ne démontre pas l'absence de ces données dans les documents.\n\nL14_wrong_property_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. Supply voltage is not specified. » [S001]",
+            "answer_excerpt_is_complete": false,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "L15_wrong_role",
+        "question": "Quelle est la plage admissible de tension de bus en fonctionnement ?",
+        "frozen_expected": "limitation",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "f396f780809ceab1e7ab7499874595d3c3e862a94dd86ab8192ee5d7130260d2",
+            "answer_sha256": "10d1ea61485a64e88225b81aa98d8fcfb39aec90c5cc0eb2c50eccf3a2c1eb97",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "Le balayage de caractérisation 3–5 V n'est pas présenté comme plage admissible en fonctionnement. Limite explicite et citation conservée dans les deux bras.",
+            "answer_excerpt": "La grandeur demandée n'est pas établie par les preuves retenues dans le périmètre sélectionné. Je ne peux pas donner une valeur fiable à partir de cette sélection.\n\nL15_wrong_role_a.docx — Extrait : « Test conditions for bus voltage: 3 to 5 V. This is a characterization sweep. » [S001]",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          },
+          "C2": {
+            "source_case_record_sha256": "737283d91a98153c6278da1ee98b061779a112f9cbc68eb4fbe556832ab32172",
+            "answer_sha256": "10d1ea61485a64e88225b81aa98d8fcfb39aec90c5cc0eb2c50eccf3a2c1eb97",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "Le balayage de caractérisation 3–5 V n'est pas présenté comme plage admissible en fonctionnement. Limite explicite et citation conservée dans les deux bras.",
+            "answer_excerpt": "La grandeur demandée n'est pas établie par les preuves retenues dans le périmètre sélectionné. Je ne peux pas donner une valeur fiable à partir de cette sélection.\n\nL15_wrong_role_a.docx — Extrait : « Test conditions for bus voltage: 3 to 5 V. This is a characterization sweep. » [S001]",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "L16_table_note",
+        "question": "Quelle plage de tension d'alimentation est établie à TA = 85 °C ?",
+        "frozen_expected": "limitation",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "aed3026070fb0937b180c4b600526f8f212e116e18911d40f2ac8898d307d382",
+            "answer_sha256": "f2061f447540c9c3694c6655e55ef9c5ba627b49275dc5fd7106030930921a10",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "Les deux sorties refusent d'établir une valeur à 85 °C et gardent la note limitant la ligne à 25 °C. Le préambule C2 de non-assertion est une limitation explicite ; sa formulation générique n'établit pas une interprétation sémantique universelle.",
+            "answer_excerpt": "La grandeur demandée n'est pas établie par les preuves retenues dans le périmètre sélectionné. Je ne peux pas donner une valeur fiable à partir de cette sélection.\n\nL16_table_note_a.docx — Extrait : « Parameter\tMIN\tMAX\tU ... x — Extrait : « Parameter\tMIN\tMAX\tUNIT\tNOTE » [S001]\n\nL16_table_note_a.docx — Extrait : « Operating supply voltage\t2\t5\tV\tOnly at TA = 25 °C; not established at TA = 85 °C. » [S001]",
+            "answer_excerpt_is_complete": false,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          },
+          "C2": {
+            "source_case_record_sha256": "17cfe162ff652c1b89db15fc339095ba2b411a2fa968735f51bf177e75e309c6",
+            "answer_sha256": "7ff2d8c67f21b520c65e0c2561d4432b16cf4048fdfc54ca96503bb57bac8c05",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "Les deux sorties refusent d'établir une valeur à 85 °C et gardent la note limitant la ligne à 25 °C. Le préambule C2 de non-assertion est une limitation explicite ; sa formulation générique n'établit pas une interprétation sémantique universelle.",
+            "answer_excerpt": "Le passage contient une négation portant sur la donnée repérée. Son nombre n'est pas retenu comme valeur affirmée ; l'extrait conserve la formulation source.\n\nL16_table_note_a.docx — Extrait : « Parameter\tMIN\tMAX\tUNIT\tNO ... \tV\tOnly at TA = 25 °C; not established at TA = 85 °C. » Liaisons aux en-têtes : MIN = 2; MAX = 5; UNIT = V.\nL16_table_note_a.docx — Extrait : « Parameter\tMIN\tMAX\tUNIT\tNOTE » [S001]",
+            "answer_excerpt_is_complete": false,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "L17_source_hash",
+        "question": "Quelle plage de tension de bus est indiquée ?",
+        "frozen_expected": "provenance",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "88fbc643e924efdd93aca6111b92a78ef3c66ad1d525d15c567174a320c9d868",
+            "answer_sha256": "388ed6160fc3e01f44ea8883def49d4681cda6dafd1f90b3ca95fce30ea1e832",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "Les deux réponses restituent la preuve originale 0–36 V sans TAMPERED_SOURCE_999, avec vérification de citation enregistrée valide. Les deux terminent done ; ne pas décrire ce cas comme une erreur terminale.",
+            "answer_excerpt": "L17_source_hash_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          },
+          "C2": {
+            "source_case_record_sha256": "6ac91c0f246ba1446de5a1f0a7374b8924736f89386ebdcff8763e483d987965",
+            "answer_sha256": "388ed6160fc3e01f44ea8883def49d4681cda6dafd1f90b3ca95fce30ea1e832",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "Les deux réponses restituent la preuve originale 0–36 V sans TAMPERED_SOURCE_999, avec vérification de citation enregistrée valide. Les deux terminent done ; ne pas décrire ce cas comme une erreur terminale.",
+            "answer_excerpt": "L17_source_hash_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]",
+            "answer_excerpt_is_complete": true,
+            "citation_count": 1,
+            "public_delta_count": 1,
+            "selector_calls": 0,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "L18_intra_document_conflict",
+        "question": "Quelle est la tension d'alimentation recommandée à TA = 25 °C ?",
+        "frozen_expected": "conflict",
+        "arms": {
+          "baseline": {
+            "source_case_record_sha256": "85e02642cbc06be0131d0a8a45c6b491c280d0ff30ab199a6947ae8470f35e99",
+            "answer_sha256": "d2a8bd391ddcb091e31be1b0f8b7b18d0035f0fcc49b647300bad81094ad09d7",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "Les deux sorties citent séparément et intégralement 3.0 V à 25 °C et 4.0 V à 25 °C du même document, signalent des valeurs différentes et n'arbitrent pas. L18 était déjà correct en référence ; aucun gain produit.",
+            "answer_excerpt": "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée.\n\nL18_intra_document_conflict_a.docx — Extrait : « Re ...  — Extrait : « Recommended supply voltage: 4.0 V at TA = 25 °C. » [S001]\n\nL18_intra_document_conflict_a.docx — Extrait : « Recommended supply voltage: 3.0 V at TA = 25 °C. » [S002]",
+            "answer_excerpt_is_complete": false,
+            "citation_count": 2,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              },
+              {
+                "source_id": "S002",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          },
+          "C2": {
+            "source_case_record_sha256": "b70ef506f0f3120272c0a89c6c9f97c96eebf6909a28c1c7e6a5f75a28188aae",
+            "answer_sha256": "d8cbcc15b7d12f3911e42e3392324594e50078815014622b291ca274695afbcd",
+            "automated_historical_pass": true,
+            "independent_review_pass": true,
+            "state": "done",
+            "error_code": null,
+            "reason": "Les deux sorties citent séparément et intégralement 3.0 V à 25 °C et 4.0 V à 25 °C du même document, signalent des valeurs différentes et n'arbitrent pas. L18 était déjà correct en référence ; aucun gain produit.",
+            "answer_excerpt": "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée.\n\nL18_intra_document_conflict_a.docx — Extrait : « Re ...  — Extrait : « Recommended supply voltage: 3.0 V at TA = 25 °C. » [S001]\n\nL18_intra_document_conflict_a.docx — Extrait : « Recommended supply voltage: 4.0 V at TA = 25 °C. » [S002]",
+            "answer_excerpt_is_complete": false,
+            "citation_count": 2,
+            "public_delta_count": 1,
+            "selector_calls": 1,
+            "source_citation_checks_recorded": [
+              {
+                "source_id": "S001",
+                "valid": true,
+                "reasons": []
+              },
+              {
+                "source_id": "S002",
+                "valid": true,
+                "reasons": []
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "further_false_positive_found": false,
+    "L09_boundary": "La réserve source figure déjà dans la sortie de référence, en fin de long extrait. Le contrôle must_limit porte sur un signal de qualification de la réponse distinct de cette seule citation. Échec de présentation/adéquation, pas absence totale de la réserve ni fabrication d’une plage à 85 °C."
+  },
+  "prior_reviews": [
+    {
+      "path": ".runtime/qa/grounded-20261108/controlled-review-v2.json",
+      "sha256": "af0aca176f7b6871cdddf60dbdf5f635d66c238205fd15cf301b6ba1ccb35fd5",
+      "scope": "Revue mécanique préalable de L01/L09/L16/L18 sur baseline et C0, conservée."
+    }
+  ],
+  "unchanged_artifacts": {
+    "reports": true,
+    "answers": true,
+    "questions": true,
+    "sources": true,
+    "fixtures": true,
+    "code": true,
+    "automatic_judgments": true
+  },
+  "limitations": [
+    "Relecture non aveugle par agent, pas jugement indépendant externe ni estimation statistique.",
+    "Cas contrôlés connus, avec doubles nommés ; aucun score natif 4B ou résultat de généralisation.",
+    "Cette revue ne transforme pas les réserves du système en erreurs factuelles du passage cité."
+  ]
+}

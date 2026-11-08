@@ -1,0 +1,146 @@
+{
+  "review_id": "f07-association-after",
+  "created_utc": "2026-11-08T14:46:49.309925+00:00",
+  "before_review": {
+    "path": ".runtime/qa/grounded-20261108/f07-association-review.json",
+    "sha256": "1d4539e7289080827e7ffe54985c3a994d7d40264fa4dd9f53a2d9fbbcfa5fa9",
+    "answer_contract_sha256": "ffec545fdb4b0f6cf245339dc3ebaa32ee0bf9671f9c999683618174cac8e157"
+  },
+  "after_code": {
+    "path": "services/api/answer_contract.py",
+    "sha256_before_probe": "58352cfed90bd466f10bbc69ce7fe0df4a8b895f37cb93a919fc56f1f7f4832d",
+    "sha256_after_probe": "58352cfed90bd466f10bbc69ce7fe0df4a8b895f37cb93a919fc56f1f7f4832d",
+    "stable_during_probe": true
+  },
+  "method": "Exact same question, sources and probe operations as recorded before the correction; real Catalogue and render, named excerpt/tokenizer test helpers; no model, services, HTTP or new campaign.",
+  "expected_statuses_unchanged": true,
+  "source_quote_preservation_required": true,
+  "test_count": 3,
+  "passed": 3,
+  "observations": [
+    {
+      "question": "Donne la plage d'alimentation recommandée avec ses conditions de température.",
+      "source": "Recommended supply voltage: 1.5 to 4.5 V for TA = -40 to 125 °C.",
+      "status": "covered",
+      "matched_relations": [
+        {
+          "values": [
+            "1.5",
+            "4.5"
+          ],
+          "condition": "for TA = -40 to 125 °C."
+        }
+      ],
+      "missing": [],
+      "deterministic_plan": {
+        "references": [
+          "R001"
+        ],
+        "comparisons": []
+      },
+      "rendered": "document-1 — Extrait : « Recommended supply voltage: 1.5 to 4.5 V for TA = -40 to 125 °C. » [S001]",
+      "support_validation": {
+        "status": "passed",
+        "method": "deterministic_source_reconstruction",
+        "segments_checked": 2,
+        "unsupported_characters": 0,
+        "question_status": "covered",
+        "general_semantic_entailment_verified": false,
+        "answer_sha256": "3fd363a6c41932f2a0d5d29b46ad7e0af0afdec8ecfeb09a7487759d48ccb4a3"
+      },
+      "before_status": "covered",
+      "expected_status": "covered",
+      "source_quote_preserved": true,
+      "passed": true
+    },
+    {
+      "question": "Donne la plage d'alimentation recommandée avec ses conditions de température.",
+      "source": "Recommended supply voltage: 1.5 to 4.5 V; storage temperature: -40 to 125 °C.",
+      "status": "partial",
+      "matched_relations": [],
+      "missing": [
+        {
+          "requirement": "requested_temperature_condition_not_established"
+        },
+        {
+          "requirement": "requested_property_document",
+          "document_id": null,
+          "subject": null,
+          "property": "supply",
+          "quantity": "voltage",
+          "role": "operating",
+          "kind": "interval",
+          "covered": false,
+          "expected_count": 1,
+          "matched_count": 0,
+          "reference_ids": []
+        },
+        {
+          "requirement": "same_relation_lower_upper_unit",
+          "quantity": "voltage",
+          "role": "operating"
+        }
+      ],
+      "deterministic_plan": null,
+      "rendered": "Les contrôles n'établissent pas toutes les conditions de température demandées dans les passages retenus. Les extraits sont conservés sans supposer de condition manquante.\n\ndocument-1 — Extrait : « Recommended supply voltage: 1.5 to 4.5 V; storage temperature: -40 to 125 °C. » [S001]",
+      "support_validation": {
+        "status": "passed",
+        "method": "deterministic_source_reconstruction",
+        "segments_checked": 3,
+        "unsupported_characters": 0,
+        "question_status": "partial",
+        "general_semantic_entailment_verified": false,
+        "answer_sha256": "9cd1ac5ad2c13c48642c789e82af2e58c58582350fac9072c5303f8a531878d1"
+      },
+      "before_status": "covered",
+      "expected_status": "partial",
+      "source_quote_preserved": true,
+      "passed": true
+    },
+    {
+      "question": "Donne la plage d'alimentation recommandée avec ses conditions de température.",
+      "source": "Recommended supply voltage: 1.5 to 4.5 V; the display temperature reads 25 °C.",
+      "status": "partial",
+      "matched_relations": [],
+      "missing": [
+        {
+          "requirement": "requested_temperature_condition_not_established"
+        },
+        {
+          "requirement": "requested_property_document",
+          "document_id": null,
+          "subject": null,
+          "property": "supply",
+          "quantity": "voltage",
+          "role": "operating",
+          "kind": "interval",
+          "covered": false,
+          "expected_count": 1,
+          "matched_count": 0,
+          "reference_ids": []
+        },
+        {
+          "requirement": "same_relation_lower_upper_unit",
+          "quantity": "voltage",
+          "role": "operating"
+        }
+      ],
+      "deterministic_plan": null,
+      "rendered": "Les contrôles n'établissent pas toutes les conditions de température demandées dans les passages retenus. Les extraits sont conservés sans supposer de condition manquante.\n\ndocument-1 — Extrait : « Recommended supply voltage: 1.5 to 4.5 V; the display temperature reads 25 °C. » [S001]",
+      "support_validation": {
+        "status": "passed",
+        "method": "deterministic_source_reconstruction",
+        "segments_checked": 3,
+        "unsupported_characters": 0,
+        "question_status": "partial",
+        "general_semantic_entailment_verified": false,
+        "answer_sha256": "f7eda7fc8959b763725b824f7331e3473258fa6df0488aff3df90abcc6aefe06"
+      },
+      "before_status": "partial",
+      "expected_status": "partial",
+      "source_quote_preserved": true,
+      "passed": true
+    }
+  ],
+  "scope": "One independent-assertion regression and its original positive/negative controls. Does not establish general semantic entailment."
+}

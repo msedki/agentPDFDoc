@@ -157,7 +157,11 @@ def test_partial_extraction_message_no_longer_implies_extracted_regions_are_proo
     snapshot = resolver.resolve(Scope(kind="documents", documentIds=[imported["document_id"]]))
     result = asyncio.run(SearchService(db, resolver, FakeEmbedding(), vectors, settings).search("tolérance DA-P02", snapshot))
     partial = [warning for warning in result["warnings"] if warning["code"] == "partial_extraction"]
-    assert partial == [{"code": "partial_extraction", "document_id": imported["document_id"], "message":
+    revision = db.one("SELECT extraction_revision_id FROM index_generations WHERE id=?", (generation,))["extraction_revision_id"]
+    assert partial == [{"code": "partial_extraction", "document_id": imported["document_id"],
+                        "document_name": "partial.pdf", "version_id": imported["version_id"],
+                        "generation_id": generation, "extraction_revision_id": revision,
+                        "basis": "authorized_scope", "message":
                         "Extraction partielle : des pages ou des régions de ce document sont absentes de l'extraction ou ont été lues "
                         "avec une confiance insuffisante. Des informations peuvent manquer ; vérifiez les passages retrouvés sur la "
                         "page originale."}]

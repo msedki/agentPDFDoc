@@ -198,7 +198,7 @@ async def campaign(args, application):
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--application-root", type=Path, required=True)
-    parser.add_argument("--revision-label", choices=("iteration1", "iteration2"), required=True)
+    parser.add_argument("--revision-label", choices=("iteration1", "iteration2", "baseline", "candidate"), required=True)
     parser.add_argument("--profile", type=Path, required=True)
     parser.add_argument("--inputs", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
