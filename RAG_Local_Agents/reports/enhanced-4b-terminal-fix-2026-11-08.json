@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "kind": "post_campaign_terminal_fix",
+  "recorded_utc": "2026-11-08T00:58:52.004977+00:00",
+  "campaign_code_manifest_sha256": "8eb09a8e4835afc37e9f16756bee249696e89be8a8ee6963b29e3365f6052e16",
+  "campaign_code_snapshot_sha256": "bcc28deb3dcd17836279c957232b774b924b4d416bdbd82d262de1f7524604d3",
+  "source_delta": {
+    "path": "services/api/query.py",
+    "before_sha256": "c4af404d91811230e4fe9efb22e9af31fec65df0b77412bb0362172a696f7220",
+    "after_sha256": "0d2f033b0e8ddbecda7c43546ac84825c76184ebdfc5d3c72b1045921ada90d6"
+  },
+  "test_source": {
+    "path": "tests/unit/test_query_trace_terminal.py",
+    "sha256": "6408cf2b3bc4e927783d1d09f1894acf8a3290cbddcf3dbfb51c656319b5c0af"
+  },
+  "validation": {
+    "status": "PASS",
+    "targeted_tests": {
+      "passed": 19,
+      "new_tests": 18,
+      "existing_route_regression": 1
+    },
+    "compatibility_tests": {
+      "passed": 74,
+      "overlap": "Existing modules, including the route regression; not additive to the global gate."
+    },
+    "configured_mypy_source_files": 122,
+    "ruff_changed_python_files": 39,
+    "evidence": [
+      {
+        "role": "targeted_tests_xml",
+        "path": ".runtime/qa/enhanced-4b/terminal-trace-fix-20261108T005120Z/junit-terminal.xml",
+        "sha256": "554fb5e6c4801bbd8dcd0e2ec755c38907bc77920d0c2ea703266e08cd2f75d4"
+      },
+      {
+        "role": "reproduction_before",
+        "path": ".runtime/qa/enhanced-4b/terminal-trace-audit-20261108T004217Z/results.json",
+        "sha256": "323bf0fdf6048ac6fe009de02269297aa9045105e2abfe7e25a630ec9dcb9ed9"
+      },
+      {
+        "role": "native_campaign_audit",
+        "path": ".runtime/qa/enhanced-4b/terminal-trace-audit-20261108T004217Z/audit-native-final.json",
+        "sha256": "44ed9eb6d7285d5d2160dc4908155f7a4775c9e0cc8afd64a8e63bcf4f09d088"
+      },
+      {
+        "role": "independent_review",
+        "path": ".runtime/qa/enhanced-4b/post-terminal-independent-review.json",
+        "sha256": "998efbb0bc8b84995ea27b2983786ddf29c3d94fc405c6e665237462415a4d6a"
+      },
+      {
+        "role": "ruff",
+        "path": ".runtime/qa/enhanced-4b/post-terminal-ruff.log",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "role": "mypy",
+        "path": ".runtime/qa/enhanced-4b/post-terminal-mypy.log",
+        "sha256": "f0589b4b402aba3c2eb319e964719fe30b143cab213cf5d528b089bc4d571edc"
+      }
+    ],
+    "additional_proofs": [
+      {
+        "path": ".runtime/qa/enhanced-4b/terminal-trace-fix-20261108T005120Z/manifest.json",
+        "sha256": "9f8a38607cb1171eb88edefe9a51490e4990cf282d03f2aa3ca227ac43df9a2c"
+      },
+      {
+        "path": ".runtime/qa/enhanced-4b/terminal-trace-fix-20261108T005120Z/before-after-comparison.json",
+        "sha256": "ae2a36fe546a13a044d4702227b575b3ecf5904188cad39a4a85571417bbd6a4"
+      },
+      {
+        "path": ".runtime/qa/enhanced-4b/post-terminal-compatibility.xml",
+        "sha256": "c4f65aa1ef17ff48c8896e168aadc5c32ec2e07ec044eac68de6018f0b48e08b"
+      },
+      {
+        "path": ".runtime/qa/enhanced-4b/post-terminal-compatibility.log",
+        "sha256": "6138f397b826d6d6f4eed4629faa8c333cf4920b7e74b9afe6357703d20c42fe"
+      }
+    ]
+  },
+  "new_native_inference": false,
+  "limits": [
+    "All native quality and runtime measurements remain attached to their original code snapshot.",
+    "Thirty final native submissions were audited against read-only SQLite with no divergence or requested cancellation.",
+    "Only query.py differs from the 75 frozen application sources; the new test is separate.",
+    "SQL state, public terminal type/id/status and answer text are preserved in the three reproduced interleavings; complete JSON payload bytes are not claimed identical.",
+    "The persisted execution_trace summary is explicitly before_terminal_persistence; final confirmation is in the verified trace file, with no second SQL write.",
+    "SQLite persistence and filesystem capture are not an atomic cross-resource transaction."
+  ]
+}

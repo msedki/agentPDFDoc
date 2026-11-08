@@ -750,7 +750,25 @@ def test_api_watchdog_stops_an_idle_worker_after_the_no_progress_delay(storage, 
     assert stopped.value.status == 503 and stopped.value.details == {}
     assert stopped.value.message == "Extraction arrêtée sans progrès observé pendant le délai prévu. Reprenez l'indexation depuis le Suivi."
     checkpoint = json.loads(storage[1].one("SELECT checkpoint_json FROM jobs ORDER BY created_at DESC, rowid DESC LIMIT 1")["checkpoint_json"])
-    assert checkpoint["reason"] == "watchdog_no_progress" and checkpoint["seconds_since_progress"] > 1
+    assert checkpoint["reason"] == "watchdog_no_progress"
+    # Le délai observé est arrondi au dixième dans le rapport : 1,01 s y devient 1,0 s.
+    assert checkpoint["seconds_since_progress"] >= checkpoint["no_progress_seconds"] == 1
+
+
+def test_api_watchdog_enforces_the_strict_delay_before_rounding_its_report(tmp_path):
+    from services.api.jobs import WorkerWatchdog
+
+    clock = [0.0]
+    watchdog = WorkerWatchdog(tmp_path, 0, no_progress_seconds=1, window_seconds=10,
+                              clock=lambda: clock[0], cpu_seconds=lambda: 0.0)
+    assert watchdog.observe() is None
+    for instant in (0.99, 1.0):
+        clock[0] = instant
+        assert watchdog.observe() is None
+    clock[0] = 1.01
+    reason = watchdog.observe()
+    assert reason == "watchdog_no_progress"
+    assert watchdog.report(reason)["seconds_since_progress"] == 1.0
 
 
 def test_api_watchdog_counts_cpu_work_and_durable_windows_as_progress(tmp_path):

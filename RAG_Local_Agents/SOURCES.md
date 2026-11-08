@@ -1919,3 +1919,57 @@ qualité générative. Celle-ci reste à mesurer par une recette distincte.
 ### R28-S43 — contrôle GPU exact du screening apparié (13/10/2026)
 
 Sources officielles versionnées : [Ollama0.35.0, version llama.cpp](https://github.com/ollama/ollama/blob/v0.35.0/LLAMA_CPP_VERSION), [compatibilité Qwen MTP](https://github.com/ollama/ollama/blob/v0.35.0/llama/compat/llama-ollama-compat.cpp#L754) et [llama.cppb11081, total GPU](https://github.com/ggml-org/llama.cpp/blob/b11081/src/llama-model.cpp#L1733). Consultées le 13 octobre, applicables aux binaires exécutés : couches nextn ajoutées aux blocs et couche de sortie incluse dans le total offload. Confrontation réelle :4B 32 blocs+nextn 1+sortie 1=34 ;9B 32+0+1=33. Correction limitée au contrôle QA, exigenceGPU complet inchangée. Les trois caches metadata sont des fichiers réellement observés dans la vue QA privée, pas une nouvelle dépendance ou un artefact source ; leur liste exacte et le format/version sont contrôlés. Preuves du rapport de comparaison, harnais corrigé SHA `bd2634dd…`, seize tests purs PASS. Cette référence ne qualifie ni qualité des réponses, ni CPU de 16 Go, ni une autre plateforme.
+
+
+## EV4B — sources de méthode consultées le 7 novembre 2026 (UTC)
+
+**Rôle :** références de l'étude 4B ; les résultats locaux restent dans les traces.
+**Référence :** base `59d47e98`, branche `enhanced_version` ;
+[protocole](reports/enhanced-4b-protocol-2026-11-07.md).
+
+| ID | Source primaire et version | Apport retenu | Limite |
+|---|---|---|---|
+| EV4B-S01 | [Joren et al., Sufficient Context, arXiv:2411.06037v3, 23 avril 2025](https://arxiv.org/abs/2411.06037v3), page ouverte le 7 novembre | Distinguer insuffisance du contexte et erreur malgré des preuves suffisantes. | Ni classificateur local validé ni score transférable au 4B. |
+| EV4B-S02 | [Gao et al., Enabling Large Language Models to Generate Text with Citations (ALCE), EMNLP 2023](https://aclanthology.org/2023.emnlp-main.398/), page ouverte le 7 novembre | Séparer justesse de réponse et qualité du soutien par citations. | Un identifiant valide ne garantit pas l'implication sémantique. |
+| EV4B-S03 | [Kamath, Jia et Liang, Selective Question Answering under Domain Shift, ACL 2020](https://aclanthology.org/2020.acl-main.503/), page ouverte le 7 novembre | Mesurer risque et couverture conjointement ; limites de la confiance brute hors domaine. | Aucun calibrateur appris ou probabilité de justesse validée ici. |
+| EV4B-S04 | [Saad-Falcon et al., ARES, NAACL 2024](https://aclanthology.org/2024.naacl-long.20/), page ouverte le 7 novembre | Pertinence du contexte, fidélité et pertinence de réponse séparées ; rôle des annotations humaines. | Aucun juge automatique ne remplace une relecture humaine non réalisée. |
+| EV4B-S05 | [SciPy, bootstrap, documentation 1.18.0 affichée à la consultation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bootstrap.html), page ouverte le 7 novembre | Rééchantillonnage avec remise, appariement, intervalle percentile et limites. | EV4B utilise la stdlib, sans dépendance SciPy ; rééchantillonnage par famille choisi explicitement, intervalle exploratoire non assimilé à BCa. |
+
+Le cadrage joint « Markdown collé.md » constitue une entrée utilisateur ; ses
+comptages des essais antérieurs sont cités comme historiques rapportés, pas comme
+exécutions EV4B. Les publications motivent les hypothèses, elles ne prouvent pas
+leur efficacité sur le corpus et l'hôte de la campagne.
+
+
+### EV4B-S06 — reprise OCR numérique bornée (7 novembre 2026 UTC)
+
+Sources officielles ouvertes : [Tesseract ImproveQuality](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html)
+(sections densité, bordures, tableaux et segmentation) et
+[Command Line Usage](https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html)
+(langue, PSM et TSV). Ces pages motivent une hypothèse de crop/densité sans
+prédire de gain. Moteur exécuté ici : Tesseract 5.5.0 système, eng, PSM6 ; le
+verrou 5.4.0 du projet n'est pas déclaré exécuté. Une seule variante ×2, négative,
+reste expérimentale ; le résultat et les limites sont dans le
+[rapport OCR EV4B](reports/enhanced-4b-ocr-2026-11-07.md).
+
+
+### EV4B-S07 — sens de PSRR et limites des rôles documentaires (8 novembre 2026 UTC)
+
+[Texas Instruments, AN-1873 DC Parameters, SNOA532A, révision A de mai 2013](https://www.ti.com/lit/an/snoa532a/snoa532a.pdf),
+section 9, page 7, ouverte le 8 novembre : PSRR signifie « Power Supply Rejection
+Ratio ». Cette définition permet de qualifier l’expansion erronée produite dans
+une réponse baseline. Elle ne remplace pas la fiche INA226 pour les valeurs
+propres au composant, ni une condition de mesure par une plage admissible.
+
+### EV4B-E01 — preuves locales des 7–8 novembre 2026 UTC
+
+Le [bilan](reports/enhanced-4b-results-2026-11-07.md), les
+[résultats qualité](reports/enhanced-4b-quality-results-2026-11-07.json), les
+[mesures runtime](reports/enhanced-4b-runtime-results-2026-11-07.json),
+[mesures OCR](reports/enhanced-4b-ocr-results-2026-11-07.json) et le
+[relevé de validation](reports/enhanced-4b-validation-2026-11-07.json) relient
+les observations aux captures privées et à leurs empreintes. Les journaux
+[du 7](journal/2026-11-07.md) et [du 8](journal/2026-11-08.md) conservent les
+commandes, résultats négatifs, reprises et limites. Ces exécutions locales
+constituent des mesures sur un hôte Linux x86-64 et une famille documentaire,
+pas une validation générale issue des publications de méthode.

@@ -90,8 +90,8 @@ def test_contract_public_paths_match_the_session_boundary():
     assert all(route.split(" ", 1)[1].startswith(CONTRACT["access"]["control_token_only_prefix"]) for route in CONTRACT["routes"] if "/admin/" in route)
 
 
-def emitted_event_types():
-    """Types littéraux passés à Database.add_event (directement ou via database_call) ou insérés dans events.
+def stored_event_types():
+    """Types littéraux du journal SQL, publics ou internes, ajoutés directement ou via database_call.
 
     Seule l'implémentation de Database.add_event insère un type variable (son paramètre `kind`) ; tout autre
     type non littéral ferait échouer le test, car il échapperait à la comparaison avec le contrat.
@@ -121,7 +121,11 @@ def emitted_event_types():
 
 def test_contract_event_types_are_those_emitted_by_the_api_and_listened_by_the_interface():
     contract = set(CONTRACT["query_events"]["types"])
-    assert contract == emitted_event_types()
+    internal = set(CONTRACT["query_events"]["internal_audit_only"]["types"])
+    assert contract.isdisjoint(internal), "un événement d'audit interne ne doit pas être public"
+    # add_event alimente aussi l'audit privé. Le filtre HTTP, les curseurs et le replay
+    # sont exercés par test_api_typed_answer_transport avec de vrais événements internes.
+    assert contract | internal == stored_event_types()
     # L'interface écoute la liste QUERY_EVENT_TYPES de types.ts (également comparée au contrat par contracts.test.ts).
     stream = (ROOT / "apps/web/src/lib/stream.ts").read_text(encoding="utf-8")
     assert re.search(r"for \(const type of QUERY_EVENT_TYPES\) stream\.addEventListener\(type,", stream), \
@@ -137,7 +141,7 @@ def test_event_oracle_recognizes_direct_and_offloaded_literal_types(tmp_path, mo
     source = tmp_path / "literal.py"
     source.write_text(expression, encoding="utf-8")
     monkeypatch.setitem(globals(), "API_SOURCES", [source])
-    assert emitted_event_types() == {"status"}
+    assert stored_event_types() == {"status"}
 
 
 @pytest.mark.parametrize("expression", ["db.add_event('q', dynamic, {})", "database_call(db.add_event, 'q', dynamic, {})"])
@@ -146,7 +150,7 @@ def test_event_oracle_keeps_refusing_dynamic_types_in_direct_and_offloaded_calls
     source.write_text(expression, encoding="utf-8")
     monkeypatch.setitem(globals(), "API_SOURCES", [source])
     with pytest.raises(AssertionError, match="type d'événement non littéral"):
-        emitted_event_types()
+        stored_event_types()
 
 
 def literal_states(table):

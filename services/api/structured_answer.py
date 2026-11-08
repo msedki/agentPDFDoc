@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -9,6 +10,8 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from services.ingestion.office.xlsx import _cell_fields, address_coordinates
 
+from .answer_contract import AnswerContract, assessment_message, folded
+from .deterministic_calculations import calculation_text
 from .errors import ApiError
 from .office import cell_semantics
 
@@ -59,9 +62,13 @@ class AnswerPlan(BaseModel):
 class Catalogue:
     mode: str
     references: list[dict[str, Any]]
+    contract: AnswerContract | None = None
 
     def as_dict(self):
-        return {"version": 1, "mode": self.mode, "references": self.references}
+        value: dict[str, Any] = {"version": 1, "mode": self.mode, "references": self.references}
+        if self.contract is not None:
+            value["question_contract"] = self.contract.prompt(self.references)
+        return value
 
     def schema(self):
         ids = [reference["id"] for reference in self.references]
@@ -88,7 +95,16 @@ class Catalogue:
             else:
                 item.update(text=reference["text"], locators=reference["locators"])
             items.append(item)
-        return canonical({"reference_catalogue": items})
+        payload: dict[str, Any] = {"reference_catalogue": items}
+        if self.contract is not None:
+            payload["question_contract"] = self.contract.prompt(self.references)
+        return canonical(payload)
+
+    def assess(self, selected_ids=None, required_documents=()):
+        """Passive context/selection diagnosis; no retrieval and no model call."""
+        if self.contract is None:
+            return {"status": "disabled", "verification": "not_requested"}
+        return self.contract.assess(self.references, selected_ids, required_documents)
 
     def evidence(self):
         schema, catalogue = self.schema(), self.as_dict()
@@ -120,6 +136,11 @@ class Catalogue:
             raise ApiError("structured_answer_invalid", "Le plan généré ne référence pas uniquement des preuves autorisées.", 503) from failure
 
     def render(self, plan, tokenizer, output_tokens, required_documents=()):
+        if self.contract is not None:
+            return self._render_contract(plan, tokenizer, output_tokens, required_documents)
+        return self._render_legacy(plan, tokenizer, output_tokens, required_documents)
+
+    def _render_legacy(self, plan, tokenizer, output_tokens, required_documents=()):
         by_id = {reference["id"]: reference for reference in self.references}
         selected = [by_id[ref] for ref in plan.references]
         sections: dict[str, list[dict[str, Any]]] = {}
@@ -176,6 +197,144 @@ class Catalogue:
         return {"text": answer, "source_ids": list(dict.fromkeys(cited)), "warnings": warnings,
                 "tokens": tokens, "citation_spans": citation_spans}
 
+    def _render_contract(self, plan, tokenizer, output_tokens, required_documents):
+        assert self.contract is not None
+        by_id = {reference["id"]: reference for reference in self.references}
+        required = self.contract.required_ids(self.references, required_documents)
+        added = [reference for reference in required if reference not in plan.references]
+        # One bounded completion using only references already included in the
+        # counted prompt. Exact cell requests and a unique local quantity proof
+        # must not disappear merely because the model omitted their IDs.
+        selected_ids = list(dict.fromkeys([*required, *plan.references]))
+        initial = self.assess(selected_ids, required_documents)
+        parts = []
+        calculation = initial.get("calculation")
+        calculation_ids = [item["reference_id"] for item in calculation["inputs"]] if calculation else []
+        if calculation and calculation.get("unit_reference"):
+            calculation_ids.append(calculation["unit_reference"]["reference_id"])
+        if calculation:
+            parts.append({"text": calculation_text(calculation), "source_ids": calculation["source_ids"],
+                          "reference_ids": calculation_ids, "kind": "calculation"})
+        for reference_id in selected_ids:
+            # The operation already reproduces its exact input values, labels
+            # and source citations; avoid repeating a whole cell paragraph.
+            if reference_id in calculation_ids:
+                continue
+            reference = by_id[reference_id]
+            parts.append({"text": render_reference(reference, include_document=True),
+                          "source_ids": reference["source_ids"], "reference_ids": [reference_id], "kind": "reference"})
+
+        def compose(parts, assessment, omitted):
+            answer = ""
+            spans = []
+            message = assessment_message(assessment)
+            if message:
+                answer = message
+            for part in parts:
+                answer += ("\n\n" if answer else "") + part["text"]
+                for source_id in part["source_ids"]:
+                    answer += " "
+                    start = len(answer)
+                    answer += f"[{source_id}]"
+                    spans.append({"source_id": source_id, "start_offset": start, "end_offset": len(answer)})
+            if omitted:
+                answer += ("\n\n" if answer else "") + "Restitution limitée par le budget de réponse : certaines références entières ne sont pas affichées."
+            if not answer:
+                answer = "Aucune référence sélectionnée dans les preuves retenues ne permet de répondre à la demande."
+            return answer, spans
+
+        def evaluate(candidate_parts):
+            displayed = list(dict.fromkeys(reference for part in candidate_parts for reference in part["reference_ids"]))
+            omitted = [reference for reference in selected_ids if reference not in displayed]
+            assessment = self.assess(displayed, required_documents)
+            if initial["status"] in {"conflict", "ambiguous"}:
+                # Not showing one conflicting excerpt must not turn the result
+                # into an apparently resolved single-valued answer.
+                assessment["status"] = initial["status"]
+                assessment["conflicts"] = initial["conflicts"]
+                assessment["ambiguous"] = initial["ambiguous"]
+            elif omitted:
+                assessment["status"] = "partial"
+            assessment.update({"model_selected_reference_ids": plan.references, "added_reference_ids": added,
+                               "omitted_reference_ids": omitted, "rendered_reference_ids": displayed})
+            if not any(part["kind"] == "calculation" for part in candidate_parts):
+                assessment["calculation"] = None
+            answer, spans = compose(candidate_parts, assessment, omitted)
+            tokens = tokenizer.count(answer)
+            return displayed, omitted, assessment, answer, spans, tokens
+
+        # Admit whole references in stable priority order. An oversized first
+        # excerpt must not erase later useful excerpts that fit. Evaluate all
+        # first: intermediate partial-coverage notices can cost more than the
+        # complete answer's notice. Never truncate a fact/condition/calculation.
+        displayed, omitted, assessment, answer, spans, tokens = evaluate(parts)
+        if tokens > output_tokens:
+            admitted: list[dict[str, Any]] = []
+            for part in parts:
+                candidate = [*admitted, part]
+                if evaluate(candidate)[-1] <= output_tokens:
+                    admitted.append(part)
+            parts = admitted
+            displayed, omitted, assessment, answer, spans, tokens = evaluate(parts)
+            if tokens > output_tokens:
+                raise ApiError("structured_answer_render_budget_exceeded", "Le budget de restitution ne permet pas même d'afficher les limites de la réponse.", 503)
+        warnings = []
+        message = assessment_message(assessment)
+        if message:
+            warnings.append({"code": "answer_contract_" + assessment["status"], "message": message,
+                             "verification": assessment["verification"], "missing": assessment["missing"]})
+        if omitted:
+            warnings.append({"code": "answer_contract_output_partial", "reference_ids": omitted,
+                             "message": "Certaines références complètes dépassent le budget de restitution ; elles ne sont pas affichées."})
+        if added:
+            warnings.append({"code": "answer_contract_selection_completed", "reference_ids": added,
+                             "message": "Des références déjà présentes au contexte ont été réintégrées pour couvrir la demande explicite."})
+        for reference_id in displayed:
+            reference = by_id[reference_id]
+            if reference["kind"] != "cell":
+                continue
+            if any(not field["complete"] for field in reference["fields"]):
+                warnings.append({"code": "structured_field_partial", "source_ids": reference["source_ids"],
+                                 "address": reference["cell_facts"]["address"],
+                                 "message": "La restitution de cette cellule ne contient que les caractères autorisés retenus."})
+            if reference["cell_facts"]["formula_present"] and not reference["cell_facts"]["cached_present"]:
+                warnings.append({"code": "structured_formula_cache_absent", "source_ids": reference["source_ids"],
+                                 "address": reference["cell_facts"]["address"],
+                                 "message": "Formule enregistrée sans cache source ; son résultat est indisponible."})
+        effective_plan = {"references": displayed,
+                          "comparisons": [comparison.model_dump() for comparison in plan.comparisons
+                                          if set(comparison.references) <= set(displayed)]}
+        return {"text": answer, "source_ids": list(dict.fromkeys(source for part in parts for source in part["source_ids"])),
+                "warnings": warnings, "tokens": tokens, "citation_spans": spans,
+                "answer_contract": assessment, "effective_plan": effective_plan}
+
+    def deterministic_plan(self) -> AnswerPlan | None:
+        """Exact, explicitly named cells in a pinned range need no model choice.
+
+        Expected deterministic refusals (missing formula cache, division by
+        zero, unavailable unit) still render their actual reason and sources.
+        General properties, scope-wide discovery and ambiguous cells do not use
+        this path. The existing builder has already checked source identities.
+        """
+        contract = self.contract
+        if (contract is None or contract.scope.get("kind") != "cell_range"
+                or contract.kind not in {"cell_values", "calculation"}
+                or not contract.requested_cells or contract.parse_failures or contract.subjects):
+            return None
+        if contract.kind == "cell_values" and not re.match(
+                r"^(?:quelles?\s+(?:valeurs?|formules?|unites?)|what\s+(?:(?:are|is)\s+the\s+)?(?:values?|formulas?|units?))\b",
+                folded(contract.question)):
+            return None
+        required = contract.required_ids(self.references)
+        selected = [reference for reference in self.references if reference["id"] in required]
+        if (len(required) != len(contract.requested_cells)
+                or any(reference["kind"] != "cell" or any(not field["complete"] for field in reference["fields"])
+                       for reference in selected)):
+            return None
+        if self.assess(required)["status"] in {"ambiguous", "conflict", "unassessed"}:
+            return None
+        return AnswerPlan(references=required, comparisons=[])
+
 
 def quoted(text):
     # React renders source text literally. Only renderer-generated spans designate citations.
@@ -213,8 +372,9 @@ def render_reference(reference, include_document=False):
 
 
 class StructuredAnswerBuilder:
-    def __init__(self, db, snapshot):
+    def __init__(self, db, snapshot, question=None, enforce_contract=False):
         self.db, self.snapshot = db, snapshot
+        self.question, self.enforce_contract = question, enforce_contract
         self.parents: dict[tuple[str, str], dict[str, Any]] = {}
         self.cells: dict[tuple[str, str, int, int], dict[str, Any]] = {}
         self.versions: dict[str, dict[str, Any]] = {}
@@ -268,7 +428,7 @@ class StructuredAnswerBuilder:
             integrity_failure()
         return self.cells[key]
 
-    def catalogue(self, sources, mode):
+    def catalogue(self, sources, mode) -> Catalogue:
         entries: dict[tuple, dict[str, Any]] = {}
         for source in sources:
             version_id = source["version_id"]
@@ -291,6 +451,8 @@ class StructuredAnswerBuilder:
                     item = entries.setdefault(key, {**base, "kind": "excerpt", "text": block["text"],
                                                    "locators": [block.get("locator") or {"page_index": block["page_index"]}], "segments": []})
                     item["segments"].append(segment)
+                    if self.enforce_contract:
+                        item["extraction_method"] = block.get("extraction_method", "unknown")
                     if source["source_id"] not in item["source_ids"]:
                         item["source_ids"].append(source["source_id"])
                     continue
@@ -346,4 +508,6 @@ class StructuredAnswerBuilder:
                     piece.pop("text")
                 field["text"], field["complete"] = text, complete and seen_end == len(value)
         references = [{"id": f"R{index:03d}", **item} for index, item in enumerate(entries.values(), 1)]
-        return Catalogue(mode, references)
+        contract = AnswerContract(self.question or "", mode, self.snapshot.scope,
+                                  cell_context=any(reference["kind"] == "cell" for reference in references)) if self.enforce_contract else None
+        return Catalogue(mode, references, contract)

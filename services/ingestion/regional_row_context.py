@@ -111,7 +111,9 @@ def _valid_boxes(frame, width, height):
                 and (boxes[:, 1] + boxes[:, 3] <= height).all())
 
 
-def _validated_cells(candidate, patch, offset, cells, indices, baselines, evidence, threshold, trace):
+def _validated_cells(candidate, patch, offset, cells, indices, baselines, evidence, threshold, trace,
+                     numeric_contexts=None):
+    from .numeric_evidence import literal, numeric_candidate_admissible
     from .regional_grid import _minimum_cell_confidence
 
     confidence = _minimum_cell_confidence(candidate)
@@ -123,6 +125,8 @@ def _validated_cells(candidate, patch, offset, cells, indices, baselines, eviden
         trace["reason"] = "candidate_invalid_geometry"
         return None
     restored = candidate.copy()
+    for column in ("left", "top", "width", "height"):
+        restored[column] = restored[column] / trace.get("factor", 1)
     restored["left"] += offset[0]
     restored["top"] += offset[1]
     assignments = defaultdict(list)
@@ -141,14 +145,19 @@ def _validated_cells(candidate, patch, offset, cells, indices, baselines, eviden
             return None
         per_cell[index] = restored.iloc[assignments[index]].copy()
         before = _minimum_cell_confidence(baselines[index])
-        if before is not None and before >= threshold:
+        if numeric_contexts and index in numeric_contexts:
+            if not numeric_candidate_admissible(literal(baselines[index]), literal(per_cell[index])):
+                trace["reason"] = "candidate_numeric_ambiguity_unresolved"
+                return None
+        elif before is not None and before >= threshold:
             if tuple(per_cell[index]["text"]) != tuple(baselines[index]["text"]):
                 trace["reason"] = "candidate_changed_admissible_cell"
                 return None
     return per_cell
 
 
-def recognize_grid_rows(image, cells, baselines, evidence, recognize, minimum_confidence, max_region_pixels):
+def recognize_grid_rows(image, cells, baselines, evidence, recognize, minimum_confidence, max_region_pixels,
+                        *, private_numeric_readings=None, numeric_density_factor=1):
     """Keep actual cell baselines unless an entire native-density row is valid.
 
     The callback uses the same cell engine, languages and PSM 6. Printed cells
@@ -157,14 +166,25 @@ def recognize_grid_rows(image, cells, baselines, evidence, recognize, minimum_co
     Source-row and bordered-context pixels consume one cumulative regional
     budget, even when recognition fails or the candidate is rejected.
     """
+    from .numeric_evidence import (
+        capture_private_raster,
+        numeric_cell_contexts,
+        numeric_density_patch,
+        private_row_record,
+        token_records,
+    )
     from .regional_grid import _minimum_cell_confidence
 
+    if type(numeric_density_factor) is not int or numeric_density_factor not in (1, 2):
+        raise ValueError("Le facteur de densité numérique doit être 1 ou 2.")
     budget = _RowBudget(max_region_pixels)
     selected, traces = list(baselines), []
     rows = _grid_rows(image, cells)
     if rows is None or len(cells) != len(baselines) or len(cells) != len(evidence):
         return selected, [{"policy": ROW_CONTEXT_POLICY, "attempted": False,
                            "selected": "baseline", "reason": "invalid_grid_geometry"}], budget.metadata()
+    numeric_contexts = numeric_cell_contexts(cells, baselines, rows, minimum_confidence)
+    snapshot_bytes = 0
     for row_index, indices in enumerate(rows):
         bounds = [int(min(cells[index][0] for index in indices)), int(cells[indices[0]][1]),
                   int(max(cells[index][2] for index in indices)), int(cells[indices[0]][3])]
@@ -175,6 +195,15 @@ def recognize_grid_rows(image, cells, baselines, evidence, recognize, minimum_co
                  "ink_height_limit": ROW_CONTEXT_MAX_INK_HEIGHT, "border": ROW_CONTEXT_BORDER,
                  "minimum_confidence_required": minimum_confidence}
         traces.append(trace)
+        ambiguous = [index for index in indices if index in numeric_contexts]
+        reading = None
+        if ambiguous:
+            trace["ambiguous_numeric_cell_indices"] = ambiguous
+            for index in ambiguous:
+                evidence[index]["numeric_ambiguity_unresolved"] = True
+            if private_numeric_readings is not None:
+                reading = private_row_record(indices, numeric_contexts, cells, baselines, trace)
+                private_numeric_readings.append(reading)
         if minimum_confidence is None or not math.isfinite(minimum_confidence):
             trace["reason"] = "threshold_not_configured"
             continue
@@ -186,7 +215,7 @@ def recognize_grid_rows(image, cells, baselines, evidence, recognize, minimum_co
             trace["reason"] = "invalid_baseline_geometry"
             continue
         low = [index for index in printed if baselines[index].empty
-               or _minimum_cell_confidence(baselines[index]) < minimum_confidence]
+               or _minimum_cell_confidence(baselines[index]) < minimum_confidence or index in ambiguous]
         trace["eligible_cell_indices"] = low
         if not low:
             trace["reason"] = "baseline_admissible"
@@ -204,9 +233,19 @@ def recognize_grid_rows(image, cells, baselines, evidence, recognize, minimum_co
         trace.update(cumulative_crop_pixels=budget.pixels, additional_ocr_calls=budget.calls)
         if patch is None:
             continue
+        if ambiguous:
+            patch = numeric_density_patch(patch, trace, budget, ROW_CONTEXT_MAX_WIDTH, ROW_CONTEXT_MAX_HEIGHT,
+                                          factor=numeric_density_factor)
+            if patch is None:
+                continue
+            if reading is not None:
+                reading["ocr_parameters"]["density_factor"] = trace["factor"]
         budget.calls += 1
         trace.update(attempted=True, additional_ocr_calls=budget.calls,
-                     trigger="printed_cell_low_or_missing_confidence", candidate_minimum_word_confidence=None)
+                     trigger="numeric_field_ambiguity" if ambiguous else "printed_cell_low_or_missing_confidence",
+                     candidate_minimum_word_confidence=None)
+        if reading is not None:
+            snapshot_bytes = capture_private_raster(reading, patch, snapshot_bytes)
         try:
             candidate = recognize(patch)
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError) as error:
@@ -214,12 +253,16 @@ def recognize_grid_rows(image, cells, baselines, evidence, recognize, minimum_co
             if isinstance(error, subprocess.CalledProcessError):
                 trace["retry_returncode"] = error.returncode
             continue
+        if reading is not None:
+            reading["candidate_tokens"] = token_records(candidate)
         validated = _validated_cells(candidate, patch, offset, cells, indices, baselines, evidence,
-                                     minimum_confidence, trace)
+                                     minimum_confidence, trace, numeric_contexts)
         if validated is None:
             continue
         for index in low:
             selected[index] = validated[index]
+            if index in ambiguous:
+                evidence[index]["numeric_ambiguity_unresolved"] = False
         trace.update(selected="row_context", reason="candidate_admissible", adopted_cell_indices=low,
-                     coordinate_inverse_factor=1)
+                     coordinate_inverse_factor=1 / trace["factor"])
     return selected, traces, budget.metadata()

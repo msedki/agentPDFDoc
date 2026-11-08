@@ -1,8 +1,21 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** produits publiés `5204d2e` et `aabb9808`, recette native R27 exécutée avec réserve du bureau · **Mis à jour :** 2026-10-12 14:05 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** produits publiés `5204d2e` et `aabb9808`, recette native R27 exécutée avec réserve du bureau ; chantier EV4B sur `enhanced_version` · **Mis à jour :** 2026-11-08 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Poursuite et résultats du 4B, 8 novembre](2026-11-08.md) : campagne finale
+achevée, 30 soumissions / 28 réponses terminées / 2 erreurs ; rendement complet
+4/14 → 9/14 et preuves disponibles 19/33 → 31/33, sur une seule famille.
+Résidence adaptative naturelle observée, évaluateur complété et 40 tests ciblés
+PASS dont 31 recouvrants et 9 nouveaux ; réserves documentaires conservées.
+Publication en cours, à confirmer par son reçu.
+
+[Amélioration du 4B, 7 novembre](2026-11-07.md) : branche `enhanced_version`,
+protocole scientifique et DoD EV4B établis avant les essais ; v1 conserve trente
+soumissions, v2/v3 leurs refus et interruptions. Matrice KV, résidence, rejeu et
+import natifs exécutés ; OCR négatif conservé ; gate 3 409 PASS / 23 SKIP.
+La campagne finale gelée avant minuit se poursuit le 8 novembre ; D07 reste ouvert.
 
 [Comparaison appariée et sélection RAM du 13 octobre](2026-10-13.md) :
 douze réponses GPU récoltées et relues après correction QA ; sélection RAM

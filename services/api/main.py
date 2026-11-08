@@ -19,6 +19,7 @@ from starlette.middleware.body_limit import RequestBodyLimitMiddleware
 from starlette.staticfiles import StaticFiles
 
 from services.runtime.platforms import launcher_command, launcher_instruction, launcher_kind
+from services.runtime.resources import admission_requirement
 
 from .context import ContextBuilder, LlmTokenizer
 from .db import Database, json_dump, now, relative_document_path, uid
@@ -35,6 +36,7 @@ from .schemas import DocumentMove, EvaluationContextRequest, QueryRequest, Runti
 from .scope import ScopeResolver, with_extraction_provenance
 from .security import SecurityPolicy, SessionRegistry, cookie_attributes, link_help
 from .settings import Settings
+from .structured_answer import StructuredAnswerBuilder
 
 logger = logging.getLogger("rag.api")
 
@@ -67,7 +69,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     vectors = vectors or QdrantStore(settings)
     ollama = ollama or OllamaGateway(settings)
     tokenizer = tokenizer or LlmTokenizer(settings)
-    cache_release_state: dict[str, Any] = {"last": None}
+    cache_release_state: dict[str, Any] = {"last": None, "last_cold": None}
     if governor is None:
         try:
             from services.runtime.artifacts import runtime_location
@@ -82,22 +84,43 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         governor.after_resource_violation = ollama.unload
     if governor is not None and hasattr(ollama, "loaded_state"):
         async def before_generation():
-            return await release_before_cold_load(await ollama.loaded_state())
+            return await release_before_generation_admission(await ollama.loaded_state())
 
-        async def release_before_cold_load(loaded):
-            threshold = settings.value("resources", "initial_llm_load_peak_estimate_mib", 6144) + settings.value("resources", "host_available_min_mib", 1536)
-            if loaded.get("resident") is False and governor.snapshot()["available_mib"] < threshold:
-                loaded["cold_cache_release_before"] = governor.snapshot()
+        async def release_before_generation_admission(loaded):
+            # Le contexte est déjà figé. Une résidence vérifiée peut encore manquer
+            # de la marge additionnelle ; le gouverneur relit ensuite la RAM réelle.
+            resource_settings = getattr(governor, "settings", settings.profile.get("resources", {}))
+            requirement = admission_requirement(resource_settings, "generation", loaded)
+            threshold = requirement["required_available_mib"]
+            before = governor.snapshot()
+            if before["available_mib"] < threshold:
+                releases = {}
                 if hasattr(embedding, "release_session"):
-                    loaded["embedding_release"] = await asyncio.to_thread(embedding.release_session)
+                    releases["embedding_release"] = await asyncio.to_thread(embedding.release_session)
                 if hasattr(embedding, "release_tokenizer"):
-                    loaded["embedding_tokenizer_release"] = await asyncio.to_thread(embedding.release_tokenizer)
+                    releases["embedding_tokenizer_release"] = await asyncio.to_thread(embedding.release_tokenizer)
                 if hasattr(tokenizer, "release_tokenizer"):
-                    loaded["llm_tokenizer_release"] = await asyncio.to_thread(tokenizer.release_tokenizer)
-                loaded["cold_cache_release_after"] = governor.snapshot()
-                cache_release_state["last"] = {"before": loaded["cold_cache_release_before"], "after": loaded["cold_cache_release_after"],
-                    "cold_required_mib": threshold, "embedding_session": loaded.get("embedding_release"),
-                    "embedding_tokenizer": loaded.get("embedding_tokenizer_release"), "llm_tokenizer": loaded.get("llm_tokenizer_release")}
+                    releases["llm_tokenizer_release"] = await asyncio.to_thread(tokenizer.release_tokenizer)
+                after = governor.snapshot()
+                released = {"before": before, "after": after,
+                    "reason": "warm_admission_shortfall" if requirement["resident_model"] else "cold_admission_shortfall",
+                    "resident_model": requirement["resident_model"], "required_available_mib": threshold,
+                    "additional_peak_estimate_mib": requirement["additional_peak_estimate_mib"],
+                    "host_reserve_mib": requirement["host_reserve_mib"],
+                    "runtime_resident": loaded.get("resident") if loaded is not None else None,
+                    "embedding_session": releases.get("embedding_release"),
+                    "embedding_tokenizer": releases.get("embedding_tokenizer_release"),
+                    "llm_tokenizer": releases.get("llm_tokenizer_release")}
+                if not requirement["resident_model"]:
+                    # Conserver les champs historiques du diagnostic à froid.
+                    released["cold_required_mib"] = threshold
+                    cache_release_state["last_cold"] = released
+                    if loaded is not None:
+                        loaded.update(cold_cache_release_before=before, cold_cache_release_after=after)
+                if loaded is not None:
+                    loaded.update(releases)
+                    loaded["generation_cache_release"] = released
+                cache_release_state["last"] = released
             return loaded
         governor.before_generation = before_generation
 
@@ -108,7 +131,7 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
                 admission dans le bail en cours ; un refus termine la question sans relance."""
                 cold = {"loaded": False, "resident": False, "model": settings.value("llm", "model", "qwen3.5:4b"),
                         "additional_peak_mib": 0, "cpu_fallback": True}
-                await governor.readmit_generation(await release_before_cold_load(cold))
+                await governor.readmit_generation(await release_before_generation_admission(cold))
             ollama.before_cpu_fallback = before_cpu_fallback
     resolver = ScopeResolver(db)
     # Couverture dense de l'identité courante (R26-IDX-02) : avertissement de recherche et état nommé de /readiness.
@@ -288,7 +311,8 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
     prefix = "/api/v1"
 
     def selector_identity():
-        files = ["scope.py", "retrieval.py", "context.py", "query.py", "embedding.py", "office_search.py"]
+        files = ["scope.py", "retrieval.py", "context.py", "query.py", "embedding.py", "office_search.py",
+                 "evidence_selection.py", "structured_answer.py", "answer_contract.py"]
         hashes = {name: hashlib.sha256((Path(__file__).parent / name).read_bytes()).hexdigest() for name in files}
         return hashlib.sha256(json.dumps(hashes, sort_keys=True).encode()).hexdigest()
 
@@ -379,15 +403,34 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
         prior = [{"id": "evaluation_prior_user", "question": body.prior_user_question, "snapshot_json": json_dump(snapshot.as_dict())}] if body.prior_user_question else None
         question, resolution, choices, references = await asyncio.to_thread(queries.resolve_followup, body, snapshot, prior)
         profile_sha = hashlib.sha256(json.dumps(settings.profile, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
+        evaluation = {"evaluation_kind": "independent_context_build", "generation_request_captured": False}
         if choices:
-            return {"state": "needs_clarification", "choices": choices, "resolution": resolution, "scope_snapshot": snapshot.as_dict(), "model_called": False, "profile_sha256": profile_sha}
+            return {**evaluation, "state": "needs_clarification", "choices": choices, "resolution": resolution, "scope_snapshot": snapshot.as_dict(), "model_called": False, "profile_sha256": profile_sha}
         governor.begin_interactive() if governor else None
         try:
             retrieved = await search.search(question, snapshot, body.mode, references)
-            expanded = await asyncio.to_thread(lambda: [resolver.expand_parent(source, snapshot, tokenizer, settings.value("chunking", "parent_expand_max_llm_tokens", 900)) for source in retrieved["results"]])
-            messages, sources, metrics, warnings = await asyncio.to_thread(queries.context.build, question, expanded, body.mode, [], references)
+            expanded = await asyncio.to_thread(lambda: [source if source.get("evidence_bundle") else resolver.expand_parent(source, snapshot, tokenizer, settings.value("chunking", "parent_expand_max_llm_tokens", 900)) for source in retrieved["results"]])
+            has_xlsx = await asyncio.to_thread(lambda: any(db.version(version)["format"] == "xlsx"
+                                                          for version in set(snapshot.versions.values())))
+            enforce_contract = settings.value("enhanced", "answer_contract", False)
+            structured = (StructuredAnswerBuilder(db, snapshot, question=question, enforce_contract=True)
+                          if enforce_contract else StructuredAnswerBuilder(db, snapshot) if has_xlsx else None)
+            build_arguments = {"structured": structured} if structured is not None else {}
+            messages, sources, metrics, warnings = await asyncio.to_thread(queries.context.build, question, expanded, body.mode, [], references, **build_arguments)
+            # This diagnostic rebuild has no generation request or adaptive second
+            # search. Only the execution trace can prove an actual sent context.
+            metrics["complementary_retrieval"] = {"configured": settings.value("enhanced", "complementary_retrieval", False),
+                "attempted": False, "performed": False, "reason": "context_only_evaluation"}
+            if structured is not None:
+                catalogue = await asyncio.to_thread(structured.catalogue, sources, body.mode)
+                if enforce_contract:
+                    required_documents = list(dict.fromkeys(snapshot.documents.values())) if snapshot.scope["kind"] == "documents" else ()
+                    metrics["context_assessment"] = catalogue.assess(required_documents=required_documents)
+                evidence = catalogue.evidence()
+                metrics["structured_answer"] = {"status": "context_only", "schema_sha256": evidence["schema_sha256"],
+                                                "catalogue_sha256": evidence["catalogue_sha256"]}
             resolution["reference_resolution"] = references.as_dict()
-            return {"state": "context_ready", "effective_question": question, "resolution": resolution,
+            return {**evaluation, "state": "context_ready", "effective_question": question, "resolution": resolution,
                     "scope_snapshot": snapshot.as_dict(), "retrieval_top10": retrieved["top10"], "retrieval_final": retrieved["results"],
                     "context_sources": sources, "metrics": metrics, "warnings": snapshot.warnings + retrieved["warnings"] + warnings,
                     "retrieval_ms": retrieved["elapsed_ms"], "model_called": False, "profile_sha256": profile_sha,
@@ -827,7 +870,8 @@ def create_app(profile_path=None, governor=None, ingestion_runner=None, *, setti
                 "embedding_session": embedding.lifecycle() if hasattr(embedding, "lifecycle") else {"status": "explicit_test_substitute"},
                 "indexing_cache": indexer.diagnostics(), "ingestion_cache": jobs.diagnostics(),
                 "llm_tokenizer_cache": tokenizer.lifecycle() if hasattr(tokenizer, "lifecycle") else {"status": "explicit_test_substitute"},
-                "cold_cache_release": cache_release_state["last"],
+                "cold_cache_release": cache_release_state["last_cold"],
+                "generation_cache_release": cache_release_state["last"],
                 "llm_accelerator": ollama.describe() if hasattr(ollama, "describe") else {"status": "explicit_test_substitute"},
                 "profile_sha256": hashlib.sha256(json.dumps(settings.profile, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest(),
                 "reconciliation": {"staged": reconciler.inspect(), "pending_cleanup": db.one("SELECT count(*) AS n FROM vector_cleanup WHERE state='pending'")["n"]},

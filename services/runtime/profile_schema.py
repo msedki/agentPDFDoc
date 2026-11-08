@@ -54,6 +54,11 @@ class Llm(Section):
     num_predict: PositiveInt = 768
     temperature: NonNegativeNumber = 0.2
     top_p: Ratio = 0.9
+    seed: Annotated[int, Field(ge=0, le=4_294_967_295)] | None = None
+    kv_cache_type: Literal["f16", "q8_0", "q4_0"] = "f16"
+    flash_attention: bool = False
+    residency_policy: Literal["keep", "unload", "adaptive"] = "keep"
+    adaptive_reserve_margin_mib: NonNegativeInt = 512
     think: bool = False
     accelerator: str = "auto"
     num_gpu: NonNegativeInt = 0
@@ -277,6 +282,28 @@ class Runtime(Section):
     huggingface_cache_dir: str = ".runtime/cache/huggingface"
 
 
+class Enhanced(Section):
+    """Mécanismes expérimentaux indépendants, inactifs dans les profils historiques."""
+
+    preserve_evidence: bool = False
+    structural_reranking: bool = False
+    rerank_max_candidates: Annotated[int, Field(ge=1, le=96)] = 48
+    exhaustive_range_max_cells: Annotated[int, Field(ge=1, le=256)] = 64
+    evidence_bundle_max_chars: Annotated[int, Field(ge=256, le=64_000)] = 12_000
+    answer_contract: bool = False
+    complementary_retrieval: bool = False
+    complementary_timeout_seconds: Annotated[float, Field(gt=0, le=30)] = 5
+
+
+class Trace(Section):
+    # Les traces complètes sont locales et privées, distinctes des journaux d'exploitation sans texte.
+    mode: Literal["off", "hashes", "full"] = "off"
+    directory: str = "traces"
+    max_bytes_per_query: Annotated[int, Field(ge=4096, le=16_777_216)] = 2_097_152
+    max_total_bytes: Annotated[int, Field(ge=4096, le=1_073_741_824)] = 67_108_864
+    max_files: Annotated[int, Field(ge=1, le=10_000)] = 256
+
+
 class Profile(Section):
     schema_version: Annotated[int, Field(ge=1, le=2)]
     profile: str = "local16"
@@ -295,6 +322,8 @@ class Profile(Section):
     ui: Ui = Field(default_factory=Ui)
     evaluation_targets: EvaluationTargets = Field(default_factory=EvaluationTargets)
     runtime: Runtime = Field(default_factory=Runtime)
+    enhanced: Enhanced = Field(default_factory=Enhanced)
+    trace: Trace = Field(default_factory=Trace)
 
 
 # Clés du profil dont le code ne met en œuvre qu'une valeur (constat C6 de l'inspection du 1er octobre 2026) :
@@ -411,6 +440,15 @@ def validate_profile(config: dict, *, consumer: Literal["api", "runtime"]) -> di
         refuse_relation("Le chevauchement doit rester inférieur à la cible des fragments.",
                         "chunking.overlap_max_tokens", "chunking.target_tokens")
     llm, retrieval = profile.llm, profile.retrieval
+    if llm.kv_cache_type != "f16" and not llm.flash_attention:
+        refuse_relation("Un cache KV quantifié requiert flash_attention ; vérifier aussi son application par le moteur.",
+                        "llm.kv_cache_type", "llm.flash_attention")
+    trace = profile.trace
+    if trace.max_bytes_per_query > trace.max_total_bytes:
+        refuse_relation("Le plafond d'une trace dépasse le quota total.", "trace.max_bytes_per_query", "trace.max_total_bytes")
+    trace_path = Path(trace.directory)
+    if trace_path.is_absolute() or ".." in trace_path.parts or not trace_path.parts:
+        refuse_relation("Le dossier de traces doit rester relatif au stockage de l'instance.", "trace.directory")
     if (retrieval.max_evidence_llm_tokens + retrieval.max_history_llm_tokens
             + retrieval.max_instructions_question_llm_tokens + llm.num_predict
             + retrieval.context_safety_tokens > llm.num_ctx):

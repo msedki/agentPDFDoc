@@ -1,0 +1,824 @@
+{
+  "scope": "Synthetic image / real Tesseract component checks. Not full Docling/PDF ingestion.",
+  "date_utc": "2026-11-07",
+  "base_commit": "59d47e98a47fc652b5506727673b6b477c92eb9d",
+  "runs": [
+    {
+      "run": "ev4b-ocr-native-01",
+      "result_sha256": "3a56efdc523386ebb30fe4be8892aeae737d13e8c74981dd8c2e8232fbd83810",
+      "native_engine": "tesseract 5.5.0",
+      "engine_sha256": "74b76a5b994adcc18be362bf64ed5118082b2401d5d9a35242e92fc4c62e2b4b",
+      "font_sha256": "e64e508b2aa2880f907e470c4550980ec4c0694d103a43f36150ac3f93189bee",
+      "source_hashes": null,
+      "native_ocr_calls": 7,
+      "native_ocr_elapsed_s": 0.7060270789970673,
+      "passed": 1,
+      "total": 3,
+      "cases": [
+        {
+          "case": "native_baselines",
+          "baseline_fault_injected": false,
+          "status": "FAIL",
+          "selected_texts": [
+            "Min",
+            "Max",
+            "OV",
+            "36V"
+          ],
+          "additional_ocr_calls": 1,
+          "decisions": [
+            "baseline_admissible",
+            "candidate_numeric_ambiguity_unresolved"
+          ],
+          "density_factors": [
+            1,
+            1
+          ],
+          "raw_readings_retained": true,
+          "candidate_rasters_retained": true,
+          "numeric_reading_evidence": [
+            {
+              "cells": [
+                {
+                  "cell_index": 2,
+                  "raster_bbox": [
+                    20,
+                    85,
+                    350,
+                    145
+                  ],
+                  "role": "minimum",
+                  "header_cell_index": 0,
+                  "header_text": "Min",
+                  "header_raster_bbox": [
+                    20,
+                    20,
+                    350,
+                    75
+                  ],
+                  "ambiguities": [
+                    "letter_o_in_numeric_field"
+                  ],
+                  "raw_tokens": [
+                    {
+                      "text": "OV",
+                      "conf": 86.340523,
+                      "left": 37.0,
+                      "top": 102.0,
+                      "width": 41.0,
+                      "height": 21.0
+                    }
+                  ],
+                  "raw_text": "OV"
+                }
+              ],
+              "candidate_tokens": [
+                {
+                  "text": "OV",
+                  "conf": 86.340523,
+                  "left": 10.0,
+                  "top": 10.0,
+                  "width": 41.0,
+                  "height": 21.0
+                },
+                {
+                  "text": "36V",
+                  "conf": 86.992012,
+                  "left": 359.0,
+                  "top": 10.0,
+                  "width": 59.0,
+                  "height": 21.0
+                }
+              ],
+              "raster_png_sha256": "99ec8f5d8e4a196f993fb1eb3f110205ba8cd463830bf1ef4542d3b9326ef06f",
+              "raster_capture_state": "captured",
+              "ocr_parameters": {
+                "psm": 6,
+                "density_factor": 1,
+                "same_engine_and_languages": true
+              }
+            }
+          ]
+        },
+        {
+          "case": "injected_ambiguity_real_retry",
+          "baseline_fault_injected": true,
+          "status": "FAIL",
+          "selected_texts": [
+            "Min",
+            "Max",
+            "OV",
+            "36V"
+          ],
+          "additional_ocr_calls": 1,
+          "decisions": [
+            "baseline_admissible",
+            "candidate_numeric_ambiguity_unresolved"
+          ],
+          "density_factors": [
+            1,
+            1
+          ],
+          "raw_readings_retained": true,
+          "candidate_rasters_retained": true,
+          "numeric_reading_evidence": [
+            {
+              "cells": [
+                {
+                  "cell_index": 2,
+                  "raster_bbox": [
+                    20,
+                    85,
+                    350,
+                    145
+                  ],
+                  "role": "minimum",
+                  "header_cell_index": 0,
+                  "header_text": "Min",
+                  "header_raster_bbox": [
+                    20,
+                    20,
+                    350,
+                    75
+                  ],
+                  "ambiguities": [
+                    "letter_o_in_numeric_field"
+                  ],
+                  "raw_tokens": [
+                    {
+                      "text": "OV",
+                      "conf": 95.0,
+                      "left": 37.0,
+                      "top": 102.0,
+                      "width": 41.0,
+                      "height": 21.0
+                    }
+                  ],
+                  "raw_text": "OV"
+                }
+              ],
+              "candidate_tokens": [
+                {
+                  "text": "OV",
+                  "conf": 86.340523,
+                  "left": 10.0,
+                  "top": 10.0,
+                  "width": 41.0,
+                  "height": 21.0
+                },
+                {
+                  "text": "36V",
+                  "conf": 86.992012,
+                  "left": 359.0,
+                  "top": 10.0,
+                  "width": 59.0,
+                  "height": 21.0
+                }
+              ],
+              "raster_png_sha256": "99ec8f5d8e4a196f993fb1eb3f110205ba8cd463830bf1ef4542d3b9326ef06f",
+              "raster_capture_state": "captured",
+              "ocr_parameters": {
+                "psm": 6,
+                "density_factor": 1,
+                "same_engine_and_languages": true
+              }
+            }
+          ]
+        },
+        {
+          "case": "injected_unit_conflict_real_retry",
+          "baseline_fault_injected": true,
+          "status": "PASS",
+          "selected_texts": [
+            "Min",
+            "Max",
+            "OV",
+            "36V"
+          ],
+          "additional_ocr_calls": 1,
+          "decisions": [
+            "baseline_admissible",
+            "candidate_numeric_ambiguity_unresolved"
+          ],
+          "density_factors": [
+            1,
+            1
+          ],
+          "raw_readings_retained": true,
+          "candidate_rasters_retained": true,
+          "numeric_reading_evidence": [
+            {
+              "cells": [
+                {
+                  "cell_index": 2,
+                  "raster_bbox": [
+                    20,
+                    85,
+                    350,
+                    145
+                  ],
+                  "role": "minimum",
+                  "header_cell_index": 0,
+                  "header_text": "Min",
+                  "header_raster_bbox": [
+                    20,
+                    20,
+                    350,
+                    75
+                  ],
+                  "ambiguities": [
+                    "letter_o_in_numeric_field"
+                  ],
+                  "raw_tokens": [
+                    {
+                      "text": "OV",
+                      "conf": 95.0,
+                      "left": 37.0,
+                      "top": 102.0,
+                      "width": 41.0,
+                      "height": 21.0
+                    }
+                  ],
+                  "raw_text": "OV"
+                }
+              ],
+              "candidate_tokens": [
+                {
+                  "text": "OA",
+                  "conf": 90.537605,
+                  "left": 10.0,
+                  "top": 10.0,
+                  "width": 42.0,
+                  "height": 21.0
+                },
+                {
+                  "text": "36V",
+                  "conf": 86.992012,
+                  "left": 359.0,
+                  "top": 10.0,
+                  "width": 59.0,
+                  "height": 21.0
+                }
+              ],
+              "raster_png_sha256": "7785bb25b9f447d1e80056153a7cc4deb7920cd0ea660c1a9f8ae75be7ac0751",
+              "raster_capture_state": "captured",
+              "ocr_parameters": {
+                "psm": 6,
+                "density_factor": 1,
+                "same_engine_and_languages": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run": "ev4b-ocr-native-02",
+      "result_sha256": "7201850621f3bf36030dbb512558704a46fc373241af907f8740a292b91782e7",
+      "native_engine": "tesseract 5.5.0",
+      "engine_sha256": "74b76a5b994adcc18be362bf64ed5118082b2401d5d9a35242e92fc4c62e2b4b",
+      "font_sha256": "e64e508b2aa2880f907e470c4550980ec4c0694d103a43f36150ac3f93189bee",
+      "source_hashes": null,
+      "native_ocr_calls": 7,
+      "native_ocr_elapsed_s": 0.607845915001235,
+      "passed": 1,
+      "total": 3,
+      "cases": [
+        {
+          "case": "native_baselines",
+          "baseline_fault_injected": false,
+          "status": "FAIL",
+          "selected_texts": [
+            "Min",
+            "Max",
+            "OV",
+            "36V"
+          ],
+          "additional_ocr_calls": 1,
+          "decisions": [
+            "baseline_admissible",
+            "candidate_numeric_ambiguity_unresolved"
+          ],
+          "density_factors": [
+            1,
+            2
+          ],
+          "raw_readings_retained": true,
+          "candidate_rasters_retained": true,
+          "numeric_reading_evidence": [
+            {
+              "cells": [
+                {
+                  "cell_index": 2,
+                  "raster_bbox": [
+                    20,
+                    85,
+                    350,
+                    145
+                  ],
+                  "role": "minimum",
+                  "header_cell_index": 0,
+                  "header_text": "Min",
+                  "header_raster_bbox": [
+                    20,
+                    20,
+                    350,
+                    75
+                  ],
+                  "ambiguities": [
+                    "letter_o_in_numeric_field"
+                  ],
+                  "raw_tokens": [
+                    {
+                      "text": "OV",
+                      "conf": 86.340523,
+                      "left": 37.0,
+                      "top": 102.0,
+                      "width": 41.0,
+                      "height": 21.0
+                    }
+                  ],
+                  "raw_text": "OV"
+                }
+              ],
+              "candidate_tokens": [
+                {
+                  "text": "OV",
+                  "conf": 91.221436,
+                  "left": 20.0,
+                  "top": 20.0,
+                  "width": 82.0,
+                  "height": 42.0
+                },
+                {
+                  "text": "36V",
+                  "conf": 84.987732,
+                  "left": 718.0,
+                  "top": 20.0,
+                  "width": 118.0,
+                  "height": 42.0
+                }
+              ],
+              "raster_png_sha256": "3576f69c7605b6bb7703103ce0350eb91eec3e4dcedf2f78565a0b4a8b906144",
+              "raster_capture_state": "captured",
+              "ocr_parameters": {
+                "psm": 6,
+                "density_factor": 2,
+                "same_engine_and_languages": true
+              }
+            }
+          ]
+        },
+        {
+          "case": "injected_ambiguity_real_retry",
+          "baseline_fault_injected": true,
+          "status": "FAIL",
+          "selected_texts": [
+            "Min",
+            "Max",
+            "OV",
+            "36V"
+          ],
+          "additional_ocr_calls": 1,
+          "decisions": [
+            "baseline_admissible",
+            "candidate_numeric_ambiguity_unresolved"
+          ],
+          "density_factors": [
+            1,
+            2
+          ],
+          "raw_readings_retained": true,
+          "candidate_rasters_retained": true,
+          "numeric_reading_evidence": [
+            {
+              "cells": [
+                {
+                  "cell_index": 2,
+                  "raster_bbox": [
+                    20,
+                    85,
+                    350,
+                    145
+                  ],
+                  "role": "minimum",
+                  "header_cell_index": 0,
+                  "header_text": "Min",
+                  "header_raster_bbox": [
+                    20,
+                    20,
+                    350,
+                    75
+                  ],
+                  "ambiguities": [
+                    "letter_o_in_numeric_field"
+                  ],
+                  "raw_tokens": [
+                    {
+                      "text": "OV",
+                      "conf": 95.0,
+                      "left": 37.0,
+                      "top": 102.0,
+                      "width": 41.0,
+                      "height": 21.0
+                    }
+                  ],
+                  "raw_text": "OV"
+                }
+              ],
+              "candidate_tokens": [
+                {
+                  "text": "OV",
+                  "conf": 91.221436,
+                  "left": 20.0,
+                  "top": 20.0,
+                  "width": 82.0,
+                  "height": 42.0
+                },
+                {
+                  "text": "36V",
+                  "conf": 84.987732,
+                  "left": 718.0,
+                  "top": 20.0,
+                  "width": 118.0,
+                  "height": 42.0
+                }
+              ],
+              "raster_png_sha256": "3576f69c7605b6bb7703103ce0350eb91eec3e4dcedf2f78565a0b4a8b906144",
+              "raster_capture_state": "captured",
+              "ocr_parameters": {
+                "psm": 6,
+                "density_factor": 2,
+                "same_engine_and_languages": true
+              }
+            }
+          ]
+        },
+        {
+          "case": "injected_unit_conflict_real_retry",
+          "baseline_fault_injected": true,
+          "status": "PASS",
+          "selected_texts": [
+            "Min",
+            "Max",
+            "OV",
+            "36V"
+          ],
+          "additional_ocr_calls": 1,
+          "decisions": [
+            "baseline_admissible",
+            "candidate_numeric_ambiguity_unresolved"
+          ],
+          "density_factors": [
+            1,
+            2
+          ],
+          "raw_readings_retained": true,
+          "candidate_rasters_retained": true,
+          "numeric_reading_evidence": [
+            {
+              "cells": [
+                {
+                  "cell_index": 2,
+                  "raster_bbox": [
+                    20,
+                    85,
+                    350,
+                    145
+                  ],
+                  "role": "minimum",
+                  "header_cell_index": 0,
+                  "header_text": "Min",
+                  "header_raster_bbox": [
+                    20,
+                    20,
+                    350,
+                    75
+                  ],
+                  "ambiguities": [
+                    "letter_o_in_numeric_field"
+                  ],
+                  "raw_tokens": [
+                    {
+                      "text": "OV",
+                      "conf": 95.0,
+                      "left": 37.0,
+                      "top": 102.0,
+                      "width": 41.0,
+                      "height": 21.0
+                    }
+                  ],
+                  "raw_text": "OV"
+                }
+              ],
+              "candidate_tokens": [
+                {
+                  "text": "OA",
+                  "conf": 92.391464,
+                  "left": 20.0,
+                  "top": 20.0,
+                  "width": 84.0,
+                  "height": 42.0
+                },
+                {
+                  "text": "36V",
+                  "conf": 84.987732,
+                  "left": 718.0,
+                  "top": 20.0,
+                  "width": 118.0,
+                  "height": 42.0
+                }
+              ],
+              "raster_png_sha256": "8b0237e88bc7d301306ef0c823ebf28ab2f88c4beeeb988de1181e1b8c16a797",
+              "raster_capture_state": "captured",
+              "ocr_parameters": {
+                "psm": 6,
+                "density_factor": 2,
+                "same_engine_and_languages": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run": "ev4b-ocr-native-03-final-default",
+      "result_sha256": "87f82051355e21c69db11115e5a5b5225633af5c69f13064ed81f9484b5236dd",
+      "native_engine": "tesseract 5.5.0",
+      "engine_sha256": "74b76a5b994adcc18be362bf64ed5118082b2401d5d9a35242e92fc4c62e2b4b",
+      "font_sha256": "e64e508b2aa2880f907e470c4550980ec4c0694d103a43f36150ac3f93189bee",
+      "source_hashes": {
+        "tools/qualification/enhanced_ocr_smoke.py": "16b74889d2b5d8381889c84d307ec68162729e73dbe5d4f3119c9961fb0d9129",
+        "services/ingestion/numeric_evidence.py": "e7c9cc923eec8f4831c56220d93441c1e35965cdbbbc27de6fe381175880e8eb",
+        "services/ingestion/regional_row_context.py": "6df58f00abe22e5ed32ce4c0c47a82bca7efea384192996e456589cf95b7f8be"
+      },
+      "native_ocr_calls": 7,
+      "native_ocr_elapsed_s": 0.5910020020019147,
+      "passed": 1,
+      "total": 3,
+      "cases": [
+        {
+          "case": "native_baselines",
+          "baseline_fault_injected": false,
+          "status": "FAIL",
+          "selected_texts": [
+            "Min",
+            "Max",
+            "OV",
+            "36V"
+          ],
+          "additional_ocr_calls": 1,
+          "decisions": [
+            "baseline_admissible",
+            "candidate_numeric_ambiguity_unresolved"
+          ],
+          "density_factors": [
+            1,
+            1
+          ],
+          "raw_readings_retained": true,
+          "candidate_rasters_retained": true,
+          "numeric_reading_evidence": [
+            {
+              "cells": [
+                {
+                  "cell_index": 2,
+                  "raster_bbox": [
+                    20,
+                    85,
+                    350,
+                    145
+                  ],
+                  "role": "minimum",
+                  "header_cell_index": 0,
+                  "header_text": "Min",
+                  "header_raster_bbox": [
+                    20,
+                    20,
+                    350,
+                    75
+                  ],
+                  "ambiguities": [
+                    "letter_o_in_numeric_field"
+                  ],
+                  "raw_tokens": [
+                    {
+                      "text": "OV",
+                      "conf": 86.340523,
+                      "left": 37.0,
+                      "top": 102.0,
+                      "width": 41.0,
+                      "height": 21.0
+                    }
+                  ],
+                  "raw_text": "OV"
+                }
+              ],
+              "candidate_tokens": [
+                {
+                  "text": "OV",
+                  "conf": 86.340523,
+                  "left": 10.0,
+                  "top": 10.0,
+                  "width": 41.0,
+                  "height": 21.0
+                },
+                {
+                  "text": "36V",
+                  "conf": 86.992012,
+                  "left": 359.0,
+                  "top": 10.0,
+                  "width": 59.0,
+                  "height": 21.0
+                }
+              ],
+              "raster_png_sha256": "99ec8f5d8e4a196f993fb1eb3f110205ba8cd463830bf1ef4542d3b9326ef06f",
+              "raster_capture_state": "captured",
+              "ocr_parameters": {
+                "psm": 6,
+                "density_factor": 1,
+                "same_engine_and_languages": true
+              }
+            }
+          ]
+        },
+        {
+          "case": "injected_ambiguity_real_retry",
+          "baseline_fault_injected": true,
+          "status": "FAIL",
+          "selected_texts": [
+            "Min",
+            "Max",
+            "OV",
+            "36V"
+          ],
+          "additional_ocr_calls": 1,
+          "decisions": [
+            "baseline_admissible",
+            "candidate_numeric_ambiguity_unresolved"
+          ],
+          "density_factors": [
+            1,
+            1
+          ],
+          "raw_readings_retained": true,
+          "candidate_rasters_retained": true,
+          "numeric_reading_evidence": [
+            {
+              "cells": [
+                {
+                  "cell_index": 2,
+                  "raster_bbox": [
+                    20,
+                    85,
+                    350,
+                    145
+                  ],
+                  "role": "minimum",
+                  "header_cell_index": 0,
+                  "header_text": "Min",
+                  "header_raster_bbox": [
+                    20,
+                    20,
+                    350,
+                    75
+                  ],
+                  "ambiguities": [
+                    "letter_o_in_numeric_field"
+                  ],
+                  "raw_tokens": [
+                    {
+                      "text": "OV",
+                      "conf": 95.0,
+                      "left": 37.0,
+                      "top": 102.0,
+                      "width": 41.0,
+                      "height": 21.0
+                    }
+                  ],
+                  "raw_text": "OV"
+                }
+              ],
+              "candidate_tokens": [
+                {
+                  "text": "OV",
+                  "conf": 86.340523,
+                  "left": 10.0,
+                  "top": 10.0,
+                  "width": 41.0,
+                  "height": 21.0
+                },
+                {
+                  "text": "36V",
+                  "conf": 86.992012,
+                  "left": 359.0,
+                  "top": 10.0,
+                  "width": 59.0,
+                  "height": 21.0
+                }
+              ],
+              "raster_png_sha256": "99ec8f5d8e4a196f993fb1eb3f110205ba8cd463830bf1ef4542d3b9326ef06f",
+              "raster_capture_state": "captured",
+              "ocr_parameters": {
+                "psm": 6,
+                "density_factor": 1,
+                "same_engine_and_languages": true
+              }
+            }
+          ]
+        },
+        {
+          "case": "injected_unit_conflict_real_retry",
+          "baseline_fault_injected": true,
+          "status": "PASS",
+          "selected_texts": [
+            "Min",
+            "Max",
+            "OV",
+            "36V"
+          ],
+          "additional_ocr_calls": 1,
+          "decisions": [
+            "baseline_admissible",
+            "candidate_numeric_ambiguity_unresolved"
+          ],
+          "density_factors": [
+            1,
+            1
+          ],
+          "raw_readings_retained": true,
+          "candidate_rasters_retained": true,
+          "numeric_reading_evidence": [
+            {
+              "cells": [
+                {
+                  "cell_index": 2,
+                  "raster_bbox": [
+                    20,
+                    85,
+                    350,
+                    145
+                  ],
+                  "role": "minimum",
+                  "header_cell_index": 0,
+                  "header_text": "Min",
+                  "header_raster_bbox": [
+                    20,
+                    20,
+                    350,
+                    75
+                  ],
+                  "ambiguities": [
+                    "letter_o_in_numeric_field"
+                  ],
+                  "raw_tokens": [
+                    {
+                      "text": "OV",
+                      "conf": 95.0,
+                      "left": 37.0,
+                      "top": 102.0,
+                      "width": 41.0,
+                      "height": 21.0
+                    }
+                  ],
+                  "raw_text": "OV"
+                }
+              ],
+              "candidate_tokens": [
+                {
+                  "text": "OA",
+                  "conf": 90.537605,
+                  "left": 10.0,
+                  "top": 10.0,
+                  "width": 42.0,
+                  "height": 21.0
+                },
+                {
+                  "text": "36V",
+                  "conf": 86.992012,
+                  "left": 359.0,
+                  "top": 10.0,
+                  "width": 59.0,
+                  "height": 21.0
+                }
+              ],
+              "raster_png_sha256": "7785bb25b9f447d1e80056153a7cc4deb7920cd0ea660c1a9f8ae75be7ac0751",
+              "raster_capture_state": "captured",
+              "ocr_parameters": {
+                "psm": 6,
+                "density_factor": 1,
+                "same_engine_and_languages": true
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "language_file_observed_after_campaign": {
+    "language": "eng",
+    "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+    "path": "/usr/share/tesseract-ocr/5/tessdata/eng.traineddata",
+    "provenance": "Directory reported by the executed tesseract --list-langs; no replacement performed."
+  }
+}

@@ -209,7 +209,8 @@ class ContextBuilder:
             if candidate_tokens > budget:
                 covered_so_far = {code for retained_source in retained for code in priority if references.source_matches(retained_source, code)}
                 mandatory = any(references.source_matches(source, value) and value not in covered_so_far for value in priority) or (
-                    source.get("document_id") in compared and all(kept.get("document_id") != source["document_id"] for kept in retained))
+                    source.get("document_id") in compared and all(kept.get("document_id") != source["document_id"] for kept in retained)) or bool(
+                    source.get("evidence_bundle", {}).get("atomic"))
                 if mandatory and candidate_tokens <= self.settings.value("retrieval", "max_evidence_llm_tokens", 5120):
                     budget = candidate_tokens
                 else:
@@ -285,6 +286,15 @@ class ContextBuilder:
                    "identifier_coverage_at_context": coverage, "evidence_coverage_at_context": coverage}
         if mode == "comparison":
             metrics.update({"required_documents": compared, "required_documents_in_context": in_context})
+        if self.settings.value("enhanced", "preserve_evidence", False):
+            from .evidence_selection import bundle_context_metrics
+            bundles = bundle_context_metrics(sources, retained)
+            if bundles is not None:
+                metrics["evidence_bundles"] = bundles
+                if bundles["excluded_bundle_ids"]:
+                    warnings.append({"code": "evidence_bundle_excluded_by_budget",
+                                     "bundle_ids": bundles["excluded_bundle_ids"],
+                                     "message": "Des preuves structurées retrouvées ont été écartées en entier par la limite de contexte ; leurs valeurs ne sont pas déclarées absentes du document."})
         references.attest(retained, "context_final")
         metrics["reference_resolution"] = references.as_dict()
         return messages, retained, metrics, warnings
@@ -308,6 +318,10 @@ class ContextBuilder:
         # Pages physiques numérotées à partir de 1, comme les citations et la visionneuse : avec les index (pages_zero_based),
         # le modèle écrivait « page 0 » (J8, L9). Les sources rendues gardent page_indices.
         item = {"source_id": source["source_id"], "version_id": source["version_id"], "pages": [index + 1 for index in source["page_indices"]], "text": source["text"]}
+        bundle = source.get("evidence_bundle")
+        if bundle:
+            item["evidence_unit"] = {key: bundle[key] for key in (
+                "kind", "cell_addresses", "available_cells_complete", "blank_positions_inferred", "tables") if key in bundle}
         if source.get("format") in {"docx", "xlsx"}:
             item.update({"format": source["format"], "locators": [block.get("locator") for block in source["blocks"]],
                          "extraction_revision_id": source["extraction_revision_id"]})

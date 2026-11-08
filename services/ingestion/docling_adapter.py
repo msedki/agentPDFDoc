@@ -165,12 +165,14 @@ class DoclingSession:
             orientations: dict[int, Any] = {}
             table_corrections: dict[int, Any] = {}
             isolation_failures: dict[int, Any] = {}
+            numeric_readings: dict[int, Any] = {}
             if route == "regional_ocr":
                 pipeline = converter._get_pipeline(result.input.format)
                 preprocessing = getattr(pipeline.ocr_model, "region_preprocessing_by_page", {})
                 orientations = getattr(pipeline.ocr_model, "region_orientations_by_page", {})
                 table_corrections = getattr(pipeline.table_model, "corrections_by_page", {})
                 isolation_failures = getattr(pipeline.ocr_model, "isolation_failures_by_page", {})
+                numeric_readings = getattr(pipeline.ocr_model, "numeric_readings_by_page", {})
             for parsed_page in result.pages:
                 page_no = int(parsed_page.page_no)
                 known_pages = {int(key) for key in document.get("pages", {})}
@@ -185,6 +187,7 @@ class DoclingSession:
                 observed_ocr[page_no - 1]["orientations"] = orientations.get(int(parsed_page.page_no), [])
                 observed_ocr[page_no - 1]["table_orientation_corrections"] = table_corrections.get(int(parsed_page.page_no), [])
                 observed_ocr[page_no - 1]["isolation_failures"] = isolation_failures.get(int(parsed_page.page_no), [])
+                observed_ocr[page_no - 1]["numeric_readings"] = numeric_readings.get(int(parsed_page.page_no), [])
             return document, status == "success", observed_ocr
         except IngestionError:
             raise
@@ -377,6 +380,7 @@ def document_to_pages(document, preflight_pages, version_id, revision_id, route,
         page["ocr_cell_count"] = ocr.get("cell_count", 0)
         page["ocr_parser_regions"] = ocr.get("regions", [])
         page["ocr_preprocessing"] = ocr.get("preprocessing", [])
+        page["ocr_numeric_readings"] = ocr.get("numeric_readings", [])
         page["ocr_orientations"] = ocr.get("orientations", [])
         page["table_orientation_corrections"] = ocr.get("table_orientation_corrections", [])
         if page["classification"] in {"native", "mixed"}:
@@ -393,6 +397,8 @@ def document_to_pages(document, preflight_pages, version_id, revision_id, route,
                               for cell in preprocessing.get("cell_ocr", []) if "unresolved_parser_bbox" in cell)
             unresolved.extend({"code": "OCR_CELL_LOW_CONFIDENCE", "parser_bbox": cell["uncertain_parser_bbox"]}
                               for cell in preprocessing.get("cell_ocr", []) if "uncertain_parser_bbox" in cell)
+            unresolved.extend({"code": "OCR_NUMERIC_AMBIGUITY", "parser_bbox": cell["numeric_unresolved_parser_bbox"]}
+                              for cell in preprocessing.get("cell_ocr", []) if "numeric_unresolved_parser_bbox" in cell)
         unresolved.extend({"code": "OCR_ORIENTATION_UNRESOLVED", "parser_bbox": orientation["parser_bbox"]}
                           for orientation in page["ocr_orientations"] if not orientation.get("resolved"))
         for region_failure in unresolved:

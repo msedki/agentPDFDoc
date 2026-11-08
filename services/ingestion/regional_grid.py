@@ -320,9 +320,11 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.region_preprocessing_by_page = {}
+            self.numeric_readings_by_page = {}
             self.region_orientations_by_page = {}
             self.isolation_failures_by_page = {}
             self._current_preprocessing = []
+            self._current_numeric_readings = []
             self._current_orientations = []
 
         def get_ocr_rects(self, page):
@@ -366,9 +368,11 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
             for page in page_batch:
                 self._current_page_metadata = (page_metadata or {}).get(int(page.page_no) - 1, {})
                 self._current_preprocessing = []
+                self._current_numeric_readings = []
                 self._current_orientations = []
                 yield from super().__call__(conv_res, [page])
                 self.region_preprocessing_by_page[int(page.page_no)] = self._current_preprocessing
+                self.numeric_readings_by_page[int(page.page_no)] = self._current_numeric_readings
                 self.region_orientations_by_page[int(page.page_no)] = self._current_orientations
 
         def _perform_osd(self, ifilename):
@@ -500,9 +504,17 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
                     with temporary_raster(raster) as row_target:
                         return self._run_literal_tsv(row_target, psm=6)
 
+                numeric_readings: list[dict[str, Any]] = []
                 cell_frames, row_traces, row_budget = recognize_grid_rows(
                     derived, cells, cell_frames, metadata["cell_ocr"], recognize_row,
-                    minimum_confidence, max_region_pixels)
+                    minimum_confidence, max_region_pixels, private_numeric_readings=numeric_readings)
+                for reading in numeric_readings:
+                    reading.update(ocr_region_index=region_index, parser_bbox=metadata["parser_bbox"],
+                                   orientation_degrees=metadata["orientation_degrees"], scale=self.scale,
+                                   resize_inverse_factors=metadata["resize_inverse_factors"])
+                    reading["ocr_parameters"].update(engine="TesseractCLI",
+                                                      languages=list(getattr(self, "_native_codes", [])))
+                self._current_numeric_readings.extend(numeric_readings)
                 metadata["row_context_ocr"] = row_traces
                 metadata["row_context_budget"] = row_budget
                 for trace in row_traces:
@@ -515,7 +527,8 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
                     confidence = _minimum_cell_confidence(cell_frame)
                     evidence["minimum_word_confidence"] = confidence
                     evidence["minimum_confidence_required"] = minimum_confidence
-                    if printed and (cell_frame.empty or confidence is None or (minimum_confidence is not None and confidence < minimum_confidence)):
+                    if printed and (cell_frame.empty or confidence is None or (minimum_confidence is not None and confidence < minimum_confidence)
+                                    or evidence.get("numeric_ambiguity_unresolved")):
                         from docling.models.stages.ocr.tesseract_utils import (
                             tesseract_box_to_bounding_rectangle,
                         )
@@ -527,7 +540,8 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
                             BoundingBox(l=original_bounds[0], t=original_bounds[1], r=original_bounds[2], b=original_bounds[3], coord_origin=CoordOrigin.TOPLEFT),
                             original_offset=self._current_rects[len(self._current_orientations) - 1], scale=self.scale,
                             orientation=orientation.get("orientation_degrees", 0), im_size=source_size)
-                        key = "unresolved_parser_bbox" if cell_frame.empty else "uncertain_parser_bbox"
+                        key = ("numeric_unresolved_parser_bbox" if evidence.get("numeric_ambiguity_unresolved")
+                               else "unresolved_parser_bbox" if cell_frame.empty else "uncertain_parser_bbox")
                         evidence[key] = rect.to_bounding_box().model_dump(mode="json")
                 return self._restore_raster(pd.concat([outside, *cell_frames], ignore_index=True), source_size, derived.size)
 

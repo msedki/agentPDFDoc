@@ -2,6 +2,77 @@
 
 **Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · Suivi de livraison publié `d3c1518`, distant confirmé · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-13 14:43 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
+## EV4B — amélioration du 4B et qualification, 7–8 novembre 2026 (UTC)
+
+**Objectif :** améliorer la préservation et l'exploitation des preuves avec Qwen3-4B,
+tracer les requêtes réellement exécutées et qualifier les coûts de la chaîne.
+**Périmètre :** `agentPDFDoc`, base `59d47e98a47fc652b5506727673b6b477c92eb9d`,
+branche demandée `enhanced_version`. **Exclusions :** essais/routage 8B,
+qualification automatique d'autres hôtes, gain scientifique supposé.
+**Sources :** cadrage fourni le 7 novembre et références EV4B-S01 à EV4B-S05 de
+[SOURCES.md](SOURCES.md). **Résultat attendu :** implémentation, résultats bruts,
+limites et commit/push vérifiés. Les travaux et réserves antérieurs ci-dessous
+restent conservés.
+
+Le [protocole et la DoD EV4B](reports/enhanced-4b-protocol-2026-11-07.md)
+sont définis avant les essais ; les journaux des [7](journal/2026-11-07.md) et
+[8 novembre](journal/2026-11-08.md) conservent commandes, échecs et reprises.
+Les conditions de réception détaillées restent celles de ce protocole. Le
+[bilan actuel](reports/enhanced-4b-results-2026-11-07.md) relie les résultats aux
+preuves et précise les limites ; aucun critère n'est abaissé après observation.
+
+**État au 8 novembre :** campagne finale achevée, **30 soumissions, 28 `done` et
+2 `error`**. Ces états d'exécution ne sont pas des scores de justesse. La référence
+est instrumentée dans le code courant, avec quinze questions sur une seule famille
+documentaire et un PDF partiellement récupéré. Les résultats documentaires relèvent
+de leur relecture explicite. « Complet borné » ci-dessous désigne la réception
+technique du mécanisme dans le périmètre mesuré, sans clôture des qualifications
+métier, du poste cible ou des plateformes du projet.
+
+| Action | Couche et constat | Dépendances | Livrable / critère | État au 8 novembre et preuve |
+|---|---|---|---|---|
+| EV4B-01 | Bug : graine non propagée dans la référence évaluée | Aucune | Options effectives, DoD §3 | [x] **Complet borné** : graine zéro et options capturées dans le corps natif ; poids, tokenizer/gabarit, runtime et digest identifiés, import neuf vérifié. La graine ne garantit pas une sortie identique. [Preuves runtime](reports/enhanced-4b-runtime-2026-11-07.md) |
+| EV4B-02 | Amélioration : trace passive et rejeu | 01 | Requête/contexte/identités et événements, DoD §3 | [x] **Complet borné** : capture au passage réel, quotas et contrôles d'intégrité ; rejeu des octets HTTP sans recherche supplémentaire, refus des empreintes incompatibles et écritures courtes testés, erreurs et interruptions conservées. Confirmation du terminal après persistance corrigée après campagne, avec tests dédiés et audit des 30 essais non affectés. [Runtime](reports/enhanced-4b-runtime-2026-11-07.md), [validation](reports/enhanced-4b-validation-2026-11-07.json) |
+| EV4B-03 | Bug/amélioration : zéro perdu, relations de tableaux | Aucune | Preuves structurées et plage stricte, DoD §3 | [ ] **Partiel** : plages strictes, zéro et bornes directes conservés et vérifiés ; des conditions demandées et rôles MAX/NOM restent perdus dans certains contextes ou rendus. [Bilan et cas individuels](reports/enhanced-4b-results-2026-11-07.md) |
+| EV4B-04 | Amélioration : OCR régional validé | 03 | Brut/région/candidate/ambiguïté conservés | [ ] **Partiel** : politique et provenance acquises ; Tesseract natif réussit le rejet du conflit mais pas les deux critères de récupération du zéro (1/3 contrôles par campagne). OCR déclenché par une question absent. [Rapport OCR](reports/enhanced-4b-ocr-2026-11-07.md) |
+| EV4B-05 | Amélioration : suffisance et classement bornés | 03 | Couverture des faits et sélection mesurée | [ ] **Partiel** : couverture et états tracés, sélection bornée et tests à candidats fixés ; aucune ablation native du classement à candidats identiques. La comparaison globale change plusieurs mécanismes et le contexte. [Méthode et résultats](reports/enhanced-4b-results-2026-11-07.md) |
+| EV4B-06 | Amélioration : validation liée à la question | 03, 05 | Contrats valeur/intervalle/comparaison/code | [ ] **Partiel** : contrats et rejets actifs ; le DOCX avec consigne intégrée termine en `structured_answer_invalid`, et des conditions/comparaisons restent incomplètes malgré des preuves disponibles. [Bilan](reports/enhanced-4b-results-2026-11-07.md) |
+| EV4B-07 | Amélioration : calculs traçables | 03, 06 | Entrées, unités, opération et refus | [ ] **Partiel** : arithmétique de cellules, unités et refus de cas invalides vérifiés dans leur domaine ; des conversions demandées restent partielles ; le facteur /1000 demandé est absent du rendu Excel malgré des entrées suffisantes. [Bilan](reports/enhanced-4b-results-2026-11-07.md), [validation](reports/enhanced-4b-validation-2026-11-07.json) |
+| EV4B-08 | Amélioration : reprise documentaire bornée | 04, 05, 06 | Au plus une action puis état explicite | [ ] **Partiel** : une passe lexicale bornée est implémentée ; une reprise native ajoute la plage VS absente du contexte initial puis reprise dans la réponse. Cet apport ponctuel ne qualifie pas toutes les branches ni l'OCR à la demande ; son gain général n'est pas isolé. [Bilan](reports/enhanced-4b-results-2026-11-07.md) |
+| EV4B-09 | Hypothèse : contexte/KV | 01, 02 | Budget complet et variantes réellement appliquées | [x] **Complet borné** : prompt/sortie/marge contrôlés ; f16/q8_0/q4_0 effectifs à 4 096/8 192, douze générations sur un contexte figé. La saturation des fenêtres et D07 restent non qualifiés. [Matrice native](reports/enhanced-4b-runtime-2026-11-07.md) |
+| EV4B-10 | Hypothèse : résidence et continuité | 02, 09 | Séquences réelles et coûts complets | [ ] **Partiel** : conserver/décharger/adaptative et transitions `/api/ps` exercés ; déchargements adaptatifs naturels observés dans la campagne applicative. Continuité/annulation sur la cible et coût complet non qualifiés ; effet propre du hook de caches non isolé du changement de résidence. [Runtime](reports/enhanced-4b-runtime-2026-11-07.md), [bilan](reports/enhanced-4b-results-2026-11-07.md) |
+| EV4B-11 | Amélioration : protocole/évaluation | 02 | JSONL, dénominateurs, hashes, paires et répétitions | [x] **Complet borné** : annotations et paires vérifiables, inconnus explicites, risque des affirmations fausses incluant les abstentions ; 40 tests ciblés (31 recouvrants, 9 nouveaux). Une famille, aucune incertitude inter-familles ni validation humaine indépendante acquise. [Validation](reports/enhanced-4b-validation-2026-11-07.json), [bilan](reports/enhanced-4b-results-2026-11-07.md) |
+| EV4B-12 | Livraison | 01–11 | Diff, résultats, réserves, commit/push sur branche demandée | [ ] **Publication en attente** : contrôles documentaires finaux, archive privée et reçu de publication à finaliser ; commit local, branche `enhanced_version` et SHA distant à confirmer. Aucun succès de push présumé. |
+
+**Points vérifiés et conformes :** cible principale agentPDFDoc ; base distante
+`main` identifiée ; branche locale `enhanced_version` créée ; autorisation de
+commit/push fournie par la demande. La politique historique de publication sur
+`main` est remplacée pour ce chantier par cette demande explicite.
+
+**Validation du code :** gate complet **3 409 PASS, 23 SKIP**, puis delta évaluateur
+**40 PASS** distinct ; les 31 tests recouvrants ne sont pas additionnés comme de
+nouveaux cas. Les tests avec doubles, les traitements réels de fichiers et les
+inférences natives gardent leurs dénominateurs séparés. Les erreurs initiales et
+régressions d'oracle expliquées restent archivées. Le delta de terminal après
+campagne passe 19 tests ciblés (18 nouveaux et une régression), puis 74 tests de
+compatibilité recouvrants ; Mypy configuré 122 fichiers et Ruff 39 fichiers
+passent après ce correctif. Les 105 tests documentaires et les contrôles de
+liens/brief/schémas/pack passent. L’[attestation du delta](reports/enhanced-4b-terminal-fix-2026-11-08.json)
+sépare le code de campagne du code livré : 74 sources applicatives identiques,
+seul query.py corrigé, aucun score réattribué et aucune nouvelle inférence.
+
+**Mémoire et réserves :** la campagne finale emploie une estimation froide pilote
+de 3 840 MiB ; le profil livré conserve 4 352 MiB, avec réserve hôte 1 536 MiB et
+surcroît chaud 640 MiB. Les gains documentaires, la justesse et les coûts sont
+rapportés dans leur périmètre réellement mesuré. Ni corpus indépendant, ni
+qualification métier, ni D07, ni nouvelle recette Windows/interface ne sont
+acquis par ce lot. Les résultats historiques ne sont pas réattribués à la révision.
+
+**Prochaine action :** terminer la consolidation documentaire et la conservation
+des preuves, puis publier le code sur la branche autorisée et vérifier le SHA
+distant. Les critères partiels restent ouverts avec leurs limites, même après
+livraison des améliorations et des résultats.
+
 ## R28 — étude de l'extension DOCX/XLSX avant implémentation
 
 **Objectif :** intégrer DOCX et XLSX dans le poste documentaire existant,

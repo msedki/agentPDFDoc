@@ -2147,3 +2147,91 @@ avec le chemin en cause ; `find` devient un prérequis déclaré du poste
 cible ; un fichier étranger sous `<CPython>` d'un programme installé bloque
 ses commandes jusqu'à son retrait ou une réinstallation (dépannage §10.4).
 **Retour arrière :** aucun sans rouvrir les constats R3S-01 et R4S-01.
+
+
+## EV4B-D01 — 4B seul et branche enhanced_version (2026-11-07 UTC)
+
+**Statut :** décision utilisateur acquise ; réalisation et mesures en cours.
+**Contexte :** demande de mise en œuvre des pistes du cadrage joint après les
+comparaisons documentaires 4B/8B. **Choix :** Qwen3-4B comme seul générateur ;
+travail et publication autorisés sur `enhanced_version` depuis `59d47e98`.
+La règle historique de publication sur `main` ne s'applique pas à ce chantier.
+Les mécanismes de recherche/extraction existants sont conservés sauf correction
+justifiée ; aucune promotion d'un autre générateur ni routeur 8B.
+
+**Méthode retenue :** [protocole EV4B](reports/enhanced-4b-protocol-2026-11-07.md),
+référence et améliorations appariées, preuves de contexte et citations distinctes,
+mesures de ressources avec périmètre déclaré. Un résultat non exécuté reste
+`NOT_RUN` et les réserves ne sont pas fermées par la rédaction du plan.
+**Conséquence :** choix de configuration final après les essais disponibles ;
+absence de gain ou impossibilité de mesurer rapportée. **Reprise :** conserver
+la base et les traces, désactiver la variante expérimentale par la configuration
+si nécessaire, sans réécrire l'historique ni toucher aux données d'origine.
+
+
+## EV4B-D02 — conserver l'ambiguïté OCR, sans promouvoir le dérivé ×2 (2026-11-07 UTC)
+
+**Statut :** choix fondé sur les essais de composant, qualification complète ouverte.
+**Observation :** sur l'image synthétique portant « 0 V », Tesseract réel rend
+« OV » ; les reprises de rangée à densité native et ×2 ne récupèrent pas le zéro.
+**Choix :** publier la limite OCR_NUMERIC_AMBIGUITY et conserver brut/candidat/crop
+privés ; aucune correction textuelle automatique. Densité native nominale,
+variante ×2 accessible seulement dans le pilote de qualification, sous les
+mêmes gardes de mémoire, géométrie et nombre d'appels. **Limites :** ingestion
+Docling complète et reprise liée à une question non qualifiées par ce lot.
+**Preuve :** [rapport et mesures](reports/enhanced-4b-ocr-2026-11-07.md).
+
+
+## EV4B-D03 — profil explicite et séparation du pilote mémoire (2026-11-08 UTC)
+
+**Statut :** implémentation et mesures locales acquises ; qualification du poste cible ouverte.
+**Contexte :** les essais natifs constatent les allocations KV et le coût du
+chargement. La campagne avec le seuil froid livré refuse une admission sur cet
+hôte ; une séquence chaude révèle aussi la nécessité de libérer les caches
+documentaires avant toute admission insuffisante, même avec un modèle résident.
+**Choix :** profil 4B explicite, graine zéro, contexte 8 192, KV q8_0 et résidence
+adaptative. Le moteur et les poids restent verrouillés. Le profil livré conserve
+4 352 Mio à froid et 1 536 Mio de réserve ; le pilote natif utilise 3 840 Mio à
+froid, justifiés et identifiés séparément. Le gouverneur reste autoritaire.
+**Justification :** le q8_0 réduit l’allocation KV mesurée à 612 Mio contre
+1 152 Mio en f16 sur le contexte 8 192 ; le q4_0 descend à 324 Mio, mais la
+qualité comparative de ces caches n’est pas qualifiée. q8_0 est un choix de
+configuration explicite, pas un optimum démontré.
+**Conséquences :** continuité et coûts relus sur l’hôte disponible, sans promotion
+des seuils pilotes sur les autres postes. Les deux changements cache/résidence
+simultanés ne permettent pas une attribution causale au seul hook de libération.
+**Preuves :** [runtime](reports/enhanced-4b-runtime-2026-11-07.md),
+[bilan](reports/enhanced-4b-results-2026-11-07.md) et captures privées finales.
+
+## EV4B-D04 — conserver les contre-exemples et les exigences figées (2026-11-08 UTC)
+
+**Statut :** règle d’analyse appliquée. **Contexte :** les sorties natives
+comprennent des abstentions qui affirment faussement l’absence d’information,
+un calcul juste qui omet son facteur demandé et des plans JSON incohérents.
+**Choix :** compter les affirmations fausses dans toutes les réponses terminées
+relues, abstentions comprises ; conserver le dénominateur des soumissions pour
+le rendement complet ; classer la conversion Excel partielle puisque le calcul
+/1000 demandé n’est pas rendu, malgré son résultat numérique exact.
+**Conséquences :** aucune erreur de validation n’est assimilée à un succès,
+aucune citation existante à un soutien sémantique, aucun résultat du contrat local
+à un jugement indépendant. Les révisions de revue et les campagnes interrompues
+sont conservées. Les défauts restants de sélection, de formulation et d’OCR
+maintiennent les critères concernés ouverts.
+**Preuves :** [protocole](reports/enhanced-4b-protocol-2026-11-07.md),
+[bilan](reports/enhanced-4b-results-2026-11-07.md) et revue XLSX finale v2.
+
+
+## EV4B-D05 — confirmer les terminaux persistés, préserver le snapshot expérimental (2026-11-08 UTC)
+
+**Statut :** correctif validé séparément après la campagne native. **Défaut :**
+une annulation tardive peut rendre le terminal prévu différent de celui commis
+en SQLite. **Choix :** tracer les intentions, puis observer l’état et son dernier
+événement dans une lecture jointe, effectuée et capturée dans le worker drainé.
+Un état non confirmé ne devient pas un succès. Le résumé SQL de la trace reste
+explicitement antérieur à la confirmation ; aucune seconde publication SQL.
+**Conséquences :** le code livré possède un delta d’observabilité sur un seul
+module du snapshot ; aucune nouvelle inférence ni réattribution des scores.
+Les trente essais ont été audités non affectés. Les cas limites passent et
+les limites d’atomicité entre SQLite et fichier restent déclarées.
+**Preuves :** [attestation](reports/enhanced-4b-terminal-fix-2026-11-08.json),
+[bilan](reports/enhanced-4b-results-2026-11-07.md) et journal du 8 novembre.

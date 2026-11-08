@@ -1,11 +1,220 @@
-# Fixtures synthétiques V2.1
+# Qualification documentaire et fixtures synthétiques V2.1
 
-Ces outils produisent exclusivement des documents de qualification écrits pour ce
-projet. Aucun fichier du corpus `PDF/` n'est lu ou modifié ; aucun service,
-téléchargement ou job d'indexation n'est lancé par ces outils. Le collecteur
-de bindings lit uniquement l'API loopback réelle déjà démarrée par le superviseur.
-Seuls `answers.py` et `perf.py` soumettent des questions à cette API : chaque
+Les outils de génération de fixtures produisent des documents synthétiques écrits
+pour ce projet. Ils ne lisent ni ne modifient les fichiers du corpus `PDF/` et ne
+lancent aucun service ni job d'indexation. Les outils de campagne, de provisionnement
+4B et de rejeu ci-dessous ont leurs effets propres, décrits dans chaque section.
+Le collecteur de bindings lit l'API loopback réelle déjà démarrée par le superviseur.
+`answers.py` et `perf.py` soumettent des questions à cette API : chaque
 question y déclenche la génération réelle du modèle local, dans un créneau choisi.
+`replay_trace.py replay` appelle directement l'Ollama loopback déjà démarré pour
+rejouer une requête 4B capturée, selon les limites décrites ci-dessous.
+`enhanced_runtime_matrix.py` démarre et arrête successivement ses propres serveurs
+Ollama à partir d'un binaire et d'un magasin local explicitement fournis ; son
+périmètre CPU et ses preuves sont décrits en fin de page.
+
+## Activer et provisionner le profil enhanced 4B
+
+Le profil [config/enhanced-4b.yaml](../../config/enhanced-4b.yaml) choisit
+explicitement `qwen3-4b-enhanced:q4km` et active la conservation des preuves, le
+classement structurel, le contrat de réponse et la recherche complémentaire bornée.
+Il utilise un contexte de 8 192 tokens, la seed `0`, le tokenizer Qwen3 vérifié et
+des traces `hashes` par défaut. Les outils ci-dessous prennent ce profil avec
+`--profile config/enhanced-4b.yaml` ; la présence du fichier ne modifie pas les
+profils d'une instance existante.
+
+L'identité est définie par [enhanced-4b.lock.json](../../config/enhanced-4b.lock.json),
+pas par la résolution actuelle d'un tag de registre :
+
+| Élément | Identité verrouillée |
+|---|---|
+| Famille et quantification | Qwen3, 4.0B, Q4_K_M |
+| GGUF | Qwen/Qwen3-4B-GGUF, révision bc640142c66e1fdd12af0bd68f40445458f3869b, fichier Qwen3-4B-Q4_K_M.gguf |
+| Taille du GGUF | 2 497 280 256 octets |
+| SHA-256 du GGUF | 7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5 |
+| Tokenizer | Qwen/Qwen3-4B, révision 1cfa9a7208912126459214e8b04321603b3df60c, hashes des deux JSON dans le verrou |
+| Ollama | 0.35.0, version vérifiée auprès du serveur local |
+
+Préparer localement le GGUF et les fichiers `tokenizer.json` et
+`tokenizer_config.json` attendus. Le chemin du tokenizer vient de
+`llm.tokenizer_dir`, soit `.runtime/models/qwen3-4b-tokenizer` dans ce profil. Le
+serveur Ollama doit déjà être lancé sur `llm.base_url`, avec un magasin de modèles
+identifié. L'outil ne démarre pas ce serveur et n'effectue aucun téléchargement ni
+`pull` vers un tag mutable. Les poids de ce nouveau verrou ne sont pas annoncés
+comme contenus dans le kit historique.
+
+Depuis la racine d'un clone préparé, fournir le chemin du véritable exécutable
+Ollama et du GGUF local :
+
+```bash
+.venv/bin/python tools/qualification/provision_enhanced_4b.py \
+  --profile config/enhanced-4b.yaml \
+  --ollama /chemin/vers/ollama \
+  --gguf .runtime/models/Qwen3-4B-Q4_K_M.gguf
+```
+
+`--ollama` est obligatoire ; les valeurs par défaut de `--profile` et `--gguf`
+correspondent à cet exemple. Le script vérifie la taille et le hash du GGUF, les
+hashes du tokenizer et l'absence de remplacement du template. Il importe le GGUF
+avec `ollama create`, sans directive `TEMPLATE`, puis contrôle la famille, la
+taille et la quantification retournées par `/api/show`. Le manifeste est créé au
+chemin `llm.model_manifest`, soit `.runtime/manifests/qwen3-4b-enhanced.json`. Une
+installation déjà conforme est vérifiée ; un alias existant sans manifeste
+correspondant n'est pas remplacé implicitement. Le manifeste conserve
+`inference_validated: false` : l'identité vérifiée ne constitue pas un résultat
+d'inférence ou de qualification documentaire.
+
+Pour une instance applicative gérée par le lanceur, la sélection explicite du
+profil s'écrit `./rag.sh up --profile config/enhanced-4b.yaml` sous Linux, ou
+`.\rag.ps1 up -Profile config/enhanced-4b.yaml` sous Windows. Appliquer d'abord la
+[procédure de changement de profil](../../docs/exploitation/EXPLOITATION.md#91-changer-le-modèle-de-génération)
+pour l'instance concernée et ses ports ; les serveurs déjà lancés pour une campagne
+ne sont pas repris implicitement par cette commande. Ce parcours applicatif et le
+kit d'installation demandent leurs propres vérifications. Un résultat de `doctor`
+ne qualifie pas ce nouveau profil, ses réponses ou ses performances.
+
+## Campagne native appariée enhanced 4B
+
+`enhanced_campaign.py` emploie le vrai `QueryService`, SQLite, les embeddings E5,
+Qdrant, le tokenizer Qwen et Ollama. Les services Qdrant et Ollama doivent déjà
+être disponibles aux adresses du profil, dans un environnement de qualification
+contrôlé. La campagne crée sa base applicative sous `<output>/data` et indexe ses
+documents dans le Qdrant configuré ; choisir une cible dédiée pour ne pas mélanger
+ces données avec celles d'une instance utilisée au quotidien.
+
+```bash
+.venv/bin/python tools/qualification/enhanced_campaign.py \
+  --profile config/enhanced-4b.yaml \
+  --inputs .runtime/qa/<campagne>/inputs.json \
+  --output .runtime/qa/<nouvelle-campagne> \
+  --service-pid <pid-ollama> \
+  --service-pid <pid-qdrant>
+```
+
+`--inputs` et `--output` sont obligatoires ; le dossier de sortie doit être neuf.
+`--service-pid` est optionnel et répétable : il ajoute ces processus et leurs
+descendants à la mesure mémoire. Les répétitions viennent de `repeats` dans chaque
+cas du manifeste, pas d'une option CLI. Les chemins relatifs des originaux et
+extractions sont résolus depuis le dossier du manifeste.
+
+Le manifeste `documents` fournit pour chaque document `key`, `path`, `sha256` et
+`format`. Un PDF exige aussi `extraction_path` et `extraction_sha256` : cette
+campagne relit une extraction gelée associée au même original, sans relancer
+l'extraction PDF. Si la publication est partielle, `allow_partial: true` doit être
+explicite. En l'absence d'extraction gelée, seuls DOCX et XLSX sont extraits par la
+chaîne Office native. Les `cases` donnent la question, le mode, le périmètre
+autorisé et les faits attendus pour la revue. Le scénario PDF actuel est un
+sous-ensemble récupéré et partiel d'un document ; il ne représente ni une nouvelle
+ingestion PDF de bout en bout, ni les six PDF historiques, ni un holdout aveugle.
+
+Le runner force `accelerator: cpu` et les traces `full` pour cette campagne.
+La politique de résidence du profil reste identique dans les deux variantes et
+figure dans le gel de campagne. Il compare
+dans le même code et avec le même modèle 4B les variantes `baseline` et `enhanced`.
+La variante `baseline` désactive uniquement les quatre drapeaux
+`preserve_evidence`, `structural_reranking`, `answer_contract` et
+`complementary_retrieval` ; ce n'est pas l'exécution d'un ancien binaire Git.
+L'ordre des variantes alterne selon le cas, avec une conversation neuve par
+soumission. Les options effectives et l'environnement sont enregistrés dans
+`protocol-frozen.json` ; `code-snapshot.zip` et `code-manifest.json` figent les
+sources Python de services et le runner avant la première question.
+
+Chaque sortie garde l'état réel, la réponse, les événements, les citations, les
+mesures et un jugement initial `unreviewed`. Le protocole de revue par fait et les
+dénominateurs sont définis dans le [protocole EV4B](../../RAG_Local_Agents/reports/enhanced-4b-protocol-2026-11-07.md).
+Les traces et sorties complètes contiennent du texte documentaire et restent
+privées, hors Git. La somme des RSS échantillonnées ne représente pas une allocation
+physique exclusive et peut compter des pages partagées plusieurs fois. Une
+campagne native CPU ne satisfait pas automatiquement les conditions de la recette
+D07, notamment la cible mémoire.
+
+Le transport HTTP public, son contrôle d'accès, le SSE réseau et l'interface
+graphique ne sont pas exercés : le runner appelle directement `QueryService`.
+Ces limites restent attachées aux résultats, même si la génération Ollama et les
+composants de recherche ont réellement été exécutés.
+
+
+## Inspection et rejeu d'une trace effective — enhanced 4B
+
+`replay_trace.py inspect` vérifie hors ligne la chaîne d'intégrité d'une trace
+locale et indique si elle contient une requête rejouable. Il affiche des
+empreintes et des états, sans afficher le texte documentaire. `replay` effectue
+**un rejeu à contexte fixe** (`fixed_context_replay`) : mêmes messages, même schéma
+de réponse, mêmes options natives et même seed, y compris zéro. Il n'exécute ni
+recherche, ni nouvelle extraction, ni sélection de contexte, ni restitution de
+réponse par l'application. Une mesure de ce rejeu ne qualifie donc pas la chaîne
+complète, la qualité métier ou la recette D07.
+
+Depuis la racine du dépôt, avec une trace créée en mode `full` et un serveur local
+autorisé déjà lancé, dans un créneau sans autre inférence lourde :
+
+```bash
+.venv/bin/python tools/qualification/replay_trace.py inspect \
+  --trace .runtime/data/traces/<question>.jsonl
+.venv/bin/python tools/qualification/replay_trace.py replay \
+  --trace .runtime/data/traces/<question>.jsonl \
+  --base-url http://127.0.0.1:11434 \
+  --output .runtime/qa/<campagne>/replay-001.json
+```
+
+Adapter le chemin de trace au `app.data_dir` de l'instance. Sous Windows, employer
+`.\.venv\Scripts\python.exe` et les continuations PowerShell habituelles. Si une
+trace contient plusieurs `llm.request` (par exemple après un repli CPU), choisir
+explicitement `--request-sequence <sequence-affichée-par-inspect>` ; aucune
+tentative n'est choisie silencieusement. Une trace sans événement terminal mais
+contenant une requête complète reste identifiée comme telle dans le rapport.
+Un événement JSON interrompu, une empreinte invalide, une trace `hashes`, un corps
+absent ou l'absence du `wire_body_utf8` capturé interdisent le rejeu.
+
+Depuis le correctif de terminal du 8 novembre 2026, les événements
+`query.done_intent`, `query.cancelled_intent` et
+`query.error_intent` décrivent une intention avant confirmation de persistance.
+Un terminal `query.done`, `query.cancelled` ou `query.error` est ensuite observé
+depuis l'état SQLite et son dernier événement public, lus dans le même snapshot.
+Il porte `persistence_confirmed: true` et l'identifiant de cet événement ; les
+métriques publiées restent à la racine de sa charge utile. Une annulation tardive
+ne transforme pas un résultat déjà commis. Une lecture impossible ou un état et
+un événement discordants produisent `query.persistence_unconfirmed` ; ce marqueur
+n'est pas une réussite ou une annulation confirmée.
+
+Le résumé `execution_trace` déjà stocké dans les métriques est un instantané
+marqué `snapshot_stage: before_terminal_persistence`. Son compteur et son hash
+peuvent donc précéder le dernier événement du fichier ; la confirmation se lit
+dans la trace vérifiée, sans seconde publication SQL de la réponse. Les trente
+traces de la campagne EV4B précédente ont été contrôlées contre leur SQLite et
+leurs artefacts avant ce correctif : aucune n'est affectée par le cas limite
+d'annulation reproduit. Elles restent attachées à leur propre snapshot de code.
+Pour les traces antérieures dépourvues de `persistence_confirmed`, le nom d'un
+événement terminal ne prouve pas à lui seul sa concordance avec le commit SQLite.
+
+Avant tout envoi de contexte, l'outil vérifie l'origine HTTP loopback et le digest
+exact du modèle capturé via `/api/tags`. Les modèles admis sont `qwen3:4b`,
+`qwen3.5:4b` et sa dérivation `qwen3.5:4b-text`, ainsi que l'alias lu dans le verrou
+`config/enhanced-4b.lock.json` (`qwen3-4b-enhanced:q4km`). Pour cet alias, le verrou
+doit toujours déclarer Qwen3 4.0B Q4_K_M et le GGUF nommé ; son empreinte est
+conservée dans le rapport. Aucun téléchargement, changement de modèle ou
+remplacement des paramètres capturés n'est effectué. Le JSON relu depuis les octets capturés doit être
+sémantiquement égal au corps tracé, puis le sérialiseur HTTPX doit reproduire
+exactement les mêmes octets et la même empreinte. Les proxies d'environnement et
+redirections sont désactivés ; aucun retry ou repli n'est effectué par cet outil.
+
+Le rapport privé est créé exclusivement sous `.runtime/qa/` (`O_EXCL`, mode 0600
+sur POSIX). Une preuve existante n'est jamais écrasée. Il conserve la provenance
+de la trace, les empreintes des messages et du contexte capturé s'il correspond,
+le corps rejoué, l'identité du modèle vérifiée, les événements natifs avec leurs
+temps client, les octets reçus en base64 et la réponse brute concaténée. Une erreur
+de transport ou un flux sans `done` reste un échec, avec ses données partielles.
+La capture est limitée à 4 Mio ; `--read-timeout` borne l'inactivité d'une lecture
+HTTP, pas la durée totale du calcul. Le rapport contient du texte documentaire
+et reste hors Git. L'état des caches, les options serveur effectives et le
+déterminisme des sorties ne sont pas déduits de l'égalité des requêtes.
+
+Les diagnostics `/admin/evaluation/context` et `comparison.evaluate_context`
+utilisent le même contrat structuré de sélection que les questions, mais restent
+des reconstructions indépendantes (`independent_context_build`). Ils déclarent
+`generation_request_captured: false` et ne lancent pas la recherche complémentaire
+adaptative. Seule une trace de l'exécution permet d'identifier le contexte envoyé
+lors d'une question réelle.
 
 Exception : `corpus_eval.py` évalue la recherche sur le corpus réel publié dans
 l'instance (protocole W013). Il lit par l'API le texte des blocs publiés pour en
@@ -548,3 +757,61 @@ Sources éditeur consultées le 30/09/2026 UTC :
 
 Les fichiers [résultats et limites](../../evals/qualification-v2.1/README.md)
 décrivent les contrôles exécutés et les écarts observés.
+
+## Matrice CPU KV, fenêtre de contexte et résidence — enhanced 4B
+
+`enhanced_runtime_matrix.py` réalise un diagnostic sur **un contexte capturé** de
+Qwen3-4B Q4_K_M, avec `num_gpu: 0`. Choisir un créneau sans autre inférence lourde
+et une trace `full` dont le terminal `query.done` conserve le compte natif du
+prompt. Le modèle du profil doit être celui de cette trace, avec son manifest
+local vérifiable. Aucun téléchargement ni conversion de modèle n'est effectué.
+
+```bash
+.venv/bin/python tools/qualification/enhanced_runtime_matrix.py \
+  --trace .runtime/qa/<campagne>/data/traces/<question>.jsonl \
+  --ollama-bin .runtime/bin/ollama-0.35.0/bin/ollama \
+  --models-dir .runtime/models/ollama \
+  --profile config/enhanced-4b.yaml \
+  --output .runtime/qa/<campagne>/runtime-matrix-001.json
+```
+
+La matrice croise `f16`, `q8_0`, `q4_0` avec `num_ctx` 4096 et 8192. Chaque
+cellule lance un serveur loopback isolé et envoie deux requêtes successives,
+puis arrête uniquement la famille de processus qu'elle a créée. Le port en
+écoute doit appartenir au serveur lancé ; un enfant restant vivant empêche le
+démarrage du serveur suivant. Le cache de prompts est borné par
+`LLAMA_ARG_CACHE_RAM=256` et les checkpoints par `LLAMA_ARG_CTX_CHECKPOINTS=2`.
+Flash Attention est demandé pour les trois types KV. L'allocation effective
+`K`, `V`, le nombre de cellules et `n_ctx` sont relus dans les logs : les seules
+variables d'environnement ne constituent pas une vérification.
+
+L'admission réserve le maximum des comptes du prompt local et natif capturés,
+le `num_predict` capturé entier et la marge de contexte du profil. Un compte
+natif absent ou une fenêtre insuffisante produit `NOT_RUN` ; aucun message,
+schéma ou plafond de sortie n'est raccourci. La fenêtre inchangée garde les
+octets HTTP capturés (`fixed_context_replay`). Modifier uniquement `num_ctx`
+est déclaré `fixed_context_ablation`. Les paramètres serveur de chaque cellule
+restent explicitement consignés : un corps HTTP identique ne signifie pas que
+le cache ou le runtime se trouvent dans le même état.
+
+Un serveur dédié exerce ensuite `keep`, `unload`, `adaptive_normal` et
+`configured_threshold_probe` via le véritable `OllamaGateway`. Les requêtes
+documentaires doivent conserver exactement les octets capturés. La dernière
+sonde configure le seuil adaptive au-dessus de la RAM totale observée ; elle
+vérifie le chemin de libération sans prétendre avoir observé une pénurie de RAM
+naturelle. Le rapport conserve les décisions et `/api/ps` avant et après.
+
+Le JSON et son dossier `.artifacts` sont privés, nouveaux et sous `.runtime/qa/`.
+Ils contiennent messages, schéma, réponses brutes, hashes, compteurs natifs,
+TTFT client, logs et échantillons RSS/PSS de la famille du serveur toutes les
+250 ms. La somme RSS peut compter plusieurs fois des pages partagées ; PSS est
+absent pour un échantillon de famille incomplet ou illisible. Les pics sont des
+maxima échantillonnés. Le client, l'API complète et le navigateur ne sont pas
+inclus dans ce périmètre mémoire. Le premier appel d'un nouveau serveur n'est
+pas une garantie de cache disque froid. Les identités des sorties ne donnent
+aucun verdict documentaire : `quality_judgment: NOT_ASSESSED`. Ce diagnostic
+porte `d07_eligible: false` et ne clôt pas la recette 16 Go, Windows, hors ligne
+ou l'alternance chat/import de [QUALIFICATION.md](../../RAG_Local_Agents/QUALIFICATION.md).
+
+Les transports et processus substitués des tests unitaires portent
+`explicit_test_substitute` ; leur réussite ne prouve aucune allocation native.

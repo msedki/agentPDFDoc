@@ -8,6 +8,27 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 ## [Non publié]
 
+### Amélioration de la chaîne 4B — 7–8 novembre 2026
+
+- Profil explicite `enhanced-4b`, Qwen3-4B Q4_K_M et artefacts verrouillés,
+  graine zéro propagée, KV q8_0 et résidence adaptative. La réserve mémoire
+  du profil livré reste distincte du seuil froid pilote des essais.
+- Préservation des cellules et relations de tableaux, classement structurel
+  borné, contrats liés à la question, recherche complémentaire unique et
+  lectures/calculs déterministes avec provenance. Reprise OCR numérique
+  instrumentée, avec échec de récupération du zéro conservé.
+- Capture de la requête native et de ses identités, rejeu exact, outils de
+  comparaison, de matrice runtime et d'évaluation à dénominateurs explicites.
+  Les traces complètes et originaux restent privés hors Git.
+- Confirmation du terminal de trace depuis l’état et le dernier événement
+  SQLite réellement commis ; les annulations tardives ne produisent plus de
+  faux terminal. Correctif validé après campagne par des tests dédiés, sans
+  réattribuer les anciennes inférences au nouveau code.
+- Campagne diagnostique de quinze paires sur une famille : rendement complet
+  et soutenu **4/14 → 9/14**, preuves nécessaires disponibles **19/33 → 31/33**.
+  Deux erreurs, omissions, ambiguïtés et coût CPU conservés ; aucune qualification
+  générale ou du poste cible déduite. [Bilan et limites EV4B](RAG_Local_Agents/reports/enhanced-4b-results-2026-11-07.md).
+
 ### Sélection de profil et comparaison GPU — 13 octobre 2026
 
 - Sélection automatique à la création d'un profil et à une nouvelle installation : RAM physique, réserve, plateforme/mode, qualification et présence des artefacts. Choix manuel prioritaire, choix conservé à la mise à jour, aucun téléchargement hors ligne. Aucun profil qualifié ajouté : repli historique4B diagnostiqué explicitement,9B non promu.156 tests ciblés et typage Linux/Windows statique passent ; exécutionWindows reste non qualifiée.

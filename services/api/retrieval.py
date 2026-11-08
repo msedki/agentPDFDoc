@@ -608,10 +608,157 @@ class SearchService:
                            "relative_path": document["relative_path"], "page_index": page_index,
                            "page_number": page_index + 1, "label": page.get("label")})
 
+    def _complementary_candidates(self, terms, snapshot, deadline):
+        """One bounded FTS read; no embedding model and no corpus-wide fallback."""
+        import sqlite3
+
+        clause, parameters = snapshot.sql_filter()
+        expression = match_expression(" ".join(terms))
+        limit = min(self.settings.value("retrieval", "lexical_top_k", 24),
+                    self.settings.value("enhanced", "rerank_max_candidates", 48))
+        sql = ("SELECT c.chunk_uuid,bm25(chunks_fts,2.0,1.0) score "
+               "FROM chunks_fts JOIN chunks c ON c.id=chunks_fts.rowid "
+               f"WHERE {clause} AND chunks_fts MATCH ? ORDER BY score ASC,c.chunk_uuid ASC LIMIT ?")
+        with self.db.connect() as connection:
+            connection.set_progress_handler(lambda: int(time.perf_counter() >= deadline), 1000)
+            try:
+                rows = connection.execute(sql, [*parameters, expression, limit]).fetchall()
+            except sqlite3.OperationalError as error:
+                if time.perf_counter() >= deadline:
+                    raise TimeoutError from error
+                raise
+            finally:
+                connection.set_progress_handler(None, 0)
+        candidates = []
+        for position, row in enumerate(rows):
+            if time.perf_counter() >= deadline:
+                raise TimeoutError
+            # This rank-derived score has the same role as the original RRF
+            # lane. It is not a confidence estimate.
+            candidates.extend(self.source_candidates([(row["chunk_uuid"], 1 / (61 + position))], set(), snapshot))
+        return candidates
+
+    async def refine_once(self, question, snapshot, previous, missing_terms, mode="question", references=None):
+        """Try one scoped lexical complement before generation, with no loop.
+
+        Callers pass terms derived from their explicit question obligations. An
+        already attempted result cannot be retried through this method. Failure
+        to find new evidence leaves the initial result available and visible.
+        """
+        started = time.perf_counter()
+        diagnostic = {"attempted": False, "performed": False, "route": "scoped_lexical", "reason": "disabled",
+                      "new_evidence_count": 0, "retained_new_evidence_count": 0}
+
+        def outcome(reason, *, attempted=False, performed=False, **extra):
+            diagnostic.update(reason=reason, attempted=attempted, performed=performed,
+                              elapsed_ms=round((time.perf_counter() - started) * 1000, 2), **extra)
+            return {**previous, "refinement": diagnostic,
+                    "elapsed_ms": round(previous.get("elapsed_ms", 0) + diagnostic["elapsed_ms"], 2)}
+
+        if not self.settings.value("enhanced", "complementary_retrieval", False):
+            return outcome("disabled")
+        if previous.get("refinement", {}).get("attempted"):
+            return outcome("already_attempted", attempted=True, prior_attempt=previous["refinement"])
+        if snapshot.scope["kind"] in {"selection", "cell_range"} or snapshot.spans:
+            return outcome("literal_scope")
+        if not snapshot.generations:
+            return outcome("empty_scope")
+        terms = []
+        for value in missing_terms or []:
+            if not isinstance(value, str) or not 1 <= len(value.strip()) <= 64:
+                continue
+            words = _folded_words(value)
+            if not any(len(word) >= 3 and word.isalpha() and word not in STOPWORDS | SCOPE_WORDS for word in words):
+                continue
+            value = value.strip()
+            if value not in terms:
+                terms.append(value)
+            if len(terms) == 6:
+                break
+        if not terms:
+            return outcome("no_substantive_missing_terms")
+        timeout = self.settings.value("enhanced", "complementary_timeout_seconds", 5)
+        deadline = started + timeout
+        references = references or resolve_references(question)
+
+        async def collect():
+            candidates = await asyncio.to_thread(self._complementary_candidates, terms, snapshot, deadline)
+            notices = []
+            if self.settings.value("enhanced", "preserve_evidence", False):
+                from .evidence_selection import prepare_tables
+                candidates, notices = await asyncio.to_thread(
+                    prepare_tables, self.db, snapshot, candidates,
+                    maximum_chars=self.settings.value("enhanced", "evidence_bundle_max_chars", 12_000),
+                    maximum_candidates=self.settings.value("enhanced", "rerank_max_candidates", 48),
+                    question=question, required_identifiers=references.priority)
+            await asyncio.to_thread(self.decorate_sources, candidates)
+            return candidates, notices
+
+        try:
+            candidates, notices = await asyncio.wait_for(collect(), timeout=max(0, deadline - time.perf_counter()))
+        except TimeoutError:
+            return outcome("timeout", attempted=True)
+        if time.perf_counter() >= deadline:
+            return outcome("timeout", attempted=True)
+        for source in candidates:
+            source["exact_identifier"] = any(references.source_matches(source, code) for code in references.priority)
+
+        def identity(source):
+            return (source.get("generation_id"), source.get("evidence_bundle", {}).get("id") or source.get("chunk_id"))
+
+        prior_ids = {identity(source) for source in previous["results"]}
+        new_sources = [source for source in candidates if identity(source) not in prior_ids]
+        if not new_sources:
+            return outcome("no_new_evidence", attempted=True, performed=True, candidate_count=len(candidates))
+        from .evidence_selection import structural_rerank
+        ordered = structural_rerank(question + " " + " ".join(terms), new_sources + previous["results"],
+                                    maximum_candidates=self.settings.value("enhanced", "rerank_max_candidates", 48))
+        maximum = self.settings.value("retrieval", "constrained_max_fragments", 8) if mode == "comparison" or len(references.priority) > 1 else self.settings.value("retrieval", "final_max_fragments", 6)
+        selected: list[dict[str, Any]] = []
+        selected_ids = set()
+
+        def retain(source):
+            key = identity(source)
+            if len(selected) < maximum and key not in selected_ids:
+                selected.append(source)
+                selected_ids.add(key)
+
+        # Preserve the original obligations, including comparison documents.
+        for code in sorted(references.priority):
+            match = next((source for source in ordered if references.source_matches(source, code)), None)
+            if match is not None:
+                retain(match)
+        if mode == "comparison":
+            for document in dict.fromkeys(snapshot.documents.values()):
+                match = next((source for source in ordered if source["document_id"] == document), None)
+                if match is not None:
+                    retain(match)
+        for source in ordered:
+            retain(source)
+        diagnostic.update(attempted=True, performed=True, reason="new_evidence", candidate_count=len(candidates),
+                          new_evidence_count=len(new_sources),
+                          retained_new_evidence_count=sum(identity(source) not in prior_ids for source in selected),
+                          elapsed_ms=round((time.perf_counter() - started) * 1000, 2))
+        references.attest(ordered[:10], "retrieval_top10")
+        references.attest(selected, "retrieval_final")
+        return {**previous, "results": selected, "top10": ordered[:10], "refinement": diagnostic,
+                "warnings": [*previous.get("warnings", []), *notices],
+                "reference_resolution": references.as_dict(),
+                "elapsed_ms": round(previous.get("elapsed_ms", 0) + diagnostic["elapsed_ms"], 2)}
+
     async def search(self, question, snapshot, mode="question", references=None):
         references = references or resolve_references(question)
         start = time.perf_counter()
         warnings = []
+        preserve_evidence = self.settings.value("enhanced", "preserve_evidence", False)
+        exhaustive = None
+        if preserve_evidence and snapshot.scope["kind"] == "cell_range":
+            from .evidence_selection import small_range_bundle
+            exhaustive, notices = await asyncio.to_thread(
+                small_range_bundle, self.db, snapshot,
+                maximum_cells=self.settings.value("enhanced", "exhaustive_range_max_cells", 64),
+                maximum_chars=self.settings.value("enhanced", "evidence_bundle_max_chars", 12_000))
+            warnings.extend(notices)
         dense_available = True
         if self.dense is not None and snapshot.scope["kind"] not in {"selection", "cell_range"} and snapshot.generations:
             # Avertissement de périmètre : documents servis par la seule branche lexicale (identité dense changée, R26-IDX-02).
@@ -624,6 +771,10 @@ class SearchService:
                 warnings.append(dense_identity_warning(missing))
         if snapshot.scope["kind"] == "selection":
             results = await asyncio.to_thread(self.resolver.selected_sources, snapshot)
+        elif exhaustive is not None:
+            results = exhaustive
+            for source in results:
+                source["exact_identifier"] = any(references.source_matches(source, code) for code in references.priority)
         elif not snapshot.generations:
             results = []
         elif mode == "comparison":
@@ -640,6 +791,27 @@ class SearchService:
                         results.append(candidates[position])
         else:
             results = await self._candidates(question, snapshot, dense_available, references)
+        if preserve_evidence:
+            from .evidence_selection import prepare_tables
+            results, notices = await asyncio.to_thread(
+                prepare_tables, self.db, snapshot, results,
+                maximum_chars=self.settings.value("enhanced", "evidence_bundle_max_chars", 12_000),
+                maximum_candidates=self.settings.value("enhanced", "rerank_max_candidates", 48),
+                question=question, required_identifiers=references.priority)
+            warnings.extend(notices)
+            for source in results:
+                source["exact_identifier"] = any(references.source_matches(source, code) for code in references.priority)
+        if self.settings.value("enhanced", "structural_reranking", False):
+            from .evidence_selection import structural_rerank
+            limit = self.settings.value("enhanced", "rerank_max_candidates", 48)
+            if mode == "comparison":
+                groups = [[source for source in results if source["document_id"] == document]
+                          for document in dict.fromkeys(source["document_id"] for source in results)]
+                ranked = [structural_rerank(question, group, maximum_candidates=limit) for group in groups]
+                results = [group[position] for position in range(max((len(group) for group in ranked), default=0))
+                           for group in ranked if position < len(group)]
+            else:
+                results = structural_rerank(question, results, maximum_candidates=limit)
         await asyncio.to_thread(self.decorate_sources, results)
         top10 = list(results[:10])
         priority = references.priority
@@ -669,9 +841,13 @@ class SearchService:
         retained_identifiers: set[str] = set()
         maximum = self.settings.value("retrieval", "constrained_max_fragments", 8) if mode == "comparison" or len(priority) > 1 else self.settings.value("retrieval", "final_max_fragments", 6)
         for source in results:
-            key = (source["version_id"], source.get("parent_id") or source.get("chunk_id"))
+            bundle_id = source.get("evidence_bundle", {}).get("id")
+            key = (source["version_id"], bundle_id or source.get("parent_id") or source.get("chunk_id"))
             # Texte identique (en-tête répété sur plusieurs pages) : un seul fragment, par document en comparaison.
-            text_key = (source.get("document_id") if mode == "comparison" else None, hashlib.sha256(source["text"].encode("utf-8")).hexdigest())
+            # Des lignes structurées de même texte mais de coordonnées différentes
+            # restent des observations distinctes, notamment deux zéros sources.
+            text_key = (source.get("document_id") if mode == "comparison" or bundle_id else None,
+                        bundle_id or hashlib.sha256(source["text"].encode("utf-8")).hexdigest())
             newly_covered = {code for code in priority - retained_identifiers if references.source_matches(source, code)}
             if (key in parents or text_key in texts) and not newly_covered:
                 continue

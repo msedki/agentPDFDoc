@@ -277,6 +277,11 @@ def environment(profile: dict, directory: Path, profile_path: Path) -> dict[str,
         "LLAMA_ARG_CACHE_RAM": str(profile["llm"].get("prompt_cache_mib", 256)),
         "LLAMA_ARG_CTX_CHECKPOINTS": str(profile["llm"].get("context_checkpoints_max", 2)),
     })
+    # Paramètres du serveur, pas des options de /api/chat. Absents : comportement historique conservé.
+    if "kv_cache_type" in profile["llm"]:
+        env["OLLAMA_KV_CACHE_TYPE"] = profile["llm"]["kv_cache_type"]
+    if "flash_attention" in profile["llm"]:
+        env["OLLAMA_FLASH_ATTENTION"] = "1" if profile["llm"]["flash_attention"] else "0"
     return env
 
 
