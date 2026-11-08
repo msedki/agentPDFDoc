@@ -1,10 +1,10 @@
 # I4 — résultats de fiabilisation et état de qualification
 
-**Statut : VÉRIFICATIONS TERMINÉES — diffusion non qualifiée ; publication en cours.**
+**Statut : LOT TECHNIQUE PUBLIÉ ET VÉRIFIÉ — diffusion non qualifiée.**
 **Date :** 8 novembre 2026, UTC. **Propriétaire :** qualification et intégration RAG.
 **Référence immuable :** `fa3eabce5ab0c309b1ca8f01602fced2eb7f1dd8`, branche `enhanced_version`.
 **Candidat :** fichiers produit/configuration et harnais gelés le
-`2026-11-08T17:38:49.575804+00:00` ; aucun SHA de commit final attribué à ce stade.
+`2026-11-08T17:38:49.575804+00:00` ; code publié dans le commit [f7739a14](https://github.com/msedki/agentPDFDoc/commit/f7739a144369816b0e834c225fa9fbfe697f6c84). Le suivi documentaire ne change pas ce gel.
 
 Ce bilan distingue les corrections réalisées, leurs contrôles de développement,
 les résultats de qualification et les critères non atteints. Le [protocole préalable](production-4b-protocol-2026-11-08.md)
@@ -709,7 +709,7 @@ rattrapent ni le chevauchement Mypy de référence ni les échecs documentaires.
 | D07 — natif/transfert | FAIL | Office 7/8 → 8/8 ; PDF 0/2 → 1/2 strict. Transfert 0/6+0/2 → 0/6+1/2, inférieur au seuil 6/6+2/2. Réserve INA, erreur H06, contenu manquant et fausse association H03 restent au dénominateur ; H04 perd un fait. |
 | D08 — ressources/exploitation | PARTIAL | Neuf tests d’exploitation, HTTP/SSE réel et arrêts natifs contrôlés réussissent ; les latences et pics observés ne sont pas une qualification générale de performance. Sous-critère d'absence de travail lourd concurrent **NON SATISFAIT** pour Office référence : chevauchement Mypy conservé, distinct des arrêts réussis. |
 | D09 — reproductibilité | PARTIAL | Protocole, entrées, hashes, worktree séparé, gel final vérifié et matérialisation locale fidèle. Limites déclarées : une mesure native par cas, chevauchement Mypy et préparateur des oracles également auteur du codec produit. La séparation prévue entre validation et tous les auteurs produit n’est donc pas absolue. |
-| D10 — livraison | PUBLICATION EN COURS | Implémentation, essais, revues, brief et pack vérifiés. Commit/push et contrôle du SHA/arbre distant constituent la dernière étape autorisée. |
+| D10 — livraison | PASS | Code et résultats publiés dans [f7739a14](https://github.com/msedki/agentPDFDoc/commit/f7739a144369816b0e834c225fa9fbfe697f6c84), 64 blobs et arbre identiques, parent/branche vérifiés par GET et fetch, mise à jour sans force. [Reçu public](production-4b-publication-2026-11-08.json). Les critères documentaires échoués restent ouverts. |
 
 Un statut partiel ne signifie pas un critère abaissé. Les seuils 12/12+18/18,
 6/6+2/2 de transfert et la fidélité des scans demeurent ceux du protocole.
@@ -805,3 +805,7 @@ n’est supposé déjà présent dans un clone neuf.
 ### Contrôles documentaires avant publication
 
 Le brief généré correspond à ses sources canoniques. Les onze contrôles de `verify_pack.py` passent ; les douze avertissements relatifs au rangement de fichiers tiers de skills déjà présents sont conservés. Reçu privé `pack-prepublication.json`, SHA-256 `358e7996b2145ab44772451c1d2c7f35fc62f53ffed53ae638beef651cfdf16e`. Le contrôle du brief porte le SHA-256 `ba027670c3af147c1125fd9572f70d6ffcdad9a5a6d421b66e95d93704864d88` pour son journal. Ces vérifications ne sont pas des essais de moteur, de navigateur ou de cible matérielle.
+
+## 8. Publication vérifiée
+
+Le commit technique `f7739a144369816b0e834c225fa9fbfe697f6c84` possède l’arbre `097a96d9246867bf49fef19b7ee9c5ace3887113`, identique à la version locale relue. Le connecteur GitHub a mis à jour `enhanced_version` depuis le parent attendu, sans force. Les 64 fichiers et leurs empreintes, les identités de métadonnées et les vérifications GET/fetch sont consignés dans le [reçu](production-4b-publication-2026-11-08.json). Le suivi qui ajoute ce reçu est documentaire ; les 88 fichiers produit/configuration et 46 harnais du gel restent inchangés. La publication du travail ne transforme pas les échecs D01/D05/D07 en qualification de production.

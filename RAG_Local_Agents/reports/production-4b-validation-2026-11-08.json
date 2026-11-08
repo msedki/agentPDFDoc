@@ -1,11 +1,11 @@
 {
   "schema_version": "production-4b-I4-validation-v1",
-  "generated_utc": "2026-11-08T19:21:27.890187+00:00",
-  "status": "VERIFICATION_COMPLETE_QUALIFICATION_FAILED_PUBLICATION_PENDING",
+  "generated_utc": "2026-11-08T19:30:38.973456+00:00",
+  "status": "DELIVERED_QUALIFICATION_FAILED",
   "production_readiness": "NOT_READY_REQUIRED_GATE_FAILED",
   "scope": "Public compact aggregation of observed development and paired native evidence; no raw logs, full answers, questions/oracles or original documents.",
   "reference_commit": "fa3eabce5ab0c309b1ca8f01602fced2eb7f1dd8",
-  "candidate_commit": null,
+  "candidate_commit": "f7739a144369816b0e834c225fa9fbfe697f6c84",
   "protocol": {
     "path": "RAG_Local_Agents/reports/production-4b-protocol-2026-11-08.md",
     "sha256": "7ae9c5a2c583bc05a5a652b2afbe7f1921f62ba55162d865316d3a62e656f3de",
@@ -1956,8 +1956,10 @@
       "remaining": "Execution and review records complete. Final delivery evidence aggregation remains; role, timing, and attribution limitations persist."
     },
     "D10": {
-      "status": "PENDING",
-      "remaining": "Commit,push,remote SHA/tree verification. Implementation,experiments,reviews and documentation checks are complete."
+      "status": "PASS",
+      "technical_commit": "f7739a144369816b0e834c225fa9fbfe697f6c84",
+      "evidence": "64 blob SHAs and full tree match, connector GET branch/commit and git fetch verified, expected-parent update without force; public publication receipt.",
+      "qualification_scope": "Delivery criterion only; D01/D05/D07 failures remain."
     }
   },
   "private_evidence": {
@@ -2472,5 +2474,26 @@
     "pack_receipt_sha256": "358e7996b2145ab44772451c1d2c7f35fc62f53ffed53ae638beef651cfdf16e",
     "brief_log": "brief-prepublication.log",
     "brief_log_sha256": "ba027670c3af147c1125fd9572f70d6ffcdad9a5a6d421b66e95d93704864d88"
+  },
+  "publication": {
+    "technical_commit": "f7739a144369816b0e834c225fa9fbfe697f6c84",
+    "tree": "097a96d9246867bf49fef19b7ee9c5ace3887113",
+    "parent": "fa3eabce5ab0c309b1ca8f01602fced2eb7f1dd8",
+    "branch": "enhanced_version",
+    "remote_verified": true,
+    "tree_equal": true,
+    "force": false,
+    "receipt": "production-4b-publication-2026-11-08.json",
+    "scope": "Technical commit and unchanged frozen product; receipt added in a following documentation commit verified separately."
+  },
+  "delivery_documentation_checks": {
+    "status": "PASS",
+    "pack_receipt": "pack-delivery.json",
+    "pack_receipt_sha256": "f2eb824dc94131fd7921bbdfc181b6141b9070d023b9eb1b8699c466998ce1f6",
+    "pack_checks_passed": 11,
+    "warning_count": 12,
+    "brief_log_sha256": "ba027670c3af147c1125fd9572f70d6ffcdad9a5a6d421b66e95d93704864d88",
+    "brief_sha256": "3a1459f4df536045e45ee24687abe388393d53289eeb0ccfe19a5eae07486795",
+    "scope": "Documentation follow-up; native product/config/harness unchanged."
   }
 }

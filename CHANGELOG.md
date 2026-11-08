@@ -10,6 +10,8 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 ### I4 — fiabilisation du 4B et qualification avant diffusion, 8 novembre 2026
 
+Commit technique [f7739a14](https://github.com/msedki/agentPDFDoc/commit/f7739a144369816b0e834c225fa9fbfe697f6c84) publié et arbre distant vérifié ; [reçu de livraison](RAG_Local_Agents/reports/production-4b-publication-2026-11-08.json).
+
 - Sélection des passages par propriétés et conditions, puis conservation de leurs dépendances au budget de contexte existant. Les plafonds de fragments et de mémoire restent inchangés.
 - Groupes de listes PDF explicites, vérifiés contre les blocs source et leur portée ; contrat extractif qualitatif FR/EN et garde des sujets de titre. Le modèle conserve son rôle de planificateur de références, avec restitution contrôlée par code.
 - Correction verrouillée de Tesseract 5.4.0 issue du commit amont PR4259, construction en espace utilisateur et contrôle du manifeste. Les sept intégrations OCR réelles et leur prérequis passent après le correctif ; la fidélité des scans est évaluée séparément.

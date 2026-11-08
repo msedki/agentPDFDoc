@@ -4,6 +4,8 @@
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
+[Publication I4 vérifiée](2026-11-08.md#i4--publication-technique-vérifiée) : commit [f7739a14](https://github.com/msedki/agentPDFDoc/commit/f7739a144369816b0e834c225fa9fbfe697f6c84), arbre identique et publication sans force ; [reçu](../reports/production-4b-publication-2026-11-08.json). Les critères de fidélité échoués restent ouverts.
+
 [I4 — fiabilisation et qualification documentaire](2026-11-08.md#i4--transfert-terminé-et-qualification-documentaire-refusée) :
 sélection, structure PDF, contrat qualitatif, OCR et traces implémentés ;
 campagnes distinctes avant/après et échecs conservés. La fidélité de colonne

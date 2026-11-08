@@ -53,6 +53,8 @@ Ces travaux préparent la diffusion ; ils ne valent pas qualification globale
 Windows/Linux ni autorisation de déploiement. Le statut exact des critères reste
 celui du bilan, sans seuil abaissé ni réponse refusée comptée comme amélioration.
 
+Le lot technique est publié dans le commit [f7739a14](https://github.com/msedki/agentPDFDoc/commit/f7739a144369816b0e834c225fa9fbfe697f6c84). Le [reçu de publication](RAG_Local_Agents/reports/production-4b-publication-2026-11-08.json) vérifie les fichiers, l’arbre et la branche ; il conserve le statut de qualification non acquise.
+
 ## I3 — fiabilisation de la chaîne 4B, 8 novembre 2026
 
 Le profil `enhanced-4b` conserve **Qwen3-4B Q4_K_M comme seul générateur**,
