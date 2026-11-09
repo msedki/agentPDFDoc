@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "role": "I6 R2 validation checkpoint",
+  "recorded_utc": "2026-11-09T16:07:38.346152+00:00",
+  "reference_commit": "729524cea4372f3bd5614a380698123f25daf532",
+  "corrected_red": {
+    "path": "/workspace/scratch/37dafe3f3244/qa/i6-relations/comparison-red-corrected.xml",
+    "sha256": "04230d02e2ec6a309b8e3c99d218e6a142c54f41af9f38cabdd60b918368a0d8",
+    "tests": 16,
+    "failures": 8,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 2.258
+  },
+  "targeted_initial": {
+    "path": "/workspace/scratch/37dafe3f3244/agentPDFDoc/.runtime/qa/i6-relations/r2-targeted.xml",
+    "sha256": "2f52c12be0f565919834cc7ad20d154fa71655ce829c2f6d048a3df8377a31a7",
+    "tests": 247,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 23.169
+  },
+  "targeted_final": {
+    "path": "/workspace/scratch/37dafe3f3244/agentPDFDoc/.runtime/qa/i6-relations/r2-targeted-v2.xml",
+    "sha256": "4e2136ed374a1004d716184669ba13d64296e97ce1c708369f010bd05f1047dc",
+    "tests": 248,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 12.179
+  },
+  "axis_integrity": {
+    "path": "/workspace/scratch/37dafe3f3244/agentPDFDoc/.runtime/qa/i6-relations/r2-axis-integrity.xml",
+    "sha256": "10c3722862e0c887367ffa15a7821a1a617bb38457cab54977f35543cf8d282e",
+    "tests": 23,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 2.253
+  },
+  "known_regressions": {
+    "dev": {
+      "cases": 24,
+      "positive_exact_support": 12,
+      "negative_exact_support": 12,
+      "false_acceptance_count": 0,
+      "false_acceptance_rate": 0.0,
+      "false_rejection_count": 0,
+      "false_rejection_rate": 0.0,
+      "positive_exact_coverage": 1.0,
+      "case_passed": 24,
+      "all_repeats_case_passed": 24,
+      "any_repeat_false_acceptance_cases": 0,
+      "any_repeat_unsupported_equality_cases": 0,
+      "errors": 0,
+      "cases_with_any_trial_error": 0,
+      "statuses": {
+        "covered": 12,
+        "partial": 12
+      },
+      "literal_evidence_retained": 28,
+      "literal_evidence_total": 28,
+      "literal_evidence_coverage": 1.0,
+      "negative_cases_all_literals_retained": 12,
+      "negative_cases_total": 12,
+      "latency_ms_median": 66.760052,
+      "latency_ms_p95": 102.295532,
+      "measurement_repeats_not_independent_cases": true,
+      "variable_outcomes": 0
+    },
+    "final": {
+      "cases": 24,
+      "positive_exact_support": 12,
+      "negative_exact_support": 12,
+      "false_acceptance_count": 0,
+      "false_acceptance_rate": 0.0,
+      "false_rejection_count": 0,
+      "false_rejection_rate": 0.0,
+      "positive_exact_coverage": 1.0,
+      "case_passed": 24,
+      "all_repeats_case_passed": 24,
+      "any_repeat_false_acceptance_cases": 0,
+      "any_repeat_unsupported_equality_cases": 0,
+      "errors": 0,
+      "cases_with_any_trial_error": 0,
+      "statuses": {
+        "covered": 12,
+        "partial": 12
+      },
+      "literal_evidence_retained": 28,
+      "literal_evidence_total": 28,
+      "literal_evidence_coverage": 1.0,
+      "negative_cases_all_literals_retained": 12,
+      "negative_cases_total": 12,
+      "latency_ms_median": 71.6654625,
+      "latency_ms_p95": 124.994822,
+      "measurement_repeats_not_independent_cases": true,
+      "variable_outcomes": 0
+    }
+  },
+  "independent_review": {
+    "status": "PASS",
+    "role": "evidence_audit",
+    "read_only": true,
+    "heldout_content_used": false
+  },
+  "legacy_test_clarification": "The swapped-components question now says between the two documents; every original assertion retained. A new test keeps the original collective question and requires conflict.",
+  "ruff": "PASS",
+  "heldout": "CLOSED",
+  "native": "Incomplete first baseline attempt is documented separately; not a R2 gate success."
+}

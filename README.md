@@ -10,7 +10,9 @@ Le [protocole préalable](RAG_Local_Agents/reports/trust-i6-relations-protocol-2
 fixe les jeux, mesures et critères avant modification. Le
 [plan](RAG_Local_Agents/PLAN.md) suit la réalisation et les publications
 par lot. Le [premier lot R1](RAG_Local_Agents/reports/trust-i6-relations-r1-2026-11-09.md)
-corrige H24/H06 sur les cas connus et passe 369 tests ciblés. Les comparaisons,
+corrige H24/H06 sur les cas connus et passe 369 tests ciblés.
+[R2](RAG_Local_Agents/reports/trust-i6-relations-r2-2026-11-09.md) répare les
+comparaisons et passe les 48 anciens cas I5-PJ. Les frontières du nouveau DEV,
 le coût et la qualification finale restent en cours ; le jeu final I6 est fermé.
 
 ## I5-PJ — opérateurs et exceptions, 9 novembre 2026

@@ -51,6 +51,8 @@ def comparison_text(comparison, by_id):
     label = PROPERTY_LABELS.get(comparison["property"], comparison["property"] or comparison["quantity"])
     if comparison.get("subject"):
         label += " — " + comparison["subject"]
+    elif comparison.get("subjects"):
+        label += " — " + " / ".join(comparison["subjects"])
     names = ", ".join(dict.fromkeys(by_id[reference_id]["document_name"] for reference_id in comparison["reference_ids"]))
     qualification = (" dans les mêmes conditions explicites" if comparison["conditions_explicit"] else
                      " sous les rôles indiqués ; aucune équivalence de conditions d'essai supplémentaires n'est établie")
@@ -771,7 +773,8 @@ class Catalogue:
                     raise ValueError("unsupported relation or comparison")
             for field in ("kind", "quantity", "missing", "scope_refusal", "rejected_relations", "qualitative_request",
                           "rejected_qualitative_relations", "retrieval_limitations", "obligations", "interpretation_limitations",
-                          "required_reference_ids", "requested_properties", "requested_subjects"):
+                          "required_reference_ids", "requested_properties", "requested_subjects",
+                          "comparison_axis", "comparison_per_document"):
                 if canonical(assessment.get(field)) != canonical(checked.get(field)):
                     raise ValueError("unsupported coverage explanation")
             expected_ambiguities = (initial.get("ambiguous", []) if initial["status"] in {"conflict", "ambiguous"}

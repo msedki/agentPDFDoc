@@ -1,0 +1,554 @@
+{
+  "schema_version": 1,
+  "protocol_id": "I6-RELATIONS-20261109",
+  "attempt": 1,
+  "arm": "baseline",
+  "observed_utc": "2026-11-09T16:09:31.919816+00:00",
+  "status": "INTERRUPTED_INCOMPLETE",
+  "application_git_head": "7ef57fdc38261fa4b14e077e5d1c75aee57f7eea",
+  "inputs_sha256": "25cd311dfc92d4077afcf4a71c33acc34d463a08cc27b3505573d760bab1141b",
+  "protocol_created_utc": "2026-11-09T15:47:31.358204+00:00",
+  "command": [
+    ".venv/bin/python",
+    "tools/qualification/run_grounded_native.py",
+    "--application-root",
+    "../agentPDFDoc-i6-baseline",
+    "--label",
+    "baseline",
+    "--inputs",
+    ".runtime/qa/i6-relations/native-inputs/inputs.json",
+    "--output",
+    ".runtime/qa/i6-relations/native-baseline",
+    "--ollama-port",
+    "11449",
+    "--qdrant-port",
+    "6349"
+  ],
+  "transport": "direct",
+  "scheduled_cases": 18,
+  "recorded_results": [
+    {
+      "position": 1,
+      "case_id": "N_I6D02",
+      "state": "done",
+      "query_id": "7ede3993-6d40-4711-a3b0-18079ecd9673",
+      "created_utc": "2026-11-09T15:47:50.837201+00:00",
+      "updated_utc": "2026-11-09T15:47:51.439853+00:00",
+      "elapsed_ms": 593.98,
+      "model_call_attempted": false,
+      "model_called": false,
+      "response_route": "deterministic_evidence_contract",
+      "harness_timeout": false,
+      "memory": {
+        "rss_sum_peak_mib": 707.9609375,
+        "available_min_mib": 6136.2890625,
+        "samples": 2,
+        "pss_sum_peak_mib": 698.0830078125,
+        "uss_sum_peak_mib": 695.0390625
+      },
+      "errors": [],
+      "result_path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D02-baseline-0.json"
+    },
+    {
+      "position": 2,
+      "case_id": "N_I6D04",
+      "state": "done",
+      "query_id": "d1cd956b-f916-425c-a5d2-ac3f9cbe7f01",
+      "created_utc": "2026-11-09T15:47:51.481724+00:00",
+      "updated_utc": "2026-11-09T15:47:51.785983+00:00",
+      "elapsed_ms": 284.88,
+      "model_call_attempted": false,
+      "model_called": false,
+      "response_route": "deterministic_evidence_contract",
+      "harness_timeout": false,
+      "memory": {
+        "rss_sum_peak_mib": 709.3671875,
+        "available_min_mib": 6134.2421875,
+        "samples": 1,
+        "pss_sum_peak_mib": 699.4873046875,
+        "uss_sum_peak_mib": 696.44140625
+      },
+      "errors": [],
+      "result_path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D04-baseline-0.json"
+    },
+    {
+      "position": 3,
+      "case_id": "N_I6D05",
+      "state": "done",
+      "query_id": "fb693bbf-f4a3-4f90-bb09-07a4cb91e4d0",
+      "created_utc": "2026-11-09T15:47:51.822745+00:00",
+      "updated_utc": "2026-11-09T15:47:52.447894+00:00",
+      "elapsed_ms": 611.83,
+      "model_call_attempted": false,
+      "model_called": false,
+      "response_route": "deterministic_evidence_contract",
+      "harness_timeout": false,
+      "memory": {
+        "rss_sum_peak_mib": 709.42578125,
+        "available_min_mib": 6132.74609375,
+        "samples": 3,
+        "pss_sum_peak_mib": 699.5126953125,
+        "uss_sum_peak_mib": 696.46484375
+      },
+      "errors": [],
+      "result_path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D05-baseline-0.json"
+    },
+    {
+      "position": 4,
+      "case_id": "N_I6D09",
+      "state": "done",
+      "query_id": "679c285c-38a7-461d-ab8f-a0ead7e892df",
+      "created_utc": "2026-11-09T15:47:52.505952+00:00",
+      "updated_utc": "2026-11-09T15:47:53.423327+00:00",
+      "elapsed_ms": 905.07,
+      "model_call_attempted": false,
+      "model_called": false,
+      "response_route": "deterministic_evidence_contract",
+      "harness_timeout": false,
+      "memory": {
+        "rss_sum_peak_mib": 709.43359375,
+        "available_min_mib": 6037.7265625,
+        "samples": 2,
+        "pss_sum_peak_mib": 681.751953125,
+        "uss_sum_peak_mib": 661.33984375
+      },
+      "errors": [],
+      "result_path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D09-baseline-0.json"
+    },
+    {
+      "position": 5,
+      "case_id": "N_I6D11",
+      "state": "done",
+      "query_id": "4db19281-0060-42f4-80b5-2431033360fb",
+      "created_utc": "2026-11-09T15:47:53.488696+00:00",
+      "updated_utc": "2026-11-09T15:47:53.945786+00:00",
+      "elapsed_ms": 433.48,
+      "model_call_attempted": false,
+      "model_called": false,
+      "response_route": "deterministic_evidence_contract",
+      "harness_timeout": false,
+      "memory": {
+        "rss_sum_peak_mib": 709.4375,
+        "available_min_mib": 5988.12890625,
+        "samples": 2,
+        "pss_sum_peak_mib": 681.732421875,
+        "uss_sum_peak_mib": 661.3046875
+      },
+      "errors": [],
+      "result_path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D11-baseline-0.json"
+    },
+    {
+      "position": 6,
+      "case_id": "N_I6D14",
+      "state": "error",
+      "query_id": "4a2aa939-428d-4979-aff7-9bb532472554",
+      "created_utc": "2026-11-09T15:47:53.976548+00:00",
+      "updated_utc": "2026-11-09T15:48:45.093675+00:00",
+      "elapsed_ms": 51050.58,
+      "model_call_attempted": true,
+      "model_called": false,
+      "response_route": "local_4b_generation",
+      "harness_timeout": false,
+      "memory": {
+        "rss_sum_peak_mib": 3870.94140625,
+        "available_min_mib": 1523.69921875,
+        "samples": 90,
+        "pss_sum_peak_mib": 3849.1376953125,
+        "uss_sum_peak_mib": 3835.90234375
+      },
+      "errors": [
+        {
+          "code": "resource_admission_denied",
+          "message": "Réserve hôte menacée pendant la génération ; requête annulée.",
+          "created_utc": "2026-11-09T15:48:45.094054+00:00"
+        }
+      ],
+      "result_path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D14-baseline-0.json"
+    },
+    {
+      "position": 7,
+      "case_id": "N_I6D17",
+      "state": "done",
+      "query_id": "bf58b8f4-a133-43cc-9f67-9fcbd4cdd87c",
+      "created_utc": "2026-11-09T15:48:45.319898+00:00",
+      "updated_utc": "2026-11-09T15:48:46.244963+00:00",
+      "elapsed_ms": 899.73,
+      "model_call_attempted": false,
+      "model_called": false,
+      "response_route": "deterministic_evidence_contract",
+      "harness_timeout": false,
+      "memory": {
+        "rss_sum_peak_mib": 662.79296875,
+        "available_min_mib": 4577.828125,
+        "samples": 3,
+        "pss_sum_peak_mib": 646.6572265625,
+        "uss_sum_peak_mib": 637.7421875
+      },
+      "errors": [],
+      "result_path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D17-baseline-0.json"
+    },
+    {
+      "position": 8,
+      "case_id": "N_I6D19",
+      "state": "done",
+      "query_id": "fa9ebf05-1fc6-4b8d-877d-7d6387cc749e",
+      "created_utc": "2026-11-09T15:48:46.293115+00:00",
+      "updated_utc": "2026-11-09T15:48:46.775787+00:00",
+      "elapsed_ms": 455.08,
+      "model_call_attempted": false,
+      "model_called": false,
+      "response_route": "deterministic_evidence_contract",
+      "harness_timeout": false,
+      "memory": {
+        "rss_sum_peak_mib": 663.7109375,
+        "available_min_mib": 4581.16796875,
+        "samples": 2,
+        "pss_sum_peak_mib": 647.5380859375,
+        "uss_sum_peak_mib": 638.59765625
+      },
+      "errors": [],
+      "result_path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D19-baseline-0.json"
+    }
+  ],
+  "incomplete_attempts": [
+    {
+      "position": 9,
+      "case_id": "N_I6D28",
+      "state": "INCOMPLETE",
+      "attempt": {
+        "case_id": "N_I6D28",
+        "variant": "baseline",
+        "repeat": 0,
+        "query_id": null,
+        "started_utc": "2026-11-09T15:48:46.833095+00:00"
+      },
+      "trace_path": ".runtime/qa/i6-relations/native-baseline/measurements/data/traces/bc7b84de-5eab-438e-8f51-3acac56b989b.jsonl",
+      "trace_query_id": "bc7b84de-5eab-438e-8f51-3acac56b989b",
+      "last_trace_phase": "admission.wait",
+      "last_trace_utc": "2026-11-09T15:48:51.210902+00:00",
+      "terminal_result_present": false,
+      "llm_request_count": 0
+    }
+  ],
+  "not_started": [
+    {
+      "position": 10,
+      "case_id": "N_I6D32",
+      "state": "NOT_STARTED"
+    },
+    {
+      "position": 11,
+      "case_id": "N_I6D33",
+      "state": "NOT_STARTED"
+    },
+    {
+      "position": 12,
+      "case_id": "N_I6D35",
+      "state": "NOT_STARTED"
+    },
+    {
+      "position": 13,
+      "case_id": "N_I6D38",
+      "state": "NOT_STARTED"
+    },
+    {
+      "position": 14,
+      "case_id": "N_I6D42",
+      "state": "NOT_STARTED"
+    },
+    {
+      "position": 15,
+      "case_id": "N_I6D45",
+      "state": "NOT_STARTED"
+    },
+    {
+      "position": 16,
+      "case_id": "N_I6D48",
+      "state": "NOT_STARTED"
+    },
+    {
+      "position": 17,
+      "case_id": "N17",
+      "state": "NOT_STARTED"
+    },
+    {
+      "position": 18,
+      "case_id": "N18",
+      "state": "NOT_STARTED"
+    }
+  ],
+  "counts": {
+    "terminal_results": 8,
+    "done": 7,
+    "error": 1,
+    "incomplete": 1,
+    "not_started": 9,
+    "recorded_llm_requests": 1,
+    "recorded_completed_llm_responses": 0
+  },
+  "last_memory_sample_utc": "2026-11-09T15:48:54.397468+00:00",
+  "last_memory_sample_label": "N_I6D28-baseline-0",
+  "known_process_observations": [
+    {
+      "pid": 105,
+      "recorded_name": "python",
+      "present_in_current_namespace": false
+    },
+    {
+      "pid": 6,
+      "recorded_name": "ollama",
+      "present_in_current_namespace": false
+    },
+    {
+      "pid": 7,
+      "recorded_name": "qdrant",
+      "present_in_current_namespace": false
+    },
+    {
+      "pid": 136,
+      "recorded_name": "llama-server",
+      "present_in_current_namespace": false
+    }
+  ],
+  "loopback_observations": [
+    {
+      "address": "127.0.0.1",
+      "port": 11449,
+      "connect_ex": 111,
+      "accepting_connection": false
+    },
+    {
+      "address": "127.0.0.1",
+      "port": 6349,
+      "connect_ex": 111,
+      "accepting_connection": false
+    },
+    {
+      "address": "127.0.0.1",
+      "port": 6350,
+      "connect_ex": 111,
+      "accepting_connection": false
+    }
+  ],
+  "inspection_namespace": {
+    "pid": "pid:[4026532639]",
+    "network": "net:[4026532640]",
+    "limitation": "The original namespace identity was not recorded; these absence observations apply to the current inspection namespace."
+  },
+  "termination": {
+    "tool_session_id": 50179,
+    "tool_session_status": "unknown process id",
+    "measurement_process_receipt_present": false,
+    "service_stop_receipt_present": false,
+    "return_code": null,
+    "normal_finally_observed": false,
+    "all_owned_services_stopped": null,
+    "stop_signal_sent_by_observer": false,
+    "cause": "Undetermined interruption outside the recorded campaign completion. No OOM attribution is established."
+  },
+  "resource_failure": {
+    "case_id": "N_I6D14",
+    "code": "resource_admission_denied",
+    "message": "Réserve hôte menacée pendant la génération ; requête annulée.",
+    "interpretation": "Recorded product resource guard refusal during the attempted generation; distinct from the later unexplained campaign interruption.",
+    "controls_changed": false
+  },
+  "model_call_evidence": [
+    {
+      "query_id": "4a2aa939-428d-4979-aff7-9bb532472554",
+      "request_utc": "2026-11-09T15:47:54.827196+00:00",
+      "model": "qwen3-4b-enhanced:q4km",
+      "verified_model_identity": {
+        "digest": "0d75b13ba9d0cd42fb445d6979708adacb2679a777fb4cf717d4e6b907bccfdf",
+        "manifest_sha256": "aca799db2a4683a3cbd9002592ca065ed110ab29c5f4059ee65a10012348921e",
+        "source": "/api/tags"
+      },
+      "response_received_done": [
+        false
+      ],
+      "response_capture_complete": [
+        true
+      ],
+      "trace_path": ".runtime/qa/i6-relations/native-baseline/measurements/data/traces/4a2aa939-428d-4979-aff7-9bb532472554.jsonl"
+    }
+  ],
+  "latency_context": "Parent agent was performing lightweight unit/type checks concurrently. These latencies are not an isolated performance qualification.",
+  "scientific_status": "Partial failed attempt retained. No overall native success, no completed 4B inference, no heldout execution, and no documentary quality verdict inferred from done state.",
+  "artifact_hashes": [
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurement.log",
+      "sha256": "0b642ee8bf86a8be0972e37935fc3935271ab9f4f62ac7da820bd1fe383060d7",
+      "bytes": 6349
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D02-baseline-0.attempt-start.json",
+      "sha256": "5b25fda5cd8f3bee4bdacd7252d189ac121ca401d8cb3296db0162bc4bb9c0f3",
+      "bytes": 140
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D02-baseline-0.json",
+      "sha256": "90e5c4e63baebbf93520e726ee11922b2cb4f5e67d24b0f3f6bf5b11062e5093",
+      "bytes": 59444
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D04-baseline-0.attempt-start.json",
+      "sha256": "33d025c8f105fe89768e40d6d4805f37726bc9ca8a1f0efbdd056670d46f4ce1",
+      "bytes": 140
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D04-baseline-0.json",
+      "sha256": "8cba707142ebb6b49d77b28ede3a6ca33c7cf8e5c6c24d911a9cb5202d8c1e84",
+      "bytes": 62041
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D05-baseline-0.attempt-start.json",
+      "sha256": "f52bb651343195bb37b7642747907c5d726753be85266b03f5cedea596e79e68",
+      "bytes": 140
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D05-baseline-0.json",
+      "sha256": "ee2332bec734d8b3465a2b29517b4712d3132dd3b344f94b1ae17996ca08b942",
+      "bytes": 60022
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D09-baseline-0.attempt-start.json",
+      "sha256": "979d8a9ae1039282785b718e6418cb1883f24ef733f248530098d9b31c011a25",
+      "bytes": 140
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D09-baseline-0.json",
+      "sha256": "d3d400c679a03fc2028b419ff930172e1d69098eaafd1862e2076caa0aa49604",
+      "bytes": 59209
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D11-baseline-0.attempt-start.json",
+      "sha256": "52c7abe80d3a830ba8f1c0134a2fadaa547813edb47d03e1cc3f951cba96cb29",
+      "bytes": 140
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D11-baseline-0.json",
+      "sha256": "4b18860fedf0815028d6789b871d1751c601a44f4bb8842ec50fc19e9b93cb62",
+      "bytes": 59453
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D14-baseline-0.attempt-start.json",
+      "sha256": "56578a77b943e1fc5404aa847aa1358f81315226c55624e16985e3e6fcf83c1a",
+      "bytes": 140
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D14-baseline-0.json",
+      "sha256": "28bf876fe4cee08a78bcb2690d87a97f7a20bbcf96f63abedc93054f1a557d1d",
+      "bytes": 40858
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D17-baseline-0.attempt-start.json",
+      "sha256": "ecd54fbc4cf47662fe2cfae2de4698f807fc636a56eabae303afd31178c41897",
+      "bytes": 140
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D17-baseline-0.json",
+      "sha256": "a1029f03dc9ca840b7f7c35232eb08b1d63922a5ce8ca2efa41fdbb46658f4ef",
+      "bytes": 63016
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D19-baseline-0.attempt-start.json",
+      "sha256": "15689b917b91e96f8790b9b5c2ab7957350a71586fae3e7661f8f28cf2b40842",
+      "bytes": 140
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D19-baseline-0.json",
+      "sha256": "98bf762809a6e0ab54083d524214a3fe1ab87694ff61d517780165d73b041294",
+      "bytes": 64077
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/N_I6D28-baseline-0.attempt-start.json",
+      "sha256": "33ffa8a06fc77ce4d82e27d1d77a367991385d3d1988556736e6bbdbbfdecb89",
+      "bytes": 140
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/bindings.json",
+      "sha256": "b4be35da182bced86944bcdb85b759e347645db2929d45f5fefcd2b8d8fb511e",
+      "bytes": 6251
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/code-manifest.json",
+      "sha256": "231e91ea03cd7b308eb74edc3881c46f41bc6cb2e4ee760a58a3a0bfd3bf4928",
+      "bytes": 9581
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/data/traces/4a2aa939-428d-4979-aff7-9bb532472554.jsonl",
+      "sha256": "21ec7192dd7c37ad25e6b7fc844f045f904e22a470a846fad9b4fd2ebfb9da3a",
+      "bytes": 68955
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/data/traces/4db19281-0060-42f4-80b5-2431033360fb.jsonl",
+      "sha256": "5baaccbdcab1057dce587f5550512b789453386f1aa2f85e6f2c95e408fed92c",
+      "bytes": 44494
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/data/traces/679c285c-38a7-461d-ab8f-a0ead7e892df.jsonl",
+      "sha256": "8a879cc70319e78e1494c93a9b382009170ac2adb0ca6dafe821ebae25383952",
+      "bytes": 43987
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/data/traces/7ede3993-6d40-4711-a3b0-18079ecd9673.jsonl",
+      "sha256": "ddab9295efb4979bcb9f00b2b2a4ba86d56152787a78171ff55488f2b43e6e6a",
+      "bytes": 44484
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/data/traces/bc7b84de-5eab-438e-8f51-3acac56b989b.jsonl",
+      "sha256": "ff9cde71ffde9aa4f0060d210ee4bc07c2033b54f86fe1ca95db1289a6785076",
+      "bytes": 52718
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/data/traces/bf58b8f4-a133-43cc-9f67-9fcbd4cdd87c.jsonl",
+      "sha256": "f9f464c9cb59afd54cf8b7ad79d3dc82107d58324b1545a4c58ed0cbfdcb0dd0",
+      "bytes": 47439
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/data/traces/d1cd956b-f916-425c-a5d2-ac3f9cbe7f01.jsonl",
+      "sha256": "ce00241de59b0e74ef2e171eb1a811971c2f3c5c02850682940beb5c1c7c4c9f",
+      "bytes": 46571
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/data/traces/fa9ebf05-1fc6-4b8d-877d-7d6387cc749e.jsonl",
+      "sha256": "77e9f1518c553b21068da34ce75c41621c67c18519b96a885802696a706f0a51",
+      "bytes": 67488
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/data/traces/fb693bbf-f4a3-4f90-bb09-07a4cb91e4d0.jsonl",
+      "sha256": "467967d92cea84d3e49bb39aca1b0f8acfce9f2e0134de501342829691218427",
+      "bytes": 44923
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/memory.jsonl",
+      "sha256": "e4996c8a3f4e84ed3706d74c05bb5fdd43267143bf60ae97bf3cc9e9cb20c451",
+      "bytes": 69427
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/measurements/protocol-frozen.json",
+      "sha256": "47c0234f3f11aed0b4c7c9d11154291418c7af6ad8ef3757c7b5a8b4939409a9",
+      "bytes": 87837
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/ollama.log",
+      "sha256": "fcb3cf631f086dd4ea1203d19b949b66a2f47cbb6675764214cd92557712d515",
+      "bytes": 20535
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-baseline/qdrant.log",
+      "sha256": "e41ac2a9f2542e1f6137706e420b5ddeafc0e9e8c678cc630f198dfbc3e9c505",
+      "bytes": 49237
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-inputs/inputs.json",
+      "sha256": "25cd311dfc92d4077afcf4a71c33acc34d463a08cc27b3505573d760bab1141b",
+      "bytes": 73110
+    },
+    {
+      "path": ".runtime/qa/i6-relations/native-inputs/recipe.json",
+      "sha256": "621f2104f3fd547d9f69bfb1228d2db318be9101f79e929d8f2af36f1930ce34",
+      "bytes": 65372
+    }
+  ]
+}

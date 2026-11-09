@@ -69,7 +69,8 @@ QUANTITIES = {
 # relation merely because two labels occur somewhere in the same excerpt.
 QUANTITY_PROPERTIES = {
     "voltage": {"bus": r"\b(?:bus|vbus)\b", "supply": r"\b(?:alimentation|supply|vdd|vcc)\b",
-                "shunt": r"\bshunt\b", "common_mode": r"\b(?:mode commun|common[ -]mode)\b"},
+                "shunt": r"\bshunt\b", "common_mode": r"\b(?:mode commun|common[ -]mode)\b",
+                "input": r"\b(?:entree|input)\b", "output": r"\b(?:sortie|output)\b"},
     "current": {"quiescent": r"\b(?:repos|quiescent)\b", "input": r"\b(?:entree|input)\b",
                 "output": r"\b(?:sortie|output)\b", "leakage": r"\b(?:fuite|leakage)\b"},
     "temperature": {"ambient": r"\b(?:ambiante?|ambient)\b", "junction": r"\b(?:jonction|junction)\b",
@@ -1459,7 +1460,7 @@ def _agreement_requested(question: str, quantity: str | None) -> bool:
         return False
     normalized = folded(question)
     quantity_matches = list(re.finditer(QUANTITIES[quantity], normalized))
-    same_matches = list(re.finditer(r"\b(?:memes?|same)\b", normalized))
+    same_matches = list(re.finditer(r"\b(?:memes?|same|common|communes?)\b", normalized))
     removable = [*ROLES.values(), *QUANTITY_PROPERTIES.get(quantity, {}).values(),
                  r"\b(?:le|la|les|l|de|du|des|d|est|sont|il|ils|elle|elles|the|is|are|for)\b"]
     removable.extend(r"(?<!\w)" + re.escape(match[0]) + r"(?!\w)" for match in SUBJECT.finditer(normalized)
@@ -1553,6 +1554,8 @@ class AnswerContract:
     distinguish_roles: bool = field(init=False)
     comparison_requested: bool = field(init=False)
     agreement_requested: bool = field(init=False)
+    comparison_axis: str = field(init=False)
+    comparison_per_document: bool = field(init=False)
     requested_roles: list[str] = field(init=False)
     required_relation_count: int = field(init=False)
     requested_condition: tuple | None = field(init=False)
@@ -1653,6 +1656,16 @@ class AnswerContract:
                                            if any(char.isdigit() for char in match[0])
                                            and match[0].upper() not in mentioned_cells
                                            and match[0].casefold() not in NOT_SUBJECTS))
+        self.comparison_per_document = bool(re.search(
+            r"\b(?:(?:in|within)\s+each\s+document|dans\s+chaque\s+document|"
+            r"dans\s+chacun\s+des\s+documents)\b", normalized))
+        document_axis = bool(re.search(
+            r"\b(?:between|across|entre|compar\w*)\s+(?:(?:the|les|ces|two|deux)\s+)*"
+            r"(?:documents?|sources?|fiches?)\b", normalized))
+        if self.agreement_requested and re.search(r"\b(?:documents?|sources?|fiches?)\b", normalized):
+            document_axis = True
+        self.comparison_axis = ("subjects" if self.comparison_requested and len(self.subjects) > 1
+                                and (self.comparison_per_document or not document_axis) else "documents")
         if (self.qualitative_request is not None
                 and (self.qualitative_request["intent"] in {"cause", "condition", "explanation"}
                      or not self.quantity and not self.operation and not self.requested_cells and not self.comparison_requested)):
@@ -1834,6 +1847,10 @@ class AnswerContract:
             reasons.append("excluded_point_condition_not_supported")
         if fact.get("assertion_status", "asserted") != "asserted":
             reasons.append("source_assertion_" + fact["assertion_status"])
+        if (self.comparison_axis == "subjects" and fact.get("subjects")
+                and not any(_contains_subject(identity, subject)
+                            for identity in fact.get("entity_context_identifiers", []) for subject in fact["subjects"])):
+            reasons.append("comparison_subject_not_explicit")
         if (self.requested_bound and fact["kind"] == "value"
                 and fact.get("bound_role") != self.requested_bound):
             reasons.append("requested_bound_not_established")
@@ -2038,7 +2055,7 @@ class AnswerContract:
                 count += child_count
                 characters += child_characters
             return count, characters
-        count = document_count * max(1, len(self.subjects))
+        count = (1 if self._collective_subject_comparison() else document_count) * max(1, len(self.subjects))
         if self.qualitative_request is None:
             if not self.quantity or self.kind in {"cell_values", "calculation", "mapping", "qualitative"}:
                 return 0, 0
@@ -2067,7 +2084,7 @@ class AnswerContract:
                     for obligation in component._obligations([fact for fact in facts if fact.get("quantity") == component.quantity], required_documents)]
         if not self.quantity or self.kind in {"cell_values", "calculation", "mapping", "qualitative"}:
             return []
-        documents = list(dict.fromkeys(required_documents)) or [None]
+        documents = [None] if self._collective_subject_comparison() else list(dict.fromkeys(required_documents)) or [None]
         properties: list[str | None] = list(self.requested_properties) or [None]
         subjects = self.subjects or (None,)
         roles: list[str | None] = list(self.requested_roles) or [None]
@@ -2080,6 +2097,7 @@ class AnswerContract:
                         for configuration in configurations:
                             for points in self.requested_condition_alternatives:
                                 matching = [fact for fact in facts if (document is None or fact["document_id"] == document)
+                                            and (not required_documents or fact["document_id"] in required_documents)
                                             and (subject is None or subject in fact["subjects"])
                                             and (property_name is None or fact.get("property") == property_name)
                                             and (configuration is None or fact.get("supply_configuration") == configuration)
@@ -2105,10 +2123,18 @@ class AnswerContract:
                                 obligations.append(obligation)
         return obligations
 
+    def _collective_subject_comparison(self):
+        return self.comparison_axis == "subjects" and not self.comparison_per_document
+
+    def _cross_document_conflicts(self):
+        return not self.comparison_requested or self._collective_subject_comparison()
+
     def _comparisons(self, facts, required_documents=()):
         if not self.comparison_requested or not self.quantity:
             return []
         documents = list(dict.fromkeys(required_documents)) or list(dict.fromkeys(fact["document_id"] for fact in facts))
+        if self.comparison_axis == "subjects":
+            return self._subject_comparisons(facts, documents)
         if len(documents) < 2:
             return []
         result = []
@@ -2124,6 +2150,7 @@ class AnswerContract:
                 # equal set of anonymous numbers cannot prove a comparison.
                 def local_context(fact):
                     return (fact["kind"], fact["property"] or fact["label"], fact["role"], fact.get("bound_role"), fact.get("guarantee"),
+                            fact.get("supply_configuration"), fact.get("polarity"),
                             _condition_key(fact["condition"]), fact.get("code_name"), fact.get("code"),
                             tuple(fact.get("entity_context_identifiers", fact.get("evidence_identifiers", []))))
                 preserve_labels = subject is None and any(len({local_context(fact) for fact in group}) < len(group) for group in groups)
@@ -2147,6 +2174,62 @@ class AnswerContract:
                                "conditions_explicit": all(fact["condition"].strip(" .;") for group in groups for fact in group),
                                "reference_ids": list(dict.fromkeys(reference_id for group in groups for fact in group
                                                                   for reference_id in fact.get("reference_ids", [fact["reference_id"]])))})
+        return result
+
+    def _subject_comparisons(self, facts, documents):
+        """Compare written subject-bound operands within the allowed documents.
+
+        Only the varying subject is removed from the context signature. A
+        repeated identical proof is harmless; competing values for one context
+        never become an equality between ambiguous sets of numbers.
+        """
+        result = []
+        properties = list(self.requested_properties) or list(dict.fromkeys(fact.get("property") for fact in facts)) or [None]
+        scopes = [[document] for document in documents] if self.comparison_per_document else [documents]
+        for scope_documents in scopes:
+            for property_name in properties:
+                groups = [[fact for fact in facts if fact["document_id"] in scope_documents
+                           and subject in fact["subjects"] and fact.get("property") == property_name]
+                          for subject in self.subjects]
+                if any(not group for group in groups):
+                    continue
+
+                def context(fact, subject):
+                    label = fact["label"]
+                    label = re.sub(r"(?<!\w)" + re.escape(folded(subject)) + r"(?!\w)", "<subject>", label)
+                    identities = tuple(identity for identity in fact.get("entity_context_identifiers", [])
+                                       if not _contains_subject(identity, subject))
+                    return (fact["kind"], fact["property"] or label, fact["role"], fact.get("bound_role"),
+                            fact.get("guarantee"), _condition_key(fact["condition"]),
+                            fact.get("supply_configuration"), fact.get("polarity"),
+                            fact.get("code_name"), fact.get("code"), identities)
+
+                signatures = [{(context(fact, subject), _base_values(fact)) for fact in group}
+                              for subject, group in zip(self.subjects, groups, strict=True)]
+                contexts = [{signature[0] for signature in group} for group in signatures]
+                # More than one value under one qualification is a conflict,
+                # even if every compared subject exposes the same numeric set.
+                if any(len(group) != len(keys) for group, keys in zip(signatures, contexts, strict=True)):
+                    continue
+                same_context = all(group == contexts[0] for group in contexts[1:])
+                qualified = all(fact["role"] is not None or fact.get("bound_role") is not None
+                                or fact.get("guarantee") == "explicit" for group in groups for fact in group)
+                status = ("context_unestablished" if not qualified else "context_differs" if not same_context
+                          else "equal" if all(group == signatures[0] for group in signatures[1:]) else "different")
+                result.append({"property": property_name, "subject": None, "subjects": list(self.subjects),
+                               "comparison_axis": "subjects", "quantity": self.quantity,
+                               "document_ids": list(dict.fromkeys(fact["document_id"] for group in groups for fact in group)),
+                               "status": status,
+                               "numeric_agreement": ("equal" if all({_base_values(fact) for fact in group}
+                                                                    == {_base_values(fact) for fact in groups[0]}
+                                                                    for group in groups[1:]) else "different"),
+                               "conditions_explicit": all(fact["condition"].strip(" .;") for group in groups for fact in group),
+                               "operand_groups": [{"subject": subject,
+                                                   "reference_ids": list(dict.fromkeys(reference_id for fact in group
+                                                                                       for reference_id in fact["reference_ids"]))}
+                                                  for subject, group in zip(self.subjects, groups, strict=True)],
+                               "reference_ids": list(dict.fromkeys(reference_id for group in groups for fact in group
+                                                                  for reference_id in fact["reference_ids"]))})
         return result
 
     def _mappings(self, references: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -2193,7 +2276,7 @@ class AnswerContract:
                         or re.search(r"\b(?:syntheti\w*|synthetic|ficti\w*)\b", text)
                         and re.search(r"\b(?:temoin|test|specification|source|document)\b", text)):
                     required.append(reference["id"])
-        for conflict in _conflicting_relations(facts, cross_document=not self.comparison_requested,
+        for conflict in _conflicting_relations(facts, cross_document=self._cross_document_conflicts(),
                                               agreement_requested=self.agreement_requested):
             required.extend(conflict["reference_ids"])
         for configuration in self.configurations:
@@ -2208,6 +2291,7 @@ class AnswerContract:
                   "requested_bound": self.requested_bound, "requested_point_conditions": self.requested_point_conditions,
                   "requested_cells": self.requested_cells, "requested_field": self.requested_field, "requested_subjects": list(self.subjects),
                   "requested_properties": self.requested_properties,
+                  "comparison_axis": self.comparison_axis, "comparison_per_document": self.comparison_per_document,
                   "requested_configurations": [list(configuration) for configuration in self.configurations],
                   "requested_codes": self.requested_codes,
                   "obligations": self._obligations(self._facts(references), required_documents),
@@ -2395,7 +2479,7 @@ class AnswerContract:
         for document in required_documents:
             # General questions have no interpreted documentary obligation.
             # Their intentionally empty projection is not a missing document.
-            if self.kind != "general" and document not in selected_documents:
+            if self.kind != "general" and not self._collective_subject_comparison() and document not in selected_documents:
                 missing.append({"requirement": "requested_document", "document_id": document})
         for reference in references:
             raw = reference_text(reference)
@@ -2445,7 +2529,7 @@ class AnswerContract:
             for subject in self.subjects:
                 if not any(subject in fact["subjects"] for fact in facts):
                     missing.append({"requirement": "requested_subject_quantity", "subject": subject, "quantity": self.quantity})
-            for document in required_documents:
+            for document in (() if self._collective_subject_comparison() else required_documents):
                 if any(reference["document_id"] == document for reference in references) and not any(fact["document_id"] == document for fact in facts):
                     missing.append({"requirement": "same_quantity_for_document", "document_id": document, "quantity": self.quantity})
             if self.requested_role is None and not self.requested_roles and not self.distinguish_roles and len({fact["role"] for fact in facts if fact["role"]}) > 1:
@@ -2465,7 +2549,7 @@ class AnswerContract:
                     missing.append({"requirement": "mapping_subject", "subject": subject})
         # Inspect all counted evidence so model omission cannot arbitrate a
         # contradiction. Other documents or different conditions stay distinct.
-        conflicts = _conflicting_relations(self._facts(references), cross_document=not self.comparison_requested,
+        conflicts = _conflicting_relations(self._facts(references), cross_document=self._cross_document_conflicts(),
                                            agreement_requested=self.agreement_requested)
         all_mappings = self._mappings(references) if self.kind == "mapping" else []
         for configuration in self.configurations:
@@ -2485,7 +2569,7 @@ class AnswerContract:
             except CalculationRefusal as error:
                 missing.append({"requirement": error.code, "message": error.message})
         comparisons = self._comparisons(facts, required_documents)
-        if self.agreement_requested and not comparisons:
+        if (self.agreement_requested or self.comparison_axis == "subjects") and not comparisons:
             missing.append({"requirement": "comparison_context_not_established"})
         for comparison in comparisons:
             if comparison["status"] == "context_unestablished":
@@ -2509,6 +2593,7 @@ class AnswerContract:
                 "requested_bound": self.requested_bound, "requested_point_conditions": self.requested_point_conditions,
                 "requested_temperature_conditions": self.requested_temperature_conditions,
                 "requested_properties": self.requested_properties,
+                "comparison_axis": self.comparison_axis, "comparison_per_document": self.comparison_per_document,
                 "required_reference_ids": self.required_ids(references, required_documents),
                 "requested_cells": requested, "requested_subjects": list(self.subjects),
                 "missing": missing, "ambiguous": ambiguous, "conflicts": conflicts,

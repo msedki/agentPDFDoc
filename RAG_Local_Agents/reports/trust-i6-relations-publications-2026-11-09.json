@@ -126,6 +126,198 @@
         "sha": "141f77f412135b8db599b87c86395d390a664e2c",
         "tree_identical": true
       }
+    },
+    {
+      "lot": "r1",
+      "local": {
+        "commit": "77a1984b243406340545415a35a3b181f333f1a2",
+        "tree": "c3f751faaa7f5743b768a1dd7dc4a92944c1bf24",
+        "parent": "141f77f412135b8db599b87c86395d390a664e2c",
+        "base_tree": "b99c2d8f654da61a762bb2272d6ed360b241871f",
+        "message": "Corrige la portée des exclusions et prédicats numériques I6",
+        "author": "MOHAMED SEDKI <mohamed.sedki@live.fr>"
+      },
+      "files": [
+        {
+          "path": "RAG_Local_Agents/DEFINITION_OF_DONE.md",
+          "sha": "e7462b42d5d3f650162119096ae40f0c2cb22765",
+          "mode": "100644",
+          "sha256": "9d2b6cc0dd4bb9c36baa9aa32118d52b7eb5aa5b8101453cf9d33c0899a92293",
+          "chars": 83942,
+          "bytes": 86480
+        },
+        {
+          "path": "RAG_Local_Agents/PLAN.md",
+          "sha": "d8d71ef9f8e49ef34a12ce07b51472a3941a75d1",
+          "mode": "100644",
+          "sha256": "336714868eaf7555217e6946aa670cff22b165de2661e071447623f2d20e2aae",
+          "chars": 421877,
+          "bytes": 435716
+        },
+        {
+          "path": "RAG_Local_Agents/RAG_LOCAL_BRIEF_COMPLET.md",
+          "sha": "d8ce885625f1345435504182599876dd9a712f40",
+          "mode": "100644",
+          "sha256": "88a28a50f93ca4953861709a35479cc845e4008af315e6194bd4e1c2252cd3e9",
+          "chars": 1320251,
+          "bytes": 1356896
+        },
+        {
+          "path": "RAG_Local_Agents/journal/2026-11-09.md",
+          "sha": "050a5c751552f20ecb2fa6378f5cf9acb6a85172",
+          "mode": "100644",
+          "sha256": "c0bc7ffb14acb9fe13afbde974b4cefb0bf87795cd92b15c7b8c7a936f04a3b0",
+          "chars": 35538,
+          "bytes": 36698
+        },
+        {
+          "path": "RAG_Local_Agents/reports/trust-i6-relations-fixture-freeze-2026-11-09.json",
+          "sha": "d1bb99a4be897ceb8b1d36881a0e0ce0e0a0f09f",
+          "mode": "100644",
+          "sha256": "0afd190d4fd13fbe770aa931151a2fd514edba8ec6b5df83faf442b6b0ed537c",
+          "chars": 4362,
+          "bytes": 4364
+        },
+        {
+          "path": "RAG_Local_Agents/reports/trust-i6-relations-publications-2026-11-09.json",
+          "sha": "e14337ca9c5e8e0d478a2f16d4fa2fb86de16a02",
+          "mode": "100644",
+          "sha256": "1bd971782053e7a390b7e1da315040288918138b27a770e9c98dfdb24c95b8c9",
+          "chars": 6017,
+          "bytes": 6070
+        },
+        {
+          "path": "RAG_Local_Agents/reports/trust-i6-relations-r1-2026-11-09.md",
+          "sha": "3924d698a2bec8cbc074afc7a11daeef5ee54272",
+          "mode": "100644",
+          "sha256": "a5916794aa9700cddeadebb3fc0f34fef3740f9007285bcdaf8292f8157e9dda",
+          "chars": 5272,
+          "bytes": 5419
+        },
+        {
+          "path": "RAG_Local_Agents/reports/trust-i6-relations-r1-known-2026-11-09.json",
+          "sha": "fe56a3f28fdba17c0aa128b5f507d3051b40c12c",
+          "mode": "100644",
+          "sha256": "a28ff5fa01266895e1ad98717aa5cfcb4e5391de845ad5a064f6f855e8e4e556",
+          "chars": 554517,
+          "bytes": 555425
+        },
+        {
+          "path": "RAG_Local_Agents/reports/trust-i6-relations-r1-validation-2026-11-09.json",
+          "sha": "782889dba5123f72ecb3751292a25fcd96505a49",
+          "mode": "100644",
+          "sha256": "6936598960467c066e89ae4a3812102ec6ed885fb7cb631a2dd9d007b486d7bb",
+          "chars": 28757,
+          "bytes": 28783
+        },
+        {
+          "path": "README.md",
+          "sha": "51ecdb7830b9912f12a2333b71b84f874480dcf6",
+          "mode": "100644",
+          "sha256": "b0c42171863fb138e8ae3e18d5a8c8f0d8bc181a843c461bfdc45f43c8b6a2f8",
+          "chars": 86018,
+          "bytes": 87949
+        },
+        {
+          "path": "services/api/answer_contract.py",
+          "sha": "32a04e7cfd3413171d9e7f7a445f1f4e29b2a0f4",
+          "mode": "100644",
+          "sha256": "57f349e3ade0dc636045b6848e5ceb7bd045b8441bb846e6424315447b477d5b",
+          "chars": 174163,
+          "bytes": 174592
+        },
+        {
+          "path": "services/api/literal_evidence.py",
+          "sha": "00bf332c5367f977c16451c937f2ac2804a7fcf0",
+          "mode": "100644",
+          "sha256": "1c3f92795550fc8e362e235ce520c9048e18c94c0326feb635315be2612a0054",
+          "chars": 9341,
+          "bytes": 9355
+        },
+        {
+          "path": "services/api/point_conditions.py",
+          "sha": "bcf5ae14126b953eff84a05a51fb2cc1ec943825",
+          "mode": "100644",
+          "sha256": "c30164cf96fcbb257b6cab3564a646fa8dbe39f72b117fc4c2dc0d7b8b79e914",
+          "chars": 4898,
+          "bytes": 4924
+        },
+        {
+          "path": "tests/fixtures/support_i6_dev.json",
+          "sha": "cdfbbfe4ffcedd9c0c09424998efafd83323a1e7",
+          "mode": "100644",
+          "sha256": "fbe09846d7fb138ec71b7400e4eba42e2d8fefbcd17e04172a0d28b04b712315",
+          "chars": 170417,
+          "bytes": 170677
+        },
+        {
+          "path": "tests/unit/test_i6_clause_dependencies.py",
+          "sha": "c6297b53caf2ccda7bed893daace83f5b97773ae",
+          "mode": "100644",
+          "sha256": "710d787f38ab2824bc4415e4bddb1c53ecc7e545d22816dcf0235981bb1b44a8",
+          "chars": 2133,
+          "bytes": 2133
+        },
+        {
+          "path": "tests/unit/test_i6_relations_scope.py",
+          "sha": "0c5d7f78384bcbbfd442f089e07b7a3077ff3f10",
+          "mode": "100644",
+          "sha256": "e352ec0555f29d6b3bf7da178e53fd1dfb8d3fc9e9cad0d1836cba45a77bc479",
+          "chars": 6972,
+          "bytes": 7020
+        }
+      ],
+      "remote": {
+        "sha": "729524cea4372f3bd5614a380698123f25daf532",
+        "node_id": "C_kwDOU0rvktoAKDcyOTUyNGNlYTQzNzJmM2JkNTYxNGEzODA2OTgxMjNmMjVkYWY1MzI",
+        "url": "https://api.github.com/repos/msedki/agentPDFDoc/git/commits/729524cea4372f3bd5614a380698123f25daf532",
+        "html_url": "https://github.com/msedki/agentPDFDoc/commit/729524cea4372f3bd5614a380698123f25daf532",
+        "author": {
+          "name": "msedki",
+          "email": "57775584+msedki@users.noreply.github.com",
+          "date": "2026-11-09T15:50:06Z"
+        },
+        "committer": {
+          "name": "msedki",
+          "email": "57775584+msedki@users.noreply.github.com",
+          "date": "2026-11-09T15:50:06Z"
+        },
+        "tree": {
+          "sha": "c3f751faaa7f5743b768a1dd7dc4a92944c1bf24",
+          "url": "https://api.github.com/repos/msedki/agentPDFDoc/git/trees/c3f751faaa7f5743b768a1dd7dc4a92944c1bf24"
+        },
+        "message": "Corrige la portée des exclusions et prédicats numériques I6",
+        "parents": [
+          {
+            "sha": "141f77f412135b8db599b87c86395d390a664e2c",
+            "url": "https://api.github.com/repos/msedki/agentPDFDoc/git/commits/141f77f412135b8db599b87c86395d390a664e2c",
+            "html_url": "https://github.com/msedki/agentPDFDoc/commit/141f77f412135b8db599b87c86395d390a664e2c"
+          }
+        ],
+        "verification": {
+          "verified": false,
+          "reason": "unsigned",
+          "signature": null,
+          "payload": null,
+          "verified_at": null
+        }
+      },
+      "expected_sha": "141f77f412135b8db599b87c86395d390a664e2c",
+      "force": false,
+      "update": {
+        "success": true
+      },
+      "readback": {
+        "ref": "refs/heads/enhanced_version",
+        "node_id": "REF_kwDOU0rvkrtyZWZzL2hlYWRzL2VuaGFuY2VkX3ZlcnNpb24",
+        "url": "https://api.github.com/repos/msedki/agentPDFDoc/git/refs/heads/enhanced_version",
+        "object": {
+          "sha": "729524cea4372f3bd5614a380698123f25daf532",
+          "type": "commit",
+          "url": "https://api.github.com/repos/msedki/agentPDFDoc/git/commits/729524cea4372f3bd5614a380698123f25daf532"
+        }
+      },
+      "verified_utc": "2026-11-09 15:50:10 UTC"
     }
   ],
   "qualification": "NON ACQUISE — chaque lot et chaque critère conservent leurs limites"

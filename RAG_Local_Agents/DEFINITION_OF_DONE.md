@@ -10,8 +10,10 @@ Les critères I6R-D01 à D08 sont fixés avant modification dans le
 Ils portent sur les exceptions/négations, les comparaisons entre sujets,
 la fidélité et le coût d'une route partielle bornée. Leur état global est
 **EN COURS** : [R1](reports/trust-i6-relations-r1-2026-11-09.md) passe ses 369
-tests ciblés et corrige H24/H06 connus ; final I6, suite complète et natif
-restent **NOT_RUN**. Les résultats I5-PJ ci-dessous restent historiques ; le plan
+tests ciblés et corrige H24/H06 connus ; [R2](reports/trust-i6-relations-r2-2026-11-09.md)
+répare les comparaisons connues (48/48 anciens cas, 248 tests ciblés).
+Final I6 et suite complète restent **NOT_RUN** ; le premier essai natif est
+**INCOMPLET**, sans qualification acquise. Les résultats I5-PJ ci-dessous restent historiques ; le plan
 canonique suit les lots et chaque publication. Aucun critère de production
 n'est acquis par la seule définition du protocole.
 

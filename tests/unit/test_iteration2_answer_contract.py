@@ -317,7 +317,9 @@ def test_unknown_role_does_not_prove_agreement_even_for_identical_values():
 def test_swapped_values_of_two_components_do_not_compare_as_an_anonymous_set():
     refs = [excerpt("R001", "DEV123 operating supply voltage: 1 to 3 V. DEV456 operating supply voltage: 2 to 4 V.", document="pdf"),
             excerpt("R002", "DEV123 operating supply voltage: 2 to 4 V. DEV456 operating supply voltage: 1 to 3 V.", document="docx")]
-    result = render(catalogue("Comparer les plages de tension d'alimentation DEV123 et DEV456", refs, mode="comparison"),
+    # I6 distinguishes subjects from documents; this regression exercises the
+    # explicit document axis while keeping every original discrepancy check.
+    result = render(catalogue("Comparer les plages de tension d'alimentation DEV123 et DEV456 entre les deux documents", refs, mode="comparison"),
                     required_documents=["pdf", "docx"])
     assessment = result["answer_contract"]
     assert assessment["status"] == "covered", assessment
