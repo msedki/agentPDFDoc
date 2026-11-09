@@ -6,7 +6,6 @@ vetoes it. No synonym, entity inference or model decision is used here.
 """
 
 import re
-import unicodedata
 from typing import Any
 
 from .point_conditions import condition_measures
@@ -37,7 +36,9 @@ def predicate_conditions(text):
             remaining[point["start"]:point["end"]] = " " * (point["end"] - point["start"])
         if not re.sub(r"\b(?:and|or|et|ou|at|a|à)\b", " ", "".join(remaining), flags=re.IGNORECASE).strip(" ,;()[]"):
             continue
-        key = " ".join(unicodedata.normalize("NFKC", clause).casefold().replace("’", "'").split())
+        # Predicate payloads can contain case-sensitive labels or mathematical
+        # symbols (mA/MA, x²/x₂). Only whitespace is interchangeable here.
+        key = " ".join(clause.split())
         result.append({"text": clause, "key": key, "excluded": negative})
     return result
 

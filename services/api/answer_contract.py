@@ -48,6 +48,7 @@ from .literal_evidence import (
 from .numeric_semantics import has_nonexact_numeric_modifier
 from .point_conditions import condition_measures as _condition_measures
 from .point_conditions import has_excluded_point_condition
+from .predicate_conditions import CONNECTOR as PREDICATE_CONDITION_CONNECTOR
 from .predicate_conditions import predicate_conditions, predicates_established
 
 VERIFICATION = "bounded_structural_checks"
@@ -797,6 +798,46 @@ def _quantity_request_clauses(question, quantities):
     boundaries.append(len(text))
     return [(quantity, question[offsets[boundaries[index]]:offsets[boundaries[index + 1]]].strip())
             for index, (_, _, quantity) in enumerate(positions)]
+
+
+def _shared_quantity_conditions(question, quantities):
+    """Preserve a complete leading condition on every coordinated quantity.
+
+    The delimiter must occur in the original question before its first
+    quantity anchor. A sliced prefix must not turn an unfinished condition
+    into a complete one. Unknown scope admits diagnostics, never operands.
+    """
+    text, offsets = _folded_question_offsets(question)
+    anchors = [match.start() for quantity in quantities for match in re.finditer(QUANTITIES[quantity], text)]
+    if "voltage" in quantities and not re.search(QUANTITIES["voltage"], text) and SUPPLY_RANGE_LANGUAGE.search(text):
+        anchors.extend(match.start() for match in re.finditer(QUANTITY_PROPERTIES["voltage"]["supply"], text))
+    if not anchors:
+        return "", False
+    first_quantity = offsets[min(anchors)]
+    markers = list(PREDICATE_CONDITION_CONNECTOR.finditer(question, 0, first_quantity))
+    prefix = question[:first_quantity]
+    leading_points = [*_condition_measures(prefix), *_condition_measures(prefix, excluded=True)]
+    if not markers and not leading_points:
+        return "", False
+    condition_end = max([*(marker.end() for marker in markers), *(point["end"] for point in leading_points)])
+    # Several leading qualifiers can be separately delimited. Inspect the
+    # full question so a comma after an anchor never closes its precondition.
+    delimiters = [match for match in re.finditer(r"(?<!\d)[;,](?!\d)|\n", question)
+                  if condition_end <= match.start() and match.end() <= first_quantity]
+    if not delimiters:
+        return "", True
+    delimiter = delimiters[-1]
+    if markers and not question[markers[-1].end():delimiter.start()].strip():
+        return "", True
+    # A numeric condition after the last observed delimiter remains open.
+    # In particular, do not share an earlier verbal prefix while discarding it.
+    if (_condition_measures(question[delimiter.end():first_quantity])
+            or has_excluded_point_condition(question[delimiter.end():first_quantity])):
+        return "", True
+    condition = question[:delimiter.end()]
+    if len(_condition_measures(condition)) > 1 and re.search(r"\b(?:or|ou)\b", condition, re.IGNORECASE):
+        return "", True  # an alternative is not a conjunctive shared test point
+    return condition, False
 
 
 def _point_condition_alternatives(question, default):
@@ -1769,6 +1810,9 @@ class AnswerContract:
         elif len(quantities) > 1 and self.kind != "qualitative":
             clauses = _quantity_request_clauses(self.question, quantities)
             if clauses and not self.operation and not self.requested_cells:
+                shared_condition, predicate_scope_incomplete = _shared_quantity_conditions(self.question, quantities)
+                shared_predicates = predicate_conditions(shared_condition)
+                shared_points = _condition_measures(shared_condition)
                 for quantity, clause in clauses:
                     normalized_clause = folded(clause)
                     component = copy.copy(self)
@@ -1782,13 +1826,26 @@ class AnswerContract:
                     component.guarantee_required = bool(GUARANTEE_LANGUAGE.search(folded(clause)))
                     component.requested_bound = _bound_role(clause)
                     component.requested_point_conditions = _condition_measures(clause)
+                    for point in shared_points:
+                        if point not in component.requested_point_conditions:
+                            component.requested_point_conditions.append(point)
                     component.requested_predicate_conditions = predicate_conditions(clause)
+                    for predicate in shared_predicates:
+                        if predicate not in component.requested_predicate_conditions:
+                            component.requested_predicate_conditions.append(predicate)
                     component.requested_condition_alternatives = _point_condition_alternatives(clause, component.requested_point_conditions)
+                    for points in component.requested_condition_alternatives:
+                        for point in shared_points:
+                            if point not in points:
+                                points.append(point)
                     component.requested_supply_configurations = [name for name, pattern in SUPPLY_CONFIGURATIONS.items()
                                                                  if re.search(pattern, normalized_clause)] if quantity == "voltage" else []
                     component.required_relation_count = 1
                     component.parse_failures = (["excluded_point_condition_not_supported"]
-                                                if has_excluded_point_condition(clause) else [])
+                                                if has_excluded_point_condition(clause)
+                                                or has_excluded_point_condition(shared_condition) else [])
+                    if predicate_scope_incomplete:
+                        component.parse_failures.append("shared_predicate_scope_not_established")
                     self.components.append(component)
                 self.kind = "composite"
             else:
@@ -1886,6 +1943,8 @@ class AnswerContract:
         reasons = list(fact.get("note_issues", []))
         if "excluded_point_condition_not_supported" in self.parse_failures:
             reasons.append("excluded_point_condition_not_supported")
+        if "shared_predicate_scope_not_established" in self.parse_failures:
+            reasons.append("shared_predicate_scope_not_established")
         if fact.get("assertion_status", "asserted") != "asserted":
             reasons.append("source_assertion_" + fact["assertion_status"])
         if (self.requested_role is not None and self.requested_role not in {fact["role"], fact.get("bound_role")}
@@ -2106,7 +2165,10 @@ class AnswerContract:
                 count += child_count
                 characters += child_characters
             return count, characters
-        count = (1 if self._collective_subject_comparison() else document_count) * max(1, len(self.subjects))
+        # Qualitative assessment always allocates document × subject, even
+        # when the caller selected the collective numeric-comparison axis.
+        count = (1 if self.qualitative_request is None and self._collective_subject_comparison()
+                 else document_count) * max(1, len(self.subjects))
         if self.qualitative_request is None:
             if not self.quantity or self.kind in {"cell_values", "calculation", "mapping", "qualitative"}:
                 return 0, 0

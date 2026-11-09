@@ -2038,9 +2038,10 @@ copie sont préservés ; ce complément repart du dernier arbre publié.
 |---|---|---|
 | I6R-01 | Référence immuable, protocole, DEV/final séparés et gelés | PASS cadrage ; protocole publié `141f77f4`, 48+48 annotations relues et [gelées](reports/trust-i6-relations-fixture-freeze-2026-11-09.json) avant produit ; final fermé |
 | I6R-02 | Portée des exceptions/négations, régressions et publication | R1 publié `729524ce`, complété par [R1b](reports/trust-i6-relations-r1b-2026-11-09.md) : nouveau DEV 48/48, 69/69 littéraux ; p95 319,59 ms au-dessus du seuil, coût à corriger |
+| I6R-02c | Reprise des conditions communes, identités Unicode et budget qualitatif | IMPLÉMENTÉ ET VÉRIFIÉ : 50 nouveaux cas, 526 voisins PASS ; [rapport](reports/trust-i6-recovery-scope-2026-11-09.md). Publication du lot en cours |
 | I6R-03 | Liaison explicite sujets/propriétés/documents, comparaisons et publication | PUBLIÉ `5184200c` ; [R2](reports/trust-i6-relations-r2-2026-11-09.md), 248 tests PASS +23 comparaisons avec intégrité, 48/48 anciens cas |
 | I6R-04 | Route partielle bornée, essais natifs 18 positions/bras, HTTP et coût | EN COURS ; tests rouges R3 préparés, [essai natif incomplet](reports/trust-i6-relations-native-attempt1-2026-11-09.json) après 8 cas ; arrêt de l’ancien espace non prouvé ; reprise isolée après les portes logicielles |
-| I6R-05 | Gel final, 48 cas réservés, revue indépendante, bilan et publication | À FAIRE ; I6R-D01 à D08, résultats et échecs complets |
+| I6R-05 | Gel final, 48 cas réservés, revue indépendante, bilan et publication | BLOQUÉ pour les 48 cas historiques : artefact gelé introuvable dans les emplacements accessibles ; aucune ouverture ni reconstitution de score. Les autres portes restent exécutables |
 
 **Points vérifiés :** gel préalable des annotations et produit R1 ciblé,
 citations conservées ; [publications vérifiées](reports/trust-i6-relations-publications-2026-11-09.json).
@@ -7939,6 +7940,24 @@ finale, une compréhension sémantique générale ou un gain de recherche.
 Le générateur 4B, le profil et les budgets sont conservés ; les répétitions
 de calcul et la route partielle sont le prochain travail autorisé.
 
+
+## I6 — reprise des conditions communes et des identités techniques
+
+**Date :** 9 novembre 2026 (UTC). **Statut :** correctifs ciblés vérifiés.
+**Référence :** `250a7d209aac7deb1dfb3705ae47167c56136e80`.
+
+Une condition technique conserve sa casse et ses symboles. Une condition
+commune verbale ou numérique s’applique à chaque grandeur coordonnée seulement
+si sa portée est délimitée dans la question originale ; une portée tronquée
+reste un diagnostic sans opérande admis. Le budget qualitatif compte tous les
+documents et sujets avant allocation, sans changer son plafond. Ces choix
+sont retenus après reproduction sur la révision publiée, 50 nouvelles
+régressions et 526 contrôles voisins. Sources, résultat rouge, reprises et
+limites sont dans le [rapport de reprise](reports/trust-i6-recovery-scope-2026-11-09.md).
+Le point de reprise ancien sert de piste ; aucun code ni PASS perdu n’est
+présenté comme récupéré. Les corrections Linux historiques sans défaut sur
+la révision courante ne sont pas transposées.
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -10117,6 +10136,24 @@ de retenir leur implémentation. L'échec final H24 reste au bilan.
 Contrats et choix : [protocole I6](reports/trust-i6-relations-protocol-2026-11-09.md).
 Pages primaires ouvertes, dates de publication tirées de leurs métadonnées ;
 les huit références I5-PJ restent conservées avec leurs limites.
+
+
+## I6R — portée des prédicats et optimisation locale, 9 novembre 2026
+
+**Statut :** sources primaires consultées ; application limitée aux contrats
+Python 3.12 et aux contre-exemples du dépôt. Runtime observé : Python 3.12.14 ;
+documentation en ligne de la série 3.12 affichée en version 3.12.16.
+
+- [Python, unicodedata.normalize](https://docs.python.org/3.12/library/unicodedata.html#unicodedata.normalize) :
+  normalisation de compatibilité NFKC ; elle ne certifie pas l’identité de
+  symboles techniques. Le [lot de reprise](reports/trust-i6-recovery-scope-2026-11-09.md)
+  conserve les contre-exemples et la décision.
+- [Python, str.casefold](https://docs.python.org/3.12/library/stdtypes.html#str.casefold) :
+  comparaison sans distinction de casse, inappropriée pour un prédicat
+  technique opaque tel que les témoins mA/MA.
+- [Python, profile/cProfile](https://docs.python.org/3.12/library/profile.html) :
+  profils de fréquence et de coût des appels. Un profil diagnostique ne
+  remplace pas une mesure de latence avec le même harnais avant/après.
 
 ---
 

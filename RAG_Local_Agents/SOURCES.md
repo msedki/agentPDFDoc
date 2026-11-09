@@ -2126,3 +2126,21 @@ de retenir leur implémentation. L'échec final H24 reste au bilan.
 Contrats et choix : [protocole I6](reports/trust-i6-relations-protocol-2026-11-09.md).
 Pages primaires ouvertes, dates de publication tirées de leurs métadonnées ;
 les huit références I5-PJ restent conservées avec leurs limites.
+
+
+## I6R — portée des prédicats et optimisation locale, 9 novembre 2026
+
+**Statut :** sources primaires consultées ; application limitée aux contrats
+Python 3.12 et aux contre-exemples du dépôt. Runtime observé : Python 3.12.14 ;
+documentation en ligne de la série 3.12 affichée en version 3.12.16.
+
+- [Python, unicodedata.normalize](https://docs.python.org/3.12/library/unicodedata.html#unicodedata.normalize) :
+  normalisation de compatibilité NFKC ; elle ne certifie pas l’identité de
+  symboles techniques. Le [lot de reprise](reports/trust-i6-recovery-scope-2026-11-09.md)
+  conserve les contre-exemples et la décision.
+- [Python, str.casefold](https://docs.python.org/3.12/library/stdtypes.html#str.casefold) :
+  comparaison sans distinction de casse, inappropriée pour un prédicat
+  technique opaque tel que les témoins mA/MA.
+- [Python, profile/cProfile](https://docs.python.org/3.12/library/profile.html) :
+  profils de fréquence et de coût des appels. Un profil diagnostique ne
+  remplace pas une mesure de latence avec le même harnais avant/après.

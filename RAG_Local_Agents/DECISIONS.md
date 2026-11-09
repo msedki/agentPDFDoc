@@ -2676,3 +2676,21 @@ dépasse le seuil préalable. Le choix n'est pas présenté comme une qualificat
 finale, une compréhension sémantique générale ou un gain de recherche.
 Le générateur 4B, le profil et les budgets sont conservés ; les répétitions
 de calcul et la route partielle sont le prochain travail autorisé.
+
+
+## I6 — reprise des conditions communes et des identités techniques
+
+**Date :** 9 novembre 2026 (UTC). **Statut :** correctifs ciblés vérifiés.
+**Référence :** `250a7d209aac7deb1dfb3705ae47167c56136e80`.
+
+Une condition technique conserve sa casse et ses symboles. Une condition
+commune verbale ou numérique s’applique à chaque grandeur coordonnée seulement
+si sa portée est délimitée dans la question originale ; une portée tronquée
+reste un diagnostic sans opérande admis. Le budget qualitatif compte tous les
+documents et sujets avant allocation, sans changer son plafond. Ces choix
+sont retenus après reproduction sur la révision publiée, 50 nouvelles
+régressions et 526 contrôles voisins. Sources, résultat rouge, reprises et
+limites sont dans le [rapport de reprise](reports/trust-i6-recovery-scope-2026-11-09.md).
+Le point de reprise ancien sert de piste ; aucun code ni PASS perdu n’est
+présenté comme récupéré. Les corrections Linux historiques sans défaut sur
+la révision courante ne sont pas transposées.

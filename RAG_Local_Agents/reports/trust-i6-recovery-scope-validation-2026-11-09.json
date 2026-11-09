@@ -1,0 +1,95 @@
+{
+  "scope": "New independent reproductions and repairs; no recovered code or historical PASS imported",
+  "base_commit": "250a7d209aac7deb1dfb3705ae47167c56136e80",
+  "source_hashes": {
+    "services/api/answer_contract.py": "4cd50fa96f1d1370fc6542fcb3fba5224bd7d1556454d911ada7a5c882a79c23",
+    "services/api/predicate_conditions.py": "e27ff855e4cd8db1077ca6c2cbbacccd2ac48d0e25e771bf8bcd9d1b90779c35",
+    "tests/unit/test_i6_recovered_boundaries.py": "af86a2396b124066b833e1639acb1cb92e25885f08e3fd8d8602e9328d9686d8"
+  },
+  "patch_sha256": "791a5514ae56b38a6b5b34fdf4646721e9940170ebff745b67ccf733334c7584",
+  "baseline_final_tests": {
+    "passed": 8,
+    "failed": 42,
+    "total": 50,
+    "seconds": 1.39,
+    "log": "recovered-boundaries-final-module-baseline.log",
+    "verified_import_root": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc-i6-baseline"
+  },
+  "candidate_tests": {
+    "passed": 526,
+    "failed": 0,
+    "seconds": 8.62,
+    "log": "recovered-boundaries-neighbours-r4.log",
+    "new_boundary_tests": 50
+  },
+  "static_checks": {
+    "ruff": "PASS",
+    "mypy": "PASS, 2 source files",
+    "diff_check": "PASS"
+  },
+  "independent_review": "portable_recovery reviewed final shared-condition delta; no blocking finding",
+  "not_run": [
+    "FINAL",
+    "native pipeline",
+    "HTTP",
+    "model generation",
+    "DEV48 benchmark (root integration will run)"
+  ],
+  "invalid_attempt": {
+    "log": "recovered-boundaries-final-module-baseline-invalid-cwd.log",
+    "disposition": "INVALID: attempted baseline run imported candidate due cwd; no baseline score attributed. Replaced by explicit verified import paths and source SHA run."
+  },
+  "preserved_prior_logs": [
+    "recovered-boundaries-baseline.log",
+    "recovered-boundaries-baseline-r2.log",
+    "recovered-boundaries-baseline-r3.log",
+    "recovered-boundaries-numeric-before.log",
+    "recovered-boundaries-neighbours-r1.log",
+    "recovered-boundaries-neighbours-r2.log",
+    "recovered-boundaries-neighbours-final.log"
+  ],
+  "schema_version": 1,
+  "python": "3.12.14",
+  "raw_logs": {
+    "path": "trust-i6-recovery-scope-logs-2026-11-09.json.gz",
+    "sha256": "b3cfa2291f43c813f97fa5bd09353c656017faa39b3c978d1245c912aa47bd36",
+    "decompressed_sha256": "3ca91d0a47f4149766de8a1fda86232076971dcdce115d0b50cee38197d709d3",
+    "files": [
+      "recovered-boundaries-baseline-r2.log",
+      "recovered-boundaries-baseline-r3.log",
+      "recovered-boundaries-baseline.log",
+      "recovered-boundaries-candidate-r1.log",
+      "recovered-boundaries-candidate-r3.log",
+      "recovered-boundaries-final-module-baseline-invalid-cwd.log",
+      "recovered-boundaries-final-module-baseline.log",
+      "recovered-boundaries-final-module-candidate.log",
+      "recovered-boundaries-neighbours-final.log",
+      "recovered-boundaries-neighbours-r1.log",
+      "recovered-boundaries-neighbours-r2.log",
+      "recovered-boundaries-neighbours-r4.log",
+      "recovered-boundaries-numeric-before.log"
+    ]
+  },
+  "historical_final": {
+    "status": "UNAVAILABLE_NOT_OPENED",
+    "expected_sha256": "cfd02c4646cb23be05dd7fb912a265cceb72dc15d6038f47746f53f61ac9e797",
+    "case_count": 48,
+    "searched": "/workspace names and JSON size; Library titles; no case content read",
+    "score": null
+  },
+  "commands": {
+    "candidate_boundary": "python -m pytest -q tests/unit/test_i6_recovered_boundaries.py",
+    "candidate_neighbours": "python -m pytest -q tests/unit/test_i6_recovered_boundaries.py tests/unit/test_i6_development_scope.py tests/unit/test_i6_diagnostic_scope.py tests/unit/test_i6_subject_comparisons.py tests/unit/test_i6_relations_scope.py tests/unit/test_i6_clause_dependencies.py tests/unit/test_i5_obligation_limits.py tests/unit/test_i5_obligation_publication.py tests/unit/test_i5_pj_numeric_semantics.py tests/unit/test_grounded_evidence_contract.py tests/unit/test_iteration2_answer_contract.py tests/unit/test_iteration2_numeric_evidence.py tests/unit/test_enhanced_answers.py tests/unit/test_api_structured_answer.py",
+    "ruff": "python -m ruff check services/api/answer_contract.py services/api/predicate_conditions.py tests/unit/test_i6_recovered_boundaries.py",
+    "mypy": "python -m mypy services/api/answer_contract.py services/api/predicate_conditions.py",
+    "brief": "python RAG_Local_Agents/tools/build_brief.py --check",
+    "docs": "python tools/docs/check_docs.py",
+    "pack": "python RAG_Local_Agents/tools/verify_pack.py",
+    "whitespace": "git diff --check"
+  },
+  "documentary_gates": {
+    "brief": "PASS",
+    "docs": "PASS",
+    "pack": "PASS, pre-existing third-party skill layout warnings only"
+  }
+}
