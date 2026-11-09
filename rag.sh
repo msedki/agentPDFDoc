@@ -11,7 +11,7 @@ Commandes : provision, doctor (par défaut), up, open, status, logs, down, pull-
 
 Options :
   --profile <fichier>        profil utilisateur explicite, exclusif de --model
-  --model <tag>              modèle du profil livré : qwen3.5:4b (défaut) ; --model qwen3.5:2b pour le 2B ;
+  --model <tag>              générateur unique : qwen3-4b-enhanced:q4km (défaut) ;
                              changement appliqué après down puis up
   --only <groupe>            provision : un seul groupe d'artefacts
   --offline                  aucun accès réseau (kit déjà provisionné)
@@ -33,8 +33,8 @@ fail() {
 
 command_name=doctor
 command_seen=0
-# Profil livré par défaut : celui du 4B (W045) ; --model qwen3.5:2b sélectionne le profil du 2B.
-profile=config/local16-4b.yaml
+# Profil nominal : Qwen3-4B verrouillé et contrôles de preuves obligatoires.
+profile=config/enhanced-4b.yaml
 profile_seen=0
 model=
 only=

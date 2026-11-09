@@ -377,7 +377,7 @@ if __name__ == "__main__":
 
     # La docstring du module sert d'aide : elle s'adresse à l'opérateur, sans identifiant de décision interne.
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--profile", type=Path, default=ROOT / "config/local16.yaml")
+    parser.add_argument("--profile", type=Path, default=ROOT / "config/enhanced-4b.yaml")
     parser.add_argument("--output", type=Path, required=True, help="Nouveau rapport ; un fichier existant est refusé")
     parser.add_argument("--input-tokens", type=int, default=2950)
     parser.add_argument("--output-tokens", type=int, default=64)

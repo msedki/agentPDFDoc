@@ -1,0 +1,43 @@
+{
+  "repository": "msedki/agentPDFDoc",
+  "branch": "enhanced_version",
+  "route": "authenticated GitHub connector",
+  "local_head": "852ce436bb7a84fb52f4f651a2791e326eaa0b30",
+  "remote_head": "3cfc004a30baf655a78f9927d92d8f608381c812",
+  "tree": "3496b8d87b54a2fe6c88b5a03346e6fe9be8934e",
+  "mappings": [
+    {
+      "local_commit": "63487f63b947ada00db180e474d944a5ea3ed810",
+      "remote_commit": "be9378d3fb7830e3dc9643e27abe4c69ce1933e9",
+      "tree": "a76e375562155fb5732a0cc39548d1b0c38c9329",
+      "parent_remote": "59d47e98a47fc652b5506727673b6b477c92eb9d"
+    },
+    {
+      "local_commit": "4356fd0678c1e85a35e1e2eb1aef753a5e8c7806",
+      "remote_commit": "42c8444c9b026bfed31d9fb9d1566cee62fa4088",
+      "tree": "8c67245538123ed3bb6b2ecb1e68eb284853d4a2",
+      "parent_remote": "be9378d3fb7830e3dc9643e27abe4c69ce1933e9"
+    },
+    {
+      "local_commit": "852ce436bb7a84fb52f4f651a2791e326eaa0b30",
+      "remote_commit": "3cfc004a30baf655a78f9927d92d8f608381c812",
+      "tree": "3496b8d87b54a2fe6c88b5a03346e6fe9be8934e",
+      "parent_remote": "42c8444c9b026bfed31d9fb9d1566cee62fa4088"
+    }
+  ],
+  "verified_uploaded_blobs": 92,
+  "exact_trees": true,
+  "user_authorization": "Just commit et push ... via le connecteur",
+  "created_utc": "2026-11-08T13:43:35.774Z",
+  "verified_utc": "2026-11-08T13:45:51.113524+00:00",
+  "verified_casablanca": "2026-11-08T14:45:51.113524+01:00",
+  "verification": "git fetch origin; git ls-remote origin refs/heads/enhanced_version; equality of all three complete Git trees and empty diffs",
+  "github_author": "msedki <57775584+msedki@users.noreply.github.com>",
+  "github_committer": "msedki <57775584+msedki@users.noreply.github.com>",
+  "original_local_commits_preserved_on": "enhanced_version_local_snapshot_20261108",
+  "force_push": false,
+  "default_branch_changed": false,
+  "independent_review": "All three tree pairs and linear ancestry verified; 74 changed paths, 1218 tracked files; no runtime, corpus, model or credential artifacts published.",
+  "scientific_results_changed": false,
+  "new_application_tests": false
+}

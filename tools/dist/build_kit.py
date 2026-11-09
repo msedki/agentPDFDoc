@@ -26,7 +26,8 @@ ROOT = Path(__file__).resolve().parents[2]
 # la sauvegarde copie `contracts.json` dans chaque sauvegarde (services/runtime/backup.py) ; absent, la sauvegarde d'une
 # installation échouait, et avec elle la mise à jour (défaut C3 du lot R26-KIT-01, commun aux deux plateformes).
 INCLUDED = ("services", "config", "apps/web/out", "apps/web/package.json", "apps/web/pnpm-lock.yaml", "rag.ps1", "bootstrap.ps1",
-            "pyproject.toml", "uv.lock", "README.md", "CHANGELOG.md", "docs", "tools/corpus", "tools/dist", "packages/contracts",
+            "pyproject.toml", "uv.lock", "README.md", "CHANGELOG.md", "docs", "tools/corpus", "tools/dist",
+            "tools/qualification/provision_enhanced_4b.py", "packages/contracts",
             ".runtime/bin", ".runtime/models", ".runtime/python", ".runtime/bootstrap", ".runtime/cache/uv", ".runtime/manifests",
             ".runtime/model-metadata")
 # Motifs exclus partout (fnmatch sur le chemin relatif en POSIX) ; la comparaison Granite n'appartient pas au produit.
@@ -50,8 +51,8 @@ WITHOUT_GPU_HELP = ("retirer cuda_v12, cuda_v13 et vulkan d'Ollama, pour des pos
                     "sans proposition GPU ; sur un poste NVIDIA, doctor signale que l'installation ne contient pas les "
                     "bibliothèques CUDA")
 TEXT_SUFFIXES = {".json", ".yaml", ".yml", ".md", ".py", ".ps1", ".txt", ".toml", ".lock", ".cfg"}
-# Modèles d'un kit Linux par défaut (W045) : le 4B, modèle par défaut, et le 2B, pour garder le choix au lancement.
-LINUX_MODELS_DEFAULT = "4b,2b"
+# Générateur unique d'un kit renforcé : Qwen3-4B verrouillé.
+LINUX_MODELS_DEFAULT = "4b"
 TEXT_SCAN_LIMIT = 32 * 1024 * 1024
 # Le kit hors ligne est celui du poste Windows (W001, DIST-04) : binaires, CPython et roues Windows x86-64.
 KIT_PLATFORM = "windows-x86_64"
@@ -140,6 +141,8 @@ def build_kit(output: Path, *, root: Path = ROOT, version: str, without_gpu: boo
     if output.is_relative_to(root.resolve()) or (output.exists() and any(output.iterdir())):
         raise ValueError("Le kit exige un dossier neuf hors du dépôt")
     files = selected_files(root, without_gpu=without_gpu)
+    from tools.dist.generation_payload import single_generator_files
+    files = single_generator_files(root, files)
     from services.runtime.model_profiles import read_catalogue
 
     catalogue = read_catalogue(root) if "config/model_profiles.json" in files else None
@@ -171,7 +174,9 @@ def build_kit(output: Path, *, root: Path = ROOT, version: str, without_gpu: boo
     # Avis de tiers (DIST-07) : composants, licences déclarées, textes présents et manques connus.
     from tools.dist.notices import third_party_notices
 
-    notices = third_party_notices(root, files, version, KIT_PLATFORM).encode("utf-8")
+    notices = third_party_notices(root, files, version, KIT_PLATFORM,
+                                model_names=tuple(dict.fromkeys(name for entry in (catalogue or {}).get("profiles", [])
+                                                                for name in (entry["model"], entry["served_model"])))).encode("utf-8")
     (output / NOTICES).write_bytes(notices)
     sums.append(f"{hashlib.sha256(notices).hexdigest()}  {NOTICES}")
     # Lanceur à double-cliquer : Bypass ne vaut que pour cette session et ne touche pas la politique du poste.
@@ -267,7 +272,7 @@ def linux_build(args: argparse.Namespace) -> dict[str, Any]:
     catalogue = read_catalogue(ROOT)
     available_sets = {entry["kit_set"] for entry in catalogue["profiles"]} if catalogue else set(linux_kit.MODEL_PROFILES)
     if not models or set(models) - available_sets:
-        raise ValueError("--models : 4b,2b (défaut) ou 4b")
+        raise ValueError("--models : 4b uniquement (Qwen3-4B renforcé)")
     if args.dry_run:
         return linux_kit.dry_run(ROOT, platform=args.platform, gpu=args.gpu, models=models)
     if args.output is None:
@@ -292,7 +297,7 @@ def main() -> int:
     build.add_argument("--gpu", choices=["none", "jetpack5"], default="none",
                        help="kit Linux : bibliothèques GPU d'Ollama livrées ; jetpack5 sur un Jetson Linux R35 seulement")
     build.add_argument("--models", default=LINUX_MODELS_DEFAULT,
-                       help="kit Linux : modèles livrés, 4b,2b (défaut) ou 4b ; le 4B, modèle par défaut, est toujours livré")
+                       help="kit Linux : générateur Qwen3-4B renforcé uniquement, --models 4b")
     build.add_argument("--dry-run", action="store_true", help="kit Linux : liste, tailles, exigences et fuites, sans rien copier")
     build.add_argument("--report", type=Path, help="kit Linux : écrire aussi le résultat JSON dans ce fichier")
     check = sub.add_parser("verify")

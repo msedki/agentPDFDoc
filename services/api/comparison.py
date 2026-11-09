@@ -34,6 +34,7 @@ from .retrieval import QdrantStore, SearchService
 from .schemas import EvaluationContextRequest
 from .scope import ScopeResolver
 from .settings import Settings
+from .structured_answer import StructuredAnswerBuilder
 
 
 class ResourceSamples:
@@ -144,7 +145,8 @@ def artifact_storage(embedding):
 
 
 def selector_identity():
-    files = ["scope.py", "retrieval.py", "context.py", "query.py", "embedding.py", "office_search.py"]
+    files = ["scope.py", "retrieval.py", "context.py", "query.py", "embedding.py", "office_search.py",
+             "evidence_selection.py", "structured_answer.py", "answer_contract.py"]
     hashes = {name: file_sha(Path(__file__).parent / name) for name in files}
     return hashlib.sha256(json.dumps(hashes, sort_keys=True).encode()).hexdigest()
 
@@ -314,20 +316,36 @@ async def build_candidate(db, embedding, vectors, chunks, resources):
 
 async def evaluate_context(question, db, resolver, search, tokenizer, settings):
     request = EvaluationContextRequest(question=question["question"], scope=question["scope_resolved"], mode=question.get("mode", "question"), prior_user_question=question.get("prior_user_question"), focus=question.get("focus"))
-    snapshot = resolver.resolve(request.scope)
+    snapshot = resolver.resolve(request.scope, request.mode)
     context = ContextBuilder(settings, tokenizer)
     queries = QueryService(db, resolver, search, context, None, settings)
     prior = [{"id": "evaluation_prior_user", "question": request.prior_user_question, "snapshot_json": json_dump(snapshot.as_dict())}] if request.prior_user_question else None
     effective, resolution, choices, references = queries.resolve_followup(request, snapshot, prior)
+    evaluation = {"evaluation_kind": "independent_context_build", "generation_request_captured": False}
     if choices:
-        return {"state": "needs_clarification", "resolution": resolution, "choices": choices, "scope_snapshot": snapshot.as_dict(), "model_called": False}
+        return {**evaluation, "state": "needs_clarification", "resolution": resolution, "choices": choices, "scope_snapshot": snapshot.as_dict(), "model_called": False}
     retrieved = await search.search(effective, snapshot, request.mode, references)
-    expanded = [resolver.expand_parent(source, snapshot, tokenizer, settings.value("chunking", "parent_expand_max_llm_tokens", 900)) for source in retrieved["results"]]
-    messages, sources, metrics, warnings = context.build(effective, expanded, request.mode, [], references)
+    expanded = [source if source.get("evidence_bundle") else resolver.expand_parent(source, snapshot, tokenizer, settings.value("chunking", "parent_expand_max_llm_tokens", 900)) for source in retrieved["results"]]
+    has_xlsx = any(db.version(version)["format"] == "xlsx" for version in set(snapshot.versions.values()))
+    enforce_contract = settings.value("enhanced", "answer_contract", False)
+    structured = (StructuredAnswerBuilder(db, snapshot, question=effective, enforce_contract=True)
+                  if enforce_contract else StructuredAnswerBuilder(db, snapshot) if has_xlsx else None)
+    build_arguments = {"structured": structured} if structured is not None else {}
+    messages, sources, metrics, warnings = context.build(effective, expanded, request.mode, [], references, **build_arguments)
+    metrics["complementary_retrieval"] = {"configured": settings.value("enhanced", "complementary_retrieval", False),
+        "attempted": False, "performed": False, "reason": "context_only_evaluation"}
+    if structured is not None:
+        catalogue = structured.catalogue(sources, request.mode)
+        if enforce_contract:
+            required_documents = list(dict.fromkeys(snapshot.documents.values())) if snapshot.scope["kind"] == "documents" else ()
+            metrics["context_assessment"] = catalogue.assess(required_documents=required_documents)
+        evidence = catalogue.evidence()
+        metrics["structured_answer"] = {"status": "context_only", "schema_sha256": evidence["schema_sha256"],
+                                        "catalogue_sha256": evidence["catalogue_sha256"]}
     resolution["reference_resolution"] = references.as_dict()
-    return {"state": "context_ready", "effective_question": effective, "resolution": resolution, "scope_snapshot": snapshot.as_dict(),
+    return {**evaluation, "state": "context_ready", "effective_question": effective, "resolution": resolution, "scope_snapshot": snapshot.as_dict(),
             "retrieval_top10": retrieved["top10"], "retrieval_final": retrieved["results"], "context_sources": sources,
-            "metrics": metrics, "warnings": retrieved["warnings"] + warnings, "model_called": False,
+            "metrics": metrics, "warnings": snapshot.warnings + retrieved["warnings"] + warnings, "model_called": False,
             "retrieval_ms": retrieved["elapsed_ms"], "messages_sha256": hashlib.sha256(json_dump(messages).encode()).hexdigest()}
 
 
@@ -339,7 +357,7 @@ async def run(args):
         raise ValueError("The E5 production collection is strictly read-only")
     source, dataset = development_inputs(args.source_dataset, args.dataset)
     db = FrozenDatabase(args.snapshot, args.snapshot_sha256)
-    resolver = ScopeResolver(db)
+    resolver = ScopeResolver(db, explicit_pdf_lists=settings.value("enhanced", "explicit_pdf_lists", False))
     chunks = corpus_chunks(db, resolver, dataset["questions"])
     engine = EmbeddingService(settings) if args.model == "e5" else GraniteEmbedding(settings)
     embedding = TimedEmbedding(engine)

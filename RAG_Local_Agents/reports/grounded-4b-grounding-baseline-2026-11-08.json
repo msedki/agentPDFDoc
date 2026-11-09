@@ -1,0 +1,1237 @@
+{
+  "baseline_commit": "3956491",
+  "kind": "literal_reference_control_probe",
+  "native_model_called": false,
+  "cases": [
+    {
+      "case": "G1_condition_mismatch",
+      "question": "Quelle est la tension nominale d’alimentation à 85 °C ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "doc1",
+          "document_name": "doc1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Nominal supply voltage: 3.3 V at 25 °C.",
+          "locators": [
+            {
+              "page_index": 0
+            }
+          ],
+          "extraction_method": "native"
+        }
+      ],
+      "assessment": {
+        "version": 1,
+        "kind": "value",
+        "status": "covered",
+        "verification": "bounded_structural_checks",
+        "coverage_scope": "retained_catalogue_only",
+        "limitation": "Contrôles de couverture explicite et de relations locales ; aucune preuve générale de justesse sémantique.",
+        "quantity": "voltage",
+        "requested_role": "nominal",
+        "requested_properties": [
+          "supply"
+        ],
+        "required_reference_ids": [
+          "R001"
+        ],
+        "requested_cells": [],
+        "requested_subjects": [],
+        "missing": [],
+        "ambiguous": [],
+        "conflicts": [],
+        "matched_relations": [
+          {
+            "reference_id": "R001",
+            "reference_ids": [
+              "R001"
+            ],
+            "document_id": "doc1",
+            "source_ids": [
+              "S001"
+            ],
+            "subjects": [],
+            "evidence_identifiers": [],
+            "kind": "value",
+            "quantity": "voltage",
+            "property": "supply",
+            "properties": [
+              "supply"
+            ],
+            "role": "nominal",
+            "values": [
+              "3.3"
+            ],
+            "unit": "V",
+            "label": "nominal supply voltage",
+            "condition": "at 25 °C.",
+            "quote": "Nominal supply voltage: 3.3 V at 25 °C.",
+            "segments": [],
+            "value_text": "3.3 V",
+            "code": null,
+            "decimal_notation_verified": false
+          }
+        ],
+        "calculation": null,
+        "derived_calculations": [],
+        "obligations": [
+          {
+            "document_id": null,
+            "subject": null,
+            "property": "supply",
+            "quantity": "voltage",
+            "role": "nominal",
+            "kind": "value_or_interval",
+            "covered": true,
+            "expected_count": 1,
+            "matched_count": 1,
+            "reference_ids": [
+              "R001"
+            ]
+          }
+        ],
+        "comparisons": [],
+        "selected_reference_ids": [
+          "R001"
+        ],
+        "model_selected_reference_ids": [
+          "R001"
+        ],
+        "added_reference_ids": [],
+        "omitted_reference_ids": [],
+        "rendered_reference_ids": [
+          "R001"
+        ]
+      },
+      "answer": "doc1 — Extrait : « Nominal supply voltage: 3.3 V at 25 °C. » [S001]"
+    },
+    {
+      "case": "G1_positive_matching_condition",
+      "question": "Quelle est la tension nominale d’alimentation à 25 °C ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "doc1",
+          "document_name": "doc1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Nominal supply voltage: 3.3 V at 25 °C.",
+          "locators": [
+            {
+              "page_index": 0
+            }
+          ],
+          "extraction_method": "native"
+        }
+      ],
+      "assessment": {
+        "version": 1,
+        "kind": "value",
+        "status": "covered",
+        "verification": "bounded_structural_checks",
+        "coverage_scope": "retained_catalogue_only",
+        "limitation": "Contrôles de couverture explicite et de relations locales ; aucune preuve générale de justesse sémantique.",
+        "quantity": "voltage",
+        "requested_role": "nominal",
+        "requested_properties": [
+          "supply"
+        ],
+        "required_reference_ids": [
+          "R001"
+        ],
+        "requested_cells": [],
+        "requested_subjects": [],
+        "missing": [],
+        "ambiguous": [],
+        "conflicts": [],
+        "matched_relations": [
+          {
+            "reference_id": "R001",
+            "reference_ids": [
+              "R001"
+            ],
+            "document_id": "doc1",
+            "source_ids": [
+              "S001"
+            ],
+            "subjects": [],
+            "evidence_identifiers": [],
+            "kind": "value",
+            "quantity": "voltage",
+            "property": "supply",
+            "properties": [
+              "supply"
+            ],
+            "role": "nominal",
+            "values": [
+              "3.3"
+            ],
+            "unit": "V",
+            "label": "nominal supply voltage",
+            "condition": "at 25 °C.",
+            "quote": "Nominal supply voltage: 3.3 V at 25 °C.",
+            "segments": [],
+            "value_text": "3.3 V",
+            "code": null,
+            "decimal_notation_verified": false
+          }
+        ],
+        "calculation": null,
+        "derived_calculations": [],
+        "obligations": [
+          {
+            "document_id": null,
+            "subject": null,
+            "property": "supply",
+            "quantity": "voltage",
+            "role": "nominal",
+            "kind": "value_or_interval",
+            "covered": true,
+            "expected_count": 1,
+            "matched_count": 1,
+            "reference_ids": [
+              "R001"
+            ]
+          }
+        ],
+        "comparisons": [],
+        "selected_reference_ids": [
+          "R001"
+        ],
+        "model_selected_reference_ids": [
+          "R001"
+        ],
+        "added_reference_ids": [],
+        "omitted_reference_ids": [],
+        "rendered_reference_ids": [
+          "R001"
+        ]
+      },
+      "answer": "doc1 — Extrait : « Nominal supply voltage: 3.3 V at 25 °C. » [S001]"
+    },
+    {
+      "case": "G2_negation",
+      "question": "Quelle est la tension nominale d’alimentation ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "doc1",
+          "document_name": "doc1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Nominal supply voltage is not 3.3 V.",
+          "locators": [
+            {
+              "page_index": 0
+            }
+          ],
+          "extraction_method": "native"
+        }
+      ],
+      "assessment": {
+        "version": 1,
+        "kind": "value",
+        "status": "covered",
+        "verification": "bounded_structural_checks",
+        "coverage_scope": "retained_catalogue_only",
+        "limitation": "Contrôles de couverture explicite et de relations locales ; aucune preuve générale de justesse sémantique.",
+        "quantity": "voltage",
+        "requested_role": "nominal",
+        "requested_properties": [
+          "supply"
+        ],
+        "required_reference_ids": [
+          "R001"
+        ],
+        "requested_cells": [],
+        "requested_subjects": [],
+        "missing": [],
+        "ambiguous": [],
+        "conflicts": [],
+        "matched_relations": [
+          {
+            "reference_id": "R001",
+            "reference_ids": [
+              "R001"
+            ],
+            "document_id": "doc1",
+            "source_ids": [
+              "S001"
+            ],
+            "subjects": [],
+            "evidence_identifiers": [],
+            "kind": "value",
+            "quantity": "voltage",
+            "property": "supply",
+            "properties": [
+              "supply"
+            ],
+            "role": "nominal",
+            "values": [
+              "3.3"
+            ],
+            "unit": "V",
+            "label": "nominal supply voltage is not",
+            "condition": ".",
+            "quote": "Nominal supply voltage is not 3.3 V.",
+            "segments": [],
+            "value_text": "3.3 V",
+            "code": null,
+            "decimal_notation_verified": false
+          }
+        ],
+        "calculation": null,
+        "derived_calculations": [],
+        "obligations": [
+          {
+            "document_id": null,
+            "subject": null,
+            "property": "supply",
+            "quantity": "voltage",
+            "role": "nominal",
+            "kind": "value_or_interval",
+            "covered": true,
+            "expected_count": 1,
+            "matched_count": 1,
+            "reference_ids": [
+              "R001"
+            ]
+          }
+        ],
+        "comparisons": [],
+        "selected_reference_ids": [
+          "R001"
+        ],
+        "model_selected_reference_ids": [
+          "R001"
+        ],
+        "added_reference_ids": [],
+        "omitted_reference_ids": [],
+        "rendered_reference_ids": [
+          "R001"
+        ]
+      },
+      "answer": "doc1 — Extrait : « Nominal supply voltage is not 3.3 V. » [S001]"
+    },
+    {
+      "case": "G2_positive_assertion",
+      "question": "Quelle est la tension nominale d’alimentation ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "doc1",
+          "document_name": "doc1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Nominal supply voltage is 3.3 V.",
+          "locators": [
+            {
+              "page_index": 0
+            }
+          ],
+          "extraction_method": "native"
+        }
+      ],
+      "assessment": {
+        "version": 1,
+        "kind": "value",
+        "status": "covered",
+        "verification": "bounded_structural_checks",
+        "coverage_scope": "retained_catalogue_only",
+        "limitation": "Contrôles de couverture explicite et de relations locales ; aucune preuve générale de justesse sémantique.",
+        "quantity": "voltage",
+        "requested_role": "nominal",
+        "requested_properties": [
+          "supply"
+        ],
+        "required_reference_ids": [
+          "R001"
+        ],
+        "requested_cells": [],
+        "requested_subjects": [],
+        "missing": [],
+        "ambiguous": [],
+        "conflicts": [],
+        "matched_relations": [
+          {
+            "reference_id": "R001",
+            "reference_ids": [
+              "R001"
+            ],
+            "document_id": "doc1",
+            "source_ids": [
+              "S001"
+            ],
+            "subjects": [],
+            "evidence_identifiers": [],
+            "kind": "value",
+            "quantity": "voltage",
+            "property": "supply",
+            "properties": [
+              "supply"
+            ],
+            "role": "nominal",
+            "values": [
+              "3.3"
+            ],
+            "unit": "V",
+            "label": "nominal supply voltage is",
+            "condition": ".",
+            "quote": "Nominal supply voltage is 3.3 V.",
+            "segments": [],
+            "value_text": "3.3 V",
+            "code": null,
+            "decimal_notation_verified": false
+          }
+        ],
+        "calculation": null,
+        "derived_calculations": [],
+        "obligations": [
+          {
+            "document_id": null,
+            "subject": null,
+            "property": "supply",
+            "quantity": "voltage",
+            "role": "nominal",
+            "kind": "value_or_interval",
+            "covered": true,
+            "expected_count": 1,
+            "matched_count": 1,
+            "reference_ids": [
+              "R001"
+            ]
+          }
+        ],
+        "comparisons": [],
+        "selected_reference_ids": [
+          "R001"
+        ],
+        "model_selected_reference_ids": [
+          "R001"
+        ],
+        "added_reference_ids": [],
+        "omitted_reference_ids": [],
+        "rendered_reference_ids": [
+          "R001"
+        ]
+      },
+      "answer": "doc1 — Extrait : « Nominal supply voltage is 3.3 V. » [S001]"
+    },
+    {
+      "case": "G3_cross_document_conflict",
+      "question": "Quelle est la plage de tension de fonctionnement de DEV123 ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "doc1",
+          "document_name": "doc1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "DEV123 operating supply voltage: 2 to 6 V.",
+          "locators": [
+            {
+              "page_index": 0
+            }
+          ],
+          "extraction_method": "native"
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "doc2",
+          "document_name": "doc2",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "DEV123 operating supply voltage: 2 to 8 V.",
+          "locators": [
+            {
+              "page_index": 0
+            }
+          ],
+          "extraction_method": "native"
+        }
+      ],
+      "assessment": {
+        "version": 1,
+        "kind": "interval",
+        "status": "covered",
+        "verification": "bounded_structural_checks",
+        "coverage_scope": "retained_catalogue_only",
+        "limitation": "Contrôles de couverture explicite et de relations locales ; aucune preuve générale de justesse sémantique.",
+        "quantity": "voltage",
+        "requested_role": "operating",
+        "requested_properties": [],
+        "required_reference_ids": [
+          "R001",
+          "R002"
+        ],
+        "requested_cells": [],
+        "requested_subjects": [
+          "DEV123"
+        ],
+        "missing": [],
+        "ambiguous": [],
+        "conflicts": [],
+        "matched_relations": [
+          {
+            "reference_id": "R001",
+            "reference_ids": [
+              "R001"
+            ],
+            "document_id": "doc1",
+            "source_ids": [
+              "S001"
+            ],
+            "subjects": [
+              "DEV123"
+            ],
+            "evidence_identifiers": [
+              "dev123"
+            ],
+            "kind": "interval",
+            "quantity": "voltage",
+            "property": "supply",
+            "properties": [
+              "supply"
+            ],
+            "role": "operating",
+            "values": [
+              "2",
+              "6"
+            ],
+            "unit": "V",
+            "label": "dev123 operating supply voltage",
+            "condition": ".",
+            "quote": "DEV123 operating supply voltage: 2 to 6 V.",
+            "segments": [],
+            "value_text": null,
+            "code": null,
+            "decimal_notation_verified": false
+          },
+          {
+            "reference_id": "R002",
+            "reference_ids": [
+              "R002"
+            ],
+            "document_id": "doc2",
+            "source_ids": [
+              "S002"
+            ],
+            "subjects": [
+              "DEV123"
+            ],
+            "evidence_identifiers": [
+              "dev123"
+            ],
+            "kind": "interval",
+            "quantity": "voltage",
+            "property": "supply",
+            "properties": [
+              "supply"
+            ],
+            "role": "operating",
+            "values": [
+              "2",
+              "8"
+            ],
+            "unit": "V",
+            "label": "dev123 operating supply voltage",
+            "condition": ".",
+            "quote": "DEV123 operating supply voltage: 2 to 8 V.",
+            "segments": [],
+            "value_text": null,
+            "code": null,
+            "decimal_notation_verified": false
+          }
+        ],
+        "calculation": null,
+        "derived_calculations": [],
+        "obligations": [
+          {
+            "document_id": null,
+            "subject": "DEV123",
+            "property": null,
+            "quantity": "voltage",
+            "role": "operating",
+            "kind": "interval",
+            "covered": true,
+            "expected_count": 1,
+            "matched_count": 2,
+            "reference_ids": [
+              "R001",
+              "R002"
+            ]
+          }
+        ],
+        "comparisons": [],
+        "selected_reference_ids": [
+          "R001",
+          "R002"
+        ],
+        "model_selected_reference_ids": [
+          "R001",
+          "R002"
+        ],
+        "added_reference_ids": [],
+        "omitted_reference_ids": [],
+        "rendered_reference_ids": [
+          "R001",
+          "R002"
+        ]
+      },
+      "answer": "doc1 — Extrait : « DEV123 operating supply voltage: 2 to 6 V. » [S001]\n\ndoc2 — Extrait : « DEV123 operating supply voltage: 2 to 8 V. » [S002]"
+    },
+    {
+      "case": "G3_different_subjects",
+      "question": "Quelle est la plage de tension de fonctionnement de DEV123 ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "doc1",
+          "document_name": "doc1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "DEV123 operating supply voltage: 2 to 6 V.",
+          "locators": [
+            {
+              "page_index": 0
+            }
+          ],
+          "extraction_method": "native"
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "doc2",
+          "document_name": "doc2",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "DEV456 operating supply voltage: 2 to 8 V.",
+          "locators": [
+            {
+              "page_index": 0
+            }
+          ],
+          "extraction_method": "native"
+        }
+      ],
+      "assessment": {
+        "version": 1,
+        "kind": "interval",
+        "status": "covered",
+        "verification": "bounded_structural_checks",
+        "coverage_scope": "retained_catalogue_only",
+        "limitation": "Contrôles de couverture explicite et de relations locales ; aucune preuve générale de justesse sémantique.",
+        "quantity": "voltage",
+        "requested_role": "operating",
+        "requested_properties": [],
+        "required_reference_ids": [
+          "R001"
+        ],
+        "requested_cells": [],
+        "requested_subjects": [
+          "DEV123"
+        ],
+        "missing": [],
+        "ambiguous": [],
+        "conflicts": [],
+        "matched_relations": [
+          {
+            "reference_id": "R001",
+            "reference_ids": [
+              "R001"
+            ],
+            "document_id": "doc1",
+            "source_ids": [
+              "S001"
+            ],
+            "subjects": [
+              "DEV123"
+            ],
+            "evidence_identifiers": [
+              "dev123"
+            ],
+            "kind": "interval",
+            "quantity": "voltage",
+            "property": "supply",
+            "properties": [
+              "supply"
+            ],
+            "role": "operating",
+            "values": [
+              "2",
+              "6"
+            ],
+            "unit": "V",
+            "label": "dev123 operating supply voltage",
+            "condition": ".",
+            "quote": "DEV123 operating supply voltage: 2 to 6 V.",
+            "segments": [],
+            "value_text": null,
+            "code": null,
+            "decimal_notation_verified": false
+          },
+          {
+            "reference_id": "R002",
+            "reference_ids": [
+              "R002"
+            ],
+            "document_id": "doc2",
+            "source_ids": [
+              "S002"
+            ],
+            "subjects": [],
+            "evidence_identifiers": [
+              "dev456"
+            ],
+            "kind": "interval",
+            "quantity": "voltage",
+            "property": "supply",
+            "properties": [
+              "supply"
+            ],
+            "role": "operating",
+            "values": [
+              "2",
+              "8"
+            ],
+            "unit": "V",
+            "label": "dev456 operating supply voltage",
+            "condition": ".",
+            "quote": "DEV456 operating supply voltage: 2 to 8 V.",
+            "segments": [],
+            "value_text": null,
+            "code": null,
+            "decimal_notation_verified": false
+          }
+        ],
+        "calculation": null,
+        "derived_calculations": [],
+        "obligations": [
+          {
+            "document_id": null,
+            "subject": "DEV123",
+            "property": null,
+            "quantity": "voltage",
+            "role": "operating",
+            "kind": "interval",
+            "covered": true,
+            "expected_count": 1,
+            "matched_count": 1,
+            "reference_ids": [
+              "R001"
+            ]
+          }
+        ],
+        "comparisons": [],
+        "selected_reference_ids": [
+          "R001",
+          "R002"
+        ],
+        "model_selected_reference_ids": [
+          "R001",
+          "R002"
+        ],
+        "added_reference_ids": [],
+        "omitted_reference_ids": [],
+        "rendered_reference_ids": [
+          "R001",
+          "R002"
+        ]
+      },
+      "answer": "doc1 — Extrait : « DEV123 operating supply voltage: 2 to 6 V. » [S001]\n\ndoc2 — Extrait : « DEV456 operating supply voltage: 2 to 8 V. » [S002]"
+    },
+    {
+      "case": "G4_wrong_bound",
+      "question": "Quelle est la tension maximale d’alimentation ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "doc1",
+          "document_name": "doc1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Typical supply voltage: 3.3 V.",
+          "locators": [
+            {
+              "page_index": 0
+            }
+          ],
+          "extraction_method": "native"
+        }
+      ],
+      "assessment": {
+        "version": 1,
+        "kind": "value",
+        "status": "covered",
+        "verification": "bounded_structural_checks",
+        "coverage_scope": "retained_catalogue_only",
+        "limitation": "Contrôles de couverture explicite et de relations locales ; aucune preuve générale de justesse sémantique.",
+        "quantity": "voltage",
+        "requested_role": null,
+        "requested_properties": [
+          "supply"
+        ],
+        "required_reference_ids": [
+          "R001"
+        ],
+        "requested_cells": [],
+        "requested_subjects": [],
+        "missing": [],
+        "ambiguous": [],
+        "conflicts": [],
+        "matched_relations": [
+          {
+            "reference_id": "R001",
+            "reference_ids": [
+              "R001"
+            ],
+            "document_id": "doc1",
+            "source_ids": [
+              "S001"
+            ],
+            "subjects": [],
+            "evidence_identifiers": [],
+            "kind": "value",
+            "quantity": "voltage",
+            "property": "supply",
+            "properties": [
+              "supply"
+            ],
+            "role": "typical",
+            "values": [
+              "3.3"
+            ],
+            "unit": "V",
+            "label": "typical supply voltage",
+            "condition": ".",
+            "quote": "Typical supply voltage: 3.3 V.",
+            "segments": [],
+            "value_text": "3.3 V",
+            "code": null,
+            "decimal_notation_verified": false
+          }
+        ],
+        "calculation": null,
+        "derived_calculations": [],
+        "obligations": [
+          {
+            "document_id": null,
+            "subject": null,
+            "property": "supply",
+            "quantity": "voltage",
+            "role": null,
+            "kind": "value_or_interval",
+            "covered": true,
+            "expected_count": 1,
+            "matched_count": 1,
+            "reference_ids": [
+              "R001"
+            ]
+          }
+        ],
+        "comparisons": [],
+        "selected_reference_ids": [
+          "R001"
+        ],
+        "model_selected_reference_ids": [
+          "R001"
+        ],
+        "added_reference_ids": [],
+        "omitted_reference_ids": [],
+        "rendered_reference_ids": [
+          "R001"
+        ]
+      },
+      "answer": "doc1 — Extrait : « Typical supply voltage: 3.3 V. » [S001]"
+    },
+    {
+      "case": "G4_positive_bound",
+      "question": "Quelle est la tension maximale d’alimentation ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "doc1",
+          "document_name": "doc1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Maximum supply voltage: 3.3 V.",
+          "locators": [
+            {
+              "page_index": 0
+            }
+          ],
+          "extraction_method": "native"
+        }
+      ],
+      "assessment": {
+        "version": 1,
+        "kind": "value",
+        "status": "covered",
+        "verification": "bounded_structural_checks",
+        "coverage_scope": "retained_catalogue_only",
+        "limitation": "Contrôles de couverture explicite et de relations locales ; aucune preuve générale de justesse sémantique.",
+        "quantity": "voltage",
+        "requested_role": null,
+        "requested_properties": [
+          "supply"
+        ],
+        "required_reference_ids": [
+          "R001"
+        ],
+        "requested_cells": [],
+        "requested_subjects": [],
+        "missing": [],
+        "ambiguous": [],
+        "conflicts": [],
+        "matched_relations": [
+          {
+            "reference_id": "R001",
+            "reference_ids": [
+              "R001"
+            ],
+            "document_id": "doc1",
+            "source_ids": [
+              "S001"
+            ],
+            "subjects": [],
+            "evidence_identifiers": [],
+            "kind": "value",
+            "quantity": "voltage",
+            "property": "supply",
+            "properties": [
+              "supply"
+            ],
+            "role": null,
+            "values": [
+              "3.3"
+            ],
+            "unit": "V",
+            "label": "maximum supply voltage",
+            "condition": ".",
+            "quote": "Maximum supply voltage: 3.3 V.",
+            "segments": [],
+            "value_text": "3.3 V",
+            "code": null,
+            "decimal_notation_verified": false
+          }
+        ],
+        "calculation": null,
+        "derived_calculations": [],
+        "obligations": [
+          {
+            "document_id": null,
+            "subject": null,
+            "property": "supply",
+            "quantity": "voltage",
+            "role": null,
+            "kind": "value_or_interval",
+            "covered": true,
+            "expected_count": 1,
+            "matched_count": 1,
+            "reference_ids": [
+              "R001"
+            ]
+          }
+        ],
+        "comparisons": [],
+        "selected_reference_ids": [
+          "R001"
+        ],
+        "model_selected_reference_ids": [
+          "R001"
+        ],
+        "added_reference_ids": [],
+        "omitted_reference_ids": [],
+        "rendered_reference_ids": [
+          "R001"
+        ]
+      },
+      "answer": "doc1 — Extrait : « Maximum supply voltage: 3.3 V. » [S001]"
+    },
+    {
+      "case": "G5_ignored_prefix_conditions",
+      "question": "Comparer les tensions nominales d’alimentation",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "doc1",
+          "document_name": "doc1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "At 25 °C, nominal supply voltage: 3.3 V.",
+          "locators": [
+            {
+              "page_index": 0
+            }
+          ],
+          "extraction_method": "native"
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "doc2",
+          "document_name": "doc2",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "At 85 °C, nominal supply voltage: 3.3 V.",
+          "locators": [
+            {
+              "page_index": 0
+            }
+          ],
+          "extraction_method": "native"
+        }
+      ],
+      "assessment": {
+        "version": 1,
+        "kind": "comparison",
+        "status": "covered",
+        "verification": "bounded_structural_checks",
+        "coverage_scope": "retained_catalogue_only",
+        "limitation": "Contrôles de couverture explicite et de relations locales ; aucune preuve générale de justesse sémantique.",
+        "quantity": "voltage",
+        "requested_role": "nominal",
+        "requested_properties": [
+          "supply"
+        ],
+        "required_reference_ids": [
+          "R001",
+          "R002"
+        ],
+        "requested_cells": [],
+        "requested_subjects": [],
+        "missing": [],
+        "ambiguous": [],
+        "conflicts": [],
+        "matched_relations": [
+          {
+            "reference_id": "R001",
+            "reference_ids": [
+              "R001"
+            ],
+            "document_id": "doc1",
+            "source_ids": [
+              "S001"
+            ],
+            "subjects": [],
+            "evidence_identifiers": [],
+            "kind": "value",
+            "quantity": "voltage",
+            "property": "supply",
+            "properties": [
+              "supply"
+            ],
+            "role": "nominal",
+            "values": [
+              "3.3"
+            ],
+            "unit": "V",
+            "label": "at 25 °c, nominal supply voltage",
+            "condition": ".",
+            "quote": "At 25 °C, nominal supply voltage: 3.3 V.",
+            "segments": [],
+            "value_text": "3.3 V",
+            "code": null,
+            "decimal_notation_verified": false
+          },
+          {
+            "reference_id": "R002",
+            "reference_ids": [
+              "R002"
+            ],
+            "document_id": "doc2",
+            "source_ids": [
+              "S002"
+            ],
+            "subjects": [],
+            "evidence_identifiers": [],
+            "kind": "value",
+            "quantity": "voltage",
+            "property": "supply",
+            "properties": [
+              "supply"
+            ],
+            "role": "nominal",
+            "values": [
+              "3.3"
+            ],
+            "unit": "V",
+            "label": "at 85 °c, nominal supply voltage",
+            "condition": ".",
+            "quote": "At 85 °C, nominal supply voltage: 3.3 V.",
+            "segments": [],
+            "value_text": "3.3 V",
+            "code": null,
+            "decimal_notation_verified": false
+          }
+        ],
+        "calculation": null,
+        "derived_calculations": [],
+        "obligations": [
+          {
+            "document_id": null,
+            "subject": null,
+            "property": "supply",
+            "quantity": "voltage",
+            "role": "nominal",
+            "kind": "value_or_interval",
+            "covered": true,
+            "expected_count": 1,
+            "matched_count": 1,
+            "reference_ids": [
+              "R001",
+              "R002"
+            ]
+          }
+        ],
+        "comparisons": [
+          {
+            "property": "supply",
+            "subject": null,
+            "quantity": "voltage",
+            "document_ids": [
+              "doc1",
+              "doc2"
+            ],
+            "status": "equal",
+            "numeric_agreement": "equal",
+            "conditions_explicit": false,
+            "reference_ids": [
+              "R001",
+              "R002"
+            ]
+          }
+        ],
+        "selected_reference_ids": [
+          "R001",
+          "R002"
+        ],
+        "model_selected_reference_ids": [
+          "R001",
+          "R002"
+        ],
+        "added_reference_ids": [],
+        "omitted_reference_ids": [],
+        "rendered_reference_ids": [
+          "R001",
+          "R002"
+        ]
+      },
+      "answer": "doc1 — Extrait : « At 25 °C, nominal supply voltage: 3.3 V. » [S001]\n\ndoc2 — Extrait : « At 85 °C, nominal supply voltage: 3.3 V. » [S002]\n\nComparaison — alimentation (doc1, doc2) : les valeurs citées concordent sous les rôles indiqués ; aucune équivalence de conditions d'essai supplémentaires n'est établie. [S001] [S002] La concordance éventuelle des valeurs n'établit pas l'indépendance des documents."
+    },
+    {
+      "case": "G6_unrelated_selection",
+      "question": "Quelle est la tension nominale d’alimentation ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "doc1",
+          "document_name": "doc1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The component uses a plastic package.",
+          "locators": [
+            {
+              "page_index": 0
+            }
+          ],
+          "extraction_method": "native"
+        }
+      ],
+      "assessment": {
+        "version": 1,
+        "kind": "value",
+        "status": "partial",
+        "verification": "bounded_structural_checks",
+        "coverage_scope": "retained_catalogue_only",
+        "limitation": "Contrôles de couverture explicite et de relations locales ; aucune preuve générale de justesse sémantique.",
+        "quantity": "voltage",
+        "requested_role": "nominal",
+        "requested_properties": [
+          "supply"
+        ],
+        "required_reference_ids": [],
+        "requested_cells": [],
+        "requested_subjects": [],
+        "missing": [
+          {
+            "requirement": "requested_property_document",
+            "document_id": null,
+            "subject": null,
+            "property": "supply",
+            "quantity": "voltage",
+            "role": "nominal",
+            "kind": "value_or_interval",
+            "covered": false,
+            "expected_count": 1,
+            "matched_count": 0,
+            "reference_ids": []
+          },
+          {
+            "requirement": "quantity_value_unit",
+            "quantity": "voltage",
+            "role": "nominal"
+          }
+        ],
+        "ambiguous": [],
+        "conflicts": [],
+        "matched_relations": [],
+        "calculation": null,
+        "derived_calculations": [],
+        "obligations": [
+          {
+            "document_id": null,
+            "subject": null,
+            "property": "supply",
+            "quantity": "voltage",
+            "role": "nominal",
+            "kind": "value_or_interval",
+            "covered": false,
+            "expected_count": 1,
+            "matched_count": 0,
+            "reference_ids": []
+          }
+        ],
+        "comparisons": [],
+        "selected_reference_ids": [
+          "R001"
+        ],
+        "model_selected_reference_ids": [
+          "R001"
+        ],
+        "added_reference_ids": [],
+        "omitted_reference_ids": [],
+        "rendered_reference_ids": [
+          "R001"
+        ]
+      },
+      "answer": "La grandeur demandée n'est pas établie par les preuves retenues dans le périmètre sélectionné. Je ne peux pas donner une valeur fiable à partir de cette sélection.\n\ndoc1 — Extrait : « The component uses a plastic package. » [S001]"
+    }
+  ]
+}

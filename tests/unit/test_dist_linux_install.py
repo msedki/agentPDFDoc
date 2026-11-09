@@ -37,6 +37,8 @@ if sys.platform == "win32":
 
 import pwd  # noqa: E402 - module POSIX, importé après le refus de Windows
 
+from tests.unit.dist_payload_fixtures import MODEL as ENHANCED_MODEL  # noqa: E402
+from tests.unit.dist_payload_fixtures import historical_synthetic_kit  # noqa: E402
 from tests.unit.test_dist_linux_kit import (  # noqa: E402
     PYTHON_KEY,
     fake_readelf,
@@ -145,6 +147,10 @@ class PosteSimule:
 
     def memory_total_gib(self):
         return self.values["memory"]
+
+    def memory_total_bytes(self):
+        value = self.values["memory"]
+        return int(value * GIB) if value is not None else None
 
     def free_bytes(self, path):
         return self.by_path("free", path)
@@ -296,14 +302,24 @@ class ProgrammeSimule:
 
         value = lambda option: argv[argv.index(option) + 1]  # noqa: E731
         if command == "init-profile":
+            from services.runtime.model_profiles import select_local_profile
             from services.runtime.profile_setup import write_user_profile
 
-            # Comme rag.sh : --model choisit le profil livré, et sans option le profil du 4B (W045).
-            base = program / ("config/local16.yaml" if "--model" in argv and value("--model") == "qwen3.5:2b" else "config/local16-4b.yaml")
+            # Le double de commande utilise les vrais lecteurs/écrivains hors ligne,
+            # jamais la CLI de génération pour réactiver une archive historique.
+            manifest = manifest_of(program)
+            manual = value("--model") if "--model" in argv else None
+            selection = None
+            if manifest.get("model_selection") is not None:
+                memory = int(value("--memory-total-bytes")) if "--memory-total-bytes" in argv else None
+                selection = select_local_profile(program, total_memory_bytes=memory, platform=manifest["platform"],
+                                                 mode="cpu", available_models=set(manifest["model_profiles"]), manual_model=manual)
+            model = selection["model"] if selection is not None else manual or manifest["default_model"]
+            base = program / manifest["model_profiles"][model]
             ports = [int(item) for item in value("--ports").split(",")] if "--ports" in argv else free_ports()
             storage = Path(value("--qdrant-storage")) if "--qdrant-storage" in argv else None
             result = write_user_profile(base, Path(value("--target")), qdrant_storage=storage, program_root=program,
-                                        ports=dict(zip(("app", "qdrant", "ollama"), ports, strict=True)))
+                                        ports=dict(zip(("app", "qdrant", "ollama"), ports, strict=True)), selection=selection)
         elif command == "doctor":
             result = GREEN
         elif command == "up":
@@ -395,14 +411,17 @@ class Chrono:
         return self.value
 
 
-def make_kit(tmp_path: Path, monkeypatch, *, name="kit", repository=None, **options) -> Path:
+def make_kit(tmp_path: Path, monkeypatch, *, name="kit", repository=None, historical=False, **options) -> Path:
     monkeypatch.setattr(linux_kit, "readelf_batches", fake_readelf)
     monkeypatch.setattr(linux_kit, "l4t_release", no_l4t_release)
     monkeypatch.setattr(linux_kit, "host_library_path", no_host_library)
     monkeypatch.setattr(linux_kit, "package_owner", no_package_owner)
     repository = repository or make_repository(tmp_path)
     kit = tmp_path / name
+    historical_models = options.pop("models", ("2b", "4b")) if historical else None
     linux_kit.build_linux_kit(kit, repository, platform="linux-aarch64", home=str(tmp_path / "fabrication"), **options)
+    if historical:
+        historical_synthetic_kit(kit, repository, models=historical_models)
     return kit
 
 
@@ -471,6 +490,12 @@ def pointer_of(destination: Path) -> dict:
 @pytest.fixture
 def kit(tmp_path, monkeypatch):
     return make_kit(tmp_path, monkeypatch)
+
+
+@pytest.fixture
+def historical_kit(tmp_path, monkeypatch):
+    """Archive synthétique déclarée pour les seuls scénarios de maintenance anciens."""
+    return make_kit(tmp_path, monkeypatch, historical=True)
 
 
 # --- Précontrôles ----------------------------------------------------------------------------------------------------------
@@ -566,7 +591,7 @@ def test_precompilation_retains_diagnostics_and_reports_its_actual_outcome(kit, 
     ctx = context(kit, runner=PrecompilationSimulee())
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
     assert install(ctx, destination, data_root, "--no-start") == 0, screen(ctx)
-    assert ctx.runner.commands() == ["bootstrap", "compileall", "init-profile", "derive", "doctor"]
+    assert ctx.runner.commands() == ["bootstrap", "compileall", "init-profile", "doctor"]
     assert pointer_of(destination)["current"]["kit_id"] == manifest_of(kit)["kit_id"]
     report = json.loads(next(data_root.glob("install-*.json")).read_text(encoding="utf-8"))
     assert report["status"] == "installed"
@@ -617,7 +642,7 @@ def test_install_runs_the_whole_sequence_and_switches_atomically(kit, tmp_path):
     assert install(ctx, destination, data_root) == 0, screen(ctx)
     manifest = manifest_of(kit)
     program = destination / manifest["kit_id"]
-    assert ctx.runner.commands() == ["bootstrap", "compileall", "init-profile", "derive", "doctor", "up", "doctor", "selftest", "open"]
+    assert ctx.runner.commands() == ["bootstrap", "compileall", "init-profile", "doctor", "up", "doctor", "selftest", "open"]
     # Copie réelle : liens recréés, bit x, préfixe de CPython réécrit vers le programme installé.
     assert os.readlink(program / ".runtime/bin/ollama-0.35.0/lib/ollama/libggml.so.0") == "libggml.so.0.24.0"
     assert os.access(program / linux_kit.TESSERACT_BINARY, os.X_OK)
@@ -626,22 +651,20 @@ def test_install_runs_the_whole_sequence_and_switches_atomically(kit, tmp_path):
     pointer = pointer_of(destination)
     current = pointer["current"]
     assert current["kit_id"] == manifest["kit_id"] and current["program"] == str(program) and pointer["previous"] is None
-    # W045 : profil principal du 4B, modèle par défaut du kit, demandé explicitement à init-profile ; 2B dérivé.
-    assert seen["argv"][1:] == ["init-profile", "--target", str(data_root), "--model", "qwen3.5:4b"]
-    assert current["model"] == "qwen3.5:4b" == manifest["default_model"]
-    assert current["profiles"] == {"qwen3.5:4b": str(data_root / "profile.yaml"), "qwen3.5:2b": str(data_root / "profile-qwen3.5-2b.yaml")}
+    # Catalogue unique : la même mesure et la même décision sont reproduites sur la copie.
+    assert seen["argv"][1:] == ["init-profile", "--target", str(data_root), "--memory-total-bytes", str(61 * GIB)]
+    assert current["model"] == ENHANCED_MODEL == manifest["default_model"]
+    assert current["profiles"] == {ENHANCED_MODEL: str(data_root / "profile.yaml")}
+    decision = json.loads((data_root / "model-selection.json").read_text())
+    assert decision == current["model_selection"] and decision["model"] == ENHANCED_MODEL
     import yaml
 
     principal = yaml.safe_load((data_root / "profile.yaml").read_text(encoding="utf-8"))
-    derived = yaml.safe_load((data_root / "profile-qwen3.5-2b.yaml").read_text(encoding="utf-8"))
-    assert principal["llm"]["model"] == "qwen3.5:4b-text" and principal["llm"]["source_model"] == "qwen3.5:4b"
-    assert derived["llm"]["model"] == "qwen3.5:2b" and derived["llm"]["tokenizer_model_id"] == "Qwen/Qwen3.5-2B"
-    assert derived["resources"]["initial_llm_load_peak_estimate_mib"] == 3968
+    assert principal["llm"]["model"] == principal["llm"]["source_model"] == ENHANCED_MODEL
+    assert principal["llm"]["tokenizer_dir"] == ".runtime/models/qwen3-4b-tokenizer"
+    assert not list(data_root.glob("profile-qwen3.5-*.yaml"))
     assert principal["resources"]["initial_llm_load_peak_estimate_mib"] == 4352
-    # W046 : l'estimation chaude diffère aussi entre les profils livrés ; la dérivation la reprend du profil 2B.
-    assert derived["resources"]["warm_llm_additional_peak_estimate_mib"] == 512
     assert principal["resources"]["warm_llm_additional_peak_estimate_mib"] == 640
-    assert {key: derived[key] for key in ("app", "qdrant", "sqlite", "runtime")} == {key: principal[key] for key in ("app", "qdrant", "sqlite", "runtime")}
     assert current["started_on_data"] is True and [event["event"] for event in pointer["history"]] == ["install"]
     launcher = (destination / "atelier").read_text(encoding="utf-8")
     assert f"version {manifest['kit_id']}." in launcher and os.access(destination / "atelier", os.X_OK)
@@ -652,7 +675,17 @@ def test_install_runs_the_whole_sequence_and_switches_atomically(kit, tmp_path):
     assert "jeton" not in reports[0].read_text(encoding="utf-8")
 
 
-def test_install_with_another_default_model_and_options_passes_them_to_init_profile(kit, tmp_path):
+@pytest.mark.parametrize("model", ["qwen3.5:2b", "qwen3.5:4b"])
+def test_current_kit_refuses_historical_generation_before_any_write(kit, tmp_path, model):
+    ctx = context(kit)
+    destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
+    assert install(ctx, destination, data_root, "--model", model, "--no-start") == linux_install.EXIT_REFUSED
+    assert model in screen(ctx) and "absent" in screen(ctx)
+    assert not destination.exists() and not data_root.exists() and ctx.runner.calls == []
+
+
+def test_install_with_another_default_model_and_options_passes_them_to_init_profile(historical_kit, tmp_path):
+    kit = historical_kit
     seen = {}
 
     def init_profile(argv):
@@ -708,30 +741,18 @@ def synthetic_ram_catalogue_kit(kit: Path) -> None:
 @pytest.mark.parametrize("memory,manual,expected,selection_kind", [(16 * GIB, None, "qwen3.5:2b", "automatic"),
                                                                   (16 * GIB, "qwen3.5:4b", "qwen3.5:4b", "manual_model"),
                                                                   (None, None, "qwen3.5:4b", "legacy_fallback")])
-def test_new_install_preserves_same_selection_in_profile_report_and_pointer(kit, tmp_path, monkeypatch, memory, manual, expected,
-                                                                          selection_kind):
-    from services.runtime import cli, model_profiles, profile_setup
+def test_historical_archive_reader_preserves_selection_in_profile_report_and_pointer(historical_kit, tmp_path, memory, manual, expected,
+                                                                                    selection_kind):
+    kit = historical_kit
+    from services.runtime import model_profiles
 
-    synthetic_ram_catalogue_kit(kit)
+    synthetic_ram_catalogue_kit(historical_kit)
     probe = PosteSimule()
     probe.memory_total_bytes = lambda: memory
 
-    class ProgrammeAvecVraiSelecteur(ProgrammeSimule):
-        """Bootstrap/doctor restent doubles nommés ; init-profile appelle le vrai sélecteur et écrit réellement le profil."""
-        def default(self, program, command, argv):
-            if command != "init-profile":
-                return super().default(program, command, argv)
-            with monkeypatch.context() as scoped:
-                scoped.setattr(cli, "ROOT", program)
-                scoped.setattr(profile_setup, "ROOT", program)
-                scoped.setattr(cli, "platform_id", lambda: "linux-aarch64")
-                scoped.setattr(profile_setup, "port_free", lambda port: True)
-                scoped.setattr(sys, "argv", ["rag", *argv[1:]])
-                scoped.setattr(sys, "stdout", io.StringIO())
-                assert cli.main() == 0
-                return Completed(0, sys.stdout.getvalue())
-
-    ctx = context(kit, probe=probe, runner=ProgrammeAvecVraiSelecteur())
+    # ProgrammeSimule appelle les vrais select_local_profile/write_user_profile hors ligne.
+    # La CLI actuelle refuse ces anciens profils avant toute activation (test_i5_profile_entrypoints).
+    ctx = context(kit, probe=probe, runner=ProgrammeSimule())
     destination, data = tmp_path / "programmes", tmp_path / "donnees"
     extra = ["--model", manual] if manual else []
     assert install(ctx, destination, data, "--no-start", *extra) == 0, screen(ctx)
@@ -746,11 +767,12 @@ def test_new_install_preserves_same_selection_in_profile_report_and_pointer(kit,
 
 
 @pytest.mark.parametrize("operation", ["update", "reprise"])
-def test_new_catalogue_never_reselects_the_principal_of_existing_data(kit, tmp_path, monkeypatch, operation):
+def test_new_catalogue_never_reselects_the_principal_of_existing_data(historical_kit, tmp_path, monkeypatch, operation):
+    kit = historical_kit
     destination, data, current, _ = installed(kit, tmp_path, "--no-start")
     principal = (data / "profile.yaml").read_bytes()
     if operation == "update":
-        new_kit = second_kit(tmp_path, monkeypatch)
+        new_kit = second_kit(tmp_path, monkeypatch, historical=True)
     else:
         a_backup(data)
         assert linux_install.main(["uninstall", "--destination", str(destination), "--tout", "--oui"], context(kit)) == 0
@@ -786,7 +808,8 @@ def test_a_red_doctor_stops_before_the_switch_and_removes_what_this_run_created(
             "commande après correction.") in ctx.err.getvalue()
 
 
-def test_a_failed_derived_profile_removes_the_profile_init_profile_created(kit, tmp_path):
+def test_a_failed_derived_profile_removes_the_profile_init_profile_created(historical_kit, tmp_path):
+    kit = historical_kit
     ctx = context(kit, runner=ProgrammeSimule(results={"derive": {"_rc": 1, "status": "failed", "message": "port occupé"}}))
     assert install(ctx, tmp_path / "programmes", tmp_path / "donnees") == linux_install.EXIT_PARTIAL
     assert "Profil qwen3.5:2b non dérivable : port occupé" in ctx.err.getvalue()
@@ -1040,7 +1063,7 @@ def test_needs_are_summed_on_a_shared_volume(kit, tmp_path):
 def kit_with_ports(kit: Path) -> list[int]:
     ports = free_ports()
     triplet = dict(zip(("app", "qdrant", "ollama"), ports, strict=True))
-    with_manifest(kit, profile_ports={"qwen3.5:4b": triplet, "qwen3.5:2b": triplet})
+    with_manifest(kit, profile_ports={model: triplet for model in manifest_of(kit)["model_profiles"]})
     return ports
 
 
@@ -1108,7 +1131,8 @@ def test_missing_libgl_is_refused_before_reading_the_whole_kit(kit, tmp_path, mo
     monkeypatch.setattr(linux_kit, "stream_hash", counted_hash)
     ctx = context(kit, probe=PosteSimule(libraries=ToutSauf("libGL.so.1")))
     assert install(ctx, tmp_path / "programmes", tmp_path / "donnees") == linux_install.EXIT_SYSTEM
-    allowed = {"SHA256SUMS", "SYMLINKS", "EXECUTABLES", *manifest_of(kit)["target"]["ldd_checks"]}
+    allowed = {"SHA256SUMS", "SYMLINKS", "EXECUTABLES", "services/runtime/model_profiles.py", "config/model_profiles.json",
+               "config/models.lock.json", *manifest_of(kit)["target"]["ldd_checks"]}
     assert hashed and set(hashed) <= allowed and len(hashed) < len(linux_kit.read_sums(kit)) / 2
     assert not (tmp_path / "programmes").exists() and ctx.runner.calls == []
 
@@ -1380,7 +1404,8 @@ def test_a_destination_with_a_double_quote_gets_no_menu_entry(kit, tmp_path, iso
     assert not applications(isolated_home).exists()
 
 
-def test_actions_match_their_groups_and_offer_the_other_model(kit, tmp_path, isolated_home):
+def test_actions_match_their_groups_and_offer_the_other_model(historical_kit, tmp_path, isolated_home):
+    kit = historical_kit
     destination, _, _, _ = installed(kit, tmp_path, "--no-start")
     groups = desktop_groups((applications(isolated_home) / "atelier-documentaire.desktop").read_text(encoding="utf-8"))
     actions = groups["Desktop Entry"]["Actions"].rstrip(";").split(";")
@@ -1555,7 +1580,8 @@ def running_2b(kit, tmp_path):
     return destination, current, runner
 
 
-def test_open_without_model_reuses_the_running_instance(kit, tmp_path):
+def test_open_without_model_reuses_the_running_instance(historical_kit, tmp_path):
+    kit = historical_kit
     destination, current, runner = running_2b(kit, tmp_path)
     ctx = context(Path(current["program"]), runner=runner)
     assert linux_install.main(["run", "--destination", str(destination)], ctx) == 0, screen(ctx)
@@ -1566,7 +1592,8 @@ def test_open_without_model_reuses_the_running_instance(kit, tmp_path):
     assert runner.profiles_of("up") == runner.profiles_of("open") == [current["profiles"]["qwen3.5:2b"]]
 
 
-def test_open_with_another_model_is_refused_in_launcher_terms(kit, tmp_path):
+def test_open_with_another_model_is_refused_in_launcher_terms(historical_kit, tmp_path):
+    kit = historical_kit
     destination, current, runner = running_2b(kit, tmp_path)
     ctx = context(Path(current["program"]), runner=runner)
     assert linux_install.main(["run", "--destination", str(destination), "ouvrir", "--modele", "qwen3.5:4b"], ctx) == linux_install.EXIT_REFUSED
@@ -1582,7 +1609,7 @@ def test_an_unrelated_up_error_does_not_mention_the_model(kit, tmp_path):
 
 
 @pytest.mark.parametrize(("state", "text"), [
-    ("starting", "en cours de démarrage"), ("running", "démarré (modèle qwen3.5:4b)"), ("stopping", "arrêt en cours"),
+    ("starting", "en cours de démarrage"), ("running", f"démarré (modèle {ENHANCED_MODEL})"), ("stopping", "arrêt en cours"),
     ("stopped", "arrêté"), ("failed", "arrêté sur erreur : « atelier diagnostic » en détaille la cause"),
     ("stale", "interrompu sans arrêt propre : relancer « atelier ouvrir »")])
 def test_state_is_translated(kit, tmp_path, state, text):
@@ -1610,9 +1637,9 @@ def test_journaux_lists_the_log_paths(kit, tmp_path):
 
 # --- KIT4-12 : version courante gardée, retour arrière exact -------------------------------------------------------------
 
-def updated(kit, tmp_path, monkeypatch, *extra):
+def updated(kit, tmp_path, monkeypatch, *extra, historical=False):
     destination, data_root, first, _ = installed(kit, tmp_path, "--no-start")
-    kit_b = second_kit(tmp_path, monkeypatch)
+    kit_b = second_kit(tmp_path, monkeypatch, historical=historical)
     ctx = context(kit_b)
     assert linux_install.main(["update", "--destination", str(destination), "--oui", "--no-start", *extra], ctx) == 0, screen(ctx)
     return destination, data_root, first, pointer_of(destination)["current"], kit_b
@@ -1811,8 +1838,9 @@ def test_help_is_french_and_hides_internals(kit):
     assert "LISEZMOI.md" in ctx.out.getvalue() and "run" not in re.findall(r"^  (\w+) ", ctx.out.getvalue(), flags=re.M)
 
 
-def test_model_help_follows_the_kit_manifest(kit, tmp_path, monkeypatch):
-    four = make_kit(tmp_path, monkeypatch, name="kit-4b", repository=tmp_path / "depot", models=("4b",))
+def test_model_help_follows_the_kit_manifest(historical_kit, tmp_path, monkeypatch):
+    kit = historical_kit
+    four = make_kit(tmp_path, monkeypatch, historical=True, name="kit-4b", repository=tmp_path / "depot", models=("4b",))
     for folder, expected in ((kit, "qwen3.5:4b par défaut ; livrés par ce kit : qwen3.5:4b, qwen3.5:2b"),
                              (four, "qwen3.5:4b par défaut ; livré par ce kit : qwen3.5:4b")):
         ctx = context(folder)
@@ -1835,7 +1863,8 @@ def test_invalid_argument_gives_a_french_message_and_code_2(kit):
         assert not re.search(r"\brun\b", errors) and "argument command" not in errors and "invalid" not in errors
 
 
-def test_atelier_help_lists_every_launcher_action(kit, tmp_path):
+def test_atelier_help_lists_every_launcher_action(historical_kit, tmp_path):
+    kit = historical_kit
     destination, _, current, _ = installed(kit, tmp_path, "--no-start")
     ctx = context(Path(current["program"]))
     assert linux_install.main(["run", "--destination", str(destination), "--aide"], ctx) == 0
@@ -1906,7 +1935,7 @@ def test_a_kit_on_exfat_names_the_filesystem(kit, tmp_path):
     assert "volume exfat" in ctx.err.getvalue() and "disque Linux local" in ctx.err.getvalue()
 
 
-def test_each_kit_file_is_read_once_during_install(kit, tmp_path, monkeypatch):
+def test_payload_files_are_read_once_and_selection_metadata_reads_are_bounded(kit, tmp_path, monkeypatch):
     opened: dict[str, int] = {}
     real_open = Path.open
     root = kit.resolve()
@@ -1921,15 +1950,18 @@ def test_each_kit_file_is_read_once_during_install(kit, tmp_path, monkeypatch):
     assert install(context(kit), tmp_path / "programmes", tmp_path / "donnees", "--no-start") == 0
     checks = set(manifest_of(kit)["target"]["ldd_checks"])
     for relative in linux_kit.read_sums(kit):
-        # Listes déclarées : contrôlées avant la copie, relues par la copie puis copiées ; cibles de ldd : vérifiées puis copiées.
-        expected = 3 if relative in {"SYMLINKS", "EXECUTABLES"} else 2 if relative in checks else 1
+        # Listes : contrôle, relecture par la copie, copie ; sélection : vérification,
+        # lecture vérifiée puis copie. Les autres charges utiles restent lues une fois.
+        selection = {"services/runtime/model_profiles.py", "config/model_profiles.json", "config/models.lock.json"}
+        expected = 3 if relative in {"SYMLINKS", "EXECUTABLES", *selection} else 2 if relative in checks else 1
         assert opened.get(relative, 0) <= expected, (relative, opened.get(relative))
         assert opened.get(relative, 0) >= 1, relative
 
 
 # --- KIT4-22 : modèle principal durable ----------------------------------------------------------------------------------
 
-def test_model_command_switches_the_principal_without_touching_profiles(kit, tmp_path):
+def test_model_command_switches_the_principal_without_touching_profiles(historical_kit, tmp_path):
+    kit = historical_kit
     destination, data_root, current, _ = installed(kit, tmp_path, "--no-start", "--model", "qwen3.5:2b")
     before = {path: Path(path).read_bytes() for path in current["profiles"].values()}
     ctx = context(Path(current["program"]))
@@ -1942,7 +1974,8 @@ def test_model_command_switches_the_principal_without_touching_profiles(kit, tmp
     assert opener.runner.profiles_of("up") == [current["profiles"]["qwen3.5:4b"]]
 
 
-def test_model_command_is_refused_while_the_other_model_runs(kit, tmp_path):
+def test_model_command_is_refused_while_the_other_model_runs(historical_kit, tmp_path):
+    kit = historical_kit
     # Principal 4B en marche ; adopter le 2B exigerait d'arrêter l'instance : refus hors terminal, sans --oui.
     destination, _, current, _ = installed(kit, tmp_path, "--no-start")
     runner = ProgrammeSimule(last_started=current["program"])
@@ -1954,8 +1987,9 @@ def test_model_command_is_refused_while_the_other_model_runs(kit, tmp_path):
     assert pointer_of(destination) == before and "down" not in runner.commands()
 
 
-def test_rollback_restores_the_previous_principal(kit, tmp_path, monkeypatch):
-    destination, _, first, second, kit_b = updated(kit, tmp_path, monkeypatch)
+def test_rollback_restores_the_previous_principal(historical_kit, tmp_path, monkeypatch):
+    kit = historical_kit
+    destination, _, first, second, kit_b = updated(kit, tmp_path, monkeypatch, historical=True)
     ctx = context(kit_b)
     assert linux_install.main(["modele", "qwen3.5:2b", "--destination", str(destination)], ctx) == 0, screen(ctx)
     assert pointer_of(destination)["current"]["model"] == "qwen3.5:2b"
@@ -1963,22 +1997,24 @@ def test_rollback_restores_the_previous_principal(kit, tmp_path, monkeypatch):
     assert pointer_of(destination)["current"]["model"] == first["model"] == "qwen3.5:4b"
 
 
-def test_update_to_a_4b_only_kit_succeeds_after_switching(kit, tmp_path, monkeypatch):
+def test_update_to_a_4b_only_kit_succeeds_after_switching(historical_kit, tmp_path, monkeypatch):
+    kit = historical_kit
     destination, _, current, _ = installed(kit, tmp_path, "--no-start", "--model", "qwen3.5:2b")
     assert linux_install.main(["run", "--destination", str(destination), "modele", "qwen3.5:4b"], context(Path(current["program"]))) == 0
     repository = tmp_path / "depot"
     write(repository, "services/api/main.py", "VERSION = 'suivante'\n")
     git(repository, "commit", "-q", "-am", "version suivante")
     web_provenance(repository)  # interface construite depuis ce commit (KIT4-26)
-    four = make_kit(tmp_path, monkeypatch, name="kit-4b", repository=repository, models=("4b",))
+    four = make_kit(tmp_path, monkeypatch, historical=True, name="kit-4b", repository=repository, models=("4b",))
     ctx = context(four)
     assert linux_install.main(["update", "--destination", str(destination), "--oui", "--no-start"], ctx) == 0, screen(ctx)
     assert pointer_of(destination)["current"]["model"] == "qwen3.5:4b"
 
 
-def test_update_with_model_changes_the_principal(kit, tmp_path, monkeypatch):
+def test_update_with_model_changes_the_principal(historical_kit, tmp_path, monkeypatch):
+    kit = historical_kit
     destination, _, current, _ = installed(kit, tmp_path, "--no-start", "--model", "qwen3.5:2b")
-    ctx = context(second_kit(tmp_path, monkeypatch))
+    ctx = context(second_kit(tmp_path, monkeypatch, historical=True))
     assert linux_install.main(["update", "--destination", str(destination), "--model", "qwen3.5:4b", "--oui", "--no-start"], ctx) == 0, screen(ctx)
     updated_entry = pointer_of(destination)["current"]
     assert updated_entry["model"] == "qwen3.5:4b" and updated_entry["profile"] == current["profiles"]["qwen3.5:4b"]
@@ -1994,7 +2030,8 @@ def a_backup(data_root: Path) -> Path:
     return backup
 
 
-def test_reinstall_on_kept_data_after_full_uninstall(kit, tmp_path):
+def test_reinstall_on_kept_data_after_full_uninstall(historical_kit, tmp_path):
+    kit = historical_kit
     destination, data_root, current, _ = installed(kit, tmp_path, "--no-start")
     a_backup(data_root)
     principal = (data_root / "profile.yaml").read_bytes()
@@ -2165,12 +2202,12 @@ def test_backups_are_listed_with_the_rollback_one_marked(kit, tmp_path, monkeypa
 
 # --- Mise à jour, bascule et retour arrière -------------------------------------------------------------------------------
 
-def second_kit(tmp_path, monkeypatch) -> Path:
+def second_kit(tmp_path, monkeypatch, *, historical=False) -> Path:
     repository = tmp_path / "depot"
     write(repository, "services/api/main.py", "VERSION = 'suivante'\n")
     git(repository, "commit", "-q", "-am", "version suivante")
     web_provenance(repository)  # interface construite depuis ce commit (KIT4-26)
-    return make_kit(tmp_path, monkeypatch, name="kit-b", repository=repository)
+    return make_kit(tmp_path, monkeypatch, name="kit-b", repository=repository, historical=historical)
 
 
 def test_update_saves_verifies_and_stops_the_current_version_before_copying(kit, tmp_path, monkeypatch):
@@ -2185,7 +2222,7 @@ def test_update_saves_verifies_and_stops_the_current_version_before_copying(kit,
     assert linux_install.main(["update", "--destination", str(destination), "--oui"], ctx) == 0, screen(ctx)
     before_copy = [(name, command) for name, command, exists in runner.calls if not exists]
     # Estimation de la sauvegarde (emplacements du profil), instance en marche, puis sauvegarde vérifiée et arrêt.
-    assert before_copy == [(old["kit_id"], "paths"), (old["kit_id"], "status"), (old["kit_id"], "status"), (old["kit_id"], "up"),
+    assert before_copy == [(old["kit_id"], "paths"), (old["kit_id"], "status"), (old["kit_id"], "up"),
                            (old["kit_id"], "backup"), (old["kit_id"], "verify"), (old["kit_id"], "down")]
     # status juste avant la bascule : aucune instance relancée sur les données depuis l'arrêt.
     assert runner.commands(new_id) == ["bootstrap", "compileall", "doctor", "status", "up", "doctor", "selftest", "open"]
@@ -2200,14 +2237,15 @@ PRINCIPAL_KEPT = ("Profil principal conservé : qwen3.5:2b, choix de cette insta
                   "« atelier arreter », puis « atelier ouvrir --modele qwen3.5:4b ».")
 
 
-def test_an_update_keeps_a_2b_principal_profile_and_says_how_to_use_the_4b(kit, tmp_path, monkeypatch):
+def test_an_update_keeps_a_2b_principal_profile_and_says_how_to_use_the_4b(historical_kit, tmp_path, monkeypatch):
+    kit = historical_kit
     # W045 : le nouveau défaut ne convertit jamais le profil principal d'une installation existante (choix de l'utilisateur).
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
     assert install(context(kit), destination, data_root, "--model", "qwen3.5:2b", "--no-start") == 0
     old = pointer_of(destination)["current"]
     principal = (data_root / "profile.yaml").read_bytes()
     assert old["model"] == "qwen3.5:2b" and old["profile"] == str(data_root / "profile.yaml")
-    ctx = context(second_kit(tmp_path, monkeypatch))
+    ctx = context(second_kit(tmp_path, monkeypatch, historical=True))
     assert linux_install.main(["update", "--destination", str(destination), "--oui", "--no-start"], ctx) == 0, screen(ctx)
     current = pointer_of(destination)["current"]
     assert current["model"] == "qwen3.5:2b" and current["profile"] == old["profile"] and current["profiles"] == old["profiles"]
@@ -2220,10 +2258,11 @@ def test_an_update_keeps_a_2b_principal_profile_and_says_how_to_use_the_4b(kit, 
     assert [(step["status"], step["detail"]) for step in report["steps"] if step["step"] == "modele"] == [("info", PRINCIPAL_KEPT)]
 
 
-def test_an_update_of_a_4b_principal_has_no_model_note(kit, tmp_path, monkeypatch):
+def test_an_update_of_a_4b_principal_has_no_model_note(historical_kit, tmp_path, monkeypatch):
+    kit = historical_kit
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
     assert install(context(kit), destination, data_root, "--no-start") == 0
-    ctx = context(second_kit(tmp_path, monkeypatch))
+    ctx = context(second_kit(tmp_path, monkeypatch, historical=True))
     assert linux_install.main(["update", "--destination", str(destination), "--oui", "--no-start"], ctx) == 0, screen(ctx)
     assert "[info] Modèle principal" not in ctx.out.getvalue() and "Profil principal conservé" not in ctx.out.getvalue()
     report = json.loads(next(data_root.glob("update-*.json")).read_text(encoding="utf-8"))
@@ -2231,7 +2270,8 @@ def test_an_update_of_a_4b_principal_has_no_model_note(kit, tmp_path, monkeypatc
                                          "persistent": None}
 
 
-def test_an_update_to_a_kit_without_the_2b_refuses_a_2b_principal(kit, tmp_path, monkeypatch):
+def test_an_update_to_a_kit_without_the_2b_refuses_a_2b_principal(historical_kit, tmp_path, monkeypatch):
+    kit = historical_kit
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
     assert install(context(kit), destination, data_root, "--model", "qwen3.5:2b", "--no-start") == 0
     before = (destination / "installation.json").read_bytes()
@@ -2239,20 +2279,20 @@ def test_an_update_to_a_kit_without_the_2b_refuses_a_2b_principal(kit, tmp_path,
     write(repository, "services/api/main.py", "VERSION = 'suivante'\n")
     git(repository, "commit", "-q", "-am", "version suivante")
     web_provenance(repository)  # interface construite depuis ce commit (KIT4-26)
-    four = make_kit(tmp_path, monkeypatch, name="kit-4b", repository=repository, models=("4b",))
+    four = make_kit(tmp_path, monkeypatch, historical=True, name="kit-4b", repository=repository, models=("4b",))
     ctx = context(four)
     assert linux_install.main(["update", "--destination", str(destination), "--oui", "--no-start"], ctx) == linux_install.EXIT_REFUSED
     update = linux_install.installer_command(four, "update", "--destination", str(destination), "--model", "qwen3.5:4b")
     assert ("Le modèle du profil en place (qwen3.5:2b) n'est pas livré par ce kit ; rien n'a été installé. Pour adopter le modèle livré "
             f"pendant la mise à jour : « {update} » ; ou d'abord dans la version en place : « atelier modele qwen3.5:4b », puis relancer la "
-            "mise à jour ; ou employer un kit qui livre qwen3.5:2b (fabrication par défaut : --models 4b,2b).") in ctx.err.getvalue()
+            "mise à jour ; ou employer une archive existante et vérifiée qui livre qwen3.5:2b.") in ctx.err.getvalue()
     assert ctx.runner.calls == [] and (destination / "installation.json").read_bytes() == before
 
 
 @pytest.mark.parametrize(("failure", "expected"), [
-    ({("up"): {"status": "failed", "message": "port occupé"}}, ["paths", "status", "status", "up"]),
+    ({("up"): {"status": "failed", "message": "port occupé"}}, ["paths", "status", "up"]),
     # S3-08 : l'instance démarrée pour la sauvegarde est arrêtée quand la sauvegarde n'est pas vérifiée.
-    ({("verify"): {"state": "failed", "message": "empreinte"}}, ["paths", "status", "status", "up", "backup", "verify", "down"]),
+    ({("verify"): {"state": "failed", "message": "empreinte"}}, ["paths", "status", "up", "backup", "verify", "down"]),
 ])
 def test_an_update_without_a_verified_backup_copies_nothing(kit, tmp_path, monkeypatch, failure, expected):
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
@@ -2303,11 +2343,12 @@ def test_rollback_before_any_start_only_switches_back(kit, tmp_path, monkeypatch
     assert f"version {old['kit_id']}." in (destination / "atelier").read_text(encoding="utf-8")
 
 
-def test_rollback_after_a_start_restores_the_backup_with_the_previous_version(kit, tmp_path, monkeypatch):
+def test_rollback_after_a_start_restores_the_backup_with_the_previous_version(historical_kit, tmp_path, monkeypatch):
+    kit = historical_kit
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
     assert install(context(kit), destination, data_root) == 0
     old = pointer_of(destination)["current"]
-    kit_b = second_kit(tmp_path, monkeypatch)
+    kit_b = second_kit(tmp_path, monkeypatch, historical=True)
     updater = context(kit_b)
     assert linux_install.main(["update", "--destination", str(destination), "--oui"], updater) == 0
     backup = pointer_of(destination)["current"]["backup"]
@@ -2325,11 +2366,12 @@ def test_rollback_after_a_start_restores_the_backup_with_the_previous_version(ki
     assert (data_root / "profile.yaml").exists()
 
 
-def test_rollback_restores_when_the_supervisor_of_the_new_version_wrote_last_without_the_flag(kit, tmp_path, monkeypatch):
+def test_rollback_restores_when_the_supervisor_of_the_new_version_wrote_last_without_the_flag(historical_kit, tmp_path, monkeypatch):
+    kit = historical_kit
     # Version démarrée hors du lanceur (rag.sh up --profile …) : le pointeur l'ignore, l'état de l'instance le révèle.
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
     assert install(context(kit), destination, data_root, "--no-start") == 0
-    kit_b = second_kit(tmp_path, monkeypatch)
+    kit_b = second_kit(tmp_path, monkeypatch, historical=True)
     assert linux_install.main(["update", "--destination", str(destination), "--oui", "--no-start"], context(kit_b)) == 0
     new = pointer_of(destination)["current"]
     assert new["started_on_data"] is False
@@ -2368,14 +2410,17 @@ def uninstall(kit, destination, kit_id, runner=None):
     return linux_install.main(["uninstall", "--destination", str(destination), "--kit-id", kit_id, "--oui"], ctx), ctx
 
 
-def test_uninstall_stops_this_version_removes_it_without_following_links_and_keeps_the_data(kit, tmp_path):
+@pytest.mark.parametrize("fixture_name", ["kit", "historical_kit"], ids=["enhanced", "historical-archive"])
+def test_uninstall_stops_this_version_removes_it_without_following_links_and_keeps_the_data(request, tmp_path, fixture_name):
+    kit = request.getfixturevalue(fixture_name)
     destination, data_root, current, runner = installed(kit, tmp_path)
     outside = write(tmp_path, "ailleurs/precieux.txt", "à garder")
     os.symlink(outside.parent, Path(current["program"]) / "lien-vers-ailleurs")
     code, ctx = uninstall(kit, destination, current["kit_id"], runner)
     assert code == 0, screen(ctx)
-    # Deux profils (2B et 4B, mêmes données) : chacun contrôlé, l'instance de cette version arrêtée une fois.
-    assert runner.commands()[-5:] == ["paths", "status", "down", "paths", "status"]
+    # Chaque profil déclaré est contrôlé, l'instance de cette version arrêtée une fois.
+    expected = ["paths", "status", "down"] + (["paths", "status"] if fixture_name == "historical_kit" else [])
+    assert runner.commands()[-len(expected):] == expected and runner.commands().count("down") == 1
     assert not Path(current["program"]).exists() and outside.read_text(encoding="utf-8") == "à garder"
     assert (data_root / "profile.yaml").exists() and not (destination / "atelier").exists()
     pointer = pointer_of(destination)
@@ -2407,7 +2452,8 @@ def test_uninstall_refuses_a_profile_that_writes_into_the_program(kit, tmp_path)
 
 # --- Lanceur et état ------------------------------------------------------------------------------------------------------
 
-def test_the_launcher_actions_always_use_a_profile_of_the_data_root(kit, tmp_path):
+def test_the_launcher_actions_always_use_a_profile_of_the_data_root(historical_kit, tmp_path):
+    kit = historical_kit
     destination, data_root, current, _ = installed(kit, tmp_path, "--no-start")
     program = Path(current["program"])
     runner = ProgrammeSimule()
@@ -2462,11 +2508,12 @@ def strip_desktop_integration(destination: Path, home: Path) -> None:
     shutil.rmtree(home / ".local/state")
 
 
-def test_an_update_of_an_installation_without_desktop_integration_gives_runnable_commands(kit, tmp_path, monkeypatch, isolated_home):
+def test_an_update_of_an_installation_without_desktop_integration_gives_runnable_commands(historical_kit, tmp_path, monkeypatch, isolated_home):
+    kit = historical_kit
     # REL-U04 : ni « atelier … » (commande absente du PATH), ni intégration créée sans le dire.
     destination, data_root, _, _ = installed(kit, tmp_path, "--no-start", "--model", "qwen3.5:2b")
     strip_desktop_integration(destination, isolated_home)
-    kit_b = second_kit(tmp_path, monkeypatch)
+    kit_b = second_kit(tmp_path, monkeypatch, historical=True)
     ctx = context(kit_b)
     assert linux_install.main(["update", "--destination", str(destination), "--oui", "--no-start"], ctx) == 0, screen(ctx)
     output = ctx.out.getvalue()
@@ -2566,11 +2613,12 @@ def test_interrupting_the_launcher_says_the_atelier_may_still_change_state(kit, 
             in ctx.err.getvalue()) and "Traceback" not in screen(ctx)
 
 
-def test_update_verifies_the_files_it_runs_from_the_new_kit_before_any_derivation(kit, tmp_path, monkeypatch):
+def test_update_verifies_the_files_it_runs_from_the_new_kit_before_any_derivation(historical_kit, tmp_path, monkeypatch):
+    kit = historical_kit
     # S01 : linux_profiles.py et les profils livrés du nouveau kit sont lus ou exécutés par la dérivation contrôlée ; ils sont
     # vérifiés avant, et aucune commande ne désigne un fichier de ce kit avant le refus.
     destination, _, _, _ = installed(kit, tmp_path, "--no-start")
-    kit_b = second_kit(tmp_path, monkeypatch)
+    kit_b = second_kit(tmp_path, monkeypatch, historical=True)
     before = pointer_of(destination)
     for relative in ("tools/dist/linux_profiles.py", manifest_of(kit_b)["model_profiles"]["qwen3.5:2b"]):
         target = kit_b / relative
@@ -2819,7 +2867,8 @@ def killed_install(kit: Path, destination: Path, data_root: Path, step: str, *ex
 
 
 @pytest.mark.parametrize("then", ["retrait-complet", "destination-supprimee"])
-def test_a_marker_left_after_the_switch_never_removes_the_user_profiles(kit, tmp_path, then):
+def test_a_marker_left_after_the_switch_never_removes_the_user_profiles(historical_kit, tmp_path, then):
+    kit = historical_kit
     # R2-01 : arrêt brutal entre la bascule et le retrait du marqueur. La version a été désignée et a pu servir ; après son
     # retrait complet (pointeur et historique conservés) ou la suppression du dossier des versions (plus aucun historique),
     # le marqueur ne fait retirer aucun profil, ne contourne pas la garde de la reprise et le refus le nomme.
@@ -2973,7 +3022,8 @@ def test_an_empty_ldd_list_still_verifies_tesseract_before_ldd(kit, tmp_path):
     assert ctx.probe.ldd_calls == [] and not (tmp_path / "programmes").exists()
 
 
-def test_an_interruption_after_the_model_switch_keeps_the_designated_profile(kit, tmp_path, monkeypatch):
+def test_an_interruption_after_the_model_switch_keeps_the_designated_profile(historical_kit, tmp_path, monkeypatch):
+    kit = historical_kit
     # S07 : le profil dérivé que le pointeur désigne déjà n'est jamais retiré.
     destination, _, current, _ = installed(kit, tmp_path, "--no-start", "--model", "qwen3.5:2b")
     four = current["profiles"]["qwen3.5:4b"]
@@ -3554,20 +3604,21 @@ def test_an_unwritable_user_bin_is_refused_before_any_write(kit, tmp_path, isola
         folder.chmod(0o755)
 
 
-def third_kit(tmp_path, monkeypatch) -> Path:
+def third_kit(tmp_path, monkeypatch, *, historical=False) -> Path:
     repository = tmp_path / "depot"
     write(repository, "services/api/main.py", "VERSION = 'troisième'\n")
     git(repository, "commit", "-q", "-am", "troisième version")
     web_provenance(repository)
-    return make_kit(tmp_path, monkeypatch, name="kit-c", repository=repository)
+    return make_kit(tmp_path, monkeypatch, name="kit-c", repository=repository, historical=historical)
 
 
-def test_a_version_folder_no_longer_designated_never_acts_on_another_installation(kit, tmp_path, monkeypatch, isolated_home):
+def test_a_version_folder_no_longer_designated_never_acts_on_another_installation(historical_kit, tmp_path, monkeypatch, isolated_home):
+    kit = historical_kit
     # S3-03 : A est inscrite au registre ; B (--sans-menu) a été mise à jour deux fois, sa première version y reste sans être
     # désignée. Lancé depuis ce dossier, l'installateur ne se rabat jamais sur le registre : refus qui nomme B.
     a = tmp_path / "a/programme"
     assert linux_install.main(["--oui", "--no-start", "--emplacement", str(tmp_path / "a")], context(kit)) == 0
-    kit_b, kit_c = second_kit(tmp_path, monkeypatch), third_kit(tmp_path, monkeypatch)
+    kit_b, kit_c = second_kit(tmp_path, monkeypatch, historical=True), third_kit(tmp_path, monkeypatch, historical=True)
     assert linux_install.main(["update", "--destination", str(a), "--oui", "--no-start"], context(kit_b)) == 0
     b = tmp_path / "b/programme"
     assert install(context(kit), b, tmp_path / "b/donnees", "--no-start", "--sans-menu") == 0
@@ -3614,7 +3665,8 @@ def test_an_unreadable_instance_state_stops_the_uninstall_before_any_removal(kit
 
 
 @pytest.mark.parametrize("step", ["copie", "doctor"])
-def test_the_resumed_install_reports_what_it_removed(kit, tmp_path, step):
+def test_the_resumed_install_reports_what_it_removed(historical_kit, tmp_path, step):
+    kit = historical_kit
     # S3-11, U3-06 : le texte de l'étape « interrompue » est calculé avant les suppressions ; accords ; libellé non répété ;
     # chemins retirés consignés au rapport.
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
@@ -3740,7 +3792,8 @@ def test_a_reprise_of_data_used_by_an_installation_cites_its_update(kit, tmp_pat
 
 
 @pytest.mark.parametrize("integration", [True, False], ids=["integration", "78ec95c"])
-def test_an_update_to_a_kit_without_the_principal_model_cites_a_runnable_command(kit, tmp_path, monkeypatch, isolated_home, integration):
+def test_an_update_to_a_kit_without_the_principal_model_cites_a_runnable_command(historical_kit, tmp_path, monkeypatch, isolated_home, integration):
+    kit = historical_kit
     # U3-07 : le lanceur d'une installation de 78ec95c n'a pas l'action modele ; la commande valable pour toute installation
     # est update --model, et elle met à jour en une étape.
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
@@ -3751,7 +3804,7 @@ def test_an_update_to_a_kit_without_the_principal_model_cites_a_runnable_command
     write(repository, "services/api/main.py", "VERSION = 'suivante'\n")
     git(repository, "commit", "-q", "-am", "version suivante")
     web_provenance(repository)
-    four = make_kit(tmp_path, monkeypatch, name="kit-4b", repository=repository, models=("4b",))
+    four = make_kit(tmp_path, monkeypatch, historical=True, name="kit-4b", repository=repository, models=("4b",))
     ctx = context(four)
     assert linux_install.main(["update", "--destination", str(destination), "--oui", "--no-start"], ctx) == linux_install.EXIT_REFUSED
     update = linux_install.installer_command(four, "update", "--destination", str(destination), "--model", "qwen3.5:4b")
@@ -3932,7 +3985,8 @@ def test_an_instance_running_without_its_profiles_stops_the_uninstall_before_any
     ctx = context(kit, runner=runner, probe=PosteSimule(processes=running_from(runner)))
     assert linux_install.main(["uninstall", "--tout", "--destination", str(destination), "--oui"], ctx) == linux_install.EXIT_REFUSED
     executable = f"{current['program']}/.runtime/python/{PYTHON_KEY}/bin/python3.12"
-    assert (f"État de l'instance de {current['kit_id']} illisible (profils {', '.join(profiles)} absents) : processus de ce programme en "
+    assert len(profiles) == 1
+    assert (f"État de l'instance de {current['kit_id']} illisible (profil {profiles[0]} absent) : processus de ce programme en "
             f"marche (PID 4242 : {executable}) — les arrêter, puis relancer ; rien n'a été supprimé.") in errors_of(ctx)
     assert Path(current["program"]).is_dir() and pointer_of(destination)["current"]["kit_id"] == current["kit_id"]
     assert runner.running and "down" not in runner.commands()
@@ -4041,7 +4095,8 @@ def installed_through_a_link(kit, tmp_path, *, start: bool = False):
     return linked / "programmes", real / "programmes", linked / "donnees", ctx.runner
 
 
-def test_the_installer_of_a_program_reached_through_a_link_owns_its_menu_entry_and_command(kit, tmp_path, isolated_home):
+def test_the_installer_of_a_program_reached_through_a_link_owns_its_menu_entry_and_command(historical_kit, tmp_path, isolated_home):
+    kit = historical_kit
     # U6-01 (a), preuves 09 et 09b : status rendait le code 1 avec deux faux problèmes (« remplacée par un fichier étranger »),
     # repair et modele laissaient l'entrée et la commande « n'appartient pas à cette installation », et les actions du menu
     # n'étaient pas régénérées après modele.

@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "description": "Exact upstream commit dac6b18a4764d13d670e7f304bbdb80f756b8431 (PR 4259), src/classify/normmatch.cpp, Apache-2.0. Prevent FLT_MAX overflow when a legacy prototype list is empty. Applied only to the extracted Tesseract 5.4.0 source; original archives and floating-point traps remain unchanged.",
+  "before": "  float BestMatch = FLT_MAX;\n  LIST Protos = NormProtos->Protos[ClassId];\n\n  if (DebugMatch) {\n    tprintf(\"\\nChar norm for class %s\\n\", unicharset.id_to_unichar(ClassId));\n  }\n\n",
+  "after": "  if (DebugMatch) {\n    tprintf(\"\\nChar norm for class %s\\n\", unicharset.id_to_unichar(ClassId));\n  }\n\n  LIST Protos = NormProtos->Protos[ClassId];\n  if (Protos == nullptr) {\n     // Avoid FP overflow in NormEvidenceOf.\n     return 1.0f;\n  }\n\n  float BestMatch = FLT_MAX;\n"
+}

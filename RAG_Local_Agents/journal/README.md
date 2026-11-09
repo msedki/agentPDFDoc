@@ -1,8 +1,63 @@
 # Journal des travaux
 
-**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** produits publiés `5204d2e` et `aabb9808`, recette native R27 exécutée avec réserve du bureau · **Mis à jour :** 2026-10-12 14:05 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
+**Rôle :** index chronologique des exécutions et points de reprise · **Propriétaire :** intégration du chantier · **Statut :** Vivant · **Référence :** produits publiés `5204d2e` et `aabb9808`, recette native R27 exécutée avec réserve du bureau ; chantier EV4B sur `enhanced_version` · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** chaque journal pour les faits ; [PLAN.md](../PLAN.md) pour les actions
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
+
+[Publication I5 vérifiée](2026-11-09.md#i5--publication-technique-vérifiée) : commit [7cd39839](https://github.com/msedki/agentPDFDoc/commit/7cd398399c98701309ace0498be3f149ae4e276d), arbre et parent distants vérifiés, publication sans force ; [reçu](../reports/trust-4b-publication-2026-11-09.json). Sources livrées avec réserves, production non qualifiée.
+
+[Poursuite I5 du 9 novembre](2026-11-09.md) : correctifs, campagnes natives
+et portes logicielles finales, gel avant ouverture du nouveau corpus réservé.
+Les résultats primaires, échecs et critères du 8 novembre sont conservés ;
+la qualification de production reste non acquise.
+
+[Publication I4 vérifiée](2026-11-08.md#i4--publication-technique-vérifiée) : commit [f7739a14](https://github.com/msedki/agentPDFDoc/commit/f7739a144369816b0e834c225fa9fbfe697f6c84), arbre identique et publication sans force ; [reçu](../reports/production-4b-publication-2026-11-08.json). Les critères de fidélité échoués restent ouverts.
+
+[I4 — fiabilisation et qualification documentaire](2026-11-08.md#i4--transfert-terminé-et-qualification-documentaire-refusée) :
+sélection, structure PDF, contrat qualitatif, OCR et traces implémentés ;
+campagnes distinctes avant/après et échecs conservés. La fidélité de colonne
+sur le transfert échoue et une omission nouvelle reste visible dans la réponse
+finale : la qualification de diffusion n'est pas acquise.
+[Bilan I4 et critères](../reports/production-4b-results-2026-11-08.md),
+[protocole](../reports/production-4b-protocol-2026-11-08.md) et
+[reproduction](../reports/production-4b-reproduce-2026-11-08.md).
+
+[Publication technique I3 vérifiée](2026-11-08.md#i3--publication-technique-vérifiée) :
+commit [fdc51187](https://github.com/msedki/agentPDFDoc/commit/fdc51187aabbdfd16e561dc32c50ac1c107e15bc), arbre identique et publication sans force ;
+[reçu](../reports/grounded-4b-publication-2026-11-08.json). Les réserves D04/D08 restent ouvertes.
+
+[I3 — relecture finale et reprises natives](2026-11-08.md#i3--relecture-finale-et-reprises-natives) :
+relecture par agent non aveugle 9/12 → 11/12 réponses complètes sans réserve
+injustifiée ; score automatique 9/12 → 12/12 conservé, faux positif P01 explicité.
+Les limites sont confirmées à 15/18 → 18/18 par relecture finale. Office : trois
+refus primaires conservés, reprise distincte terminée avec 2/3 réponses strictes.
+PDF : 0/2 réponses complètes et 1/4 relation demandée par bras, extraction
+`ready_partial`, OCR non qualifié. Réserve I3-D04, I3-D08 non atteint, DoD globale
+ouverte ; publication du lot encore attendue.
+[Bilan](../reports/grounded-4b-results-2026-11-08.md) et
+[reproduction](../reports/grounded-4b-reproduce-2026-11-08.md).
+
+[Publication GitHub du 8 novembre](2026-11-08.md#publication-github-par-le-connecteur-du-compte-autorisé) :
+I1 et I2 publiées sur `enhanced_version`, dernier commit technique `3cfc004a` ;
+les trois arbres complets correspondent aux versions locales, contrôle distant
+et revue indépendante conformes. Métadonnées du compte connecté `msedki` ;
+commits locaux originaux conservés. Les échecs scientifiques restent documentés.
+
+[Deuxième itération du 4B, 8 novembre](2026-11-08.md#deuxième-itération--restauration-et-protocole-10441120-utc) :
+46 soumissions sur 23 questions, deux révisions réelles et deux familles ;
+7/20 → 14/20 réponses complètes et soutenues, 0/3 → 2/3 refus corrects.
+Une régression documentaire et sept erreurs I2 maintiennent la réception ouverte.
+
+[Poursuite et résultats de la première itération](2026-11-08.md) :
+30 soumissions, 28 réponses terminées et deux erreurs ; 4/14 → 9/14 réponses
+complètes et soutenues. Résultats et preuves I1 conservés, sans réattribution à I2.
+Les tentatives de publication initiales restent au journal comme historique.
+
+[Amélioration du 4B, 7 novembre](2026-11-07.md) : branche `enhanced_version`,
+protocole scientifique et DoD EV4B établis avant les essais ; v1 conserve trente
+soumissions, v2/v3 leurs refus et interruptions. Matrice KV, résidence, rejeu et
+import natifs exécutés ; OCR négatif conservé ; gate 3 409 PASS / 23 SKIP.
+La campagne finale gelée avant minuit se poursuit le 8 novembre ; D07 reste ouvert.
 
 [Comparaison appariée et sélection RAM du 13 octobre](2026-10-13.md) :
 douze réponses GPU récoltées et relues après correction QA ; sélection RAM
@@ -488,3 +543,9 @@ Nouvelle porte QA E en préparation, anciennes attestations intactes.
 | [5 octobre 2026](2026-10-05.md) | Reprise OCR à densité native sur rangée : 113 tests avec doubles, extraction réelle P03 complète ; erreur de sonde conservée et vérification géométrique séparée. Régression/revue en cours, aucun gate DEV ou Done global acquis |
 | [6 octobre 2026](2026-10-06.md) | Correctifs et diagnostics OCR ciblés ; inventaire du modèle 2B ; passages QLONG ; livraison locale Linux avec réserves W038, qualification intégrale en attente ; ouverture Chromium et correctif local des plafonds de réponse R25-LEN-01/W039, sans nouvelle campagne ; reprise R26 (W040) : provenance OCR, signaux de réponse, identité dense, pilotes d'admission 2B et 4B (W041, W046), campagnes DEV 2B et 4B, 4B par défaut (W045), recette du kit A |
 | [7 octobre 2026](2026-10-07.md) | R26 : audit et refonte de l'expérience du kit Linux (R26-KIT-04, trois rondes de corrections et revues non-auteur), grille 4B arbitrée, corrections du lecteur et des specs E2E (R26-UI-02), Qdrant lancé hors du programme (R26-RT-01) |
+
+Le bilan final I2 du 8 novembre conserve 46 soumissions (deux révisions réelles),
+les revues corrigées avec leurs errata, les gates exécutés et les réserves :
+7/20→14/20 réponses strictement complètes, 0/3→2/3 refus, mais 3→7 erreurs.
+La réception documentaire et la publication distante ne sont pas attestées
+par un simple taux de terminaison ; voir le journal daté et le bilan I2.

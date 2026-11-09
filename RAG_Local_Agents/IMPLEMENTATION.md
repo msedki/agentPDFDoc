@@ -2,6 +2,16 @@
 
 **Rôle :** exigences d’implémentation V2.1 et extension documentaire Office · **Propriétaire :** contrats applicatifs · **Statut :** Stabilisé · **Référence :** baseline V2.1 conservée ; Office R28, base `64e191f` et modifications locales du 10/10/2026, tests isolés et chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · **Mis à jour :** 2026-10-10 13:28 (UTC) · **Source de vérité :** exigences et décisions de ce dossier ; API réelle dans `docs/interfaces/API.md` et `packages/contracts/contracts.json` · **Remplace :** aucun document
 
+## Contrat actif I5 — informations étayées avant génération
+
+Le contrat renforcé complète la baseline conservée ci-dessous. Le seul générateur actif est Qwen3-4B Q4_K_M. Les points d’entrée doivent refuser un profil qui désactive les contrôles obligatoires ; l’identité native et les verrous des artefacts restent vérifiés séparément de ce choix de configuration.
+
+Les tables doivent reconstituer leurs liens depuis les observations géométriques enregistrées. Les conditions générales et dépendances sont rechargées dans le même document, la même version et la même révision d’extraction ; une preuve partielle ou ancienne sans témoins suffisants n’est pas certifiée par une étiquette de retrieval. La qualité OCR est liée aux occurrences précises et aux deux lectures observées, sans réparation des signes ou valeurs par anticipation.
+
+Chaque obligation porte ses propriétés, rôles, sujets et conditions. Le générateur ne reçoit que les références et intervalles admis ; il ne fournit ni fait libre ni calcul. Le serveur complète les obligations déjà justifiées omises du plan, exclut les références hors sujet, produit les citations et contrôle à nouveau chaque segment. Les calculs restent déterministes et conservent entrées, unités, méthode et traces. Les documents explicitement demandés restent épinglés et le hash du contexte final est celui du payload recompté après les limites de recherche. Aucun delta documentaire n’est publié avant validation.
+
+Les détails, limites et essais sont dans le [rapport ingestion](reports/trust-4b-ingestion-2026-11-08.md) et le [protocole préalable](reports/trust-4b-protocol-2026-11-08.md). Le statut de qualification est conservé dans [PLAN.md](PLAN.md), sans déduire une aptitude générale à la production de ces seuls contrôles.
+
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)). **W024 et W025 (01/10/2026) : le CPU reste le socle, le repli et la référence de la recette D07 ; seule la génération par Ollama peut passer sur GPU, automatiquement sur les voies qualifiées par un essai réel** ([W025](DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024)). Les options envoyées à Ollama selon le mode sont précisées en section 7.
 
 Baseline RAG-LOCAL-16 v2.1 : les sections 1 à 10 conservent les contrats cibles et leurs évolutions documentées. L’extension Office implémentée le 10/10/2026 est définie en section 11 ; son statut de recette reste dans PLAN.md. La référence de l’API réellement déclarée est docs/interfaces/API.md. Les exigences non exercées ne sont pas annoncées comme qualifiées.
@@ -253,3 +263,46 @@ Les scopes `sheet` et `cell_range` exigent `versionId`, `extractionRevisionId` e
 Tout ajout/modification d'API, option native, format, modèle ou mécanisme de provisioning suit [RECHERCHE_ET_SKILLS.md](RECHERCHE_ET_SKILLS.md). Consulter les sources officielles, vérifier la signature dans la version installée, puis écrire le test de contrat. Relier source/version et décision dans les registres ; mettre à jour les schémas, types générés, paramètres et tests concernés.
 
 Les skills choisis dans [SKILLS.md](SKILLS.md) assistent le développement, sans être embarqués comme outils du LLM local. Une migration exige une procédure de retour arrière et la conservation des références documentaires ; aucune « mise à jour SOTA » implicite au démarrage.
+
+## 12. I3 — preuves jusqu'à la réponse, profil 4B
+
+**Statut :** mécanismes implémentés sur `enhanced_version` ; portée des essais et limites dans le [bilan I3](reports/grounded-4b-results-2026-11-08.md). Le [protocole préalable](reports/grounded-4b-protocol-2026-11-08.md) fixe les critères de ce lot, sans remplacer la DoD globale. Cette section décrit le profil `enhanced-4b` ; les prescriptions et observations historiques ci-dessus gardent leur date.
+
+La sélection conserve les passages disjoints d'un parent trop long pour être développé. Après expansion, seule une preuve identique est dédupliquée : document, version, génération, révision, blocs, positions, hashes, texte, contexte de tableau et obligations d'identifiants restent distingués. Les plafonds de fragments et de contexte continuent de s'appliquer. Une génération autorisée `ready_partial` est signalée même si elle ne produit aucun passage retenu ; l'absence de résultat ne prouve pas l'absence d'information dans l'original.
+
+Les tableaux conservent les notes explicitement appelées dans leur texte et retrouvées dans le même tableau autorisé, leurs dépendances transitives et les réserves des colonnes explicitement intitulées « Note » ou « Remarque ». Les liens sont bornés à 64 ; note manquante, libellé ambigu ou vérification incomplète empêchent d'établir la couverture de la relation concernée. Aucun texte hors sélection n'est importé pour combler une note. Les méthodes native/OCR sont recalculées à partir des blocs effectivement assemblés, titres compris. La sérialisation source, les positions et les empreintes ne sont pas réécrites : [sélection](../services/api/evidence_selection.py), [recherche](../services/api/retrieval.py).
+
+Avant la génération, le catalogue relit les identités et localisations autoritaires et établit un registre `support_ledger` : littéraux, références, versions, révisions, méthodes d'extraction, relations localement vérifiées, relations rejetées et conflits. Le 4B peut sélectionner et organiser uniquement les références de ce catalogue dans un plan structuré. La restitution assemble les extraits et les formulations contrôlées ; aucun texte libre du modèle n'est publié. Les relations complètes reconnues et certains calculs sur cellules passent par une voie déterministe sans appel génératif. Les calculs autorisés gardent leurs entrées, unités, méthode et références : [contrat](../services/api/answer_contract.py), [restitution](../services/api/structured_answer.py).
+
+Après le plan, `verify_rendered` reconstruit chaque segment publié depuis ses preuves ou son calcul vérifié, contrôle offsets, citations et empreintes, puis bloque une restitution divergente avant les événements de réponse publics. Les registres avant/après et le résultat du contrôle sont rattachés à la requête dans [query.py](../services/api/query.py). Cette fidélité au texte enregistré ne certifie ni l'exactitude de l'extraction initiale ni une implication sémantique générale : `general_semantic_entailment_verified` et `original_extraction_fidelity_verified` restent faux dans le registre préalable. Les contrôles de grandeur, unité, rôle, condition et négation restent bornés aux formes reconnues. Notes non reconnues, conditions implicites, OCR incertain et contradictions non détectées demeurent des limites à mesurer ; aucun succès de test n'établit une qualification globale du corpus ou de la cible Windows/16 Go.
+
+**Complément F07 — grandeur principale et condition explicite.** Le contrat distingue une demande de plage d'alimentation accompagnée de « ses/leurs conditions de température » de la température elle-même demandée. Seule la mention de température dans cet attachement explicite, français ou anglais, est retirée du classement des grandeurs ; une autre température demandée reste une obligation indépendante. Chaque plage comptée doit conserver son propre point ou intervalle de température source, sans inférence numérique. Une condition absente laisse la couverture partielle ; les demandes mixtes non décomposées restent signalées. Le repli lexical associé est décrit dans [CONFIGURATION.md](CONFIGURATION.md#i3--profil-actif-enhanced-4b-8-novembre-2026) et isolé par désactivation dans l'[addendum F07](reports/grounded-4b-addendum-2026-11-08.md).
+
+
+## 13. I4 — dépendances écrites et couverture jusqu'au rendu
+
+**Statut :** implémentation du 8 novembre 2026 ; qualification par critère dans le [bilan I4](reports/production-4b-results-2026-11-08.md), sans validation générale de diffusion présumée.
+
+`services/ingestion/pdf_structure.py` reconnaît une liste seulement si les marques écrites, le titre terminé par deux-points, l'indentation, la colonne et une fermeture au niveau du parent concordent. Les glyphes séparés et les puces intégrées dans un bloc `list_item` sont traités avec leurs blocs originaux. Aucun texte, offset, titre ou rectangle n'est créé pour compléter une structure. Un trou OCR connu dans le couloir de la liste interdit la complétude, même lorsqu'il ne touche aucun élément déjà lu. Un bloc ambigu ou une dépendance hors portée ne reçoit pas de lien certifié.
+
+L'index regroupe les pièces exactes et répète leurs dépendances lors d'un découpage borné. La résolution de portée reconstruit le lien depuis les enregistrements épinglés en base ; le catalogue exige que titre, élément, marqueurs et fermeture soient réellement visibles avec les mêmes versions, hashes et offsets. Les différents rôles d'un même bloc inline sont dédupliqués avant le budget, sans fabriquer de bloc. Une liste partiellement présente ne devient pas complète parce que ses éléments visibles sont corrects.
+
+`services/api/evidence_coverage.py` utilise le même contrat de relations que la publication. Il privilégie les propriétés demandées absentes puis leurs variantes de condition ou de valeur, parmi les candidats déjà autorisés. Un remplacement préserve les relations, identifiants et documents comparés déjà couverts. Un préfixe de premières preuves complètes précède les occurrences redondantes ; le tri d'identifiants ne doit pas annuler cette priorité. Ce choix glouton ne promet pas un optimum global. Les catalogues avant/après budget sont comparés sur les seules obligations de la question ; perdre un bus non demandé ne justifie pas de dégrader une réponse complète sur l'alimentation.
+
+Les pertes inévitables deviennent `evidence_coverage_incomplete`, dans un schéma fermé de compteurs. La limite entre dans le hash du catalogue et le registre avant génération, interdit une conclusion complète et reste visible après validation du rendu. Le générateur ne reçoit aucune autorisation nouvelle : il choisit et organise des IDs ; les textes publics, citations, conditions, réserves et calculs restent produits et vérifiés par le serveur. Les relations qualitatives simples s'appuient sur des formes FR/EN explicites ; un pronom non résolu, une cause absente ou une condition inconnue restent signalés.
+
+L'ablation OCR et les contrôles de défaillance opérationnelle sont distincts de cette preuve documentaire. Le backport Tesseract vérifié corrige un arrêt natif observé ; ni un angle valide, ni une confiance élevée, ni la présence d'une citation ne certifient à eux seuls une réponse.
+
+
+### Limite sémantique établie par le transfert I4
+
+Le contrôle de provenance compare les sources publiées aux données d’extraction
+immuables. Il ne constitue pas une lecture indépendante de l’image PDF. Dans le
+cas H03 du [bilan I4](reports/production-4b-results-2026-11-08.md), une cellule
+est affectée à Min alors que l’original place sa valeur dans Typ ; cette liaison
+incorrecte traverse le contrat et la restitution malgré des hashes valides.
+L’abstention sur une autre condition ne neutralise pas ce fait erroné affiché.
+Le critère de fidélité reste donc en échec sur le gel, et la qualification de
+diffusion demeure bloquée. Les validations géométriques et sémantiques restant
+nécessaires sont suivies dans le plan et le bilan, sans attribuer au générateur
+la capacité de réparer les données extraites.

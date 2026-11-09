@@ -1,0 +1,821 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-11-08T13:12:36.996335+00:00",
+  "scope": "I2 engineering qualification; no independent human, Windows, UI or D07 qualification",
+  "tests": [
+    {
+      "name": "general_initial",
+      "path": ".runtime/qa/enhanced-4b-iteration2/gates/python-final/pytest-standard.xml",
+      "sha256": "bb35e74dbdea4215a12280b72be8eea4779f4d623ca9396d00a380c5fea9bf21",
+      "tests": 3663,
+      "passed": 3637,
+      "failed_or_error": 2,
+      "skipped": 24,
+      "failures": [
+        {
+          "test": "tests.integration.test_api_http::test_api_releases_e5_only_for_cold_insufficient_memory[False-True-5000-False]",
+          "kind": "failure",
+          "message": "assert (False is False and True is False)\n +  where True = bool(1)\n +    where 1 = <test_api_http.test_api_releases_e5_only_for_cold_insufficient_memory.<locals>.ControlledEmbedding object at 0x7f02cb222cf0>.released"
+        },
+        {
+          "test": "tests.integration.test_api_http::test_api_ocr_provenance_reaches_sources_citations_and_warnings[controlled_ocr_ready]",
+          "kind": "failure",
+          "message": "AssertionError: assert ([{'document_count': 1, 'documents': [{'document_id': 'a43aeade-5a21-4a3f-b535-1fa2bca7dfa2', 'document_name': 'control...-0b6e-43c4-8beb-1a26364c1463', 'pages': [...], 'text': 'Le couple de serrage prescrit pour DA-P02 est de 14 N·m.'}]}]}] and False)\n +  where False = all(<generator object test_api_ocr_provenance_reaches_sources_citations_and_warnings.<locals>.<genexpr> at 0x7f02cbec17d0>)"
+        }
+      ],
+      "skip_reasons": [
+        {
+          "test": "::tests.integration.test_runtime_windows_job",
+          "kind": "skipped",
+          "message": "collection skipped"
+        },
+        {
+          "test": "tests.integration.test_api_http::test_api_ocr_provenance_reaches_sources_citations_and_warnings[p02_reference_extraction]",
+          "kind": "skipped",
+          "message": "Extraction de référence P02 absente de ce poste : /workspace/scratch/9e69d002271a/agentPDFDoc/.runtime/qa/r23-model-native-20261004-wyQVqE/data/extractions/7195ce39-77fc-48ed-95a6-d0641e508a41/199f18ae-d7c3-4a7b-b235-9cc982f2c8cf/extraction.json"
+        },
+        {
+          "test": "tests.integration.test_api_http::test_api_original_behind_junction_or_outside_storage_is_never_served",
+          "kind": "skipped",
+          "message": "Jonction de répertoire Windows, créée sans droit administrateur"
+        },
+        {
+          "test": "tests.unit.test_dist_install_script::test_index_storage_too_long_for_qdrant_is_refused_before_any_copy",
+          "kind": "skipped",
+          "message": "install.ps1 vise Windows PowerShell 5.1"
+        },
+        {
+          "test": "tests.unit.test_dist_install_script::test_altered_kit_file_stops_the_installation_with_an_intact_french_message",
+          "kind": "skipped",
+          "message": "install.ps1 vise Windows PowerShell 5.1"
+        },
+        {
+          "test": "tests.unit.test_dist_install_script::test_existing_data_without_update_is_refused_before_any_copy",
+          "kind": "skipped",
+          "message": "install.ps1 vise Windows PowerShell 5.1"
+        },
+        {
+          "test": "tests.unit.test_dist_install_script::test_update_backs_up_verifies_and_stops_the_previous_version_before_copying",
+          "kind": "skipped",
+          "message": "install.ps1 vise Windows PowerShell 5.1"
+        },
+        {
+          "test": "tests.unit.test_dist_shortcuts::test_shortcuts_point_to_the_action_script_with_the_user_profile",
+          "kind": "skipped",
+          "message": "raccourcis Windows et PowerShell 5.1"
+        },
+        {
+          "test": "tests.unit.test_dist_shortcuts::test_shortcut_actions_on_a_stopped_instance_report_in_french_without_pausing",
+          "kind": "skipped",
+          "message": "raccourcis Windows et PowerShell 5.1"
+        },
+        {
+          "test": "tests.unit.test_dist_uninstall::test_uninstall_removes_this_version_stops_its_instance_and_keeps_data",
+          "kind": "skipped",
+          "message": "désinstallation Windows et PowerShell 5.1"
+        },
+        {
+          "test": "tests.unit.test_dist_uninstall::test_uninstall_leaves_the_instance_and_shortcuts_of_another_version",
+          "kind": "skipped",
+          "message": "désinstallation Windows et PowerShell 5.1"
+        },
+        {
+          "test": "tests.unit.test_dist_uninstall::test_uninstall_refuses_a_folder_that_is_not_an_installation",
+          "kind": "skipped",
+          "message": "désinstallation Windows et PowerShell 5.1"
+        },
+        {
+          "test": "tests.unit.test_powershell_syntax::test_powershell_script_parses_without_syntax_error[bootstrap.ps1]",
+          "kind": "skipped",
+          "message": "PowerShell absent : ni RAG_TEST_PWSH, ni pwsh, ni powershell dans le PATH"
+        },
+        {
+          "test": "tests.unit.test_powershell_syntax::test_powershell_script_parses_without_syntax_error[rag.ps1]",
+          "kind": "skipped",
+          "message": "PowerShell absent : ni RAG_TEST_PWSH, ni pwsh, ni powershell dans le PATH"
+        },
+        {
+          "test": "tests.unit.test_powershell_syntax::test_powershell_script_parses_without_syntax_error[tools/dist/install.ps1]",
+          "kind": "skipped",
+          "message": "PowerShell absent : ni RAG_TEST_PWSH, ni pwsh, ni powershell dans le PATH"
+        },
+        {
+          "test": "tests.unit.test_powershell_syntax::test_powershell_script_parses_without_syntax_error[tools/dist/raccourci.ps1]",
+          "kind": "skipped",
+          "message": "PowerShell absent : ni RAG_TEST_PWSH, ni pwsh, ni powershell dans le PATH"
+        },
+        {
+          "test": "tests.unit.test_powershell_syntax::test_powershell_script_parses_without_syntax_error[tools/dist/shortcuts.ps1]",
+          "kind": "skipped",
+          "message": "PowerShell absent : ni RAG_TEST_PWSH, ni pwsh, ni powershell dans le PATH"
+        },
+        {
+          "test": "tests.unit.test_powershell_syntax::test_powershell_script_parses_without_syntax_error[tools/dist/uninstall.ps1]",
+          "kind": "skipped",
+          "message": "PowerShell absent : ni RAG_TEST_PWSH, ni pwsh, ni powershell dans le PATH"
+        },
+        {
+          "test": "tests.unit.test_powershell_syntax::test_the_parser_reports_a_syntax_error",
+          "kind": "skipped",
+          "message": "PowerShell absent : ni RAG_TEST_PWSH, ni pwsh, ni powershell dans le PATH"
+        },
+        {
+          "test": "tests.unit.test_powershell_syntax::test_the_diagnostic_shortcut_prints_the_proposal_the_summary_points_to",
+          "kind": "skipped",
+          "message": "PowerShell absent : ni RAG_TEST_PWSH, ni pwsh, ni powershell dans le PATH"
+        },
+        {
+          "test": "tests.unit.test_powershell_syntax::test_the_installer_prints_the_proposal_the_summary_points_to[rubriques-      Proposition : {proposal}]",
+          "kind": "skipped",
+          "message": "PowerShell absent : ni RAG_TEST_PWSH, ni pwsh, ni powershell dans le PATH"
+        },
+        {
+          "test": "tests.unit.test_powershell_syntax::test_the_installer_prints_the_proposal_the_summary_points_to[sans-demarrage-  Proposition, rubrique calcul : {proposal}]",
+          "kind": "skipped",
+          "message": "PowerShell absent : ni RAG_TEST_PWSH, ni pwsh, ni powershell dans le PATH"
+        },
+        {
+          "test": "tests.unit.test_runtime_doctor::test_versioned_lock_matches_profile_and_local_store_when_provisioned",
+          "kind": "skipped",
+          "message": "Stockage Ollama local non provisionné"
+        },
+        {
+          "test": "tests.unit.test_runtime_supervisor::test_rotation_blocked_by_reader_retries_without_losing_samples",
+          "kind": "skipped",
+          "message": "Lecteur Win32 sans FILE_SHARE_DELETE (pywin32)"
+        }
+      ]
+    },
+    {
+      "name": "same_http_failures_on_immutable_I1",
+      "path": ".runtime/qa/enhanced-4b-iteration2/gates/python-final/i1-http-reproduction.xml",
+      "sha256": "6fd9522d308d8b500b4a5a94e8921b83065b3a012795f7835217929c58557a22",
+      "tests": 6,
+      "passed": 3,
+      "failed_or_error": 2,
+      "skipped": 1,
+      "failures": [
+        {
+          "test": "tests.integration.test_api_http::test_api_releases_e5_only_for_cold_insufficient_memory[False-True-5000-False]",
+          "kind": "failure",
+          "message": "assert (False is False and True is False)\n +  where True = bool(1)\n +    where 1 = <test_api_http.test_api_releases_e5_only_for_cold_insufficient_memory.<locals>.ControlledEmbedding object at 0x7ffa59c63ad0>.released"
+        },
+        {
+          "test": "tests.integration.test_api_http::test_api_ocr_provenance_reaches_sources_citations_and_warnings[controlled_ocr_ready]",
+          "kind": "failure",
+          "message": "AssertionError: assert ([{'document_count': 1, 'documents': [{'document_id': '41024979-5f12-40b1-9847-04093bcef32f', 'document_name': 'control...-0688-43a0-8d44-bf64293b9e6a', 'pages': [...], 'text': 'Le couple de serrage prescrit pour DA-P02 est de 14 N·m.'}]}]}] and False)\n +  where False = all(<generator object test_api_ocr_provenance_reaches_sources_citations_and_warnings.<locals>.<genexpr> at 0x7ffa59b94c70>)"
+        }
+      ],
+      "skip_reasons": [
+        {
+          "test": "tests.integration.test_api_http::test_api_ocr_provenance_reaches_sources_citations_and_warnings[p02_reference_extraction]",
+          "kind": "skipped",
+          "message": "Extraction de référence P02 absente de ce poste : /workspace/scratch/9e69d002271a/agentPDFDoc_iteration1/.runtime/qa/r23-model-native-20261004-wyQVqE/data/extractions/7195ce39-77fc-48ed-95a6-d0641e508a41/199f18ae-d7c3-4a7b-b235-9cc982f2c8cf/extraction.json"
+        }
+      ]
+    },
+    {
+      "name": "http_corrected_expectations",
+      "path": ".runtime/qa/enhanced-4b-iteration2/gates/python-final/http-contract-corrected.xml",
+      "sha256": "10b23f769fe58cf35ace86f0037447181a482811f49cb5bfeb523cbfad37b0ca",
+      "tests": 75,
+      "passed": 73,
+      "failed_or_error": 0,
+      "skipped": 2,
+      "failures": [],
+      "skip_reasons": [
+        {
+          "test": "tests.integration.test_api_http::test_api_ocr_provenance_reaches_sources_citations_and_warnings[p02_reference_extraction]",
+          "kind": "skipped",
+          "message": "Extraction de référence P02 absente de ce poste : /workspace/scratch/9e69d002271a/agentPDFDoc/.runtime/qa/r23-model-native-20261004-wyQVqE/data/extractions/7195ce39-77fc-48ed-95a6-d0641e508a41/199f18ae-d7c3-4a7b-b235-9cc982f2c8cf/extraction.json"
+        },
+        {
+          "test": "tests.integration.test_api_http::test_api_original_behind_junction_or_outside_storage_is_never_served",
+          "kind": "skipped",
+          "message": "Jonction de répertoire Windows, créée sans droit administrateur"
+        }
+      ]
+    },
+    {
+      "name": "native_integration",
+      "path": ".runtime/qa/enhanced-4b-iteration2/gates/integration-final/pytest-integration.xml",
+      "sha256": "97b665f7018ccc6804afacab2634b6a0dc21050984a3ef15de8c525a44d496df",
+      "tests": 44,
+      "passed": 34,
+      "failed_or_error": 6,
+      "skipped": 4,
+      "failures": [
+        {
+          "test": "tests.integration.test_ingestion_ocr::test_real_mixed_native_and_scanned_table_without_duplicate",
+          "kind": "failure",
+          "message": "AssertionError: {'error': {'code': 'TESSERACT_UNAVAILABLE', 'details': {}, 'message': 'Le binaire OCR local est absent ou ne répond pas.'}, 'ok': False}\nassert (2 == 0)\n +  where 2 = CompletedProcess(args=['/workspace/scratch/9e69d002271a/agentPDFDoc/.venv/bin/python', '-X', 'utf8', '-m', 'services.i...p/pytest-of-agent/pytest-23/test_real_mixed_native_and_sca0/worker-result.json'], returncode=2, stdout=b'', stderr=b'').returncode"
+        },
+        {
+          "test": "tests.integration.test_ingestion_ocr::test_real_french_scan_and_region_orientation[0]",
+          "kind": "failure",
+          "message": "AssertionError: {'error': {'code': 'TESSERACT_UNAVAILABLE', 'details': {}, 'message': 'Le binaire OCR local est absent ou ne répond pas.'}, 'ok': False}\nassert (2 == 0)\n +  where 2 = CompletedProcess(args=['/workspace/scratch/9e69d002271a/agentPDFDoc/.venv/bin/python', '-X', 'utf8', '-m', 'services.i...p/pytest-of-agent/pytest-23/test_real_french_scan_and_regi0/worker-result.json'], returncode=2, stdout=b'', stderr=b'').returncode"
+        },
+        {
+          "test": "tests.integration.test_ingestion_ocr::test_real_french_scan_and_region_orientation[90]",
+          "kind": "failure",
+          "message": "AssertionError: {'error': {'code': 'TESSERACT_UNAVAILABLE', 'details': {}, 'message': 'Le binaire OCR local est absent ou ne répond pas.'}, 'ok': False}\nassert (2 == 0)\n +  where 2 = CompletedProcess(args=['/workspace/scratch/9e69d002271a/agentPDFDoc/.venv/bin/python', '-X', 'utf8', '-m', 'services.i...p/pytest-of-agent/pytest-23/test_real_french_scan_and_regi1/worker-result.json'], returncode=2, stdout=b'', stderr=b'').returncode"
+        },
+        {
+          "test": "tests.integration.test_ingestion_ocr::test_real_raster_schema_with_unresolved_orientation_yields_no_ocr_text",
+          "kind": "failure",
+          "message": "AssertionError: {'error': {'code': 'TESSERACT_UNAVAILABLE', 'details': {}, 'message': 'Le binaire OCR local est absent ou ne répond pas.'}, 'ok': False}\nassert (2 == 0)\n +  where 2 = CompletedProcess(args=['/workspace/scratch/9e69d002271a/agentPDFDoc/.venv/bin/python', '-X', 'utf8', '-m', 'services.i...p/pytest-of-agent/pytest-23/test_real_raster_schema_with_u0/worker-result.json'], returncode=2, stdout=b'', stderr=b'').returncode"
+        },
+        {
+          "test": "tests.integration.test_ingestion_ocr::test_real_mixed_scan_preserves_all_control_table_cells_and_units",
+          "kind": "failure",
+          "message": "AssertionError: {'error': {'code': 'TESSERACT_UNAVAILABLE', 'details': {}, 'message': 'Le binaire OCR local est absent ou ne répond pas.'}, 'ok': False}\nassert (2 == 0)\n +  where 2 = CompletedProcess(args=['/workspace/scratch/9e69d002271a/agentPDFDoc/.venv/bin/python', '-X', 'utf8', '-m', 'services.i...p/pytest-of-agent/pytest-23/test_real_mixed_scan_preserves0/worker-result.json'], returncode=2, stdout=b'', stderr=b'').returncode"
+        },
+        {
+          "test": "tests.integration.test_ingestion_ocr::test_real_five_page_scan_reuses_pipeline_across_windows",
+          "kind": "failure",
+          "message": "AssertionError: {'error': {'code': 'TESSERACT_UNAVAILABLE', 'details': {}, 'message': 'Le binaire OCR local est absent ou ne répond pas.'}, 'ok': False}\nassert (2 == 0)\n +  where 2 = CompletedProcess(args=['/workspace/scratch/9e69d002271a/agentPDFDoc/.venv/bin/python', '-X', 'utf8', '-m', 'services.i...p/pytest-of-agent/pytest-23/test_real_five_page_scan_reuse0/worker-result.json'], returncode=2, stdout=b'', stderr=b'').returncode"
+        }
+      ],
+      "skip_reasons": [
+        {
+          "test": "::tests.integration.test_runtime_windows_job",
+          "kind": "skipped",
+          "message": "collection skipped"
+        },
+        {
+          "test": "tests.integration.test_ingestion_rendering::test_seh_observer_records_a_deliberately_handled_access_violation",
+          "kind": "skipped",
+          "message": "Windows SEH control."
+        },
+        {
+          "test": "tests.integration.test_runtime_windows_atomic::test_real_windows_reader_sharing_conflict_is_retried",
+          "kind": "skipped",
+          "message": "NTFS/Win32 integration"
+        },
+        {
+          "test": "tests.integration.test_runtime_windows_atomic::test_concurrent_writers_and_readers_publish_only_complete_json",
+          "kind": "skipped",
+          "message": "NTFS/Win32 integration"
+        }
+      ]
+    },
+    {
+      "name": "answers_final_targeted",
+      "path": ".runtime/qa/enhanced-4b-iteration2/answers/final-targeted.xml",
+      "sha256": "b83f49f506e533b4a374a05fdea8a6e2d14cb44df763d6a3efa0eca99befb6d1",
+      "tests": 182,
+      "passed": 182,
+      "failed_or_error": 0,
+      "skipped": 0,
+      "failures": [],
+      "skip_reasons": []
+    },
+    {
+      "name": "table_numeric_functional",
+      "path": ".runtime/qa/enhanced-4b-iteration2/evidence/pytest-final-03.xml",
+      "sha256": "98583a409bb0a15aee5defc86ea11aab0593e1f00ad71f59075be4fbda43ab5b",
+      "tests": 124,
+      "passed": 124,
+      "failed_or_error": 0,
+      "skipped": 0,
+      "failures": [],
+      "skip_reasons": []
+    },
+    {
+      "name": "table_after_static_fixes",
+      "path": ".runtime/qa/enhanced-4b-iteration2/evidence/pytest-lint-fix-01.xml",
+      "sha256": "85b15b985e15e37eaa618913c621d43676e12d7f76a5514c5c40d4a342c1ee3b",
+      "tests": 32,
+      "passed": 32,
+      "failed_or_error": 0,
+      "skipped": 0,
+      "failures": [],
+      "skip_reasons": []
+    },
+    {
+      "name": "query_route",
+      "path": ".runtime/qa/enhanced-4b-iteration2/query-route.xml",
+      "sha256": "3080d29d6c893acf7fe428e29ea0503dff13e831705f5cb2c43230613daff34d",
+      "tests": 2,
+      "passed": 2,
+      "failed_or_error": 0,
+      "skipped": 0,
+      "failures": [],
+      "skip_reasons": []
+    },
+    {
+      "name": "revision_harness",
+      "path": ".runtime/qa/enhanced-4b-iteration2/protocol/harness-review/pytest-v2-junit.xml",
+      "sha256": "d6b8988ad0816a009c45d6998671e39e41c78c8366f9574ed42ca6c54cefa2ea",
+      "tests": 23,
+      "passed": 23,
+      "failed_or_error": 0,
+      "skipped": 0,
+      "failures": [],
+      "skip_reasons": []
+    },
+    {
+      "name": "application_review_regressions",
+      "path": ".runtime/qa/enhanced-4b-iteration2/protocol/application-review-final-03/targeted-junit.xml",
+      "sha256": "a93743e95eef62bf151f6b7cbac85cee894a0f86d8ebfd026890978c622b61a7",
+      "tests": 28,
+      "passed": 28,
+      "failed_or_error": 0,
+      "skipped": 0,
+      "failures": [],
+      "skip_reasons": []
+    }
+  ],
+  "test_count_note": "Targeted and HTTP suites overlap the general suite; counts must not be summed. Original failed executions remain included.",
+  "static_checks": {
+    "recorded_utc": "2026-11-08T11:39:49.531938+00:00",
+    "mypy": {
+      "command": ".venv/bin/mypy --cache-dir .runtime/qa/enhanced-4b-iteration2/gates/python-final/mypy-cache",
+      "exit_code": 0,
+      "result": "Success: no issues found in 123 source files",
+      "log_sha256": "62f7c4c63dd61757257e3e6457752556858069091c5f9afd703f3e2aaee660f7"
+    },
+    "ruff": {
+      "result": "All checks passed!",
+      "exit_code": 0,
+      "scope": "12 changed/new Python source and test files; observed in execution output after fixes"
+    },
+    "corrections": "Explicit types, narrowing, bound closure defaults, strict=False for adjacent zip, sorted imports. No ignores added.",
+    "source_sha256": {
+      "services/api/answer_contract.py": "71b3526d8d02cdd568e029785c2324a79dc9f76bd85081c3f0e3853d232c51c1",
+      "services/api/structured_answer.py": "3c180697c7b19e95d3c709c936533fac397d459c3334ad2750ea93463defe9ee",
+      "services/api/deterministic_calculations.py": "8541de3505ce8cd7b201ad8aa6686a1c9963cafd474a7b47b6ceacde2685c52b",
+      "services/api/evidence_selection.py": "383871abd1db914602356e40d5777032415261cf43ae4817756dff8cfb5a9b2d",
+      "services/api/query.py": "118e3912d82b59b9e6c7c69a1f6376caeda65c15df742215d211862cada1c587",
+      "services/ingestion/numeric_evidence.py": "4826f3e32c362fab415af249b11c324da7ee0f451fccb49d6d3ebbb9f20c3015"
+    }
+  },
+  "final_python_style_check": {
+    "started_utc": "2026-11-08T13:11:10.325379+00:00",
+    "finished_utc": "2026-11-08T13:11:10.389112+00:00",
+    "exit_code": 0,
+    "paths": [
+      "services/api/answer_contract.py",
+      "services/api/deterministic_calculations.py",
+      "services/api/evidence_selection.py",
+      "services/api/query.py",
+      "services/api/structured_answer.py",
+      "services/ingestion/numeric_evidence.py",
+      "tests/integration/test_api_http.py",
+      "tests/unit/test_iteration2_answer_contract.py",
+      "tests/unit/test_iteration2_numeric_evidence.py",
+      "tests/unit/test_iteration2_query_route.py",
+      "tests/unit/test_iteration2_table_evidence.py",
+      "tests/unit/test_revision_campaign.py",
+      "tools/qualification/revision_campaign.py"
+    ],
+    "file_sha256": {
+      "services/api/answer_contract.py": "71b3526d8d02cdd568e029785c2324a79dc9f76bd85081c3f0e3853d232c51c1",
+      "services/api/deterministic_calculations.py": "8541de3505ce8cd7b201ad8aa6686a1c9963cafd474a7b47b6ceacde2685c52b",
+      "services/api/evidence_selection.py": "383871abd1db914602356e40d5777032415261cf43ae4817756dff8cfb5a9b2d",
+      "services/api/query.py": "118e3912d82b59b9e6c7c69a1f6376caeda65c15df742215d211862cada1c587",
+      "services/api/structured_answer.py": "3c180697c7b19e95d3c709c936533fac397d459c3334ad2750ea93463defe9ee",
+      "services/ingestion/numeric_evidence.py": "4826f3e32c362fab415af249b11c324da7ee0f451fccb49d6d3ebbb9f20c3015",
+      "tests/integration/test_api_http.py": "9d421df068f523179a27baca1bef518083ba387931a8d6d2c1368e05eae11ab2",
+      "tests/unit/test_iteration2_answer_contract.py": "3690e4468dcd14359cb3d7340dbb4ef0edbe08d4d7ad7fc9c43684ac56479ef8",
+      "tests/unit/test_iteration2_numeric_evidence.py": "40a77da8e3bcb75b7c0a23c43fbc6910d61fcad0ce1ee196e00b2641e9184bb9",
+      "tests/unit/test_iteration2_query_route.py": "ffbf796753ab09aafbba71a5426010812a5b6107f24a4babca8665299f0efa9f",
+      "tests/unit/test_iteration2_table_evidence.py": "edb27054ef52c79f0c72030c9ad8ee5457d55c4fd296fa996adab4bd85fb1b32",
+      "tests/unit/test_revision_campaign.py": "a61682749651dbbe70695da7d04276dc10d0b989153d14ecf30f1e90883b933c",
+      "tools/qualification/revision_campaign.py": "e831ec1b8da8bfa107b662a67f688033b3390feca7912e2b1df8bd2834f16d12"
+    },
+    "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "scope": "final changed/new Python files; no unchanged-code broad retest"
+  },
+  "frontend_receipts": [
+    {
+      "name": "web-unit",
+      "started_utc": "2026-11-08T11:31:56.835320+00:00",
+      "finished_utc": "2026-11-08T11:32:04.227745+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 7.392
+    },
+    {
+      "name": "web-lint",
+      "started_utc": "2026-11-08T11:32:04.228224+00:00",
+      "finished_utc": "2026-11-08T11:32:15.822494+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 11.594
+    },
+    {
+      "name": "web-typecheck",
+      "started_utc": "2026-11-08T11:32:15.823082+00:00",
+      "finished_utc": "2026-11-08T11:32:26.010814+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 10.188
+    },
+    {
+      "name": "web-build",
+      "started_utc": "2026-11-08T11:32:26.011547+00:00",
+      "finished_utc": "2026-11-08T11:33:07.597865+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 41.586
+    }
+  ],
+  "application_review": {
+    "path": ".runtime/qa/enhanced-4b-iteration2/protocol/application-review-final-04/receipt.json",
+    "sha256": "f46cd5373656ea7e4a2c451ed6943a9333c81b49a780f9dc109a08c8850e39fe"
+  },
+  "http_gate_review": {
+    "path": ".runtime/qa/enhanced-4b-iteration2/protocol/http-gate-review.json",
+    "sha256": "7dc5d366d6926fd75f58546d6a9fdcce6e7749e559c7a909c4440bd018c5a7ee"
+  },
+  "ocr_prerequisites": {
+    "path": ".runtime/qa/enhanced-4b-iteration2/ocr-prerequisites/inspection.json",
+    "sha256": "397ebdbc6fdff2a9ff5ebbf7ff83fc64a84aee1c604a475bab67f97a6a691c2a"
+  },
+  "model_manifest": {
+    "path": ".runtime/manifests/qwen3-4b-iteration2.json",
+    "sha256": "419d91faf59e2631fea102b3c7c778fa1e74f8c9c608cb7fb9ff8697609c223c"
+  },
+  "protocol": {
+    "path": ".runtime/qa/enhanced-4b-iteration2/native-inputs-frozen.json",
+    "sha256": "a28606d58b10f7f810154c3c63c8bfa4737e32dc424e38d796f389b071163271"
+  },
+  "profile": {
+    "path": ".runtime/qa/enhanced-4b-iteration2/native-common-profile.yaml",
+    "sha256": "b7994cb7b02352091829fed34f4f54c4e3144bcabe514f55a71e66a11f6ad7bf"
+  },
+  "measurement_harness": {
+    "path": "tools/qualification/revision_campaign.py",
+    "sha256": "e831ec1b8da8bfa107b662a67f688033b3390feca7912e2b1df8bd2834f16d12"
+  },
+  "source_manifests": {
+    "b01-attempt02-iteration1": {
+      "git_head": "4356fd0678c1e85a35e1e2eb1aef753a5e8c7806",
+      "snapshot_kind": "working_source_files_before_first_query",
+      "files": {
+        "services/__init__.py": "c12bdd8738ebad610312111341112496363a2ad42a3a5e5e3118354d83b8bc7e",
+        "services/api/__init__.py": "6e1626978265dd2ee6c3798b50e440e67667d52b97456feda09180feb494f668",
+        "services/api/answer_contract.py": "226483303858c5caea630e72177b772ff4bace988ce1d6385949bdfb6ed36d2f",
+        "services/api/background.py": "2391a155b841ecb39eb8f5911937325ec30f0a86c9c3b728e97320006dca906b",
+        "services/api/claims.py": "aa858413c9cd3b567f47af49349b802db3327fa1db1f9925ccde0302a8dd3d86",
+        "services/api/comparison.py": "d39e4dfccb2789c5fd3315f8ebf5ecaf0a1fc394466b012af19fc4d6a6718d41",
+        "services/api/context.py": "6d9aba76c1d7df84873b33da2592db4bcb7e48595b11b057b6e283b7ad0023c6",
+        "services/api/db.py": "a2093fa2b6aa1fd33793ef93a2fc9b354723d73e3b77d5b0d2a5bb1f9dbab382",
+        "services/api/deterministic_calculations.py": "9b12598ed22fd649bcbd947eb07510c4b506fcad5a0af29ab0637e50a5fc29d5",
+        "services/api/embedding.py": "af65250c49f398c56560e630a5f955e376dd25a9f367b3a1174212dfb075809a",
+        "services/api/embedding_comparison.py": "4a8b319b381a4d613797079c67326991e4c9d7bfa53f7a023396e488e716b788",
+        "services/api/errors.py": "c5c293e666ed920b18d7c188a9c5afbf43875b553aefcaad5d537292977f47c8",
+        "services/api/evidence_selection.py": "fe0d0fd344effe93c255f265a00390db6f346225ceb4cb773264de7d4a4725dc",
+        "services/api/execution_trace.py": "64d85c6eee47282d6de72c141b6286d481879dcae9b6ae499e38bd3729d39278",
+        "services/api/indexing.py": "191269d40518d0a8f037d7bf69c30cb9bf408940d8bfa55adb617e4f99d6691c",
+        "services/api/jobs.py": "dcb9823ff1e2efe649aa32893f6e444d0306329770e3f84b503a80f86803147f",
+        "services/api/main.py": "08a960c3eba2c66291f3d7e12be8de21f59cdf6df0b47c931456e438a688346f",
+        "services/api/office.py": "4e5c6d1ff03c25f92d79a9206573b7d8c9024cde59bd70ad840a998aa2de47c3",
+        "services/api/office_search.py": "12e2270cb5fb5e85e2b3430fe9b37e647c291e99c9fdfbf2d82ecab68077b314",
+        "services/api/ollama.py": "eafaa233ba1190d190cb8a0d35595d3e2d87c88e955b1ffe4defa753a09deaa5",
+        "services/api/qualification.py": "fb83443ff7120b0cad4ef9500f3bc83411f2490586affa934460c6a9b1faa7ac",
+        "services/api/query.py": "0d2f033b0e8ddbecda7c43546ac84825c76184ebdfc5d3c72b1045921ada90d6",
+        "services/api/reconcile.py": "d5d961349d110fab768c7d8c5ee1b0889aeb8c8b50e4478f74971876c70269aa",
+        "services/api/retrieval.py": "4cef30fc1c5201697c7f6cf21faaab71771e4e1fa986dcf0b98659e83aa34212",
+        "services/api/schemas.py": "b3dfdabcdc413b36d140525962456210fd457b30574cdbc51ed38c9020e70202",
+        "services/api/scope.py": "6fd0ba75b87c58d29ecda4add99f5b3e1a5d5fc3896ed609188e27c9d0c1104e",
+        "services/api/security.py": "8b096b7bcdcdd635aab11a38a6b6588f2fd36e6d3c4336e024de96b635aa35fa",
+        "services/api/settings.py": "ef9ae69ae8f876596bc17fd5ec32d4a6ed56119f0de5f693bb13e18c8dc9834d",
+        "services/api/structured_answer.py": "e81e8fbcce6f37d791e53ccab1de5e9202007af8159ad4a70cf92bfe1770af85",
+        "services/ingestion/__init__.py": "0fda437cf4d6d2b96026d6919ceae5564e98f6be1a3e876948106179d4f536af",
+        "services/ingestion/checkpoint.py": "dafc17136017532e848cf1d74b8505a982721abad95177fbc88b1dbd75dfc622",
+        "services/ingestion/config.py": "0105b23ada85675109acc467dfbe1c31c0dd199b0f47fece63f3d2de6a0714d9",
+        "services/ingestion/docling_adapter.py": "c09d26b71f23c605aa7747f0e2cabf80040102280b068a82ef5ae3ec6851e2fb",
+        "services/ingestion/errors.py": "0a88fda87c3b1e1a8a4c929179b0b7898666e10356885a9f0ad4083a6852ad6e",
+        "services/ingestion/geometry.py": "0a273cece3840313ff057c6c412edde186622de1994b3cab32aacd97fedccba3",
+        "services/ingestion/lifecycle.py": "fdb9b8091a43a292d64612f13e3af75fe08055047f3097e647e6a1b4b7d2122f",
+        "services/ingestion/numeric_evidence.py": "e7c9cc923eec8f4831c56220d93441c1e35965cdbbbc27de6fe381175880e8eb",
+        "services/ingestion/office/__init__.py": "e62839058182e1312d19f4f3d65d060d61410419966fa7c94dc4dfc5abdcc517",
+        "services/ingestion/office/docx.py": "b91062fefdd99a1611199df1e456883f3e5d5eef64001359fd6b8ab42cfdc8e3",
+        "services/ingestion/office/models.py": "3adadafcfe20c48054cb6e7b326b5abdc0849d8712f9f1cfc4453a014a301317",
+        "services/ingestion/office/opc.py": "cdded86648de9efdbb4e60f4655224dbe041b3b37ef5f0f725a7454564ae97de",
+        "services/ingestion/office/pipeline.py": "085b0111dea0e82873a5a5a51e21f59bde329d8201461dff76c6dab56de06329",
+        "services/ingestion/office/worker.py": "bb070a8b05d98b4da2488d131663da87834cc8248cdfba850577304007c93c66",
+        "services/ingestion/office/xlsx.py": "59c138a7434744843637cea1b497f40eca72444c87b59f020a4de48e0300a0da",
+        "services/ingestion/pipeline.py": "01f60012770604f2d9b24c2a8b2d282717aa5e70f60ee741f109971af99bc8d5",
+        "services/ingestion/preflight.py": "0fd91771ccba6fe29fc96c2b4f28ce9cc31edf96edc1473ec81129019a8861d7",
+        "services/ingestion/regional_aspect.py": "dbce34736773642a83623cead4dffda438a9709d7db30cf647dc4d70eb1e02e5",
+        "services/ingestion/regional_grid.py": "2f86ed87ebc4df3a6b5f6c9b7b1dfe966e1c7ee2abebab5b489274bbb9e4f87f",
+        "services/ingestion/regional_row_context.py": "6df58f00abe22e5ed32ce4c0c47a82bca7efea384192996e456589cf95b7f8be",
+        "services/ingestion/regional_tables.py": "445cef32d6331410dd2adc1307fc3a03cf110bc91d66ca13d443466ed4aaf0bd",
+        "services/ingestion/worker.py": "de941aba4c38580d87a1c55ed6e5cc29f3b3a71094730df71cf56685da585775",
+        "services/runtime/__init__.py": "3a80e593d30c4feddf875275eb369560c83d65966133cb6c400beb250fe7d7fe",
+        "services/runtime/accelerator.py": "d24b4dcf6dcd746702aee29a42ae9e93b30d1f3d6385c34ae492e6e15bfc1867",
+        "services/runtime/api_entry.py": "eaeb6bba0f2079aed4dee7cf86b166582572560a0313e17b76e6b67de26b8335",
+        "services/runtime/artifacts.py": "ad94874d285405dcf547d895b345c0f4eddac5fbef9b52a499cbbc0b87695a78",
+        "services/runtime/backup.py": "a45e699f7a730a94251cec10d031385e561f6eb433f8860c4a8b0eca11cac61d",
+        "services/runtime/calibration.py": "b9f4c5b68d74ee5fdc045c0d8ef33a7b02e89f18a9d6bb76473568d8e5d32f3e",
+        "services/runtime/cli.py": "25bfe560220e059edc94b0d77e7cd71bd297bb67fc2098ef3ff1ec683752510b",
+        "services/runtime/comparison_artifacts.py": "636d967b80ba918ec12ab350cfcee04879081b24e94608b622a2712c056175a3",
+        "services/runtime/console_signal.py": "d54867e86373f32556b84a65c4f88a3b66e9d35a6c4aedac8aad17924fd7e08f",
+        "services/runtime/inventory.py": "a3c6de5b2a2ccfe8a413181457139f57ad36742fc4d7b1bca3c1d818fdd216c1",
+        "services/runtime/model_profiles.py": "d025a2d1ef408c935f6e0c94f18ce21f418d0bdf9cf3f50462c8124f7c548d47",
+        "services/runtime/platforms.py": "938026b84c3e76a1a1708fddd88628ef92cb24adf606c6ee7ed21b74df42b25f",
+        "services/runtime/posix_process.py": "3115d9ea2b163cb28a46f8a0d6b757240ddcda9db47904797cbb498429ea3626",
+        "services/runtime/profile_schema.py": "c42ceb0dbcdbbd0eaca0f471f71e2bcf26101c1dbc42986136f770f36d28e418",
+        "services/runtime/profile_setup.py": "3812faa5dd94d55c9eeb0569be9d252f5670499b1b5bb2fd5d02a8171ffdbdbe",
+        "services/runtime/provisioning.py": "e22f92f7c497db7b8bd29b3521dc937ecc6b3a896063cec22f1b5efc0386f134",
+        "services/runtime/resources.py": "89d54542a09e6d8a38af01b728217eeaa574b9b07febfc2889a1163a6d71e8af",
+        "services/runtime/selftest.py": "95989d0636ee5ab6db7eb0106fdab4df451e68e622cd232f287e565bb61990a7",
+        "services/runtime/source_manifest.py": "488c2eab8fe840e93d6caf396bb921cb4687d1da2ced400d35bab5a3f56bfc9f",
+        "services/runtime/supervisor.py": "0a230b2c8c1e160566e85ffcccba8ea8d47bbd59ec2e3017fb876ca559323a24",
+        "services/runtime/text_model.py": "e24f49cd01b8952894caac278b8d915711ec4ca7388962f6e355bdab8b3839a7",
+        "services/runtime/verdict.py": "c480d43473880698bb91d6b0a457d4348664dcd61b0301333378062579629049",
+        "services/runtime/windows_process.py": "d55bf2b7f8648f3f304fadd710aa9489f89dfe05147fe7b850557098a1a73d16",
+        "tools/qualification/enhanced_campaign.py": "71ee1beb3e382f1bff3224ba05e1d507bc594a33b3156dd798a7cb9f84be08f2"
+      },
+      "archive_sha256": "ef508c35b1128ebb199e2eea42c6a1648e244927cf37b38fc0bb49343b3ce255"
+    },
+    "b02-iteration2": {
+      "git_head": "4356fd0678c1e85a35e1e2eb1aef753a5e8c7806",
+      "snapshot_kind": "working_source_files_before_first_query",
+      "files": {
+        "services/__init__.py": "c12bdd8738ebad610312111341112496363a2ad42a3a5e5e3118354d83b8bc7e",
+        "services/api/__init__.py": "6e1626978265dd2ee6c3798b50e440e67667d52b97456feda09180feb494f668",
+        "services/api/answer_contract.py": "71b3526d8d02cdd568e029785c2324a79dc9f76bd85081c3f0e3853d232c51c1",
+        "services/api/background.py": "2391a155b841ecb39eb8f5911937325ec30f0a86c9c3b728e97320006dca906b",
+        "services/api/claims.py": "aa858413c9cd3b567f47af49349b802db3327fa1db1f9925ccde0302a8dd3d86",
+        "services/api/comparison.py": "d39e4dfccb2789c5fd3315f8ebf5ecaf0a1fc394466b012af19fc4d6a6718d41",
+        "services/api/context.py": "6d9aba76c1d7df84873b33da2592db4bcb7e48595b11b057b6e283b7ad0023c6",
+        "services/api/db.py": "a2093fa2b6aa1fd33793ef93a2fc9b354723d73e3b77d5b0d2a5bb1f9dbab382",
+        "services/api/deterministic_calculations.py": "8541de3505ce8cd7b201ad8aa6686a1c9963cafd474a7b47b6ceacde2685c52b",
+        "services/api/embedding.py": "af65250c49f398c56560e630a5f955e376dd25a9f367b3a1174212dfb075809a",
+        "services/api/embedding_comparison.py": "4a8b319b381a4d613797079c67326991e4c9d7bfa53f7a023396e488e716b788",
+        "services/api/errors.py": "c5c293e666ed920b18d7c188a9c5afbf43875b553aefcaad5d537292977f47c8",
+        "services/api/evidence_selection.py": "383871abd1db914602356e40d5777032415261cf43ae4817756dff8cfb5a9b2d",
+        "services/api/execution_trace.py": "64d85c6eee47282d6de72c141b6286d481879dcae9b6ae499e38bd3729d39278",
+        "services/api/indexing.py": "191269d40518d0a8f037d7bf69c30cb9bf408940d8bfa55adb617e4f99d6691c",
+        "services/api/jobs.py": "dcb9823ff1e2efe649aa32893f6e444d0306329770e3f84b503a80f86803147f",
+        "services/api/main.py": "08a960c3eba2c66291f3d7e12be8de21f59cdf6df0b47c931456e438a688346f",
+        "services/api/office.py": "4e5c6d1ff03c25f92d79a9206573b7d8c9024cde59bd70ad840a998aa2de47c3",
+        "services/api/office_search.py": "12e2270cb5fb5e85e2b3430fe9b37e647c291e99c9fdfbf2d82ecab68077b314",
+        "services/api/ollama.py": "eafaa233ba1190d190cb8a0d35595d3e2d87c88e955b1ffe4defa753a09deaa5",
+        "services/api/qualification.py": "fb83443ff7120b0cad4ef9500f3bc83411f2490586affa934460c6a9b1faa7ac",
+        "services/api/query.py": "118e3912d82b59b9e6c7c69a1f6376caeda65c15df742215d211862cada1c587",
+        "services/api/reconcile.py": "d5d961349d110fab768c7d8c5ee1b0889aeb8c8b50e4478f74971876c70269aa",
+        "services/api/retrieval.py": "4cef30fc1c5201697c7f6cf21faaab71771e4e1fa986dcf0b98659e83aa34212",
+        "services/api/schemas.py": "b3dfdabcdc413b36d140525962456210fd457b30574cdbc51ed38c9020e70202",
+        "services/api/scope.py": "6fd0ba75b87c58d29ecda4add99f5b3e1a5d5fc3896ed609188e27c9d0c1104e",
+        "services/api/security.py": "8b096b7bcdcdd635aab11a38a6b6588f2fd36e6d3c4336e024de96b635aa35fa",
+        "services/api/settings.py": "ef9ae69ae8f876596bc17fd5ec32d4a6ed56119f0de5f693bb13e18c8dc9834d",
+        "services/api/structured_answer.py": "3c180697c7b19e95d3c709c936533fac397d459c3334ad2750ea93463defe9ee",
+        "services/ingestion/__init__.py": "0fda437cf4d6d2b96026d6919ceae5564e98f6be1a3e876948106179d4f536af",
+        "services/ingestion/checkpoint.py": "dafc17136017532e848cf1d74b8505a982721abad95177fbc88b1dbd75dfc622",
+        "services/ingestion/config.py": "0105b23ada85675109acc467dfbe1c31c0dd199b0f47fece63f3d2de6a0714d9",
+        "services/ingestion/docling_adapter.py": "c09d26b71f23c605aa7747f0e2cabf80040102280b068a82ef5ae3ec6851e2fb",
+        "services/ingestion/errors.py": "0a88fda87c3b1e1a8a4c929179b0b7898666e10356885a9f0ad4083a6852ad6e",
+        "services/ingestion/geometry.py": "0a273cece3840313ff057c6c412edde186622de1994b3cab32aacd97fedccba3",
+        "services/ingestion/lifecycle.py": "fdb9b8091a43a292d64612f13e3af75fe08055047f3097e647e6a1b4b7d2122f",
+        "services/ingestion/numeric_evidence.py": "4826f3e32c362fab415af249b11c324da7ee0f451fccb49d6d3ebbb9f20c3015",
+        "services/ingestion/office/__init__.py": "e62839058182e1312d19f4f3d65d060d61410419966fa7c94dc4dfc5abdcc517",
+        "services/ingestion/office/docx.py": "b91062fefdd99a1611199df1e456883f3e5d5eef64001359fd6b8ab42cfdc8e3",
+        "services/ingestion/office/models.py": "3adadafcfe20c48054cb6e7b326b5abdc0849d8712f9f1cfc4453a014a301317",
+        "services/ingestion/office/opc.py": "cdded86648de9efdbb4e60f4655224dbe041b3b37ef5f0f725a7454564ae97de",
+        "services/ingestion/office/pipeline.py": "085b0111dea0e82873a5a5a51e21f59bde329d8201461dff76c6dab56de06329",
+        "services/ingestion/office/worker.py": "bb070a8b05d98b4da2488d131663da87834cc8248cdfba850577304007c93c66",
+        "services/ingestion/office/xlsx.py": "59c138a7434744843637cea1b497f40eca72444c87b59f020a4de48e0300a0da",
+        "services/ingestion/pipeline.py": "01f60012770604f2d9b24c2a8b2d282717aa5e70f60ee741f109971af99bc8d5",
+        "services/ingestion/preflight.py": "0fd91771ccba6fe29fc96c2b4f28ce9cc31edf96edc1473ec81129019a8861d7",
+        "services/ingestion/regional_aspect.py": "dbce34736773642a83623cead4dffda438a9709d7db30cf647dc4d70eb1e02e5",
+        "services/ingestion/regional_grid.py": "2f86ed87ebc4df3a6b5f6c9b7b1dfe966e1c7ee2abebab5b489274bbb9e4f87f",
+        "services/ingestion/regional_row_context.py": "6df58f00abe22e5ed32ce4c0c47a82bca7efea384192996e456589cf95b7f8be",
+        "services/ingestion/regional_tables.py": "445cef32d6331410dd2adc1307fc3a03cf110bc91d66ca13d443466ed4aaf0bd",
+        "services/ingestion/worker.py": "de941aba4c38580d87a1c55ed6e5cc29f3b3a71094730df71cf56685da585775",
+        "services/runtime/__init__.py": "3a80e593d30c4feddf875275eb369560c83d65966133cb6c400beb250fe7d7fe",
+        "services/runtime/accelerator.py": "d24b4dcf6dcd746702aee29a42ae9e93b30d1f3d6385c34ae492e6e15bfc1867",
+        "services/runtime/api_entry.py": "eaeb6bba0f2079aed4dee7cf86b166582572560a0313e17b76e6b67de26b8335",
+        "services/runtime/artifacts.py": "ad94874d285405dcf547d895b345c0f4eddac5fbef9b52a499cbbc0b87695a78",
+        "services/runtime/backup.py": "a45e699f7a730a94251cec10d031385e561f6eb433f8860c4a8b0eca11cac61d",
+        "services/runtime/calibration.py": "b9f4c5b68d74ee5fdc045c0d8ef33a7b02e89f18a9d6bb76473568d8e5d32f3e",
+        "services/runtime/cli.py": "25bfe560220e059edc94b0d77e7cd71bd297bb67fc2098ef3ff1ec683752510b",
+        "services/runtime/comparison_artifacts.py": "636d967b80ba918ec12ab350cfcee04879081b24e94608b622a2712c056175a3",
+        "services/runtime/console_signal.py": "d54867e86373f32556b84a65c4f88a3b66e9d35a6c4aedac8aad17924fd7e08f",
+        "services/runtime/inventory.py": "a3c6de5b2a2ccfe8a413181457139f57ad36742fc4d7b1bca3c1d818fdd216c1",
+        "services/runtime/model_profiles.py": "d025a2d1ef408c935f6e0c94f18ce21f418d0bdf9cf3f50462c8124f7c548d47",
+        "services/runtime/platforms.py": "938026b84c3e76a1a1708fddd88628ef92cb24adf606c6ee7ed21b74df42b25f",
+        "services/runtime/posix_process.py": "3115d9ea2b163cb28a46f8a0d6b757240ddcda9db47904797cbb498429ea3626",
+        "services/runtime/profile_schema.py": "c42ceb0dbcdbbd0eaca0f471f71e2bcf26101c1dbc42986136f770f36d28e418",
+        "services/runtime/profile_setup.py": "3812faa5dd94d55c9eeb0569be9d252f5670499b1b5bb2fd5d02a8171ffdbdbe",
+        "services/runtime/provisioning.py": "e22f92f7c497db7b8bd29b3521dc937ecc6b3a896063cec22f1b5efc0386f134",
+        "services/runtime/resources.py": "89d54542a09e6d8a38af01b728217eeaa574b9b07febfc2889a1163a6d71e8af",
+        "services/runtime/selftest.py": "95989d0636ee5ab6db7eb0106fdab4df451e68e622cd232f287e565bb61990a7",
+        "services/runtime/source_manifest.py": "488c2eab8fe840e93d6caf396bb921cb4687d1da2ced400d35bab5a3f56bfc9f",
+        "services/runtime/supervisor.py": "0a230b2c8c1e160566e85ffcccba8ea8d47bbd59ec2e3017fb876ca559323a24",
+        "services/runtime/text_model.py": "e24f49cd01b8952894caac278b8d915711ec4ca7388962f6e355bdab8b3839a7",
+        "services/runtime/verdict.py": "c480d43473880698bb91d6b0a457d4348664dcd61b0301333378062579629049",
+        "services/runtime/windows_process.py": "d55bf2b7f8648f3f304fadd710aa9489f89dfe05147fe7b850557098a1a73d16",
+        "tools/qualification/enhanced_campaign.py": "71ee1beb3e382f1bff3224ba05e1d507bc594a33b3156dd798a7cb9f84be08f2"
+      },
+      "archive_sha256": "c93a953814413dededb8fb7e2e60044556152b0002519529d535d819347040c7"
+    },
+    "b03-iteration2": {
+      "git_head": "4356fd0678c1e85a35e1e2eb1aef753a5e8c7806",
+      "snapshot_kind": "working_source_files_before_first_query",
+      "files": {
+        "services/__init__.py": "c12bdd8738ebad610312111341112496363a2ad42a3a5e5e3118354d83b8bc7e",
+        "services/api/__init__.py": "6e1626978265dd2ee6c3798b50e440e67667d52b97456feda09180feb494f668",
+        "services/api/answer_contract.py": "71b3526d8d02cdd568e029785c2324a79dc9f76bd85081c3f0e3853d232c51c1",
+        "services/api/background.py": "2391a155b841ecb39eb8f5911937325ec30f0a86c9c3b728e97320006dca906b",
+        "services/api/claims.py": "aa858413c9cd3b567f47af49349b802db3327fa1db1f9925ccde0302a8dd3d86",
+        "services/api/comparison.py": "d39e4dfccb2789c5fd3315f8ebf5ecaf0a1fc394466b012af19fc4d6a6718d41",
+        "services/api/context.py": "6d9aba76c1d7df84873b33da2592db4bcb7e48595b11b057b6e283b7ad0023c6",
+        "services/api/db.py": "a2093fa2b6aa1fd33793ef93a2fc9b354723d73e3b77d5b0d2a5bb1f9dbab382",
+        "services/api/deterministic_calculations.py": "8541de3505ce8cd7b201ad8aa6686a1c9963cafd474a7b47b6ceacde2685c52b",
+        "services/api/embedding.py": "af65250c49f398c56560e630a5f955e376dd25a9f367b3a1174212dfb075809a",
+        "services/api/embedding_comparison.py": "4a8b319b381a4d613797079c67326991e4c9d7bfa53f7a023396e488e716b788",
+        "services/api/errors.py": "c5c293e666ed920b18d7c188a9c5afbf43875b553aefcaad5d537292977f47c8",
+        "services/api/evidence_selection.py": "383871abd1db914602356e40d5777032415261cf43ae4817756dff8cfb5a9b2d",
+        "services/api/execution_trace.py": "64d85c6eee47282d6de72c141b6286d481879dcae9b6ae499e38bd3729d39278",
+        "services/api/indexing.py": "191269d40518d0a8f037d7bf69c30cb9bf408940d8bfa55adb617e4f99d6691c",
+        "services/api/jobs.py": "dcb9823ff1e2efe649aa32893f6e444d0306329770e3f84b503a80f86803147f",
+        "services/api/main.py": "08a960c3eba2c66291f3d7e12be8de21f59cdf6df0b47c931456e438a688346f",
+        "services/api/office.py": "4e5c6d1ff03c25f92d79a9206573b7d8c9024cde59bd70ad840a998aa2de47c3",
+        "services/api/office_search.py": "12e2270cb5fb5e85e2b3430fe9b37e647c291e99c9fdfbf2d82ecab68077b314",
+        "services/api/ollama.py": "eafaa233ba1190d190cb8a0d35595d3e2d87c88e955b1ffe4defa753a09deaa5",
+        "services/api/qualification.py": "fb83443ff7120b0cad4ef9500f3bc83411f2490586affa934460c6a9b1faa7ac",
+        "services/api/query.py": "118e3912d82b59b9e6c7c69a1f6376caeda65c15df742215d211862cada1c587",
+        "services/api/reconcile.py": "d5d961349d110fab768c7d8c5ee1b0889aeb8c8b50e4478f74971876c70269aa",
+        "services/api/retrieval.py": "4cef30fc1c5201697c7f6cf21faaab71771e4e1fa986dcf0b98659e83aa34212",
+        "services/api/schemas.py": "b3dfdabcdc413b36d140525962456210fd457b30574cdbc51ed38c9020e70202",
+        "services/api/scope.py": "6fd0ba75b87c58d29ecda4add99f5b3e1a5d5fc3896ed609188e27c9d0c1104e",
+        "services/api/security.py": "8b096b7bcdcdd635aab11a38a6b6588f2fd36e6d3c4336e024de96b635aa35fa",
+        "services/api/settings.py": "ef9ae69ae8f876596bc17fd5ec32d4a6ed56119f0de5f693bb13e18c8dc9834d",
+        "services/api/structured_answer.py": "3c180697c7b19e95d3c709c936533fac397d459c3334ad2750ea93463defe9ee",
+        "services/ingestion/__init__.py": "0fda437cf4d6d2b96026d6919ceae5564e98f6be1a3e876948106179d4f536af",
+        "services/ingestion/checkpoint.py": "dafc17136017532e848cf1d74b8505a982721abad95177fbc88b1dbd75dfc622",
+        "services/ingestion/config.py": "0105b23ada85675109acc467dfbe1c31c0dd199b0f47fece63f3d2de6a0714d9",
+        "services/ingestion/docling_adapter.py": "c09d26b71f23c605aa7747f0e2cabf80040102280b068a82ef5ae3ec6851e2fb",
+        "services/ingestion/errors.py": "0a88fda87c3b1e1a8a4c929179b0b7898666e10356885a9f0ad4083a6852ad6e",
+        "services/ingestion/geometry.py": "0a273cece3840313ff057c6c412edde186622de1994b3cab32aacd97fedccba3",
+        "services/ingestion/lifecycle.py": "fdb9b8091a43a292d64612f13e3af75fe08055047f3097e647e6a1b4b7d2122f",
+        "services/ingestion/numeric_evidence.py": "4826f3e32c362fab415af249b11c324da7ee0f451fccb49d6d3ebbb9f20c3015",
+        "services/ingestion/office/__init__.py": "e62839058182e1312d19f4f3d65d060d61410419966fa7c94dc4dfc5abdcc517",
+        "services/ingestion/office/docx.py": "b91062fefdd99a1611199df1e456883f3e5d5eef64001359fd6b8ab42cfdc8e3",
+        "services/ingestion/office/models.py": "3adadafcfe20c48054cb6e7b326b5abdc0849d8712f9f1cfc4453a014a301317",
+        "services/ingestion/office/opc.py": "cdded86648de9efdbb4e60f4655224dbe041b3b37ef5f0f725a7454564ae97de",
+        "services/ingestion/office/pipeline.py": "085b0111dea0e82873a5a5a51e21f59bde329d8201461dff76c6dab56de06329",
+        "services/ingestion/office/worker.py": "bb070a8b05d98b4da2488d131663da87834cc8248cdfba850577304007c93c66",
+        "services/ingestion/office/xlsx.py": "59c138a7434744843637cea1b497f40eca72444c87b59f020a4de48e0300a0da",
+        "services/ingestion/pipeline.py": "01f60012770604f2d9b24c2a8b2d282717aa5e70f60ee741f109971af99bc8d5",
+        "services/ingestion/preflight.py": "0fd91771ccba6fe29fc96c2b4f28ce9cc31edf96edc1473ec81129019a8861d7",
+        "services/ingestion/regional_aspect.py": "dbce34736773642a83623cead4dffda438a9709d7db30cf647dc4d70eb1e02e5",
+        "services/ingestion/regional_grid.py": "2f86ed87ebc4df3a6b5f6c9b7b1dfe966e1c7ee2abebab5b489274bbb9e4f87f",
+        "services/ingestion/regional_row_context.py": "6df58f00abe22e5ed32ce4c0c47a82bca7efea384192996e456589cf95b7f8be",
+        "services/ingestion/regional_tables.py": "445cef32d6331410dd2adc1307fc3a03cf110bc91d66ca13d443466ed4aaf0bd",
+        "services/ingestion/worker.py": "de941aba4c38580d87a1c55ed6e5cc29f3b3a71094730df71cf56685da585775",
+        "services/runtime/__init__.py": "3a80e593d30c4feddf875275eb369560c83d65966133cb6c400beb250fe7d7fe",
+        "services/runtime/accelerator.py": "d24b4dcf6dcd746702aee29a42ae9e93b30d1f3d6385c34ae492e6e15bfc1867",
+        "services/runtime/api_entry.py": "eaeb6bba0f2079aed4dee7cf86b166582572560a0313e17b76e6b67de26b8335",
+        "services/runtime/artifacts.py": "ad94874d285405dcf547d895b345c0f4eddac5fbef9b52a499cbbc0b87695a78",
+        "services/runtime/backup.py": "a45e699f7a730a94251cec10d031385e561f6eb433f8860c4a8b0eca11cac61d",
+        "services/runtime/calibration.py": "b9f4c5b68d74ee5fdc045c0d8ef33a7b02e89f18a9d6bb76473568d8e5d32f3e",
+        "services/runtime/cli.py": "25bfe560220e059edc94b0d77e7cd71bd297bb67fc2098ef3ff1ec683752510b",
+        "services/runtime/comparison_artifacts.py": "636d967b80ba918ec12ab350cfcee04879081b24e94608b622a2712c056175a3",
+        "services/runtime/console_signal.py": "d54867e86373f32556b84a65c4f88a3b66e9d35a6c4aedac8aad17924fd7e08f",
+        "services/runtime/inventory.py": "a3c6de5b2a2ccfe8a413181457139f57ad36742fc4d7b1bca3c1d818fdd216c1",
+        "services/runtime/model_profiles.py": "d025a2d1ef408c935f6e0c94f18ce21f418d0bdf9cf3f50462c8124f7c548d47",
+        "services/runtime/platforms.py": "938026b84c3e76a1a1708fddd88628ef92cb24adf606c6ee7ed21b74df42b25f",
+        "services/runtime/posix_process.py": "3115d9ea2b163cb28a46f8a0d6b757240ddcda9db47904797cbb498429ea3626",
+        "services/runtime/profile_schema.py": "c42ceb0dbcdbbd0eaca0f471f71e2bcf26101c1dbc42986136f770f36d28e418",
+        "services/runtime/profile_setup.py": "3812faa5dd94d55c9eeb0569be9d252f5670499b1b5bb2fd5d02a8171ffdbdbe",
+        "services/runtime/provisioning.py": "e22f92f7c497db7b8bd29b3521dc937ecc6b3a896063cec22f1b5efc0386f134",
+        "services/runtime/resources.py": "89d54542a09e6d8a38af01b728217eeaa574b9b07febfc2889a1163a6d71e8af",
+        "services/runtime/selftest.py": "95989d0636ee5ab6db7eb0106fdab4df451e68e622cd232f287e565bb61990a7",
+        "services/runtime/source_manifest.py": "488c2eab8fe840e93d6caf396bb921cb4687d1da2ced400d35bab5a3f56bfc9f",
+        "services/runtime/supervisor.py": "0a230b2c8c1e160566e85ffcccba8ea8d47bbd59ec2e3017fb876ca559323a24",
+        "services/runtime/text_model.py": "e24f49cd01b8952894caac278b8d915711ec4ca7388962f6e355bdab8b3839a7",
+        "services/runtime/verdict.py": "c480d43473880698bb91d6b0a457d4348664dcd61b0301333378062579629049",
+        "services/runtime/windows_process.py": "d55bf2b7f8648f3f304fadd710aa9489f89dfe05147fe7b850557098a1a73d16",
+        "tools/qualification/enhanced_campaign.py": "71ee1beb3e382f1bff3224ba05e1d507bc594a33b3156dd798a7cb9f84be08f2"
+      },
+      "archive_sha256": "c93a953814413dededb8fb7e2e60044556152b0002519529d535d819347040c7"
+    },
+    "b04-iteration1": {
+      "git_head": "4356fd0678c1e85a35e1e2eb1aef753a5e8c7806",
+      "snapshot_kind": "working_source_files_before_first_query",
+      "files": {
+        "services/__init__.py": "c12bdd8738ebad610312111341112496363a2ad42a3a5e5e3118354d83b8bc7e",
+        "services/api/__init__.py": "6e1626978265dd2ee6c3798b50e440e67667d52b97456feda09180feb494f668",
+        "services/api/answer_contract.py": "226483303858c5caea630e72177b772ff4bace988ce1d6385949bdfb6ed36d2f",
+        "services/api/background.py": "2391a155b841ecb39eb8f5911937325ec30f0a86c9c3b728e97320006dca906b",
+        "services/api/claims.py": "aa858413c9cd3b567f47af49349b802db3327fa1db1f9925ccde0302a8dd3d86",
+        "services/api/comparison.py": "d39e4dfccb2789c5fd3315f8ebf5ecaf0a1fc394466b012af19fc4d6a6718d41",
+        "services/api/context.py": "6d9aba76c1d7df84873b33da2592db4bcb7e48595b11b057b6e283b7ad0023c6",
+        "services/api/db.py": "a2093fa2b6aa1fd33793ef93a2fc9b354723d73e3b77d5b0d2a5bb1f9dbab382",
+        "services/api/deterministic_calculations.py": "9b12598ed22fd649bcbd947eb07510c4b506fcad5a0af29ab0637e50a5fc29d5",
+        "services/api/embedding.py": "af65250c49f398c56560e630a5f955e376dd25a9f367b3a1174212dfb075809a",
+        "services/api/embedding_comparison.py": "4a8b319b381a4d613797079c67326991e4c9d7bfa53f7a023396e488e716b788",
+        "services/api/errors.py": "c5c293e666ed920b18d7c188a9c5afbf43875b553aefcaad5d537292977f47c8",
+        "services/api/evidence_selection.py": "fe0d0fd344effe93c255f265a00390db6f346225ceb4cb773264de7d4a4725dc",
+        "services/api/execution_trace.py": "64d85c6eee47282d6de72c141b6286d481879dcae9b6ae499e38bd3729d39278",
+        "services/api/indexing.py": "191269d40518d0a8f037d7bf69c30cb9bf408940d8bfa55adb617e4f99d6691c",
+        "services/api/jobs.py": "dcb9823ff1e2efe649aa32893f6e444d0306329770e3f84b503a80f86803147f",
+        "services/api/main.py": "08a960c3eba2c66291f3d7e12be8de21f59cdf6df0b47c931456e438a688346f",
+        "services/api/office.py": "4e5c6d1ff03c25f92d79a9206573b7d8c9024cde59bd70ad840a998aa2de47c3",
+        "services/api/office_search.py": "12e2270cb5fb5e85e2b3430fe9b37e647c291e99c9fdfbf2d82ecab68077b314",
+        "services/api/ollama.py": "eafaa233ba1190d190cb8a0d35595d3e2d87c88e955b1ffe4defa753a09deaa5",
+        "services/api/qualification.py": "fb83443ff7120b0cad4ef9500f3bc83411f2490586affa934460c6a9b1faa7ac",
+        "services/api/query.py": "0d2f033b0e8ddbecda7c43546ac84825c76184ebdfc5d3c72b1045921ada90d6",
+        "services/api/reconcile.py": "d5d961349d110fab768c7d8c5ee1b0889aeb8c8b50e4478f74971876c70269aa",
+        "services/api/retrieval.py": "4cef30fc1c5201697c7f6cf21faaab71771e4e1fa986dcf0b98659e83aa34212",
+        "services/api/schemas.py": "b3dfdabcdc413b36d140525962456210fd457b30574cdbc51ed38c9020e70202",
+        "services/api/scope.py": "6fd0ba75b87c58d29ecda4add99f5b3e1a5d5fc3896ed609188e27c9d0c1104e",
+        "services/api/security.py": "8b096b7bcdcdd635aab11a38a6b6588f2fd36e6d3c4336e024de96b635aa35fa",
+        "services/api/settings.py": "ef9ae69ae8f876596bc17fd5ec32d4a6ed56119f0de5f693bb13e18c8dc9834d",
+        "services/api/structured_answer.py": "e81e8fbcce6f37d791e53ccab1de5e9202007af8159ad4a70cf92bfe1770af85",
+        "services/ingestion/__init__.py": "0fda437cf4d6d2b96026d6919ceae5564e98f6be1a3e876948106179d4f536af",
+        "services/ingestion/checkpoint.py": "dafc17136017532e848cf1d74b8505a982721abad95177fbc88b1dbd75dfc622",
+        "services/ingestion/config.py": "0105b23ada85675109acc467dfbe1c31c0dd199b0f47fece63f3d2de6a0714d9",
+        "services/ingestion/docling_adapter.py": "c09d26b71f23c605aa7747f0e2cabf80040102280b068a82ef5ae3ec6851e2fb",
+        "services/ingestion/errors.py": "0a88fda87c3b1e1a8a4c929179b0b7898666e10356885a9f0ad4083a6852ad6e",
+        "services/ingestion/geometry.py": "0a273cece3840313ff057c6c412edde186622de1994b3cab32aacd97fedccba3",
+        "services/ingestion/lifecycle.py": "fdb9b8091a43a292d64612f13e3af75fe08055047f3097e647e6a1b4b7d2122f",
+        "services/ingestion/numeric_evidence.py": "e7c9cc923eec8f4831c56220d93441c1e35965cdbbbc27de6fe381175880e8eb",
+        "services/ingestion/office/__init__.py": "e62839058182e1312d19f4f3d65d060d61410419966fa7c94dc4dfc5abdcc517",
+        "services/ingestion/office/docx.py": "b91062fefdd99a1611199df1e456883f3e5d5eef64001359fd6b8ab42cfdc8e3",
+        "services/ingestion/office/models.py": "3adadafcfe20c48054cb6e7b326b5abdc0849d8712f9f1cfc4453a014a301317",
+        "services/ingestion/office/opc.py": "cdded86648de9efdbb4e60f4655224dbe041b3b37ef5f0f725a7454564ae97de",
+        "services/ingestion/office/pipeline.py": "085b0111dea0e82873a5a5a51e21f59bde329d8201461dff76c6dab56de06329",
+        "services/ingestion/office/worker.py": "bb070a8b05d98b4da2488d131663da87834cc8248cdfba850577304007c93c66",
+        "services/ingestion/office/xlsx.py": "59c138a7434744843637cea1b497f40eca72444c87b59f020a4de48e0300a0da",
+        "services/ingestion/pipeline.py": "01f60012770604f2d9b24c2a8b2d282717aa5e70f60ee741f109971af99bc8d5",
+        "services/ingestion/preflight.py": "0fd91771ccba6fe29fc96c2b4f28ce9cc31edf96edc1473ec81129019a8861d7",
+        "services/ingestion/regional_aspect.py": "dbce34736773642a83623cead4dffda438a9709d7db30cf647dc4d70eb1e02e5",
+        "services/ingestion/regional_grid.py": "2f86ed87ebc4df3a6b5f6c9b7b1dfe966e1c7ee2abebab5b489274bbb9e4f87f",
+        "services/ingestion/regional_row_context.py": "6df58f00abe22e5ed32ce4c0c47a82bca7efea384192996e456589cf95b7f8be",
+        "services/ingestion/regional_tables.py": "445cef32d6331410dd2adc1307fc3a03cf110bc91d66ca13d443466ed4aaf0bd",
+        "services/ingestion/worker.py": "de941aba4c38580d87a1c55ed6e5cc29f3b3a71094730df71cf56685da585775",
+        "services/runtime/__init__.py": "3a80e593d30c4feddf875275eb369560c83d65966133cb6c400beb250fe7d7fe",
+        "services/runtime/accelerator.py": "d24b4dcf6dcd746702aee29a42ae9e93b30d1f3d6385c34ae492e6e15bfc1867",
+        "services/runtime/api_entry.py": "eaeb6bba0f2079aed4dee7cf86b166582572560a0313e17b76e6b67de26b8335",
+        "services/runtime/artifacts.py": "ad94874d285405dcf547d895b345c0f4eddac5fbef9b52a499cbbc0b87695a78",
+        "services/runtime/backup.py": "a45e699f7a730a94251cec10d031385e561f6eb433f8860c4a8b0eca11cac61d",
+        "services/runtime/calibration.py": "b9f4c5b68d74ee5fdc045c0d8ef33a7b02e89f18a9d6bb76473568d8e5d32f3e",
+        "services/runtime/cli.py": "25bfe560220e059edc94b0d77e7cd71bd297bb67fc2098ef3ff1ec683752510b",
+        "services/runtime/comparison_artifacts.py": "636d967b80ba918ec12ab350cfcee04879081b24e94608b622a2712c056175a3",
+        "services/runtime/console_signal.py": "d54867e86373f32556b84a65c4f88a3b66e9d35a6c4aedac8aad17924fd7e08f",
+        "services/runtime/inventory.py": "a3c6de5b2a2ccfe8a413181457139f57ad36742fc4d7b1bca3c1d818fdd216c1",
+        "services/runtime/model_profiles.py": "d025a2d1ef408c935f6e0c94f18ce21f418d0bdf9cf3f50462c8124f7c548d47",
+        "services/runtime/platforms.py": "938026b84c3e76a1a1708fddd88628ef92cb24adf606c6ee7ed21b74df42b25f",
+        "services/runtime/posix_process.py": "3115d9ea2b163cb28a46f8a0d6b757240ddcda9db47904797cbb498429ea3626",
+        "services/runtime/profile_schema.py": "c42ceb0dbcdbbd0eaca0f471f71e2bcf26101c1dbc42986136f770f36d28e418",
+        "services/runtime/profile_setup.py": "3812faa5dd94d55c9eeb0569be9d252f5670499b1b5bb2fd5d02a8171ffdbdbe",
+        "services/runtime/provisioning.py": "e22f92f7c497db7b8bd29b3521dc937ecc6b3a896063cec22f1b5efc0386f134",
+        "services/runtime/resources.py": "89d54542a09e6d8a38af01b728217eeaa574b9b07febfc2889a1163a6d71e8af",
+        "services/runtime/selftest.py": "95989d0636ee5ab6db7eb0106fdab4df451e68e622cd232f287e565bb61990a7",
+        "services/runtime/source_manifest.py": "488c2eab8fe840e93d6caf396bb921cb4687d1da2ced400d35bab5a3f56bfc9f",
+        "services/runtime/supervisor.py": "0a230b2c8c1e160566e85ffcccba8ea8d47bbd59ec2e3017fb876ca559323a24",
+        "services/runtime/text_model.py": "e24f49cd01b8952894caac278b8d915711ec4ca7388962f6e355bdab8b3839a7",
+        "services/runtime/verdict.py": "c480d43473880698bb91d6b0a457d4348664dcd61b0301333378062579629049",
+        "services/runtime/windows_process.py": "d55bf2b7f8648f3f304fadd710aa9489f89dfe05147fe7b850557098a1a73d16",
+        "tools/qualification/enhanced_campaign.py": "71ee1beb3e382f1bff3224ba05e1d507bc594a33b3156dd798a7cb9f84be08f2"
+      },
+      "archive_sha256": "ef508c35b1128ebb199e2eea42c6a1648e244927cf37b38fc0bb49343b3ce255"
+    }
+  },
+  "native_audit": {
+    "path": ".runtime/qa/enhanced-4b-iteration2/answers/native-audit-20261108T131055383927Z.json",
+    "sha256": "829a513fedd5b35805bd108e9dc6b89e59fe45e23d33195e87bd4621bc08e8c6",
+    "status": "pass",
+    "planned_submissions": 46,
+    "audited_submissions": 46,
+    "pending_submissions": [],
+    "llm_requests_captured": 30,
+    "model_called_metric_true": 21,
+    "semantic_verdicts": false,
+    "code_and_schedule_checks": {
+      "checks": 480,
+      "passed": 480,
+      "failures": [],
+      "status": "pass"
+    }
+  },
+  "document_checks": [
+    {
+      "name": "brief-check",
+      "started_utc": "2026-11-08T13:19:13.729051+00:00",
+      "finished_utc": "2026-11-08T13:19:13.856875+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 0.128,
+      "log_sha256": "ba027670c3af147c1125fd9572f70d6ffcdad9a5a6d421b66e95d93704864d88"
+    },
+    {
+      "name": "verify-pack",
+      "started_utc": "2026-11-08T13:19:13.857289+00:00",
+      "finished_utc": "2026-11-08T13:19:14.948835+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 1.092,
+      "log_sha256": "02e0c23f59726ff84913386dc6c250e4e3e181a3f3219ea61adafdcb17f5280d"
+    },
+    {
+      "name": "diff-check",
+      "started_utc": "2026-11-08T13:19:14.949366+00:00",
+      "finished_utc": "2026-11-08T13:19:15.002710+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 0.053,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

@@ -78,6 +78,11 @@ def kit(tmp_path, monkeypatch):
     return make_kit(tmp_path, monkeypatch)
 
 
+@pytest.fixture
+def historical_kit(tmp_path, monkeypatch):
+    return make_kit(tmp_path, monkeypatch, historical=True)
+
+
 # --- M1 : bascule transactionnelle ------------------------------------------------------------------------------------
 
 def test_m1_an_unwritable_menu_is_refused_before_any_write(kit, tmp_path):
@@ -134,11 +139,12 @@ def test_m1_an_update_message_names_the_version_the_pointer_designates(kit, tmp_
 
 # --- M2 : retour arrière avec restauration, puis mise à jour ----------------------------------------------------------------
 
-def test_m2_an_update_after_a_restoring_rollback_succeeds_and_keeps_the_model_choice(kit, tmp_path, monkeypatch):
+def test_m2_an_update_after_a_restoring_rollback_succeeds_and_keeps_the_model_choice(historical_kit, tmp_path, monkeypatch):
+    kit = historical_kit
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
     ports = free_ports()
     assert install(context(kit), destination, data_root, "--ports", ",".join(map(str, ports))) == 0
-    kit_b = second_kit(tmp_path, monkeypatch)
+    kit_b = second_kit(tmp_path, monkeypatch, historical=True)
     code, updater = update(kit_b, destination)
     assert code == 0
     runner = ProgrammeSimule(last_started=updater.runner.last_started)
@@ -153,7 +159,7 @@ def test_m2_an_update_after_a_restoring_rollback_succeeds_and_keeps_the_model_ch
     assert [profile["app"]["port"], profile["qdrant"]["url"], profile["llm"]["base_url"]] == [
         ports[0], f"http://127.0.0.1:{ports[1]}", f"http://127.0.0.1:{ports[2]}"]
     assert "stockage Qdrant" in ctx.out.getvalue()
-    kit_c = third_kit(tmp_path, monkeypatch)
+    kit_c = third_kit(tmp_path, monkeypatch, historical=True)
     code, ctx = update(kit_c, destination, None, "--no-start")
     assert code == 0, ctx.out.getvalue()
     assert set(pointer(destination)["current"]["profiles"]) == {"qwen3.5:2b", "qwen3.5:4b"}
@@ -162,13 +168,13 @@ def test_m2_an_update_after_a_restoring_rollback_succeeds_and_keeps_the_model_ch
 def test_m5_a_profile_left_by_a_rollback_is_reused_or_refused_before_the_backup(tmp_path, monkeypatch):
     # Kit 4B seul (le 2B seul n'est plus fabriqué, W045), puis kit complet : le profil du 2B est dérivé à la mise à jour.
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
-    small = make_kit(tmp_path, monkeypatch, name="kit-4b", models=("4b",))
+    small = make_kit(tmp_path, monkeypatch, historical=True, name="kit-4b", models=("4b",))
     assert install(context(small), destination, data_root, "--no-start") == 0
-    kit_b = second_kit(tmp_path, monkeypatch)
+    kit_b = second_kit(tmp_path, monkeypatch, historical=True)
     assert update(kit_b, destination, None, "--no-start")[0] == 0
     assert (data_root / "profile-qwen3.5-2b.yaml").is_file()
     assert rollback(small, destination, ProgrammeSimule(last_started=pointer(destination)["previous"]["program"]))[0] == 0
-    kit_c = third_kit(tmp_path, monkeypatch)
+    kit_c = third_kit(tmp_path, monkeypatch, historical=True)
     code, ctx = update(kit_c, destination, None, "--no-start")
     assert code == 0, ctx.out.getvalue()
     assert pointer(destination)["current"]["profiles"]["qwen3.5:2b"] == str(data_root / "profile-qwen3.5-2b.yaml")
@@ -176,7 +182,7 @@ def test_m5_a_profile_left_by_a_rollback_is_reused_or_refused_before_the_backup(
     assert rollback(kit_b, destination, ProgrammeSimule(last_started=pointer(destination)["previous"]["program"]))[0] == 0
     with (data_root / "profile-qwen3.5-2b.yaml").open("a", encoding="utf-8") as stream:
         stream.write("# modifié\nprofile: autre\n")
-    kit_d = third_kit(tmp_path, monkeypatch, name="kit-d")
+    kit_d = third_kit(tmp_path, monkeypatch, historical=True, name="kit-d")
     code, ctx = update(kit_d, destination, None, "--no-start")
     assert code == linux_install.EXIT_REFUSED and "profile-qwen3.5-2b.yaml" in ctx.err.getvalue()
     assert [command for command in ctx.runner.commands() if command in {"up", "backup", "bootstrap"}] == []
@@ -325,7 +331,8 @@ def test_m4_percent_is_doubled_and_control_characters_are_refused(kit, tmp_path)
 
 # --- m6, m7, m8 : instance 4B, verrou, options -----------------------------------------------------------------------------
 
-def test_m6_an_update_saves_from_the_running_instance_of_the_other_model(kit, tmp_path, monkeypatch):
+def test_m6_an_update_saves_from_the_running_instance_of_the_other_model(historical_kit, tmp_path, monkeypatch):
+    kit = historical_kit
     # Profil principal du 4B (W045) ; l'instance en marche emploie le profil dérivé du 2B.
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
     assert install(context(kit), destination, data_root, "--no-start") == 0
@@ -333,7 +340,7 @@ def test_m6_an_update_saves_from_the_running_instance_of_the_other_model(kit, tm
     assert current["model"] == "qwen3.5:4b"
     runner = ProgrammeSimule(last_started=current["program"])
     runner.running = {current["program"]: current["profiles"]["qwen3.5:2b"]}
-    code, ctx = update(second_kit(tmp_path, monkeypatch), destination, runner, "--no-start")
+    code, ctx = update(second_kit(tmp_path, monkeypatch, historical=True), destination, runner, "--no-start")
     assert code == 0, ctx.err.getvalue()
     assert f"instance en marche avec {current['profiles']['qwen3.5:2b']} (modèle qwen3.5:2b)" in ctx.out.getvalue()
 

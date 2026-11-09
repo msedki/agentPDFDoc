@@ -320,9 +320,13 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.region_preprocessing_by_page = {}
+            self.numeric_readings_by_page = {}
+            self.quality_readings_by_page = {}
             self.region_orientations_by_page = {}
             self.isolation_failures_by_page = {}
             self._current_preprocessing = []
+            self._current_numeric_readings = []
+            self._current_quality_readings = []
             self._current_orientations = []
 
         def get_ocr_rects(self, page):
@@ -331,6 +335,17 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
             # Layout fragments of sideways tables can be too small for OSD.
             # Expand only to an actual bitmap with no overlapping native text.
             rects = super().get_ocr_rects(page)
+            # A visible vector body may have no bitmap and no text layer. The
+            # preflight supplies only bounded, observed path regions; keep the
+            # original native text as obstacles below.
+            from .geometry import pdf_box_to_docling
+
+            for region in getattr(self, "_current_page_metadata", {}).get("uncovered_vector_regions", []):
+                converted = pdf_box_to_docling(region["bbox"], (page.size.width, page.size.height),
+                                               self._current_page_metadata)
+                vector_box = BoundingBox.model_validate(converted)
+                if not any(vector_box.intersection_over_self(existing) >= .95 for existing in rects):
+                    rects.append(vector_box)
             native = page._backend.get_visible_text_cells()
             native = list(page._backend.get_text_cells() if native is None else native)
             native_boxes = [cell.rect.to_bounding_box().to_top_left_origin(page.size.height) for cell in native]
@@ -366,9 +381,13 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
             for page in page_batch:
                 self._current_page_metadata = (page_metadata or {}).get(int(page.page_no) - 1, {})
                 self._current_preprocessing = []
+                self._current_numeric_readings = []
+                self._current_quality_readings = []
                 self._current_orientations = []
                 yield from super().__call__(conv_res, [page])
                 self.region_preprocessing_by_page[int(page.page_no)] = self._current_preprocessing
+                self.numeric_readings_by_page[int(page.page_no)] = self._current_numeric_readings
+                self.quality_readings_by_page[int(page.page_no)] = self._current_quality_readings
                 self.region_orientations_by_page[int(page.page_no)] = self._current_orientations
 
         def _perform_osd(self, ifilename):
@@ -467,6 +486,7 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
                              "render_allocation_scale": self.scale * render_oversample,
                              "source_oriented_raster_size": list(source_size), "derived_oriented_raster_size": list(derived.size),
                              "resize_inverse_factors": [source_size[0] / derived.width, source_size[1] / derived.height],
+                             "osd_raster_sha256": orientation.get("osd_raster_sha256"),
                              "orientation_degrees": orientation.get("orientation_degrees"),
                              "orientation_resolved": orientation["resolved"]})
             self._current_preprocessing.append(metadata)
@@ -474,6 +494,7 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
                 frame = self._run_literal_tsv(target, osd)
                 cells = metadata["grid_cells"]
                 if not cells:
+                    self._verify_selected_readings(derived, frame, metadata, source_size)
                     return self._restore_raster(frame, source_size, derived.size)
                 import numpy as np
                 import pandas as pd
@@ -500,9 +521,17 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
                     with temporary_raster(raster) as row_target:
                         return self._run_literal_tsv(row_target, psm=6)
 
+                numeric_readings: list[dict[str, Any]] = []
                 cell_frames, row_traces, row_budget = recognize_grid_rows(
                     derived, cells, cell_frames, metadata["cell_ocr"], recognize_row,
-                    minimum_confidence, max_region_pixels)
+                    minimum_confidence, max_region_pixels, private_numeric_readings=numeric_readings)
+                for reading in numeric_readings:
+                    reading.update(ocr_region_index=region_index, parser_bbox=metadata["parser_bbox"],
+                                   orientation_degrees=metadata["orientation_degrees"], scale=self.scale,
+                                   resize_inverse_factors=metadata["resize_inverse_factors"])
+                    reading["ocr_parameters"].update(engine="TesseractCLI",
+                                                      languages=list(getattr(self, "_native_codes", [])))
+                self._current_numeric_readings.extend(numeric_readings)
                 metadata["row_context_ocr"] = row_traces
                 metadata["row_context_budget"] = row_budget
                 for trace in row_traces:
@@ -515,7 +544,8 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
                     confidence = _minimum_cell_confidence(cell_frame)
                     evidence["minimum_word_confidence"] = confidence
                     evidence["minimum_confidence_required"] = minimum_confidence
-                    if printed and (cell_frame.empty or confidence is None or (minimum_confidence is not None and confidence < minimum_confidence)):
+                    if printed and (cell_frame.empty or confidence is None or (minimum_confidence is not None and confidence < minimum_confidence)
+                                    or evidence.get("numeric_ambiguity_unresolved")):
                         from docling.models.stages.ocr.tesseract_utils import (
                             tesseract_box_to_bounding_rectangle,
                         )
@@ -527,9 +557,54 @@ def regional_pipeline_class(max_region_pixels=8_000_000, render_oversample=1.0,
                             BoundingBox(l=original_bounds[0], t=original_bounds[1], r=original_bounds[2], b=original_bounds[3], coord_origin=CoordOrigin.TOPLEFT),
                             original_offset=self._current_rects[len(self._current_orientations) - 1], scale=self.scale,
                             orientation=orientation.get("orientation_degrees", 0), im_size=source_size)
-                        key = "unresolved_parser_bbox" if cell_frame.empty else "uncertain_parser_bbox"
+                        key = ("numeric_unresolved_parser_bbox" if evidence.get("numeric_ambiguity_unresolved")
+                               else "unresolved_parser_bbox" if cell_frame.empty else "uncertain_parser_bbox")
                         evidence[key] = rect.to_bounding_box().model_dump(mode="json")
-                return self._restore_raster(pd.concat([outside, *cell_frames], ignore_index=True), source_size, derived.size)
+                selected = pd.concat([outside, *cell_frames], ignore_index=True)
+                self._verify_selected_readings(derived, selected, metadata, source_size)
+                return self._restore_raster(selected, source_size, derived.size)
+
+        def _verify_selected_readings(self, raster, frame, metadata, source_size):
+            from docling.models.stages.ocr.tesseract_utils import tesseract_box_to_bounding_rectangle
+            from docling_core.types.doc import BoundingBox, CoordOrigin
+
+            from .ocr_verification import verify_ocr_lines
+
+            def recognize_line(patch):
+                with temporary_raster(patch) as target:
+                    return self._run_literal_tsv(target, psm=6)
+
+            prior = metadata.get("row_context_budget", {})
+            records, budget = verify_ocr_lines(raster, frame, recognize_line, minimum_confidence, max_region_pixels,
+                used_calls=prior.get("additional_ocr_calls", 0), used_pixels=prior.get("cumulative_crop_pixels", 0))
+            region_index = metadata["ocr_region_index"]
+            for record in records:
+                record["reading_id"] = f"region-{region_index}-{record['reading_id']}"
+                record.update(ocr_region_index=region_index, parser_bbox=metadata["parser_bbox"],
+                              orientation_degrees=metadata["orientation_degrees"], scale=self.scale,
+                              resize_inverse_factors=metadata["resize_inverse_factors"])
+                record["parameters"].update(engine="TesseractCLI", languages=list(getattr(self, "_native_codes", [])))
+                if isinstance(record.get("prior_candidate"), dict):
+                    record["prior_candidate"]["parameters"].update(
+                        engine="TesseractCLI", languages=list(getattr(self, "_native_codes", [])))
+                token_sets = [record["baseline_tokens"], record.get("candidate_tokens") or []]
+                if isinstance(record.get("prior_candidate"), dict):
+                    token_sets.append(record["prior_candidate"].get("candidate_tokens") or [])
+                for tokens in token_sets:
+                    for token in tokens:
+                        bounds = inverse_resized_box(token["bbox"], source_size, raster.size)
+                        rect = tesseract_box_to_bounding_rectangle(
+                            BoundingBox(l=bounds[0], t=bounds[1], r=bounds[2], b=bounds[3], coord_origin=CoordOrigin.TOPLEFT),
+                            original_offset=self._current_rects[region_index], scale=self.scale,
+                            orientation=metadata["orientation_degrees"], im_size=source_size)
+                        token["bbox"] = rect.to_bounding_box().model_dump(mode="json")
+                record["coordinate_frame"] = "parser_top_left"
+            self._current_quality_readings.extend(records)
+            # No document words or images in the operational preprocessing log.
+            metadata["quality_verification"] = {**budget, "reading_count": len(records),
+                "corroborated_count": sum(record["state"] == "corroborated" for record in records),
+                "uncertain_count": sum(record["state"] == "uncertain" for record in records),
+                "unavailable_count": sum(record["state"] == "unavailable" for record in records)}
 
         def _restore_raster(self, frame, source_size, derived_size):
             sx, sy = source_size[0] / derived_size[0], source_size[1] / derived_size[1]

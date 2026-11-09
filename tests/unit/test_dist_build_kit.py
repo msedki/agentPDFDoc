@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from tests.unit.dist_payload_fixtures import MODEL, PROFILE, materialize_enhanced_fixture
 from tools.dist.build_kit import build_kit, selected_files, verify_kit
 
 
@@ -28,6 +29,7 @@ def repository(tmp_path):
     write(root, "config/artifacts.lock.json", json.dumps({"groups": {"qdrant": [{"version": "1.19.1", "publisher": "Qdrant", "license": "Apache-2.0", "url": "https://github.com/qdrant/qdrant/releases", "extract_to": ".runtime/bin/qdrant-1.19.1"}]}}))
     write(root, ".runtime/bin/qdrant-1.19.1/LICENSE", "Apache")
     write(root, ".runtime/manifests/tesseract-installed-copy.json", json.dumps({"source": str(root / "Tesseract-OCR"), "files": []}))
+    materialize_enhanced_fixture(root)
     return root
 
 
@@ -41,19 +43,21 @@ def test_whitelist_keeps_the_runtime_and_never_the_user_or_project_files(reposit
 
 def test_windows_kit_delivers_pinned_catalogue_and_selector_with_available_profile_identity(repository, tmp_path):
     from services.runtime.model_profiles import CATALOGUE_PATH, file_sha256
-    from tests.unit.test_runtime_ram_profiles import write_synthetic_program
 
-    catalogue, _ = write_synthetic_program(repository)
+    catalogue = materialize_enhanced_fixture(repository)
     selector = Path(__file__).resolve().parents[2] / "services/runtime/model_profiles.py"
     write(repository, "services/runtime/model_profiles.py", selector.read_text())
     kit = tmp_path / "windows-synthetic-kit"
     manifest = build_kit(kit, root=repository, version="0.1.0")
-    assert manifest["model_profiles"] == {"base": "config/base.yaml", "large": "config/large.yaml"}
+    assert manifest["model_profiles"] == {MODEL: PROFILE}
     assert manifest["model_selection"] == {"catalogue": CATALOGUE_PATH, "catalogue_sha256": file_sha256(kit / CATALOGUE_PATH)}
     assert json.loads((kit / CATALOGUE_PATH).read_text()) == catalogue
     assert (kit / "services/runtime/model_profiles.py").read_bytes() == selector.read_bytes()
     assert verify_kit(kit)["status"] == "verified"
-    (repository / "config/base.yaml").write_text("changed profile")
+    profile = repository / PROFILE
+    original = profile.read_text(encoding="utf-8")
+    assert original.count("port: 8785") == 1
+    profile.write_text(original.replace("port: 8785", "port: 18785", 1), encoding="utf-8")
     with pytest.raises(ValueError, match="empreinte du catalogue"):
         build_kit(tmp_path / "altered-synthetic-kit", root=repository, version="0.1.0")
 
@@ -116,7 +120,9 @@ def test_kit_carries_third_party_notices_from_the_artifact_lock(repository, tmp_
     build_kit(kit, root=repository, version="0.1.0")
     notices = (kit / "THIRD_PARTY_NOTICES.md").read_text(encoding="utf-8")
     assert "| qdrant | 1.19.1 | Qdrant | Apache-2.0 |" in notices and "`.runtime/bin/qdrant-1.19.1/LICENSE`" in notices
-    assert "section 4 b" in notices and "## Manques connus" in notices
+    assert "section 4 b" not in notices and "## Manques connus" in notices
+    assert "## Modèle Qwen3-4B natif" in notices
+    assert "Modification du modèle Qwen3.5-4B" not in notices and "qwen3.5:4b-text" not in notices
     assert verify_kit(kit)["status"] == "verified"
 
 

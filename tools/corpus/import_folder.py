@@ -75,7 +75,7 @@ def import_folder(source: Path, base_url: str, *, headers: dict[str, str] | None
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--source", type=Path, default=ROOT / "PDF")
-    parser.add_argument("--profile", type=Path, default=ROOT / "config/local16.yaml")
+    parser.add_argument("--profile", type=Path, default=ROOT / "config/enhanced-4b.yaml")
     parser.add_argument("--output", type=Path, required=True, help="Nouveau rapport JSON hors dépôt (jamais remplacé)")
     args = parser.parse_args()
     output = args.output.resolve()

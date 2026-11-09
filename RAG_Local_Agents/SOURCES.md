@@ -1919,3 +1919,210 @@ qualité générative. Celle-ci reste à mesurer par une recette distincte.
 ### R28-S43 — contrôle GPU exact du screening apparié (13/10/2026)
 
 Sources officielles versionnées : [Ollama0.35.0, version llama.cpp](https://github.com/ollama/ollama/blob/v0.35.0/LLAMA_CPP_VERSION), [compatibilité Qwen MTP](https://github.com/ollama/ollama/blob/v0.35.0/llama/compat/llama-ollama-compat.cpp#L754) et [llama.cppb11081, total GPU](https://github.com/ggml-org/llama.cpp/blob/b11081/src/llama-model.cpp#L1733). Consultées le 13 octobre, applicables aux binaires exécutés : couches nextn ajoutées aux blocs et couche de sortie incluse dans le total offload. Confrontation réelle :4B 32 blocs+nextn 1+sortie 1=34 ;9B 32+0+1=33. Correction limitée au contrôle QA, exigenceGPU complet inchangée. Les trois caches metadata sont des fichiers réellement observés dans la vue QA privée, pas une nouvelle dépendance ou un artefact source ; leur liste exacte et le format/version sont contrôlés. Preuves du rapport de comparaison, harnais corrigé SHA `bd2634dd…`, seize tests purs PASS. Cette référence ne qualifie ni qualité des réponses, ni CPU de 16 Go, ni une autre plateforme.
+
+
+## EV4B — sources de méthode consultées le 7 novembre 2026 (UTC)
+
+**Rôle :** références de l'étude 4B ; les résultats locaux restent dans les traces.
+**Référence :** base `59d47e98`, branche `enhanced_version` ;
+[protocole](reports/enhanced-4b-protocol-2026-11-07.md).
+
+| ID | Source primaire et version | Apport retenu | Limite |
+|---|---|---|---|
+| EV4B-S01 | [Joren et al., Sufficient Context, arXiv:2411.06037v3, 23 avril 2025](https://arxiv.org/abs/2411.06037v3), page ouverte le 7 novembre | Distinguer insuffisance du contexte et erreur malgré des preuves suffisantes. | Ni classificateur local validé ni score transférable au 4B. |
+| EV4B-S02 | [Gao et al., Enabling Large Language Models to Generate Text with Citations (ALCE), EMNLP 2023](https://aclanthology.org/2023.emnlp-main.398/), page ouverte le 7 novembre | Séparer justesse de réponse et qualité du soutien par citations. | Un identifiant valide ne garantit pas l'implication sémantique. |
+| EV4B-S03 | [Kamath, Jia et Liang, Selective Question Answering under Domain Shift, ACL 2020](https://aclanthology.org/2020.acl-main.503/), page ouverte le 7 novembre | Mesurer risque et couverture conjointement ; limites de la confiance brute hors domaine. | Aucun calibrateur appris ou probabilité de justesse validée ici. |
+| EV4B-S04 | [Saad-Falcon et al., ARES, NAACL 2024](https://aclanthology.org/2024.naacl-long.20/), page ouverte le 7 novembre | Pertinence du contexte, fidélité et pertinence de réponse séparées ; rôle des annotations humaines. | Aucun juge automatique ne remplace une relecture humaine non réalisée. |
+| EV4B-S05 | [SciPy, bootstrap, documentation 1.18.0 affichée à la consultation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bootstrap.html), page ouverte le 7 novembre | Rééchantillonnage avec remise, appariement, intervalle percentile et limites. | EV4B utilise la stdlib, sans dépendance SciPy ; rééchantillonnage par famille choisi explicitement, intervalle exploratoire non assimilé à BCa. |
+
+Le cadrage joint « Markdown collé.md » constitue une entrée utilisateur ; ses
+comptages des essais antérieurs sont cités comme historiques rapportés, pas comme
+exécutions EV4B. Les publications motivent les hypothèses, elles ne prouvent pas
+leur efficacité sur le corpus et l'hôte de la campagne.
+
+
+### EV4B-S06 — reprise OCR numérique bornée (7 novembre 2026 UTC)
+
+Sources officielles ouvertes : [Tesseract ImproveQuality](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html)
+(sections densité, bordures, tableaux et segmentation) et
+[Command Line Usage](https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html)
+(langue, PSM et TSV). Ces pages motivent une hypothèse de crop/densité sans
+prédire de gain. Moteur exécuté ici : Tesseract 5.5.0 système, eng, PSM6 ; le
+verrou 5.4.0 du projet n'est pas déclaré exécuté. Une seule variante ×2, négative,
+reste expérimentale ; le résultat et les limites sont dans le
+[rapport OCR EV4B](reports/enhanced-4b-ocr-2026-11-07.md).
+
+
+### EV4B-S07 — sens de PSRR et limites des rôles documentaires (8 novembre 2026 UTC)
+
+[Texas Instruments, AN-1873 DC Parameters, SNOA532A, révision A de mai 2013](https://www.ti.com/lit/an/snoa532a/snoa532a.pdf),
+section 9, page 7, ouverte le 8 novembre : PSRR signifie « Power Supply Rejection
+Ratio ». Cette définition permet de qualifier l’expansion erronée produite dans
+une réponse baseline. Elle ne remplace pas la fiche INA226 pour les valeurs
+propres au composant, ni une condition de mesure par une plage admissible.
+
+### EV4B-E01 — preuves locales des 7–8 novembre 2026 UTC
+
+Le [bilan](reports/enhanced-4b-results-2026-11-07.md), les
+[résultats qualité](reports/enhanced-4b-quality-results-2026-11-07.json), les
+[mesures runtime](reports/enhanced-4b-runtime-results-2026-11-07.json),
+[mesures OCR](reports/enhanced-4b-ocr-results-2026-11-07.json) et le
+[relevé de validation](reports/enhanced-4b-validation-2026-11-07.json) relient
+les observations aux captures privées et à leurs empreintes. Les journaux
+[du 7](journal/2026-11-07.md) et [du 8](journal/2026-11-08.md) conservent les
+commandes, résultats négatifs, reprises et limites. Ces exécutions locales
+constituent des mesures sur un hôte Linux x86-64 et une famille documentaire,
+pas une validation générale issue des publications de méthode.
+
+
+## EV4B-I2 — sources de la deuxième itération (8 novembre 2026 UTC)
+
+**Rôle :** fondement des hypothèses et oracles I2 ; **propriétaire :** intégration
+EV4B ; **statut :** sources consultées avant essais natifs, efficacité à mesurer.
+[Protocole et limites](reports/enhanced-4b-iteration2-protocol-2026-11-08.md).
+
+| ID | Source primaire et version | Apport retenu et applicabilité | Limite |
+|---|---|---|---|
+| EV4B-I2-S01 | [Texas Instruments, TMP117](https://www.ti.com/lit/ds/symlink/tmp117.pdf), SNOSD82D, révision interne septembre 2022 ; téléchargement 08/11/2026 à 10:46:28 UTC ; SHA-256 `78212e91e478035a91165397a8de8a90bfc776759dc445243c033537f0c4b789` | Pages physiques 5–6 lues et rendues visuellement : sections 6.1, 6.3 et 6.5. Oracle des limites absolues/recommandées, conditions de température et conversion typique. Reçu HTTP, original et images privés conservés. | Date HTTP distincte de la révision interne. Les témoins Office dérivent de cette fiche ; le témoin divergent est explicitement fictif. Ni leur génération ni la lecture Poppler ne qualifient le parseur produit. |
+| EV4B-I2-S02 | [Ollama, Structured outputs](https://docs.ollama.com/capabilities/structured-outputs) et [Pydantic, Strict Mode](https://pydantic.dev/docs/validation/latest/concepts/strict_mode/), documentation courante consultée le 08/11/2026 | Le schéma de sortie et sa validation locale restent distincts ; le mode strict limite les coercitions. Pydantic installé dans le venv restauré : 2.13.5. Motive un contrôle de types/références maintenu après une éventuelle normalisation des seules redondances autorisées. | Documentation courante, pas preuve du comportement du runtime Ollama ni de la cohérence sémantique des citations. Une référence existante peut rester inadéquate ; les gardes propres au projet doivent être testés. |
+| EV4B-I2-S03 | [Python, decimal](https://docs.python.org/3.12/library/decimal.html), documentation 3.12.16 affichée à la consultation du 08/11/2026 | Représentation décimale, précision, arrondi, exceptions et valeurs non finies distinctes ; motivation des tests de conversions, facteur explicite, division par zéro et refus NaN/infini. | Le contexte de calcul ne résout ni unité, ni provenance, ni scope. La version d'exécution Python est capturée dans les essais ; aucune mise à jour déduite de la page consultée. |
+| EV4B-I2-S04 | [Tesseract, ImproveQuality](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html), documentation mainteneur relue le 08/11/2026 ; complète EV4B-S06 | Segmentation d'une petite région, densité, bordures et inspection de l'image traitée motivent une reprise contrôlée. Le mode, le moteur et l'image effectivement employés doivent être conservés avec le candidat. | Une liste de caractères ou une substitution O→0 ne prouve pas la présence d'un zéro. La correction doit être localisée et confrontée aux cas négatifs ; le gain reste à mesurer. |
+
+Les sources de méthode EV4B-S01 à S05 et les contrats Office R28 restent
+réutilisés dans leurs limites. Les skills locaux lus sont hashés dans la
+preuve privée `protocol/fixture-validation.json` : qualification des fixtures,
+évaluation RAG, documentation, ingestion Office, provenance PDF et qualification
+CPU. Leur lecture ne devient pas une qualification expérimentale.
+
+
+### EV4B-I2-E01 — mesures et revues finales (8 novembre 2026 UTC)
+
+Le [bilan I2](reports/enhanced-4b-iteration2-results-2026-11-08.md), les
+[métriques par famille](reports/enhanced-4b-iteration2-quality-2026-11-08.json),
+la [matrice des observations](reports/enhanced-4b-iteration2-cases-2026-11-08.json),
+le [relevé de validation](reports/enhanced-4b-iteration2-validation-2026-11-08.json)
+et les [errata](reports/enhanced-4b-iteration2-review-errata-2026-11-08.json)
+référencent 46 soumissions réelles, 30 requêtes 4B, leurs traces, états SQLite,
+contextes et citations. Audit mécanique final SHA-256
+`829a513fedd5b35805bd108e9dc6b89e59fe45e23d33195e87bd4621bc08e8c6`.
+Les jugements finaux emploient INA226 v4 et TMP117 v2 ; versions antérieures et
+diffs de jugement conservés, sans modification des questions/oracles ni des
+sorties natives. Le rappel sérialisé, le catalogue applicatif et la réponse
+sont distingués ; les justifications applicatives fausses sont comptées.
+Ces preuves locales ne constituent ni validation humaine indépendante, ni
+transfert aveugle, ni qualification du corpus V2.1, du poste de 16 Go ou de Windows.
+
+
+## EV4B-I3 — méthode et preuves I3/F07 (8 novembre 2026 UTC)
+
+**Statut :** références déjà consultées pour le [protocole I3](reports/grounded-4b-protocol-2026-11-08.md), réutilisées dans leurs limites ; résultats locaux distincts dans le [bilan](reports/grounded-4b-results-2026-11-08.md).
+
+| ID | Source primaire | Usage et limite |
+|---|---|---|
+| EV4B-I3-S01 | [Ollama, Structured outputs](https://docs.ollama.com/capabilities/structured-outputs), documentation consultée le 08/11/2026 | Schéma du plan et validation côté application ; aucune garantie de vérité ou d'adéquation d'une référence à la question. |
+| EV4B-I3-S02 | [Gao et al., ALCE, EMNLP 2023](https://aclanthology.org/2023.emnlp-main.398/), reprise EV4B-S02 | Séparer justesse de réponse et soutien effectif des citations ; aucun score publié transféré au 4B local. |
+| EV4B-I3-S03 | [Joren et al., Sufficient Context, arXiv:2411.06037v3](https://arxiv.org/abs/2411.06037v3), reprise EV4B-S01 | Distinguer contexte insuffisant et mauvaise exploitation de preuves disponibles ; ni classificateur local validé ni promesse de couverture. |
+
+**EV4B-I3-E01 — preuves internes.** Base active au début du lot : `3956491a2d7f1f16cefebfe79e92c638b6662c10`, puis modifications I3/F07. Protocole SHA-256 `a6c36e87fcee36b1b44be64313f2335c4ceb62f2c338df5935b7cb6b47e8a74e` ; [addendum F07](reports/grounded-4b-addendum-2026-11-08.md) SHA-256 `8793bcab3d98680a21a028f24545455f02b63899e3cd7f07817e226e63baee04` ; [questions et oracles contrôlés](../tests/fixtures/grounded_cases.json) SHA-256 `68a997cee3c6e3dcd1d8625d534c17631cb7ddaebedb1bfd3efa316c678fd476`.
+
+Les mécanismes sont vérifiables dans [retrieval.py](../services/api/retrieval.py), [evidence_selection.py](../services/api/evidence_selection.py), [answer_contract.py](../services/api/answer_contract.py) et [structured_answer.py](../services/api/structured_answer.py), avec les tests [de conservation/recherche](../tests/unit/test_grounded_retrieval.py) et [de relations/rendu](../tests/unit/test_grounded_evidence_contract.py). Le [harnais contrôlé](../tools/qualification/grounded_campaign.py) distingue explicitement ses doubles des [essais natifs](../tools/qualification/run_grounded_native.py). Les révisions candidates, mesures, échecs et limites appartiennent au bilan ; ces liens et empreintes n'établissent pas à eux seuls une réussite expérimentale.
+
+
+## EV4B-I4 — preuves et correctif OCR (8 novembre 2026 UTC)
+
+**Statut :** références utilisées pour la réalisation I4. Les résultats exécutés et leurs limites relèvent du [bilan](reports/production-4b-results-2026-11-08.md), les critères du [protocole figé](reports/production-4b-protocol-2026-11-08.md).
+
+| Source primaire | Version/section et apport | Limite |
+|---|---|---|
+| [Tesseract, commit dac6b18](https://github.com/tesseract-ocr/tesseract/commit/dac6b18a4764d13d670e7f304bbdb80f756b8431) | `src/classify/normmatch.cpp`, PR 4259, +7/-3 lignes ; cause et correctif du débordement avec liste de prototypes vide. Fichier final SHA-256 `9ac54083f9b944f47d5710c28fb841a9045495eecd2f7c47c51c9de0f35c338b`. | Le correctif publié n'établissait pas à lui seul la cause de notre crash ; la sonde appariée native et les tests OCR l'ont éprouvé localement. |
+| [Tesseract, issue 4257](https://github.com/tesseract-ocr/tesseract/issues/4257) | Régression OSD 5.4.0 et diagnostic `NormEvidenceOf`. | La proposition initiale du fil ne remplace pas le commit fusionné utilisé. |
+| [Tesseract, compilation](https://tesseract-ocr.github.io/tessdoc/Compiling.html) | Construction dans un préfixe utilisateur, bibliothèques et outils requis. | La recette locale Debian 13 est spécifique à cet hôte, sans preuve Windows ni installateur redistribuable. |
+| [CMake 3.31.12](https://github.com/Kitware/CMake/releases/tag/v3.31.12) | Archive Linux x86-64 et SHA officiel `0dc2e9a6860f06bf10bd8fadc03e35d9eeb4df46e33763a7e480e987758f385c`. | Outil de qualification isolé ; pas de changement de PATH global. |
+| Archives officielles Debian `libpng-dev`, `libjpeg62-turbo-dev`, `libtiff-dev` | Versions, URLs et SHA exacts dans `tools/qualification/provision_production_ocr.py` et le reçu d'environnement ; extraction des en-têtes, liaison aux bibliothèques système déjà présentes. | Aucun paquet système installé ; les bibliothèques dynamiques sont celles réellement inventoriées dans le manifeste. |
+| Code `fa3eabce5ab0c309b1ca8f01602fced2eb7f1dd8`, sources I3 et nouvelles traces I4 | Référence exécutée : sélection, contexte, qualitatives, OCR, Office et PDF complets. Les jeux exacts et erreurs premières restent conservés. | Le score automatique ne remplace pas la relecture de chaque relation ni la mesure de disponibilité. |
+
+Les pages Docling, Tesseract ImproveQuality et Ollama Structured Outputs déjà citées dans le protocole restent utilisées avec les contrats des versions installées. Le corpus électronique public de transfert et ses oracles sont gelés séparément ; leurs sources exactes seront publiées avec le bilan sans inclure les PDF ou modèles dans Git.
+
+
+### I4 — sources du transfert ouvertes après le gel
+
+Les [manifestes gelés](reports/production-i4-corpus/sources.json), les
+[questions/oracles](reports/production-i4-corpus/questions-oracles.json) et les
+[transformations de scans](reports/production-i4-corpus/scan-transformations.json)
+sont publiés octet pour octet après le gel du produit à 17:38:49 UTC. Ils
+conservent URL officielle, révision déclarée, SHA-256, nombre de pages et portées ;
+les identifiants de version/génération du produit ne sont créés qu’à l’import.
+
+| Source primaire figée | Version et usage dans le transfert | Limite |
+|---|---|---|
+| [Analog Devices AD22103](https://www.analog.com/media/en/technical-documentation/data-sheets/AD22103.pdf) | Révision B, juillet 2017, 7 pages ; spécifications, description générale et question sans valeur applicable. | Corpus électronique public ; ne qualifie aucun autre domaine. |
+| [Analog Devices AD22105](https://www.analog.com/media/en/technical-documentation/data-sheets/ad22105.pdf) | Révision A, octobre 2018, 11 pages ; plages et conditions de sortie/hystérésis, scan dérivé de la première page. | Un scan dérivé porte sa propre page 1, sans inventer de localisation d’un autre document. |
+| [Analog Devices LTC1540](https://www.analog.com/media/en/technical-documentation/data-sheets/1540fb.pdf) | Révision B, août 2017, 14 pages ; alimentations, délais typiques avec conditions et garantie non établie ; scan de la page originale 3. | Les valeurs typiques ne deviennent ni des maxima ni une garantie de pleine plage thermique. |
+
+La reconstruction locale de ces entrées est exécutée et vérifiée ; le nouveau
+téléchargement HTTPS direct a échoué sur la résolution DNS de cet hôte. Les deux
+résultats sont conservés séparément. Les documents originaux et images restent
+hors Git ; les manifestes suffisent à vérifier leur identité, pas à garantir la
+disponibilité future des URL publiques.
+
+
+## EV4B-I5-S01 — glyphes natifs et repères PDF
+
+**Consultation :** 8 novembre 2026 (UTC). **Source primaire :** https://pypdfium2.readthedocs.io/en/stable/python_api.html, sections PdfTextPage.get_charbox/get_text_range/count_chars et incompatibilité avec le multithreading. **Version installée :** pypdfium2 5.13.0, contrat des wrappers et API raw inspecté localement par le lot ingestion. **Faits :** les boîtes de caractères emploient le repère PDF ; indices de caractères et texte rendu peuvent diverger, caractères générés/exclus à distinguer ; PDFium ne doit pas être appelé simultanément entre threads. **Hypothèse :** projection à partir des glyphes réellement mappés pour certifier colonnes et sous-lignes, avec limites et provenance. **Preuve locale préalable :** `native-geometry-probe-receipt.json` sous QA I5, trois pages, 0,124 s sans rendu ni OCR ; données originales hashées. La documentation ne prouve aucune fidélité de tableau du produit.
+
+## EV4B-I5-S02 — lectures OCR, segmentation et unité de preuve
+
+**Consultation :** 8 novembre 2026 (UTC). **Sources primaires :** https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html (résolution, bordures, segmentation, limites des tableaux) et https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html (TSV et coordonnées/confidence). **Version exécutée de référence :** Tesseract 5.4.0 corrigé I4, même binaire/poids dans les deux bras I5 ; SHA dans protocole et reçu d'environnement. **Faits :** les TSV portent positions et score OCR ; tableaux et petits symboles demandent une segmentation adaptée. Aucun seuil élevé ne garantit l'exactitude. **Hypothèse :** lecture complémentaire bornée et alignement spatial, dépendances exactes et publication minimale vérifiée ; un désaccord reste une limite, aucune substitution par oracle. L'absence de ±/· des alphabets examinés historiquement (W042/R23) demeure une limite connue ; aucun entraînement ni nouveau poids adopté par I5.
+
+## EV4B-I5-E01 — référence et protocole préalable
+
+**Sources internes :** commit `41857e17a438fe43123e4ef8274d9d2d446bfbc2`, [protocole I5](reports/trust-4b-protocol-2026-11-08.md), rapports I4 et reçus `baseline-source-identity.json`, `environment-before.json`, `protocol-freeze.json` sous `.runtime/qa/production-i5-20261108/`. **Disponibilité :** dépôt public pour protocole/rapports/code, QA locale privée pour traces et originaux. **Faits :** les 88 fichiers produit/config et 46 harnais du gel I4 sont identiques ; gel I5 avant modification produit à 19:57:15 UTC. Les anciens oracles I4 deviennent développement ; le nouveau transfert est réservé, son préparateur n'édite pas le produit. **Limite :** aucune réussite I5 ni qualification de diffusion déduite de cette identité.
+
+
+## EV4B-I5-S03 — unités SI nécessaires aux conditions de mesure
+
+**Consultation :** 8 novembre 2026 (UTC). **Sources primaires :** https://www.bipm.org/en/measurement-units/si-prefixes et https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-4-two-classes-si-units-and-si-prefixes. **Faits :** nano = 10^-9, pico = 10^-12, micro = 10^-6 ; seconde et farad identifient des dimensions distinctes. **Défaut constaté :** le registre borné reconnaissait µs mais pas ns, et ne représentait pas les capacités figurant dans les conditions de mesure des tableaux. **Décision avant extension :** ajouter seulement ns et F/pF/nF/µF avec facteurs décimaux exacts, alias typographiques déclarés, tests de conversions traçables et refus des dimensions incompatibles. Le générateur n'effectue aucun calcul et ces constantes ne fournissent aucune valeur documentaire manquante.
+
+### I5-S04 — identité et notice du GGUF Qwen3-4B
+
+Sources primaires consultées le 8 novembre 2026 UTC : [carte GGUF à bc640142c66e1fdd12af0bd68f40445458f3869b](https://huggingface.co/Qwen/Qwen3-4B-GGUF/blob/bc640142c66e1fdd12af0bd68f40445458f3869b/README.md) et [licence Qwen3-4B à 1cfa9a7208912126459214e8b04321603b3df60c](https://huggingface.co/Qwen/Qwen3-4B/blob/1cfa9a7208912126459214e8b04321603b3df60c/LICENSE). Identité et licence Apache-2.0 déclarées ; références déjà fixées par enhanced-4b.lock.json. Apport : notice du modèle natif choisi par identité, distincte de l’ancienne dérivation Qwen3.5. Limite : ces pages ne prouvent ni que les textes de licence sont effectivement embarqués dans un kit, ni que ce kit est installé/qualifié. L’inventaire des fichiers fait autorité pour les éléments annoncés comme livrés.
+
+
+## I5-PJ — vérification des relations et évaluation indépendante, 9 novembre 2026
+
+Les huit sources primaires ont été consultées et confrontées à leur texte
+intégral. Le [rapport scientifique](reports/trust-i5-pj-research-2026-11-09.md)
+précise tâches, corpus, modèles, protocoles, métriques, résultats publiés et
+limites de transfert. Toutes sont des publications évaluées par les pairs ;
+les versions arXiv consultées restent identifiées. Aucun score publié n'est
+attribué au Qwen3-4B quantifié local.
+
+| ID | Source officielle | Usage dans I5-PJ |
+|---|---|---|
+| I5-PJ-S01 | [ALCE, EMNLP 2023](https://aclanthology.org/2023.emnlp-main.398/) | Distinguer présence d'une citation, support de l'affirmation et complétude. |
+| I5-PJ-S02 | [RAGTruth, ACL 2024](https://aclanthology.org/2024.acl-long.585/) | Annoter les erreurs de relation, de condition et d'information ajoutée. |
+| I5-PJ-S03 | [Searching for Best Practices in RAG, EMNLP 2024](https://aclanthology.org/2024.emnlp-main.981/) | Isoler les composants à corpus constant et mesurer le coût ; aucun réglage de retrieval transposé. |
+| I5-PJ-S04 | [Sufficient Context, ICLR 2025](https://research.google/pubs/sufficient-context-a-new-lens-on-retrieval-augmented-generation-systems-2/) | Séparer preuve disponible, suffisance pour la question et exploitation de cette preuve. |
+| I5-PJ-S05 | [GaRAGe, Findings ACL 2025](https://aclanthology.org/2025.findings-acl.875/) | Vérifier l'applicabilité des sources et l'utilité des réponses partielles. |
+| I5-PJ-S06 | [FaithBench, NAACL 2025](https://aclanthology.org/2025.naacl-short.38/) | Mesurer les faux acceptés et faux rejetés du vérificateur sur un jeu séparé. |
+| I5-PJ-S07 | [OmniDocBench, CVPR 2025](https://openaccess.thecvf.com/content/CVPR2025/html/Ouyang_OmniDocBench_Benchmarking_Diverse_PDF_Document_Parsing_with_Comprehensive_Annotations_CVPR_2025_paper.html) | Séparer fidélité de l'extraction et fidélité au texte extrait ; version arXiv v2 à 981 pages distincte des évolutions du dépôt. |
+| I5-PJ-S08 | [HalluGuard, Findings ACL 2026](https://aclanthology.org/2026.findings-acl.835/) | Poids spécialisés et résultats distincts du générateur retenu ; intégration différée, aucun second modèle ajouté. |
+
+Sources locales : [protocole préalable](reports/trust-i5-pj-protocol-2026-11-09.md),
+[gel des jeux](reports/trust-i5-pj-fixture-freeze-2026-11-09.json),
+[gel du candidat](reports/trust-i5-pj-candidate-freeze-2026-11-09.json),
+[bilan](reports/trust-i5-pj-results-2026-11-09.md).
+La littérature motive les hypothèses H1/H2 ; seuls les essais locaux permettent
+de retenir leur implémentation. L'échec final H24 reste au bilan.
+
+
+## I6 — portée des relations, consultation du 9 novembre 2026
+
+| Source primaire | Fait et usage dans ce lot | Limite |
+|---|---|---|
+| [ConjNLI, Saha et al., EMNLP 2020](https://aclanthology.org/2020.emnlp-main.661/), DOI 10.18653/v1/2020.emnlp-main.661 | Contre-épreuves de coordination, négation et quantification ; motifs des tests de portée | Corpus anglais, aucune preuve de notre grammaire FR ou du coût local |
+| [FActScore, Min et al., EMNLP 2023](https://aclanthology.org/2023.emnlp-main.741/), DOI 10.18653/v1/2023.emnlp-main.741 | Mesure d’appui atomique séparée de la couverture de la question | Aucun score ou évaluateur de la publication transféré au produit |
+
+Contrats et choix : [protocole I6](reports/trust-i6-relations-protocol-2026-11-09.md).
+Pages primaires ouvertes, dates de publication tirées de leurs métadonnées ;
+les huit références I5-PJ restent conservées avec leurs limites.

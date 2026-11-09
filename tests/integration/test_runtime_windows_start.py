@@ -34,7 +34,7 @@ def owned_qdrant_dir():
 
 def test_port_collision_fails_without_touching_existing_listener(tmp_path, monkeypatch, owned_qdrant_dir):
     monkeypatch.delenv("RAG_DATA_DIR", raising=False)
-    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    profile = yaml.safe_load((ROOT / "config/enhanced-4b.yaml").read_text(encoding="utf-8"))
     data = tmp_path / "Données arrêtées"
     profile["app"]["data_dir"] = str(data)
     profile["qdrant"]["storage_dir"] = str(owned_qdrant_dir)
@@ -66,7 +66,7 @@ def test_port_collision_fails_without_touching_existing_listener(tmp_path, monke
 
 def test_distinct_data_roots_cannot_share_locked_qdrant(tmp_path, monkeypatch, owned_qdrant_dir):
     monkeypatch.delenv("RAG_DATA_DIR", raising=False)
-    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    profile = yaml.safe_load((ROOT / "config/enhanced-4b.yaml").read_text(encoding="utf-8"))
     data = tmp_path / "Autre racine sans service"
     qdrant = owned_qdrant_dir
     profile["app"]["data_dir"] = str(data)

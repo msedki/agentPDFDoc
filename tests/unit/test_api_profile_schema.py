@@ -15,7 +15,7 @@ from services.runtime.supervisor import environment, load_profile
 
 
 def delivered():
-    return yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    return yaml.safe_load((ROOT / "config/enhanced-4b.yaml").read_text(encoding="utf-8"))
 
 
 def written(tmp_path, profile):
@@ -31,9 +31,20 @@ def digest(profile):
 @pytest.mark.parametrize("source", ["config/local16.yaml", "config/local16-4b.yaml",
                                     "RAG_Local_Agents/config/local16.yaml",
                                     "RAG_Local_Agents/config/local16-4b.yaml"])
-def test_both_loaders_preserve_delivered_dictionary_and_fingerprint(source):
+def test_historical_reader_preserves_archived_profiles_but_api_refuses_generation(source):
     path = ROOT / source
     original = yaml.safe_load(path.read_text(encoding="utf-8"))
+    before = digest(original)
+    loaded = load_profile(path)
+    assert loaded == original and digest(loaded) == before
+    with pytest.raises(ApiError) as refused:
+        Settings.load(path)
+    assert refused.value.code == "invalid_profile" and "llm.model" in refused.value.details["keys"]
+
+
+def test_both_loaders_preserve_the_enhanced_dictionary_and_fingerprint():
+    path = ROOT / "config/enhanced-4b.yaml"
+    original = delivered()
     before = digest(original)
     for loaded in (Settings.load(path).profile, load_profile(path)):
         assert loaded == original and digest(loaded) == before
@@ -107,11 +118,13 @@ def test_incompatible_consumed_values_are_refused(tmp_path, loader, changes, key
         assert set(keys).issubset(refused.value.details["keys"])
 
 
-def test_api_v1_stays_explicit_and_runtime_requires_v2(tmp_path):
+def test_api_and_runtime_require_schema_v2_for_live_profiles(tmp_path):
     profile = {"schema_version": 1, "llm": {"base_url": "http://localhost:11434"},
                "qdrant": {"url": "http://[::1]:6333"}}
     path = written(tmp_path, profile)
-    assert Settings.load(path).profile == profile
+    with pytest.raises(ApiError) as refused:
+        Settings.load(path)
+    assert refused.value.code == "invalid_profile" and "schema_version" in refused.value.details["keys"]
     with pytest.raises(ValueError, match="Profil version2 requis"):
         load_profile(path)
 
@@ -156,11 +169,16 @@ def test_fractional_pdf_limits_and_paths_are_not_normalized(tmp_path, limit):
                                           ("embedding", "local_dir"), ("embedding", "onnx_file"),
                                           ("pdf", "artifacts_path"), ("pdf", "tessdata_dir"),
                                           ("pdf", "tesseract_cmd"), ("pdf", "ocr_languages")])
-def test_runtime_requires_keys_it_indexes_and_api_retains_its_defaults(tmp_path, section, key):
+def test_runtime_required_keys_and_api_defaults_preserve_the_live_model_requirement(tmp_path, section, key):
     profile = delivered()
     del profile[section][key]
     path = written(tmp_path, profile)
-    assert Settings.load(path).profile == profile
+    if (section, key) == ("llm", "model"):
+        with pytest.raises(ApiError) as api_refusal:
+            Settings.load(path)
+        assert "llm.model" in api_refusal.value.details["keys"]
+    else:
+        assert Settings.load(path).profile == profile
     with pytest.raises(ValueError) as refused:
         load_profile(path)
     assert f"{section}.{key}" in str(refused.value)
@@ -223,16 +241,18 @@ def test_keep_alive_still_refuses_boolean_and_non_finite_numbers(tmp_path):
 
 
 def test_api_implicit_http_port_is_compared_with_explicit_ports(tmp_path):
-    profile = {"schema_version": 1, "llm": {"base_url": "http://127.0.0.1"},
-               "qdrant": {"url": "http://127.0.0.1:80"}}
+    profile = delivered()
+    profile["llm"]["base_url"] = "http://127.0.0.1"
+    profile["qdrant"]["url"] = "http://127.0.0.1:80"
     with pytest.raises(ApiError) as refused:
         Settings.load(written(tmp_path, profile))
     assert set(refused.value.details["keys"]) == {"llm.base_url", "qdrant.url"}
 
 
 def test_api_can_keep_one_implicit_http_port_without_a_collision(tmp_path):
-    profile = {"schema_version": 1, "llm": {"base_url": "http://127.0.0.1"},
-               "qdrant": {"url": "http://127.0.0.1:6333"}}
+    profile = delivered()
+    profile["llm"]["base_url"] = "http://127.0.0.1"
+    profile["qdrant"]["url"] = "http://127.0.0.1:6333"
     assert Settings.load(written(tmp_path, profile)).profile == profile
 
 

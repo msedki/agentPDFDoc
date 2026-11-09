@@ -9,6 +9,7 @@ from uuid import UUID, uuid5
 
 from services.ingestion.office.models import OfficeLimits
 from services.ingestion.office.pipeline import office_content_hash
+from services.ingestion.pdf_structure import LIST_STRUCTURE_REVISION, explicit_list_groups, list_annotation
 
 from .context import LlmTokenizer
 from .db import json_dump, now, uid
@@ -64,6 +65,7 @@ def split_text(text, embedding, target=320, overlap=48):
 
 # Révision du découpage, dans l'empreinte de génération : la changer impose une nouvelle génération (l'extraction est réutilisée).
 CHUNKER_REVISION = "section-pack-v1"
+PDF_LIST_CHUNKER_REVISION = "explicit-list-pack-v1"
 OFFICE_CHUNKER_REVISION = "office-structure-v1"
 # Blocs regroupables : texte courant et titres. Tableaux, figures et légendes restent des chunks à part.
 PACKABLE_KINDS = frozenset({"text", "heading"})
@@ -73,7 +75,60 @@ def block_text(block):
     return block.get("raw_text", block.get("text", ""))
 
 
-def chunk_plan(blocks, embedding, target=320, overlap=48):
+def _list_group_packets(group, embedding, target):
+    def distinct(blocks):
+        # An inline glyph and its text are one actual source block. Keep that
+        # occurrence once without creating synthetic positions or fragments.
+        return list({block["id"]: block for block in blocks}.values())
+
+    prefix = distinct([group["parent_marker"], group["heading"]])
+    suffix = distinct([group["boundary_marker"], group["boundary"]])
+    packets: list[list[dict[str, Any]]] = []
+    children: list[dict[str, Any]] = []
+
+    def fits(values):
+        return embedding.count("\n".join(block_text(block) for block in [*prefix, *values, *suffix])) <= target
+
+    def flush_children():
+        if children:
+            packets.append([*prefix, *children, *suffix])
+            children.clear()
+
+    for item in group["items"]:
+        if not item["verified"] or item["block"].get("list_structure") != list_annotation(group, item):
+            continue
+        pair = distinct([item["marker"], item["block"]])
+        if not fits(pair):
+            flush_children()
+            continue
+        if children and not fits([*children, *pair]):
+            flush_children()
+        children.extend(pair)
+    flush_children()
+    return packets
+
+
+def _list_chunk_plans(page, embedding, target):
+    """Pack written list evidence without omitting or synthesizing any text.
+
+    A large group repeats its exact title/marker/boundary dependencies in each
+    chunk. If even one child with those dependencies cannot fit, that child
+    falls back to the ordinary splitter and receives no partial list proof.
+    """
+    positions = {block["id"]: index for index, block in enumerate(page["blocks"]) if isinstance(block.get("id"), str)}
+    anchored: dict[str, list[list[tuple[dict[str, Any], int, int]]]] = {}
+    consumed = set()
+    for group in explicit_list_groups(page):
+        packets = _list_group_packets(group, embedding, target)
+        if packets:
+            ids = {block["id"] for packet in packets for block in packet}
+            anchor = min(ids, key=positions.__getitem__)
+            anchored.setdefault(anchor, []).extend([[(block, 0, len(block_text(block))) for block in packet] for packet in packets])
+            consumed.update(ids)
+    return anchored, consumed
+
+
+def chunk_plan(blocks, embedding, target=320, overlap=48, *, explicit_lists=False, page=None):
     """Parts (bloc, début, fin) de chaque chunk d'une page, dans l'ordre de lecture.
 
     Les blocs consécutifs d'une même section connue sont joints par « \\n » tant que le texte joint tient dans la cible
@@ -81,6 +136,7 @@ def chunk_plan(blocks, embedding, target=320, overlap=48):
     sans section reste seul et se découpe comme avant, avec recouvrement seulement pour une coupe de bloc."""
     plans: list[list[tuple[dict[str, Any], int, int]]] = []
     pending: list[tuple[dict[str, Any], str]] = []
+    list_plans, list_blocks = _list_chunk_plans(page, embedding, target) if explicit_lists and page else ({}, set())
 
     def flush():
         if pending:
@@ -88,6 +144,12 @@ def chunk_plan(blocks, embedding, target=320, overlap=48):
             pending.clear()
 
     for block in blocks:
+        if block.get("id") in list_plans:
+            flush()
+            plans.extend(list_plans[block["id"]])
+            continue
+        if block.get("id") in list_blocks:
+            continue
         text = block_text(block)
         if not text.strip():
             continue
@@ -268,6 +330,8 @@ class Indexer:
             "chunker_revision": CHUNKER_REVISION if document_format == "pdf" else OFFICE_CHUNKER_REVISION}
         if document_format != "pdf":
             content["format"] = document_format
+        elif self.settings.value("enhanced", "explicit_pdf_lists", False):
+            content["explicit_pdf_lists"] = {"structure_revision": LIST_STRUCTURE_REVISION, "chunker_revision": PDF_LIST_CHUNKER_REVISION}
         return hashlib.sha256(json_dump(content).encode()).hexdigest()
 
     def stage(self, job_id, extraction, extraction_path=None):
@@ -294,7 +358,8 @@ class Indexer:
         chunks = []
         target, overlap = self.settings.value("chunking", "target_tokens", 320), self.settings.value("chunking", "overlap_max_tokens", 48)
         for page in extraction["pages"]:
-            for parts in chunk_plan(page.get("blocks", []), self.embedding, target, overlap):
+            for parts in chunk_plan(page.get("blocks", []), self.embedding, target, overlap,
+                                    explicit_lists=self.settings.value("enhanced", "explicit_pdf_lists", False), page=page):
                 # Même texte que la source reconstruite à la lecture (scope.source_for_chunk) : parts jointes par « \n ».
                 chunk_text = "\n".join(block_text(block)[start:end] for block, start, end in parts)
                 key = "|".join(f"{block['id']}:{start}:{end}" for block, start, end in parts)

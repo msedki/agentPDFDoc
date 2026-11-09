@@ -1,6 +1,71 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; notes et preuves datées ci-dessous, compléments R27 sur produits `5204d2e`/`aabb9808`, historique conservé · **Mis à jour :** 2026-10-10 17:31 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; notes et preuves datées ci-dessous, compléments R27 sur produits `5204d2e`/`aabb9808`, historique conservé · **Mis à jour :** 2026-11-09 (UTC ; complément I5, preuves historiques conservées) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+
+## I6 — portée des relations, 9 novembre 2026
+
+Les critères I6R-D01 à D08 sont fixés avant modification dans le
+[protocole I6](reports/trust-i6-relations-protocol-2026-11-09.md), avec un
+[reçu de gel](reports/trust-i6-relations-protocol-freeze-2026-11-09.json).
+Ils portent sur les exceptions/négations, les comparaisons entre sujets,
+la fidélité et le coût d'une route partielle bornée. Leur état global est
+**EN COURS** : [R1](reports/trust-i6-relations-r1-2026-11-09.md) passe ses 369
+tests ciblés et corrige H24/H06 connus ; final I6, suite complète et natif
+restent **NOT_RUN**. Les résultats I5-PJ ci-dessous restent historiques ; le plan
+canonique suit les lots et chaque publication. Aucun critère de production
+n'est acquis par la seule définition du protocole.
+
+## Complément I5-PJ — relations numériques et conditions, 9 novembre 2026
+
+Les critères PJ-D01 à PJ-D08 sont fixés avant modification dans le
+[protocole I5-PJ](reports/trust-i5-pj-protocol-2026-11-09.md). Le
+[bilan détaillé](reports/trust-i5-pj-results-2026-11-09.md) porte leurs statuts
+finaux ; les exigences et échecs historiques ci-dessous restent inchangés.
+
+Le test final ouvert après gel du candidat réduit les faux appuis exacts
+acceptés de 9/12 à 1/12, à couverture positive identique 9/12 et conservation
+littérale 28/28. **PJ-D01 n'est pas atteint :** la formulation française
+« à l'exception de » de H24 reste acceptée à tort. **PJ-D02 est atteint** dans
+sa définition préalable : aucun nouveau faux rejet sur les positifs couverts
+par la référence. La cible absolue 12/12 des fixtures reste non atteinte.
+H06/H11/H12 conservent leurs faux rejets. Ces résultats du vérificateur ne
+constituent ni un taux général d'hallucination ni une preuve de production.
+
+Les répétitions, ablations, comparaison extractive, contrôles natifs, coûts
+et arrêts sont distingués dans les
+[preuves de contrôle](reports/trust-i5-pj-support-results-2026-11-09.json)
+et la [revue indépendante](reports/trust-i5-pj-review-2026-11-09.md).
+Aucun réglage produit ni changement de seuil n'est effectué après ouverture
+du final. La qualification globale reste **non acquise**, y compris lorsque
+les portes logicielles et la livraison des sources sont terminées.
+
+**PJ-D08 atteint pour la livraison :** commit technique [5502cf42](https://github.com/msedki/agentPDFDoc/commit/5502cf424b1d9211b5a63014b01c7ab8b998dc85),
+arbre local/distant identique, parent et tête de branche relus après mise
+à jour sans force. Le [reçu](reports/trust-i5-pj-publication-2026-11-09.json)
+distingue le commit local du commit attribué au compte GitHub connecté.
+Aucun autre critère n’est modifié par cette publication.
+
+## Complément I5 — diffusion comme application de confiance
+
+Les critères I5 sont fixés avant les essais dans le [protocole du 8 novembre](reports/trust-4b-protocol-2026-11-08.md), avec ses addenda [générateur unique](reports/trust-4b-entrypoints-addendum-2026-11-08.md) et [ressources](reports/trust-4b-resource-addendum-2026-11-08.md). Ils complètent les exigences historiques, sans les annuler.
+
+L’acceptation exige à la fois la fidélité de tous les segments publics, l’utilité des réponses positives, la pertinence des abstentions, la conservation des conditions et citations, les portes unitaires/intégration/natives, le nouveau transfert réservé, les ressources et l’arrêt des processus possédés. Une abstention sûre sur une question répondable ne satisfait pas son critère positif. Une vue de modèle filtrée ou un test avec doubles n’est pas une preuve générale de compréhension ni un essai natif.
+
+**État I5 après les portes finales et l’incident réservé : qualification non acquise.** Le gel final précède l’ouverture des oracles. Le suivi natif de développement se clôt à 12/14 positifs et 6/6 limites ; le contrôlé à 12/12 et 16/18. Le transfert réservé et HTTP n’ont aucun verdict applicatif après une rupture de continuité dont l’arrêt n’est pas prouvé. Les [résultats et critères I5](reports/trust-4b-results-2026-11-08.md) et la [revue réservée](reports/trust-4b-reserved-review-2026-11-09.md) conservent les observations, les 24 positions et les reçus.
+
+| Critère I5 | Statut au bilan | Motif et portée |
+|---|---|---|
+| D01 — fidélité | FAIL | Réserve globale injustifiée TMP117 ; tous les segments publics, réserves comprises, sont dans le critère. |
+| D02 — ingestion | PASS, périmètre prévu | H01/H03/H07 correctement liés, H02 récupéré, géométrie/couverture/provenance contrôlées ; aucune généralisation au transfert. |
+| D03 — complétude | FAIL | 12/14 positifs, SCAN2 et TMP117 en échec ; 6/6 limites distinctes. |
+| D04 — OCR | FAIL | Intégrations 8/8, ancien SCAN2 non complet, deux dérivés réservés non évalués. |
+| D05 — non-régression | FAIL | Contrôlé 16/18 limites, L11/L12 conservés ; Office 8/8 et portes logicielles réussies ne remplacent pas ces critères. |
+| D06 — transfert | BLOCKED | 12 positions de référence NOT_RUN, 12 candidates BLOCKED ; aucune réponse observée ni note documentaire. |
+| D07 — exploitation/coûts | BLOCKED | Preuves de développement conservées ; HTTP v4 NOT_RUN, arrêt du lot réservé interrompu non prouvé. |
+| D08 — reproductibilité | PARTIAL | Séparation/gels/ablations/matérialisation et absence d’ajustement acquis ; 24 mesures réservées et clôture du dernier lot manquantes. |
+| D09 — livraison | PASS — sources avec réserves | Six portes documentaires PASS ; commit [7cd39839](https://github.com/msedki/agentPDFDoc/commit/7cd398399c98701309ace0498be3f149ae4e276d), parent/arbre/SHA distants vérifiés et publication sans force. [Reçu](reports/trust-4b-publication-2026-11-09.json). Aucune qualification de production déduite. |
+
+`PARTIAL` suit la matrice I5 du protocole et ne vaut pas `PASS`. Les anciennes recettes Windows/aarch64 et les kits historiques ne qualifient pas les nouveaux binaires ou le nouvel ensemble de modèles par héritage. Les exigences historiques ci-dessous sont conservées.
 
 **Livraison locale avec réserves — W038, 6 octobre 2026.** L'utilisateur
 retient la livraison pour le poste Linux aarch64 et met en attente la
@@ -515,3 +580,22 @@ Les lots R28-I-07/I-08 restent partiels et les réserves ci-dessus conservées.
 Pour chaque D01–D11 : statut, commande, commit, configuration, environnement, corpus, résultat et chemin de preuve. Ajouter un tableau des métriques avec dénominateurs, mesures chaud/froid, limitations et écarts. Résumer uniquement ce qui est réellement exécuté ; ne pas substituer un discours de conformité aux résultats.
 
 **Terminé = application exploitable + preuve bout en bout + qualification sur la cible déclarée + défauts/limites résiduels explicités.**
+
+
+## Qualification complémentaire I4 — profil enhanced-4b
+
+Les critères préalables, corpus, seuils et résultats propres aux améliorations
+4B du 8 novembre 2026 sont définis dans le
+[protocole I4](reports/production-4b-protocol-2026-11-08.md) et évalués dans le
+[bilan I4](reports/production-4b-results-2026-11-08.md). Ce lot ne remplace pas
+les critères D01–D11 ni leurs qualifications par plateforme. Une réussite sur
+le poste de développement Linux x86-64 ne clôt ni la cible Windows ni les
+mesures de performance CPU sur la machine physique visée.
+
+La qualification de diffusion I4 est refusée sur le gel du 8 novembre :
+I4-D01 (fidélité des affirmations), I4-D05 (fidélité des scans) et I4-D07
+(résultats natifs/transfert) ne sont pas satisfaits. Les progrès de sélection,
+structure et OCR, ainsi que les contrôles logiciels réussis, conservent leur
+périmètre de preuve propre. Le tableau complet, les régressions, les exécutions
+manquantes et les limites méthodologiques restent dans le bilan, source de
+vérité de cette campagne.

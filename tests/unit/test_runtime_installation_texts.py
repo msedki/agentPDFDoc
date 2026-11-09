@@ -265,8 +265,8 @@ def test_the_pointer_written_by_the_installer_is_read_by_the_runtime(tmp_path, m
     entry = home / ".local/share/applications/atelier-documentaire.desktop"
     assert entry.is_file() is menu
     assert platforms.installation(program) == platforms.Installation(
-        destination=destination, program=program, kit_id=kit_id, model=PRINCIPAL,
-        profiles={PRINCIPAL: str(data_root / "profile.yaml"), OTHER: str(data_root / "profile-qwen3.5-2b.yaml")},
+        destination=destination, program=program, kit_id=kit_id, model="qwen3-4b-enhanced:q4km",
+        profiles={"qwen3-4b-enhanced:q4km": str(data_root / "profile.yaml")},
         menu=platforms.MENU_NAME if menu else None)
     # Annonce de /health et commandes citées par le runtime de ce programme.
     run_as(monkeypatch, program)
@@ -370,7 +370,7 @@ def test_the_cli_records_its_profile_for_the_commands_it_cites(installed, monkey
 
 def _runtime_profile(tree: InstallationTree, model: str) -> Path:
     """Profil exécutable par le superviseur, écrit à l'emplacement du profil `model` de l'installation factice."""
-    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    profile = yaml.safe_load((ROOT / "config/enhanced-4b.yaml").read_text(encoding="utf-8"))
     profile["app"]["data_dir"] = str(tree.data / "runtime")
     path = Path(tree.profiles[model])
     path.write_text(yaml.safe_dump(profile, allow_unicode=True), encoding="utf-8")

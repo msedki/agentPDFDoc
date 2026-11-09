@@ -13,6 +13,8 @@ from services.runtime import cli
 from services.runtime.artifacts import ROOT, file_hash, write_json_atomic
 from tests.unit.test_runtime_accelerator import jetson_libraries  # noqa: F401  (fixture réutilisée)
 
+ENHANCED_MODEL = "qwen3-4b-enhanced:q4km"
+
 
 def _blob(store, data: bytes, media: str) -> dict:
     digest = hashlib.sha256(data).hexdigest()
@@ -197,20 +199,34 @@ def test_structurally_invalid_manifest_is_reported_not_raised(store):
 
 @pytest.fixture
 def pull_service(tmp_path, monkeypatch, store):
-    """pull-model sans Ollama réel : service, registre et dérivation sont des doubles ; stockage, verrou et racine du
-    programme sont temporaires (aucune écriture sous .runtime). La sonde de port est un double explicite : ces cas
-    vérifient le stockage, pas la disponibilité du port de provisionnement du poste. Le profil livré est lu tel quel."""
-    import httpx
+    """Import renforcé sans Ollama réel : service/importeur/sonde sont des doubles.
+
+    Le profil renforcé livré est lu tel quel. Le vrai contrôle de verrou opère
+    sur un store temporaire et des octets synthétiques, jamais un modèle réel.
+    Les entrées historiques conservées servent à vérifier le scope du contrôle.
+    """
+    from tools.qualification import provision_enhanced_4b
 
     root, lock = store
     program = tmp_path / "programme"
+    (program / "config").mkdir(parents=True)
+    values = json.loads(lock.read_text(encoding="utf-8"))
+    values["models"][ENHANCED_MODEL] = _model(root, ENHANCED_MODEL, b"GGUF" + b"\3" * 2048)
+    lock.write_text(json.dumps(values), encoding="utf-8")
+    gguf = program / ".runtime/models/synthetic-4b.gguf"
+    gguf.parent.mkdir(parents=True)
+    gguf.write_bytes(_weights(root, ENHANCED_MODEL).read_bytes())
+    (program / "config/enhanced-4b.lock.json").write_text(json.dumps({
+        "gguf": {"filename": gguf.name, "sha256": file_hash(gguf)}}), encoding="utf-8")
     monkeypatch.setattr(cli, "ROOT", program)
     monkeypatch.setattr(cli, "OLLAMA_MODELS_DIR", root)
     monkeypatch.setattr(cli, "MODELS_LOCK", lock)
     monkeypatch.setattr(cli, "native_paths", lambda: {"ollama": program / "ollama"})
     monkeypatch.setattr(cli, "environment", lambda *args: {})
+    monkeypatch.setattr(cli, "ollama_working_directory", lambda path: program)
     monkeypatch.setattr(cli, "wait_http", lambda *args, **kwargs: {"version": "0.35.0"})
     monkeypatch.setattr(cli, "send_owned_console_interrupt", lambda *args: None)
+    monkeypatch.setattr(cli, "provision_artifacts", lambda *args, **kwargs: pytest.fail("synthetic source must not download"))
 
     class PortProbe:
         def __enter__(self):
@@ -239,70 +255,66 @@ def pull_service(tmp_path, monkeypatch, store):
             return Child()
 
     monkeypatch.setattr(cli, "ProcessJob", Job)
-    pulls = []
+    imports = []
+    imported = {"status": "explicit_importer_double", "model": ENHANCED_MODEL,
+                "digest": values["models"][ENHANCED_MODEL]["manifest_sha256"]}
 
-    def answer(request):
-        if request.url.path == "/api/pull":
-            pulls.append(json.loads(request.content))
-            return httpx.Response(200, content=b'{"status": "pulling manifest"}\n{"status": "success"}\n')
-        if request.url.path == "/api/tags":
-            return httpx.Response(200, json={"models": [{"name": "qwen3.5:4b", "digest": json.loads(lock.read_text())["models"]["qwen3.5:4b"]["manifest_sha256"],
-                                                         "details": {"quantization_level": "Q4_K_M"}}]})
-        if request.url.path == "/api/show":
-            return httpx.Response(200, json={"details": {"quantization_level": "Q4_K_M"}, "model_info": {}})
-        raise AssertionError(f"route inattendue : {request.url.path}")
+    def import_double(profile_path, executable, source):
+        profile = json.loads(profile_path.read_text(encoding="utf-8"))
+        assert profile["llm"]["model"] == profile["llm"]["source_model"] == ENHANCED_MODEL
+        assert source == gguf and executable == program / "ollama"
+        imports.append(ENHANCED_MODEL)
+        return imported
 
-    real_client = httpx.Client
-    monkeypatch.setattr(httpx, "Client", lambda **kwargs: real_client(**kwargs, transport=httpx.MockTransport(answer)))
-    derived = {"model": {"name": "qwen3.5:4b-text", "digest": "derive"}}
-    monkeypatch.setattr(cli, "_derive_text_model", lambda *args: derived)
-    return root, lock, pulls, derived
+    monkeypatch.setattr(provision_enhanced_4b, "provision", import_double)
+    return root, lock, imports, imported
 
 
 def test_pull_model_returns_the_model_when_the_store_matches_the_lock(pull_service):
-    root, lock, pulls, derived = pull_service
-    assert cli.pull_model(ROOT / "config/local16-4b.yaml") == derived["model"]
-    assert pulls == [{"model": "qwen3.5:4b", "stream": True}]
+    root, lock, imports, imported = pull_service
+    assert cli.pull_model(ROOT / "config/enhanced-4b.yaml") == imported
+    assert imports == [ENHANCED_MODEL]
 
 
-@pytest.mark.parametrize("alteration", ["derived_manifest", "source_absent"])
-def test_pull_model_fails_when_the_pulled_or_derived_store_differs_from_the_lock(pull_service, alteration):
-    # Avant correction, pull-model rendait le modèle quel que soit le stockage ; seul doctor signalait ensuite l'écart.
-    root, lock, pulls, _ = pull_service
-    library = root / "manifests/registry.ollama.ai/library/qwen3.5"
-    if alteration == "derived_manifest":
-        manifest = json.loads((library / "4b-text").read_text(encoding="utf-8"))
+@pytest.mark.parametrize("alteration", ["imported_manifest", "imported_absent"])
+def test_pull_model_fails_when_the_imported_store_differs_from_the_lock(pull_service, alteration):
+    # Le retour de l'importeur ne suffit pas : vérifier le store après arrêt du
+    # Job, y compris sur la nouvelle branche renforcée sans dérivation legacy.
+    root, lock, imports, _ = pull_service
+    manifest_path = root / "manifests/registry.ollama.ai/library/qwen3-4b-enhanced/q4km"
+    if alteration == "imported_manifest":
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         manifest["layers"] = manifest["layers"][:1]
-        (library / "4b-text").write_text(json.dumps(manifest), encoding="utf-8")
-        detail = "qwen3.5:4b-text (layers_differ_from_lock, manifest_digest_mismatch)"
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+        detail = ENHANCED_MODEL + " (layers_differ_from_lock, manifest_digest_mismatch)"
     else:
-        (library / "4b").unlink()
-        detail = "qwen3.5:4b (absent)"
+        manifest_path.unlink()
+        detail = ENHANCED_MODEL + " (absent)"
     with pytest.raises(RuntimeError) as failure:
-        cli.pull_model(ROOT / "config/local16-4b.yaml")
+        cli.pull_model(ROOT / "config/enhanced-4b.yaml")
     assert str(failure.value) == (f"Stockage Ollama différent du verrou {lock} après pull-model : {detail}. "
                                   "Contrôle limité aux modèles du profil, avec les critères de doctor ; les fichiers du "
                                   "stockage sont conservés pour diagnostic.")
-    assert pulls == [{"model": "qwen3.5:4b", "stream": True}]
+    assert imports == [ENHANCED_MODEL]
 
 
 def test_pull_model_fails_when_the_profile_names_a_model_missing_from_the_lock(pull_service, monkeypatch):
     root, lock, _, _ = pull_service
     data = json.loads(lock.read_text(encoding="utf-8"))
-    del data["models"]["qwen3.5:4b-text"]
+    del data["models"][ENHANCED_MODEL]
     lock.write_text(json.dumps(data), encoding="utf-8")
     with pytest.raises(RuntimeError) as failure:
-        cli.pull_model(ROOT / "config/local16-4b.yaml")
+        cli.pull_model(ROOT / "config/enhanced-4b.yaml")
     assert str(failure.value) == (f"Stockage Ollama différent du verrou {lock} après pull-model : modèle du profil absent "
-                                  "du verrou (qwen3.5:4b-text). Contrôle limité aux modèles du profil, avec les critères "
+                                  f"du verrou ({ENHANCED_MODEL}). Contrôle limité aux modèles du profil, avec les critères "
                                   "de doctor ; les fichiers du stockage sont conservés pour diagnostic.")
 
 
 @pytest.fixture
 def profile_without_derivation(tmp_path):
-    """Profil livré dont le modèle servi est le modèle source (model == source_model) : aucune dérivation texte seul."""
-    profile = yaml.safe_load((ROOT / "config/local16-4b.yaml").read_text(encoding="utf-8"))
-    profile["llm"]["model"] = profile["llm"]["source_model"]
+    """Le profil renforcé importe et sert le même modèle, sans dérivation."""
+    profile = yaml.safe_load((ROOT / "config/enhanced-4b.yaml").read_text(encoding="utf-8"))
+    assert profile["llm"]["model"] == profile["llm"]["source_model"]
     path = tmp_path / "profil-sans-derivation.yaml"
     path.write_text(yaml.safe_dump(profile, allow_unicode=True, sort_keys=False), encoding="utf-8")
     return path
@@ -310,9 +322,9 @@ def profile_without_derivation(tmp_path):
 
 @pytest.mark.parametrize("alteration", ["derived_absent", "derived_manifest"])
 def test_pull_model_checks_only_the_models_of_its_profile(pull_service, profile_without_derivation, alteration):
-    # Le dérivé texte seul du verrou ne concerne pas ce profil : son absence ou son écart ne fait plus échouer pull-model
-    # (avant correction, tout le verrou était contrôlé).
-    root, lock, pulls, _ = pull_service
+    # Une archive historique du verrou ne concerne pas le profil renforcé ; son
+    # absence ou son altération ne permet ni d'élargir ni d'éviter son contrôle.
+    root, lock, imports, imported = pull_service
     library = root / "manifests/registry.ollama.ai/library/qwen3.5"
     if alteration == "derived_absent":
         (library / "4b-text").unlink()
@@ -320,21 +332,20 @@ def test_pull_model_checks_only_the_models_of_its_profile(pull_service, profile_
         manifest = json.loads((library / "4b-text").read_text(encoding="utf-8"))
         manifest["layers"] = manifest["layers"][:1]
         (library / "4b-text").write_text(json.dumps(manifest), encoding="utf-8")
-    assert cli.pull_model(profile_without_derivation) == {"name": "qwen3.5:4b", "digest": json.loads(lock.read_text())["models"]["qwen3.5:4b"]["manifest_sha256"],
-                                                          "details": {"quantization_level": "Q4_K_M"}}
-    assert pulls == [{"model": "qwen3.5:4b", "stream": True}]
+    assert cli.pull_model(profile_without_derivation) == imported
+    assert imports == [ENHANCED_MODEL]
 
 
 def test_pull_model_without_derivation_still_fails_when_its_own_model_differs_from_the_lock(pull_service,
                                                                                           profile_without_derivation):
     root, lock, _, _ = pull_service
     library = root / "manifests/registry.ollama.ai/library/qwen3.5"
-    (library / "4b").unlink()
+    (root / "manifests/registry.ollama.ai/library/qwen3-4b-enhanced/q4km").unlink()
     (library / "4b-text").unlink()
     with pytest.raises(RuntimeError) as failure:
         cli.pull_model(profile_without_derivation)
     # Seul le modèle du profil est cité ; le dérivé absent n'est pas un écart de ce profil.
-    assert str(failure.value) == (f"Stockage Ollama différent du verrou {lock} après pull-model : qwen3.5:4b (absent). "
+    assert str(failure.value) == (f"Stockage Ollama différent du verrou {lock} après pull-model : {ENHANCED_MODEL} (absent). "
                                   "Contrôle limité aux modèles du profil, avec les critères de doctor ; les fichiers du "
                                   "stockage sont conservés pour diagnostic.")
 

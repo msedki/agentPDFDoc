@@ -1,0 +1,682 @@
+{
+  "schema_version": "i5-heldout-questions-v1",
+  "protocol": "trust-4b-I5-2026-11-08",
+  "cases": [
+    {
+      "id": "T01",
+      "document_id": "D01",
+      "question": "Dans le tableau des conditions de fonctionnement du TS881, quelles plages de tension d'alimentation correspondent aux deux plages de température ambiante ? Conserve les bornes et les conditions de chaque sous-ligne.",
+      "answerable": true,
+      "scope": {
+        "kind": "pages",
+        "page_start": 4,
+        "page_end": 4
+      },
+      "source_revision": "DocID023340 Rev 3",
+      "required_evidence_units": [
+        {
+          "id": "T01-E1",
+          "subject": "TS881",
+          "property": "VCC supply voltage",
+          "role": "operating_range",
+          "value": [
+            "0.85",
+            "5.5"
+          ],
+          "unit": "V",
+          "condition": "-40 °C < Tamb < +85 °C",
+          "source_section": "Table 2, VCC row, first subrow"
+        },
+        {
+          "id": "T01-E2",
+          "subject": "TS881",
+          "property": "VCC supply voltage",
+          "role": "operating_range",
+          "value": [
+            "1.1",
+            "5.5"
+          ],
+          "unit": "V",
+          "condition": "-40 °C < Tamb < +125 °C",
+          "source_section": "Table 2, VCC row, second subrow"
+        }
+      ],
+      "limitations_or_forbidden_inferences": [
+        "Do not replace operating conditions with the 6 V absolute maximum.",
+        "Do not erase the strict temperature inequalities or assign 0.85 V to the +125 °C subrow."
+      ],
+      "tags": [
+        "subrows",
+        "condition_binding",
+        "multi_obligation"
+      ],
+      "review_basis": {
+        "source_page_index": 4,
+        "source_physical_page": 5,
+        "visible_page_review": "review/D01-page-4.png",
+        "judge": "validation agent; not a product implementer",
+        "uuid_and_index_revision": null
+      }
+    },
+    {
+      "id": "T02",
+      "document_id": "D01",
+      "question": "Pour le TS881 à VCC = +0,9 V, donne les délais de propagation bas-vers-haut TPLH typiques et maximaux à +25 °C pour un overdrive de 10 mV puis de 100 mV, avec les autres conditions de mesure de la table.",
+      "answerable": true,
+      "scope": {
+        "kind": "pages",
+        "page_start": 5,
+        "page_end": 5
+      },
+      "source_revision": "DocID023340 Rev 3",
+      "required_evidence_units": [
+        {
+          "id": "T02-E1",
+          "subject": "TS881",
+          "property": "TPLH",
+          "role": "typical",
+          "value": "7.2",
+          "unit": "µs",
+          "condition": "Overdrive = 10 mV; VCC = +0.9 V; Tamb = +25 °C; VICM = 0 V; f = 1 kHz; CL = 30 pF; RL = 1 MΩ",
+          "source_section": "Table 3, TPLH, 10 mV subrow, Typ column"
+        },
+        {
+          "id": "T02-E2",
+          "subject": "TS881",
+          "property": "TPLH",
+          "role": "maximum",
+          "value": "14",
+          "unit": "µs",
+          "condition": "Overdrive = 10 mV; VCC = +0.9 V; Tamb = +25 °C; VICM = 0 V; f = 1 kHz; CL = 30 pF; RL = 1 MΩ",
+          "source_section": "Table 3, TPLH, 10 mV subrow, Max column"
+        },
+        {
+          "id": "T02-E3",
+          "subject": "TS881",
+          "property": "TPLH",
+          "role": "typical",
+          "value": "3.3",
+          "unit": "µs",
+          "condition": "Overdrive = 100 mV; VCC = +0.9 V; Tamb = +25 °C; VICM = 0 V; f = 1 kHz; CL = 30 pF; RL = 1 MΩ",
+          "source_section": "Table 3, TPLH, 100 mV subrow, Typ column"
+        },
+        {
+          "id": "T02-E4",
+          "subject": "TS881",
+          "property": "TPLH",
+          "role": "maximum",
+          "value": "5.0",
+          "unit": "µs",
+          "condition": "Overdrive = 100 mV; VCC = +0.9 V; Tamb = +25 °C; VICM = 0 V; f = 1 kHz; CL = 30 pF; RL = 1 MΩ",
+          "source_section": "Table 3, TPLH, 100 mV subrow, Max column"
+        }
+      ],
+      "limitations_or_forbidden_inferences": [
+        "Do not use 16 µs or 5.5 µs (temperature-range subrows) for the +25 °C request.",
+        "Min column is blank; no minimum may be inferred.",
+        "If quoting temperature-range guarantees, retain correlation/simulation and no production test at range limits."
+      ],
+      "tags": [
+        "min_typ_max",
+        "subrows",
+        "units",
+        "conditions"
+      ],
+      "review_basis": {
+        "source_page_index": 5,
+        "source_physical_page": 6,
+        "visible_page_review": "review/D01-page-5.png",
+        "judge": "validation agent; not a product implementer",
+        "uuid_and_index_revision": null
+      }
+    },
+    {
+      "id": "T03",
+      "document_id": "D01",
+      "question": "À VCC = +1,2 V et Tamb = +25 °C, quel est le courant d'alimentation ICC typique et maximal du TS881, sortie basse puis sortie haute, sans charge ? Précise la condition VID de chaque cas et la condition VICM.",
+      "answerable": true,
+      "scope": {
+        "kind": "pages",
+        "page_start": 6,
+        "page_end": 6
+      },
+      "source_revision": "DocID023340 Rev 3",
+      "required_evidence_units": [
+        {
+          "id": "T03-E1",
+          "subject": "TS881",
+          "property": "ICC supply current",
+          "role": "typical",
+          "value": "300",
+          "unit": "nA",
+          "condition": "No load; output low; VID = -0.1 V; VCC = +1.2 V; Tamb = +25 °C; VICM = VCC/2",
+          "source_section": "Table 4, ICC low row, Typ"
+        },
+        {
+          "id": "T03-E2",
+          "subject": "TS881",
+          "property": "ICC supply current",
+          "role": "maximum",
+          "value": "450",
+          "unit": "nA",
+          "condition": "No load; output low; VID = -0.1 V; VCC = +1.2 V; Tamb = +25 °C; VICM = VCC/2",
+          "source_section": "Table 4, ICC low row, Max"
+        },
+        {
+          "id": "T03-E3",
+          "subject": "TS881",
+          "property": "ICC supply current",
+          "role": "typical",
+          "value": "210",
+          "unit": "nA",
+          "condition": "No load; output high; VID = +0.1 V; VCC = +1.2 V; Tamb = +25 °C; VICM = VCC/2",
+          "source_section": "Table 4, ICC high row, Typ"
+        },
+        {
+          "id": "T03-E4",
+          "subject": "TS881",
+          "property": "ICC supply current",
+          "role": "maximum",
+          "value": "350",
+          "unit": "nA",
+          "condition": "No load; output high; VID = +0.1 V; VCC = +1.2 V; Tamb = +25 °C; VICM = VCC/2",
+          "source_section": "Table 4, ICC high row, Max"
+        }
+      ],
+      "limitations_or_forbidden_inferences": [
+        "Do not interchange low/high, typical/maximum or temperature subrows.",
+        "Keep the minus/plus signs on VID; no empty Min value may be invented."
+      ],
+      "tags": [
+        "min_typ_max",
+        "subrows",
+        "signs",
+        "multi_obligation"
+      ],
+      "review_basis": {
+        "source_page_index": 6,
+        "source_physical_page": 7,
+        "visible_page_review": "review/D01-page-6.png",
+        "judge": "validation agent; not a product implementer",
+        "uuid_and_index_revision": null
+      }
+    },
+    {
+      "id": "T04",
+      "document_id": "D02",
+      "question": "Quelles sont les tensions de fonctionnement minimales et maximales des groupes MCP9700/9700A/9700B et MCP9701/9701A dans le tableau DC, et quelles conditions générales de température et de charge accompagnent chaque groupe ?",
+      "answerable": true,
+      "scope": {
+        "kind": "pages",
+        "page_start": 2,
+        "page_end": 2
+      },
+      "source_revision": "DS20001942L",
+      "required_evidence_units": [
+        {
+          "id": "T04-E1",
+          "subject": "MCP9700/9700A/9700B",
+          "property": "VDD operating voltage",
+          "role": "minimum",
+          "value": "2.3",
+          "unit": "V",
+          "condition": "TA = -40 °C to +125 °C; GND = Ground; no load; unless otherwise indicated",
+          "source_section": "DC Electrical Characteristics, header and Operating Voltage Range first subrow"
+        },
+        {
+          "id": "T04-E2",
+          "subject": "MCP9700/9700A/9700B",
+          "property": "VDD operating voltage",
+          "role": "maximum",
+          "value": "5.5",
+          "unit": "V",
+          "condition": "TA = -40 °C to +125 °C; GND = Ground; no load; unless otherwise indicated",
+          "source_section": "DC Electrical Characteristics, header and Operating Voltage Range first subrow"
+        },
+        {
+          "id": "T04-E3",
+          "subject": "MCP9701/9701A",
+          "property": "VDD operating voltage",
+          "role": "minimum",
+          "value": "3.1",
+          "unit": "V",
+          "condition": "TA = -10 °C to +125 °C; GND = Ground; no load; unless otherwise indicated",
+          "source_section": "DC Electrical Characteristics, header and Operating Voltage Range second subrow"
+        },
+        {
+          "id": "T04-E4",
+          "subject": "MCP9701/9701A",
+          "property": "VDD operating voltage",
+          "role": "maximum",
+          "value": "5.5",
+          "unit": "V",
+          "condition": "TA = -10 °C to +125 °C; GND = Ground; no load; unless otherwise indicated",
+          "source_section": "DC Electrical Characteristics, header and Operating Voltage Range second subrow"
+        }
+      ],
+      "limitations_or_forbidden_inferences": [
+        "Typical voltage column is a dash; do not infer a nominal voltage.",
+        "The 6.0 V absolute maximum is not an operating limit."
+      ],
+      "tags": [
+        "variant_binding",
+        "min_typ_max",
+        "conditions"
+      ],
+      "review_basis": {
+        "source_page_index": 2,
+        "source_physical_page": 3,
+        "visible_page_review": "review/D02-page-2.png",
+        "judge": "validation agent; not a product implementer",
+        "uuid_and_index_revision": null
+      }
+    },
+    {
+      "id": "T05",
+      "document_id": "D02",
+      "question": "Pour le MCP9700B, quelles erreurs de précision TACY minimale, typique et maximale sont indiquées de 0 °C à +125 °C, puis de -40 °C à +125 °C ? Conserve le signe ± de la valeur typique et la tension utilisée pour tester la précision.",
+      "answerable": true,
+      "scope": {
+        "kind": "pages",
+        "page_start": 2,
+        "page_end": 2
+      },
+      "source_revision": "DS20001942L",
+      "required_evidence_units": [
+        {
+          "id": "T05-E1",
+          "subject": "MCP9700B",
+          "property": "TACY sensor accuracy",
+          "role": "minimum",
+          "value": "-2.0",
+          "unit": "°C",
+          "condition": "TA = 0 °C to +125 °C; accuracy tested at VDD = 3.3 V; no load",
+          "source_section": "DC Electrical Characteristics, Sensor Accuracy row TA = 0 °C to +125 °C, Note 2"
+        },
+        {
+          "id": "T05-E2",
+          "subject": "MCP9700B",
+          "property": "TACY sensor accuracy",
+          "role": "typical",
+          "value": "±0.5",
+          "unit": "°C",
+          "condition": "TA = 0 °C to +125 °C; accuracy tested at VDD = 3.3 V; no load",
+          "source_section": "Same row, Typ column, Note 2"
+        },
+        {
+          "id": "T05-E3",
+          "subject": "MCP9700B",
+          "property": "TACY sensor accuracy",
+          "role": "maximum",
+          "value": "+3.0",
+          "unit": "°C",
+          "condition": "TA = 0 °C to +125 °C; accuracy tested at VDD = 3.3 V; no load",
+          "source_section": "Same row, Max column, Note 2"
+        },
+        {
+          "id": "T05-E4",
+          "subject": "MCP9700B",
+          "property": "TACY sensor accuracy",
+          "role": "minimum",
+          "value": "-2.0",
+          "unit": "°C",
+          "condition": "TA = -40 °C to +125 °C; accuracy tested at VDD = 3.3 V; no load",
+          "source_section": "DC Electrical Characteristics, Sensor Accuracy row TA = -40 °C to +125 °C, Note 2"
+        },
+        {
+          "id": "T05-E5",
+          "subject": "MCP9700B",
+          "property": "TACY sensor accuracy",
+          "role": "typical",
+          "value": "±0.5",
+          "unit": "°C",
+          "condition": "TA = -40 °C to +125 °C; accuracy tested at VDD = 3.3 V; no load",
+          "source_section": "Same row, Typ column, Note 2"
+        },
+        {
+          "id": "T05-E6",
+          "subject": "MCP9700B",
+          "property": "TACY sensor accuracy",
+          "role": "maximum",
+          "value": "+4.0",
+          "unit": "°C",
+          "condition": "TA = -40 °C to +125 °C; accuracy tested at VDD = 3.3 V; no load",
+          "source_section": "Same row, Max column, Note 2"
+        }
+      ],
+      "limitations_or_forbidden_inferences": [
+        "Do not change ±0.5 to +0.5 or 0.5 without its two-sided qualification.",
+        "Do not use 5.0 V (MCP9701 group test supply) or high-temperature +150 °C subrow."
+      ],
+      "tags": [
+        "signed_values",
+        "min_typ_max",
+        "subrows",
+        "footnote",
+        "ocr_pair"
+      ],
+      "review_basis": {
+        "source_page_index": 2,
+        "source_physical_page": 3,
+        "visible_page_review": "review/D02-page-2.png",
+        "judge": "validation agent; not a product implementer",
+        "uuid_and_index_revision": null
+      }
+    },
+    {
+      "id": "T06",
+      "document_id": "D02",
+      "question": "Selon la description du MCP970X, un circuit supplémentaire de conditionnement du signal est-il requis, et à quelle entrée la broche de sortie en tension VOUT peut-elle être directement reliée ?",
+      "answerable": true,
+      "scope": {
+        "kind": "pages",
+        "page_start": 0,
+        "page_end": 0
+      },
+      "source_revision": "DS20001942L",
+      "required_evidence_units": [
+        {
+          "id": "T06-E1",
+          "subject": "MCP970X Linear Active Thermistor IC",
+          "property": "additional signal-conditioning circuit",
+          "role": "qualitative",
+          "value": "not required",
+          "unit": null,
+          "condition": "Comparison in the description with resistive sensors; no claim about all possible external components",
+          "source_section": "General Description, paragraph beginning with resistive-sensor comparison"
+        },
+        {
+          "id": "T06-E2",
+          "subject": "MCP970X VOUT",
+          "property": "direct connection",
+          "role": "qualitative",
+          "value": "ADC input of a microcontroller",
+          "unit": null,
+          "condition": "Voltage Output pin; direct connection permitted by the description",
+          "source_section": "General Description, same paragraph"
+        }
+      ],
+      "limitations_or_forbidden_inferences": [
+        "Do not broaden absence of signal-conditioning circuit into absence of every external component, calibration or power supply."
+      ],
+      "tags": [
+        "qualitative",
+        "two_column_body",
+        "multi_obligation"
+      ],
+      "review_basis": {
+        "source_page_index": 0,
+        "source_physical_page": 1,
+        "visible_page_review": "review/D02-page-0.png",
+        "judge": "validation agent; not a product implementer",
+        "uuid_and_index_revision": null
+      }
+    },
+    {
+      "id": "T07",
+      "document_id": "D03",
+      "question": "Le LM35 exige-t-il une calibration ou un ajustage externe pour les précisions typiques annoncées dans sa description ? Donne ces précisions et les températures auxquelles elles s'appliquent.",
+      "answerable": true,
+      "scope": {
+        "kind": "pages",
+        "page_start": 0,
+        "page_end": 0
+      },
+      "source_revision": "SNIS159H",
+      "required_evidence_units": [
+        {
+          "id": "T07-E1",
+          "subject": "LM35",
+          "property": "external calibration or trimming",
+          "role": "qualitative",
+          "value": "not required",
+          "unit": null,
+          "condition": "For the typical accuracy statements in the description, not an unlimited accuracy guarantee",
+          "source_section": "Section 3 Description"
+        },
+        {
+          "id": "T07-E2",
+          "subject": "LM35",
+          "property": "accuracy",
+          "role": "typical",
+          "value": "±¼",
+          "unit": "°C",
+          "condition": "room temperature",
+          "source_section": "Section 3 Description"
+        },
+        {
+          "id": "T07-E3",
+          "subject": "LM35",
+          "property": "accuracy",
+          "role": "typical",
+          "value": "±¾",
+          "unit": "°C",
+          "condition": "full -55 °C to 150 °C temperature range",
+          "source_section": "Section 3 Description"
+        }
+      ],
+      "limitations_or_forbidden_inferences": [
+        "Do not promote typical accuracies into guaranteed maxima.",
+        "Fractions may be preserved literally; decimal equivalents only with explicitly traceable code conversion, not model arithmetic.",
+        "Do not replace the requested typical accuracies by the separate 0.5 °C ensured feature."
+      ],
+      "tags": [
+        "qualitative",
+        "fractions",
+        "signs",
+        "two_column_body",
+        "mixed_pair"
+      ],
+      "review_basis": {
+        "source_page_index": 0,
+        "source_physical_page": 1,
+        "visible_page_review": "review/D03-page-0.png",
+        "judge": "validation agent; not a product implementer",
+        "uuid_and_index_revision": null
+      }
+    },
+    {
+      "id": "T08",
+      "document_id": "D03",
+      "question": "Dans les conditions de fonctionnement recommandées du LM35, quelles plages de température distinguent LM35/LM35A et LM35D, et quelle plage de tension d'alimentation est recommandée ?",
+      "answerable": true,
+      "scope": {
+        "kind": "pages",
+        "page_start": 3,
+        "page_end": 3
+      },
+      "source_revision": "SNIS159H",
+      "required_evidence_units": [
+        {
+          "id": "T08-E1",
+          "subject": "LM35/LM35A",
+          "property": "specified operating temperature",
+          "role": "range",
+          "value": [
+            "-55",
+            "150"
+          ],
+          "unit": "°C",
+          "condition": "Recommended Operating Conditions; over operating free-air temperature range unless otherwise noted",
+          "source_section": "Section 6.3, first temperature subrow"
+        },
+        {
+          "id": "T08-E2",
+          "subject": "LM35D",
+          "property": "specified operating temperature",
+          "role": "range",
+          "value": [
+            "0",
+            "100"
+          ],
+          "unit": "°C",
+          "condition": "Recommended Operating Conditions; over operating free-air temperature range unless otherwise noted",
+          "source_section": "Section 6.3, third temperature subrow"
+        },
+        {
+          "id": "T08-E3",
+          "subject": "LM35 family",
+          "property": "supply voltage +VS",
+          "role": "operating_range",
+          "value": [
+            "4",
+            "30"
+          ],
+          "unit": "V",
+          "condition": "Recommended Operating Conditions; over operating free-air temperature range unless otherwise noted",
+          "source_section": "Section 6.3, Supply Voltage row"
+        }
+      ],
+      "limitations_or_forbidden_inferences": [
+        "Do not apply LM35/LM35A temperature range to LM35D.",
+        "Do not use 35 V absolute maximum as recommended supply."
+      ],
+      "tags": [
+        "variant_binding",
+        "multi_obligation",
+        "recommended_vs_absolute"
+      ],
+      "review_basis": {
+        "source_page_index": 3,
+        "source_physical_page": 4,
+        "visible_page_review": "review/D03-page-3.png",
+        "judge": "validation agent; not a product implementer",
+        "uuid_and_index_revision": null
+      }
+    },
+    {
+      "id": "T09",
+      "document_id": "D02",
+      "question": "Quelle tension de sortie minimale garantie à TA = 0 °C est fournie pour le MCP9700B dans le tableau DC ?",
+      "answerable": false,
+      "scope": {
+        "kind": "pages",
+        "page_start": 2,
+        "page_end": 2
+      },
+      "source_revision": "DS20001942L",
+      "required_evidence_units": [
+        {
+          "id": "T09-E1",
+          "subject": "MCP9700/9700A/9700B",
+          "property": "output voltage at 0 °C",
+          "role": "minimum",
+          "value": null,
+          "unit": "mV",
+          "condition": "TA = 0 °C",
+          "source_section": "DC Electrical Characteristics, Sensor Output, Min column is dash"
+        },
+        {
+          "id": "T09-E2",
+          "subject": "MCP9700/9700A/9700B",
+          "property": "output voltage at 0 °C",
+          "role": "typical",
+          "value": "500",
+          "unit": "mV",
+          "condition": "TA = 0 °C; typical only",
+          "source_section": "Same row, Typ column"
+        }
+      ],
+      "limitations_or_forbidden_inferences": [
+        "Required limitation: the requested guaranteed minimum is not provided in this scope.",
+        "An optional 500 mV quotation must remain typical, never minimum/maximum/guaranteed.",
+        "No interpolation or conversion may create a missing bound."
+      ],
+      "tags": [
+        "missing_value",
+        "min_typ_confusion",
+        "abstention"
+      ],
+      "review_basis": {
+        "source_page_index": 2,
+        "source_physical_page": 3,
+        "visible_page_review": "review/D02-page-2.png",
+        "judge": "validation agent; not a product implementer",
+        "uuid_and_index_revision": null
+      }
+    },
+    {
+      "id": "T10",
+      "document_id": "D03",
+      "question": "La page des spécifications garantit-elle le fonctionnement du LM35 sous une alimentation de 35 V ? Appuie la réponse sur la distinction entre valeur absolue maximale et conditions de fonctionnement recommandées.",
+      "answerable": false,
+      "scope": {
+        "kind": "pages",
+        "page_start": 3,
+        "page_end": 3
+      },
+      "source_revision": "SNIS159H",
+      "required_evidence_units": [
+        {
+          "id": "T10-E1",
+          "subject": "LM35",
+          "property": "supply voltage",
+          "role": "absolute_maximum",
+          "value": "35",
+          "unit": "V",
+          "condition": "Absolute Maximum Ratings, not a functional operating guarantee",
+          "source_section": "Section 6.1, supply voltage row and Note 2"
+        },
+        {
+          "id": "T10-E2",
+          "subject": "LM35",
+          "property": "supply voltage",
+          "role": "recommended_operating_range",
+          "value": [
+            "4",
+            "30"
+          ],
+          "unit": "V",
+          "condition": "Recommended Operating Conditions",
+          "source_section": "Section 6.3, supply voltage row"
+        },
+        {
+          "id": "T10-E3",
+          "subject": "LM35",
+          "property": "electrical specifications outside rated conditions",
+          "role": "qualitative",
+          "value": "do not apply",
+          "unit": null,
+          "condition": "DC and AC specifications outside rated operating conditions",
+          "source_section": "Section 6.1, Note 2"
+        }
+      ],
+      "limitations_or_forbidden_inferences": [
+        "Must decline the asserted operating guarantee at 35 V.",
+        "Do not assert that operation at 35 V necessarily fails or destroys the part; the source does not warrant that conclusion."
+      ],
+      "tags": [
+        "absolute_vs_operating",
+        "unsupported_guarantee",
+        "abstention"
+      ],
+      "review_basis": {
+        "source_page_index": 3,
+        "source_physical_page": 4,
+        "visible_page_review": "review/D03-page-3.png",
+        "judge": "validation agent; not a product implementer",
+        "uuid_and_index_revision": null
+      }
+    }
+  ],
+  "acceptance": {
+    "positive_cases": 8,
+    "limit_cases": 2,
+    "all_positive_strict_required": true,
+    "all_limit_strict_required": true,
+    "additional_claims_must_also_be_supported": true,
+    "false_missing_information_reserve_fails_positive": true,
+    "errors_and_timeouts_remain_in_denominator": true,
+    "source_citation_required": true,
+    "no_missing_reference_invention": true,
+    "literal_and_semantic_citation_checks_separate": true,
+    "min_typ_max_assignment_not_inferred_from_occurrence": true
+  },
+  "review_process": {
+    "source_pages_visually_read_before_freeze": true,
+    "case_selection_not_based_on_product_outputs": true,
+    "no_native_pipeline_output_seen": true,
+    "author_did_not_modify_product_code": true,
+    "independence_limit": "Single oracle preparer/reviewer before freeze; cross-review after candidate freeze is required and any disputed oracle remains reported."
+  }
+}

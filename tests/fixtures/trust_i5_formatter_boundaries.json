@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "protocol_id": "G4B-I5-FORMATTER-BOUNDARIES-V1",
+  "frozen_utc": "2026-11-08T22:26:34.852787+00:00",
+  "purpose": "Complément contrôlé séparé : trois modes du double de sélecteur sur la même source et la même question L01 ; deux bras, six requêtes. Aucun remplacement ni re-classement des trente contrôles primaires ; aucune inférence 4B réelle.",
+  "derivation": {
+    "fixture": "tests/fixtures/grounded_cases.json",
+    "fixture_sha256": "68a997cee3c6e3dcd1d8625d534c17631cb7ddaebedb1bfd3efa316c678fd476",
+    "case_id": "L01_condition_mismatch",
+    "unchanged_fields": [
+      "question",
+      "documents",
+      "answerable"
+    ],
+    "primary_results_unchanged": true
+  },
+  "formatter_boundary_protocol": {
+    "schema_version": 1,
+    "arms": [
+      "baseline",
+      "candidate"
+    ],
+    "case_count_per_arm": 3,
+    "total_case_count": 6,
+    "harness": "tools/qualification/grounded_campaign.py",
+    "harness_sha256": "a9ff2e5470a6fda376623b68c88ff804da8185b8ce3cc5b48ab691af2f258237",
+    "only_case_intervention": "ControlledSelectorDouble.mode",
+    "required_all_gates_pass": true,
+    "missing_error_timeout_cases_stay_in_denominator": true,
+    "actual_model_inference": "NOT_RUN",
+    "validator": "tools/qualification/verify_formatter_boundaries.py"
+  },
+  "acceptance": {
+    "answerable_complete": 0,
+    "answerable_total": 0,
+    "limit_controls_pass": 3,
+    "limit_controls_total": 3,
+    "scope_leakage_count": 0,
+    "invented_claim_count": 0,
+    "citation_integrity_ratio": 1.0
+  },
+  "cases": [
+    {
+      "id": "F01_valid_plan",
+      "question": "Quel courant de sortie est établi à TA = 85 °C ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Output current: 10 mA at TA = 25 °C."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "limitation",
+      "must_limit": true,
+      "gateway": "all",
+      "forbidden_answer_patterns": [
+        "UNSOURCED_GENERATOR_999",
+        "R999"
+      ],
+      "facts": [
+        {
+          "id": "source_condition_preserved",
+          "document": "a",
+          "source_patterns": [
+            "Output\\ current:\\ 10\\ mA\\ at\\ TA\\ =\\ 25\\ °C\\."
+          ],
+          "answer_patterns": [
+            "Output\\ current:\\ 10\\ mA\\ at\\ TA\\ =\\ 25\\ °C\\."
+          ]
+        }
+      ],
+      "formatter_expectation": {
+        "required_selector_calls": 1,
+        "required_captured_calls": 1,
+        "required_catalogue_min_entries": 1,
+        "required_route": "local_4b_generation",
+        "required_model_call_attempted": true,
+        "required_terminal_count": 1,
+        "forbidden_public_literals": [
+          "UNSOURCED_GENERATOR_999",
+          "R999"
+        ],
+        "source_quote": "Output current: 10 mA at TA = 25 °C.",
+        "read_only_persistence_check": true,
+        "kind": "valid_witness",
+        "expected_state": "done",
+        "expected_error_code": null,
+        "required_public_delta_count": null,
+        "required_terminal_citations": 1,
+        "required_persisted_assistant_messages": 1,
+        "required_limitation_notice": true
+      }
+    },
+    {
+      "id": "F02_plan_prose",
+      "question": "Quel courant de sortie est établi à TA = 85 °C ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Output current: 10 mA at TA = 25 °C."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "invalid_plan",
+      "gateway": "invented_field",
+      "forbidden_answer_patterns": [
+        "UNSOURCED_GENERATOR_999",
+        "R999"
+      ],
+      "allowed_errors": [
+        "structured_answer_invalid"
+      ],
+      "formatter_expectation": {
+        "required_selector_calls": 1,
+        "required_captured_calls": 1,
+        "required_catalogue_min_entries": 1,
+        "required_route": "local_4b_generation",
+        "required_model_call_attempted": true,
+        "required_terminal_count": 1,
+        "forbidden_public_literals": [
+          "UNSOURCED_GENERATOR_999",
+          "R999"
+        ],
+        "source_quote": "Output current: 10 mA at TA = 25 °C.",
+        "read_only_persistence_check": true,
+        "kind": "invalid_plan",
+        "expected_state": "error",
+        "expected_error_code": "structured_answer_invalid",
+        "required_public_delta_count": 0,
+        "required_terminal_citations": 0,
+        "required_persisted_assistant_messages": 0,
+        "required_limitation_notice": false
+      }
+    },
+    {
+      "id": "F03_unknown_reference",
+      "question": "Quel courant de sortie est établi à TA = 85 °C ?",
+      "documents": [
+        {
+          "key": "a",
+          "format": "docx",
+          "paragraphs": [
+            "Output current: 10 mA at TA = 25 °C."
+          ]
+        }
+      ],
+      "answerable": false,
+      "expected": "invalid_plan",
+      "gateway": "unknown_reference",
+      "forbidden_answer_patterns": [
+        "UNSOURCED_GENERATOR_999",
+        "R999"
+      ],
+      "allowed_errors": [
+        "structured_answer_invalid"
+      ],
+      "formatter_expectation": {
+        "required_selector_calls": 1,
+        "required_captured_calls": 1,
+        "required_catalogue_min_entries": 1,
+        "required_route": "local_4b_generation",
+        "required_model_call_attempted": true,
+        "required_terminal_count": 1,
+        "forbidden_public_literals": [
+          "UNSOURCED_GENERATOR_999",
+          "R999"
+        ],
+        "source_quote": "Output current: 10 mA at TA = 25 °C.",
+        "read_only_persistence_check": true,
+        "kind": "invalid_plan",
+        "expected_state": "error",
+        "expected_error_code": "structured_answer_invalid",
+        "required_public_delta_count": 0,
+        "required_terminal_citations": 0,
+        "required_persisted_assistant_messages": 0,
+        "required_limitation_notice": false
+      }
+    }
+  ]
+}

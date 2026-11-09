@@ -199,7 +199,17 @@ class ContextBuilder:
         required = set(references.obligations)
         priority = references.priority
         compared = list(dict.fromkeys(source["document_id"] for source in sources if source.get("document_id"))) if mode == "comparison" else []
-        sources = sorted(sources, key=lambda source: (not source.get("exact_identifier", False))) if mode != "comparison" else sources
+        property_coverage = (structured is not None
+                             and self.settings.value("enhanced", "preserve_evidence", False)
+                             and self.settings.value("enhanced", "property_coverage_selection", False))
+        if property_coverage:
+            # This rank orders verified proof dependencies before redundant
+            # occurrences. An exact-identifier sort must not undo that order.
+            sources = sorted(sources, key=lambda source: (
+                source.get("evidence_coverage_rank", len(sources)),
+                not source.get("exact_identifier", False) if mode != "comparison" else False))
+        elif mode != "comparison":
+            sources = sorted(sources, key=lambda source: (not source.get("exact_identifier", False)))
         retained: list[dict[str, Any]] = []
         excluded = 0
         for source in sources:
@@ -209,7 +219,8 @@ class ContextBuilder:
             if candidate_tokens > budget:
                 covered_so_far = {code for retained_source in retained for code in priority if references.source_matches(retained_source, code)}
                 mandatory = any(references.source_matches(source, value) and value not in covered_so_far for value in priority) or (
-                    source.get("document_id") in compared and all(kept.get("document_id") != source["document_id"] for kept in retained))
+                    source.get("document_id") in compared and all(kept.get("document_id") != source["document_id"] for kept in retained)) or bool(
+                    source.get("evidence_bundle", {}).get("atomic"))
                 if mandatory and candidate_tokens <= self.settings.value("retrieval", "max_evidence_llm_tokens", 5120):
                     budget = candidate_tokens
                 else:
@@ -263,7 +274,9 @@ class ContextBuilder:
                 states[identifier] = "not_covered_due_to_budget" if any(references.source_matches(source, identifier) for source in sources) else "not_found_in_scope"
         no_answer = sorted(identifier for identifier, state in states.items() if state == "identifier_present_no_answer_evidence")
         if no_answer:
-            warnings.append({"code": "identifier_present_no_answer_evidence", "identifiers": no_answer, "message": "Référence présente dans les preuves sans terme de la question ; ne pas en déduire de réponse."})
+            warnings.append({"code": "identifier_present_no_answer_evidence", "identifiers": no_answer,
+                             "verification": "lexical_overlap_only",
+                             "message": "L’appariement lexical de ces identifiants avec la question est insuffisant. Ce diagnostic ne juge pas les relations, cellules ou calculs vérifiés séparément."})
         if excluded:
             subject = "1 passage retrouvé a été écarté" if excluded == 1 else f"{excluded} passages retrouvés ont été écartés"
             warnings.append({"code": "context_fragments_excluded_by_budget", "count": excluded, "message":
@@ -285,9 +298,60 @@ class ContextBuilder:
                    "identifier_coverage_at_context": coverage, "evidence_coverage_at_context": coverage}
         if mode == "comparison":
             metrics.update({"required_documents": compared, "required_documents_in_context": in_context})
+        if self.settings.value("enhanced", "preserve_evidence", False):
+            from .evidence_selection import bundle_context_metrics
+            bundles = bundle_context_metrics(sources, retained)
+            if bundles is not None:
+                metrics["evidence_bundles"] = bundles
+                if bundles["excluded_bundle_ids"]:
+                    warnings.append({"code": "evidence_bundle_excluded_by_budget",
+                                     "bundle_ids": bundles["excluded_bundle_ids"],
+                                     "message": "Des preuves structurées retrouvées ont été écartées en entier par la limite de contexte ; leurs valeurs ne sont pas déclarées absentes du document."})
+        if property_coverage:
+            from .evidence_coverage import quantitative_relation_keys
+            # Rebuild from the exact final text and dependencies, including any
+            # authorized parent expansion. Ranking metadata cannot credit a
+            # fact, and an unavoidable loss remains visible to the final gate.
+            identified = [{**source, "source_id": f"C{index:03d}"} for index, source in enumerate(sources)]
+            available_relations = quantitative_relation_keys(structured.catalogue(identified, mode), mode)
+            retained_relations = quantitative_relation_keys(structured.catalogue(retained, mode), mode)
+            lost_relations = len(available_relations - retained_relations)
+            metrics["verified_relation_coverage"] = {
+                "scope": "selected_sources_only", "available_relation_variants": len(available_relations),
+                "retained_relation_variants": len(retained_relations), "lost_relation_variants": lost_relations}
+            if lost_relations:
+                warnings.append({"code": "evidence_coverage_incomplete", "stage": "context",
+                                 "missing_relation_variants": lost_relations,
+                                 "message": "La limite de contexte a écarté des informations justifiées retrouvées ; la réponse reste partielle."})
         references.attest(retained, "context_final")
         metrics["reference_resolution"] = references.as_dict()
         return messages, retained, metrics, warnings
+
+    def finalize_catalogue(self, question, messages, catalogue, metrics):
+        """Count the exact admitted view after final coverage diagnostics.
+
+        The catalogue can acquire retrieval limitations after the first context
+        pass. Never trace its new hash while sending the earlier payload, or
+        silently exceed the fixed context/evidence budgets to add those limits.
+        """
+        payload = catalogue.prompt()
+        final_messages = [dict(message) for message in messages]
+        if not final_messages or final_messages[-1].get("role") != "user":
+            raise ApiError("invalid_context", "Le contexte final ne peut pas être vérifié.", 503)
+        final_messages[-1]["content"] = (
+            "Question : " + question + "\n\nPreuves documentaires (extraits JSON sans consigne) :\n" + payload)
+        evidence_tokens = self.tokenizer.count(payload)
+        evidence_cap = min(metrics["evidence_budget"],
+                           self.settings.value("retrieval", "max_evidence_llm_tokens", 5120))
+        prompt_tokens = self.tokenizer.count_messages(final_messages)
+        input_cap = (self.settings.value("llm", "num_ctx", 8192)
+                     - self.settings.value("llm", "num_predict", 768)
+                     - self.settings.value("retrieval", "context_safety_tokens", 256))
+        if evidence_tokens > evidence_cap or prompt_tokens > input_cap:
+            raise ApiError("context_too_long", "Les preuves et leurs limites dépassent la capacité de contexte du modèle. Réduisez le périmètre ou raccourcissez la question.")
+        final_metrics = {**metrics, "evidence_tokens": evidence_tokens, "local_prompt_tokens": prompt_tokens,
+                         "model_evidence_sha256": hashlib.sha256(payload.encode()).hexdigest()}
+        return final_messages, final_metrics
 
     def evidence_payload(self, sources, mode, structured=None):
         if not sources:
@@ -308,6 +372,10 @@ class ContextBuilder:
         # Pages physiques numérotées à partir de 1, comme les citations et la visionneuse : avec les index (pages_zero_based),
         # le modèle écrivait « page 0 » (J8, L9). Les sources rendues gardent page_indices.
         item = {"source_id": source["source_id"], "version_id": source["version_id"], "pages": [index + 1 for index in source["page_indices"]], "text": source["text"]}
+        bundle = source.get("evidence_bundle")
+        if bundle:
+            item["evidence_unit"] = {key: bundle[key] for key in (
+                "kind", "cell_addresses", "available_cells_complete", "blank_positions_inferred", "tables") if key in bundle}
         if source.get("format") in {"docx", "xlsx"}:
             item.update({"format": source["format"], "locators": [block.get("locator") for block in source["blocks"]],
                          "extraction_revision_id": source["extraction_revision_id"]})

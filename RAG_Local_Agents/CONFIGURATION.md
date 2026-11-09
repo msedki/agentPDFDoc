@@ -2,6 +2,16 @@
 
 **Rôle :** référence des configurations et de leur qualification · **Propriétaire :** runtime local · **Statut :** stabilisé ; W060 validé en tests ciblés, qualification RAM native non acquise · **Référence W060 :** base `e253e4d` et modifications locales du 13 octobre 2026 ; les baselines historiques ci-dessous restent datées.
 
+## Configuration active I5 — unique générateur renforcé
+
+Depuis I5, l’API, `rag.sh` et `rag.ps1` sélectionnent par défaut [`config/enhanced-4b.yaml`](../config/enhanced-4b.yaml) et le tag local `qwen3-4b-enhanced:q4km`. Seule cette sélection, avec famille Qwen3, taille 4.0B, quantification Q4_K_M, `think=false`, historique non probant et contrôles renforcés obligatoires, peut lancer une génération. Un chemin explicite absent ou un profil incompatible est refusé, sans repli silencieux. Les anciennes configurations ci-dessous servent aux archives et à la maintenance des instances, pas à une nouvelle génération.
+
+Le verrou [`enhanced-4b.lock.json`](../config/enhanced-4b.lock.json) fixe le GGUF, la révision et les deux fichiers du tokenizer. Le provisionnement explicite acquiert uniquement ce GGUF dans le magasin natif adressé par son SHA-256, puis utilise l’import officiel vérifié ; le démarrage normal reste hors ligne. Le groupe `qwen-tokenizer` choisit Qwen/Qwen3-4B. `--skip-model` écarte le téléchargement du GGUF. Une source GGUF existante ou le blob natif équivalent évite de rendre obligatoire une seconde copie de 2,5 Go dans un kit.
+
+Le catalogue nominal ne contient qu’un générateur et conserve `qualification=null` : aucune qualification RAM ou de plateforme n’est inventée. Les distributions refusent un autre ensemble de modèles et excluent leurs poids, tout en conservant E5, Docling et les modèles OCR non génératifs. La fabrication et l’installation natives restent des critères distincts des tests de sélection.
+
+Les paramètres d’inférence et de ressources d’`enhanced-4b.yaml` restent inchangés pour la comparaison avant/après. Protocole et matrice : [I5](reports/trust-4b-protocol-2026-11-08.md). La configuration historique de conception et ses évolutions datées sont conservées ci-dessous.
+
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)). **W024 et W025 (01/10/2026) : le CPU reste le socle, le repli et la référence de la recette D07 ; seule la génération par Ollama peut passer sur GPU, automatiquement sur les voies qualifiées par un essai réel** ([W025](DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024)). La clé `llm.accelerator` est décrite en [section 3](#3-ollama).
 
 ## 1. Nature des configurations
@@ -149,3 +159,40 @@ Après chaque changement canonique : régénérer le brief avec `python tools/bu
 Avant toute décision significative de configuration ou mise à jour, consulter les sources officielles actuelles et le schéma de la version verrouillée conformément à [RECHERCHE_ET_SKILLS.md](RECHERCHE_ET_SKILLS.md). Capturer les paramètres effectivement acceptés par le runtime ; ne pas transposer une option de branche récente à un ancien binaire.
 
 Les recherches des agents ne sont pas une option réseau du profil `local16`. Aucun changement ici n'active la navigation, le téléchargement de skills ou la mise à jour automatique dans le produit. Les valeurs initiales restent à qualifier ; les changements et skills utilisés sont traçables dans les registres.
+
+## I3 — profil actif `enhanced-4b`, 8 novembre 2026
+
+**Statut :** configuration du lot I3, dont la qualification reste limitée aux essais du [bilan](reports/grounded-4b-results-2026-11-08.md). Le [protocole préalable](reports/grounded-4b-protocol-2026-11-08.md) distingue tests de composants, exécution native et recette cible. Les anciens profils et résultats 2B/4B ci-dessus restent historiques ; le seul générateur utilisé dans ce lot est Qwen3-4B.
+
+La source de vérité est [config/enhanced-4b.yaml](../config/enhanced-4b.yaml), avec son [verrou](../config/enhanced-4b.lock.json). Les contraintes d'identité sont exécutables :
+
+| Clé du profil | Valeur obligatoire |
+|---|---|
+| `llm.model` | `qwen3-4b-enhanced:q4km` |
+| `llm.required_parameter_size` | `4.0B` |
+| `llm.required_family` | `qwen3` |
+| `llm.required_quantization` | `Q4_K_M` |
+
+Le manifeste provisionné doit correspondre au nom, digest et détails requis. Le runtime compare également digest, famille et taille avec l'identité exposée par Ollama avant tout envoi documentaire ; identité absente ou divergente : génération refusée, sans substitution de modèle. Les champs sont validés par [profile_schema.py](../services/runtime/profile_schema.py) et appliqués par [ollama.py](../services/api/ollama.py).
+
+Les options `enhanced.preserve_evidence` et `enhanced.answer_contract` activent conservation des preuves et registre/contrôle avant-après décrits dans [IMPLEMENTATION.md](IMPLEMENTATION.md#12-i3--preuves-jusquà-la-réponse-profil-4b). Les limites de paquets, de contexte et de restitution restent celles du YAML ; les 64 liens de notes constituent une borne interne de vérification, pas un paramètre OCR. Le mode `trace.mode: hashes` conserve les empreintes par défaut ; une campagne avec texte complet exige le mode explicitement prévu et ses limites de stockage. Ces options ne créent ni nouvelle extraction ni preuve sémantique universelle.
+
+Les mesures comparatives imposent le même 4B verrouillé, corpus et paramètres explicités, avec CPU forcé pour le protocole I3 ; la valeur applicative `llm.accelerator: auto` n'est pas une preuve d'exécution CPU. Les routes sans appel au modèle sont comptées séparément des générations effectives. Aucun réglage ni résultat ponctuel n'établit à lui seul la qualification de la latence, de la mémoire ou de la DoD globale.
+
+**Complément F07.** `enhanced.lexical_alias_fallback: true` dans le profil `enhanced-4b` active une seule reprise FTS quand les candidats lexicaux et les occurrences exactes initiales sont tous deux vides. Sa valeur par défaut dans le schéma reste `false`, ce qui permet l'ablation. Au plus 16 alias complets des groupes techniques existants sont admis, hors spans d'identifiants ; filtre SQL et `lexical_top_k` restent identiques. La question, les références et l'entrée dense ne sont pas réécrites. Sélections littérales et plages de cellules gardent leur parcours. La trace privée `retrieval.lexical_alias_fallback` indique route, alias, empreintes et compte de candidats ; [hypothèse et acceptation](reports/grounded-4b-addendum-2026-11-08.md).
+
+
+## I4 — couverture des preuves et moteur OCR corrigé, 8 novembre 2026
+
+**Statut :** configuration implémentée et contrôles ciblés exécutés ; les gates de diffusion sont suivies dans le [bilan I4](reports/production-4b-results-2026-11-08.md).
+
+`enhanced.explicit_pdf_lists: true` active le regroupement des listes PDF écrites, fermées et vérifiables. `enhanced.property_coverage_selection: true`, avec `preserve_evidence`, active la sélection des relations demandées et leur priorité au budget de contexte. Les deux options restent `false` par défaut dans le schéma, pour permettre une ablation explicite ; elles sont actives dans `config/enhanced-4b.yaml`. Leurs effets ne changent ni les 48 candidats vérifiables, ni les six fragments ordinaires, ni les budgets de tokens ou la réserve mémoire. Les listes restent bornées à 64 éléments, 12 000 caractères par groupe et 1 024 blocs/200 000 caractères par page inspectée.
+
+Le contrat qualitatif fait partie de `enhanced.answer_contract`. Ses formes FR/EN sont bornées et exigent un sujet, un prédicat et des conditions ancrés dans le texte. « Même tension » demande une comparaison ; des nombres égaux ne prouvent pas des rôles équivalents lorsque ces rôles sont inconnus. Aucun paramètre ne permet au générateur d'ajouter une explication libre.
+
+Le verrou d'artefacts ajoute au Tesseract 5.4.0 compilé le correctif amont `dac6b18a4764d13d670e7f304bbdb80f756b8431`, défini dans `config/source-fixes/tesseract-5.4.0-normmatch.json`. Les archives restent celles du verrou ; les empreintes avant/après et du correctif sont vérifiées. Le manifeste de construction doit porter le même reçu `source_fixes`. Une installation antérieure n'est pas écrasée implicitement : la conserver avec son manifeste avant une reconstruction documentée. Le SHA réel de l'exécutable participe déjà à l'identité d'extraction ; conserver le même numéro `5.4.0` ne permet pas de réutiliser une ancienne extraction sans reconnaître le changement du moteur. La copie Windows préexistante n'est pas qualifiée par cette compilation Linux.
+
+Le modèle génératif et les paramètres de la section I3 restent inchangés. Le [protocole](reports/production-4b-protocol-2026-11-08.md) et le [guide de reproduction](reports/production-4b-reproduce-2026-11-08.md) donnent les identités, commandes et limites des essais ; le provisionnement n'autorise aucun téléchargement implicite en exploitation.
+
+
+**Capture complète I4.** Les géométries de page identiques peuvent être factorisées dans des événements v2, lus et vérifiés par `read_verified_trace` ; les petits événements restent v1. Il s'agit d'un encodage de stockage sans perte. Le profil livré reste `trace.mode: hashes`, 2 Mio par requête et 64 Mio cumulés ; le harnais natif demande explicitement `full` avec 8 Mio par requête, comme dans la référence. Les limites logiques de reconstruction sont des bornes internes supplémentaires, distinctes des budgets RAG et des quotas physiques ; voir EV4B-I4-D03 dans DECISIONS.md.

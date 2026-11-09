@@ -1,12 +1,124 @@
 # Journal des modifications
 
-**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Sources C05 publiées `4cb1a2a` ; livraison du kit CPU `52abb94b` vérifiée avec récupération distincte et réserve du broker initial · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-13 14:43 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
+**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Sources C05 publiées `4cb1a2a` ; livraison du kit CPU `52abb94b` vérifiée avec récupération distincte et réserve du broker initial · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
 
 Changements notables du poste documentaire local, au format [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) rédigé en français (Ajouté, Modifié, Corrigé, Sécurité). Version déclarée du projet : `0.1.0`, identique dans [`pyproject.toml`](pyproject.toml) et [`apps/web/package.json`](apps/web/package.json) ; aucune version n'est publiée et le dépôt ne porte aucune étiquette Git, si bien que tout relève de la section [Non publié].
 
 Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit et d'un lien vers sa preuve. Les états intermédiaires, échecs et reprises restent dans le [plan](RAG_Local_Agents/PLAN.md) et le [journal](RAG_Local_Agents/journal/README.md). Ce fichier est distinct du [registre des corrections de la baseline documentaire V2.1](RAG_Local_Agents/CHANGELOG.md).
 
 ## [Non publié]
+
+### I5-PJ — appui numérique et conditions exclues, 9 novembre 2026
+
+Commit technique [5502cf42](https://github.com/msedki/agentPDFDoc/commit/5502cf424b1d9211b5a63014b01c7ab8b998dc85) publié sur `enhanced_version`,
+arbre et parent distants vérifiés ; [reçu](RAG_Local_Agents/reports/trust-i5-pj-publication-2026-11-09.json).
+
+- Les opérateurs et qualificatifs reconnus autour d'un nombre empêchent de
+  transformer une borne ou une non-égalité en valeur exacte pour une réponse,
+  une comparaison ou un calcul. Le passage original reste cité avec sa limite.
+- Les points exclus reconnus, leur coordination et leurs contradictions sont
+  distingués des conditions positives. Les clauses originales de la question
+  conservent casse, unités et exclusions ; les variables d'essai n'ajoutent
+  plus artificiellement des grandeurs demandées.
+- Ajout de 64 régressions et d'un banc de vérification à annotations séparées,
+  avec témoin extractif, ablations, contrôle d'identité et répétitions conservées.
+  Préparateurs reproductibles DOCX/PDF et rapports scientifiques et de mesure.
+- Faux appuis complets : développement **10/12 → 0/12**, final **9/12 → 1/12**,
+  sans nouveau faux rejet positif et avec tous les littéraux conservés.
+  **H24 reste en échec** ; les faux rejets H06/H11/H12 sont préexistants.
+  Aucun correctif ni seuil ajusté après ouverture du final.
+- Générateur et plafonds inchangés. [Bilan et critères](RAG_Local_Agents/reports/trust-i5-pj-results-2026-11-09.md),
+  [preuves](RAG_Local_Agents/reports/trust-i5-pj-support-results-2026-11-09.json)
+  et [reproduction](RAG_Local_Agents/reports/trust-i5-pj-reproduction-2026-11-09.md).
+  La publication des sources ne qualifie pas la production.
+
+### I5 — tableaux, OCR et réponse contrôlée, 8–9 novembre 2026
+
+Commit technique [7cd39839](https://github.com/msedki/agentPDFDoc/commit/7cd398399c98701309ace0498be3f149ae4e276d) publié sur `enhanced_version` ; arbre distant vérifié, publication sans force. [Reçu de publication](RAG_Local_Agents/reports/trust-4b-publication-2026-11-09.json). La qualification de production reste non acquise.
+
+- Reconstruction des relations de tableau depuis les caractères, coordonnées
+  et cadres PDF observés ; cellules vides, sous-lignes, conditions générales et
+  repères tournés conservés. Une association non justifiée reste indisponible.
+- Détection des corps vectoriels absents de la couche texte ; reprise OCR
+  régionale dans les budgets existants. Corroboration des lectures sensibles,
+  contrôle des signes et revalidation des observations depuis SQLite.
+- Décomposition des besoins de la question et contrôle de complétude jusqu'au
+  rendu. Le 4B sélectionne des identifiants admis ; le serveur vérifie les
+  passages exacts, leurs conditions et les calculs avant tout texte public.
+- Autorité du sujet limitée aux identifiants imprimés et aux dépendances de
+  page vérifiées ; titres et conditions nécessaires restent cités avec le fait.
+  Le nom du fichier ne suffit plus à attribuer un fait PDF à un composant.
+- Projection bornée des cadres de page dans les traces et conservation des
+  clauses de restriction ; les limites de taille et de mémoire restent fixes.
+- Qwen3-4B Q4_K_M devient le seul générateur aux entrées API, CLI et distribution.
+  Les profils historiques restent lisibles pour la maintenance ; migration
+  explicite, poids et tokenizer verrouillés, aucun choix automatique d'un autre modèle.
+- [Protocole et critères](RAG_Local_Agents/reports/trust-4b-protocol-2026-11-08.md),
+  [bilan des vérifications](RAG_Local_Agents/reports/trust-4b-results-2026-11-08.md)
+  et [reproduction](RAG_Local_Agents/reports/trust-4b-reproduce-2026-11-08.md).
+  La qualification documentaire et celle des plateformes restent distinctes
+  de l'implémentation et de sa publication.
+
+### I4 — fiabilisation du 4B et qualification avant diffusion, 8 novembre 2026
+
+Commit technique [f7739a14](https://github.com/msedki/agentPDFDoc/commit/f7739a144369816b0e834c225fa9fbfe697f6c84) publié et arbre distant vérifié ; [reçu de livraison](RAG_Local_Agents/reports/production-4b-publication-2026-11-08.json).
+
+- Sélection des passages par propriétés et conditions, puis conservation de leurs dépendances au budget de contexte existant. Les plafonds de fragments et de mémoire restent inchangés.
+- Groupes de listes PDF explicites, vérifiés contre les blocs source et leur portée ; contrat extractif qualitatif FR/EN et garde des sujets de titre. Le modèle conserve son rôle de planificateur de références, avec restitution contrôlée par code.
+- Correction verrouillée de Tesseract 5.4.0 issue du commit amont PR4259, construction en espace utilisateur et contrôle du manifeste. Les sept intégrations OCR réelles et leur prérequis passent après le correctif ; la fidélité des scans est évaluée séparément.
+- Traces complètes de pages factorisées sans perte, avec validation des hashes et bornes de reconstruction, sans hausse des quotas physiques. Matérialiseur reproductible du corpus, essais d'exploitation et parcours HTTP/SSE ajoutés au harnais.
+- Progrès local vérifié : Office natif 7/8 → 8/8 strict, réponses PDF disponibles 0/2 → 2/2 mais seulement 1/2 stricte. La qualification de diffusion reste refusée : le transfert publie une association Min/Typ fausse et perd une plage demandée dans une autre réponse. Les tests positifs, erreurs, refus, régressions et limites de mesure restent séparés.
+- [Protocole fixé avant code](RAG_Local_Agents/reports/production-4b-protocol-2026-11-08.md), [résultats et DoD](RAG_Local_Agents/reports/production-4b-results-2026-11-08.md), [commandes de reproduction](RAG_Local_Agents/reports/production-4b-reproduce-2026-11-08.md). Générateur unique inchangé : Qwen3-4B Q4_K_M ; aucune qualification de cible ni release de production déduite de ce lot.
+
+### I3 — preuves jusqu'à la réponse, 8 novembre 2026
+
+- Générateur unique du lot : Qwen3-4B Q4_K_M, identité vérifiée avant envoi
+  documentaire. Le modèle produit un plan de références ; registre préalable,
+  calculs par code et reconstruction du rendu contrôlent les segments publiés.
+- Conservation des passages disjoints, notes et conditions de tableaux,
+  déduplication exacte après expansion, provenance native/OCR effective et
+  extraction partielle signalée même sans résultat. Repli lexical unique sur
+  les alias connus lorsque les voies lexicale et exacte sont vides, sans
+  changement de portée ni de plafonds. Contrôles de rôle, borne, négation,
+  incertitude, condition et divergence documentaire renforcés.
+- Relecture indépendante par agent, non aveugle : réponses complètes sans
+  réserve injustifiée **9/12 → 11/12**. Le résultat automatique historique
+  **9/12 → 12/12** reste conservé ; son 12/12 comprend un faux positif P01,
+  dont le fait est complet mais accompagné d'une réserve inutile. Faits
+  soutenus et rappel **12/15 → 15/15** inchangés ; limites automatiques
+  **15/18 → 18/18**, confirmé par relecture finale. Ces essais avec doubles
+  ne qualifient pas toute la pipeline native.
+- Limite native conservée : disponibilité Office primaire **8/8 → 5/8**,
+  trois refus d'admission au candidat. Reprise séparée : trois cas terminés,
+  **2/3 stricts** après relecture, sans effacer les erreurs primaires. PDF :
+  **0/2 réponses complètes et 1/4 relation demandée par bras**, sur extraction
+  `ready_partial` limitée à la page d'index 0 ; OCR non qualifié. I3-D04 garde
+  une réserve de communication, I3-D08 n'est pas atteint, DoD globale ouverte.
+  Commit technique [fdc51187](https://github.com/msedki/agentPDFDoc/commit/fdc51187aabbdfd16e561dc32c50ac1c107e15bc) publié et arbre distant vérifié ; reçu conservé.
+  [Bilan](RAG_Local_Agents/reports/grounded-4b-results-2026-11-08.md),
+  [protocole](RAG_Local_Agents/reports/grounded-4b-protocol-2026-11-08.md),
+  [reproduction](RAG_Local_Agents/reports/grounded-4b-reproduce-2026-11-08.md).
+
+### Amélioration de la chaîne 4B — 7–8 novembre 2026
+
+- Profil explicite `enhanced-4b`, Qwen3-4B Q4_K_M et artefacts verrouillés,
+  graine zéro propagée, KV q8_0 et résidence adaptative. La réserve mémoire
+  du profil livré reste distincte du seuil froid pilote des essais.
+- Préservation des cellules et relations de tableaux, classement structurel
+  borné, contrats liés à la question, recherche complémentaire unique et
+  lectures/calculs déterministes avec provenance. Reprise OCR numérique
+  instrumentée, avec échec de récupération du zéro conservé.
+- Capture de la requête native et de ses identités, rejeu exact, outils de
+  comparaison, de matrice runtime et d'évaluation à dénominateurs explicites.
+  Les traces complètes et originaux restent privés hors Git.
+- Confirmation du terminal de trace depuis l’état et le dernier événement
+  SQLite réellement commis ; les annulations tardives ne produisent plus de
+  faux terminal. Correctif validé après campagne par des tests dédiés, sans
+  réattribuer les anciennes inférences au nouveau code.
+- Campagne diagnostique de quinze paires sur une famille : rendement complet
+  et soutenu **4/14 → 9/14**, preuves nécessaires disponibles **19/33 → 31/33**.
+  Deux erreurs, omissions, ambiguïtés et coût CPU conservés ; aucune qualification
+  générale ou du poste cible déduite. [Bilan et limites EV4B](RAG_Local_Agents/reports/enhanced-4b-results-2026-11-07.md).
 
 ### Sélection de profil et comparaison GPU — 13 octobre 2026
 

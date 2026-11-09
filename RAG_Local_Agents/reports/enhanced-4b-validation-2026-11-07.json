@@ -1,0 +1,266 @@
+{
+  "schema_version": 1,
+  "kind": "source_and_unit_validation",
+  "recorded_utc": "2026-11-08T00:00:24.232702+00:00",
+  "baseline_commit": "59d47e98a47fc652b5506727673b6b477c92eb9d",
+  "branch": "enhanced_version",
+  "unit_tests": {
+    "command": "env PATH=<isolated CMake 3.31.10 bin>:$PATH .venv/bin/python -m pytest tests/unit -q --maxfail=15 --junitxml=.runtime/qa/enhanced-4b/all-unit-final.xml",
+    "collected": 3432,
+    "passed": 3409,
+    "skipped": 23,
+    "failures": 0,
+    "errors": 0,
+    "duration_s_junit": 217.749,
+    "started_utc": "2026-11-07T23:51:56.971039+00:00",
+    "skip_reasons": {
+      "install.ps1 vise Windows PowerShell 5.1": 4,
+      "raccourcis Windows et PowerShell 5.1": 2,
+      "désinstallation Windows et PowerShell 5.1": 3,
+      "PowerShell absent : ni RAG_TEST_PWSH, ni pwsh, ni powershell dans le PATH": 10,
+      "Stockage Ollama local non provisionné": 1,
+      "Archive Tesseract absente du cache de ce poste.": 1,
+      "Tesseract non compilé sur ce poste : aucun manifeste de construction réel.": 1,
+      "Lecteur Win32 sans FILE_SHARE_DELETE (pywin32)": 1
+    },
+    "junit_sha256": "23ecf3192beb0dcfb19eea623ddd73ed085ba2172d77a1393a608e94f3daf666",
+    "log_sha256": "88dda9580b0227ff08c833d6be1fd7b23725568e63974bec3df82fdf1fcf0601",
+    "warning": "existing Starlette TestClient/httpx deprecation"
+  },
+  "mypy": {
+    "command": ".venv/bin/python -m mypy",
+    "status": "PASS",
+    "source_files": 122,
+    "log_sha256": "f0589b4b402aba3c2eb319e964719fe30b143cab213cf5d528b089bc4d571edc"
+  },
+  "ruff": {
+    "command": ".venv/bin/python -m ruff check <all modified/new Python files>",
+    "status": "PASS",
+    "files": 38,
+    "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  "code_files_sha256": {
+    "services/api/answer_contract.py": "226483303858c5caea630e72177b772ff4bace988ce1d6385949bdfb6ed36d2f",
+    "services/api/comparison.py": "d39e4dfccb2789c5fd3315f8ebf5ecaf0a1fc394466b012af19fc4d6a6718d41",
+    "services/api/context.py": "6d9aba76c1d7df84873b33da2592db4bcb7e48595b11b057b6e283b7ad0023c6",
+    "services/api/deterministic_calculations.py": "9b12598ed22fd649bcbd947eb07510c4b506fcad5a0af29ab0637e50a5fc29d5",
+    "services/api/evidence_selection.py": "fe0d0fd344effe93c255f265a00390db6f346225ceb4cb773264de7d4a4725dc",
+    "services/api/execution_trace.py": "64d85c6eee47282d6de72c141b6286d481879dcae9b6ae499e38bd3729d39278",
+    "services/api/main.py": "08a960c3eba2c66291f3d7e12be8de21f59cdf6df0b47c931456e438a688346f",
+    "services/api/ollama.py": "eafaa233ba1190d190cb8a0d35595d3e2d87c88e955b1ffe4defa753a09deaa5",
+    "services/api/query.py": "c4af404d91811230e4fe9efb22e9af31fec65df0b77412bb0362172a696f7220",
+    "services/api/retrieval.py": "4cef30fc1c5201697c7f6cf21faaab71771e4e1fa986dcf0b98659e83aa34212",
+    "services/api/structured_answer.py": "e81e8fbcce6f37d791e53ccab1de5e9202007af8159ad4a70cf92bfe1770af85",
+    "services/ingestion/docling_adapter.py": "c09d26b71f23c605aa7747f0e2cabf80040102280b068a82ef5ae3ec6851e2fb",
+    "services/ingestion/numeric_evidence.py": "e7c9cc923eec8f4831c56220d93441c1e35965cdbbbc27de6fe381175880e8eb",
+    "services/ingestion/regional_grid.py": "2f86ed87ebc4df3a6b5f6c9b7b1dfe966e1c7ee2abebab5b489274bbb9e4f87f",
+    "services/ingestion/regional_row_context.py": "6df58f00abe22e5ed32ce4c0c47a82bca7efea384192996e456589cf95b7f8be",
+    "services/runtime/profile_schema.py": "c42ceb0dbcdbbd0eaca0f471f71e2bcf26101c1dbc42986136f770f36d28e418",
+    "services/runtime/supervisor.py": "0a230b2c8c1e160566e85ffcccba8ea8d47bbd59ec2e3017fb876ca559323a24",
+    "tests/unit/test_api_cache_admission.py": "f081e9d4fd32a80e46c5fb92a06ba95ea73880b678ee086f5217e31f35e8c810",
+    "tests/unit/test_api_contract.py": "c9249800ef676f733a0883b1ea16e283410c7fabc1bd53762c93cc29d92a5daf",
+    "tests/unit/test_api_jobs.py": "d46b68bae3338ac1158e99fbdfd6e8099bc5e4aa4bf0cb90bc8826111fbb7e43",
+    "tests/unit/test_enhanced_answers.py": "180f58c989f876d3ad93c74efc083ceab00b04c956fec650bf4fe152ea14bf01",
+    "tests/unit/test_enhanced_evaluation_context.py": "0ef2376a92e02c110f4f71ead8473b17b1997394234c6a5b0a2753371d95ab07",
+    "tests/unit/test_enhanced_query_route.py": "5ee4e4f970156c084fc1c9e16b5c9032c8c31fe7c8f02f1eba4dff89349cdbf7",
+    "tests/unit/test_enhanced_retrieval.py": "77afe776af19d9e641abafb9a1664ee0d810bd3857586d0eb102f3965d297bf5",
+    "tests/unit/test_enhanced_runtime.py": "27de7605ad350e03681b45323bed756ded31fd30696da1629d4a990ab5e23112",
+    "tests/unit/test_enhanced_runtime_matrix.py": "52978f1b538c8ac4159df2336a63726e47c1a7d238e73df825d4c485aed82f9c",
+    "tests/unit/test_enhanced_units.py": "2b8cdf797927f936e4f8c89812aecbff767d3081476b4c81b3033092fe99e509",
+    "tests/unit/test_ingestion_numeric_evidence.py": "d3989d0bfa6c35cabe3f7c7c4ea2a5d0c45ace6bc469a2be9444b2b43415dbb5",
+    "tests/unit/test_qualification_enhanced_eval.py": "757d3360fa4afb73d3e8bab5b87829f4b33b25bb9281610843d388aad1d03767",
+    "tests/unit/test_replay_trace.py": "74502761acd92a8374ce3e68bdff5ed316915b9a46574ea57fe00261ba6e3d0d",
+    "tests/unit/test_retrieval.py": "1b7f6a15a20699e1ad5a253136374b2ce1bc5e34a8d5737c539f25bba408b53c",
+    "tests/unit/test_trace_provision_fail_closed.py": "bdd31b852de4d5f9940a492be036dee39ce7fab641a6ff56c24b5c5474f97562",
+    "tools/qualification/enhanced_campaign.py": "71ee1beb3e382f1bff3224ba05e1d507bc594a33b3156dd798a7cb9f84be08f2",
+    "tools/qualification/enhanced_eval.py": "420148089ece6b5b6670c052fb6dbf203e30bbf5dcabed7bf0e141680641c911",
+    "tools/qualification/enhanced_ocr_smoke.py": "16b74889d2b5d8381889c84d307ec68162729e73dbe5d4f3119c9961fb0d9129",
+    "tools/qualification/enhanced_runtime_matrix.py": "d6b3a8260fcc004413d2089af972e8e4197312fead93de42b63f59d3195f8e26",
+    "tools/qualification/provision_enhanced_4b.py": "65c2a5b17002ca35b799e38dad07c7437250cbe403db31c7118656dcfb55bdc3",
+    "tools/qualification/replay_trace.py": "1a6ad4b81510e46417fda75064cd9693c943b4e06cc4dae314b5d629fd339bf1"
+  },
+  "environment": "uv sync --locked; CMake 3.31.10 isolated under .runtime/qa, no global PATH or system installation",
+  "initial_errors_retained": "Initial module/dependency invocation failures and five missing-CMake failures are preserved in private evidence; no test disabled to make the final suite pass. Four historical oracles/documentation mismatches were reproduced and corrected separately.",
+  "limits": [
+    "Unit suite includes explicit fakes/mocks and real local file/Office parsing checks; it is not 3409 native model experiments.",
+    "23 skips are not passed tests.",
+    "No native Windows/PowerShell or new browser/UI acceptance run.",
+    "Native experiments and their limits are separate reports."
+  ],
+  "post_global_gate_followup": {
+    "reason": "False-claim accounting must include abstentions and unanswerable completed responses, not just published answers. No application/runtime change after the global gate.",
+    "tests_passed": 40,
+    "overlap_with_global_suite": 31,
+    "new_cases": 9,
+    "duration_s_console": 0.16,
+    "ruff_python_files": 2,
+    "mypy_source_files": 1,
+    "scope": "tools/qualification/enhanced_eval.py and its unit tests only",
+    "proof_sha256": "a1c18592c7afaf40d52e4155e825609c75771e6a79e6433beae556509e0eb79b",
+    "proof": {
+      "kind": "additive_evaluator_false_claim_risk_delta",
+      "recorded_utc": "2026-11-08T00:09:05.556528+00:00",
+      "scope": "Offline evaluator and its tests only; no verdict edits and no application/runtime pipeline changes",
+      "relation_to_full_suite": "Separate targeted follow-up to the prior 3409-PASS gate; 31 overlapping cases plus 9 new cases; not an additional 40 independent global tests",
+      "pytest": {
+        "command": ".venv/bin/python -m pytest tests/unit/test_qualification_enhanced_eval.py -q --junitxml=.runtime/qa/enhanced-4b/evaluator-false-claims-v1.xml",
+        "tests": 40,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "duration_s_junit": 0.154,
+        "junit_timestamp": "2026-11-08T01:07:45.499756+01:00",
+        "log": ".runtime/qa/enhanced-4b/evaluator-false-claims-v1.log",
+        "log_sha256": "52ca591da4434ddb373d3ab04bb06dd81bd0d0e1d61dfe1ac1987f51641297b6",
+        "junit": ".runtime/qa/enhanced-4b/evaluator-false-claims-v1.xml",
+        "junit_sha256": "3211a405176f10c479833bf5a3c6c3f5eee495d34e0aa878a146406d0aa8f5b2"
+      },
+      "static_checks": [
+        {
+          "command": ".venv/bin/python -m ruff check tools/qualification/enhanced_eval.py tests/unit/test_qualification_enhanced_eval.py",
+          "exit_code": 0,
+          "stdout": "All checks passed!\n"
+        },
+        {
+          "command": ".venv/bin/python -m mypy tools/qualification/enhanced_eval.py --follow-imports=skip",
+          "exit_code": 0,
+          "stdout": "Success: no issues found in 1 source file\n"
+        }
+      ],
+      "sources": {
+        "tools/qualification/enhanced_eval.py": {
+          "sha256_before_in_full_suite": "420148089ece6b5b6670c052fb6dbf203e30bbf5dcabed7bf0e141680641c911",
+          "sha256_after": "fa6d9883282f555cb1391ddd377cf2536e67b3957fb2ff5eff28cff70afdb44c"
+        },
+        "tests/unit/test_qualification_enhanced_eval.py": {
+          "sha256_before_in_full_suite": "757d3360fa4afb73d3e8bab5b87829f4b33b25bb9281610843d388aad1d03767",
+          "sha256_after": "faa923a71adf775de28d40f32d2d4a36564aff95bda9d7d52326a64f3948f65e"
+        }
+      },
+      "new_metric": "false_claim_risk_reviewed_completed",
+      "legacy_metric": "false_claim_risk_reviewed preserved; explicit published-only alias and scope added",
+      "new_counts": [
+        "completed_responses",
+        "false_claims_unreviewed_completed",
+        "abstentions_with_false_claims"
+      ],
+      "outcome_delta": "completed abstention with has_false_claims=true => abstention_with_false_claims, never correct_abstention",
+      "native_tests_run": false,
+      "full_suite_rerun": false
+    }
+  },
+  "source_hash_scope": "code_files_sha256 identifies the global unit-gate snapshot. The evaluator follow-up identifies its analysis/test delta. post_campaign_terminal_fix identifies the sole production source delta after the native campaign and its separately validated test; configured mypy and Ruff were re-executed after that correction.",
+  "documentation_validation": {
+    "observed_utc": "2026-11-08T00:39:58.801555+00:00",
+    "pytest": {
+      "command": ".venv/bin/python -m pytest tests/unit/test_docs_space.py tests/unit/test_docs_tooling.py tests/unit/test_docs_linux_kit.py -q --junitxml=.runtime/qa/enhanced-4b/docs-unit-final.xml",
+      "passed": 105,
+      "failed": 0,
+      "skipped": 0,
+      "console_seconds": 34.52,
+      "junit_seconds": 20.156,
+      "scope": "re-executed documentation tests; overlap with complete unit gate, not additional independent test count"
+    },
+    "docs_space": "PASS",
+    "pack": "PASS",
+    "pack_preexisting_warnings": 12,
+    "diagrams": "PASS",
+    "brief_synchronized": "PASS",
+    "git_diff_check": "PASS",
+    "proof_sha256": {
+      ".runtime/qa/enhanced-4b/docs-space-final.json": "c1feb99da9f5c34f5879c37690b94276013907429801dff358db3e542d744069",
+      ".runtime/qa/enhanced-4b/docs-space-final.log": "c1feb99da9f5c34f5879c37690b94276013907429801dff358db3e542d744069",
+      ".runtime/qa/enhanced-4b/docs-pack-final.json": "229a129792a1c0b827196f9fc03013fd4611cdeb732cc2a8e7f62bb60d2a6b8d",
+      ".runtime/qa/enhanced-4b/docs-pack-final.log": "adbb98cc9a7a4c1a65b2a1c95f651045b425868492beece670e4a4e1704ceea3",
+      ".runtime/qa/enhanced-4b/docs-diagrams-final.log": "82b1ed63d2192fa5e42f2b9a2eb33e6a468cd4abe9e1ab03e1f2894cfdf5482f",
+      ".runtime/qa/enhanced-4b/docs-unit-final.log": "ebab004568c7bcd626891f34dcdc2dd1c5263d3fe5206a2b105c32304ad623a0",
+      ".runtime/qa/enhanced-4b/docs-unit-final.xml": "164be9f0ab92d2b9fb52ce36b2f58e3ed55f4abb9014b249e6954c61156e469c"
+    }
+  },
+  "post_campaign_terminal_fix": {
+    "attestation": "RAG_Local_Agents/reports/enhanced-4b-terminal-fix-2026-11-08.json",
+    "sha256": "631682112dc2cbcd97a21cbf787206bfb3e8a1ef19483bedf0f301104a4bb2da",
+    "source_delta": {
+      "path": "services/api/query.py",
+      "before_sha256": "c4af404d91811230e4fe9efb22e9af31fec65df0b77412bb0362172a696f7220",
+      "after_sha256": "0d2f033b0e8ddbecda7c43546ac84825c76184ebdfc5d3c72b1045921ada90d6"
+    },
+    "test_source": {
+      "path": "tests/unit/test_query_trace_terminal.py",
+      "sha256": "6408cf2b3bc4e927783d1d09f1894acf8a3290cbddcf3dbfb51c656319b5c0af"
+    },
+    "validation": {
+      "status": "PASS",
+      "targeted_tests": {
+        "passed": 19,
+        "new_tests": 18,
+        "existing_route_regression": 1
+      },
+      "compatibility_tests": {
+        "passed": 74,
+        "overlap": "Existing modules, including the route regression; not additive to the global gate."
+      },
+      "configured_mypy_source_files": 122,
+      "ruff_changed_python_files": 39,
+      "evidence": [
+        {
+          "role": "targeted_tests_xml",
+          "path": ".runtime/qa/enhanced-4b/terminal-trace-fix-20261108T005120Z/junit-terminal.xml",
+          "sha256": "554fb5e6c4801bbd8dcd0e2ec755c38907bc77920d0c2ea703266e08cd2f75d4"
+        },
+        {
+          "role": "reproduction_before",
+          "path": ".runtime/qa/enhanced-4b/terminal-trace-audit-20261108T004217Z/results.json",
+          "sha256": "323bf0fdf6048ac6fe009de02269297aa9045105e2abfe7e25a630ec9dcb9ed9"
+        },
+        {
+          "role": "native_campaign_audit",
+          "path": ".runtime/qa/enhanced-4b/terminal-trace-audit-20261108T004217Z/audit-native-final.json",
+          "sha256": "44ed9eb6d7285d5d2160dc4908155f7a4775c9e0cc8afd64a8e63bcf4f09d088"
+        },
+        {
+          "role": "independent_review",
+          "path": ".runtime/qa/enhanced-4b/post-terminal-independent-review.json",
+          "sha256": "998efbb0bc8b84995ea27b2983786ddf29c3d94fc405c6e665237462415a4d6a"
+        },
+        {
+          "role": "ruff",
+          "path": ".runtime/qa/enhanced-4b/post-terminal-ruff.log",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "role": "mypy",
+          "path": ".runtime/qa/enhanced-4b/post-terminal-mypy.log",
+          "sha256": "f0589b4b402aba3c2eb319e964719fe30b143cab213cf5d528b089bc4d571edc"
+        }
+      ],
+      "additional_proofs": [
+        {
+          "path": ".runtime/qa/enhanced-4b/terminal-trace-fix-20261108T005120Z/manifest.json",
+          "sha256": "9f8a38607cb1171eb88edefe9a51490e4990cf282d03f2aa3ca227ac43df9a2c"
+        },
+        {
+          "path": ".runtime/qa/enhanced-4b/terminal-trace-fix-20261108T005120Z/before-after-comparison.json",
+          "sha256": "ae2a36fe546a13a044d4702227b575b3ecf5904188cad39a4a85571417bbd6a4"
+        },
+        {
+          "path": ".runtime/qa/enhanced-4b/post-terminal-compatibility.xml",
+          "sha256": "c4f65aa1ef17ff48c8896e168aadc5c32ec2e07ec044eac68de6018f0b48e08b"
+        },
+        {
+          "path": ".runtime/qa/enhanced-4b/post-terminal-compatibility.log",
+          "sha256": "6138f397b826d6d6f4eed4629faa8c333cf4920b7e74b9afe6357703d20c42fe"
+        }
+      ]
+    },
+    "new_native_inference": false
+  },
+  "post_gate_test_formatting": {
+    "path": "tests/unit/test_replay_trace.py",
+    "change": "remove one trailing blank line reported by git diff --cached --check",
+    "before_sha256": "74502761acd92a8374ce3e68bdff5ed316915b9a46574ea57fe00261ba6e3d0d",
+    "after_sha256": "a2acb194cc835c14da318f96eae0d04f5faf39cf8e64aae6a2835b1d3612bb30",
+    "ast_unchanged": true,
+    "production_source_changed": false
+  }
+}

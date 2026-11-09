@@ -79,6 +79,21 @@ def test_capture_covers_four_b_profile_and_two_b_model_manifest(tmp_path, monkey
     assert source_manifest.capture(root)["source_fingerprint"] != before["source_fingerprint"]
 
 
+@pytest.mark.parametrize("name", ["config/enhanced-4b.yaml", "config/enhanced-4b.lock.json",
+                                  "config/model_profiles.json", ".runtime/manifests/qwen3-4b-enhanced.json"])
+def test_active_generator_identity_changes_are_visible_in_source_fingerprint(tmp_path, monkeypatch, name):
+    root = tmp_path / "livraison"
+    _tree(root)
+    path = root / name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text('{"model": "synthetic-fixture"}\n', encoding="utf-8")
+    monkeypatch.setattr(source_manifest.shutil, "which", lambda _: None)
+    before = source_manifest.capture(root)
+    assert name in {item["path"] for item in before["files"]}
+    path.write_text('{"model": "changed-fixture"}\n', encoding="utf-8")
+    assert source_manifest.capture(root)["source_fingerprint"] != before["source_fingerprint"]
+
+
 def test_capture_covers_the_launchers_of_both_platforms(tmp_path, monkeypatch):
     root = tmp_path / "livraison"
     _tree(root)

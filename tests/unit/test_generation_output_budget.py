@@ -13,9 +13,10 @@ from services.api.context import ContextBuilder
 from services.api.ollama import OllamaGateway
 from services.api.schemas import QueryRequest, Scope
 from services.api.settings import Settings
+from services.runtime.profile_schema import read_profile_document
 
 ROOT = Path(__file__).resolve().parents[2]
-PROFILES = ["config/local16.yaml", "config/local16-4b.yaml",
+PROFILES = ["config/enhanced-4b.yaml", "config/local16.yaml", "config/local16-4b.yaml",
             "RAG_Local_Agents/config/local16.yaml", "RAG_Local_Agents/config/local16-4b.yaml"]
 MODES = [("question", "Quelle tension pour CCU-21 ?", 768),
          ("question", "Décrire la tension de CCU-21", 1536),
@@ -25,11 +26,19 @@ MODES = [("question", "Quelle tension pour CCU-21 ?", 768),
          ("comparison", "Comparer la tension de CCU-21", 1536)]
 
 
+def budget_settings(profile):
+    # Historical profiles remain readable for offline budget regression checks.
+    # Only the enhanced profile is admitted by the live API loader; no HTTP or
+    # inference is performed by these arithmetic/context-option tests.
+    path = ROOT / profile
+    return Settings.load(path) if profile == "config/enhanced-4b.yaml" else Settings(ROOT, read_profile_document(path))
+
+
 @pytest.mark.parametrize("profile", PROFILES)
 @pytest.mark.parametrize("mode,question,expected", MODES)
 def test_delivered_output_budget_is_reserved_and_sent_to_gateway(profile, mode, question, expected):
     """Profils et constructeur réels, comptage caractères/4 ; aucune requête HTTP ni modèle."""
-    settings = Settings.load(ROOT / profile)
+    settings = budget_settings(profile)
     assert settings.value("llm", "num_ctx") == 8192
     assert settings.value("llm", "num_predict") == 1536
     assert settings.value("llm", "output_tokens_by_mode") == {
@@ -62,7 +71,7 @@ def test_delivered_output_budget_is_reserved_and_sent_to_gateway(profile, mode, 
 @pytest.mark.parametrize("profile", PROFILES)
 def test_delivered_analysis_budget_keeps_coverage_and_reports_exclusion(profile):
     """Cinq passages synthétiques dépassent le plafond final ; le constructeur réel doit le signaler."""
-    settings = Settings.load(ROOT / profile)
+    settings = budget_settings(profile)
     tokenizer = CharTokenizer()
     sources = [fragment("A", "CCU-21 : tension nominale 72 V. " + "x" * 3900, index, exact=True)
                for index in range(5)]
@@ -85,9 +94,13 @@ def test_delivered_analysis_budget_keeps_coverage_and_reports_exclusion(profile)
 @pytest.mark.parametrize("finish_reason", ["stop", "length"])
 @pytest.mark.parametrize("prompt_tokens", [6400, 6401])
 def test_query_runtime_budget_boundary_preserves_incomplete_status(storage, question, expected, finish_reason, prompt_tokens):
-    """QueryService/SQLite réels et stockage temporaire ; Ollama, embedding et tokenizer sont des doubles."""
+    """Budget actif sur le protocole de transport historique injecté par query_fixture.
+
+    QueryService/SQLite réels, Ollama/embedding/tokenizer doublés ; la frontière
+    renforcée de publication est testée séparément dans test_grounded_query.
+    """
     service, db, conversation, _ = query_fixture(storage, question)
-    delivered = Settings.load(ROOT / "config/local16.yaml")
+    delivered = Settings.load(ROOT / "config/enhanced-4b.yaml")
     service.settings.profile["llm"] = delivered.profile["llm"]
     service.settings.profile["retrieval"] = delivered.profile["retrieval"]
 

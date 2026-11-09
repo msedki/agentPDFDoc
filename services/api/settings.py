@@ -9,6 +9,7 @@ from services.runtime.accelerator import (
     AcceleratorProfileError,
     profile_accelerator,
 )
+from services.runtime.generation_policy import GENERATION_PROFILE, require_generation_profile
 from services.runtime.profile_schema import FIXED_PROFILE_VALUES as FIXED_PROFILE_VALUES
 from services.runtime.profile_schema import ProfileValidationError, read_profile_document, validate_profile
 from services.runtime.profile_schema import unsupported_profile_values as unsupported_profile_values
@@ -29,11 +30,14 @@ class Settings:
     @classmethod
     def load(cls, profile_path=None):
         root = Path(__file__).resolve().parents[2]
-        path = Path(profile_path or os.environ.get("RAG_PROFILE", root / "config/local16.yaml"))
-        if not path.exists() and profile_path is None:
-            path = root / "RAG_Local_Agents/config/local16.yaml"
+        chosen = profile_path if profile_path is not None else os.environ.get("RAG_PROFILE", root / GENERATION_PROFILE)
+        path = Path(chosen)
+        if not path.is_file():
+            raise ApiError("invalid_profile", "Le profil demandé est absent ou n'est pas un fichier ; aucun repli de modèle n'est effectué.", 400)
         try:
             config = read_profile_document(path)
+        except OSError as error:
+            raise ApiError("invalid_profile", "Le profil demandé ne peut pas être lu ; aucun repli de modèle n'est effectué.", 400) from error
         except ProfileValidationError as error:
             raise ApiError("invalid_profile", str(error), 400, {"keys": error.keys}) from error
         if type(config.get("schema_version")) is not int or config.get("schema_version") not in {1, 2}:
@@ -64,6 +68,7 @@ class Settings:
             raise ApiError("invalid_profile", str(error), 400, {"keys": list(error.keys)}) from error
         try:
             validate_profile(config, consumer="api")
+            require_generation_profile(config)
         except ProfileValidationError as error:
             raise ApiError("invalid_profile", str(error), 400, {"keys": error.keys}) from error
         return settings
@@ -131,4 +136,4 @@ class Settings:
 
     @property
     def llm_tokenizer_dir(self):
-        return self.path(self.value("llm", "tokenizer_dir", ".runtime/models/qwen3.5-4b-tokenizer"))
+        return self.path(self.value("llm", "tokenizer_dir", ".runtime/models/qwen3-4b-tokenizer"))

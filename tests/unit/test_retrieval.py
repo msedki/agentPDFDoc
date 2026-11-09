@@ -277,10 +277,18 @@ def test_retrieval_four_document_comparison_and_absent_id(storage):
 
 
 def test_retrieval_final_budget_cut_is_reported(tmp_path):
-    settings = Settings(tmp_path, {"llm": {"num_ctx": 450, "num_predict": 100}, "retrieval": {"context_safety_tokens": 50}})
+    question = "Quelle valeur CCU-21 ?"
+    tokenizer = CharTokenizer()
+    # Admettre les consignes et la question seules ; le long extrait doit provoquer la coupe finale.
+    _, _, minimum, _ = ContextBuilder(Settings(tmp_path), tokenizer).build(question, [])
+    max_input = minimum["local_prompt_tokens"]
+    settings = Settings(tmp_path, {"llm": {"num_ctx": max_input + 150, "num_predict": 100},
+                                  "retrieval": {"context_safety_tokens": 50}})
     source = {"version_id": "v", "document_id": "synthetic-document", "page_indices": [0], "text": "CCU-21 " + "x" * 4000, "exact_identifier": True}
-    _, retained, metrics, warnings = ContextBuilder(settings, CharTokenizer()).build("Quelle valeur CCU-21 ?", [source])
+    _, retained, metrics, warnings = ContextBuilder(settings, tokenizer).build(question, [source])
     assert not retained
+    assert metrics["local_prompt_tokens"] <= max_input
+    assert metrics["context_fragments_excluded_by_budget"] == 1
     assert metrics["identifier_coverage_states"]["CCU-21"] == "not_covered_due_to_budget"
     assert metrics["evidence_coverage_at_context"] == 0
     assert any(warning["code"] == "exact_identifier_not_in_context" for warning in warnings)

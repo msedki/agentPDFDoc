@@ -1,4 +1,8 @@
-"""Profils RAM synthétiques qualifiés : aucune qualification/model/runtime réelle."""
+"""Algorithmes RAM synthétiques hors ligne et création du seul profil actif 4B.
+
+Les catalogues multi-modèles servent uniquement aux calculs et lecteurs ; aucune
+qualification, aucun modèle ni service natif n'est exécuté par ces témoins.
+"""
 
 import copy
 import hashlib
@@ -15,6 +19,12 @@ from tools.dist import linux_install, linux_kit
 
 ROOT = Path(__file__).resolve().parents[2]
 GIB = 1024**3
+MODEL = "qwen3-4b-enhanced:q4km"
+
+
+@pytest.fixture(autouse=True)
+def isolated_cli_profile_context(monkeypatch):
+    monkeypatch.setattr("services.runtime.platforms._profile_in_use", None)
 
 
 def synthetic_catalogue():
@@ -95,14 +105,15 @@ def test_same_visible_bytes_have_same_decision_on_two_qualified_platforms():
 
 def test_catalogue_has_no_new_qualification_or_threshold_and_lock_is_separate():
     catalogue = model_profiles.read_catalogue(ROOT)
-    assert catalogue["legacy_default_model"] == "qwen3.5:4b"
-    assert {entry["model"] for entry in catalogue["profiles"]} == {"qwen3.5:2b", "qwen3.5:4b"}
+    assert catalogue["legacy_default_model"] == MODEL
+    assert [(entry["model"], entry["served_model"]) for entry in catalogue["profiles"]] == [(MODEL, MODEL)]
     assert all(entry["qualification"] is None for entry in catalogue["profiles"])
     for entry in catalogue["profiles"]:
         assert model_profiles.file_sha256(ROOT / entry["profile"]) == entry["pins"][entry["profile"]]
 
 
 def write_synthetic_program(root):
+    """Programme à plusieurs modèles fictifs, réservé aux lecteurs et algorithmes hors ligne."""
     catalogue = synthetic_catalogue()
     lock = {"store": ".runtime/models/ollama", "models": {}}
     real_base = yaml.safe_load((ROOT / "config/local16-4b.yaml").read_text())
@@ -137,6 +148,21 @@ def write_synthetic_program(root):
     return catalogue, lock
 
 
+def write_enhanced_program(root):
+    """Vrai profil renforcé, catalogue sans qualification et sans octets de modèle."""
+    profile = "config/enhanced-4b.yaml"
+    target = root / profile
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes((ROOT / profile).read_bytes())
+    catalogue = {"schema_version": 1, "legacy_default_model": MODEL, "profiles": [
+        {"id": "synthetic-enhanced-entry", "kit_set": "4b", "model": MODEL, "served_model": MODEL,
+         "profile": profile, "pins": {profile: model_profiles.file_sha256(target)},
+         "model_manifest_sha256": {MODEL: "c" * 64}, "qualification": None}
+    ]}
+    (root / model_profiles.CATALOGUE_PATH).write_text(json.dumps(catalogue), encoding="utf-8")
+    (root / "config/models.lock.json").write_text(json.dumps({"store": ".runtime/models/ollama", "models": {}}), encoding="utf-8")
+
+
 def test_real_local_presence_requires_tokenizer_and_locked_blobs_without_copy_or_network(tmp_path):
     catalogue, lock = write_synthetic_program(tmp_path)
     decision = model_profiles.select_local_profile(tmp_path, total_memory_bytes=13 * GIB, platform="linux-aarch64", mode="cpu")
@@ -149,7 +175,7 @@ def test_real_local_presence_requires_tokenizer_and_locked_blobs_without_copy_or
 
 def test_cli_init_profile_persists_selection_without_mutating_yaml_source(tmp_path, monkeypatch, capsys):
     program, data = tmp_path / "program", tmp_path / "new-data"
-    write_synthetic_program(program)
+    write_enhanced_program(program)
     before = {path: path.read_bytes() for path in program.rglob("*") if path.is_file()}
     monkeypatch.setattr(cli, "ROOT", program)
     monkeypatch.setattr(profile_setup, "ROOT", program)
@@ -158,9 +184,12 @@ def test_cli_init_profile_persists_selection_without_mutating_yaml_source(tmp_pa
     monkeypatch.setattr(sys, "argv", ["rag", "init-profile", "--target", str(data), "--memory-total-bytes", str(13 * GIB)])
     assert cli.main() == 0
     result = json.loads(capsys.readouterr().out)
-    assert result["model_selection"]["model"] == "large"
+    assert result["model_selection"]["model"] == MODEL
+    assert result["model_selection"]["selection"] == "legacy_fallback"
+    assert result["model_selection"]["qualification"] is None
+    assert result["model_selection"]["visible_memory_bytes"] == 13 * GIB
     assert json.loads((data / "model-selection.json").read_text()) == result["model_selection"]
-    assert yaml.safe_load((data / "profile.yaml").read_text())["llm"]["model"] == "large"
+    assert yaml.safe_load((data / "profile.yaml").read_text())["llm"]["model"] == MODEL
     assert all(path.read_bytes() == content for path, content in before.items())
     assert cli.main() == 1
     assert "jamais remplacé" in json.loads(capsys.readouterr().out)["message"]
@@ -168,12 +197,15 @@ def test_cli_init_profile_persists_selection_without_mutating_yaml_source(tmp_pa
 
 def test_explicit_profile_never_reads_catalogue_or_reselects_on_up(monkeypatch, tmp_path, capsys):
     chosen = tmp_path / "custom.yaml"
+    chosen.write_bytes((ROOT / "config/enhanced-4b.yaml").read_bytes())
+    before = chosen.read_bytes()
     monkeypatch.setattr(cli, "read_catalogue", lambda root: pytest.fail("manual profile must not inspect catalogue"))
     monkeypatch.setattr(cli, "select_local_profile", lambda *args, **kw: pytest.fail("existing instance must not reselect"))
     observed = []
     monkeypatch.setattr(cli, "start", lambda path: observed.append(path) or {"status": "explicit_runtime_double"})
     monkeypatch.setattr(sys, "argv", ["rag", "up", "--profile", str(chosen)])
     assert cli.main() == 0 and observed == [chosen]
+    assert chosen.read_bytes() == before
     capsys.readouterr()
 
 
@@ -220,7 +252,8 @@ def test_selection_pre_copy_files_only_extend_new_manifest_contract():
     assert "services/runtime/model_profiles.py" not in linux_install.pre_copy_files(historical)
     new = historical | {"model_selection": {"catalogue": model_profiles.CATALOGUE_PATH}}
     assert {"services/runtime/model_profiles.py", model_profiles.CATALOGUE_PATH, "config/models.lock.json"} <= set(linux_install.pre_copy_files(new))
-    assert linux_kit.MODEL_PROFILES == {"2b": "config/local16.yaml", "4b": "config/local16-4b.yaml"}
+    assert linux_kit.MODEL_PROFILES == {"4b": "config/enhanced-4b.yaml"}
+    assert linux_kit.DEFAULT_MODELS == ("4b",)
 
 
 @pytest.mark.parametrize("mutation", ["duplicate_set", "unsafe_set", "duplicate_model", "unsafe_pin", "missing_template_pin"])
@@ -255,9 +288,9 @@ def test_external_blob_link_is_not_a_locally_present_model(tmp_path):
     assert "model_absent_or_lock_mismatch" in result["rejected"][0]["reasons"]
 
 
-def test_unknown_memory_from_installer_is_not_reprobed_and_reuses_historical_fallback(tmp_path, monkeypatch, capsys):
+def test_unknown_memory_from_installer_is_not_reprobed_and_selects_unqualified_enhanced_default(tmp_path, monkeypatch, capsys):
     program, data = tmp_path / "program", tmp_path / "data"
-    write_synthetic_program(program)
+    write_enhanced_program(program)
     monkeypatch.setattr(cli, "ROOT", program)
     monkeypatch.setattr(profile_setup, "ROOT", program)
     monkeypatch.setattr(cli, "visible_memory_bytes", lambda: pytest.fail("unknown installer measurement must be preserved"))
@@ -266,7 +299,20 @@ def test_unknown_memory_from_installer_is_not_reprobed_and_reuses_historical_fal
     assert cli.main() == 0
     result = json.loads(capsys.readouterr().out)["model_selection"]
     assert result["selection"] == "legacy_fallback" and result["visible_memory_bytes"] is None
-    assert yaml.safe_load((data / "profile.yaml").read_text())["llm"]["model"] == "base"
+    assert result["qualification"] is None
+    assert yaml.safe_load((data / "profile.yaml").read_text())["llm"]["model"] == MODEL
+
+
+def test_cli_refuses_an_offline_synthetic_selection_before_writing_a_live_profile(tmp_path, monkeypatch, capsys):
+    program, data = tmp_path / "program", tmp_path / "data"
+    write_synthetic_program(program)
+    monkeypatch.setattr(cli, "ROOT", program)
+    monkeypatch.setattr(cli, "platform_id", lambda: "linux-aarch64")
+    monkeypatch.setattr(profile_setup, "write_user_profile", lambda *a, **kw: pytest.fail("policy must precede profile creation"))
+    monkeypatch.setattr(sys, "argv", ["rag", "init-profile", "--target", str(data), "--memory-total-bytes", str(13 * GIB)])
+    assert cli.main() == 1
+    assert json.loads(capsys.readouterr().out)["error"] == "ProfileValidationError"
+    assert not data.exists()
 
 
 def test_catalogue_and_yaml_model_identity_must_agree_before_any_profile_is_written(tmp_path, monkeypatch):

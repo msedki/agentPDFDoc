@@ -60,3 +60,34 @@ def docling_box_to_pdf(bbox, parser_size, page):
     if result[0] < crop[0] - tolerance or result[1] < crop[1] - tolerance or result[2] > crop[2] + tolerance or result[3] > crop[3] + tolerance:
         raise IngestionError("GEOMETRY_OUTSIDE_PAGE", "La région source dépasse le repère PDF connu.")
     return result
+
+
+def pdf_box_to_docling(bbox, parser_size, page):
+    """Inverse of the verified parser frame, including rotation and CropBox."""
+    crop = normalize_box(page.get("effective_box", page["crop_box"]))
+    box = normalize_box(bbox)
+    width, height = crop[2] - crop[0], crop[3] - crop[1]
+    rotation = int(page["rotation"]) % 360
+    expected = (height, width) if rotation in (90, 270) else (width, height)
+    if not all(math.isclose(a, b, abs_tol=2.) for a, b in zip(parser_size, expected, strict=True)):
+        raise IngestionError("GEOMETRY_FRAME_MISMATCH", "Le repère du parseur PDF ne correspond pas à la page.")
+    points = []
+    for x in (box[0] - crop[0], box[2] - crop[0]):
+        for y in (box[1] - crop[1], box[3] - crop[1]):
+            if rotation == 0:
+                display_x, display_y = x, y
+            elif rotation == 90:
+                display_x, display_y = y, width - x
+            elif rotation == 180:
+                display_x, display_y = width - x, height - y
+            elif rotation == 270:
+                display_x, display_y = height - y, x
+            else:
+                raise IngestionError("INVALID_ROTATION", "La rotation PDF doit être un multiple de 90 degrés.")
+            points.append((display_x, float(parser_size[1]) - display_y))
+    result = {"l": min(x for x, _ in points), "t": min(y for _, y in points),
+              "r": max(x for x, _ in points), "b": max(y for _, y in points), "coord_origin": "TOPLEFT"}
+    inverse = docling_box_to_pdf(result, parser_size, page)
+    if not all(math.isclose(a, b, abs_tol=1e-6) for a, b in zip(inverse, box, strict=True)):
+        raise IngestionError("GEOMETRY_FRAME_MISMATCH", "La transformation inverse de la région PDF est incohérente.")
+    return result

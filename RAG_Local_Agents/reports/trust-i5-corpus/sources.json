@@ -1,0 +1,53 @@
+{
+  "schema_version": "i5-heldout-sources-v1",
+  "selection": "Three distinct primary manufacturers; no I4 source document reused. Selection and oracles fixed before I5 product development; public source contents were read only by validation agent.",
+  "access": {
+    "method": "Connected browser documented downloadMedia from visible official manufacturer datasheet links",
+    "native_http_attempt": "ConnectError: Temporary failure in name resolution; no PDF downloaded by that route",
+    "downloaded_at_utc": "2026-11-08T20:04:47.215280+00:00"
+  },
+  "documents": [
+    {
+      "id": "D01",
+      "file": "originals/ts881.pdf",
+      "title": "TS881 — Rail-to-rail 0.9 V nanopower comparator",
+      "publisher": "STMicroelectronics",
+      "url": "https://www.st.com/resource/en/datasheet/ts881.pdf",
+      "landing_url": "https://www.st.com/en/amplifiers-and-comparators/ts881.html",
+      "revision": "DocID023340 Rev 3",
+      "revision_date_month": "2024-08",
+      "pages": 22,
+      "original_sha256": "b7d7909ef5258fcb1e74f01650f0859742fef2595f80b54861b32f63840bd813",
+      "bytes": 1069003
+    },
+    {
+      "id": "D02",
+      "file": "originals/MCP970X-Family-Data-Sheet-DS20001942.pdf",
+      "title": "MCP970X — Low-Power Linear Active Thermistor ICs",
+      "publisher": "Microchip Technology",
+      "url": "https://ww1.microchip.com/downloads/aemDocuments/documents/MSLD/ProductDocuments/DataSheets/MCP970X-Family-Data-Sheet-DS20001942.pdf",
+      "landing_url": "https://www.microchip.com/en-us/product/MCP9700",
+      "revision": "DS20001942L",
+      "revision_date_month": null,
+      "revision_year_observed": 2024,
+      "pages": 26,
+      "original_sha256": "5b0e0efe173d5fdaf72c31e697591b0b1cacbd440ec6ba95d742fd587c7aff33",
+      "bytes": 599186
+    },
+    {
+      "id": "D03",
+      "file": "originals/lm35.pdf",
+      "title": "LM35 Precision Centigrade Temperature Sensors",
+      "publisher": "Texas Instruments",
+      "url": "https://www.ti.com/lit/gpn/LM35",
+      "canonical_datasheet_url": "https://www.ti.com/lit/ds/symlink/lm35.pdf",
+      "landing_url": "https://www.ti.com/product/LM35",
+      "revision": "SNIS159H",
+      "revision_date_month": "2017-12",
+      "packaging_addendum_date_observed": "2026-04-09",
+      "pages": 38,
+      "original_sha256": "673b1c075b8f5a0653f77906c897ea5aec41a1dec02514770587100587c05eb9",
+      "bytes": 1416820
+    }
+  ]
+}

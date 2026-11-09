@@ -12,6 +12,7 @@ import httpx
 
 from .embedding import EmbeddingService
 from .errors import ApiError
+from .execution_trace import fingerprint, record_event
 
 # Tirets Unicode U+2010 à U+2015 et signe moins U+2212 : même séparateur que « - » (1 caractère pour 1, offsets conservés).
 DASHES = str.maketrans(dict.fromkeys(map(chr, [*range(0x2010, 0x2016), 0x2212]), "-"))
@@ -247,6 +248,36 @@ def match_expression(text):
     return " OR ".join('"' + term.replace('"', '""') + '"' for term in terms)
 
 
+MAX_LEXICAL_ALIAS_TERMS = 16
+
+
+def lexical_alias_terms(question):
+    """Known whole-word aliases for an empty lexical lane, never new facts.
+
+    Identifier spans are excluded before matching. Singular/plural ``s`` forms
+    may activate an existing group, but every emitted word is already in that
+    static vocabulary. Ranking prefixes are deliberately not FTS search terms.
+    """
+    from .evidence_selection import TERM_GROUPS
+
+    parts, cursor = [], 0
+    for start, end in identifier_spans(question):
+        parts.append(question[cursor:start])
+        cursor = max(cursor, end)
+    words = set(_folded_words(" ".join(parts + [question[cursor:]])))
+    recognized = words | {word[:-1] for word in words if word.endswith("s")}
+    aliases = []
+    for group in TERM_GROUPS:
+        if not recognized & group:
+            continue
+        for word in sorted(group - words):
+            if word not in aliases:
+                aliases.append(word)
+                if len(aliases) == MAX_LEXICAL_ALIAS_TERMS:
+                    return aliases
+    return aliases
+
+
 # Méthodes d'extraction d'un bloc dont le texte vient, au moins en partie, de la reconnaissance de caractères (ingestion).
 OCR_METHODS = frozenset({"ocr", "mixed"})
 # Valable pour une recherche comme pour une question : aucune mention de « la réponse ».
@@ -275,6 +306,25 @@ def ocr_evidence_warnings(sources):
                         " lus par reconnaissance optique de caractères (OCR) : des signes, unités ou références peuvent être faux même "
                         "sans alerte de faible confiance. Comparez les valeurs utilisées avec la page originale."}
             for document_id, entry in documents.items()]
+
+
+def evidence_identity(source):
+    """An exact source occurrence, not its whole parent or matching prose.
+
+    Equal text at two locations can have distinct conditions and provenance.
+    Keeping those occurrences does not claim that they are independent evidence.
+    """
+    generation = source.get("generation_id")
+    bundle = source.get("evidence_bundle", {}).get("id")
+    if bundle:
+        return (generation, "bundle", bundle)
+    blocks = source.get("blocks", [])
+    if blocks:
+        spans = tuple(sorted((block["id"], block["start_offset"], block["end_offset"],
+                              block.get("source_text_hash") or "", block.get("extraction_revision_id") or "") for block in blocks))
+        return (generation, "spans", spans)
+    return (generation, "chunk", source.get("chunk_id") or source.get("parent_id"),
+            hashlib.sha256(source["text"].encode("utf-8")).hexdigest())
 
 
 def dense_identity_warning(documents):
@@ -477,6 +527,27 @@ class SearchService:
         self.dense = dense
         self.projector = projector
 
+    def partial_scope_warnings(self, snapshot):
+        """Describe incomplete authorized revisions even when retrieval is empty."""
+        warnings = []
+        # Bound each SQL parameter list without scanning documents outside scope.
+        for start in range(0, len(snapshot.generations), 200):
+            generations = snapshot.generations[start:start + 200]
+            rows = self.db.rows(
+                "SELECT g.id,g.version_id,g.extraction_revision_id,v.document_id,d.name "
+                "FROM index_generations g JOIN document_versions v ON v.id=g.version_id "
+                "JOIN documents d ON d.id=v.document_id WHERE g.state='ready_partial' AND d.deleted_at IS NULL "
+                f"AND g.id IN ({','.join('?' for _ in generations)}) ORDER BY g.id", generations)
+            for row in rows:
+                if (snapshot.versions.get(row["id"]) != row["version_id"]
+                        or snapshot.documents.get(row["id"]) != row["document_id"]):
+                    raise ApiError("scope_leakage", "La révision partielle ne correspond pas au périmètre autorisé.", 409)
+                warnings.append({"code": "partial_extraction", "document_id": row["document_id"],
+                                 "document_name": row["name"], "version_id": row["version_id"],
+                                 "generation_id": row["id"], "extraction_revision_id": row["extraction_revision_id"],
+                                 "basis": "authorized_scope", "message": PARTIAL_EXTRACTION_MESSAGE})
+        return warnings
+
     def lexical(self, question, snapshot, references=None):
         references = references or resolve_references(question)
         if snapshot.scope["kind"] == "cell_range":
@@ -532,9 +603,23 @@ class SearchService:
                     per_code[code] = focused_matches[code]
             exact = list(dict.fromkeys(chunk for position in range(limit) for matches in per_code.values() for chunk in matches[position:position + 1]))[:limit]
         ranked = []
+        sql = f"SELECT c.chunk_uuid,bm25(chunks_fts,2.0,1.0) score FROM chunks_fts JOIN chunks c ON c.id=chunks_fts.rowid WHERE {clause} AND chunks_fts MATCH ? ORDER BY score ASC,c.chunk_uuid ASC LIMIT ?"
         if expression:
-            sql = f"SELECT c.chunk_uuid,bm25(chunks_fts,2.0,1.0) score FROM chunks_fts JOIN chunks c ON c.id=chunks_fts.rowid WHERE {clause} AND chunks_fts MATCH ? ORDER BY score ASC,c.chunk_uuid ASC LIMIT ?"
             ranked = [row["chunk_uuid"] for row in self.db.rows(sql, parameters + [expression, limit])]
+        if (not exact and not ranked and snapshot.generations and not snapshot.spans
+                and snapshot.scope["kind"] != "selection"
+                and self.settings.value("enhanced", "lexical_alias_fallback", False)):
+            started = time.perf_counter()
+            aliases = lexical_alias_terms(question)
+            if aliases:
+                ranked = [row["chunk_uuid"] for row in self.db.rows(sql, parameters + [match_expression(" ".join(aliases)), limit])]
+            record_event("retrieval.lexical_alias_fallback", {
+                "revision": "static-term-groups-v1", "attempted": bool(aliases),
+                "reason": "initial_lexical_empty" if aliases else "no_known_alias",
+                "question_sha256": hashlib.sha256(question.encode()).hexdigest(),
+                "scope_sha256": fingerprint(snapshot.as_dict()), "alias_terms": aliases,
+                "max_alias_terms": MAX_LEXICAL_ALIAS_TERMS, "candidate_count": len(ranked), "limit": limit,
+                "elapsed_ms": round((time.perf_counter() - started) * 1000, 3)})
         return list(dict.fromkeys(exact + ranked))[:limit], exact
 
     async def _candidates(self, question, snapshot, dense_available=True, references=None):
@@ -608,10 +693,168 @@ class SearchService:
                            "relative_path": document["relative_path"], "page_index": page_index,
                            "page_number": page_index + 1, "label": page.get("label")})
 
+    def _complementary_candidates(self, terms, snapshot, deadline):
+        """One bounded FTS read; no embedding model and no corpus-wide fallback."""
+        import sqlite3
+
+        clause, parameters = snapshot.sql_filter()
+        expression = match_expression(" ".join(terms))
+        limit = min(self.settings.value("retrieval", "lexical_top_k", 24),
+                    self.settings.value("enhanced", "rerank_max_candidates", 48))
+        sql = ("SELECT c.chunk_uuid,bm25(chunks_fts,2.0,1.0) score "
+               "FROM chunks_fts JOIN chunks c ON c.id=chunks_fts.rowid "
+               f"WHERE {clause} AND chunks_fts MATCH ? ORDER BY score ASC,c.chunk_uuid ASC LIMIT ?")
+        with self.db.connect() as connection:
+            connection.set_progress_handler(lambda: int(time.perf_counter() >= deadline), 1000)
+            try:
+                rows = connection.execute(sql, [*parameters, expression, limit]).fetchall()
+            except sqlite3.OperationalError as error:
+                if time.perf_counter() >= deadline:
+                    raise TimeoutError from error
+                raise
+            finally:
+                connection.set_progress_handler(None, 0)
+        candidates = []
+        for position, row in enumerate(rows):
+            if time.perf_counter() >= deadline:
+                raise TimeoutError
+            # This rank-derived score has the same role as the original RRF
+            # lane. It is not a confidence estimate.
+            candidates.extend(self.source_candidates([(row["chunk_uuid"], 1 / (61 + position))], set(), snapshot))
+        return candidates
+
+    async def refine_once(self, question, snapshot, previous, missing_terms, mode="question", references=None):
+        """Try one scoped lexical complement before generation, with no loop.
+
+        Callers pass terms derived from their explicit question obligations. An
+        already attempted result cannot be retried through this method. Failure
+        to find new evidence leaves the initial result available and visible.
+        """
+        started = time.perf_counter()
+        diagnostic = {"attempted": False, "performed": False, "route": "scoped_lexical", "reason": "disabled",
+                      "new_evidence_count": 0, "retained_new_evidence_count": 0}
+
+        def outcome(reason, *, attempted=False, performed=False, **extra):
+            diagnostic.update(reason=reason, attempted=attempted, performed=performed,
+                              elapsed_ms=round((time.perf_counter() - started) * 1000, 2), **extra)
+            return {**previous, "refinement": diagnostic,
+                    "elapsed_ms": round(previous.get("elapsed_ms", 0) + diagnostic["elapsed_ms"], 2)}
+
+        if not self.settings.value("enhanced", "complementary_retrieval", False):
+            return outcome("disabled")
+        if previous.get("refinement", {}).get("attempted"):
+            return outcome("already_attempted", attempted=True, prior_attempt=previous["refinement"])
+        if snapshot.scope["kind"] in {"selection", "cell_range"} or snapshot.spans:
+            return outcome("literal_scope")
+        if not snapshot.generations:
+            return outcome("empty_scope")
+        terms = []
+        for value in missing_terms or []:
+            if not isinstance(value, str) or not 1 <= len(value.strip()) <= 64:
+                continue
+            words = _folded_words(value)
+            if not any(len(word) >= 3 and word.isalpha() and word not in STOPWORDS | SCOPE_WORDS for word in words):
+                continue
+            value = value.strip()
+            if value not in terms:
+                terms.append(value)
+            if len(terms) == 6:
+                break
+        if not terms:
+            return outcome("no_substantive_missing_terms")
+        timeout = self.settings.value("enhanced", "complementary_timeout_seconds", 5)
+        deadline = started + timeout
+        references = references or resolve_references(question)
+
+        async def collect():
+            candidates = await asyncio.to_thread(self._complementary_candidates, terms, snapshot, deadline)
+            notices = []
+            if self.settings.value("enhanced", "preserve_evidence", False):
+                from .evidence_selection import prepare_tables
+                candidates, notices = await asyncio.to_thread(
+                    prepare_tables, self.db, snapshot, candidates,
+                    maximum_chars=self.settings.value("enhanced", "evidence_bundle_max_chars", 12_000),
+                    maximum_candidates=self.settings.value("enhanced", "rerank_max_candidates", 48),
+                    question=question, required_identifiers=references.priority)
+            await asyncio.to_thread(self.decorate_sources, candidates)
+            return candidates, notices
+
+        try:
+            candidates, notices = await asyncio.wait_for(collect(), timeout=max(0, deadline - time.perf_counter()))
+        except TimeoutError:
+            return outcome("timeout", attempted=True)
+        if time.perf_counter() >= deadline:
+            return outcome("timeout", attempted=True)
+        for source in candidates:
+            source["exact_identifier"] = any(references.source_matches(source, code) for code in references.priority)
+
+        def identity(source):
+            return evidence_identity(source)
+
+        prior_ids = {identity(source) for source in previous["results"]}
+        new_sources = [source for source in candidates if identity(source) not in prior_ids]
+        if not new_sources:
+            return outcome("no_new_evidence", attempted=True, performed=True, candidate_count=len(candidates))
+        from .evidence_selection import structural_rerank
+        ordered = structural_rerank(question + " " + " ".join(terms), new_sources + previous["results"],
+                                    maximum_candidates=self.settings.value("enhanced", "rerank_max_candidates", 48))
+        maximum = self.settings.value("retrieval", "constrained_max_fragments", 8) if mode == "comparison" or len(references.priority) > 1 else self.settings.value("retrieval", "final_max_fragments", 6)
+        selected: list[dict[str, Any]] = []
+        selected_ids = set()
+
+        def retain(source):
+            key = identity(source)
+            if len(selected) < maximum and key not in selected_ids:
+                selected.append(source)
+                selected_ids.add(key)
+
+        # Preserve the original obligations, including comparison documents.
+        for code in sorted(references.priority):
+            match = next((source for source in ordered if references.source_matches(source, code)), None)
+            if match is not None:
+                retain(match)
+        if mode == "comparison":
+            for document in dict.fromkeys(snapshot.documents.values()):
+                match = next((source for source in ordered if source["document_id"] == document), None)
+                if match is not None:
+                    retain(match)
+        for source in ordered:
+            retain(source)
+        coverage_diagnostic = None
+        if (self.settings.value("enhanced", "preserve_evidence", False)
+                and self.settings.value("enhanced", "property_coverage_selection", False)):
+            from .evidence_coverage import select_evidence_coverage
+            coverage_selected, coverage_notices, coverage_diagnostic = await asyncio.to_thread(
+                select_evidence_coverage, self.db, snapshot, question, mode, ordered, previous["results"], maximum, references)
+            if coverage_diagnostic["status"] in {"retained_candidate_relations", "incomplete"}:
+                selected = coverage_selected
+            notices.extend(coverage_notices)
+        diagnostic.update(attempted=True, performed=True, reason="new_evidence", candidate_count=len(candidates),
+                          new_evidence_count=len(new_sources),
+                          retained_new_evidence_count=sum(identity(source) not in prior_ids for source in selected),
+                          elapsed_ms=round((time.perf_counter() - started) * 1000, 2))
+        references.attest(ordered[:10], "retrieval_top10")
+        references.attest(selected, "retrieval_final")
+        return {**previous, "results": selected, "top10": ordered[:10], "refinement": diagnostic,
+                "evidence_selection": coverage_diagnostic,
+                "warnings": [*(warning for warning in previous.get("warnings", [])
+                               if coverage_diagnostic is None or warning.get("code") != "evidence_coverage_incomplete"), *notices],
+                "reference_resolution": references.as_dict(),
+                "elapsed_ms": round(previous.get("elapsed_ms", 0) + diagnostic["elapsed_ms"], 2)}
+
     async def search(self, question, snapshot, mode="question", references=None):
         references = references or resolve_references(question)
         start = time.perf_counter()
-        warnings = []
+        warnings = await asyncio.to_thread(self.partial_scope_warnings, snapshot)
+        preserve_evidence = self.settings.value("enhanced", "preserve_evidence", False)
+        exhaustive = None
+        if preserve_evidence and snapshot.scope["kind"] == "cell_range":
+            from .evidence_selection import small_range_bundle
+            exhaustive, notices = await asyncio.to_thread(
+                small_range_bundle, self.db, snapshot,
+                maximum_cells=self.settings.value("enhanced", "exhaustive_range_max_cells", 64),
+                maximum_chars=self.settings.value("enhanced", "evidence_bundle_max_chars", 12_000))
+            warnings.extend(notices)
         dense_available = True
         if self.dense is not None and snapshot.scope["kind"] not in {"selection", "cell_range"} and snapshot.generations:
             # Avertissement de périmètre : documents servis par la seule branche lexicale (identité dense changée, R26-IDX-02).
@@ -624,6 +867,10 @@ class SearchService:
                 warnings.append(dense_identity_warning(missing))
         if snapshot.scope["kind"] == "selection":
             results = await asyncio.to_thread(self.resolver.selected_sources, snapshot)
+        elif exhaustive is not None:
+            results = exhaustive
+            for source in results:
+                source["exact_identifier"] = any(references.source_matches(source, code) for code in references.priority)
         elif not snapshot.generations:
             results = []
         elif mode == "comparison":
@@ -640,6 +887,27 @@ class SearchService:
                         results.append(candidates[position])
         else:
             results = await self._candidates(question, snapshot, dense_available, references)
+        if preserve_evidence:
+            from .evidence_selection import prepare_tables
+            results, notices = await asyncio.to_thread(
+                prepare_tables, self.db, snapshot, results,
+                maximum_chars=self.settings.value("enhanced", "evidence_bundle_max_chars", 12_000),
+                maximum_candidates=self.settings.value("enhanced", "rerank_max_candidates", 48),
+                question=question, required_identifiers=references.priority)
+            warnings.extend(notices)
+            for source in results:
+                source["exact_identifier"] = any(references.source_matches(source, code) for code in references.priority)
+        if self.settings.value("enhanced", "structural_reranking", False):
+            from .evidence_selection import structural_rerank
+            limit = self.settings.value("enhanced", "rerank_max_candidates", 48)
+            if mode == "comparison":
+                groups = [[source for source in results if source["document_id"] == document]
+                          for document in dict.fromkeys(source["document_id"] for source in results)]
+                ranked = [structural_rerank(question, group, maximum_candidates=limit) for group in groups]
+                results = [group[position] for position in range(max((len(group) for group in ranked), default=0))
+                           for group in ranked if position < len(group)]
+            else:
+                results = structural_rerank(question, results, maximum_candidates=limit)
         await asyncio.to_thread(self.decorate_sources, results)
         top10 = list(results[:10])
         priority = references.priority
@@ -669,9 +937,15 @@ class SearchService:
         retained_identifiers: set[str] = set()
         maximum = self.settings.value("retrieval", "constrained_max_fragments", 8) if mode == "comparison" or len(priority) > 1 else self.settings.value("retrieval", "final_max_fragments", 6)
         for source in results:
-            key = (source["version_id"], source.get("parent_id") or source.get("chunk_id"))
-            # Texte identique (en-tête répété sur plusieurs pages) : un seul fragment, par document en comparaison.
-            text_key = (source.get("document_id") if mode == "comparison" else None, hashlib.sha256(source["text"].encode("utf-8")).hexdigest())
+            bundle_id = source.get("evidence_bundle", {}).get("id")
+            key = (evidence_identity(source) if preserve_evidence else
+                   (source["version_id"], bundle_id or source.get("parent_id") or source.get("chunk_id")))
+            # Le profil historique déduplique les textes répétés. La voie avec
+            # conservation des preuves ne confond pas deux positions distinctes
+            # avec le même parent ou le même texte (conditions/provenances propres).
+            text_key = (key if preserve_evidence else
+                        (source.get("document_id") if mode == "comparison" or bundle_id else None,
+                         bundle_id or hashlib.sha256(source["text"].encode("utf-8")).hexdigest()))
             newly_covered = {code for code in priority - retained_identifiers if references.source_matches(source, code)}
             if (key in parents or text_key in texts) and not newly_covered:
                 continue
@@ -681,11 +955,16 @@ class SearchService:
             unique.append(source)
             if len(unique) >= maximum:
                 break
-        for document_id in {source["document_id"] for source in unique if source.get("extraction_state") == "ready_partial"}:
-            warnings.append({"code": "partial_extraction", "document_id": document_id, "message": PARTIAL_EXTRACTION_MESSAGE})
+        coverage_diagnostic = None
+        if preserve_evidence and self.settings.value("enhanced", "property_coverage_selection", False):
+            from .evidence_coverage import select_evidence_coverage
+            unique, notices, coverage_diagnostic = await asyncio.to_thread(
+                select_evidence_coverage, self.db, snapshot, question, mode, results, unique, maximum, references)
+            warnings.extend(notices)
         # Recherche seule (POST /search, évaluation) : passages finals ; une question le recalcule sur les sources retenues.
         warnings.extend(ocr_evidence_warnings(unique))
         references.attest(top10, "retrieval_top10")
         references.attest(unique, "retrieval_final")
         return {"results": unique, "top10": top10, "scope_snapshot": snapshot.as_dict(), "warnings": warnings,
+                "evidence_selection": coverage_diagnostic,
                 "elapsed_ms": round((time.perf_counter() - start) * 1000, 2), "reference_resolution": references.as_dict()}

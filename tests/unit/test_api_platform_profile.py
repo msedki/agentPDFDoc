@@ -194,7 +194,7 @@ def test_origin_follows_the_security_environment(tmp_path):
     assert production.origin_certificate == (tmp_path / "certs/api.pem").resolve()
 
 
-@pytest.mark.parametrize("profile", ["config/local16.yaml", "RAG_Local_Agents/config/local16.yaml"])
+@pytest.mark.parametrize("profile", ["config/enhanced-4b.yaml"])
 def test_delivered_profiles_load_without_unsupported_values(profile):
     settings = Settings.load(ROOT / profile)
     assert unsupported_profile_values(settings.profile) == []
@@ -216,7 +216,7 @@ def altered(value):
 @pytest.mark.parametrize("path", sorted(FIXED_PROFILE_VALUES), ids=".".join)
 def test_profile_value_the_code_does_not_implement_is_refused_at_startup(tmp_path, path):
     """C6 : une clé du profil sans effet ne doit plus être ignorée en silence."""
-    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    profile = yaml.safe_load((ROOT / "config/enhanced-4b.yaml").read_text(encoding="utf-8"))
     node = profile
     for name in path[:-1]:
         node = node[name]
@@ -258,7 +258,7 @@ def test_ollama_connect_timeout_is_read_from_the_profile(tmp_path):
 def delivered_profile_with(tmp_path, **llm_changes):
     """Copie du profil livré, section llm sans clé d'accélération, qui reçoit `llm_changes` (None retire la clé) ;
     chemin du fichier écrit."""
-    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    profile = yaml.safe_load((ROOT / "config/enhanced-4b.yaml").read_text(encoding="utf-8"))
     for key in ("accelerator", "num_gpu"):
         profile["llm"].pop(key, None)
     for key, value in llm_changes.items():
@@ -274,7 +274,7 @@ def delivered_profile_with(tmp_path, **llm_changes):
 def test_delivered_profile_requests_auto(monkeypatch):
     monkeypatch.delenv("RAG_LLM_ACCELERATOR", raising=False)
     monkeypatch.delenv("RAG_LLM_ACCELERATOR_REASON", raising=False)
-    state = Settings.load(ROOT / "config/local16.yaml").llm_accelerator
+    state = Settings.load(ROOT / "config/enhanced-4b.yaml").llm_accelerator
     assert (state["requested"], state["requested_source"], state["mode"]) == ("auto", "profile", "cpu")
 
 

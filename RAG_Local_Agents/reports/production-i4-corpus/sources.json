@@ -1,0 +1,49 @@
+{
+  "schema_version": "i4-heldout-sources-v1",
+  "frozen_at_utc": "2026-11-08T15:52:55.859703+00:00",
+  "documents": [
+    {
+      "id": "D01",
+      "file": "originals/AD22103.pdf",
+      "url": "https://www.analog.com/media/en/technical-documentation/data-sheets/AD22103.pdf",
+      "publisher": "Analog Devices",
+      "revision": "B",
+      "revision_date_month": "2017-07",
+      "original_sha256": "6c5d9ad1464aa70fbf4c1baba92b8a039f5c9081dded13f3679d7ac4de7cabad",
+      "bytes": 533470,
+      "pages": 7,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "generation_id": null
+    },
+    {
+      "id": "D02",
+      "file": "originals/ad22105.pdf",
+      "url": "https://www.analog.com/media/en/technical-documentation/data-sheets/ad22105.pdf",
+      "publisher": "Analog Devices",
+      "revision": "A",
+      "revision_date_month": "2018-10",
+      "original_sha256": "23df2e90992f09b7f79a6e045368e0a7d63dd7f789e65054fa6cf5a5d1a5d1a5",
+      "bytes": 220322,
+      "pages": 11,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "generation_id": null
+    },
+    {
+      "id": "D03",
+      "file": "originals/1540fb.pdf",
+      "url": "https://www.analog.com/media/en/technical-documentation/data-sheets/1540fb.pdf",
+      "publisher": "Analog Devices",
+      "revision": "B",
+      "revision_date_month": "2017-08",
+      "original_sha256": "50b9965880829dadf08c4871031c4f48d59a6086368d9ce2ec698554f5ba2662",
+      "bytes": 208760,
+      "pages": 14,
+      "version_id": null,
+      "extraction_revision_id": null,
+      "generation_id": null
+    }
+  ],
+  "publication_policy": "Keep original PDFs and rendered/review text outside Git; publish official URLs, hashes, locators and French factual summaries."
+}

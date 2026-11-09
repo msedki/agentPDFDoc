@@ -1,0 +1,2088 @@
+{
+  "schema_version": "production-i4-development-v1",
+  "frozen_at_utc": "2026-11-08T15:57:55.426877+00:00",
+  "protocol": "RAG_Local_Agents/reports/production-4b-protocol-2026-11-08.md",
+  "protocol_sha256": "7ae9c5a2c583bc05a5a652b2afbe7f1921f62ba55162d865316d3a62e656f3de",
+  "baseline_commit": "fa3eabce5ab0c309b1ca8f01602fced2eb7f1dd8",
+  "split": "development; visible to implementation contributors, no transfer questions included",
+  "families": {
+    "selection": 8,
+    "structure": 8,
+    "qualitative": 8,
+    "operations": 8
+  },
+  "execution_status_at_freeze": "NOT_RUN",
+  "source_of_cases": "Pre-implementation proposals by root, audit_ingestion, audit_grounding and audit_validation; exact fields frozen before their discriminating test runs.",
+  "structure_base": {
+    "document_id": "D-STRUCT",
+    "revision": "R1",
+    "page_index": 0,
+    "page_size": [
+      600,
+      800
+    ],
+    "origin": "bottom_left",
+    "blocks": [
+      {
+        "id": "B0",
+        "text": "•",
+        "bbox": [
+          44,
+          703,
+          48,
+          707
+        ]
+      },
+      {
+        "id": "P",
+        "text": "Supply range:",
+        "bbox": [
+          58,
+          700,
+          170,
+          712
+        ]
+      },
+      {
+        "id": "M1",
+        "text": "–",
+        "bbox": [
+          58,
+          680,
+          64,
+          684
+        ]
+      },
+      {
+        "id": "V1",
+        "text": "2.4 V to 3.6 V at 25 °C",
+        "bbox": [
+          75,
+          676,
+          285,
+          688
+        ]
+      },
+      {
+        "id": "M2",
+        "text": "–",
+        "bbox": [
+          58,
+          660,
+          64,
+          664
+        ]
+      },
+      {
+        "id": "V2",
+        "text": "2.7 V to 3.3 V at 70 °C",
+        "bbox": [
+          75,
+          656,
+          285,
+          668
+        ]
+      },
+      {
+        "id": "B1",
+        "text": "•",
+        "bbox": [
+          44,
+          640,
+          48,
+          644
+        ]
+      },
+      {
+        "id": "P2",
+        "text": "Supply current:",
+        "bbox": [
+          58,
+          636,
+          180,
+          648
+        ]
+      }
+    ]
+  },
+  "cases": [
+    {
+      "id": "R01",
+      "family": "selection",
+      "question": "Donne les plages de tension de bus et d’alimentation du composant RS9.",
+      "candidates_in_initial_rank_order": [
+        {
+          "id": "C1",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "C1",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 1.",
+          "parent_id": "C1",
+          "scope_authorized": true
+        },
+        {
+          "id": "C2",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "C2",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 2.",
+          "parent_id": "C2",
+          "scope_authorized": true
+        },
+        {
+          "id": "C3",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "C3",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 3.",
+          "parent_id": "C3",
+          "scope_authorized": true
+        },
+        {
+          "id": "C4",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "C4",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 4.",
+          "parent_id": "C4",
+          "scope_authorized": true
+        },
+        {
+          "id": "C5",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "C5",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 5.",
+          "parent_id": "C5",
+          "scope_authorized": true
+        },
+        {
+          "id": "C6",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "C6",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 6.",
+          "parent_id": "C6",
+          "scope_authorized": true
+        },
+        {
+          "id": "C7",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "C7",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 7.",
+          "parent_id": "C7",
+          "scope_authorized": true
+        },
+        {
+          "id": "C8",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "C8",
+          "text": "Composant RS9. Recommended supply voltage: 3 to 5 V.",
+          "parent_id": "C8",
+          "scope_authorized": true
+        }
+      ],
+      "primitive_selected_limit": 6,
+      "budget_note": "Explicit six-place primitive test; application comparison/multiple-identifier route can already use eight. No production cap is increased or silently lowered.",
+      "expected": {
+        "required_relations": [
+          "bus0–18V",
+          "recommended supply3–5V"
+        ],
+        "forbidden": [
+          "Missing supply while declaring full coverage"
+        ],
+        "max_selected": 6,
+        "no_new_relation_from_annotation": true
+      }
+    },
+    {
+      "id": "R02",
+      "family": "selection",
+      "question": "Compare les plages de tension de bus et d’alimentation dans les documents A et B.",
+      "candidates_in_initial_rank_order": [
+        {
+          "id": "A1",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "A1",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 1.",
+          "parent_id": "A1",
+          "scope_authorized": true
+        },
+        {
+          "id": "A2",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "A2",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 2.",
+          "parent_id": "A2",
+          "scope_authorized": true
+        },
+        {
+          "id": "A3",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "A3",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 3.",
+          "parent_id": "A3",
+          "scope_authorized": true
+        },
+        {
+          "id": "A4",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "A4",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 4.",
+          "parent_id": "A4",
+          "scope_authorized": true
+        },
+        {
+          "id": "A5",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "A5",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 5.",
+          "parent_id": "A5",
+          "scope_authorized": true
+        },
+        {
+          "id": "A6",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "A6",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 6.",
+          "parent_id": "A6",
+          "scope_authorized": true
+        },
+        {
+          "id": "A7",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "A7",
+          "text": "Composant RS9. Recommended supply voltage: 3 to 5 V.",
+          "parent_id": "A7",
+          "scope_authorized": true
+        },
+        {
+          "id": "B1",
+          "document_id": "B",
+          "document_version": "R1",
+          "occurrence": "B1",
+          "text": "Composant RS9. Bus voltage range: 0 to 20 V.",
+          "parent_id": "B1",
+          "scope_authorized": true
+        },
+        {
+          "id": "B2",
+          "document_id": "B",
+          "document_version": "R1",
+          "occurrence": "B2",
+          "text": "Composant RS9. Recommended supply voltage: 3.2 to 4.8 V.",
+          "parent_id": "B2",
+          "scope_authorized": true
+        }
+      ],
+      "primitive_selected_limit": 6,
+      "budget_note": "Explicit six-place primitive test; application comparison/multiple-identifier route can already use eight. No production cap is increased or silently lowered.",
+      "expected": {
+        "required_relations": [
+          "A:bus0–18V",
+          "A:supply3–5V",
+          "B:bus0–20V",
+          "B:supply3.2–4.8V"
+        ],
+        "forbidden": [
+          "Substitution of one document for another",
+          "Loss of a previously covered property"
+        ],
+        "max_selected": 6,
+        "no_new_relation_from_annotation": true
+      }
+    },
+    {
+      "id": "R03",
+      "family": "selection",
+      "question": "Quelle est la plage d’alimentation recommandée du composant RS9 ?",
+      "candidates_in_initial_rank_order": [
+        {
+          "id": "C1",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "C1",
+          "text": "Composant RS9. Absolute maximum supply voltage: 8 V.",
+          "parent_id": "C1",
+          "scope_authorized": true
+        },
+        {
+          "id": "B1",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "B1",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 1.",
+          "parent_id": "B1",
+          "scope_authorized": true
+        },
+        {
+          "id": "B2",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "B2",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 2.",
+          "parent_id": "B2",
+          "scope_authorized": true
+        },
+        {
+          "id": "B3",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "B3",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 3.",
+          "parent_id": "B3",
+          "scope_authorized": true
+        },
+        {
+          "id": "B4",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "B4",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 4.",
+          "parent_id": "B4",
+          "scope_authorized": true
+        },
+        {
+          "id": "B5",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "B5",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 5.",
+          "parent_id": "B5",
+          "scope_authorized": true
+        },
+        {
+          "id": "B6",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "B6",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 6.",
+          "parent_id": "B6",
+          "scope_authorized": true
+        },
+        {
+          "id": "C8",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "C8",
+          "text": "Composant RS9. Recommended operating supply voltage: 3 to 5 V.",
+          "parent_id": "C8",
+          "scope_authorized": true
+        }
+      ],
+      "primitive_selected_limit": 6,
+      "budget_note": "Explicit six-place primitive test; application comparison/multiple-identifier route can already use eight. No production cap is increased or silently lowered.",
+      "expected": {
+        "required_relations": [
+          "recommended supply3–5V"
+        ],
+        "forbidden": [
+          "Absolute maximum8V credited as recommended range"
+        ],
+        "max_selected": 6,
+        "no_new_relation_from_annotation": true
+      }
+    },
+    {
+      "id": "R04",
+      "family": "selection",
+      "question": "Quelle est la plage d’alimentation recommandée du composant RS9 à 70 °C ?",
+      "candidates_in_initial_rank_order": [
+        {
+          "id": "C1",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "C1",
+          "text": "Composant RS9. Recommended supply voltage: 3 to 5 V at 25 °C.",
+          "parent_id": "C1",
+          "scope_authorized": true
+        },
+        {
+          "id": "B1",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "B1",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 1.",
+          "parent_id": "B1",
+          "scope_authorized": true
+        },
+        {
+          "id": "B2",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "B2",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 2.",
+          "parent_id": "B2",
+          "scope_authorized": true
+        },
+        {
+          "id": "B3",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "B3",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 3.",
+          "parent_id": "B3",
+          "scope_authorized": true
+        },
+        {
+          "id": "B4",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "B4",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 4.",
+          "parent_id": "B4",
+          "scope_authorized": true
+        },
+        {
+          "id": "B5",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "B5",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 5.",
+          "parent_id": "B5",
+          "scope_authorized": true
+        },
+        {
+          "id": "B6",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "B6",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 6.",
+          "parent_id": "B6",
+          "scope_authorized": true
+        },
+        {
+          "id": "C8",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "C8",
+          "text": "Composant RS9. Recommended supply voltage: 3.5 to 4.5 V at 70 °C.",
+          "parent_id": "C8",
+          "scope_authorized": true
+        }
+      ],
+      "primitive_selected_limit": 6,
+      "budget_note": "Explicit six-place primitive test; application comparison/multiple-identifier route can already use eight. No production cap is increased or silently lowered.",
+      "expected": {
+        "required_relations": [
+          "recommended supply3.5–4.5V@70°C"
+        ],
+        "forbidden": [
+          "25°C range attributed to70°C"
+        ],
+        "max_selected": 6,
+        "no_new_relation_from_annotation": true
+      }
+    },
+    {
+      "id": "R05",
+      "family": "selection",
+      "question": "Les documents A et B indiquent-ils la même tension d’alimentation du composant RS9 à 70 °C ?",
+      "candidates_in_initial_rank_order": [
+        {
+          "id": "A1",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "A1",
+          "text": "Composant RS9. Supply voltage: 2.8 V at 70 °C.",
+          "parent_id": "A1",
+          "scope_authorized": true
+        },
+        {
+          "id": "X1",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "X1",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 1.",
+          "parent_id": "X1",
+          "scope_authorized": true
+        },
+        {
+          "id": "X2",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "X2",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 2.",
+          "parent_id": "X2",
+          "scope_authorized": true
+        },
+        {
+          "id": "X3",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "X3",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 3.",
+          "parent_id": "X3",
+          "scope_authorized": true
+        },
+        {
+          "id": "X4",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "X4",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 4.",
+          "parent_id": "X4",
+          "scope_authorized": true
+        },
+        {
+          "id": "X5",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "X5",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 5.",
+          "parent_id": "X5",
+          "scope_authorized": true
+        },
+        {
+          "id": "B1",
+          "document_id": "B",
+          "document_version": "R1",
+          "occurrence": "B1",
+          "text": "Composant RS9. Supply voltage: 3.2 V at 70 °C.",
+          "parent_id": "B1",
+          "scope_authorized": true
+        }
+      ],
+      "primitive_selected_limit": 6,
+      "budget_note": "Explicit six-place primitive test; application comparison/multiple-identifier route can already use eight. No production cap is increased or silently lowered.",
+      "expected": {
+        "required_relations": [
+          "A:supply2.8V@70°C",
+          "B:supply3.2V@70°C",
+          "explicit conflict without arbitration"
+        ],
+        "forbidden": [
+          "Only one conflicting source retained",
+          "A document assumed true or newer without evidence"
+        ],
+        "max_selected": 6,
+        "no_new_relation_from_annotation": true
+      }
+    },
+    {
+      "id": "R06",
+      "family": "selection",
+      "question": "Compare la plage de tension de bus dans les documents A et B.",
+      "candidates_in_initial_rank_order": [
+        {
+          "id": "A1",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "A-occurrence-1",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V.",
+          "parent_id": "A1",
+          "scope_authorized": true
+        },
+        {
+          "id": "A1",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "A-occurrence-1",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V.",
+          "parent_id": "A1",
+          "scope_authorized": true
+        },
+        {
+          "id": "A1",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "A-occurrence-1",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V.",
+          "parent_id": "A1",
+          "scope_authorized": true
+        },
+        {
+          "id": "X1",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "X1",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 1.",
+          "parent_id": "X1",
+          "scope_authorized": true
+        },
+        {
+          "id": "X2",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "X2",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 2.",
+          "parent_id": "X2",
+          "scope_authorized": true
+        },
+        {
+          "id": "X3",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "X3",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 3.",
+          "parent_id": "X3",
+          "scope_authorized": true
+        },
+        {
+          "id": "X4",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "X4",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 4.",
+          "parent_id": "X4",
+          "scope_authorized": true
+        },
+        {
+          "id": "B1",
+          "document_id": "B",
+          "document_version": "R1",
+          "occurrence": "B-occurrence-1",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V.",
+          "parent_id": "B1",
+          "scope_authorized": true
+        }
+      ],
+      "primitive_selected_limit": 6,
+      "budget_note": "Explicit six-place primitive test; application comparison/multiple-identifier route can already use eight. No production cap is increased or silently lowered.",
+      "expected": {
+        "required_relations": [
+          "A:bus0–18V",
+          "B:bus0–18V"
+        ],
+        "forbidden": [
+          "Multiple slots for the exact same occurrence",
+          "Collapse of distinct document identities because text matches"
+        ],
+        "max_selected": 6,
+        "no_new_relation_from_annotation": true
+      }
+    },
+    {
+      "id": "R07",
+      "family": "selection",
+      "question": "Donne les plages de tension de bus et d’alimentation du composant RS9.",
+      "candidates_in_initial_rank_order": [
+        {
+          "id": "A1",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "A1",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V.",
+          "parent_id": "A1",
+          "scope_authorized": true
+        },
+        {
+          "id": "B1",
+          "document_id": "B",
+          "document_version": "R1",
+          "occurrence": "B1",
+          "text": "Composant RS90. Recommended supply voltage: 1 to 2 V.",
+          "parent_id": "B1",
+          "scope_authorized": true
+        },
+        {
+          "id": "X1",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "X1",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 1.",
+          "parent_id": "X1",
+          "scope_authorized": true
+        },
+        {
+          "id": "X2",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "X2",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 2.",
+          "parent_id": "X2",
+          "scope_authorized": true
+        },
+        {
+          "id": "X3",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "X3",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 3.",
+          "parent_id": "X3",
+          "scope_authorized": true
+        },
+        {
+          "id": "X4",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "X4",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 4.",
+          "parent_id": "X4",
+          "scope_authorized": true
+        },
+        {
+          "id": "X5",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "X5",
+          "text": "Composant RS9. Bus voltage range: 0 to 18 V. Recorded observation 5.",
+          "parent_id": "X5",
+          "scope_authorized": true
+        },
+        {
+          "id": "A8",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "A8",
+          "text": "Composant RS9. Recommended supply voltage: 3 to 5 V.",
+          "parent_id": "A8",
+          "scope_authorized": true
+        }
+      ],
+      "primitive_selected_limit": 6,
+      "budget_note": "Explicit six-place primitive test; application comparison/multiple-identifier route can already use eight. No production cap is increased or silently lowered.",
+      "expected": {
+        "required_relations": [
+          "RS9:bus0–18V",
+          "RS9:supply3–5V"
+        ],
+        "forbidden": [
+          "Neighbor identifier RS90 fills requested RS9 property",
+          "Loss of mandatory exact RS9 evidence"
+        ],
+        "max_selected": 6,
+        "no_new_relation_from_annotation": true
+      }
+    },
+    {
+      "id": "R08",
+      "family": "selection",
+      "question": "Compare les plages de tension de bus et d’alimentation des quatre documents A, B, C et D.",
+      "candidates_in_initial_rank_order": [
+        {
+          "id": "A1",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "A1",
+          "text": "Document A. Bus voltage range: 0 to 18 V.",
+          "parent_id": "A1",
+          "scope_authorized": true
+        },
+        {
+          "id": "A2",
+          "document_id": "A",
+          "document_version": "R1",
+          "occurrence": "A2",
+          "text": "Document A. Recommended supply voltage: 3 to 5 V.",
+          "parent_id": "A2",
+          "scope_authorized": true
+        },
+        {
+          "id": "B1",
+          "document_id": "B",
+          "document_version": "R1",
+          "occurrence": "B1",
+          "text": "Document B. Bus voltage range: 0 to 19 V.",
+          "parent_id": "B1",
+          "scope_authorized": true
+        },
+        {
+          "id": "B2",
+          "document_id": "B",
+          "document_version": "R1",
+          "occurrence": "B2",
+          "text": "Document B. Recommended supply voltage: 4 to 6 V.",
+          "parent_id": "B2",
+          "scope_authorized": true
+        },
+        {
+          "id": "C1",
+          "document_id": "C",
+          "document_version": "R1",
+          "occurrence": "C1",
+          "text": "Document C. Bus voltage range: 0 to 20 V.",
+          "parent_id": "C1",
+          "scope_authorized": true
+        },
+        {
+          "id": "C2",
+          "document_id": "C",
+          "document_version": "R1",
+          "occurrence": "C2",
+          "text": "Document C. Recommended supply voltage: 5 to 7 V.",
+          "parent_id": "C2",
+          "scope_authorized": true
+        },
+        {
+          "id": "D1",
+          "document_id": "D",
+          "document_version": "R1",
+          "occurrence": "D1",
+          "text": "Document D. Bus voltage range: 0 to 21 V.",
+          "parent_id": "D1",
+          "scope_authorized": true
+        },
+        {
+          "id": "D2",
+          "document_id": "D",
+          "document_version": "R1",
+          "occurrence": "D2",
+          "text": "Document D. Recommended supply voltage: 6 to 8 V.",
+          "parent_id": "D2",
+          "scope_authorized": true
+        }
+      ],
+      "primitive_selected_limit": 6,
+      "budget_note": "Explicit six-place primitive test; application comparison/multiple-identifier route can already use eight. No production cap is increased or silently lowered.",
+      "expected": {
+        "required_relations": [],
+        "forbidden": [
+          "More than six selected independent fragments",
+          "Full coverage claimed for eight independent obligations"
+        ],
+        "max_selected": 6,
+        "no_new_relation_from_annotation": true,
+        "required_relation_count": 8,
+        "complete_coverage_possible": false,
+        "explicit_partial_coverage": true,
+        "each_candidate_is_independent_no_parent_expansion": true,
+        "budget_six_is_injected_primitive_constraint": true
+      }
+    },
+    {
+      "id": "S01",
+      "family": "structure",
+      "question": "Quelles plages d’alimentation et sous quelles conditions ?",
+      "base_geometry": "structure_base",
+      "mutation": {
+        "kind": "identity"
+      },
+      "expected": {
+        "verified_group": "P->{V1,V2}",
+        "relations": [
+          "2.4–3.6V@25°C",
+          "2.7–3.3V@70°C"
+        ],
+        "exact_dependencies": [
+          "P",
+          "B0",
+          "M1",
+          "M2"
+        ],
+        "closure_evidence": "B1",
+        "no_new_text": true
+      }
+    },
+    {
+      "id": "S02",
+      "family": "structure",
+      "question": "Quelles plages d’alimentation et sous quelles conditions ?",
+      "base_geometry": "structure_base",
+      "mutation": {
+        "kind": "interleaved_columns",
+        "right_column_x_min": 350,
+        "right_parent": "Supply range:",
+        "right_value": "7 V to 9 V",
+        "parser_order": "alternating_left_right"
+      },
+      "expected": {
+        "left_group_unchanged": true,
+        "no_cross_column_assignment": true,
+        "ambiguity_requires_local_rejection": true
+      }
+    },
+    {
+      "id": "S03",
+      "family": "structure",
+      "question": "Quelles plages d’alimentation et sous quelles conditions ?",
+      "base_geometry": "structure_base",
+      "mutation": {
+        "kind": "remove_blocks",
+        "ids": [
+          "B0"
+        ]
+      },
+      "expected": {
+        "verified_group": null,
+        "proximity_or_colon_alone_not_proof": true
+      }
+    },
+    {
+      "id": "S04",
+      "family": "structure",
+      "question": "Quelles plages d’alimentation et sous quelles conditions ?",
+      "base_geometry": "structure_base",
+      "mutation": {
+        "kind": "ambiguous_parent",
+        "extra_parent": {
+          "id": "PX",
+          "text": "Storage range:",
+          "bbox": [
+            58,
+            700,
+            170,
+            712
+          ]
+        },
+        "shared_marker": "B0",
+        "explicit_parser_group": null
+      },
+      "expected": {
+        "verified_group": null,
+        "ambiguity_reported": true
+      }
+    },
+    {
+      "id": "S05",
+      "family": "structure",
+      "question": "Quelles plages d’alimentation et sous quelles conditions ?",
+      "base_geometry": "structure_base",
+      "mutation": {
+        "kind": "scope_restriction",
+        "allowed_variants": [
+          [
+            "V1"
+          ],
+          [
+            "P",
+            "V1"
+          ]
+        ]
+      },
+      "expected": {
+        "no_dependency_outside_scope": true,
+        "no_complete_relation_certified_without_required_markers": true
+      }
+    },
+    {
+      "id": "S06",
+      "family": "structure",
+      "question": "Quelles plages d’alimentation et sous quelles conditions ?",
+      "base_geometry": "structure_base",
+      "mutation": {
+        "kind": "mixed_ocr",
+        "ocr_blocks": [
+          "M1",
+          "V1"
+        ],
+        "ocr_resolved": true,
+        "word_confidences": 0.99,
+        "canonical_geometry": true,
+        "native_blocks": [
+          "P",
+          "B0",
+          "M2",
+          "V2",
+          "B1",
+          "P2"
+        ]
+      },
+      "expected": {
+        "same_verified_group_as_S01": true,
+        "mixed_ocr_provenance_preserved": true,
+        "all_native_relabel_forbidden": true
+      }
+    },
+    {
+      "id": "S07",
+      "family": "structure",
+      "question": "Quelles plages d’alimentation et sous quelles conditions ?",
+      "base_geometry": "structure_base",
+      "mutation": {
+        "kind": "mixed_ocr",
+        "based_on": "S06",
+        "unresolved_region": {
+          "code": "OCR_NUMERIC_AMBIGUITY",
+          "intersects": "V1"
+        }
+      },
+      "expected": {
+        "V1_verified_relation": false,
+        "V2_may_remain_if_dependencies_intact": true,
+        "explicit_limitation": true
+      }
+    },
+    {
+      "id": "S08",
+      "family": "structure",
+      "question": "Quelles plages d’alimentation et sous quelles conditions ?",
+      "base_geometry": "structure_base",
+      "mutation": {
+        "kind": "replace_children",
+        "children": [
+          {
+            "marker": {
+              "id": "M1",
+              "text": "–",
+              "bbox": [
+                58,
+                680,
+                64,
+                684
+              ]
+            },
+            "value": {
+              "id": "V1",
+              "text": "2.01 V to 3.01 V at 1 °C; valid only while idle.",
+              "bbox": [
+                75,
+                676,
+                560,
+                688
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M2",
+              "text": "–",
+              "bbox": [
+                58,
+                668,
+                64,
+                672
+              ]
+            },
+            "value": {
+              "id": "V2",
+              "text": "2.02 V to 3.02 V at 2 °C; valid only while idle.",
+              "bbox": [
+                75,
+                664,
+                560,
+                676
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M3",
+              "text": "–",
+              "bbox": [
+                58,
+                656,
+                64,
+                660
+              ]
+            },
+            "value": {
+              "id": "V3",
+              "text": "2.03 V to 3.03 V at 3 °C; valid only while idle.",
+              "bbox": [
+                75,
+                652,
+                560,
+                664
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M4",
+              "text": "–",
+              "bbox": [
+                58,
+                644,
+                64,
+                648
+              ]
+            },
+            "value": {
+              "id": "V4",
+              "text": "2.04 V to 3.04 V at 4 °C; valid only while idle.",
+              "bbox": [
+                75,
+                640,
+                560,
+                652
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M5",
+              "text": "–",
+              "bbox": [
+                58,
+                632,
+                64,
+                636
+              ]
+            },
+            "value": {
+              "id": "V5",
+              "text": "2.05 V to 3.05 V at 5 °C; valid only while idle.",
+              "bbox": [
+                75,
+                628,
+                560,
+                640
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M6",
+              "text": "–",
+              "bbox": [
+                58,
+                620,
+                64,
+                624
+              ]
+            },
+            "value": {
+              "id": "V6",
+              "text": "2.06 V to 3.06 V at 6 °C; valid only while idle.",
+              "bbox": [
+                75,
+                616,
+                560,
+                628
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M7",
+              "text": "–",
+              "bbox": [
+                58,
+                608,
+                64,
+                612
+              ]
+            },
+            "value": {
+              "id": "V7",
+              "text": "2.07 V to 3.07 V at 7 °C; valid only while idle.",
+              "bbox": [
+                75,
+                604,
+                560,
+                616
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M8",
+              "text": "–",
+              "bbox": [
+                58,
+                596,
+                64,
+                600
+              ]
+            },
+            "value": {
+              "id": "V8",
+              "text": "2.08 V to 3.08 V at 8 °C; valid only while idle.",
+              "bbox": [
+                75,
+                592,
+                560,
+                604
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M9",
+              "text": "–",
+              "bbox": [
+                58,
+                584,
+                64,
+                588
+              ]
+            },
+            "value": {
+              "id": "V9",
+              "text": "2.09 V to 3.09 V at 9 °C; valid only while idle.",
+              "bbox": [
+                75,
+                580,
+                560,
+                592
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M10",
+              "text": "–",
+              "bbox": [
+                58,
+                572,
+                64,
+                576
+              ]
+            },
+            "value": {
+              "id": "V10",
+              "text": "2.10 V to 3.10 V at 10 °C; valid only while idle.",
+              "bbox": [
+                75,
+                568,
+                560,
+                580
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M11",
+              "text": "–",
+              "bbox": [
+                58,
+                560,
+                64,
+                564
+              ]
+            },
+            "value": {
+              "id": "V11",
+              "text": "2.11 V to 3.11 V at 11 °C; valid only while idle.",
+              "bbox": [
+                75,
+                556,
+                560,
+                568
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M12",
+              "text": "–",
+              "bbox": [
+                58,
+                548,
+                64,
+                552
+              ]
+            },
+            "value": {
+              "id": "V12",
+              "text": "2.12 V to 3.12 V at 12 °C; valid only while idle.",
+              "bbox": [
+                75,
+                544,
+                560,
+                556
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M13",
+              "text": "–",
+              "bbox": [
+                58,
+                536,
+                64,
+                540
+              ]
+            },
+            "value": {
+              "id": "V13",
+              "text": "2.13 V to 3.13 V at 13 °C; valid only while idle.",
+              "bbox": [
+                75,
+                532,
+                560,
+                544
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M14",
+              "text": "–",
+              "bbox": [
+                58,
+                524,
+                64,
+                528
+              ]
+            },
+            "value": {
+              "id": "V14",
+              "text": "2.14 V to 3.14 V at 14 °C; valid only while idle.",
+              "bbox": [
+                75,
+                520,
+                560,
+                532
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M15",
+              "text": "–",
+              "bbox": [
+                58,
+                512,
+                64,
+                516
+              ]
+            },
+            "value": {
+              "id": "V15",
+              "text": "2.15 V to 3.15 V at 15 °C; valid only while idle.",
+              "bbox": [
+                75,
+                508,
+                560,
+                520
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M16",
+              "text": "–",
+              "bbox": [
+                58,
+                500,
+                64,
+                504
+              ]
+            },
+            "value": {
+              "id": "V16",
+              "text": "2.16 V to 3.16 V at 16 °C; valid only while idle.",
+              "bbox": [
+                75,
+                496,
+                560,
+                508
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M17",
+              "text": "–",
+              "bbox": [
+                58,
+                488,
+                64,
+                492
+              ]
+            },
+            "value": {
+              "id": "V17",
+              "text": "2.17 V to 3.17 V at 17 °C; valid only while idle.",
+              "bbox": [
+                75,
+                484,
+                560,
+                496
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M18",
+              "text": "–",
+              "bbox": [
+                58,
+                476,
+                64,
+                480
+              ]
+            },
+            "value": {
+              "id": "V18",
+              "text": "2.18 V to 3.18 V at 18 °C; valid only while idle.",
+              "bbox": [
+                75,
+                472,
+                560,
+                484
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M19",
+              "text": "–",
+              "bbox": [
+                58,
+                464,
+                64,
+                468
+              ]
+            },
+            "value": {
+              "id": "V19",
+              "text": "2.19 V to 3.19 V at 19 °C; valid only while idle.",
+              "bbox": [
+                75,
+                460,
+                560,
+                472
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M20",
+              "text": "–",
+              "bbox": [
+                58,
+                452,
+                64,
+                456
+              ]
+            },
+            "value": {
+              "id": "V20",
+              "text": "2.20 V to 3.20 V at 20 °C; valid only while idle.",
+              "bbox": [
+                75,
+                448,
+                560,
+                460
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M21",
+              "text": "–",
+              "bbox": [
+                58,
+                440,
+                64,
+                444
+              ]
+            },
+            "value": {
+              "id": "V21",
+              "text": "2.21 V to 3.21 V at 21 °C; valid only while idle.",
+              "bbox": [
+                75,
+                436,
+                560,
+                448
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M22",
+              "text": "–",
+              "bbox": [
+                58,
+                428,
+                64,
+                432
+              ]
+            },
+            "value": {
+              "id": "V22",
+              "text": "2.22 V to 3.22 V at 22 °C; valid only while idle.",
+              "bbox": [
+                75,
+                424,
+                560,
+                436
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M23",
+              "text": "–",
+              "bbox": [
+                58,
+                416,
+                64,
+                420
+              ]
+            },
+            "value": {
+              "id": "V23",
+              "text": "2.23 V to 3.23 V at 23 °C; valid only while idle.",
+              "bbox": [
+                75,
+                412,
+                560,
+                424
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M24",
+              "text": "–",
+              "bbox": [
+                58,
+                404,
+                64,
+                408
+              ]
+            },
+            "value": {
+              "id": "V24",
+              "text": "2.24 V to 3.24 V at 24 °C; valid only while idle.",
+              "bbox": [
+                75,
+                400,
+                560,
+                412
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M25",
+              "text": "–",
+              "bbox": [
+                58,
+                392,
+                64,
+                396
+              ]
+            },
+            "value": {
+              "id": "V25",
+              "text": "2.25 V to 3.25 V at 25 °C; valid only while idle.",
+              "bbox": [
+                75,
+                388,
+                560,
+                400
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M26",
+              "text": "–",
+              "bbox": [
+                58,
+                380,
+                64,
+                384
+              ]
+            },
+            "value": {
+              "id": "V26",
+              "text": "2.26 V to 3.26 V at 26 °C; valid only while idle.",
+              "bbox": [
+                75,
+                376,
+                560,
+                388
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M27",
+              "text": "–",
+              "bbox": [
+                58,
+                368,
+                64,
+                372
+              ]
+            },
+            "value": {
+              "id": "V27",
+              "text": "2.27 V to 3.27 V at 27 °C; valid only while idle.",
+              "bbox": [
+                75,
+                364,
+                560,
+                376
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M28",
+              "text": "–",
+              "bbox": [
+                58,
+                356,
+                64,
+                360
+              ]
+            },
+            "value": {
+              "id": "V28",
+              "text": "2.28 V to 3.28 V at 28 °C; valid only while idle.",
+              "bbox": [
+                75,
+                352,
+                560,
+                364
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M29",
+              "text": "–",
+              "bbox": [
+                58,
+                344,
+                64,
+                348
+              ]
+            },
+            "value": {
+              "id": "V29",
+              "text": "2.29 V to 3.29 V at 29 °C; valid only while idle.",
+              "bbox": [
+                75,
+                340,
+                560,
+                352
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M30",
+              "text": "–",
+              "bbox": [
+                58,
+                332,
+                64,
+                336
+              ]
+            },
+            "value": {
+              "id": "V30",
+              "text": "2.30 V to 3.30 V at 30 °C; valid only while idle.",
+              "bbox": [
+                75,
+                328,
+                560,
+                340
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M31",
+              "text": "–",
+              "bbox": [
+                58,
+                320,
+                64,
+                324
+              ]
+            },
+            "value": {
+              "id": "V31",
+              "text": "2.31 V to 3.31 V at 31 °C; valid only while idle.",
+              "bbox": [
+                75,
+                316,
+                560,
+                328
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M32",
+              "text": "–",
+              "bbox": [
+                58,
+                308,
+                64,
+                312
+              ]
+            },
+            "value": {
+              "id": "V32",
+              "text": "2.32 V to 3.32 V at 32 °C; valid only while idle.",
+              "bbox": [
+                75,
+                304,
+                560,
+                316
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M33",
+              "text": "–",
+              "bbox": [
+                58,
+                296,
+                64,
+                300
+              ]
+            },
+            "value": {
+              "id": "V33",
+              "text": "2.33 V to 3.33 V at 33 °C; valid only while idle.",
+              "bbox": [
+                75,
+                292,
+                560,
+                304
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M34",
+              "text": "–",
+              "bbox": [
+                58,
+                284,
+                64,
+                288
+              ]
+            },
+            "value": {
+              "id": "V34",
+              "text": "2.34 V to 3.34 V at 34 °C; valid only while idle.",
+              "bbox": [
+                75,
+                280,
+                560,
+                292
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M35",
+              "text": "–",
+              "bbox": [
+                58,
+                272,
+                64,
+                276
+              ]
+            },
+            "value": {
+              "id": "V35",
+              "text": "2.35 V to 3.35 V at 35 °C; valid only while idle.",
+              "bbox": [
+                75,
+                268,
+                560,
+                280
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M36",
+              "text": "–",
+              "bbox": [
+                58,
+                260,
+                64,
+                264
+              ]
+            },
+            "value": {
+              "id": "V36",
+              "text": "2.36 V to 3.36 V at 36 °C; valid only while idle.",
+              "bbox": [
+                75,
+                256,
+                560,
+                268
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M37",
+              "text": "–",
+              "bbox": [
+                58,
+                248,
+                64,
+                252
+              ]
+            },
+            "value": {
+              "id": "V37",
+              "text": "2.37 V to 3.37 V at 37 °C; valid only while idle.",
+              "bbox": [
+                75,
+                244,
+                560,
+                256
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M38",
+              "text": "–",
+              "bbox": [
+                58,
+                236,
+                64,
+                240
+              ]
+            },
+            "value": {
+              "id": "V38",
+              "text": "2.38 V to 3.38 V at 38 °C; valid only while idle.",
+              "bbox": [
+                75,
+                232,
+                560,
+                244
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M39",
+              "text": "–",
+              "bbox": [
+                58,
+                224,
+                64,
+                228
+              ]
+            },
+            "value": {
+              "id": "V39",
+              "text": "2.39 V to 3.39 V at 39 °C; valid only while idle.",
+              "bbox": [
+                75,
+                220,
+                560,
+                232
+              ]
+            }
+          },
+          {
+            "marker": {
+              "id": "M40",
+              "text": "–",
+              "bbox": [
+                58,
+                212,
+                64,
+                216
+              ]
+            },
+            "value": {
+              "id": "V40",
+              "text": "2.40 V to 3.40 V at 40 °C; valid only while idle.",
+              "bbox": [
+                75,
+                208,
+                560,
+                220
+              ]
+            }
+          }
+        ],
+        "closure_marker": {
+          "id": "B1",
+          "text": "•",
+          "bbox": [
+            44,
+            188,
+            48,
+            192
+          ]
+        },
+        "embedding_chunk_tokens": 320,
+        "controlled_counter": "len(text)//4+3"
+      },
+      "expected": {
+        "multiple_chunks": true,
+        "each_chunk_tokens_max": 320,
+        "each_child_has_its_exact_title_marker_hash_dependencies": true,
+        "stable_order": true,
+        "selecting_one_chunk_does_not_cover_40_children": true,
+        "partial_group_notice": true
+      }
+    },
+    {
+      "id": "Q01",
+      "family": "qualitative",
+      "question": "Sous quelle condition la vanne est-elle ouverte ?",
+      "source_documents": [
+        "La vanne est ouverte uniquement lorsque la pression est stabilisée."
+      ],
+      "answerable": true,
+      "expected": "complete_literal_with_condition_no_unnecessary_reservation"
+    },
+    {
+      "id": "Q02",
+      "family": "qualitative",
+      "question": "Under what condition is the latch locked?",
+      "source_documents": [
+        "The latch is locked when the lever is down."
+      ],
+      "answerable": true,
+      "expected": "complete_literal_with_condition_no_unnecessary_reservation"
+    },
+    {
+      "id": "Q03",
+      "family": "qualitative",
+      "question": "Quel est le matériau du carter ?",
+      "source_documents": [
+        "Matériau du carter : aluminium."
+      ],
+      "answerable": true,
+      "expected": "complete_literal_field_no_unnecessary_reservation"
+    },
+    {
+      "id": "Q04",
+      "family": "qualitative",
+      "question": "Why is the alarm active?",
+      "source_documents": [
+        "The alarm is active because the inlet is blocked."
+      ],
+      "answerable": true,
+      "expected": "complete_literal_cause_no_added_explanation"
+    },
+    {
+      "id": "Q05",
+      "family": "qualitative",
+      "question": "Sous quelle condition la vanne est-elle ouverte ?",
+      "source_documents": [
+        "La trappe est ouverte uniquement lorsque la pression est stabilisée."
+      ],
+      "answerable": false,
+      "expected": "wrong_subject_explicit_limitation_no_valve_condition"
+    },
+    {
+      "id": "Q06",
+      "family": "qualitative",
+      "question": "Under what condition is the latch locked?",
+      "source_documents": [
+        "The latch is not locked when the lever is down."
+      ],
+      "answerable": false,
+      "expected": "negation_preserved_no_positive_condition"
+    },
+    {
+      "id": "Q07",
+      "family": "qualitative",
+      "question": "Pourquoi la tension nominale est-elle de 3,3 V ?",
+      "source_documents": [
+        "Nominal voltage: 3.3 V."
+      ],
+      "answerable": false,
+      "expected": "value_may_be_quoted_but_cause_not_established_never_covered"
+    },
+    {
+      "id": "Q08",
+      "family": "qualitative",
+      "question": "Under what condition is the latch locked?",
+      "source_documents": [
+        "The latch is locked when the lever is down.",
+        "The latch is not locked when the lever is down."
+      ],
+      "answerable": false,
+      "expected": "explicit_conflict_two_citations_no_conclusion"
+    },
+    {
+      "id": "O01",
+      "family": "operations",
+      "boundary": "memory_denied",
+      "setup": "Actual admission policy with injected available memory below predicted4352MiB+reserve1536MiB; configured controlled deadline1s.",
+      "expected": "Terminal resource_admission_denied; no model call or public answer; reserve unchanged.",
+      "controlled_deadline_seconds": 1,
+      "allowed_overhead_seconds": 2,
+      "real_resource_exhaustion_required": false,
+      "doubles_must_be_named": true
+    },
+    {
+      "id": "O02",
+      "family": "operations",
+      "boundary": "memory_released",
+      "setup": "Same admission policy and reserve; available memory changes from5000MiB to7000MiB through a synchronized test event before deadline1s.",
+      "expected": "Work admitted after release; source-checked answer possible; no lowered threshold.",
+      "controlled_deadline_seconds": 1,
+      "allowed_overhead_seconds": 2,
+      "real_resource_exhaustion_required": false,
+      "doubles_must_be_named": true
+    },
+    {
+      "id": "O03",
+      "family": "operations",
+      "boundary": "cancel_before_model",
+      "setup": "Create query then cancel while controlled retrieval/admission gate is held.",
+      "expected": "One cancelled terminal; no model call and no unverified public delta; work/ticket released.",
+      "controlled_deadline_seconds": 1,
+      "allowed_overhead_seconds": 2,
+      "real_resource_exhaustion_required": false,
+      "doubles_must_be_named": true
+    },
+    {
+      "id": "O04",
+      "family": "operations",
+      "boundary": "cancel_during_generation",
+      "setup": "Provider double exposes a partial private reference plan, waits, then cancellation is requested.",
+      "expected": "Partial plan remains private; exactly one cancelled terminal; no public answer; work/ticket released.",
+      "controlled_deadline_seconds": 1,
+      "allowed_overhead_seconds": 2,
+      "real_resource_exhaustion_required": false,
+      "doubles_must_be_named": true
+    },
+    {
+      "id": "O05",
+      "family": "operations",
+      "boundary": "provider_timeout",
+      "setup": "Provider double begins a private structured plan then raises a real timeout exception at the transport boundary.",
+      "expected": "Terminal bounded error; no private plan or prose fallback published; no favorable retry.",
+      "controlled_deadline_seconds": 1,
+      "allowed_overhead_seconds": 2,
+      "real_resource_exhaustion_required": false,
+      "doubles_must_be_named": true
+    },
+    {
+      "id": "O06",
+      "family": "operations",
+      "boundary": "truncated_plan",
+      "setup": "Provider double returns a syntactically complete or partial reference plan with finish_reason length.",
+      "expected": "Enhanced profile rejects unfinished generation before public text, independent of valid JSON syntax.",
+      "controlled_deadline_seconds": 1,
+      "allowed_overhead_seconds": 2,
+      "real_resource_exhaustion_required": false,
+      "doubles_must_be_named": true
+    },
+    {
+      "id": "O07",
+      "family": "operations",
+      "boundary": "post_render_no_early_delta",
+      "setup": "Render a supported answer then inject extra non-source text before the final publication guard.",
+      "expected": "No public delta/message with the extra text; final guard fails; raw private plan does not leak.",
+      "controlled_deadline_seconds": 1,
+      "allowed_overhead_seconds": 2,
+      "real_resource_exhaustion_required": false,
+      "doubles_must_be_named": true
+    },
+    {
+      "id": "O08",
+      "family": "operations",
+      "boundary": "next_query_after_failure",
+      "setup": "After a controlled timeout or cancellation, submit a source-supported request to the same application and governor.",
+      "expected": "Previous tickets/tasks/cancellation handles released; next request admitted and finishes with valid provenance.",
+      "controlled_deadline_seconds": 1,
+      "allowed_overhead_seconds": 2,
+      "real_resource_exhaustion_required": false,
+      "doubles_must_be_named": true
+    }
+  ],
+  "acceptance": "All32 declared oracles. Citation/fact/scoping invariants apply; failures remain visible. This development matrix is not held-out transfer or native performance qualification."
+}

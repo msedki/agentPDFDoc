@@ -1,6 +1,264 @@
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · Suivi de livraison publié `d3c1518`, distant confirmé · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-10-13 14:43 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** vivant, itération I6 sur les relations documentaires en cours ; implémentations et preuves des lots précédents conservées, qualification de diffusion non acquise · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; historiques R27/R28 et I1–I4 dans leurs sections · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+
+## I6 — exceptions, négations et comparaisons, 9 novembre 2026 (UTC)
+
+**Objectif :** corriger la portée H24/H06, les obligations comparatives
+H11/H12/D11/D12, puis réduire les appels redondants sur les limites déjà
+établies. **Référence :** `7ef57fdc38261fa4b14e077e5d1c75aee57f7eea`.
+**Autorisation :** poursuivre et publier après chaque lot substantiel vérifié.
+**Invariants :** seul générateur Qwen3-4B retenu, faits et citations liés aux
+sources, budgets constants, aucune adaptation après ouverture du final.
+Le [protocole préalable](reports/trust-i6-relations-protocol-2026-11-09.md)
+et son [gel](reports/trust-i6-relations-protocol-freeze-2026-11-09.json)
+fixent les critères I6R-D01 à D08. Les travaux I6 non publiés de l'autre
+copie sont préservés ; ce complément repart du dernier arbre publié.
+
+| Action | Livrable et critère | État / preuve |
+|---|---|---|
+| I6R-01 | Référence immuable, protocole, DEV/final séparés et gelés | PASS cadrage ; protocole publié `141f77f4`, 48+48 annotations relues et [gelées](reports/trust-i6-relations-fixture-freeze-2026-11-09.json) avant produit ; final fermé |
+| I6R-02 | Portée des exceptions/négations, régressions et publication | VALIDÉ ciblé ; [lot R1](reports/trust-i6-relations-r1-2026-11-09.md), 369 tests PASS, H24 limité et H06 récupéré sur anciens cas connus ; publication dans ce lot |
+| I6R-03 | Liaison explicite sujets/propriétés/documents, comparaisons et publication | À FAIRE après I6R-02 ; H11/H12/D11/D12, portée par document conservée |
+| I6R-04 | Route partielle bornée, essais natifs 18 positions/bras, HTTP et coût | À FAIRE après I6R-03 ; I6R-D03/D06/D07, aucun modèle ajouté |
+| I6R-05 | Gel final, 48 cas réservés, revue indépendante, bilan et publication | À FAIRE ; I6R-D01 à D08, résultats et échecs complets |
+
+**Points vérifiés :** gel préalable des annotations et produit R1 ciblé,
+citations conservées ; [publications vérifiées](reports/trust-i6-relations-publications-2026-11-09.json).
+**Prochaine action :** corriger l'axe des comparaisons puis la route partielle,
+avant les mesures natives et l'ouverture du final.
+Les échecs I5 et I5-PJ restent des résultats historiques, sans reclassement.
+
+## I5-PJ — complément demandé le 9 novembre 2026 (UTC)
+
+**Objectif :** appliquer les exigences de la pièce jointe à la vérification des
+relations documentaires et à leur évaluation indépendante. **Référence :**
+`fe4693da07ed9e948f65e4cadb51cd43ec36ebe2`, copie isolée de `enhanced_version`.
+Les travaux I6 locaux non publiés restent dans leur copie existante.
+**Critères inchangés :** [protocole préalable](reports/trust-i5-pj-protocol-2026-11-09.md).
+**Bilan :** [résultats et DoD](reports/trust-i5-pj-results-2026-11-09.md).
+
+| Action | Dépendance, livrable et critère | État / preuve |
+|---|---|---|
+| PJ-01 | Référence immuable, défauts reproduits, protocole et sources primaires | TERMINÉ ; base exacte, 196 contrôles initiaux PASS, deux défauts reproduits ; huit publications primaires examinées, gels antérieurs au produit |
+| PJ-02 | PJ-01 ; opérateurs numériques et polarité des conditions, PJ-D01/D02/D03 | IMPLÉMENTÉ ET MESURÉ ; 64 nouvelles régressions, 351 ciblés PASS ; H1/H2 conservées sur bénéfice local ; PJ-D01 FAIL au final H24, aucun réglage après ouverture |
+| PJ-03 | PJ-01 ; annotations séparées, trois comparateurs, ablations, PJ-D05 | TERMINÉ ; 24 développement + 24 finaux, autres documents/valeurs ; faux appuis 10/12→0/12 puis 9/12→1/12 ; couverture positive 10/12 puis 9/12 inchangée, 28/28 littéraux chaque jeu ; revue indépendante |
+| PJ-04 | PJ-02 ; régression et essais natifs 4B, ressources et arrêts, PJ-D04/D06/D07 | TERMINÉ ; natif 11/11 candidat, 4→8 appels réels, HTTP01 PASS et arrêts vérifiés ; portable 5 166 PASS/1 FAIL documentaire préexistant corrigé, 105 tests documentaires puis Ruff/Mypy PASS ; erreurs initiales conservées |
+| PJ-05 | PJ-03/PJ-04 ; bilan exact, documents et publication vérifiée, PJ-D08 | LIVRÉ ; rapports et portes documentaires conformes ; commit [5502cf42](https://github.com/msedki/agentPDFDoc/commit/5502cf424b1d9211b5a63014b01c7ab8b998dc85), parent et arbre distants vérifiés à 14:21:50 UTC, mise à jour sans force ; [reçu](reports/trust-i5-pj-publication-2026-11-09.json). PJ-D08 PASS, PJ-D01 et qualification de production inchangés |
+
+Le critère zéro faux appui n'est pas atteint : H24 conserve une mauvaise
+applicabilité de « à l'exception de ». H06 garde une négation distante mal
+rattachée ; H11/H12 (et D11/D12) restent partiels par obligations croisées
+sujet/document. Ces cas restent au dénominateur. Prochain chantier : qualifier
+ces portées avec de nouveaux témoins et un nouveau jeu final fermé. Les
+échecs historiques I5 ci-dessous restent inchangés et la qualification de
+production reste non acquise.
+
+## I5 — reprise des priorités de confiance, 8 novembre 2026 (UTC)
+
+**Objectif :** corriger les liaisons de tableaux, le corps de page manquant, les obligations perdues au rendu et les erreurs OCR publiées, avec Qwen3-4B seul. **Référence :** `41857e17a438fe43123e4ef8274d9d2d446bfbc2`, worktree `../agentPDFDoc-i5-baseline`, branche `enhanced_version`. **Exclusions :** autre générateur, valeurs du corpus codées comme règles, adaptation sur transfert final, déploiement/qualification de production supposés. **Critères :** [protocole I5](reports/trust-4b-protocol-2026-11-08.md), gelé à 19:57:15 UTC avant produit, SHA-256 `2102faf988e881c655a6b92c213a7a02705f7e268d08f93f88613f371d2e3ccc`.
+
+| Action | Constat, livrable et acceptation | État |
+|---|---|---|
+| I5-01 | Référence, environnement, matrice et transfert réservé ; D08 | Référence/protocole/corpus gelés avant code, gel final de 172 fichiers produit et 65 fichiers runtime à 04:05:09 UTC (3835b9ea…1472). Manifestes exacts ouverts/copiés après barrière, matérialisation réelle vérifiée ; aucune adaptation produit sur oracles ouverts. D08 PARTIAL : mesures réservées non abouties. |
+| I5-02 | F01/F02 : glyphes/colonnes/sous-lignes et corps vectoriel manquant ; D02 | Implémenté et D02 PASS dans son périmètre : extractions complètes de développement 6 réemployées en 7/8 après identité ; H01/H03/H07 liés et H02 récupéré. Source 8 : anciens transferts devenus développement 6/6 positifs + 2/2 limites. Ce PASS ne qualifie pas tous les documents. |
+| I5-03 | F03/F05 : obligations composées, clauses/propriétés, correction du plan et segments exacts ; D01/D03 | Implémenté, D01/D03 FAIL : source 8 finale 12/14 positifs + 6/6 limites, Office 8/8, aucune erreur d’exécution de développement. H06/H08 rétablis par sujet imprimé/dépendance citée. TMP117 garde une réserve injustifiée et perd le parent de contexte ; aucune autorité du nom de fichier restaurée. |
+| I5-04 | F04 : lectures OCR bornées, preuve de qualité et blocage local ; D04 | Mécanismes OCR bornés implémentés, intégration finale 8 PASS/0 SKIP ; D04 FAIL : SCAN2 reste en abstention sur lectures ambiguës. Deux dérivés réservés non évalués, pas de réussite imputée à la matérialisation seule. |
+| I5-05 | Tests, ablations, extractions et réponses réelles, nouveau transfert ; D05/D06/D07/D08 | Source 8 : 20 done, 5 groupes fermés, 7 appels 4B / 13 réponses déterministes ; contrôlé final 12/12 + 16/18 avec L11/L12 FAIL. Portes finales 5 080 PASS/25 SKIP, intégration 30 PASS/3 SKIP, OCR 8 PASS, Ruff/Mypy PASS. Réservé interrompu pendant D03, 24 positions non scorées ; D06 BLOCKED. HTTP v4 NOT_RUN ; D07 BLOCKED faute d’arrêt vérifié du dernier groupe. |
+| I5-07 | Points d’entrée, provisioning et distribution 4B seuls ; D07 et addendum préalable | Défauts API/CLI, catalogue/payload 4B seuls, migration explicite/import GGUF verrouillé implémentés. Identités/caps contrôlés en développement ; frontend 487 PASS, TypeScript/ESLint/build PASS. Installation/kit neuf, Windows/aarch64 et cible physique CPU/16 Go NOT_RUN pour I5. |
+| I5-06 | Bilan exact, documents canoniques, commit/push vérifiés ; D09 | LIVRÉ : six portes documentaires PASS ; commit technique [7cd39839](https://github.com/msedki/agentPDFDoc/commit/7cd398399c98701309ace0498be3f149ae4e276d), parent `41857e17a438fe43123e4ef8274d9d2d446bfbc2`, arbre `b1fef837513eaedab1a56ffffdbef8f505a6c4a0` identique. Mise à jour sans force et lecture distante vérifiées le 9 novembre à 05:07:28 UTC. [Reçu](reports/trust-4b-publication-2026-11-09.json). D09 PASS pour les sources ; qualification de production non acquise. |
+
+**Points acquis :** mécanismes implémentés, invariants 4B/caps, identités et portes code finales ; D02 dans le périmètre prévu. **Priorités restantes :** contexte de prose TMP117 sans réserve injustifiée, OCR utile SCAN2, frontières adversariales L11/L12, reprise native avec continuité/arrêts prouvés, HTTP puis qualification des installations/cibles. Les 24 positions réservées sont conservées sans score après interruption ; aucune relance n’est autorisée par la seule disponibilité de ports ou d’un verrou. Le refus de qualification I4 reste historique et n'est pas annulé par le lancement d'I5.
+
+**Historique du début de reprise du 9 novembre (UTC) :** le chantier local I5 non publié est repris
+sur la même base `41857e17`, sans recommencer les lots déjà vérifiés. Les
+133 fichiers modifiés/nouveaux sont identifiés dans le reçu privé
+`resumption-checkpoint-20261109.json` (SHA-256 `39c3738a…c917a`). La porte
+portable précédente compte 4 704 PASS /25 SKIP, l'intégration hors tests longs
+27 PASS /3 SKIP, l'OCR réel 8 PASS et le frontend 487 PASS ; ces résultats
+précèdent les derniers correctifs de conditions/en-têtes et ne les qualifient
+pas. Les preuves tmpfs ont déjà été conservées sur disque et contrôlées ; cette
+opération n'est pas répétée. Aucun moteur natif n'est actif au départ, environ
+7 900 Mio sont disponibles. Prochaine séquence autorisée : contrôle des derniers
+correctifs, référence native phase 5 séquentielle, gel/extractions du candidat,
+régression documentaire puis transfert réservé et livraison. Le corpus réservé
+reste fermé aux auteurs produit jusqu'au gel final. [Journal de reprise](journal/2026-11-09.md).
+
+## I4 — fiabilité documentaire avant diffusion, 8 novembre 2026 (UTC)
+
+**Objectif :** réaliser les pistes différées I3 pour une application de confiance, générateur Qwen3-4B seul. **Référence :** `fa3eabce5ab0c309b1ca8f01602fced2eb7f1dd8`, branche `enhanced_version`. **Exclusions :** autre générateur, valeurs du corpus codées comme règles, qualification cible ou release de production supposée. **Critères préalables :** [protocole I4](reports/production-4b-protocol-2026-11-08.md), fixé avant code ; worktree de référence propre et 75 fichiers de service identiques au gel natif I3.
+
+| Action | Livrable, dépendance et acceptation | État |
+|---|---|---|
+| I4-01 | Protocole, environnement, matrice et transfert réservé ; I4-D09 | Protocole SHA 7ae9c5a…3de figé ; transfert de 3 PDF / 8 questions / 2 scans gelé avant produit, oracles tenus à l’écart. |
+| I4-02 | Liaisons PDF explicites, indexation et scope ; I4-D03 | Liaisons et scope vérifiés ; huit cas 2 PASS / 6 FAIL → 8 PASS, 45 contrôles de structure PASS. TMP117 natif restitue les deux plages avec conditions et dépendances exactes ; fermeture de liste affichée hors question, concision à améliorer. |
+| I4-03 | Sélection par propriétés à budget constant ; I4-D02 | Sélection monotone au cap 6 et budget contexte vérifiés (21 tests ciblés) ; quatre relations PDF présentes à tous les étages jusqu’au rendu. Le contrat INA226 conserve une réserve injustifiée malgré la preuve d’alimentation présente : échec strict maintenu, aucun réglage après gel. |
+| I4-04 | Contrat extractif qualitatif et limites ; I4-D01/D04 | Implémenté, objectif PARTIAL : contrôlé 12/12 positifs et 18/18 limites, Office natif 7/8 → 8/8 strict. Garde de sujet corrigée avant gel, 284 tests pertinents PASS. Sur transfert, H05 garde une réserve inutile ; H03 publie un rôle Min/Typ faux issu de l’extraction, ce qui fait échouer I4-D01. |
+| I4-05 | Provisionnement OCR/CMake et contrôles opérationnels ; I4-D05/D06/D08 | Implémenté et vérifié localement : cinq échecs de provisionnement corrigés, 90 PASS / 3 SKIP ; OSD corrigé par ablation native, sept intégrations OCR et police 8 PASS. Scans : OCR0 → 2 pages reconnues, mais unités/signes/conditions non tous fidèles ; I4-D05 échoue. Parcours HTTP/SSE réel opérationnel PASS, services arrêtés ; fidélité documentaire évaluée séparément, caps inchangés. |
+| I4-06 | Régressions, natif, transfert tenu à l’écart et coûts ; I4-D07/D09 | Exécuté avec échecs conservés : gel be7ad4…37d9b ; portable final sur gel exact 4 105 PASS / 25 SKIP / 45 désélectionnés, plus 284 ciblés et Mypy/Ruff finaux PASS ; historique 4 085 conservé. Office 7/8 → 8/8 ; PDF 0/2 → 1/2 strict ; transfert 0/8 → 1/8 strict, complétude positive 2/6 → 1/6 (régression H04), 2 erreurs → 1 timeout. I4-D07 FAIL. Scans et HTTP détaillés au bilan ; chevauchement Mypy de référence et rôles oracles/codec explicités. |
+| I4-07 | Bilan des gates de diffusion, documentation, commit/push ; I4-D10 | LIVRÉ : commit technique [f7739a14](https://github.com/msedki/agentPDFDoc/commit/f7739a144369816b0e834c225fa9fbfe697f6c84), arbre 097a96d9246867bf49fef19b7ee9c5ace3887113 identique, GET/fetch et mise à jour sans force vérifiés. [Reçu](reports/production-4b-publication-2026-11-08.json). I4-D01/D05/D07 FAIL et D04/D08/D09 PARTIAL conservés ; le présent suivi clôt la livraison documentaire. |
+
+**Points vérifiés :** référence isolée, générateur 4B verrouillé, intégrité des sources/traces et progrès locaux ; voir les dénominateurs du bilan. **Points ouverts :** fidélité des tableaux et de l’OCR, complétude jusqu’au plan final, réserve qualitative, coût CPU et plateformes cibles. **Qualification de diffusion refusée** : I4-D01/D05/D07 non satisfaits. Les contrôles techniques ne ferment pas ces gates documentaires.
+
+## I3 — fiabilisation des preuves jusqu’à la réponse, 8 novembre 2026 (UTC)
+
+**Objectif :** chaîne RAG et restitution fondées sur les preuves, générateur Qwen3-4B uniquement dans le profil renforcé.
+**Référence :** `3956491a2d7f1f16cefebfe79e92c638b6662c10` ; branche `enhanced_version`.
+**Exclusions :** autre générateur, changement de poids, qualification Windows ou sémantique générale présumée.
+**Critères préalables :** [protocole et DoD I3](reports/grounded-4b-protocol-2026-11-08.md).
+**État :** implémentation et essais terminés avec réserves ; commit technique [fdc51187](https://github.com/msedki/agentPDFDoc/commit/fdc51187aabbdfd16e561dc32c50ac1c107e15bc) publié et arbre distant vérifié. Le présent suivi clôt la livraison documentaire.
+
+| Action | Dépendances, livrable et acceptation | État et preuve |
+|---|---|---|
+| I3-01 | Référence immuable, défauts reproduits, protocole avant code | Réalisé : worktree exact, sondes conservées, corpus/oracles figés et addendum F07 antérieur à ses corrections. |
+| I3-02 | Conservation des passages/notes/provenance ; I3-D03 | Réalisé sur les sondes : 0/4 → 4/4 ; déduplication des occurrences, notes explicites, couverture partielle et provenance. |
+| I3-03 | Registre et contrôles de relations/rendu ; I3-D01/D02/D05 | Réalisé dans les contrôles bornés : pré/post-registres, plans par IDs, conditions/négations/conflits, calculs et blocage des altérations. |
+| I3-04 | Intégration, identité 4B, erreurs bornées ; I3-D06/D08 | Implémenté : manifeste 4.0B/qwen3/Q4_K_M vérifié à froid/chaud ; natif réel exécuté, mais I3-D08 non atteint. |
+| I3-05 | Matrice appariée, non-régression, coûts et limites ; I3-D04/D07/D08 | Exécuté : relecture stricte 9/12 → 11/12 positifs, 15/18 → 18/18 limites, cinq gains et zéro régression contrôlée. Portable 3 801 PASS/cinq FAIL préexistants. Office primaire 5/8 stricts, disponibilité 8/8 → 5/8 ; reprise distincte 2/3 stricts. PDF 0/2 complets dans les deux bras. |
+| I3-06 | Bilan, commit et push vérifiés ; I3-D09 | Livré : [fdc51187](https://github.com/msedki/agentPDFDoc/commit/fdc51187aabbdfd16e561dc32c50ac1c107e15bc), arbre `715cad621c8ca34ca046061200b9d7d0abb19c6e` identique, mise à jour sans force et GET/fetch vérifiés ; [reçu](reports/grounded-4b-publication-2026-11-08.json). Pack et brief PASS. |
+
+**Points vérifiés :** seulement le 4B génératif verrouillé a été utilisé ; source stable dans chaque bras, mêmes originaux et paramètres, plans adverses non publiés, calculs tracés, reprises séparées. Le score automatique 12/12 C2 garde un faux positif P01 et n’est pas le verdict final.
+
+**Points ouverts :** I3-D04 partiel (réserve P01 inutile), I3-D08 non atteint (trois erreurs d’admission primaires et réponses PDF incomplètes), OCR réel et cible physique non qualifiés. Les trois relations PDF manquantes existent dans l’extraction mais sont perdues dans recherche/sélection ; pistes structurelles et allocation par propriété restent différées avec critères au bilan. Aucun arbitrage de modèle supplémentaire n’est demandé.
+
+**Preuves et reprise :** [bilan et DoD](reports/grounded-4b-results-2026-11-08.md), [relecture des sorties](reports/grounded-4b-output-review-2026-11-08.json), [campagnes natives](reports/grounded-4b-native-2026-11-08.json), [gates](reports/grounded-4b-validation-2026-11-08.json) et [commandes](reports/grounded-4b-reproduce-2026-11-08.md). Livraison technique publiée et vérifiée ; le présent reçu documentaire est ajouté à la même branche. Les pistes de qualification restent ouvertes après cette livraison, sans gain supposé ni essai supplémentaire attribué au code.
+
+## Publication GitHub confirmée — 8 novembre 2026
+
+Les deux itérations sont publiées sur [`enhanced_version`](https://github.com/msedki/agentPDFDoc/tree/enhanced_version).
+Le commit technique I2 est [`3cfc004a`](https://github.com/msedki/agentPDFDoc/commit/3cfc004a30baf655a78f9927d92d8f608381c812).
+Les trois arbres complets sont identiques aux commits locaux d’origine ; le
+[reçu de publication](reports/enhanced-4b-publication-2026-11-08.json) conserve
+les correspondances et le contrôle distant. La demande renouvelée de publier
+via le connecteur est exécutée avec le compte `msedki` et ses métadonnées GitHub.
+Les commits locaux d’origine sont conservés. Les anciens blocages ci-dessous
+restent historiques ; les réserves de qualification documentaire restent ouvertes.
+
+## EV4B-I2 — deuxième itération 4B, bilan du 8 novembre 2026 (UTC)
+
+**Objectif :** corriger les relations de preuve et leur rendu, les calculs et les
+refus encore incomplets, puis mesurer le transfert sur une seconde famille.
+**Autorisation :** deuxième itération, essais, commit et push sur la même branche
+`enhanced_version`. **Référence I1 :** `4356fd0678c1e85a35e1e2eb1aef753a5e8c7806`,
+restaurée depuis le bundle conservé ; aucune publication distante n’est déduite
+de cette restauration. **Périmètre :** générateur Qwen3-4B verrouillé, corrections
+génériques ; aucune valeur INA226/TMP117 codée comme règle de réponse.
+
+Le [protocole préalable et la DoD](reports/enhanced-4b-iteration2-protocol-2026-11-08.md)
+restent gelés. Le [bilan I2](reports/enhanced-4b-iteration2-results-2026-11-08.md)
+relie les [46 observations](reports/enhanced-4b-iteration2-cases-2026-11-08.json),
+les [métriques](reports/enhanced-4b-iteration2-quality-2026-11-08.json),
+les [gates exécutés](reports/enhanced-4b-iteration2-validation-2026-11-08.json)
+et les [errata de revue](reports/enhanced-4b-iteration2-review-errata-2026-11-08.json).
+Les deux révisions applicatives réelles sont comparées ; aucun score historique
+n’est réattribué au nouveau code.
+
+**Réception documentaire non acquise.** Les réponses complètes, soutenues et
+sans affirmation fausse passent de 7/20 à 14/20, les refus corrects de 0/3 à 2/3.
+Dix paires progressent, une régresse et douze restent égales sur ce critère
+binaire ; des égalités masquent aussi des réponses partielles devenues erreurs.
+I1 termine 20 réponses avec 3 erreurs, I2 16 avec 7 erreurs. La régression
+`pdf_conversion_codes`, le transfert 4/6 réponses et 1/2 refus, la sérialisation
+incomplète de certains rôles et le zéro OCR maintiennent leurs critères ouverts.
+
+| Action | Objet et critère | État I2 et preuve |
+|---|---|---|
+| EV4B-I2-01 | Référence I1 restaurée et révisions réellement isolées | Réalisé : 1 500 preuves vérifiées, I1 au commit exact, quatre blocs achevés, sources stables ; audit des 46 soumissions PASS. |
+| EV4B-I2-02 | Normaliser les références autorisées sans accepter types, clés ou références étrangères | Réalisé et contrôlé : 182 tests ciblés PASS ; DOCX à consigne intégrée corrigé nativement, sans ajouter de preuve. |
+| EV4B-I2-03 | Relations valeur–unité–rôle–condition et propriété × document jusque dans contexte/rendu | Partiel : catalogue et rendu enrichis, revue AR01–AR08 et tests ciblés passent ; certains bindings ne figurent pas dans le wire, comparaisons I2 en erreur. |
+| EV4B-I2-04 | Calcul explicite et refus limité au scope | Conversions /1000 et ×1000 complètes, deux refus de feuille corrects sans génération ; refus PDF hors page en erreur. Aucun emprunt hors scope observé. |
+| EV4B-I2-05 | Récupération OCR prouvée par image/provenance, ambiguïtés refusées | Non acquis : deux pilotes de quatre appels Tesseract 5.5.0 négatifs ; aucune segmentation/compaction promue, gardes conservés. |
+| EV4B-I2-06 | 15 cas INA226 + 8 cas TMP117 gelés, deux bras, 50 faits par révision | Exécuté : 46/46 soumissions ; 9 documents, PDF partiels déclarés, 30 requêtes 4B capturées, aucune reprise favorable substituée. |
+| EV4B-I2-07 | Gates, relecture des faits/citations, coûts et régressions conservés | Exécuté avec réserves : 3 637 PASS/2 anciens FAIL Python, attentes reproduites sur I1 puis corrigées (HTTP 73 PASS) ; intégration 34 PASS/6 FAIL faute de Tesseract verrouillé/4 SKIP ; frontend 487 tests/build, Mypy (123 fichiers) et Ruff (13 fichiers) PASS. Revues finales INA226 v4/TMP117 v2 ; les comptes ciblés se recouvrent. |
+| EV4B-I2-08 | Bilan, publication autorisée et vérification des identités, contenus et SHA distants | Publié via le connecteur demandé : `3cfc004a`, arbre I2 exact. Compte auteur/committer GitHub `msedki`, métadonnées locales d’origine conservées ; [correspondances et preuve](reports/enhanced-4b-publication-2026-11-08.json). |
+
+Le transfert reste non aveugle et limité à deux familles ; les témoins Office
+dérivés ne sont pas indépendants. Les corrections de relecture préservent
+leurs versions initiales et les annotations. V2.1, D07, Windows et recette
+graphique restent ouverts selon leurs propres exigences. Sources EV4B-I2-S01
+à S04 et EV4B-I2-E01 ; décisions EV4B-D06/D07 ; journal du 8 novembre.
+
+## EV4B — amélioration du 4B et qualification, 7–8 novembre 2026 (UTC)
+
+**Objectif :** améliorer la préservation et l'exploitation des preuves avec Qwen3-4B,
+tracer les requêtes réellement exécutées et qualifier les coûts de la chaîne.
+**Périmètre :** `agentPDFDoc`, base `59d47e98a47fc652b5506727673b6b477c92eb9d`,
+branche demandée `enhanced_version`. **Exclusions :** essais/routage 8B,
+qualification automatique d'autres hôtes, gain scientifique supposé.
+**Sources :** cadrage fourni le 7 novembre et références EV4B-S01 à EV4B-S05 de
+[SOURCES.md](SOURCES.md). **Résultat attendu :** implémentation, résultats bruts,
+limites et commit/push vérifiés. Les travaux et réserves antérieurs ci-dessous
+restent conservés.
+
+Le [protocole et la DoD EV4B](reports/enhanced-4b-protocol-2026-11-07.md)
+sont définis avant les essais ; les journaux des [7](journal/2026-11-07.md) et
+[8 novembre](journal/2026-11-08.md) conservent commandes, échecs et reprises.
+Les conditions de réception détaillées restent celles de ce protocole. Le
+[bilan actuel](reports/enhanced-4b-results-2026-11-07.md) relie les résultats aux
+preuves et précise les limites ; aucun critère n'est abaissé après observation.
+
+**Historique de la livraison avant publication par connecteur :** améliorations implémentées et testées avec les
+réserves ci-dessous ; commit de code local
+`63487f63b947ada00db180e474d944a5ea3ed810` sur `enhanced_version`, auteur et
+committer `MOHAMED SEDKI <mohamed.sedki@live.fr>`. Le push est bloqué
+techniquement ; les [tentatives](journal/2026-11-08.md#commit-local-et-push-bloqué)
+sont consignées au journal et EV4B-12 reste ouverte.
+
+**État au 8 novembre :** campagne finale achevée, **30 soumissions, 28 `done` et
+2 `error`**. Ces états d'exécution ne sont pas des scores de justesse. La référence
+est instrumentée dans le code courant, avec quinze questions sur une seule famille
+documentaire et un PDF partiellement récupéré. Les résultats documentaires relèvent
+de leur relecture explicite. « Complet borné » ci-dessous désigne la réception
+technique du mécanisme dans le périmètre mesuré, sans clôture des qualifications
+métier, du poste cible ou des plateformes du projet.
+
+| Action | Couche et constat | Dépendances | Livrable / critère | État au 8 novembre et preuve |
+|---|---|---|---|---|
+| EV4B-01 | Bug : graine non propagée dans la référence évaluée | Aucune | Options effectives, DoD §3 | [x] **Complet borné** : graine zéro et options capturées dans le corps natif ; poids, tokenizer/gabarit, runtime et digest identifiés, import neuf vérifié. La graine ne garantit pas une sortie identique. [Preuves runtime](reports/enhanced-4b-runtime-2026-11-07.md) |
+| EV4B-02 | Amélioration : trace passive et rejeu | 01 | Requête/contexte/identités et événements, DoD §3 | [x] **Complet borné** : capture au passage réel, quotas et contrôles d'intégrité ; rejeu des octets HTTP sans recherche supplémentaire, refus des empreintes incompatibles et écritures courtes testés, erreurs et interruptions conservées. Confirmation du terminal après persistance corrigée après campagne, avec tests dédiés et audit des 30 essais non affectés. [Runtime](reports/enhanced-4b-runtime-2026-11-07.md), [validation](reports/enhanced-4b-validation-2026-11-07.json) |
+| EV4B-03 | Bug/amélioration : zéro perdu, relations de tableaux | Aucune | Preuves structurées et plage stricte, DoD §3 | [ ] **Partiel** : plages strictes, zéro et bornes directes conservés et vérifiés ; des conditions demandées et rôles MAX/NOM restent perdus dans certains contextes ou rendus. [Bilan et cas individuels](reports/enhanced-4b-results-2026-11-07.md) |
+| EV4B-04 | Amélioration : OCR régional validé | 03 | Brut/région/candidate/ambiguïté conservés | [ ] **Partiel** : politique et provenance acquises ; Tesseract natif réussit le rejet du conflit mais pas les deux critères de récupération du zéro (1/3 contrôles par campagne). OCR déclenché par une question absent. [Rapport OCR](reports/enhanced-4b-ocr-2026-11-07.md) |
+| EV4B-05 | Amélioration : suffisance et classement bornés | 03 | Couverture des faits et sélection mesurée | [ ] **Partiel** : couverture et états tracés, sélection bornée et tests à candidats fixés ; aucune ablation native du classement à candidats identiques. La comparaison globale change plusieurs mécanismes et le contexte. [Méthode et résultats](reports/enhanced-4b-results-2026-11-07.md) |
+| EV4B-06 | Amélioration : validation liée à la question | 03, 05 | Contrats valeur/intervalle/comparaison/code | [ ] **Partiel** : contrats et rejets actifs ; le DOCX avec consigne intégrée termine en `structured_answer_invalid`, et des conditions/comparaisons restent incomplètes malgré des preuves disponibles. [Bilan](reports/enhanced-4b-results-2026-11-07.md) |
+| EV4B-07 | Amélioration : calculs traçables | 03, 06 | Entrées, unités, opération et refus | [ ] **Partiel** : arithmétique de cellules, unités et refus de cas invalides vérifiés dans leur domaine ; des conversions demandées restent partielles ; le facteur /1000 demandé est absent du rendu Excel malgré des entrées suffisantes. [Bilan](reports/enhanced-4b-results-2026-11-07.md), [validation](reports/enhanced-4b-validation-2026-11-07.json) |
+| EV4B-08 | Amélioration : reprise documentaire bornée | 04, 05, 06 | Au plus une action puis état explicite | [ ] **Partiel** : une passe lexicale bornée est implémentée ; une reprise native ajoute la plage VS absente du contexte initial puis reprise dans la réponse. Cet apport ponctuel ne qualifie pas toutes les branches ni l'OCR à la demande ; son gain général n'est pas isolé. [Bilan](reports/enhanced-4b-results-2026-11-07.md) |
+| EV4B-09 | Hypothèse : contexte/KV | 01, 02 | Budget complet et variantes réellement appliquées | [x] **Complet borné** : prompt/sortie/marge contrôlés ; f16/q8_0/q4_0 effectifs à 4 096/8 192, douze générations sur un contexte figé. La saturation des fenêtres et D07 restent non qualifiés. [Matrice native](reports/enhanced-4b-runtime-2026-11-07.md) |
+| EV4B-10 | Hypothèse : résidence et continuité | 02, 09 | Séquences réelles et coûts complets | [ ] **Partiel** : conserver/décharger/adaptative et transitions `/api/ps` exercés ; déchargements adaptatifs naturels observés dans la campagne applicative. Continuité/annulation sur la cible et coût complet non qualifiés ; effet propre du hook de caches non isolé du changement de résidence. [Runtime](reports/enhanced-4b-runtime-2026-11-07.md), [bilan](reports/enhanced-4b-results-2026-11-07.md) |
+| EV4B-11 | Amélioration : protocole/évaluation | 02 | JSONL, dénominateurs, hashes, paires et répétitions | [x] **Complet borné** : annotations et paires vérifiables, inconnus explicites, risque des affirmations fausses incluant les abstentions ; 40 tests ciblés (31 recouvrants, 9 nouveaux). Une famille, aucune incertitude inter-familles ni validation humaine indépendante acquise. [Validation](reports/enhanced-4b-validation-2026-11-07.json), [bilan](reports/enhanced-4b-results-2026-11-07.md) |
+| EV4B-12 | Livraison | 01–11 | Diff, résultats, réserves, commit/push sur branche demandée | [x] **Publication acquise** : I1 publié sous `be9378d3` puis `42c8444c`, I2 sous `3cfc004a` ; trois arbres exacts et référence distante vérifiés. Conservation des preuves I1 attestée séparément ; réserves métier inchangées. [Reçu](reports/enhanced-4b-publication-2026-11-08.json). |
+
+**Points vérifiés et conformes :** cible principale agentPDFDoc ; base distante
+`main` identifiée ; branche locale `enhanced_version` créée ; autorisation de
+commit/push fournie par la demande. La politique historique de publication sur
+`main` est remplacée pour ce chantier par cette demande explicite.
+
+**Validation du code :** gate complet **3 409 PASS, 23 SKIP**, puis delta évaluateur
+**40 PASS** distinct ; les 31 tests recouvrants ne sont pas additionnés comme de
+nouveaux cas. Les tests avec doubles, les traitements réels de fichiers et les
+inférences natives gardent leurs dénominateurs séparés. Les erreurs initiales et
+régressions d'oracle expliquées restent archivées. Le delta de terminal après
+campagne passe 19 tests ciblés (18 nouveaux et une régression), puis 74 tests de
+compatibilité recouvrants ; Mypy configuré 122 fichiers et Ruff 39 fichiers
+passent après ce correctif. Les 105 tests documentaires et les contrôles de
+liens/brief/schémas/pack passent. L’[attestation du delta](reports/enhanced-4b-terminal-fix-2026-11-08.json)
+sépare le code de campagne du code livré : 74 sources applicatives identiques,
+seul query.py corrigé, aucun score réattribué et aucune nouvelle inférence.
+
+**Mémoire et réserves :** la campagne finale emploie une estimation froide pilote
+de 3 840 MiB ; le profil livré conserve 4 352 MiB, avec réserve hôte 1 536 MiB et
+surcroît chaud 640 MiB. Les gains documentaires, la justesse et les coûts sont
+rapportés dans leur périmètre réellement mesuré. Ni corpus indépendant, ni
+qualification métier, ni D07, ni nouvelle recette Windows/interface ne sont
+acquis par ce lot. Les résultats historiques ne sont pas réattribués à la révision.
+
+**Blocage de publication résolu :** le connecteur du compte autorisé a publié
+les commits et le SHA distant a été vérifié. Le reçu en tête de ce plan
+remplace l’ancien point de reprise ; les autres critères restent inchangés. La clôture documentaire précède
+la construction du paquet séparé `Enhanced_version_4B_preuves_2026-11-08.zip` :
+son manifeste et `.runtime/qa/enhanced-4b/publication/publication-blocked.json`
+attestent les contrôles effectivement réalisés sur le bundle autonome et les
+preuves. La confirmation de conservation est fournie au compte rendu de livraison ;
+elle ne vaut pas publication GitHub.
 
 ## R28 — étude de l'extension DOCX/XLSX avant implémentation
 

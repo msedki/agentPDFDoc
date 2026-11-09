@@ -1,8 +1,58 @@
 # Atelier documentaire local
 
-**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** Stabilisé · **Référence :** base publiée `64e191f`, produits R27 `5204d2e` et `aabb9808` ; intégration Office R28 dans les modifications locales du 10 octobre, contrôles isolés effectués et chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues ; réserves par plateforme dans le PLAN et le journal · **Mis à jour :** 2026-10-10 13:28 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
+**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** I6 en cours ; I5 et I5-PJ publiés avec réserves, diffusion non qualifiée · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; les états antérieurs par plateforme restent documentés ci-dessous · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
 
-Poste de lecture et d'analyse de PDF, DOCX et XLSX pour Windows 11, sans WSL, Docker ni service distant. La recette de performance vise un poste physique de 16 Go au plus en calcul CPU. Le code comporte aussi une voie Linux native aarch64 et x86-64 ([W018](RAG_Local_Agents/DECISIONS.md#w018-double-plateforme--windows-11-x86-64-et-linux-aarch64-natifs)) ; seule aarch64 a été exercée sur le poste Jetson du chantier. La génération peut passer sur un GPU NVIDIA là où cette voie est qualifiée. Le modèle local répond à partir de passages enregistrés pour la question, et une citation valide ouvre la version et la révision enregistrées : page/bloc pour le PDF, élément pour le DOCX, feuille/cellule ou plage pour le XLSX. La recette complète reste ouverte, notamment ses exigences de performance sur cet hôte.
+## I6 — portée des relations et coût, 9 novembre 2026
+
+L'itération reprend les exceptions et négations H24/H06, les comparaisons
+H11/H12/D11/D12 et les appels redondants sur les réponses partielles.
+Le [protocole préalable](RAG_Local_Agents/reports/trust-i6-relations-protocol-2026-11-09.md)
+fixe les jeux, mesures et critères avant modification. Le
+[plan](RAG_Local_Agents/PLAN.md) suit la réalisation et les publications
+par lot. Le [premier lot R1](RAG_Local_Agents/reports/trust-i6-relations-r1-2026-11-09.md)
+corrige H24/H06 sur les cas connus et passe 369 tests ciblés. Les comparaisons,
+le coût et la qualification finale restent en cours ; le jeu final I6 est fermé.
+
+## I5-PJ — opérateurs et exceptions, 9 novembre 2026
+
+Commit technique [5502cf42](https://github.com/msedki/agentPDFDoc/commit/5502cf424b1d9211b5a63014b01c7ab8b998dc85) publié sur `enhanced_version`,
+32 fichiers et arbre distant identiques au commit local vérifié, sans force.
+[Reçu de publication](RAG_Local_Agents/reports/trust-i5-pj-publication-2026-11-09.json).
+
+Le complément I5 conserve **Qwen3-4B Q4_K_M comme seul générateur**. Les
+bornes et non-égalités reconnues ne deviennent plus des valeurs exactes ; les
+points explicitement exclus reconnus ne servent plus d'appui positif. Les
+passages, unités et conditions restent cités, avec une réponse partielle
+lorsque la conclusion n'est pas établie.
+
+Sur les 24 cas de développement, les faux appuis exacts passent de **10/12 à
+0/12**, à couverture positive inchangée (**10/12**). Sur les 24 cas finaux
+ouverts après gel du code, ils passent de **9/12 à 1/12**, à couverture positive
+inchangée (**9/12**). Les **28/28 passages** de chaque jeu sont conservés.
+Ces mesures portent sur le vérificateur de relations ; elles ne sont pas un
+taux général d'hallucination ni une qualification de l'application.
+
+**Le critère zéro faux appui n'est pas atteint.** La formulation française
+« à l'exception de » reste mal interprétée dans H24 ; une négation distante
+et les comparaisons entre plusieurs sujets/documents conservent des faux
+rejets. Le [bilan et la DoD du complément](RAG_Local_Agents/reports/trust-i5-pj-results-2026-11-09.md),
+les [données détaillées](RAG_Local_Agents/reports/trust-i5-pj-support-results-2026-11-09.json),
+la [relecture indépendante](RAG_Local_Agents/reports/trust-i5-pj-review-2026-11-09.md)
+et les [commandes](RAG_Local_Agents/reports/trust-i5-pj-reproduction-2026-11-09.md)
+distinguent les contrôles avec doubles, les essais natifs et les limites
+restantes. La qualification de production reste non acquise.
+
+## I5 — pipeline de confiance et générateur 4B unique, 8 novembre 2026
+
+Commit technique [7cd39839](https://github.com/msedki/agentPDFDoc/commit/7cd398399c98701309ace0498be3f149ae4e276d) publié sur `enhanced_version` ; arbre distant vérifié, publication sans force. [Reçu de publication](RAG_Local_Agents/reports/trust-4b-publication-2026-11-09.json). La qualification de production reste non acquise.
+
+Cette itération renforce le lien entre chaque information publiée et ses preuves : observations natives ou OCR, cellules et conditions de tableau, obligations de la question, vue admise pour le générateur, puis vérification de tous les segments avant publication. Les preuves anciennes qui ne permettent pas cette revalidation doivent être réingérées. Le contrat indique explicitement quand une formulation dépasse son analyse.
+
+Le lancement de l’API et des commandes `up`/`init-profile` choisit désormais **Qwen3-4B Q4_K_M**, profil [`enhanced-4b.yaml`](config/enhanced-4b.yaml). Les profils 2B et 4B historiques sans les contrôles renforcés sont refusés pour générer. Le catalogue actif et le constructeur de paquets ne sélectionnent que ce générateur ; les anciens fichiers restent consultables pour la maintenance et les preuves historiques.
+
+**Qualification de production non acquise :** le suivi de développement atteint 12/14 positifs et 6/6 limites, le contrôlé 12/12 et 16/18. Les portes logicielles finales passent dans leur périmètre. SCAN2/TMP117 et L11/L12 restent en échec. Le transfert réservé conserve 24 positions non évaluées après une rupture de continuité d’exécution, et HTTP/SSE v4 est NOT_RUN. Le [bilan détaillé](RAG_Local_Agents/reports/trust-4b-results-2026-11-08.md) expose les preuves et la matrice par critère. Les seuils sont fixés dans le [protocole I5](RAG_Local_Agents/reports/trust-4b-protocol-2026-11-08.md), complété par les [points d’entrée](RAG_Local_Agents/reports/trust-4b-entrypoints-addendum-2026-11-08.md) et les [bornes de ressources](RAG_Local_Agents/reports/trust-4b-resource-addendum-2026-11-08.md). État et preuves dans le [plan](RAG_Local_Agents/PLAN.md). Les bilans I1–I4 ci-dessous restent historiques.
+
+Poste de lecture et d'analyse de PDF, DOCX et XLSX pour Windows 11, sans WSL, Docker ni service distant. La recette de performance vise un poste physique de 16 Go au plus en calcul CPU. Le code comporte aussi une voie Linux native aarch64 et x86-64 ([W018](RAG_Local_Agents/DECISIONS.md#w018-double-plateforme--windows-11-x86-64-et-linux-aarch64-natifs)) ; aarch64 a été exercée sur le poste Jetson du chantier, puis les campagnes 4B de novembre ont utilisé un hôte de développement Linux x86-64, avec leurs limites documentées ci-dessous. La génération peut passer sur un GPU NVIDIA là où cette voie est qualifiée. Le modèle local répond à partir de passages enregistrés pour la question, et une citation valide ouvre la version et la révision enregistrées : page/bloc pour le PDF, élément pour le DOCX, feuille/cellule ou plage pour le XLSX. La recette complète reste ouverte, notamment ses exigences de performance sur cet hôte.
 
 **État au 10 octobre 2026.** L’ingestion Office est implémentée dans l’arbre de travail : import mixte, extraction native OOXML, structures persistées, recherche et citations typées, lecteurs DOCX/XLSX. Les parseurs et les frontières DB/API/RAG disposent de tests isolés ; la chaîne native DEV Linux aarch64 est vérifiée. Les preuves sont consolidées dans le [rapport d’intégration Office](RAG_Local_Agents/reports/office-integration-2026-10-10.md) ; les résultats acquis et le reste à vérifier sont dans [R28 du plan](RAG_Local_Agents/PLAN.md#r28--étude-de-lextension-docxxlsx-avant-implémentation). Cette intégration ne qualifie pas encore Windows, Linux x86-64 ou un poste physique CPU/16 Go.
 
@@ -26,6 +76,107 @@ physique CPU/16 Go. À cette date, les formats Office restaient au stade de l’
 - **Linux x86-64.** Verrou uv et artefacts résolus ; jamais exécuté, faute de machine de qualification (même tableau de la DoD).
 
 **Accélération GPU de la génération, état au 2 octobre 2026 (commits `4d8ba68` et `c32b759`) :** livrée selon [W024](RAG_Local_Agents/DECISIONS.md#w024-accélération-gpu-détectée-proposée-et-utilisée-automatiquement-quand-elle-est-disponible) et [W025](RAG_Local_Agents/DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024). Seul le modèle de réponse change de matériel ; extraction, OCR et embeddings restent sur CPU. Le GPU n'est employé d'office que sur une voie qualifiée par un essai réel : aujourd'hui un Jetson sous Jetson Linux R35 (JetPack 5) avec le complément officiel d'Ollama, essayé le 2 octobre sur le Jetson AGX Orin du poste Linux aarch64 de développement (provisionnement du complément, démarrage, `doctor`, `selftest` sur GPU puis en CPU imposé, calibration ; [résultats et limites](docs/architecture/ARCHITECTURE.md#51-accélération-gpu-de-la-génération)). Un Jetson de 16 Go en mode GPU n'est pas qualifié : en `auto`, un Jetson de 16 Gio de mémoire totale ou moins, ou dont la mémoire est illisible, reste sur CPU, et `doctor` y propose un essai par `llm.accelerator: gpu`. L'essai suggère qu'une partie de la mémoire prise par le GPU échappe à `MemAvailable`, sur laquelle repose le gouverneur (hypothèse H-GPU-2, non mesurable sans droits root sous Jetson Linux R35.4.1). Sur un Jetson R36 et sur un poste Linux ou Windows doté d'un GPU NVIDIA que découvre Ollama, voies jamais essayées, `doctor` propose un essai par `llm.accelerator: gpu` sans employer le GPU d'office. Un poste sans GPU utilisable, dont le poste Windows de qualification, reste sur CPU avec des requêtes inchangées, ce que vérifient des tests sur plateforme simulée ; son rejeu réel reste à faire. La recette D07 se mesure en calcul CPU imposé ([QUALIFICATION.md, section 8](RAG_Local_Agents/QUALIFICATION.md#8-performance-et-ressources)).
+
+## I4 — robustesse documentaire et qualification avant diffusion
+
+**Qualification de diffusion non acquise.** Le transfert réservé révèle
+encore une association de colonne non étayée : une valeur typique est affichée
+sous un en-tête minimum après une mauvaise affectation de cellule. Le contrôle
+des hashes et des citations ne détecte pas cette erreur sémantique de l’extraction.
+Le [bilan détaillé](RAG_Local_Agents/reports/production-4b-results-2026-11-08.md)
+conserve cet échec, les omissions et les réserves excessives ; les réussites
+logicielles ci-dessous ne valent pas validation de la fidélité générale.
+
+Les pistes différées d’I3 sont implémentées dans le profil `enhanced-4b` : sélection
+par propriété à budget constant, conservation des titres et conditions des listes
+PDF, restitution littérale des faits qualitatifs, signalement des pertes de contexte,
+OCR Tesseract corrigé par un backport amont vérifié et traces complètes compactées
+sans perte. Le générateur reste exclusivement **Qwen3-4B Q4_K_M** et choisit des
+références contrôlées contre l’extraction ; le serveur vérifie leur intégrité et restitue les éléments autorisés. La relation au document original reste la limite de fidélité exposée ci-dessus.
+
+Le [protocole I4](RAG_Local_Agents/reports/production-4b-protocol-2026-11-08.md)
+a fixé les critères avant code. Le [bilan I4](RAG_Local_Agents/reports/production-4b-results-2026-11-08.md)
+distingue les mesures contrôlées, les moteurs natifs, le transfert réservé et les
+limites restantes. Les [commandes de reproduction](RAG_Local_Agents/reports/production-4b-reproduce-2026-11-08.md)
+précisent versions, sources, hashes, prérequis et artefacts d’échec conservés.
+Ces travaux préparent la diffusion ; ils ne valent pas qualification globale
+Windows/Linux ni autorisation de déploiement. Le statut exact des critères reste
+celui du bilan, sans seuil abaissé ni réponse refusée comptée comme amélioration.
+
+Le lot technique est publié dans le commit [f7739a14](https://github.com/msedki/agentPDFDoc/commit/f7739a144369816b0e834c225fa9fbfe697f6c84). Le [reçu de publication](RAG_Local_Agents/reports/production-4b-publication-2026-11-08.json) vérifie les fichiers, l’arbre et la branche ; il conserve le statut de qualification non acquise.
+
+## I3 — fiabilisation de la chaîne 4B, 8 novembre 2026
+
+Le profil `enhanced-4b` conserve **Qwen3-4B Q4_K_M comme seul générateur**,
+avec contrôle du digest, de la famille `qwen3` et de la taille `4.0B` avant
+l'envoi des sources. Les passages, notes de tableaux, conditions et versions
+sont conservés jusqu'au rendu. Le modèle organise les références d'un catalogue
+vérifié ; le serveur restitue les extraits et effectue les calculs autorisés.
+Un registre avant génération et un contrôle des segments après restitution
+bloquent les ajouts non étayés. Ces mécanismes restent des contrôles locaux
+bornés, sans certification sémantique générale ni garantie de lecture OCR.
+
+L'activation du [profil renforcé](config/enhanced-4b.yaml) est explicite,
+après installation des [prérequis](#9-prérequis-du-poste) et provisionnement
+des artefacts verrouillés :
+
+```bash
+./rag.sh up --profile config/enhanced-4b.yaml
+```
+
+À l’itération I1, le lancement par défaut conservait le profil 4B historique et
+les anciens profils restaient accessibles. Ce comportement historique est remplacé
+par la garde I5 décrite en tête de ce document ; il ne décrit plus le lancement actif.
+
+Sur la matrice contrôlée, dont les doubles sont explicitement identifiés,
+la relecture indépendante par agent, non aveugle, des 24 sorties des cas
+répondables distingue le résultat strict de l'oracle automatique conservé :
+
+| Mesure | Référence | C2 |
+|---|---:|---:|
+| Réponses complètes sans réserve injustifiée — relecture | 9/12 | 11/12 |
+| Réponses complètes — oracle automatique historique | 9/12 | 12/12 |
+| Contrôles limites conformes — oracle automatique | 15/18 | 18/18 |
+| Faits requis restitués et soutenus | 12/15 | 15/15 |
+| Rappel littéral des faits au top 10 | 12/15 | 15/15 |
+
+P04 et P06 progressent. P01 conserve son fait complet mais une réserve inutile
+dans les deux bras ; le 12/12 automatique comprend donc un faux positif au
+candidat. La relecture des 18 contrôles limites confirme 15/18 → 18/18.
+Le gain de rappel et de faits restitués ne suffit pas à clore la qualité de
+communication.
+
+**La disponibilité de la campagne native Office primaire passe de 8/8 à 5/8**,
+avec trois `resource_admission_denied` au candidat. La reprise séparée termine
+les trois cas, avec trois générations réelles et **2/3 réponses strictes** après
+relecture ; la réserve inutile de P01 persiste. Cette reprise n'efface pas les
+erreurs primaires. Les PDF donnent **0/2 réponses complètes et 1/4 relation
+demandée dans chaque bras** : les six citations par bras sont fidèles au texte,
+mais une seule appuie une relation demandée. L'extraction est limitée à la page
+d'index 0 en `ready_partial` ; l'OCR n'est pas qualifié.
+
+**I3-D04 reste ouvert sur la communication, I3-D08 n'est pas atteint et la DoD
+globale reste ouverte.** Le
+[bilan et ses limites](RAG_Local_Agents/reports/grounded-4b-results-2026-11-08.md),
+le [protocole préalable](RAG_Local_Agents/reports/grounded-4b-protocol-2026-11-08.md)
+et les [commandes de reproduction](RAG_Local_Agents/reports/grounded-4b-reproduce-2026-11-08.md)
+distinguent contrôles logiciels, mesures avec doubles, exécution native et
+recette cible. Le commit technique [fdc51187](https://github.com/msedki/agentPDFDoc/commit/fdc51187aabbdfd16e561dc32c50ac1c107e15bc) est publié sur
+`enhanced_version`, avec arbre distant identique et mise à jour sans force. Le
+[reçu de publication](RAG_Local_Agents/reports/grounded-4b-publication-2026-11-08.json)
+conserve le contrôle et la correspondance avec le commit local d’origine.
+
+## Deuxième itération 4B — 8 novembre 2026
+
+La branche `enhanced_version` contient les améliorations des relations de
+preuve, de restitution, de calcul et de refus de périmètre. Le
+[bilan I2](RAG_Local_Agents/reports/enhanced-4b-iteration2-results-2026-11-08.md)
+présente les 46 soumissions comparant les révisions réelles et les gates du
+dépôt : davantage de réponses complètes, mais une régression documentaire,
+plus de délais dépassés et des limites de sérialisation/OCR encore ouvertes.
+La qualification globale reste non acquise. Le
+[protocole préalable](RAG_Local_Agents/reports/enhanced-4b-iteration2-protocol-2026-11-08.md)
+et le [plan canonique](RAG_Local_Agents/PLAN.md) donnent les critères et statuts.
 
 ---
 
@@ -75,7 +226,7 @@ Le poste importe des PDF natifs, scannés ou mixtes et des documents DOCX/XLSX. 
 | Ingestion Office | Worker natif isolé : parties/éléments DOCX, feuilles/cellules XLSX, checkpoints d’unités complètes | [`services/ingestion/office/`](services/ingestion/office/) |
 | Exploitation | Lanceur, superviseur, gouverneur de ressources, sauvegarde et restauration | [`services/runtime/`](services/runtime/), [`rag.ps1`](rag.ps1), [`bootstrap.ps1`](bootstrap.ps1), [`rag.sh`](rag.sh), [`bootstrap.sh`](bootstrap.sh) |
 | Contrats | Périmètre, page, bloc, fragment, source, événements SSE, erreurs | [`packages/contracts/contracts.json`](packages/contracts/contracts.json) |
-| Configuration | Profils `local16-4b` (4B, défaut) et `local16` (2B), verrous d'artefacts et de modèles | [`config/`](config/) |
+| Configuration | Profil actif `enhanced-4b` (Qwen3-4B unique), verrous d’artefacts et de modèles ; anciens profils archivés | [`config/`](config/) |
 | Qualification | PDF synthétiques, jeux de questions, outils de capture et de notation | [`fixtures/`](fixtures/), [`evals/`](evals/), [`tools/qualification/`](tools/qualification/) |
 | Suivi du chantier | Plan, critères de fin, décisions, journal, sources, preuves ; exigences V2.1 | [`RAG_Local_Agents/`](RAG_Local_Agents/) |
 
@@ -150,7 +301,7 @@ Description complète, flux, interfaces internes, sécurité et points d'observa
 | `services/ingestion/` | Préflight, pipeline de fenêtres, adaptateur Docling, OCR régional, worker | Oui |
 | `services/runtime/` | CLI d'exploitation, superviseur, gouverneur, sauvegarde, provisionnement, dérivation du modèle texte | Oui |
 | `packages/contracts/` | Contrat JSON partagé API, interface et ingestion | Oui |
-| `config/` | Profils `local16-4b.yaml` (4B, défaut) et `local16.yaml` (2B), verrous `artifacts.lock.json`, `models.lock.json`, `embedding-comparison.lock.json` | Oui |
+| `config/` | Profil actif `enhanced-4b.yaml`, verrou `enhanced-4b.lock.json`, catalogues d’artefacts/modèles et archives historiques | Oui |
 | `tests/unit/`, `tests/integration/` | Tests pytest ; marqueurs `integration`, `slow`, `acceptance` pour les essais natifs et lourds | Oui |
 | `tools/qualification/` | Génération des fixtures, capture des annotations, réponses, notation, performance | Oui |
 | `tools/corpus/` | Import d'un dossier de PDF dans une instance démarrée, avec son arborescence | Oui |
@@ -192,22 +343,22 @@ Chaque version est lue dans le fichier cité ; un changement de version passe pa
 | Index plein texte | SQLite FTS5 (`unicode61 remove_diacritics 2`) | Bibliothèque embarquée par CPython, lue dans `GET /api/v1/diagnostics` (champ `sqlite`) | [`config/local16.yaml`](config/local16.yaml) (`sqlite`) |
 | Serveur de modèle | Ollama (archives Windows et Linux) | 0.35.0 | [`config/artifacts.lock.json`](config/artifacts.lock.json), contrôlé par `/api/version` au lancement |
 | Bibliothèques GPU d'Ollama pour Jetson | Compléments officiels `ollama-linux-arm64-jetpack5` (Jetson Linux R35) et `-jetpack6` (R36), extraits par-dessus l'archive de base | 0.35.0 | [`config/artifacts.lock.json`](config/artifacts.lock.json), groupe `ollama-gpu` |
-| Modèle de langue (défaut) | Qwen3.5 4B Q4_K_M dérivé texte seul, choisi par `qwen3.5:4b` et servi par `qwen3.5:4b-text` | manifeste `de8024db…` | [`config/local16-4b.yaml`](config/local16-4b.yaml), [`config/models.lock.json`](config/models.lock.json), [W006](RAG_Local_Agents/DECISIONS.md#w006-modèle-qwen-texte-seul-dérivé-localement-sans-encodeur-vision), [W045](RAG_Local_Agents/DECISIONS.md#w045-qwen-35-4b-par-défaut-2b-conservé-au-lancement) |
-| Modèle de langue (option 2B) | Qwen3.5 2B Q8_0 (`qwen3.5:2b`), tag officiel direct | manifeste `0689d440…` | [`config/local16.yaml`](config/local16.yaml), [`config/models.lock.json`](config/models.lock.json) |
+| Modèle de langue (unique) | Qwen3-4B Q4_K_M, tag local `qwen3-4b-enhanced:q4km`, import GGUF officiel vérifié | manifeste `0d75b13b…` | [`config/enhanced-4b.yaml`](config/enhanced-4b.yaml), [`enhanced-4b.lock.json`](config/enhanced-4b.lock.json) |
+| Anciens générateurs | Profils 2B/4B historiques conservés pour archives et maintenance ; refusés à la génération | non sélectionnables | [`generation_policy.py`](services/runtime/generation_policy.py), [historique](RAG_Local_Agents/DECISIONS.md) |
 | Build web | Node.js, pnpm | 22.17.0, 10.34.1 | [`EXPLOITATION_WINDOWS.md`](RAG_Local_Agents/EXPLOITATION_WINDOWS.md) ; `engines` de [`apps/web/package.json`](apps/web/package.json) |
 | Interface | Next.js, React, pdfjs-dist, TanStack Query, Zustand, Tailwind CSS | 16.3.7, 19.3.0, 6.3.289, 5.104.0, 5.0.15, 4.3.3 | [`apps/web/package.json`](apps/web/package.json), [`pnpm-lock.yaml`](apps/web/pnpm-lock.yaml) |
 | Tests | pytest, TypeScript, Playwright | 9.1.1, 5.9.3, 1.63.0 | [`pyproject.toml`](pyproject.toml), [`apps/web/package.json`](apps/web/package.json) |
 
 Version du projet : `0.1.0`, identique dans [`pyproject.toml`](pyproject.toml) et [`apps/web/package.json`](apps/web/package.json) ; aucune version n'a été publiée.
 
-Le modèle se choisit au lancement : `./rag.sh up` utilise `qwen3.5:4b` par défaut ([W045](RAG_Local_Agents/DECISIONS.md#w045-qwen-35-4b-par-défaut-2b-conservé-au-lancement)) ; `./rag.sh up --model qwen3.5:2b` choisit le 2B. Sous Windows, utiliser `-Model` avec `rag.ps1`. Un profil utilisateur explicite conserve son modèle et ses chemins de données ; il ne se combine pas avec l'option modèle. Dans une installation par le kit hors ligne Linux, le modèle principal se choisit à l'installation (`--model`) et se change par `atelier modele <modèle>` ([déploiement, section 8.8](docs/deploiement/DEPLOIEMENT.md#88-état-réparation-vérification-et-modèle-principal)). Préparation, arrêt et redémarrage : [procédure de changement de modèle](docs/exploitation/EXPLOITATION.md#91-changer-le-modèle-de-génération). Aucun changement à chaud ni choix par question.
+`./rag.sh up` utilise le profil renforcé Qwen3-4B Q4_K_M. L’option explicite `--model qwen3-4b-enhanced:q4km` (`-Model` sous Windows) désigne le même générateur ; les autres choix sont refusés. Un profil utilisateur explicite conserve ses chemins/ports et doit respecter les contrôles renforcés. Les anciens profils restent accessibles aux commandes de lecture, d’arrêt et de sauvegarde. La [procédure d’exploitation](docs/exploitation/EXPLOITATION.md#91-changer-le-modèle-de-génération) décrit la migration explicite ; aucune conversion silencieuse, aucun changement par question.
 
 ---
 
 ## 6. Données et stockage
 
 Les lanceurs et l'installateur utilisent `app.data_dir` du profil (`.runtime/data`
-pour les profils livrés `local16-4b` et `local16`). Le superviseur transmet cette
+pour le profil actif `enhanced-4b`). Le superviseur transmet cette
 racine à l'API par `RAG_DATA_DIR` ; une variable héritée ne remplace pas le
 profil. L'API lancée directement et les tests lisent encore cette variable,
 hors du parcours supervisé ([W050](RAG_Local_Agents/DECISIONS.md#w050-reprise-dexécution-et-clôture-depuis-la-baseline-du-9-octobre),
@@ -265,7 +416,7 @@ Limites connues, non corrigées à ce jour :
 | Élément | Exigence | Contrôle |
 |---|---|---|
 | Système | Windows 11 x86-64, PowerShell 5.1, compte utilisateur standard (aucune étape ne demande de droits administrateur), exécution des scripts locaux autorisée (politique `RemoteSigned` observée pour l'utilisateur) ; les scripts du projet ne modifient ni la politique d'exécution ni le `PATH` | `$PSVersionTable`, `Get-ExecutionPolicy -List` |
-| Mémoire | 16 Gio physiques ; à froid, une question exige 5 888 Mio disponibles avec le 4B, modèle par défaut ([W046](RAG_Local_Agents/DECISIONS.md#w046-admission-du-4b-relevée-après-un-pilote-exclusif-aux-limites-w039)), 5 504 Mio avec le 2B ([W041](RAG_Local_Agents/DECISIONS.md#w041-admission-froide-du-2b-relevée-après-un-pilote-exclusif-aux-limites-w039)), et un import 3 840 Mio (estimation + réserve de 1 536 Mio) | `.\rag.ps1 doctor`, rubrique `cold_admission` |
+| Mémoire | 16 Gio physiques ; à froid, une question exige 5 888 Mio disponibles avec le 4B renforcé, unique générateur ([W046](RAG_Local_Agents/DECISIONS.md#w046-admission-du-4b-relevée-après-un-pilote-exclusif-aux-limites-w039)), et un import 3 840 Mio (estimation + réserve de 1 536 Mio) | `.\rag.ps1 doctor`, rubrique `cold_admission` |
 | Disque | Réserve de 2 Gio exigée avant téléchargement et avant sauvegarde ; la dérivation du modèle texte exige deux fois la taille du modèle source plus 2 Gio | messages de refus de [`artifacts.py`](services/runtime/artifacts.py), [`backup.py`](services/runtime/backup.py), [`cli.py`](services/runtime/cli.py) |
 | Node.js et pnpm | 22.17.0 et 10.34.1 dans le `PATH`, pour `provision` et le build | `.\rag.ps1 doctor`, rubrique `node_tools` |
 | Tesseract | Tesseract 5.4.0 Windows déjà installé, de préférence dans le profil de l'utilisateur (`%LOCALAPPDATA%\Programs\Tesseract-OCR`, emplacement du poste de référence) : une installation sous `%PROGRAMFILES%` demanderait des droits administrateur ; `provision` en copie l'exécutable, les DLL et les licences dans `.runtime/bin/` avec leurs empreintes | message « Prérequis Tesseract5.4.0 Windows absent » ([`provisioning.py`](services/runtime/provisioning.py)) |
@@ -291,7 +442,7 @@ Sous Linux, depuis un shell POSIX : `./bootstrap.sh`, `./rag.sh provision`, puis
 
 Sur un poste qui reçoit l'atelier sans le dépôt, l'installation passe par un kit : kit Windows interne ([déploiement, sections 3 à 7](docs/deploiement/DEPLOIEMENT.md#3-fabriquer-et-vérifier-un-kit-windows-interne)) ou kit hors ligne Linux, installé pour le compte de l'utilisateur par `./installer.sh` depuis le dossier extrait, avec son guide `LISEZMOI.md` ([déploiement, section 8](docs/deploiement/DEPLOIEMENT.md#8-kit-hors-ligne-linux)).
 
-`bootstrap.ps1` télécharge uv 0.12.21 (SHA-256 vérifié), installe CPython 3.12.14 dans `.runtime/python` et synchronise `.venv` depuis `uv.lock`. `provision` synchronise de nouveau les dépendances Python, installe les dépendances web (`pnpm install --frozen-lockfile`), télécharge et vérifie les artefacts verrouillés (Qdrant, Ollama, E5, tokenizer Qwen, tessdata, modèles Docling, et, sur un Jetson Linux R35 ou R36, le complément GPU d'Ollama sauf profil en calcul CPU), copie Tesseract, construit l'interface, prépare le modèle et le tokenizer du profil choisi (2B directement, 4B avec dérivation texte seule), puis consigne la découverte des GPU par Ollama ([`cli.py`](services/runtime/cli.py), fonction `provision` ; [exploitation, section 2](docs/exploitation/EXPLOITATION.md#2-préparer-le-poste)).
+`bootstrap.ps1` télécharge uv 0.12.21 (SHA-256 vérifié), installe CPython 3.12.14 dans `.runtime/python` et synchronise `.venv` depuis `uv.lock`. `provision` synchronise de nouveau les dépendances Python, installe les dépendances web (`pnpm install --frozen-lockfile`), télécharge et vérifie les artefacts verrouillés (Qdrant, Ollama, E5, tokenizer Qwen, tessdata, modèles Docling, et, sur un Jetson Linux R35 ou R36, le complément GPU d'Ollama sauf profil en calcul CPU), copie Tesseract, construit l'interface, importe le GGUF Qwen3-4B verrouillé et vérifie son tokenizer, puis le stockage Ollama après arrêt du service de provisioning, puis consigne la découverte des GPU par Ollama ([`cli.py`](services/runtime/cli.py), fonction `provision` ; [exploitation, section 2](docs/exploitation/EXPLOITATION.md#2-préparer-le-poste)).
 
 | Variante | Commande |
 |---|---|
@@ -338,20 +489,20 @@ Un import copie l'original, crée une version et met un travail en file. Un doss
 
 DOCX et XLSX passent par un worker Office distinct, sous le même gouverneur. La lecture OOXML conserve les titres, listes, tableaux et parties DOCX utiles, ainsi que les feuilles, cellules clairsemées, types, formules, caches, tables et relations XLSX. Elle n’exécute ni formule, macro, liaison externe ni objet embarqué. Une valeur calculée disponible vient du cache du fichier, avec fraîcheur inconnue ; un cache absent reste absent. La reprise réutilise seulement des unités complètes dont l’original, le parseur, les options et le contenu sont vérifiés. Les objets ou extensions non interprétés restent signalés ; une extraction Office incomplète exige une publication explicite. Les [limites Office](docs/architecture/ARCHITECTURE.md#41-documents-docx-et-xlsx) sont distinctes des plafonds PDF.
 
-Limites PDF du profil : 200 Mio par fichier, 2 000 pages, 8 millions de pixels par page rendue et par région OCR. Détail des routes et des états : [architecture, section Ingestion](docs/architecture/ARCHITECTURE.md#4-ingestion-des-pdf).
+Limites PDF du profil renforcé : 200 Mio par fichier, 2 000 pages, 8 millions de pixels par page rendue et 13 millions par région OCR. Détail des routes et des états : [architecture, section Ingestion](docs/architecture/ARCHITECTURE.md#4-ingestion-des-pdf).
 
 ---
 
 ## 13. Recherche, analyse et citations
 
-La recherche combine le classement BM25 de SQLite FTS5 (les identifiants techniques exacts passent en premier) et la recherche dense E5 dans Qdrant, toutes deux filtrées par le périmètre avant le classement, puis fusionne les listes par RRF (k = 60). La sélection finale réserve une preuve à chaque identifiant cité dans la question, écarte les doublons et garde au plus 6 fragments (8 en comparaison ou pour plusieurs identifiants). Le contexte du modèle respecte un budget de preuves par mode : 1 536 jetons pour une question factuelle, 2 560 pour une question ordinaire, 5 120 pour une analyse ou une comparaison.
+La recherche combine le classement BM25 de SQLite FTS5 (les identifiants techniques exacts passent en premier) et la recherche dense E5 dans Qdrant, toutes deux filtrées par le périmètre avant le classement, puis fusionne les listes par RRF (k = 60). La sélection finale réserve une preuve à chaque identifiant cité dans la question, écarte les doublons et garde au plus 6 fragments (8 en comparaison ou pour plusieurs identifiants). Le contexte du profil renforcé respecte un budget de preuves par mode : 1 536 jetons pour une question factuelle, 2 560 pour une question ordinaire, 4 864 pour une analyse ou une comparaison.
 
 ![Séquence d'une question](docs/assets/diagrams/sequence-question.svg)
 
 *Échanges d'une question, de la recherche hybride à l'ouverture d'une citation.*
 
 - Sans source retenue, l'API répond que les preuves du périmètre ne suffisent pas, sans appeler le modèle.
-- Avant la génération, le gouverneur exige à froid l'estimation du profil plus la réserve de 1 536 Mio : 4 352 + 1 536 = 5 888 Mio pour le 4B, modèle par défaut ([W046](RAG_Local_Agents/DECISIONS.md#w046-admission-du-4b-relevée-après-un-pilote-exclusif-aux-limites-w039)), 3 968 + 1 536 = 5 504 Mio pour le 2B ([W041](RAG_Local_Agents/DECISIONS.md#w041-admission-froide-du-2b-relevée-après-un-pilote-exclusif-aux-limites-w039)) ; il remesure toutes les 2 s pendant 120 s au plus (événement `waiting_for_resources`) puis admet ou refuse ([W007](RAG_Local_Agents/DECISIONS.md#w007-estimations-dadmission-recalibrées-sur-le-modèle-texte), [W008](RAG_Local_Agents/DECISIONS.md#w008-attente-bornée-à-ladmission-de-génération)).
+- Avant la génération, le gouverneur exige à froid l'estimation du profil plus la réserve de 1 536 Mio : 4 352 + 1 536 = 5 888 Mio pour le générateur unique 4B ([W046](RAG_Local_Agents/DECISIONS.md#w046-admission-du-4b-relevée-après-un-pilote-exclusif-aux-limites-w039)). Il remesure toutes les 2 s pendant 120 s au plus (événement `waiting_for_resources`) puis admet ou refuse ([W007](RAG_Local_Agents/DECISIONS.md#w007-estimations-dadmission-recalibrées-sur-le-modèle-texte), [W008](RAG_Local_Agents/DECISIONS.md#w008-attente-bornée-à-ladmission-de-génération)). Ces estimations restent distinctes d'une mesure sur le poste cible.
 - Pendant la génération, la réserve de 1 536 Mio est surveillée toutes les 0,5 s ; si elle est menacée, la question est annulée.
 - La génération tourne sur le GPU ou sur le CPU selon le mode décidé au démarrage de l'instance, avec la même admission. En mode GPU, si Ollama ne parvient pas à charger le modèle (erreur 500 avant le flux), l'API relance la question une seule fois sur CPU, après une nouvelle admission à froid, et l'instance reste sur CPU jusqu'au redémarrage ([architecture, section 5.1](docs/architecture/ARCHITECTURE.md#51-accélération-gpu-de-la-génération)).
 - La réponse ne garde que les identifiants `[S001]`… présents dans le registre de la question ; un clic relit ce registre avant d'ouvrir le document.
@@ -423,7 +574,7 @@ Blocages actuels sur le poste Windows, détaillés dans le [plan](RAG_Local_Agen
 
 ## 16. Configuration
 
-Le profil par défaut est [`config/local16-4b.yaml`](config/local16-4b.yaml) (4B, [W045](RAG_Local_Agents/DECISIONS.md#w045-qwen-35-4b-par-défaut-2b-conservé-au-lancement)) ; [`config/local16.yaml`](config/local16.yaml) sert le 2B (`--model qwen3.5:2b`, `-Model` sous Windows). Les deux suivent le schéma version 2 ; `rag.ps1` accepte un autre profil par `-Profile <chemin>`, `rag.sh` par `--profile <chemin>`. Leurs copies documentaires `RAG_Local_Agents/config/local16-4b.yaml` et `RAG_Local_Agents/config/local16.yaml` doivent rester identiques octet pour octet ; l'explication de chaque paramètre est dans [CONFIGURATION.md](RAG_Local_Agents/CONFIGURATION.md).
+Le profil par défaut est [`config/enhanced-4b.yaml`](config/enhanced-4b.yaml). `rag.ps1` accepte un profil compatible par `-Profile <chemin>`, et `rag.sh` par `--profile <chemin>`. Le modèle, sa quantification et les contrôles de preuve restent obligatoires. Les copies documentaires historiques de `local16-4b.yaml` et `local16.yaml` restent identiques à leurs archives de configuration ; elles ne sont plus des profils de génération autorisés. Voir [CONFIGURATION.md](RAG_Local_Agents/CONFIGURATION.md).
 
 | Section | Contenu principal |
 |---|---|
@@ -481,7 +632,7 @@ Les messages cités sont ceux du code ; la liste complète, avec les messages pr
 | « Port 6333 occupé ; aucun service existant ne sera arrêté. » | Autre programme ou autre instance sur le port | `.\rag.ps1 doctor` (rubrique `ports` : `owned`, `foreign`, `occupied_unknown_owner`) |
 | « Instance existante avec profil différent : down puis up pour appliquer la configuration » | Profil modifié pendant que l'instance tourne | `.\rag.ps1 down` puis `.\rag.ps1 up` |
 | « Chemin Qdrant trop long pour le binaire Windows verrouillé… » | Chemin `…\qdrant\storage` de plus de 57 caractères | Définir `qdrant.storage_dir` vers un dossier court dédié |
-| Question en « En attente de mémoire disponible » puis « Impossible de démarrer la génération de la réponse : … Mio disponibles, 5888 Mio requis (pic prévu 4352 + réserve 1536) … » (5504 et 3968 avec le 2B) | Mémoire hôte sous l'estimation à froid + réserve du profil livré | Fermer des applications étrangères, relancer la question ; `.\rag.ps1 doctor` (rubrique `cold_admission`) |
+| Question en « En attente de mémoire disponible » puis « Impossible de démarrer la génération de la réponse : … Mio disponibles, 5888 Mio requis (pic prévu 4352 + réserve 1536) … » | Mémoire hôte sous l'estimation à froid + réserve du profil 4B | Fermer des applications étrangères, relancer la question ; `.\rag.ps1 doctor` (rubrique `cold_admission`) |
 | « Un travail lourd est déjà en cours sur ce poste (…) ; réessayer après sa fin. » | Import, génération ou calibration tient le verrou lourd | Attendre la fin ; `GET /api/v1/jobs` pour voir le travail actif |
 | `status` renvoie `stale` | Superviseur disparu sans écrire son état (redémarrage du poste, arrêt brutal) | `.\rag.ps1 up` : l'identité périmée n'empêche pas un nouveau lancement |
 | Atelier sur « Session requise », « Session expirée » ou « Lien d'ouverture expiré ou déjà utilisé » | Aucune session valide dans ce navigateur : adresse tapée, 2 h sans activité, 12 h écoulées, API redémarrée, lien de plus de 5 min ou déjà utilisé | `.\rag.ps1 open` |

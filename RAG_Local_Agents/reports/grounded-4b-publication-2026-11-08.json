@@ -1,0 +1,379 @@
+{
+  "schema_version": "grounded-4b-publication-v1",
+  "repository": "msedki/agentPDFDoc",
+  "branch": "enhanced_version",
+  "branch_url": "https://github.com/msedki/agentPDFDoc/tree/enhanced_version",
+  "technical_commit": {
+    "sha": "fdc51187aabbdfd16e561dc32c50ac1c107e15bc",
+    "url": "https://github.com/msedki/agentPDFDoc/commit/fdc51187aabbdfd16e561dc32c50ac1c107e15bc",
+    "tree": "715cad621c8ca34ca046061200b9d7d0abb19c6e",
+    "parent": "3956491a2d7f1f16cefebfe79e92c638b6662c10",
+    "author": {
+      "name": "msedki",
+      "email": "57775584+msedki@users.noreply.github.com",
+      "date": "2026-11-08T15:26:50Z"
+    },
+    "committer": {
+      "name": "msedki",
+      "email": "57775584+msedki@users.noreply.github.com",
+      "date": "2026-11-08T15:26:50Z"
+    }
+  },
+  "local_source_commit": {
+    "sha": "5bf013db6e7ba52b4f89e1c0f7b0f7edce879c81",
+    "tree": "715cad621c8ca34ca046061200b9d7d0abb19c6e",
+    "author": "MOHAMED SEDKI <mohamed.sedki@live.fr>",
+    "committer": "MOHAMED SEDKI <mohamed.sedki@live.fr>",
+    "retained_ref": "refs/heads/local-i3-original-20261108"
+  },
+  "verification": {
+    "method": "GitHub connector GET ref and GET git commit, then git fetch origin enhanced_version; tree equals reviewed local index",
+    "tree_equal": true,
+    "branch_ref_equal": true,
+    "expected_previous_sha": "3956491a2d7f1f16cefebfe79e92c638b6662c10",
+    "force": false,
+    "verified_remote_files": 48,
+    "model_and_runtime_artifacts_excluded": true
+  },
+  "identity_note": "Publication via the requested existing GitHub connector. Its commit API uses the authenticated msedki account metadata. The original local commit preserves the repository-configured identity; the complete Git trees are identical and the local source commit remains on its retained ref.",
+  "scope_note": "This receipt verifies publication of the technical commit; it does not certify native quality. I3-D04 remains partial and I3-D08 is not met. The final documentation commit containing this receipt is verified separately after publication.",
+  "files": [
+    {
+      "path": "CHANGELOG.md",
+      "mode": "100644",
+      "sha": "25069335e4ba1e9ed71853c7741399d9d7dcbb21",
+      "bytes": 82807,
+      "sha256": "1ca5f123cde76c7fb137f4ca22dd513cf21aa833e8f66c3683d45356442b5140"
+    },
+    {
+      "path": "RAG_Local_Agents/CONFIGURATION.md",
+      "mode": "100644",
+      "sha": "0e7f59dbe48f7528aefc825b0705472ec61b4072",
+      "bytes": 26498,
+      "sha256": "f05d61639dd27d745c8ff461d35a9408c53154b17c0b6df0d0701cb157661c80"
+    },
+    {
+      "path": "RAG_Local_Agents/DECISIONS.md",
+      "mode": "100644",
+      "sha": "dc958af1ecb7281635f9c72284ce54b87e36ae25",
+      "bytes": 221292,
+      "sha256": "fe5b0d3df4d565bcaf42007be39b31bc3ea265938396ae2463386c8f90593831"
+    },
+    {
+      "path": "RAG_Local_Agents/IMPLEMENTATION.md",
+      "mode": "100644",
+      "sha": "7fdd347071ac3a820582a545fd94d8d9d403b8d4",
+      "bytes": 37924,
+      "sha256": "5b8581888d1c0c6d8dc00cf28ea35a624598d682111001854735696eb907ce6d"
+    },
+    {
+      "path": "RAG_Local_Agents/PLAN.md",
+      "mode": "100644",
+      "sha": "843c87feea2a2d9ffb29704ea5911dc7b8489501",
+      "bytes": 422053,
+      "sha256": "2685c8df7ebc13e836011e54e94dec3beaf2094b131e76169dd5c69c29ac3682"
+    },
+    {
+      "path": "RAG_Local_Agents/RAG_LOCAL_BRIEF_COMPLET.md",
+      "mode": "100644",
+      "sha": "0616b9422d79cb2389ab254dedd76431f2a1a9ac",
+      "bytes": 1282554,
+      "sha256": "4faf76f330c6053e0a1a8f57c8d2b10602b58bab8a4a13b259a51402dd2cddef"
+    },
+    {
+      "path": "RAG_Local_Agents/SOURCES.md",
+      "mode": "100644",
+      "sha": "e95b6e2bcc6c4c67b01a17200764140b77f2450c",
+      "bytes": 315908,
+      "sha256": "e20087e07973890382fcd147afb1b18750e6d0079bb166e29699e4dfad206ea1"
+    },
+    {
+      "path": "RAG_Local_Agents/journal/2026-11-08.md",
+      "mode": "100644",
+      "sha": "8b623c3232eb7f2e15af6f69200dbe9dc2a84e95",
+      "bytes": 42857,
+      "sha256": "bd84a961268f3998c961572850dee3c5f1647f6365fe504c61a459df54be2e23"
+    },
+    {
+      "path": "RAG_Local_Agents/journal/README.md",
+      "mode": "100644",
+      "sha": "47b4b78d40b2acd6e236347acf79911deaf73589",
+      "bytes": 40048,
+      "sha256": "164b3dfb647d6672cf6abe52a534df3d3867895d03b347716d9b54fe48ce4163"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-addendum-2026-11-08.md",
+      "mode": "100644",
+      "sha": "72d3a301ae5691e45525873fc5e6db4dc423689c",
+      "bytes": 2583,
+      "sha256": "8793bcab3d98680a21a028f24545455f02b63899e3cd7f07817e226e63baee04"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-association-after-2026-11-08.json",
+      "mode": "100644",
+      "sha": "788b34207ccf5aea7305ec54b93fafb338e01fd0",
+      "bytes": 5884,
+      "sha256": "8d5d4f4d5867bc73fed9ed3364560c592e084b3baecbceb8a84e00d1d02bc1cc"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-association-review-2026-11-08.json",
+      "mode": "100644",
+      "sha": "c053315f6109101f0c83ab3f458d6e19f36b6049",
+      "bytes": 7492,
+      "sha256": "1d4539e7289080827e7ffe54985c3a994d7d40264fa4dd9f53a2d9fbbcfa5fa9"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-controlled-2026-11-08.json",
+      "mode": "100644",
+      "sha": "8c09932f04803db6807c5a38331e2f18c325bfe8",
+      "bytes": 370990,
+      "sha256": "303eb5cc45d0dc03dd8f9414ae70dca9e25d752c2f1c7fc8c952d021c911c5aa"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-environment-2026-11-08.json",
+      "mode": "100644",
+      "sha": "f916406150e68aaf68c4801bb05b3bc0ec2466ac",
+      "bytes": 21824,
+      "sha256": "1bc82bb495dca10f1e3cefe6a8b3b4c94679c128dfa0ad1f9c4e048901050020"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-grader-review-2026-11-08.json",
+      "mode": "100644",
+      "sha": "1beee53335a7af2f8c5be7d69ece8770d7e41377",
+      "bytes": 48647,
+      "sha256": "af0aca176f7b6871cdddf60dbdf5f635d66c238205fd15cf301b6ba1ccb35fd5"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-grounding-after-2026-11-08.json",
+      "mode": "100644",
+      "sha": "d35c2460e3e20af64a7ce4f276f441f6f65ea315",
+      "bytes": 44938,
+      "sha256": "70423bf2b8df42deb0a175e98311a67b6e1f112f1c07f058da31a56fbb347d9d"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-grounding-baseline-2026-11-08.json",
+      "mode": "100644",
+      "sha": "27215c0a12f5b8fba29ba893b10043b12077e2a7",
+      "bytes": 35205,
+      "sha256": "510d167391dbb9d3d135a8f6b557b7d5fb5c6315f5b40a29033fc38589336f56"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-native-2026-11-08.json",
+      "mode": "100644",
+      "sha": "afa1aea2325fb95685627e9e5cda6d02c6476607",
+      "bytes": 403826,
+      "sha256": "d070473632d97913129d3bce21e0120bffada44cc86e87e1e526272ce1d10dac"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-output-review-2026-11-08.json",
+      "mode": "100644",
+      "sha": "5b0f3b0a4cc6e24598ec008c0ada251da4140e0e",
+      "bytes": 107465,
+      "sha256": "ba3d11c3d4228667a89c73824089286d1208b7cc90efe91ffc57417a0e8c0ba1"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-protocol-2026-11-08.md",
+      "mode": "100644",
+      "sha": "451cadd91978f4de32b5945162a5cf572f5613f9",
+      "bytes": 8590,
+      "sha256": "a6c36e87fcee36b1b44be64313f2335c4ceb62f2c338df5935b7cb6b47e8a74e"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-reproduce-2026-11-08.md",
+      "mode": "100644",
+      "sha": "52edd1f7c02a7837f11210d181a346c7d8b29c80",
+      "bytes": 10639,
+      "sha256": "d9c5d9d5734315e70c48b4d9243f5de7a0080b6573be08867b6a82daa7d419dd"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-results-2026-11-08.md",
+      "mode": "100644",
+      "sha": "ddd41deb58ac5e5a0fa65c6368760f78e46ddfc7",
+      "bytes": 31532,
+      "sha256": "20c0a98dac714b575bb38f8863495472dbcbd0054870841e36821531d015b7fe"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-retrieval-after-2026-11-08.json",
+      "mode": "100644",
+      "sha": "ce5373101d542f67cc92f15f820189ac170dceaf",
+      "bytes": 2306,
+      "sha256": "6a12c7bf9ddd7884c48fac0e78ffc2c4cce863d77d6365bb3faa34db6efa6be5"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-retrieval-baseline-2026-11-08.json",
+      "mode": "100644",
+      "sha": "f286c5223391789b368c1269047eca6930436928",
+      "bytes": 1572,
+      "sha256": "a9d4c1913d9724ee89d0594e22a3c5f8d8d5b4162a061f7540e5252b4535b460"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/grounded-4b-validation-2026-11-08.json",
+      "mode": "100644",
+      "sha": "6823e262422b741e4dc242f7bce6dc3c50a3a19d",
+      "bytes": 48179,
+      "sha256": "22e468a4d8270944c67979ed2f39ad42d5121c7714b96c0068c79337fb7f79ce"
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "sha": "98a39f8068566f1112290442b50f321c49c649bf",
+      "bytes": 81264,
+      "sha256": "31c98115a9cfa6409e96a0298d593181604ed6a162b9b1f8c9894d8736f47c05"
+    },
+    {
+      "path": "config/enhanced-4b.yaml",
+      "mode": "100644",
+      "sha": "39d92d956d1fa26943ec575c812ab892d8f085f4",
+      "bytes": 6456,
+      "sha256": "40bf94d9cd351d8b0c5018f90e3b49659980dc0e963aadca2c07d902d6966815"
+    },
+    {
+      "path": "services/api/answer_contract.py",
+      "mode": "100644",
+      "sha": "34fd298b11e0e2d599f4b0d787ba94626bcfc5d5",
+      "bytes": 88396,
+      "sha256": "58352cfed90bd466f10bbc69ce7fe0df4a8b895f37cb93a919fc56f1f7f4832d"
+    },
+    {
+      "path": "services/api/evidence_selection.py",
+      "mode": "100644",
+      "sha": "e58f459675c6c1e32d504d02712f8fa4d6b8d0c2",
+      "bytes": 50723,
+      "sha256": "b08d9b469d796a81bc9fd0b370fca2a72e81fc8e6ff0ed6f080b6ef9f3940f9d"
+    },
+    {
+      "path": "services/api/ollama.py",
+      "mode": "100644",
+      "sha": "d152b1bd4c3e6ae46f90736aec621128d0f7f217",
+      "bytes": 24224,
+      "sha256": "d7e2b2d5eb8baa89349eb6820e0c18dbf497e49ae145948dfc55da920df72a27"
+    },
+    {
+      "path": "services/api/query.py",
+      "mode": "100644",
+      "sha": "32326ea3df5e9a6503e7a956edea0113316d591c",
+      "bytes": 52810,
+      "sha256": "f393efebf70fa17796775efeaffd62db1d81c5a1e60a88def666e7dae2618fcc"
+    },
+    {
+      "path": "services/api/retrieval.py",
+      "mode": "100644",
+      "sha": "00561f55c8a88b9e4880ec23ced0568261357916",
+      "bytes": 57830,
+      "sha256": "42f1515ff0996fd7a568a52ff33ca692e25ee8552f545c26143b2a306b65ae1a"
+    },
+    {
+      "path": "services/api/structured_answer.py",
+      "mode": "100644",
+      "sha": "1ba4bcf9c8267da47ecf1aaf791212b22b0efa26",
+      "bytes": 62054,
+      "sha256": "8c8cee3c85452b325a5a3b641f7db27698181f9a30aedbb592c25c49e78ec2fc"
+    },
+    {
+      "path": "services/runtime/profile_schema.py",
+      "mode": "100644",
+      "sha": "33d9d9efab3c6bcc6c3dae045cbc8ea0d765e05b",
+      "bytes": 21860,
+      "sha256": "6f2b885afa441d94c67b16b2fa4002a65f20cc1914aa3157326d7b1ffac3abd9"
+    },
+    {
+      "path": "tests/fixtures/grounded_cases.json",
+      "mode": "100644",
+      "sha": "74556dc0ae63bd5ff6b7afde9b03788fe4da6550",
+      "bytes": 36934,
+      "sha256": "68a997cee3c6e3dcd1d8625d534c17631cb7ddaebedb1bfd3efa316c678fd476"
+    },
+    {
+      "path": "tests/unit/test_api_ocr_provenance.py",
+      "mode": "100644",
+      "sha": "1b4feb7f9ebcd4a99c4456f0c6f219c2f62b6e2d",
+      "bytes": 11380,
+      "sha256": "2606474bb48a7b8b6a7b8eb31b252bcfc8c6299582189a7181ef30e5ec077aa6"
+    },
+    {
+      "path": "tests/unit/test_grounded_campaign.py",
+      "mode": "100644",
+      "sha": "d8ab7d86904757c451004fc5a1e6f6585d4c530a",
+      "bytes": 11142,
+      "sha256": "3541510ad1c848e6a3e344a0e718377b29e81beb6bd1e135458a96ac9add7c17"
+    },
+    {
+      "path": "tests/unit/test_grounded_evidence_contract.py",
+      "mode": "100644",
+      "sha": "cf493aa61a34c2cfd2840455672b29b2770dba0a",
+      "bytes": 21095,
+      "sha256": "304537a83a72c6bdbdcb491463aafa08b0e6be05b82366ab91ef7f200e160fa6"
+    },
+    {
+      "path": "tests/unit/test_grounded_native_harness.py",
+      "mode": "100644",
+      "sha": "b37fc4d6d996de537fb59ef0909740759b06d49c",
+      "bytes": 6869,
+      "sha256": "ff22ef748e7510d13f9c737181b0646e2288e967ff9b00b9f891c10b8091a593"
+    },
+    {
+      "path": "tests/unit/test_grounded_query.py",
+      "mode": "100644",
+      "sha": "08fa24bd983739fa06fc43c38ba11b7e1c3d5072",
+      "bytes": 5127,
+      "sha256": "50041ffabfd5f03c70dc080c83ca4976bf7cef37dd240686f6e209d894f654da"
+    },
+    {
+      "path": "tests/unit/test_grounded_retrieval.py",
+      "mode": "100644",
+      "sha": "b913bf2b130bb4c8eb5f7f5a06a27dbbd1e860da",
+      "bytes": 28275,
+      "sha256": "266180fe8f8c58dbb2f84a228dfeac7e2bd10a6bc44180a9000155ceb7f5326c"
+    },
+    {
+      "path": "tests/unit/test_grounded_runtime.py",
+      "mode": "100644",
+      "sha": "c7e5b1fd3a035c935699bc4e32ffd60d3c1050bc",
+      "bytes": 3612,
+      "sha256": "c43be84d38cf020e8d5ab3c18a773d98b1bcbf260a051c358a000cdd8321fb66"
+    },
+    {
+      "path": "tools/qualification/grounded_campaign.py",
+      "mode": "100644",
+      "sha": "d2bde2886e3023a822b33a126715f594558a1be7",
+      "bytes": 36806,
+      "sha256": "054e3f36af90ac54766a11b7e3778c78ff44371d37b11c33ba6e9a3c0375fa8b"
+    },
+    {
+      "path": "tools/qualification/prepare_grounded_native.py",
+      "mode": "100644",
+      "sha": "fb63d69fdb712ba0a413bcad232d8164892031b9",
+      "bytes": 7521,
+      "sha256": "eba0369e25703d20206a7de45fff24a6e80c935f1dba3e949f86416b2aace5bf"
+    },
+    {
+      "path": "tools/qualification/replay_grounded_contract.py",
+      "mode": "100644",
+      "sha": "099189cb7a43cbb475e6d1ff97aad34233d0bba2",
+      "bytes": 2148,
+      "sha256": "515fb2fc7988d304b5bb939fca32bddcb2292cfe975bf8d50b7e7ce76cbae5ff"
+    },
+    {
+      "path": "tools/qualification/replay_grounded_retrieval.py",
+      "mode": "100644",
+      "sha": "57214257653f7b35e7e847f645f0b686e053415b",
+      "bytes": 6189,
+      "sha256": "c5a057a6727eefa6db14a7f4b51797412d87de6a9f7b1ca1ac28909109403259"
+    },
+    {
+      "path": "tools/qualification/revision_campaign.py",
+      "mode": "100644",
+      "sha": "134f6d18f625787717e11368ea30c8236087ee63",
+      "bytes": 13240,
+      "sha256": "68664200e2beead94cfb4ab4420eb4915830e7da49e1ec63296f1f01e8eedbe4"
+    },
+    {
+      "path": "tools/qualification/run_grounded_native.py",
+      "mode": "100644",
+      "sha": "1506fbf6a23cb80c6cdcf0d5eafe3a392bf0b27c",
+      "bytes": 8198,
+      "sha256": "21c7d6e4c6f5380ddb687c51c8b637bc3d1e5d9c2bac2fb9bf8db053c0c4afd0"
+    }
+  ],
+  "verified_at_utc": "2026-11-08T15:28:16.486020+00:00"
+}

@@ -1,0 +1,101 @@
+{
+  "schema_version": "i5-heldout-derived-pairs-v1",
+  "versions": {
+    "pypdfium2": "5.13.0",
+    "Pillow": "12.3.0",
+    "reportlab": "5.0.1"
+  },
+  "scans": [
+    {
+      "id": "SCAN1",
+      "case_id": "T05",
+      "kind": "image_only",
+      "file": "scans/SCAN1.pdf",
+      "raster_file": "scans/SCAN1.png",
+      "sha256": "ff2702a49eb66b77b6288c65a8ecefed31ccf58c637feb7c79a066f46201d16c",
+      "raster_sha256": "2b2a1bbd1c75cc1c894c6f1ee9d52385f49adbe48def9c506f79ddad0e4d3bed",
+      "bytes": 328719,
+      "original_document_id": "D02",
+      "original_sha256": "5b0e0efe173d5fdaf72c31e697591b0b1cacbd440ec6ba95d742fd587c7aff33",
+      "original_page_index": 2,
+      "product_physical_page": 1,
+      "raster_dimensions": [
+        1700,
+        2200
+      ],
+      "transform": {
+        "render_dpi": 200,
+        "scale": 2.7777777777777777,
+        "rotation_degrees": 0,
+        "color": "8-bit grayscale",
+        "resizing_after_render": false,
+        "augmentation": null,
+        "reportlab_invariant": true,
+        "embedded_text": false,
+        "native_footer": null,
+        "native_footer_font": null,
+        "native_footer_size_points": null,
+        "native_footer_positions": null,
+        "white_footer_rectangle": null
+      },
+      "embedded_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "embedded_text_characters": 0,
+      "original_mapping_is_review_provenance_only": true
+    },
+    {
+      "id": "MIXED1",
+      "case_id": "T07",
+      "kind": "image_body_native_footer",
+      "file": "scans/MIXED1.pdf",
+      "raster_file": "scans/MIXED1.png",
+      "sha256": "b93ca6c6fe601f3102d0d337138219fa5fe101e8c80e04c5810cd79b9d48004f",
+      "raster_sha256": "a2c4d27ddb738d56122c54882f24271ffcc4ad7889fdf0cf1a7760da1283b9cc",
+      "bytes": 338164,
+      "original_document_id": "D03",
+      "original_sha256": "673b1c075b8f5a0653f77906c897ea5aec41a1dec02514770587100587c05eb9",
+      "original_page_index": 0,
+      "product_physical_page": 1,
+      "raster_dimensions": [
+        1700,
+        2200
+      ],
+      "transform": {
+        "render_dpi": 200,
+        "scale": 2.7777777777777777,
+        "rotation_degrees": 0,
+        "color": "8-bit grayscale",
+        "resizing_after_render": false,
+        "augmentation": null,
+        "reportlab_invariant": true,
+        "embedded_text": true,
+        "native_footer": [
+          "An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,",
+          "intellectual property matters and other important disclaimers. PRODUCTION DATA."
+        ],
+        "native_footer_font": "Helvetica",
+        "native_footer_size_points": 7.5,
+        "native_footer_positions": [
+          [
+            79,
+            30
+          ],
+          [
+            79,
+            20
+          ]
+        ],
+        "white_footer_rectangle": [
+          0,
+          0,
+          612.0,
+          44
+        ]
+      },
+      "embedded_text_sha256": "5c109be17b2b891749848e0fea401fc4ad8c3b08d42bc29f8aa869821f998862",
+      "embedded_text_characters": 210,
+      "original_mapping_is_review_provenance_only": true
+    }
+  ],
+  "citation_rule": "Derived files have one physical page; original-page mapping is audit provenance, not a substituted page citation.",
+  "purpose": "Matched positive queries; one image-only signed numeric table and one image body with only an original notice re-typeset as native text."
+}

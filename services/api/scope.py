@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from .errors import ApiError
 from .office import cell_semantics
 from .schemas import Scope
+from .source_geometry import source_page_geometry
 
 # Méthode d'extraction d'un bloc sans métadonnée d'ingestion (index antérieur, extraction contrôlée) : jamais « native ».
 UNKNOWN_METHOD = "unknown"
@@ -109,8 +110,9 @@ class ScopeSnapshot:
 
 
 class ScopeResolver:
-    def __init__(self, db):
+    def __init__(self, db, *, explicit_pdf_lists=False):
         self.db = db
+        self.explicit_pdf_lists = explicit_pdf_lists
 
     @staticmethod
     def document_warnings(connection, requested, rows, mode):
@@ -216,6 +218,7 @@ class ScopeResolver:
             raise ApiError("scope_projection_required", "La plage de cellules exige une projection avant la recherche.", 409)
         rows = self.db.rows("SELECT s.*,b.text,b.bbox_json,b.precision,b.kind,b.section_id,b.extraction_revision_id,b.source_text_hash,b.metadata_json,p.geometry_json FROM chunk_sources s JOIN blocks b ON b.generation_id=? AND b.id=s.block_id LEFT JOIN pages p ON p.generation_id=b.generation_id AND p.page_index=b.page_index WHERE s.chunk_uuid=? ORDER BY s.position", (generation_id, chunk["chunk_uuid"]))
         allowed = []
+        list_candidates = set()
         for row in rows:
             if snapshot.page_indices is not None and row["page_index"] not in snapshot.page_indices:
                 continue
@@ -227,7 +230,7 @@ class ScopeResolver:
             for range_start, range_end in ranges:
                 if range_start >= range_end:
                     continue
-                geometry = json.loads(row["geometry_json"] or "{}")
+                geometry = source_page_geometry(row["geometry_json"])
                 allowed.append({"id": row["block_id"], "block_id": row["block_id"], "page_index": row["page_index"],
                                 "text": row["text"][range_start:range_end], "start_offset": range_start, "end_offset": range_end,
                                 "bbox": json.loads(row["bbox_json"]) if row["bbox_json"] else None,
@@ -238,6 +241,10 @@ class ScopeResolver:
                     metadata = json.loads(row["metadata_json"])
                     allowed[-1].update(selected_office_metadata(metadata, range_start, range_end) if snapshot.spans
                                        else {key: metadata[key] for key in ("locator", "structure", "bindings") if key in metadata})
+                elif self.explicit_pdf_lists:
+                    metadata = json.loads(row["metadata_json"])
+                    if isinstance(metadata.get("list_structure"), dict):
+                        list_candidates.add(row["block_id"])
         if not allowed:
             return None
         result = {"chunk_id": chunk["chunk_uuid"], "generation_id": generation_id, "extraction_revision_id": chunk["extraction_revision_id"],
@@ -249,6 +256,10 @@ class ScopeResolver:
                            "precision": allowed[0]["precision"], "scope_kind": snapshot.scope["kind"]})
             if result["format"] == "xlsx":
                 result["cell_facts"] = self.cell_facts(generation_id, allowed)
+        if list_candidates:
+            from .evidence_selection import attach_list_contexts
+
+            result = attach_list_contexts(self.db, snapshot, result, list_candidates)
         return result
 
     def cell_facts(self, generation_id, blocks):
@@ -276,7 +287,7 @@ class ScopeResolver:
             block = {"id": row["id"], "block_id": row["id"], "text": text, "page_index": row["page_index"],
                      "start_offset": span["startOffset"], "end_offset": span["endOffset"], "type": row["kind"],
                      "bbox": json.loads(row["bbox_json"]) if row["bbox_json"] else None,
-                     "precision": row["precision"], "page": json.loads(row["geometry_json"] or "{}"),
+                     "precision": row["precision"], "page": source_page_geometry(row["geometry_json"]),
                      "extraction_revision_id": row["extraction_revision_id"], "source_text_hash": row["source_text_hash"],
                      "extraction_method": block_extraction_method(row["metadata_json"])}
             if row["page_index"] is None:

@@ -13,6 +13,7 @@ import httpx
 from services.runtime.accelerator import processor_label
 
 from .errors import ApiError
+from .execution_trace import CURRENT_TRACE, record_event
 
 logger = logging.getLogger("rag.llm")
 
@@ -47,6 +48,7 @@ class OllamaGateway:
         self.placement: str | None = None
         # Relectures de l'occupation lancées après une réponse ; la fin du flux ne les attend pas.
         self.placement_reads: set[asyncio.Task] = set()
+        self.last_residency: dict[str, Any] | None = None
 
     async def close(self):
         for task in list(self.placement_reads):
@@ -63,11 +65,22 @@ class OllamaGateway:
                 raise ValueError("Invalid provisioned model manifest")
             model = self.settings.value("llm", "model", "qwen3.5:4b")
             digest = record.get("digest")
+            details = record.get("details", {})
+            if not isinstance(details, dict):
+                raise ValueError("Invalid provisioned model details")
             if (record.get("name", record.get("model")) != model or not isinstance(digest, str)
                     or not re.fullmatch(r"[0-9a-f]{64}", digest)
-                    or record.get("details", {}).get("quantization_level") != self.settings.value("llm", "required_quantization", "Q4_K_M")):
+                    or details.get("quantization_level") != self.settings.value("llm", "required_quantization", "Q4_K_M")):
                 raise ValueError("Invalid provisioned model identity")
-            return {"model": model, "digest": digest, "manifest_sha256": hashlib.sha256(data).hexdigest()}
+            required = {key: self.settings.value("llm", setting, "") for key, setting in (
+                ("parameter_size", "required_parameter_size"), ("family", "required_family"))
+                if self.settings.value("llm", setting, "")}
+            if any(details.get(key) != value for key, value in required.items()):
+                raise ValueError("Provisioned model is outside the configured generator identity")
+            identity: dict[str, Any] = {"model": model, "digest": digest, "manifest_sha256": hashlib.sha256(data).hexdigest()}
+            if required:
+                identity["required_details"] = required
+            return identity
         except (OSError, ValueError, KeyError, TypeError) as error:
             raise ApiError("llm_identity_unverified", "Manifest local Qwen absent ou incompatible ; génération refusée.", 503) from error
 
@@ -75,6 +88,10 @@ class OllamaGateway:
     def verify_digest(record, identity):
         if record.get("digest") != identity["digest"]:
             raise ApiError("llm_identity_mismatch", "Digest Qwen différent ou inconnu ; génération refusée avant envoi du contexte.", 503)
+        details = record.get("details", {})
+        if not isinstance(details, dict) or any(
+                details.get(key) != value for key, value in identity.get("required_details", {}).items()):
+            raise ApiError("llm_identity_mismatch", "La famille ou la taille du modèle ne correspond pas au profil autorisé.", 503)
 
     async def verify_model_identity(self):
         state = await self.loaded_state()
@@ -111,10 +128,50 @@ class OllamaGateway:
                    "num_predict": output_tokens or self.settings.value("llm", "num_predict", 768),
                    "temperature": self.settings.value("llm", "temperature", 0.2),
                    "top_p": self.settings.value("llm", "top_p", 0.9)}
+        seed = self.settings.value("llm", "seed")
+        if seed is not None:
+            options["seed"] = seed
         if cpu:
             options["num_gpu"] = 0
         options["num_thread"] = min(max(1, int(self.settings.value("llm", "threads_max", 4))), max(1, physical_cores - 1))
         return options
+
+    async def finish_residency(self):
+        """Appliquer la politique pendant que le bail de génération est encore détenu.
+
+        adaptive utilise la réserve hôte et le prochain chargement documentaire,
+        sans assimiler un score mémoire à une garantie d'admission future.
+        """
+        policy = self.settings.value("llm", "residency_policy", "keep")
+        result: dict[str, Any] = {"policy": policy, "action": "kept"}
+        unload = policy == "unload"
+        if policy == "adaptive":
+            import psutil
+
+            try:
+                available = psutil.virtual_memory().available / 1048576
+            except OSError:
+                result.update({"action": "residency_unverified", "error": "memory_measurement_failed"})
+                record_event("residency", result, required=False)
+                return result
+            reserve = self.settings.value("resources", "host_available_min_mib", 1536)
+            next_load = self.settings.value("resources", "embedding_load_peak_estimate_mib", 512)
+            margin = self.settings.value("llm", "adaptive_reserve_margin_mib", 512)
+            threshold = reserve + next_load + margin
+            result.update({"available_mib": round(available, 2), "release_below_mib": threshold})
+            unload = available < threshold
+        if unload:
+            started = asyncio.get_running_loop().time()
+            try:
+                await asyncio.wait_for(self.unload(), timeout=15)
+                result["action"] = "unloaded_verified"
+                self.placement = None
+            except (ApiError, TimeoutError) as error:
+                # La réponse reste disponible ; un échec de libération ne devient pas un succès mémoire.
+                result.update({"action": "unload_unverified", "error": getattr(error, "code", "timeout")})
+            result["elapsed_ms"] = round((asyncio.get_running_loop().time() - started) * 1000, 2)
+        record_event("residency", result, required=False)
+        return result
 
     async def loaded_state(self):
         """Read-only warm admission evidence; unknown/incompatible state stays cold.
@@ -225,6 +282,12 @@ class OllamaGateway:
         model_identity = await self.verify_model_identity()
         received_done = False
         fallback = False
+        self.last_residency = None
+        captured_parts = []
+        captured_size = 0
+        captured_complete = True
+        trace = CURRENT_TRACE.get()
+        capture_output = trace is not None and trace.mode == "full"
         try:
             while True:
                 cpu = self.execution["mode"] != "gpu"
@@ -233,6 +296,15 @@ class OllamaGateway:
                         "options": self.chat_options(output_tokens, cpu=cpu)}
                 if response_format is not None:
                     body["format"] = response_format
+                # Même encodeur HTTPX que celui utilisé par client.stream(json=body).
+                wire = httpx.Request("POST", self.base_url + "/api/chat", json=body).content
+                record_event("llm.request", {"body": body, "wire_sha256": hashlib.sha256(wire).hexdigest(),
+                             "wire_bytes": len(wire), "wire_body_utf8": wire.decode("utf-8"),
+                             "verified_model_identity": model_identity,
+                             "attempt": 2 if fallback else 1,
+                             "server_options_requested": {"kv_cache_type": self.settings.value("llm", "kv_cache_type", "f16"),
+                                                          "flash_attention": self.settings.value("llm", "flash_attention", False)},
+                             "server_options_verified": False})
                 failure = None
                 async with self.client.stream("POST", "/api/chat", json=body) as response:
                     if not cpu and response.status_code == FALLBACK_STATUS:
@@ -270,6 +342,13 @@ class OllamaGateway:
                             if message.get("tool_calls") or message.get("thinking"):
                                 raise ApiError("unexpected_llm_behavior", "Le modèle a produit un mode non autorisé.", 503)
                             if message.get("content"):
+                                if capture_output:
+                                    content_size = len(message["content"].encode("utf-8"))
+                                    if captured_size + content_size <= 131_072:
+                                        captured_parts.append(message["content"])
+                                        captured_size += content_size
+                                    else:
+                                        captured_complete = False
                                 yield {"type": "delta", "text": message["content"]}
                             if event.get("done"):
                                 received_done = True
@@ -287,8 +366,15 @@ class OllamaGateway:
                 yield {"type": "cpu_fallback"}
             if not received_done:
                 raise ApiError("incomplete_generation", "Flux Ollama terminé sans marqueur final.", 503)
+        except httpx.TimeoutException as error:
+            raise ApiError("ollama_timeout", "Le moteur local n'a pas répondu dans le délai configuré.", 503) from error
         except (httpx.HTTPError, ValueError) as error:
             raise ApiError("ollama_unavailable", "Runtime Ollama local indisponible.", 503) from error
+        finally:
+            record_event("llm.response", {"received_done": received_done, "fallback": fallback,
+                         "response": "".join(captured_parts) if capture_output else None,
+                         "response_capture_complete": captured_complete}, required=False)
+            self.last_residency = await self.finish_residency()
         if self.execution["mode"] == "gpu":
             # Hors du flux : l'événement done, son enregistrement et la durée de la réponse n'attendent pas /api/ps.
             task = asyncio.create_task(self.observe_placement())

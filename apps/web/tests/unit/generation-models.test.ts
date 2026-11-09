@@ -5,15 +5,14 @@ import { generationModelView, readGeneration } from "../../src/lib/generation.ts
 
 test("startup model is read from the authenticated jobs payload, never defaulted by the UI", () => {
   assert.equal(generationModelView(readGeneration({ device: "cpu", fallback: false, processor: null })), null);
-  for (const model of ["qwen3.5:2b", "qwen3.5:4b-text"]) {
+  for (const model of ["qwen3-4b-enhanced:q4km", "qwen3.5:2b", "qwen3.5:4b-text"]) {
     const state = readGeneration({ device: "cpu", fallback: false, processor: null, model });
     assert.equal(state?.model, model);
     const view = generationModelView(state);
     assert.ok(view?.detail.includes(model));
-    assert.match(view!.detail, /arrêtez le poste/);
-    assert.match(view!.detail, /sans changer ses chemins de données/);
-    assert.match(view!.detail, /redémarrez avec ce même profil/);
-    assert.match(view!.detail, /questions utilisent le modèle de cette instance/);
+    assert.match(view!.detail, /Modèle déclaré pour cette instance/);
+    assert.match(view!.detail, /profil renforcé utilise uniquement Qwen3 4B Q4_K_M/);
+    assert.doesNotMatch(view!.detail, /Pour changer de modèle/);
   }
 });
 

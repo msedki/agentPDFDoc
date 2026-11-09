@@ -1,0 +1,324 @@
+{
+  "schema_version": "i4-heldout-oracles-v1",
+  "frozen_at_utc": "2026-11-08T15:52:55.859703+00:00",
+  "baseline_commit": "fa3eabce5ab0c309b1ca8f01602fced2eb7f1dd8",
+  "source_manifest_sha256": "4082cb4921aded1b05a63fd855e21aebe42b001c870810e5aeda50251c50be85",
+  "conditions": {
+    "scope": "Only the specified page window is admissible; page indices are zero based.",
+    "faithfulness": "All requested facts must be explicit, linked to exact supporting passages and preserve role, conditions, qualifiers and negations. No technical error counts as correct abstention.",
+    "positive": "All requested facts plus warranted conditions; no global unnecessary reservation; exact source quotes are permitted.",
+    "negative": "Explicit scoped insufficiency or uncertainty, not extrapolation; quotations of a different condition must be qualified.",
+    "review": "Independent non-blind agent review after both arms, using original page images and source passages; not answer_contract status or keyword matching as oracle.",
+    "no_new_test_information_to_product": "Questions and oracles are withheld from implementation contributors by workflow until final source freeze. Shared filesystem is not an access-control barrier."
+  },
+  "acceptance": {
+    "answerable_pass": 6,
+    "answerable_total": 6,
+    "limit_pass": 2,
+    "limit_total": 2,
+    "invented_claims": 0,
+    "scope_leakage": 0,
+    "unsupported_public_deltas": 0
+  },
+  "cases": [
+    {
+      "id": "H01",
+      "document_id": "D01",
+      "scope": {
+        "kind": "pages",
+        "page_start": 1,
+        "page_end": 1
+      },
+      "answerable": true,
+      "question": "Dans le tableau des spécifications de l’AD22103K, quelles sont la plage de tension de fonctionnement et la plage de température garantie ? Précise les conditions générales du tableau.",
+      "expected_facts": [
+        {
+          "quantity": "tension de fonctionnement",
+          "minimum": "2.7",
+          "maximum": "3.6",
+          "unit": "V",
+          "role": "operating",
+          "typical_optional": "3.3"
+        },
+        {
+          "quantity": "température garantie",
+          "minimum": "0",
+          "maximum": "100",
+          "unit": "°C",
+          "role": "guaranteed"
+        },
+        {
+          "quantity": "conditions générales du tableau",
+          "ambient_temperature": "25",
+          "ambient_unit": "°C",
+          "supply_minimum": "2.7",
+          "supply_maximum": "3.6",
+          "supply_unit": "V",
+          "qualifier": "sauf indication contraire"
+        }
+      ],
+      "expected_summary_fr": "Alimentation de fonctionnement 2,7–3,6 V et température garantie 0–100 °C. Le bandeau précise TA = 25 °C et VS = 2,7–3,6 V, sauf indication contraire.",
+      "forbidden": [
+        "Une limite absolue de 10 V présentée comme tension normale",
+        "La température de stockage employée comme plage garantie",
+        "Des valeurs maximales attribuées à la colonne typique"
+      ],
+      "source_section": "Spécifications : alimentation, plage de température et bandeau",
+      "original_physical_page": 2,
+      "source_quote_requirement": "Exact supporting original passage or table with its headers/conditions, not just a matching document.",
+      "oracle_written_before_application_outputs": true,
+      "recorded_version_ids": null
+    },
+    {
+      "id": "H02",
+      "document_id": "D01",
+      "scope": {
+        "kind": "pages",
+        "page_start": 0,
+        "page_end": 0
+      },
+      "answerable": true,
+      "question": "Selon la description générale de l’AD22103, quels circuits externes de conditionnement ne sont plus nécessaires ?",
+      "expected_facts": [
+        {
+          "kind": "functional_omission",
+          "items_fr": [
+            "ajustage ou réglage",
+            "étage tampon",
+            "linéarisation"
+          ],
+          "source_concepts": [
+            "trimming",
+            "buffering",
+            "linearization"
+          ]
+        }
+      ],
+      "expected_summary_fr": "Le conditionnement intégré supprime le besoin de circuits d’ajustage, de tampon et de linéarisation.",
+      "forbidden": [
+        "Des composants supplémentaires non nommés dans ce passage",
+        "Une réserve générale sur cette réponse directement explicitée"
+      ],
+      "source_section": "Description générale, deuxième paragraphe",
+      "original_physical_page": 1,
+      "source_quote_requirement": "Exact supporting original passage or table with its headers/conditions, not just a matching document.",
+      "oracle_written_before_application_outputs": true,
+      "recorded_version_ids": null,
+      "original_body_visible_in_image_but_absent_from_pdfium_text": true
+    },
+    {
+      "id": "H03",
+      "document_id": "D01",
+      "scope": {
+        "kind": "pages",
+        "page_start": 1,
+        "page_end": 1
+      },
+      "answerable": false,
+      "question": "Le tableau de spécifications de l’AD22103K donne-t-il une tension nominale de sortie à 150 °C ?",
+      "expected_facts": [],
+      "expected_summary_fr": "Le tableau ne donne pas cette valeur ; sa plage de température garantie s’arrête à 100 °C. Il ne faut pas extrapoler sa formule hors de cette plage.",
+      "forbidden": [
+        "Une valeur de sortie à 150 °C calculée ou inventée",
+        "Une valeur à 100 °C présentée comme valable à 150 °C",
+        "Une garantie au-delà de la plage publiée"
+      ],
+      "source_section": "Spécifications : caractéristiques de sortie et plage de température",
+      "original_physical_page": 2,
+      "source_quote_requirement": "Exact supporting original passage or table with its headers/conditions, not just a matching document.",
+      "oracle_written_before_application_outputs": true,
+      "recorded_version_ids": null,
+      "required_limitation": "Valeur à 150 °C non établie dans ce périmètre ; limites de la plage conservées."
+    },
+    {
+      "id": "H04",
+      "document_id": "D02",
+      "scope": {
+        "kind": "pages",
+        "page_start": 0,
+        "page_end": 0
+      },
+      "answerable": true,
+      "question": "Quelles plages de tension d’alimentation et de température de fonctionnement sont indiquées sur la première page de l’AD22105 ?",
+      "expected_facts": [
+        {
+          "quantity": "alimentation simple",
+          "minimum": "2.7",
+          "maximum": "7.0",
+          "unit": "V"
+        },
+        {
+          "quantity": "température de fonctionnement",
+          "minimum": "-40",
+          "maximum": "150",
+          "unit": "°C"
+        }
+      ],
+      "expected_summary_fr": "L’alimentation simple va de 2,7 à 7,0 V ; le fonctionnement décrit couvre −40 à +150 °C.",
+      "forbidden": [
+        "La précision ou l’hystérésis confondues avec une plage de fonctionnement",
+        "Perte du signe négatif de la température minimale"
+      ],
+      "source_section": "Caractéristiques et description générale",
+      "original_physical_page": 1,
+      "source_quote_requirement": "Exact supporting original passage or table with its headers/conditions, not just a matching document.",
+      "oracle_written_before_application_outputs": true,
+      "recorded_version_ids": null
+    },
+    {
+      "id": "H05",
+      "document_id": "D02",
+      "scope": {
+        "kind": "pages",
+        "page_start": 0,
+        "page_end": 0
+      },
+      "answerable": true,
+      "question": "D’après la description générale de l’AD22105, quelle condition déclenche sa sortie et à quoi sert son hystérésis ?",
+      "expected_facts": [
+        {
+          "quantity": "déclenchement",
+          "condition": "la température ambiante dépasse la consigne programmée par l’utilisateur",
+          "output": "collecteur ouvert"
+        },
+        {
+          "quantity": "fonction de l’hystérésis",
+          "purpose": "éviter les commutations thermiques rapides marche/arrêt",
+          "numeric_hysteresis_not_required": true
+        }
+      ],
+      "expected_summary_fr": "La sortie à collecteur ouvert est activée lorsque la température ambiante dépasse la consigne programmée. L’hystérésis évite les basculements thermiques rapides marche/arrêt.",
+      "forbidden": [
+        "Déclenchement en dessous de la consigne",
+        "Condition de dépassement omise",
+        "Explication physique supplémentaire non présente dans la source",
+        "Réserve générale malgré les deux propositions directement documentées"
+      ],
+      "source_section": "Description générale, premier paragraphe",
+      "original_physical_page": 1,
+      "source_quote_requirement": "Exact supporting original passage or table with its headers/conditions, not just a matching document.",
+      "oracle_written_before_application_outputs": true,
+      "recorded_version_ids": null
+    },
+    {
+      "id": "H06",
+      "document_id": "D03",
+      "scope": {
+        "kind": "pages",
+        "page_start": 0,
+        "page_end": 0
+      },
+      "answerable": true,
+      "question": "Quelles sont les plages d’alimentation simple et symétrique du LTC1540 dans la description de sa première page ?",
+      "expected_facts": [
+        {
+          "quantity": "alimentation simple",
+          "minimum": "2",
+          "maximum": "11",
+          "unit": "V"
+        },
+        {
+          "quantity": "alimentation symétrique",
+          "minimum_magnitude": "1",
+          "maximum_magnitude": "5.5",
+          "unit": "V",
+          "polarity": "±"
+        }
+      ],
+      "expected_summary_fr": "Alimentation simple de 2 à 11 V ; alimentation symétrique de ±1 à ±5,5 V. Les deux modes restent distincts.",
+      "forbidden": [
+        "Attribution de 11 V à chaque branche de l’alimentation symétrique",
+        "Perte des signes ±",
+        "Une borne maximale absolue substituée à cette plage"
+      ],
+      "source_section": "Description, deuxième paragraphe",
+      "original_physical_page": 1,
+      "source_quote_requirement": "Exact supporting original passage or table with its headers/conditions, not just a matching document.",
+      "oracle_written_before_application_outputs": true,
+      "recorded_version_ids": null
+    },
+    {
+      "id": "H07",
+      "document_id": "D03",
+      "scope": {
+        "kind": "pages",
+        "page_start": 2,
+        "page_end": 2
+      },
+      "answerable": true,
+      "question": "Dans le tableau Electrical Characteristics du LTC1540, quels sont les délais de propagation typiques pour des overdrives de 10 mV et 100 mV ? Donne aussi les conditions d’essai associées et les conditions générales du tableau.",
+      "expected_facts": [
+        {
+          "quantity": "délai de propagation",
+          "value": "60",
+          "unit": "µs",
+          "role": "typical",
+          "overdrive": "10",
+          "overdrive_unit": "mV"
+        },
+        {
+          "quantity": "délai de propagation",
+          "value": "50",
+          "unit": "µs",
+          "role": "typical",
+          "overdrive": "100",
+          "overdrive_unit": "mV"
+        },
+        {
+          "quantity": "capacité de sortie d’essai",
+          "value": "100",
+          "unit": "pF",
+          "applies_to_both": true
+        },
+        {
+          "quantity": "conditions générales",
+          "ambient_temperature": "25",
+          "ambient_unit": "°C",
+          "positive_supply": "5",
+          "negative_supply": "0",
+          "ground": "0",
+          "supply_unit": "V",
+          "qualifier": "sauf indication contraire ; ces délais ne portent pas le repère de garantie sur toute la plage thermique"
+        }
+      ],
+      "expected_summary_fr": "Délais typiques : 60 µs à 10 mV et 50 µs à 100 mV, avec COUT = 100 pF. Les conditions générales sont TA = 25 °C, V+ = 5 V et V− = GND = 0 V, sauf indication contraire.",
+      "forbidden": [
+        "Délais typiques présentés comme maxima garantis",
+        "Association des deux valeurs aux mauvais overdrives",
+        "Conditions générales omises",
+        "Garantie de ces délais sur toute la plage thermique"
+      ],
+      "source_section": "Caractéristiques électriques : bandeau et ligne délai de propagation",
+      "original_physical_page": 3,
+      "source_quote_requirement": "Exact supporting original passage or table with its headers/conditions, not just a matching document.",
+      "oracle_written_before_application_outputs": true,
+      "recorded_version_ids": null
+    },
+    {
+      "id": "H08",
+      "document_id": "D03",
+      "scope": {
+        "kind": "pages",
+        "page_start": 0,
+        "page_end": 0
+      },
+      "answerable": false,
+      "question": "La première page du LTC1540 permet-elle de garantir un délai maximal de propagation de 60 µs pour un overdrive de 1 mV ?",
+      "expected_facts": [],
+      "expected_summary_fr": "Non établi : le délai indiqué est associé à un overdrive de 10 mV et ne constitue pas une garantie maximale à 1 mV.",
+      "forbidden": [
+        "60 µs affirmés ou garantis à 1 mV",
+        "Chiffre extrapolé à 1 mV",
+        "Confusion entre une valeur indiquée et une garantie maximale"
+      ],
+      "source_section": "Caractéristiques, ligne délai de propagation",
+      "original_physical_page": 1,
+      "source_quote_requirement": "Exact supporting original passage or table with its headers/conditions, not just a matching document.",
+      "oracle_written_before_application_outputs": true,
+      "recorded_version_ids": null,
+      "required_limitation": "Absence de preuve d’un maximum garanti à 1 mV ; condition de 10 mV conservée."
+    }
+  ],
+  "outcomes_known_at_freeze": false,
+  "transcription_review": "PDFium raster views visually checked by evaluation agent before outputs; numerical tables checked with their column labels and applicable headers."
+}

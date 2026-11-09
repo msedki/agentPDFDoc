@@ -44,7 +44,8 @@ CHUNK = 1024 * 1024
 GIB = 1024**3
 LINUX_PLATFORMS: dict[str, dict[str, Any]] = {"linux-aarch64": {"machine": "aarch64", "e_machine": 183}, "linux-x86_64": {"machine": "x86_64", "e_machine": 62}}
 # Fichiers suivis par Git, lus dans le commit courant. tools/dist sans les scripts PowerShell.
-TRACKED = ("services", "config", "docs", "tools/corpus", "tools/dist", "packages/contracts", "rag.sh", "bootstrap.sh", "pyproject.toml",
+TRACKED = ("services", "config", "docs", "tools/corpus", "tools/dist", "tools/qualification/provision_enhanced_4b.py",
+           "packages/contracts", "rag.sh", "bootstrap.sh", "pyproject.toml",
            "uv.lock", "README.md", "CHANGELOG.md", "apps/web/package.json", "apps/web/pnpm-lock.yaml")
 # Artefacts non suivis, lus dans l'arbre de travail ; `{python}` est la clé du CPython géré (bootstrap.sh).
 ARTIFACTS = ("apps/web/out", ".runtime/bin", ".runtime/models", ".runtime/python/{python}", ".runtime/bootstrap", ".runtime/cache/uv",
@@ -67,13 +68,11 @@ ALLOWED_PATHS = ("*/certifi/cacert.pem",)
 # jetpack5 : complément officiel JetPack 5 (Jetson Linux R35) ; cuda_v12/cuda_v13 (CUDA 12.8/13.0) sont inutilisables
 # sous R35 et aucune voie « generic » n'est qualifiée (W025).
 GPU_VARIANTS = {"none": (), "jetpack5": ("cuda_jetpack5",)}
-MODEL_PROFILES = {"2b": "config/local16.yaml", "4b": "config/local16-4b.yaml"}
-# W045 : le 4B, modèle par défaut, fait partie de tout kit ; le 2B est livré par défaut pour garder le choix au lancement.
-# L'ordre de MODEL_PROFILES reste celui du kit_id et des enregistrements de modèles (…-2b4b).
+MODEL_PROFILES = {"4b": "config/enhanced-4b.yaml"}
+# Only the locked enhanced generator is distributable in this branch.
 DEFAULT_MODEL = "4b"
-DEFAULT_MODELS = ("4b", "2b")
-DEFAULT_MODEL_REFUSAL = ("Kit sans le modèle par défaut qwen3.5:4b refusé (W045) : --models 4b,2b (défaut, les deux modèles au "
-                         "choix du lancement) ou --models 4b. Un kit 2B seul n'est pas fabriqué.")
+DEFAULT_MODELS = ("4b",)
+DEFAULT_MODEL_REFUSAL = "Le kit renforcé livre uniquement Qwen3-4B Q4_K_M : utiliser --models 4b."
 MODELS_LOCK = "config/models.lock.json"
 # Interface livrée : prise dans l'arbre de travail (apps/web/out), elle doit avoir été construite depuis le commit du kit.
 # Le build du frontend écrit cette preuve (commit, sources apps/web modifiées, empreinte de pnpm-lock.yaml) ; le
@@ -89,7 +88,9 @@ TESSERACT_BUILT = ".runtime/manifests/tesseract-built.json"
 REQUIRED_FOR_BUILD = ("tools/dist/install.sh", "tools/dist/linux_install.py", "tools/dist/linux_kit.py", "tools/dist/linux_profiles.py",
                       "tools/dist/build_kit.py", "tools/dist/notices.py", "tools/dist/kit_guide.py", "tools/dist/templates/LISEZMOI-linux.md",
                       "services/runtime/profile_schema.py", "config/artifacts.lock.json", "rag.sh", "bootstrap.sh",
-                      "packages/contracts/contracts.json")
+                      "packages/contracts/contracts.json", "services/runtime/generation_policy.py",
+                      "tools/dist/generation_payload.py", "tools/qualification/provision_enhanced_4b.py",
+                      "config/enhanced-4b.lock.json", "config/enhanced-4b.yaml", "config/model_profiles.json")
 TESSERACT_BINARY = ".runtime/bin/tesseract-5.4.0/tesseract"
 # Contrôles ldd du poste cible, avant toute copie : Tesseract (construit sur le poste, lié aux bibliothèques d'Ubuntu), le
 # module d'OpenCV (roue opencv-python, tirée par rapidocr), lié à libGL, X11 et GLib du système, et les ELF qui portent
@@ -719,11 +720,17 @@ def plan_kit(root: Path = ROOT, *, platform: str, gpu: str = "none", models: tup
     commit = commit or run_git(root, "rev-parse", "--verify", "HEAD^{commit}").decode().strip()
     tracked = git_tracked(root, commit, TRACKED)
     catalogue_entry = next((entry for entry in tracked if entry.relative == "config/model_profiles.json"), None)
+    if catalogue_entry is None:
+        raise KitError("La distribution renforcée exige le catalogue du générateur unique dans le commit.")
     catalogue = None
     profile_paths = dict(MODEL_PROFILES)
     if catalogue_entry is not None:
+        from services.runtime.generation_policy import GENERATION_MODEL
         from services.runtime.model_profiles import validate_catalogue
         catalogue = validate_catalogue(json.loads(git_blobs(root, [catalogue_entry.blob])[catalogue_entry.blob]))
+        if (len(catalogue["profiles"]) != 1 or catalogue["profiles"][0]["model"] != GENERATION_MODEL
+                or catalogue["profiles"][0]["served_model"] != GENERATION_MODEL):
+            raise KitError("La distribution renforcée exige un catalogue contenant uniquement Qwen3-4B verrouillé.")
         profile_paths = {entry["kit_set"]: entry["profile"] for entry in catalogue["profiles"]}
         if not any(entry.relative == "services/runtime/model_profiles.py" for entry in tracked):
             raise KitError("Sélecteur absent du commit qui fournit le catalogue de profils")
@@ -733,6 +740,7 @@ def plan_kit(root: Path = ROOT, *, platform: str, gpu: str = "none", models: tup
     if DEFAULT_MODEL not in models:
         raise KitError(DEFAULT_MODEL_REFUSAL)
     blobs = git_blobs(root, [entry.blob for entry in tracked if entry.relative in {"pyproject.toml", "bootstrap.sh", MODELS_LOCK, WEB_LOCK,
+                                                                                    "config/enhanced-4b.lock.json",
                                                                                     *profile_paths.values()}])
     by_name = {entry.relative: blobs.get(entry.blob) for entry in tracked}
     for required in ("pyproject.toml", "bootstrap.sh", MODELS_LOCK, *profile_paths.values()):
@@ -751,6 +759,12 @@ def plan_kit(root: Path = ROOT, *, platform: str, gpu: str = "none", models: tup
                     or profile.get("source_model", profile["model"]) != entry["model"] or profile["model"] != entry["served_model"]):
                 raise KitError("Profil du commit différent de l'identité du catalogue")
     lock = json.loads(by_name[MODELS_LOCK].decode("utf-8"))  # type: ignore[union-attr]
+    from services.runtime.generation_policy import require_generation_profile
+    for name in models:
+        try:
+            require_generation_profile(profiles[name])
+        except ValueError as error:
+            raise KitError(str(error)) from error
     selection = model_selection(root, models, profiles, lock, profile_paths)
     ports = {selection_label(profiles[name]): profile_ports(profile_paths[name], profiles[name]) for name in models}
 
@@ -800,6 +814,18 @@ def plan_kit(root: Path = ROOT, *, platform: str, gpu: str = "none", models: tup
                 mode = item.stat(follow_symlinks=False).st_mode
                 entries[relative] = Entry(relative, "file", "tree", size=item.stat(follow_symlinks=False).st_size,
                                           executable=bool(mode & stat.S_IXUSR))
+    from tools.dist.generation_payload import filter_generation_files
+    source_lock_bytes = by_name.get("config/enhanced-4b.lock.json")
+    if source_lock_bytes is None:
+        raise KitError("Le verrou du générateur renforcé manque au commit du kit.")
+    try:
+        retained_models = set(filter_generation_files(list(entries), profiles[DEFAULT_MODEL], lock, json.loads(source_lock_bytes)))
+    except ValueError as error:
+        raise KitError(str(error)) from error
+    for name in list(entries):
+        if name not in retained_models:
+            del entries[name]
+            exclude("poids hors générateur unique et modèles documentaires")
     # Lien de version mineure créé par `uv python install` (absolu sur ce poste) : le .venv désigne la version complète.
     minor = root / f".runtime/python/cpython-{'.'.join(key.split('-')[1].split('.')[:2])}-linux-{machine}-gnu"
     if minor.is_symlink():
@@ -1209,7 +1235,7 @@ def kit_extras(plan: Plan, *, blobs: dict[str, bytes], links: list[tuple[str, st
 
     lock = json.loads(blobs[plan.entries["config/artifacts.lock.json"].blob].decode("utf-8"))
     notices = third_party_notices(plan.root, sorted(plan.entries), plan.version, plan.platform, lock=lock, gpu=plan.gpu,
-                                  models=plan.models).encode("utf-8")
+                                 models=plan.models, model_names=tuple(record["name"] for record in plan.model_records)).encode("utf-8")
     documents = {relative: blobs[entry.blob].decode("utf-8") for relative, entry in plan.entries.items()
                  if relative.startswith("docs/") and relative.endswith(".md") and entry.kind == "file" and entry.origin == "git"}
     files = {"guide": GUIDE, "manifest": MANIFEST, "sums": SUMS, "links": LINKS, "executables": EXECUTABLES, "notices": NOTICES,

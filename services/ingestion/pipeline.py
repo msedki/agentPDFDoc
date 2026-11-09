@@ -70,6 +70,8 @@ def routing_reason(page, route, settings):
     if settings.pipeline_route != "auto":
         return "explicit_profile_route"
     if route == "regional_ocr":
+        if page.get("uncovered_vector_regions"):
+            return "uncovered_vector_body"
         return "uncovered_image_regions" if page["image_regions"] else "degraded_native_layer"
     if route == "structured":
         if page["vector_path_count"] >= 8:

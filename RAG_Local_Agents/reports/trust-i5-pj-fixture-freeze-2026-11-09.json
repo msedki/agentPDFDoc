@@ -1,0 +1,30 @@
+{
+  "protocol_id": "I5-PJ-SUPPORT-20261109",
+  "created_utc": "2026-11-09T13:16:37.624281+00:00",
+  "splits": {
+    "development": {
+      "sha256": "4209a27891de7af2d080094767a2b19abfab358f1bc8b735debbe2637e8bbb3b",
+      "count": 24,
+      "positives": 12,
+      "negatives": 12,
+      "document_family_count": 28
+    },
+    "heldout": {
+      "sha256": "0b8edfb53e2d97a520a31d5df2c82d15a1955f929522696a5e1d0c8d687014ed",
+      "count": 24,
+      "positives": 12,
+      "negatives": 12,
+      "document_family_count": 28
+    }
+  },
+  "families_disjoint": true,
+  "role": "pre-edit fixture freeze; independently authored synthetic annotations",
+  "base_revision": "fe4693da07ed9e948f65e4cadb51cd43ec36ebe2",
+  "owner": "qualification",
+  "status": "heldout closed until final product freeze",
+  "label_interpretation": {
+    "exact_support": "explicit exact numeric relation and applicability at the requested point; does not mean all bounded questions are unanswerable",
+    "comparison_forbidden": "manufactured scalar equality forbidden; valid reasoning establishing different values is not forbidden",
+    "domain_scope": "separated synthetic families and templates, not real cross-domain generalization"
+  }
+}
