@@ -871,14 +871,67 @@ class Catalogue:
         except (KeyError, IndexError, TypeError, ValueError) as error:
             raise ApiError("structured_answer_support_invalid", "La restitution ne correspond pas intégralement à ses preuves vérifiées.", 503) from error
 
+    def _closed_numeric_limit_plan(self, required_documents) -> AnswerPlan | None:
+        """Retain every verified numeric diagnostic when selection is closed.
+
+        A missing fact alone does not close selection. This route requires an
+        explicit rejected relation, an incompatible comparison or a conflict,
+        and complete published source blocks from complete generations. It
+        never changes the assessment or turns a quoted limit into an operand.
+        """
+        contract = self.contract
+        if (contract is None or contract.kind not in {"value", "interval", "comparison"}
+                or contract.quantity is None or contract.parse_failures or contract.components
+                or self._retrieval_limitations()):
+            return None
+        publication = self.publication([reference["id"] for reference in self.references], required_documents)
+        selected = publication["selected_ids"]
+        if not selected or publication["blocked_reference_ids"]:
+            return None
+        assessment = self.assess(selected, required_documents)
+        if (assessment["status"] not in {"partial", "conflict"} or assessment["ambiguous"]
+                or assessment.get("interpretation_limitations")
+                or any(item.get("stage") == "selection" for item in assessment["missing"])):
+            return None
+        relations = [*assessment["matched_relations"], *assessment["rejected_relations"]]
+        # Rejected relations can carry unresolved source bindings without an
+        # entry in ``ambiguous``. An incomplete list can also lose its usual
+        # missing-group diagnostic when every relation is rejected.
+        if any(set(item.get("note_issues", ())) - {"numeric_relation_not_exact"}
+               or set(item.get("reasons", ())) & {"requested_subject_binding_not_established",
+                                                  "comparison_subject_not_explicit"}
+               or (item.get("list_binding")
+                   and item["list_binding"].get("catalogue_group_complete") is not True)
+               for item in relations):
+            return None
+        if not (assessment["rejected_relations"] or assessment["conflicts"]
+                or any(item["status"] in {"context_differs", "context_unestablished"}
+                       for item in assessment["comparisons"])):
+            return None
+        by_id = {reference["id"]: reference for reference in self.references}
+        if (not set(required_documents) <= {by_id[ref]["document_id"] for ref in selected}
+                or any(by_id[ref]["kind"] != "excerpt" or by_id[ref].get("source_span_complete") is not True
+                       or by_id[ref].get("index_generation_state") != "ready" for ref in selected)):
+            return None
+        # All matched/rejected relations and their dependencies are retained;
+        # a model cannot resolve their conflict by omitting one quotation.
+        selected_set = set(selected)
+        proofs = [*relations, *assessment["conflicts"]]
+        if (not set(assessment["required_reference_ids"]) <= selected_set
+                or any(not set(proof.get("reference_ids", [proof.get("reference_id")])) <= selected_set
+                       for proof in proofs)):
+            return None
+        return AnswerPlan(references=selected, comparisons=[])
+
     def deterministic_plan(self, required_documents=()) -> AnswerPlan | None:
-        """Complete local relations or exact scoped cells need no model choice.
+        """Complete local relations, closed numeric limits or exact scoped cells.
 
         Expected deterministic refusals (missing formula cache, division by
         zero, unavailable unit) still render their actual reason and sources.
         An empty verified projection has a deterministic limit route. Incomplete
-        relations and ambiguous cells with admissible diagnostics keep the
-        reference-selection route. Completeness is rechecked after rendering.
+        evidence, uninterpreted requests and ambiguous cells with admissible
+        diagnostics keep the reference-selection route. Every route uses the
+        same publication and post-render support checks.
         """
         contract = self.contract
         required_documents = tuple(dict.fromkeys((*self.required_documents, *required_documents)))
@@ -895,6 +948,9 @@ class Catalogue:
                 # Selection is already established by local relation checks.
                 # Running a model cannot add a useful fact to this exact set.
                 return AnswerPlan(references=required, comparisons=[])
+        limited = self._closed_numeric_limit_plan(required_documents)
+        if limited is not None:
+            return limited
         if (contract is None or contract.scope.get("kind") != "cell_range"
                 or contract.kind not in {"cell_values", "calculation"}
                 or not contract.requested_cells or contract.parse_failures or contract.subjects):

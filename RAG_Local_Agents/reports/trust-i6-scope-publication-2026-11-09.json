@@ -1,0 +1,15 @@
+{
+  "branch": "enhanced_version",
+  "repository": "msedki/agentPDFDoc",
+  "local_commit": "74e7936da505ef11ad1de4dab50f010ab6d5262e",
+  "published_commit": "d65ae090ee6297a2e3d2bb902453fbbd05084a62",
+  "parent": "250a7d209aac7deb1dfb3705ae47167c56136e80",
+  "tree": "031debc322b576029212184e1aa96f629782aaa8",
+  "local_author": "MOHAMED SEDKI <mohamed.sedki@live.fr>",
+  "published_author": "msedki <57775584+msedki@users.noreply.github.com>",
+  "local_tree_equals_remote": true,
+  "parent_equal": true,
+  "readback_verified": true,
+  "force": false,
+  "publication_method": "GitHub connector requested by user; commit author fields are not configurable; local authored commit preserved on i6-scope-repair-local"
+}

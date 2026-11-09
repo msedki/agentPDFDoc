@@ -533,12 +533,15 @@ class QueryService:
                         await database_call(self.db.add_event, query_id, "delta", {"text": answer})
                     elif deterministic_plan is not None:
                         assert catalogue is not None
-                        # Exact cell facts or an explicit scope mismatch are
-                        # established by the authorized catalogue itself.
+                        # Facts, scoped refusals and closed numeric diagnostics
+                        # use the same verified rendering as model selections.
                         raw_structured = json_dump(deterministic_plan.model_dump())
                         scope_refusal = metrics.get("context_assessment", {}).get("scope_refusal")
+                        numeric_limit = (bool(deterministic_plan.references)
+                                         and metrics.get("context_assessment", {}).get("status") in {"partial", "conflict"})
                         metrics["response_route"] = ("deterministic_scope_refusal" if scope_refusal
                                                      else "deterministic_cell_contract" if catalogue.contract and catalogue.contract.requested_cells
+                                                     else "deterministic_evidence_limit" if numeric_limit
                                                      else "deterministic_evidence_contract")
                         record_event("answer.deterministic_plan", {"plan": deterministic_plan.model_dump(),
                                      "scope_refusal": scope_refusal,

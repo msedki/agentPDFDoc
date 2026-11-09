@@ -19,9 +19,9 @@ copie sont préservés ; ce complément repart du dernier arbre publié.
 |---|---|---|
 | I6R-01 | Référence immuable, protocole, DEV/final séparés et gelés | PASS cadrage ; protocole publié `141f77f4`, 48+48 annotations relues et [gelées](reports/trust-i6-relations-fixture-freeze-2026-11-09.json) avant produit ; final fermé |
 | I6R-02 | Portée des exceptions/négations, régressions et publication | R1 publié `729524ce`, complété par [R1b](reports/trust-i6-relations-r1b-2026-11-09.md) : nouveau DEV 48/48, 69/69 littéraux ; p95 319,59 ms au-dessus du seuil, coût à corriger |
-| I6R-02c | Reprise des conditions communes, identités Unicode et budget qualitatif | IMPLÉMENTÉ ET VÉRIFIÉ : 50 nouveaux cas, 526 voisins PASS ; [rapport](reports/trust-i6-recovery-scope-2026-11-09.md). Publication du lot en cours |
+| I6R-02c | Reprise des conditions communes, identités Unicode et budget qualitatif | PUBLIÉ `d65ae09` ; 50 nouveaux cas, 526 voisins PASS ; [rapport](reports/trust-i6-recovery-scope-2026-11-09.md), arbre distant vérifié |
 | I6R-03 | Liaison explicite sujets/propriétés/documents, comparaisons et publication | PUBLIÉ `5184200c` ; [R2](reports/trust-i6-relations-r2-2026-11-09.md), 248 tests PASS +23 comparaisons avec intégrité, 48/48 anciens cas |
-| I6R-04 | Route partielle bornée, essais natifs 18 positions/bras, HTTP et coût | EN COURS ; tests rouges R3 préparés, [essai natif incomplet](reports/trust-i6-relations-native-attempt1-2026-11-09.json) après 8 cas ; arrêt de l’ancien espace non prouvé ; reprise isolée après les portes logicielles |
+| I6R-04 | Route partielle bornée, essais natifs 18 positions/bras, HTTP et coût | R3 logiciel vérifié : 5397 tests portables PASS, 20 nouveaux cas, DEV48/48 et 69/69 citations ; p95 70.88 ms. [Rapport](reports/trust-i6-r3-2026-11-09.md). Native/HTTP préparés, pas encore exécutés sur ce candidat ; ancien essai incomplet conservé |
 | I6R-05 | Gel final, 48 cas réservés, revue indépendante, bilan et publication | BLOQUÉ pour les 48 cas historiques : artefact gelé introuvable dans les emplacements accessibles ; aucune ouverture ni reconstitution de score. Les autres portes restent exécutables |
 
 **Points vérifiés :** gel préalable des annotations et produit R1 ciblé,

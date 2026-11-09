@@ -2005,11 +2005,11 @@ class AnswerContract:
             return [fact for component in self.components for fact in component._facts(references)]
         return [fact for fact in self._fact_candidates(references) if not self._relation_rejections(fact)]
 
-    def _rejected_relations(self, references):
+    def _rejected_relations(self, references, *, candidates=None):
         if self.components:
             return [fact for component in self.components for fact in component._rejected_relations(references)]
         rejected = []
-        for fact in self._fact_candidates(references):
+        for fact in self._fact_candidates(references) if candidates is None else candidates:
             reasons = self._relation_rejections(fact)
             related_list_conflict = (fact.get("list_binding")
                                      and any(reason in {"list_heading_subject_conflict", "list_heading_subject_ambiguous"}
@@ -2371,9 +2371,16 @@ class AnswerContract:
             # contradiction by selecting only the favourable statement.
             return list(dict.fromkeys(item["reference_id"] for item in
                                       self._qualitative_candidates(references)))
+        return self._required_ids_from_facts(references, required_documents, self._facts(references))
+
+    def _required_ids_from_facts(self, references, required_documents, facts):
+        """Reuse only the relations computed within the current assessment.
+
+        No result survives a public call: a changed source, dependency, scope
+        or quality reading is parsed again at the next verification boundary.
+        """
         by_address, requested = self._cells(references)
         required = [by_address[address][0]["id"] for address in requested if len(by_address.get(address, [])) == 1]
-        facts = self._facts(references)
         for obligation in self._obligations(facts, required_documents):
             required.extend(obligation["reference_ids"])
         if self.requested_codes:
@@ -2601,7 +2608,13 @@ class AnswerContract:
                 ambiguous.append({"requirement": "ambiguous_numeric_glyph", "reference_ids": [reference["id"]],
                                   "source_ids": reference["source_ids"], "raw_text_preserved": True,
                                   "extraction_method": reference.get("extraction_method", "unknown")})
-        facts = self._facts(selected)
+        # Parse the full catalogue once per assessment, then reuse its facts
+        # for rejections, conflicts and mandatory references. A reduced
+        # selection still needs its own analysis: removing a heading, note or
+        # list member can invalidate a relation that was admissible before.
+        candidates = self._fact_candidates(references)
+        all_facts = [fact for fact in candidates if not self._relation_rejections(fact)]
+        facts = all_facts if len(selected) == len(references) else self._facts(selected)
         incomplete_groups = {}
         for fact in facts:
             binding = fact.get("list_binding")
@@ -2610,7 +2623,7 @@ class AnswerContract:
         missing.extend({"requirement": "list_group_incomplete", "group_id": binding["group_id"],
                         "expected_items": binding["item_count"], "visible_items": binding["visible_item_count"],
                         "verified_items": binding["verified_item_count"]} for binding in incomplete_groups.values())
-        rejected = self._rejected_relations(references)
+        rejected = self._rejected_relations(references, candidates=candidates)
         for item in rejected:
             if "source_assertion_uncertain" in item["reasons"]:
                 ambiguous.append({"requirement": "source_assertion_uncertain", "reference_ids": item["reference_ids"],
@@ -2662,7 +2675,7 @@ class AnswerContract:
                     missing.append({"requirement": "mapping_subject", "subject": subject})
         # Inspect all counted evidence so model omission cannot arbitrate a
         # contradiction. Other documents or different conditions stay distinct.
-        conflicts = _conflicting_relations(self._facts(references), cross_document=self._cross_document_conflicts(),
+        conflicts = _conflicting_relations(all_facts, cross_document=self._cross_document_conflicts(),
                                            agreement_requested=self.agreement_requested)
         all_mappings = self._mappings(references) if self.kind == "mapping" else []
         for configuration in self.configurations:
@@ -2707,7 +2720,7 @@ class AnswerContract:
                 "requested_temperature_conditions": self.requested_temperature_conditions,
                 "requested_properties": self.requested_properties,
                 "comparison_axis": self.comparison_axis, "comparison_per_document": self.comparison_per_document,
-                "required_reference_ids": self.required_ids(references, required_documents),
+                "required_reference_ids": self._required_ids_from_facts(references, required_documents, all_facts),
                 "requested_cells": requested, "requested_subjects": list(self.subjects),
                 "missing": missing, "ambiguous": ambiguous, "conflicts": conflicts,
                 "matched_relations": [*facts, *mappings, *conditions, *limitations], "calculation": calculation,

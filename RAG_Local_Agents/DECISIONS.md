@@ -2694,3 +2694,22 @@ limites sont dans le [rapport de reprise](reports/trust-i6-recovery-scope-2026-1
 Le point de reprise ancien sert de piste ; aucun code ni PASS perdu n’est
 présenté comme récupéré. Les corrections Linux historiques sans défaut sur
 la révision courante ne sont pas transposées.
+
+## I6 R3 — limiter la sélection déterministe et le travail répété
+
+Le contrat réutilise ses relations uniquement pendant un appel à `assess`. Une
+sélection réduite, la publication et le contrôle après rendu réanalysent leurs
+propres preuves. Aucun cache transversal, modèle supplémentaire ou plafond
+relevé n’est introduit.
+
+La nouvelle route partielle exige un diagnostic numérique fermé, des sources
+complètes et toutes leurs dépendances. Les incertitudes de liaison, de notes,
+de qualité ou de groupe empêchent cette route même si `ambiguous` est vide.
+La première suite complète a révélé cette frontière sur six cas historiques ;
+ils restent inchangés et deux reproductions supplémentaires sont ajoutées.
+
+Les recettes natives historiques gardent leurs dénominateurs et leur quota
+d’appels. Les deux témoins directs et le parcours HTTP supplémentaires sont
+figés avant exécution, séparément. Le FINAL historique reste indisponible.
+
+Source : [rapport R3](reports/trust-i6-r3-2026-11-09.md) et reçus liés.

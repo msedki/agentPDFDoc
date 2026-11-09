@@ -141,8 +141,9 @@ def test_unqualified_delay_is_a_cited_bound_diagnostic_without_grammar_or_guaran
     assert cat.contract.guarantee_required is False and cat.contract.requested_point_conditions == []
     view = cat.model_view()
     assert len(view["reference_ids"]) == 2
-    assert cat.deterministic_plan() is None  # preserved model selection route, no model used here
-    result = render(cat, view["reference_ids"])
+    plan = cat.deterministic_plan()
+    assert plan is not None and plan.references == view["reference_ids"]
+    result = render(cat, plan.references)
     assert result["answer_contract"]["status"] != "covered"
     assert not any(item["covered"] for item in result["answer_contract"]["obligations"])
     diagnostic = result["answer_contract"]["rejected_relations"]
