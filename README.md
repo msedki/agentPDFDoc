@@ -1,8 +1,10 @@
 # Atelier documentaire local
 
-**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** bilan I5 établi, diffusion non qualifiée · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; les états antérieurs par plateforme restent documentés ci-dessous · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
+**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** I5 publié, diffusion non qualifiée · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; les états antérieurs par plateforme restent documentés ci-dessous · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
 
 ## I5 — pipeline de confiance et générateur 4B unique, 8 novembre 2026
+
+Commit technique [7cd39839](https://github.com/msedki/agentPDFDoc/commit/7cd398399c98701309ace0498be3f149ae4e276d) publié sur `enhanced_version` ; arbre distant vérifié, publication sans force. [Reçu de publication](RAG_Local_Agents/reports/trust-4b-publication-2026-11-09.json). La qualification de production reste non acquise.
 
 Cette itération renforce le lien entre chaque information publiée et ses preuves : observations natives ou OCR, cellules et conditions de tableau, obligations de la question, vue admise pour le générateur, puis vérification de tous les segments avant publication. Les preuves anciennes qui ne permettent pas cette revalidation doivent être réingérées. Le contrat indique explicitement quand une formulation dépasse son analyse.
 

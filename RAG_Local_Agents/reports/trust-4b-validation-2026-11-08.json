@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "qualification_id": "G4B-I5",
-  "updated_utc": "2026-11-09T04:56:32.515691+00:00",
-  "status": "closed_unqualified_pending_git_publication",
+  "updated_utc": "2026-11-09T05:09:19.160585+00:00",
+  "status": "published_unqualified",
   "production_qualified": false,
-  "final_commit": null,
+  "final_commit": "7cd398399c98701309ace0498be3f149ae4e276d",
   "ownership": "Prepared by validation from completed receipts; root adds native queries and final Definition of Done after their execution.",
   "scope": "Closed engineering verification with preserved development and controlled failures, ratified stopped reserved campaign and unexecuted HTTP. Documentary gates are closed; Git publication remains; no production acceptance or sum of overlapping test invocations.",
   "baseline_commit": "41857e17a438fe43123e4ef8274d9d2d446bfbc2",
@@ -14313,12 +14313,22 @@
         "sha256": "6a43c86f64e8e3096a74179e190332cebe43efed1617ba97b8df989c94f9a5d5",
         "availability": "local_not_versioned"
       }
+    },
+    {
+      "status": "closed_unqualified_pending_git_publication",
+      "observed_utc": "2026-11-09T04:56:32.515691+00:00",
+      "technical_commit": "7cd398399c98701309ace0498be3f149ae4e276d",
+      "preimage": {
+        "path": ".runtime/qa/production-i5-20261108/validation-before-publication-closure-B.json",
+        "sha256": "5c8554f1e4872547ca8d2daf68fe9890e2de648d45ae3bc68bee75997952d549",
+        "availability": "local_not_versioned"
+      }
     }
   ],
   "delivery_status": {
     "engineering_qualification": "CLOSED_NOT_PRODUCTION_QUALIFIED",
     "documentary_gates_5_to_10": "PASS_ALL_SIX_ONCE_NO_SOURCE_DRIFT",
-    "git_publication": "NOT_YET_RECORDED",
+    "git_publication": "VERIFIED_NON_FORCE_EXPECTED_PARENT",
     "root_disposition": {
       "path": ".runtime/qa/production-i5-20261108/root-reserved-stop-disposition-r01.json",
       "sha256": "7af3f487d920f9861965fd3542a0c786d10476af051725018c2df9ce5abad07c",
@@ -14328,6 +14338,13 @@
       "path": ".runtime/qa/production-i5-20261108/final-documentary-gates-v3-completion-r01.json",
       "sha256": "1d54049043cebea9ee3e1d41ad21de8ccb8d73f3cb69a8b2ff9c44df18f47edb",
       "availability": "local_not_versioned"
+    },
+    "technical_commit": "7cd398399c98701309ace0498be3f149ae4e276d",
+    "publication": {
+      "path": "RAG_Local_Agents/reports/trust-4b-publication-2026-11-09.json",
+      "sha256": "52da99be09ea51a17caabeb04e11c8c59845b4760cce67c5c97883d8d5c97f80",
+      "availability": "repository_file",
+      "technical_commit": "7cd398399c98701309ace0498be3f149ae4e276d"
     }
   },
   "reserved_campaign_history": [
@@ -14578,13 +14595,13 @@
   ],
   "definition_of_done": {
     "owner": "root",
-    "observed_utc": "2026-11-09T04:50:06.118572+00:00",
+    "observed_utc": "2026-11-09T05:09:19.160585+00:00",
     "source_report": {
       "path": "RAG_Local_Agents/reports/trust-4b-results-2026-11-08.md",
-      "sha256": "81bcc7eadc1314c4710e69be8e31607f9a8bceb90223801f8559323871942816",
-      "availability": "repository_worktree_report"
+      "sha256": "156e0f9ea12c62c7209dbe2ba6a2dbadd1a1319b6b0a4effc44dc92cec1d261e",
+      "availability": "repository_file"
     },
-    "before_documentary_gates_and_publication": true,
+    "before_documentary_gates_and_publication": false,
     "criteria": {
       "I5-D01": {
         "status": "FAIL",
@@ -14619,9 +14636,14 @@
         "reason": "Frozen identities, input materialization and history established; reserved measures and old-group closure missing."
       },
       "I5-D09": {
-        "status": "NOT_RUN",
-        "reason": "All six documentary gates passed; final commit and remote verification still unrecorded. Root publication disposition remains pending.",
-        "reason_before_documentary_gates": "Documentary checks and final commit/remote verification still to be recorded."
+        "status": "PASS",
+        "reason": "Canonical documentation and six documentary gates passed; technical commit, parent, complete tree and branch verified remotely after a non-force update with the expected parent. Source delivery only; production remains unqualified.",
+        "publication": {
+          "path": "RAG_Local_Agents/reports/trust-4b-publication-2026-11-09.json",
+          "sha256": "52da99be09ea51a17caabeb04e11c8c59845b4760cce67c5c97883d8d5c97f80",
+          "availability": "repository_file",
+          "technical_commit": "7cd398399c98701309ace0498be3f149ae4e276d"
+        }
       }
     },
     "production_qualified": false,
@@ -14629,6 +14651,12 @@
       "path": ".runtime/qa/production-i5-20261108/final-documentary-gates-v3-completion-r01.json",
       "sha256": "1d54049043cebea9ee3e1d41ad21de8ccb8d73f3cb69a8b2ff9c44df18f47edb",
       "availability": "local_not_versioned"
+    },
+    "publication": {
+      "path": "RAG_Local_Agents/reports/trust-4b-publication-2026-11-09.json",
+      "sha256": "52da99be09ea51a17caabeb04e11c8c59845b4760cce67c5c97883d8d5c97f80",
+      "availability": "repository_file",
+      "technical_commit": "7cd398399c98701309ace0498be3f149ae4e276d"
     }
   },
   "current_documentary_gate_campaign": {
@@ -14851,5 +14879,85 @@
     "staged_diff_check": "PASS after declared Markdown whitespace correction",
     "product_or_test_changes": false,
     "scientific_verdicts_changed": false
+  },
+  "definition_of_done_history": [
+    {
+      "owner": "root",
+      "observed_utc": "2026-11-09T04:50:06.118572+00:00",
+      "source_report": {
+        "path": "RAG_Local_Agents/reports/trust-4b-results-2026-11-08.md",
+        "sha256": "81bcc7eadc1314c4710e69be8e31607f9a8bceb90223801f8559323871942816",
+        "availability": "repository_worktree_report"
+      },
+      "before_documentary_gates_and_publication": true,
+      "criteria": {
+        "I5-D01": {
+          "status": "FAIL",
+          "reason": "Unjustified global limitation in TMP117; all-segment fidelity not achieved."
+        },
+        "I5-D02": {
+          "status": "PASS",
+          "scope": "Bounded planned ingestion/geometry/provenance scope; not all documents or reserved transfer."
+        },
+        "I5-D03": {
+          "status": "FAIL",
+          "reason": "Development12/14 positives, SCAN2_H07 and N_tmp117 fail;6/6 limits are separate."
+        },
+        "I5-D04": {
+          "status": "FAIL",
+          "reason": "Real OCR regressions8/8 do not establish useful SCAN2, and reserved derived cases were not evaluated."
+        },
+        "I5-D05": {
+          "status": "FAIL",
+          "reason": "Fixed controlled limits16/18; L11/L12 remain failures despite other software and Office passes."
+        },
+        "I5-D06": {
+          "status": "BLOCKED",
+          "reason": "All24 reserved positions retained, no query observed, no documentary score."
+        },
+        "I5-D07": {
+          "status": "BLOCKED",
+          "reason": "HTTP/SSE not run and final reserved old-group cleanup unverified."
+        },
+        "I5-D08": {
+          "status": "PARTIAL",
+          "reason": "Frozen identities, input materialization and history established; reserved measures and old-group closure missing."
+        },
+        "I5-D09": {
+          "status": "NOT_RUN",
+          "reason": "All six documentary gates passed; final commit and remote verification still unrecorded. Root publication disposition remains pending.",
+          "reason_before_documentary_gates": "Documentary checks and final commit/remote verification still to be recorded."
+        }
+      },
+      "production_qualified": false,
+      "documentary_followup": {
+        "path": ".runtime/qa/production-i5-20261108/final-documentary-gates-v3-completion-r01.json",
+        "sha256": "1d54049043cebea9ee3e1d41ad21de8ccb8d73f3cb69a8b2ff9c44df18f47edb",
+        "availability": "local_not_versioned"
+      }
+    }
+  ],
+  "delivery_status_history": [
+    {
+      "engineering_qualification": "CLOSED_NOT_PRODUCTION_QUALIFIED",
+      "documentary_gates_5_to_10": "PASS_ALL_SIX_ONCE_NO_SOURCE_DRIFT",
+      "git_publication": "NOT_YET_RECORDED",
+      "root_disposition": {
+        "path": ".runtime/qa/production-i5-20261108/root-reserved-stop-disposition-r01.json",
+        "sha256": "7af3f487d920f9861965fd3542a0c786d10476af051725018c2df9ce5abad07c",
+        "availability": "local_not_versioned"
+      },
+      "documentary_completion": {
+        "path": ".runtime/qa/production-i5-20261108/final-documentary-gates-v3-completion-r01.json",
+        "sha256": "1d54049043cebea9ee3e1d41ad21de8ccb8d73f3cb69a8b2ff9c44df18f47edb",
+        "availability": "local_not_versioned"
+      }
+    }
+  ],
+  "publication": {
+    "path": "RAG_Local_Agents/reports/trust-4b-publication-2026-11-09.json",
+    "sha256": "52da99be09ea51a17caabeb04e11c8c59845b4760cce67c5c97883d8d5c97f80",
+    "availability": "repository_file",
+    "technical_commit": "7cd398399c98701309ace0498be3f149ae4e276d"
   }
 }

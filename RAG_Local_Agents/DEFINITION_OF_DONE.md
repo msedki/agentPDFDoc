@@ -20,7 +20,7 @@ L’acceptation exige à la fois la fidélité de tous les segments publics, l�
 | D06 — transfert | BLOCKED | 12 positions de référence NOT_RUN, 12 candidates BLOCKED ; aucune réponse observée ni note documentaire. |
 | D07 — exploitation/coûts | BLOCKED | Preuves de développement conservées ; HTTP v4 NOT_RUN, arrêt du lot réservé interrompu non prouvé. |
 | D08 — reproductibilité | PARTIAL | Séparation/gels/ablations/matérialisation et absence d’ajustement acquis ; 24 mesures réservées et clôture du dernier lot manquantes. |
-| D09 — livraison | NOT_RUN à ce point | Contrôles documentaires et publication distante à consigner après vérification. |
+| D09 — livraison | PASS — sources avec réserves | Six portes documentaires PASS ; commit [7cd39839](https://github.com/msedki/agentPDFDoc/commit/7cd398399c98701309ace0498be3f149ae4e276d), parent/arbre/SHA distants vérifiés et publication sans force. [Reçu](reports/trust-4b-publication-2026-11-09.json). Aucune qualification de production déduite. |
 
 `PARTIAL` suit la matrice I5 du protocole et ne vaut pas `PASS`. Les anciennes recettes Windows/aarch64 et les kits historiques ne qualifient pas les nouveaux binaires ou le nouvel ensemble de modèles par héritage. Les exigences historiques ci-dessous sont conservées.
 

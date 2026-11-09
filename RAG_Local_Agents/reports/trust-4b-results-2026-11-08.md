@@ -1,6 +1,6 @@
 # I5 — fiabilité des preuves et générateur 4B unique
 
-**Statut : bilan I5 arrêté sur sources gelées ; qualification de production non acquise.**
+**Statut : sources I5 publiées et vérifiées ; qualification de production non acquise.**
 Le suivi des actions reste dans [PLAN.md](../PLAN.md). Ce bilan distingue les
 changements implémentés, les observations exécutées et les critères qui restent
 à démontrer. I5 désigne la reprise du 8 novembre 2026 dans l'historique du dépôt ;
@@ -489,7 +489,7 @@ Les statuts ci-dessous appliquent les critères gelés ; `PARTIAL` ne vaut pas
 | I5-D06 — nouveau transfert | **BLOCKED** | 24 positions conservées, aucune requête observée, pas de score. Le lot d’extraction candidat est interrompu. |
 | I5-D07 — exploitation et coûts | **BLOCKED** | Caps, identité 4B, ressources et arrêts du développement sont documentés. HTTP/SSE v4 est NOT_RUN et l’arrêt du dernier lot réservé n’est pas prouvé. |
 | I5-D08 — reproductibilité | **PARTIAL** | Séparation, gels, ablations, matérialisation et absence d’ajustement après ouverture établis ; toutes les tentatives et positions prévues conservées. Les mesures réservées et la clôture du dernier lot manquent. |
-| I5-D09 — livraison | **NOT_RUN à ce point** | Bilan et documents en consolidation ; les contrôles documentaires, le commit et la vérification distante restent à consigner. |
+| I5-D09 — livraison | **PASS — sources avec réserves** | Six portes documentaires réussies ; commit technique [7cd39839](https://github.com/msedki/agentPDFDoc/commit/7cd398399c98701309ace0498be3f149ae4e276d), parent/arbre/SHA distants vérifiés, publication sans force. [Reçu](trust-4b-publication-2026-11-09.json). La qualification de production reste non acquise. |
 
 La qualification de diffusion est **non acquise**. L’installation neuve
 Windows, Linux aarch64 et le poste physique CPU/16 Go restent NOT_RUN pour I5.
@@ -521,6 +521,16 @@ qualifient pas ces cibles par héritage.
 
 Les commandes publiques et les différences avec les pilotes privés de la
 session figurent dans le [guide de reproduction](trust-4b-reproduce-2026-11-08.md).
-Le commit technique, l’arbre et la mise à jour distante seront consignés après
-leur vérification. La publication du code reste distincte d’une release
-qualifiée pour la production.
+Le commit technique [7cd39839](https://github.com/msedki/agentPDFDoc/commit/7cd398399c98701309ace0498be3f149ae4e276d) est publié sur `enhanced_version` avec pour
+parent `41857e17a438fe43123e4ef8274d9d2d446bfbc2` et pour arbre
+`b1fef837513eaedab1a56ffffdbef8f505a6c4a0`. Les 166 fichiers transférés ont des
+empreintes Git identiques à leurs objets stagés. La lecture distante du
+9 novembre 2026 à 05:07:28 UTC vérifie la branche, le parent et l’arbre ; la
+mise à jour est faite sans force, avec contrôle du parent attendu. Le commit
+canonique local retrouve exactement le SHA distant et le checkout est propre
+après import. Le [reçu de publication](trust-4b-publication-2026-11-09.json) conserve ces identités,
+les contrôles des gels et les six portes documentaires déjà réussies.
+
+La présente clôture documentaire référence ce commit technique ; elle ne
+modifie ni produit, ni tests, ni critères, ni résultats. La publication du code
+reste distincte d’une release qualifiée pour la production.

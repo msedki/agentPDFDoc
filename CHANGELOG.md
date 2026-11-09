@@ -10,6 +10,8 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 ### I5 — tableaux, OCR et réponse contrôlée, 8–9 novembre 2026
 
+Commit technique [7cd39839](https://github.com/msedki/agentPDFDoc/commit/7cd398399c98701309ace0498be3f149ae4e276d) publié sur `enhanced_version` ; arbre distant vérifié, publication sans force. [Reçu de publication](RAG_Local_Agents/reports/trust-4b-publication-2026-11-09.json). La qualification de production reste non acquise.
+
 - Reconstruction des relations de tableau depuis les caractères, coordonnées
   et cadres PDF observés ; cellules vides, sous-lignes, conditions générales et
   repères tournés conservés. Une association non justifiée reste indisponible.

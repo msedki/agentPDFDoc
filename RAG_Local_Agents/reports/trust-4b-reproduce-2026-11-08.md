@@ -9,8 +9,9 @@ continuité du service d’exécution pendant D03. Root a ratifié l’arrêt à
 04:40:02 UTC : référence 12 `NOT_RUN`, candidat 12 `BLOCKED`, score documentaire
 non calculé (`null`). HTTP est non exécuté et bloqué. La version d’ingénierie
 reste **non qualifiée pour la production**. Les six portes documentaires
-5–10 ont réussi une fois, sans dérive de sources ; la publication Git reste
-à terminer.
+5–10 ont réussi une fois, sans dérive de sources ; le commit technique
+[7cd39839](https://github.com/msedki/agentPDFDoc/commit/7cd398399c98701309ace0498be3f149ae4e276d) est publié et son parent/arbre/SHA distants vérifiés.
+Le [reçu de publication](trust-4b-publication-2026-11-09.json) identifie ces sources.
 **Référence :** `41857e17a438fe43123e4ef8274d9d2d446bfbc2` et modifications
 I5 identifiées par les reçus de chaque exécution. Les commandes ci-dessous
 sont celles des harnais du dépôt ; leur présence ne constitue pas une preuve

@@ -4,6 +4,8 @@
 
 Dates et heures en UTC. Le suivi canonique des actions demeure dans [PLAN.md](../PLAN.md).
 
+[Publication I5 vérifiée](2026-11-09.md#i5--publication-technique-vérifiée) : commit [7cd39839](https://github.com/msedki/agentPDFDoc/commit/7cd398399c98701309ace0498be3f149ae4e276d), arbre et parent distants vérifiés, publication sans force ; [reçu](../reports/trust-4b-publication-2026-11-09.json). Sources livrées avec réserves, production non qualifiée.
+
 [Poursuite I5 du 9 novembre](2026-11-09.md) : correctifs, campagnes natives
 et portes logicielles finales, gel avant ouverture du nouveau corpus réservé.
 Les résultats primaires, échecs et critères du 8 novembre sont conservés ;
