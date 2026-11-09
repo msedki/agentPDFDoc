@@ -1410,6 +1410,17 @@ Pour chaque skill retenu, vérifier une tâche pertinente et une tâche hors pé
 
 **Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; notes et preuves datées ci-dessous, compléments R27 sur produits `5204d2e`/`aabb9808`, historique conservé · **Mis à jour :** 2026-11-09 (UTC ; complément I5, preuves historiques conservées) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
+## I6 — portée des relations, 9 novembre 2026
+
+Les critères I6R-D01 à D08 sont fixés avant modification dans le
+[protocole I6](reports/trust-i6-relations-protocol-2026-11-09.md), avec un
+[reçu de gel](reports/trust-i6-relations-protocol-freeze-2026-11-09.json).
+Ils portent sur les exceptions/négations, les comparaisons entre sujets,
+la fidélité et le coût d'une route partielle bornée. Leur état initial est
+**NOT_RUN**. Les résultats I5-PJ ci-dessous restent historiques ; le plan
+canonique suit les lots et chaque publication. Aucun critère de production
+n'est acquis par la seule définition du protocole.
+
 ## Complément I5-PJ — relations numériques et conditions, 9 novembre 2026
 
 Les critères PJ-D01 à PJ-D08 sont fixés avant modification dans le
@@ -2001,7 +2012,33 @@ vérité de cette campagne.
 
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** vivant, bilan de la troisième itération de confiance I5 ; implémentations et preuves des lots précédents conservées, qualification de diffusion non acquise · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; historiques R27/R28 et I1–I4 dans leurs sections · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** vivant, itération I6 sur les relations documentaires en cours ; implémentations et preuves des lots précédents conservées, qualification de diffusion non acquise · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; historiques R27/R28 et I1–I4 dans leurs sections · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+
+## I6 — exceptions, négations et comparaisons, 9 novembre 2026 (UTC)
+
+**Objectif :** corriger la portée H24/H06, les obligations comparatives
+H11/H12/D11/D12, puis réduire les appels redondants sur les limites déjà
+établies. **Référence :** `7ef57fdc38261fa4b14e077e5d1c75aee57f7eea`.
+**Autorisation :** poursuivre et publier après chaque lot substantiel vérifié.
+**Invariants :** seul générateur Qwen3-4B retenu, faits et citations liés aux
+sources, budgets constants, aucune adaptation après ouverture du final.
+Le [protocole préalable](reports/trust-i6-relations-protocol-2026-11-09.md)
+et son [gel](reports/trust-i6-relations-protocol-freeze-2026-11-09.json)
+fixent les critères I6R-D01 à D08. Les travaux I6 non publiés de l'autre
+copie sont préservés ; ce complément repart du dernier arbre publié.
+
+| Action | Livrable et critère | État / preuve |
+|---|---|---|
+| I6R-01 | Référence immuable, protocole, DEV/final séparés et gelés | EN COURS ; protocole figé avant produit, 48+48 cas prévus ; final fermé |
+| I6R-02 | Portée des exceptions/négations, régressions et publication | À FAIRE ; H24/H06, I6R-D01/D02/D03/D04 |
+| I6R-03 | Liaison explicite sujets/propriétés/documents, comparaisons et publication | À FAIRE après I6R-02 ; H11/H12/D11/D12, portée par document conservée |
+| I6R-04 | Route partielle bornée, essais natifs 18 positions/bras, HTTP et coût | À FAIRE après I6R-03 ; I6R-D03/D06/D07, aucun modèle ajouté |
+| I6R-05 | Gel final, 48 cas réservés, revue indépendante, bilan et publication | À FAIRE ; I6R-D01 à D08, résultats et échecs complets |
+
+**Points vérifiés :** tête distante identique à la livraison I5-PJ ; copie de
+travail propre avant ce protocole. **Prochaine action :** figer les jeux,
+reproduire les cas connus puis réaliser le premier lot avec ses contre-épreuves.
+Les échecs I5 et I5-PJ restent des résultats historiques, sans reclassement.
 
 ## I5-PJ — complément demandé le 9 novembre 2026 (UTC)
 
@@ -10037,6 +10074,18 @@ Sources locales : [protocole préalable](reports/trust-i5-pj-protocol-2026-11-09
 [bilan](reports/trust-i5-pj-results-2026-11-09.md).
 La littérature motive les hypothèses H1/H2 ; seuls les essais locaux permettent
 de retenir leur implémentation. L'échec final H24 reste au bilan.
+
+
+## I6 — portée des relations, consultation du 9 novembre 2026
+
+| Source primaire | Fait et usage dans ce lot | Limite |
+|---|---|---|
+| [ConjNLI, Saha et al., EMNLP 2020](https://aclanthology.org/2020.emnlp-main.661/), DOI 10.18653/v1/2020.emnlp-main.661 | Contre-épreuves de coordination, négation et quantification ; motifs des tests de portée | Corpus anglais, aucune preuve de notre grammaire FR ou du coût local |
+| [FActScore, Min et al., EMNLP 2023](https://aclanthology.org/2023.emnlp-main.741/), DOI 10.18653/v1/2023.emnlp-main.741 | Mesure d’appui atomique séparée de la couverture de la question | Aucun score ou évaluateur de la publication transféré au produit |
+
+Contrats et choix : [protocole I6](reports/trust-i6-relations-protocol-2026-11-09.md).
+Pages primaires ouvertes, dates de publication tirées de leurs métadonnées ;
+les huit références I5-PJ restent conservées avec leurs limites.
 
 ---
 

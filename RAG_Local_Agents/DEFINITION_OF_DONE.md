@@ -2,6 +2,17 @@
 
 **Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; notes et preuves datées ci-dessous, compléments R27 sur produits `5204d2e`/`aabb9808`, historique conservé · **Mis à jour :** 2026-11-09 (UTC ; complément I5, preuves historiques conservées) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
+## I6 — portée des relations, 9 novembre 2026
+
+Les critères I6R-D01 à D08 sont fixés avant modification dans le
+[protocole I6](reports/trust-i6-relations-protocol-2026-11-09.md), avec un
+[reçu de gel](reports/trust-i6-relations-protocol-freeze-2026-11-09.json).
+Ils portent sur les exceptions/négations, les comparaisons entre sujets,
+la fidélité et le coût d'une route partielle bornée. Leur état initial est
+**NOT_RUN**. Les résultats I5-PJ ci-dessous restent historiques ; le plan
+canonique suit les lots et chaque publication. Aucun critère de production
+n'est acquis par la seule définition du protocole.
+
 ## Complément I5-PJ — relations numériques et conditions, 9 novembre 2026
 
 Les critères PJ-D01 à PJ-D08 sont fixés avant modification dans le

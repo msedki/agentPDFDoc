@@ -2114,3 +2114,15 @@ Sources locales : [protocole préalable](reports/trust-i5-pj-protocol-2026-11-09
 [bilan](reports/trust-i5-pj-results-2026-11-09.md).
 La littérature motive les hypothèses H1/H2 ; seuls les essais locaux permettent
 de retenir leur implémentation. L'échec final H24 reste au bilan.
+
+
+## I6 — portée des relations, consultation du 9 novembre 2026
+
+| Source primaire | Fait et usage dans ce lot | Limite |
+|---|---|---|
+| [ConjNLI, Saha et al., EMNLP 2020](https://aclanthology.org/2020.emnlp-main.661/), DOI 10.18653/v1/2020.emnlp-main.661 | Contre-épreuves de coordination, négation et quantification ; motifs des tests de portée | Corpus anglais, aucune preuve de notre grammaire FR ou du coût local |
+| [FActScore, Min et al., EMNLP 2023](https://aclanthology.org/2023.emnlp-main.741/), DOI 10.18653/v1/2023.emnlp-main.741 | Mesure d’appui atomique séparée de la couverture de la question | Aucun score ou évaluateur de la publication transféré au produit |
+
+Contrats et choix : [protocole I6](reports/trust-i6-relations-protocol-2026-11-09.md).
+Pages primaires ouvertes, dates de publication tirées de leurs métadonnées ;
+les huit références I5-PJ restent conservées avec leurs limites.

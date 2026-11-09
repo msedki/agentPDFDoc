@@ -1,6 +1,15 @@
 # Atelier documentaire local
 
-**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** I5 et complément I5-PJ publiés avec réserves, diffusion non qualifiée · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; les états antérieurs par plateforme restent documentés ci-dessous · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
+**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** I6 en cours ; I5 et I5-PJ publiés avec réserves, diffusion non qualifiée · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; les états antérieurs par plateforme restent documentés ci-dessous · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
+
+## I6 — portée des relations et coût, 9 novembre 2026
+
+L'itération reprend les exceptions et négations H24/H06, les comparaisons
+H11/H12/D11/D12 et les appels redondants sur les réponses partielles.
+Le [protocole préalable](RAG_Local_Agents/reports/trust-i6-relations-protocol-2026-11-09.md)
+fixe les jeux, mesures et critères avant modification. Le
+[plan](RAG_Local_Agents/PLAN.md) suit la réalisation et les publications
+par lot ; aucune réussite produit n'est déduite de ce cadrage.
 
 ## I5-PJ — opérateurs et exceptions, 9 novembre 2026
 
