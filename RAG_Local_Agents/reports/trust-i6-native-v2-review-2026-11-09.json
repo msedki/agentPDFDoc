@@ -1,0 +1,3369 @@
+{
+  "schema_version": 1,
+  "review_id": "I6-NATIVE-V2-TECHNICAL-REVIEW-20261109",
+  "reviewed_utc": "2026-11-09T21:15:01.095503+00:00",
+  "reviewer": "native_analyzer_review",
+  "status": "complete",
+  "verdict": "technical_inventory_corroborated; historical_candidate_http_FAIL_preserved; no_documentary_qualification",
+  "scope": "Independent read-only cross-check of the frozen final technical inventory and its script against all 44 completed native records, verified traces and eight block receipts. Only this review JSON is written.",
+  "main_artifacts": {
+    "i6-v2-final-technical.json": {
+      "path": "/workspace/scratch/2967c8ebdcb2/qa/i6-v2-final-technical.json",
+      "sha256": "5985f9972f2f6461f68741fa8c944c59229b99279ef469786d2736ff4f1d832c"
+    },
+    "native_metrics_summary.py": {
+      "path": "/workspace/scratch/2967c8ebdcb2/qa/native_metrics_summary.py",
+      "sha256": "ecfa45ec66c887d599269a4724736eaafc8dae52cae07299f10c61424a73986e"
+    },
+    "campaign-plan.json": {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-api-mode-v2/campaign-plan.json",
+      "sha256": "8fb1ab32e45d5699ee01d4b3fbf42e28b33af75c63fb5275254683a2041f8b52"
+    }
+  },
+  "expected_positions": 44,
+  "positions_by_dataset": {
+    "original18": 36,
+    "selection2": 4,
+    "http_original": 2,
+    "http_selection": 2
+  },
+  "application_states_observed": {
+    "done": 39,
+    "error": 5
+  },
+  "completed_model_exchanges_by_group": {
+    "original18": {
+      "baseline": 5,
+      "candidate": 1
+    },
+    "selection2": {
+      "baseline": 2,
+      "candidate": 2
+    },
+    "http_original": {
+      "baseline": 1,
+      "candidate": 0
+    },
+    "http_selection": {
+      "baseline": 1,
+      "candidate": 1
+    }
+  },
+  "total_completed_model_exchanges_observed": 13,
+  "historical_candidate_http_FAIL_preserved": true,
+  "original18_quota": {
+    "scope": "Original 18 per arm only; supplements and HTTP never repair this quota",
+    "required_completed_exchanges_per_arm": 2,
+    "baseline_observed": 5,
+    "candidate_observed": 1,
+    "baseline_quota_met": true,
+    "candidate_quota_met": false
+  },
+  "script_static_review": {
+    "complete_source_read": true,
+    "ast_valid": true,
+    "script_executed": false,
+    "prior_minimal_corrections_present": [
+      "Record identity and full trace identity gate native exchange count",
+      "Absent or unreadable observations retain positions and unknown model counts",
+      "Published citation IDs come from public HTTP or persisted direct deltas",
+      "HTTP query memory falls back to memory-peaks query stage",
+      "Latency filters exclude booleans and nonfinite values"
+    ]
+  },
+  "findings": [],
+  "blocks": [
+    {
+      "block": "01-baseline-original18",
+      "dataset": "original18",
+      "arm": "baseline",
+      "expected_positions": 18,
+      "states": {
+        "done": 13,
+        "error": 5
+      },
+      "completed_model_exchanges": 5,
+      "queries_with_completed_4b": 5,
+      "all_terminal_latencies": {
+        "n": 18,
+        "median_ms": 26880.97,
+        "p95_nearest_rank_ms": 123502.01,
+        "max_ms": 123502.01
+      },
+      "done_only_latencies": {
+        "n": 13,
+        "median_ms": 1081.95,
+        "p95_nearest_rank_ms": 52845.27,
+        "max_ms": 52845.27
+      },
+      "memory": {
+        "rss_sum_peak_mib": 4781.87890625,
+        "pss_sum_peak_mib": 4773.921875,
+        "available_min_mib": 1542.58984375
+      },
+      "closure_checks": {
+        "completion_identity": true,
+        "completion_services_stopped": true,
+        "stop_receipt_services_stopped": true,
+        "owned_groups_empty_and_reaped": true,
+        "shared_gguf_unchanged_receipt": true,
+        "sources_unchanged_receipt": true,
+        "commit_matches_freeze": true,
+        "inputs_match_frozen_protocol": true,
+        "summary_matches_receipts": true
+      },
+      "model_manifest_checks": {
+        "model_name": true,
+        "nonempty_digest": true,
+        "model_details": true,
+        "native_show_details": true,
+        "source_gguf": true,
+        "lock_hash": true,
+        "verified_gguf": true,
+        "verified_tokenizer": true
+      },
+      "numerical_checks": {
+        "position_count": true,
+        "states": true,
+        "native_count": true,
+        "native_position_count": true,
+        "no_unknown_observations": true,
+        "all_terminal_latency": true,
+        "done_only_latency": true,
+        "memory_peaks": true
+      },
+      "http": null
+    },
+    {
+      "block": "02-candidate-original18",
+      "dataset": "original18",
+      "arm": "candidate",
+      "expected_positions": 18,
+      "states": {
+        "done": 18
+      },
+      "completed_model_exchanges": 1,
+      "queries_with_completed_4b": 1,
+      "all_terminal_latencies": {
+        "n": 18,
+        "median_ms": 153.915,
+        "p95_nearest_rank_ms": 73158.59,
+        "max_ms": 73158.59
+      },
+      "done_only_latencies": {
+        "n": 18,
+        "median_ms": 153.915,
+        "p95_nearest_rank_ms": 73158.59,
+        "max_ms": 73158.59
+      },
+      "memory": {
+        "rss_sum_peak_mib": 3934.61328125,
+        "pss_sum_peak_mib": 3926.7578125,
+        "available_min_mib": 2426.4609375
+      },
+      "closure_checks": {
+        "completion_identity": true,
+        "completion_services_stopped": true,
+        "stop_receipt_services_stopped": true,
+        "owned_groups_empty_and_reaped": true,
+        "shared_gguf_unchanged_receipt": true,
+        "sources_unchanged_receipt": true,
+        "commit_matches_freeze": true,
+        "inputs_match_frozen_protocol": true,
+        "summary_matches_receipts": true
+      },
+      "model_manifest_checks": {
+        "model_name": true,
+        "nonempty_digest": true,
+        "model_details": true,
+        "native_show_details": true,
+        "source_gguf": true,
+        "lock_hash": true,
+        "verified_gguf": true,
+        "verified_tokenizer": true
+      },
+      "numerical_checks": {
+        "position_count": true,
+        "states": true,
+        "native_count": true,
+        "native_position_count": true,
+        "no_unknown_observations": true,
+        "all_terminal_latency": true,
+        "done_only_latency": true,
+        "memory_peaks": true
+      },
+      "http": null
+    },
+    {
+      "block": "03-baseline-selection2",
+      "dataset": "selection2",
+      "arm": "baseline",
+      "expected_positions": 2,
+      "states": {
+        "done": 2
+      },
+      "completed_model_exchanges": 2,
+      "queries_with_completed_4b": 2,
+      "all_terminal_latencies": {
+        "n": 2,
+        "median_ms": 43534.43,
+        "p95_nearest_rank_ms": 55535.31,
+        "max_ms": 55535.31
+      },
+      "done_only_latencies": {
+        "n": 2,
+        "median_ms": 43534.43,
+        "p95_nearest_rank_ms": 55535.31,
+        "max_ms": 55535.31
+      },
+      "memory": {
+        "rss_sum_peak_mib": 4476.3046875,
+        "pss_sum_peak_mib": 4468.09375,
+        "available_min_mib": 2326.40234375
+      },
+      "closure_checks": {
+        "completion_identity": true,
+        "completion_services_stopped": true,
+        "stop_receipt_services_stopped": true,
+        "owned_groups_empty_and_reaped": true,
+        "shared_gguf_unchanged_receipt": true,
+        "sources_unchanged_receipt": true,
+        "commit_matches_freeze": true,
+        "inputs_match_frozen_protocol": true,
+        "summary_matches_receipts": true
+      },
+      "model_manifest_checks": {
+        "model_name": true,
+        "nonempty_digest": true,
+        "model_details": true,
+        "native_show_details": true,
+        "source_gguf": true,
+        "lock_hash": true,
+        "verified_gguf": true,
+        "verified_tokenizer": true
+      },
+      "numerical_checks": {
+        "position_count": true,
+        "states": true,
+        "native_count": true,
+        "native_position_count": true,
+        "no_unknown_observations": true,
+        "all_terminal_latency": true,
+        "done_only_latency": true,
+        "memory_peaks": true
+      },
+      "http": null
+    },
+    {
+      "block": "04-candidate-selection2",
+      "dataset": "selection2",
+      "arm": "candidate",
+      "expected_positions": 2,
+      "states": {
+        "done": 2
+      },
+      "completed_model_exchanges": 2,
+      "queries_with_completed_4b": 2,
+      "all_terminal_latencies": {
+        "n": 2,
+        "median_ms": 39488.45,
+        "p95_nearest_rank_ms": 50092.26,
+        "max_ms": 50092.26
+      },
+      "done_only_latencies": {
+        "n": 2,
+        "median_ms": 39488.45,
+        "p95_nearest_rank_ms": 50092.26,
+        "max_ms": 50092.26
+      },
+      "memory": {
+        "rss_sum_peak_mib": 4187.59375,
+        "pss_sum_peak_mib": 4178.53125,
+        "available_min_mib": 2504.5625
+      },
+      "closure_checks": {
+        "completion_identity": true,
+        "completion_services_stopped": true,
+        "stop_receipt_services_stopped": true,
+        "owned_groups_empty_and_reaped": true,
+        "shared_gguf_unchanged_receipt": true,
+        "sources_unchanged_receipt": true,
+        "commit_matches_freeze": true,
+        "inputs_match_frozen_protocol": true,
+        "summary_matches_receipts": true
+      },
+      "model_manifest_checks": {
+        "model_name": true,
+        "nonempty_digest": true,
+        "model_details": true,
+        "native_show_details": true,
+        "source_gguf": true,
+        "lock_hash": true,
+        "verified_gguf": true,
+        "verified_tokenizer": true
+      },
+      "numerical_checks": {
+        "position_count": true,
+        "states": true,
+        "native_count": true,
+        "native_position_count": true,
+        "no_unknown_observations": true,
+        "all_terminal_latency": true,
+        "done_only_latency": true,
+        "memory_peaks": true
+      },
+      "http": null
+    },
+    {
+      "block": "05-baseline-http_original",
+      "dataset": "http_original",
+      "arm": "baseline",
+      "expected_positions": 1,
+      "states": {
+        "done": 1
+      },
+      "completed_model_exchanges": 1,
+      "queries_with_completed_4b": 1,
+      "all_terminal_latencies": {
+        "n": 1,
+        "median_ms": 65118.09,
+        "p95_nearest_rank_ms": 65118.09,
+        "max_ms": 65118.09
+      },
+      "done_only_latencies": {
+        "n": 1,
+        "median_ms": 65118.09,
+        "p95_nearest_rank_ms": 65118.09,
+        "max_ms": 65118.09
+      },
+      "memory": {
+        "rss_sum_peak_mib": 3979.640625,
+        "pss_sum_peak_mib": 3970.578125,
+        "available_min_mib": 2961.671875
+      },
+      "closure_checks": {
+        "completion_identity": true,
+        "completion_services_stopped": true,
+        "stop_receipt_services_stopped": true,
+        "owned_groups_empty_and_reaped": true,
+        "shared_gguf_unchanged_receipt": true,
+        "sources_unchanged_receipt": true,
+        "commit_matches_freeze": true,
+        "inputs_match_frozen_protocol": true,
+        "summary_matches_receipts": true
+      },
+      "model_manifest_checks": {
+        "model_name": true,
+        "nonempty_digest": true,
+        "model_details": true,
+        "native_show_details": true,
+        "source_gguf": true,
+        "lock_hash": true,
+        "verified_gguf": true,
+        "verified_tokenizer": true
+      },
+      "numerical_checks": {
+        "position_count": true,
+        "states": true,
+        "native_count": true,
+        "native_position_count": true,
+        "no_unknown_observations": true,
+        "all_terminal_latency": true,
+        "done_only_latency": true,
+        "memory_peaks": true
+      },
+      "http": {
+        "checks": {
+          "public_sse_matches_record": true,
+          "publication_summary_matches": true,
+          "publication_boolean_consistent": true,
+          "version_summary_matches": true,
+          "version_all_checks_true": true,
+          "version_citations_unchanged": true,
+          "original_hashes_unchanged": true,
+          "replacement_hash_matches_recipe": true,
+          "transport_summary_matches": true,
+          "final_summary_matches": true,
+          "native_ingestion_receipt": true,
+          "resume_stream_empty": true,
+          "api_stop_receipt": true,
+          "process_and_completion_agree": true
+        },
+        "application_state": "done",
+        "completed_model_exchanges": 1,
+        "publication_passed": true,
+        "publication_false_checks": [],
+        "version_persistence_passed": true,
+        "transport_operational_passed": true,
+        "final_operational_passed": true,
+        "runner_returncode": 0,
+        "elapsed_ms": 65118.09,
+        "query_memory": {
+          "rss_sum_peak_mib": 3979.640625,
+          "available_min_mib": 2961.671875,
+          "samples": 123,
+          "pss_sum_peak_mib": 3970.578125,
+          "uss_sum_peak_mib": 3966.21875
+        }
+      }
+    },
+    {
+      "block": "06-candidate-http_original",
+      "dataset": "http_original",
+      "arm": "candidate",
+      "expected_positions": 1,
+      "states": {
+        "done": 1
+      },
+      "completed_model_exchanges": 0,
+      "queries_with_completed_4b": 0,
+      "all_terminal_latencies": {
+        "n": 1,
+        "median_ms": 188.57,
+        "p95_nearest_rank_ms": 188.57,
+        "max_ms": 188.57
+      },
+      "done_only_latencies": {
+        "n": 1,
+        "median_ms": 188.57,
+        "p95_nearest_rank_ms": 188.57,
+        "max_ms": 188.57
+      },
+      "memory": {
+        "rss_sum_peak_mib": 738.89453125,
+        "pss_sum_peak_mib": 724.462890625,
+        "available_min_mib": 6116.30078125
+      },
+      "closure_checks": {
+        "completion_identity": true,
+        "completion_services_stopped": true,
+        "stop_receipt_services_stopped": true,
+        "owned_groups_empty_and_reaped": true,
+        "shared_gguf_unchanged_receipt": true,
+        "sources_unchanged_receipt": true,
+        "commit_matches_freeze": true,
+        "inputs_match_frozen_protocol": true,
+        "summary_matches_receipts": true
+      },
+      "model_manifest_checks": {
+        "model_name": true,
+        "nonempty_digest": true,
+        "model_details": true,
+        "native_show_details": true,
+        "source_gguf": true,
+        "lock_hash": true,
+        "verified_gguf": true,
+        "verified_tokenizer": true
+      },
+      "numerical_checks": {
+        "position_count": true,
+        "states": true,
+        "native_count": true,
+        "native_position_count": true,
+        "no_unknown_observations": true,
+        "all_terminal_latency": true,
+        "done_only_latency": true,
+        "memory_peaks": true
+      },
+      "http": {
+        "checks": {
+          "public_sse_matches_record": true,
+          "publication_summary_matches": true,
+          "publication_boolean_consistent": true,
+          "version_summary_matches": true,
+          "version_all_checks_true": true,
+          "version_citations_unchanged": true,
+          "original_hashes_unchanged": true,
+          "replacement_hash_matches_recipe": true,
+          "transport_summary_matches": true,
+          "final_summary_matches": true,
+          "native_ingestion_receipt": true,
+          "resume_stream_empty": true,
+          "api_stop_receipt": true,
+          "process_and_completion_agree": true
+        },
+        "application_state": "done",
+        "completed_model_exchanges": 0,
+        "publication_passed": false,
+        "publication_false_checks": [
+          "actual_model_exchange",
+          "locked_4b_identity_observed"
+        ],
+        "version_persistence_passed": true,
+        "transport_operational_passed": false,
+        "final_operational_passed": false,
+        "runner_returncode": 1,
+        "elapsed_ms": 188.57,
+        "query_memory": {
+          "rss_sum_peak_mib": 722.5,
+          "available_min_mib": 6126.0703125,
+          "samples": 1,
+          "pss_sum_peak_mib": 715.1806640625,
+          "uss_sum_peak_mib": 710.9453125
+        }
+      }
+    },
+    {
+      "block": "07-baseline-http_selection",
+      "dataset": "http_selection",
+      "arm": "baseline",
+      "expected_positions": 1,
+      "states": {
+        "done": 1
+      },
+      "completed_model_exchanges": 1,
+      "queries_with_completed_4b": 1,
+      "all_terminal_latencies": {
+        "n": 1,
+        "median_ms": 63761.28,
+        "p95_nearest_rank_ms": 63761.28,
+        "max_ms": 63761.28
+      },
+      "done_only_latencies": {
+        "n": 1,
+        "median_ms": 63761.28,
+        "p95_nearest_rank_ms": 63761.28,
+        "max_ms": 63761.28
+      },
+      "memory": {
+        "rss_sum_peak_mib": 3978.29296875,
+        "pss_sum_peak_mib": 3969.26953125,
+        "available_min_mib": 2925.3046875
+      },
+      "closure_checks": {
+        "completion_identity": true,
+        "completion_services_stopped": true,
+        "stop_receipt_services_stopped": true,
+        "owned_groups_empty_and_reaped": true,
+        "shared_gguf_unchanged_receipt": true,
+        "sources_unchanged_receipt": true,
+        "commit_matches_freeze": true,
+        "inputs_match_frozen_protocol": true,
+        "summary_matches_receipts": true
+      },
+      "model_manifest_checks": {
+        "model_name": true,
+        "nonempty_digest": true,
+        "model_details": true,
+        "native_show_details": true,
+        "source_gguf": true,
+        "lock_hash": true,
+        "verified_gguf": true,
+        "verified_tokenizer": true
+      },
+      "numerical_checks": {
+        "position_count": true,
+        "states": true,
+        "native_count": true,
+        "native_position_count": true,
+        "no_unknown_observations": true,
+        "all_terminal_latency": true,
+        "done_only_latency": true,
+        "memory_peaks": true
+      },
+      "http": {
+        "checks": {
+          "public_sse_matches_record": true,
+          "publication_summary_matches": true,
+          "publication_boolean_consistent": true,
+          "version_summary_matches": true,
+          "version_all_checks_true": true,
+          "version_citations_unchanged": true,
+          "original_hashes_unchanged": true,
+          "replacement_hash_matches_recipe": true,
+          "transport_summary_matches": true,
+          "final_summary_matches": true,
+          "native_ingestion_receipt": true,
+          "resume_stream_empty": true,
+          "api_stop_receipt": true,
+          "process_and_completion_agree": true
+        },
+        "application_state": "done",
+        "completed_model_exchanges": 1,
+        "publication_passed": true,
+        "publication_false_checks": [],
+        "version_persistence_passed": true,
+        "transport_operational_passed": true,
+        "final_operational_passed": true,
+        "runner_returncode": 0,
+        "elapsed_ms": 63761.28,
+        "query_memory": {
+          "rss_sum_peak_mib": 3976.5703125,
+          "available_min_mib": 2925.3046875,
+          "samples": 121,
+          "pss_sum_peak_mib": 3967.51953125,
+          "uss_sum_peak_mib": 3963.1953125
+        }
+      }
+    },
+    {
+      "block": "08-candidate-http_selection",
+      "dataset": "http_selection",
+      "arm": "candidate",
+      "expected_positions": 1,
+      "states": {
+        "done": 1
+      },
+      "completed_model_exchanges": 1,
+      "queries_with_completed_4b": 1,
+      "all_terminal_latencies": {
+        "n": 1,
+        "median_ms": 67216.44,
+        "p95_nearest_rank_ms": 67216.44,
+        "max_ms": 67216.44
+      },
+      "done_only_latencies": {
+        "n": 1,
+        "median_ms": 67216.44,
+        "p95_nearest_rank_ms": 67216.44,
+        "max_ms": 67216.44
+      },
+      "memory": {
+        "rss_sum_peak_mib": 3975.37890625,
+        "pss_sum_peak_mib": 3966.4912109375,
+        "available_min_mib": 2953.671875
+      },
+      "closure_checks": {
+        "completion_identity": true,
+        "completion_services_stopped": true,
+        "stop_receipt_services_stopped": true,
+        "owned_groups_empty_and_reaped": true,
+        "shared_gguf_unchanged_receipt": true,
+        "sources_unchanged_receipt": true,
+        "commit_matches_freeze": true,
+        "inputs_match_frozen_protocol": true,
+        "summary_matches_receipts": true
+      },
+      "model_manifest_checks": {
+        "model_name": true,
+        "nonempty_digest": true,
+        "model_details": true,
+        "native_show_details": true,
+        "source_gguf": true,
+        "lock_hash": true,
+        "verified_gguf": true,
+        "verified_tokenizer": true
+      },
+      "numerical_checks": {
+        "position_count": true,
+        "states": true,
+        "native_count": true,
+        "native_position_count": true,
+        "no_unknown_observations": true,
+        "all_terminal_latency": true,
+        "done_only_latency": true,
+        "memory_peaks": true
+      },
+      "http": {
+        "checks": {
+          "public_sse_matches_record": true,
+          "publication_summary_matches": true,
+          "publication_boolean_consistent": true,
+          "version_summary_matches": true,
+          "version_all_checks_true": true,
+          "version_citations_unchanged": true,
+          "original_hashes_unchanged": true,
+          "replacement_hash_matches_recipe": true,
+          "transport_summary_matches": true,
+          "final_summary_matches": true,
+          "native_ingestion_receipt": true,
+          "resume_stream_empty": true,
+          "api_stop_receipt": true,
+          "process_and_completion_agree": true
+        },
+        "application_state": "done",
+        "completed_model_exchanges": 1,
+        "publication_passed": true,
+        "publication_false_checks": [],
+        "version_persistence_passed": true,
+        "transport_operational_passed": true,
+        "final_operational_passed": true,
+        "runner_returncode": 0,
+        "elapsed_ms": 67216.44,
+        "query_memory": {
+          "rss_sum_peak_mib": 3973.875,
+          "available_min_mib": 2953.671875,
+          "samples": 127,
+          "pss_sum_peak_mib": 3964.9873046875,
+          "uss_sum_peak_mib": 3960.796875
+        }
+      }
+    }
+  ],
+  "positions": [
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D02",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D04",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D05",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D09",
+      "state": "done",
+      "native_requests": 1,
+      "completed_model_exchanges": 1,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D11",
+      "state": "done",
+      "native_requests": 1,
+      "completed_model_exchanges": 1,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D14",
+      "state": "done",
+      "native_requests": 1,
+      "completed_model_exchanges": 1,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D17",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D19",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D28",
+      "state": "done",
+      "native_requests": 1,
+      "completed_model_exchanges": 1,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D32",
+      "state": "done",
+      "native_requests": 1,
+      "completed_model_exchanges": 1,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D33",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001",
+        "S002"
+      ],
+      "retained_citation_count": 2,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D35",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001",
+        "S002"
+      ],
+      "retained_citation_count": 2,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D38",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001",
+        "S002",
+        "S003",
+        "S004"
+      ],
+      "retained_citation_count": 4,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D42",
+      "state": "error",
+      "native_requests": 1,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [],
+      "retained_citation_count": 2,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D45",
+      "state": "error",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [],
+      "retained_citation_count": 3,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N_I6D48",
+      "state": "error",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [],
+      "retained_citation_count": 4,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N17",
+      "state": "error",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "01-baseline-original18",
+      "case_id": "N18",
+      "state": "error",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D02",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D04",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D05",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D09",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D11",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D14",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D17",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D19",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D28",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D32",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D33",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001",
+        "S002"
+      ],
+      "retained_citation_count": 2,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D35",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001",
+        "S002"
+      ],
+      "retained_citation_count": 2,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D38",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001",
+        "S002",
+        "S003",
+        "S004"
+      ],
+      "retained_citation_count": 4,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D42",
+      "state": "done",
+      "native_requests": 1,
+      "completed_model_exchanges": 1,
+      "published_citation_ids": [
+        "S001",
+        "S002"
+      ],
+      "retained_citation_count": 2,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D45",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001",
+        "S002",
+        "S003"
+      ],
+      "retained_citation_count": 3,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N_I6D48",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001",
+        "S002",
+        "S003",
+        "S004"
+      ],
+      "retained_citation_count": 4,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N17",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "02-candidate-original18",
+      "case_id": "N18",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "03-baseline-selection2",
+      "case_id": "I6S01",
+      "state": "done",
+      "native_requests": 1,
+      "completed_model_exchanges": 1,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "03-baseline-selection2",
+      "case_id": "I6S02",
+      "state": "done",
+      "native_requests": 1,
+      "completed_model_exchanges": 1,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "04-candidate-selection2",
+      "case_id": "I6S01",
+      "state": "done",
+      "native_requests": 1,
+      "completed_model_exchanges": 1,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "04-candidate-selection2",
+      "case_id": "I6S02",
+      "state": "done",
+      "native_requests": 1,
+      "completed_model_exchanges": 1,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "05-baseline-http_original",
+      "case_id": "HTTP01",
+      "state": "done",
+      "native_requests": 1,
+      "completed_model_exchanges": 1,
+      "published_citation_ids": [
+        "S001",
+        "S002"
+      ],
+      "retained_citation_count": 2,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "06-candidate-http_original",
+      "case_id": "HTTP01",
+      "state": "done",
+      "native_requests": 0,
+      "completed_model_exchanges": 0,
+      "published_citation_ids": [
+        "S001",
+        "S002"
+      ],
+      "retained_citation_count": 2,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "07-baseline-http_selection",
+      "case_id": "HTTP_I6S01",
+      "state": "done",
+      "native_requests": 1,
+      "completed_model_exchanges": 1,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    },
+    {
+      "block": "08-candidate-http_selection",
+      "case_id": "HTTP_I6S01",
+      "state": "done",
+      "native_requests": 1,
+      "completed_model_exchanges": 1,
+      "published_citation_ids": [
+        "S001"
+      ],
+      "retained_citation_count": 1,
+      "checks": {
+        "result_identity": true,
+        "result_hash_matches_summary": true,
+        "trace_hash_matches_summary": true,
+        "trace_chain_verified": true,
+        "trace_full_capture": true,
+        "trace_identity": true,
+        "trace_persisted_terminal": true,
+        "trace_terminal_state_matches": true,
+        "single_stored_terminal": true,
+        "summary_identity_flags": true,
+        "model_manifest_matches_summary": true,
+        "native_request_response_details_match": true,
+        "native_count_matches": true,
+        "published_ids_match": true,
+        "published_text_matches": true,
+        "published_spans_match_terminal": true,
+        "marker_check_matches_summary": true,
+        "summary_state_and_latency_match": true,
+        "retained_count_matches": true,
+        "summary_publication_flags": true,
+        "terminal_text_matches": true,
+        "memory_matches_record_or_http_query_stage": true
+      }
+    }
+  ],
+  "limitations": [
+    "Technical inventory verification is not a documentary, semantic, business or global qualification; documentary review remains a separate artifact and was not read while being finalized.",
+    "No service, model inference, test suite, extraction, product rerender, source change or archive collection was performed.",
+    "No rendered segment ledger was reconstructed; its unavailable content is not declared verified.",
+    "Model proof binds verified request wire and block manifest to received_done; an application terminal and a native completed exchange remain distinct.",
+    "all_model_requests_identity_valid is vacuously true where there is no request; the explicit request list and completed exchange count determine whether the model ran.",
+    "Source stability and shared GGUF preservation were checked through all eight completion/stability receipts and public model manifests; the large GGUF blob and all current source files were not rehashed in this lightweight review.",
+    "Memory values are sampled sums of monitored application/service processes and descendants; RSS can count shared pages more than once, and available_min_mib describes the host. No physical 16 GiB qualification is inferred.",
+    "elapsed_ms is total application query latency, not isolated model duration; the block p95 is nearest rank and samples are sequential without controlled cold OS caches.",
+    "HTTP publication/version/API-stop receipts and captured SSE were cross-checked without rerunning HTTP or a browser.",
+    "No qdrant.yaml, HOME, private model metadata, raw log, database or historical FINAL fixture was read."
+  ],
+  "evidence_files_examined": [
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/qa/i6-v2-final-technical.json",
+      "role": "technical_summary_under_review",
+      "sha256": "5985f9972f2f6461f68741fa8c944c59229b99279ef469786d2736ff4f1d832c",
+      "size": 153141
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/qa/native_metrics_summary.py",
+      "role": "inventory_script_static_review",
+      "sha256": "ecfa45ec66c887d599269a4724736eaafc8dae52cae07299f10c61424a73986e",
+      "size": 12990
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-api-mode-v2/campaign-plan.json",
+      "role": "frozen_campaign_plan",
+      "sha256": "8fb1ab32e45d5699ee01d4b3fbf42e28b33af75c63fb5275254683a2041f8b52",
+      "size": 10771
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/config/enhanced-4b.lock.json",
+      "role": "frozen_4b_lock",
+      "sha256": "a54216caeb794243fbb7e35118ade70a533fe25db4f4eea73c1b673aaff24f88",
+      "size": 1193
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-api-mode-v2/candidate-revision.json",
+      "role": "candidate_freeze",
+      "sha256": "cd0921a7e86b6938977d425cbdccbba4222b96dec852567798e8c3bb3d1be64f",
+      "size": 345
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/services/api/execution_trace.py",
+      "role": "trace_verifier_used",
+      "sha256": "0b65a1724144bb30041065bd31724d47d8c620747bb7522347f0d248562022c6",
+      "size": 21503
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-api-mode-v2/original-18/inputs.json",
+      "role": "frozen_inputs",
+      "sha256": "e072334f8e48201f2f900e62ee65f69525710a5db8a3ef444a5b78768105fd67",
+      "size": 74687
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/selection-supplement/inputs.json",
+      "role": "frozen_inputs",
+      "sha256": "dfbc5c9d39dae5b984ae68cd3da3a12da8aaa5a04e87f1b3b9df0cc412ab7d35",
+      "size": 6496
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/http-original/inputs.json",
+      "role": "frozen_inputs",
+      "sha256": "135ddd11798868c4b0fa0a992e45e3439f8a5ce8275294e0b9f3e6ae05a396ce",
+      "size": 1849
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-recovery/http-selection-supplement/inputs.json",
+      "role": "frozen_inputs",
+      "sha256": "cf0cb4f551e44fb93422c5caa80bed26debb20466d1108e239d1a3a78139f98d",
+      "size": 4577
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-api-mode-v2/01-baseline-original18-completion.json",
+      "role": "block_completion",
+      "sha256": "f7d20ce031459e9d0043f8b5fb2b94335415d4e0aafdf9250b97ee7abed75354",
+      "size": 304
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/service-stop.json",
+      "role": "owned_service_stop",
+      "sha256": "c1ecef576d9e1d08fb26f7add8758d400494dea1317d1f928f08e4059133692b",
+      "size": 547
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/source-stability.json",
+      "role": "source_stability",
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "size": 33
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurement-process.json",
+      "role": "measurement_process",
+      "sha256": "31184e9de7ef92162be18e90340617a2be73b06aa27ddf63b550d494983d98dd",
+      "size": 126
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/memory-peaks.json",
+      "role": "memory_peaks",
+      "sha256": "2edb110d6a471f920b406aa33b8bc05e6267964cc039a34596c3927f6cd46302",
+      "size": 3818
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/code-manifest.json",
+      "role": "source_code_manifest",
+      "sha256": "f5e0ad1c985300090311c892a298ad12a277cc98aa557d1b4c5258640bbd815e",
+      "size": 9693
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/protocol-frozen.json",
+      "role": "frozen_runtime_protocol",
+      "sha256": "0c404714135943de3d2b1e5a664f5b1bcff4b60d6749d91b9a4721b9300df068",
+      "size": 89681
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/model-manifests/qwen3-4b-enhanced.json",
+      "role": "block_public_4b_manifest",
+      "sha256": "2802182d68705f3d886063e30b07f7508dba069a743d5034e985a5af30efd7df",
+      "size": 8221
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D02-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "de5675b10f6ebe106e01c8f68d3148678625a8842e985441c25c2e8ddc32a5df",
+      "size": 59942
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/1e2155ba-542a-42d0-8eca-3304c6fee48d.jsonl",
+      "role": "native_query_trace",
+      "sha256": "939b3957e045df32a70d054d4c6caf385f636d87b963fa36ed4204d68267799e",
+      "size": 44727
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D04-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "a916123636542c3438682c11937fdbc197f7375067d13ac144bb977cf8df31ef",
+      "size": 62088
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/15162f62-6004-401f-ac99-a0d3caf0e5c3.jsonl",
+      "role": "native_query_trace",
+      "sha256": "26b4d3b23de534225746f1a737a9f90bb948284c36ef5c359d7ed3b679bcd293",
+      "size": 46500
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D05-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "1563cbf56fe5f0c9ff24ef52c0b6c9e522051528dde29b5dcb79d1fe79630179",
+      "size": 60519
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/b7fdc170-aa84-4a6e-aa01-d3a907dbf28a.jsonl",
+      "role": "native_query_trace",
+      "sha256": "c397533d184fef028ea76c57271e1c969e6fb10b7ca1726416a3d02b1e9cc296",
+      "size": 45170
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D09-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "37498bb3e2cd75928ed9675d6c016045de4d920c3105cc6d9a50ddf21f1b7a69",
+      "size": 85617
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/c45f8d84-0ef4-42a8-8cb7-acbcbd9ac63d.jsonl",
+      "role": "native_query_trace",
+      "sha256": "cd506c8c7884e6c0b0f77861d47e362032ee74399c49d4fe06f6e5a2851dd124",
+      "size": 83857
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D11-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "cd1d494359ced279481e6ed202769331a01ee68d0a164ca1449496c23c426120",
+      "size": 84839
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/3e01e9f1-48b9-424e-a48a-db9f08f080ed.jsonl",
+      "role": "native_query_trace",
+      "sha256": "9e7062e31b0e0767a9c0083edeb6d808e6bc328762560b224fc7e33817b02a02",
+      "size": 85168
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D14-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "c3fddcb2f73259ead2a47ed769f43ec6075e11ff56ea0e3c3ef4f35ff1ea8152",
+      "size": 86137
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/104d6d69-40ac-4cfe-812e-dd48ab25bd9b.jsonl",
+      "role": "native_query_trace",
+      "sha256": "9d43e16d893c0db52565db1fe5bf4a68ed4e5d4e57cc36227a8c2fef65f5e04d",
+      "size": 86081
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D17-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "f62518c69534db93bf2c5fc32867db6d2e7c6a0dfd7be12b57324b456d2e711e",
+      "size": 64150
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/2cfbd04e-4f11-4577-9804-560a4b13f59d.jsonl",
+      "role": "native_query_trace",
+      "sha256": "aac02cd47311da62ae774847856e96dad502ce2403d07e84bd5d7d7074387427",
+      "size": 48142
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D19-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "fb747fdb845b5aff03e7e277a4427e81784c52d574770ebd21b473df26235e17",
+      "size": 67625
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/3a3734a6-8d40-48e1-8fca-c2ee722af0ec.jsonl",
+      "role": "native_query_trace",
+      "sha256": "688040bb4f928ccf461290322990126c0c3bb67d5d9b44b76ed9431d069b2bb8",
+      "size": 49951
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D28-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "ae1630ffa5d21085cd429a900e6c36689af2cd7621c6de5b1196a266c292b299",
+      "size": 89531
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/3fdda80d-f06f-4e34-8c01-32de99a11dff.jsonl",
+      "role": "native_query_trace",
+      "sha256": "ca8cc89abba0bac55905090d765268fa6f1e1b62e5b5090818287f0bfee82d47",
+      "size": 90957
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D32-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "83845360eb1372843c14793efbe6e74fdca38e8a52c28a48e78b544b3fff495b",
+      "size": 90017
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/536b8366-9d44-41dd-88a9-0167723608fc.jsonl",
+      "role": "native_query_trace",
+      "sha256": "d456a7f5b1cccd693c1d778de289ae316c259e5d5d8d778bb7d1e72ae95748a6",
+      "size": 92401
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D33-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "b8357ac3536929cfa0c768c24941726314d261ca2e9d0ec624aa95e692581340",
+      "size": 96616
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/763fc016-f33a-473e-9c7b-b49585ae00be.jsonl",
+      "role": "native_query_trace",
+      "sha256": "1b70ad0389a0e490ba1ee4f339b5d01add3dab104c9443139a61c48b63dcedc4",
+      "size": 69465
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D35-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "f52df3c49f68ebcd6e87f59c8418f7e54caa7cc7d6be15640a6d4a39c9e37af7",
+      "size": 95830
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/d561f4ca-f031-4910-b721-446017bc03cd.jsonl",
+      "role": "native_query_trace",
+      "sha256": "7293d81e0676dc11ed788c463302ceade737e6c76933ab14f2cc6e4017d62cb5",
+      "size": 68765
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D38-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "6a8bd9001380ddff9641350e6b1023bc4d2a49444afc9d6cdb11d2c1f4b540cf",
+      "size": 169337
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/c0ed300e-8b33-4829-ae26-a9332f01e546.jsonl",
+      "role": "native_query_trace",
+      "sha256": "7aa3c4a655c778e77b3275434561bcb7b2ab53f1f442733af5848aacab899071",
+      "size": 119249
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D42-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "0b9378002d8b347152b6167000d2d1913f8d818c706d35bb6809d64b7fe2861d",
+      "size": 66834
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/dcc84bb9-9bac-412c-a050-310531b70420.jsonl",
+      "role": "native_query_trace",
+      "sha256": "5c095dd684d1925c25d34374a801e4f7f559de115a208a447bb98436d7d62a24",
+      "size": 106404
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D45-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "745ae6fee62f46b0f7c9c30a8f973b5ecf310ddaa015e98925efb9202bd899a5",
+      "size": 79547
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/f3af747c-6241-4304-9e2d-1dcf0ac03240.jsonl",
+      "role": "native_query_trace",
+      "sha256": "6944a61a7396436a40fabdaea98d52cca90a8dc909b9af906f32a3c59ff8dfa5",
+      "size": 67895
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N_I6D48-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "49b7ccc6eb218a0c98d43805c7adfd0a912584f643e0438eceb1703db81817af",
+      "size": 108102
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/dd264842-e297-459a-a09e-00eeac922057.jsonl",
+      "role": "native_query_trace",
+      "sha256": "3ffb517602eb90a00a78bec3cbe46ff40ab659e36f005e1e06d0395b6b1fdcc0",
+      "size": 90911
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N17-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "16242574d99f1aabacfb7407004492403b1e3b99a93ea4a841710797c0f73d3b",
+      "size": 31723
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/57b50c42-77df-4ce5-abcc-032856e26536.jsonl",
+      "role": "native_query_trace",
+      "sha256": "789212e0c16dd44fe462f7e1ba0bd02493cb110ae924844e4d8422c1c76e0db1",
+      "size": 46629
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/N18-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "9e7e05a41fa8026a1d37257609f6d9bfafb6b6aab9edf15a32eec6fe03610ede",
+      "size": 31719
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/01-baseline-original18/measurements/data/traces/e8aa0afe-93a6-4881-af16-10177efd4375.jsonl",
+      "role": "native_query_trace",
+      "sha256": "f515f8c8f80290c4ec8eed7755cccf87fab6d0581821da30afdffd3d61f6534e",
+      "size": 46617
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-api-mode-v2/02-candidate-original18-completion.json",
+      "role": "block_completion",
+      "sha256": "a715e9b7b1207f037df20ef0ca17490a6563ef4df1d50350cf9a1e66f60e27f5",
+      "size": 305
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/service-stop.json",
+      "role": "owned_service_stop",
+      "sha256": "b4ad7239c020443884d9cc9a20225a06634794de2f95f18e72d4875878face6d",
+      "size": 547
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/source-stability.json",
+      "role": "source_stability",
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "size": 33
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurement-process.json",
+      "role": "measurement_process",
+      "sha256": "b5a6f682c90ed06ed5cd1766498fae49ac9e51848b474a4b05b6e25969a97306",
+      "size": 126
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/memory-peaks.json",
+      "role": "memory_peaks",
+      "sha256": "84b09ee9224b050963ce9cbd663b71ca5cca3ddd0f783370f1a60f551095fe93",
+      "size": 3829
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/code-manifest.json",
+      "role": "source_code_manifest",
+      "sha256": "59043c033e28b94b368cdfd4f89146d8620b72f3c49704a1d328eda8b6e75617",
+      "size": 9693
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/protocol-frozen.json",
+      "role": "frozen_runtime_protocol",
+      "sha256": "c3b775629372b63d21e8684804c11907a88b408d552935ce387beeb6a3e61115",
+      "size": 89676
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/model-manifests/qwen3-4b-enhanced.json",
+      "role": "block_public_4b_manifest",
+      "sha256": "5530c5680d257dcb9c2a64e312a9baaa19198804f51ca0fcff09fade43ece583",
+      "size": 8224
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D02-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "f12f2fe45a8d59b7cf2dfe650ea60f3946d200afc7d4241e1626fb64dcfd1c67",
+      "size": 59949
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/17a9d416-8b88-4f33-97c4-0c70804542f6.jsonl",
+      "role": "native_query_trace",
+      "sha256": "7c06bad88f79087027e3c8a9e8b822387ce11aaadb88a4fe57d9f20ee422da5e",
+      "size": 44728
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D04-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "4824f3e34cafc67eba9fd2c37cc4b920b7e17faaa301cf4288678d99f47bba44",
+      "size": 62104
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/2a6b453c-0ba9-499e-a017-efd3331895eb.jsonl",
+      "role": "native_query_trace",
+      "sha256": "655a7bb737e147125d4465009ad5e2461bbbfa3497f73e970c6796c763547673",
+      "size": 46499
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D05-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "78e7b779bc6f292c40ed589f0d28dbd5202ce52930d02e1778368262adc3d5e1",
+      "size": 60523
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/3ac01b84-d3a6-4c49-aa90-80b64839f2e6.jsonl",
+      "role": "native_query_trace",
+      "sha256": "6dc7ba913a9c97c2e9db2e01befa29a743abae0dc34b1bd6d234b0887535e3c6",
+      "size": 45166
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D09-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "a61eefdffb04dffe1df0a29461f189e3e9bdedf4adc858e3b2c1f737ad55ca1b",
+      "size": 72141
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/a3e8e470-f1f3-492e-bf44-01a43947b952.jsonl",
+      "role": "native_query_trace",
+      "sha256": "2776dacdc0f79eaa54466825e4cdcf00264fd97f2d7b9bdeb5815a2f9b7b28eb",
+      "size": 70325
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D11-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "1b3c7f911ed01aec74489214e6cf110c91541da6ac71ca7e8a246d7d87ba178e",
+      "size": 72387
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/6033dd4d-9357-4d86-8b9b-b012476c6315.jsonl",
+      "role": "native_query_trace",
+      "sha256": "258130223b67794f42b369695597ec927d9dc12a22435fd3e15dcf22635d7502",
+      "size": 71297
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D14-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "a600f3f1c2ad96d254a1b2f5b3e4a71be033ecd9cfc0522887044b5b38edef87",
+      "size": 72378
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/d0cd965f-1c1a-4948-80e1-d2b70408742a.jsonl",
+      "role": "native_query_trace",
+      "sha256": "6a160ed6573543c1d363f01ef18db6f1d32638e93ef574f8aef59d5bd6c57b33",
+      "size": 71276
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D17-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "8b4ba67a1d6fc85d2acc06616495a942dcc071b700fc0ce189494f2ee4baad03",
+      "size": 64140
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/4f8eebd7-1383-448e-8321-13f87eb48aee.jsonl",
+      "role": "native_query_trace",
+      "sha256": "4b5592dcb597835ace0d0007437cd19509fd138ec21caf9aa7bc6052c6c70094",
+      "size": 48123
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D19-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "a833cd7f7a301155b4912a6b94b50bdfb9c410e3509d6fe19fb04295dc8f793a",
+      "size": 67621
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/f0100a8c-dd67-4cae-a84f-3f6ce74f0cf6.jsonl",
+      "role": "native_query_trace",
+      "sha256": "6ff337aa953e094bef00ed331bb4c85d542d96e453d1b7840b30f8bb760351f8",
+      "size": 49951
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D28-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "53f0847e584c3f91d5339387a30abceedf66704fc81cc6ac6c881b10023ba109",
+      "size": 75981
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/0bbb8c6d-1d0c-4e44-a653-fbd02ebfd369.jsonl",
+      "role": "native_query_trace",
+      "sha256": "a0866fb2218527e308a14f987e5a582c8297b3a56d66d54d0d39a86f5b7031b5",
+      "size": 77396
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D32-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "88c457ff0db0a8894e22c182d3b9c39a7b523c0e9ac903aad620f9ae27c1685b",
+      "size": 76259
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/57a39d55-8827-489a-ba48-159bd1ed0598.jsonl",
+      "role": "native_query_trace",
+      "sha256": "a69cf06939b32d109bd58c7dcd8d0d51787c3f5687886ffc2cd9bd70dbdc58e4",
+      "size": 77890
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D33-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "4111d27e67bf13f00cb0fb178fb52f90aff434718b0e38a45be76853eb407804",
+      "size": 96616
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/1639a037-5a04-47a2-b5aa-e6fb35c0ee8f.jsonl",
+      "role": "native_query_trace",
+      "sha256": "e92fd40c41b14fb12b6a5158c523b91a2709cf47d6b134b2f12b2290d52d9e84",
+      "size": 69454
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D35-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "1a553fd602966a7af4d3f70c3fc016e835c070187f890c5ccb07f0bcadbd9a48",
+      "size": 95830
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/0c9d293e-2333-42ed-a574-7688741ceacc.jsonl",
+      "role": "native_query_trace",
+      "sha256": "77e6a9ffa1ee0da61ea4458fdb52f9ed321f593c8cb735cba2b6cd42e6fa6585",
+      "size": 68758
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D38-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "f80eef405c85059d5e8a1146285873129babe3b793d8b2e1a7de5ed064f51688",
+      "size": 169336
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/1129ad1b-80bd-426b-be47-fe1496dd9505.jsonl",
+      "role": "native_query_trace",
+      "sha256": "a0685f4ff65e8d8b871a652cfca945bd58ffdc38a1bc523281daccaf5a8c3b63",
+      "size": 119248
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D42-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "65fbe7e4fc3f180975a9af7a5598d3ccb2063e1fafc04af1616256dd49d9d6c1",
+      "size": 128846
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/9ca3cefd-bd4e-4558-95d8-fdb1535d3c16.jsonl",
+      "role": "native_query_trace",
+      "sha256": "fff94f42cadb8c264ec76cd9a0abb001ad7249866ad16c4011c19c80798b8f3b",
+      "size": 130300
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D45-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "e63cd66a5bd1dab608d052699e9c90f56c2edd45325564ec744fc9d1ebefdced",
+      "size": 123368
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/2c0ea98e-4828-4886-a8be-f5a83b343bff.jsonl",
+      "role": "native_query_trace",
+      "sha256": "3128b37dbeeb3ba01e9695199b672b0748639a3e70214051434bb5eed369792b",
+      "size": 89560
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N_I6D48-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "c4992424b67cc67a777b8c6bdeef598bcf2d93245d301362ee6335371d6ca7cc",
+      "size": 175014
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/04b13333-0077-44c6-8922-09ca18b1abe6.jsonl",
+      "role": "native_query_trace",
+      "sha256": "24ae8cccd548d744cf9f78c58f7e1c820c6026cdec74f87ad654a46056b78b19",
+      "size": 123110
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N17-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "0bae547dba39c3f7eed8a1454a82207596f033fbccf866304a9ffb4aa8fcb8bb",
+      "size": 61106
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/8564c318-a4ba-4ab3-98e0-8cba61980c51.jsonl",
+      "role": "native_query_trace",
+      "sha256": "66f41675c2c50971f7d0bc85117032772c4891948a112de99eef8f558ff0b2f6",
+      "size": 59979
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/N18-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "72a5440762a69c3a3baac11112431d71bcac1bb71cea90030efaa8c92937b994",
+      "size": 61098
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/02-candidate-original18/measurements/data/traces/bf9aa021-bb4a-41c0-80ec-fa64a8ad9e7b.jsonl",
+      "role": "native_query_trace",
+      "sha256": "bf9d034e4757a5bab249e867194dbaec4269d2b03f8e4f774e297e8f0041b3f5",
+      "size": 59967
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-api-mode-v2/03-baseline-selection2-completion.json",
+      "role": "block_completion",
+      "sha256": "be394e7972d23df0bf2632c6fd24367bc250f0d3123765ef5c387eeba558848e",
+      "size": 304
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/03-baseline-selection2/service-stop.json",
+      "role": "owned_service_stop",
+      "sha256": "c4c30d57b70175d0976a567aef7a2af02bc54cb84cf1cd6e74c9ff090a1af76d",
+      "size": 547
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/03-baseline-selection2/measurements/source-stability.json",
+      "role": "source_stability",
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "size": 33
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/03-baseline-selection2/measurement-process.json",
+      "role": "measurement_process",
+      "sha256": "046581c2bd4a27451ab0c6d99cc1d151bff7d93af3992a632551731f232d44e9",
+      "size": 126
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/03-baseline-selection2/measurements/memory-peaks.json",
+      "role": "memory_peaks",
+      "sha256": "db238ffb1b70c8ca24fbbae58cfe09523cdbc9c05c1e1efd43f1225f65343695",
+      "size": 599
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/03-baseline-selection2/measurements/code-manifest.json",
+      "role": "source_code_manifest",
+      "sha256": "f5e0ad1c985300090311c892a298ad12a277cc98aa557d1b4c5258640bbd815e",
+      "size": 9693
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/03-baseline-selection2/measurements/protocol-frozen.json",
+      "role": "frozen_runtime_protocol",
+      "sha256": "86b9fa3bf1826e24737e9c20af27ef189619ae2dc7971c5db1d2f543ddef9020",
+      "size": 17226
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/03-baseline-selection2/model-manifests/qwen3-4b-enhanced.json",
+      "role": "block_public_4b_manifest",
+      "sha256": "5b6219ae8698e4436dc09a0470977f50a7875b754a1b006e60bee6afaebd65fc",
+      "size": 8223
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/03-baseline-selection2/measurements/I6S01-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "63113c03f06ad8e55182bce1913692159fd41d05633b63860af41f050c772723",
+      "size": 81022
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/03-baseline-selection2/measurements/data/traces/87e7e30a-7047-4b44-a03d-e53255056568.jsonl",
+      "role": "native_query_trace",
+      "sha256": "00b89762c375dd7f0306fdf8c0a2d9c457136dd4d3a714196e717edc02055d64",
+      "size": 83834
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/03-baseline-selection2/measurements/I6S02-baseline-0.json",
+      "role": "native_case_result",
+      "sha256": "dc562a21c96b22d5cb2449ff21466044a2019ae6a58985a661aa623a3beeb7bd",
+      "size": 80639
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/03-baseline-selection2/measurements/data/traces/87e5013e-2378-4e9f-a97f-b8470a7e49c1.jsonl",
+      "role": "native_query_trace",
+      "sha256": "eba5680d04472991c6256f490133f30c9fa994d8d61083270af457af2e7826c6",
+      "size": 83339
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-api-mode-v2/04-candidate-selection2-completion.json",
+      "role": "block_completion",
+      "sha256": "0a5585697a3cabfefce83f364b34f10d9819dfcda93a95690a41c5ca5ddf3797",
+      "size": 305
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/04-candidate-selection2/service-stop.json",
+      "role": "owned_service_stop",
+      "sha256": "26fef3eb424396d68587698c3d998351269f54d0e12b5818eff029cfd1d270aa",
+      "size": 547
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/04-candidate-selection2/measurements/source-stability.json",
+      "role": "source_stability",
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "size": 33
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/04-candidate-selection2/measurement-process.json",
+      "role": "measurement_process",
+      "sha256": "046581c2bd4a27451ab0c6d99cc1d151bff7d93af3992a632551731f232d44e9",
+      "size": 126
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/04-candidate-selection2/measurements/memory-peaks.json",
+      "role": "memory_peaks",
+      "sha256": "676f303ac3bdbf43929c7c70ed51783212850bdb8ecab152f90d57b303508c6e",
+      "size": 596
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/04-candidate-selection2/measurements/code-manifest.json",
+      "role": "source_code_manifest",
+      "sha256": "59043c033e28b94b368cdfd4f89146d8620b72f3c49704a1d328eda8b6e75617",
+      "size": 9693
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/04-candidate-selection2/measurements/protocol-frozen.json",
+      "role": "frozen_runtime_protocol",
+      "sha256": "07e26675506968fac2eb2ae8b705797b7ef1f5765b0c78b16f854b8edde065a5",
+      "size": 17221
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/04-candidate-selection2/model-manifests/qwen3-4b-enhanced.json",
+      "role": "block_public_4b_manifest",
+      "sha256": "8df6b22c396aa0a51b868060d97df0599bafd94b38e7d08f86311cb76e4678a7",
+      "size": 8224
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/04-candidate-selection2/measurements/I6S01-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "88fce84f5a364dd7dbe9d1ddd60cbe173e644ead06d5491102be73369a5158e0",
+      "size": 81296
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/04-candidate-selection2/measurements/data/traces/06f57fc4-b1ad-4814-8f77-bab4f1102ef4.jsonl",
+      "role": "native_query_trace",
+      "sha256": "6552482f9a2ff764a6ff15e89c11ee6efd766a698dcb07e6978d0a7786fca560",
+      "size": 84817
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/04-candidate-selection2/measurements/I6S02-candidate-0.json",
+      "role": "native_case_result",
+      "sha256": "82c89bb512737d22bbb963ee8731402541c5a626c8ba428286a290f573e09753",
+      "size": 80562
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/04-candidate-selection2/measurements/data/traces/a526e67a-8794-41be-98fa-2b391c4f588d.jsonl",
+      "role": "native_query_trace",
+      "sha256": "7e9f33344b3f379beed91967cc04a80e01a1d29934fd78e842f7f69cf09749f5",
+      "size": 83272
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-api-mode-v2/05-baseline-http_original-completion.json",
+      "role": "block_completion",
+      "sha256": "112864d7d7d14930aaca06a4d1ccdd3fc87570bbef11dabcb170535e5f62398c",
+      "size": 307
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/05-baseline-http_original/service-stop.json",
+      "role": "owned_service_stop",
+      "sha256": "594efbed0b6b6a76759b12692020d79f3178b4120b2a903fd0420f4af5ba6add",
+      "size": 547
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/05-baseline-http_original/measurements/source-stability.json",
+      "role": "source_stability",
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "size": 33
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/05-baseline-http_original/measurement-process.json",
+      "role": "measurement_process",
+      "sha256": "beec0eb192df962cbe833c6a2319ea4a1163eb694a51d143e6415c5af5b89857",
+      "size": 124
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/05-baseline-http_original/measurements/memory-peaks.json",
+      "role": "memory_peaks",
+      "sha256": "ecc35cd617365765425b8631a4306a183f8c3bfa34bc708f5b2d454079b659de",
+      "size": 774
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/05-baseline-http_original/measurements/code-manifest.json",
+      "role": "source_code_manifest",
+      "sha256": "f5e0ad1c985300090311c892a298ad12a277cc98aa557d1b4c5258640bbd815e",
+      "size": 9693
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/05-baseline-http_original/measurements/protocol-frozen.json",
+      "role": "frozen_runtime_protocol",
+      "sha256": "09f5961437eeabd3d4a16a1113a1beccb7e307c51549f9d4eca32f7158d26b14",
+      "size": 12808
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/05-baseline-http_original/model-manifests/qwen3-4b-enhanced.json",
+      "role": "block_public_4b_manifest",
+      "sha256": "68e6fdadc7c402645d450d127f785db06ef4766b7a9da66a2987aa30f587def1",
+      "size": 8226
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/05-baseline-http_original/measurements/query.json",
+      "role": "native_case_result",
+      "sha256": "ddfb139adc5d9e988c44f3cc25dd7e8d7b2f9a693800dd778aaac7203ce78f30",
+      "size": 184181
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/05-baseline-http_original/measurements/data/traces/d32ec538-2249-482d-bf0b-0f1021e30fd9.jsonl",
+      "role": "native_query_trace",
+      "sha256": "4f4cb4eb8a379f75d82bb05516074485da9d0a2cde787712567ec4838e0c0c57",
+      "size": 90471
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/05-baseline-http_original/measurements/version-persistence.json",
+      "role": "http_version_persistence",
+      "sha256": "896bab5a40045b1b88e001e629f51ba6678e908078de6ad53b9f5075eca9ea19",
+      "size": 18382
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/05-baseline-http_original/measurements/transport-result.json",
+      "role": "http_transport_result",
+      "sha256": "6e0c6e2bec064a43201943876e81f966f555c1c4b7625ce9592b6cadff273734",
+      "size": 1207
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/05-baseline-http_original/http-final-result.json",
+      "role": "http_final_result",
+      "sha256": "70e7f51fffc8b2c3fbaf7b0598ad37a39cc1f277ace37da9a4dcd818b5aa0455",
+      "size": 1578
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/05-baseline-http_original/measurements/api-stop.json",
+      "role": "http_api_stop",
+      "sha256": "6a2dc95bf46ccdadc3efa885489c9bf4b6ced6e4f844489b0b138d06fe19f002",
+      "size": 163
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/05-baseline-http_original/measurements/public-sse.jsonl",
+      "role": "http_public_sse_capture",
+      "sha256": "398cc6019a4664c410dc27bba7813529dc57e59e2c457a6ae880c89d5b4f8284",
+      "size": 39340
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/05-baseline-http_original/measurements/resume-sse.jsonl",
+      "role": "http_resume_sse_capture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-api-mode-v2/06-candidate-http_original-completion.json",
+      "role": "block_completion",
+      "sha256": "137f4436cea172d37d618d7ea31e25de2f5bce6eaaba91c72c712351969e3f09",
+      "size": 308
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/06-candidate-http_original/service-stop.json",
+      "role": "owned_service_stop",
+      "sha256": "ea8a9923291d464b1862c87c4d591505baa284c6142c77c40f52e922b06b19e3",
+      "size": 547
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/06-candidate-http_original/measurements/source-stability.json",
+      "role": "source_stability",
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "size": 33
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/06-candidate-http_original/measurement-process.json",
+      "role": "measurement_process",
+      "sha256": "167507bda04e985c5a5ebc455c933ab809ae771fb91389e9453e18accc8a77fc",
+      "size": 124
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/06-candidate-http_original/measurements/memory-peaks.json",
+      "role": "memory_peaks",
+      "sha256": "c43d3a1eb6932dd33bcbc47863f4db1631d40f8c969d3f47a1ec7902f23d3d75",
+      "size": 776
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/06-candidate-http_original/measurements/code-manifest.json",
+      "role": "source_code_manifest",
+      "sha256": "59043c033e28b94b368cdfd4f89146d8620b72f3c49704a1d328eda8b6e75617",
+      "size": 9693
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/06-candidate-http_original/measurements/protocol-frozen.json",
+      "role": "frozen_runtime_protocol",
+      "sha256": "cd1c3421252d5fc060821db0b86430c10fd09294ff71c48cbc8d3bb9c835d431",
+      "size": 12803
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/06-candidate-http_original/model-manifests/qwen3-4b-enhanced.json",
+      "role": "block_public_4b_manifest",
+      "sha256": "2ed8076483b6f2c451fd4fa11714892bb79bcaf04b693c2ab0a15b7ed5afab09",
+      "size": 8227
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/06-candidate-http_original/measurements/query.json",
+      "role": "native_case_result",
+      "sha256": "efab254ed5470332ffb87162a0d414b9c1668ee838ad4176a1a0376632afbf85",
+      "size": 169506
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/06-candidate-http_original/measurements/data/traces/d765ebe2-26f2-4c1f-a4b7-19763467a1d5.jsonl",
+      "role": "native_query_trace",
+      "sha256": "7d38d240bd0da739d3b5bba13aa5e3d0988752417d6afef1140be19d783bb6c9",
+      "size": 74382
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/06-candidate-http_original/measurements/version-persistence.json",
+      "role": "http_version_persistence",
+      "sha256": "c7e1a9c4db660429e9182e16ebf8566772bdea0997b2253a0b309603284892a2",
+      "size": 18382
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/06-candidate-http_original/measurements/transport-result.json",
+      "role": "http_transport_result",
+      "sha256": "4af161e9403e3eb0b25e1e083fc80db6fde63723e96b4a42dddde4c6d0f324a8",
+      "size": 1209
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/06-candidate-http_original/http-final-result.json",
+      "role": "http_final_result",
+      "sha256": "2950da87fc2964dca2dd26737ddfbf6137f24695b7e677f9f8b20d3a32807943",
+      "size": 1581
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/06-candidate-http_original/measurements/api-stop.json",
+      "role": "http_api_stop",
+      "sha256": "5eed41e0ea6024868d3f36d67d4c1cd95ecc718b9bdf21b5a79e0be5d5843d01",
+      "size": 163
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/06-candidate-http_original/measurements/public-sse.jsonl",
+      "role": "http_public_sse_capture",
+      "sha256": "53a991148d9c2fa9d5088377a0b8423bb2902011fa78d4b1606093be63a5aa90",
+      "size": 38446
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/06-candidate-http_original/measurements/resume-sse.jsonl",
+      "role": "http_resume_sse_capture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-api-mode-v2/07-baseline-http_selection-completion.json",
+      "role": "block_completion",
+      "sha256": "46bd52087071c6658391d4093e24daec0cee8f06825af1ccf6004b5d08d5023e",
+      "size": 308
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/07-baseline-http_selection/service-stop.json",
+      "role": "owned_service_stop",
+      "sha256": "341a65c171f845803ce73b687c4b94a9c8a10b31686c8e3359094aff1c7018fa",
+      "size": 547
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/07-baseline-http_selection/measurements/source-stability.json",
+      "role": "source_stability",
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "size": 33
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/07-baseline-http_selection/measurement-process.json",
+      "role": "measurement_process",
+      "sha256": "ebb21383b3e23bad90675c5c2bbdab3801b0b3cc46419c89ca9a608e03834ba5",
+      "size": 124
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/07-baseline-http_selection/measurements/memory-peaks.json",
+      "role": "memory_peaks",
+      "sha256": "ae5eac64dae8a990ff60a77c4c3e30d449f5c08d574e633b1027803bedf752be",
+      "size": 786
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/07-baseline-http_selection/measurements/code-manifest.json",
+      "role": "source_code_manifest",
+      "sha256": "f5e0ad1c985300090311c892a298ad12a277cc98aa557d1b4c5258640bbd815e",
+      "size": 9693
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/07-baseline-http_selection/measurements/protocol-frozen.json",
+      "role": "frozen_runtime_protocol",
+      "sha256": "4d7345cdd5c050b7e6fda6a952a86adcdd870f2e92bc1cdf913864999c88ed08",
+      "size": 15665
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/07-baseline-http_selection/model-manifests/qwen3-4b-enhanced.json",
+      "role": "block_public_4b_manifest",
+      "sha256": "4ee43fd6e91db794456948510d1358531fac5db93f7092e537a0d1ed2d5fd3e6",
+      "size": 8227
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/07-baseline-http_selection/measurements/query.json",
+      "role": "native_case_result",
+      "sha256": "b2c23377c8c0d1bf6145392138aefad36ac4226183e30c2e35e921914594d0f2",
+      "size": 176030
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/07-baseline-http_selection/measurements/data/traces/2007b231-0107-4793-af79-5571aba51a3a.jsonl",
+      "role": "native_query_trace",
+      "sha256": "369244519694f6a6b31861179787c3e0ab2a4ed2014c28501b1d5e7616700646",
+      "size": 121673
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/07-baseline-http_selection/measurements/version-persistence.json",
+      "role": "http_version_persistence",
+      "sha256": "19cf17b2d961258327879529e028fc936a80b13dc2121bebb6819c683980efed",
+      "size": 11815
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/07-baseline-http_selection/measurements/transport-result.json",
+      "role": "http_transport_result",
+      "sha256": "c515416b0a305a8cd32d3d3d9842700cec0e78c6eda926ec54076edfebbf6bd4",
+      "size": 1207
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/07-baseline-http_selection/http-final-result.json",
+      "role": "http_final_result",
+      "sha256": "2d27cf37fa2d8f1eac353dd23d564a4e927cd183361d41c5a12e96eebb9ac705",
+      "size": 1578
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/07-baseline-http_selection/measurements/api-stop.json",
+      "role": "http_api_stop",
+      "sha256": "b6f1174a9381678f3d5fb2cfee1b146f9f03e98af52e944be2e1faa868f030df",
+      "size": 163
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/07-baseline-http_selection/measurements/public-sse.jsonl",
+      "role": "http_public_sse_capture",
+      "sha256": "ee19c124d02b11214cafd94dd090604e6731f9fec55bd377cd5884bb2e7dbb3a",
+      "size": 38593
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/07-baseline-http_selection/measurements/resume-sse.jsonl",
+      "role": "http_resume_sse_capture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-prep-api-mode-v2/08-candidate-http_selection-completion.json",
+      "role": "block_completion",
+      "sha256": "01e71a6c118ead125eaa8295394aeaa2a70ce98d1e9e3a6981fbbfb567f8f5ab",
+      "size": 309
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/08-candidate-http_selection/service-stop.json",
+      "role": "owned_service_stop",
+      "sha256": "348843bdfbdd4c38a93576b9f40604a8a5d0744f533f61e626ae86f80d12e57c",
+      "size": 547
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/08-candidate-http_selection/measurements/source-stability.json",
+      "role": "source_stability",
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "size": 33
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/08-candidate-http_selection/measurement-process.json",
+      "role": "measurement_process",
+      "sha256": "beec0eb192df962cbe833c6a2319ea4a1163eb694a51d143e6415c5af5b89857",
+      "size": 124
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/08-candidate-http_selection/measurements/memory-peaks.json",
+      "role": "memory_peaks",
+      "sha256": "05139c78fb4fb3084cba70e6f561605ec94a1f3af372bc45b21d588feb67be0c",
+      "size": 782
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/08-candidate-http_selection/measurements/code-manifest.json",
+      "role": "source_code_manifest",
+      "sha256": "59043c033e28b94b368cdfd4f89146d8620b72f3c49704a1d328eda8b6e75617",
+      "size": 9693
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/08-candidate-http_selection/measurements/protocol-frozen.json",
+      "role": "frozen_runtime_protocol",
+      "sha256": "9b857c4d157a485b92b1248abb23d3c0c04ed44d66a20f9d66237df48b21f360",
+      "size": 15660
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/08-candidate-http_selection/model-manifests/qwen3-4b-enhanced.json",
+      "role": "block_public_4b_manifest",
+      "sha256": "882d0d1d27379d2f636fe5fae062ea50fc85d007860a9b6b5acf344d048fca31",
+      "size": 8228
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/08-candidate-http_selection/measurements/query.json",
+      "role": "native_case_result",
+      "sha256": "da5d06480862c0b4bcf604dbc43344d085993e6d2c2e05f9f90eeb2c49c592f0",
+      "size": 176025
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/08-candidate-http_selection/measurements/data/traces/e61ac879-d94a-4c82-a38c-4e4015ea90b5.jsonl",
+      "role": "native_query_trace",
+      "sha256": "0cfcda4d598e053d1d5fad599e45b4a861dc742ce7af6abf54d086eed7401288",
+      "size": 121669
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/08-candidate-http_selection/measurements/version-persistence.json",
+      "role": "http_version_persistence",
+      "sha256": "53d809c462626855ce65511bce761aa7eea92b69d0959591bc1eaa289523d11b",
+      "size": 11815
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/08-candidate-http_selection/measurements/transport-result.json",
+      "role": "http_transport_result",
+      "sha256": "214c0a412e4695f399379c1708df9cefff177759d876e3ef59ff6e56f66ce794",
+      "size": 1207
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/08-candidate-http_selection/http-final-result.json",
+      "role": "http_final_result",
+      "sha256": "b9dc50b279acc9270d124aa3ccb1451f424d2e28759135966d6e933d014e58a9",
+      "size": 1578
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/08-candidate-http_selection/measurements/api-stop.json",
+      "role": "http_api_stop",
+      "sha256": "7e399b049b9f6f27d1cabc806f7ed3c10d4ac87fc614f10d4811347f260b365f",
+      "size": 163
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/08-candidate-http_selection/measurements/public-sse.jsonl",
+      "role": "http_public_sse_capture",
+      "sha256": "494505efff84ffedf701608c04e0834af74b393047eb3365814a13c23ff3b930",
+      "size": 38591
+    },
+    {
+      "path": "/workspace/scratch/2967c8ebdcb2/agentPDFDoc/.runtime/qa/i6-native-campaign-api-mode-v2/08-candidate-http_selection/measurements/resume-sse.jsonl",
+      "role": "http_resume_sse_capture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    }
+  ],
+  "other_files_modified": false
+}

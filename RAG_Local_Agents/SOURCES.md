@@ -2144,3 +2144,14 @@ documentation en ligne de la série 3.12 affichée en version 3.12.16.
 - [Python, profile/cProfile](https://docs.python.org/3.12/library/profile.html) :
   profils de fréquence et de coût des appels. Un profil diagnostique ne
   remplace pas une mesure de latence avec le même harnais avant/après.
+
+## I6 — sources primaires de la campagne native v2, 9 novembre 2026 UTC
+
+Les [résultats figés](reports/trust-i6-native-v2-2026-11-09.md) relient les révisions `250a7d2`
+et `6394f62` au plan, recettes, verrous, originaux synthétiques, extractions,
+traces, mesures et reçus d'arrêt archivés. La revue indépendante distingue
+fidélité littérale, diagnostics, citations publiées et critères d'exécution.
+Ces preuves concernent le présent hôte Linux et des documents synthétiques ;
+elles ne remplacent ni FINAL48, ni corpus métier, ni recette physique de 16 Go.
+Les références primaires des lots précédents restent applicables ; aucune
+nouvelle dépendance ou contrat public n'est introduit par ce bilan.

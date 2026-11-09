@@ -2036,19 +2036,24 @@ copie sont préservés ; ce complément repart du dernier arbre publié.
 
 | Action | Livrable et critère | État / preuve |
 |---|---|---|
-| I6R-01 | Référence immuable, protocole, DEV/final séparés et gelés | PASS cadrage ; protocole publié `141f77f4`, 48+48 annotations relues et [gelées](reports/trust-i6-relations-fixture-freeze-2026-11-09.json) avant produit ; final fermé |
-| I6R-02 | Portée des exceptions/négations, régressions et publication | R1 publié `729524ce`, complété par [R1b](reports/trust-i6-relations-r1b-2026-11-09.md) : nouveau DEV 48/48, 69/69 littéraux ; p95 319,59 ms au-dessus du seuil, coût à corriger |
+| I6R-01 | Référence immuable, protocole, DEV/final séparés et gelés | Gels historiques conservés ; DEV disponible ; FINAL48 historique désormais introuvable, voir I6R-05. Aucun score final reconstruit |
+| I6R-02 | Portée des exceptions/négations, régressions et publication | R1 publié `729524ce`, complété par [R1b](reports/trust-i6-relations-r1b-2026-11-09.md) : DEV48/48 et 69/69 littéraux. Son ancien p95 de 319,59 ms reste historique ; coût traité et remesuré en I6R-04 |
 | I6R-02c | Reprise des conditions communes, identités Unicode et budget qualitatif | PUBLIÉ `d65ae09` ; 50 nouveaux cas, 526 voisins PASS ; [rapport](reports/trust-i6-recovery-scope-2026-11-09.md), arbre distant vérifié |
 | I6R-03 | Liaison explicite sujets/propriétés/documents, comparaisons et publication | PUBLIÉ `5184200c` ; [R2](reports/trust-i6-relations-r2-2026-11-09.md), 248 tests PASS +23 comparaisons avec intégrité, 48/48 anciens cas |
-| I6R-04 | Route partielle bornée, essais natifs 18 positions/bras, HTTP et coût | R3 PUBLIÉ `26a0eb8` : 5397 tests portables PASS, DEV48/48, p95 70,88 ms. Reprise native v1 : 11/18 terminés puis enveloppe API N_I6D35 invalide, arrêts vérifiés. [Correctif de préparation v2](reports/trust-i6-native-api-mode-repair-2026-11-09.md) : 106 tests PASS, nouvelle campagne à exécuter |
-| I6R-05 | Gel final, 48 cas réservés, revue indépendante, bilan et publication | BLOQUÉ pour les 48 cas historiques : artefact gelé introuvable dans les emplacements accessibles ; aucune ouverture ni reconstitution de score. Les autres portes restent exécutables |
+| I6R-04 | Route partielle bornée, essais natifs 18 positions/bras, HTTP et coût | R3 publié `26a0eb8`, recette `6394f62` ; 5 397 tests portables PASS, DEV 48/48, p95 contrat 70,88 ms. Native v2 : candidat 18/18 réponses, référence 13/18 + cinq erreurs mémoire ; neuf routes R3 sans modèle. D03/D06 non acquis, suppléments séparés, huit arrêts vérifiés. [Bilan et preuves](reports/trust-i6-native-v2-2026-11-09.md) |
+| I6R-05 | Gel final, 48 cas réservés, revue indépendante, bilan et publication | BLOQUÉ pour les 48 cas historiques : artefact gelé introuvable ; aucune ouverture ni reconstitution de score. Bilan du périmètre exécutable livré avec ses réserves |
+| I6R-06 | Après I6R-04 : diagnostics de conflit/propriétés manquantes et portées des métadonnées ; reproductions et nouveau lot séparé | OUVERT : condition commune non établie dans D45/D48, propriété supply non nommée dans les suppléments, qualificatifs rejetés D28/D32 à diagnostiquer. [Constats figés](reports/trust-i6-native-v2-2026-11-09.md) ; aucune correction attribuée au candidat natif |
 
-**Points vérifiés :** gel préalable des annotations et produit R1 ciblé,
-citations conservées ; [publications vérifiées](reports/trust-i6-relations-publications-2026-11-09.json).
-**Prochaine action :** route partielle R3 et réduction des analyses répétées,
-puis suite complète, mesures natives isolées et final. Le nouveau DEV R1b
-passe ses 48 cas, mais la porte de coût de 250 ms reste ouverte.
-Les échecs I5 et I5-PJ restent des résultats historiques, sans reclassement.
+**Points vérifiés :** lots de portée, R3 et recette publiés, suite portable,
+DEV48 et coût contractuel conformes ; 44 positions natives/HTTP conservées
+dans leurs groupes avec revue indépendante, arrêts et sources vérifiés.
+**Réserves :** diagnostics publiés, quota 4B original candidat, erreurs mémoire
+de référence et FINAL48 absent ; aucune qualification globale ou physique.
+**Prochaine action :** reproduire et corriger les diagnostics bornés d'I6R-06
+dans un nouveau lot, puis établir une validation distincte sans reclasser
+les résultats figés. Retrouver l'artefact FINAL exact reste nécessaire pour
+I6R-05 ; une nouvelle annotation demanderait son propre protocole.
+Les échecs I5, I5-PJ et I6 v1/v2 restent des résultats historiques.
 
 ## I5-PJ — complément demandé le 9 novembre 2026 (UTC)
 
@@ -7991,6 +7996,22 @@ extractions existants sont réutilisés après vérification de leurs empreintes
 
 Source : [incident et correctif](reports/trust-i6-native-api-mode-repair-2026-11-09.md).
 
+## I6 — bilan natif v2 et réserves conservées
+
+Le candidat `6394f62` est exécuté sans modification sur huit blocs isolés.
+Les 18 positions originales produisent 18 réponses, dont deux diagnostics
+de conflit avec réserve de portée ; la référence produit 13 réponses et
+cinq erreurs mémoire. Les 29 littéraux/citations candidat sont conservés.
+Le seul échange 4B candidat original n'atteint pas le quota initial de deux.
+Les suppléments directs et HTTP restent séparés et ne le remplacent pas.
+Le verdict historique HTTP candidat reste FAIL à cause de deux contrôles
+qui requièrent cet échange absent ; les contrôles de versions restent acquis.
+Les échecs d'explicitation de propriété et les métadonnées rejetées sont
+consignés pour un nouveau lot. Les budgets ne changent pas, le FINAL48 manque
+toujours et aucune qualification globale n'est attribuée au bilan.
+
+Source : [bilan figé et preuves](reports/trust-i6-native-v2-2026-11-09.md).
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -10187,6 +10208,17 @@ documentation en ligne de la série 3.12 affichée en version 3.12.16.
 - [Python, profile/cProfile](https://docs.python.org/3.12/library/profile.html) :
   profils de fréquence et de coût des appels. Un profil diagnostique ne
   remplace pas une mesure de latence avec le même harnais avant/après.
+
+## I6 — sources primaires de la campagne native v2, 9 novembre 2026 UTC
+
+Les [résultats figés](reports/trust-i6-native-v2-2026-11-09.md) relient les révisions `250a7d2`
+et `6394f62` au plan, recettes, verrous, originaux synthétiques, extractions,
+traces, mesures et reçus d'arrêt archivés. La revue indépendante distingue
+fidélité littérale, diagnostics, citations publiées et critères d'exécution.
+Ces preuves concernent le présent hôte Linux et des documents synthétiques ;
+elles ne remplacent ni FINAL48, ni corpus métier, ni recette physique de 16 Go.
+Les références primaires des lots précédents restent applicables ; aucune
+nouvelle dépendance ou contrat public n'est introduit par ce bilan.
 
 ---
 

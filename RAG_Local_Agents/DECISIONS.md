@@ -2727,3 +2727,19 @@ le mode N_I6D35 et les métadonnées de version changent. Les originaux et
 extractions existants sont réutilisés après vérification de leurs empreintes.
 
 Source : [incident et correctif](reports/trust-i6-native-api-mode-repair-2026-11-09.md).
+
+## I6 — bilan natif v2 et réserves conservées
+
+Le candidat `6394f62` est exécuté sans modification sur huit blocs isolés.
+Les 18 positions originales produisent 18 réponses, dont deux diagnostics
+de conflit avec réserve de portée ; la référence produit 13 réponses et
+cinq erreurs mémoire. Les 29 littéraux/citations candidat sont conservés.
+Le seul échange 4B candidat original n'atteint pas le quota initial de deux.
+Les suppléments directs et HTTP restent séparés et ne le remplacent pas.
+Le verdict historique HTTP candidat reste FAIL à cause de deux contrôles
+qui requièrent cet échange absent ; les contrôles de versions restent acquis.
+Les échecs d'explicitation de propriété et les métadonnées rejetées sont
+consignés pour un nouveau lot. Les budgets ne changent pas, le FINAL48 manque
+toujours et aucune qualification globale n'est attribuée au bilan.
+
+Source : [bilan figé et preuves](reports/trust-i6-native-v2-2026-11-09.md).
