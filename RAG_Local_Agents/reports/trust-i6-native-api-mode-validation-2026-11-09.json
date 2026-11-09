@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "source_revision": "26a0eb80b0a637c2ea21a5bd4155c16d3648e612",
+  "first_attempt": {
+    "completed": 11,
+    "pre_query_error_case": "N_I6D35",
+    "not_executed": 6,
+    "all_owned_services_stopped": true,
+    "shared_gguf_unchanged": true,
+    "disposition": "Preserved separately; no denominator replaced and no favorable score inferred"
+  },
+  "repair": {
+    "reason": "N_I6D35 failed before query creation due to invalid API mode; no product response existed for this case",
+    "changes": [
+      {
+        "id": "N_I6D35",
+        "field": "mode",
+        "from": "comparison",
+        "to": "question"
+      }
+    ],
+    "document_specifications_unchanged": true,
+    "questions_scopes_expected_and_rationales_unchanged": true,
+    "all_23_original_hashes_unchanged": true,
+    "all_6_extractions_unchanged": true,
+    "old_inputs_sha256": "4849564c1b356db9512caba578fd71622d2b86c3d96d065a4e99db00be8c27f5",
+    "recipe_sha256": "969c16bf0aab81afa052e19023c7b281becdaf6cb649bc522652712723b09cf5",
+    "inputs_sha256": "e072334f8e48201f2f900e62ee65f69525710a5db8a3ef444a5b78768105fd67",
+    "services_started": false,
+    "model_inference": "NOT_RUN"
+  },
+  "tests": {
+    "new_tests": 3,
+    "targeted_passed": 106,
+    "targeted_seconds": 2.51,
+    "ruff": "PASS full",
+    "mypy": "PASS 155 files",
+    "initial_red": "1 failed / 13 deselected on real QueryRequest validation",
+    "intermediate_test_error": "105 passed / 1 failed: tuple compared to list; corrected the expected type, preserving subject identities and adding full existing oracle verification"
+  },
+  "commands": [
+    "python -m pytest -q tests/unit/test_prepare_relations_native.py tests/unit/test_revision_campaign.py tests/unit/test_grounded_campaign.py tests/unit/test_i6_subject_comparisons.py tests/unit/test_i6_partial_route.py",
+    "python -m ruff check services tools tests RAG_Local_Agents/tools",
+    "python -m mypy"
+  ],
+  "review": "Independent read-only review accepted; no blocking finding",
+  "product_services_unchanged": true,
+  "source_sha256": {
+    "tools/qualification/prepare_relations_native.py": "f51341cc7e51917a87a28750359c4bf5aa92f6784e44b98fcbe0eb2b2e5855f9",
+    "tests/unit/test_prepare_relations_native.py": "90e9ba02bd16cfc076dba1ef4f76c024228fedb82ff99f2762fb66874cd6de82"
+  },
+  "evidence": {
+    "path": "trust-i6-native-api-mode-evidence-2026-11-09.json.gz",
+    "sha256": "a97c31123848ed765be6a471d9b0a361ff6b44d4d10b38e389a392a3f811c104",
+    "decompressed_sha256": "585db24097cbc3d3ce6fb437da0d5658f45121cf4ac03bac37fc7abb15908809"
+  },
+  "new_native_campaign": "NOT_RUN",
+  "v2_plan_sha256": "8fb1ab32e45d5699ee01d4b3fbf42e28b33af75c63fb5275254683a2041f8b52",
+  "documentary_gates": {
+    "docs": "PASS",
+    "pack": "PASS with pre-existing third-party layout warnings",
+    "brief": "PASS"
+  }
+}

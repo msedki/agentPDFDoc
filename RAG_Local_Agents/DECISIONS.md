@@ -2713,3 +2713,17 @@ d’appels. Les deux témoins directs et le parcours HTTP supplémentaires sont
 figés avant exécution, séparément. Le FINAL historique reste indisponible.
 
 Source : [rapport R3](reports/trust-i6-r3-2026-11-09.md) et reçus liés.
+
+## I6 — recette native et validation de l’enveloppe API
+
+Le premier bloc natif de reprise conserve ses 11 résultats, l’erreur de
+préparation N_I6D35 et les six positions non exécutées. Tous ses processus
+possédés sont arrêtés. Il n’est pas reclassé en campagne réussie.
+
+La recette v2 valide les enveloppes avant matérialisation et emploie le mode
+question pour une comparaison explicite de sujets dans un document. Le
+préparateur garde les validations API, les textes et les annotations ; seuls
+le mode N_I6D35 et les métadonnées de version changent. Les originaux et
+extractions existants sont réutilisés après vérification de leurs empreintes.
+
+Source : [incident et correctif](reports/trust-i6-native-api-mode-repair-2026-11-09.md).

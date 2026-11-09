@@ -20,6 +20,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
+from services.api.answer_contract import AnswerContract  # noqa: E402
+from services.api.schemas import QueryRequest  # noqa: E402
 from services.ingestion import extract_pdf  # noqa: E402
 from tools.qualification.grounded_campaign import generate_document  # noqa: E402
 
@@ -45,6 +47,24 @@ def write_json(path: Path, data: dict) -> None:
     with path.open("x", encoding="utf-8") as stream:
         json.dump(data, stream, ensure_ascii=False, indent=2, allow_nan=False)
         stream.write("\n")
+
+
+def api_mode(question: str, fixture_mode: str, document_keys: list[str]) -> str:
+    """Validate the public envelope before creating originals or services.
+
+    API comparison mode compares two to four documents. An explicit comparison
+    of subjects within one document uses ordinary question mode; the question
+    itself must still establish the comparison, with no invented second file.
+    """
+    mode = fixture_mode
+    if mode == "comparison" and len(set(document_keys)) == 1:
+        contract = AnswerContract(question, "question")
+        if not contract.comparison_requested or contract.comparison_axis != "subjects":
+            raise ValueError("A single-document comparison must explicitly compare source subjects")
+        mode = "question"
+    request = QueryRequest.model_validate({"question": question, "mode": mode,
+        "scope": {"kind": "documents", "documentIds": document_keys}})
+    return request.mode
 
 
 def build_recipe(fixture_path: Path) -> dict:
@@ -74,18 +94,21 @@ def build_recipe(fixture_path: Path) -> dict:
                              "text": source["text"], "annotation_span": source["annotation_span"]}
                             for paragraph, source in enumerate(sources))
         scope_keys = [keys[document_id] for document_id in case["scope"]["document_ids"]]
-        cases.append({"id": "N_" + case_id, "question": case["question"], "mode": case["mode"], "repeats": 1,
+        mode = api_mode(case["question"], case["mode"], scope_keys)
+        cases.append({"id": "N_" + case_id, "question": case["question"], "mode": mode, "repeats": 1,
                       "document_key": scope_keys[0], "scope": {"kind": "documents", "document_keys": scope_keys},
                       "annotation": {"source_fixture_case": case_id, "expected": case["expected"],
+                                     "fixture_mode": case["mode"],
+                                     "api_mode_adjustment": "single_document_subject_comparison" if mode != case["mode"] else None,
                                      "rationale": case["rationale"], "source_bindings": bindings}})
     for key, text, question in CONDITION_CASES:
         documents.append({"key": key, "format": "docx", "paragraphs": [text]})
-        cases.append({"id": key.upper(), "question": question, "mode": "question", "repeats": 1,
+        cases.append({"id": key.upper(), "question": question, "mode": api_mode(question, "question", [key]), "repeats": 1,
                       "document_key": key, "scope": {"kind": "documents", "document_keys": [key]},
                       "annotation": {"expected": {"exact_support": False, "required_literal_texts": [text]},
                                      "rationale": "The observed point differs from the requested point; preserve the current and condition with an explicit limitation.",
                                      "requires_actual_4b_call": True}})
-    return {"schema_version": 1, "protocol_id": "I6-RELATIONS-NATIVE-20261109",
+    return {"schema_version": 2, "protocol_id": "I6-RELATIONS-NATIVE-20261109-API-MODE-V2",
             "kind": "synthetic development; not heldout", "source_fixture_sha256": FIXTURE_SHA256,
             "source_protocol_sha256": fixture["protocol_sha256"], "pdf_layout": PDF_LAYOUT,
             "pdf_extraction": {"pipeline_route": "native", "pdf_backend": "pypdfium2"},

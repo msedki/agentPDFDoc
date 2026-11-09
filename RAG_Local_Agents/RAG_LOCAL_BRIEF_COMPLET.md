@@ -2040,7 +2040,7 @@ copie sont préservés ; ce complément repart du dernier arbre publié.
 | I6R-02 | Portée des exceptions/négations, régressions et publication | R1 publié `729524ce`, complété par [R1b](reports/trust-i6-relations-r1b-2026-11-09.md) : nouveau DEV 48/48, 69/69 littéraux ; p95 319,59 ms au-dessus du seuil, coût à corriger |
 | I6R-02c | Reprise des conditions communes, identités Unicode et budget qualitatif | PUBLIÉ `d65ae09` ; 50 nouveaux cas, 526 voisins PASS ; [rapport](reports/trust-i6-recovery-scope-2026-11-09.md), arbre distant vérifié |
 | I6R-03 | Liaison explicite sujets/propriétés/documents, comparaisons et publication | PUBLIÉ `5184200c` ; [R2](reports/trust-i6-relations-r2-2026-11-09.md), 248 tests PASS +23 comparaisons avec intégrité, 48/48 anciens cas |
-| I6R-04 | Route partielle bornée, essais natifs 18 positions/bras, HTTP et coût | R3 logiciel vérifié : 5397 tests portables PASS, 20 nouveaux cas, DEV48/48 et 69/69 citations ; p95 70.88 ms. [Rapport](reports/trust-i6-r3-2026-11-09.md). Native/HTTP préparés, pas encore exécutés sur ce candidat ; ancien essai incomplet conservé |
+| I6R-04 | Route partielle bornée, essais natifs 18 positions/bras, HTTP et coût | R3 PUBLIÉ `26a0eb8` : 5397 tests portables PASS, DEV48/48, p95 70,88 ms. Reprise native v1 : 11/18 terminés puis enveloppe API N_I6D35 invalide, arrêts vérifiés. [Correctif de préparation v2](reports/trust-i6-native-api-mode-repair-2026-11-09.md) : 106 tests PASS, nouvelle campagne à exécuter |
 | I6R-05 | Gel final, 48 cas réservés, revue indépendante, bilan et publication | BLOQUÉ pour les 48 cas historiques : artefact gelé introuvable dans les emplacements accessibles ; aucune ouverture ni reconstitution de score. Les autres portes restent exécutables |
 
 **Points vérifiés :** gel préalable des annotations et produit R1 ciblé,
@@ -7976,6 +7976,20 @@ d’appels. Les deux témoins directs et le parcours HTTP supplémentaires sont
 figés avant exécution, séparément. Le FINAL historique reste indisponible.
 
 Source : [rapport R3](reports/trust-i6-r3-2026-11-09.md) et reçus liés.
+
+## I6 — recette native et validation de l’enveloppe API
+
+Le premier bloc natif de reprise conserve ses 11 résultats, l’erreur de
+préparation N_I6D35 et les six positions non exécutées. Tous ses processus
+possédés sont arrêtés. Il n’est pas reclassé en campagne réussie.
+
+La recette v2 valide les enveloppes avant matérialisation et emploie le mode
+question pour une comparaison explicite de sujets dans un document. Le
+préparateur garde les validations API, les textes et les annotations ; seuls
+le mode N_I6D35 et les métadonnées de version changent. Les originaux et
+extractions existants sont réutilisés après vérification de leurs empreintes.
+
+Source : [incident et correctif](reports/trust-i6-native-api-mode-repair-2026-11-09.md).
 
 ---
 

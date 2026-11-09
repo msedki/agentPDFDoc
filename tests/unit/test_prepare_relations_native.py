@@ -6,7 +6,12 @@ from pathlib import Path
 
 import pytest
 
+from services.api.answer_contract import AnswerContract
+from services.api.schemas import QueryRequest
+from services.api.structured_answer import Catalogue
 from tools.qualification import prepare_relations_native as native
+from tools.qualification.relations_benchmark import classify
+from tools.qualification.support_benchmark import CharacterCounterDouble
 
 FIXTURE = Path(__file__).resolve().parents[1] / "fixtures/support_i6_dev.json"
 
@@ -46,6 +51,40 @@ def test_recipe_preserves_document_grouping_scope_and_unchanged_gold():
             doc = documents[binding["document_key"]]
             assert doc["fixture_document_id"] == binding["fixture_document_id"]
             assert doc["paragraphs"][binding["paragraph_index"]] == binding["text"]
+
+
+def test_every_native_case_is_a_valid_api_request_without_changing_subject_comparison():
+    recipe = native.build_recipe(FIXTURE)
+    original = {case["id"]: case for case in json.loads(FIXTURE.read_text())["cases"]}
+    changed_modes = []
+    for case in recipe["cases"]:
+        request = QueryRequest.model_validate({"question": case["question"], "mode": case["mode"],
+            "scope": {"kind": "documents", "documentIds": case["scope"]["document_keys"]}})
+        fixture_case = case["annotation"].get("source_fixture_case")
+        if fixture_case and request.mode != original[fixture_case]["mode"]:
+            changed_modes.append(case["id"])
+            contract = AnswerContract(request.question, request.mode)
+            assert contract.comparison_requested and contract.comparison_axis == "subjects"
+            assert contract.subjects == ("SV6135", "SV6135B")
+            assert case["annotation"]["expected"] == original[fixture_case]["expected"]
+            reference_case = original[fixture_case]
+            references = [{**source, "document_name": source["document_id"]} for source in reference_case["sources"]]
+            required = tuple(reference_case["scope"]["document_ids"])
+            cat = Catalogue(request.mode, references, contract, required_documents=required)
+            plan = cat.validate(json.dumps({"references": [source["id"] for source in references], "comparisons": []}))
+            result = cat.render(plan, CharacterCounterDouble(), 5000, required)
+            assert classify(reference_case, result)["passed"]
+    assert changed_modes == ["N_I6D35"]
+
+
+def test_single_document_comparison_cannot_silently_become_an_unrelated_question():
+    with pytest.raises(ValueError, match="explicitly compare source subjects"):
+        native.api_mode("What is the supply voltage of SV6135?", "comparison", ["one"])
+
+
+def test_comparison_document_limit_is_not_relaxed_by_the_preparer():
+    with pytest.raises(ValueError, match="deux à quatre documents"):
+        native.api_mode("Compare SV6135 and SV6135B.", "comparison", ["a", "b", "c", "d", "e"])
 
 
 def test_changed_fixture_is_rejected_before_any_materialization(tmp_path):

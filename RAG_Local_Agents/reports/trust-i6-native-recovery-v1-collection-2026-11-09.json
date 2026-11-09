@@ -1,0 +1,602 @@
+{
+  "schema_version": 1,
+  "scope": "First native attempt v1, preserved separately from API-mode-v2",
+  "expected_positions": 18,
+  "completed_positions": 11,
+  "pre_query_error": {
+    "case_id": "N_I6D35",
+    "error_type": "ValidationError",
+    "query_created": false
+  },
+  "not_executed": [
+    "N_I6D38",
+    "N_I6D42",
+    "N_I6D45",
+    "N_I6D48",
+    "N17",
+    "N18"
+  ],
+  "all_owned_services_stopped": true,
+  "shared_gguf_unchanged": true,
+  "private_content_excluded": [
+    "qdrant.yaml",
+    "service-data",
+    "Ollama model stores and keys",
+    "SQLite/Qdrant databases",
+    "all .log files"
+  ],
+  "known_private_key_scan": "Passed; generated Qdrant API key absent from every selected byte stream",
+  "raw_private_logs_retained_locally": true,
+  "evidence_interpretation": "Complete selected query records and verified traces, frozen sources and receipts; not a completed 18-case campaign",
+  "archive": "i6-native-v1-evidence.json.gz",
+  "sha256": "b72c6b115766c5019ca6a8882acd8a0674e715aa9594088b3656a44187f10b0f",
+  "decompressed_sha256": "f024ac72954164fc2672c7a1a37f9012311264783a38e8c71052abb76e354be1",
+  "file_count": 113,
+  "files": {
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/isolation-adapter.py": {
+      "size": 9353,
+      "sha256": "e082e27373835734623a9fccdbfd8eaaf2b99c88ec5bef3e465d1ef772b7581f",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/isolation-receipt.json": {
+      "size": 1422,
+      "sha256": "9651ae459984d89654ca1b9112b69aa770475a7da068754ed8098a73f380d4e8",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurement-process.json": {
+      "size": 126,
+      "sha256": "9f6c86455cb75f60844223ef61b99c80523af77a02c5533e81aeb8bb1f906494",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D02-baseline-0.attempt-start.json": {
+      "size": 140,
+      "sha256": "566a4bf7175ed39c53a996dd3d52897d69a3cae56e5528df60a7a880f8c2ec51",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D02-baseline-0.json": {
+      "size": 59948,
+      "sha256": "eed92071be6e59d5820b6f5b68f091eac08814c5343b433457df2871d1996f40",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D04-baseline-0.attempt-start.json": {
+      "size": 140,
+      "sha256": "ae4fada69b5ab26e1735bb48ba7e0bfeb1857f873e97019065a31eb23559e290",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D04-baseline-0.json": {
+      "size": 62095,
+      "sha256": "d5794c185ae633cf9d7d82c062caacb3b0886f1a4c52f756cd5a040f4d8a7872",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D05-baseline-0.attempt-start.json": {
+      "size": 140,
+      "sha256": "1344b29069f05e4133326cf9d101a6d5d3e0658f37939f18597ccc2b8fb7caeb",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D05-baseline-0.json": {
+      "size": 60524,
+      "sha256": "e1f551f6011530ff289a05979e15bf60d826711717c0f499bf41cb7f8ce71cd1",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D09-baseline-0.attempt-start.json": {
+      "size": 140,
+      "sha256": "2cf5f213591d7b24d4f4624560a0b04644c5f024bce7af364f0e9ff261a10fcd",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D09-baseline-0.json": {
+      "size": 85618,
+      "sha256": "9595fb94779e7007b5b499134318f7014dc66984128a9ba7dbf08ec39d946ce5",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D11-baseline-0.attempt-start.json": {
+      "size": 140,
+      "sha256": "06d2ccefd07b0077a6ed3bd2cc99f21d628c999c9f5034fc01f418ffbfb970cd",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D11-baseline-0.json": {
+      "size": 85864,
+      "sha256": "5d16a9bfd088c7be35e4f04add0323220ebbc540e2794b8e2536abadff1dd564",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D14-baseline-0.attempt-start.json": {
+      "size": 140,
+      "sha256": "b8473f77d0849f0559f97a929ce19d93247845eb31883048d02082fe6349b1ce",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D14-baseline-0.json": {
+      "size": 85849,
+      "sha256": "3f0e6a44900782ab4d3f705780d9fc2b08f487f2739f4ce3df28a1ea78a01714",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D17-baseline-0.attempt-start.json": {
+      "size": 140,
+      "sha256": "d3944c55bcf668d9b5f02c708ae00dc17edfbb5b9027c070c0aecbfcbfd205f6",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D17-baseline-0.json": {
+      "size": 64145,
+      "sha256": "ade910a88b141edcdb99ea322903711e024a02972255f029daaa7fb9b2486c59",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D19-baseline-0.attempt-start.json": {
+      "size": 140,
+      "sha256": "0aed48401a757e60706d086fcbc35d86b166ac4d851518c1c0d6f586d51f561b",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D19-baseline-0.json": {
+      "size": 67621,
+      "sha256": "170efbe4aee87f2a8199b05edb0d662bbc2bb5ca848f8fa7451a7b8fe06f3f94",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D28-baseline-0.attempt-start.json": {
+      "size": 140,
+      "sha256": "42a90289c078133344a930734da46bded625882aa5596a465cb687f4ce7655f6",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D28-baseline-0.json": {
+      "size": 89461,
+      "sha256": "566477a2d42090defbed739f5feb39ba930f6f323264af05cacf7775603f0673",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D32-baseline-0.attempt-start.json": {
+      "size": 140,
+      "sha256": "10fafdaa0baa51d664f4b24e0d4b5d0de663f8258ea3e8958604fe2bd347efb6",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D32-baseline-0.json": {
+      "size": 88637,
+      "sha256": "29aa41c08c984b83f3a7e4baf54e9a80058dfd031c5d14d86d2bf6870641f532",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D33-baseline-0.attempt-start.json": {
+      "size": 140,
+      "sha256": "234f8a92523a97c2c7e18ee6082b36a99790fed12eace68f897be0d078c1c521",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D33-baseline-0.json": {
+      "size": 96612,
+      "sha256": "927bea3ba6b44088078bc0b14d3be083319d0f2c681263eee99732bfa5d7a7b7",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/N_I6D35-baseline-0.attempt-start.json": {
+      "size": 140,
+      "sha256": "bf7e9d805cc072653037074c08d42a04425fd08a8af4ffd355249912e8de604c",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/bindings.json": {
+      "size": 6251,
+      "sha256": "7025a33778513f892236b61db94f6f2e33105f1f61be2e49030d260ef6bbbb28",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/block-failure.json": {
+      "size": 647,
+      "sha256": "3f0846da7dd6df3c50e51a8663f224b7072a5deb770886f5ac9ee177c46a3503",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/code-manifest.json": {
+      "size": 9693,
+      "sha256": "f5e0ad1c985300090311c892a298ad12a277cc98aa557d1b4c5258640bbd815e",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/data/traces/09d9f299-e329-4b19-b5d9-012e89f2f22a.jsonl": {
+      "size": 90891,
+      "sha256": "bc51c8c0b348a07bdf0c69f1a7a707c540baf5e382febd36ff2bdc9b362b18bd",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/data/traces/1b0a6579-9ac1-490d-a2bb-ea28c6111f33.jsonl": {
+      "size": 45171,
+      "sha256": "ae3dfc4ce6cc3da01bb3c8bcae1069078b38dea037376896817a5c8071914b31",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/data/traces/24b6a19c-f2d5-4658-a205-0de5a6c0c654.jsonl": {
+      "size": 69451,
+      "sha256": "0c2b5ac13e8428fe630537d043207f5a1a7bb892c261b623b61a1e4ce7563eff",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/data/traces/3e024d72-39f8-4fa8-b73a-a94673105eb6.jsonl": {
+      "size": 85127,
+      "sha256": "e53b4e37033b329b6b7e17aa0494f278b788fa0cdbc60c5392d49ced2a75289b",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/data/traces/4a39446d-979b-4089-a142-c848ae5c9732.jsonl": {
+      "size": 46500,
+      "sha256": "bb551108ed34c4b4a1d664908462a487b7073209903bcf9421f3aacdacec2e14",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/data/traces/6841e88f-e781-4be6-aba1-6d90acfdc13b.jsonl": {
+      "size": 48129,
+      "sha256": "90a67a72c9903857a45221f7352dae98a0e0b95ea264392a2bfcc3d2c8ac9748",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/data/traces/6f745b58-43cd-4a74-b637-3f343d638004.jsonl": {
+      "size": 44728,
+      "sha256": "1d7eed7ea5ec6c3340f5a10255b08af5138ab569735d3c7c3a2aa2032a94a714",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/data/traces/c1397d0e-421a-4b60-a95b-d3c80dcdab9f.jsonl": {
+      "size": 85088,
+      "sha256": "1ef04c18ff54950b0fd7590da1d23fcaa9649b9167e36a37eb1bacbbe318b9af",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/data/traces/cb7ed66b-885b-45eb-9774-0f93613e870e.jsonl": {
+      "size": 91392,
+      "sha256": "e9bca235f32bf00d79ad1ddc98ef90b2fea009e7fe9fbc5fd32316dadd66d63a",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/data/traces/e9a24dec-e60e-45c7-8963-ced08e707468.jsonl": {
+      "size": 83858,
+      "sha256": "aa257039756b866e66e79e64d960bb8c41823ae18ee5bbc4b47df13269200007",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/data/traces/f2f9ac07-9ab6-48dd-89ed-d70dc0fc5800.jsonl": {
+      "size": 49951,
+      "sha256": "7c5cd69fe0555bead2aa924db56b6eecd92094fa01651ced30554fe663448fee",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d02_1.extraction.json": {
+      "size": 12389,
+      "sha256": "6bbb741cce0d39007abf5bfe77efb2ac58f347ac93b2f20b9fea6a86f7980710",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d04_1.extraction.json": {
+      "size": 5065,
+      "sha256": "d16ae585dae48e25f85b264bccee9d133fc98485cc864e09e05f632c4f91544e",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d05_1.extraction.json": {
+      "size": 12397,
+      "sha256": "cc58841b22eccae8240d2bd7bba7fe0667bb3655a20f114888cd9e2835e9b4cc",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d09_1.extraction.json": {
+      "size": 5008,
+      "sha256": "3e363002f1f767f3bfcb59dbfd1630697c61d0b739fe202dfb6ca892a82ec045",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d11_1.extraction.json": {
+      "size": 12387,
+      "sha256": "f5b5fcf055a49bdb7079aba3d7430e9d472978847b7508b555097bfe0f55c15d",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d14_1.extraction.json": {
+      "size": 12387,
+      "sha256": "0c0ff0374e9451d5e8b6c9e951c70ac743a3a6adb795dbf91735fc7738d2d4aa",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d17_1.extraction.json": {
+      "size": 12438,
+      "sha256": "5d9b66051a6c325261271c70df4256dd25961f8671954c38fe55e9543ab2c794",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d19_1.extraction.json": {
+      "size": 12474,
+      "sha256": "f02498438f931535ebec892ba46a5661f4d8a0e6679e33e78e50c4e4051fa79d",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d28_1.extraction.json": {
+      "size": 12458,
+      "sha256": "d8db345aafe02bd9c6a3861ed700f686da24066379a80b2a4965b765f016c50e",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d32_1.extraction.json": {
+      "size": 12500,
+      "sha256": "d126249f9afe3c2a88120053aa9de698a5b31c65dd0fdf7afdf9eef97b1a24d5",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d33_1.extraction.json": {
+      "size": 4938,
+      "sha256": "c0d9283a02e252a0f085684cd26efa46bad9e83fe86337b8cfca79265c79bbb9",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d33_2.extraction.json": {
+      "size": 4945,
+      "sha256": "6d48d042f272a2c8cee437b64e953663f3d6cca7038d84ef08d67a4a26e6cdc1",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d35_1.extraction.json": {
+      "size": 13571,
+      "sha256": "4f544ade8a84649ad08351f89cfd0ad2b6b5e72352f90244565a10707279ad08",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d38_1.extraction.json": {
+      "size": 13555,
+      "sha256": "18b883456f63570eb4591d7cfe2e360a7ec789bbbbb8719415dda1470600686b",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d38_2.extraction.json": {
+      "size": 13555,
+      "sha256": "b13c432297a2dd76108e36e5e32f9aa2e94902c75a6e9d05dbad87ddd41976dc",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d42_1.extraction.json": {
+      "size": 4945,
+      "sha256": "6f32a518821a0f054592066055d7ee894caf6dc5e86852f3c1539a40cc1be1ac",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d42_2.extraction.json": {
+      "size": 4952,
+      "sha256": "f77e0a6abc28df0ec70c234364898e0637b18914b1bc76ba6d4de10a03fc05ba",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d45_1.extraction.json": {
+      "size": 13553,
+      "sha256": "9051cc21e14b13bfc45a17c0b597dabe9df50f7f4ec998ae5a8d55f2ce27bfe7",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d45_2.extraction.json": {
+      "size": 12313,
+      "sha256": "9c5ac93bbc452d52f4f00059e2b291efde5d484aa88f826492580fb63fdabe45",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d48_1.extraction.json": {
+      "size": 13555,
+      "sha256": "f8bf2373074ba776648a36f46615ca8de86646b0673423f42496aa2ac5bf1ac2",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/i6d48_2.extraction.json": {
+      "size": 13555,
+      "sha256": "ba2ec188d652da31d88f6ca1502f5daa923e0b5b3cd980db0b837d1636d0201d",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/memory-peaks.json": {
+      "size": 2430,
+      "sha256": "9916dbbb1f96bafdafcc1364a94355cb658502c40984a95bc4e0317b76c6c3b7",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/n17.extraction.json": {
+      "size": 12299,
+      "sha256": "5bf18842f8cfcfa87fed2da52debba699a121cf1773879b590eb91cb4d826053",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/n18.extraction.json": {
+      "size": 12299,
+      "sha256": "fe153086c96e2f44ccfa55d154ed230076919b1cec43a2d6f2fd5310d80d490f",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/protocol-frozen.json": {
+      "size": 88284,
+      "sha256": "9012c9f4dcd78460aec33a3e5f0d94426567c0c9bb0f5866b96b5f58c028e928",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/measurements/source-stability.json": {
+      "size": 33,
+      "sha256": "a397e02cc4fc675da211ef5484cbf0f64c339415aceeca70411e0d7d2085cc15",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/model-manifests/qwen3-4b-enhanced.json": {
+      "size": 8220,
+      "sha256": "66918d9c46c579bc0d7813e85690866b5751ff0f4b167c2243b15dbd9760cd1d",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/profile.yaml": {
+      "size": 6876,
+      "sha256": "f9d356a2c42e8450cd16e1faeb592b97e6168b7b11bdbe025226688247bc4252",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-campaign-recovery/01-baseline-original18/service-stop.json": {
+      "size": 547,
+      "sha256": "f5fca610d543eff50c9e3ab79578156995d368eb392ceb81b529f331444a6d84",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/01-baseline-original18-completion.json": {
+      "size": 304,
+      "sha256": "30a42e3fec11ef99f094b5f3717fb089bfee57f990f562731928edb40fb97086",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/campaign-plan.json": {
+      "size": 8590,
+      "sha256": "08b4dce5c918bddd348d4585efc8dd2765df7c16d08b47e91f73e72ce199229e",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/candidate-revision.json": {
+      "size": 345,
+      "sha256": "138e2f1154e8b0316fb645a8d37ab6716630de9c705e4b59df5e4a02ddb7d4c2",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/launch_campaign_step.py": {
+      "size": 9353,
+      "sha256": "e082e27373835734623a9fccdbfd8eaaf2b99c88ec5bef3e465d1ef772b7581f",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d02_1.docx": {
+      "size": 36636,
+      "sha256": "089695fd7c3e4b16f2124b99a9d93dfa1d32b280e50aa86a024c98056b3ca001",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d04_1-extraction.json": {
+      "size": 5065,
+      "sha256": "d16ae585dae48e25f85b264bccee9d133fc98485cc864e09e05f632c4f91544e",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d04_1.pdf": {
+      "size": 1457,
+      "sha256": "025377f05db5a6fb64c296cd62e99d3a7398ff0f6c2253aba140a2e6df485f74",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d05_1.docx": {
+      "size": 36644,
+      "sha256": "9130ae43983cf7458ee327308865625f37021db4961585d8249e03e9aaeae955",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d09_1-extraction.json": {
+      "size": 5008,
+      "sha256": "3e363002f1f767f3bfcb59dbfd1630697c61d0b739fe202dfb6ca892a82ec045",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d09_1.pdf": {
+      "size": 1432,
+      "sha256": "ac8da22d1980fb83a8107162d9d81f06389d8e978d12e8941abfd70a5da65661",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d11_1.docx": {
+      "size": 36640,
+      "sha256": "2636252bd85ccefd64228233927a5912b146dc71094a06796bb0a4ff8ae7a51b",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d14_1.docx": {
+      "size": 36635,
+      "sha256": "bff1ce329af0836474bab47ae1e6d2341be85cb5e81fb9f08d1d2ce40f74ff21",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d17_1.docx": {
+      "size": 36649,
+      "sha256": "20dcce69413847bf9867b5a0fb2a4cb91d012f04e0462eff255e12f0954b1bff",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d19_1.docx": {
+      "size": 36666,
+      "sha256": "838ac088b2a31947cb16c95bf446b7d494ee226560f3e47df44f22171bb018ea",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d28_1.docx": {
+      "size": 36650,
+      "sha256": "badc0d2c3623046c39f5e238b3ecb499d8e9cf2cf7619eb8abe23f4b6a932aab",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d32_1.docx": {
+      "size": 36660,
+      "sha256": "06517136c9c11aab85c6172299c947ff3c64e61679c712d6892ffa66aec52b4a",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d33_1-extraction.json": {
+      "size": 4938,
+      "sha256": "c0d9283a02e252a0f085684cd26efa46bad9e83fe86337b8cfca79265c79bbb9",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d33_1.pdf": {
+      "size": 1396,
+      "sha256": "7ffdb302281c676b46e4cb859b8f213c88b19b5edc397a78bba75b82d5951204",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d33_2-extraction.json": {
+      "size": 4945,
+      "sha256": "6d48d042f272a2c8cee437b64e953663f3d6cca7038d84ef08d67a4a26e6cdc1",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d33_2.pdf": {
+      "size": 1397,
+      "sha256": "3ac7c6f36e774abc77fa1b61c6b15bd5c2ff3a1611cc9519f2715763c7060e4d",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d35_1.docx": {
+      "size": 36620,
+      "sha256": "0d935bbb3f84f2062d568ae6ccef83dacbe9795ad2836457070c0f98bccb6eae",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d38_1.docx": {
+      "size": 36621,
+      "sha256": "7a8983c6d064f3a31353e2a0595e2a79fe6382ad3fa6bd41e7790dd3a473e70a",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d38_2.docx": {
+      "size": 36621,
+      "sha256": "7a8983c6d064f3a31353e2a0595e2a79fe6382ad3fa6bd41e7790dd3a473e70a",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d42_1-extraction.json": {
+      "size": 4945,
+      "sha256": "6f32a518821a0f054592066055d7ee894caf6dc5e86852f3c1539a40cc1be1ac",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d42_1.pdf": {
+      "size": 1392,
+      "sha256": "491f550c420ac1a401d7bae1f3034597ac47ea2dee955b7f2df1c4ac5c5c5f54",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d42_2-extraction.json": {
+      "size": 4952,
+      "sha256": "f77e0a6abc28df0ec70c234364898e0637b18914b1bc76ba6d4de10a03fc05ba",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d42_2.pdf": {
+      "size": 1393,
+      "sha256": "a10a10020c379375634625377a61667c2bdd7e3fa414c775b84a39958f2aa983",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d45_1.docx": {
+      "size": 36619,
+      "sha256": "48a4510d884b1b1f22cb48381cf3211f56052dff008d18ede79ce77852ea452e",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d45_2.docx": {
+      "size": 36613,
+      "sha256": "5fb31999a0474166ca1422f2884384b1c212558f4c7d18ad0621bc9a63f67e5a",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d48_1.docx": {
+      "size": 36622,
+      "sha256": "a68605bf2a6aead15849b672a13523daf0185c0462394db55e1a8e6900e50cb6",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/i6d48_2.docx": {
+      "size": 36622,
+      "sha256": "4f496b8987bdefec4300e8f5f16630774e8e1aff46afee6ba16c0924b0ece239",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/inputs.json": {
+      "size": 73371,
+      "sha256": "4849564c1b356db9512caba578fd71622d2b86c3d96d065a4e99db00be8c27f5",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/n17.docx": {
+      "size": 36613,
+      "sha256": "3ef1355ac164339d06ecb138bb6a2c81b7f01b004863b9685469285c97e2f940",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/n18.docx": {
+      "size": 36613,
+      "sha256": "d18dfc1a6ca98a893337a1484e1669d74719f3f576b21a8e3dbb5dc1bcb8fb99",
+      "encoding": "base64"
+    },
+    "agentPDFDoc/.runtime/qa/i6-native-prep-recovery/original-18/recipe.json": {
+      "size": 65372,
+      "sha256": "621f2104f3fd547d9f69bfb1228d2db318be9101f79e929d8f2af36f1930ce34",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/config/artifacts.lock.json": {
+      "size": 24728,
+      "sha256": "6df70192fbaab2857048236638f0c0e2a70c480f8fa796afa2924fe8836dae7d",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/config/enhanced-4b.lock.json": {
+      "size": 1193,
+      "sha256": "a54216caeb794243fbb7e35118ade70a533fe25db4f4eea73c1b673aaff24f88",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/config/enhanced-4b.yaml": {
+      "size": 6519,
+      "sha256": "092da8f90103654027cee93ce0edcc9a312f45b70078047cfe4c1eeebdcf5716",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/tools/qualification/enhanced_campaign.py": {
+      "size": 15369,
+      "sha256": "71ee1beb3e382f1bff3224ba05e1d507bc594a33b3156dd798a7cb9f84be08f2",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/tools/qualification/provision_enhanced_4b.py": {
+      "size": 7240,
+      "sha256": "65c2a5b17002ca35b799e38dad07c7437250cbe403db31c7118656dcfb55bdc3",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/tools/qualification/revision_campaign.py": {
+      "size": 13240,
+      "sha256": "68664200e2beead94cfb4ab4420eb4915830e7da49e1ec63296f1f01e8eedbe4",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/tools/qualification/run_grounded_native.py": {
+      "size": 10695,
+      "sha256": "b6a443645962a030d699905d6e6b4b623cbbfc06166dc5f991a115ba9f07c397",
+      "encoding": "utf-8"
+    },
+    "agentPDFDoc/uv.lock": {
+      "size": 154319,
+      "sha256": "898b33d18e9ba76ccfabdf255cb2faa71df7c3cbd41321ed0fc7643e82c3ae37",
+      "encoding": "utf-8"
+    },
+    "qa-review/i6-native-documentary-review.json": {
+      "size": 44862,
+      "sha256": "a71620bea931516cf8583a6d97e00ac2e9897dea0d743733513785977cfbb30a",
+      "encoding": "utf-8"
+    }
+  }
+}
