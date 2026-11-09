@@ -4,11 +4,15 @@ These checks are deliberately narrower than semantic entailment. They establish
 explicit cell coverage or recognize a value/range on one source line with its
 quantity, unit and role. They never assemble a range from unrelated numbers,
 repair OCR by substitution, or infer that an unobserved fact is absent from a
-document. Unknown question forms remain ``unassessed`` and keep their excerpts.
+document. Unknown question forms remain ``unassessed``; their original excerpts
+remain in the audit catalogue, outside the generator's verified projection.
 """
 
 from __future__ import annotations
 
+import copy
+import hashlib
+import json
 import re
 import unicodedata
 from dataclasses import dataclass, field
@@ -32,9 +36,15 @@ from .deterministic_calculations import (
     decimal_text,
     parse_quantity,
 )
+from .errors import ApiError
+from .literal_evidence import RESTRICTION, nonrestrictive_tail_start, proof_envelope, sentence_spans
+from .point_conditions import condition_measures as _condition_measures
 
 VERIFICATION = "bounded_structural_checks"
 LIMITATION = "Contrôles de couverture explicite et de relations locales ; aucune preuve générale de justesse sémantique."
+OBLIGATION_SCHEMA_VERSION = 3
+MAX_OBLIGATIONS = 256
+MAX_OBLIGATION_CLAUSE_CHARACTERS = 65536
 QUANTITIES = {
     "voltage": r"\b(?:tensions?|voltages?|vcc|vdd|vss)\b|(?<!\w)v\+(?!\w)",
     "current": r"\b(?:courants?|currents?)\b",
@@ -45,6 +55,7 @@ QUANTITIES = {
     "pressure": r"\b(?:pressions?|pressures?)\b",
     "time": r"\b(?:durees?|durations?|delays?|delais?|temps|time)\b",
     "length": r"\b(?:longueurs?|lengths?|distances?)\b",
+    "capacitance": r"\b(?:capacites?|capacitances?)\b",
 }
 # These labels detect compound requirements; they do not establish a semantic
 # relation merely because two labels occur somewhere in the same excerpt.
@@ -65,6 +76,7 @@ ROLES = {
     "nominal": r"\b(?:nominal\w*|nom\.)",
     "characterization": r"\b(?:test\s+conditions?|conditions?\s+d['’ ]essai|characterization|caracterisation|courbes?|curves?|measured\s+at)\b",
 }
+GUARANTEE_LANGUAGE = re.compile(r"\b(?:guaranteed|garanti(?:e|s|es)?)\b")
 CELL = r"\$?[A-Z]{1,3}\$?[1-9][0-9]{0,6}"
 CELL_RANGE = re.compile(rf"(?<!\w)({CELL})\s*:\s*({CELL})(?!\w)", re.IGNORECASE)
 CELL_SINGLE = re.compile(rf"(?<!\w)({CELL})(?!\w)", re.IGNORECASE)
@@ -103,6 +115,10 @@ LABELLED_RANGE = re.compile(
     rf"\b(?:min(?:imum)?)[.\s:=|]*(?P<low>{NUMBER_PATTERN})\s*(?P<low_unit>{UNIT_PATTERN})?"
     rf"[^\n]{{0,40}}?\b(?:max(?:imum)?)[.\s:=|]*(?P<high>{NUMBER_PATTERN})\s*(?P<high_unit>{UNIT_PATTERN})(?!\w)",
     re.IGNORECASE)
+SYMMETRIC_RANGE = re.compile(
+    rf"(?P<low_sign>±)\s*(?P<low>{NUMBER_PATTERN})\s*(?P<low_unit>{UNIT_PATTERN})?\s*"
+    rf"(?:\bto\b|\ba\b|à|[-–—…])\s*(?P<high_sign>±)\s*"
+    rf"(?P<high>{NUMBER_PATTERN})\s*(?P<high_unit>{UNIT_PATTERN})(?!\w)", re.IGNORECASE)
 MEASURE = re.compile(rf"(?<![\w.,])(?P<value>{NUMBER_PATTERN})\s*(?P<unit>{UNIT_PATTERN})(?!\w)")
 AMBIGUOUS_ZERO = re.compile(r"(?<!\w)[Oo]\s*(?:mV|kV|V|mA|A)(?!\w)")
 CODE = re.compile(r"\b(?:0[xX][0-9a-fA-F]+|0[bB][01]+|[01]{7,})\b")
@@ -113,6 +129,8 @@ MAPPING_RELATION = re.compile(
     r"(?P<code>0[xX][0-9a-fA-F]+|0[bB][01]+|[01]{7,})(?!\w)", re.IGNORECASE)
 SUBJECT = re.compile(r"(?<!\w)[A-Za-z][A-Za-z0-9]*(?:[-_][A-Za-z0-9]+)*(?!\w)")
 NOT_SUBJECTS = {"i2c", "i3c", "rs232", "rs485", "usb2", "usb3"}
+SUPPLY_CONFIGURATIONS = {"single": r"\b(?:single|simple|unipolaire)\b",
+                         "dual": r"\b(?:dual|symmetric|symetrique|bipolar|bipolaire)\b"}
 UNIT_WORDS = {"millisecondes": "ms", "milliseconde": "ms", "milliseconds": "ms", "millisecond": "ms",
               "microsecondes": "µs", "microseconde": "µs", "microseconds": "µs", "microsecond": "µs",
               "secondes": "s", "seconde": "s", "seconds": "s", "second": "s",
@@ -138,14 +156,9 @@ NEGATED_ASSERTION = re.compile(
     r"n['’](?:est|etait|atteint)\s+(?:pas|plus|jamais)|ne\s+[^.!?;]{0,50}\b(?:pas|plus|jamais)|"
     r"ni|aucun\w*|non\s+(?:garanti\w*|valid\w*|verifi\w*))\b")
 UNCERTAIN_ASSERTION = re.compile(
-    r"\b(?:may|might|could|perhaps|possibly|approximately|approx\.?|estimated|"
+    r"\b(?:may|might|could|perhaps|possibly|approximate(?:ly)?|approx\.?|estimated|"
     r"unverified|preliminary|environ|approximati\w*|estime\w*|indicatif\w*|"
     r"incertain\w*|provisoire\w*|preliminaire\w*|a\s+confirmer|peut[- ]etre)\b|[~≈]")
-CONDITION_MEASURE = re.compile(
-    rf"(?<!\w)(?:(?i:at|à|a|when|for|pour|sous)\s+"
-    rf"(?:(?P<prefixed_symbol>[A-Za-z][A-Za-z0-9_+]{{0,15}})\s*=\s*)?"
-    rf"|(?P<symbol>[A-Za-z][A-Za-z0-9_+]{{0,15}})\s*=\s*)"
-    rf"(?P<value>{NUMBER_PATTERN})\s*(?P<unit>{UNIT_PATTERN})(?![\w/])")
 
 
 def _assertion_status(text):
@@ -186,6 +199,174 @@ def _literal_key(text: str) -> str:
     text = unicodedata.normalize("NFKC", text).casefold().replace("’", "'")
     text = text.replace("‑", "-").replace("‐", "-")
     return re.sub(r"\s+", " ", text).strip(" \t\r\n.!?")
+
+
+def _extended_qualitative_requests(question):
+    """Explicit action/condition, function and removed-need question grammar.
+
+    This small bilingual routing vocabulary contains no documentary values.
+    The answer is always the complete matched source clause, never a translated
+    or generated explanation. An unmatched coordinated clause stays unassessed.
+    """
+    text = re.sub(r"^(?:d['’]apres|selon|according\s+to)[^,?]{0,250},\s*", "", folded(question.strip()))
+    parts = re.split(r"\s+(?:et|and)\s+(?=(?:a\s+quoi\s+sert|quelle?\s+|what\s+(?:is|condition)|under\s+what))", text)
+    if len(parts) > 4:
+        return []
+    requests = []
+    for part in parts:
+        value = _literal_key(part)
+        request = None
+        if (re.search(r"\b(?:quelles?\s+conditions?|what\s+conditions?)\b", value)
+                and re.search(r"\b(?:sortie|output)\b", value)
+                and re.search(r"\b(?:declench\w*|assert\w*|trigger\w*|activ\w*)\b", value)):
+            request = {"intent": "action_condition", "target": "output", "negative": bool(NEGATED_ASSERTION.search(value))}
+        function = re.search(r"(?:\ba\s+quoi\s+sert\s+|\bwhat\s+is\s+(?:the\s+)?(?:purpose|function)\s+of\s+)(.+)$", value)
+        if function:
+            target = re.sub(r"^(?:(?:son|sa|ses|le|la|les|the|its)\s+|l['’])", "", function[1]).strip(" ?.")
+            target = re.split(r"\s+(?:de|du|of|for)\s+(?:[a-z]+\d|[a-z]+[-_]\d)", target, maxsplit=1)[0]
+            if target and len(target.split()) <= 8:
+                request = {"intent": "function", "target": target}
+        if (re.search(r"\b(?:quels?|which|what)\b", value) and re.search(r"\bcircuits?\b", value)
+                and re.search(r"\b(?:ne\s+sont\s+plus\s+necessaires|no\s+longer\s+(?:necessary|required)|not\s+required)\b", value)):
+            request = {"intent": "removed_need", "target": "circuits",
+                       "external": bool(re.search(r"\b(?:externes?|external)\b", value))}
+        if request:
+            requests.append({**request, "language": "literal_bilingual", "grammar_supported": True,
+                             "request_clause": part})
+        elif len(parts) > 1:
+            requests.append({"intent": "unanalysed", "target": value, "language": "unknown",
+                             "grammar_supported": False, "request_clause": part})
+    return requests if any(item["grammar_supported"] for item in requests) else []
+
+
+def _universal_circuit_scope(normalized, removal):
+    """A literal universal may cover the requested external subset.
+
+    The quantifier must begin the object of this exact removed-need clause.
+    Internal-only scopes and intervening clauses do not establish that subset.
+    This finite grammar grants no rewritten claim: the complete source clause,
+    including its qualifications, remains the only publishable statement.
+    """
+    tail = normalized[removal.end():].lstrip()
+    universal = re.match(r"(?:any|all(?:\s+the)?|tout(?:e)?|(?:tous|toutes)\s+les)\s+", tail)
+    if universal is None:
+        return False
+    circuit = re.search(r"\bcircuit(?:s|ry)?\b", tail)
+    if circuit is None or circuit.end() > 320:
+        return False
+    object_prefix = tail[universal.end():circuit.end()]
+    if (len(object_prefix.split()) > 32 or not re.fullmatch(r"[\w\s,/'’‐‑–-]+", object_prefix)
+            or re.match(r"of\b", object_prefix)
+            or re.search(r"\b(?:but|however|whereas|which|that|when|if|because|requires?|needs?|"
+                         r"mais|pourtant|tandis|qui|que|lorsque|quand|si|necessite\w*)\b", object_prefix)):
+        return False
+    qualification = re.search(
+        r"\b(?:only\s+(?:when|if|at)|provided\s+that|when|if|unless|except|"
+        r"(?:uniquement|seulement)\s+(?:lorsque|si|a)|a\s+condition\s+que|lorsque|quand|si|sauf)\b", tail)
+    object_scope = tail[:qualification.start()] if qualification else tail
+    # A finite count/selection is not a universal over the named category.
+    # Conditions are kept outside this object check, and remain in the quote.
+    restricted = re.compile(
+        r"(?<!\w)(?:\d+(?:[.,]\d+)?|zero|one|two|three|four|five|six|seven|eight|nine|ten|"
+        r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|"
+        r"twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundreds?|thousands?|millions?|"
+        r"un|une|deux|trois|quatre|cinq|sept|huit|neuf|dix|onze|douze|treize|quatorze|quinze|"
+        r"seize|vingts?|trente|quarante|cinquante|soixante|cents?|mille|"
+        r"some|few|several|certain|selected|both|half|dozens?|couples?|pairs?|sets?|groups?|"
+        r"subset|portion|part|these|those|our|their|your|its|my|his|her|"
+        r"quelques?|certains?|certaines?|selectionne\w*|choisi\w*|partie\w*|groupes?|"
+        r"paires?|douzaines?|dizaines?|notre|nos|votre|vos|leur|leurs|ses|ces)(?!\w)")
+    if restricted.search(object_scope):
+        return False
+    # The restriction can follow the noun ("circuits internes") as well as
+    # precede it. A universal over internal circuits says nothing about external
+    # circuits; neither the requested adjective nor domain knowledge fills it.
+    return re.search(r"\b(?:internal|internes?|on[-‐‑– ]chip|on[-‐‑– ]die|embedded|built[-‐‑– ]in)\b", object_scope) is None
+
+
+def _extended_qualitative_relations(request, references, subjects):
+    relations = []
+    for reference in references:
+        if reference["kind"] != "excerpt" or len(reference["text"]) > 16_384:
+            continue
+        text = reference["text"]
+        for start, end, sentence in sentence_spans(text):
+            normalized = folded(sentence)
+            intent, target = request["intent"], request["target"]
+            main, qualification, marker = sentence, "", ""
+            status_text = sentence
+            if intent == "action_condition":
+                connector = QUALITATIVE_CONNECTOR.search(sentence)
+                if not connector or _literal_key(connector["marker"]) in QUALITATIVE_CAUSES:
+                    continue
+                main = sentence[:connector.start()]
+                if not (re.search(r"\b(?:output|sortie)\b", folded(main))
+                        and re.search(r"\b(?:assert\w*|activ\w*|trigger\w*|declench\w*)\b", folded(main))):
+                    continue
+                qualification = sentence[connector.start():].strip()
+                marker, status_text = _literal_key(connector["marker"]), main
+            elif intent == "function":
+                if re.search(r"(?<!\w)" + re.escape(target) + r"(?!\w)", normalized) is None:
+                    continue
+                # A mentioned target cannot borrow the first relative clause
+                # describing another object. This finite grammar accepts only
+                # the target as the literal end of the preceding antecedent.
+                connector = next((candidate for candidate in re.finditer(
+                    r"\s*,?\s+(?:which|that|qui|ce\s+qui)\s+", sentence, re.IGNORECASE)
+                    if re.search(r"(?<!\w)" + re.escape(target) + r"\s*,?\s*$",
+                                 folded(sentence[:candidate.start()]))), None)
+                if connector is None:
+                    continue
+                main, qualification = sentence[:connector.start()], sentence[connector.end():]
+                if not re.match(r"(?:prevent\w*|enable\w*|allow\w*|avoid\w*|limit\w*|maintain\w*|"
+                                r"reduce\w*|eliminat\w*|emp[eê]ch\w*|permet\w*|[eé]vit\w*|limit\w*|r[eé]dui\w*|"
+                                r"does\s+not\s+|ne\s+)", qualification, re.IGNORECASE):
+                    continue
+                marker, status_text = "explicit_relative_function", qualification
+            elif intent == "removed_need":
+                if not re.search(r"\bcircuit(?:s|ry)?\b", normalized):
+                    continue
+                positive = re.search(r"\b(?:eliminat\w*\s+(?:the\s+)?need\s+for|"
+                                     r"supprim\w*\s+(?:le\s+)?besoin\s+de)\b", normalized)
+                if (request.get("external") and not re.search(r"\b(?:external|externes?)\b", normalized)
+                        and not (positive and _universal_circuit_scope(normalized, positive))):
+                    continue
+                negative = re.search(r"\b(?:no\s+external\b.+\b(?:necessary|required)|"
+                                     r"external\b.+\b(?:not|no\s+longer)\s+(?:necessary|required)|"
+                                     r"circuits?\b.+\bne\s+sont\s+(?:pas|plus)\s+necessaires)\b", normalized)
+                if not positive and not negative:
+                    continue
+                qualification, marker = sentence, "explicit_removed_need"
+                status_text = sentence if positive else ""
+            else:
+                continue
+            reasons = []
+            if reference.get("source_span_complete") is not True:
+                reasons.append("qualitative_source_span_incomplete")
+            ids = _source_identifiers(main)
+            inherited = ids or _source_identifiers(reference.get("document_name", ""))
+            if subjects and (len(inherited) != 1 or not any(_contains_subject(next(iter(inherited)), subject) for subject in subjects)):
+                reasons.append("qualitative_subject_not_established")
+            status = _assertion_status(status_text)
+            if status == "negated" and not request.get("negative") or status == "asserted" and request.get("negative"):
+                reasons.append("qualitative_polarity_mismatch")
+            elif status == "uncertain":
+                reasons.append("qualitative_source_uncertain")
+            low, high = proof_envelope(text, start, end, subjects)
+            quality = reference_span_quality(reference, low, high)
+            if quality is not None and quality["state"] not in {"native", "corroborated"}:
+                reasons.append("source_quality_" + quality["state"])
+            relations.append({"kind": "qualitative_literal", "intent": intent, "reference_id": reference["id"],
+                              "reference_ids": [reference["id"]], "document_id": reference["document_id"],
+                              "source_ids": reference["source_ids"], "version_id": reference.get("version_id"),
+                              "extraction_revision_id": reference.get("extraction_revision_id"),
+                              "quote": text[low:high], "source_start": low, "source_end": high,
+                              "subject": "|".join(sorted(inherited)), "predicate": target, "request_target": request["target"],
+                              "negative": status == "negated",
+                              "qualification": qualification, "qualifier_kind": intent, "marker": marker,
+                              "value": None, "reasons": reasons, "source_quality": quality,
+                              "verification": "explicit_action_function_clause"})
+    return relations
 
 
 def _qualitative_request(question: str) -> dict[str, Any] | None:
@@ -266,7 +447,7 @@ def _qualitative_relations(request: dict[str, Any], references: list[dict[str, A
         if reference["kind"] != "excerpt":
             continue
         text = reference["text"]
-        # Large/general passages keep their literal output, with no claim that
+        # Large/general passages keep their audit literal, with no claim that
         # this finite grammar established all of their dependencies.
         if len(text) > 16_384:
             continue
@@ -317,16 +498,19 @@ def _qualitative_relations(request: dict[str, Any], references: list[dict[str, A
         qualifier_kind = "cause" if marker in QUALITATIVE_CAUSES else "condition" if marker else None
         if request["intent"] != "field" and (qualifier_kind != request["intent"] or not qualification):
             reasons.append("qualitative_" + request["intent"] + "_not_established")
+        quality = reference_span_quality(reference, source_start, source_start + len(literal))
+        if quality is not None and quality["state"] not in {"native", "corroborated"}:
+            reasons.append("source_quality_" + quality["state"])
         relations.append({"kind": "qualitative_literal", "intent": request["intent"],
                           "reference_id": reference["id"], "reference_ids": [reference["id"]],
                           "document_id": reference["document_id"], "source_ids": reference["source_ids"],
                           "version_id": reference.get("version_id"),
                           "extraction_revision_id": reference.get("extraction_revision_id"),
                           "quote": text, "source_start": source_start, "source_end": source_start + len(literal),
-                          "subject": subject_key, "predicate": predicate_key,
+                          "subject": subject_key, "predicate": predicate_key, "request_target": request["target"],
                           "negative": bool(statement and statement["negative"]),
                           "qualification": qualification, "qualifier_kind": qualifier_kind, "marker": marker,
-                          "value": value, "reasons": reasons,
+                          "value": value, "reasons": reasons, "source_quality": quality,
                           "verification": "literal_subject_predicate_qualification_match"})
     return relations
 
@@ -360,30 +544,6 @@ def _bound_role(text):
     return roles[0] if len(roles) == 1 else None
 
 
-def _condition_measures(text):
-    """Recognize explicit point conditions without guessing a variable name.
-
-    ``at 25 °C`` is a temperature condition; it is not silently called ambient
-    temperature. ``TJ = 25 °C`` keeps TJ distinct from TA. Unit conversion for
-    matching uses the same checked Decimal registry as answer calculations.
-    """
-    measures = []
-    for match in CONDITION_MEASURE.finditer(text):
-        if re.match(rf"\s*(?:(?i:to|a|à)|[-–—])\s*{NUMBER_PATTERN}", text[match.end():]):
-            continue  # a range endpoint is not a separately asserted point
-        try:
-            value, unit = parse_quantity(match["value"] + " " + match["unit"])
-        except CalculationRefusal:
-            continue
-        dimension, scale, offset = UNITS[unit]
-        with localcontext() as context:
-            context.prec = 96
-            base = decimal_text(value * Decimal(scale) + Decimal(offset))
-        measures.append({"quantity": dimension, "symbol": match["prefixed_symbol"] or match["symbol"],
-                         "value": base, "text": match[0], "start": match.start(), "end": match.end()})
-    return measures
-
-
 def _local_condition(line, start, end):
     # The old suffix-only representation lost conditions placed before a
     # quantity, allowing two temperatures to be compared as one context.
@@ -398,6 +558,67 @@ def folded(text: str) -> str:
     return "".join(char for char in unicodedata.normalize("NFKD", text.casefold()) if not unicodedata.combining(char))
 
 
+def _source_identifiers(text):
+    identifiers = {match[0].casefold() for match in SUBJECT.finditer(text) if any(char.isdigit() for char in match[0])}
+    return {value for value in identifiers if value not in NOT_SUBJECTS
+            and not (value.endswith("-compatible") and value[:-11] in NOT_SUBJECTS)}
+
+
+def reference_span_quality(reference, start=0, end=None):
+    """Consume only the builder's revalidated parent witness and exact offsets."""
+    quality = reference.get("source_quality")
+    if quality is None:
+        return None  # explicit literal unit fixtures / Office use other proofs
+    from services.ingestion.source_quality import span_quality
+
+    end = len(reference_text(reference)) if end is None else end
+    offset = reference.get("source_parent_start", 0)
+    return span_quality(quality, offset + start, offset + end)
+
+
+def relation_supports_obligation(fact, obligation):
+    """Shared question-to-relation predicate, independent of reference overlap."""
+    if fact.get("reasons") or fact.get("note_issues") or fact.get("assertion_status", "asserted") != "asserted":
+        return False
+    if obligation.get("kind") == "qualitative_literal":
+        if fact.get("kind") != "qualitative_literal":
+            return False
+        if obligation.get("document_id") is not None and obligation["document_id"] != fact.get("document_id"):
+            return False
+        if obligation.get("subject") is not None and not _contains_subject(fact.get("subject", ""), obligation["subject"]):
+            return False
+        if obligation.get("property") != fact.get("request_target", fact.get("predicate")):
+            return False
+        return all(obligation.get(key) is None or obligation[key] == fact.get(key)
+                   for key in ("intent", "negative", "qualifier_kind"))
+    if fact.get("kind") == "qualitative_literal":
+        return False
+    if obligation.get("quantity") != fact.get("quantity"):
+        return False
+    if obligation.get("kind") == "interval" and fact.get("kind") != "interval":
+        return False
+    if obligation.get("document_id") is not None and obligation["document_id"] != fact.get("document_id"):
+        return False
+    if obligation.get("subject") is not None and obligation["subject"] not in fact.get("subjects", []):
+        return False
+    if obligation.get("property") is not None and obligation["property"] != fact.get("property"):
+        return False
+    role = obligation.get("role")
+    if role is not None and role not in {fact.get("role"), fact.get("bound_role")}:
+        return False
+    if role is None and fact.get("role") == "characterization":
+        return False
+    if obligation.get("guarantee_required") and fact.get("guarantee") != "explicit":
+        return False
+    if obligation.get("supply_configuration") is not None and obligation["supply_configuration"] != fact.get("supply_configuration"):
+        return False
+    if obligation.get("requested_condition") and tuple(obligation["requested_condition"]) != _condition_key(fact.get("condition", "")):
+        return False
+    if obligation.get("general_conditions_required") and not fact.get("general_conditions_verified"):
+        return False
+    return AnswerContract._matches_points(fact, obligation.get("point_conditions", []))
+
+
 def reference_text(reference: dict[str, Any]) -> str:
     if reference["kind"] == "cell":
         return "\n".join(field["text"] for field in reference["fields"] if field["field"] == "value")
@@ -407,6 +628,21 @@ def reference_text(reference: dict[str, Any]) -> str:
 def _role(text: str) -> str | None:
     normalized = folded(text)
     return next((role for role, pattern in ROLES.items() if re.search(pattern, normalized)), None)
+
+
+def _explicit_guarantee(text: str, quantity: str) -> str | None:
+    """A local positive modifier, independent of the operating/statistical role.
+
+    A guarantee about another quantity is not transferred to this relation.
+    ``None`` means unestablished, never an assertion that no guarantee exists.
+    The caller supplies only a local label or a scope-verified ancestor.
+    """
+    normalized = folded(text)
+    if not GUARANTEE_LANGUAGE.search(normalized) or _assertion_status(text) != "asserted":
+        return None
+    if any(name != quantity and re.search(pattern, normalized) for name, pattern in QUANTITIES.items()):
+        return None
+    return "explicit"
 
 
 def _contains_subject(text: str, subject: str) -> bool:
@@ -498,9 +734,74 @@ def _requested_quantities(normalized: str) -> list[str]:
         # The established supply-range alias is explicit here even when another
         # independently requested quantity makes the whole question ambiguous.
         quantities.append("voltage")
-    if not quantities and re.search(r"\b(?:alimentation|supply)\b", normalized):
-        quantities = ["voltage"]
+    supply_alias = SUPPLY_RANGE_LANGUAGE.search(quantity_text)
+    coordinated_supply = bool(supply_alias and any(
+        re.search(r"\b(?:et|and|ainsi\s+que)\b", quantity_text[supply_alias.end():match.start()])
+        for quantity in quantities for match in re.finditer(QUANTITIES[quantity], quantity_text)
+        if match.start() > supply_alias.end()))
+    if "voltage" not in quantities and (supply_alias and (not quantities or coordinated_supply)
+                                        or not quantities and re.search(r"\b(?:alimentation|supply)\b", normalized)):
+        quantities.append("voltage")
     return quantities
+
+
+def _quantity_request_clauses(question, quantities):
+    """Split only explicit coordinated requested quantities, at most four."""
+    if not 1 < len(quantities) <= 4:
+        return []
+    text = folded(question)
+    positions = []
+    for quantity in quantities:
+        matches = list(re.finditer(QUANTITIES[quantity], text))
+        if not matches and quantity == "voltage" and SUPPLY_RANGE_LANGUAGE.search(text):
+            matches = list(re.finditer(QUANTITY_PROPERTIES["voltage"]["supply"], text))
+        if not matches:
+            return []
+        positions.append((matches[0].start(), matches[0].end(), quantity))
+    positions.sort()
+    boundaries = [0]
+    for left, right in zip(positions, positions[1:], strict=False):
+        separators = list(re.finditer(r"\s+(?:et|and|ainsi\s+que)\s+", text[left[1]:right[0]]))
+        if not separators:
+            return []
+        boundaries.append(left[1] + separators[-1].end())
+    boundaries.append(len(text))
+    return [(quantity, text[boundaries[index]:boundaries[index + 1]].strip())
+            for index, (_, _, quantity) in enumerate(positions)]
+
+
+def _point_condition_alternatives(question, default):
+    """Recognize explicit coordinated point values for one named test input."""
+    pattern = re.compile(r"\b(?:pour|for)\s+(?:(?:des?|the|an?)\s+)?(?P<label>[A-Za-z]{3,}s?)\s+"
+                         r"(?:(?:de|of)\s+)?(?P<body>[^?;]{1,180})", re.IGNORECASE)
+    for match in pattern.finditer(question):
+        body = match["body"]
+        values = list(MEASURE.finditer(body))
+        if not 2 <= len(values) <= 4 or not re.search(r"\b(?:et|and)\b", body):
+            continue
+        points = []
+        for value in values:
+            try:
+                number, unit = parse_quantity(value[0])
+            except CalculationRefusal:
+                break
+            dimension, scale, offset = UNITS[unit]
+            with localcontext() as context:
+                context.prec = 96
+                normalized_value = decimal_text(number * Decimal(scale) + Decimal(offset))
+            points.append({"quantity": dimension, "symbol": None, "label": folded(match["label"]).removesuffix("s"),
+                           "value": normalized_value, "text": value[0]})
+        if len(points) == len(values) and len({point["quantity"] for point in points}) == 1:
+            return [[point] for point in points]
+    return [default] if default else [[]]
+
+
+def _obligation_id(specification):
+    keys = ("document_id", "subject", "property", "quantity", "role", "kind", "expected_count",
+            "point_conditions", "supply_configuration", "requested_condition", "intent", "negative", "qualifier_kind",
+            "general_conditions_required", "guarantee_required")
+    data = {key: specification.get(key) for key in keys}
+    return "O" + hashlib.sha256(json.dumps(data, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()).hexdigest()[:16]
 
 
 def _temperature_condition_present(text: str) -> bool:
@@ -560,7 +861,8 @@ def _condition_key(text):
 
 
 def _relation(reference, *, quantity, role, values, unit, label, condition, quote, kind, subjects,
-              value_text=None, code=None, dependency_ids=(), decimal_notation_verified=False, list_context=None):
+              value_text=None, code=None, dependency_ids=(), decimal_notation_verified=False, list_context=None,
+              source_start=None, source_end=None, supply_configuration=None, polarity=None):
     context = reference.get("table_context") or {}
     note_issues = []
     if context.get("catalogue_verified"):
@@ -575,6 +877,8 @@ def _relation(reference, *, quantity, role, values, unit, label, condition, quot
         if context.get("note_scan_complete") is False:
             note_issues.append("table_note_scan_incomplete")
         dependency_ids = [*dependency_ids, *context.get("reference_ids", [])]
+        if context.get("general_conditions", {}).get("state") == "unavailable":
+            note_issues.append("table_general_conditions_unverified")
     source_ids = list(context.get("source_ids", reference["source_ids"])) if context.get("catalogue_verified") else list(reference["source_ids"])
     list_binding = None
     if list_context:
@@ -595,13 +899,38 @@ def _relation(reference, *, quantity, role, values, unit, label, condition, quot
         list_binding = {key: list_context[key] for key in ("group_id", "heading", "item", "item_count", "verified_item_count",
                                                           "visible_item_count", "catalogue_group_complete", "reference_ids")}
     properties = _properties(label, quantity)
-    def identifiers(text):
-        return {match[0].casefold() for match in SUBJECT.finditer(text) if any(char.isdigit() for char in match[0])
-                and match[0].casefold() not in NOT_SUBJECTS}
+    guarantee = _explicit_guarantee(label, quantity)
+    if guarantee is None and list_context:
+        guarantee = _explicit_guarantee(list_context["heading"]["text"], quantity)
+    quality = reference_span_quality(reference, source_start or 0, source_end)
+    if quality is not None and quality["state"] not in {"native", "corroborated"}:
+        note_issues.append("source_quality_" + quality["state"])
+    if reference.get("table_quality", {}).get("state", "supported") != "supported":
+        note_issues.append("table_source_binding_unverified")
+    identifiers = _source_identifiers
     clause_ids = identifiers(quote)
-    excerpt_ids = identifiers(reference_text(reference))
+    # Later independent interface/model mentions cannot retroactively change a
+    # preceding clause's subject. Explicit clause-local identities still win.
+    excerpt_ids = identifiers(reference_text(reference)[:source_start] if source_start is not None else reference_text(reference))
     heading_ids = identifiers(list_context["heading"]["text"]) if list_context else set()
-    document_ids = identifiers(reference.get("document_name", ""))
+    if not heading_ids and context.get("catalogue_verified"):
+        code_prefix = _table_code(context["cells"])[1] if code is not None else None
+        bit_header = re.compile(r"^" + re.escape(code_prefix) + r"[0-9]+(?:\s|$)") if code_prefix else None
+        heading_ids = identifiers(" ".join(header["text"] for cell in context["cells"] for header in cell["headers"]
+                                           if bit_header is None or not bit_header.match(header["text"].strip())))
+    verified_pdf_table = (reference.get("source_format") == "pdf" and context.get("catalogue_verified")
+                          and context.get("binding_quality", {}).get("state") == "supported")
+    prose_context = reference.get("prose_context") or {}
+    verified_pdf_prose = reference.get("source_format") == "pdf" and prose_context.get("catalogue_verified")
+    document_ids = set() if verified_pdf_table or verified_pdf_prose else identifiers(reference.get("document_name", ""))
+    page_binding = (context.get("page_subject") if verified_pdf_table else
+                    prose_context.get("page_subject") if verified_pdf_prose else None)
+    dependency_spans = dict(context.get("reference_spans", {}))
+    if verified_pdf_prose and page_binding:
+        dependency_ids = [*dependency_ids, *prose_context["reference_ids"]]
+        source_ids = list(dict.fromkeys([*source_ids, *prose_context["source_ids"]]))
+        dependency_spans.update(prose_context["reference_spans"])
+    page_ids = identifiers(page_binding["subject"]) if page_binding else set()
     # Count competing identifiers, including ones that the question did not
     # request. A value explicitly attached to DEV456 cannot inherit DEV123 just
     # because the latter was mentioned elsewhere in the same paragraph.
@@ -610,13 +939,14 @@ def _relation(reference, *, quantity, role, values, unit, label, condition, quot
         # The verified title is part of the written relation, before any
         # filename fallback. Different explicit title/item identifiers cannot
         # be reconciled by assigning the value to either entity.
+        binding_kind = "list" if list_context else "table"
         if len(heading_ids) > 1:
-            note_issues.append("list_heading_subject_ambiguous")
+            note_issues.append(binding_kind + "_heading_subject_ambiguous")
         if local_ids and local_ids != heading_ids:
-            note_issues.append("list_heading_subject_conflict")
+            note_issues.append(binding_kind + "_heading_subject_conflict")
         candidates = local_ids | heading_ids
     else:
-        candidates = local_ids or document_ids
+        candidates = local_ids or page_ids or document_ids
     local_subjects = [subject for subject in subjects if _contains_subject(next(iter(candidates)), subject)] if len(candidates) == 1 else []
     return {"reference_id": reference["id"], "reference_ids": list(dict.fromkeys([reference["id"], *dependency_ids])),
             "document_id": reference["document_id"],
@@ -628,15 +958,82 @@ def _relation(reference, *, quantity, role, values, unit, label, condition, quot
             # A preceding subject in the same literal excerpt remains part of
             # the local context. Keep it distinct from clause-local identity;
             # filenames alone do not prove that two quantities name one entity.
-            "entity_context_identifiers": sorted(local_ids | heading_ids),
+            "entity_context_identifiers": sorted(local_ids | heading_ids | page_ids),
+            **({"page_subject_binding": page_binding} if page_binding else {}),
             "kind": kind, "quantity": quantity, "property": properties[0] if len(properties) == 1 else None,
-            "properties": properties, "role": role, "values": [decimal_text(value) for value in values], "unit": unit,
+            "properties": properties, "role": role, "guarantee": guarantee,
+            "values": [decimal_text(value) for value in values], "unit": unit,
             "label": folded(label).strip(" :;|="), "condition": condition, "quote": quote,
             "assertion_status": _assertion_status(quote + " " + condition), "bound_role": _bound_role(label) if kind == "value" else None,
             "note_issues": note_issues,
             "list_binding": list_binding,
+            "dependency_spans": dependency_spans,
             "segments": reference.get("segments", []), "value_text": value_text, "code": code,
-            "decimal_notation_verified": decimal_notation_verified}
+            "decimal_notation_verified": decimal_notation_verified,
+            "source_start": source_start, "source_end": source_end,
+            "supply_configuration": supply_configuration, "polarity": polarity,
+            "source_quality": quality}
+
+
+def _measure_clause(line, start, end, quantity):
+    """A local property/role cannot be borrowed from a neighbouring measure."""
+    low, high = 0, len(line)
+    separators = list(re.finditer(r"(?<!\d)[,;](?!\d)|\s+(?=(?:drawing|consuming)\b)|"
+                                 r"\s+(?:or|ou)\s+(?=(?:a\s+)?(?:single|dual|simple|sym[eé]trique)\b)", line))
+    for separator in separators:
+        if separator.end() <= start:
+            prefix = line[low:separator.start()].strip()
+            # A leading temperature/other explicit test condition belongs to
+            # the following assertion, despite its comma.
+            if not re.match(r"^(?:at|a|à|for|pour|when|lorsque)\b", prefix, re.IGNORECASE):
+                if MEASURE.search(prefix) or re.search(r"\b(?:single|dual|simple|symetrique)\b", folded(prefix)):
+                    low = separator.end()
+        elif separator.start() >= end:
+            suffix = line[separator.end():]
+            other_quantity = any(name != quantity and re.search(pattern, folded(suffix)) for name, pattern in QUANTITIES.items())
+            independent = bool(re.match(r"\s*(?:drawing|consuming|or\b|ou\b|a\s+dual|a\s+single|"
+                                        r"bus\s+voltage|supply\s+voltage)", suffix, re.IGNORECASE))
+            if other_quantity and independent or re.search(r"\b(?:dual|single)\b", separator[0] + suffix[:15]):
+                high = separator.start()
+                break
+    return low, high
+
+
+def _prose_subject_retained(reference, references):
+    """Recheck the exact subject dependency when a catalogue is projected."""
+    context = reference.get("prose_context") or {}
+    binding = context.get("page_subject")
+    if not binding:
+        return True
+    try:
+        header = binding["header"]
+        retained = next(item for item in references if item["id"] == header["reference_id"])
+        identities = ("document_id", "version_id", "generation_id", "extraction_revision_id")
+        low, high = header["start_offset"], header["end_offset"]
+        if (not context.get("catalogue_verified") or binding.get("schema_version") != "prose-page-subject-v1"
+                or binding.get("state") != "supported"
+                or any(binding[key] != reference.get(key) or retained.get(key) != reference.get(key) for key in identities)
+                or retained.get("source_format") != "pdf" or not retained.get("source_span_complete")
+                or retained.get("source_parent_start") != 0 or retained["text"] != header["text"]
+                or retained.get("source_file_sha256") != binding["source_sha256"]
+                or reference.get("source_file_sha256") != binding["source_sha256"]
+                or retained.get("locators") != [{"page_index": binding["page_index"]}]
+                or type(low) is not int or type(high) is not int or not 0 <= low < high <= len(retained["text"])
+                or retained["text"][low:high].strip() != binding["subject"]
+                or hashlib.sha256(retained["text"].encode()).hexdigest() != header["source_text_hash"]
+                or hashlib.sha256(reference_text(reference).encode()).hexdigest() != binding["prose"]["source_text_hash"]
+                or context["reference_ids"] != [retained["id"]]
+                or context["reference_spans"] != {retained["id"]: [{"start_offset": low, "end_offset": high}]}
+                or set(context["source_ids"]) != set(retained["source_ids"])
+                or not retained.get("segments")
+                or any(segment["block_id"] != header["block_id"] or segment["source_text_hash"] != header["source_text_hash"]
+                       or segment["start_offset"] != 0 or segment["end_offset"] != len(retained["text"])
+                       or segment["source_id"] not in retained["source_ids"] for segment in retained["segments"])):
+            return False
+        quality = reference_span_quality(retained, 0, len(retained["text"]))
+        return quality is not None and quality["state"] in {"native", "corroborated"}
+    except (KeyError, TypeError, ValueError, StopIteration):
+        return False
 
 
 def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: str | None, subjects: tuple[str, ...],
@@ -644,6 +1041,8 @@ def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: st
     """Yield complete local relations without rewriting their quoted evidence."""
     raw = reference_text(reference)
     available = {item["id"] for item in references}
+    if not _prose_subject_retained(reference, references):
+        return  # an anonymous value cannot survive loss of its written subject
     context = reference.get("list_context") or {}
     if not context.get("catalogue_verified") or not set(context.get("reference_ids", [])) <= available:
         context = {}
@@ -655,51 +1054,68 @@ def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: st
         context = {**context, "visible_item_count": len(visible),
                    "catalogue_group_complete": context["complete"] and visible == set(range(context["item_count"]))}
     heading = context["heading"]["text"] if context else ""
-    # Split at explicit sentence boundaries, never at a decimal point, table
-    # delimiter, or a condition separator. Each resulting quote stays complete.
-    lines = [clause for line in raw.splitlines() for clause in re.split(r"(?<=[.!?])\s+(?=[A-ZÀ-Þ])", line)]
-    for line in lines:
+    for line_start, line_end, line in sentence_spans(raw):
         if (not re.search(QUANTITIES[quantity], folded(line)) and not _properties(line, quantity)
                 and not re.search(QUANTITIES[quantity], folded(heading)) and not _properties(heading, quantity)):
             continue
-        role = _role(line) or _role(heading)
-        if requested_role and role != requested_role or role == "characterization" and requested_role != role:
-            continue
-        for pattern in (BETWEEN_RANGE, RANGE_VALUE, LABELLED_RANGE):
-            match = pattern.search(line)
-            if match is None:
-                continue
-            try:
-                low, low_unit = parse_quantity(match["low"] + " " + (match["low_unit"] or match["high_unit"]))
-                high, high_unit = parse_quantity(match["high"] + " " + match["high_unit"])
-            except CalculationRefusal:
-                continue
-            if UNITS[low_unit][0] != quantity or UNITS[high_unit][0] != quantity or low_unit != high_unit or low > high:
-                continue
-            prefix = line[:match.start()]
-            label = prefix if re.search(QUANTITIES[quantity], folded(prefix)) or _properties(prefix, quantity) else heading or prefix
-            yield _relation(reference, quantity=quantity, role=role, values=[low, high], unit=high_unit,
-                            label=label, condition=_local_condition(line, match.start(), match.end()), quote=line,
-                            kind="interval", subjects=subjects, list_context=context)
-            break
-        else:
-            measurements = []
+        candidates: list[tuple[re.Match[str], list[Decimal], str, str, str | None]] = []
+        for pattern in (SYMMETRIC_RANGE, BETWEEN_RANGE, RANGE_VALUE, LABELLED_RANGE):
+            for match in pattern.finditer(line):
+                if any(not (match.end() <= item[0].start() or match.start() >= item[0].end()) for item in candidates):
+                    continue
+                try:
+                    low, low_unit = parse_quantity(match["low"] + " " + (match["low_unit"] or match["high_unit"]))
+                    high, high_unit = parse_quantity(match["high"] + " " + match["high_unit"])
+                except CalculationRefusal:
+                    continue
+                if UNITS[low_unit][0] == quantity and UNITS[high_unit][0] == quantity and low_unit == high_unit and low <= high:
+                    candidates.append((match, [low, high], high_unit, "interval", "±" if pattern is SYMMETRIC_RANGE else None))
+        if not candidates:
+            measurements: list[tuple[re.Match[str], list[Decimal], str, str, str | None]] = []
             for match in MEASURE.finditer(line):
-                if line[match.end():].startswith("/"):
-                    continue  # a ratio such as mV/V is not a voltage value
+                if line[match.end():].startswith("/") or match.start() and line[match.start() - 1] == "±":
+                    continue
                 try:
                     value, unit = parse_quantity(match[0])
                 except CalculationRefusal:
                     continue
                 if UNITS[unit][0] == quantity:
-                    measurements.append((match, value, unit))
+                    measurements.append((match, [value], unit, "value", None))
             if len(measurements) == 1:
-                match, value, unit = measurements[0]
-                prefix = line[:match.start()]
-                label = prefix if re.search(QUANTITIES[quantity], folded(prefix)) or _properties(prefix, quantity) else heading or prefix
-                yield _relation(reference, quantity=quantity, role=role, values=[value], unit=unit,
-                                label=label, condition=_local_condition(line, match.start(), match.end()), quote=line,
-                                kind="value", subjects=subjects, value_text=match[0], list_context=context)
+                candidates = measurements
+        for match, values, unit, kind, polarity in sorted(candidates, key=lambda item: item[0].start()):
+            clause_start, clause_end = _measure_clause(line, match.start(), match.end(), quantity)
+            if clause_end == len(line) and proof_envelope(raw, line_start, line_end, subjects)[1] == line_end:
+                clause_end = nonrestrictive_tail_start(line, match.end())
+            relative_start = match.start() - clause_start
+            relative_end = match.end() - clause_start
+            prefix, suffix = line[clause_start:match.start()], line[match.end():clause_end]
+            suffix_label = re.split(r"[,;]|\b(?:at|when|for|pour|lorsque|a|à)\b", suffix, maxsplit=1, flags=re.IGNORECASE)[0]
+            local_label = prefix + " " + suffix_label
+            label = local_label if re.search(QUANTITIES[quantity], folded(local_label)) or _properties(local_label, quantity) else heading or prefix
+            role = _role(local_label) or _role(heading)
+            if requested_role and role != requested_role or role == "characterization" and requested_role != role:
+                continue
+            condition = _local_condition(line[clause_start:clause_end], relative_start, relative_end)
+            if re.match(r"^\s*(?:supply|alimentation)\s*[.,]?\s*$", condition, re.IGNORECASE):
+                condition = ""
+            configurations = [name for name, pattern in SUPPLY_CONFIGURATIONS.items() if re.search(pattern, folded(local_label))]
+            configuration = configurations[0] if quantity == "voltage" and len(configurations) == 1 else None
+            if polarity and configuration != "dual":
+                continue  # ± is not silently interpreted as a single-ended range
+            start = line_start + clause_start
+            end = line_start + clause_end
+            if clause_start == 0 and clause_end == len(line):
+                start, end = proof_envelope(raw, start, end, subjects)
+            if end > line_end:
+                condition = " ; ".join(item for item in [condition, raw[line_end:end].strip()] if item)
+            quote = raw[start:end].strip()
+            start += len(raw[start:end]) - len(raw[start:end].lstrip())
+            end = start + len(quote)
+            yield _relation(reference, quantity=quantity, role=role, values=values, unit=unit,
+                            label=label, condition=condition, quote=quote, kind=kind, subjects=subjects,
+                            value_text=match[0] if kind == "value" else None, list_context=context,
+                            source_start=start, source_end=end, supply_configuration=configuration, polarity=polarity)
 
 
 def _cell_roles(cell):
@@ -768,17 +1184,22 @@ def _table_relations(reference, quantity, subjects, references):
     label = " | ".join(cell["text"].strip() for cell in label_cells)
     sections = " | ".join(item["text"] for item in context["dependencies"] if item["kind"] == "row_section")
     conditions = " ; ".join(cell["text"].strip() for cell in cells if "condition" in roles[id(cell)])
+    conditions = " ; ".join([*(item["text"] for item in context["dependencies"] if item["kind"] == "shared_condition"),
+                              *([conditions] if conditions else [])])
+    embedded_points = _condition_measures(label)
+    conditions = " ; ".join([conditions, *(point["text"] for point in embedded_points)]).strip(" ;")
     all_headers = [header for cell in cells for header in cell["headers"]]
     last_header_row = max((header["row_start"] for header in all_headers), default=-1)
     ancestor_qualifiers = list(dict.fromkeys(header["text"].strip() for header in all_headers
                                             if header["row_start"] < last_header_row and not header.get("role")))
-    conditions = " ; ".join(value for value in [*(item for item in ancestor_qualifiers if _role(item) is None), conditions] if value)
     embedded_condition = re.search(r"[,;]\s*([A-Za-z][A-Za-z0-9_ ]{0,8}\s*=\s*.+)$", label)
     if embedded_condition:
         conditions = "; ".join(value for value in (conditions, embedded_condition[1]) if value)
         label = label[:embedded_condition.start()]
+    local_conditions = conditions
+    general_conditions = " ; ".join(item["text"] for item in context["dependencies"] if item["kind"] == "general_condition")
     section_heading = context.get("section_heading", {}).get("text", "")
-    role = _role(label + " " + sections + " " + section_heading + " " + " ".join(ancestor_qualifiers))
+    role = _role(label + " " + sections + " " + section_heading)
     code, code_name = _table_code(cells)
     units = [UNIT_ALIASES.get(cell["text"].strip(), cell["text"].strip()) for cell in cells if "unit" in roles[id(cell)]]
     unit = units[0] if len(units) == 1 and units[0] in UNITS else ""
@@ -787,7 +1208,12 @@ def _table_relations(reference, quantity, subjects, references):
         bound_roles = roles[id(cell)]
         headers = " ".join(header["text"] for header in cell["headers"])
         value_role = bound_roles & {"minimum", "maximum", "typical", "nominal"}
-        if not value_role and not (code and re.search(QUANTITIES[quantity], folded(headers))):
+        # The single Value/Valeur family is numeric only after replaying its
+        # geometric witness from SQLite. Its header does not supply a bound or
+        # statistical role; explicit qualifications elsewhere remain literal.
+        explicit_quantity = (bound_roles == {"quantity"} and reference.get("source_format") == "pdf"
+                             and context.get("binding_quality", {}).get("state") == "supported")
+        if not value_role and not explicit_quantity and not (code and re.search(QUANTITIES[quantity], folded(headers))):
             continue
         raw = cell["text"].strip()
         value_text = raw if MEASURE.fullmatch(raw) else raw + (" " + unit if unit else "")
@@ -803,8 +1229,17 @@ def _table_relations(reference, quantity, subjects, references):
             number, value_unit = parse_quantity(value_text, typed_number=True)
         if not value_unit or UNITS[value_unit][0] != quantity:
             continue
+        ancestors = list(dict.fromkeys(header["text"].strip() for header in cell["headers"]
+                                       if header["row_start"] < last_header_row and not header.get("role")))
+        scoped_conditions = " ; ".join(value for value in [*(item for item in ancestors if _role(item) is None),
+                                                            local_conditions] if value)
         numeric.append({"number": number, "unit": value_unit, "roles": value_role, "text": value_text,
-                        "header": headers, "witnesses": witnesses})
+                        "header": headers, "witnesses": witnesses, "ancestors": ancestors,
+                        "local_condition": scoped_conditions,
+                        "condition": " ; ".join(part for part in (scoped_conditions, general_conditions) if part),
+                        "role": _role(" ".join(ancestors)) or role,
+                        "guarantee": (_explicit_guarantee(label, quantity) or _explicit_guarantee(sections, quantity)
+                                      or _explicit_guarantee(" ".join(ancestors), quantity))})
     if not numeric:
         return []
     if not (re.search(QUANTITIES[quantity], folded(label)) or _properties(label, quantity)
@@ -814,24 +1249,34 @@ def _table_relations(reference, quantity, subjects, references):
     high = [item for item in numeric if "maximum" in item["roles"]]
     relations = []
     dependencies = context["reference_ids"]
-    if len(low) == len(high) == 1 and low[0]["unit"] == high[0]["unit"] and low[0]["number"] <= high[0]["number"]:
-        relations.append(_relation(reference, quantity=quantity, role=role, values=[low[0]["number"], high[0]["number"]],
-                                   unit=low[0]["unit"], label=label, condition=conditions, quote=reference_text(reference),
-                                   kind="interval", subjects=subjects, dependency_ids=dependencies))
+    if (len(low) == len(high) == 1 and low[0]["unit"] == high[0]["unit"] and low[0]["number"] <= high[0]["number"]
+            and low[0]["condition"] == high[0]["condition"] and low[0]["role"] == high[0]["role"]
+            and low[0]["guarantee"] == high[0]["guarantee"]):
+        relation = _relation(reference, quantity=quantity, role=low[0]["role"], values=[low[0]["number"], high[0]["number"]],
+                             unit=low[0]["unit"], label=label, condition=low[0]["condition"], quote=reference_text(reference),
+                             kind="interval", subjects=subjects, dependency_ids=dependencies)
+        relation["local_condition"] = low[0]["local_condition"]
+        relation["guarantee"] = low[0]["guarantee"]
+        relations.append(relation)
     for item in numeric:
         if item in low or item in high:
             if relations:
                 continue
         # A lone MIN/MAX retains its bound role; it cannot satisfy an interval.
         bound_role = next(iter(item["roles"]), None)
-        relation = _relation(reference, quantity=quantity, role=role, values=[item["number"]], unit=item["unit"],
-                             label=label or item["header"], condition=conditions, quote=reference_text(reference), kind="value",
+        relation = _relation(reference, quantity=quantity, role=item["role"], values=[item["number"]], unit=item["unit"],
+                             label=label or item["header"], condition=item["condition"], quote=reference_text(reference), kind="value",
                              subjects=subjects, value_text=item["text"], code=code,
                              dependency_ids=[*dependencies, *item["witnesses"]], decimal_notation_verified=bool(item["witnesses"]))
-        relation.update(bound_role=bound_role, code_name=code_name)
+        relation.update(bound_role=bound_role, code_name=code_name, local_condition=item["local_condition"],
+                        guarantee=item["guarantee"])
         relations.append(relation)
     for relation in relations:
         relation["table_bound"] = True
+        relation["general_condition"] = general_conditions
+        relation["general_conditions_verified"] = context.get("general_conditions", {}).get("state") == "supported"
+        if any(_condition_measures(item) and item not in relation["local_condition"] for item in ancestor_qualifiers):
+            relation["note_issues"].append("table_ancestor_condition_scope_unverified")
         relation["source_ids"] = list(dict.fromkeys(source_id for item in references if item["id"] in relation["reference_ids"]
                                                      for source_id in item["source_ids"]))
     return relations
@@ -962,7 +1407,7 @@ def _conflicting_relations(facts: list[dict[str, Any]], *, cross_document=False,
     conflicts: list[dict[str, Any]] = []
     groups: dict[tuple, list[dict[str, Any]]] = {}
     for fact in facts:
-        key = (fact["document_id"], fact["quantity"], fact["role"], fact["label"], fact["condition"], fact["kind"],
+        key = (fact["document_id"], fact["quantity"], fact["role"], fact.get("guarantee"), fact["label"], fact["condition"], fact["kind"],
                fact.get("code"), fact.get("code_name"), fact.get("bound_role"), tuple(fact.get("entity_context_identifiers", fact.get("evidence_identifiers", []))))
         groups.setdefault(key, []).append(fact)
     for group in groups.values():
@@ -982,9 +1427,10 @@ def _conflicting_relations(facts: list[dict[str, Any]], *, cross_document=False,
         external: dict[tuple, list[dict[str, Any]]] = {}
         for fact in facts:
             identifiers = tuple(fact.get("entity_context_identifiers", fact.get("evidence_identifiers", [])))
-            if len(identifiers) > 1 or fact["role"] is None and not agreement_requested:
+            if (len(identifiers) > 1 or fact["role"] is None
+                    and fact.get("guarantee") != "explicit" and not agreement_requested):
                 continue
-            external_key = (identifiers, fact["quantity"], fact["role"], fact["label"], _condition_key(fact["condition"]),
+            external_key = (identifiers, fact["quantity"], fact["role"], fact.get("guarantee"), fact["label"], _condition_key(fact["condition"]),
                             fact["kind"], fact.get("code"), fact.get("code_name"), fact.get("bound_role"))
             external.setdefault(external_key, []).append(fact)
         for group in external.values():
@@ -1020,6 +1466,7 @@ class AnswerContract:
     kind: str = field(init=False)
     quantity: str | None = field(init=False)
     requested_role: str | None = field(init=False)
+    guarantee_required: bool = field(init=False)
     requested_cells: list[str] = field(init=False)
     operation: str | None = field(init=False)
     target_unit: str | None = field(init=False)
@@ -1041,10 +1488,16 @@ class AnswerContract:
     requested_bound: str | None = field(init=False)
     requested_point_conditions: list[dict[str, Any]] = field(init=False)
     requested_temperature_conditions: bool = field(init=False)
+    requested_general_conditions: bool = field(init=False)
     qualitative_request: dict[str, Any] | None = field(init=False)
+    requested_supply_configurations: list[str] = field(init=False)
+    requested_condition_alternatives: list[list[dict[str, Any]]] = field(init=False)
+    request_clause: str = field(init=False)
+    components: list[AnswerContract] = field(init=False, default_factory=list, repr=False)
 
     def __post_init__(self):
         normalized = folded(self.question)
+        self.request_clause = self.question
         self.qualitative_request = _qualitative_request(self.question)
         quantities = _requested_quantities(normalized)
         self.quantity = quantities[0] if len(quantities) == 1 else None
@@ -1058,13 +1511,24 @@ class AnswerContract:
                                         "target": _literal_key(self.question), "grammar_supported": False}
         self.requested_temperature_conditions = (self.quantity == "voltage"
                                                  and bool(TEMPERATURE_CONDITION_ATTACHMENT.search(normalized)))
+        self.requested_general_conditions = bool(re.search(r"\b(?:conditions?\s+generales?|general\s+(?:test\s+)?conditions?)\b", normalized))
         self.requested_properties = _properties(self.question, self.quantity or "")
         self.requested_bound = _bound_role(self.question)
         self.requested_point_conditions = _condition_measures(self.question)
+        self.requested_condition_alternatives = _point_condition_alternatives(self.question, self.requested_point_conditions)
+        self.requested_supply_configurations = [name for name, pattern in SUPPLY_CONFIGURATIONS.items()
+                                               if re.search(pattern, normalized)] if re.search(r"\b(?:supply|alimentation)\b", normalized) else []
         self.scope_read_requested = bool(SCOPE_READ_LANGUAGE.search(normalized))
         self.unit_requested = bool(UNIT_LANGUAGE.search(normalized))
         self.requested_role = _role(self.question)
+        self.guarantee_required = bool(GUARANTEE_LANGUAGE.search(normalized))
         self.requested_roles = [role for role, pattern in ROLES.items() if re.search(pattern, normalized)]
+        # Asking for the conditions attached to typical values does not request
+        # a second value whose role would be "characterization".
+        if ("characterization" in self.requested_roles and len(self.requested_roles) > 1
+                and re.search(r"\b(?:conditions?.{0,20}(?:associe\w*|associated)|associated\s+test\s+conditions)\b", normalized)):
+            self.requested_roles.remove("characterization")
+            self.requested_role = self.requested_roles[0] if len(self.requested_roles) == 1 else None
         self.distinguish_roles = bool(re.search(r"\b(?:confond\w*|separe\w*|distinct\w*|disting\w*)\b", normalized)
                                       and re.search(r"\b(?:conditions?|roles?|limites?|absolute|absolu\w*)\b", normalized))
         if self.distinguish_roles:
@@ -1131,10 +1595,64 @@ class AnswerContract:
             self.kind = "value"
         else:
             self.kind = "general"
+        if (self.kind == "cell_values" and re.search(r"\b(?:format|formatting|style|couleur|color)\b", normalized)
+                and not re.search(r"\b(?:valeurs?|values?|formules?|formulas?|unites?|units?)\b", normalized)):
+            self.kind, self.quantity = "qualitative", None
+            self.qualitative_request = {"intent": "unanalysed", "target": _literal_key(self.question),
+                                        "language": "unknown", "grammar_supported": False}
         if self.kind != "qualitative":
             self.qualitative_request = None
-        if len(quantities) > 1 and self.kind != "qualitative":
-            self.parse_failures.append("multiple_quantities_not_decomposed")
+        extended = _extended_qualitative_requests(self.question)
+        if extended and not self.operation and not self.requested_cells:
+            for request in extended:
+                if request["intent"] == "unanalysed":
+                    numeric = AnswerContract(request["request_clause"], self.mode, self.scope, self.cell_context)
+                    if numeric.quantity and numeric.kind in {"value", "interval", "comparison"}:
+                        # Resolve only the question's explicit subject scope;
+                        # no subject is imported from an unrelated source.
+                        if not numeric.subjects:
+                            numeric.subjects = self.subjects
+                        numeric.requested_general_conditions = self.requested_general_conditions
+                        self.components.append(numeric)
+                        continue
+                component = copy.copy(self)
+                component.components = []
+                component.request_clause = request["request_clause"]
+                component.kind, component.quantity = "qualitative", None
+                component.requested_properties, component.requested_roles = [], []
+                component.requested_role, component.qualitative_request = None, request
+                component.guarantee_required = False
+                component.parse_failures = []
+                self.components.append(component)
+            if len(self.components) == 1:
+                self.qualitative_request = self.components[0].qualitative_request
+                self.kind, self.quantity, self.components = "qualitative", None, []
+            else:
+                self.kind, self.qualitative_request = "composite", None
+        elif len(quantities) > 1 and self.kind != "qualitative":
+            clauses = _quantity_request_clauses(self.question, quantities)
+            if clauses and not self.operation and not self.requested_cells:
+                for quantity, clause in clauses:
+                    component = copy.copy(self)
+                    component.components = []
+                    component.request_clause = clause
+                    component.quantity = quantity
+                    component.kind = "comparison" if self.comparison_requested else "interval" if INTERVAL_LANGUAGE.search(normalized) else "value"
+                    component.requested_properties = _properties(clause, quantity)
+                    component.requested_roles = [role for role, pattern in ROLES.items() if re.search(pattern, clause)]
+                    component.requested_role = component.requested_roles[0] if len(component.requested_roles) == 1 else None
+                    component.guarantee_required = bool(GUARANTEE_LANGUAGE.search(folded(clause)))
+                    component.requested_bound = _bound_role(clause)
+                    component.requested_point_conditions = _condition_measures(clause)
+                    component.requested_condition_alternatives = _point_condition_alternatives(clause, component.requested_point_conditions)
+                    component.requested_supply_configurations = [name for name, pattern in SUPPLY_CONFIGURATIONS.items()
+                                                                 if re.search(pattern, clause)] if quantity == "voltage" else []
+                    component.required_relation_count = 1
+                    component.parse_failures = []
+                    self.components.append(component)
+                self.kind = "composite"
+            else:
+                self.parse_failures.append("multiple_quantities_not_decomposed")
 
     def scope_refusal(self) -> dict[str, Any] | None:
         """Reject only a scope mismatch established by pinned scope metadata.
@@ -1205,11 +1723,16 @@ class AnswerContract:
         return by_address, requested
 
     def _fact_candidates(self, references: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        if self.components:
+            return [fact for component in self.components for fact in component._fact_candidates(references)]
         if self.quantity is None or self.kind == "qualitative":
             return []
         facts: list[dict[str, Any]] = []
         def eligible(fact):
             return ((self.kind != "interval" or fact["kind"] == "interval")
+                    and (not self.guarantee_required or fact.get("guarantee") == "explicit"
+                         or fact.get("assertion_status") != "asserted"
+                         and GUARANTEE_LANGUAGE.search(folded(fact["quote"] + " " + fact["condition"])) is not None)
                     and (self.requested_role is None or fact["role"] == self.requested_role
                          or fact.get("bound_role") == self.requested_role)
                     and (not self.requested_roles or fact["role"] in self.requested_roles
@@ -1232,30 +1755,140 @@ class AnswerContract:
             reasons.append("requested_bound_not_established")
         if self.requested_temperature_conditions and not _temperature_condition_present(fact["condition"]):
             reasons.append("requested_temperature_condition_not_established")
-        available = _condition_measures(fact["condition"])
-        for requested in self.requested_point_conditions:
-            if not any(point["quantity"] == requested["quantity"] and point["value"] == requested["value"]
-                       and (not requested["symbol"] or requested["symbol"] == point["symbol"])
-                       for point in available):
-                reasons.append("requested_condition_not_established")
-                break
+        if self.requested_general_conditions and not fact.get("general_conditions_verified"):
+            reasons.append("requested_general_conditions_not_established")
+        if self.guarantee_required and fact.get("guarantee") != "explicit":
+            reasons.append("requested_guarantee_not_established")
+        if not any(self._matches_points(fact, points) for points in self.requested_condition_alternatives):
+            reasons.append("requested_condition_not_established")
         return reasons
 
+    @staticmethod
+    def _matches_points(fact, requested_points):
+        available = _condition_measures(fact["condition"])
+        if fact.get("general_conditions_verified"):
+            local = _condition_measures(fact.get("local_condition", ""))
+            general = _condition_measures(fact.get("general_condition", ""))
+            local_keys = {(item["quantity"], item["symbol"]) for item in local if item["symbol"]}
+            if re.search(r"\b(?:unless\s+otherwise\s+(?:noted|specified|stated)|sauf\s+(?:mention|indication)\s+contraire)\b",
+                         folded(fact.get("general_condition", ""))):
+                # Only the same named test variable is overridden. Distinct
+                # variables/quantities cannot substitute for one another.
+                available = [*local, *(item for item in general if (item["quantity"], item["symbol"]) not in local_keys)]
+        return all(any(point["quantity"] == requested["quantity"] and point["value"] == requested["value"]
+                       and (not requested.get("symbol") or requested["symbol"] in [point["symbol"], *point.get("aliases", [])])
+                       and (not requested.get("label") or requested["label"] == folded(point.get("symbol") or ""))
+                       for point in available) for requested in requested_points)
+
     def _facts(self, references: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        if self.components:
+            return [fact for component in self.components for fact in component._facts(references)]
         return [fact for fact in self._fact_candidates(references) if not self._relation_rejections(fact)]
 
     def _rejected_relations(self, references):
+        if self.components:
+            return [fact for component in self.components for fact in component._rejected_relations(references)]
         rejected = []
         for fact in self._fact_candidates(references):
-            if self.subjects and not any(subject in fact["subjects"] for subject in self.subjects):
+            reasons = self._relation_rejections(fact)
+            related_list_conflict = (fact.get("list_binding")
+                                     and any(reason in {"list_heading_subject_conflict", "list_heading_subject_ambiguous"}
+                                             for reason in reasons)
+                                     and any(_contains_subject(identity, subject)
+                                             for identity in fact.get("entity_context_identifiers", [])
+                                             for subject in self.subjects))
+            # Conflicting written title/item identities cannot support a
+            # numeric binding. Keep both exact pieces as a diagnostic when
+            # one of these explicit identities is requested; the empty set
+            # of admissible subjects must not erase the conflict's title.
+            if self.subjects and not any(subject in fact["subjects"] for subject in self.subjects) and not related_list_conflict:
                 continue
             if self.requested_properties and fact.get("property") not in self.requested_properties:
                 continue
-            reasons = self._relation_rejections(fact)
             if reasons:
-                rejected.append({"reference_ids": fact["reference_ids"], "source_ids": fact["source_ids"],
-                                 "quote": fact["quote"], "condition": fact["condition"], "reasons": reasons})
+                rejected.append({**fact, "reasons": reasons})
+        rejected.extend(self._conditional_range_limitations(references))
         return rejected
+
+    def _conditional_range_limitations(self, references):
+        """Cite an explicit range as a limit, never as the requested value.
+
+        Only complete, unqualified prose ranges with a written subject binding
+        participate. A different range, named variable, revision or condition
+        cannot silently become the operating envelope for the requested value.
+        """
+        if self.quantity is None or not self.subjects or self.kind not in {"value", "interval", "comparison"}:
+            return []
+        points = [point for alternative in self.requested_condition_alternatives for point in alternative
+                  if point["quantity"] in QUANTITIES and point["quantity"] != self.quantity]
+        if not points:
+            return []
+        identities = ("document_id", "version_id", "generation_id", "extraction_revision_id")
+        ranges = []
+        for reference in references:
+            if (reference["kind"] != "excerpt" or reference.get("source_span_complete") is not True
+                    or reference.get("table_context")):
+                continue
+            raw = reference_text(reference)
+            # Inspect the complete passage, including restrictions after the
+            # range's sentence. Only literal bounded endpoints are supported;
+            # inequality/uncertainty/polarity operators cannot become equals.
+            if (_role(raw) == "absolute_maximum" or re.search(r"[≤≥≠~≈]", raw)
+                    or any(match[0] != "=" for match in RESTRICTION.finditer(raw))):
+                continue
+            for quantity in dict.fromkeys(point["quantity"] for point in points):
+                for fact in _quantity_lines(reference, quantity, None, self.subjects, references):
+                    quality = fact.get("source_quality")
+                    if (fact["kind"] != "interval" or fact.get("polarity") or fact["role"] not in {None, "operating"}
+                            or fact["role"] != "operating" and fact["guarantee"] != "explicit"
+                            or fact["note_issues"] or fact["assertion_status"] != "asserted"
+                            or fact["condition"].strip(" .;,:|\n")
+                            or quality is None and reference.get("extraction_method") != "native"):
+                        continue
+                    # A filename is not a sufficient identity for a range that
+                    # qualifies another quantity. Keep a literal local subject.
+                    if not any(_contains_subject(identity, subject)
+                               for identity in fact["entity_context_identifiers"] for subject in fact["subjects"]):
+                        continue
+                    ranges.append(fact)
+        facts = self._facts(references)
+        result = []
+        seen = set()
+        for point in points:
+            groups: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
+            for fact in ranges:
+                if fact["quantity"] != point["quantity"]:
+                    continue
+                # Preserve explicit variable names. Unnamed temperature does
+                # not mean junction, storage, ambient, TA or TJ by assumption.
+                symbols = {match[0] for match in re.finditer(r"\b[A-Z][A-Z0-9_+\-]{1,15}\b", fact["quote"])
+                           if match[0].casefold() not in fact["entity_context_identifiers"]}
+                if ((point.get("symbol") and symbols != {point["symbol"]})
+                        or not point.get("symbol") and (symbols or fact["properties"])
+                        or point.get("label") and not _contains_subject(fact["label"], point["label"])):
+                    continue
+                for subject in fact["subjects"]:
+                    key = (*[fact.get(name) for name in identities], subject)
+                    groups.setdefault(key, []).append(fact)
+            for key, group in groups.items():
+                bounds = {_base_values(fact) for fact in group}
+                if len(bounds) != 1:
+                    continue  # Different explicit ranges cannot be arbitrated.
+                low, high = next(iter(bounds))
+                if low <= Decimal(point["value"]) <= high:
+                    continue
+                if any(tuple(fact.get(name) for name in identities) == key[:-1]
+                       and key[-1] in fact["subjects"] and self._matches_points(fact, [point]) for fact in facts):
+                    continue  # Do not contradict an established requested value.
+                for fact in group:
+                    marker = (fact["reference_id"], fact["source_start"], fact["source_end"],
+                              point["quantity"], point.get("symbol"), point["value"])
+                    if marker not in seen:
+                        seen.add(marker)
+                        result.append({**fact, "reasons": ["requested_condition_outside_range"],
+                                       "requested_point_condition": point, "requested_quantity": self.quantity,
+                                       "coverage_effect": "none"})
+        return result
 
     def _conditions(self, references):
         if not self.distinguish_roles or not re.search(r"\bconditions?\b", folded(self.question)):
@@ -1302,32 +1935,80 @@ class AnswerContract:
             results.append(convert_relation(candidates[0], self.target_unit))
         return results
 
+    def _obligation_work(self, document_count: int) -> tuple[int, int]:
+        """Count the complete scope without allocating its Cartesian product."""
+        if self.components:
+            count, characters = 0, 0
+            for component in self.components:
+                child_count, child_characters = component._obligation_work(document_count)
+                count += child_count
+                characters += child_characters
+            return count, characters
+        count = document_count * max(1, len(self.subjects))
+        if self.qualitative_request is None:
+            if not self.quantity or self.kind in {"cell_values", "calculation", "mapping", "qualitative"}:
+                return 0, 0
+            for length in (len(self.requested_properties), len(self.requested_roles),
+                           len(self.requested_supply_configurations)):
+                count *= max(1, length)
+            count *= len(self.requested_condition_alternatives)
+        return count, count * len(self.request_clause)
+
+    def _guard_obligations(self, required_documents=()) -> None:
+        count, characters = self._obligation_work(max(1, len(dict.fromkeys(required_documents))))
+        if count > MAX_OBLIGATIONS or characters > MAX_OBLIGATION_CLAUSE_CHARACTERS:
+            raise ApiError(
+                "question_scope_too_complex",
+                "La demande comporte trop d’éléments à vérifier dans ce périmètre. "
+                "Réduisez les documents, les sujets ou les conditions demandés, puis réessayez.",
+                details={"max_obligations": MAX_OBLIGATIONS,
+                         "max_clause_characters": MAX_OBLIGATION_CLAUSE_CHARACTERS},
+            )
+
     def _obligations(self, facts, required_documents=()):
         """One independently checkable obligation per property/document/subject."""
+        self._guard_obligations(required_documents)
+        if self.components:
+            return [obligation for component in self.components
+                    for obligation in component._obligations([fact for fact in facts if fact.get("quantity") == component.quantity], required_documents)]
         if not self.quantity or self.kind in {"cell_values", "calculation", "mapping", "qualitative"}:
             return []
         documents = list(dict.fromkeys(required_documents)) or [None]
         properties: list[str | None] = list(self.requested_properties) or [None]
         subjects = self.subjects or (None,)
         roles: list[str | None] = list(self.requested_roles) or [None]
+        configurations: list[str | None] = list(self.requested_supply_configurations) or [None]
         obligations = []
         for document in documents:
             for subject in subjects:
                 for property_name in properties:
                     for requested_role in roles:
-                        matching = [fact for fact in facts if (document is None or fact["document_id"] == document)
-                                    and (subject is None or subject in fact["subjects"])
-                                    and (property_name is None or fact.get("property") == property_name)
-                                    and (requested_role is None and fact["role"] != "characterization"
-                                         or requested_role is not None and requested_role in {fact["role"], fact.get("bound_role")} )]
-                        count = len({(_base_values(fact), _condition_key(fact["condition"]), fact["role"], fact.get("bound_role")) for fact in matching})
-                        obligations.append({"document_id": document, "subject": subject, "property": property_name,
-                                            "quantity": self.quantity, "role": requested_role,
-                                            "kind": "interval" if self.kind == "interval" else "value_or_interval",
-                                            "covered": count >= self.required_relation_count,
-                                            "expected_count": self.required_relation_count, "matched_count": count,
-                                            "reference_ids": list(dict.fromkeys(reference_id for fact in matching
-                                                                                for reference_id in fact.get("reference_ids", [fact["reference_id"]])))})
+                        for configuration in configurations:
+                            for points in self.requested_condition_alternatives:
+                                matching = [fact for fact in facts if (document is None or fact["document_id"] == document)
+                                            and (subject is None or subject in fact["subjects"])
+                                            and (property_name is None or fact.get("property") == property_name)
+                                            and (configuration is None or fact.get("supply_configuration") == configuration)
+                                            and (not self.guarantee_required or fact.get("guarantee") == "explicit")
+                                            and self._matches_points(fact, points)
+                                            and (requested_role is None and fact["role"] != "characterization"
+                                                 or requested_role is not None and requested_role in {fact["role"], fact.get("bound_role")} )]
+                                count = len({(_base_values(fact), _condition_key(fact["condition"]), fact["role"], fact.get("bound_role"),
+                                              fact.get("supply_configuration"), fact.get("polarity"), fact.get("guarantee")) for fact in matching})
+                                obligation = {"document_id": document, "subject": subject, "property": property_name,
+                                              "quantity": self.quantity, "role": requested_role,
+                                              "guarantee_required": self.guarantee_required,
+                                              "kind": "interval" if self.kind == "interval" else "value_or_interval",
+                                              "covered": count >= self.required_relation_count,
+                                              "expected_count": self.required_relation_count, "matched_count": count,
+                                              "request_clause": self.request_clause,
+                                              "point_conditions": points, "supply_configuration": configuration,
+                                              "requested_condition": self.requested_condition,
+                                              "general_conditions_required": self.requested_general_conditions,
+                                              "reference_ids": list(dict.fromkeys(reference_id for fact in matching
+                                                                                  for reference_id in fact.get("reference_ids", [fact["reference_id"]])))}
+                                obligation["obligation_id"] = _obligation_id(obligation)
+                                obligations.append(obligation)
         return obligations
 
     def _comparisons(self, facts, required_documents=()):
@@ -1348,7 +2029,7 @@ class AnswerContract:
                 # Subjects, roles and conditions remain attached to values. An
                 # equal set of anonymous numbers cannot prove a comparison.
                 def local_context(fact):
-                    return (fact["kind"], fact["property"] or fact["label"], fact["role"], fact.get("bound_role"),
+                    return (fact["kind"], fact["property"] or fact["label"], fact["role"], fact.get("bound_role"), fact.get("guarantee"),
                             _condition_key(fact["condition"]), fact.get("code_name"), fact.get("code"),
                             tuple(fact.get("entity_context_identifiers", fact.get("evidence_identifiers", []))))
                 preserve_labels = subject is None and any(len({local_context(fact) for fact in group}) < len(group) for group in groups)
@@ -1359,12 +2040,13 @@ class AnswerContract:
                 signatures = [{(identity(fact), values(fact)) for fact in group} for group in groups]
                 contexts = [{signature[0] for signature in group} for group in signatures]
                 same_context = all(group == contexts[0] for group in contexts[1:])
-                known_roles = all(fact["role"] is not None or fact.get("bound_role") is not None for group in groups for fact in group)
+                known_qualification = all(fact["role"] is not None or fact.get("bound_role") is not None
+                                          or fact.get("guarantee") == "explicit" for group in groups for fact in group)
                 numeric = [{(fact["kind"], fact["property"] or fact["label"], _condition_key(fact["condition"]),
                              fact.get("code_name"), fact.get("code"), tuple(fact.get("entity_context_identifiers", fact.get("evidence_identifiers", []))),
                              fact["label"] if preserve_labels else None, values(fact)) for fact in group} for group in groups]
                 agreement = "equal" if all(group == numeric[0] for group in numeric[1:]) else "different"
-                status = ("context_unestablished" if not known_roles else "context_differs" if not same_context
+                status = ("context_unestablished" if not known_qualification else "context_differs" if not same_context
                           else "equal" if all(group == signatures[0] for group in signatures[1:]) else "different")
                 result.append({"property": property_name, "subject": subject, "quantity": self.quantity,
                                "document_ids": documents, "status": status, "numeric_agreement": agreement,
@@ -1390,11 +2072,15 @@ class AnswerContract:
     def required_ids(self, references: list[dict[str, Any]], required_documents=()) -> list[str]:
         if self.scope_refusal():
             return []
+        self._guard_obligations(required_documents)
+        if self.components:
+            return list(dict.fromkeys(reference_id for component in self.components
+                                      for reference_id in component.required_ids(references, required_documents)))
         if self.qualitative_request is not None:
             # The model cannot hide a literal negation, qualification or
             # contradiction by selecting only the favourable statement.
             return list(dict.fromkeys(item["reference_id"] for item in
-                                      _qualitative_relations(self.qualitative_request, references)))
+                                      self._qualitative_candidates(references)))
         by_address, requested = self._cells(references)
         required = [by_address[address][0]["id"] for address in requested if len(by_address.get(address, [])) == 1]
         facts = self._facts(references)
@@ -1404,6 +2090,8 @@ class AnswerContract:
             required.extend(reference_id for fact in self._code_facts(references) for reference_id in fact["reference_ids"])
         required.extend(reference_id for fact in self._conditions(references) for reference_id in fact["reference_ids"])
         required.extend(fact["reference_id"] for fact in self._operating_limitations(references))
+        required.extend(reference_id for fact in self._conditional_range_limitations(references)
+                        for reference_id in fact["reference_ids"])
         if self.comparison_requested:
             for reference in references:
                 text = folded(reference_text(reference))
@@ -1419,19 +2107,25 @@ class AnswerContract:
                             if tuple(fact["configuration"]) == configuration)
         return list(dict.fromkeys(required))
 
-    def prompt(self, references: list[dict[str, Any]]) -> dict[str, Any]:
+    def prompt(self, references: list[dict[str, Any]], required_documents=()) -> dict[str, Any]:
+        self._guard_obligations(required_documents)
         result: dict[str, Any] = {"kind": self.kind, "quantity": self.quantity, "requested_role": self.requested_role,
+                  "guarantee_required": self.guarantee_required, "obligation_schema_version": OBLIGATION_SCHEMA_VERSION,
                   "requested_bound": self.requested_bound, "requested_point_conditions": self.requested_point_conditions,
                   "requested_cells": self.requested_cells, "requested_field": self.requested_field, "requested_subjects": list(self.subjects),
                   "requested_properties": self.requested_properties,
                   "requested_configurations": [list(configuration) for configuration in self.configurations],
                   "requested_codes": self.requested_codes,
-                  "obligations": self._obligations(self._facts(references)),
-                  "required_reference_ids": self.required_ids(references),
+                  "obligations": self._obligations(self._facts(references), required_documents),
+                  "required_reference_ids": self.required_ids(references, required_documents),
                   "coverage_scope": "retained_catalogue_only"}
+        if self.components:
+            result["obligations"] = self.assess(references, required_documents=required_documents)["obligations"]
+            result["components"] = [{"kind": item.kind, "quantity": item.quantity, "request_clause": item.request_clause}
+                                    for item in self.components]
         if self.qualitative_request is not None:
             result["qualitative_request"] = self.qualitative_request
-            result["qualitative_relations"] = _qualitative_relations(self.qualitative_request, references)
+            result["qualitative_relations"] = self._qualitative_candidates(references)
         if self.kind == "calculation":
             result["calculation"] = {"operation": self.operation, "target_unit": self.target_unit,
                                      "values_generated_by_model": False}
@@ -1470,11 +2164,18 @@ class AnswerContract:
         return calculate(self.operation or "", [by_address[address][0] for address in operands], self.target_unit,
                          unit_reference=unit_reference)
 
+    def _qualitative_candidates(self, references):
+        assert self.qualitative_request is not None
+        if self.qualitative_request["intent"] in {"action_condition", "function", "removed_need", "unanalysed"}:
+            return _extended_qualitative_relations(self.qualitative_request, references, self.subjects)
+        return _qualitative_relations(self.qualitative_request, references)
+
     def _assess_qualitative(self, references, selected_ids, required_documents):
         assert self.qualitative_request is not None
+        self._guard_obligations(required_documents)
         selected_set = set(selected_ids) if selected_ids is not None else {item["id"] for item in references}
         selected = [item for item in references if item["id"] in selected_set]
-        relations = _qualitative_relations(self.qualitative_request, references)
+        relations = self._qualitative_candidates(references)
         matched = [item for item in relations if not item["reasons"] and item["reference_id"] in selected_set]
         rejected = [item for item in relations if item["reasons"]]
         conflicts = _qualitative_conflicts(relations)
@@ -1492,15 +2193,24 @@ class AnswerContract:
             missing.append({"requirement": "qualitative_" + self.qualitative_request["intent"] + "_not_established",
                             "stage": "selection" if any(not item["reasons"] for item in relations) else "context"})
         obligations = []
+        subjects: list[str | None] = list(self.subjects) or [None]
         for document in list(dict.fromkeys(required_documents)) or [None]:
-            matching = [item for item in matched if document is None or item["document_id"] == document]
-            obligation = {"document_id": document, "subject": None, "property": self.qualitative_request["target"],
-                          "quantity": None, "role": None, "kind": "qualitative_literal",
-                          "covered": bool(matching), "expected_count": 1, "matched_count": len(matching),
-                          "reference_ids": list(dict.fromkeys(item["reference_id"] for item in matching))}
-            obligations.append(obligation)
-            if document is not None and not matching:
-                missing.append({"requirement": "requested_qualitative_document", **obligation})
+            for subject in subjects:
+                obligation = {"document_id": document, "subject": subject, "property": self.qualitative_request["target"],
+                              "quantity": None, "role": None, "kind": "qualitative_literal",
+                              "intent": self.qualitative_request["intent"],
+                              "negative": self.qualitative_request.get("negative"),
+                              "qualifier_kind": self.qualitative_request.get("qualifier_kind"),
+                              "expected_count": 1, "request_clause": self.request_clause,
+                              "point_conditions": [], "supply_configuration": None}
+                matching = [item for item in matched if relation_supports_obligation(item, obligation)]
+                obligation.update(covered=bool(matching), matched_count=len(matching),
+                                  reference_ids=list(dict.fromkeys(item["reference_id"] for item in matching)))
+                obligation["obligation_id"] = _obligation_id(obligation)
+                obligations.append(obligation)
+                if not matching and (document is not None or subject is not None):
+                    missing.append({"requirement": "requested_qualitative_document" if document is not None
+                                    else "requested_qualitative_subject", **obligation})
         status = "conflict" if conflicts else "ambiguous" if ambiguous else "partial" if missing else "covered"
         return {"version": 1, "kind": self.kind, "status": status, "verification": VERIFICATION,
                 "coverage_scope": "retained_catalogue_only", "limitation": LIMITATION,
@@ -1511,8 +2221,26 @@ class AnswerContract:
                 "missing": missing, "ambiguous": ambiguous, "conflicts": conflicts,
                 "matched_relations": [], "rejected_relations": [],
                 "matched_qualitative_relations": matched, "rejected_qualitative_relations": rejected,
+                "interpretation_limitations": ([{"code": "qualitative_literal_match_unavailable"}] if not relations else []),
                 "obligations": obligations, "comparisons": [], "calculation": None, "derived_calculations": [],
                 "selected_reference_ids": [item["id"] for item in selected]}
+
+    def _assess_composite(self, references, selected_ids, required_documents):
+        self._guard_obligations(required_documents)
+        parts = [component.assess(references, selected_ids, required_documents) for component in self.components]
+        status = next((name for name in ("conflict", "ambiguous", "partial", "unassessed")
+                       if any(item["status"] == name for item in parts)), "covered")
+        selected = set(selected_ids) if selected_ids is not None else {item["id"] for item in references}
+        combined = {"version": 1, "obligation_schema_version": OBLIGATION_SCHEMA_VERSION, "kind": "composite", "status": status,
+                    "verification": VERIFICATION, "coverage_scope": "retained_catalogue_only", "limitation": LIMITATION,
+                    "quantity": None, "requested_role": None, "requested_properties": [], "requested_cells": [],
+                    "requested_subjects": list(self.subjects), "required_reference_ids": self.required_ids(references, required_documents),
+                    "calculation": None, "derived_calculations": [],
+                    "selected_reference_ids": [item["id"] for item in references if item["id"] in selected]}
+        for key in ("missing", "ambiguous", "conflicts", "obligations", "matched_relations", "rejected_relations",
+                    "matched_qualitative_relations", "rejected_qualitative_relations", "comparisons", "interpretation_limitations"):
+            combined[key] = [value for part in parts for value in part.get(key, [])]
+        return combined
 
     def assess(self, references: list[dict[str, Any]], selected_ids: list[str] | None = None, required_documents=()) -> dict[str, Any]:
         refusal = self.scope_refusal()
@@ -1525,6 +2253,9 @@ class AnswerContract:
                     "missing": [{"requirement": refusal["reason"], "message": refusal["message"]}],
                     "ambiguous": [], "conflicts": [], "matched_relations": [], "obligations": [],
                     "comparisons": [], "calculation": None, "selected_reference_ids": [], "scope_refusal": refusal}
+        self._guard_obligations(required_documents)
+        if self.components:
+            return self._assess_composite(references, selected_ids, required_documents)
         if self.qualitative_request is not None:
             return self._assess_qualitative(references, selected_ids, required_documents)
         selected_set = set(selected_ids) if selected_ids is not None else {reference["id"] for reference in references}
@@ -1568,10 +2299,14 @@ class AnswerContract:
                         and not candidates[0]["cell_facts"].get("cached_present")):
                     missing.append({"requirement": "formula_cache_absent", "address": address})
         for document in required_documents:
-            if document not in selected_documents:
+            # General questions have no interpreted documentary obligation.
+            # Their intentionally empty projection is not a missing document.
+            if self.kind != "general" and document not in selected_documents:
                 missing.append({"requirement": "requested_document", "document_id": document})
-        for reference in selected:
-            if self.quantity in {"voltage", "current"} and AMBIGUOUS_ZERO.search(reference_text(reference)):
+        for reference in references:
+            raw = reference_text(reference)
+            relevant_property = not self.requested_properties or bool(set(_properties(raw, self.quantity or "")) & set(self.requested_properties))
+            if self.quantity in {"voltage", "current"} and relevant_property and AMBIGUOUS_ZERO.search(raw):
                 ambiguous.append({"requirement": "ambiguous_numeric_glyph", "reference_ids": [reference["id"]],
                                   "source_ids": reference["source_ids"], "raw_text_preserved": True,
                                   "extraction_method": reference.get("extraction_method", "unknown")})
@@ -1589,6 +2324,9 @@ class AnswerContract:
             if "source_assertion_uncertain" in item["reasons"]:
                 ambiguous.append({"requirement": "source_assertion_uncertain", "reference_ids": item["reference_ids"],
                                   "source_ids": item["source_ids"], "raw_text_preserved": True})
+            if any(reason.startswith("source_quality_") or reason == "table_source_binding_unverified" for reason in item["reasons"]):
+                missing.append({"requirement": "source_quality_not_established", "reference_ids": item["reference_ids"],
+                                "reasons": item["reasons"]})
         if not facts:
             for reason in dict.fromkeys(reason for item in rejected for reason in item["reasons"]):
                 if reason != "source_assertion_uncertain":
@@ -1614,7 +2352,7 @@ class AnswerContract:
                 if not any(subject in fact["subjects"] for fact in facts):
                     missing.append({"requirement": "requested_subject_quantity", "subject": subject, "quantity": self.quantity})
             for document in required_documents:
-                if document in selected_documents and not any(fact["document_id"] == document for fact in facts):
+                if any(reference["document_id"] == document for reference in references) and not any(fact["document_id"] == document for fact in facts):
                     missing.append({"requirement": "same_quantity_for_document", "document_id": document, "quantity": self.quantity})
             if self.requested_role is None and not self.requested_roles and not self.distinguish_roles and len({fact["role"] for fact in facts if fact["role"]}) > 1:
                 ambiguous.append({"requirement": "quantity_role_not_specified", "roles": sorted({fact["role"] for fact in facts if fact["role"]})})
@@ -1667,11 +2405,13 @@ class AnswerContract:
                           or self.kind == "mapping" and bool(self.configurations))
         # A mere address/code co-occurrence stays unassessed; only the explicit
         # CONFIG=VALUE -> CODE grammar receives a local mapping coverage check.
-        status = ("conflict" if conflicts else "ambiguous" if ambiguous else "partial" if missing
+        status = ("conflict" if conflicts else "ambiguous" if ambiguous
+                  else "unassessed" if self.kind == "general" else "partial" if missing
                   else "covered" if supported_form and selected else "unassessed")
         return {"version": 1, "kind": self.kind, "status": status, "verification": VERIFICATION,
                 "coverage_scope": "retained_catalogue_only", "limitation": LIMITATION,
                 "quantity": self.quantity, "requested_role": self.requested_role,
+                "guarantee_required": self.guarantee_required, "obligation_schema_version": OBLIGATION_SCHEMA_VERSION,
                 "requested_bound": self.requested_bound, "requested_point_conditions": self.requested_point_conditions,
                 "requested_temperature_conditions": self.requested_temperature_conditions,
                 "requested_properties": self.requested_properties,
@@ -1689,6 +2429,9 @@ def assessment_message(assessment: dict[str, Any]) -> str | None:
     if assessment.get("scope_refusal"):
         return assessment["scope_refusal"]["message"]
     status = assessment["status"]
+    if assessment.get("interpretation_limitations") and status != "covered":
+        return ("L’analyse littérale ne relie pas toute la demande à une relation vérifiable dans les passages retenus. "
+                "Cette limite d’analyse ne démontre pas l’absence de l’information dans les documents.")
     if assessment.get("qualitative_request"):
         reasons = {item["requirement"] for item in [*assessment["missing"], *assessment["ambiguous"]]}
         if status == "conflict":
@@ -1719,6 +2462,10 @@ def assessment_message(assessment: dict[str, Any]) -> str | None:
             return "La source qualifie une donnée d'incertaine ou d'approximative. Cette réserve est conservée ; aucune valeur certaine n'en est déduite."
         return "Une ambiguïté subsiste dans les preuves retenues (lecture, adresse ou rôle de la grandeur). Les données brutes sont conservées ; aucune correction n'est supposée."
     if status == "partial":
+        if any(item["requirement"].startswith("source_quality_") or item["requirement"] == "table_source_binding_unverified"
+               for item in assessment["missing"]):
+            return ("La lecture source ou la liaison du tableau n’est pas suffisamment vérifiée pour une partie de la demande. "
+                    "Les seuls passages admissibles sont conservés ; aucune valeur incertaine n’est corrigée ou supposée.")
         if any(item["requirement"].startswith("list_") for item in assessment["missing"]):
             return ("La liste source ou ses réserves ne sont pas entièrement établies dans les passages retenus. "
                     "Les éléments vérifiés restent cités ; aucune complétude du groupe ni condition absente n'est supposée.")
@@ -1734,10 +2481,18 @@ def assessment_message(assessment: dict[str, Any]) -> str | None:
                     "Le calcul demandé ne peut pas être établi à partir d'entrées complètes et univoques dans les preuves retenues.")
         if any(item["requirement"] == "requested_unit_not_provided" for item in assessment["missing"]):
             return "L'unité demandée n'est pas établie par les champs des cellules retenues. Les valeurs brutes sont restituées ; aucune unité d'une cellule extérieure n'est supposée."
+        if any("requested_condition_outside_range" in fact.get("reasons", [])
+               and set(fact["reference_ids"]) <= set(assessment["selected_reference_ids"])
+               for fact in assessment.get("rejected_relations", [])):
+            return ("Une condition demandée se trouve hors d’une plage de fonctionnement ou garantie explicitement citée pour le même sujet. "
+                    "Cette plage n’établit pas la valeur demandée ; aucune extrapolation n’est effectuée.")
         if any(item["requirement"] == "requested_condition_not_established" for item in assessment["missing"]):
             return "Les preuves retenues n'établissent pas la valeur dans les conditions demandées. Les valeurs associées à d'autres conditions ne sont pas transposées."
         if any(item["requirement"] == "requested_temperature_condition_not_established" for item in assessment["missing"]):
             return "Les contrôles n'établissent pas toutes les conditions de température demandées dans les passages retenus. Les extraits sont conservés sans supposer de condition manquante."
+        if any(item["requirement"] == "requested_general_conditions_not_established" for item in assessment["missing"]):
+            return ("Les conditions générales demandées ne sont pas entièrement reliées à la valeur par des passages vérifiés. "
+                    "Leur contenu et leur application ne sont pas supposés.")
         if any(item["requirement"] == "requested_bound_not_established" for item in assessment["missing"]):
             return "La borne demandée n'est pas établie. Une valeur typique, nominale ou dépourvue de rôle explicite ne permet pas de déduire ce minimum ou ce maximum."
         if any(item["requirement"] == "source_assertion_negated" for item in assessment["missing"]):
@@ -1748,5 +2503,6 @@ def assessment_message(assessment: dict[str, Any]) -> str | None:
             return "La plage demandée n'est pas entièrement établie : les preuves retenues ne relient pas toutes les bornes, unités, grandeurs ou conditions demandées. Cela ne démontre pas l'absence de ces données dans les documents."
         return "Restitution partielle : certains faits demandés ne sont pas établis dans les preuves retenues. Cela ne démontre pas leur absence dans les documents."
     if status == "unassessed":
-        return "Restitution littérale des sources. Les contrôles vérifient la provenance des extraits ; l'interprétation complète de la question reste à vérifier."
+        return ("La formulation de la demande ne correspond pas aux relations actuellement vérifiables par l’analyse littérale. "
+                "Aucune interprétation supplémentaire ni absence d’information dans les documents n’est déduite.")
     return None

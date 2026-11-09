@@ -68,10 +68,11 @@ Graphie des chemins : le pointeur garde la destination telle qu'elle a été tap
 qu'`installer.sh` transmet le chemin physique d'un programme installé ; toute destination reçue est ramenée à celle du pointeur
 (pointer_destination), et dossiers de version et marques de propriété se comparent par leur chemin réel (same_path).
 
-Profil principal neuf : choix qualifié du catalogue RAM si admissible, sinon modèle historique du kit (qwen3.5:4b,
-W045), sauf `--model` explicite. Une mise à jour garde le profil principal en place sans le convertir ; s'il diffère du modèle par
-défaut du nouveau kit, le rapport le signale avec les commandes pour employer ce modèle. `atelier modele <modèle>` (ou
-`update --model`) change durablement le modèle principal, sans modifier aucun fichier de profil.
+Profil principal neuf : choix parmi les profils déclarés par le kit ; le runtime I5 n'admet au lancement que le profil renforcé
+qwen3-4b-enhanced:q4km, avec ses contrôles de preuves. Une mise à jour garde le profil principal en place sans le convertir :
+un ancien profil reste lisible pour la maintenance, mais exige une migration explicite avant le lancement. `atelier modele
+<modèle>` (ou `update --model`) sélectionne durablement un profil déclaré par le kit, sans modifier son contenu. Aucun kit I5
+n'est encore qualifié ; les recettes historiques ne qualifient pas cette migration.
 """
 
 from __future__ import annotations
@@ -280,7 +281,8 @@ MARKER_KINDS = {"install", "reprise"}
 # Fichiers du kit exécutés avant la copie (mise à jour : `linux_profiles.py derive --check` par l'environnement de la version
 # en place) et modules qu'ils peuvent importer depuis la racine du kit ; vérifiés avec les profils livrés (model_profiles).
 PRE_COPY_FILES = ("tools/dist/linux_profiles.py", "services/__init__.py", "services/runtime/__init__.py",
-                  "services/runtime/artifacts.py", "services/runtime/accelerator.py", "services/runtime/platforms.py")
+                  "services/runtime/artifacts.py", "services/runtime/accelerator.py", "services/runtime/platforms.py",
+                  "services/runtime/profile_schema.py", "services/runtime/generation_policy.py")
 # Paquets de ces modules dans le nouveau kit : un module compilé (.so, chargé avant le .py du même nom), un bytecode sans
 # source (.pyc) ou un dossier de paquet (<nom>/__init__.*, trouvé avant <nom>.py) absent de SHA256SUMS y est refusé avant la
 # dérivation, qui charge pourtant ses modules par leur chemin (linux_profiles.load_runtime_modules).
@@ -2473,6 +2475,10 @@ def install_model_selection(ctx: Context, manifest: dict[str, Any], manual_model
         return None
     if not isinstance(descriptor, dict) or descriptor.get("catalogue") != "config/model_profiles.json":
         raise InstallError("Catalogue de sélection du kit invalide", EXIT_REFUSED)
+    available = set(manifest.get("model_profiles") or {})
+    if manual_model is not None and manual_model not in available:
+        raise InstallError(f"Modèle {manual_model} absent de ce kit ({', '.join(ordered_models(manifest))}) — choisir un modèle livré",
+                           EXIT_REFUSED)
     expected = linux_kit.read_sums(ctx.kit)
     if manifest.get("sha256sums_sha256") != linux_kit.stream_hash(ctx.kit / linux_kit.SUMS):
         raise InstallError("SHA256SUMS différent du manifeste avant sélection du modèle", EXIT_REFUSED)
@@ -2490,7 +2496,6 @@ def install_model_selection(ctx: Context, manifest: dict[str, Any], manual_model
     module = ModuleType("_atelier_model_profiles")
     exec(compile(source, str(script), "exec"), module.__dict__)
     catalogue = module.read_catalogue(ctx.kit)
-    available = set(manifest.get("model_profiles") or {})
     for entry in catalogue["profiles"]:
         if entry["model"] in available and entry.get("qualification"):
             if any(expected.get(path) != digest for path, digest in entry["pins"].items()):
@@ -2949,12 +2954,14 @@ def update(ctx: Context, args: argparse.Namespace) -> int:
         default = str(manifest.get("default_model"))
         # update --model vaut pour toute installation ; l'action « modele » n'existe que dans le lanceur des installations munies
         # de l'intégration au bureau (pointeur avec la clé menu), pas dans celui de l'installateur de 78ec95c.
-        first = launcher_command(pointer, destination, "modele", default) if "menu" in pointer else None
+        enhanced = default == "qwen3-4b-enhanced:q4km"
+        first = launcher_command(pointer, destination, "modele", default) if "menu" in pointer and not enhanced else None
         raise InstallError(f"Le modèle du profil en place ({current.get('model')}) n'est pas livré par ce kit ; rien n'a été installé. "
                            "Pour adopter le modèle livré pendant la mise à jour : "
                            f"« {installer_command(ctx.kit, 'update', '--destination', str(destination), '--model', default)} »"
                            + (f" ; ou d'abord dans la version en place : « {first} », puis relancer la mise à jour" if first else "")
-                           + f" ; ou employer un kit qui livre {current.get('model')} (fabrication par défaut : --models 4b,2b).", EXIT_REFUSED)
+                           + (" ; l’ancienne installation peut être conservée pour la maintenance. Les nouveaux kits ne livrent que le générateur renforcé."
+                              if enhanced else f" ; ou employer une archive existante et vérifiée qui livre {current.get('model')}."), EXIT_REFUSED)
     previous_program, profile = Path(current["program"]), current["profile"]
     data_root = Path(current["data_root"])
     program = destination / manifest["kit_id"]

@@ -1,6 +1,36 @@
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
-**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** Vivant, poursuite et clôture demandées le 9 octobre ; étude Office R28 finalisée et intégration DOCX/XLSX implémentée, chaîne DEV native vérifiée et revue indépendante acquise, sources Office publiées et kit CPU corrigé recetté avec permissions privées et arrêt nominal, réserves locales et externes maintenues ; corrections R27 publiées, recette Linux aarch64 exécutée avec échec du bureau NF09 et nettoyage QA vérifié, qualification globale non acquise · **Référence :** commits publiés `5204d2e` (R27/R28) et `aabb9808` (E2E/R27-RT-02), recette C avec échec NF09 documenté ; historique conservé · Sources et nouveau kit R28 : `22fd828`, recette native et revue indépendante du 10/10/2026 ; avis et preuves finales publiés `8200eba` ; historique des questions C05 sur base `16690eb`, sources publiées `4cb1a2a` et gels exécutés, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Kit CPU propre `52abb94b` fabriqué, installé et recetté ; fermeture fonctionnelle récupérée `43f15f2b`, revue `4ecb8637`, retrait du transport revu `a48e1664` ; interruption du broker initial conservée · Suivi de livraison publié `d3c1518`, distant confirmé · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-11-08 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+**Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** vivant, bilan de la troisième itération de confiance I5 ; implémentations et preuves des lots précédents conservées, qualification de diffusion non acquise · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; historiques R27/R28 et I1–I4 dans leurs sections · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+
+## I5 — reprise des priorités de confiance, 8 novembre 2026 (UTC)
+
+**Objectif :** corriger les liaisons de tableaux, le corps de page manquant, les obligations perdues au rendu et les erreurs OCR publiées, avec Qwen3-4B seul. **Référence :** `41857e17a438fe43123e4ef8274d9d2d446bfbc2`, worktree `../agentPDFDoc-i5-baseline`, branche `enhanced_version`. **Exclusions :** autre générateur, valeurs du corpus codées comme règles, adaptation sur transfert final, déploiement/qualification de production supposés. **Critères :** [protocole I5](reports/trust-4b-protocol-2026-11-08.md), gelé à 19:57:15 UTC avant produit, SHA-256 `2102faf988e881c655a6b92c213a7a02705f7e268d08f93f88613f371d2e3ccc`.
+
+| Action | Constat, livrable et acceptation | État |
+|---|---|---|
+| I5-01 | Référence, environnement, matrice et transfert réservé ; D08 | Référence/protocole/corpus gelés avant code, gel final de 172 fichiers produit et 65 fichiers runtime à 04:05:09 UTC (3835b9ea…1472). Manifestes exacts ouverts/copiés après barrière, matérialisation réelle vérifiée ; aucune adaptation produit sur oracles ouverts. D08 PARTIAL : mesures réservées non abouties. |
+| I5-02 | F01/F02 : glyphes/colonnes/sous-lignes et corps vectoriel manquant ; D02 | Implémenté et D02 PASS dans son périmètre : extractions complètes de développement 6 réemployées en 7/8 après identité ; H01/H03/H07 liés et H02 récupéré. Source 8 : anciens transferts devenus développement 6/6 positifs + 2/2 limites. Ce PASS ne qualifie pas tous les documents. |
+| I5-03 | F03/F05 : obligations composées, clauses/propriétés, correction du plan et segments exacts ; D01/D03 | Implémenté, D01/D03 FAIL : source 8 finale 12/14 positifs + 6/6 limites, Office 8/8, aucune erreur d’exécution de développement. H06/H08 rétablis par sujet imprimé/dépendance citée. TMP117 garde une réserve injustifiée et perd le parent de contexte ; aucune autorité du nom de fichier restaurée. |
+| I5-04 | F04 : lectures OCR bornées, preuve de qualité et blocage local ; D04 | Mécanismes OCR bornés implémentés, intégration finale 8 PASS/0 SKIP ; D04 FAIL : SCAN2 reste en abstention sur lectures ambiguës. Deux dérivés réservés non évalués, pas de réussite imputée à la matérialisation seule. |
+| I5-05 | Tests, ablations, extractions et réponses réelles, nouveau transfert ; D05/D06/D07/D08 | Source 8 : 20 done, 5 groupes fermés, 7 appels 4B / 13 réponses déterministes ; contrôlé final 12/12 + 16/18 avec L11/L12 FAIL. Portes finales 5 080 PASS/25 SKIP, intégration 30 PASS/3 SKIP, OCR 8 PASS, Ruff/Mypy PASS. Réservé interrompu pendant D03, 24 positions non scorées ; D06 BLOCKED. HTTP v4 NOT_RUN ; D07 BLOCKED faute d’arrêt vérifié du dernier groupe. |
+| I5-07 | Points d’entrée, provisioning et distribution 4B seuls ; D07 et addendum préalable | Défauts API/CLI, catalogue/payload 4B seuls, migration explicite/import GGUF verrouillé implémentés. Identités/caps contrôlés en développement ; frontend 487 PASS, TypeScript/ESLint/build PASS. Installation/kit neuf, Windows/aarch64 et cible physique CPU/16 Go NOT_RUN pour I5. |
+| I5-06 | Bilan exact, documents canoniques, commit/push vérifiés ; D09 | Bilan final non qualifié et matrices consolidés ; portes documentaires puis commit/publication sans force à vérifier. Autorisation de publication sur enhanced_version existante ; aucun déploiement de production déduit. |
+
+**Points acquis :** mécanismes implémentés, invariants 4B/caps, identités et portes code finales ; D02 dans le périmètre prévu. **Priorités restantes :** contexte de prose TMP117 sans réserve injustifiée, OCR utile SCAN2, frontières adversariales L11/L12, reprise native avec continuité/arrêts prouvés, HTTP puis qualification des installations/cibles. Les 24 positions réservées sont conservées sans score après interruption ; aucune relance n’est autorisée par la seule disponibilité de ports ou d’un verrou. Le refus de qualification I4 reste historique et n'est pas annulé par le lancement d'I5.
+
+**Historique du début de reprise du 9 novembre (UTC) :** le chantier local I5 non publié est repris
+sur la même base `41857e17`, sans recommencer les lots déjà vérifiés. Les
+133 fichiers modifiés/nouveaux sont identifiés dans le reçu privé
+`resumption-checkpoint-20261109.json` (SHA-256 `39c3738a…c917a`). La porte
+portable précédente compte 4 704 PASS /25 SKIP, l'intégration hors tests longs
+27 PASS /3 SKIP, l'OCR réel 8 PASS et le frontend 487 PASS ; ces résultats
+précèdent les derniers correctifs de conditions/en-têtes et ne les qualifient
+pas. Les preuves tmpfs ont déjà été conservées sur disque et contrôlées ; cette
+opération n'est pas répétée. Aucun moteur natif n'est actif au départ, environ
+7 900 Mio sont disponibles. Prochaine séquence autorisée : contrôle des derniers
+correctifs, référence native phase 5 séquentielle, gel/extractions du candidat,
+régression documentaire puis transfert réservé et livraison. Le corpus réservé
+reste fermé aux auteurs produit jusqu'au gel final. [Journal de reprise](journal/2026-11-09.md).
 
 ## I4 — fiabilité documentaire avant diffusion, 8 novembre 2026 (UTC)
 

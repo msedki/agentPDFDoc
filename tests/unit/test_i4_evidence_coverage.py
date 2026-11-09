@@ -1,6 +1,8 @@
 """I4 R01–R08: verified SQLite evidence, injected ranking, unchanged cap of six.
 
-Extraction/embeddings are named test doubles. These tests isolate selection;
+Extraction/embeddings are named test doubles. The extraction double explicitly
+represents a native text layer; unknown/OCR quality is tested separately in I5.
+These tests isolate selection;
 they do not measure model retrieval, OCR or answer quality.
 """
 
@@ -22,7 +24,9 @@ def ranked_case(storage, monkeypatch, documents, question, mode="question", dupl
     for document, texts in documents.items():
         import_fixture(storage, path=f"{document}.pdf", text="\n".join(texts), pages=[
             {"page_index": 0, "width": 595, "height": 842,
-             "blocks": [{"id": f"b{index}", "text": text} for index, text in enumerate(texts)]}])
+             "blocks": [{"id": f"b{index}", "text": text,
+                         "metadata": {"extraction_method": "native", "ocr_used": False}}
+                        for index, text in enumerate(texts)]}])
     search, snapshot, _ = library_search(storage)
     candidates = []
     for generation in snapshot.generations:

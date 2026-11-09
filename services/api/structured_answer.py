@@ -9,13 +9,24 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, ValidationError
 
 from services.ingestion.office.xlsx import _cell_fields, address_coordinates
+from services.ingestion.table_geometry import table_general_condition_fragments
 
-from .answer_contract import PROPERTY_LABELS, AnswerContract, assessment_message, folded
+from .answer_contract import (
+    OBLIGATION_SCHEMA_VERSION,
+    PROPERTY_LABELS,
+    AnswerContract,
+    assessment_message,
+    folded,
+    reference_span_quality,
+    relation_supports_obligation,
+)
 from .deterministic_calculations import calculation_text
 from .errors import ApiError
 from .evidence_selection import verified_list_context, verified_table_rows
+from .literal_evidence import exact_intervals, merged_spans, projected_text
 from .office import cell_semantics
 from .scope import block_extraction_method
+from .table_subjects import page_subject_applies, prose_page_subject, table_page_subject
 
 STRUCTURED_INSTRUCTION = (
     "\nRestitution structurée : produis uniquement le plan JSON demandé, avec references et comparisons. "
@@ -62,6 +73,8 @@ RENDER_NOTICES = {
     "empty": "Aucune référence sélectionnée dans les preuves retenues ne permet de répondre à la demande.",
     "retrieval_coverage_incomplete": ("La sélection au budget disponible n'a pas conservé toutes les variantes de relations retrouvées. "
                                       "La réponse reste partielle ; aucune conclusion globale ni résolution d'un éventuel conflit n'est établie."),
+    "retrieval_unassessed": ("Le budget de recherche a limité les passages retenus. "
+                              "Ce diagnostic de sélection n'établit pas la couverture documentaire d'une demande non analysée."),
 }
 
 
@@ -100,6 +113,7 @@ class Catalogue:
     references: list[dict[str, Any]]
     contract: AnswerContract | None = None
     retrieval_limitations: list[dict[str, Any]] = field(default_factory=list)
+    required_documents: tuple[str, ...] = ()
 
     def _retrieval_limitations(self):
         """Only a bounded machine code/count may cross the renderer boundary."""
@@ -114,13 +128,14 @@ class Catalogue:
     def as_dict(self):
         value: dict[str, Any] = {"version": 1, "mode": self.mode, "references": self.references}
         if self.contract is not None:
-            value["question_contract"] = self.contract.prompt(self.references)
+            value["question_contract"] = self.contract.prompt(self.references, self.required_documents)
             value["retrieval_limitations"] = self._retrieval_limitations()
+            value["required_documents"] = list(self.required_documents)
         return value
 
     def schema(self):
-        ids = [reference["id"] for reference in self.references]
-        reference = {"type": "string", "enum": ids}
+        ids = self.model_view()["reference_ids"] if self.contract is not None else [reference["id"] for reference in self.references]
+        reference = {"type": "string", **({"enum": ids} if ids else {})}
         # No additional prose or model-produced values are accepted, even in mixed-format scopes.
         return {"type": "object", "additionalProperties": False, "required": ["references", "comparisons"],
                 "properties": {
@@ -131,6 +146,8 @@ class Catalogue:
                                                         "minItems": 2, "maxItems": 4}}}}}}
 
     def prompt(self):
+        if self.contract is not None:
+            return canonical(self.model_view()["payload"])
         items = []
         for reference in self.references:
             item = {key: reference[key] for key in ("id", "kind", "source_ids", "document_id", "document_name")}
@@ -149,17 +166,68 @@ class Catalogue:
             payload["retrieval_limitations"] = self._retrieval_limitations()
         return canonical(payload)
 
+    def model_view(self):
+        """Only admissible exact proofs and their dependencies reach the 4B.
+
+        The complete catalogue remains internal/auditable. This view never
+        gives the generator a raw uncertain paragraph to interpret or repair.
+        """
+        assert self.contract is not None
+        publication = self.publication([item["id"] for item in self.references])
+        assessment = self.assess(publication["selected_ids"])
+        ids = publication["selected_ids"]
+        if self.contract.kind == "general" or assessment["status"] == "unassessed":
+            ids = []
+        allowed = set(ids)
+        items = []
+        for reference in self.references:
+            if reference["id"] not in allowed:
+                continue
+            item = {key: reference[key] for key in ("id", "kind", "source_ids", "document_id", "document_name")}
+            if reference["kind"] == "cell":
+                item.update({"cell": reference["cell_facts"]["address"],
+                             "formula_present": reference["cell_facts"]["formula_present"],
+                             "cached_present": reference["cell_facts"]["cached_present"],
+                             "fields": [{key: field[key] for key in ("field", "text", "complete")} for field in reference["fields"]]})
+            else:
+                item.update(text=projected_text(reference, publication["publication_spans"][reference["id"]]),
+                            locators=reference["locators"],
+                            source_intervals=publication["publication_spans"][reference["id"]])
+            items.append(item)
+        obligations = []
+        for obligation in assessment.get("obligations", []):
+            refs = [ref for ref in obligation["reference_ids"] if ref in allowed]
+            obligations.append({**obligation, "reference_ids": refs,
+                                "covered": obligation["covered"] and bool(refs) and set(obligation["reference_ids"]) <= allowed})
+        diagnostics = [{"reference_ids": [ref for ref in item["reference_ids"] if ref in allowed],
+                        "reasons": item.get("reasons", [])}
+                       for item in [*assessment.get("rejected_relations", []), *assessment.get("rejected_qualitative_relations", [])]
+                       if set(item["reference_ids"]) <= allowed]
+        payload = {"reference_catalogue": items,
+                   "question_contract": {"kind": self.contract.kind, "status": assessment["status"],
+                                         "obligation_schema_version": OBLIGATION_SCHEMA_VERSION, "obligations": obligations,
+                                         "required_document_ids": list(self.required_documents),
+                                         "required_reference_ids": [ref for ref in self.contract.required_ids(self.references, self.required_documents) if ref in allowed],
+                                         "diagnostic_evidence": diagnostics,
+                                         "coverage_scope": "retained_catalogue_only"},
+                   "retrieval_limitations": self._retrieval_limitations()}
+        return {"reference_ids": ids, "payload": payload, "sha256": digest(payload)}
+
     def assess(self, selected_ids=None, required_documents=()):
         """Passive context/selection diagnosis; no retrieval and no model call."""
         if self.contract is None:
             return {"status": "disabled", "verification": "not_requested"}
+        required_documents = tuple(dict.fromkeys((*self.required_documents, *required_documents)))
         assessment = self.contract.assess(self.references, selected_ids, required_documents)
         limitations = self._retrieval_limitations()
         if limitations:
             assessment["retrieval_limitations"] = limitations
-            assessment["missing"].extend({"requirement": "retrieval_coverage_incomplete", **item} for item in limitations)
-            if assessment["status"] not in {"conflict", "ambiguous"}:
-                assessment["status"] = "partial"
+            # Search diagnostics do not establish missing facts for a question
+            # whose relations are not interpreted. Keep both causes separate.
+            if not (assessment["kind"] == "general" and assessment["status"] == "unassessed"):
+                assessment["missing"].extend({"requirement": "retrieval_coverage_incomplete", **item} for item in limitations)
+                if assessment["status"] not in {"conflict", "ambiguous"}:
+                    assessment["status"] = "partial"
             # A value agreement on the retained subset cannot resolve an
             # omitted variant. Exact facts/calculation inputs remain literal.
             assessment["comparisons"] = []
@@ -172,6 +240,8 @@ class Catalogue:
         if self.contract is not None:
             ledger = self.support_ledger()
             result.update(support_ledger=ledger, support_ledger_sha256=digest(ledger))
+            view = self.model_view()
+            result.update(model_reference_ids=view["reference_ids"], model_evidence_sha256=view["sha256"])
         return result
 
     def support_ledger(self):
@@ -189,6 +259,10 @@ class Catalogue:
                 "extraction_revision_id", "source_file_sha256", "source_ids", "extraction_method", "index_generation_state",
                 "source_span_complete")}
             item["locators"] = reference.get("locators") or ([reference["locator"]] if reference.get("locator") else [])
+            quality = reference.get("source_quality")
+            item["source_quality"] = ({key: quality.get(key) for key in ("state", "policy", "sha256", "reading_ids", "reasons")}
+                                      if quality is not None else None)
+            item["table_quality"] = reference.get("table_quality")
             literal: list[dict[str, Any]] | dict[str, Any]
             if reference["kind"] == "cell":
                 literal = [{key: value.get(key) for key in ("field", "text", "complete", "segments")}
@@ -205,10 +279,151 @@ class Catalogue:
                 "references": references, "relations": [*assessment.get("matched_relations", []),
                                                           *assessment.get("matched_qualitative_relations", [])],
                 "qualitative_request": assessment.get("qualitative_request"),
+                "obligations": assessment.get("obligations", []),
                 "retrieval_limitations": self._retrieval_limitations(),
                 "rejected_relations": [*assessment.get("rejected_relations", []),
                                        *assessment.get("rejected_qualitative_relations", [])],
                 "conflicts": assessment.get("conflicts", [])}
+
+    def publication(self, model_ids, required_documents=()):
+        """Project exact proofs and dependencies before admitting a public plan.
+
+        Model IDs only order available proofs. They cannot authorize an extra
+        paragraph or remove an established requirement. Diagnostic quotations
+        retain explicit negations/conflicts but never uncertified OCR/table data.
+        """
+        assert self.contract is not None
+        contract = self.contract
+        required_documents = tuple(dict.fromkeys((*self.required_documents, *required_documents)))
+        by_id = {item["id"]: item for item in self.references}
+        required = contract.required_ids(self.references, required_documents)
+        requested = [] if contract.scope_refusal() else list(dict.fromkeys([*required, *model_ids]))
+        assessment = self.assess(requested, required_documents)
+        obligations = assessment.get("obligations", [])
+        proofs = []
+        for fact in assessment.get("matched_relations", []):
+            if not fact.get("quantity") or any(relation_supports_obligation(fact, item) for item in obligations):
+                proofs.append(fact)
+        proofs.extend(assessment.get("matched_qualitative_relations", []))
+        proofs.extend(assessment.get("rejected_relations", []))
+        proofs.extend(assessment.get("rejected_qualitative_relations", []))
+        intervals: dict[str, list[tuple[int, int]]] = {}
+        eligible: set[str] = set()
+        blocked = {}
+        completed_prose_dependencies = {}
+        prose_subject_dependencies = {}
+        for fact in proofs:
+            refs = fact.get("reference_ids", [fact.get("reference_id")])
+            primary = fact.get("reference_id") or next((ref for ref in refs if ref in by_id and fact.get("quote") in by_id[ref].get("text", "")), None)
+            if primary is None or primary not in by_id:
+                continue
+            unverified = [reason for reason in fact.get("reasons", []) if reason.startswith("source_quality_")
+                          or reason in {"table_general_conditions_unverified", "table_source_binding_unverified",
+                                        "table_ancestor_condition_scope_unverified"}]
+            if unverified:
+                blocked[primary] = unverified
+                continue
+            reference = by_id[primary]
+            if reference["kind"] == "cell":
+                eligible.update(ref for ref in refs if ref in by_id)
+                continue
+            start, end = fact.get("source_start"), fact.get("source_end")
+            spans = ([(start, end)] if type(start) is int and type(end) is int
+                     and reference["text"][start:end] == fact.get("quote") else exact_intervals(reference["text"], fact.get("quote", "")))
+            if len(spans) != 1:
+                continue  # repeated wording cannot acquire a convenient offset
+            proof_spans = {primary: spans}
+            for ref in refs:
+                if ref != primary and ref in by_id and by_id[ref]["kind"] == "excerpt":
+                    declared = fact.get("dependency_spans", {}).get(ref)
+                    proof_spans[ref] = ([(item["start_offset"], item["end_offset"]) for item in declared]
+                                        if declared else [(0, len(by_id[ref]["text"]))])
+            # A proved value and its conditions/headers form one admission
+            # unit. Dropping an unreadable dependency cannot leave the value
+            # publicly associated with the remaining, incomplete context.
+            dependency_failures = []
+            for ref, ranges in proof_spans.items():
+                checked = [reference_span_quality(by_id[ref], low, high) for low, high in ranges]
+                quality = by_id[ref].get("table_quality")
+                if any(item is not None and item["state"] not in {"native", "corroborated"} for item in checked):
+                    dependency_failures.append("dependency_source_quality_unavailable")
+                if quality is not None and quality.get("state") != "supported":
+                    dependency_failures.append("dependency_table_binding_unverified")
+            if dependency_failures or not set(refs) <= set(by_id):
+                blocked[primary] = list(dict.fromkeys(dependency_failures or ["dependency_not_retained"]))
+                continue
+            # Selecting a diagnostic's primary quotation does not authorize
+            # dropping its already verified page identity. Complete only this
+            # dependency; never select a new diagnostic on the model's behalf.
+            binding = fact.get("page_subject_binding") or {}
+            if binding.get("schema_version") == "prose-page-subject-v1" and primary in requested:
+                dependency = binding["header"]["reference_id"]
+                prose_subject_dependencies[primary] = [dependency]
+                if dependency not in requested:
+                    requested.append(dependency)
+                    completed_prose_dependencies[dependency] = primary
+            eligible.add(primary)
+            intervals.setdefault(primary, []).extend(spans)
+            for ref in refs:
+                if ref != primary and ref in by_id:
+                    eligible.add(ref)
+                    if by_id[ref]["kind"] == "excerpt":
+                        declared_spans = fact.get("dependency_spans", {}).get(ref)
+                        intervals.setdefault(ref, []).extend([(item["start_offset"], item["end_offset"]) for item in declared_spans]
+                                                            if declared_spans else [(0, len(by_id[ref]["text"]))])
+        # Exact structured cell operations and legacy literal requests have
+        # their own checked support. Unknown prose is explicitly unassessed.
+        literal_route = contract.kind in {"general", "cell_values", "calculation", "mapping"} or assessment["status"] == "unassessed"
+        literal_required = set(required)
+        if contract.kind in {"cell_values", "calculation"}:
+            _, addresses = contract._cells(self.references)
+            literal_required.update(reference["id"] for reference in self.references if reference["kind"] == "cell"
+                                    and reference["cell_facts"]["address"] in addresses)
+        for ref in requested:
+            reference = by_id[ref]
+            context = reference.get("list_context") or {}
+            if (reference.get("prose_context") or {}).get("page_subject") and ref not in eligible:
+                continue  # no legacy-literal fallback around a broken subject dependency
+            if (literal_route and ref in literal_required or context.get("catalogue_verified") and assessment["status"] != "covered") and ref not in eligible:
+                eligible.add(ref)
+                if reference["kind"] == "excerpt":
+                    intervals.setdefault(ref, []).append((0, len(reference["text"])))
+        spans_by_id = {}
+        selected = []
+        for ref in requested:
+            if ref not in eligible:
+                continue
+            reference = by_id[ref]
+            if reference["kind"] == "cell":
+                selected.append(ref)
+                continue
+            spans = merged_spans(intervals.get(ref, []), reference["text"])
+            if not spans:
+                continue
+            quality = [reference_span_quality(reference, item["start_offset"], item["end_offset"]) for item in spans]
+            table_quality = reference.get("table_quality")
+            reasons = [reason for item in quality if item is not None and item["state"] not in {"native", "corroborated"}
+                       for reason in item.get("reasons", ["source_quality_unavailable"])]
+            if table_quality is not None and table_quality.get("state") != "supported":
+                reasons.extend(table_quality.get("reasons", []) or ["table_binding_unverified"])
+            if reasons:
+                blocked[ref] = list(dict.fromkeys(reasons))
+                continue
+            selected.append(ref)
+            spans_by_id[ref] = spans
+        excluded = [ref for ref in model_ids if ref not in selected]
+        blocked = {ref: reasons for ref, reasons in blocked.items() if ref not in selected}
+        added = [ref for ref in selected if (ref in required or ref in completed_prose_dependencies) and ref not in model_ids]
+        journal = ([{"operation": "complete_prose_subject_dependency", "reference_id": ref,
+                     "for_reference_id": completed_prose_dependencies[ref]} if ref in completed_prose_dependencies
+                    else {"operation": "complete_required_reference", "reference_id": ref} for ref in added]
+                   + [{"operation": "exclude_unverified_source" if ref in blocked else "exclude_unrelated_reference",
+                       "reference_id": ref, "reasons": blocked.get(ref, [])} for ref in excluded])
+        return {"selected_ids": selected, "added_ids": added, "excluded_ids": excluded,
+                "publication_spans": spans_by_id, "selection_journal": journal,
+                "prose_subject_dependencies": {ref: dependencies for ref, dependencies in prose_subject_dependencies.items()
+                                               if ref in selected},
+                "blocked_reference_ids": blocked}
 
     def validate(self, raw):
         try:
@@ -330,12 +545,9 @@ class Catalogue:
     def _render_contract(self, plan, tokenizer, output_tokens, required_documents):
         assert self.contract is not None
         by_id = {reference["id"]: reference for reference in self.references}
-        required = self.contract.required_ids(self.references, required_documents)
-        added = [reference for reference in required if reference not in plan.references]
-        # One bounded completion using only references already included in the
-        # counted prompt. Exact cell requests and a unique local quantity proof
-        # must not disappear merely because the model omitted their IDs.
-        selected_ids = [] if self.contract.scope_refusal() else list(dict.fromkeys([*required, *plan.references]))
+        publication = self.publication(plan.references, required_documents)
+        selected_ids, added = publication["selected_ids"], publication["added_ids"]
+        publication_spans = publication["publication_spans"]
         initial = self.assess(selected_ids, required_documents)
         parts = []
         calculation = initial.get("calculation")
@@ -354,16 +566,20 @@ class Catalogue:
             parts.append({"text": text, "source_ids": list(dict.fromkeys(source_id for result in derived for source_id in result["source_ids"])),
                           "reference_ids": derived_ids, "kind": "relation_calculations"})
             represented.update(derived_ids)
+        prose_dependencies = publication["prose_subject_dependencies"]
+        prose_headers = {dependency for dependencies in prose_dependencies.values() for dependency in dependencies}
         for reference_id in selected_ids:
             # The operation already reproduces its exact input values, labels
             # and source citations; avoid repeating a whole cell paragraph.
-            if reference_id in represented:
+            if reference_id in represented or reference_id in prose_headers:
                 continue
             reference = by_id[reference_id]
             context = reference.get("table_context") or reference.get("list_context") or {}
             bundle = [item for item in context.get("reference_ids", []) if item in selected_ids]
+            bundle.extend(item for item in prose_dependencies.get(reference_id, []) if item in selected_ids)
             bundle = list(dict.fromkeys([*bundle, reference_id]))
-            parts.append({"text": "\n".join(render_reference(by_id[item], include_document=True) for item in bundle),
+            parts.append({"text": "\n".join(render_reference(by_id[item], include_document=True,
+                                                          spans=publication_spans.get(item)) for item in bundle),
                           "source_ids": list(dict.fromkeys(source_id for item in bundle for source_id in by_id[item]["source_ids"])),
                           "reference_ids": bundle, "kind": "reference"})
             represented.update(bundle)
@@ -389,7 +605,9 @@ class Catalogue:
                                   "end_offset": support[-1]["end_offset"]})
 
             if assessment.get("retrieval_limitations"):
-                append_text(RENDER_NOTICES["retrieval_coverage_incomplete"], "notice", notice="retrieval_coverage_incomplete")
+                notice = ("retrieval_unassessed" if assessment["kind"] == "general" and assessment["status"] == "unassessed"
+                          else "retrieval_coverage_incomplete")
+                append_text(RENDER_NOTICES[notice], "notice", notice=notice)
             message = assessment_message(assessment)
             if message:
                 append_text(message, "notice", notice="assessment")
@@ -429,7 +647,12 @@ class Catalogue:
             elif omitted:
                 assessment["status"] = "partial"
             assessment.update({"model_selected_reference_ids": plan.references, "added_reference_ids": added,
-                               "omitted_reference_ids": omitted, "rendered_reference_ids": displayed})
+                               "omitted_reference_ids": omitted, "rendered_reference_ids": displayed,
+                               "excluded_reference_ids": publication["excluded_ids"],
+                               "publication_spans": {ref: publication_spans[ref] for ref in displayed if ref in publication_spans},
+                               "publication_control": {"version": 1, "selection_journal": publication["selection_journal"],
+                                                       "blocked_reference_ids": publication["blocked_reference_ids"],
+                                                       "omitted_reference_ids": omitted}})
             if plan.normalization:
                 assessment["plan_normalization"] = plan.normalization
             if not any(part["kind"] == "calculation" for part in candidate_parts):
@@ -469,6 +692,9 @@ class Catalogue:
         if added:
             warnings.append({"code": "answer_contract_selection_completed", "reference_ids": added,
                              "message": "Des références déjà présentes au contexte ont été réintégrées pour couvrir la demande explicite."})
+        if publication["excluded_ids"]:
+            warnings.append({"code": "answer_contract_selection_filtered", "reference_ids": publication["excluded_ids"],
+                             "message": "Les ajouts sans preuve pertinente admissible ont été retirés du plan."})
         for reference_id in displayed:
             reference = by_id[reference_id]
             if reference["kind"] != "cell":
@@ -518,8 +744,11 @@ class Catalogue:
             assessment = rendered["answer_contract"]
             required_documents = ledger["required_documents"]
             checked = self.assess(displayed, required_documents)
-            selected = ([] if self.contract.scope_refusal() else list(dict.fromkeys([
-                *self.contract.required_ids(self.references, required_documents), *assessment["model_selected_reference_ids"]])))
+            publication = self.publication(assessment["model_selected_reference_ids"], required_documents)
+            for reference_id in displayed:
+                if not set(publication["prose_subject_dependencies"].get(reference_id, [])) <= set(displayed):
+                    raise ValueError("rendered prose without its exact page subject")
+            selected = publication["selected_ids"]
             if set(selected) - by_id.keys():
                 raise ValueError("unknown initial reference")
             omitted = [reference_id for reference_id in selected if reference_id not in displayed]
@@ -529,11 +758,20 @@ class Catalogue:
             if (assessment["status"] != expected_status or assessment["omitted_reference_ids"] != omitted
                     or assessment["rendered_reference_ids"] != displayed):
                 raise ValueError("coverage changed after rendering")
+            expected_spans = {ref: publication["publication_spans"][ref] for ref in displayed if ref in publication["publication_spans"]}
+            expected_control = {"version": 1, "selection_journal": publication["selection_journal"],
+                                "blocked_reference_ids": publication["blocked_reference_ids"], "omitted_reference_ids": omitted}
+            if (canonical(assessment.get("publication_spans")) != canonical(expected_spans)
+                    or canonical(assessment.get("publication_control")) != canonical(expected_control)
+                    or assessment.get("excluded_reference_ids") != publication["excluded_ids"]
+                    or assessment.get("added_reference_ids") != publication["added_ids"]):
+                raise ValueError("publication proof or completion changed")
             for field in ("matched_relations", "matched_qualitative_relations", "comparisons", "conflicts"):
                 if canonical(assessment.get(field, [])) != canonical(checked.get(field, [])):
                     raise ValueError("unsupported relation or comparison")
             for field in ("kind", "quantity", "missing", "scope_refusal", "rejected_relations", "qualitative_request",
-                          "rejected_qualitative_relations", "retrieval_limitations"):
+                          "rejected_qualitative_relations", "retrieval_limitations", "obligations", "interpretation_limitations",
+                          "required_reference_ids", "requested_properties", "requested_subjects"):
                 if canonical(assessment.get(field)) != canonical(checked.get(field)):
                     raise ValueError("unsupported coverage explanation")
             expected_ambiguities = (initial.get("ambiguous", []) if initial["status"] in {"conflict", "ambiguous"}
@@ -568,7 +806,8 @@ class Catalogue:
                     if set(sources) != set(expected_sources):
                         raise ValueError("missing or substituted documentary source")
                     if kind == "reference":
-                        expected = "\n".join(render_reference(by_id[reference_id], include_document=True) for reference_id in refs)
+                        expected = "\n".join(render_reference(by_id[reference_id], include_document=True,
+                                                            spans=expected_spans.get(reference_id)) for reference_id in refs)
                         seen_references.extend(refs)
                     elif kind == "calculation":
                         calculation = checked.get("calculation")
@@ -607,7 +846,9 @@ class Catalogue:
                         notice = segment["notice"]
                         if (notice == "output_omitted" and not omitted
                                 or notice == "comparison_independence" and not checked["comparisons"]
-                                or notice == "retrieval_coverage_incomplete" and not checked.get("retrieval_limitations")
+                                or notice in {"retrieval_coverage_incomplete", "retrieval_unassessed"}
+                                and (not checked.get("retrieval_limitations")
+                                     or (notice == "retrieval_unassessed") != (checked["kind"] == "general" and checked["status"] == "unassessed"))
                                 or notice == "empty" and displayed):
                             raise ValueError("unsupported notice")
                         expected = assessment_message(assessment) if notice == "assessment" else RENDER_NOTICES[notice]
@@ -632,17 +873,20 @@ class Catalogue:
 
         Expected deterministic refusals (missing formula cache, division by
         zero, unavailable unit) still render their actual reason and sources.
-        Unmatched prose, scope-wide discovery, incomplete relations and ambiguous
-        cells keep the reference-selection route. Source identities have already
-        been checked by the builder; completeness is rechecked after rendering.
+        An empty verified projection has a deterministic limit route. Incomplete
+        relations and ambiguous cells with admissible diagnostics keep the
+        reference-selection route. Completeness is rechecked after rendering.
         """
         contract = self.contract
+        required_documents = tuple(dict.fromkeys((*self.required_documents, *required_documents)))
         if contract is not None and contract.scope_refusal():
+            return AnswerPlan(references=[], comparisons=[])
+        if contract is not None and not self.model_view()["reference_ids"]:
             return AnswerPlan(references=[], comparisons=[])
         if (contract is not None and not contract.parse_failures
                 and (contract.kind in {"value", "interval", "comparison"} and contract.quantity is not None
                      or contract.kind == "mapping" and bool(contract.configurations)
-                     or contract.kind == "qualitative")):
+                     or contract.kind in {"qualitative", "composite"})):
             required = contract.required_ids(self.references, required_documents)
             if required and self.assess(required, required_documents)["status"] == "covered":
                 # Selection is already established by local relation checks.
@@ -672,10 +916,11 @@ def quoted(text):
     return str(text)
 
 
-def render_reference(reference, include_document=False):
+def render_reference(reference, include_document=False, *, spans=None):
     heading = f"{quoted(reference['document_name'])} — " if include_document else ""
     if reference["kind"] == "excerpt":
-        text = heading + "Extrait : « " + quoted(reference["text"]) + " »"
+        literal = projected_text(reference, spans) if spans is not None else reference["text"]
+        text = heading + "Extrait : « " + quoted(literal) + " »"
         context = reference.get("table_context") or {}
         if context.get("catalogue_verified") and context.get("row_role") == "data":
             bound = [(cell, [header for header in cell["headers"] if header.get("role") in
@@ -718,6 +963,9 @@ class StructuredAnswerBuilder:
         self.cells: dict[tuple[str, str, int, int], dict[str, Any]] = {}
         self.versions: dict[str, dict[str, Any]] = {}
         self.generations: dict[str, dict[str, Any]] = {}
+        self.source_qualities: dict[tuple[str, str], dict[str, Any]] = {}
+        self.table_qualities: dict[tuple[str, str], dict[str, Any]] = {}
+        self.page_geometries: dict[tuple[str, int], dict[str, Any] | None] = {}
 
     def parent(self, source, block):
         generation = source["generation_id"]
@@ -727,7 +975,7 @@ class StructuredAnswerBuilder:
             integrity_failure()
         key = (generation, block["id"])
         if key not in self.parents:
-            row = self.db.one("SELECT text,page_index,source_text_hash,extraction_revision_id,metadata_json FROM blocks WHERE generation_id=? AND id=?", key)
+            row = self.db.one("SELECT kind,text,page_index,bbox_json,source_text_hash,extraction_revision_id,metadata_json FROM blocks WHERE generation_id=? AND id=?", key)
             if not row:
                 integrity_failure()
             self.parents[key] = dict(row)
@@ -799,7 +1047,37 @@ class StructuredAnswerBuilder:
                 if self.enforce_contract:
                     base.update(index_generation_state=self.generations[source["generation_id"]]["state"],
                                 extraction_method=block_extraction_method(parent["metadata_json"]),
+                                source_format=version["format"],
                                 source_span_complete=block["start_offset"] == 0 and block["end_offset"] == len(parent["text"]))
+                    if version["format"] == "pdf":
+                        from services.ingestion.source_quality import verified_source_quality
+                        from services.ingestion.table_geometry import validate_table_quality
+
+                        quality_key = (source["generation_id"], block["id"])
+                        page_key = (source["generation_id"], parent["page_index"])
+                        if quality_key not in self.source_qualities:
+                            if page_key not in self.page_geometries:
+                                page_row = self.db.one("SELECT geometry_json FROM pages WHERE generation_id=? AND page_index=?", page_key)
+                                try:
+                                    geometry = json.loads(page_row["geometry_json"]) if page_row else None
+                                except (TypeError, ValueError):
+                                    geometry = None
+                                self.page_geometries[page_key] = geometry if isinstance(geometry, dict) else None
+                            self.source_qualities[quality_key] = verified_source_quality(
+                                parent["text"], metadata.get("metadata", {}), version.get("sha256"), parent["page_index"],
+                                page=self.page_geometries[page_key])
+                        base.update(source_quality=self.source_qualities[quality_key], source_parent_start=block["start_offset"])
+                        nested = metadata.get("metadata", {})
+                        if isinstance(nested, dict) and isinstance(nested.get("table_data"), dict):
+                            if quality_key not in self.table_qualities:
+                                try:
+                                    table_bbox = json.loads(parent["bbox_json"]) if parent["bbox_json"] else None
+                                except (TypeError, ValueError):
+                                    table_bbox = None
+                                self.table_qualities[quality_key] = validate_table_quality(
+                                    parent["text"], metadata, source_sha256=version.get("sha256"), page_index=parent["page_index"],
+                                    page=self.page_geometries[page_key], table_bbox=table_bbox)
+                            base["table_quality"] = {"state": "unavailable", "reasons": ["table_relation_scope_unverified"]}
                 segment = {"source_id": source["source_id"], "block_id": block["id"],
                            "source_text_hash": block["source_text_hash"], "start_offset": block["start_offset"],
                            "end_offset": block["end_offset"]}
@@ -883,6 +1161,7 @@ class StructuredAnswerBuilder:
         if self.enforce_contract:
             self.bind_table_context(references)
             self.bind_list_context(references)
+            self.bind_prose_subject(references)
         contract_scope = dict(self.snapshot.scope)
         if self.enforce_contract and contract_scope.get("kind") in {"sheet", "cell_range"}:
             # The physical XML filename is not a sheet-order guarantee. Read
@@ -896,7 +1175,40 @@ class StructuredAnswerBuilder:
                     break
         contract = AnswerContract(self.question or "", mode, contract_scope,
                                   cell_context=any(reference["kind"] == "cell" for reference in references)) if self.enforce_contract else None
-        return Catalogue(mode, references, contract)
+        required_documents = (tuple(dict.fromkeys(self.snapshot.documents.values()))
+                              if self.snapshot.scope.get("kind") == "documents" else ())
+        return Catalogue(mode, references, contract, required_documents=required_documents)
+
+    def bind_prose_subject(self, references):
+        """Bind complete PDF body text to an independently retained page header.
+
+        The DB classification also closes the filename fallback for this route
+        when no page authority can be proved. It never converts a table into
+        prose or repairs a truncated/unreadable retained paragraph.
+        """
+        for reference in references:
+            if reference["kind"] != "excerpt" or reference.get("source_format") != "pdf":
+                continue
+            blocks = {segment["block_id"] for segment in reference.get("segments", [])}
+            if len(blocks) != 1:
+                continue
+            block_id = next(iter(blocks))
+            parent = self.parents[(reference["generation_id"], block_id)]
+            metadata = json.loads(parent["metadata_json"]).get("metadata", {})
+            if (parent["kind"] not in {"text", "list_item"} or not isinstance(metadata, dict)
+                    or metadata.get("label") not in {"text", "list_item"} or "table_data" in metadata
+                    or reference.get("table_context") or reference.get("table_quality")):
+                continue
+            context: dict[str, Any] = {"schema_version": "pdf-prose-subject-v1", "catalogue_verified": True,
+                                      "block_id": block_id, "reference_ids": [], "reference_spans": {}, "source_ids": []}
+            binding = prose_page_subject(self.db, self.snapshot, reference, block_id, parent, references)
+            if binding is not None:
+                header = binding["header"]
+                dependency = next(item for item in references if item["id"] == header["reference_id"])
+                context.update(page_subject=binding, reference_ids=[dependency["id"]], source_ids=dependency["source_ids"],
+                               reference_spans={dependency["id"]: [{"start_offset": header["start_offset"],
+                                                                    "end_offset": header["end_offset"]}]})
+            reference["prose_context"] = context
 
     def bind_list_context(self, references):
         """Verify written list structure and bind its exact, visible pieces.
@@ -957,9 +1269,11 @@ class StructuredAnswerBuilder:
 
         Source-block metadata is a hint, never authority. Even exact header text
         is insufficient if its coordinates were changed or its span lies outside
-        the counted catalogue. In that case only the literal excerpt survives.
+        the counted catalogue. The literal remains auditable; unverified PDF
+        table associations cannot enter the generator or public value bindings.
         """
         records_cache = {}
+        page_subject_cache = {}
         for reference in references:
             proposed = reference.pop("_table_context", None)
             if proposed is None:
@@ -990,8 +1304,25 @@ class StructuredAnswerBuilder:
             expected = _table_context(records, record, {"id": block_id, "source_text_hash": parent["source_text_hash"],
                                       "extraction_revision_id": parent["extraction_revision_id"]}, records)
             heading = proposed.get("section_heading")
-            if expected is None or canonical(expected) != canonical({key: value for key, value in proposed.items() if key != "section_heading"}):
+            if expected is None or canonical(expected) != canonical({key: value for key, value in proposed.items()
+                                                                    if key not in {"section_heading", "general_conditions"}}):
                 continue
+            if reference.get("source_format") == "pdf":
+                quality = self.table_qualities.get(key, {"state": "unavailable", "cells": {}, "reasons": ["table_quality_unavailable"]})
+                pieces_to_verify = [*expected["cells"], *(header for cell in expected["cells"] for header in cell["headers"])]
+                bindings = [quality["cells"].get((cell["row_start"], cell["column_start"])) for cell in pieces_to_verify]
+                bindings.extend(quality["cells"].get((dependency["source_row"], dependency["source_column"]))
+                                for dependency in quality.get("dependencies", []) if dependency["row_index"] == record["index"])
+                supported = quality["state"] != "unavailable" and all(binding and binding["state"] == "supported" for binding in bindings)
+                summary = {"state": "supported" if supported else "unavailable",
+                           "bindings": list({canonical(binding): binding for binding in bindings if binding}.values()),
+                           "reasons": [] if supported else quality.get("reasons", []) or ["table_binding_unverified"]}
+                witness = json.loads(parent["metadata_json"]).get("metadata", {}).get("table_quality", {})
+                summary.update(policy=witness.get("policy"), observations_sha256=witness.get("observations_sha256"))
+                if not supported:
+                    reference["table_quality"] = summary
+                    continue
+                expected["binding_quality"] = summary
             scoped = [item for item in references if item["generation_id"] == reference["generation_id"]]
 
             def covering_ids(piece, parent=parent, scoped=scoped, block_id=block_id):
@@ -1011,6 +1342,14 @@ class StructuredAnswerBuilder:
             if any(not binding for binding in bindings):
                 continue
             ids = list(dict.fromkeys([reference["id"], *(binding[0] for binding in bindings)]))
+            reference_spans: dict[str, list[tuple[int, int]]] = {}
+            for piece, binding in zip(pieces, bindings, strict=True):
+                target = next(item for item in scoped if item["id"] == binding[0])
+                segment = next(segment for segment in target["segments"] if segment["block_id"] == block_id
+                               and segment["start_offset"] <= piece["start_offset"] <= piece["end_offset"] <= segment["end_offset"])
+                low, high = piece["start_offset"] - segment["start_offset"], piece["end_offset"] - segment["start_offset"]
+                if low < high:
+                    reference_spans.setdefault(target["id"], []).append((low, high))
             if heading:
                 sections = self.db.rows(
                     "SELECT b.section_id,s.title,s.block_ids_json,h.id heading_id,h.kind heading_kind,h.section_id heading_section "
@@ -1037,7 +1376,62 @@ class StructuredAnswerBuilder:
                     continue
                 expected["section_heading"] = heading
                 ids = list(dict.fromkeys([*ids, heading_refs[0]["id"]]))
+            if reference.get("source_format") == "pdf":
+                from .table_conditions import table_conditions_bundle
+
+                _, annotation, _ = table_conditions_bundle(
+                    self.db, self.snapshot, reference, {"id": block_id, "page_index": parent["page_index"],
+                                                       "extraction_revision_id": parent["extraction_revision_id"]}, parent)
+                if annotation is not None:
+                    bound_pieces: list[dict[str, Any]] = []
+                    general_ids: list[str] = []
+                    general_spans: dict[str, list[tuple[int, int]]] = {}
+                    condition_fragments = table_general_condition_fragments(annotation)
+                    for piece in condition_fragments:
+                        piece_parent = self.parents.get((reference["generation_id"], piece["block_id"]))
+                        low, high = piece["start_offset"], piece["end_offset"]
+                        candidates = [item for item in scoped if item["kind"] == "excerpt" and any(
+                            segment["block_id"] == piece["block_id"] and segment["source_text_hash"] == piece["source_text_hash"]
+                            and segment["start_offset"] <= low < high <= segment["end_offset"] for segment in item.get("segments", []))]
+                        candidates.sort(key=lambda item: (len(item["text"]), item["id"]))
+                        if (piece_parent is None or not candidates or piece_parent["source_text_hash"] != piece["source_text_hash"]
+                                or piece_parent["extraction_revision_id"] != parent["extraction_revision_id"]
+                                or piece_parent["text"][low:high] != piece["text"]):
+                            break
+                        target = candidates[0]
+                        segment = next(segment for segment in target["segments"] if segment["block_id"] == piece["block_id"]
+                                       and segment["start_offset"] <= low < high <= segment["end_offset"])
+                        start, end = low - segment["start_offset"], high - segment["start_offset"]
+                        checked_quality = reference_span_quality(target, start, end)
+                        if checked_quality is None or checked_quality["state"] not in {"native", "corroborated"}:
+                            break
+                        bound_pieces.append({"kind": "general_condition", **piece})
+                        general_ids.append(target["id"])
+                        general_spans.setdefault(target["id"], []).append((start, end))
+                    complete = annotation["state"] == "supported" and bool(bound_pieces) and len(bound_pieces) == len(condition_fragments)
+                    expected["general_conditions"] = ({**annotation, "reference_ids": list(dict.fromkeys(general_ids))}
+                                                      if complete else {"state": "unavailable", "pieces": [],
+                                                                        "reasons": ["general_conditions_not_retained_or_unverified"]})
+                    if complete:
+                        expected["dependencies"].extend(bound_pieces)
+                        ids = list(dict.fromkeys([*ids, *general_ids]))
+                        for ref, spans in general_spans.items():
+                            reference_spans.setdefault(ref, []).extend(spans)
+                if key not in page_subject_cache:
+                    page_subject_cache[key] = table_page_subject(
+                        self.db, self.snapshot, reference, block_id, parent, scoped)
+                page_subject = page_subject_cache[key]
+                if page_subject_applies(page_subject, reference, expected):
+                    expected["page_subject"] = page_subject
+                    subject_header = page_subject["header"]
+                    subject_ref = subject_header["reference_id"]
+                    ids = list(dict.fromkeys([*ids, subject_ref]))
+                    reference_spans.setdefault(subject_ref, []).append((0, subject_header["end_offset"]))
             expected["reference_ids"] = ids
+            by_id = {item["id"]: item for item in scoped}
+            expected["reference_spans"] = {ref: merged_spans(spans, by_id[ref]["text"]) for ref, spans in reference_spans.items()}
             expected["source_ids"] = list(dict.fromkeys(source_id for item in scoped if item["id"] in ids for source_id in item["source_ids"]))
             expected["catalogue_verified"] = True
+            if "binding_quality" in expected:
+                reference["table_quality"] = expected["binding_quality"]
             reference["table_context"] = expected

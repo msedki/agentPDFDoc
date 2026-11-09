@@ -2,6 +2,8 @@
 
 Aucun modèle, port, processus ni stockage du poste n'est lu par ces nouveaux témoins.
 Les tests existants du superviseur doivent compléter la preuve après intégration.
+I5 : les entrées actives sélectionnent exclusivement le 4B renforcé ; les profils
+et verrous historiques restent des témoins de lecture hors ligne, sans démarrage.
 """
 import json
 import sys
@@ -14,41 +16,46 @@ from services.runtime import artifacts, cli
 from services.runtime.artifacts import ROOT
 from services.runtime.verdict import model_rubric
 
+MODEL = "qwen3-4b-enhanced:q4km"
 
-@pytest.mark.parametrize("model,name", [(None, "local16-4b.yaml"), ("qwen3.5:2b", "local16.yaml"),
-                                        ("qwen3.5:4b", "local16-4b.yaml")])
+
+@pytest.fixture(autouse=True)
+def isolated_cli_profile_context(monkeypatch):
+    monkeypatch.setattr("services.runtime.platforms._profile_in_use", None)
+
+
+@pytest.mark.parametrize("model,name", [(None, "enhanced-4b.yaml"), (MODEL, "enhanced-4b.yaml")])
 def test_startup_model_resolves_to_a_real_profile(model, name):
-    # W045 (6 octobre 2026) : sans option, le profil livré du 4B ; le 2B reste un choix au lancement.
+    # Addendum I5 : aucun modèle historique n'est un choix de démarrage.
     assert cli.model_profile_path(None, model) == ROOT / "config" / name
 
 
 def test_the_default_model_is_the_4b_and_the_cli_without_option_starts_its_profile(monkeypatch, capsys):
-    assert cli.DEFAULT_MODEL == "qwen3.5:4b" and cli.MODEL_PROFILES[cli.DEFAULT_MODEL] == "local16-4b.yaml"
-    assert cli.MODEL_PROFILES["qwen3.5:2b"] == "local16.yaml"
+    assert cli.DEFAULT_MODEL == MODEL and cli.MODEL_PROFILES == {MODEL: "enhanced-4b.yaml"}
     called = []
     monkeypatch.setattr(sys, "argv", ["rag", "up"])
     monkeypatch.setattr(cli, "start", lambda path: called.append(path) or {"status": "explicit_start_double"})
-    assert cli.main() == 0 and called == [ROOT / "config/local16-4b.yaml"]
+    assert cli.main() == 0 and called == [ROOT / "config/enhanced-4b.yaml"]
     capsys.readouterr()
     monkeypatch.setattr(sys, "argv", ["rag", "--help"])
     with pytest.raises(SystemExit):
         cli.main()
     help_text = " ".join(capsys.readouterr().out.split())
-    assert "défaut : qwen3.5:4b" in help_text and "--model qwen3.5:2b" in help_text
+    assert f"défaut : {MODEL}" in help_text and "qwen3.5:2b" not in help_text
 
 
-def test_an_unknown_model_names_the_default_and_the_2b(tmp_path):
+def test_an_unknown_model_names_only_the_enhanced_default():
     with pytest.raises(ValueError) as refused:
         cli.model_profile_path(None, "qwen3.5:9b")
-    assert str(refused.value) == "Modèle livré inconnu ; choisir qwen3.5:4b (défaut) ou qwen3.5:2b"
+    assert str(refused.value) == f"Modèle livré inconnu ; choisir {MODEL} (défaut)"
 
 
 def test_every_entry_point_takes_the_same_default_profile():
-    """rag.sh, rag.ps1, le CLI et le kit Linux décident le même défaut (W045) ; les profils livrés ne changent pas."""
+    """Les façades et le kit suivent le même défaut renforcé, sans qualification de plateforme implicite."""
     from tools.dist import linux_kit
 
     default = "config/" + cli.MODEL_PROFILES[cli.DEFAULT_MODEL]
-    assert default == "config/local16-4b.yaml"
+    assert default == "config/enhanced-4b.yaml"
     shell = [line for line in (ROOT / "rag.sh").read_text(encoding="utf-8").splitlines() if line.startswith("profile=")]
     assert shell == [f"profile={default}"]
     powershell = (ROOT / "rag.ps1").read_text(encoding="utf-8-sig")
@@ -57,19 +64,20 @@ def test_every_entry_point_takes_the_same_default_profile():
     assert 'if [ "$profile_seen" -eq 1 ]; then' in (ROOT / "rag.sh").read_text(encoding="utf-8")
     assert linux_kit.MODEL_PROFILES[linux_kit.DEFAULT_MODEL] == default
     four = yaml.safe_load((ROOT / default).read_text(encoding="utf-8"))
-    assert four["llm"]["source_model"] == cli.DEFAULT_MODEL and four["llm"]["model"] == "qwen3.5:4b-text"
+    assert four["llm"]["source_model"] == four["llm"]["model"] == cli.DEFAULT_MODEL
+    assert four["enhanced"]["answer_contract"] is True
 
 
 def test_explicit_user_profile_is_preserved_and_never_overlaid(tmp_path):
     path = tmp_path / "profil-utilisateur.yaml"
     assert cli.model_profile_path(path, None) is path
     with pytest.raises(ValueError, match="exclusifs"):
-        cli.model_profile_path(path, "qwen3.5:2b")
+        cli.model_profile_path(path, MODEL)
     with pytest.raises(ValueError, match="inconnu"):
         cli.model_profile_path(None, "qwen3.5:2b-q4_K_M")
 
 
-@pytest.mark.parametrize("model", ["qwen3.5:2b", "qwen3.5:4b"])
+@pytest.mark.parametrize("model", [MODEL])
 def test_real_cli_passes_the_selected_file_to_start(monkeypatch, capsys, model):
     called = []
     monkeypatch.setattr(sys, "argv", ["rag", "up", "--model", model])
@@ -81,13 +89,13 @@ def test_real_cli_passes_the_selected_file_to_start(monkeypatch, capsys, model):
 
 def test_real_cli_rejects_model_plus_user_profile_before_start(monkeypatch, capsys, tmp_path):
     called = []
-    monkeypatch.setattr(sys, "argv", ["rag", "up", "--model", "qwen3.5:2b", "--profile", str(tmp_path / "user.yaml")])
+    monkeypatch.setattr(sys, "argv", ["rag", "up", "--model", MODEL, "--profile", str(tmp_path / "user.yaml")])
     monkeypatch.setattr(cli, "start", lambda path: called.append(path))
     assert cli.main() == 1 and called == []
     assert json.loads(capsys.readouterr().out)["error"] == "ValueError"
 
 
-def test_profiles_keep_the_same_documentary_and_runtime_contracts():
+def test_archived_profiles_keep_their_documentary_contracts_without_becoming_live_entries():
     two = yaml.safe_load((ROOT / "config/local16.yaml").read_text())
     four = yaml.safe_load((ROOT / "config/local16-4b.yaml").read_text())
     assert two["llm"]["model"] == two["llm"]["source_model"] == "qwen3.5:2b"
@@ -101,9 +109,10 @@ def test_profiles_keep_the_same_documentary_and_runtime_contracts():
         assert value["llm"]["think"] is False and value["llm"]["num_ctx"] == 8192
 
 
-@pytest.mark.parametrize("name,cold_estimate,warm_estimate", [("local16.yaml", 3968, 512), ("local16-4b.yaml", 4352, 640)])
+@pytest.mark.parametrize("name,cold_estimate,warm_estimate", [("local16.yaml", 3968, 512), ("local16-4b.yaml", 4352, 640),
+                                                            ("enhanced-4b.yaml", 4352, 640)])
 def test_delivered_model_profile_drives_the_cold_admission_boundary(tmp_path, monkeypatch, name, cold_estimate, warm_estimate):
-    """Profils réels, mémoire simulée ; aucun modèle, bail ou stockage hôte acquis."""
+    """Calcul pur sur profil actif et archives ; aucun démarrage, modèle ou bail acquis."""
     from services.runtime.resources import ResourceAdmissionError, ResourceGovernor, admission_requirement
 
     profile = yaml.safe_load((ROOT / "config" / name).read_text())
@@ -196,14 +205,15 @@ def test_unknown_tokenizer_refused_before_download(monkeypatch, tmp_path):
 
 def test_real_provision_selects_tokenizer_without_a_host_probe(monkeypatch, tmp_path):
     called = []
-    monkeypatch.setattr(cli, "load_profile", lambda path: {"llm": {"tokenizer_model_id": "Qwen/Qwen3.5-2B"}})
+    profile = yaml.safe_load((ROOT / "config/enhanced-4b.yaml").read_text(encoding="utf-8"))
+    monkeypatch.setattr(cli, "load_profile", lambda path: profile)
     monkeypatch.setattr(cli, "host_signals", lambda: pytest.fail("unnecessary host probe"))
     monkeypatch.setattr(cli, "provision_artifacts", lambda *args, **kwargs: called.append((args, kwargs)))
     assert cli.provision(tmp_path / "profile.yaml", only="qwen-tokenizer")["artifacts"] == "verified"
-    assert called[0][1]["tokenizer_model_id"] == "Qwen/Qwen3.5-2B"
+    assert called[0][1]["tokenizer_model_id"] == "Qwen/Qwen3-4B"
 
 
-def test_two_b_lock_keeps_the_exact_official_tag_and_layer_order():
+def test_historical_two_b_lock_remains_readable_for_offline_reproduction():
     lock = json.loads((ROOT / "config/models.lock.json").read_text())
     model = lock["models"]["qwen3.5:2b"]
     assert model["manifest_sha256"] == "0689d44085e06d165161a8a9a1731344278cfb5aade63a3c3dbdb48ab54b130a"

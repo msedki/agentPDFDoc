@@ -1,7 +1,9 @@
 """Read-only PDF geometry and selective OCR routing signals."""
 
 import math
+import statistics
 from pathlib import Path
+from typing import Any
 
 from .config import OCR_RENDER_SCALE, TABLE_RENDER_SCALE, IngestionConfig, sha256_file
 from .errors import IngestionError
@@ -41,12 +43,124 @@ def check_render_budget(page, route, config):
                                       "pixel_limit": config.max_ocr_region_pixels, "component": "preflight_bitmap"})
 
 
-def classify_page(text, image_regions, vector_paths, config):
+MAX_VECTOR_OBSERVATIONS = 4096
+MAX_VECTOR_OCR_REGIONS = 64
+
+
+def _native_overlap_ratio(region, native_regions):
+    """Exact union intersection for the observed native rectangles only."""
+    clipped = [[max(region[0], box[0]), max(region[1], box[1]), min(region[2], box[2]), min(region[3], box[3])]
+               for box in native_regions]
+    clipped = [box for box in clipped if box[0] < box[2] and box[1] < box[3]]
+    if not clipped:
+        return 0.0
+    cuts = sorted({value for box in clipped for value in (box[0], box[2])})
+    area = 0.0
+    for left, right in zip(cuts, cuts[1:], strict=False):
+        intervals = sorted((box[1], box[3]) for box in clipped if box[0] < right and left < box[2])
+        if not intervals:
+            continue
+        low, high = intervals[0]
+        covered = 0.0
+        for start, end in intervals[1:]:
+            if start > high:
+                covered += high - low
+                low, high = start, end
+            else:
+                high = max(high, end)
+        covered += high - low
+        area += covered * (right - left)
+    return area / ((region[2] - region[0]) * (region[3] - region[1]))
+
+
+def uncovered_vector_regions(vector_regions, native_text_regions, effective_box):
+    """Locate text-shaped path groups outside the actual native text layer.
+
+    Paths are not interpreted as letters. A group is only an OCR candidate;
+    equations, plots and drawings still require explicit unresolved coverage.
+    Thin rules and isolated large shapes do not establish a text candidate.
+    Coordinates remain unrotated PDF user-space points.
+    """
+    if not effective_box or len(vector_regions) > MAX_VECTOR_OBSERVATIONS:
+        return []
+    frame = normalize_box(effective_box)
+
+    def overlap(box, other):
+        return max(0, min(box[2], other[2]) - max(box[0], other[0])) * max(0, min(box[3], other[3]) - max(box[1], other[1]))
+
+    candidates = []
+    for raw in vector_regions:
+        box = normalize_box(raw)
+        box = [max(box[0], frame[0]), max(box[1], frame[1]), min(box[2], frame[2]), min(box[3], frame[3])]
+        width, height = box[2] - box[0], box[3] - box[1]
+        if not (2 <= height <= 32 and width >= 3 and width / height >= .6):
+            continue
+        if any(overlap(box, native) / (width * height) >= .1 for native in native_text_regions):
+            continue
+        candidates.append(box)
+    if len(candidates) < 6:
+        return []
+    rows: list[dict] = []
+    for box in sorted(candidates, key=lambda item: (-item[3], item[0])):
+        row = next((item for item in rows if min(item["bbox"][3], box[3]) - max(item["bbox"][1], box[1])
+                    >= .4 * min(item["height"], box[3] - box[1])), None)
+        if row is None:
+            rows.append({"bbox": list(box), "height": box[3] - box[1], "boxes": [box]})
+        else:
+            row["boxes"].append(box)
+            row["bbox"] = [min(row["bbox"][0], box[0]), min(row["bbox"][1], box[1]),
+                           max(row["bbox"][2], box[2]), max(row["bbox"][3], box[3])]
+    runs: list[dict[str, Any]] = []
+    for row in rows:
+        active: dict[str, Any] | None = None
+        for box in sorted(row["boxes"]):
+            if active is None or box[0] - active["bbox"][2] > max(12, row["height"] * 3):
+                active = {"bbox": list(box), "path_count": 1, "row_count": 1, "heights": [box[3] - box[1]]}
+                runs.append(active)
+            else:
+                active["bbox"] = [min(active["bbox"][0], box[0]), min(active["bbox"][1], box[1]),
+                                  max(active["bbox"][2], box[2]), max(active["bbox"][3], box[3])]
+                active["path_count"] += 1
+                active["heights"].append(box[3] - box[1])
+    groups: list[dict] = []
+    for run in sorted(runs, key=lambda item: (-item["bbox"][3], item["bbox"][0])):
+        box = run["bbox"]
+        matches = [group for group in groups if
+                   0 <= group["last_bottom"] - box[3] <= max(8, statistics.median(group["heights"]) * 2.2)
+                   and max(0, min(group["bbox"][2], box[2]) - max(group["bbox"][0], box[0]))
+                   >= .5 * min(group["bbox"][2] - group["bbox"][0], box[2] - box[0])]
+        if len(matches) != 1:
+            groups.append({**run, "bbox": list(box), "heights": list(run["heights"]), "last_bottom": box[1]})
+            continue
+        group = matches[0]
+        group["bbox"] = [min(group["bbox"][0], box[0]), min(group["bbox"][1], box[1]),
+                         max(group["bbox"][2], box[2]), max(group["bbox"][3], box[3])]
+        group["path_count"] += run["path_count"]
+        group["row_count"] += 1
+        group["heights"].extend(run["heights"])
+        group["last_bottom"] = box[1]
+    result = []
+    for group in groups:
+        if group["path_count"] < 6 or group["row_count"] < 2:
+            continue
+        region = [max(frame[0], group["bbox"][0] - 2), max(frame[1], group["bbox"][1] - 2),
+                  min(frame[2], group["bbox"][2] + 2), min(frame[3], group["bbox"][3] + 2)]
+        result.append({"bbox": region, "path_count": group["path_count"], "row_count": group["row_count"],
+                       "text_layer_overlap": _native_overlap_ratio(region, native_text_regions),
+                       "text_layer_overlap_measure": "union_intersection_over_region_area_observed_native_rectangles",
+                       "reason": "vector_body_without_native_text"})
+    return result[:MAX_VECTOR_OCR_REGIONS]
+
+
+def classify_page(text, image_regions, vector_paths, config, *, native_text_regions=(), vector_regions=(), effective_box=None):
     """Signals are explicit; neither sparse text nor an image proves a scan."""
     alphanumeric = sum(character.isalnum() for character in text)
     replacement_ratio = text.count("\ufffd") / max(1, len(text))
     reliable = replacement_ratio <= config.suspect_text_max_replacement_ratio and alphanumeric > 0
     substantial_images = [region for region in image_regions if region["area_ratio"] >= 0.03]
+    vector_body = uncovered_vector_regions(vector_regions, native_text_regions, effective_box)
+    if vector_body:
+        return ("mixed" if reliable else "degraded"), True
     if reliable and not substantial_images:
         return "native", False
     if reliable and substantial_images:
@@ -101,17 +215,21 @@ def preflight_pdf(path, config=None):
                 try:
                     text = text_page.get_text_range()
                     text_boxes = []
-                    for rectangle in range(min(text_page.count_rects(), 256)):
+                    native_region_count = text_page.count_rects()
+                    for rectangle in range(min(native_region_count, 256)):
                         text_boxes.append(normalize_box(text_page.get_rect(rectangle)))
                 finally:
                     text_page.close()
                 image_regions, vector_paths, font_sizes = [], 0, set()
+                vector_regions: list[list[float]] = []
                 page_area = max(1.0, (effective_box[2] - effective_box[0]) * (effective_box[3] - effective_box[1]))
                 for obj in page.get_objects():
                     if obj.type == pdfium.raw.FPDF_PAGEOBJ_TEXT:
                         font_sizes.add(round(float(obj.get_font_size()), 2))
                     if obj.type == pdfium.raw.FPDF_PAGEOBJ_PATH:
                         vector_paths += 1
+                        if len(vector_regions) <= MAX_VECTOR_OBSERVATIONS:
+                            vector_regions.append(normalize_box(obj.get_bounds() if hasattr(obj, "get_bounds") else obj.get_pos()))
                     if obj.type != pdfium.raw.FPDF_PAGEOBJ_IMAGE:
                         continue
                     bounds = normalize_box(obj.get_bounds() if hasattr(obj, "get_bounds") else obj.get_pos())
@@ -123,10 +241,19 @@ def preflight_pdf(path, config=None):
                         except Exception:
                             image["intrinsic_geometry_unavailable"] = True
                     image_regions.append(image)
-                classification, needs_ocr = classify_page(text, image_regions, vector_paths, settings)
+                vector_candidates = uncovered_vector_regions(vector_regions, text_boxes, effective_box)
+                classification, needs_ocr = classify_page(text, image_regions, vector_paths, settings,
+                                                         native_text_regions=text_boxes, vector_regions=vector_regions,
+                                                         effective_box=effective_box)
                 text_warnings = []
+                geometry_warnings = []
                 if any(character in text for character in ("\ufffe", "\uffff", "\x02")):
                     text_warnings.append("PREFLIGHT_TEXT_MAPPING_UNCERTAIN")
+                vector_complete = len(vector_regions) <= MAX_VECTOR_OBSERVATIONS and len(vector_candidates) < MAX_VECTOR_OCR_REGIONS
+                if not vector_complete:
+                    geometry_warnings.append("PREFLIGHT_VECTOR_SCAN_LIMIT")
+                if native_region_count > 256:
+                    geometry_warnings.append("PREFLIGHT_NATIVE_REGION_SCAN_LIMIT")
                 width, height = effective_box[2] - effective_box[0], effective_box[3] - effective_box[1]
                 label = document.get_page_label(index) if hasattr(document, "get_page_label") else None
                 pages.append({
@@ -143,7 +270,11 @@ def preflight_pdf(path, config=None):
                     "native_text_sparse": sum(character.isalnum() for character in text) < settings.suspect_text_min_alnum_chars,
                     "replacement_ratio": text.count("\ufffd") / max(1, len(text)),
                     "text_mapping_warnings": text_warnings,
+                    "preflight_geometry_warnings": geometry_warnings,
                     "image_regions": image_regions, "native_text_regions": text_boxes,
+                    "native_text_region_count": native_region_count, "native_region_scan_complete": native_region_count <= 256,
+                    "uncovered_vector_regions": vector_candidates,
+                    "vector_region_scan_complete": vector_complete,
                     "vector_path_count": vector_paths,
                     "text_font_sizes": sorted(value for value in font_sizes if value > 0),
                 })
@@ -153,6 +284,9 @@ def preflight_pdf(path, config=None):
                 raise IngestionError("PDF_PAGE_INVALID", "Le précontrôle d'une page PDF a échoué.", {"page_index": index}) from None
             finally:
                 page.close()
-        return {"sha256": sha256_file(source), "page_count": count, "size_bytes": source.stat().st_size, "pages": pages}
+        source_sha256 = sha256_file(source)
+        for page in pages:
+            page["source_sha256"] = source_sha256
+        return {"sha256": source_sha256, "page_count": count, "size_bytes": source.stat().st_size, "pages": pages}
     finally:
         document.close()

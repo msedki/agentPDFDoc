@@ -63,7 +63,6 @@ def test_verified_heading_subject_cannot_be_overridden_by_document_filename(stor
     ("DEV456", "", "DEV456"),
     ("DEV456", "DEV456", "DEV456"),
     ("DEV123", "", "DEV123"),
-    ("", "", "DEV123"),
     ("", "DEV456", "DEV456"),
 ])
 def test_explicit_compatible_subjects_and_subjectless_headings_keep_supported_answers(storage, monkeypatch, style,
@@ -87,6 +86,22 @@ def test_explicit_compatible_subjects_and_subjectless_headings_keep_supported_an
         assert set(fact["reference_ids"]) <= set(answer["answer_contract"]["rendered_reference_ids"])
 
 
+@pytest.mark.parametrize("style", [
+    pytest.param("inline", id="inline_filename_and_question_only"),
+    pytest.param("separate", id="separate_filename_and_question_only"),
+])
+def test_subjectless_pdf_list_cannot_inherit_subject_from_filename_or_question(storage, monkeypatch, style):
+    cat, result = subject_list(storage, monkeypatch, style=style, heading_subject="", item_subject="",
+                              requested_subject="DEV123")
+    assert "DEV123" in cat.contract.question
+    assert all("DEV123" not in block["text"] for block in result["names"].values())
+    assessment = cat.assess()
+    assert assessment["status"] == "partial", assessment
+    assert all("DEV123" not in fact["subjects"] for fact in assessment["matched_relations"])
+    assert any(item["requirement"] == "requested_subject_quantity" for item in assessment["missing"])
+    assert cat.deterministic_plan() is None
+
+
 @pytest.mark.parametrize("style", ["inline", "separate"])
 @pytest.mark.parametrize("requested_subject", ["DEV123", "DEV456", ""])
 def test_conflicting_heading_and_item_subjects_never_establish_a_numeric_binding(storage, monkeypatch, style,
@@ -96,12 +111,26 @@ def test_conflicting_heading_and_item_subjects_never_establish_a_numeric_binding
     assessment = cat.assess()
     assert assessment["status"] == "partial"
     assert not assessment["matched_relations"]
+    assert len(assessment["rejected_relations"]) == 2
+    assert all("list_heading_subject_conflict" in fact["reasons"]
+               for fact in assessment["rejected_relations"])
+    assert all(not obligation["covered"] for obligation in assessment["obligations"])
     assert cat.deterministic_plan() is None
     answer = render(cat, [reference["id"] for reference in cat.references])
     assert answer["answer_contract"]["status"] == "partial"
     assert "DEV456 Supply range:" in answer["text"]
     assert "DEV123 2.4 V to 3.6 V" in answer["text"]
     assert answer["support_validation"]["unsupported_characters"] == 0
+
+
+@pytest.mark.parametrize("style", ["inline", "separate"])
+def test_unrelated_subject_conflict_is_not_a_diagnostic_for_a_third_subject(storage, monkeypatch, style):
+    cat, _ = subject_list(storage, monkeypatch, style=style, heading_subject="DEV456", item_subject="DEV123",
+                          requested_subject="DEV789")
+    assessment = cat.assess()
+    assert assessment["status"] == "partial"
+    assert not assessment["matched_relations"] and not assessment["rejected_relations"]
+    assert all(not obligation["covered"] for obligation in assessment["obligations"])
 
 
 @pytest.mark.parametrize("style", ["inline", "separate"])

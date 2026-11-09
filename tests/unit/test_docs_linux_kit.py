@@ -533,10 +533,12 @@ def shipped_markdown() -> list[str]:
 
 
 def test_documents_state_the_default_model_of_the_code():
-    cli = read("services/runtime/cli.py")
-    default = re.search(r'^DEFAULT_MODEL = "([^"]+)"', cli, re.MULTILINE).group(1)  # type: ignore[union-attr]
-    profiles = ast.literal_eval(re.search(r"^MODEL_PROFILES = (\{.*\})$", cli, re.MULTILINE).group(1))  # type: ignore[union-attr]
-    assert f"Profil par défaut : `config/{profiles[default]}`" in section(EXPLOITATION, "Conventions")
+    from services.runtime import cli
+
+    default, profiles = cli.DEFAULT_MODEL, cli.MODEL_PROFILES
+    conventions = section(EXPLOITATION, "Conventions")
+    assert f"Profil par défaut du CLI et de l'API : [`config/{profiles[default]}`]" in conventions
+    assert f"modèle source et servi `{default}`" in conventions
     stale = ("2B par défaut", "`qwen3.5:2b` (défaut)", "visent maintenant le profil 2B", "utilisent désormais le profil 2B",
              "ces commandes préparent `qwen3.5:2b`", "`qwen3.5:2b` par défaut", "installation par utilisateur en préparation",
              "Le profil actif est [`config/local16.yaml`]")
@@ -548,10 +550,11 @@ def test_documents_state_the_default_model_of_the_code():
         for phrase in stale:
             assert phrase not in text, f"{relative} : « {phrase} »"
     stack = section("README.md", "Stack et versions")
-    row = next((row for row in table_with_header(stack, "Couche") if row[0] == "Modèle de langue (défaut)"), None)
-    assert row is not None, "README.md : ligne « Modèle de langue (défaut) » absente du tableau des versions"
+    row = next((row for row in table_with_header(stack, "Couche") if row[0] == "Modèle de langue (unique)"), None)
+    assert row is not None, "README.md : ligne « Modèle de langue (unique) » absente du tableau des versions"
     assert f"`{default}`" in row[1] and f"config/{profiles[default]}" in row[3], row
-    assert f"`./rag.sh up` utilise `{default}` par défaut" in stack
+    assert "`./rag.sh up` utilise le profil renforcé Qwen3-4B Q4_K_M" in stack
+    assert f"`--model {default}`" in stack and "les autres choix sont refusés" in stack
 
 
 def test_admission_values_quoted_by_the_troubleshooting_follow_the_profiles():
@@ -1306,7 +1309,7 @@ def test_commands_that_write_without_a_summary_are_documented_as_such(tmp_path, 
     from tests.unit import test_dist_linux_install as simulation
 
     simulated_home(tmp_path, monkeypatch, "maison")
-    kit = simulation.make_kit(tmp_path, monkeypatch)
+    kit = simulation.make_kit(tmp_path, monkeypatch, historical=True)
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
     runner = simulation.ProgrammeSimule()
     assert simulation.install(simulation.context(kit, runner=runner), destination, data_root, "--no-start") == 0
@@ -2018,7 +2021,7 @@ def test_the_removal_refusals_of_running_processes_are_quoted_in_the_troubleshoo
         assert ("(déjà retirées : " in simulation.screen(ctx)) == (expected == linux_install.EXIT_PARTIAL), simulation.screen(ctx)
         emitted.append(simulation.screen(ctx))
 
-    kit = simulation.make_kit(tmp_path, monkeypatch)
+    kit = simulation.make_kit(tmp_path, monkeypatch, historical=True)
     runner = simulation.ProgrammeSimule()
     destination, data_root = tmp_path / "programmes", tmp_path / "donnees"
     assert simulation.install(simulation.context(kit, runner=runner), destination, data_root) == 0

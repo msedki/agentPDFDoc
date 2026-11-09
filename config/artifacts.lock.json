@@ -175,7 +175,39 @@
         "git_blob_sha1": "e56327af55e9742caf76bff9ba83b6904cd2003d"
       }
     ],
+    "qwen-4b-gguf": [
+      {
+        "model_id": "qwen3-4b-enhanced:q4km",
+        "revision": "bc640142c66e1fdd12af0bd68f40445458f3869b",
+        "publisher": "Qwen",
+        "license": "Apache-2.0",
+        "url": "https://huggingface.co/Qwen/Qwen3-4B-GGUF/resolve/bc640142c66e1fdd12af0bd68f40445458f3869b/Qwen3-4B-Q4_K_M.gguf",
+        "size": 2497280256,
+        "target": ".runtime/models/ollama/blobs/sha256-7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
+        "sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5"
+      }
+    ],
     "qwen-tokenizer": [
+      {
+        "model_id": "Qwen/Qwen3-4B",
+        "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+        "publisher": "Qwen",
+        "license": "Apache-2.0",
+        "url": "https://huggingface.co/Qwen/Qwen3-4B/resolve/1cfa9a7208912126459214e8b04321603b3df60c/tokenizer.json",
+        "size": 11422654,
+        "target": ".runtime/models/qwen3-4b-tokenizer/tokenizer.json",
+        "sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4"
+      },
+      {
+        "model_id": "Qwen/Qwen3-4B",
+        "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+        "publisher": "Qwen",
+        "license": "Apache-2.0",
+        "url": "https://huggingface.co/Qwen/Qwen3-4B/resolve/1cfa9a7208912126459214e8b04321603b3df60c/tokenizer_config.json",
+        "size": 9732,
+        "target": ".runtime/models/qwen3-4b-tokenizer/tokenizer_config.json",
+        "sha256": "d5d09f07b48c3086c508b30d1c9114bd1189145b74e982a265350c923acd8101"
+      },
       {
         "model_id": "Qwen/Qwen3.5-2B",
         "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",

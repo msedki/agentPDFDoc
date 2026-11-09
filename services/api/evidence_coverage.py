@@ -1,4 +1,4 @@
-"""Bounded, monotonic selection of independently verified quantitative evidence.
+"""Bounded, monotonic selection of independently verified requested evidence.
 
 The same literal relation contract is used here and at publication. Ranking is
 only a tie breaker: it cannot establish a fact. A swap must preserve every
@@ -9,23 +9,29 @@ bounded greedy search does not claim a globally optimal set cover.
 import json
 from typing import Any
 
+from .answer_contract import relation_supports_obligation
 from .structured_answer import StructuredAnswerBuilder
 
-REVISION = "verified-property-coverage-v1"
+REVISION = "verified-property-coverage-v3"
 MAX_CANDIDATES = 48
 
 
 def _relation_key(fact):
-    fields = ("document_id", "version_id", "subjects", "property", "quantity", "values", "unit",
-              "condition", "role", "bound_role", "assertion_status")
+    fields: tuple[str, ...] = ("document_id", "version_id", "subjects", "property", "quantity", "values", "unit",
+              "condition", "role", "bound_role", "assertion_status", "kind", "supply_configuration",
+              "polarity", "point_conditions", "guarantee")
+    if fact.get("kind") == "qualitative_literal":
+        fields += ("subject", "predicate", "request_target", "intent", "negative", "qualification", "qualifier_kind", "quote")
     return json.dumps({key: fact.get(key) for key in fields}, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
 def _matches_obligation(fact, support, obligation):
     return (support <= set(obligation["reference_ids"])
-            and (obligation.get("document_id") is None or obligation["document_id"] == fact["document_id"])
-            and (obligation.get("subject") is None or obligation["subject"] in fact.get("subjects", []))
-            and (obligation.get("property") is None or obligation["property"] == fact.get("property")))
+            and relation_supports_obligation(fact, obligation))
+
+
+def _relations(assessment):
+    return [*assessment.get("matched_relations", []), *assessment.get("matched_qualitative_relations", [])]
 
 
 def select_evidence_coverage(db, snapshot, question, mode, candidates, selected, maximum, references):
@@ -61,7 +67,8 @@ def select_evidence_coverage(db, snapshot, question, mode, candidates, selected,
     catalogue = StructuredAnswerBuilder(db, snapshot, question, enforce_contract=True).catalogue(identified, mode)
     documents = tuple(dict.fromkeys(snapshot.documents.values())) if mode == "comparison" else ()
     assessment = catalogue.assess(required_documents=documents)
-    obligations = [item for item in assessment.get("obligations", []) if item.get("quantity")]
+    obligations = [item for item in assessment.get("obligations", [])
+                   if item.get("quantity") or item.get("kind") == "qualitative_literal"]
     if not obligations:
         return selected, [], diagnostic
     refs_by_source: dict[int, set[str]] = {index: set() for index in range(len(pool))}
@@ -70,8 +77,8 @@ def select_evidence_coverage(db, snapshot, question, mode, candidates, selected,
             refs_by_source[int(source_id[1:])].add(reference["id"])
     atoms: dict[str, list[frozenset[str]]] = {}
     obligation_atoms: list[set[str]] = [set() for _ in obligations]
-    for fact in assessment.get("matched_relations", []):
-        if not fact.get("quantity") or not fact.get("values"):
+    for fact in _relations(assessment):
+        if not (fact.get("quantity") and fact.get("values") or fact.get("kind") == "qualitative_literal"):
             continue
         support = frozenset(fact.get("reference_ids", [fact["reference_id"]]))
         matching = [index for index, obligation in enumerate(obligations)
@@ -190,11 +197,16 @@ def select_evidence_coverage(db, snapshot, question, mode, candidates, selected,
 
 
 def quantitative_relation_keys(catalogue, mode):
-    """Relations actually supported by the supplied, scope-checked catalogue."""
+    """Compatibility name: both numeric and qualitative supported relations.
+
+    Every requested, verified relation has to survive a later context reduction.
+    The historical caller name does not limit the monitored obligation family.
+    """
     documents = tuple(dict.fromkeys(reference["document_id"] for reference in catalogue.references)) if mode == "comparison" else ()
     assessment = catalogue.assess(required_documents=documents)
-    obligations = [item for item in assessment.get("obligations", []) if item.get("quantity")]
-    return {_relation_key(fact) for fact in assessment.get("matched_relations", [])
-            if fact.get("quantity") and fact.get("values") and any(
+    obligations = [item for item in assessment.get("obligations", [])
+                   if item.get("quantity") or item.get("kind") == "qualitative_literal"]
+    return {_relation_key(fact) for fact in _relations(assessment)
+            if (fact.get("quantity") and fact.get("values") or fact.get("kind") == "qualitative_literal") and any(
                 _matches_obligation(fact, frozenset(fact.get("reference_ids", [fact["reference_id"]])), obligation)
                 for obligation in obligations)}

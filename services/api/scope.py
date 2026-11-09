@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from .errors import ApiError
 from .office import cell_semantics
 from .schemas import Scope
+from .source_geometry import source_page_geometry
 
 # Méthode d'extraction d'un bloc sans métadonnée d'ingestion (index antérieur, extraction contrôlée) : jamais « native ».
 UNKNOWN_METHOD = "unknown"
@@ -229,7 +230,7 @@ class ScopeResolver:
             for range_start, range_end in ranges:
                 if range_start >= range_end:
                     continue
-                geometry = json.loads(row["geometry_json"] or "{}")
+                geometry = source_page_geometry(row["geometry_json"])
                 allowed.append({"id": row["block_id"], "block_id": row["block_id"], "page_index": row["page_index"],
                                 "text": row["text"][range_start:range_end], "start_offset": range_start, "end_offset": range_end,
                                 "bbox": json.loads(row["bbox_json"]) if row["bbox_json"] else None,
@@ -286,7 +287,7 @@ class ScopeResolver:
             block = {"id": row["id"], "block_id": row["id"], "text": text, "page_index": row["page_index"],
                      "start_offset": span["startOffset"], "end_offset": span["endOffset"], "type": row["kind"],
                      "bbox": json.loads(row["bbox_json"]) if row["bbox_json"] else None,
-                     "precision": row["precision"], "page": json.loads(row["geometry_json"] or "{}"),
+                     "precision": row["precision"], "page": source_page_geometry(row["geometry_json"]),
                      "extraction_revision_id": row["extraction_revision_id"], "source_text_hash": row["source_text_hash"],
                      "extraction_method": block_extraction_method(row["metadata_json"])}
             if row["page_index"] is None:

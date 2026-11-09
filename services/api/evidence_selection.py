@@ -23,6 +23,7 @@ from services.ingestion.pdf_structure import (
 )
 
 from .errors import ApiError
+from .source_geometry import source_page_geometry
 
 REVISION = "evidence-bundles-v4"
 TABLE_RELATIONS_REVISION = "verified-table-relations-v1"
@@ -405,12 +406,22 @@ _HEADER_ROLES = {
     "parametres": "parameter", "grandeur": "parameter",
 }
 
+# This separate family is considered only for a complete three-column PDF
+# header. A literal Value column supplies a quantity, never MIN/TYP/NOM/MAX.
+_SINGLE_VALUE_HEADER_ROLES = {
+    "parameter": "parameter", "parameters": "parameter", "parametre": "parameter", "parametres": "parameter",
+    "equipment": "parameter", "equipement": "parameter", "label": "parameter", "libelle": "parameter",
+    "reference": "parameter",
+    "value": "quantity", "valeur": "quantity",
+    "unit": "unit", "units": "unit", "unite": "unit", "unites": "unit",
+}
 
-def _header_role(text):
+
+def _header_role(text, *, single_value=False):
     # Only explicit labels are interpreted. Numeric values and positions never
     # establish a role, particularly after sparse PDF columns are serialized.
     label = " ".join(_fold(text).replace("’", "'").strip().rstrip(".").split())
-    return _HEADER_ROLES.get(label)
+    return (_SINGLE_VALUE_HEADER_ROLES if single_value else _HEADER_ROLES).get(label)
 
 
 def _explicit_docx_header(records):
@@ -470,6 +481,7 @@ def _bind_columns(records):
                 valid = False
                 break
     headers: list[dict[str, Any]] = []
+    single_value_headers: set[int] = set()
     previous_header = ambiguous_roles = False
     for record in records:
         record["column_bindings_verified"] = valid
@@ -478,16 +490,23 @@ def _bind_columns(records):
             # Within one consecutive group, all geometrically enclosing
             # ancestors remain relevant (for example TA=25°C above MIN/MAX).
             headers = []
+            single_value_headers.clear()
         for cell in record["cells"]:
             matches = [header for header in headers if header["row_end"] <= cell["row_start"]
                        and header["column_start"] <= cell["column_start"] < cell["column_end"] <= header["column_end"]]
             cell["headers"] = [{key: header[key] for key in ("text", "start_offset", "end_offset", "row_start", "row_end",
-                                                            "column_start", "column_end")} | {"role": _header_role(header["text"])}
+                                                            "column_start", "column_end")} | {
+                                   "role": _header_role(header["text"], single_value=id(header) in single_value_headers)}
                                for header in matches]
             if len({header["role"] for header in cell["headers"] if header["role"] is not None}) > 1:
                 ambiguous_roles = True
         if valid and record["header"]:
-            headers.extend(cell for cell in record["cells"] if cell["column_header"])
+            current = [cell for cell in record["cells"] if cell["column_header"]]
+            value_roles = [_header_role(cell["text"], single_value=True) for cell in current]
+            if (record["format"] == "pdf" and len(current) == len(record["cells"]) == 3
+                    and set(value_roles) == {"parameter", "quantity", "unit"}):
+                single_value_headers.update(id(cell) for cell in current)
+            headers.extend(current)
         previous_header = record["header"]
     if ambiguous_roles:
         for record in records:
@@ -569,7 +588,13 @@ def _table_context(records, record, block, chosen):
     cells = _active_cells([cell for row in records for cell in row["cells"]], index)
     dependencies = {header["row_start"]: "header" for cell in cells for header in cell["headers"]}
     dependencies.update({cell["row_start"]: "row_span" for cell in cells if cell["row_start"] != index})
-    section = next((row["index"] for row in reversed(records) if row["section"] and row["index"] < index), None)
+    shared = record.get("shared_conditions", [])
+    for condition in shared:
+        dependencies.setdefault(condition["row_index"], "shared_condition_origin")
+    # A section row starts a sibling group; the preceding section is not its
+    # parent. Data rows still require their own nearest explicit section.
+    section = (None if record["section"] else
+               next((row["index"] for row in reversed(records) if row["section"] and row["index"] < index), None))
     if section is not None:
         dependencies[section] = "row_section"
     # Notes on a relied-upon header, merged origin or note are also required.
@@ -601,7 +626,7 @@ def _table_context(records, record, block, chosen):
             "cells": [{key: value for key, value in cell.items() if key != "merge_origin_id"} for cell in cells],
             "dependencies": [{"kind": dependencies[row["index"]], "row_index": row["index"], "text": row["text"],
                               "start_offset": row["start"], "end_offset": row["end"]}
-                             for row in chosen if row["index"] in dependencies]}
+                             for row in chosen if row["index"] in dependencies] + shared}
 
 
 def _verified_table_records(parent_text, metadata):
@@ -617,7 +642,42 @@ def _verified_table_records(parent_text, metadata):
         records = None
     if records is not None and "\n".join(record["text"] for record in records) != parent_text:
         records = None
+    if records is not None:
+        _shared_table_conditions(records, metadata, parent_text)
     return records, recovery
+
+
+def _shared_table_conditions(records, metadata, parent_text):
+    """Carry exact candidate dependency spans; the builder replays their proof.
+
+    These metadata hints grant neither trust nor scope. A malformed or omitted
+    hint cannot create a certified table relation at the publication boundary.
+    """
+    nested = metadata.get("metadata", {})
+    quality = nested.get("table_quality", {}) if isinstance(nested, dict) else {}
+    dependencies = quality.get("dependencies", []) if isinstance(quality, dict) else []
+    if not isinstance(dependencies, list) or len(dependencies) > MAX_TABLE_CELLS:
+        return
+    rows = {item["index"]: item for item in records}
+    for dependency in dependencies:
+        if not isinstance(dependency, dict) or dependency.get("kind") != "shared_condition":
+            continue
+        target, origin = rows.get(dependency.get("row_index")), rows.get(dependency.get("source_row"))
+        if target is None or origin is None:
+            continue
+        cells = [cell for cell in origin["cells"] if cell["column_start"] == dependency.get("source_column")]
+        if len(cells) != 1:
+            continue
+        cell = cells[0]
+        low, high = dependency.get("start_offset"), dependency.get("end_offset")
+        if type(low) is not int or type(high) is not int or not 0 <= low < high <= len(cell["text"]):
+            continue
+        start, end = cell["start_offset"] + low, cell["start_offset"] + high
+        if parent_text[start:end] != dependency.get("text"):
+            continue
+        target.setdefault("shared_conditions", []).append({"kind": "shared_condition", "row_index": origin["index"],
+                                                           "text": dependency["text"], "start_offset": start, "end_offset": end,
+                                                           "observation_ids": dependency.get("observation_ids", [])})
 
 
 def verified_table_rows(parent_text, metadata):
@@ -689,7 +749,7 @@ def _section_heading(db, snapshot, source, block, parent):
                 "type": row["kind"], "text": row["text"], "start_offset": 0, "end_offset": len(row["text"]),
                 "source_text_hash": row["source_text_hash"], "extraction_revision_id": row["extraction_revision_id"],
                 "bbox": json.loads(row["bbox_json"]) if row["bbox_json"] else None,
-                "precision": row["precision"], "page": json.loads(row["geometry_json"] or "{}"),
+                "precision": row["precision"], "page": source_page_geometry(row["geometry_json"]),
                 "extraction_method": block_extraction_method(row["metadata_json"])}
         if row["page_index"] is None:
             metadata = json.loads(row["metadata_json"])
@@ -764,6 +824,7 @@ def table_bundle(db, snapshot, source, *, maximum_chars=12_000, question=None, r
             selected_row = pending.pop()
             dependencies = set(by_index[selected_row]["merge_origins"])
             dependencies.update(by_index[selected_row].get("note_rows", []))
+            dependencies.update(item["row_index"] for item in by_index[selected_row].get("shared_conditions", []))
             section = next((record["index"] for record in reversed(records)
                             if record["section"] and record["index"] <= selected_row), None)
             if section is not None:
@@ -799,6 +860,24 @@ def table_bundle(db, snapshot, source, *, maximum_chars=12_000, question=None, r
                                           and item["end_offset"] == heading["end_offset"]
                                           for item in [*source["blocks"], *blocks]):
             blocks.append(heading)
+        from .table_conditions import table_conditions_bundle
+
+        condition_key = ("table_general_conditions", *key)
+        if condition_key not in table_cache:
+            table_cache[condition_key] = table_conditions_bundle(db, snapshot, source, block, parent)
+        condition_fragments, condition_annotation, condition_warnings = table_cache[condition_key]
+        warnings.extend(condition_warnings)
+        added_conditions = [piece for piece in condition_fragments if not any(
+            item["id"] == piece["id"] and item["start_offset"] == piece["start_offset"]
+            and item["end_offset"] == piece["end_offset"] for item in [*source["blocks"], *blocks])]
+        condition_size = sum(len(piece["text"]) + 1 for piece in added_conditions)
+        if condition_size + len("\n".join(record["text"] for record in chosen)) > maximum_chars:
+            condition_annotation = {"schema_version": "table-general-conditions-v1", "state": "unavailable",
+                                    "table_block_id": block["id"], "pieces": [], "reasons": ["condition_bundle_budget"]}
+            warnings.append(_warning("table_general_conditions_unavailable",
+                                     "Les conditions générales et les lignes nécessaires dépassent le budget du paquet de preuves.", source))
+        else:
+            blocks.extend(added_conditions)
         for record in chosen:
             selected_block = {**block, "text": parent["text"][record["start"]:record["end"]],
                               "start_offset": record["start"], "end_offset": record["end"]}
@@ -808,6 +887,8 @@ def table_bundle(db, snapshot, source, *, maximum_chars=12_000, question=None, r
                     relation["section_heading"] = {"block_id": heading["id"], "section_id": parent["section_id"],
                         **{key: heading[key] for key in ("text", "start_offset", "end_offset", "source_text_hash",
                                                         "extraction_revision_id", "page_index")}}
+                if condition_annotation is not None:
+                    relation["general_conditions"] = condition_annotation
                 selected_block["table_context"] = relation
             blocks.append(selected_block)
         if not all(record["column_bindings_verified"] for record in chosen):
@@ -909,10 +990,22 @@ def _focused_rows(records, question, required_identifiers):
                   "nominal": {"nom", "nomin"}, "unit": {"unit", "units", "unite"}}
     requested_roles = {role for role, aliases in role_terms.items() if aliases & terms}
     ranked = []
+    spanning = [cell for record in records if record.get("column_bindings_verified")
+                for cell in record.get("cells", []) if cell["row_end"] > cell["row_start"] + 1]
+    if sum(cell["row_end"] - cell["row_start"] - 1 for cell in spanning) > MAX_TABLE_CELLS:
+        return None  # Retain original spans when inherited ranking work is too large.
+    inherited_by_row: dict[int, list[dict[str, Any]]] = defaultdict(list)
+    for cell in spanning:
+        for row_index in range(cell["row_start"] + 1, cell["row_end"]):
+            inherited_by_row[row_index].append(cell)
     for record in records:
         if record["header"] or record["section"] or record.get("note_marker") or not record["text"]:
             continue
-        words = set(re.findall(r"\w+", _fold(record["text"])))
+        inherited = [cell["text"] for cell in _active_cells([*inherited_by_row[record["index"]], *record.get("cells", [])], record["index"])
+                     if cell["row_start"] != record["index"]]
+        # Ranking sees literal rowspan context; the row's stored/public text
+        # is never rewritten or independently attached to an unproved header.
+        words = set(re.findall(r"\w+", _fold(" ".join([record["text"], *inherited]))))
         matches = terms & {word[:5] for word in words if len(word) >= 3}
         roles = {header["role"] for cell in record.get("cells", []) if cell["text"].strip()
                  for header in cell.get("headers", [])} & requested_roles

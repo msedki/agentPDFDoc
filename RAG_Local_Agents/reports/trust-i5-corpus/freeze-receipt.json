@@ -1,0 +1,47 @@
+{
+  "schema_version": "i5-heldout-freeze-v1",
+  "frozen_at_utc": "2026-11-08T20:05:19.157910+00:00",
+  "reference_commit": "41857e17a438fe43123e4ef8274d9d2d446bfbc2",
+  "protocol_sha256": "2102faf988e881c655a6b92c213a7a02705f7e268d08f93f88613f371d2e3ccc",
+  "counts": {
+    "primary_documents": 3,
+    "primary_publishers": 3,
+    "original_pages": 86,
+    "questions": 10,
+    "positive_questions": 8,
+    "limit_questions": 2,
+    "derived_positive_queries": 2,
+    "native_primary_queries_per_arm": 12,
+    "positive_evidence_units": 28
+  },
+  "private_files": [
+    {
+      "path": "sources.json",
+      "bytes": 2409,
+      "sha256": "4d67dc071c5aa50d0e6a33cc335c9dd727d4a39c1c5fd3ae16a186c157c9a831"
+    },
+    {
+      "path": "questions-oracles.json",
+      "bytes": 24803,
+      "sha256": "b36d32a580efcd644cc0d0299a0002617c64c8552dbc1964e9c7de7319b69af7"
+    },
+    {
+      "path": "scan-transformations.json",
+      "bytes": 3504,
+      "sha256": "ea18764c2a55db5fa61c540539777f288af6f0c52f23d73f60ee5276bedac6d1"
+    }
+  ],
+  "original_sha256": [
+    "b7d7909ef5258fcb1e74f01650f0859742fef2595f80b54861b32f63840bd813",
+    "5b0e0efe173d5fdaf72c31e697591b0b1cacbd440ec6ba95d742fd587c7aff33",
+    "673b1c075b8f5a0653f77906c897ea5aec41a1dec02514770587100587c05eb9"
+  ],
+  "derived_sha256": [
+    "ff2702a49eb66b77b6288c65a8ecefed31ccf58c637feb7c79a066f46201d16c",
+    "b93ca6c6fe601f3102d0d337138219fa5fe101e8c80e04c5810cd79b9d48004f"
+  ],
+  "changed_baseline_product_files_at_freeze": [],
+  "role_separation": "Oracle/harness preparer i5_validation makes no product changes and does not send any heldout contents to product authors before candidate freeze.",
+  "source_review": "Seven original pages and two derived pages visually inspected before freeze; one derived has zero native text and one has only a 210-character original notice as native footer.",
+  "limitations": "Three manufacturers but one technical datasheet domain; 12 local queries do not qualify general production or full D07/D05. No independent second reviewer before freeze; cross-review afterwards required."
+}

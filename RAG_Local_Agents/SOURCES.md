@@ -2064,3 +2064,25 @@ téléchargement HTTPS direct a échoué sur la résolution DNS de cet hôte. Le
 résultats sont conservés séparément. Les documents originaux et images restent
 hors Git ; les manifestes suffisent à vérifier leur identité, pas à garantir la
 disponibilité future des URL publiques.
+
+
+## EV4B-I5-S01 — glyphes natifs et repères PDF
+
+**Consultation :** 8 novembre 2026 (UTC). **Source primaire :** https://pypdfium2.readthedocs.io/en/stable/python_api.html, sections PdfTextPage.get_charbox/get_text_range/count_chars et incompatibilité avec le multithreading. **Version installée :** pypdfium2 5.13.0, contrat des wrappers et API raw inspecté localement par le lot ingestion. **Faits :** les boîtes de caractères emploient le repère PDF ; indices de caractères et texte rendu peuvent diverger, caractères générés/exclus à distinguer ; PDFium ne doit pas être appelé simultanément entre threads. **Hypothèse :** projection à partir des glyphes réellement mappés pour certifier colonnes et sous-lignes, avec limites et provenance. **Preuve locale préalable :** `native-geometry-probe-receipt.json` sous QA I5, trois pages, 0,124 s sans rendu ni OCR ; données originales hashées. La documentation ne prouve aucune fidélité de tableau du produit.
+
+## EV4B-I5-S02 — lectures OCR, segmentation et unité de preuve
+
+**Consultation :** 8 novembre 2026 (UTC). **Sources primaires :** https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html (résolution, bordures, segmentation, limites des tableaux) et https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html (TSV et coordonnées/confidence). **Version exécutée de référence :** Tesseract 5.4.0 corrigé I4, même binaire/poids dans les deux bras I5 ; SHA dans protocole et reçu d'environnement. **Faits :** les TSV portent positions et score OCR ; tableaux et petits symboles demandent une segmentation adaptée. Aucun seuil élevé ne garantit l'exactitude. **Hypothèse :** lecture complémentaire bornée et alignement spatial, dépendances exactes et publication minimale vérifiée ; un désaccord reste une limite, aucune substitution par oracle. L'absence de ±/· des alphabets examinés historiquement (W042/R23) demeure une limite connue ; aucun entraînement ni nouveau poids adopté par I5.
+
+## EV4B-I5-E01 — référence et protocole préalable
+
+**Sources internes :** commit `41857e17a438fe43123e4ef8274d9d2d446bfbc2`, [protocole I5](reports/trust-4b-protocol-2026-11-08.md), rapports I4 et reçus `baseline-source-identity.json`, `environment-before.json`, `protocol-freeze.json` sous `.runtime/qa/production-i5-20261108/`. **Disponibilité :** dépôt public pour protocole/rapports/code, QA locale privée pour traces et originaux. **Faits :** les 88 fichiers produit/config et 46 harnais du gel I4 sont identiques ; gel I5 avant modification produit à 19:57:15 UTC. Les anciens oracles I4 deviennent développement ; le nouveau transfert est réservé, son préparateur n'édite pas le produit. **Limite :** aucune réussite I5 ni qualification de diffusion déduite de cette identité.
+
+
+## EV4B-I5-S03 — unités SI nécessaires aux conditions de mesure
+
+**Consultation :** 8 novembre 2026 (UTC). **Sources primaires :** https://www.bipm.org/en/measurement-units/si-prefixes et https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-4-two-classes-si-units-and-si-prefixes. **Faits :** nano = 10^-9, pico = 10^-12, micro = 10^-6 ; seconde et farad identifient des dimensions distinctes. **Défaut constaté :** le registre borné reconnaissait µs mais pas ns, et ne représentait pas les capacités figurant dans les conditions de mesure des tableaux. **Décision avant extension :** ajouter seulement ns et F/pF/nF/µF avec facteurs décimaux exacts, alias typographiques déclarés, tests de conversions traçables et refus des dimensions incompatibles. Le générateur n'effectue aucun calcul et ces constantes ne fournissent aucune valeur documentaire manquante.
+
+### I5-S04 — identité et notice du GGUF Qwen3-4B
+
+Sources primaires consultées le 8 novembre 2026 UTC : [carte GGUF à bc640142c66e1fdd12af0bd68f40445458f3869b](https://huggingface.co/Qwen/Qwen3-4B-GGUF/blob/bc640142c66e1fdd12af0bd68f40445458f3869b/README.md) et [licence Qwen3-4B à 1cfa9a7208912126459214e8b04321603b3df60c](https://huggingface.co/Qwen/Qwen3-4B/blob/1cfa9a7208912126459214e8b04321603b3df60c/LICENSE). Identité et licence Apache-2.0 déclarées ; références déjà fixées par enhanced-4b.lock.json. Apport : notice du modèle natif choisi par identité, distincte de l’ancienne dérivation Qwen3.5. Limite : ces pages ne prouvent ni que les textes de licence sont effectivement embarqués dans un kit, ni que ce kit est installé/qualifié. L’inventaire des fichiers fait autorité pour les éléments annoncés comme livrés.

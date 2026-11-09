@@ -11,6 +11,7 @@ import hashlib
 import json
 
 import pytest
+from i5_witness_fixtures import witnessed_sparse_table
 from test_api_storage import import_fixture
 from test_api_storage import storage as storage
 from test_iteration2_table_evidence import sparse_table
@@ -140,7 +141,9 @@ def test_post_expansion_deduplication_never_erases_different_provenance_or_oblig
 def test_explicit_table_note_stays_with_source_row_and_independent_catalogue(storage, marker, definition):
     rows = [HEADERS, [(0, f"Supply voltage {marker}"), (1, "0"), (2, "36"), (3, "V")],
             [(0, f"{definition} Valid only indoors.")], [(0, "(9) Unrelated mounting instruction.")]]
-    search, snapshot, source, text = sparse_table(storage, rows)
+    # I5 revalidates table bindings from DB observations. This positive uses
+    # explicit synthetic glyph geometry; the source note assertions stay exact.
+    search, snapshot, source, text = witnessed_sparse_table(storage, rows)
     original = copy.deepcopy(source)
     bundle, warnings = table_bundle(search.db, snapshot, source, question="Quelle plage de tension alimentation ?")
     assert not warnings and source == original

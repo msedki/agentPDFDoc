@@ -265,7 +265,7 @@ def _complement_unavailable(name: str, exc: Exception, *, offline: bool, extract
 
 def provision_artifacts(only: str | None = None, *, offline: bool = False, skip_groups: frozenset[str] = frozenset(),
                         signals: dict[str, Any] | None = None,
-                        tokenizer_model_id: str = "Qwen/Qwen3.5-2B") -> dict[str, Any]:
+                        tokenizer_model_id: str = "Qwen/Qwen3-4B") -> dict[str, Any]:
     """Télécharge, vérifie et extrait les entrées du verrou valables sur ce poste, puis les consigne au manifeste local.
 
     `skip_groups` écarte des groupes (complément GPU d'un profil en calcul CPU) ; `signals` (host_signals) choisit,

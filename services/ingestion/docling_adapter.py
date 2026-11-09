@@ -14,6 +14,13 @@ from .config import OCR_RENDER_SCALE, IngestionConfig, project_path
 from .errors import IngestionError
 from .geometry import docling_box_to_pdf
 from .pdf_structure import annotate_explicit_lists
+from .source_quality import annotate_ocr_cells, block_quality, canonical_quality_readings
+from .table_geometry import (
+    build_table_general_conditions,
+    build_table_quality,
+    native_condition_projection,
+    native_glyph_observations,
+)
 
 
 def verify_tesseract(config: IngestionConfig):
@@ -167,6 +174,7 @@ class DoclingSession:
             table_corrections: dict[int, Any] = {}
             isolation_failures: dict[int, Any] = {}
             numeric_readings: dict[int, Any] = {}
+            quality_readings: dict[int, Any] = {}
             if route == "regional_ocr":
                 pipeline = converter._get_pipeline(result.input.format)
                 preprocessing = getattr(pipeline.ocr_model, "region_preprocessing_by_page", {})
@@ -174,6 +182,12 @@ class DoclingSession:
                 table_corrections = getattr(pipeline.table_model, "corrections_by_page", {})
                 isolation_failures = getattr(pipeline.ocr_model, "isolation_failures_by_page", {})
                 numeric_readings = getattr(pipeline.ocr_model, "numeric_readings_by_page", {})
+                quality_readings = getattr(pipeline.ocr_model, "quality_readings_by_page", {})
+            table_pages = {int(provenance["page_no"]) - 1 for item in document.get("tables", []) for provenance in item.get("prov", [])}
+            if any(index < first or index > last for index in table_pages):
+                raise IngestionError("DOCLING_PAGE_RANGE_MISMATCH", "Docling a retourné un tableau hors de la fenêtre demandée.")
+            source_sha256 = self.page_metadata.get(first, {}).get("source_sha256")
+            native_observations = native_glyph_observations(path, table_pages, source_sha256) if table_pages and source_sha256 else {}
             for parsed_page in result.pages:
                 page_no = int(parsed_page.page_no)
                 known_pages = {int(key) for key in document.get("pages", {})}
@@ -189,6 +203,9 @@ class DoclingSession:
                 observed_ocr[page_no - 1]["table_orientation_corrections"] = table_corrections.get(int(parsed_page.page_no), [])
                 observed_ocr[page_no - 1]["isolation_failures"] = isolation_failures.get(int(parsed_page.page_no), [])
                 observed_ocr[page_no - 1]["numeric_readings"] = numeric_readings.get(int(parsed_page.page_no), [])
+                observed_ocr[page_no - 1]["quality_readings"] = quality_readings.get(int(parsed_page.page_no), [])
+                observed_ocr[page_no - 1]["native_glyphs"] = native_observations.get(page_no - 1)
+                observed_ocr[page_no - 1]["source_sha256"] = source_sha256
             return document, status == "success", observed_ocr
         except IngestionError:
             raise
@@ -227,7 +244,8 @@ def canonical_cells(document, pages, observed_ocr, warnings):
                 warnings.append({"code": exc.code, "page_index": index, "component": "parser_cell"})
                 continue
             converted.append({"text": cell.get("text", ""), "bbox": bbox, "from_ocr": bool(cell.get("from_ocr")), "confidence": cell.get("confidence")})
-        result[index] = converted
+        readings = canonical_quality_readings((observed_ocr or {}).get(index, {}).get("quality_readings", []), (size["width"], size["height"]), page)
+        result[index] = annotate_ocr_cells(converted, readings) if any(cell["from_ocr"] for cell in converted) else converted
     return result
 
 
@@ -291,6 +309,14 @@ def document_to_pages(document, preflight_pages, version_id, revision_id, route,
     warnings: list[dict[str, Any]] = []
     for page in pages.values():
         warnings.extend({"code": code, "page_index": page["page_index"], "component": "preflight_text"} for code in page.get("text_mapping_warnings", []))
+        warnings.extend({"code": code, "page_index": page["page_index"], "component": "preflight_geometry"} for code in page.get("preflight_geometry_warnings", []))
+        if "PREFLIGHT_VECTOR_SCAN_LIMIT" in page.get("preflight_geometry_warnings", []):
+            page["unresolved_regions"].append({"bbox": None, "reason": "PREFLIGHT_VECTOR_SCAN_LIMIT", "precision": "page"})
+        if route != "regional_ocr":
+            for region in page.get("uncovered_vector_regions", []):
+                page["unresolved_regions"].append({"bbox": region["bbox"], "reason": "VECTOR_BODY_NOT_OCR_PROCESSED", "precision": "block"})
+            if page.get("uncovered_vector_regions"):
+                warnings.append({"code": "VECTOR_BODY_NOT_OCR_PROCESSED", "page_index": page["page_index"]})
     cells_by_page = canonical_cells(document, pages, observed_ocr, warnings)
     all_items = {}
     for group in ("texts", "tables", "pictures", "groups"):
@@ -335,6 +361,19 @@ def document_to_pages(document, preflight_pages, version_id, revision_id, route,
                     warnings.append({"code": exc.code, "page_index": index})
             charspan = provenance.get("charspan")
             source_text = text
+            block_cells = [cell for cell in cells_by_page[index] if cell_belongs_to_block(cell, bbox)]
+            observed = (observed_ocr or {}).get(index, {})
+            source_sha256 = observed.get("source_sha256") or page.get("source_sha256")
+            canonical_table: dict[str, Any] = {}
+            table_quality: dict[str, Any] = {}
+            if kind == "table":
+                readings = canonical_quality_readings(observed.get("quality_readings", []), (size.get("width", 0), size.get("height", 0)), page)
+                canonical_table, table_quality = build_table_quality(item.get("data", {}), bbox, (size.get("width", 0), size.get("height", 0)), page,
+                                                                     native=observed.get("native_glyphs"), cells=block_cells, quality_readings=readings,
+                                                                     source_sha256=source_sha256, orientation_records=observed.get("orientations", []),
+                                                                     preprocessing=observed.get("preprocessing", []),
+                                                                     table_corrections=observed.get("table_orientation_corrections", []))
+                source_text = table_text(canonical_table)
             if charspan and kind not in {"table", "figure"}:
                 start, end = int(charspan[0]), int(charspan[1])
                 if 0 <= start <= end <= len(text):
@@ -343,7 +382,10 @@ def document_to_pages(document, preflight_pages, version_id, revision_id, route,
                     warnings.append({"code": "INVALID_SOURCE_CHARSPAN", "page_index": index})
                     page["source_provenance_incomplete"] = True
                     continue
-            block_cells = [cell for cell in cells_by_page[index] if cell_belongs_to_block(cell, bbox)]
+            parser_source_text = source_text
+            native_projection = None
+            if kind in {"heading", "text", "caption"}:
+                source_text, native_projection = native_condition_projection(source_text, bbox, page, observed.get("native_glyphs"), source_sha256)
             extraction_method = source_method(block_cells, route)
             identity = stable_id(version_id, revision_id, index, item.get("self_ref"), source_text, bbox)
             block = {"id": identity, "version_id": version_id, "extraction_revision_id": revision_id,
@@ -356,13 +398,27 @@ def document_to_pages(document, preflight_pages, version_id, revision_id, route,
                      "metadata": {"label": label, "parser_ref": item.get("self_ref"), "route": route,
                                   "extraction_method": extraction_method, "ocr_used": extraction_method in {"ocr", "mixed"},
                                   "ocr_spans": ocr_spans(source_text, block_cells)}}
+            if native_projection is not None:
+                block["metadata"]["parser_original_text"] = parser_source_text
+                block["metadata"]["native_condition_projection"] = native_projection
+                if native_projection["state"] != "supported":
+                    warnings.append({"code": "NATIVE_CONDITION_TEXT_UNVERIFIED", "page_index": index, "block_id": identity})
+                    page["unresolved_regions"].append({"bbox": bbox, "block_id": identity, "reason": "NATIVE_CONDITION_TEXT_UNVERIFIED",
+                                                       "precision": "block" if bbox else "page"})
             if kind == "table":
-                block["metadata"]["table_data"] = item.get("data", {})
-                canonical, table_warnings = table_coverage(item.get("data", {}), bbox, (size.get("width", 0), size.get("height", 0)), page)
+                block["metadata"]["parser_table_data"] = item.get("data", {})
+                block["metadata"]["table_data"] = canonical_table
+                block["metadata"]["table_quality"] = table_quality
+                canonical, table_warnings = table_coverage(canonical_table, bbox, (size.get("width", 0), size.get("height", 0)), page)
                 block["metadata"]["table_cell_regions"] = canonical
+                if source_sha256 and table_quality["state"] != "supported":
+                    table_warnings.append("TABLE_RELATION_QUALITY_UNCERTAIN")
                 for code in table_warnings:
                     warnings.append({"code": code, "page_index": index, "block_id": identity})
                     page["unresolved_regions"].append({"bbox": bbox, "block_id": identity, "reason": code, "precision": "table" if bbox else "page"})
+            if extraction_method in {"ocr", "mixed"}:
+                readings = canonical_quality_readings(observed.get("quality_readings", []), (size.get("width", 0), size.get("height", 0)), page)
+                block["metadata"]["ocr_quality"] = block_quality(source_text, block_cells, readings, source_sha256, index, kind=kind, page=page)
             if kind == "figure":
                 warnings.append({"code": "GRAPHIC_INTERPRETATION_UNAVAILABLE", "page_index": index, "block_id": identity})
                 page["unresolved_regions"].append({"bbox": bbox, "block_id": identity, "reason": "GRAPHIC_INTERPRETATION_UNAVAILABLE", "precision": "block" if bbox else "page"})
@@ -432,5 +488,14 @@ def document_to_pages(document, preflight_pages, version_id, revision_id, route,
             page["extraction_state"] = "error"
         if route == "regional_ocr" and not page["ocr_used"] and page["extraction_state"] != "error":
             page["extraction_state"] = "native"
+        for block in page["blocks"]:
+            if block["type"] == "table":
+                annotation = build_table_general_conditions(block, page["blocks"], page,
+                                                            source_sha256=ocr.get("source_sha256") or page.get("source_sha256"))
+                block["metadata"]["table_general_conditions"] = annotation
+                if annotation["state"] == "unavailable" and page.get("source_sha256"):
+                    warnings.append({"code": "TABLE_GENERAL_CONDITIONS_UNAVAILABLE", "page_index": page["page_index"], "block_id": block["id"]})
+                    page["unresolved_regions"].append({"bbox": block["bbox"], "block_id": block["id"],
+                                                       "reason": "TABLE_GENERAL_CONDITIONS_UNAVAILABLE", "precision": block["precision"]})
         annotate_explicit_lists(page)
     return list(pages.values()), warnings

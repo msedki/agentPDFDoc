@@ -11,7 +11,6 @@ import argparse
 import json
 import secrets
 import signal
-import socket
 import subprocess
 import sys
 import time
@@ -23,12 +22,15 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from services.runtime.supervisor import environment  # noqa: E402
+from services.runtime.supervisor import environment, port_probe  # noqa: E402
 
 
 def available_port(port):
-    with socket.socket() as probe:
-        probe.bind(("127.0.0.1", port))
+    with port_probe() as probe:
+        try:
+            probe.bind(("127.0.0.1", port))
+        except OSError as error:
+            raise OSError(error.errno, f"Port loopback {port} indisponible pour la qualification ; aucun service existant ne sera arrêté.") from error
 
 
 def measurement_script(transport):
@@ -143,21 +145,20 @@ def run(args):
             command += ["--case-id", case]
         # Le harnais de révision importe lui-même le checkout demandé.
         measurement_env = {k: v for k, v in env.items() if k != "PYTHONPATH"}
-        if transport == "http":
-            # Le parcours HTTP crée aussi de vrais workers d'import : son groupe
-            # reste possédé jusqu'au reçu d'arrêt, même si l'API échoue ou expire.
-            measured = job.launch(command, cwd=source, env=measurement_env, log_path=output / "measurement.log")
-            processes.append(measured)
-            deadline = time.monotonic() + 1500
-            while measured.poll() is None and time.monotonic() < deadline:
-                time.sleep(0.25)
-            expired = measured.poll() is None
-            (output / "measurement-process.json").write_text(json.dumps({
-                "transport": transport, "pid": measured.pid, "deadline_seconds": 1500,
-                "harness_timeout": expired, "observed_returncode": measured.poll()}, indent=2) + "\n")
-            return 124 if expired else measured.poll()
-        completed = subprocess.run(command, cwd=source, env=measurement_env, check=False)
-        return completed.returncode
+        # Chaque transport peut posséder des workers : conserver son groupe
+        # jusqu'au reçu d'arrêt, même si le cas échoue ou dépasse la limite du
+        # bloc. Cette borne du harnais est identique pour les deux bras ; elle
+        # ne remplace pas les délais du produit et de chaque cas.
+        measured = job.launch(command, cwd=source, env=measurement_env, log_path=output / "measurement.log")
+        processes.append(measured)
+        deadline = time.monotonic() + 1500
+        while measured.poll() is None and time.monotonic() < deadline:
+            time.sleep(0.25)
+        expired = measured.poll() is None
+        (output / "measurement-process.json").write_text(json.dumps({
+            "transport": transport, "pid": measured.pid, "deadline_seconds": 1500,
+            "harness_timeout": expired, "observed_returncode": measured.poll()}, indent=2) + "\n")
+        return 124 if expired else measured.poll()
     finally:
         stopped = []
         for process in reversed(processes):

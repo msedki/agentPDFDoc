@@ -26,12 +26,16 @@ UNITS = {
     "Hz": ("frequency", "1", "0"), "kHz": ("frequency", "1000", "0"), "MHz": ("frequency", "1000000", "0"),
     "Ω": ("resistance", "1", "0"), "kΩ": ("resistance", "1000", "0"), "MΩ": ("resistance", "1000000", "0"),
     "s": ("time", "1", "0"), "ms": ("time", "0.001", "0"), "µs": ("time", "0.000001", "0"),
+    "ns": ("time", "0.000000001", "0"),
+    "F": ("capacitance", "1", "0"), "µF": ("capacitance", "0.000001", "0"),
+    "nF": ("capacitance", "0.000000001", "0"), "pF": ("capacitance", "0.000000000001", "0"),
     "min": ("time", "60", "0"), "h": ("time", "3600", "0"),
     "m": ("length", "1", "0"), "mm": ("length", "0.001", "0"), "cm": ("length", "0.01", "0"), "km": ("length", "1000", "0"),
     "Pa": ("pressure", "1", "0"), "kPa": ("pressure", "1000", "0"), "MPa": ("pressure", "1000000", "0"), "bar": ("pressure", "100000", "0"),
     "K": ("temperature", "1", "0"), "°C": ("temperature", "1", "273.15"),
 }
-UNIT_ALIASES = {"uA": "µA", "μA": "µA", "us": "µs", "μs": "µs", "ohm": "Ω", "ohms": "Ω"}
+UNIT_ALIASES = {"uA": "µA", "μA": "µA", "us": "µs", "μs": "µs", "uF": "µF", "μF": "µF", "ohm": "Ω", "ohms": "Ω",
+                "° C": "°C", "°\u00a0C": "°C"}
 UNIT_PATTERN = "(?:" + "|".join(re.escape(unit) for unit in sorted(set(UNITS) | set(UNIT_ALIASES), key=len, reverse=True) if unit) + ")"
 NUMBER_PATTERN = r"[+\-−–]?(?:[0-9]+(?:[.,][0-9]+)?)(?:[eE][+\-]?[0-9]{1,2})?"
 QUANTITY = re.compile(rf"\s*(?P<value>{NUMBER_PATTERN})\s*(?P<unit>{UNIT_PATTERN})?\s*")

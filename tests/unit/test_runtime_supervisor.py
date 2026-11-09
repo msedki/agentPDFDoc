@@ -76,9 +76,12 @@ def test_supervisor_sample_reports_measures_without_lease_state(tmp_path):
     assert isinstance(sample["owned_processes"], list)
 
 
-def _profile(tmp_path, monkeypatch):
+def _profile(tmp_path, monkeypatch, *, active=False):
     monkeypatch.delenv("RAG_DATA_DIR", raising=False)
-    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    # Les lecteurs/inspections historiques restent sur leur archive ; un test
+    # de démarrage doit atteindre sa frontière avec le profil actif autorisé.
+    filename = "config/enhanced-4b.yaml" if active else "config/local16.yaml"
+    profile = yaml.safe_load((ROOT / filename).read_text(encoding="utf-8"))
     profile["app"]["data_dir"] = str(tmp_path / "données")
     path = tmp_path / "profil.yaml"
     path.write_text(yaml.safe_dump(profile, allow_unicode=True), encoding="utf-8")
@@ -111,7 +114,7 @@ def test_the_profile_data_root_is_not_overridden_by_an_inherited_variable(tmp_pa
 def test_only_flock_contention_is_reported_as_another_instance(tmp_path, monkeypatch, kind, number):
     from services.runtime import supervisor
 
-    path, data = _profile(tmp_path, monkeypatch)
+    path, data = _profile(tmp_path, monkeypatch, active=kind == "supervisor")
     failure = OSError(number, "erreur de verrou simulée")
     opened = []
 
@@ -311,7 +314,17 @@ def _stop(*args, **kwargs):
 def _probe_of_pull_model(monkeypatch, tmp_path):
     from services.runtime import cli
 
-    monkeypatch.setattr(cli, "load_profile", lambda path: {"llm": {"model": "qwen3.5:4b", "required_quantization": "Q4_K_M"}})
+    profile = yaml.safe_load((ROOT / "config/enhanced-4b.yaml").read_text(encoding="utf-8"))
+    program = tmp_path / "synthetic-pull-program"
+    (program / "config").mkdir(parents=True)
+    (program / "config/enhanced-4b.lock.json").write_text(json.dumps({"gguf": {
+        "filename": "synthetic.gguf", "sha256": "a" * 64}}), encoding="utf-8")
+    raw = program / ".runtime/models/synthetic.gguf"
+    raw.parent.mkdir(parents=True)
+    raw.write_bytes(b"EXPLICIT_PORT_PROBE_FIXTURE_NOT_A_MODEL")
+    monkeypatch.setattr(cli, "ROOT", program)
+    monkeypatch.setattr(cli, "load_profile", lambda path: profile)
+    monkeypatch.setattr(cli, "provision_artifacts", lambda *a, **kw: pytest.fail("port probe must not download"))
     monkeypatch.setattr(cli, "native_paths", _stop)
     with pytest.raises(ProbeDone):
         cli.pull_model(tmp_path / "profil.yaml")
@@ -432,7 +445,7 @@ def test_job_creation_failure_removes_the_token_and_releases_the_data_root(tmp_p
     # C11 : jeton et Job étaient créés avant le try ; un échec du Job laissait le jeton de contrôle sur disque.
     from services.runtime import supervisor
 
-    profile, data = _profile(tmp_path, monkeypatch)
+    profile, data = _profile(tmp_path, monkeypatch, active=True)
 
     def refused():
         raise OSError("création du Job refusée (essai)")
@@ -449,7 +462,7 @@ def test_job_creation_failure_removes_the_token_and_releases_the_data_root(tmp_p
 def test_data_root_lock_held_by_another_process_refuses_a_second_supervisor(tmp_path, monkeypatch):
     from services.runtime import supervisor
 
-    profile, data = _profile(tmp_path, monkeypatch)
+    profile, data = _profile(tmp_path, monkeypatch, active=True)
     (data / "control").mkdir(parents=True)
     (data / "control/runtime.lock").write_bytes(b"0")
     holder = subprocess.Popen([sys.executable, "-c",
@@ -552,7 +565,7 @@ def test_native_paths_take_this_platform_entry_and_its_own_manifest_record(tmp_p
 def test_survivors_of_a_dead_supervisor_are_reported_and_block_up(tmp_path, monkeypatch):
     from services.runtime.supervisor import start
 
-    profile, data = _profile(tmp_path, monkeypatch)
+    profile, data = _profile(tmp_path, monkeypatch, active=True)
     # Survivant créé par ce test, dans sa propre session : il tient lieu du runner d'Ollama resté dans le groupe. Il
     # reçoit l'environnement des enfants de l'instance (RAG_DATA_DIR compris), comme un descendant réel d'Ollama.
     survivor = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"], start_new_session=True,
@@ -837,7 +850,7 @@ def test_supervise_records_the_mode_and_passes_it_to_the_api_only(tmp_path, monk
     log, signals, mode, reason = accelerator_cases[case]
     monkeypatch.delenv("RAG_DATA_DIR", raising=False)
     monkeypatch.setattr(supervisor, "host_signals", lambda: signals)
-    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    profile = yaml.safe_load((ROOT / "config/enhanced-4b.yaml").read_text(encoding="utf-8"))
     profile["llm"].pop("num_gpu", None)
     profile["llm"]["accelerator"] = "auto"
     profile["app"].update(data_dir=str(tmp_path / "données"), port=_free_port())
@@ -1080,7 +1093,7 @@ def supervise_with_doubles(tmp_path: Path, monkeypatch, *, platform: str, storag
     """Superviseur réel, enfants et disponibilité doublés ; ROOT désigne un programme de test hors du dépôt.
 
     `installed` : profil qu'`init-profile` crée pour une installation par le kit (`user_profile`, racine des données
-    `<tmp>/données-installation`) ; sinon profil de développement tiré de `config/local16.yaml`."""
+    `<tmp>/données-installation`) ; sinon profil de développement tiré de `config/enhanced-4b.yaml`."""
     from types import SimpleNamespace
 
     from services.runtime import source_manifest, supervisor
@@ -1092,7 +1105,7 @@ def supervise_with_doubles(tmp_path: Path, monkeypatch, *, platform: str, storag
     if inherited_data_in_program:
         monkeypatch.setenv("RAG_DATA_DIR", str(program / "accidental-data"))
     monkeypatch.delenv("QDRANT_INIT_FILE_PATH", raising=False)
-    profile = yaml.safe_load((ROOT / "config/local16.yaml").read_text(encoding="utf-8"))
+    profile = yaml.safe_load((ROOT / "config/enhanced-4b.yaml").read_text(encoding="utf-8"))
     if installed:
         profile = user_profile(profile, tmp_path / "données-installation", program_root=program,
                                ports=dict(zip(("app", "qdrant", "ollama"), distinct_free_ports(3), strict=True)))

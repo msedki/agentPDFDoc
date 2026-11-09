@@ -488,14 +488,20 @@ class QueryService:
                                         warnings.extend(refined.get("warnings", []))
                                     metrics["retrieval_ms"] = refined["elapsed_ms"]
                                 metrics["context_assessment"] = assessment
+                                messages, context_metrics = await asyncio.to_thread(
+                                    self.context.finalize_catalogue, request.question, messages,
+                                    catalogue, context_metrics)
                             evidence = catalogue.evidence()
                             if enforce_contract:
+                                if context_metrics["model_evidence_sha256"] != evidence["model_evidence_sha256"]:
+                                    raise ApiError("invalid_context", "Le catalogue transmis au modèle n'est pas celui qui a été vérifié.", 503)
                                 record_event("evidence.ledger", {"ledger": evidence["support_ledger"],
                                              "sha256": evidence["support_ledger_sha256"]})
                             metrics["structured_answer"] = {"status": "pending", "schema_sha256": evidence["schema_sha256"],
                                                             "catalogue_sha256": evidence["catalogue_sha256"]}
                             if enforce_contract:
                                 metrics["structured_answer"]["support_ledger_sha256"] = evidence["support_ledger_sha256"]
+                                metrics["structured_answer"]["model_evidence_sha256"] = evidence["model_evidence_sha256"]
                             await database_call(self.db.add_event, query_id, "structured_answer", evidence)
                         metrics.update(context_metrics)
                         metrics["context_ms"] = round((time.perf_counter() - context_started) * 1000, 2)
@@ -618,6 +624,12 @@ class QueryService:
                                 support_validation = catalogue.verify_rendered(rendered)
                                 record_event("answer.support_validation", support_validation)
                                 metrics["answer_support_validation"] = support_validation
+                                publication_control = rendered.get("answer_contract", {}).get("publication_control")
+                                if publication_control is not None:
+                                    # The controller is produced and revalidated by
+                                    # the catalogue before any public answer delta.
+                                    record_event("answer.publication_control", publication_control)
+                                    metrics["answer_publication_control"] = publication_control
                             structured_cited = rendered["source_ids"]
                             structured_result = {"status": "validated", "plan": plan.model_dump(),
                                                  "plan_origin": "deterministic_contract" if deterministic_plan is not None else "model",
@@ -627,6 +639,8 @@ class QueryService:
                             if "support_ledger_sha256" in metrics["structured_answer"]:
                                 structured_result["support_ledger_sha256"] = metrics["structured_answer"]["support_ledger_sha256"]
                                 structured_result["rendered_support_ledger_sha256"] = rendered["support_ledger_sha256"]
+                            if "model_evidence_sha256" in metrics["structured_answer"]:
+                                structured_result["model_evidence_sha256"] = metrics["structured_answer"]["model_evidence_sha256"]
                             if "answer_contract" in rendered:
                                 structured_result["answer_contract"] = rendered["answer_contract"]
                                 structured_result["effective_plan"] = rendered.get("effective_plan")

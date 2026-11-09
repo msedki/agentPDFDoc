@@ -1588,7 +1588,12 @@ def test_explicit_only_downloads_the_complement_even_with_a_cpu_profile(gpu_prov
 def test_only_the_complement_on_a_host_without_one_exits_with_code_zero(gpu_provision, capsys, monkeypatch, signals, host):
     run = gpu_provision
     run.state["signals"] = signals
-    monkeypatch.setattr(sys, "argv", ["cli", "provision", "--only", "ollama-gpu", "--profile", str(run.write_profile())])
+    # Le vrai CLI applique la politique active avant de décider si ce poste a
+    # un complément GPU ; les autres témoins GPU conservent leurs archives.
+    profile_path = run.root / "config/enhanced-4b.yaml"
+    profile_path.write_bytes((REAL_ROOT / "config/enhanced-4b.yaml").read_bytes())
+    monkeypatch.setattr("services.runtime.platforms._profile_in_use", None)
+    monkeypatch.setattr(sys, "argv", ["cli", "provision", "--only", "ollama-gpu", "--profile", str(profile_path)])
     assert run.cli.main() == 0
     out = capsys.readouterr().out
     assert out.startswith(f"Aucun complément GPU d'Ollama ne correspond à ce poste ({host}) : rien à télécharger.\n")

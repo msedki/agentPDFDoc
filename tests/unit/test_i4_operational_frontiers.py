@@ -31,7 +31,7 @@ DEADLINE = 1.0
 OVERHEAD = 2.0
 BOUND = DEADLINE + OVERHEAD
 SOURCE = "Le boîtier est étanche uniquement lorsque le couvercle est fermé."
-QUESTION = "Décris le fonctionnement du boîtier à partir de ce passage."
+QUESTION = "Dans quelle condition le boîtier est-il étanche ?"
 
 
 class ReferenceProviderDouble:
@@ -87,6 +87,16 @@ async def operation(rag, tmp_path, monkeypatch):
                 "sample_provenance": "explicit test double, not observed machine memory"}
 
     monkeypatch.setattr(governor, "snapshot", controlled_sample)
+
+    def force_reference_selector(self, required_documents=()):
+        # I5 can render this complete, checked relation without a model. This
+        # named routing double forces the provider boundary under test; it
+        # preserves real source validation, admission, rendering and release.
+        assert self.assess(required_documents=required_documents)["status"] == "covered"
+        assert self.model_view()["reference_ids"]
+        return None
+
+    monkeypatch.setattr(Catalogue, "deterministic_plan", force_reference_selector)
     provider = ReferenceProviderDouble()
     service = QueryService(db, resolver, search, ContextBuilder(settings, CharTokenizer()), provider, settings,
                            governor=governor)

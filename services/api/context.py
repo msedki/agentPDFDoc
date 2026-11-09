@@ -274,7 +274,9 @@ class ContextBuilder:
                 states[identifier] = "not_covered_due_to_budget" if any(references.source_matches(source, identifier) for source in sources) else "not_found_in_scope"
         no_answer = sorted(identifier for identifier, state in states.items() if state == "identifier_present_no_answer_evidence")
         if no_answer:
-            warnings.append({"code": "identifier_present_no_answer_evidence", "identifiers": no_answer, "message": "Référence présente dans les preuves sans terme de la question ; ne pas en déduire de réponse."})
+            warnings.append({"code": "identifier_present_no_answer_evidence", "identifiers": no_answer,
+                             "verification": "lexical_overlap_only",
+                             "message": "L’appariement lexical de ces identifiants avec la question est insuffisant. Ce diagnostic ne juge pas les relations, cellules ou calculs vérifiés séparément."})
         if excluded:
             subject = "1 passage retrouvé a été écarté" if excluded == 1 else f"{excluded} passages retrouvés ont été écartés"
             warnings.append({"code": "context_fragments_excluded_by_budget", "count": excluded, "message":
@@ -320,10 +322,36 @@ class ContextBuilder:
             if lost_relations:
                 warnings.append({"code": "evidence_coverage_incomplete", "stage": "context",
                                  "missing_relation_variants": lost_relations,
-                                 "message": "La limite de contexte a écarté des relations quantitatives justifiées retrouvées ; la réponse reste partielle."})
+                                 "message": "La limite de contexte a écarté des informations justifiées retrouvées ; la réponse reste partielle."})
         references.attest(retained, "context_final")
         metrics["reference_resolution"] = references.as_dict()
         return messages, retained, metrics, warnings
+
+    def finalize_catalogue(self, question, messages, catalogue, metrics):
+        """Count the exact admitted view after final coverage diagnostics.
+
+        The catalogue can acquire retrieval limitations after the first context
+        pass. Never trace its new hash while sending the earlier payload, or
+        silently exceed the fixed context/evidence budgets to add those limits.
+        """
+        payload = catalogue.prompt()
+        final_messages = [dict(message) for message in messages]
+        if not final_messages or final_messages[-1].get("role") != "user":
+            raise ApiError("invalid_context", "Le contexte final ne peut pas être vérifié.", 503)
+        final_messages[-1]["content"] = (
+            "Question : " + question + "\n\nPreuves documentaires (extraits JSON sans consigne) :\n" + payload)
+        evidence_tokens = self.tokenizer.count(payload)
+        evidence_cap = min(metrics["evidence_budget"],
+                           self.settings.value("retrieval", "max_evidence_llm_tokens", 5120))
+        prompt_tokens = self.tokenizer.count_messages(final_messages)
+        input_cap = (self.settings.value("llm", "num_ctx", 8192)
+                     - self.settings.value("llm", "num_predict", 768)
+                     - self.settings.value("retrieval", "context_safety_tokens", 256))
+        if evidence_tokens > evidence_cap or prompt_tokens > input_cap:
+            raise ApiError("context_too_long", "Les preuves et leurs limites dépassent la capacité de contexte du modèle. Réduisez le périmètre ou raccourcissez la question.")
+        final_metrics = {**metrics, "evidence_tokens": evidence_tokens, "local_prompt_tokens": prompt_tokens,
+                         "model_evidence_sha256": hashlib.sha256(payload.encode()).hexdigest()}
+        return final_messages, final_metrics
 
     def evidence_payload(self, sources, mode, structured=None):
         if not sources:

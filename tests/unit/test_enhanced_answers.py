@@ -171,7 +171,9 @@ def test_scope_does_not_force_cell_restitution_for_a_general_outside_property_qu
     assert cat.contract.kind == "general"
     assert cat.contract.required_ids(cat.references) == []
     assert cat.assess()["status"] == "unassessed"
-    assert cat.deterministic_plan() is None
+    # I5: an empty verified model projection has a deterministic limit route.
+    assert cat.deterministic_plan().references == []
+    assert cat.model_view()["reference_ids"] == []
     assert render(cat)["effective_plan"]["references"] == []
 
 
@@ -203,9 +205,13 @@ def test_deterministic_plan_only_selects_explicit_cells_in_a_range():
         plan = cat.deterministic_plan()
         assert plan is not None and plan.references == ["R001", "R002"] and plan.comparisons == []
     assert catalogue("Quelles valeurs contiennent les cellules A1 et B1 ?", refs).deterministic_plan() is None
-    assert catalogue("Explique pourquoi la valeur de la cellule A1 est importante", refs,
-                     scope={"kind": "cell_range"}).deterministic_plan() is None
-    assert catalogue("Quel format possède la cellule A1 ?", refs, scope={"kind": "cell_range"}).deterministic_plan() is None
+    unknown = catalogue("Explique pourquoi la valeur de la cellule A1 est importante", refs, scope={"kind": "cell_range"})
+    assert unknown.deterministic_plan().references == []
+    assert unknown.model_view()["reference_ids"] == []
+    assert unknown.references == refs  # I5 retains the unassessed inputs for audit.
+    formatting = catalogue("Quel format possède la cellule A1 ?", refs, scope={"kind": "cell_range"})
+    assert formatting.deterministic_plan().references == []
+    assert formatting.assess()["status"] != "covered"  # A value does not establish a display format.
 
 
 def test_deterministic_plan_rejects_ambiguous_cells_but_renders_known_math_refusal():
@@ -377,10 +383,13 @@ def test_value_and_interval_keep_quantity_role_unit_and_source_relation_together
     "LM358 operating supply voltage: 0 to 36.",
 ])
 def test_incomplete_wrong_role_or_wrong_unit_cannot_validate_range(text):
-    result = render(catalogue("Quelle plage de tension de fonctionnement du LM358 ?", [excerpt("R001", text)]), ["R001"])
+    cat = catalogue("Quelle plage de tension de fonctionnement du LM358 ?", [excerpt("R001", text)])
+    result = render(cat, ["R001"])
     assert result["answer_contract"]["status"] == "partial"
     assert "same_relation_lower_upper_unit" in requirement_codes(result["answer_contract"])
-    assert text in result["text"]
+    # I5: an unrelated/incomplete relation cannot enter the verified model set.
+    assert text not in result["text"] and cat.references[0]["text"] == text
+    assert cat.model_view()["reference_ids"] == []
 
 
 def test_two_separate_numbers_never_form_a_range_without_a_shared_relation():
@@ -399,10 +408,14 @@ def test_negative_temperature_range_is_not_read_as_a_subtraction():
 @pytest.mark.parametrize("method", ["ocr", "mixed", "unknown"])
 def test_ambiguous_letter_o_is_preserved_without_numeric_correction(method):
     references = [excerpt("R001", "Operating supply voltage: O V to 36 V.", method=method)]
-    result = render(catalogue("Plage de tension de fonctionnement ?", references), ["R001"])
+    cat = catalogue("Plage de tension de fonctionnement ?", references)
+    result = render(cat, ["R001"])
     assert result["answer_contract"]["status"] == "ambiguous"
     assert "ambiguous_numeric_glyph" in requirement_codes(result["answer_contract"])
-    assert "O V" in result["text"] and "0 V" not in result["text"]
+    # I5: the ambiguous literal remains auditable, not a public measurement.
+    assert "O V" in cat.support_ledger()["references"][0]["literal"]["text"]
+    assert "O V" not in result["text"] and "0 V" not in result["text"]
+    assert cat.model_view()["reference_ids"] == []
 
 
 def test_conflicting_values_are_not_arbitrated_by_model_omission():
@@ -492,11 +505,13 @@ def test_oversized_first_reference_does_not_evict_later_complete_reference_that_
 
 
 def test_conflict_remains_visible_when_only_later_conflicting_reference_fits():
-    # A same-line suffix would distinguish conditions; keep the added text on
-    # another line so the two local relations retain the same label/condition.
-    long = "Operating supply voltage: 24 V.\n" + "Source details. " * 300
+    # I5 trims independent source filler. A long, valid relative document path
+    # is mandatory provenance and exercises the same budget frontier without
+    # changing either relation's applicability conditions.
+    long = "Operating supply voltage: 24 V."
     short = "Operating supply voltage: 48 V."
-    cat = catalogue("Tension de fonctionnement ?", [excerpt("R001", long), excerpt("R002", short)])
+    cat = catalogue("Tension de fonctionnement ?", [excerpt("R001", long, name="archive/" * 120 + "manual.pdf"),
+                                                    excerpt("R002", short)])
     result = render(cat, ["R001", "R002"], output_tokens=200)
     assert result["answer_contract"]["status"] == "conflict"
     assert result["source_ids"] == ["S002"]

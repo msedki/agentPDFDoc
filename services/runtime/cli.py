@@ -39,6 +39,7 @@ from .accelerator import (
     verified_libraries,
 )
 from .artifacts import ROOT, file_hash, provision_artifacts, write_json_atomic
+from .generation_policy import GENERATION_MODEL, GENERATION_PROFILE, require_generation_profile
 from .model_profiles import platform_id, read_catalogue, select_local_profile, visible_memory_bytes
 from .platforms import (
     executable_name,
@@ -72,10 +73,8 @@ from .supervisor import (
 
 MODELS_LOCK = ROOT / "config/models.lock.json"
 PNPM_DEFAULT_VERSION = "10.34.1"
-# W045 (6 octobre 2026) : le 4B est le modèle par défaut ; le 2B reste un choix au lancement (W032). Les profils livrés ne
-# changent pas : config/local16-4b.yaml pour le 4B, config/local16.yaml pour le 2B.
-DEFAULT_MODEL = "qwen3.5:4b"
-MODEL_PROFILES = {"qwen3.5:4b": "local16-4b.yaml", "qwen3.5:2b": "local16.yaml"}
+DEFAULT_MODEL = GENERATION_MODEL
+MODEL_PROFILES = {GENERATION_MODEL: GENERATION_PROFILE.removeprefix("config/")}
 
 
 def model_profile_path(profile: Path | None, model: str | None) -> Path:
@@ -85,8 +84,11 @@ def model_profile_path(profile: Path | None, model: str | None) -> Path:
     if profile is not None:
         return profile
     catalogue = read_catalogue(ROOT)
-    profiles = {entry["model"]: entry["profile"] for entry in catalogue["profiles"]} if catalogue else {
+    profiles = {entry["model"]: entry["profile"] for entry in catalogue["profiles"]
+                if entry["model"] == GENERATION_MODEL} if catalogue else {
         name: "config/" + path for name, path in MODEL_PROFILES.items()}
+    if GENERATION_MODEL not in profiles:
+        raise ValueError("Le catalogue ne contient pas le générateur renforcé 4B requis ; aucun repli n'est effectué")
     if model is not None and model not in profiles:
         ordered = [name for name in (DEFAULT_MODEL, *profiles) if name in profiles]
         ordered = list(dict.fromkeys(ordered))
@@ -693,14 +695,27 @@ def model_pull_environment(profile: dict, directory: Path, profile_path: Path) -
 
 
 def pull_model(profile_path: Path, offline: bool = False) -> dict:
-    import httpx
-
     profile = load_profile(profile_path)
-    profile = {**profile, "llm": {**profile["llm"], "base_url": "http://127.0.0.1:11444"}}
+    require_generation_profile(profile)
+    enhanced_lock = json.loads((ROOT / "config/enhanced-4b.lock.json").read_text(encoding="utf-8"))
+    gguf = ROOT / ".runtime/models" / enhanced_lock["gguf"]["filename"]
+    if not gguf.is_file():
+        # Reuse the content-addressed native blob, including in an installed kit
+        # without a second 2.5 GB source copy. Explicit provisioning is the only
+        # path allowed to download; ordinary startup remains entirely offline.
+        provision_artifacts("qwen-4b-gguf", offline=offline)
+        gguf = _blob("sha256:" + enhanced_lock["gguf"]["sha256"])
+    qdrant_port = urlsplit(profile["qdrant"]["url"]).port
+    assert qdrant_port is not None  # load_profile requires an explicit service port.
+    reserved = {profile["app"]["port"], qdrant_port, qdrant_port + 1}
+    # At most three declared ports are reserved, so this choice is bounded.
+    # Occupation of the chosen port still fails below; no existing server is
+    # contacted or stopped to make room for the provisioning process.
+    provision_port = next(port for port in range(11444, 11448) if port not in reserved)
+    profile = {**profile, "llm": {**profile["llm"], "base_url": f"http://127.0.0.1:{provision_port}"}}
     llm = profile["llm"]
-    source_name = llm.get("source_model", llm["model"])
     with port_probe() as probe:
-        probe.bind(("127.0.0.1", 11444))
+        probe.bind(("127.0.0.1", provision_port))
     paths = native_paths()
     directory = ROOT / ".runtime/provision-service"
     env = model_pull_environment(profile, directory, profile_path)
@@ -708,39 +723,15 @@ def pull_model(profile_path: Path, offline: bool = False) -> dict:
         child = job.launch([str(paths["ollama"]), "serve"], cwd=ollama_working_directory(paths["ollama"]), env=env,
                            log_path=directory / "ollama-pull.log")
         wait_http(llm["base_url"] + "/api/version", child, "0.35.0")
-        with httpx.Client(timeout=httpx.Timeout(300, connect=10), trust_env=False) as client:
-            notified: dict[str, int] = {}
-            if not offline:
-                with client.stream("POST", llm["base_url"] + "/api/pull",
-                                   json={"model": source_name, "stream": True}) as response:
-                    response.raise_for_status()
-                    for line in response.iter_lines():
-                        if not line:
-                            continue
-                        event = json.loads(line)
-                        if "error" in event:
-                            raise RuntimeError(event["error"])
-                        digest = event.get("digest", "status")
-                        completed = event.get("completed", 0)
-                        if completed - notified.get(digest, -67108864) >= 67108864 or event.get("status") == "success":
-                            print(f"Modèle : {event['status']} {completed / 1048576:.0f} Mio", flush=True)
-                            notified[digest] = completed
-            model, details = _model_record(client, llm["base_url"], source_name, llm["required_quantization"])
-            source: dict[str, Any] = {"model": model, "model_info": details.get("model_info"), "details": details.get("details"),
-                                      "template": details.get("template"), "parameters": details.get("parameters"),
-                                      "license": details.get("license"), "provisioned_at_utc": datetime.now(UTC).isoformat(),
-                                      "inference_validated": False, "source": f"https://ollama.com/library/{source_name}"}
-            source_manifest_path = ROOT / llm.get("source_model_manifest", SOURCE_MODEL_MANIFEST)
-            if offline and source_manifest_path.is_file():
-                recorded = json.loads(source_manifest_path.read_text(encoding="utf-8"))
-                if recorded.get("model", {}).get("digest") != model.get("digest"):
-                    raise RuntimeError("Modèle source local différent du manifeste provisionné")
-                source = recorded
-            else:
-                write_json_atomic(source_manifest_path, source)
-            result = source
-            if llm["model"] != source_name:
-                result = _derive_text_model(client, llm["base_url"], profile, env, directory, source)
+        # This local tag is created only from the verified official GGUF.
+        from tempfile import TemporaryDirectory
+
+        from tools.qualification.provision_enhanced_4b import provision as import_enhanced
+
+        with TemporaryDirectory(prefix="rag-enhanced-profile-") as temporary:
+            adjusted = Path(temporary) / "profile.json"
+            adjusted.write_text(json.dumps(profile, ensure_ascii=False), encoding="utf-8")
+            result = import_enhanced(adjusted, paths["ollama"], gguf)
         send_owned_console_interrupt(child, "ollama")
         try:
             child.wait(30)
@@ -753,7 +744,7 @@ def pull_model(profile_path: Path, offline: bool = False) -> dict:
         raise RuntimeError(f"Stockage Ollama différent du verrou {MODELS_LOCK} après pull-model : {differences}. "
                            "Contrôle limité aux modèles du profil, avec les critères de doctor ; les fichiers du stockage "
                            "sont conservés pour diagnostic.")
-    return result["model"]
+    return result
 
 
 # Service Ollama de provisionnement (dossier de pull_model) ; la sonde de découverte y tient son propre journal.
@@ -866,7 +857,9 @@ def provision(profile_path: Path, only: str | None = None, offline: bool = False
     complements: list[dict] = []
     if profile is not None and signals is not None:
         skip_groups, complements = gpu_complement(profile, only, signals)
-    tokenizer_model_id = (profile or {}).get("llm", {}).get("tokenizer_model_id", "Qwen/Qwen3.5-4B")
+    if skip_model and not only:
+        skip_groups = skip_groups | {"qwen-4b-gguf"}
+    tokenizer_model_id = (profile or {}).get("llm", {}).get("tokenizer_model_id", "Qwen/Qwen3-4B")
     provision_artifacts(only, offline=offline, skip_groups=skip_groups, signals=signals,
                         tokenizer_model_id=tokenizer_model_id)
     if not only:
@@ -882,10 +875,11 @@ def provision(profile_path: Path, only: str | None = None, offline: bool = False
         if offline:
             llm = profile["llm"]
             source = ROOT / llm.get("source_model_manifest", SOURCE_MODEL_MANIFEST)
-            if not source.is_file():
+            if not source.is_file() and llm["model"] != GENERATION_MODEL:
                 raise FileNotFoundError("Modèle Ollama non provisionné pour installation offline")
             if not (ROOT / llm.get("model_manifest", SOURCE_MODEL_MANIFEST)).is_file():
-                # La dérivation texte seul est locale : elle reste permise hors ligne.
+                # The enhanced tag is created locally from the locked GGUF;
+                # its first import cannot require its own resulting manifest.
                 model = pull_model(profile_path, offline=True)
                 record_provision_discovery(profile, profile_path, signals, method="pull_model")
                 return model
@@ -963,7 +957,7 @@ def main() -> int:
     parser.add_argument("command", choices=["provision", "doctor", "up", "status", "logs", "down", "_serve", "pull-model", "backup", "restore", "verify", "open", "init-profile", "selftest"])
     parser.add_argument("--profile", type=Path, help="Profil utilisateur explicite, exclusif de --model")
     parser.add_argument("--model",
-                        help=f"Modèle du profil livré (défaut : {DEFAULT_MODEL} ; --model qwen3.5:2b pour le 2B)")
+                        help=f"Générateur unique du profil renforcé (défaut : {DEFAULT_MODEL})")
     parser.add_argument("--only")
     parser.add_argument("--offline", action="store_true")
     parser.add_argument("--skip-model", action="store_true")
@@ -988,6 +982,8 @@ def main() -> int:
                                              platform=platform_id(), mode="cpu", available_models=available,
                                              manual_model=args.model)
         args.profile = (ROOT / selection["profile"] if selection else model_profile_path(args.profile, args.model))
+        if args.command in {"up", "_serve", "init-profile", "provision", "pull-model"}:
+            require_generation_profile(load_profile(args.profile))
         # Commandes citées par ce processus dans une installation : modèle et profil de l'utilisateur en usage.
         use_profile(args.profile)
         if args.command == "_serve":

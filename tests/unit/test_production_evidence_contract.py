@@ -154,26 +154,34 @@ def test_literal_question_answer_preserves_the_entire_assertion_and_qualifier(qu
     assert ledger["references"][0]["source_span_complete"] is True
 
 
-@pytest.mark.parametrize(("question", "source", "status"), [
-    ("Sous quelle condition la vanne est-elle ouverte ?", "La trappe est ouverte uniquement lorsque la pression est stabilisée.", "partial"),
-    ("Under what condition is the latch locked?", "The latch is painted when the lever is down.", "partial"),
-    ("Under what condition is the latch locked?", "The latch is not locked when the lever is down.", "partial"),
-    ("Under what condition is the latch locked?", "The latch is locked.", "partial"),
-    ("Pourquoi la tension nominale est-elle de 3,3 V ?", "Nominal voltage: 3.3 V.", "partial"),
-    ("Pourquoi la vanne est-elle ouverte ?", "La vanne est ouverte uniquement lorsque la pression est stabilisée.", "partial"),
-    ("Under what condition is it locked?", "It is locked when the lever is down.", "ambiguous"),
-    ("Under what condition is the latch locked?", "The latch is possibly locked when the lever is down.", "ambiguous"),
-    ("Under what condition is the latch locked?", "The latch is locked when the lever is down. This statement is unverified.", "ambiguous"),
+@pytest.mark.parametrize(("question", "source", "status", "related_diagnostic"), [
+    ("Sous quelle condition la vanne est-elle ouverte ?", "La trappe est ouverte uniquement lorsque la pression est stabilisée.", "partial", False),
+    ("Under what condition is the latch locked?", "The latch is painted when the lever is down.", "partial", False),
+    ("Under what condition is the latch locked?", "The latch is not locked when the lever is down.", "partial", True),
+    ("Under what condition is the latch locked?", "The latch is locked.", "partial", True),
+    ("Pourquoi la tension nominale est-elle de 3,3 V ?", "Nominal voltage: 3.3 V.", "partial", False),
+    ("Pourquoi la vanne est-elle ouverte ?", "La vanne est ouverte uniquement lorsque la pression est stabilisée.", "partial", True),
+    ("Under what condition is it locked?", "It is locked when the lever is down.", "ambiguous", True),
+    ("Under what condition is the latch locked?", "The latch is possibly locked when the lever is down.", "ambiguous", True),
+    ("Under what condition is the latch locked?", "The latch is locked when the lever is down. This statement is unverified.", "ambiguous", True),
 ])
-def test_an_answer_like_passage_does_not_establish_an_absent_or_qualified_fact(question, source, status):
+def test_an_answer_like_passage_does_not_establish_an_absent_or_qualified_fact(question, source, status, related_diagnostic):
     cat = catalogue(question, [complete_excerpt("R001", source)])
     answer = render(cat, ["R001"])
     assert answer["answer_contract"]["status"] == status
     assert not answer["answer_contract"]["matched_qualitative_relations"]
-    assert source in answer["text"]
-    assert cat.deterministic_plan() is None
+    assert cat.support_ledger()["references"][0]["literal"]["text"] == source
+    if related_diagnostic:
+        assert source in answer["text"]
+        assert cat.deterministic_plan() is None
+    else:
+        # I5 excludes an unrelated literal instead of making it model evidence.
+        assert source not in answer["text"]
+        assert cat.model_view()["reference_ids"] == []
+        assert cat.deterministic_plan().references == []
+        assert answer["answer_contract"]["interpretation_limitations"]
     assert answer["support_validation"]["status"] == "passed"
-    if question.startswith("Pourquoi"):
+    if question.startswith("Pourquoi") and related_diagnostic:
         assert "L'explication causale demandée n'est pas explicitement établie" in answer["text"]
         assert not answer["answer_contract"]["matched_relations"]
 
@@ -224,7 +232,9 @@ def test_an_explicitly_missing_field_or_condition_does_not_become_an_established
 
 def test_source_boundary_is_recomputed_from_the_database_and_cannot_be_asserted_by_a_source_hint(storage):
     text = "Context. The latch is locked when the lever is down."
-    import_fixture(storage, text=text)
+    # Explicit native-text double; this test targets clipping, not unknown OCR.
+    import_fixture(storage, text=text, pages=[{"page_index": 0, "width": 595, "height": 842,
+        "blocks": [{"id": "b0", "text": text, "metadata": {"extraction_method": "native", "ocr_used": False}}]}])
     search, snapshot, db = library_search(storage)
     chunk = db.one("SELECT * FROM chunks LIMIT 1")
     source = search.resolver.source_for_chunk(chunk, snapshot)
@@ -242,7 +252,9 @@ def test_source_boundary_is_recomputed_from_the_database_and_cannot_be_asserted_
 
 def test_complete_verified_database_passage_answers_the_simple_question_without_a_model(storage):
     text = "Le boîtier est étanche uniquement lorsque le couvercle est fermé."
-    import_fixture(storage, text=text)
+    # Explicit native-text double; the body/coverage assertions are unchanged.
+    import_fixture(storage, text=text, pages=[{"page_index": 0, "width": 595, "height": 842,
+        "blocks": [{"id": "b0", "text": text, "metadata": {"extraction_method": "native", "ocr_used": False}}]}])
     search, snapshot, db = library_search(storage)
     source = search.resolver.source_for_chunk(db.one("SELECT * FROM chunks LIMIT 1"), snapshot)
     source["source_id"] = "S001"
@@ -277,8 +289,10 @@ def test_an_unrecognized_explanation_request_cannot_be_reduced_to_a_quantity_loo
     cat = catalogue(question, [complete_excerpt("R001", source)])
     answer = render(cat, ["R001"])
     assert answer["answer_contract"]["status"] == "partial"
-    assert source in answer["text"] and "L'explication demandée n'est pas établie" in answer["text"]
-    assert cat.deterministic_plan() is None
+    assert source not in answer["text"] and "limite d’analyse" in answer["text"]
+    assert cat.support_ledger()["references"][0]["literal"]["text"] == source
+    assert cat.model_view()["reference_ids"] == []
+    assert cat.deterministic_plan().references == []
 
 
 def list_catalogue(storage, case="S01", *, damage=None, first_only=False):
@@ -335,7 +349,9 @@ def test_a_list_title_is_neither_borrowed_from_outside_the_catalogue_nor_trusted
     assert not any(reference.get("list_context") for reference in cat.references)
     assert answer["answer_contract"]["status"] == "partial"
     assert not answer["answer_contract"]["matched_relations"]
-    assert cat.deterministic_plan() is None
+    assert cat.deterministic_plan().references == []
+    assert cat.model_view()["reference_ids"] == []
+    assert cat.references  # I5 retains the unbound literal only for audit.
 
 
 @pytest.mark.parametrize(("case", "first_only"), [("S07", False), ("S08", True)])

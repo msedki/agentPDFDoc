@@ -111,18 +111,18 @@ def test_rag_sh_help_lists_the_commands_and_options_of_rag_ps1(tmp_path):
         assert word in result.stdout
 
 
-def test_rag_sh_starts_the_4b_by_default_and_the_2b_on_request(tmp_path):
-    # W060 : sans option, le CLI garde le défaut runtime 4B ; la façade n'injecte pas de choix manuel.
-    # --model qwen3.5:2b et le profil explicite restent transmis tels quels.
+def test_rag_sh_forwards_the_single_enhanced_model_without_injecting_a_manual_default(tmp_path):
+    # La façade transmet les arguments à un double explicite ; le vrai CLI
+    # contrôle la politique 4B avant démarrage (test_i5_profile_entrypoints.py).
     root = project(tmp_path)
     usage = run(root / "rag.sh", "--help").stdout
-    assert "qwen3.5:4b (défaut)" in usage and "--model qwen3.5:2b pour le 2B" in usage and "qwen3.5:2b (défaut)" not in usage
+    assert "qwen3-4b-enhanced:q4km (défaut)" in usage and "qwen3.5:2b" not in usage
     default = json.loads(run(root / "rag.sh", "up").stdout)
     assert default["argv"] == ["-B", "-m", "services.runtime.cli", "up"]
-    two = json.loads(run(root / "rag.sh", "up", "--model", "qwen3.5:2b").stdout)
-    assert two["argv"] == ["-B", "-m", "services.runtime.cli", "up", "--model", "qwen3.5:2b"]
-    explicit = json.loads(run(root / "rag.sh", "up", "--profile", "/profils/poste-2b.yaml").stdout)
-    assert explicit["argv"] == ["-B", "-m", "services.runtime.cli", "up", "--profile", "/profils/poste-2b.yaml"]
+    enhanced = json.loads(run(root / "rag.sh", "up", "--model", "qwen3-4b-enhanced:q4km").stdout)
+    assert enhanced["argv"] == ["-B", "-m", "services.runtime.cli", "up", "--model", "qwen3-4b-enhanced:q4km"]
+    explicit = json.loads(run(root / "rag.sh", "up", "--profile", "/profils/poste.yaml").stdout)
+    assert explicit["argv"] == ["-B", "-m", "services.runtime.cli", "up", "--profile", "/profils/poste.yaml"]
 
 
 @pytest.mark.parametrize(("args", "message"), [
@@ -363,18 +363,18 @@ INSTALLED_NETWORK_REFUSAL = ("{command} télécharge des artefacts ou un modèle
                              + " ; rien n'a été téléchargé.")
 
 
-@pytest.mark.parametrize("args", [[], ["up"], ["doctor"], ["backup"], ["up", "--model", "qwen3.5:4b"]],
+@pytest.mark.parametrize("args", [[], ["up"], ["doctor"], ["backup"], ["up", "--model", "qwen3-4b-enhanced:q4km"]],
                          ids=["defaut", "up", "doctor", "backup", "up-4b"])
 def test_rag_sh_in_an_installation_refuses_the_shipped_profile(tmp_path, args):
     # Sans cette garde, `./rag.sh up` d'une installation écrivait .runtime/data et .runtime/control dans le dossier programme.
     result = run(installed_project(tmp_path) / "rag.sh", *args)
-    command = next((arg for arg in args if not arg.startswith("-") and arg != "qwen3.5:4b"), "doctor")
+    command = next((arg for arg in args if not arg.startswith("-") and arg != "qwen3-4b-enhanced:q4km"), "doctor")
     assert result.returncode == 1 and result.stdout == ""
     assert result.stderr.strip() == INSTALLED_GUARD.format(command=command)
 
 
 @pytest.mark.parametrize("args", [["up", "--profile", "/donnees/profile.yaml"], ["init-profile", "--target", "/donnees"],
-                                  ["init-profile", "--model", "qwen3.5:4b", "--target", "/donnees"], ["verify", "--path", "/s"],
+                                  ["init-profile", "--model", "qwen3-4b-enhanced:q4km", "--target", "/donnees"], ["verify", "--path", "/s"],
                                   ["restore", "--path", "/s", "--target", "/r"]],
                          ids=["profil-utilisateur", "init-profile", "init-profile-4b", "verify", "restore"])
 def test_rag_sh_in_an_installation_accepts_a_user_profile_and_profile_free_commands(tmp_path, args):

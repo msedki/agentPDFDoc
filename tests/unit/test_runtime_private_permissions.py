@@ -101,7 +101,7 @@ def test_restore_creates_private_root_control_and_qdrant_key(tmp_path, monkeypat
 
 
 def test_admin_key_is_private_before_job_creation_and_removed_on_failure(tmp_path, monkeypatch, permissive_umask):
-    profile, data = _profile(tmp_path, monkeypatch)
+    profile, data = _profile(tmp_path, monkeypatch, active=True)
     observed = {}
 
     def refused_job_double():
@@ -142,7 +142,7 @@ def test_qdrant_key_refuses_preexisting_links_without_modifying_them(tmp_path, l
 
 @pytest.mark.parametrize("link_kind", ["symlink", "hardlink"])
 def test_supervisor_does_not_remove_or_modify_rejected_admin_key(tmp_path, monkeypatch, link_kind):
-    profile, data = _profile(tmp_path, monkeypatch)
+    profile, data = _profile(tmp_path, monkeypatch, active=True)
     control = data / "control"
     control.mkdir(parents=True)
     control_mode = mode(control)

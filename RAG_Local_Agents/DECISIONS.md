@@ -2374,3 +2374,244 @@ Le choix est de conserver le résultat primaire et le gel, de documenter l'éche
 Les nouveaux besoins de preuve portent sur la couverture réelle du corps des pages, l'association géométrique des cellules aux colonnes et sous-lignes, et la conservation des propriétés demandées jusqu'au plan et au rendu. Ils restent non résolus dans ce gel. Une nouvelle correction devra utiliser des cas de développement distincts et une qualification renouvelée ; les sorties de ce transfert ne servent à aucun réglage produit pendant cette campagne. Les limites de ressources, le générateur 4B et les critères préalables ne sont pas assouplis.
 
 **Preuves :** [bilan I4](reports/production-4b-results-2026-11-08.md), [protocole figé](reports/production-4b-protocol-2026-11-08.md), revues conservées du transfert et comparaison des deux extractions. Cette décision porte sur la qualification ; elle ne prétend pas qu'un mécanisme de diffusion en production a été exécuté.
+
+
+## EV4B-I5-D01 — priorités de confiance et séparation de la preuve
+
+**Date :** 8 novembre 2026, avant modification produit. **Statut :** décision d'implémentation, validation à exécuter. **Sources :** EV4B-I5-S01/S02/E01 ; [protocole préalable](reports/trust-4b-protocol-2026-11-08.md), critères I5-D01 à D09.
+
+**Contexte :** les contre-exemples I4 montrent qu'une citation textuellement exacte peut conserver un rôle de colonne faux ou une erreur OCR ; une plage présente au contexte peut être perdue au rendu. Le système doit contrôler les liens qui justifient chaque affirmation et l'intégralité des besoins répondables.
+
+**Choix :** conserver Qwen3-4B et les caps ; ajouter une preuve géométrique des tableaux et une couverture du corps de page, un contrat borné d'obligations composées avant génération et leur conservation après plan, des segments de source utiles avec dépendances, puis des témoins de lecture OCR et un blocage local des relations ambiguës. Le builder recharge les métadonnées depuis la version DB autorisée et revalide les liaisons ; les hits de recherche ne font pas autorité. Les métadonnées existantes suffisent, aucune migration SQL prévue. La route déterministe reste possible lorsque toutes les obligations sont établies. Une analyse non prise en charge ne doit pas déclarer le fait absent des sources.
+
+**Validation :** témoins de développement anciens et génériques, ablations bornées, extractions et réponses natives puis transfert nouveau figé sans retouche produit après ouverture ; fidélité et utilité mesurées ensemble. Le préparateur d'oracles ne modifie pas le produit. Un accord OCR n'est pas une preuve universelle de vérité ; les limites de reconnaissance non résolues restent explicites. **Conséquences :** les anciennes extractions dépourvues de preuve suffisante peuvent nécessiter une réingestion pour de nouvelles relations quantitatives ; leurs originaux/citations historiques restent conservés. Aucune diffusion de production autorisée par le seul commit. **Retour arrière :** rétablir les sources de référence et réindexer dans une nouvelle génération ; ne pas écraser les anciennes révisions/citations.
+
+
+## EV4B-I5-D02 — préserver les conditions hors cellules et les unités explicites
+
+**Date :** 2026-11-08 20:37 UTC, avant extension. **Constat de développement :** des conditions générales de tableaux sont des blocs voisins distincts ; une bonne attribution Min/Typ/Max ne suffit pas si ces conditions disparaissent. Le registre d'unités ne reconnaît pas ns ni la capacité d'une charge. **Décision :** témoin géométrique borné des fragments conditionnels exacts avec en-tête/qualificateur explicite, identités et offsets, revalidé depuis les blocs de la révision et dans le scope. Le paquet conserve atomiquement les conditions nécessaires dans son budget ; une proximité seule ne prouve pas une association. Tout assemblage de texte natif doit provenir de glyphes réellement mappés, avec texte parseur conservé, sans correction symbolique présumée. Extension SI limitée à ns et F/pF/nF/µF (EV4B-I5-S03) ; aucun changement du modèle, du contexte, du délai ou de la réserve mémoire.
+
+## I5-D03 — générateur unique à tous les points d’entrée et ressources bornées (8 novembre 2026 UTC)
+
+**Contexte :** les campagnes explicites sur enhanced-4b ne prouvaient pas les defaults API/CLI, qui sélectionnaient encore 2B ou le 4B historique sans contrôles. La revue a aussi observé une allocation cartésienne des obligations avant budget de tokens et un retour précoce avant contrôle du store dans le nouvel import.
+
+**Décision acquise :** profil unique Qwen3-4B Q4_K_M à la génération, garde stricte avant démarrage, chemins absents refusés, vue vérifiée et contexte final recompté. Catalogue et distribution uniques, modèles auxiliaires non génératifs conservés, anciennes configurations réservées à la maintenance/aux archives. Provisionnement explicite du GGUF et du tokenizer depuis leurs références déjà verrouillées, import officiel puis vérification du store après arrêt du service possédé ; pas de téléchargement au démarrage documentaire.
+
+**Bornes :** critères préalables dans les addenda points d’entrée et ressources, distincts du protocole gelé. 256 obligations /65 536 caractères cumulés de clauses avant allocation ; erreur explicite de complexité, aucune troncature présentée comme complète. Harnais direct supervisé à 1 500 s comme HTTP, pour les deux bras ; délais produit inchangés.
+
+**Conséquences :** les tests des anciens démarrages migrent vers un profil renforcé valide tout en préservant leurs assertions de ressources/arrêt/intégrité ; les contrôles de maintenance gardent leurs archives. Le filtre de kit et les tests d’import ne qualifient pas une nouvelle installation Windows/aarch64. La vérification finale doit conserver ses échecs et limites, sans promotion automatique en production.
+
+
+## I5-D04 — migrations explicites et grammaires bornées, 08/11/2026
+
+**Contexte observé :** un catalogue nominal contenant un seul modèle rendait
+vide la différence entre profils et pouvait conserver l'ancien générateur lors
+d'une dérivation ; le premier import hors ligne exigeait le manifeste qu'il
+devait justement créer ; le port temporaire fixe pouvait contredire le profil.
+
+**Décision :** la migration explicite adopte les paramètres et contrôles du
+profil renforcé, conserve les autres réglages de l'utilisateur et refuse les
+chemins persistants relatifs ou absents dont l'origine serait ambiguë. Les deux
+validateurs sont chargés depuis les seuls fichiers vérifiés avant copie. Le
+provisioning hors ligne peut importer le GGUF déjà vérifié localement ; le port
+choisi est distinct des ports API/Qdrant déclarés, et un port occupé reste un
+refus. Aucun service utilisateur n'est arrêté pour libérer ce port. Les tests
+avec doubles ne sont pas une preuve d'installation fraîche native.
+
+**Non-régression des tables :** les intégrations réelles ont montré que le
+contrôle de géométrie Min/Typ/Max rejetait aussi les tableaux ordinaires à trois
+colonnes libellé/valeur/unité. L'extension autorise seulement leurs trois
+ancrages littéraux, uniques, sur la première bande géométrique. « Valeur »
+établit une quantité sans rôle statistique ; « typique », « nominal » ou une
+borne restent à justifier explicitement. Les assertions historiques de table,
+de localisation et d'état `ready` ne sont pas abaissées.
+
+## I5-D05 — accord OCR et diagnostic lexical, 08/11/2026
+
+**Contre-exemple de développement :** deux appels OCR et l'ancien contrôle de
+croix étaient d'accord sur un signe « + » alors que le raster exact montre
+« ± ». Le contrôle complémentaire observe désormais les bandes horizontales,
+y compris lorsqu'elles se touchent, et exige de la place sous le signe. Les
+anciennes attestations de signe ne sont pas promues par le nouveau contrat :
+`leading-plus-raster-v2` est requis. Le texte OCR original reste inchangé ; la
+donnée douteuse devient indisponible à la publication. L'ablation sur les mêmes
+pixels bloque le mauvais signe et conserve deux signes positifs réels. Elle ne
+prouve pas la correction de toutes les formes OCR.
+
+Le diagnostic d'absence de recouvrement lexical des identifiants conserve son
+code historique et sa métrique, mais précise son périmètre
+`lexical_overlap_only` : il ne juge pas les cellules, relations et calculs
+vérifiés séparément. Il ne doit pas contredire une réponse déterministe étayée.
+Les trente contrôles primaires, exécutés avant cette clarification, gardent
+leurs observations originales ; deux plans adverses non exercés par la nouvelle
+route restent des échecs de leur critère figé.
+
+## I5-D06 — relecture OCR sans agrandissement et repère local du tableau, 08/11/2026
+
+**Observation :** dans l'intégration du tableau tourné à 90°, l'agrandissement
+du même raster abaisse la confiance de « °C » à 0,75387695, alors que la première
+lecture atteint 0,9462899. L'ablation bornée sur ces mêmes pixels donne 0,94908302
+sans agrandissement ; changer PSM 6 en PSM 7 n'apporte aucun changement observé.
+Les quatre essais, les rasters et les paramètres sont conservés dans le reçu
+privé `degree-confidence-ablation.json`. Cela ne constitue pas une qualification
+générale de l'OCR.
+
+**Décision :** conserver PSM 6 et le seuil minimal 0,8 ; permettre une seule
+relecture à facteur 1 uniquement si la lecture agrandie à facteur 2 présente
+déjà un accord littéral et géométrique bijectif et si son seul défaut est une
+confiance valide mais insuffisante. Aucun désaccord, signe ambigu, score invalide
+ou défaut de la première lecture ne peut déclencher ce rattrapage. Les deux
+lectures candidates restent enregistrées, leurs dimensions et hashes sont
+recontrôlés, et leurs coordonnées reviennent au même repère PDF physique. Un
+nouveau désaccord reste incertain. L'appel et ses pixels consomment les plafonds
+existants de 32 appels et 13 millions de pixels par région ; aucun seuil ni
+budget n'est augmenté.
+
+**Table tournée :** le repère utilisé pour attribuer lignes et colonnes doit
+suivre la correction d'orientation réellement observée et liée à la région,
+au raster et à la page. Les coordonnées publiées restent celles du PDF. Un
+témoin absent, contradictoire ou ne correspondant pas aux données persistées
+ne peut justifier une relation. Les tests purs et les huit intégrations OCR
+réelles doivent confirmer séparément ces deux corrections.
+
+
+## I5-D07 — diagnostic conditionnel et fragments de lignes, 09/11/2026
+
+**Constats de développement :** le candidat de phase 5 refuse correctement
+l'extrapolation H03 mais ne cite pas la plage garantie qui justifie sa limite.
+Dans SCAN2, le bandeau de conditions est réparti en treize blocs OCR alors
+qu'il occupe deux lignes visuelles ; le plafond de huit pièces le rend
+indisponible. Une sonde distincte de vingt-quatre lectures, segmentées et
+conservées, ne récupère pas correctement les unités et indices sensibles.
+Elle n'autorise donc aucune substitution de symboles ni promotion de lecture.
+
+**Décision :** un passage présentant une plage explicitement garantie peut
+justifier la limite d'une condition demandée hors de cette plage. Il ne
+couvre jamais la grandeur recherchée ni une valeur hors plage. Le lecteur
+reconnaît l'espace typographique de l'unité `° C` tout en conservant le texte
+et les offsets originaux. Les inégalités, amplitudes ±, approximations,
+restrictions du passage complet, ambiguïtés de sujet et qualité insuffisante
+interdisent ce diagnostic quand leur sens n'est pas établi. La relecture
+indépendante a trouvé puis fait corriger deux contre-exemples avant gel.
+
+Les fragments d'un bandeau peuvent être regroupés en pièces de ligne sous
+un format v2 explicite si le repère, la bande verticale commune, l'ordre
+horizontal et l'espacement le permettent sans ambiguïté. Chaque fragment
+garde son identifiant, son hash, ses offsets, sa page et son rectangle ;
+aucun bloc de texte artificiel ne devient une source. La reconstruction est
+refaite depuis les blocs autorisés de la révision, puis chaque fragment subit
+le contrôle de lecture et de périmètre avant publication. Les maxima restent
+huit pièces, 256 blocs examinés et 4 096 caractères. Le format antérieur est
+conservé à l'identique quand il satisfait déjà le plafond.
+
+**Portée de preuve :** ces corrections sont vérifiées sur des témoins de
+développement et des contre-exemples synthétiques. Le regroupement de lignes
+ne répare pas les lectures OCR incertaines de SCAN2 et ne clôt pas I5-D04.
+La nouvelle ingestion impose des extractions complètes neuves dans la phase 6.
+Les résultats natifs, les limites et les revues restent dans les rapports
+[de preuve](reports/trust-4b-evidence-2026-11-08.md),
+[d'ingestion](reports/trust-4b-ingestion-2026-11-08.md) et
+[de développement](reports/trust-4b-development-review-2026-11-09.md).
+
+## I5-D08 — reprise du harnais sans réécriture des primaires, 09/11/2026
+
+Le bloc candidat B de phase 5 échoue avant démarrage avec un port indisponible.
+Sa cause historique exacte reste inconnue. Un contre-exemple de socket
+distinct démontre que la sonde ordinaire du harnais peut refuser un port en
+`TIME_WAIT` que le helper du runtime peut réutiliser. Le harnais adopte ce
+helper existant ; les écouteurs actifs restent refusés et aucun service
+étranger n'est arrêté. Les budgets de cas, de bloc et du modèle ne changent pas.
+
+Le reçu initial et les questions non exécutées restent au dénominateur de
+phase 5. La phase 6, le réservé v3 et HTTP v4 sont des préparations distinctes,
+sans nouvelle tentative primaire implicite. Les portes code finales passent
+avant l'ouverture du réservé pour permettre la correction de régressions
+logicielles sans exposition aux oracles. Cet ordre, déclaré préalablement,
+ne change aucun critère du protocole. Voir le
+[rapport du harnais](reports/trust-4b-harness-recovery-2026-11-09.md) et
+l'[addendum d'ordonnancement](reports/trust-4b-final-blocks-addendum-2026-11-09.md).
+
+## I5-D09 — cadres de source bornés et réserves répétées, 09/11/2026
+
+La phase 6 conserve trois erreurs `trace_write_failed` et une omission de
+réserve dans L13. Le contrôle hors moteur des charges H06/H08 établit un
+dépassement reproductible de la limite de nœuds lorsque les diagnostics OCR
+complets d'une page sont répétés dans chaque fragment. Le classement de ce
+contrôle est simulé et ne reconstitue pas le classement natif disparu.
+
+Les fragments transportent désormais un cadre de localisation explicite.
+Les diagnostics complets restent en base et dans l'accès de page ; leur JSON
+exact est identifié par hash lorsqu'ils sont omis de ce cadre. Les lecteurs
+d'autorité recontrôlent toujours les enregistrements complets. Aucune limite
+de trace ou de mémoire n'est augmentée, aucune preuve source n'est supprimée.
+
+Une restriction suivante peut être rattachée au même sujet nominal répété,
+dans une grammaire littérale bornée. La revue trouve puis fait corriger les
+faux rattachements entre deux points de température ou deux composants nommés
+dans leurs prédicats. Seule une négation simple, explicitement limitée à un
+contexte distinct établi, est écartée. La grammaire de conditions numériques
+existante est partagée sans changement avec les obligations ; les équivalences
+d'unités utilisent les conversions décimales déjà contrôlées. Les restrictions
+exclusives, globales ou ambiguës restent dans l'enveloppe. Les contre-exemples,
+échecs et limites figurent dans le
+[rapport des frontières de source](reports/trust-4b-source-boundaries-2026-11-09.md).
+
+## I5-D10 — sujet explicite de page et sections sœurs de tableau, 09/11/2026
+
+Les lignes H07 contiennent les valeurs et conditions, mais aucun sujet local.
+Un nom de fichier ne peut combler cette absence. Pour un tableau PDF revalidé,
+le catalogue peut utiliser un en-tête de page autonome contenant exactement un
+identifiant explicite : page entière autorisée, génération/révision/texte/hash
+recontrôlés en base, en-tête unique au-dessus du corps et du tableau dans le
+repère affiché, qualité native ou corroborée, absence de sujet local concurrent.
+Cet en-tête doit déjà être retenu dans le catalogue et devenir une dépendance
+citée ; aucune recherche supplémentaire n'est déclenchée pour contourner le
+budget. Une portée tronquée, un témoin ambigu ou un contexte concurrent refuse
+ce rattachement. Le nom du fichier ne fournit plus le sujet d'un tableau PDF
+revalidé. Les autres voies conservent leur contrat antérieur.
+
+La relecture du catalogue H07 découvre ensuite qu'une ligne de section reçoit
+la section sœur précédente comme parent. La section courante reste vérifiée
+par ses glyphes et sa géométrie ; seule cette fausse dépendance est retirée.
+Les lignes de données continuent d'exiger leur section propre, les en-têtes et
+leurs autres dépendances. Aucun état de qualité n'est promu directement.
+Le rejeu hors moteur reconstruit les annotations depuis la base en conservant
+exactement les spans retenus. Son résultat positif ne remplace pas l'échec
+natif de phase 6 et doit être confirmé par le suivi natif suivant.
+
+## I5-D11 — sujet de prose et dépendance de citation, 09/11/2026
+
+La phase 7 laisse H06 et H08 sans sujet admissible malgré leurs passages et
+l'en-tête imprimé présents dans le catalogue. Le témoin de page peut désormais
+s'appliquer à un paragraphe ou item PDF complet, natif ou corroboré, revalidé
+depuis la même révision et autorisé dans une page entière. Les identifiants
+locaux gardent priorité ; un contexte concurrent ou un tableau ne peut être
+contourné par cette voie de prose. Le nom de fichier ne fournit plus le sujet
+de ces blocs PDF revalidés.
+
+Un titre imprimé complet peut aussi fournir son identifiant initial explicite
+et unique. Il doit déjà être retenu, dominer le corps dans le repère vérifié et
+ne présenter aucune autorité concurrente. Le texte complet, son hash, ses
+coordonnées, sa qualité et sa révision restent recontrôlés ; seul le segment
+d'identité utilisé est ajouté à la citation. Un en-tête composite peut révéler
+un conflit, mais ne devient pas une autorité positive par cette règle. Aucun
+fragment supplémentaire n'est récupéré, aucun plafond n'est contourné.
+
+Lorsqu'un passage admis emprunte cette identité, sa sélection impose la
+dépendance exacte dans la réponse. La restitution et son budget traitent les
+deux éléments ensemble ; le contrôle final refuse la valeur privée de son
+témoin. Cette fermeture n'ajoute pas un nouveau fait diagnostique au plan et
+ne s'applique pas à un fait qualitatif autonome qui n'emprunte pas le titre.
+
+Le contrôle hors moteur rétablit H06/H08 et INA226, mais conserve une régression
+TMP117 : des éléments de navigation OCR incertains et une ligne native de
+révision sont classés comme corps au-dessus du titre. L'original permet
+d'identifier le pictogramme, sans fournir une règle structurelle générale qui
+autorise à écarter toute la bande. Aucune exception de texte, de fabricant ou
+de corpus n'est introduite. Le refus TMP reste un échec de complétude à mesurer
+dans le suivi natif 8 ; les réussites de phase 7 restent historiques.
+
+Cette décision ne change ni la grammaire des valeurs, ni les règles de garantie,
+ni les critères de réception. La revue, les contre-exemples et les résultats
+sont conservés dans le [rapport des preuves](reports/trust-4b-evidence-2026-11-08.md)
+et le [bilan I5](reports/trust-4b-results-2026-11-08.md).

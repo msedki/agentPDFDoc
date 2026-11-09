@@ -1,6 +1,28 @@
 # Definition of Done — RAG-LOCAL-16 V2.1
 
-**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; notes et preuves datées ci-dessous, compléments R27 sur produits `5204d2e`/`aabb9808`, historique conservé · **Mis à jour :** 2026-10-10 17:31 (UTC) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+**Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; notes et preuves datées ci-dessous, compléments R27 sur produits `5204d2e`/`aabb9808`, historique conservé · **Mis à jour :** 2026-11-09 (UTC ; complément I5, preuves historiques conservées) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
+
+## Complément I5 — diffusion comme application de confiance
+
+Les critères I5 sont fixés avant les essais dans le [protocole du 8 novembre](reports/trust-4b-protocol-2026-11-08.md), avec ses addenda [générateur unique](reports/trust-4b-entrypoints-addendum-2026-11-08.md) et [ressources](reports/trust-4b-resource-addendum-2026-11-08.md). Ils complètent les exigences historiques, sans les annuler.
+
+L’acceptation exige à la fois la fidélité de tous les segments publics, l’utilité des réponses positives, la pertinence des abstentions, la conservation des conditions et citations, les portes unitaires/intégration/natives, le nouveau transfert réservé, les ressources et l’arrêt des processus possédés. Une abstention sûre sur une question répondable ne satisfait pas son critère positif. Une vue de modèle filtrée ou un test avec doubles n’est pas une preuve générale de compréhension ni un essai natif.
+
+**État I5 après les portes finales et l’incident réservé : qualification non acquise.** Le gel final précède l’ouverture des oracles. Le suivi natif de développement se clôt à 12/14 positifs et 6/6 limites ; le contrôlé à 12/12 et 16/18. Le transfert réservé et HTTP n’ont aucun verdict applicatif après une rupture de continuité dont l’arrêt n’est pas prouvé. Les [résultats et critères I5](reports/trust-4b-results-2026-11-08.md) et la [revue réservée](reports/trust-4b-reserved-review-2026-11-09.md) conservent les observations, les 24 positions et les reçus.
+
+| Critère I5 | Statut au bilan | Motif et portée |
+|---|---|---|
+| D01 — fidélité | FAIL | Réserve globale injustifiée TMP117 ; tous les segments publics, réserves comprises, sont dans le critère. |
+| D02 — ingestion | PASS, périmètre prévu | H01/H03/H07 correctement liés, H02 récupéré, géométrie/couverture/provenance contrôlées ; aucune généralisation au transfert. |
+| D03 — complétude | FAIL | 12/14 positifs, SCAN2 et TMP117 en échec ; 6/6 limites distinctes. |
+| D04 — OCR | FAIL | Intégrations 8/8, ancien SCAN2 non complet, deux dérivés réservés non évalués. |
+| D05 — non-régression | FAIL | Contrôlé 16/18 limites, L11/L12 conservés ; Office 8/8 et portes logicielles réussies ne remplacent pas ces critères. |
+| D06 — transfert | BLOCKED | 12 positions de référence NOT_RUN, 12 candidates BLOCKED ; aucune réponse observée ni note documentaire. |
+| D07 — exploitation/coûts | BLOCKED | Preuves de développement conservées ; HTTP v4 NOT_RUN, arrêt du lot réservé interrompu non prouvé. |
+| D08 — reproductibilité | PARTIAL | Séparation/gels/ablations/matérialisation et absence d’ajustement acquis ; 24 mesures réservées et clôture du dernier lot manquantes. |
+| D09 — livraison | NOT_RUN à ce point | Contrôles documentaires et publication distante à consigner après vérification. |
+
+`PARTIAL` suit la matrice I5 du protocole et ne vaut pas `PASS`. Les anciennes recettes Windows/aarch64 et les kits historiques ne qualifient pas les nouveaux binaires ou le nouvel ensemble de modèles par héritage. Les exigences historiques ci-dessous sont conservées.
 
 **Livraison locale avec réserves — W038, 6 octobre 2026.** L'utilisateur
 retient la livraison pour le poste Linux aarch64 et met en attente la

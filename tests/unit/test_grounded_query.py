@@ -75,7 +75,7 @@ def test_ledger_is_captured_before_selection_and_verified_before_terminal(rag):
 
 @pytest.mark.parametrize("finish_reason", ["length", "cancelled"])
 @pytest.mark.parametrize("complete_plan", [False, True])
-def test_unfinished_reference_plan_publishes_no_text(rag, finish_reason, complete_plan):
+def test_unfinished_reference_plan_publishes_no_text(rag, monkeypatch, finish_reason, complete_plan):
     settings, db, _, indexer, _, _ = rag
     path = settings.data_dir / "originals" / "case.docx"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -85,6 +85,16 @@ def test_unfinished_reference_plan_publishes_no_text(rag, finish_reason, complet
     imported = db.import_original(path.name, hashlib.sha256(path.read_bytes()).hexdigest(), path)
     extraction = extract_office(path, settings.data_dir / "extraction", {}, imported["version_id"], "docx")
     asyncio.run(indexer.index(imported["job_id"], extraction))
+
+    def force_reference_selector(self, required_documents=()):
+        # I5 normally skips generation for this complete literal relation.
+        # This named route double isolates the unfinished-model boundary;
+        # source validation and every publication assertion remain active.
+        assert self.assess(required_documents=required_documents)["status"] == "covered"
+        assert self.model_view()["reference_ids"]
+        return None
+
+    monkeypatch.setattr(Catalogue, "deterministic_plan", force_reference_selector)
 
     class TruncatedGateway:
         async def stream(self, *args, **kwargs):
@@ -96,7 +106,7 @@ def test_unfinished_reference_plan_publishes_no_text(rag, finish_reason, complet
 
     service = service_for(rag, TruncatedGateway())
     query_id, result = run(service, QueryRequest(
-        question="Décris le fonctionnement du boîtier à partir de ce passage.",
+        question="Dans quelle condition le boîtier est-il étanche ?",
         scope=Scope(kind="documents", documentIds=[imported["document_id"]])))
     assert result["state"] == "error"
     assert result["metrics"]["model_call_attempted"] is True

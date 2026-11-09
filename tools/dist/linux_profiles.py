@@ -3,11 +3,11 @@
 `paths` : emplacements d'écriture d'un profil (données, stockage Qdrant, section `runtime`), résolus comme le runtime les
 résout depuis la racine du programme.
 `guard` : refus d'un profil rangé dans le programme ou qui y écrirait (garde de `rag.sh` dans une installation).
-`derive` : profil d'un autre modèle livré (W032) sur les mêmes données, ports et stockage qu'un profil existant. Seules
-les clés qui diffèrent entre les profils livrés des modèles (section `llm`, tokenizer, estimation de chargement) sont
-remplacées ; toutes les autres valeurs du profil existant sont conservées, y compris celles d'un profil restauré. Un
-profil déjà présent et identique au résultat est réutilisé ; différent, il est refusé sans être touché. `--check`
-contrôle sans écrire.
+`derive` : profil du modèle explicitement demandé sur les mêmes données, ports et stockage qu'un profil existant. La
+migration I5 reprend le modèle et ses contrôles du template renforcé, même quand le catalogue ne livre qu'un modèle ;
+les autres personnalisations sont conservées. Les archives historiques gardent la dérivation par différences W032.
+Un profil déjà présent et identique au résultat est réutilisé ; différent, il est refusé sans être touché. `--check`
+contrôle le résultat et sa configuration sans écrire. Aucune lecture de profil ne le convertit implicitement.
 `ports` : reprise des ports d'un profil (API, Qdrant, Ollama) quand ils sont libres, par exemple sur un profil restauré.
 """
 
@@ -19,7 +19,7 @@ import json
 import os
 import socket
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 # Racine du programme par le chemin reçu, liens non résolus (R4S-01) : les modules chargés par load_runtime_modules sont
@@ -27,10 +27,11 @@ from typing import Any
 PROGRAM = Path(os.path.abspath(__file__)).parents[2]
 # Modules de services.runtime que ce script exécute, dans l'ordre de leur chargement (artifacts importe accelerator et
 # platforms, accelerator importe platforms) : ceux de PRE_COPY_FILES (linux_install.py), vérifiés avant une dérivation contrôlée.
-RUNTIME_MODULES = ("platforms", "accelerator", "artifacts")
+LOCATION_MODULES = ("platforms", "accelerator", "artifacts")
+RUNTIME_MODULES = (*LOCATION_MODULES, "profile_schema", "generation_policy")
 
 
-def load_runtime_modules(root: Path) -> None:
+def load_runtime_modules(root: Path, modules: tuple[str, ...] = RUNTIME_MODULES) -> None:
     """Lancé comme script (python -B -I … linux_profiles.py, par l'environnement d'un programme installé, sur le code de ce
     programme ou d'un nouveau kit) : les modules de services.runtime sont chargés par leur chemin sous `root`, selon la recette
     « Importing a source file directly » d'importlib (Python 3.12). Les paquets `services` et `services.runtime` sont créés
@@ -45,7 +46,7 @@ def load_runtime_modules(root: Path) -> None:
         package.__path__ = []
         sys.modules[package.__name__] = package
     services.__dict__["runtime"] = runtime
-    for name in RUNTIME_MODULES:
+    for name in modules:
         spec = importlib.util.spec_from_file_location(f"services.runtime.{name}", root / "services/runtime" / f"{name}.py")
         if spec is None or spec.loader is None:
             raise ImportError(f"services/runtime/{name}.py introuvable dans {root}")
@@ -72,7 +73,7 @@ def load(path: Path) -> dict[str, Any]:
 def write_locations(profile: dict[str, Any], program: Path) -> dict[str, str]:
     """Emplacements où l'exécution écrit, résolus depuis la racine du programme comme dans supervisor et artifacts."""
     if not __package__ and "services.runtime.artifacts" not in sys.modules:
-        load_runtime_modules(PROGRAM)
+        load_runtime_modules(PROGRAM, LOCATION_MODULES)
     from services.runtime.artifacts import RUNTIME_LOCATIONS
 
     data = (program / profile["app"]["data_dir"]).resolve()
@@ -142,11 +143,87 @@ def assign(target: dict[str, Any], key: tuple[str, ...], value: Any, present: bo
         node.pop(key[-1], None)
 
 
+def enhanced_template_path(program: Path, relative: Any) -> Path:
+    """A declared template must stay inside the verified program tree."""
+    if not isinstance(relative, str) or not relative or "\\" in relative:
+        raise ValueError("Chemin du profil renforcé invalide dans le manifeste du kit")
+    path = PurePosixPath(relative)
+    if (path.is_absolute() or not path.parts or ".." in path.parts or ":" in path.parts[0]
+            or path.as_posix() != relative):
+        raise ValueError("Le profil renforcé doit être un chemin relatif canonique du kit")
+    target = program / relative
+    if not target.resolve().is_relative_to(program.resolve()) or not target.is_file():
+        raise ValueError("Profil renforcé absent ou hors du périmètre du kit")
+    return target
+
+
+def enhanced_profile(like: Path, template_path: Path) -> tuple[dict[str, Any], list[str]]:
+    """Explicit, minimal migration; validators never enrich preserved sections."""
+    from services.runtime.generation_policy import require_generation_profile
+    from services.runtime.profile_schema import validate_profile
+
+    template = load(template_path)
+    validate_profile(template, consumer="runtime")
+    require_generation_profile(template)
+    estimates = ("initial_llm_load_peak_estimate_mib", "warm_llm_additional_peak_estimate_mib")
+    if any(key not in template.get("resources", {}) for key in estimates):
+        raise ValueError("Le template renforcé doit déclarer ses deux estimations de chargement")
+    for key in ("model_manifest", "source_model_manifest", "tokenizer_dir"):
+        if not isinstance(template["llm"].get(key), str) or not template["llm"][key].strip():
+            raise ValueError(f"Le template renforcé doit déclarer llm.{key}")
+    source = load(like)
+    for section in ("llm", "enhanced", "resources", "retrieval"):
+        if section in source and not isinstance(source[section], dict):
+            raise ValueError(f"Section {section} du profil source ambiguë : table attendue")
+    base_url = source.get("llm", {}).get("base_url")
+    if not isinstance(base_url, str) or not base_url.strip():
+        raise ValueError("Adresse Ollama du profil source absente : dérivation refusée")
+    result = copy.deepcopy(source)
+    result["llm"] = {**copy.deepcopy(template["llm"]), "base_url": base_url}
+    result["enhanced"] = copy.deepcopy(template["enhanced"])
+    for key in estimates:
+        result.setdefault("resources", {})[key] = template["resources"][key]
+    result.setdefault("retrieval", {})["history_is_evidence"] = template["retrieval"]["history_is_evidence"]
+    validate_profile(result, consumer="runtime")
+    require_generation_profile(result)
+    # The new program root cannot establish where an old relative write path
+    # resolved. init-profile writes these locations absolutely; migration
+    # refuses ambiguous manual profiles rather than relocating their data.
+    persistent = {"app.data_dir": result["app"]["data_dir"],
+                  **{f"runtime.{key}": result.get("runtime", {}).get(key) for key in WRITE_KEYS}}
+    if result.get("qdrant", {}).get("storage_dir"):
+        persistent["qdrant.storage_dir"] = result["qdrant"]["storage_dir"]
+    for key in ("tls_cert_file", "tls_key_file"):
+        if result.get("security", {}).get(key):
+            persistent[f"security.{key}"] = result["security"][key]
+    ambiguous = [key for key, value in persistent.items()
+                 if not isinstance(value, str) or not value.strip() or not Path(value).is_absolute()]
+    if ambiguous:
+        raise ValueError("Migration renforcée : emplacements absolus requis pour conserver le périmètre ("
+                         + ", ".join(ambiguous) + ") ; aucune donnée ni profil n'a été modifié")
+    before, after = flatten(source), flatten(result)
+    changed = [key for key in sorted(before.keys() | after.keys())
+               if key not in before or key not in after or type(before[key]) is not type(after[key]) or before[key] != after[key]]
+    return result, [".".join(key) for key in changed]
+
+
 def derived_profile(like: Path, model: str, program: Path) -> tuple[dict[str, Any], list[str]]:
+    if not __package__ and "services.runtime.generation_policy" not in sys.modules:
+        load_runtime_modules(PROGRAM)
+    from services.runtime.generation_policy import GENERATION_MODEL
+
     manifest = json.loads((program / "kit-manifest.json").read_text(encoding="utf-8"))
+    if not isinstance(manifest, dict):
+        raise ValueError("Manifeste du kit invalide")
     available = manifest.get("model_profiles") or {}
+    if not isinstance(available, dict):
+        raise ValueError("Catalogue des profils du kit invalide")
     if model not in available:
         raise ValueError(f"Modèle {model} absent de ce kit ({', '.join(available)})")
+    if model == GENERATION_MODEL:
+        if set(available) != {GENERATION_MODEL}:
+            raise ValueError("La migration renforcée exige un catalogue avec ce seul générateur")
+        return enhanced_profile(like, enhanced_template_path(program, available[model]))
     shipped = {name: load(program / relative) for name, relative in available.items()}
     keys = model_keys(shipped)
     result = copy.deepcopy(load(like))
@@ -169,7 +246,10 @@ def derive(like: Path, model: str, program: Path, output: Path, *, check: bool =
         return {"status": "checked", "profile": str(output), "model": model, "replaced_keys": keys}
     temporary = output.with_name(f".{output.name}.{os.getpid()}.tmp")
     with temporary.open("x", encoding="utf-8", newline="\n") as stream:
-        stream.write(f"# Profil généré par l'installateur : {like.name} avec les réglages du modèle {model} (W032).\n")
+        # A filename can contain line breaks; keep the comment on one line so
+        # the bytes written still represent exactly the validated dictionary.
+        stream.write(f"# Profil généré par l'installateur : {json.dumps(like.name)} "
+                     f"avec les réglages du modèle {json.dumps(model)} (W032/I5).\n")
         yaml.safe_dump(profile, stream, allow_unicode=True, sort_keys=False)
     try:
         os.link(temporary, output)  # échoue si le profil est apparu entre-temps : jamais de remplacement

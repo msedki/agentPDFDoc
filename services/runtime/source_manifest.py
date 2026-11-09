@@ -14,11 +14,12 @@ from .artifacts import ROOT, file_hash, write_json_atomic
 
 FILES = ("AGENTS.md", "CLAUDE.md", "rag.ps1", "bootstrap.ps1", "rag.sh", "bootstrap.sh", "pyproject.toml", "uv.lock",
          "config/local16.yaml", "config/local16-4b.yaml", "config/artifacts.lock.json", "config/embedding-comparison.lock.json",
-         "config/models.lock.json", "config/qdrant.collection.json",
+         "config/models.lock.json", "config/qdrant.collection.json", "config/model_profiles.json",
+         "config/enhanced-4b.yaml", "config/enhanced-4b.lock.json",
          "apps/web/package.json", "apps/web/pnpm-lock.yaml", "apps/web/next.config.mjs",
          "apps/web/tsconfig.json", "apps/web/playwright.config.ts",
          ".runtime/manifests/ollama-model.json", ".runtime/manifests/ollama-model-text.json", ".runtime/manifests/ollama-model-2b.json",
-         ".runtime/manifests/artifacts.json",
+         ".runtime/manifests/artifacts.json", ".runtime/manifests/qwen3-4b-enhanced.json",
          ".runtime/manifests/embedding-comparison.json")
 
 

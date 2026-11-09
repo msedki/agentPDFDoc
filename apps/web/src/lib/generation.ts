@@ -36,8 +36,8 @@ export type GenerationModelView = { label: string; detail: string };
 /** Modèle choisi au démarrage, sans supposer qu’il est déjà chargé ni proposer de changement à chaud. */
 export function generationModelView(generation: Generation | null): GenerationModelView | null {
   if (!generation?.model) return null;
-  const label = generation.model === "qwen3.5:2b" ? "Qwen 3.5 2B" : generation.model === "qwen3.5:4b-text" ? "Qwen 3.5 4B · texte seul" : generation.model;
-  return { label, detail: `Modèle choisi au démarrage : ${generation.model}. Pour changer de modèle, arrêtez le poste, adaptez la section llm de votre profil sans changer ses chemins de données, puis redémarrez avec ce même profil ; les questions utilisent le modèle de cette instance.` };
+  const label = generation.model === "qwen3-4b-enhanced:q4km" ? "Qwen3 4B · Q4_K_M" : generation.model === "qwen3.5:2b" ? "Qwen 3.5 2B" : generation.model === "qwen3.5:4b-text" ? "Qwen 3.5 4B · texte seul" : generation.model;
+  return { label, detail: `Modèle déclaré pour cette instance : ${generation.model}. Le profil renforcé utilise uniquement Qwen3 4B Q4_K_M.` };
 }
 
 /** Occupation du modèle : entièrement sur le GPU, partagée (parts en pour cent), entièrement sur le processeur, ou inconnue. */

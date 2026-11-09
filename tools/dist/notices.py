@@ -23,17 +23,28 @@ def license_files(files: list[str], prefix: str) -> list[str]:
     return [name for name in files if name.startswith(prefix) and LICENSE_FILE.search(name.rsplit("/", 1)[-1])]
 
 
-def artifact_rows(lock: dict[str, Any], files: list[str], platform: str = "windows-x86_64") -> list[dict[str, Any]]:
+def artifact_rows(lock: dict[str, Any], files: list[str], platform: str = "windows-x86_64", *,
+                  delivered_models_only: bool = False) -> list[dict[str, Any]]:
     """Une ligne par composant et version ; les textes de licence sont cherchés dans les dossiers de ses fichiers.
 
     Seules les entrées de la plateforme du kit sont livrées, selon la règle du provisionnement (`entries_for_platform` :
-    sans champ `platform`, partout ; sinon la plateforme nommée ou l'une de celles listées).
+    sans champ `platform`, partout ; sinon la plateforme nommée ou l'une de celles listées). Pour les nouveaux kits,
+    `delivered_models_only` exclut les modèles et tokenizers dont l'artefact n'est pas dans l'inventaire livré. Les
+    sources de composants compilés, dont l'archive ne figure pas dans le kit, gardent leurs avis et manques connus.
     """
     present = set(files)
     rows: dict[tuple[str, str], dict[str, Any]] = {}
     for group, entries in lock["groups"].items():
         for entry in entries_for_platform(entries if isinstance(entries, list) else [entries], platform):
             location = str(entry.get("extract_to") or entry.get("target") or "").strip("/")
+            model_artifact = bool(entry.get("model_id")) or location.startswith(".runtime/models/")
+            if delivered_models_only and model_artifact:
+                if entry.get("extract_to"):
+                    delivered = any(name.startswith(location + "/") for name in present) if location else False
+                else:
+                    delivered = location in present
+                if not delivered:
+                    continue
             folder = location.rsplit("/", 1)[0] if location in present else location
             key = (str(entry.get("model_id") or group), str(entry.get("version") or entry.get("revision") or ""))
             row = rows.setdefault(key, {"component": key[0], "version": key[1], "publisher": entry.get("publisher", ""),
@@ -75,18 +86,28 @@ QWEN_4B_SECTION = ["## Modification du modèle Qwen3.5-4B", "",
                    "tenseurs de l'encodeur de vision (`v.*`, `mm.*`) ont été retirés, les autres tenseurs sont repris à l'identique et "
                    "vérifiés un à un (décision W006 du projet). Cette mention répond à l'obligation de signaler les fichiers modifiés "
                    "(Apache-2.0, section 4 b).", ""]
+QWEN3_4B_SECTION = ["## Modèle Qwen3-4B natif", "",
+                   "Le modèle `qwen3-4b-enhanced:q4km` livré est importé localement dans Ollama depuis le fichier officiel "
+                   "`Qwen3-4B-Q4_K_M.gguf` du dépôt `Qwen/Qwen3-4B-GGUF`. Le GGUF conserve son empreinte verrouillée ; "
+                   "le projet ne réécrit pas ses tenseurs. La source, la révision et la licence déclarée Apache-2.0 sont "
+                   "consignées dans `config/enhanced-4b.lock.json` et `config/artifacts.lock.json`. Les textes de licence "
+                   "effectivement présents sont ceux indiqués dans le tableau ci-dessus ; une déclaration de licence "
+                   "ne remplace pas un texte absent.", ""]
 
 
 def third_party_notices(root: Path, files: list[str], version: str, platform: str = "windows-x86_64", *,
-                        lock: dict[str, Any] | None = None, gpu: str | None = None, models: tuple[str, ...] | None = None) -> str:
+                        lock: dict[str, Any] | None = None, gpu: str | None = None, models: tuple[str, ...] | None = None,
+                        model_names: tuple[str, ...] | None = None) -> str:
     """`lock` : verrou lu dans le commit du kit (kit Linux) ; à défaut, celui de l'arbre de travail (kit Windows).
 
-    `models` : jeux de modèles livrés (`model_sets` du kit Linux) ; la mention de la modification du 4B ne figure que si
-    `4b` en fait partie. Sans valeur (kit Windows), elle figure toujours."""
+    `model_names` : identités source/servie sélectionnées et vérifiées par le fabricant ; ce paramètre est toujours
+    fourni par les fabricants actuels et prime sur les étiquettes de jeux de modèles, y compris s'il est vide.
+    `models` sans `model_names` conserve le rendu historique des anciens manifestes : `4b` désignait le modèle dérivé.
+    Cette compatibilité de lecture ne sélectionne ni ne lance un générateur."""
     if lock is None:
         lock = json.loads((root / "config/artifacts.lock.json").read_text(encoding="utf-8"))
     office = office_rows(files)
-    rows = artifact_rows(lock, files, platform) + office
+    rows = artifact_rows(lock, files, platform, delivered_models_only=model_names is not None) + office
     office_gaps = [f"absence de texte de licence repéré dans les fichiers du kit pour {row['component']} {row['version']} ; "
                    "la déclaration de licence des métadonnées ne remplace pas ces textes"
                    for row in office if not row["texts"]]
@@ -108,7 +129,13 @@ def third_party_notices(root: Path, files: list[str], version: str, platform: st
         lines.append(f"| {name} | — | — | voir les textes | — | {'<br>'.join(f'`{t}`' for t in present) or 'aucun'} |")
     lines += ["", "Les avis présents des paquets Python du runtime sont conservés dans leurs métadonnées (`*.dist-info`) ; ils arrivent avec le cache uv "
               "du kit puis dans `.venv` à l'installation. Leur présence n'est pas garantie pour chaque paquet ; les absences contrôlées figurent ci-dessous.", ""]
-    lines += QWEN_4B_SECTION if models is None or "4b" in models else []
+    if model_names is None:
+        lines += QWEN_4B_SECTION if models is None or "4b" in models else []
+    else:
+        if "qwen3-4b-enhanced:q4km" in model_names:
+            lines += QWEN3_4B_SECTION
+        if "qwen3.5:4b-text" in model_names:
+            lines += QWEN_4B_SECTION
     lines += ["## Manques connus", ""]
     if not platform.startswith("linux"):
         lines += ["Relevés par l'analyse de distribution (section 6), non résolus par ce kit : texte de licence propre à Qdrant et à Ollama "

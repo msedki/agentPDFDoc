@@ -136,7 +136,10 @@ def test_an_independent_temperature_assertion_cannot_qualify_a_supply_range(sour
     assert assessment["status"] == "partial"
     assert "requested_temperature_condition_not_established" in requirement_codes(assessment)
     assert not assessment["matched_relations"]
-    assert source in rendered["text"]
+    assert "recommended supply voltage: 1.5 to 4.5 v" in rendered["text"].lower()
+    assert cat.support_ledger()["references"][0]["literal"]["text"] == source
+    assert all("requested_temperature_condition_not_established" in item["reasons"]
+               for item in assessment["rejected_relations"])
     assert cat.deterministic_plan() is None
 
 
@@ -152,16 +155,23 @@ def test_temperature_as_the_question_object_is_not_replaced_by_supply_voltage(qu
     assert not contract.parse_failures
 
 
-@pytest.mark.parametrize("question", [
-    "Donne les plages de tension d'alimentation et de température avec leurs conditions.",
-    "Donne la tension d'alimentation et la température ambiante dans les conditions recommandées.",
-    "Donne les deux plages d'alimentation avec leurs conditions de température et la température de stockage.",
-    "Give the supply voltage and temperature with their operating conditions.",
+@pytest.mark.parametrize(("question", "decomposed"), [
+    ("Donne les plages de tension d'alimentation et de température avec leurs conditions.", True),
+    ("Donne la tension d'alimentation et la température ambiante dans les conditions recommandées.", True),
+    ("Donne les deux plages d'alimentation avec leurs conditions de température et la température de stockage.", False),
+    ("Give the supply voltage and temperature with their operating conditions.", True),
 ])
-def test_independent_temperature_requests_remain_ambiguous_in_the_bounded_contract(question):
+def test_independent_temperature_requests_have_separate_obligations_or_explicit_parse_limit(question, decomposed):
     contract = AnswerContract(question, "question")
     assert contract.quantity is None
-    assert "multiple_quantities_not_decomposed" in contract.parse_failures
+    if decomposed:
+        # I5 recognizes explicit coordination, without filling either fact.
+        assert not contract.parse_failures and contract.kind == "composite"
+        assert {part.quantity for part in contract.components} == {"voltage", "temperature"}
+        assert len(contract.assess([])["obligations"]) == 2
+        assert all(not item["covered"] for item in contract.assess([])["obligations"])
+    else:
+        assert "multiple_quantities_not_decomposed" in contract.parse_failures
 
 
 @pytest.mark.parametrize("source", [
@@ -295,9 +305,10 @@ def test_ledger_records_partial_extraction_and_reads_method_from_pinned_database
     assert ledger["references"][0]["index_generation_state"] == "ready_partial"
     assert ledger["references"][0]["extraction_method"] == "unknown"
     assert ledger["original_extraction_fidelity_verified"] is False
-    # A complete retained relation remains useful; this is not a completeness
-    # certificate for the partially extracted document or for its source image.
-    assert ledger["question_status"] == "covered"
+    # I5 never turns a retrieval hint into proof of an unknown PDF extraction.
+    assert ledger["question_status"] == "partial"
+    assert ledger["references"][0]["literal"]["text"] == "Nominal supply voltage: 3.3 V."
+    assert not ledger["relations"] and cat.model_view()["reference_ids"] == []
 
 
 @pytest.mark.parametrize("mutation", ["tail", "value", "quote_source", "citation", "missing_citation", "fake_support", "coverage"])

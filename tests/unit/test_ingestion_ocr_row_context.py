@@ -501,6 +501,8 @@ def test_real_grid_hook_preserves_neighbors_and_publishes_only_final_uncertainty
     elif kind == "candidate_gutter":
         row_candidate.loc[0, ["left", "width"]] = [235, 10]
     border = kind != "border_disabled"
+    attempted = kind not in ("baseline_nonfinite", "nominal", "border_disabled")
+    adopted = kind in ("recovered", "baseline_empty")
     model, geometry_calls = _hook_model(monkeypatch, image, cells, cell_border=border)
     global_frame = _frame("HEADER", 99, (30, 10, 120, 20))
     cell_returns = []
@@ -510,7 +512,13 @@ def test_real_grid_hook_preserves_neighbors_and_publishes_only_final_uncertainty
         local["left"] -= offset[0]
         local["top"] -= offset[1]
         cell_returns.append(local)
-    responses, commands, raster_sizes = [global_frame, *cell_returns, row_candidate], [], []
+    # I5 verifies the final numeric row and the header separately. These named
+    # engine responses deliberately provide no corroboration, without disabling
+    # verification or pretending to recognize the synthetic black rectangles.
+    empty_verification = global_frame.iloc[:0]
+    responses = [global_frame, *cell_returns, *([row_candidate] if attempted else []),
+                 empty_verification, empty_verification]
+    commands, raster_sizes = [], []
 
     def TsvEngineDouble(command, **kwargs):
         commands.append(command)
@@ -529,12 +537,14 @@ def test_real_grid_hook_preserves_neighbors_and_publishes_only_final_uncertainty
     image.save(filename)
     selected = model._run_tesseract(str(filename), None)
     metadata = model._current_preprocessing[0]
-    attempted = kind not in ("baseline_nonfinite", "nominal", "border_disabled")
-    adopted = kind in ("recovered", "baseline_empty")
-    assert len(commands) == 4 + attempted
+    assert len(commands) == 4 + int(attempted) + 2
     assert all(command[command.index("--psm") + 1] == "6" for command in commands[1:])
     if attempted:
-        assert raster_sizes[-1] == (688, 45)
+        assert raster_sizes[4] == (688, 45)
+    # Fixed geometry of these fixtures: the numeric row is checked first, then
+    # HEADER. Nonfinite/absent baseline words cannot enter a verification record.
+    missing_first_word = kind in ("baseline_empty_rejected", "baseline_nonfinite")
+    assert raster_sizes[-2:] == [(648 if missing_first_word else 1388, 102), (292, 92)]
     assert selected.iloc[0]["text"] == "HEADER"
     assert selected["text"].tolist() == ["HEADER", *(("DA-P03-LEAK",) if adopted else baseline[0]["text"]), "0.3", "L/min"]
     for index in (1, 2):
@@ -546,10 +556,23 @@ def test_real_grid_hook_preserves_neighbors_and_publishes_only_final_uncertainty
     uncertain = not adopted and kind != "nominal" and not baseline[0].empty
     assert ("unresolved_parser_bbox" in evidence) == unresolved
     assert ("uncertain_parser_bbox" in evidence) == uncertain
-    assert len(geometry_calls) == int(unresolved or uncertain)
+    cell_geometry_calls = [call for call in geometry_calls if call["bounds"] in cells]
+    assert len(cell_geometry_calls) == int(unresolved or uncertain)
+    assert len(geometry_calls) == int(unresolved or uncertain) + (3 if missing_first_word else 4)
     if adopted:
         assert evidence["row_context_retry"] == {"row_index": 0, "selected": "row_context"}
     assert metadata["row_context_budget"]["additional_ocr_calls"] == int(attempted)
+    verification = metadata["quality_verification"]
+    assert verification["verification_calls"] == verification["reading_count"] == 2
+    assert verification["additional_ocr_calls"] == int(attempted) + 2
+    assert verification["additional_ocr_call_limit"] == 32
+    assert verification["cumulative_crop_pixels"] > metadata["row_context_budget"]["cumulative_crop_pixels"]
+    assert verification["cumulative_crop_pixels"] <= verification["pixel_limit"] == 13_000_000
+    assert verification["corroborated_count"] == verification["uncertain_count"] == 0
+    assert verification["unavailable_count"] == 2
+    assert len(model._current_quality_readings) == 2
+    assert all(record["candidate_tokens"] == [] and record["state"] == "unavailable"
+               for record in model._current_quality_readings)
     assert all("row_context_retry" not in metadata["cell_ocr"][index] for index in (1, 2))
     assert all(token not in json.dumps(metadata) for token in ("DA-P03-LEAK", "DA-PO3-LEAK", "private OCR text", "private error"))
 

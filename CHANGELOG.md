@@ -1,12 +1,37 @@
 # Journal des modifications
 
-**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Sources C05 publiées `4cb1a2a` ; livraison du kit CPU `52abb94b` vérifiée avec récupération distincte et réserve du broker initial · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-11-08 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
+**Rôle :** historique des changements du produit · **Propriétaire :** intégration et documentation · **Statut :** Vivant · **Référence :** sources Office publiées `57f7f0a` du 10/10/2026, chaîne DEV native Linux aarch64 vérifiée, réserves de qualification maintenues · Correctif POSIX publié et kit CPU recetté : `22fd828` ; historique des questions C05 sur base `16690eb` et sources locales gelées, API/lecteurs natifs Linux aarch64 et conservation vérifiés le 10 octobre, revue indépendante finale acquise `520fe2a4` · Sources C05 publiées `4cb1a2a` ; livraison du kit CPU `52abb94b` vérifiée avec récupération distincte et réserve du broker initial · Sources publiées `f14d87a`, livraison et froid C07 partiel réels, entretien terminé le 11 octobre · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** ce fichier pour les changements notables ; PLAN et journal pour l’avancement et les preuves · **Remplace :** aucun document
 
 Changements notables du poste documentaire local, au format [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) rédigé en français (Ajouté, Modifié, Corrigé, Sécurité). Version déclarée du projet : `0.1.0`, identique dans [`pyproject.toml`](pyproject.toml) et [`apps/web/package.json`](apps/web/package.json) ; aucune version n'est publiée et le dépôt ne porte aucune étiquette Git, si bien que tout relève de la section [Non publié].
 
 Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit et d'un lien vers sa preuve. Les états intermédiaires, échecs et reprises restent dans le [plan](RAG_Local_Agents/PLAN.md) et le [journal](RAG_Local_Agents/journal/README.md). Ce fichier est distinct du [registre des corrections de la baseline documentaire V2.1](RAG_Local_Agents/CHANGELOG.md).
 
 ## [Non publié]
+
+### I5 — tableaux, OCR et réponse contrôlée, 8–9 novembre 2026
+
+- Reconstruction des relations de tableau depuis les caractères, coordonnées
+  et cadres PDF observés ; cellules vides, sous-lignes, conditions générales et
+  repères tournés conservés. Une association non justifiée reste indisponible.
+- Détection des corps vectoriels absents de la couche texte ; reprise OCR
+  régionale dans les budgets existants. Corroboration des lectures sensibles,
+  contrôle des signes et revalidation des observations depuis SQLite.
+- Décomposition des besoins de la question et contrôle de complétude jusqu'au
+  rendu. Le 4B sélectionne des identifiants admis ; le serveur vérifie les
+  passages exacts, leurs conditions et les calculs avant tout texte public.
+- Autorité du sujet limitée aux identifiants imprimés et aux dépendances de
+  page vérifiées ; titres et conditions nécessaires restent cités avec le fait.
+  Le nom du fichier ne suffit plus à attribuer un fait PDF à un composant.
+- Projection bornée des cadres de page dans les traces et conservation des
+  clauses de restriction ; les limites de taille et de mémoire restent fixes.
+- Qwen3-4B Q4_K_M devient le seul générateur aux entrées API, CLI et distribution.
+  Les profils historiques restent lisibles pour la maintenance ; migration
+  explicite, poids et tokenizer verrouillés, aucun choix automatique d'un autre modèle.
+- [Protocole et critères](RAG_Local_Agents/reports/trust-4b-protocol-2026-11-08.md),
+  [bilan des vérifications](RAG_Local_Agents/reports/trust-4b-results-2026-11-08.md)
+  et [reproduction](RAG_Local_Agents/reports/trust-4b-reproduce-2026-11-08.md).
+  La qualification documentaire et celle des plateformes restent distinctes
+  de l'implémentation et de sa publication.
 
 ### I4 — fiabilisation du 4B et qualification avant diffusion, 8 novembre 2026
 

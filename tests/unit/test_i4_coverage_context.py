@@ -135,10 +135,19 @@ def test_losing_a_property_not_asked_for_does_not_create_a_false_partial_answer(
     supply = next(source for source in result["results"] if "Supply voltage:" in source["text"])
     cap = context.build(question, [supply], structured=structured)[2]["evidence_tokens"]
     settings.profile["retrieval"].update(evidence_tokens_by_mode={"factual": cap}, max_evidence_llm_tokens=cap)
-    _, retained, metrics, _ = context.build(question, result["results"], structured=structured)
-    assert len(retained) == 1 and retained[0]["text"] == supply["text"]
+    messages, retained, metrics, _ = context.build(question, result["results"], structured=structured)
+    # I5 may retain a raw distractor internally: only the verified model view
+    # consumes this unchanged cap and only the asked relation is publishable.
+    assert any(source["text"] == supply["text"] for source in retained)
+    assert metrics["evidence_tokens"] <= cap
+    assert "Bus voltage:" not in messages[-1]["content"]
     catalogue = structured.catalogue(retained, "question")
     catalogue.retrieval_limitations = _retrieval_limitations(result, metrics)
     assert not catalogue.retrieval_limitations, metrics
     assert catalogue.assess()["status"] == "covered"
-    assert catalogue.deterministic_plan() is not None
+    plan = catalogue.deterministic_plan()
+    assert plan is not None
+    assert "Bus voltage:" not in catalogue.prompt()
+    answer = render(catalogue, plan.references)
+    assert answer["answer_contract"]["status"] == "covered"
+    assert "Supply voltage: 3 to 5 V." in answer["text"] and "Bus voltage:" not in answer["text"]

@@ -24,6 +24,7 @@ import yaml
 
 from .accelerator import host_signals, profile_accelerator, read_discovery, resolve_mode, verified_libraries
 from .artifacts import ROOT, file_hash, read_json_atomic, runtime_location, write_json_atomic
+from .generation_policy import require_generation_profile
 from .platforms import entries_for_platform, executable_name, installation, launcher_command, platform_id
 from .profile_schema import read_profile_document, validate_profile
 from .resources import host_sample, linux_memory_mib
@@ -601,6 +602,7 @@ def supervise(profile_path: Path) -> int:
     from urllib.parse import urlsplit
 
     profile = load_profile(profile_path)
+    require_generation_profile(profile)
     directory = data_path(profile)
     control = directory / "control"
     control.mkdir(mode=0o777 if sys.platform == "win32" else 0o700, parents=True, exist_ok=True)
@@ -747,6 +749,7 @@ def supervise(profile_path: Path) -> int:
 
 def start(profile_path: Path) -> dict:
     profile = load_profile(profile_path)
+    require_generation_profile(profile)
     app_origin(profile)  # profil production sans certificat : refus avant tout lancement
     directory = data_path(profile)
     qdrant_data_path(profile, directory)

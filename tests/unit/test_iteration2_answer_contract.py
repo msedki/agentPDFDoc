@@ -7,6 +7,7 @@ not invoke a model or claim native throughput/answer quality.
 import copy
 
 import pytest
+from i5_witness_fixtures import witnessed_sparse_table
 from test_api_storage import storage as storage
 from test_enhanced_answers import catalogue, cell, excerpt, render, requirement_codes
 from test_iteration2_table_evidence import HEADERS, sparse_table
@@ -132,7 +133,8 @@ def test_proven_outside_sheet_refusal_is_explicit_and_deterministic():
 def test_sheet_xml_part_name_is_not_evidence_of_sheet_ordinal():
     cat = catalogue("Quel marqueur figure dans la deuxième feuille du classeur ?", [cell("R001", "A5", "0")],
                     scope={"kind": "cell_range", "sheetId": "xlsx:xl/worksheets/sheet1.xml"})
-    assert cat.deterministic_plan() is None
+    assert cat.deterministic_plan().references == []  # I5 no verified input to send to the model.
+    assert cat.model_view()["reference_ids"] == []
     assert cat.assess([]).get("scope_refusal") is None
 
 
@@ -143,7 +145,8 @@ def test_unit_word_target_is_recognized_without_misclassifying_conversion_time()
 
 
 def table_catalogue(storage, rows, question, *, mutate_bundle=None):
-    search, snapshot, source, text = sparse_table(storage, rows)
+    # I5 adds explicit synthetic glyph geometry; positive guarantees unchanged.
+    search, snapshot, source, text = witnessed_sparse_table(storage, rows)
     source["source_id"] = "S001"
     source["blocks"][0].update(text=text, start_offset=0, end_offset=len(text))
     source["text"] = text
@@ -172,7 +175,7 @@ def test_exact_text_without_authorized_verified_binding_never_establishes_table_
         if mutation == "role":
             value["headers"][0]["role"] = "minimum"
         elif mutation == "coordinate":
-            value["column_start"] = 4
+            value["column_start"] += 1  # Canonical geometry may renumber sparse columns.
         else:
             bundle["blocks"] = [body]
     cat = table_catalogue(storage, [HEADERS, [(1, "Bus voltage range"), (3, "0"), (5, "41"), (6, "V")]],
@@ -338,7 +341,9 @@ def test_unrequested_component_in_a_clause_blocks_subject_inheritance():
         excerpt("R001", "DEV123 est seulement mentionné. DEV456 supply voltage: 2 to 4 V.")])
     assessment = render(cat, ["R001"])["answer_contract"]
     assert assessment["status"] == "partial"
-    assert not assessment["matched_relations"][0]["subjects"]
+    assert not assessment["matched_relations"]  # I5 excludes the other subject from publication.
+    assert cat.references[0]["text"] == "DEV123 est seulement mentionné. DEV456 supply voltage: 2 to 4 V."
+    assert cat.model_view()["reference_ids"] == []
     assert "requested_subject_quantity" in requirement_codes(assessment)
 
 
@@ -408,7 +413,7 @@ def test_ancestor_header_condition_survives_a_nearer_min_max_header(storage):
         for value in cells:
             if value["start_row_offset_idx"] == 1:
                 value["column_header"] = True
-    search, snapshot, source, text = sparse_table(storage, [
+    search, snapshot, source, text = witnessed_sparse_table(storage, [
         [(1, "TA = 25 °C")], HEADERS,
         [(1, "Operating supply voltage"), (3, "1.8"), (5, "5.5"), (6, "V")]], target=2, mutate=two_header_rows)
     source["source_id"] = "S001"

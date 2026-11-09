@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pytest
 
+from tests.unit.dist_payload_fixtures import materialize_enhanced_fixture
 from tools.dist.build_kit import INCLUDED, ROOT, build_kit, selected_files
 
 
@@ -56,6 +57,7 @@ def test_a_windows_kit_built_from_a_repository_carries_the_api_contract(tmp_path
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("{}", encoding="utf-8")
     (root / "config/artifacts.lock.json").write_text(json.dumps({"groups": {}}), encoding="utf-8")
+    materialize_enhanced_fixture(root)
     assert "packages/contracts/contracts.json" in selected_files(root)
     build_kit(tmp_path / "kit", root=root, version="0.1.0")
     assert (tmp_path / "kit/packages/contracts/contracts.json").is_file()

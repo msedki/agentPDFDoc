@@ -143,7 +143,7 @@ def test_rag_ps1_parser_refuses_a_truthiness_guard_for_a_long_memory_measure():
         cli_arguments(changed, "init-profile", {"MemoryTotalBytes": 0})
 
 
-@pytest.mark.parametrize("model,name", [("qwen3.5:2b", "local16.yaml"), ("qwen3.5:4b", "local16-4b.yaml")])
+@pytest.mark.parametrize("model,name", [("qwen3-4b-enhanced:q4km", "enhanced-4b.yaml")])
 def test_rag_ps1_model_omits_the_default_profile_and_reaches_the_cli(monkeypatch, capsys, model, name):
     """Lignes PowerShell interprétées, CLI réel ; démarrage explicitement doublé, aucun PowerShell ni service."""
     arguments = cli_arguments(script(), "up", {"Model": model})
@@ -153,6 +153,17 @@ def test_rag_ps1_model_omits_the_default_profile_and_reaches_the_cli(monkeypatch
     monkeypatch.setattr(cli, "start", lambda path: started.append(path) or {"status": "explicit_start_double"})
     assert cli.main() == 0 and started == [ROOT / "config" / name]
     assert json.loads(capsys.readouterr().out)["status"] == "explicit_start_double"
+
+
+@pytest.mark.parametrize("model", ["qwen3.5:2b", "qwen3.5:4b"])
+def test_rag_ps1_transmits_but_cli_refuses_a_legacy_model_before_start(monkeypatch, capsys, model):
+    arguments = cli_arguments(script(), "up", {"Model": model})
+    started = []
+    monkeypatch.setattr(sys, "argv", ["rag", *arguments[3:]])
+    monkeypatch.setattr(cli, "start", lambda path: started.append(path))
+    assert cli.main() != 0
+    assert started == []
+    assert "qwen3-4b-enhanced:q4km" in capsys.readouterr().out
 
 
 def test_rag_ps1_keeps_an_explicit_profile_and_cli_refuses_combining_it_with_model(monkeypatch, capsys):

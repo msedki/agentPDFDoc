@@ -2,6 +2,16 @@
 
 **Rôle :** référence des configurations et de leur qualification · **Propriétaire :** runtime local · **Statut :** stabilisé ; W060 validé en tests ciblés, qualification RAM native non acquise · **Référence W060 :** base `e253e4d` et modifications locales du 13 octobre 2026 ; les baselines historiques ci-dessous restent datées.
 
+## Configuration active I5 — unique générateur renforcé
+
+Depuis I5, l’API, `rag.sh` et `rag.ps1` sélectionnent par défaut [`config/enhanced-4b.yaml`](../config/enhanced-4b.yaml) et le tag local `qwen3-4b-enhanced:q4km`. Seule cette sélection, avec famille Qwen3, taille 4.0B, quantification Q4_K_M, `think=false`, historique non probant et contrôles renforcés obligatoires, peut lancer une génération. Un chemin explicite absent ou un profil incompatible est refusé, sans repli silencieux. Les anciennes configurations ci-dessous servent aux archives et à la maintenance des instances, pas à une nouvelle génération.
+
+Le verrou [`enhanced-4b.lock.json`](../config/enhanced-4b.lock.json) fixe le GGUF, la révision et les deux fichiers du tokenizer. Le provisionnement explicite acquiert uniquement ce GGUF dans le magasin natif adressé par son SHA-256, puis utilise l’import officiel vérifié ; le démarrage normal reste hors ligne. Le groupe `qwen-tokenizer` choisit Qwen/Qwen3-4B. `--skip-model` écarte le téléchargement du GGUF. Une source GGUF existante ou le blob natif équivalent évite de rendre obligatoire une seconde copie de 2,5 Go dans un kit.
+
+Le catalogue nominal ne contient qu’un générateur et conserve `qualification=null` : aucune qualification RAM ou de plateforme n’est inventée. Les distributions refusent un autre ensemble de modèles et excluent leurs poids, tout en conservant E5, Docling et les modèles OCR non génératifs. La fabrication et l’installation natives restent des critères distincts des tests de sélection.
+
+Les paramètres d’inférence et de ressources d’`enhanced-4b.yaml` restent inchangés pour la comparaison avant/après. Protocole et matrice : [I5](reports/trust-4b-protocol-2026-11-08.md). La configuration historique de conception et ses évolutions datées sont conservées ci-dessous.
+
 **Cible active W001 (30/09/2026 UTC) : Windows 11 x86-64 natif, sans WSL ni Docker.** Cette décision utilisateur remplace la cible système du pack source V2.1 ; les autres exigences V2.1 restent applicables. Voir [DECISIONS.md](DECISIONS.md) et [EXPLOITATION_WINDOWS.md](EXPLOITATION_WINDOWS.md). **W018 (01/10/2026) : Linux natif (aarch64 et x86-64) devient une seconde plateforme**, toute machine Windows restant prise en charge comme avant ; réalisation en cours (lots J du [plan](PLAN.md)). **W024 et W025 (01/10/2026) : le CPU reste le socle, le repli et la référence de la recette D07 ; seule la génération par Ollama peut passer sur GPU, automatiquement sur les voies qualifiées par un essai réel** ([W025](DECISIONS.md#w025-accélération-gpu--arbitrages-de-réalisation-w024)). La clé `llm.accelerator` est décrite en [section 3](#3-ollama).
 
 ## 1. Nature des configurations
