@@ -3,10 +3,11 @@
 **Rôle :** bilan des changements et preuves du complément I5 demandé avec la
 pièce jointe. **Propriétaire :** intégration et qualification RAG.
 **Statut :** essais et portes logicielles terminés avec leurs échecs et
-limites conservés ; publication des sources en cours ; qualification de
-production non acquise.
+limites conservés ; sources publiées et arbre distant vérifié ; qualification
+de production non acquise.
 **Référence :** `fe4693da07ed9e948f65e4cadb51cd43ec36ebe2` et modifications
-I5-PJ du 9 novembre 2026 (UTC), branche `enhanced_version`.
+I5-PJ du 9 novembre 2026 (UTC), branche `enhanced_version` ; commit technique
+[5502cf42](https://github.com/msedki/agentPDFDoc/commit/5502cf424b1d9211b5a63014b01c7ab8b998dc85).
 **Source de vérité :** ce bilan pour les résultats ; [protocole gelé](trust-i5-pj-protocol-2026-11-09.md)
 pour les critères ; [plan](../PLAN.md) pour les actions.
 
@@ -348,7 +349,7 @@ les skips sont ceux du reçu terminal, jamais déduits du nom du répertoire.
 | PJ-D05 — final séparé, gel et absence d'ajustement | **ATTEINT** | Fichier final hashé avant produit, ouvert après gel, 24/24 cas exécutés sans dérive, faux acceptés/rejetés et échecs conservés. Annotation séparée par agents, pas expertise humaine. |
 | PJ-D06 — chaîne native et au moins deux vrais appels 4B par bras | **ATTEINT** | E5/Qdrant/SQLite/tokenizer/4B réels, 4 appels référence et 8 candidat terminés ; un appel HTTP distinct. Aucun substitut compté comme inférence. |
 | PJ-D07 — plafonds, coût du contrôle et arrêts | **ATTEINT dans le périmètre local** | p95 contrôle final 118,70 ms < 250 ms ; caps inchangés, coûts natifs rapportés, tous processus possédés arrêtés. Forte hausse de latence des cas devenus partiels ; poste cible physique non qualifié. |
-| PJ-D08 — reproduction, documentation et publication | **VÉRIFICATION EN COURS** | Sources et reçus versionnés ; publication distante à vérifier après portes logicielles et documentaires. |
+| PJ-D08 — reproduction, documentation et publication | **ATTEINT** | 32 fichiers publiés dans [5502cf42](https://github.com/msedki/agentPDFDoc/commit/5502cf424b1d9211b5a63014b01c7ab8b998dc85), arbre identique au commit local, parent et branche relus après mise à jour sans force ; [reçu](trust-i5-pj-publication-2026-11-09.json). Portes documentaires PASS. |
 
 **Préparation à la production : non acquise.** Les réussites de conservation,
 de protocole et d'exploitation ne compensent ni H24, ni les faux rejets, ni
@@ -407,3 +408,20 @@ Sources, [décision](../DECISIONS.md#i5-pj-d01--qualifier-lopérande-et-la-polar
 [plan canonique](../PLAN.md) permettent de distinguer implémentation,
 preuve locale, échecs et travaux encore nécessaires. La publication du
 correctif ne constitue pas une qualification de production.
+
+## 7. Publication vérifiée
+
+Le commit technique `5502cf424b1d9211b5a63014b01c7ab8b998dc85` est publié sur
+`enhanced_version`, parent `fe4693da07ed9e948f65e4cadb51cd43ec36ebe2`.
+Son arbre `14c56e7783a8b2a73eb26f59315909686e641934` est strictement
+identique au commit local examiné `7388f0f61ebaa2ed45091f8854fa0cd47722e10b`.
+Les 32 blobs modifiés ont été comparés avant création de l’arbre ; la
+référence a avancé avec contrôle de son ancienne valeur, sans force.
+Une lecture GitHub puis une récupération Git distincte ont confirmé
+le commit, le parent et l’arbre à 14:21:50 UTC le 9 novembre 2026.
+
+Le [reçu détaillé](trust-i5-pj-publication-2026-11-09.json) conserve les
+identités, empreintes et limites du transport. La mise à jour documentaire
+qui le conserve ne touche ni le produit gelé, ni les annotations, ni les
+seuils. PJ-D08 devient atteint ; H24, les faux rejets et les réserves de
+production restent inchangés.

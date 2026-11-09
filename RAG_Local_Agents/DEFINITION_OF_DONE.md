@@ -26,6 +26,12 @@ Aucun réglage produit ni changement de seuil n'est effectué après ouverture
 du final. La qualification globale reste **non acquise**, y compris lorsque
 les portes logicielles et la livraison des sources sont terminées.
 
+**PJ-D08 atteint pour la livraison :** commit technique [5502cf42](https://github.com/msedki/agentPDFDoc/commit/5502cf424b1d9211b5a63014b01c7ab8b998dc85),
+arbre local/distant identique, parent et tête de branche relus après mise
+à jour sans force. Le [reçu](reports/trust-i5-pj-publication-2026-11-09.json)
+distingue le commit local du commit attribué au compte GitHub connecté.
+Aucun autre critère n’est modifié par cette publication.
+
 ## Complément I5 — diffusion comme application de confiance
 
 Les critères I5 sont fixés avant les essais dans le [protocole du 8 novembre](reports/trust-4b-protocol-2026-11-08.md), avec ses addenda [générateur unique](reports/trust-4b-entrypoints-addendum-2026-11-08.md) et [ressources](reports/trust-4b-resource-addendum-2026-11-08.md). Ils complètent les exigences historiques, sans les annuler.

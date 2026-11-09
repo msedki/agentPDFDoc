@@ -1,0 +1,695 @@
+{
+  "schema_version": 1,
+  "receipt_id": "trust-i5-pj-publication-2026-11-09",
+  "role": "Preuve de publication du commit technique I5-PJ",
+  "status": "PASS — sources publiées avec réserves de qualification",
+  "verified_utc": "2026-11-09T14:21:50.836782+00:00",
+  "repository": "https://github.com/msedki/agentPDFDoc",
+  "branch": "enhanced_version",
+  "publication": {
+    "method": "GitHub connector demandé dans la session ; objets Git puis mise à jour de référence avec expected_sha et force=false",
+    "remote_commit": "5502cf424b1d9211b5a63014b01c7ab8b998dc85",
+    "remote_commit_url": "https://github.com/msedki/agentPDFDoc/commit/5502cf424b1d9211b5a63014b01c7ab8b998dc85",
+    "parent": "fe4693da07ed9e948f65e4cadb51cd43ec36ebe2",
+    "tree": "14c56e7783a8b2a73eb26f59315909686e641934",
+    "expected_previous_head": "fe4693da07ed9e948f65e4cadb51cd43ec36ebe2",
+    "force": false,
+    "author": {
+      "name": "msedki",
+      "email": "57775584+msedki@users.noreply.github.com",
+      "date": "2026-11-09T14:20:33Z"
+    },
+    "committer": {
+      "name": "msedki",
+      "email": "57775584+msedki@users.noreply.github.com",
+      "date": "2026-11-09T14:20:33Z"
+    },
+    "signature_verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null,
+      "verified_at": null
+    },
+    "identity_note": "Le commit local utilise MOHAMED SEDKI <mohamed.sedki@live.fr>. Le connecteur ne permet pas de choisir author/committer et attribue le commit distant au compte GitHub connecté msedki. Les deux commits ont un arbre strictement identique ; leurs SHA de commit sont distincts."
+  },
+  "local": {
+    "reviewed_commit": "7388f0f61ebaa2ed45091f8854fa0cd47722e10b",
+    "tree": "14c56e7783a8b2a73eb26f59315909686e641934",
+    "preserved_branch": "i5-pj-local-technical-20261109",
+    "author_and_committer": "MOHAMED SEDKI <mohamed.sedki@live.fr>",
+    "working_branch_after_fetch": "enhanced_version",
+    "working_head_after_fetch": "5502cf424b1d9211b5a63014b01c7ab8b998dc85",
+    "worktree_clean_at_verification": true
+  },
+  "checks": {
+    "all_changed_blobs_sha_equal": true,
+    "changed_files": 32,
+    "remote_tree_equals_reviewed_local_tree": true,
+    "remote_commit_parent_equals_baseline": true,
+    "remote_branch_reread_equals_published_commit": true,
+    "git_fetch_independent_verification": true,
+    "publication_without_force": true,
+    "expected_head_lease_used": true,
+    "no_runtime_models_corpus_or_secrets_in_changed_paths": true
+  },
+  "prepublication_gates": {
+    "docs": {
+      "status": "PASS",
+      "utc": "2026-11-09T14:14:04+00:00",
+      "relative_links_checked": 1621
+    },
+    "pack": {
+      "status": "PASS",
+      "utc": "2026-11-09T14:14:04.643889+00:00",
+      "local_links_checked": 2469,
+      "preexisting_skill_placement_warnings": 12
+    },
+    "brief": "PASS — régénéré et synchronisé",
+    "diagrams": "PASS — 5 SVG",
+    "diff": "PASS",
+    "detailed_validation": "trust-i5-pj-validation-2026-11-09.json"
+  },
+  "transport_notes": [
+    "Le push CLI à blanc a échoué faute d’identifiants Git dans cet environnement ; aucun identifiant n’a été demandé ni recherché. Publication par le connecteur GitHub autorisé.",
+    "Un premier contrôle d’objet commit a supposé que create_commit renvoyait arbre et parents. Sa réponse ne contient que sha ; la référence n’a pas été mise à jour. Le commit retenu a ensuite été relu par GET, son arbre et son parent vérifiés avant update_ref. Un objet intermédiaire non référencé peut subsister, sans effet sur l’historique de la branche."
+  ],
+  "qualification": {
+    "production": "NON ACQUISE",
+    "pj_d01": "FAIL — H24 reste accepté à tort ; final 1 faux appui sur 12 négatifs",
+    "positive_absolute_target": "FAIL — final 9/12, couverture identique à la référence",
+    "pj_d08": "PASS — publication des sources et preuves ; aucune conversion des autres critères en réussite",
+    "product_changed_after_final_open": false,
+    "native_cost_increase_retained": true,
+    "receipt_scope": "Ce reçu décrit le commit technique. Sa conservation et les références documentaires sont ajoutées dans un commit documentaire ultérieur, sans changement de produit, de seuil ou d’annotation."
+  },
+  "files": [
+    {
+      "path": "CHANGELOG.md",
+      "bytes": 88595,
+      "characters": 86341,
+      "blob_sha": "7e0cfb35aedead7efe024e980fc1883a137b4dc9",
+      "sha256": "a0d8773326a07e4d529ce49a81b1eee7988f7cbd446bd7c426ade42deb0f5c7e",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/DECISIONS.md",
+      "bytes": 250473,
+      "characters": 243280,
+      "blob_sha": "3fa553364ec41069df440d16048f31f5e4ce5e6d",
+      "sha256": "10b36e8756d6bf7475d7f2a8517c79c778928a9e3812e51a5cfb7e4d1403cb15",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/DEFINITION_OF_DONE.md",
+      "bytes": 85243,
+      "characters": 82733,
+      "blob_sha": "ee7fd24604866e1639535f5e4705f15fb4a23b37",
+      "sha256": "abf72dde40d78b5617d43cd7a0cb8e260a861f271c305ba62d85d75c1f17d01e",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/PLAN.md",
+      "bytes": 433253,
+      "characters": 419485,
+      "blob_sha": "3acb4678eee9f9be4eedc8368b30288a2f3d3a63",
+      "sha256": "d23156bfe0c122784cd5800131f6123fde32a7708c1e761d5f7968a54ab13897",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/RAG_LOCAL_BRIEF_COMPLET.md",
+      "bytes": 1352210,
+      "characters": 1315684,
+      "blob_sha": "460c8d7f8b44ddb0482587a121463acba3578bba",
+      "sha256": "96239bb648504e891b13a60f4a26019dbd17de9dfd1c6c9b13a9ee6739a11d04",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/SOURCES.md",
+      "bytes": 327910,
+      "characters": 320746,
+      "blob_sha": "be9eaa53c23b2003cbab1bec65d8db3615554521",
+      "sha256": "a4f1cf2e30f48f4079b3ec58047c2d287a52c0f11426e9fbc050107c4a04146e",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/journal/2026-11-09.md",
+      "bytes": 33131,
+      "characters": 32074,
+      "blob_sha": "c0a9a3589f12f24d4d7db26cbd1ca0661bf5512b",
+      "sha256": "92ae0c404be90c06f401b72490f3a64e9d6f550ad3e3476723ab26517584d34c",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/trust-i5-pj-candidate-freeze-2026-11-09.json",
+      "bytes": 16436,
+      "characters": 16436,
+      "blob_sha": "ae04717ef92a8f81115e1d2980fc857a8a001e2a",
+      "sha256": "e63c0c08f321fcab0bb86de9be62221a0efaaf99ff4edb8e7dfb6be560fe5243",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/trust-i5-pj-fixture-freeze-2026-11-09.json",
+      "bytes": 1216,
+      "characters": 1216,
+      "blob_sha": "0260bad58ff2b27cb3d269944a99ce9aa672a85b",
+      "sha256": "597d4584ddfc24fd451090180c8070ab4d22102de061bd6f086f45ffeab3d610",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/trust-i5-pj-native-results-2026-11-09.json",
+      "bytes": 1155557,
+      "characters": 1154528,
+      "blob_sha": "bdfdc8b582a323ad18554d75923d11a681259e93",
+      "sha256": "625ca02cddd6532a2565b96de416b641d2e73b868874bc0072c953e70dca1adf",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/trust-i5-pj-protocol-2026-11-09.md",
+      "bytes": 8543,
+      "characters": 8266,
+      "blob_sha": "e4da830b9563e5e75b63020f302ce9ceba7f9944",
+      "sha256": "5ae83f77322c19599a602c335c4b0204e382893da5746f12b88cf1cbcfc219ba",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/trust-i5-pj-protocol-freeze-2026-11-09.json",
+      "bytes": 428,
+      "characters": 428,
+      "blob_sha": "2234d56482d25d2131a1f27da67dbdcd3b656694",
+      "sha256": "254644f1ce88ad91a576bd95042095eff897083eac0aab69717c65537039a941",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/trust-i5-pj-reproduction-2026-11-09.md",
+      "bytes": 22483,
+      "characters": 22084,
+      "blob_sha": "c7fa3077bf624ec2520270c5c6bc228f9f7090b4",
+      "sha256": "6f1b80e270810c1e7d42667fa58ebd796e2231c2f39449a55b25067e15455ba8",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/trust-i5-pj-research-2026-11-09.md",
+      "bytes": 13830,
+      "characters": 13377,
+      "blob_sha": "f0f2f03e4b7e240b788472c3cd783f8302d50b28",
+      "sha256": "45f90d137dd7c951a33cf4844efa383460861c66885e9c70ee87e0470fcc2200",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/trust-i5-pj-results-2026-11-09.md",
+      "bytes": 27608,
+      "characters": 26781,
+      "blob_sha": "5b666ff54d2e3094bf2ad97bbcaf1fac5b1e06fb",
+      "sha256": "3989e1f150a5305a46dd9e2f4b340f5d5765b73d9eb09502192ed40a85c63b98",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/trust-i5-pj-review-2026-11-09.md",
+      "bytes": 23834,
+      "characters": 23028,
+      "blob_sha": "bb9dbb86a1723490fde027b42c639962930ffa4c",
+      "sha256": "269740f072ecd10eabd7e21267c98978437fb30d6c949ccc0b2c4445e66ecb4c",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/trust-i5-pj-support-results-2026-11-09.json",
+      "bytes": 761366,
+      "characters": 759829,
+      "blob_sha": "021822f8a5a2ca1dd6520673daaefb9005484d26",
+      "sha256": "da00431467fb8d609f8bf6ac237272e632b248f7032336d8ee55eb50321d9c98",
+      "mode": "100644"
+    },
+    {
+      "path": "RAG_Local_Agents/reports/trust-i5-pj-validation-2026-11-09.json",
+      "bytes": 158747,
+      "characters": 157701,
+      "blob_sha": "3f2319aef942ef0eb82b7415a2554c39e9755943",
+      "sha256": "15a050018b855e654fce20407fa923ff65e78988cae43c2184817c24a031a49b",
+      "mode": "100644"
+    },
+    {
+      "path": "README.md",
+      "bytes": 86948,
+      "characters": 85032,
+      "blob_sha": "2d488ecd0844d64616924021a6618884e513b0fb",
+      "sha256": "e97675382d63e08dec6e60ae55605bc96fed4919825f142e8006eb3b3d26d026",
+      "mode": "100644"
+    },
+    {
+      "path": "docs/deploiement/DEPLOIEMENT.md",
+      "bytes": 92601,
+      "characters": 90120,
+      "blob_sha": "5d15a86f219029b98728b2af87e342cdc4e030a2",
+      "sha256": "632fdc4a7f71af88ea3a3d8db7189db0dfb5d48bac1d51d1a1641173c5fecf91",
+      "mode": "100644"
+    },
+    {
+      "path": "docs/interfaces/API.md",
+      "bytes": 81357,
+      "characters": 79693,
+      "blob_sha": "829a5c209257b443afba07a4ebb3d8926bdc9da0",
+      "sha256": "be2be3d471c442f73f3288f818acce1f531eba35acb910b5b94a30f214345ced",
+      "mode": "100644"
+    },
+    {
+      "path": "services/api/answer_contract.py",
+      "bytes": 171630,
+      "characters": 171201,
+      "blob_sha": "7821a375c7953df9b1c9415854f747bcc817624c",
+      "sha256": "02a71f622f96b2e33d2ad7958d7bea826717468b9368da29077c7edef65bf88f",
+      "mode": "100644"
+    },
+    {
+      "path": "services/api/numeric_semantics.py",
+      "bytes": 1852,
+      "characters": 1839,
+      "blob_sha": "422e03befb5f9434ba4779e17125544a534837e9",
+      "sha256": "8543b390e8848963300f46d443bdd54ecfc16ccef7f8c865661caea8893e2822",
+      "mode": "100644"
+    },
+    {
+      "path": "services/api/point_conditions.py",
+      "bytes": 4361,
+      "characters": 4340,
+      "blob_sha": "b0eea89a7ce619d89f668b8eccdd27f553bb6f43",
+      "sha256": "cbdeca5b72d04279577bbae860f64e251f723fda988197a5545b7b79975ebf96",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/fixtures/support_i5_pj_dev.json",
+      "bytes": 28437,
+      "characters": 28357,
+      "blob_sha": "949332efb2cd1b978f2ad9a5e30c0745e738abd9",
+      "sha256": "4209a27891de7af2d080094767a2b19abfab358f1bc8b735debbe2637e8bbb3b",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/fixtures/support_i5_pj_final.json",
+      "bytes": 27938,
+      "characters": 27864,
+      "blob_sha": "87adc868699da39fa8dc691ce31c4aef268331c0",
+      "sha256": "0b8edfb53e2d97a520a31d5df2c82d15a1955f929522696a5e1d0c8d687014ed",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/unit/test_i5_pj_numeric_semantics.py",
+      "bytes": 12278,
+      "characters": 12210,
+      "blob_sha": "4082e1e7da4fb101d1e15fff396304d3e5e1200a",
+      "sha256": "0939098c6332c872a409237cabe92ba1fc2c125016df0726fb042982d49d1db8",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/unit/test_support_benchmark.py",
+      "bytes": 9848,
+      "characters": 9846,
+      "blob_sha": "943af9bde92df98e89d0042b381eef1accd0a768",
+      "sha256": "859ca14783a9520ae5d519b19f16a222c0efc828e6ef33c2acfd406f80127642",
+      "mode": "100644"
+    },
+    {
+      "path": "tools/qualification/README.md",
+      "bytes": 59307,
+      "characters": 57835,
+      "blob_sha": "34baa84ba20e7e3bd3bbf9597f7609b1047e8518",
+      "sha256": "86a7c4534528ee8ac9a55bc57411fc6c5287d4717d7fcaedfc90be8a0a60cda6",
+      "mode": "100644"
+    },
+    {
+      "path": "tools/qualification/prepare_support_native.py",
+      "bytes": 4326,
+      "characters": 4306,
+      "blob_sha": "8450a60ac3b9e2f5aeb09b2a648180ee3fcbd4bc",
+      "sha256": "32331b5aa4dc390a5c0da1850c12a55f1cd52167e2fdffbba8c87098c2a4b24d",
+      "mode": "100644"
+    },
+    {
+      "path": "tools/qualification/prepare_support_pdf.py",
+      "bytes": 4793,
+      "characters": 4791,
+      "blob_sha": "832dff758c6fbcadf484842b92507f539ca0791e",
+      "sha256": "c31e62dc63343a61928dc70225fe157f829e8deeafe3e189e28a337f695fd481",
+      "mode": "100644"
+    },
+    {
+      "path": "tools/qualification/support_benchmark.py",
+      "bytes": 18762,
+      "characters": 18750,
+      "blob_sha": "886503e33017d79d40a39e503777a4203743aa41",
+      "sha256": "0f9ea042729a57349a65cbad7aa0d8d1c0ef9d355cf60bf9ce52b176686102e5",
+      "mode": "100644"
+    }
+  ],
+  "receipt_documentation_checks": {
+    "documentation": {
+      "status": "PASS",
+      "verified_utc": "2026-11-09T14:23:39+00:00",
+      "report_sha256": "811c986c11d9e8473157ede71b8b488bce3abbf6ea7fa79b3d95aa9a933f3a73",
+      "report": {
+        "utc": "2026-11-09T14:23:39+00:00",
+        "root": "/workspace/scratch/37dafe3f3244/agentPDFDoc",
+        "status": "PASS",
+        "checks": [
+          {
+            "id": "links",
+            "status": "PASS",
+            "detail": {
+              "relative_links_checked": 1623,
+              "warnings": [],
+              "external_urls_fetched": false
+            }
+          },
+          {
+            "id": "headers",
+            "status": "PASS",
+            "detail": {
+              "documents": 8,
+              "statuses": {
+                "docs/README.md": "stabilise",
+                "docs/architecture/ARCHITECTURE.md": "stabilise",
+                "docs/deploiement/DEPLOIEMENT.md": "stabilise",
+                "docs/exploitation/DEPANNAGE.md": "stabilise",
+                "docs/exploitation/EXPLOITATION.md": "stabilise",
+                "docs/exploitation/SAUVEGARDE-RESTAURATION.md": "stabilise",
+                "docs/interfaces/API.md": "stabilise",
+                "docs/specifications/SPECIFICATIONS.md": "stabilise"
+              }
+            }
+          },
+          {
+            "id": "index",
+            "status": "PASS",
+            "detail": {
+              "indexed_documents": 7
+            }
+          },
+          {
+            "id": "ascii_art",
+            "status": "PASS",
+            "detail": {
+              "code_blocks_checked": 48
+            }
+          },
+          {
+            "id": "images",
+            "status": "PASS",
+            "detail": {
+              "svg_checked": 5,
+              "display_width_px": 880,
+              "min_display_font_px": 11.0
+            }
+          },
+          {
+            "id": "versions",
+            "status": "PASS",
+            "detail": {
+              "version": "0.1.0",
+              "released_sections": [],
+              "warnings": []
+            }
+          },
+          {
+            "id": "entry_point",
+            "status": "PASS",
+            "detail": {
+              "entry_links": [
+                "docs/README.md",
+                "CHANGELOG.md"
+              ]
+            }
+          }
+        ],
+        "network": "none"
+      }
+    },
+    "pack": {
+      "status": "PASS",
+      "verified_utc": "2026-11-09T14:23:38.624744+00:00",
+      "report_sha256": "d2e4f4018e85faf3cd5798429ba5d10fb0bb82b66230c5e693398de40a122234",
+      "report": {
+        "pack": "RAG-LOCAL-16-v2.1",
+        "checked_at_utc": "2026-11-09T14:23:38.624744+00:00",
+        "overall_status": "PASS",
+        "scope": "Documentation, configuration syntax, runtime profile copy, skill format/registry, SQLite reference and deterministic examples ONLY",
+        "python_version": "3.12.14",
+        "pyyaml_version": "6.0.3",
+        "results": [
+          {
+            "id": "markdown_links",
+            "status": "PASS",
+            "detail": {
+              "local_links_checked": 2476,
+              "links_to_project_outside_pack": 358,
+              "git_ignore_check": "PASS",
+              "external_urls_fetched": false
+            }
+          },
+          {
+            "id": "syntax",
+            "status": "PASS",
+            "detail": {
+              "configuration_files": [
+                "app.env",
+                "lexical.sql",
+                "local16-4b.yaml",
+                "local16.yaml",
+                "next.config.mjs",
+                "ollama.chat.smoke.json",
+                "ollama.env",
+                "qdrant.collection.json",
+                "qdrant.yaml"
+              ],
+              "native_runtime_schema_tested": false
+            }
+          },
+          {
+            "id": "configuration_consistency",
+            "status": "PASS",
+            "detail": {
+              "embedding_dimensions": 384,
+              "max_declared_tokens_with_output": 8192,
+              "parameters_are_unqualified_design_targets": true
+            }
+          },
+          {
+            "id": "runtime_profile_copy",
+            "status": "PASS",
+            "detail": {
+              "runtime_profile": "config/local16.yaml",
+              "documentary_copy": "RAG_Local_Agents/config/local16.yaml",
+              "sha256": "6d51003d32df8c4d765ee31d58fad98dd4216911f2e78f4ccf2f4b787e05c212",
+              "byte_identical": true,
+              "additional_profiles": {
+                "local16-4b.yaml": {
+                  "runtime": "config/local16-4b.yaml",
+                  "documentary_copy": "RAG_Local_Agents/config/local16-4b.yaml",
+                  "sha256": "7f8743656a250a0a3d1d487b9d97b5e7b73f8b4a1edcf0db4b7c496a0b5e49da",
+                  "byte_identical": true
+                }
+              },
+              "collection_config": {
+                "runtime": "config/qdrant.collection.json",
+                "documentary_copy": "RAG_Local_Agents/config/qdrant.collection.json",
+                "sha256": "210b83977a299c506549c61c09e5a40816febefcaf06f59f6368913840e6133d",
+                "byte_identical": true
+              }
+            }
+          },
+          {
+            "id": "sqlite_fts5_reference",
+            "status": "PASS",
+            "detail": {
+              "sqlite_version": "3.53.1",
+              "checked": [
+                "create",
+                "insert",
+                "scope-filter",
+                "update",
+                "delete"
+              ],
+              "full_app_schema_tested": false
+            }
+          },
+          {
+            "id": "skill_format",
+            "status": "PASS",
+            "detail": {
+              "skills": [
+                "local-cpu-qualification",
+                "official-source-review",
+                "pdf-workspace-e2e",
+                "rag-pdf-provenance",
+                "rag-retrieval-evaluation"
+              ],
+              "syntax_and_links_only": true,
+              "native_client_discovery_tested": false
+            }
+          },
+          {
+            "id": "agents_skill_format",
+            "status": "PASS",
+            "detail": {
+              "skills": [
+                "agent-introspection-debugging",
+                "backend-patterns",
+                "embedding-comparison-windows",
+                "frontend-design",
+                "frontend-skill",
+                "hybrid-rag-api",
+                "linux-offline-kit",
+                "linux-rag-runtime",
+                "local-llm-qualification",
+                "office-document-ingestion",
+                "pdf-ingestion-windows",
+                "pdf-workspace-web",
+                "project-documentation",
+                "rag-qualification-fixtures",
+                "tesseract-lstm-extension",
+                "windows-rag-runtime"
+              ],
+              "warnings": [
+                "Fichier tiers mal rangé : .agents/skills/SKILL.md (SKILL.md hors dossier de skill, non découvrable)",
+                "Fichier tiers mal rangé : .agents/skills/golang-general-backend-security.md",
+                "Fichier tiers mal rangé : .agents/skills/javascript-express-web-server-security.md",
+                "Fichier tiers mal rangé : .agents/skills/javascript-general-web-frontend-security.md",
+                "Fichier tiers mal rangé : .agents/skills/javascript-jquery-web-frontend-security.md",
+                "Fichier tiers mal rangé : .agents/skills/javascript-typescript-nextjs-web-server-security.md",
+                "Fichier tiers mal rangé : .agents/skills/javascript-typescript-react-web-frontend-security.md",
+                "Fichier tiers mal rangé : .agents/skills/javascript-typescript-vue-web-frontend-security.md",
+                "Fichier tiers mal rangé : .agents/skills/openai.yaml",
+                "Fichier tiers mal rangé : .agents/skills/python-django-web-server-security.md",
+                "Fichier tiers mal rangé : .agents/skills/python-fastapi-web-server-security.md",
+                "Fichier tiers mal rangé : .agents/skills/python-flask-web-server-security.md"
+              ],
+              "syntax_and_links_only": true,
+              "native_client_discovery_tested": false
+            }
+          },
+          {
+            "id": "skills_registry",
+            "status": "PASS",
+            "detail": {
+              "pack": [
+                "local-cpu-qualification",
+                "official-source-review",
+                "pdf-workspace-e2e",
+                "rag-pdf-provenance",
+                "rag-retrieval-evaluation"
+              ],
+              "project": [
+                "embedding-comparison-windows",
+                "hybrid-rag-api",
+                "linux-offline-kit",
+                "linux-rag-runtime",
+                "local-llm-qualification",
+                "office-document-ingestion",
+                "pdf-ingestion-windows",
+                "pdf-workspace-web",
+                "project-documentation",
+                "rag-qualification-fixtures",
+                "tesseract-lstm-extension",
+                "windows-rag-runtime"
+              ],
+              "third_party": [
+                "SKILL.md",
+                "golang-general-backend-security.md",
+                "javascript-express-web-server-security.md",
+                "javascript-general-web-frontend-security.md",
+                "javascript-jquery-web-frontend-security.md",
+                "javascript-typescript-nextjs-web-server-security.md",
+                "javascript-typescript-react-web-frontend-security.md",
+                "javascript-typescript-vue-web-frontend-security.md",
+                "openai.yaml",
+                "python-django-web-server-security.md",
+                "python-fastapi-web-server-security.md",
+                "python-flask-web-server-security.md",
+                "agent-introspection-debugging",
+                "backend-patterns",
+                "frontend-design",
+                "frontend-skill"
+              ],
+              "sha256_checked": 33,
+              "behavior_tested": false
+            }
+          },
+          {
+            "id": "policy_propagation",
+            "status": "PASS",
+            "detail": {
+              "policy_in_primary_instructions": true,
+              "source_and_skill_acceptance": "D11"
+            }
+          },
+          {
+            "id": "deterministic_examples",
+            "status": "PASS",
+            "detail": {
+              "rrf_counterexample": {
+                "exact_score": 0.01639344262295082,
+                "top6_without_exact": [
+                  "near1",
+                  "near2",
+                  "near3",
+                  "near4",
+                  "near5",
+                  "near6"
+                ],
+                "illustrative_selection": [
+                  "exact",
+                  "near1",
+                  "near2",
+                  "near3",
+                  "near4",
+                  "near5"
+                ]
+              },
+              "unicode_roundtrip": true,
+              "dense_25000x384_float32_bytes": 38400000,
+              "wilson_27_of_30_95pct": [
+                0.7437891742081593,
+                0.9654001112526658
+              ],
+              "not_a_test_of_future_application": true
+            }
+          },
+          {
+            "id": "consolidated_brief",
+            "status": "PASS",
+            "detail": {
+              "output": "RAG_LOCAL_BRIEF_COMPLET.md",
+              "canonical_docs_and_configs_included": true
+            }
+          }
+        ],
+        "warnings": [
+          "Fichier tiers mal rangé : .agents/skills/SKILL.md (SKILL.md hors dossier de skill, non découvrable)",
+          "Fichier tiers mal rangé : .agents/skills/golang-general-backend-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-express-web-server-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-general-web-frontend-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-jquery-web-frontend-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-typescript-nextjs-web-server-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-typescript-react-web-frontend-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-typescript-vue-web-frontend-security.md",
+          "Fichier tiers mal rangé : .agents/skills/openai.yaml",
+          "Fichier tiers mal rangé : .agents/skills/python-django-web-server-security.md",
+          "Fichier tiers mal rangé : .agents/skills/python-fastapi-web-server-security.md",
+          "Fichier tiers mal rangé : .agents/skills/python-flask-web-server-security.md"
+        ],
+        "not_executed": [
+          "LLM inference",
+          "Docling or OCR",
+          "Qdrant server/API",
+          "Frontend or browser E2E",
+          "16 GB target qualification",
+          "Native skill installation/discovery/invocation",
+          "External source link accessibility in this offline script"
+        ]
+      }
+    },
+    "frozen_source_files": {
+      "checked": 143,
+      "changed": []
+    }
+  }
+}

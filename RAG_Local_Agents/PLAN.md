@@ -17,7 +17,7 @@ Les travaux I6 locaux non publiés restent dans leur copie existante.
 | PJ-02 | PJ-01 ; opérateurs numériques et polarité des conditions, PJ-D01/D02/D03 | IMPLÉMENTÉ ET MESURÉ ; 64 nouvelles régressions, 351 ciblés PASS ; H1/H2 conservées sur bénéfice local ; PJ-D01 FAIL au final H24, aucun réglage après ouverture |
 | PJ-03 | PJ-01 ; annotations séparées, trois comparateurs, ablations, PJ-D05 | TERMINÉ ; 24 développement + 24 finaux, autres documents/valeurs ; faux appuis 10/12→0/12 puis 9/12→1/12 ; couverture positive 10/12 puis 9/12 inchangée, 28/28 littéraux chaque jeu ; revue indépendante |
 | PJ-04 | PJ-02 ; régression et essais natifs 4B, ressources et arrêts, PJ-D04/D06/D07 | TERMINÉ ; natif 11/11 candidat, 4→8 appels réels, HTTP01 PASS et arrêts vérifiés ; portable 5 166 PASS/1 FAIL documentaire préexistant corrigé, 105 tests documentaires puis Ruff/Mypy PASS ; erreurs initiales conservées |
-| PJ-05 | PJ-03/PJ-04 ; bilan exact, documents et publication vérifiée, PJ-D08 | PRÊT À PUBLIER ; rapports, commandes et portes documentaires fermés ; publication distante avec vérification de l’arbre et du parent à consigner |
+| PJ-05 | PJ-03/PJ-04 ; bilan exact, documents et publication vérifiée, PJ-D08 | LIVRÉ ; rapports et portes documentaires conformes ; commit [5502cf42](https://github.com/msedki/agentPDFDoc/commit/5502cf424b1d9211b5a63014b01c7ab8b998dc85), parent et arbre distants vérifiés à 14:21:50 UTC, mise à jour sans force ; [reçu](reports/trust-i5-pj-publication-2026-11-09.json). PJ-D08 PASS, PJ-D01 et qualification de production inchangés |
 
 Le critère zéro faux appui n'est pas atteint : H24 conserve une mauvaise
 applicabilité de « à l'exception de ». H06 garde une négation distante mal

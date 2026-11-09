@@ -10,6 +10,9 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 ### I5-PJ — appui numérique et conditions exclues, 9 novembre 2026
 
+Commit technique [5502cf42](https://github.com/msedki/agentPDFDoc/commit/5502cf424b1d9211b5a63014b01c7ab8b998dc85) publié sur `enhanced_version`,
+arbre et parent distants vérifiés ; [reçu](RAG_Local_Agents/reports/trust-i5-pj-publication-2026-11-09.json).
+
 - Les opérateurs et qualificatifs reconnus autour d'un nombre empêchent de
   transformer une borne ou une non-égalité en valeur exacte pour une réponse,
   une comparaison ou un calcul. Le passage original reste cité avec sa limite.

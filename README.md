@@ -1,8 +1,12 @@
 # Atelier documentaire local
 
-**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** I5 publié et complément I5-PJ mesuré avec réserves, diffusion non qualifiée · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; les états antérieurs par plateforme restent documentés ci-dessous · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
+**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** I5 et complément I5-PJ publiés avec réserves, diffusion non qualifiée · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; les états antérieurs par plateforme restent documentés ci-dessous · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
 
 ## I5-PJ — opérateurs et exceptions, 9 novembre 2026
+
+Commit technique [5502cf42](https://github.com/msedki/agentPDFDoc/commit/5502cf424b1d9211b5a63014b01c7ab8b998dc85) publié sur `enhanced_version`,
+32 fichiers et arbre distant identiques au commit local vérifié, sans force.
+[Reçu de publication](RAG_Local_Agents/reports/trust-i5-pj-publication-2026-11-09.json).
 
 Le complément I5 conserve **Qwen3-4B Q4_K_M comme seul générateur**. Les
 bornes et non-égalités reconnues ne deviennent plus des valeurs exactes ; les
