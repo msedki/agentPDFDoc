@@ -2615,3 +2615,42 @@ Cette décision ne change ni la grammaire des valeurs, ni les règles de garanti
 ni les critères de réception. La revue, les contre-exemples et les résultats
 sont conservés dans le [rapport des preuves](reports/trust-4b-evidence-2026-11-08.md)
 et le [bilan I5](reports/trust-4b-results-2026-11-08.md).
+
+
+## I5-PJ-D01 — qualifier l'opérande et la polarité des conditions, 09/11/2026
+
+**Décision :** retenir les contrôles bornés de relation numérique et de points
+exclus, avec conservation des littéraux. **Référence :** `fe4693da` ;
+[protocole fixé avant code](reports/trust-i5-pj-protocol-2026-11-09.md),
+[étude des sources primaires](reports/trust-i5-pj-research-2026-11-09.md) et
+[bilan des essais](reports/trust-i5-pj-results-2026-11-09.md).
+
+Le défaut reproduit porte sur la relation, alors que le nombre et la citation
+sont présents : une borne est admise comme valeur exacte ; une exception est
+admise comme point d'application. Les opérateurs et qualificatifs reconnus
+restent liés à leur opérande. Un point exclu reconnu par cette grammaire ne fournit pas un point positif,
+et contredit l'appui au même point canonique. Les clauses originales conservent
+les unités et leur casse. Aucune valeur issue du corpus n'est codée dans la
+règle. Les extraits utiles restent publiés avec la limite correspondante.
+
+Les ablations de développement attribuent séparément le gain aux deux gardes.
+Sur le jeu final, les faux appuis exacts passent de 9/12 à 1/12, à couverture
+positive inchangée (9/12) et 28/28 littéraux préservés. Le bénéfice borné justifie
+la conservation du correctif. **L'objectif zéro faux appui n'est pas atteint :**
+H24, « à l'exception de », n'est pas reconnu. Il n'y a aucun réglage après
+ouverture du final. H06 et les comparaisons H11/H12 gardent leurs faux rejets.
+Ces jeux synthétiques, annotés et relus par des agents distincts, ne valent
+ni annotation experte humaine ni transfert industriel.
+
+La comparaison algébrique de bornes et la compréhension générale des
+exceptions sont différées. La correction du produit cartésien sujet/document
+nécessite ses propres contre-exemples. Le retrieval reste inchangé : les
+passages nécessaires étaient déjà présents dans les défauts reproduits ;
+aucun gain lexical/dense/hybride ou de reclassement n'est revendiqué. Une
+campagne dédiée devra étudier rappel, bruit, ordre, découpage et budget sur un
+corpus représentatif. L'étude HalluGuard ne conduit pas à installer ses poids
+spécialisés : Qwen3-4B Q4_K_M reste le seul générateur. Les contraintes de
+mémoire, de contexte et de délai ne sont pas augmentées.
+
+Le complément est livré avec ses échecs mesurés. Il ne clôt ni les exigences
+historiques I5, ni la qualification des installations et plateformes.

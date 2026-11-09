@@ -1410,6 +1410,30 @@ Pour chaque skill retenu, vérifier une tâche pertinente et une tâche hors pé
 
 **Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; notes et preuves datées ci-dessous, compléments R27 sur produits `5204d2e`/`aabb9808`, historique conservé · **Mis à jour :** 2026-11-09 (UTC ; complément I5, preuves historiques conservées) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
+## Complément I5-PJ — relations numériques et conditions, 9 novembre 2026
+
+Les critères PJ-D01 à PJ-D08 sont fixés avant modification dans le
+[protocole I5-PJ](reports/trust-i5-pj-protocol-2026-11-09.md). Le
+[bilan détaillé](reports/trust-i5-pj-results-2026-11-09.md) porte leurs statuts
+finaux ; les exigences et échecs historiques ci-dessous restent inchangés.
+
+Le test final ouvert après gel du candidat réduit les faux appuis exacts
+acceptés de 9/12 à 1/12, à couverture positive identique 9/12 et conservation
+littérale 28/28. **PJ-D01 n'est pas atteint :** la formulation française
+« à l'exception de » de H24 reste acceptée à tort. **PJ-D02 est atteint** dans
+sa définition préalable : aucun nouveau faux rejet sur les positifs couverts
+par la référence. La cible absolue 12/12 des fixtures reste non atteinte.
+H06/H11/H12 conservent leurs faux rejets. Ces résultats du vérificateur ne
+constituent ni un taux général d'hallucination ni une preuve de production.
+
+Les répétitions, ablations, comparaison extractive, contrôles natifs, coûts
+et arrêts sont distingués dans les
+[preuves de contrôle](reports/trust-i5-pj-support-results-2026-11-09.json)
+et la [revue indépendante](reports/trust-i5-pj-review-2026-11-09.md).
+Aucun réglage produit ni changement de seuil n'est effectué après ouverture
+du final. La qualification globale reste **non acquise**, y compris lorsque
+les portes logicielles et la livraison des sources sont terminées.
+
 ## Complément I5 — diffusion comme application de confiance
 
 Les critères I5 sont fixés avant les essais dans le [protocole du 8 novembre](reports/trust-4b-protocol-2026-11-08.md), avec ses addenda [générateur unique](reports/trust-4b-entrypoints-addendum-2026-11-08.md) et [ressources](reports/trust-4b-resource-addendum-2026-11-08.md). Ils complètent les exigences historiques, sans les annuler.
@@ -1972,6 +1996,31 @@ vérité de cette campagne.
 # Plan de réalisation vivant — livraison locale avec réserves, qualification intégrale en attente
 
 **Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** vivant, bilan de la troisième itération de confiance I5 ; implémentations et preuves des lots précédents conservées, qualification de diffusion non acquise · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; historiques R27/R28 et I1–I4 dans leurs sections · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
+
+## I5-PJ — complément demandé le 9 novembre 2026 (UTC)
+
+**Objectif :** appliquer les exigences de la pièce jointe à la vérification des
+relations documentaires et à leur évaluation indépendante. **Référence :**
+`fe4693da07ed9e948f65e4cadb51cd43ec36ebe2`, copie isolée de `enhanced_version`.
+Les travaux I6 locaux non publiés restent dans leur copie existante.
+**Critères inchangés :** [protocole préalable](reports/trust-i5-pj-protocol-2026-11-09.md).
+**Bilan :** [résultats et DoD](reports/trust-i5-pj-results-2026-11-09.md).
+
+| Action | Dépendance, livrable et critère | État / preuve |
+|---|---|---|
+| PJ-01 | Référence immuable, défauts reproduits, protocole et sources primaires | TERMINÉ ; base exacte, 196 contrôles initiaux PASS, deux défauts reproduits ; huit publications primaires examinées, gels antérieurs au produit |
+| PJ-02 | PJ-01 ; opérateurs numériques et polarité des conditions, PJ-D01/D02/D03 | IMPLÉMENTÉ ET MESURÉ ; 64 nouvelles régressions, 351 ciblés PASS ; H1/H2 conservées sur bénéfice local ; PJ-D01 FAIL au final H24, aucun réglage après ouverture |
+| PJ-03 | PJ-01 ; annotations séparées, trois comparateurs, ablations, PJ-D05 | TERMINÉ ; 24 développement + 24 finaux, autres documents/valeurs ; faux appuis 10/12→0/12 puis 9/12→1/12 ; couverture positive 10/12 puis 9/12 inchangée, 28/28 littéraux chaque jeu ; revue indépendante |
+| PJ-04 | PJ-02 ; régression et essais natifs 4B, ressources et arrêts, PJ-D04/D06/D07 | TERMINÉ ; natif 11/11 candidat, 4→8 appels réels, HTTP01 PASS et arrêts vérifiés ; portable 5 166 PASS/1 FAIL documentaire préexistant corrigé, 105 tests documentaires puis Ruff/Mypy PASS ; erreurs initiales conservées |
+| PJ-05 | PJ-03/PJ-04 ; bilan exact, documents et publication vérifiée, PJ-D08 | PRÊT À PUBLIER ; rapports, commandes et portes documentaires fermés ; publication distante avec vérification de l’arbre et du parent à consigner |
+
+Le critère zéro faux appui n'est pas atteint : H24 conserve une mauvaise
+applicabilité de « à l'exception de ». H06 garde une négation distante mal
+rattachée ; H11/H12 (et D11/D12) restent partiels par obligations croisées
+sujet/document. Ces cas restent au dénominateur. Prochain chantier : qualifier
+ces portées avec de nouveaux témoins et un nouveau jeu final fermé. Les
+échecs historiques I5 ci-dessous restent inchangés et la qualification de
+production reste non acquise.
 
 ## I5 — reprise des priorités de confiance, 8 novembre 2026 (UTC)
 
@@ -7777,6 +7826,45 @@ ni les critères de réception. La revue, les contre-exemples et les résultats
 sont conservés dans le [rapport des preuves](reports/trust-4b-evidence-2026-11-08.md)
 et le [bilan I5](reports/trust-4b-results-2026-11-08.md).
 
+
+## I5-PJ-D01 — qualifier l'opérande et la polarité des conditions, 09/11/2026
+
+**Décision :** retenir les contrôles bornés de relation numérique et de points
+exclus, avec conservation des littéraux. **Référence :** `fe4693da` ;
+[protocole fixé avant code](reports/trust-i5-pj-protocol-2026-11-09.md),
+[étude des sources primaires](reports/trust-i5-pj-research-2026-11-09.md) et
+[bilan des essais](reports/trust-i5-pj-results-2026-11-09.md).
+
+Le défaut reproduit porte sur la relation, alors que le nombre et la citation
+sont présents : une borne est admise comme valeur exacte ; une exception est
+admise comme point d'application. Les opérateurs et qualificatifs reconnus
+restent liés à leur opérande. Un point exclu reconnu par cette grammaire ne fournit pas un point positif,
+et contredit l'appui au même point canonique. Les clauses originales conservent
+les unités et leur casse. Aucune valeur issue du corpus n'est codée dans la
+règle. Les extraits utiles restent publiés avec la limite correspondante.
+
+Les ablations de développement attribuent séparément le gain aux deux gardes.
+Sur le jeu final, les faux appuis exacts passent de 9/12 à 1/12, à couverture
+positive inchangée (9/12) et 28/28 littéraux préservés. Le bénéfice borné justifie
+la conservation du correctif. **L'objectif zéro faux appui n'est pas atteint :**
+H24, « à l'exception de », n'est pas reconnu. Il n'y a aucun réglage après
+ouverture du final. H06 et les comparaisons H11/H12 gardent leurs faux rejets.
+Ces jeux synthétiques, annotés et relus par des agents distincts, ne valent
+ni annotation experte humaine ni transfert industriel.
+
+La comparaison algébrique de bornes et la compréhension générale des
+exceptions sont différées. La correction du produit cartésien sujet/document
+nécessite ses propres contre-exemples. Le retrieval reste inchangé : les
+passages nécessaires étaient déjà présents dans les défauts reproduits ;
+aucun gain lexical/dense/hybride ou de reclassement n'est revendiqué. Une
+campagne dédiée devra étudier rappel, bruit, ordre, découpage et budget sur un
+corpus représentatif. L'étude HalluGuard ne conduit pas à installer ses poids
+spécialisés : Qwen3-4B Q4_K_M reste le seul générateur. Les contraintes de
+mémoire, de contexte et de délai ne sont pas augmentées.
+
+Le complément est livré avec ses échecs mesurés. Il ne clôt ni les exigences
+historiques I5, ni la qualification des installations et plateformes.
+
 ---
 
 ## Fichier : `CHANGELOG.md`
@@ -9915,6 +10003,34 @@ disponibilité future des URL publiques.
 ### I5-S04 — identité et notice du GGUF Qwen3-4B
 
 Sources primaires consultées le 8 novembre 2026 UTC : [carte GGUF à bc640142c66e1fdd12af0bd68f40445458f3869b](https://huggingface.co/Qwen/Qwen3-4B-GGUF/blob/bc640142c66e1fdd12af0bd68f40445458f3869b/README.md) et [licence Qwen3-4B à 1cfa9a7208912126459214e8b04321603b3df60c](https://huggingface.co/Qwen/Qwen3-4B/blob/1cfa9a7208912126459214e8b04321603b3df60c/LICENSE). Identité et licence Apache-2.0 déclarées ; références déjà fixées par enhanced-4b.lock.json. Apport : notice du modèle natif choisi par identité, distincte de l’ancienne dérivation Qwen3.5. Limite : ces pages ne prouvent ni que les textes de licence sont effectivement embarqués dans un kit, ni que ce kit est installé/qualifié. L’inventaire des fichiers fait autorité pour les éléments annoncés comme livrés.
+
+
+## I5-PJ — vérification des relations et évaluation indépendante, 9 novembre 2026
+
+Les huit sources primaires ont été consultées et confrontées à leur texte
+intégral. Le [rapport scientifique](reports/trust-i5-pj-research-2026-11-09.md)
+précise tâches, corpus, modèles, protocoles, métriques, résultats publiés et
+limites de transfert. Toutes sont des publications évaluées par les pairs ;
+les versions arXiv consultées restent identifiées. Aucun score publié n'est
+attribué au Qwen3-4B quantifié local.
+
+| ID | Source officielle | Usage dans I5-PJ |
+|---|---|---|
+| I5-PJ-S01 | [ALCE, EMNLP 2023](https://aclanthology.org/2023.emnlp-main.398/) | Distinguer présence d'une citation, support de l'affirmation et complétude. |
+| I5-PJ-S02 | [RAGTruth, ACL 2024](https://aclanthology.org/2024.acl-long.585/) | Annoter les erreurs de relation, de condition et d'information ajoutée. |
+| I5-PJ-S03 | [Searching for Best Practices in RAG, EMNLP 2024](https://aclanthology.org/2024.emnlp-main.981/) | Isoler les composants à corpus constant et mesurer le coût ; aucun réglage de retrieval transposé. |
+| I5-PJ-S04 | [Sufficient Context, ICLR 2025](https://research.google/pubs/sufficient-context-a-new-lens-on-retrieval-augmented-generation-systems-2/) | Séparer preuve disponible, suffisance pour la question et exploitation de cette preuve. |
+| I5-PJ-S05 | [GaRAGe, Findings ACL 2025](https://aclanthology.org/2025.findings-acl.875/) | Vérifier l'applicabilité des sources et l'utilité des réponses partielles. |
+| I5-PJ-S06 | [FaithBench, NAACL 2025](https://aclanthology.org/2025.naacl-short.38/) | Mesurer les faux acceptés et faux rejetés du vérificateur sur un jeu séparé. |
+| I5-PJ-S07 | [OmniDocBench, CVPR 2025](https://openaccess.thecvf.com/content/CVPR2025/html/Ouyang_OmniDocBench_Benchmarking_Diverse_PDF_Document_Parsing_with_Comprehensive_Annotations_CVPR_2025_paper.html) | Séparer fidélité de l'extraction et fidélité au texte extrait ; version arXiv v2 à 981 pages distincte des évolutions du dépôt. |
+| I5-PJ-S08 | [HalluGuard, Findings ACL 2026](https://aclanthology.org/2026.findings-acl.835/) | Poids spécialisés et résultats distincts du générateur retenu ; intégration différée, aucun second modèle ajouté. |
+
+Sources locales : [protocole préalable](reports/trust-i5-pj-protocol-2026-11-09.md),
+[gel des jeux](reports/trust-i5-pj-fixture-freeze-2026-11-09.json),
+[gel du candidat](reports/trust-i5-pj-candidate-freeze-2026-11-09.json),
+[bilan](reports/trust-i5-pj-results-2026-11-09.md).
+La littérature motive les hypothèses H1/H2 ; seuls les essais locaux permettent
+de retenir leur implémentation. L'échec final H24 reste au bilan.
 
 ---
 

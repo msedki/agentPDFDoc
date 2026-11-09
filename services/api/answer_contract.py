@@ -38,7 +38,9 @@ from .deterministic_calculations import (
 )
 from .errors import ApiError
 from .literal_evidence import RESTRICTION, nonrestrictive_tail_start, proof_envelope, sentence_spans
+from .numeric_semantics import has_nonexact_numeric_modifier
 from .point_conditions import condition_measures as _condition_measures
+from .point_conditions import has_excluded_point_condition
 
 VERIFICATION = "bounded_structural_checks"
 LIMITATION = "Contrôles de couverture explicite et de relations locales ; aucune preuve générale de justesse sémantique."
@@ -201,6 +203,12 @@ def _literal_key(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip(" \t\r\n.!?")
 
 
+def _folded_question_offsets(question: str) -> tuple[str, list[int]]:
+    pieces = [folded(char) for char in question]
+    offsets = [index for index, piece in enumerate(pieces) for _ in piece]
+    return "".join(pieces), [*offsets, len(question)]
+
+
 def _extended_qualitative_requests(question):
     """Explicit action/condition, function and removed-need question grammar.
 
@@ -208,13 +216,23 @@ def _extended_qualitative_requests(question):
     The answer is always the complete matched source clause, never a translated
     or generated explanation. An unmatched coordinated clause stays unassessed.
     """
-    text = re.sub(r"^(?:d['’]apres|selon|according\s+to)[^,?]{0,250},\s*", "", folded(question.strip()))
-    parts = re.split(r"\s+(?:et|and)\s+(?=(?:a\s+quoi\s+sert|quelle?\s+|what\s+(?:is|condition)|under\s+what))", text)
+    text, offsets = _folded_question_offsets(question)
+    start, end = len(text) - len(text.lstrip()), len(text.rstrip())
+    attribution = re.match(r"(?:d['’]apres|selon|according\s+to)[^,?]{0,250},\s*", text[start:end])
+    if attribution:
+        start += attribution.end()
+    separator = re.compile(r"\s+(?:et|and)\s+(?=(?:a\s+quoi\s+sert|quelle?\s+|what\s+(?:is|condition)|under\s+what))")
+    ranges = []
+    for match in separator.finditer(text, start, end):
+        ranges.append((start, match.start()))
+        start = match.end()
+    ranges.append((start, end))
+    parts = [question[offsets[low]:offsets[high]].strip() for low, high in ranges]
     if len(parts) > 4:
         return []
     requests = []
     for part in parts:
-        value = _literal_key(part)
+        value = _literal_key(folded(part))
         request = None
         if (re.search(r"\b(?:quelles?\s+conditions?|what\s+conditions?)\b", value)
                 and re.search(r"\b(?:sortie|output)\b", value)
@@ -549,7 +567,9 @@ def _local_condition(line, start, end):
     # quantity, allowing two temperatures to be compared as one context.
     # A preceding assertion separated by a semicolon cannot donate its own
     # temperature condition to the next quantity.
-    before = [item["text"] for item in _condition_measures(line[:start].rsplit(";", 1)[-1])]
+    prefix = line[:start].rsplit(";", 1)[-1]
+    before = ([prefix.strip()] if has_excluded_point_condition(prefix)
+              else [item["text"] for item in _condition_measures(prefix)])
     after = line[end:].strip()
     return " ; ".join([*before, *([after] if after.strip(" .;") else [])])
 
@@ -749,7 +769,7 @@ def _quantity_request_clauses(question, quantities):
     """Split only explicit coordinated requested quantities, at most four."""
     if not 1 < len(quantities) <= 4:
         return []
-    text = folded(question)
+    text, offsets = _folded_question_offsets(question)
     positions = []
     for quantity in quantities:
         matches = list(re.finditer(QUANTITIES[quantity], text))
@@ -766,7 +786,7 @@ def _quantity_request_clauses(question, quantities):
             return []
         boundaries.append(left[1] + separators[-1].end())
     boundaries.append(len(text))
-    return [(quantity, text[boundaries[index]:boundaries[index + 1]].strip())
+    return [(quantity, question[offsets[boundaries[index]]:offsets[boundaries[index + 1]]].strip())
             for index, (_, _, quantity) in enumerate(positions)]
 
 
@@ -985,7 +1005,8 @@ def _measure_clause(line, start, end, quantity):
             prefix = line[low:separator.start()].strip()
             # A leading temperature/other explicit test condition belongs to
             # the following assertion, despite its comma.
-            if not re.match(r"^(?:at|a|à|for|pour|when|lorsque)\b", prefix, re.IGNORECASE):
+            if not re.match(r"^(?:at|a|à|for|pour|when|lorsque|if|si|unless|except|without|sauf|sans|"
+                            r"only\s+(?:at|when|if)|uniquement|seulement)\b", prefix, re.IGNORECASE):
                 if MEASURE.search(prefix) or re.search(r"\b(?:single|dual|simple|symetrique)\b", folded(prefix)):
                     low = separator.end()
         elif separator.start() >= end:
@@ -1112,10 +1133,13 @@ def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: st
             quote = raw[start:end].strip()
             start += len(raw[start:end]) - len(raw[start:end].lstrip())
             end = start + len(quote)
-            yield _relation(reference, quantity=quantity, role=role, values=values, unit=unit,
-                            label=label, condition=condition, quote=quote, kind=kind, subjects=subjects,
-                            value_text=match[0] if kind == "value" else None, list_context=context,
-                            source_start=start, source_end=end, supply_configuration=configuration, polarity=polarity)
+            relation = _relation(reference, quantity=quantity, role=role, values=values, unit=unit,
+                                 label=label, condition=condition, quote=quote, kind=kind, subjects=subjects,
+                                 value_text=match[0] if kind == "value" else None, list_context=context,
+                                 source_start=start, source_end=end, supply_configuration=configuration, polarity=polarity)
+            if has_nonexact_numeric_modifier(prefix, suffix):
+                relation["note_issues"].append("numeric_relation_not_exact")
+            yield relation
 
 
 def _cell_roles(cell):
@@ -1499,7 +1523,13 @@ class AnswerContract:
         normalized = folded(self.question)
         self.request_clause = self.question
         self.qualitative_request = _qualitative_request(self.question)
-        quantities = _requested_quantities(normalized)
+        # A named test input with its written point is a condition, not another
+        # requested output quantity. Preserve its original spelling for parsing
+        # units (mA/MA, °C, V); normalization is used only for routing words.
+        quantity_question = list(self.question)
+        for point in [*_condition_measures(self.question), *_condition_measures(self.question, excluded=True)]:
+            quantity_question[point["start"]:point["end"]] = " " * (point["end"] - point["start"])
+        quantities = _requested_quantities(folded("".join(quantity_question)))
         self.quantity = quantities[0] if len(quantities) == 1 else None
         if (self.quantity and (self.qualitative_request is None or self.qualitative_request["intent"] == "field")
                 and re.search(r"\b(?:pourquoi|why|expliqu\w*|explain\w*|comment|raisons?|reasons?)\b"
@@ -1560,6 +1590,8 @@ class AnswerContract:
         cell_context = self.cell_context or self.scope.get("kind") in {"cell_range", "sheet"}
         self.requested_cells, self.parse_failures = _addresses(
             self.question, enabled=bool(explicit_cell_language or cell_context and CELL_LANGUAGE.search(normalized)))
+        if has_excluded_point_condition(self.question):
+            self.parse_failures.append("excluded_point_condition_not_supported")
         mentioned_cells = set(self.requested_cells)
         if self.quantity and not self.operation and not self.parse_failures and self.scope.get("kind") == "cell_range":
             scoped_range = CELL_RANGE.search(self.question)
@@ -1633,22 +1665,24 @@ class AnswerContract:
             clauses = _quantity_request_clauses(self.question, quantities)
             if clauses and not self.operation and not self.requested_cells:
                 for quantity, clause in clauses:
+                    normalized_clause = folded(clause)
                     component = copy.copy(self)
                     component.components = []
                     component.request_clause = clause
                     component.quantity = quantity
                     component.kind = "comparison" if self.comparison_requested else "interval" if INTERVAL_LANGUAGE.search(normalized) else "value"
                     component.requested_properties = _properties(clause, quantity)
-                    component.requested_roles = [role for role, pattern in ROLES.items() if re.search(pattern, clause)]
+                    component.requested_roles = [role for role, pattern in ROLES.items() if re.search(pattern, normalized_clause)]
                     component.requested_role = component.requested_roles[0] if len(component.requested_roles) == 1 else None
                     component.guarantee_required = bool(GUARANTEE_LANGUAGE.search(folded(clause)))
                     component.requested_bound = _bound_role(clause)
                     component.requested_point_conditions = _condition_measures(clause)
                     component.requested_condition_alternatives = _point_condition_alternatives(clause, component.requested_point_conditions)
                     component.requested_supply_configurations = [name for name, pattern in SUPPLY_CONFIGURATIONS.items()
-                                                                 if re.search(pattern, clause)] if quantity == "voltage" else []
+                                                                 if re.search(pattern, normalized_clause)] if quantity == "voltage" else []
                     component.required_relation_count = 1
-                    component.parse_failures = []
+                    component.parse_failures = (["excluded_point_condition_not_supported"]
+                                                if has_excluded_point_condition(clause) else [])
                     self.components.append(component)
                 self.kind = "composite"
             else:
@@ -1748,6 +1782,8 @@ class AnswerContract:
 
     def _relation_rejections(self, fact):
         reasons = list(fact.get("note_issues", []))
+        if "excluded_point_condition_not_supported" in self.parse_failures:
+            reasons.append("excluded_point_condition_not_supported")
         if fact.get("assertion_status", "asserted") != "asserted":
             reasons.append("source_assertion_" + fact["assertion_status"])
         if (self.requested_bound and fact["kind"] == "value"
@@ -1766,6 +1802,16 @@ class AnswerContract:
     @staticmethod
     def _matches_points(fact, requested_points):
         available = _condition_measures(fact["condition"])
+        excluded = _condition_measures(fact["condition"], excluded=True)
+        def overlaps(left, right):
+            left_symbols = {name for name in [left.get("symbol"), *left.get("aliases", [])] if name}
+            right_symbols = {name for name in [right.get("symbol"), *right.get("aliases", [])] if name}
+            return (left["quantity"] == right["quantity"] and left["value"] == right["value"]
+                    and (not left_symbols or not right_symbols or bool(left_symbols & right_symbols)))
+        # An exclusion cannot be erased merely because a positive equality for
+        # the same named point also occurs in the clause. Compare base units.
+        if any(overlaps(point, exception) for point in [*available, *requested_points] for exception in excluded):
+            return False
         if fact.get("general_conditions_verified"):
             local = _condition_measures(fact.get("local_condition", ""))
             general = _condition_measures(fact.get("general_condition", ""))
@@ -2462,6 +2508,14 @@ def assessment_message(assessment: dict[str, Any]) -> str | None:
             return "La source qualifie une donnée d'incertaine ou d'approximative. Cette réserve est conservée ; aucune valeur certaine n'en est déduite."
         return "Une ambiguïté subsiste dans les preuves retenues (lecture, adresse ou rôle de la grandeur). Les données brutes sont conservées ; aucune correction n'est supposée."
     if status == "partial":
+        if any(item["requirement"] == "excluded_point_condition_not_supported" for item in assessment["missing"]):
+            return ("La demande exclut une condition chiffrée. L’analyse littérale ne détermine pas les autres "
+                    "conditions auxquelles la valeur s’applique ; les extraits cités ne valent pas réponse à ce complément.")
+        if (any(item["requirement"] == "numeric_relation_not_exact" for item in assessment["missing"])
+                or any("numeric_relation_not_exact" in item["reasons"]
+                       for item in assessment.get("rejected_relations", []))):
+            return ("Le passage donne une borne ou exclut une valeur. Cette formulation est conservée dans la citation ; "
+                    "son nombre n’est pas utilisé comme valeur exacte pour une comparaison ou un calcul.")
         if any(item["requirement"].startswith("source_quality_") or item["requirement"] == "table_source_binding_unverified"
                for item in assessment["missing"]):
             return ("La lecture source ou la liaison du tableau n’est pas suffisamment vérifiée pour une partie de la demande. "

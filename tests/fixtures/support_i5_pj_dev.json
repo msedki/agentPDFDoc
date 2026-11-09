@@ -1,0 +1,964 @@
+{
+  "schema_version": 1,
+  "protocol_id": "I5-PJ-SUPPORT-20261109",
+  "annotation": "independent_agent_before_product_edit; synthetic, not human expert labels",
+  "offset_unit": "unicode_code_point",
+  "task": "exact numeric relation and requested-condition applicability, not general semantic entailment",
+  "thresholds": {
+    "false_acceptance_count_max": 0,
+    "positive_exact_coverage_min": 1.0,
+    "scope": "this small synthetic suite only"
+  },
+  "created_utc": "2026-11-09T13:16:37.624281+00:00",
+  "split": "development",
+  "cases": [
+    {
+      "id": "D01",
+      "split": "development",
+      "category": "exact_value",
+      "language": "en",
+      "question": "What is the nominal voltage of RX410?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D01-document-1",
+          "document_family": "calibration-instruments-01-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of RX410 is 3.7 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 38,
+            "text": "The nominal voltage of RX410 is 3.7 V."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": true,
+        "comparison": null
+      },
+      "rationale": "The source states an exact nominal voltage for the requested equipment."
+    },
+    {
+      "id": "D02",
+      "split": "development",
+      "category": "exact_value",
+      "language": "fr",
+      "question": "Quel est le courant de sortie du RX411 ?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D02-document-1",
+          "document_family": "calibration-instruments-02-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le courant de sortie du RX411 est de 6,4 mA.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 44,
+            "text": "Le courant de sortie du RX411 est de 6,4 mA."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": true,
+        "comparison": null
+      },
+      "rationale": "Valeur exacte et grandeur de sortie attribuées au bon équipement."
+    },
+    {
+      "id": "D03",
+      "split": "development",
+      "category": "signed_value",
+      "language": "en",
+      "question": "What is the operating temperature of RX412?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D03-document-1",
+          "document_family": "calibration-instruments-03-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The operating temperature of RX412 is -12 °C.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 45,
+            "text": "The operating temperature of RX412 is -12 °C."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": true,
+        "comparison": null
+      },
+      "rationale": "The minus sign is part of an exact temperature, not an inequality."
+    },
+    {
+      "id": "D04",
+      "split": "development",
+      "category": "zero_value",
+      "language": "fr",
+      "question": "Quelle est la tension nominale du RX413 ?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D04-document-1",
+          "document_family": "calibration-instruments-04-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du RX413 est de 0 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 40,
+            "text": "La tension nominale du RX413 est de 0 V."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": true,
+        "comparison": null
+      },
+      "rationale": "Zéro est une valeur explicite valide."
+    },
+    {
+      "id": "D05",
+      "split": "development",
+      "category": "unrelated_bound",
+      "language": "en",
+      "question": "What is the nominal voltage of RX414?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D05-document-1",
+          "document_family": "calibration-instruments-05-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of RX414 is 4.6 V; the current is less than 11 mA.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 70,
+            "text": "The nominal voltage of RX414 is 4.6 V; the current is less than 11 mA."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": true,
+        "comparison": null
+      },
+      "rationale": "The current bound must not invalidate the unrelated exact voltage in the same sentence."
+    },
+    {
+      "id": "D06",
+      "split": "development",
+      "category": "unrelated_bound",
+      "language": "fr",
+      "question": "Quel est le courant de sortie du RX415 ?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D06-document-1",
+          "document_family": "calibration-instruments-06-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le courant de sortie du RX415 est de 9 mA ; la tension est inférieure à 12 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 77,
+            "text": "Le courant de sortie du RX415 est de 9 mA ; la tension est inférieure à 12 V."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": true,
+        "comparison": null
+      },
+      "rationale": "La borne porte sur une autre grandeur ; le courant reste exact."
+    },
+    {
+      "id": "D07",
+      "split": "development",
+      "category": "matching_condition",
+      "language": "en",
+      "question": "What is the output current of RX416 at TA = 24 °C?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D07-document-1",
+          "document_family": "calibration-instruments-07-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The output current of RX416 is 5 mA at TA = 24 °C.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 50,
+            "text": "The output current of RX416 is 5 mA at TA = 24 °C."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": true,
+        "comparison": null
+      },
+      "rationale": "The requested point condition matches the exact source condition."
+    },
+    {
+      "id": "D08",
+      "split": "development",
+      "category": "matching_condition",
+      "language": "fr",
+      "question": "Quel est le courant de sortie du RX417 à TA = 18 °C ?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D08-document-1",
+          "document_family": "calibration-instruments-08-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le courant de sortie du RX417 est de 7 mA à TA = 18 °C.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 55,
+            "text": "Le courant de sortie du RX417 est de 7 mA à TA = 18 °C."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": true,
+        "comparison": null
+      },
+      "rationale": "La condition demandée est explicitement celle du courant source."
+    },
+    {
+      "id": "D09",
+      "split": "development",
+      "category": "explicit_range",
+      "language": "en",
+      "question": "What is the operating voltage range of RX418?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D09-document-1",
+          "document_family": "calibration-instruments-09-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The operating voltage range of RX418 is 2.4 to 5.2 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 53,
+            "text": "The operating voltage range of RX418 is 2.4 to 5.2 V."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": true,
+        "comparison": null
+      },
+      "rationale": "An explicit interval remains a range, not a scalar comparison bound."
+    },
+    {
+      "id": "D10",
+      "split": "development",
+      "category": "explicit_range",
+      "language": "fr",
+      "question": "Quelle est la plage de tension de fonctionnement du RX419 ?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D10-document-1",
+          "document_family": "calibration-instruments-10-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La plage de tension de fonctionnement du RX419 est de 1,6 à 4,8 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 66,
+            "text": "La plage de tension de fonctionnement du RX419 est de 1,6 à 4,8 V."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": true,
+        "comparison": null
+      },
+      "rationale": "Intervalle explicite avec les deux bornes dans la même relation."
+    },
+    {
+      "id": "D11",
+      "split": "development",
+      "category": "exact_comparison",
+      "language": "en",
+      "question": "Compare the nominal voltages of RX420 and RX421.",
+      "mode": "comparison",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D11-document-1",
+          "document_family": "calibration-instruments-11-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of RX420 is 3.9 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 38,
+            "text": "The nominal voltage of RX420 is 3.9 V."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "development-D11-document-2",
+          "document_family": "calibration-instruments-11-2",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "The nominal voltage of RX421 is 3.9 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 38,
+            "text": "The nominal voltage of RX421 is 3.9 V."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": true,
+        "comparison": "equal"
+      },
+      "rationale": "Two exact nominal values of the same quantity are equal."
+    },
+    {
+      "id": "D12",
+      "split": "development",
+      "category": "exact_comparison",
+      "language": "fr",
+      "question": "Compare les tensions nominales du RX422 et du RX423.",
+      "mode": "comparison",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D12-document-1",
+          "document_family": "calibration-instruments-12-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du RX422 est de 2,8 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 42,
+            "text": "La tension nominale du RX422 est de 2,8 V."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "development-D12-document-2",
+          "document_family": "calibration-instruments-12-2",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "La tension nominale du RX423 est de 4,2 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 42,
+            "text": "La tension nominale du RX423 est de 4,2 V."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": true,
+        "comparison": "different"
+      },
+      "rationale": "Deux valeurs exactes distinctes ; une conclusion de différence est justifiée."
+    },
+    {
+      "id": "D13",
+      "split": "development",
+      "category": "strict_upper_bound",
+      "language": "en",
+      "question": "What is the nominal voltage of RX424?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D13-document-1",
+          "document_family": "calibration-instruments-13-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of RX424 is < 3.4 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 40,
+            "text": "The nominal voltage of RX424 is < 3.4 V."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": false,
+        "comparison": null
+      },
+      "rationale": "A strict upper bound does not establish equality to its endpoint."
+    },
+    {
+      "id": "D14",
+      "split": "development",
+      "category": "inclusive_upper_bound",
+      "language": "fr",
+      "question": "Quelle est la tension nominale du RX425 ?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D14-document-1",
+          "document_family": "calibration-instruments-14-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du RX425 est ≤ 4,4 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 41,
+            "text": "La tension nominale du RX425 est ≤ 4,4 V."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": false,
+        "comparison": null
+      },
+      "rationale": "Une borne supérieure inclusive ne constitue pas une valeur exacte."
+    },
+    {
+      "id": "D15",
+      "split": "development",
+      "category": "non_equality",
+      "language": "en",
+      "question": "What is the nominal voltage of RX426?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D15-document-1",
+          "document_family": "calibration-instruments-15-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of RX426 is ≠ 2.6 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 40,
+            "text": "The nominal voltage of RX426 is ≠ 2.6 V."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": false,
+        "comparison": null
+      },
+      "rationale": "An explicit non-equality cannot support the excluded value."
+    },
+    {
+      "id": "D16",
+      "split": "development",
+      "category": "verbal_lower_bound",
+      "language": "fr",
+      "question": "Quelle est la tension nominale du RX427 ?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D16-document-1",
+          "document_family": "calibration-instruments-16-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du RX427 est supérieure à 3,8 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 52,
+            "text": "La tension nominale du RX427 est supérieure à 3,8 V."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": false,
+        "comparison": null
+      },
+      "rationale": "La valeur est strictement supérieure à la borne ; elle ne lui est pas égale."
+    },
+    {
+      "id": "D17",
+      "split": "development",
+      "category": "bounded_comparison",
+      "language": "en",
+      "question": "Compare the nominal voltages of RX428 and RX429.",
+      "mode": "comparison",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D17-document-1",
+          "document_family": "calibration-instruments-17-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of RX428 is less than 4.1 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 48,
+            "text": "The nominal voltage of RX428 is less than 4.1 V."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "development-D17-document-2",
+          "document_family": "calibration-instruments-17-2",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "The nominal voltage of RX429 is 4.1 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 38,
+            "text": "The nominal voltage of RX429 is 4.1 V."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": false,
+        "comparison": "forbidden"
+      },
+      "rationale": "A bounded value and an exact endpoint do not justify an exact equality comparison."
+    },
+    {
+      "id": "D18",
+      "split": "development",
+      "category": "bounded_comparison",
+      "language": "fr",
+      "question": "Compare les tensions nominales du RX430 et du RX431.",
+      "mode": "comparison",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D18-document-1",
+          "document_family": "calibration-instruments-18-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du RX430 est différente de 3,2 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 53,
+            "text": "La tension nominale du RX430 est différente de 3,2 V."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "development-D18-document-2",
+          "document_family": "calibration-instruments-18-2",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "La tension nominale du RX431 est de 3,2 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 42,
+            "text": "La tension nominale du RX431 est de 3,2 V."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": false,
+        "comparison": "forbidden"
+      },
+      "rationale": "Une non-égalité ne peut être normalisée en égalité numérique."
+    },
+    {
+      "id": "D19",
+      "split": "development",
+      "category": "verbal_upper_bound",
+      "language": "en",
+      "question": "What is the output current of RX432?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D19-document-1",
+          "document_family": "calibration-instruments-19-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The output current of RX432 is at most 14 mA.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 45,
+            "text": "The output current of RX432 is at most 14 mA."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": false,
+        "comparison": null
+      },
+      "rationale": "An upper bound leaves the exact current unestablished."
+    },
+    {
+      "id": "D20",
+      "split": "development",
+      "category": "verbal_upper_bound",
+      "language": "fr",
+      "question": "Quelle est la tension nominale du RX433 ?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D20-document-1",
+          "document_family": "calibration-instruments-20-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du RX433 n’excède pas 6,2 V.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 48,
+            "text": "La tension nominale du RX433 n’excède pas 6,2 V."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": false,
+        "comparison": null
+      },
+      "rationale": "Ne pas dépasser une valeur ne prouve pas son égalité."
+    },
+    {
+      "id": "D21",
+      "split": "development",
+      "category": "excluded_condition",
+      "language": "en",
+      "question": "What is the output current of RX434 at TA = 27 °C?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D21-document-1",
+          "document_family": "calibration-instruments-21-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The output current of RX434 is 8 mA unless TA = 27 °C.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 54,
+            "text": "The output current of RX434 is 8 mA unless TA = 27 °C."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": false,
+        "comparison": null
+      },
+      "rationale": "The requested point is exactly the source exception."
+    },
+    {
+      "id": "D22",
+      "split": "development",
+      "category": "excluded_condition",
+      "language": "fr",
+      "question": "Quel est le courant de sortie du RX435 à TA = 21 °C ?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D22-document-1",
+          "document_family": "calibration-instruments-22-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le courant de sortie du RX435 est de 12 mA sauf à TA = 21 °C.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 61,
+            "text": "Le courant de sortie du RX435 est de 12 mA sauf à TA = 21 °C."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": false,
+        "comparison": null
+      },
+      "rationale": "Le point demandé est explicitement exclu de la règle."
+    },
+    {
+      "id": "D23",
+      "split": "development",
+      "category": "excluded_condition",
+      "language": "en",
+      "question": "What is the output current of RX436 at TA = 32 °C?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D23-document-1",
+          "document_family": "calibration-instruments-23-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The output current of RX436 is 4 mA except at TA = 32 °C.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 57,
+            "text": "The output current of RX436 is 4 mA except at TA = 32 °C."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": false,
+        "comparison": null
+      },
+      "rationale": "Except-at excludes the requested point from the current statement."
+    },
+    {
+      "id": "D24",
+      "split": "development",
+      "category": "excluded_condition",
+      "language": "fr",
+      "question": "Quel est le courant de sortie du RX437 à TA = 16 °C ?",
+      "mode": "question",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "development-D24-document-1",
+          "document_family": "calibration-instruments-24-1",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le courant de sortie du RX437 est de 13 mA sauf si TA = 16 °C.",
+          "locators": [
+            {
+              "section": "Synthetic clause 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 62,
+            "text": "Le courant de sortie du RX437 est de 13 mA sauf si TA = 16 °C."
+          }
+        }
+      ],
+      "expected": {
+        "exact_support": false,
+        "comparison": null
+      },
+      "rationale": "Sauf si établit une exception ; aucune valeur de substitution n’est documentée."
+    }
+  ]
+}

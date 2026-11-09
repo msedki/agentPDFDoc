@@ -2,6 +2,30 @@
 
 **Rôle :** critères canoniques de fin et état de leur qualification par plateforme · **Propriétaire :** qualification du produit · **Statut :** Vivant pour les preuves et statuts ; qualification intégrale en attente, seuils de référence inchangés · **Référence :** exigences V2.1, décisions W001/W018/W038 ; notes et preuves datées ci-dessous, compléments R27 sur produits `5204d2e`/`aabb9808`, historique conservé · **Mis à jour :** 2026-11-09 (UTC ; complément I5, preuves historiques conservées) · **Source de vérité :** ce fichier pour les critères ; [QUALIFICATION.md](QUALIFICATION.md) pour le protocole, [journal](journal/README.md) et rapports cités pour les exécutions
 
+## Complément I5-PJ — relations numériques et conditions, 9 novembre 2026
+
+Les critères PJ-D01 à PJ-D08 sont fixés avant modification dans le
+[protocole I5-PJ](reports/trust-i5-pj-protocol-2026-11-09.md). Le
+[bilan détaillé](reports/trust-i5-pj-results-2026-11-09.md) porte leurs statuts
+finaux ; les exigences et échecs historiques ci-dessous restent inchangés.
+
+Le test final ouvert après gel du candidat réduit les faux appuis exacts
+acceptés de 9/12 à 1/12, à couverture positive identique 9/12 et conservation
+littérale 28/28. **PJ-D01 n'est pas atteint :** la formulation française
+« à l'exception de » de H24 reste acceptée à tort. **PJ-D02 est atteint** dans
+sa définition préalable : aucun nouveau faux rejet sur les positifs couverts
+par la référence. La cible absolue 12/12 des fixtures reste non atteinte.
+H06/H11/H12 conservent leurs faux rejets. Ces résultats du vérificateur ne
+constituent ni un taux général d'hallucination ni une preuve de production.
+
+Les répétitions, ablations, comparaison extractive, contrôles natifs, coûts
+et arrêts sont distingués dans les
+[preuves de contrôle](reports/trust-i5-pj-support-results-2026-11-09.json)
+et la [revue indépendante](reports/trust-i5-pj-review-2026-11-09.md).
+Aucun réglage produit ni changement de seuil n'est effectué après ouverture
+du final. La qualification globale reste **non acquise**, y compris lorsque
+les portes logicielles et la livraison des sources sont terminées.
+
 ## Complément I5 — diffusion comme application de confiance
 
 Les critères I5 sont fixés avant les essais dans le [protocole du 8 novembre](reports/trust-4b-protocol-2026-11-08.md), avec ses addenda [générateur unique](reports/trust-4b-entrypoints-addendum-2026-11-08.md) et [ressources](reports/trust-4b-resource-addendum-2026-11-08.md). Ils complètent les exigences historiques, sans les annuler.

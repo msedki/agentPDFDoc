@@ -2086,3 +2086,31 @@ disponibilité future des URL publiques.
 ### I5-S04 — identité et notice du GGUF Qwen3-4B
 
 Sources primaires consultées le 8 novembre 2026 UTC : [carte GGUF à bc640142c66e1fdd12af0bd68f40445458f3869b](https://huggingface.co/Qwen/Qwen3-4B-GGUF/blob/bc640142c66e1fdd12af0bd68f40445458f3869b/README.md) et [licence Qwen3-4B à 1cfa9a7208912126459214e8b04321603b3df60c](https://huggingface.co/Qwen/Qwen3-4B/blob/1cfa9a7208912126459214e8b04321603b3df60c/LICENSE). Identité et licence Apache-2.0 déclarées ; références déjà fixées par enhanced-4b.lock.json. Apport : notice du modèle natif choisi par identité, distincte de l’ancienne dérivation Qwen3.5. Limite : ces pages ne prouvent ni que les textes de licence sont effectivement embarqués dans un kit, ni que ce kit est installé/qualifié. L’inventaire des fichiers fait autorité pour les éléments annoncés comme livrés.
+
+
+## I5-PJ — vérification des relations et évaluation indépendante, 9 novembre 2026
+
+Les huit sources primaires ont été consultées et confrontées à leur texte
+intégral. Le [rapport scientifique](reports/trust-i5-pj-research-2026-11-09.md)
+précise tâches, corpus, modèles, protocoles, métriques, résultats publiés et
+limites de transfert. Toutes sont des publications évaluées par les pairs ;
+les versions arXiv consultées restent identifiées. Aucun score publié n'est
+attribué au Qwen3-4B quantifié local.
+
+| ID | Source officielle | Usage dans I5-PJ |
+|---|---|---|
+| I5-PJ-S01 | [ALCE, EMNLP 2023](https://aclanthology.org/2023.emnlp-main.398/) | Distinguer présence d'une citation, support de l'affirmation et complétude. |
+| I5-PJ-S02 | [RAGTruth, ACL 2024](https://aclanthology.org/2024.acl-long.585/) | Annoter les erreurs de relation, de condition et d'information ajoutée. |
+| I5-PJ-S03 | [Searching for Best Practices in RAG, EMNLP 2024](https://aclanthology.org/2024.emnlp-main.981/) | Isoler les composants à corpus constant et mesurer le coût ; aucun réglage de retrieval transposé. |
+| I5-PJ-S04 | [Sufficient Context, ICLR 2025](https://research.google/pubs/sufficient-context-a-new-lens-on-retrieval-augmented-generation-systems-2/) | Séparer preuve disponible, suffisance pour la question et exploitation de cette preuve. |
+| I5-PJ-S05 | [GaRAGe, Findings ACL 2025](https://aclanthology.org/2025.findings-acl.875/) | Vérifier l'applicabilité des sources et l'utilité des réponses partielles. |
+| I5-PJ-S06 | [FaithBench, NAACL 2025](https://aclanthology.org/2025.naacl-short.38/) | Mesurer les faux acceptés et faux rejetés du vérificateur sur un jeu séparé. |
+| I5-PJ-S07 | [OmniDocBench, CVPR 2025](https://openaccess.thecvf.com/content/CVPR2025/html/Ouyang_OmniDocBench_Benchmarking_Diverse_PDF_Document_Parsing_with_Comprehensive_Annotations_CVPR_2025_paper.html) | Séparer fidélité de l'extraction et fidélité au texte extrait ; version arXiv v2 à 981 pages distincte des évolutions du dépôt. |
+| I5-PJ-S08 | [HalluGuard, Findings ACL 2026](https://aclanthology.org/2026.findings-acl.835/) | Poids spécialisés et résultats distincts du générateur retenu ; intégration différée, aucun second modèle ajouté. |
+
+Sources locales : [protocole préalable](reports/trust-i5-pj-protocol-2026-11-09.md),
+[gel des jeux](reports/trust-i5-pj-fixture-freeze-2026-11-09.json),
+[gel du candidat](reports/trust-i5-pj-candidate-freeze-2026-11-09.json),
+[bilan](reports/trust-i5-pj-results-2026-11-09.md).
+La littérature motive les hypothèses H1/H2 ; seuls les essais locaux permettent
+de retenir leur implémentation. L'échec final H24 reste au bilan.

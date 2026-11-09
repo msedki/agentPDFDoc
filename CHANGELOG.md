@@ -8,6 +8,27 @@ Chaque entrée décrit un résultat observable, suivi du commit qui l'introduit 
 
 ## [Non publié]
 
+### I5-PJ — appui numérique et conditions exclues, 9 novembre 2026
+
+- Les opérateurs et qualificatifs reconnus autour d'un nombre empêchent de
+  transformer une borne ou une non-égalité en valeur exacte pour une réponse,
+  une comparaison ou un calcul. Le passage original reste cité avec sa limite.
+- Les points exclus reconnus, leur coordination et leurs contradictions sont
+  distingués des conditions positives. Les clauses originales de la question
+  conservent casse, unités et exclusions ; les variables d'essai n'ajoutent
+  plus artificiellement des grandeurs demandées.
+- Ajout de 64 régressions et d'un banc de vérification à annotations séparées,
+  avec témoin extractif, ablations, contrôle d'identité et répétitions conservées.
+  Préparateurs reproductibles DOCX/PDF et rapports scientifiques et de mesure.
+- Faux appuis complets : développement **10/12 → 0/12**, final **9/12 → 1/12**,
+  sans nouveau faux rejet positif et avec tous les littéraux conservés.
+  **H24 reste en échec** ; les faux rejets H06/H11/H12 sont préexistants.
+  Aucun correctif ni seuil ajusté après ouverture du final.
+- Générateur et plafonds inchangés. [Bilan et critères](RAG_Local_Agents/reports/trust-i5-pj-results-2026-11-09.md),
+  [preuves](RAG_Local_Agents/reports/trust-i5-pj-support-results-2026-11-09.json)
+  et [reproduction](RAG_Local_Agents/reports/trust-i5-pj-reproduction-2026-11-09.md).
+  La publication des sources ne qualifie pas la production.
+
 ### I5 — tableaux, OCR et réponse contrôlée, 8–9 novembre 2026
 
 Commit technique [7cd39839](https://github.com/msedki/agentPDFDoc/commit/7cd398399c98701309ace0498be3f149ae4e276d) publié sur `enhanced_version` ; arbre distant vérifié, publication sans force. [Reçu de publication](RAG_Local_Agents/reports/trust-4b-publication-2026-11-09.json). La qualification de production reste non acquise.

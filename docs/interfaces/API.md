@@ -27,6 +27,29 @@ qu'un document demandé manque. Un diagnostic de budget de recherche est conserv
 séparément. Ces états sont des contrôles bornés, sans garantie générale de
 compréhension du sens.
 
+**Complément I5-PJ — 9 novembre 2026, base `fe4693da`.** Les opérateurs reconnus
+localement autour d'une valeur (`<`, `<=`, `>`, `>=`, `≤`, `≥`, `≠`, `!=`, `<>`
+et les formulations FR/EN prises en charge) empêchent de réutiliser une borne
+ou une non-égalité comme valeur exacte. La relation conserve l'indication
+`numeric_relation_not_exact` dans ses `note_issues` ; elle ne couvre pas une
+obligation exacte et n'entre pas dans un calcul ou une concordance exacte.
+L'extrait reste disponible avec sa limite explicite. Une demande explicite de
+minimum ou maximum conserve son rôle ; le contrôle ne compare pas
+algébriquement les ensembles de valeurs possibles.
+
+Les exclusions de point reconnues (`unless`, `except`, `sauf`, `without`,
+`not at`, selon les formes analysées) ne deviennent pas des points positifs.
+Les clauses originales de la question conservent casse, unités et exclusions ;
+les variables de conditions ne créent pas à elles seules une grandeur demandée
+supplémentaire. Les schémas HTTP/SSE et le générateur restent inchangés.
+Cette grammaire a une limite constatée : la formulation française
+« à l'exception de » du cas final H24 n'est pas reconnue comme exclusion et
+peut encore produire un faux appui. Les comparaisons croisées entre plusieurs
+sujets et documents gardent aussi des faux rejets. Le
+[bilan I5-PJ](../../RAG_Local_Agents/reports/trust-i5-pj-results-2026-11-09.md)
+conserve ces échecs ; le contrôle de reconstruction ne constitue pas une
+garantie générale d'implication sémantique.
+
 Pour un passage PDF dépourvu de sujet local, un en-tête ou titre imprimé peut
 fournir un identifiant explicite uniquement sous les gardes de page, révision,
 qualité, géométrie et absence de concurrent de

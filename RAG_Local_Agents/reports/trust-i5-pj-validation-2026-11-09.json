@@ -1,0 +1,3124 @@
+{
+  "schema_version": 1,
+  "role": "I5-PJ software, controlled regression and documentation gate receipts",
+  "owner": "RAG integration and qualification",
+  "status": "SOFTWARE_VALIDATED_AFTER_TARGETED_DOCUMENTATION_REPAIR; SEMANTIC_FINAL_GATE_FAILED",
+  "recorded_utc": "2026-11-09T14:10:03.437396+00:00",
+  "baseline_commit": "fe4693da07ed9e948f65e4cadb51cd43ec36ebe2",
+  "candidate_frozen_files": {
+    "checked": 143,
+    "changed": [],
+    "product_or_harness_changed_after_heldout": false
+  },
+  "portable": {
+    "path": "/workspace/scratch/37dafe3f3244/agentPDFDoc/.runtime/qa/i5-pj-support/portable-final.xml",
+    "sha256": "e2d0c6ceacfa5d2931dcd5b0f9120089ca7e27151616264ec2490e5639b23724",
+    "tests": 5192,
+    "passed": 5166,
+    "failures": [
+      {
+        "classname": "tests.unit.test_docs_linux_kit",
+        "name": "test_no_document_denies_the_linux_kit",
+        "message": "AssertionError: assert datetime.date(2026, 11, 8) >= datetime.date(2026, 11, 9)\n +  where datetime.date(2026, 11, 8) = <built-in method fromisoformat of type object at 0x145e020>('2026-11-08')\n +    where <built-in method fromisoformat of type object at 0x145e020> = <class 'datetime.date'>.fromisoformat\n +      where <class 'datetime.date'> = datetime.date",
+        "detail": "def test_no_document_denies_the_linux_kit():\n        for path in [ROOT / \"README.md\", *sorted((ROOT / \"docs\").rglob(\"*.md\"))]:\n            text = path.read_text(encoding=\"utf-8\")\n            for statement in (\"aucun kit ni installateur Linux\", \"n'inclut pas `packages/`\"):\n                assert statement not in text, f\"{path.relative_to(ROOT)} : « {statement} »\"\n        text = read(DEPLOIEMENT)\n        assert \"installer.sh\" in text and \"R26-KIT-02\" in text\n        rows = table_with_header(section(DEPLOIEMENT, \"Voies et conditions\"), \"Voie\")\n        aarch64 = [row for row in rows if row[0].startswith(\"Kit hors ligne\") and row[1].startswith(\"Linux aarch64\")]\n        x86_64 = [row for row in rows if row[0].startswith(\"Kit hors ligne\") and row[1].startswith(\"Linux x86-64\")]\n        assert len(aarch64) == 1 and \"R26-KIT-02\" in aarch64[0][2]\n        assert len(x86_64) == 1 and \"R26-KIT-03\" in x86_64[0][2]\n        fields = check_docs.header_fields(ROOT / DEPLOIEMENT)\n        assert \"78ec95c\" in fields[\"reference\"]\n        sources = (\"tools/dist/linux_kit.py\", \"tools/dist/linux_install.py\", \"tools/dist/install.sh\", \"tools/dist/linux_profiles.py\")\n        # A maintained document must follow the real source revision, not retain its initial publication date.\n        changed_at = subprocess.run([\"git\", \"-C\", str(ROOT), \"log\", \"-1\", \"--format=%cI\", \"--\", *sources],\n                                    check=True, capture_output=True, text=True).stdout.strip()\n        source_date = datetime.datetime.fromisoformat(changed_at).astimezone(datetime.UTC).date()\n>       assert datetime.date.fromisoformat(fields[\"mis a jour\"][:10]) >= source_date\nE       AssertionError: assert datetime.date(2026, 11, 8) >= datetime.date(2026, 11, 9)\nE        +  where datetime.date(2026, 11, 8) = <built-in method fromisoformat of type object at 0x145e020>('2026-11-08')\nE        +    where <built-in method fromisoformat of type object at 0x145e020> = <class 'datetime.date'>.fromisoformat\nE        +      where <class 'datetime.date'> = datetime.date\n\ntests/unit/test_docs_linux_kit.py:229: AssertionError"
+      }
+    ],
+    "errors": 0,
+    "skipped": 25,
+    "skip_reasons": {
+      "collection skipped": 1,
+      "Extraction de référence P02 absente de ce poste : /workspace/scratch/37dafe3f3244/agentPDFDoc/.runtime/qa/r23-model-native-20261004-wyQVqE/data/extractions/7195ce39-77fc-48ed-95a6-d0641e508a41/199f18ae-d7c3-4a7b-b235-9cc982f2c8cf/extraction.json": 1,
+      "Jonction de répertoire Windows, créée sans droit administrateur": 1,
+      "install.ps1 vise Windows PowerShell 5.1": 4,
+      "raccourcis Windows et PowerShell 5.1": 2,
+      "désinstallation Windows et PowerShell 5.1": 3,
+      "PowerShell absent : ni RAG_TEST_PWSH, ni pwsh, ni powershell dans le PATH": 10,
+      "Stockage Ollama local non provisionné": 1,
+      "cmake, make ou compilateur C absent : la réécriture des chemins n'est pas exercée.": 1,
+      "Lecteur Win32 sans FILE_SHARE_DELETE (pywin32)": 1
+    },
+    "suite_time_seconds": [
+      878.811
+    ],
+    "new_test_modules": {
+      "tests.unit.test_i5_pj_numeric_semantics": 64,
+      "tests.unit.test_support_benchmark": 23
+    },
+    "command": ".venv/bin/python -m pytest -q -m 'not acceptance and not slow and not integration' --basetemp=/workspace/scratch/37dafe3f3244/qa/portable-temp --junitxml=.runtime/qa/i5-pj-support/portable-final.xml",
+    "exit_code": 1,
+    "deselected": 48,
+    "log": {
+      "path": "/workspace/scratch/37dafe3f3244/qa/portable-final.log",
+      "sha256": "d2d9bcf004ceb344c4406702e000a1c5f5937d7ff298ad206641ab5d87577035",
+      "final_lines": [
+        "=========================== short test summary info ============================",
+        "FAILED tests/unit/test_docs_linux_kit.py::test_no_document_denies_the_linux_kit",
+        "1 failed, 5166 passed, 25 skipped, 48 deselected, 1 warning in 879.50s (0:14:39)"
+      ]
+    },
+    "retained_as_run": true
+  },
+  "baseline_documentation_reproduction": {
+    "path": "/workspace/scratch/37dafe3f3244/qa/baseline-doc-date.xml",
+    "sha256": "b2537b460280c275db3d9c5559a0a4836671c0f6c5032a2d38706f537d30bc40",
+    "tests": 1,
+    "passed": 0,
+    "failures": [
+      {
+        "classname": "tests.unit.test_docs_linux_kit",
+        "name": "test_no_document_denies_the_linux_kit",
+        "message": "AssertionError: assert datetime.date(2026, 11, 8) >= datetime.date(2026, 11, 9)\n +  where datetime.date(2026, 11, 8) = <built-in method fromisoformat of type object at 0x145e020>('2026-11-08')\n +    where <built-in method fromisoformat of type object at 0x145e020> = <class 'datetime.date'>.fromisoformat\n +      where <class 'datetime.date'> = datetime.date",
+        "detail": "def test_no_document_denies_the_linux_kit():\n        for path in [ROOT / \"README.md\", *sorted((ROOT / \"docs\").rglob(\"*.md\"))]:\n            text = path.read_text(encoding=\"utf-8\")\n            for statement in (\"aucun kit ni installateur Linux\", \"n'inclut pas `packages/`\"):\n                assert statement not in text, f\"{path.relative_to(ROOT)} : « {statement} »\"\n        text = read(DEPLOIEMENT)\n        assert \"installer.sh\" in text and \"R26-KIT-02\" in text\n        rows = table_with_header(section(DEPLOIEMENT, \"Voies et conditions\"), \"Voie\")\n        aarch64 = [row for row in rows if row[0].startswith(\"Kit hors ligne\") and row[1].startswith(\"Linux aarch64\")]\n        x86_64 = [row for row in rows if row[0].startswith(\"Kit hors ligne\") and row[1].startswith(\"Linux x86-64\")]\n        assert len(aarch64) == 1 and \"R26-KIT-02\" in aarch64[0][2]\n        assert len(x86_64) == 1 and \"R26-KIT-03\" in x86_64[0][2]\n        fields = check_docs.header_fields(ROOT / DEPLOIEMENT)\n        assert \"78ec95c\" in fields[\"reference\"]\n        sources = (\"tools/dist/linux_kit.py\", \"tools/dist/linux_install.py\", \"tools/dist/install.sh\", \"tools/dist/linux_profiles.py\")\n        # A maintained document must follow the real source revision, not retain its initial publication date.\n        changed_at = subprocess.run([\"git\", \"-C\", str(ROOT), \"log\", \"-1\", \"--format=%cI\", \"--\", *sources],\n                                    check=True, capture_output=True, text=True).stdout.strip()\n        source_date = datetime.datetime.fromisoformat(changed_at).astimezone(datetime.UTC).date()\n>       assert datetime.date.fromisoformat(fields[\"mis a jour\"][:10]) >= source_date\nE       AssertionError: assert datetime.date(2026, 11, 8) >= datetime.date(2026, 11, 9)\nE        +  where datetime.date(2026, 11, 8) = <built-in method fromisoformat of type object at 0x145e020>('2026-11-08')\nE        +    where <built-in method fromisoformat of type object at 0x145e020> = <class 'datetime.date'>.fromisoformat\nE        +      where <class 'datetime.date'> = datetime.date\n\ntests/unit/test_docs_linux_kit.py:229: AssertionError"
+      }
+    ],
+    "errors": 0,
+    "skipped": 0,
+    "skip_reasons": {},
+    "suite_time_seconds": [
+      1.43
+    ],
+    "new_test_modules": {},
+    "command": "pytest -q tests/unit/test_docs_linux_kit.py::test_no_document_denies_the_linux_kit on detached baseline fe4693da",
+    "exit_code": 1,
+    "log": {
+      "path": "/workspace/scratch/37dafe3f3244/qa/baseline-doc-date.log",
+      "sha256": "58649daaf57658a94c844c0afa5fffb053c905107ffe8ae972754dfb9e78c00d",
+      "final_lines": [
+        "=========================== short test summary info ============================",
+        "FAILED tests/unit/test_docs_linux_kit.py::test_no_document_denies_the_linux_kit",
+        "1 failed in 1.43s"
+      ]
+    }
+  },
+  "documentation_repair": {
+    "file": "docs/deploiement/DEPLOIEMENT.md",
+    "cause": "Document header was 2026-11-08, earlier than the already published kit source commit 7cd39839 on 2026-11-09; same failure observed on immutable baseline.",
+    "change": "Update review date and explicit published I5 reference; distinguish prepared Linux x86-64 host measurements from fresh provisioning and kit qualification. No product/test assertion change.",
+    "result": {
+      "path": "/workspace/scratch/37dafe3f3244/agentPDFDoc/.runtime/qa/i5-pj-support/docs-final.xml",
+      "sha256": "72ab771a24526d60c5f0ce9f48ed15cc31badd82c3eac3d5dac628a8d7e4c338",
+      "tests": 105,
+      "passed": 105,
+      "failures": [],
+      "errors": 0,
+      "skipped": 0,
+      "skip_reasons": {},
+      "suite_time_seconds": [
+        95.697
+      ],
+      "new_test_modules": {}
+    },
+    "log": {
+      "path": "/workspace/scratch/37dafe3f3244/qa/docs-final.log",
+      "sha256": "a510adc2f33be8a6c691960a34aee0bd65b72bb8c870bf282dc1797e6a00e162",
+      "final_lines": [
+        "........................................................................ [ 68%]",
+        ".................................                                        [100%]",
+        "105 passed in 95.71s (0:01:35)"
+      ]
+    },
+    "command": ".venv/bin/python -m pytest -q tests/unit/test_docs_linux_kit.py tests/unit/test_docs_space.py tests/unit/test_docs_tooling.py --basetemp=/workspace/scratch/37dafe3f3244/qa/docs-final-temp --junitxml=.runtime/qa/i5-pj-support/docs-final.xml",
+    "exit_code": 0,
+    "whole_portable_rerun_after_document_only_repair": false,
+    "reason": "Unchanged product; re-execute all affected documentation modules, preserve full initial run and baseline failure."
+  },
+  "targeted": {
+    "initial_baseline": {
+      "path": "/workspace/scratch/37dafe3f3244/qa/baseline-targeted.xml",
+      "sha256": "5ad7c07b7ee1b1e8f76bda648872a91831c04c17848c9845cf070039aec77200",
+      "tests": 196,
+      "passed": 196,
+      "failures": [],
+      "errors": 0,
+      "skipped": 0,
+      "skip_reasons": {},
+      "suite_time_seconds": [
+        8.881
+      ],
+      "new_test_modules": {}
+    },
+    "new_red_examples": {
+      "path": "/workspace/scratch/37dafe3f3244/qa/evidence/red.xml",
+      "sha256": "129bd76811be77b301c718b69d096869534408be8a0a4fdfd4c4fbbcd25c5458",
+      "tests": 36,
+      "passed": 10,
+      "failures": [
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[Nominal supply voltage < 3.3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'Nominal supply voltage < 3.3 V.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[Nominal supply voltage \\u2264 3.3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'Nominal supply voltage ≤ 3.3 V.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[Nominal supply voltage > 3.3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'Nominal supply voltage > 3.3 V.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[Nominal supply voltage >= 3.3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'Nominal supply voltage >= 3.3 V.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[Nominal supply voltage \\u2260 3.3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'Nominal supply voltage ≠ 3.3 V.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[Nominal supply voltage != 3.3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'Nominal supply voltage != 3.3 V.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[Nominal supply voltage <> 3.3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'Nominal supply voltage <> 3.3 V.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[Nominal supply voltage is less than 3.3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'Nominal supply voltage is less than 3.3 V.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[Nominal supply voltage is at most 3.3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'Nominal supply voltage is at most 3.3 V.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[Nominal supply voltage is at least 3.3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'Nominal supply voltage is at least 3.3 V.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[Nominal supply voltage is different from 3.3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'Nominal supply voltage is different from 3.3 V.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[Nominal supply voltage is 3.3 V or less.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'Nominal supply voltage is 3.3 V or less.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[La tension nominale d\\u2019alimentation est inf\\xe9rieure \\xe0 3,3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'La tension nominale d’alimentation est inférieure à 3,3 V.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[La tension nominale d\\u2019alimentation est diff\\xe9rente de 3,3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'La tension nominale d’alimentation est différente de 3,3 V.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[La tension nominale d\\u2019alimentation n\\u2019exc\\xe8de pas 3,3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'La tension nominale d’alimentation n’excède pas 3,3 V.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_non_exact_operand_never_establishes_an_exact_numeric_fact[La tension nominale d\\u2019alimentation est au plus de 3,3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "text = 'La tension nominale d’alimentation est au plus de 3,3 V.'\n\n    @pytest.mark.parametrize(\"text\", [\n        \"Nominal supply voltage < 3.3 V.\",\n        \"Nominal supply voltage ≤ 3.3 V.\",\n        \"Nominal supply voltage > 3.3 V.\",\n        \"Nominal supply voltage >= 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage != 3.3 V.\",\n        \"Nominal supply voltage <> 3.3 V.\",\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n        \"Nominal supply voltage is at least 3.3 V.\",\n        \"Nominal supply voltage is different from 3.3 V.\",\n        \"Nominal supply voltage is 3.3 V or less.\",\n        \"La tension nominale d’alimentation est inférieure à 3,3 V.\",\n        \"La tension nominale d’alimentation est différente de 3,3 V.\",\n        \"La tension nominale d’alimentation n’excède pas 3,3 V.\",\n        \"La tension nominale d’alimentation est au plus de 3,3 V.\",\n    ])\n    def test_non_exact_operand_never_establishes_an_exact_numeric_fact(text):\n        cat = catalogue(\"What is the nominal supply voltage?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:35: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_comparison_cannot_equate_a_bound_or_excluded_value_with_an_exact_value[Nominal supply voltage is less than 3.3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "qualified = 'Nominal supply voltage is less than 3.3 V.'\n\n    @pytest.mark.parametrize(\"qualified\", [\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n    ])\n    def test_comparison_cannot_equate_a_bound_or_excluded_value_with_an_exact_value(qualified):\n        refs = [excerpt(\"R001\", qualified, document=\"bounded\"),\n                excerpt(\"R002\", \"Nominal supply voltage is 3.3 V.\", document=\"exact\")]\n        cat = catalogue(\"Compare les tensions nominales d’alimentation.\", refs, mode=\"comparison\")\n        result = render(cat, [\"R001\", \"R002\"], required_documents=[\"bounded\", \"exact\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:53: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_comparison_cannot_equate_a_bound_or_excluded_value_with_an_exact_value[Nominal supply voltage \\u2260 3.3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "qualified = 'Nominal supply voltage ≠ 3.3 V.'\n\n    @pytest.mark.parametrize(\"qualified\", [\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n    ])\n    def test_comparison_cannot_equate_a_bound_or_excluded_value_with_an_exact_value(qualified):\n        refs = [excerpt(\"R001\", qualified, document=\"bounded\"),\n                excerpt(\"R002\", \"Nominal supply voltage is 3.3 V.\", document=\"exact\")]\n        cat = catalogue(\"Compare les tensions nominales d’alimentation.\", refs, mode=\"comparison\")\n        result = render(cat, [\"R001\", \"R002\"], required_documents=[\"bounded\", \"exact\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:53: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_comparison_cannot_equate_a_bound_or_excluded_value_with_an_exact_value[Nominal supply voltage is at most 3.3 V.]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "qualified = 'Nominal supply voltage is at most 3.3 V.'\n\n    @pytest.mark.parametrize(\"qualified\", [\n        \"Nominal supply voltage is less than 3.3 V.\",\n        \"Nominal supply voltage ≠ 3.3 V.\",\n        \"Nominal supply voltage is at most 3.3 V.\",\n    ])\n    def test_comparison_cannot_equate_a_bound_or_excluded_value_with_an_exact_value(qualified):\n        refs = [excerpt(\"R001\", qualified, document=\"bounded\"),\n                excerpt(\"R002\", \"Nominal supply voltage is 3.3 V.\", document=\"exact\")]\n        cat = catalogue(\"Compare les tensions nominales d’alimentation.\", refs, mode=\"comparison\")\n        result = render(cat, [\"R001\", \"R002\"], required_documents=[\"bounded\", \"exact\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:53: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_excluded_test_point_cannot_satisfy_the_requested_positive_point[unless]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "modifier = 'unless'\n\n    @pytest.mark.parametrize(\"modifier\", [\"unless\", \"except at\", \"except when\", \"without\", \"sauf à\", \"sauf si\", \"sans\"])\n    def test_excluded_test_point_cannot_satisfy_the_requested_positive_point(modifier):\n        text = f\"Output current is 8 mA {modifier} TA = 25 °C.\"\n        cat = catalogue(\"What output current at TA = 25 °C?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:65: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_excluded_test_point_cannot_satisfy_the_requested_positive_point[except at]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "modifier = 'except at'\n\n    @pytest.mark.parametrize(\"modifier\", [\"unless\", \"except at\", \"except when\", \"without\", \"sauf à\", \"sauf si\", \"sans\"])\n    def test_excluded_test_point_cannot_satisfy_the_requested_positive_point(modifier):\n        text = f\"Output current is 8 mA {modifier} TA = 25 °C.\"\n        cat = catalogue(\"What output current at TA = 25 °C?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:65: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_excluded_test_point_cannot_satisfy_the_requested_positive_point[except when]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "modifier = 'except when'\n\n    @pytest.mark.parametrize(\"modifier\", [\"unless\", \"except at\", \"except when\", \"without\", \"sauf à\", \"sauf si\", \"sans\"])\n    def test_excluded_test_point_cannot_satisfy_the_requested_positive_point(modifier):\n        text = f\"Output current is 8 mA {modifier} TA = 25 °C.\"\n        cat = catalogue(\"What output current at TA = 25 °C?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:65: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_excluded_test_point_cannot_satisfy_the_requested_positive_point[without]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "modifier = 'without'\n\n    @pytest.mark.parametrize(\"modifier\", [\"unless\", \"except at\", \"except when\", \"without\", \"sauf à\", \"sauf si\", \"sans\"])\n    def test_excluded_test_point_cannot_satisfy_the_requested_positive_point(modifier):\n        text = f\"Output current is 8 mA {modifier} TA = 25 °C.\"\n        cat = catalogue(\"What output current at TA = 25 °C?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:65: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_excluded_test_point_cannot_satisfy_the_requested_positive_point[sauf \\xe0]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "modifier = 'sauf à'\n\n    @pytest.mark.parametrize(\"modifier\", [\"unless\", \"except at\", \"except when\", \"without\", \"sauf à\", \"sauf si\", \"sans\"])\n    def test_excluded_test_point_cannot_satisfy_the_requested_positive_point(modifier):\n        text = f\"Output current is 8 mA {modifier} TA = 25 °C.\"\n        cat = catalogue(\"What output current at TA = 25 °C?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:65: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_excluded_test_point_cannot_satisfy_the_requested_positive_point[sauf si]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "modifier = 'sauf si'\n\n    @pytest.mark.parametrize(\"modifier\", [\"unless\", \"except at\", \"except when\", \"without\", \"sauf à\", \"sauf si\", \"sans\"])\n    def test_excluded_test_point_cannot_satisfy_the_requested_positive_point(modifier):\n        text = f\"Output current is 8 mA {modifier} TA = 25 °C.\"\n        cat = catalogue(\"What output current at TA = 25 °C?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:65: AssertionError"
+        },
+        {
+          "classname": "tests.unit.test_i5_pj_numeric_semantics",
+          "name": "test_excluded_test_point_cannot_satisfy_the_requested_positive_point[sans]",
+          "message": "AssertionError: assert 'covered' != 'covered'",
+          "detail": "modifier = 'sans'\n\n    @pytest.mark.parametrize(\"modifier\", [\"unless\", \"except at\", \"except when\", \"without\", \"sauf à\", \"sauf si\", \"sans\"])\n    def test_excluded_test_point_cannot_satisfy_the_requested_positive_point(modifier):\n        text = f\"Output current is 8 mA {modifier} TA = 25 °C.\"\n        cat = catalogue(\"What output current at TA = 25 °C?\", [excerpt(\"R001\", text)])\n        result = render(cat, [\"R001\"])\n>       assert result[\"answer_contract\"][\"status\"] != \"covered\"\nE       AssertionError: assert 'covered' != 'covered'\n\ntests/unit/test_i5_pj_numeric_semantics.py:65: AssertionError"
+        }
+      ],
+      "errors": 0,
+      "skipped": 0,
+      "skip_reasons": {},
+      "suite_time_seconds": [
+        2.259
+      ],
+      "new_test_modules": {
+        "tests.unit.test_i5_pj_numeric_semantics": 36
+      }
+    },
+    "final_affected": {
+      "path": "/workspace/scratch/37dafe3f3244/qa/evidence/final.xml",
+      "sha256": "df9fc09c55363fefb9c3249667aa1d39013e02ee78f454665c9bc33f3f2828e5",
+      "tests": 351,
+      "passed": 351,
+      "failures": [],
+      "errors": 0,
+      "skipped": 0,
+      "skip_reasons": {},
+      "suite_time_seconds": [
+        11.953
+      ],
+      "new_test_modules": {
+        "tests.unit.test_i5_pj_numeric_semantics": 64
+      }
+    }
+  },
+  "ruff": {
+    "command": ".venv/bin/python -m ruff check services tests tools",
+    "exit_code": 0,
+    "log": {
+      "path": "/workspace/scratch/37dafe3f3244/qa/ruff-final.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "final_lines": [
+        "All checks passed!"
+      ]
+    }
+  },
+  "mypy": {
+    "command": ".venv/bin/python -m mypy",
+    "exit_code": 0,
+    "source_files": 152,
+    "log": {
+      "path": "/workspace/scratch/37dafe3f3244/qa/mypy-final.log",
+      "sha256": "8c02c3cc45094c3525349fec383a4aa437e2e2b1171214f33304f827ff80cc34",
+      "final_lines": [
+        "Success: no issues found in 152 source files"
+      ]
+    }
+  },
+  "controlled_historical": {
+    "baseline": {
+      "path": "/workspace/scratch/37dafe3f3244/qa/controlled-baseline.json",
+      "sha256": "5bc2389f07ef4174fca2504e70d61e5b6f267d17f85f7c0301e12b6572a064f4",
+      "protocol": {
+        "created_utc": "2026-11-09T13:17:24.650184+00:00",
+        "fixtures_sha256": "68a997cee3c6e3dcd1d8625d534c17631cb7ddaebedb1bfd3efa316c678fd476",
+        "harness_sha256": "a9ff2e5470a6fda376623b68c88ff804da8185b8ce3cc5b48ab691af2f258237",
+        "application_root": "/workspace/scratch/37dafe3f3244/agentPDFDoc-baseline",
+        "git_head": "fe4693da07ed9e948f65e4cadb51cd43ec36ebe2",
+        "libraries": {
+          "pydantic": "2.13.5",
+          "httpx": "0.28.1",
+          "openpyxl": "3.1.5",
+          "python-docx": "1.2.0",
+          "lxml": "6.1.3",
+          "defusedxml": "0.7.1",
+          "psutil": "7.2.2",
+          "tokenizers": "0.23.2"
+        },
+        "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+        "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "profile_sha256": "092da8f90103654027cee93ce0edcc9a312f45b70078047cfe4c1eeebdcf5716",
+        "tokenizer_directory": null,
+        "test_kind": "controlled_native_office_and_query_with_doubles",
+        "model_inference": "NOT_RUN",
+        "doubles": [
+          "ConstantEmbeddingDouble",
+          "LexicalOnlyVectorDouble",
+          "ControlledSelectorDouble",
+          "CharacterCounterDouble"
+        ],
+        "not_exercised": [
+          "Ollama",
+          "4B generation",
+          "E5",
+          "Qdrant",
+          "PDF ingestion",
+          "OCR",
+          "HTTP",
+          "browser",
+          "resource governor"
+        ],
+        "case_order": [
+          "P01_general_condition",
+          "P02_zero_cell",
+          "P03_negative_interval",
+          "P04_two_conditions",
+          "P05_sparse_table",
+          "P06_roles",
+          "P07_duplicates",
+          "P08_comparison_equal",
+          "P09_comparison_different",
+          "P10_decimal_sum",
+          "P11_conversion",
+          "P12_cached_formula",
+          "L01_condition_mismatch",
+          "L02_empty",
+          "L03_scope_sheet",
+          "L04_unit_outside",
+          "L05_uncached_formula",
+          "L06_cross_document_conflict",
+          "L07_ocr_ambiguous",
+          "L08_partial_extraction",
+          "L09_long_qualification",
+          "L10_absent_location",
+          "L11_plan_prose",
+          "L12_unknown_reference",
+          "L13_negated_value",
+          "L14_wrong_property",
+          "L15_wrong_role",
+          "L16_table_note",
+          "L17_source_hash",
+          "L18_intra_document_conflict"
+        ]
+      },
+      "source_manifest_sha256": "9f1887a54c53ebffdf846aabd8124b933d4219cd49dd4ba0f9a2163dbc69aaf4",
+      "summary": {
+        "submissions": 30,
+        "answerable_pass": 12,
+        "answerable_total": 12,
+        "control_pass": 16,
+        "control_total": 18,
+        "errors": 1,
+        "answerable_with_limitation_notice": 0,
+        "answerable_errors": 0,
+        "literal_facts_rendered_and_supported": 15,
+        "required_literal_facts": 15,
+        "retrieval_fact_recall_at_10": {
+          "found": 15,
+          "total": 15
+        },
+        "context_literal_fact_coverage": {
+          "found": 14,
+          "total": 15
+        },
+        "citation_integrity": {
+          "valid": 27,
+          "total": 27
+        },
+        "forbidden_publication_cases": 0,
+        "query_latency_ms": {
+          "n": 30,
+          "median": 212.3,
+          "max": 492.85,
+          "scope": "controlled QueryService with named doubles, not model latency"
+        }
+      },
+      "acceptance_targets_unchanged": {
+        "answerable_complete": 12,
+        "answerable_total": 12,
+        "limit_controls_pass": 18,
+        "limit_controls_total": 18,
+        "scope_leakage_count": 0,
+        "invented_claim_count": 0,
+        "citation_integrity_ratio": 1.0
+      },
+      "source_stability": {
+        "changed_during_run": []
+      },
+      "cases": [
+        {
+          "case_id": "P01_general_condition",
+          "question": "Dans quelle condition le boîtier est-il étanche ?",
+          "state": "done",
+          "answer": "P01_general_condition_a.docx — Extrait : « Le boîtier est étanche uniquement lorsque le couvercle est fermé. » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "sealed",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "sealed": true
+          },
+          "context_literal_fact_coverage": {
+            "sealed": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P02_zero_cell",
+          "question": "Quelle valeur contient exactement la cellule A1 ?",
+          "state": "done",
+          "answer": "P02_zero_cell_a.xlsx — Parametres / A1 : Valeur littérale « 0 ». [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "zero",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "zero": true
+          },
+          "context_literal_fact_coverage": {
+            "zero": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P03_negative_interval",
+          "question": "Quelle plage de température de stockage est indiquée ?",
+          "state": "done",
+          "answer": "P03_negative_interval_a.docx — Extrait : « Storage temperature: -40 to 85 °C. » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "range",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "range": true
+          },
+          "context_literal_fact_coverage": {
+            "range": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P04_two_conditions",
+          "question": "Donne les deux plages d'alimentation recommandées avec leurs conditions de température.",
+          "state": "done",
+          "answer": "P04_two_conditions_a.docx — Extrait : « Recommended supply voltage: 1.8 to 4.5 V for TA = -55 to 150 °C. » [S001]\n\nP04_two_conditions_a.docx — Extrait : « Recommended supply voltage: 1.5 to 4.5 V for TA = -40 to 125 °C. » [S002]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "condition1",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              },
+              {
+                "id": "condition2",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "condition1": true,
+            "condition2": true
+          },
+          "context_literal_fact_coverage": {
+            "condition1": true,
+            "condition2": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P05_sparse_table",
+          "question": "Quelle plage de tension de bus est indiquée avec ses bornes et son unité ?",
+          "state": "done",
+          "answer": "P05_sparse_table_a.docx — Extrait : « Bus voltage range\t0\t\t36\tV » Liaisons aux en-têtes : MIN = 0; TYP = ; MAX = 36; UNIT = V.\nP05_sparse_table_a.docx — Extrait : « Parameter\tMIN\tTYP\tMAX\tUNIT » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "range",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "range": true
+          },
+          "context_literal_fact_coverage": {
+            "range": false
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P06_roles",
+          "question": "Quelle est la plage de tension d'alimentation recommandée ?",
+          "state": "done",
+          "answer": "P06_roles_a.docx — Extrait : « Recommended operating supply voltage: 2 to 5 V. » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "recommended",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "recommended": true
+          },
+          "context_literal_fact_coverage": {
+            "recommended": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P07_duplicates",
+          "question": "Quelle est la plage de tension de bus ?",
+          "state": "done",
+          "answer": "P07_duplicates_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]\n\nP07_duplicates_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S002]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "range",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "range": true
+          },
+          "context_literal_fact_coverage": {
+            "range": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P08_comparison_equal",
+          "question": "Comparer les plages de tension de bus des deux documents.",
+          "state": "done",
+          "answer": "P08_comparison_equal_b.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]\n\nP08_comparison_equal_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S002]\n\nComparaison — tension de bus (P08_comparison_equal_b.docx, P08_comparison_equal_a.docx) : les valeurs citées concordent sous les rôles indiqués ; aucune équivalence de conditions d'essai supplémentaires n'est établie. [S001] [S002] La concordance éventuelle des valeurs n'établit pas l'indépendance des documents.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "a",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              },
+              {
+                "id": "b",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "a": true,
+            "b": true
+          },
+          "context_literal_fact_coverage": {
+            "a": true,
+            "b": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P09_comparison_different",
+          "question": "Comparer les plages de tension de bus des deux documents.",
+          "state": "done",
+          "answer": "P09_comparison_different_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]\n\nP09_comparison_different_b.docx — Extrait : « Operating bus voltage: 0 to 40 V. » [S002]\n\nComparaison — tension de bus (P09_comparison_different_a.docx, P09_comparison_different_b.docx) : les valeurs citées divergent sous les rôles indiqués ; aucune équivalence de conditions d'essai supplémentaires n'est établie. [S001] [S002] La concordance éventuelle des valeurs n'établit pas l'indépendance des documents.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "a",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              },
+              {
+                "id": "b",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "a": true,
+            "b": true
+          },
+          "context_literal_fact_coverage": {
+            "a": true,
+            "b": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P10_decimal_sum",
+          "question": "Calcule la somme des cellules A1 et B1.",
+          "state": "done",
+          "answer": "Calcul déterministe — Somme : A1 = 1.25; B1 = 2.75 ; résultat = 4. [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "sum",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "sum": true
+          },
+          "context_literal_fact_coverage": {
+            "sum": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P11_conversion",
+          "question": "Convertir la cellule A1 en millisecondes, avec l'unité portée par la cellule B1.",
+          "state": "done",
+          "answer": "Calcul déterministe — Conversion : A1 = 125 ; unité source B1 = µs ; résultat = 0.125 ms. Conversion d'unité : (125 / 1000) ms = 0.125 ms. [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "conversion",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "conversion": true
+          },
+          "context_literal_fact_coverage": {
+            "conversion": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P12_cached_formula",
+          "question": "Quelle valeur calculée est disponible pour la cellule A1 ?",
+          "state": "done",
+          "answer": "P12_cached_formula_a.xlsx — Parametres / A1 : Cache source « 3 »; Formule enregistrée « =1+2 »; cache enregistré de fraîcheur inconnue; aucun calcul effectué par cette application ; activité et historique d'exécution non établis. [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "cache",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "cache": true
+          },
+          "context_literal_fact_coverage": {
+            "cache": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L01_condition_mismatch",
+          "question": "Quel courant de sortie est établi à TA = 85 °C ?",
+          "state": "done",
+          "answer": "Les preuves retenues n'établissent pas la valeur dans les conditions demandées. Les valeurs associées à d'autres conditions ne sont pas transposées.\n\nL01_condition_mismatch_a.docx — Extrait : « Output current: 10 mA at TA = 25 °C. » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 1,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L02_empty",
+          "question": "Quelle est la tension nominale ?",
+          "state": "done",
+          "answer": "Les preuves disponibles dans ce périmètre ne suffisent pas pour répondre à cette question.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L03_scope_sheet",
+          "question": "Quel marqueur figure dans la deuxième feuille du classeur ?",
+          "state": "done",
+          "answer": "La question demande la feuille 2, mais le périmètre sélectionné autorise seulement la feuille 1 (Parametres). Son contenu extérieur n'a pas été consulté ; élargissez la sélection à cette feuille pour y répondre.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L04_unit_outside",
+          "question": "Convertir la cellule A1 en millisecondes.",
+          "state": "done",
+          "answer": "Le calcul demandé n'est pas établi : La conversion exige une unité source et une unité cible explicites.\n\nL04_unit_outside_a.xlsx — Parametres / A1 : Valeur littérale « 140 ». [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L05_uncached_formula",
+          "question": "Quelle valeur calculée est disponible pour la cellule A1 ?",
+          "state": "done",
+          "answer": "Restitution partielle : certains faits demandés ne sont pas établis dans les preuves retenues. Cela ne démontre pas leur absence dans les documents.\n\nL05_uncached_formula_a.xlsx — Parametres / A1 : Formule enregistrée « =11+13 »; résultat indisponible : cache source absent; aucun calcul effectué par cette application ; activité et historique d'exécution non établis. [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L06_cross_document_conflict",
+          "question": "Quelle est la tension d'alimentation recommandée à TA = 25 °C selon les deux documents ?",
+          "state": "done",
+          "answer": "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée.\n\nL06_cross_document_conflict_b.docx — Extrait : « Recommended supply voltage: 3.6 V at TA = 25 °C. » [S001]\n\nL06_cross_document_conflict_a.docx — Extrait : « Recommended supply voltage: 3.0 V at TA = 25 °C. » [S002]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [
+              {
+                "id": "a",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              },
+              {
+                "id": "b",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "a": true,
+            "b": true
+          },
+          "context_literal_fact_coverage": {
+            "a": true,
+            "b": true
+          },
+          "selector_calls": 1,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L07_ocr_ambiguous",
+          "question": "Quelle est la plage de tension de bus en fonctionnement ?",
+          "state": "done",
+          "answer": "Une ambiguïté subsiste dans les preuves retenues (lecture, adresse ou rôle de la grandeur). Les données brutes sont conservées ; aucune correction n'est supposée.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L08_partial_extraction",
+          "question": "Quelles plages de tension de bus et d'alimentation sont établies ?",
+          "state": "done",
+          "answer": "La demande porte sur plusieurs propriétés distinctes. Certaines propriétés ne sont pas établies pour chaque document demandé ; une seule plage ne suffit pas à toutes les couvrir.\n\nL08_partial_extraction_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [
+              {
+                "id": "bus",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "bus": true
+          },
+          "context_literal_fact_coverage": {
+            "bus": true
+          },
+          "selector_calls": 1,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L09_long_qualification",
+          "question": "Quelle plage de tension d'alimentation est établie à TA = 85 °C ?",
+          "state": "done",
+          "answer": "La grandeur demandée n'est pas établie par les preuves retenues dans le périmètre sélectionné. Je ne peux pas donner une valeur fiable à partir de cette sélection.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L10_absent_location",
+          "question": "Quelle plage de tension de bus est indiquée ?",
+          "state": "error",
+          "answer": "",
+          "error_code": "invalid_source_locator",
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": true,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L11_plan_prose",
+          "question": "Quelle propriété du boîtier est décrite ?",
+          "state": "done",
+          "answer": "La formulation de la demande ne correspond pas aux relations actuellement vérifiables par l’analyse littérale. Aucune interprétation supplémentaire ni absence d’information dans les documents n’est déduite.",
+          "error_code": null,
+          "judgment": {
+            "passed": false,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L12_unknown_reference",
+          "question": "Quelle propriété du boîtier est décrite ?",
+          "state": "done",
+          "answer": "La formulation de la demande ne correspond pas aux relations actuellement vérifiables par l’analyse littérale. Aucune interprétation supplémentaire ni absence d’information dans les documents n’est déduite.",
+          "error_code": null,
+          "judgment": {
+            "passed": false,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L13_negated_value",
+          "question": "Quel courant de sortie est établi ?",
+          "state": "done",
+          "answer": "Le passage contient une négation portant sur la donnée repérée. Son nombre n'est pas retenu comme valeur affirmée ; l'extrait conserve la formulation source.\n\nL13_negated_value_a.docx — Extrait : « The output current is not 10 mA. The output current is not established by this document. » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 1,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L14_wrong_property",
+          "question": "Quelle est la plage de tension d'alimentation ?",
+          "state": "done",
+          "answer": "La grandeur demandée n'est pas établie par les preuves retenues dans le périmètre sélectionné. Je ne peux pas donner une valeur fiable à partir de cette sélection.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L15_wrong_role",
+          "question": "Quelle est la plage admissible de tension de bus en fonctionnement ?",
+          "state": "done",
+          "answer": "La grandeur demandée n'est pas établie par les preuves retenues dans le périmètre sélectionné. Je ne peux pas donner une valeur fiable à partir de cette sélection.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L16_table_note",
+          "question": "Quelle plage de tension d'alimentation est établie à TA = 85 °C ?",
+          "state": "done",
+          "answer": "Le passage contient une négation portant sur la donnée repérée. Son nombre n'est pas retenu comme valeur affirmée ; l'extrait conserve la formulation source.\n\nL16_table_note_a.docx — Extrait : « Parameter\tMIN\tMAX\tUNIT\tNOTE » [S001]\n\nL16_table_note_a.docx — Extrait : « Operating supply voltage\t2\t5\tV\tOnly at TA = 25 °C; not established at TA = 85 °C. » Liaisons aux en-têtes : MIN = 2; MAX = 5; UNIT = V.\nL16_table_note_a.docx — Extrait : « Parameter\tMIN\tMAX\tUNIT\tNOTE » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 1,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L17_source_hash",
+          "question": "Quelle plage de tension de bus est indiquée ?",
+          "state": "done",
+          "answer": "L17_source_hash_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L18_intra_document_conflict",
+          "question": "Quelle est la tension d'alimentation recommandée à TA = 25 °C ?",
+          "state": "done",
+          "answer": "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée.\n\nL18_intra_document_conflict_a.docx — Extrait : « Recommended supply voltage: 4.0 V at TA = 25 °C. » [S001]\n\nL18_intra_document_conflict_a.docx — Extrait : « Recommended supply voltage: 3.0 V at TA = 25 °C. » [S002]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [
+              {
+                "id": "a",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "a": false
+          },
+          "context_literal_fact_coverage": {
+            "a": false
+          },
+          "selector_calls": 1,
+          "query_called_model_metric_is_double": true
+        }
+      ]
+    },
+    "candidate": {
+      "path": "/workspace/scratch/37dafe3f3244/qa/controlled-candidate.json",
+      "sha256": "4e79b9464bc2aed6f532be8f1cc96346a4e113a722d4b97767966493f881a7f3",
+      "protocol": {
+        "created_utc": "2026-11-09T14:06:39.919524+00:00",
+        "fixtures_sha256": "68a997cee3c6e3dcd1d8625d534c17631cb7ddaebedb1bfd3efa316c678fd476",
+        "harness_sha256": "a9ff2e5470a6fda376623b68c88ff804da8185b8ce3cc5b48ab691af2f258237",
+        "application_root": "/workspace/scratch/37dafe3f3244/agentPDFDoc",
+        "git_head": "fe4693da07ed9e948f65e4cadb51cd43ec36ebe2",
+        "libraries": {
+          "pydantic": "2.13.5",
+          "httpx": "0.28.1",
+          "openpyxl": "3.1.5",
+          "python-docx": "1.2.0",
+          "lxml": "6.1.3",
+          "defusedxml": "0.7.1",
+          "psutil": "7.2.2",
+          "tokenizers": "0.23.2"
+        },
+        "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+        "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "profile_sha256": "092da8f90103654027cee93ce0edcc9a312f45b70078047cfe4c1eeebdcf5716",
+        "tokenizer_directory": null,
+        "test_kind": "controlled_native_office_and_query_with_doubles",
+        "model_inference": "NOT_RUN",
+        "doubles": [
+          "ConstantEmbeddingDouble",
+          "LexicalOnlyVectorDouble",
+          "ControlledSelectorDouble",
+          "CharacterCounterDouble"
+        ],
+        "not_exercised": [
+          "Ollama",
+          "4B generation",
+          "E5",
+          "Qdrant",
+          "PDF ingestion",
+          "OCR",
+          "HTTP",
+          "browser",
+          "resource governor"
+        ],
+        "case_order": [
+          "P01_general_condition",
+          "P02_zero_cell",
+          "P03_negative_interval",
+          "P04_two_conditions",
+          "P05_sparse_table",
+          "P06_roles",
+          "P07_duplicates",
+          "P08_comparison_equal",
+          "P09_comparison_different",
+          "P10_decimal_sum",
+          "P11_conversion",
+          "P12_cached_formula",
+          "L01_condition_mismatch",
+          "L02_empty",
+          "L03_scope_sheet",
+          "L04_unit_outside",
+          "L05_uncached_formula",
+          "L06_cross_document_conflict",
+          "L07_ocr_ambiguous",
+          "L08_partial_extraction",
+          "L09_long_qualification",
+          "L10_absent_location",
+          "L11_plan_prose",
+          "L12_unknown_reference",
+          "L13_negated_value",
+          "L14_wrong_property",
+          "L15_wrong_role",
+          "L16_table_note",
+          "L17_source_hash",
+          "L18_intra_document_conflict"
+        ]
+      },
+      "source_manifest_sha256": "f669c9a15df34dddf32bfbe1731ee9cee9d8903bf0e668b3c791d24d4c3da4e7",
+      "summary": {
+        "submissions": 30,
+        "answerable_pass": 12,
+        "answerable_total": 12,
+        "control_pass": 16,
+        "control_total": 18,
+        "errors": 1,
+        "answerable_with_limitation_notice": 0,
+        "answerable_errors": 0,
+        "literal_facts_rendered_and_supported": 15,
+        "required_literal_facts": 15,
+        "retrieval_fact_recall_at_10": {
+          "found": 15,
+          "total": 15
+        },
+        "context_literal_fact_coverage": {
+          "found": 14,
+          "total": 15
+        },
+        "citation_integrity": {
+          "valid": 27,
+          "total": 27
+        },
+        "forbidden_publication_cases": 0,
+        "query_latency_ms": {
+          "n": 30,
+          "median": 470.44,
+          "max": 1428.36,
+          "scope": "controlled QueryService with named doubles, not model latency"
+        }
+      },
+      "acceptance_targets_unchanged": {
+        "answerable_complete": 12,
+        "answerable_total": 12,
+        "limit_controls_pass": 18,
+        "limit_controls_total": 18,
+        "scope_leakage_count": 0,
+        "invented_claim_count": 0,
+        "citation_integrity_ratio": 1.0
+      },
+      "source_stability": {
+        "changed_during_run": []
+      },
+      "cases": [
+        {
+          "case_id": "P01_general_condition",
+          "question": "Dans quelle condition le boîtier est-il étanche ?",
+          "state": "done",
+          "answer": "P01_general_condition_a.docx — Extrait : « Le boîtier est étanche uniquement lorsque le couvercle est fermé. » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "sealed",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "sealed": true
+          },
+          "context_literal_fact_coverage": {
+            "sealed": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P02_zero_cell",
+          "question": "Quelle valeur contient exactement la cellule A1 ?",
+          "state": "done",
+          "answer": "P02_zero_cell_a.xlsx — Parametres / A1 : Valeur littérale « 0 ». [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "zero",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "zero": true
+          },
+          "context_literal_fact_coverage": {
+            "zero": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P03_negative_interval",
+          "question": "Quelle plage de température de stockage est indiquée ?",
+          "state": "done",
+          "answer": "P03_negative_interval_a.docx — Extrait : « Storage temperature: -40 to 85 °C. » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "range",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "range": true
+          },
+          "context_literal_fact_coverage": {
+            "range": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P04_two_conditions",
+          "question": "Donne les deux plages d'alimentation recommandées avec leurs conditions de température.",
+          "state": "done",
+          "answer": "P04_two_conditions_a.docx — Extrait : « Recommended supply voltage: 1.5 to 4.5 V for TA = -40 to 125 °C. » [S001]\n\nP04_two_conditions_a.docx — Extrait : « Recommended supply voltage: 1.8 to 4.5 V for TA = -55 to 150 °C. » [S002]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "condition1",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              },
+              {
+                "id": "condition2",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "condition1": true,
+            "condition2": true
+          },
+          "context_literal_fact_coverage": {
+            "condition1": true,
+            "condition2": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P05_sparse_table",
+          "question": "Quelle plage de tension de bus est indiquée avec ses bornes et son unité ?",
+          "state": "done",
+          "answer": "P05_sparse_table_a.docx — Extrait : « Bus voltage range\t0\t\t36\tV » Liaisons aux en-têtes : MIN = 0; TYP = ; MAX = 36; UNIT = V.\nP05_sparse_table_a.docx — Extrait : « Parameter\tMIN\tTYP\tMAX\tUNIT » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "range",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "range": true
+          },
+          "context_literal_fact_coverage": {
+            "range": false
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P06_roles",
+          "question": "Quelle est la plage de tension d'alimentation recommandée ?",
+          "state": "done",
+          "answer": "P06_roles_a.docx — Extrait : « Recommended operating supply voltage: 2 to 5 V. » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "recommended",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "recommended": true
+          },
+          "context_literal_fact_coverage": {
+            "recommended": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P07_duplicates",
+          "question": "Quelle est la plage de tension de bus ?",
+          "state": "done",
+          "answer": "P07_duplicates_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]\n\nP07_duplicates_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S002]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "range",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "range": true
+          },
+          "context_literal_fact_coverage": {
+            "range": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P08_comparison_equal",
+          "question": "Comparer les plages de tension de bus des deux documents.",
+          "state": "done",
+          "answer": "P08_comparison_equal_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]\n\nP08_comparison_equal_b.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S002]\n\nComparaison — tension de bus (P08_comparison_equal_a.docx, P08_comparison_equal_b.docx) : les valeurs citées concordent sous les rôles indiqués ; aucune équivalence de conditions d'essai supplémentaires n'est établie. [S001] [S002] La concordance éventuelle des valeurs n'établit pas l'indépendance des documents.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "a",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              },
+              {
+                "id": "b",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "a": true,
+            "b": true
+          },
+          "context_literal_fact_coverage": {
+            "a": true,
+            "b": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P09_comparison_different",
+          "question": "Comparer les plages de tension de bus des deux documents.",
+          "state": "done",
+          "answer": "P09_comparison_different_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]\n\nP09_comparison_different_b.docx — Extrait : « Operating bus voltage: 0 to 40 V. » [S002]\n\nComparaison — tension de bus (P09_comparison_different_a.docx, P09_comparison_different_b.docx) : les valeurs citées divergent sous les rôles indiqués ; aucune équivalence de conditions d'essai supplémentaires n'est établie. [S001] [S002] La concordance éventuelle des valeurs n'établit pas l'indépendance des documents.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "a",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              },
+              {
+                "id": "b",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "a": true,
+            "b": true
+          },
+          "context_literal_fact_coverage": {
+            "a": true,
+            "b": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P10_decimal_sum",
+          "question": "Calcule la somme des cellules A1 et B1.",
+          "state": "done",
+          "answer": "Calcul déterministe — Somme : A1 = 1.25; B1 = 2.75 ; résultat = 4. [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "sum",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "sum": true
+          },
+          "context_literal_fact_coverage": {
+            "sum": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P11_conversion",
+          "question": "Convertir la cellule A1 en millisecondes, avec l'unité portée par la cellule B1.",
+          "state": "done",
+          "answer": "Calcul déterministe — Conversion : A1 = 125 ; unité source B1 = µs ; résultat = 0.125 ms. Conversion d'unité : (125 / 1000) ms = 0.125 ms. [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "conversion",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "conversion": true
+          },
+          "context_literal_fact_coverage": {
+            "conversion": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "P12_cached_formula",
+          "question": "Quelle valeur calculée est disponible pour la cellule A1 ?",
+          "state": "done",
+          "answer": "P12_cached_formula_a.xlsx — Parametres / A1 : Cache source « 3 »; Formule enregistrée « =1+2 »; cache enregistré de fraîcheur inconnue; aucun calcul effectué par cette application ; activité et historique d'exécution non établis. [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": true,
+            "facts": [
+              {
+                "id": "cache",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "cache": true
+          },
+          "context_literal_fact_coverage": {
+            "cache": true
+          },
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L01_condition_mismatch",
+          "question": "Quel courant de sortie est établi à TA = 85 °C ?",
+          "state": "done",
+          "answer": "Les preuves retenues n'établissent pas la valeur dans les conditions demandées. Les valeurs associées à d'autres conditions ne sont pas transposées.\n\nL01_condition_mismatch_a.docx — Extrait : « Output current: 10 mA at TA = 25 °C. » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 1,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L02_empty",
+          "question": "Quelle est la tension nominale ?",
+          "state": "done",
+          "answer": "Les preuves disponibles dans ce périmètre ne suffisent pas pour répondre à cette question.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L03_scope_sheet",
+          "question": "Quel marqueur figure dans la deuxième feuille du classeur ?",
+          "state": "done",
+          "answer": "La question demande la feuille 2, mais le périmètre sélectionné autorise seulement la feuille 1 (Parametres). Son contenu extérieur n'a pas été consulté ; élargissez la sélection à cette feuille pour y répondre.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L04_unit_outside",
+          "question": "Convertir la cellule A1 en millisecondes.",
+          "state": "done",
+          "answer": "Le calcul demandé n'est pas établi : La conversion exige une unité source et une unité cible explicites.\n\nL04_unit_outside_a.xlsx — Parametres / A1 : Valeur littérale « 140 ». [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L05_uncached_formula",
+          "question": "Quelle valeur calculée est disponible pour la cellule A1 ?",
+          "state": "done",
+          "answer": "Restitution partielle : certains faits demandés ne sont pas établis dans les preuves retenues. Cela ne démontre pas leur absence dans les documents.\n\nL05_uncached_formula_a.xlsx — Parametres / A1 : Formule enregistrée « =11+13 »; résultat indisponible : cache source absent; aucun calcul effectué par cette application ; activité et historique d'exécution non établis. [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L06_cross_document_conflict",
+          "question": "Quelle est la tension d'alimentation recommandée à TA = 25 °C selon les deux documents ?",
+          "state": "done",
+          "answer": "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée.\n\nL06_cross_document_conflict_b.docx — Extrait : « Recommended supply voltage: 3.6 V at TA = 25 °C. » [S001]\n\nL06_cross_document_conflict_a.docx — Extrait : « Recommended supply voltage: 3.0 V at TA = 25 °C. » [S002]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [
+              {
+                "id": "a",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              },
+              {
+                "id": "b",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "a": true,
+            "b": true
+          },
+          "context_literal_fact_coverage": {
+            "a": true,
+            "b": true
+          },
+          "selector_calls": 1,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L07_ocr_ambiguous",
+          "question": "Quelle est la plage de tension de bus en fonctionnement ?",
+          "state": "done",
+          "answer": "Une ambiguïté subsiste dans les preuves retenues (lecture, adresse ou rôle de la grandeur). Les données brutes sont conservées ; aucune correction n'est supposée.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L08_partial_extraction",
+          "question": "Quelles plages de tension de bus et d'alimentation sont établies ?",
+          "state": "done",
+          "answer": "La demande porte sur plusieurs propriétés distinctes. Certaines propriétés ne sont pas établies pour chaque document demandé ; une seule plage ne suffit pas à toutes les couvrir.\n\nL08_partial_extraction_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [
+              {
+                "id": "bus",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "bus": true
+          },
+          "context_literal_fact_coverage": {
+            "bus": true
+          },
+          "selector_calls": 1,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L09_long_qualification",
+          "question": "Quelle plage de tension d'alimentation est établie à TA = 85 °C ?",
+          "state": "done",
+          "answer": "La grandeur demandée n'est pas établie par les preuves retenues dans le périmètre sélectionné. Je ne peux pas donner une valeur fiable à partir de cette sélection.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L10_absent_location",
+          "question": "Quelle plage de tension de bus est indiquée ?",
+          "state": "error",
+          "answer": "",
+          "error_code": "invalid_source_locator",
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": true,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L11_plan_prose",
+          "question": "Quelle propriété du boîtier est décrite ?",
+          "state": "done",
+          "answer": "La formulation de la demande ne correspond pas aux relations actuellement vérifiables par l’analyse littérale. Aucune interprétation supplémentaire ni absence d’information dans les documents n’est déduite.",
+          "error_code": null,
+          "judgment": {
+            "passed": false,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L12_unknown_reference",
+          "question": "Quelle propriété du boîtier est décrite ?",
+          "state": "done",
+          "answer": "La formulation de la demande ne correspond pas aux relations actuellement vérifiables par l’analyse littérale. Aucune interprétation supplémentaire ni absence d’information dans les documents n’est déduite.",
+          "error_code": null,
+          "judgment": {
+            "passed": false,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L13_negated_value",
+          "question": "Quel courant de sortie est établi ?",
+          "state": "done",
+          "answer": "Le passage contient une négation portant sur la donnée repérée. Son nombre n'est pas retenu comme valeur affirmée ; l'extrait conserve la formulation source.\n\nL13_negated_value_a.docx — Extrait : « The output current is not 10 mA. The output current is not established by this document. » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 1,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L14_wrong_property",
+          "question": "Quelle est la plage de tension d'alimentation ?",
+          "state": "done",
+          "answer": "La grandeur demandée n'est pas établie par les preuves retenues dans le périmètre sélectionné. Je ne peux pas donner une valeur fiable à partir de cette sélection.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L15_wrong_role",
+          "question": "Quelle est la plage admissible de tension de bus en fonctionnement ?",
+          "state": "done",
+          "answer": "La grandeur demandée n'est pas établie par les preuves retenues dans le périmètre sélectionné. Je ne peux pas donner une valeur fiable à partir de cette sélection.",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L16_table_note",
+          "question": "Quelle plage de tension d'alimentation est établie à TA = 85 °C ?",
+          "state": "done",
+          "answer": "Le passage contient une négation portant sur la donnée repérée. Son nombre n'est pas retenu comme valeur affirmée ; l'extrait conserve la formulation source.\n\nL16_table_note_a.docx — Extrait : « Parameter\tMIN\tMAX\tUNIT\tNOTE » [S001]\n\nL16_table_note_a.docx — Extrait : « Operating supply voltage\t2\t5\tV\tOnly at TA = 25 °C; not established at TA = 85 °C. » Liaisons aux en-têtes : MIN = 2; MAX = 5; UNIT = V.\nL16_table_note_a.docx — Extrait : « Parameter\tMIN\tMAX\tUNIT\tNOTE » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": true,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 1,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L17_source_hash",
+          "question": "Quelle plage de tension de bus est indiquée ?",
+          "state": "done",
+          "answer": "L17_source_hash_a.docx — Extrait : « Operating bus voltage: 0 to 36 V. » [S001]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {},
+          "context_literal_fact_coverage": {},
+          "selector_calls": 0,
+          "query_called_model_metric_is_double": true
+        },
+        {
+          "case_id": "L18_intra_document_conflict",
+          "question": "Quelle est la tension d'alimentation recommandée à TA = 25 °C ?",
+          "state": "done",
+          "answer": "Les extraits retenus donnent des valeurs différentes pour un même libellé et une même condition. Les sources sont restituées séparément ; aucune valeur n'est arbitrée.\n\nL18_intra_document_conflict_a.docx — Extrait : « Recommended supply voltage: 3.0 V at TA = 25 °C. » [S001]\n\nL18_intra_document_conflict_a.docx — Extrait : « Recommended supply voltage: 4.0 V at TA = 25 °C. » [S002]",
+          "error_code": null,
+          "judgment": {
+            "passed": true,
+            "answerable": false,
+            "facts": [
+              {
+                "id": "a",
+                "rendered": true,
+                "literal_source_support": true,
+                "rendered_and_supported": true
+              }
+            ],
+            "limitation_notice": false,
+            "missing_answer_patterns": [],
+            "forbidden_published": [],
+            "citation_integrity": true,
+            "expected_error_observed": false,
+            "method": "frozen_literal_and_control_flow_oracles",
+            "semantic_entailment_judgment": "not_a_general_semantic_judgment"
+          },
+          "citation_checks": [
+            {
+              "source_id": "S001",
+              "valid": true,
+              "reasons": []
+            },
+            {
+              "source_id": "S002",
+              "valid": true,
+              "reasons": []
+            }
+          ],
+          "retrieval_fact_recall_at_10": {
+            "a": false
+          },
+          "context_literal_fact_coverage": {
+            "a": false
+          },
+          "selector_calls": 1,
+          "query_called_model_metric_is_double": true
+        }
+      ]
+    },
+    "interpretation": {
+      "unchanged": "12/12 positives, 16/18 controls, 27/27 citation checks in both arms",
+      "failed_control_ids": [
+        "L11_plan_prose",
+        "L12_unknown_reference"
+      ],
+      "reason": "The deterministic route does not exercise the injected selector boundary; their original FAIL is preserved.",
+      "expected_application_error": "L10_absent_location: invalid_source_locator, correctly blocks missing location",
+      "literal_context_proxy": "14/15 positive fact patterns match serialized context; P05 sparse table pattern remains unmatched. This is a literal regex proxy, not semantic recall.",
+      "latency_caution": "Named doubles, not model inference. Candidate controlled run overlapped Mypy and documentation tests; its observed timing is not a clean isolated performance comparison."
+    }
+  },
+  "documentation_gates": {
+    "status": "PASS",
+    "checked_utc": "2026-11-09T14:14:01.945711+00:00",
+    "docs": {
+      "utc": "2026-11-09T14:12:31+00:00",
+      "root": "/workspace/scratch/37dafe3f3244/agentPDFDoc",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "links",
+          "status": "PASS",
+          "detail": {
+            "relative_links_checked": 1621,
+            "warnings": [],
+            "external_urls_fetched": false
+          }
+        },
+        {
+          "id": "headers",
+          "status": "PASS",
+          "detail": {
+            "documents": 8,
+            "statuses": {
+              "docs/README.md": "stabilise",
+              "docs/architecture/ARCHITECTURE.md": "stabilise",
+              "docs/deploiement/DEPLOIEMENT.md": "stabilise",
+              "docs/exploitation/DEPANNAGE.md": "stabilise",
+              "docs/exploitation/EXPLOITATION.md": "stabilise",
+              "docs/exploitation/SAUVEGARDE-RESTAURATION.md": "stabilise",
+              "docs/interfaces/API.md": "stabilise",
+              "docs/specifications/SPECIFICATIONS.md": "stabilise"
+            }
+          }
+        },
+        {
+          "id": "index",
+          "status": "PASS",
+          "detail": {
+            "indexed_documents": 7
+          }
+        },
+        {
+          "id": "ascii_art",
+          "status": "PASS",
+          "detail": {
+            "code_blocks_checked": 48
+          }
+        },
+        {
+          "id": "images",
+          "status": "PASS",
+          "detail": {
+            "svg_checked": 5,
+            "display_width_px": 880,
+            "min_display_font_px": 11.0
+          }
+        },
+        {
+          "id": "versions",
+          "status": "PASS",
+          "detail": {
+            "version": "0.1.0",
+            "released_sections": [],
+            "warnings": []
+          }
+        },
+        {
+          "id": "entry_point",
+          "status": "PASS",
+          "detail": {
+            "entry_links": [
+              "docs/README.md",
+              "CHANGELOG.md"
+            ]
+          }
+        }
+      ],
+      "network": "none"
+    },
+    "pack": {
+      "pack": "RAG-LOCAL-16-v2.1",
+      "checked_at_utc": "2026-11-09T14:12:31.783916+00:00",
+      "overall_status": "PASS",
+      "scope": "Documentation, configuration syntax, runtime profile copy, skill format/registry, SQLite reference and deterministic examples ONLY",
+      "python_version": "3.12.14",
+      "pyyaml_version": "6.0.3",
+      "results": [
+        {
+          "id": "markdown_links",
+          "status": "PASS",
+          "detail": {
+            "local_links_checked": 2469,
+            "links_to_project_outside_pack": 358,
+            "git_ignore_check": "PASS",
+            "external_urls_fetched": false
+          }
+        },
+        {
+          "id": "syntax",
+          "status": "PASS",
+          "detail": {
+            "configuration_files": [
+              "app.env",
+              "lexical.sql",
+              "local16-4b.yaml",
+              "local16.yaml",
+              "next.config.mjs",
+              "ollama.chat.smoke.json",
+              "ollama.env",
+              "qdrant.collection.json",
+              "qdrant.yaml"
+            ],
+            "native_runtime_schema_tested": false
+          }
+        },
+        {
+          "id": "configuration_consistency",
+          "status": "PASS",
+          "detail": {
+            "embedding_dimensions": 384,
+            "max_declared_tokens_with_output": 8192,
+            "parameters_are_unqualified_design_targets": true
+          }
+        },
+        {
+          "id": "runtime_profile_copy",
+          "status": "PASS",
+          "detail": {
+            "runtime_profile": "config/local16.yaml",
+            "documentary_copy": "RAG_Local_Agents/config/local16.yaml",
+            "sha256": "6d51003d32df8c4d765ee31d58fad98dd4216911f2e78f4ccf2f4b787e05c212",
+            "byte_identical": true,
+            "additional_profiles": {
+              "local16-4b.yaml": {
+                "runtime": "config/local16-4b.yaml",
+                "documentary_copy": "RAG_Local_Agents/config/local16-4b.yaml",
+                "sha256": "7f8743656a250a0a3d1d487b9d97b5e7b73f8b4a1edcf0db4b7c496a0b5e49da",
+                "byte_identical": true
+              }
+            },
+            "collection_config": {
+              "runtime": "config/qdrant.collection.json",
+              "documentary_copy": "RAG_Local_Agents/config/qdrant.collection.json",
+              "sha256": "210b83977a299c506549c61c09e5a40816febefcaf06f59f6368913840e6133d",
+              "byte_identical": true
+            }
+          }
+        },
+        {
+          "id": "sqlite_fts5_reference",
+          "status": "PASS",
+          "detail": {
+            "sqlite_version": "3.53.1",
+            "checked": [
+              "create",
+              "insert",
+              "scope-filter",
+              "update",
+              "delete"
+            ],
+            "full_app_schema_tested": false
+          }
+        },
+        {
+          "id": "skill_format",
+          "status": "PASS",
+          "detail": {
+            "skills": [
+              "local-cpu-qualification",
+              "official-source-review",
+              "pdf-workspace-e2e",
+              "rag-pdf-provenance",
+              "rag-retrieval-evaluation"
+            ],
+            "syntax_and_links_only": true,
+            "native_client_discovery_tested": false
+          }
+        },
+        {
+          "id": "agents_skill_format",
+          "status": "PASS",
+          "detail": {
+            "skills": [
+              "agent-introspection-debugging",
+              "backend-patterns",
+              "embedding-comparison-windows",
+              "frontend-design",
+              "frontend-skill",
+              "hybrid-rag-api",
+              "linux-offline-kit",
+              "linux-rag-runtime",
+              "local-llm-qualification",
+              "office-document-ingestion",
+              "pdf-ingestion-windows",
+              "pdf-workspace-web",
+              "project-documentation",
+              "rag-qualification-fixtures",
+              "tesseract-lstm-extension",
+              "windows-rag-runtime"
+            ],
+            "warnings": [
+              "Fichier tiers mal rangé : .agents/skills/SKILL.md (SKILL.md hors dossier de skill, non découvrable)",
+              "Fichier tiers mal rangé : .agents/skills/golang-general-backend-security.md",
+              "Fichier tiers mal rangé : .agents/skills/javascript-express-web-server-security.md",
+              "Fichier tiers mal rangé : .agents/skills/javascript-general-web-frontend-security.md",
+              "Fichier tiers mal rangé : .agents/skills/javascript-jquery-web-frontend-security.md",
+              "Fichier tiers mal rangé : .agents/skills/javascript-typescript-nextjs-web-server-security.md",
+              "Fichier tiers mal rangé : .agents/skills/javascript-typescript-react-web-frontend-security.md",
+              "Fichier tiers mal rangé : .agents/skills/javascript-typescript-vue-web-frontend-security.md",
+              "Fichier tiers mal rangé : .agents/skills/openai.yaml",
+              "Fichier tiers mal rangé : .agents/skills/python-django-web-server-security.md",
+              "Fichier tiers mal rangé : .agents/skills/python-fastapi-web-server-security.md",
+              "Fichier tiers mal rangé : .agents/skills/python-flask-web-server-security.md"
+            ],
+            "syntax_and_links_only": true,
+            "native_client_discovery_tested": false
+          }
+        },
+        {
+          "id": "skills_registry",
+          "status": "PASS",
+          "detail": {
+            "pack": [
+              "local-cpu-qualification",
+              "official-source-review",
+              "pdf-workspace-e2e",
+              "rag-pdf-provenance",
+              "rag-retrieval-evaluation"
+            ],
+            "project": [
+              "embedding-comparison-windows",
+              "hybrid-rag-api",
+              "linux-offline-kit",
+              "linux-rag-runtime",
+              "local-llm-qualification",
+              "office-document-ingestion",
+              "pdf-ingestion-windows",
+              "pdf-workspace-web",
+              "project-documentation",
+              "rag-qualification-fixtures",
+              "tesseract-lstm-extension",
+              "windows-rag-runtime"
+            ],
+            "third_party": [
+              "SKILL.md",
+              "golang-general-backend-security.md",
+              "javascript-express-web-server-security.md",
+              "javascript-general-web-frontend-security.md",
+              "javascript-jquery-web-frontend-security.md",
+              "javascript-typescript-nextjs-web-server-security.md",
+              "javascript-typescript-react-web-frontend-security.md",
+              "javascript-typescript-vue-web-frontend-security.md",
+              "openai.yaml",
+              "python-django-web-server-security.md",
+              "python-fastapi-web-server-security.md",
+              "python-flask-web-server-security.md",
+              "agent-introspection-debugging",
+              "backend-patterns",
+              "frontend-design",
+              "frontend-skill"
+            ],
+            "sha256_checked": 33,
+            "behavior_tested": false
+          }
+        },
+        {
+          "id": "policy_propagation",
+          "status": "PASS",
+          "detail": {
+            "policy_in_primary_instructions": true,
+            "source_and_skill_acceptance": "D11"
+          }
+        },
+        {
+          "id": "deterministic_examples",
+          "status": "PASS",
+          "detail": {
+            "rrf_counterexample": {
+              "exact_score": 0.01639344262295082,
+              "top6_without_exact": [
+                "near1",
+                "near2",
+                "near3",
+                "near4",
+                "near5",
+                "near6"
+              ],
+              "illustrative_selection": [
+                "exact",
+                "near1",
+                "near2",
+                "near3",
+                "near4",
+                "near5"
+              ]
+            },
+            "unicode_roundtrip": true,
+            "dense_25000x384_float32_bytes": 38400000,
+            "wilson_27_of_30_95pct": [
+              0.7437891742081593,
+              0.9654001112526658
+            ],
+            "not_a_test_of_future_application": true
+          }
+        },
+        {
+          "id": "consolidated_brief",
+          "status": "PASS",
+          "detail": {
+            "output": "RAG_LOCAL_BRIEF_COMPLET.md",
+            "canonical_docs_and_configs_included": true
+          }
+        }
+      ],
+      "warnings": [
+        "Fichier tiers mal rangé : .agents/skills/SKILL.md (SKILL.md hors dossier de skill, non découvrable)",
+        "Fichier tiers mal rangé : .agents/skills/golang-general-backend-security.md",
+        "Fichier tiers mal rangé : .agents/skills/javascript-express-web-server-security.md",
+        "Fichier tiers mal rangé : .agents/skills/javascript-general-web-frontend-security.md",
+        "Fichier tiers mal rangé : .agents/skills/javascript-jquery-web-frontend-security.md",
+        "Fichier tiers mal rangé : .agents/skills/javascript-typescript-nextjs-web-server-security.md",
+        "Fichier tiers mal rangé : .agents/skills/javascript-typescript-react-web-frontend-security.md",
+        "Fichier tiers mal rangé : .agents/skills/javascript-typescript-vue-web-frontend-security.md",
+        "Fichier tiers mal rangé : .agents/skills/openai.yaml",
+        "Fichier tiers mal rangé : .agents/skills/python-django-web-server-security.md",
+        "Fichier tiers mal rangé : .agents/skills/python-fastapi-web-server-security.md",
+        "Fichier tiers mal rangé : .agents/skills/python-flask-web-server-security.md"
+      ],
+      "not_executed": [
+        "LLM inference",
+        "Docling or OCR",
+        "Qdrant server/API",
+        "Frontend or browser E2E",
+        "16 GB target qualification",
+        "Native skill installation/discovery/invocation",
+        "External source link accessibility in this offline script"
+      ]
+    },
+    "other_gates": {
+      "diagrams": {
+        "command": "tools/docs/diagrams.py --check",
+        "exit_code": 0,
+        "sha256": "82b1ed63d2192fa5e42f2b9a2eb33e6a468cd4abe9e1ab03e1f2894cfdf5482f",
+        "output": "Schémas conformes : processus-ports.svg, sequence-up.svg, ingestion.svg, sequence-question.svg, sauvegarde-restauration.svg\n"
+      },
+      "brief": {
+        "command": "RAG_Local_Agents/tools/build_brief.py --check",
+        "exit_code": 0,
+        "sha256": "ba027670c3af147c1125fd9572f70d6ffcdad9a5a6d421b66e95d93704864d88",
+        "output": "PASS: brief synchronisé\n"
+      },
+      "git_diff": {
+        "command": "git diff --check",
+        "exit_code": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output": ""
+      }
+    },
+    "qualification_scope": "Documentation/configuration consistency only; old third-party skill placement warnings preserved."
+  },
+  "not_executed": [
+    "New full integration or slow/OCR suite; the real direct native and HTTP paths are in the separate native report",
+    "Browser/front-end test suite for this backend-only change",
+    "Fresh install or rebuilt kit",
+    "Windows/aarch64 or physical target qualification",
+    "New industrial heldout transfer",
+    "General semantic entailment or factual truth of external documents"
+  ]
+}

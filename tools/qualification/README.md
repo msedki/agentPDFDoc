@@ -13,6 +13,38 @@ rejouer une requête 4B capturée, selon les limites décrites ci-dessous.
 Ollama à partir d'un binaire et d'un magasin local explicitement fournis ; son
 périmètre CPU et ses preuves sont décrits en fin de page.
 
+## I5-PJ — évaluer les appuis numériques et leurs limites
+
+[`support_benchmark.py`](support_benchmark.py) compare le contrat publié,
+le candidat et une restitution strictement extractive sur des annotations
+séparées. Il mesure les faux appuis exacts, les vrais appuis rejetés, les
+littéraux conservés et le coût du catalogue/contrat/rendu. Le comptage de
+tokens et le sélecteur sont des doubles déclarés : ce banc ne fait ni
+extraction, ni retrieval, ni inférence 4B. Ses ablations ne changent que le
+processus diagnostic. Le premier essai constitue la mesure de qualité ;
+tous les essais, erreurs et dérives d'identité restent conservés. Choisir un
+fichier de sortie neuf, jamais écraser une tentative antérieure.
+
+[`prepare_support_native.py`](prepare_support_native.py) matérialise les dix
+DOCX synthétiques et huit questions de développement. Les paragraphes,
+questions et octets DOCX sont reproductibles avec les dépendances verrouillées.
+[`prepare_support_pdf.py`](prepare_support_pdf.py) produit deux PDF et trois
+questions, puis contrôle leur extraction native réelle : texte intégral,
+hashes, géométrie, original inchangé et absence d'OCR. Les essais avec
+[`run_grounded_native.py`](run_grounded_native.py) emploient ensuite les vrais
+E5, Qdrant, SQLite, tokenizer et Qwen3-4B dans des instances isolées.
+
+Le parcours HTTP utilise un autre manifeste :
+`prepare_production_i4.py --kind http` prépare l'unique cas et sa nouvelle
+version documentaire attendus par `production_i4_http.py`. Le manifeste
+natif de onze cas ne peut pas être réutilisé tel quel pour ce parcours.
+
+Les commandes exactes et leurs prérequis sont dans la
+[reproduction I5-PJ](../../RAG_Local_Agents/reports/trust-i5-pj-reproduction-2026-11-09.md).
+Le [bilan](../../RAG_Local_Agents/reports/trust-i5-pj-results-2026-11-09.md)
+conserve l'échec final H24 et les faux rejets préexistants. L'exécution des
+outils ne vaut pas qualification de production.
+
 ## Activer et provisionner le profil enhanced 4B
 
 Le profil [config/enhanced-4b.yaml](../../config/enhanced-4b.yaml) choisit

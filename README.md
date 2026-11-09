@@ -1,6 +1,31 @@
 # Atelier documentaire local
 
-**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** I5 publié, diffusion non qualifiée · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; les états antérieurs par plateforme restent documentés ci-dessous · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
+**Rôle :** point d’entrée du projet et de sa documentation · **Propriétaire :** intégration et documentation du produit · **Statut :** I5 publié et complément I5-PJ mesuré avec réserves, diffusion non qualifiée · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; les états antérieurs par plateforme restent documentés ci-dessous · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** code et références liés ci-dessous ; état du chantier dans [PLAN.md](RAG_Local_Agents/PLAN.md), organisation documentaire dans [docs/README.md](docs/README.md) · **Remplace :** aucun document
+
+## I5-PJ — opérateurs et exceptions, 9 novembre 2026
+
+Le complément I5 conserve **Qwen3-4B Q4_K_M comme seul générateur**. Les
+bornes et non-égalités reconnues ne deviennent plus des valeurs exactes ; les
+points explicitement exclus reconnus ne servent plus d'appui positif. Les
+passages, unités et conditions restent cités, avec une réponse partielle
+lorsque la conclusion n'est pas établie.
+
+Sur les 24 cas de développement, les faux appuis exacts passent de **10/12 à
+0/12**, à couverture positive inchangée (**10/12**). Sur les 24 cas finaux
+ouverts après gel du code, ils passent de **9/12 à 1/12**, à couverture positive
+inchangée (**9/12**). Les **28/28 passages** de chaque jeu sont conservés.
+Ces mesures portent sur le vérificateur de relations ; elles ne sont pas un
+taux général d'hallucination ni une qualification de l'application.
+
+**Le critère zéro faux appui n'est pas atteint.** La formulation française
+« à l'exception de » reste mal interprétée dans H24 ; une négation distante
+et les comparaisons entre plusieurs sujets/documents conservent des faux
+rejets. Le [bilan et la DoD du complément](RAG_Local_Agents/reports/trust-i5-pj-results-2026-11-09.md),
+les [données détaillées](RAG_Local_Agents/reports/trust-i5-pj-support-results-2026-11-09.json),
+la [relecture indépendante](RAG_Local_Agents/reports/trust-i5-pj-review-2026-11-09.md)
+et les [commandes](RAG_Local_Agents/reports/trust-i5-pj-reproduction-2026-11-09.md)
+distinguent les contrôles avec doubles, les essais natifs et les limites
+restantes. La qualification de production reste non acquise.
 
 ## I5 — pipeline de confiance et générateur 4B unique, 8 novembre 2026
 

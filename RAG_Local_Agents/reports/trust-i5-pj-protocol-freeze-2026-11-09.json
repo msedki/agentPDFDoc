@@ -1,0 +1,9 @@
+{
+  "date_utc": "2026-11-09",
+  "base_commit": "fe4693da07ed9e948f65e4cadb51cd43ec36ebe2",
+  "protocol_path": "RAG_Local_Agents/reports/trust-i5-pj-protocol-2026-11-09.md",
+  "protocol_sha256": "5ae83f77322c19599a602c335c4b0204e382893da5746f12b88cf1cbcfc219ba",
+  "product_edit_status": "none; baseline reproductions only",
+  "holdout_freeze": "separate receipt required before product edits",
+  "scope": "I5-PJ continuation"
+}

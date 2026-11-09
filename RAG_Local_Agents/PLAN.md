@@ -2,6 +2,31 @@
 
 **Rôle :** suivi canonique des travaux autorisés, résultats, blocages et prochaines actions · **Propriétaire :** intégration du chantier · **Statut :** vivant, bilan de la troisième itération de confiance I5 ; implémentations et preuves des lots précédents conservées, qualification de diffusion non acquise · **Référence :** branche `enhanced_version`, base I4 publiée `41857e17a438fe43123e4ef8274d9d2d446bfbc2` ; historiques R27/R28 et I1–I4 dans leurs sections · **Mis à jour :** 2026-11-09 (UTC) · **Source de vérité :** ce plan pour les actions ; [DoD](DEFINITION_OF_DONE.md) pour les critères et [journal](journal/README.md) pour les exécutions
 
+## I5-PJ — complément demandé le 9 novembre 2026 (UTC)
+
+**Objectif :** appliquer les exigences de la pièce jointe à la vérification des
+relations documentaires et à leur évaluation indépendante. **Référence :**
+`fe4693da07ed9e948f65e4cadb51cd43ec36ebe2`, copie isolée de `enhanced_version`.
+Les travaux I6 locaux non publiés restent dans leur copie existante.
+**Critères inchangés :** [protocole préalable](reports/trust-i5-pj-protocol-2026-11-09.md).
+**Bilan :** [résultats et DoD](reports/trust-i5-pj-results-2026-11-09.md).
+
+| Action | Dépendance, livrable et critère | État / preuve |
+|---|---|---|
+| PJ-01 | Référence immuable, défauts reproduits, protocole et sources primaires | TERMINÉ ; base exacte, 196 contrôles initiaux PASS, deux défauts reproduits ; huit publications primaires examinées, gels antérieurs au produit |
+| PJ-02 | PJ-01 ; opérateurs numériques et polarité des conditions, PJ-D01/D02/D03 | IMPLÉMENTÉ ET MESURÉ ; 64 nouvelles régressions, 351 ciblés PASS ; H1/H2 conservées sur bénéfice local ; PJ-D01 FAIL au final H24, aucun réglage après ouverture |
+| PJ-03 | PJ-01 ; annotations séparées, trois comparateurs, ablations, PJ-D05 | TERMINÉ ; 24 développement + 24 finaux, autres documents/valeurs ; faux appuis 10/12→0/12 puis 9/12→1/12 ; couverture positive 10/12 puis 9/12 inchangée, 28/28 littéraux chaque jeu ; revue indépendante |
+| PJ-04 | PJ-02 ; régression et essais natifs 4B, ressources et arrêts, PJ-D04/D06/D07 | TERMINÉ ; natif 11/11 candidat, 4→8 appels réels, HTTP01 PASS et arrêts vérifiés ; portable 5 166 PASS/1 FAIL documentaire préexistant corrigé, 105 tests documentaires puis Ruff/Mypy PASS ; erreurs initiales conservées |
+| PJ-05 | PJ-03/PJ-04 ; bilan exact, documents et publication vérifiée, PJ-D08 | PRÊT À PUBLIER ; rapports, commandes et portes documentaires fermés ; publication distante avec vérification de l’arbre et du parent à consigner |
+
+Le critère zéro faux appui n'est pas atteint : H24 conserve une mauvaise
+applicabilité de « à l'exception de ». H06 garde une négation distante mal
+rattachée ; H11/H12 (et D11/D12) restent partiels par obligations croisées
+sujet/document. Ces cas restent au dénominateur. Prochain chantier : qualifier
+ces portées avec de nouveaux témoins et un nouveau jeu final fermé. Les
+échecs historiques I5 ci-dessous restent inchangés et la qualification de
+production reste non acquise.
+
 ## I5 — reprise des priorités de confiance, 8 novembre 2026 (UTC)
 
 **Objectif :** corriger les liaisons de tableaux, le corps de page manquant, les obligations perdues au rendu et les erreurs OCR publiées, avec Qwen3-4B seul. **Référence :** `41857e17a438fe43123e4ef8274d9d2d446bfbc2`, worktree `../agentPDFDoc-i5-baseline`, branche `enhanced_version`. **Exclusions :** autre générateur, valeurs du corpus codées comme règles, adaptation sur transfert final, déploiement/qualification de production supposés. **Critères :** [protocole I5](reports/trust-4b-protocol-2026-11-08.md), gelé à 19:57:15 UTC avant produit, SHA-256 `2102faf988e881c655a6b92c213a7a02705f7e268d08f93f88613f371d2e3ccc`.
