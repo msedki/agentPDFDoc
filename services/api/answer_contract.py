@@ -37,7 +37,13 @@ from .deterministic_calculations import (
     parse_quantity,
 )
 from .errors import ApiError
-from .literal_evidence import RESTRICTION, nonrestrictive_tail_start, proof_envelope, sentence_spans
+from .literal_evidence import (
+    RESTRICTION,
+    explicit_clause_subject,
+    nonrestrictive_tail_start,
+    proof_envelope,
+    sentence_spans,
+)
 from .numeric_semantics import has_nonexact_numeric_modifier
 from .point_conditions import condition_measures as _condition_measures
 from .point_conditions import has_excluded_point_condition
@@ -882,7 +888,7 @@ def _condition_key(text):
 
 def _relation(reference, *, quantity, role, values, unit, label, condition, quote, kind, subjects,
               value_text=None, code=None, dependency_ids=(), decimal_notation_verified=False, list_context=None,
-              source_start=None, source_end=None, supply_configuration=None, polarity=None):
+              source_start=None, source_end=None, supply_configuration=None, polarity=None, assertion_text=None):
     context = reference.get("table_context") or {}
     note_issues = []
     if context.get("catalogue_verified"):
@@ -928,7 +934,7 @@ def _relation(reference, *, quantity, role, values, unit, label, condition, quot
     if reference.get("table_quality", {}).get("state", "supported") != "supported":
         note_issues.append("table_source_binding_unverified")
     identifiers = _source_identifiers
-    clause_ids = identifiers(quote)
+    clause_ids = identifiers(quote if assertion_text is None else assertion_text)
     # Later independent interface/model mentions cannot retroactively change a
     # preceding clause's subject. Explicit clause-local identities still win.
     excerpt_ids = identifiers(reference_text(reference)[:source_start] if source_start is not None else reference_text(reference))
@@ -984,7 +990,8 @@ def _relation(reference, *, quantity, role, values, unit, label, condition, quot
             "properties": properties, "role": role, "guarantee": guarantee,
             "values": [decimal_text(value) for value in values], "unit": unit,
             "label": folded(label).strip(" :;|="), "condition": condition, "quote": quote,
-            "assertion_status": _assertion_status(quote + " " + condition), "bound_role": _bound_role(label) if kind == "value" else None,
+            "assertion_status": _assertion_status((quote if assertion_text is None else assertion_text) + " " + condition),
+            "bound_role": _bound_role(label) if kind == "value" else None,
             "note_issues": note_issues,
             "list_binding": list_binding,
             "dependency_spans": dependency_spans,
@@ -995,29 +1002,61 @@ def _relation(reference, *, quantity, role, values, unit, label, condition, quot
             "source_quality": quality}
 
 
+def _independent_quantity_clauses(left, right, quantity):
+    """Two explicit different quantity heads, not punctuation alone.
+
+    A grouping crossing the boundary, a dominant predicate, an anaphor or a
+    conditional head cannot establish a local assertion. Repeated heads and
+    different properties of the same quantity remain in the decision scope.
+    """
+    if any(left.count(opening) != left.count(closing) for opening, closing in (("(", ")"), ("[", "]"), ("{", "}"))):
+        return False
+    if re.search(r"(?<!\d)[,;](?!\d)", right):
+        return False  # a later correction cannot be hidden behind this clause
+    heads = [explicit_clause_subject(part) for part in (left.strip(), right.strip())]
+    if any(head is None for head in heads):
+        return False
+    quantities = [{name for name, pattern in QUANTITIES.items() if re.search(pattern, folded(head or ""))}
+                  for head in heads]
+    return (all(len(items) == 1 for items in quantities) and quantities[0] != quantities[1]
+            and any(quantity in items for items in quantities))
+
+
 def _measure_clause(line, start, end, quantity):
     """A local property/role cannot be borrowed from a neighbouring measure."""
-    low, high = 0, len(line)
+    low, high, independent_scope = 0, len(line), False
     separators = list(re.finditer(r"(?<!\d)[,;](?!\d)|\s+(?=(?:drawing|consuming)\b)|"
                                  r"\s+(?:or|ou)\s+(?=(?:a\s+)?(?:single|dual|simple|sym[eé]trique)\b)", line))
     for separator in separators:
         if separator.end() <= start:
             prefix = line[low:separator.start()].strip()
+            suffix = line[separator.end():]
             # A leading temperature/other explicit test condition belongs to
             # the following assertion, despite its comma.
             if not re.match(r"^(?:at|a|à|for|pour|when|lorsque|if|si|unless|except|without|sauf|sans|"
                             r"only\s+(?:at|when|if)|uniquement|seulement)\b", prefix, re.IGNORECASE):
+                if has_excluded_point_condition(prefix):
+                    return 0, len(line), False
+                other_quantity = any(name != quantity and re.search(pattern, folded(prefix)) for name, pattern in QUANTITIES.items())
+                independent = _independent_quantity_clauses(prefix, suffix, quantity)
+                if other_quantity and not independent or explicit_clause_subject(prefix) is None and _assertion_status(prefix) != "asserted":
+                    # A later delimiter cannot remove the unresolved prefix.
+                    # Stop instead of repeatedly rescanning a growing scope.
+                    return 0, len(line), False
                 if MEASURE.search(prefix) or re.search(r"\b(?:single|dual|simple|symetrique)\b", folded(prefix)):
                     low = separator.end()
+                    independent_scope = independent_scope or independent
         elif separator.start() >= end:
             suffix = line[separator.end():]
             other_quantity = any(name != quantity and re.search(pattern, folded(suffix)) for name, pattern in QUANTITIES.items())
             independent = bool(re.match(r"\s*(?:drawing|consuming|or\b|ou\b|a\s+dual|a\s+single|"
                                         r"bus\s+voltage|supply\s+voltage)", suffix, re.IGNORECASE))
-            if other_quantity and independent or re.search(r"\b(?:dual|single)\b", separator[0] + suffix[:15]):
+            explicit_independent = _independent_quantity_clauses(line[low:separator.start()], suffix, quantity)
+            if other_quantity and (independent or explicit_independent) or re.search(r"\b(?:dual|single)\b", separator[0] + suffix[:15]):
                 high = separator.start()
+                independent_scope = independent_scope or explicit_independent
                 break
-    return low, high
+    return low, high, independent_scope
 
 
 def _prose_subject_retained(reference, references):
@@ -1105,7 +1144,7 @@ def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: st
             if len(measurements) == 1:
                 candidates = measurements
         for match, values, unit, kind, polarity in sorted(candidates, key=lambda item: item[0].start()):
-            clause_start, clause_end = _measure_clause(line, match.start(), match.end(), quantity)
+            clause_start, clause_end, independent_scope = _measure_clause(line, match.start(), match.end(), quantity)
             if clause_end == len(line) and proof_envelope(raw, line_start, line_end, subjects)[1] == line_end:
                 clause_end = nonrestrictive_tail_start(line, match.end())
             relative_start = match.start() - clause_start
@@ -1126,7 +1165,15 @@ def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: st
                 continue  # ± is not silently interpreted as a single-ended range
             start = line_start + clause_start
             end = line_start + clause_end
-            if clause_start == 0 and clause_end == len(line):
+            assertion_text = None
+            if independent_scope:
+                # The decision uses the observed independent clause, while the
+                # complete source sentence and every dependent restriction
+                # remain public. No source words or offsets are rewritten.
+                start, end = proof_envelope(raw, line_start, line_end, subjects,
+                                           anchor=line[clause_start:clause_end].strip())
+                assertion_text = raw[start:line_start] + line[clause_start:clause_end] + raw[line_end:end]
+            elif clause_start == 0 and clause_end == len(line):
                 start, end = proof_envelope(raw, start, end, subjects)
             if end > line_end:
                 condition = " ; ".join(item for item in [condition, raw[line_end:end].strip()] if item)
@@ -1136,7 +1183,8 @@ def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: st
             relation = _relation(reference, quantity=quantity, role=role, values=values, unit=unit,
                                  label=label, condition=condition, quote=quote, kind=kind, subjects=subjects,
                                  value_text=match[0] if kind == "value" else None, list_context=context,
-                                 source_start=start, source_end=end, supply_configuration=configuration, polarity=polarity)
+                                 source_start=start, source_end=end, supply_configuration=configuration, polarity=polarity,
+                                 assertion_text=assertion_text)
             if has_nonexact_numeric_modifier(prefix, suffix):
                 relation["note_issues"].append("numeric_relation_not_exact")
             yield relation

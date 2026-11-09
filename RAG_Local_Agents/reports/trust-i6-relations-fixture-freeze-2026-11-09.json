@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "protocol_id": "I6-relations-v1",
+  "created_utc": "2026-11-09T15:36:54.921661+00:00",
+  "status": "FROZEN_BEFORE_PRODUCT_EDITS",
+  "baseline_revision": "7ef57fdc38261fa4b14e077e5d1c75aee57f7eea",
+  "protocol": {
+    "path": "RAG_Local_Agents/reports/trust-i6-relations-protocol-2026-11-09.md",
+    "sha256": "14fa52184df49e986422d2b38b9396f6f4744176a5721aa3585d809b373d5012"
+  },
+  "fixtures": [
+    {
+      "split": "development",
+      "path": "tests/fixtures/support_i6_dev.json",
+      "sha256": "fbe09846d7fb138ec71b7400e4eba42e2d8fefbcd17e04172a0d28b04b712315",
+      "bytes": 170677,
+      "case_count": 48,
+      "positive_count": 24,
+      "negative_count": 24,
+      "languages": {
+        "fr": 24,
+        "en": 24
+      },
+      "groups": {
+        "exceptions": {
+          "cases": 16,
+          "positives": 8
+        },
+        "negation_scope": {
+          "cases": 16,
+          "positives": 8
+        },
+        "comparisons": {
+          "cases": 16,
+          "positives": 8
+        }
+      },
+      "source_passage_count": 71,
+      "document_instance_family_labels": 63,
+      "distinct_source_texts": 64,
+      "annotated_subject_count": 62,
+      "annotated_value_count": 54
+    },
+    {
+      "split": "heldout",
+      "path": "outside_repository: qa/i6-closed/support_i6_final.closed.json",
+      "sha256": "cfd02c4646cb23be05dd7fb912a265cceb72dc15d6038f47746f53f61ac9e797",
+      "bytes": 172672,
+      "case_count": 48,
+      "positive_count": 24,
+      "negative_count": 24,
+      "languages": {
+        "fr": 24,
+        "en": 24
+      },
+      "groups": {
+        "exceptions": {
+          "cases": 16,
+          "positives": 8
+        },
+        "negation_scope": {
+          "cases": 16,
+          "positives": 8
+        },
+        "comparisons": {
+          "cases": 16,
+          "positives": 8
+        }
+      },
+      "source_passage_count": 71,
+      "document_instance_family_labels": 63,
+      "distinct_source_texts": 64,
+      "annotated_subject_count": 62,
+      "annotated_value_count": 54
+    }
+  ],
+  "disjointness_checks": {
+    "source_texts_disjoint": true,
+    "annotated_subjects_disjoint": true,
+    "annotated_target_values_disjoint": true,
+    "declared_document_instance_family_labels_disjoint": true,
+    "no_I5_source_text_reused": true
+  },
+  "independent_review": {
+    "role": "scientific_review",
+    "status": "PASS",
+    "all_96_truth_labels_read": true,
+    "truth_label_inversions": 0,
+    "verified_source_gold_and_required_spans": 426,
+    "alternative_literal_groups_verified": 2,
+    "candidate_or_baseline_product_execution_used_to_write_labels": false,
+    "review_message_exact_utc_unavailable": true,
+    "rechecked_after_oracle_clarifications": true
+  },
+  "oracle": {
+    "exact_support": "Complete applicable target support; partial/conﬂict/missing targets are separate.",
+    "positive_gold": "Independent values, units, subjects, roles, test points and required relation groups, not status alone.",
+    "negative_gold": "Allowed literal source assertions remain separate from forbidden requested operands and conclusions.",
+    "unexpected_relations": "A matched relation outside allowed_relations fails semantic support even without an explicitly enumerated forbidden relation.",
+    "literal_scope": "Only required source spans plus indispensable negation/exception scope; alternative_reference_ids permits any genuinely linked alternative citation.",
+    "comparison_axes": "Collective subjects, one subject across documents, and subjects within each document are distinct reference-linked operand groups."
+  },
+  "embargo": {
+    "heldout_content_not_published": true,
+    "product_authors_may_read_only_development": true,
+    "final_open_requires_candidate_and_harness_freeze_and_parent_GO": true,
+    "post_open_product_annotation_or_threshold_tuning_prohibited": true
+  },
+  "limitations": [
+    "Agent annotation, not expert human validation.",
+    "Source instances, exact texts, identities and target numeric values are disjoint, but grammatical families are largely shared.",
+    "This is transfer to new synthetic instances within planned families, not unseen-structure or real-domain generalization.",
+    "Historical I5 cases are known regressions, not an unseen final set."
+  ],
+  "pre_review_drafts_preserved_outside_repository": true
+}

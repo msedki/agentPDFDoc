@@ -1,0 +1,5458 @@
+{
+  "schema_version": 2,
+  "protocol_id": "I6-relations-v1",
+  "protocol_sha256": "14fa52184df49e986422d2b38b9396f6f4744176a5721aa3585d809b373d5012",
+  "split": "development",
+  "baseline_revision": "7ef57fdc38261fa4b14e077e5d1c75aee57f7eea",
+  "task": "Bounded exact support and correctly scoped comparison relations; independent annotated synthetic source clauses.",
+  "annotation": {
+    "author_role": "independent evaluation agent",
+    "expert_human_annotation": false,
+    "created_utc": "2026-11-09T15:34:20.324348+00:00",
+    "candidate_outputs_used": false,
+    "method": "Annotate explicit source values, units, subjects, roles, test points and literal codepoint spans before execution; distinguish admissible source assertions from permissible complete comparison conclusions.",
+    "limitations": [
+      "Source instances, exact texts, identities and target values are disjoint; grammatical families are largely shared. This measures transfer to new instances within the planned families, not generalization to unseen structures or real cross-domain transfer.",
+      "Known I5 defects guide categories; no I5 case, subject, source text or target numeric value is reused.",
+      "Explicit source assertions in conflicts may remain quoted/admitted; resolving a unique operand or unsupported agreement is forbidden."
+    ],
+    "independent_review": {
+      "reviewer_role": "scientific_review",
+      "all_48_labels_read_before_candidate_execution": true,
+      "truth_label_inversions_found": 0,
+      "oracle_clarifications_applied_before_freeze": true,
+      "post_correction_recheck": "Recorded separately in the fixture freeze receipt."
+    }
+  },
+  "cases": [
+    {
+      "id": "I6D01",
+      "split": "development",
+      "group": "exceptions",
+      "category": "applicable_control",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quel est le courant de sortie du SV6101 à TA = 112 °C ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D01-document-A",
+          "document_family": "development-instrument-I6D01-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le courant de sortie du SV6101 est de 312,29 mA à TA = 112 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 62,
+            "text": "Le courant de sortie du SV6101 est de 312,29 mA à TA = 112 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D01-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D01-document-A",
+            "subject": "SV6101",
+            "quantity": "current",
+            "values": [
+              "312.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "112",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 62,
+              "text": "Le courant de sortie du SV6101 est de 312,29 mA à TA = 112 °C."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 62,
+            "text": "Le courant de sortie du SV6101 est de 312,29 mA à TA = 112 °C."
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "An explicit asserted test point exactly matches the question."
+    },
+    {
+      "id": "I6D02",
+      "split": "development",
+      "group": "exceptions",
+      "category": "applicable_control",
+      "language": "en",
+      "mode": "question",
+      "question": "What is the output current of SV6102 at TA = 113 °C?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D02-document-A",
+          "document_family": "development-instrument-I6D02-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The output current of SV6102 is 313.29 mA at TA = 113 °C, except at TA = 117 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 80,
+            "text": "The output current of SV6102 is 313.29 mA at TA = 113 °C, except at TA = 117 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D02-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D02-document-A",
+            "subject": "SV6102",
+            "quantity": "current",
+            "values": [
+              "313.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "113",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 80,
+              "text": "The output current of SV6102 is 313.29 mA at TA = 113 °C, except at TA = 117 °C."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 80,
+            "text": "The output current of SV6102 is 313.29 mA at TA = 113 °C, except at TA = 117 °C."
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The explicit positive test point differs from the separately excluded point."
+    },
+    {
+      "id": "I6D03",
+      "split": "development",
+      "group": "exceptions",
+      "category": "applicable_control",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quel est le courant de sortie du SV6103 à TA = 114 °C ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D03-document-A",
+          "document_family": "development-instrument-I6D03-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le courant de sortie du SV6103 est de 314,29 mA à TA = 114 °C, sauf à TA = 119 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 82,
+            "text": "Le courant de sortie du SV6103 est de 314,29 mA à TA = 114 °C, sauf à TA = 119 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D03-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D03-document-A",
+            "subject": "SV6103",
+            "quantity": "current",
+            "values": [
+              "314.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "114",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 82,
+              "text": "Le courant de sortie du SV6103 est de 314,29 mA à TA = 114 °C, sauf à TA = 119 °C."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 82,
+            "text": "Le courant de sortie du SV6103 est de 314,29 mA à TA = 114 °C, sauf à TA = 119 °C."
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The requested point is explicitly asserted and is not the excluded point."
+    },
+    {
+      "id": "I6D04",
+      "split": "development",
+      "group": "exceptions",
+      "category": "applicable_control",
+      "language": "en",
+      "mode": "question",
+      "question": "What is the nominal voltage of SV6104?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D04-document-A",
+          "document_family": "development-instrument-I6D04-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of SV6104 is 115.17 mV; The output current of SV6104 is 315.29 mA unless TA = 115 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 105,
+            "text": "The nominal voltage of SV6104 is 115.17 mV; The output current of SV6104 is 315.29 mA unless TA = 115 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D04-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D04-document-A",
+            "subject": "SV6104",
+            "quantity": "voltage",
+            "values": [
+              "115.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 105,
+              "text": "The nominal voltage of SV6104 is 115.17 mV; The output current of SV6104 is 315.29 mA unless TA = 115 °C."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 42,
+            "text": "The nominal voltage of SV6104 is 115.17 mV"
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The exception qualifies output current, not the independently stated nominal voltage."
+    },
+    {
+      "id": "I6D05",
+      "split": "development",
+      "group": "exceptions",
+      "category": "applicable_control",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quel est le courant de sortie du SV6105 à TA = 116 °C ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D05-document-A",
+          "document_family": "development-instrument-I6D05-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Sauf à TA = 122 °C, le courant de sortie du SV6105 est de 316,29 mA à TA = 116 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 82,
+            "text": "Sauf à TA = 122 °C, le courant de sortie du SV6105 est de 316,29 mA à TA = 116 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D05-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D05-document-A",
+            "subject": "SV6105",
+            "quantity": "current",
+            "values": [
+              "316.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "116",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 82,
+              "text": "Sauf à TA = 122 °C, le courant de sortie du SV6105 est de 316,29 mA à TA = 116 °C."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 82,
+            "text": "Sauf à TA = 122 °C, le courant de sortie du SV6105 est de 316,29 mA à TA = 116 °C."
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "A leading exception excludes another point; the requested point is explicitly asserted."
+    },
+    {
+      "id": "I6D06",
+      "split": "development",
+      "group": "exceptions",
+      "category": "applicable_control",
+      "language": "en",
+      "mode": "question",
+      "question": "What is the output current of SV6106 at TA = 117 °C?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D06-document-A",
+          "document_family": "development-instrument-I6D06-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The output current of SV6106 is 317.29 mA at TA = 117 °C (except at TA = 124 °C).",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 81,
+            "text": "The output current of SV6106 is 317.29 mA at TA = 117 °C (except at TA = 124 °C)."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D06-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D06-document-A",
+            "subject": "SV6106",
+            "quantity": "current",
+            "values": [
+              "317.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "117",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 81,
+              "text": "The output current of SV6106 is 317.29 mA at TA = 117 °C (except at TA = 124 °C)."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 81,
+            "text": "The output current of SV6106 is 317.29 mA at TA = 117 °C (except at TA = 124 °C)."
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "A parenthetical exception does not exclude the explicitly asserted requested point."
+    },
+    {
+      "id": "I6D07",
+      "split": "development",
+      "group": "exceptions",
+      "category": "applicable_control",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quelle est la tension nominale du SV6107 ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D07-document-A",
+          "document_family": "development-instrument-I6D07-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du SV6107 est de 118,17 mV; le circuit fonctionne sans résistance externe.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 94,
+            "text": "La tension nominale du SV6107 est de 118,17 mV; le circuit fonctionne sans résistance externe."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D07-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D07-document-A",
+            "subject": "SV6107",
+            "quantity": "voltage",
+            "values": [
+              "118.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 94,
+              "text": "La tension nominale du SV6107 est de 118,17 mV; le circuit fonctionne sans résistance externe."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 46,
+            "text": "La tension nominale du SV6107 est de 118,17 mV"
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The word sans modifies an external component requirement, not a numeric test condition."
+    },
+    {
+      "id": "I6D08",
+      "split": "development",
+      "group": "exceptions",
+      "category": "applicable_control",
+      "language": "en",
+      "mode": "question",
+      "question": "What is the output current of SV6108 at TA = 119 °C?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D08-document-A",
+          "document_family": "development-instrument-I6D08-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The output current of SV6108 is 319.29 mA at TA = 119 °C. For SV6108X, the output current is 219.19 mA except at TA = 119 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 125,
+            "text": "The output current of SV6108 is 319.29 mA at TA = 119 °C. For SV6108X, the output current is 219.19 mA except at TA = 119 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D08-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D08-document-A",
+            "subject": "SV6108",
+            "quantity": "current",
+            "values": [
+              "319.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "119",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 125,
+              "text": "The output current of SV6108 is 319.29 mA at TA = 119 °C. For SV6108X, the output current is 219.19 mA except at TA = 119 °C."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 57,
+            "text": "The output current of SV6108 is 319.29 mA at TA = 119 °C."
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The later exception belongs to a different explicitly named device."
+    },
+    {
+      "id": "I6D09",
+      "split": "development",
+      "group": "exceptions",
+      "category": "excluded_or_unproven_condition",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quel est le courant de sortie du SV6109 à TA = 120 °C ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D09-document-A",
+          "document_family": "development-instrument-I6D09-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le courant de sortie du SV6109 est de 320,29 mA à l'exception de TA = 120 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 77,
+            "text": "Le courant de sortie du SV6109 est de 320,29 mA à l'exception de TA = 120 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D09-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D09-document-A",
+            "subject": "SV6109",
+            "quantity": "current",
+            "values": [
+              "320.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "120",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 77,
+              "text": "Le courant de sortie du SV6109 est de 320,29 mA à l'exception de TA = 120 °C."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 77,
+            "text": "Le courant de sortie du SV6109 est de 320,29 mA à l'exception de TA = 120 °C."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The source explicitly excludes the exact requested point; its current cannot be admitted there."
+    },
+    {
+      "id": "I6D10",
+      "split": "development",
+      "group": "exceptions",
+      "category": "excluded_or_unproven_condition",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quel est le courant de sortie du SV6110 à TA = 121 °C ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D10-document-A",
+          "document_family": "development-instrument-I6D10-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le courant de sortie du SV6110 est de 321,29 mA à l’exception de TA = 121 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 77,
+            "text": "Le courant de sortie du SV6110 est de 321,29 mA à l’exception de TA = 121 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D10-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D10-document-A",
+            "subject": "SV6110",
+            "quantity": "current",
+            "values": [
+              "321.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "121",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 77,
+              "text": "Le courant de sortie du SV6110 est de 321,29 mA à l’exception de TA = 121 °C."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 77,
+            "text": "Le courant de sortie du SV6110 est de 321,29 mA à l’exception de TA = 121 °C."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "Apostrophe typography does not turn an explicit exception into an applicable test point."
+    },
+    {
+      "id": "I6D11",
+      "split": "development",
+      "group": "exceptions",
+      "category": "excluded_or_unproven_condition",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quel est le courant de sortie du SV6111 à TA = 122 °C ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D11-document-A",
+          "document_family": "development-instrument-I6D11-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le courant de sortie du SV6111 est de 322,29 mA, exception faite de TA = 122 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 80,
+            "text": "Le courant de sortie du SV6111 est de 322,29 mA, exception faite de TA = 122 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D11-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D11-document-A",
+            "subject": "SV6111",
+            "quantity": "current",
+            "values": [
+              "322.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "122",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 80,
+              "text": "Le courant de sortie du SV6111 est de 322,29 mA, exception faite de TA = 122 °C."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 80,
+            "text": "Le courant de sortie du SV6111 est de 322,29 mA, exception faite de TA = 122 °C."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "An explicitly excluding French phrase does not establish the excluded operating point, even if outside the bounded recognizer."
+    },
+    {
+      "id": "I6D12",
+      "split": "development",
+      "group": "exceptions",
+      "category": "excluded_or_unproven_condition",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quel est le courant de sortie du SV6112 à TA = 123 °C ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D12-document-A",
+          "document_family": "development-instrument-I6D12-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "À l'exception de TA = 123 °C, le courant de sortie du SV6112 est de 323,29 mA.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 78,
+            "text": "À l'exception de TA = 123 °C, le courant de sortie du SV6112 est de 323,29 mA."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D12-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D12-document-A",
+            "subject": "SV6112",
+            "quantity": "current",
+            "values": [
+              "323.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "123",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 78,
+              "text": "À l'exception de TA = 123 °C, le courant de sortie du SV6112 est de 323,29 mA."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 78,
+            "text": "À l'exception de TA = 123 °C, le courant de sortie du SV6112 est de 323,29 mA."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The leading exclusion governs the following current assertion."
+    },
+    {
+      "id": "I6D13",
+      "split": "development",
+      "group": "exceptions",
+      "category": "excluded_or_unproven_condition",
+      "language": "en",
+      "mode": "question",
+      "question": "What is the output current of SV6113 at TA = 124 °C?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D13-document-A",
+          "document_family": "development-instrument-I6D13-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The output current of SV6113 is 324.29 mA at TA = 124 °C, except at TA = 124 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 80,
+            "text": "The output current of SV6113 is 324.29 mA at TA = 124 °C, except at TA = 124 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D13-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D13-document-A",
+            "subject": "SV6113",
+            "quantity": "current",
+            "values": [
+              "324.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "124",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 80,
+              "text": "The output current of SV6113 is 324.29 mA at TA = 124 °C, except at TA = 124 °C."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 80,
+            "text": "The output current of SV6113 is 324.29 mA at TA = 124 °C, except at TA = 124 °C."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "An explicit exclusion at the same point prevents treating the overlapping positive phrase as sufficient."
+    },
+    {
+      "id": "I6D14",
+      "split": "development",
+      "group": "exceptions",
+      "category": "excluded_or_unproven_condition",
+      "language": "en",
+      "mode": "question",
+      "question": "What is the output current of SV6114 at TA = 125 °C?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D14-document-A",
+          "document_family": "development-instrument-I6D14-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The output current of SV6114 is 325.29 mA except at TA = 122 °C or TA = 125 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 79,
+            "text": "The output current of SV6114 is 325.29 mA except at TA = 122 °C or TA = 125 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D14-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D14-document-A",
+            "subject": "SV6114",
+            "quantity": "current",
+            "values": [
+              "325.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "125",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 79,
+              "text": "The output current of SV6114 is 325.29 mA except at TA = 122 °C or TA = 125 °C."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 79,
+            "text": "The output current of SV6114 is 325.29 mA except at TA = 122 °C or TA = 125 °C."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The exclusion extends across coordinated points; the second point is excluded too."
+    },
+    {
+      "id": "I6D15",
+      "split": "development",
+      "group": "exceptions",
+      "category": "excluded_or_unproven_condition",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quel est le courant de sortie du SV6115 à TA = 126 °C ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D15-document-A",
+          "document_family": "development-instrument-I6D15-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le courant de sortie du SV6115 est de 326,29 mA, sauf lorsque TA = 126 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 74,
+            "text": "Le courant de sortie du SV6115 est de 326,29 mA, sauf lorsque TA = 126 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D15-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D15-document-A",
+            "subject": "SV6115",
+            "quantity": "current",
+            "values": [
+              "326.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "126",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 74,
+              "text": "Le courant de sortie du SV6115 est de 326,29 mA, sauf lorsque TA = 126 °C."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 74,
+            "text": "Le courant de sortie du SV6115 est de 326,29 mA, sauf lorsque TA = 126 °C."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The explicitly excluded point is not positive evidence of applicability."
+    },
+    {
+      "id": "I6D16",
+      "split": "development",
+      "group": "exceptions",
+      "category": "excluded_or_unproven_condition",
+      "language": "en",
+      "mode": "question",
+      "question": "What is the output current of SV6116 at TA = 127 °C when the output is short-circuited?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D16-document-A",
+          "document_family": "development-instrument-I6D16-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The output current of SV6116 is 327.29 mA at TA = 127 °C unless the output is short-circuited.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 94,
+            "text": "The output current of SV6116 is 327.29 mA at TA = 127 °C unless the output is short-circuited."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D16-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D16-document-A",
+            "subject": "SV6116",
+            "quantity": "current",
+            "values": [
+              "327.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "127",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 94,
+              "text": "The output current of SV6116 is 327.29 mA at TA = 127 °C unless the output is short-circuited."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 94,
+            "text": "The output current of SV6116 is 327.29 mA at TA = 127 °C unless the output is short-circuited."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The named operating state is explicitly excluded; the numeric point alone cannot erase that unproved condition."
+    },
+    {
+      "id": "I6D17",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "local_positive_control",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quelle est la tension nominale du SV6117 ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D17-document-A",
+          "document_family": "development-instrument-I6D17-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le courant de sortie du SV6117 ne dépasse pas 328,29 mA ; La tension nominale du SV6117 est de 128,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 105,
+            "text": "Le courant de sortie du SV6117 ne dépasse pas 328,29 mA ; La tension nominale du SV6117 est de 128,17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D17-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D17-document-A",
+            "subject": "SV6117",
+            "quantity": "voltage",
+            "values": [
+              "128.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 105,
+              "text": "Le courant de sortie du SV6117 ne dépasse pas 328,29 mA ; La tension nominale du SV6117 est de 128,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 58,
+            "end": 104,
+            "text": "La tension nominale du SV6117 est de 128,17 mV"
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The upper-bound negation applies to current, not to the following explicit nominal voltage."
+    },
+    {
+      "id": "I6D18",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "local_positive_control",
+      "language": "en",
+      "mode": "question",
+      "question": "What is the nominal voltage of SV6118?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D18-document-A",
+          "document_family": "development-instrument-I6D18-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The output current of SV6118 is not 329.29 mA, but the nominal voltage of SV6118 is 129.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 94,
+            "text": "The output current of SV6118 is not 329.29 mA, but the nominal voltage of SV6118 is 129.17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D18-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D18-document-A",
+            "subject": "SV6118",
+            "quantity": "voltage",
+            "values": [
+              "129.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 94,
+              "text": "The output current of SV6118 is not 329.29 mA, but the nominal voltage of SV6118 is 129.17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 51,
+            "end": 93,
+            "text": "the nominal voltage of SV6118 is 129.17 mV"
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "But introduces an independent affirmative voltage relation after a negated current."
+    },
+    {
+      "id": "I6D19",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "local_positive_control",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quel est le courant de sortie du SV6119 à TA = 130 °C ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D19-document-A",
+          "document_family": "development-instrument-I6D19-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le courant d’entrée du SV6119 n’est pas de 230,19 mA ; Le courant de sortie du SV6119 est de 330,29 mA à TA = 130 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 117,
+            "text": "Le courant d’entrée du SV6119 n’est pas de 230,19 mA ; Le courant de sortie du SV6119 est de 330,29 mA à TA = 130 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D19-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D19-document-A",
+            "subject": "SV6119",
+            "quantity": "current",
+            "values": [
+              "330.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "130",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 117,
+              "text": "Le courant d’entrée du SV6119 n’est pas de 230,19 mA ; Le courant de sortie du SV6119 est de 330,29 mA à TA = 130 °C."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 55,
+            "end": 117,
+            "text": "Le courant de sortie du SV6119 est de 330,29 mA à TA = 130 °C."
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The negated input-current property does not negate the affirmative output-current property."
+    },
+    {
+      "id": "I6D20",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "local_positive_control",
+      "language": "en",
+      "mode": "question",
+      "question": "What is the nominal voltage of SV6120?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D20-document-A",
+          "document_family": "development-instrument-I6D20-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of SV6120X is not 231.19 mV. The nominal voltage of SV6120 is 131.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 92,
+            "text": "The nominal voltage of SV6120X is not 231.19 mV. The nominal voltage of SV6120 is 131.17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D20-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D20-document-A",
+            "subject": "SV6120",
+            "quantity": "voltage",
+            "values": [
+              "131.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 92,
+              "text": "The nominal voltage of SV6120X is not 231.19 mV. The nominal voltage of SV6120 is 131.17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 49,
+            "end": 91,
+            "text": "The nominal voltage of SV6120 is 131.17 mV"
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The negative statement belongs to another explicitly named device."
+    },
+    {
+      "id": "I6D21",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "local_positive_control",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quelle est la tension nominale du SV6121 ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D21-document-A",
+          "document_family": "development-instrument-I6D21-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du SV6121 est de 132,17 mV et le courant de sortie du SV6121 n’est pas de 332,29 mA.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 104,
+            "text": "La tension nominale du SV6121 est de 132,17 mV et le courant de sortie du SV6121 n’est pas de 332,29 mA."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D21-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D21-document-A",
+            "subject": "SV6121",
+            "quantity": "voltage",
+            "values": [
+              "132.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 104,
+              "text": "La tension nominale du SV6121 est de 132,17 mV et le courant de sortie du SV6121 n’est pas de 332,29 mA."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 46,
+            "text": "La tension nominale du SV6121 est de 132,17 mV"
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "A later negative conjunct concerns another quantity; the voltage is explicitly affirmative."
+    },
+    {
+      "id": "I6D22",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "local_positive_control",
+      "language": "en",
+      "mode": "question",
+      "question": "What is the nominal voltage of SV6122?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D22-document-A",
+          "document_family": "development-instrument-I6D22-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of SV6122 is not 233.19 mV; The nominal voltage of SV6122 is 133.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 91,
+            "text": "The nominal voltage of SV6122 is not 233.19 mV; The nominal voltage of SV6122 is 133.17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D22-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D22-document-A",
+            "subject": "SV6122",
+            "quantity": "voltage",
+            "values": [
+              "133.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 91,
+              "text": "The nominal voltage of SV6122 is not 233.19 mV; The nominal voltage of SV6122 is 133.17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [
+          {
+            "id": "G02",
+            "reference_id": "R001",
+            "document_id": "I6D22-document-A",
+            "subject": "SV6122",
+            "quantity": "voltage",
+            "values": [
+              "233.19"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 91,
+              "text": "The nominal voltage of SV6122 is not 233.19 mV; The nominal voltage of SV6122 is 133.17 mV."
+            },
+            "rationale": "The earlier nominal voltage is explicitly denied, despite the later affirmative replacement."
+          }
+        ],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 48,
+            "end": 90,
+            "text": "The nominal voltage of SV6122 is 133.17 mV"
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The old value is explicitly denied and the full repeated predicate states a different exact nominal value."
+    },
+    {
+      "id": "I6D23",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "local_positive_control",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quelle est la tension nominale du SV6123 ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D23-document-A",
+          "document_family": "development-instrument-I6D23-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le courant de sortie du SV6123 n’est pas de 334,29 mA, tandis que la tension nominale du SV6123 est de 134,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 113,
+            "text": "Le courant de sortie du SV6123 n’est pas de 334,29 mA, tandis que la tension nominale du SV6123 est de 134,17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D23-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D23-document-A",
+            "subject": "SV6123",
+            "quantity": "voltage",
+            "values": [
+              "134.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 113,
+              "text": "Le courant de sortie du SV6123 n’est pas de 334,29 mA, tandis que la tension nominale du SV6123 est de 134,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 66,
+            "end": 112,
+            "text": "la tension nominale du SV6123 est de 134,17 mV"
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The contrasted affirmative voltage is independent of the negated current."
+    },
+    {
+      "id": "I6D24",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "local_positive_control",
+      "language": "en",
+      "mode": "question",
+      "question": "What is the nominal voltage of SV6124?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D24-document-A",
+          "document_family": "development-instrument-I6D24-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of SV6124 is 135.17 mV. The output current of SV6124 may be 335.29 mA at TA = 135 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 105,
+            "text": "The nominal voltage of SV6124 is 135.17 mV. The output current of SV6124 may be 335.29 mA at TA = 135 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D24-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D24-document-A",
+            "subject": "SV6124",
+            "quantity": "voltage",
+            "values": [
+              "135.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 105,
+              "text": "The nominal voltage of SV6124 is 135.17 mV. The output current of SV6124 may be 335.29 mA at TA = 135 °C."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ]
+        ],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 42,
+            "text": "The nominal voltage of SV6124 is 135.17 mV"
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "Uncertainty qualifies the other quantity in a separate sentence."
+    },
+    {
+      "id": "I6D25",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "negated_or_unconfirmed_target",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quelle est la tension nominale du SV6125 ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D25-document-A",
+          "document_family": "development-instrument-I6D25-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du SV6125 n’est pas de 136,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 53,
+            "text": "La tension nominale du SV6125 n’est pas de 136,17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D25-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D25-document-A",
+            "subject": "SV6125",
+            "quantity": "voltage",
+            "values": [
+              "136.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 53,
+              "text": "La tension nominale du SV6125 n’est pas de 136,17 mV."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 53,
+            "text": "La tension nominale du SV6125 n’est pas de 136,17 mV."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The requested value is explicitly negated; its occurrence is not an exact positive fact."
+    },
+    {
+      "id": "I6D26",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "negated_or_unconfirmed_target",
+      "language": "en",
+      "mode": "question",
+      "question": "What is the nominal voltage of SV6126?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D26-document-A",
+          "document_family": "development-instrument-I6D26-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of SV6126 is not 137.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 47,
+            "text": "The nominal voltage of SV6126 is not 137.17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D26-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D26-document-A",
+            "subject": "SV6126",
+            "quantity": "voltage",
+            "values": [
+              "137.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 47,
+              "text": "The nominal voltage of SV6126 is not 137.17 mV."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 47,
+            "text": "The nominal voltage of SV6126 is not 137.17 mV."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "Direct negation prevents admission of the value."
+    },
+    {
+      "id": "I6D27",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "negated_or_unconfirmed_target",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quelle est la tension nominale du SV6127 ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D27-document-A",
+          "document_family": "development-instrument-I6D27-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Ni la tension nominale de 138,17 mV ni le courant de sortie de 338,29 mA ne sont établis pour le SV6127.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 104,
+            "text": "Ni la tension nominale de 138,17 mV ni le courant de sortie de 338,29 mA ne sont établis pour le SV6127."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D27-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D27-document-A",
+            "subject": "SV6127",
+            "quantity": "voltage",
+            "values": [
+              "138.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 104,
+              "text": "Ni la tension nominale de 138,17 mV ni le courant de sortie de 338,29 mA ne sont établis pour le SV6127."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 104,
+            "text": "Ni la tension nominale de 138,17 mV ni le courant de sortie de 338,29 mA ne sont établis pour le SV6127."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The neither/nor construction negates both numeric propositions."
+    },
+    {
+      "id": "I6D28",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "negated_or_unconfirmed_target",
+      "language": "en",
+      "mode": "question",
+      "question": "What is the nominal voltage of SV6128?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D28-document-A",
+          "document_family": "development-instrument-I6D28-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "It is not established that the nominal voltage of SV6128 is 139.17 mV and the output current of SV6128 is 339.29 mA.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 116,
+            "text": "It is not established that the nominal voltage of SV6128 is 139.17 mV and the output current of SV6128 is 339.29 mA."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D28-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D28-document-A",
+            "subject": "SV6128",
+            "quantity": "voltage",
+            "values": [
+              "139.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 116,
+              "text": "It is not established that the nominal voltage of SV6128 is 139.17 mV and the output current of SV6128 is 339.29 mA."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 116,
+            "text": "It is not established that the nominal voltage of SV6128 is 139.17 mV and the output current of SV6128 is 339.29 mA."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "Negation governs the coordinated proposition; and does not establish either operand."
+    },
+    {
+      "id": "I6D29",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "negated_or_unconfirmed_target",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quelle est la tension nominale du SV6129 ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D29-document-A",
+          "document_family": "development-instrument-I6D29-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le rapport ne confirme pas que la tension nominale du SV6129 est de 140,17 mV ; le courant de sortie du SV6129 est de 340,29 mA.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 128,
+            "text": "Le rapport ne confirme pas que la tension nominale du SV6129 est de 140,17 mV ; le courant de sortie du SV6129 est de 340,29 mA."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D29-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D29-document-A",
+            "subject": "SV6129",
+            "quantity": "voltage",
+            "values": [
+              "140.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 128,
+              "text": "Le rapport ne confirme pas que la tension nominale du SV6129 est de 140,17 mV ; le courant de sortie du SV6129 est de 340,29 mA."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 77,
+            "text": "Le rapport ne confirme pas que la tension nominale du SV6129 est de 140,17 mV"
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The target voltage remains under ne confirme pas que, despite a separate affirmative current."
+    },
+    {
+      "id": "I6D30",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "negated_or_unconfirmed_target",
+      "language": "en",
+      "mode": "question",
+      "question": "What is the nominal voltage of SV6130?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D30-document-A",
+          "document_family": "development-instrument-I6D30-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of SV6130 may be 141.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 47,
+            "text": "The nominal voltage of SV6130 may be 141.17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D30-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D30-document-A",
+            "subject": "SV6130",
+            "quantity": "voltage",
+            "values": [
+              "141.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 47,
+              "text": "The nominal voltage of SV6130 may be 141.17 mV."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 47,
+            "text": "The nominal voltage of SV6130 may be 141.17 mV."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "A modal possibility is not an asserted exact specification."
+    },
+    {
+      "id": "I6D31",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "negated_or_unconfirmed_target",
+      "language": "fr",
+      "mode": "question",
+      "question": "Quelle est la tension nominale du SV6131 ?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D31-document-A",
+          "document_family": "development-instrument-I6D31-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du SV6131 n’est pas de 142,17 mV et le courant de sortie du SV6131 est de 342,29 mA.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 104,
+            "text": "La tension nominale du SV6131 n’est pas de 142,17 mV et le courant de sortie du SV6131 est de 342,29 mA."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D31-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D31-document-A",
+            "subject": "SV6131",
+            "quantity": "voltage",
+            "values": [
+              "142.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 104,
+              "text": "La tension nominale du SV6131 n’est pas de 142,17 mV et le courant de sortie du SV6131 est de 342,29 mA."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 52,
+            "text": "La tension nominale du SV6131 n’est pas de 142,17 mV"
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The affirmative current does not cancel the direct negation of the requested voltage."
+    },
+    {
+      "id": "I6D32",
+      "split": "development",
+      "group": "negation_scope",
+      "category": "negated_or_unconfirmed_target",
+      "language": "en",
+      "mode": "question",
+      "question": "What is the output current of SV6132?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D32-document-A",
+          "document_family": "development-instrument-I6D32-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "No part of the following statement is established: the nominal voltage of SV6132 is 143.17 mV; the output current of SV6132 is 343.29 mA.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 137,
+            "text": "No part of the following statement is established: the nominal voltage of SV6132 is 143.17 mV; the output current of SV6132 is 343.29 mA."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D32-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D32-document-A",
+            "subject": "SV6132",
+            "quantity": "current",
+            "values": [
+              "343.29"
+            ],
+            "unit": "mA",
+            "role": null,
+            "property": "output",
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 137,
+              "text": "No part of the following statement is established: the nominal voltage of SV6132 is 143.17 mV; the output current of SV6132 is 343.29 mA."
+            },
+            "rationale": "This source relation does not establish the requested exact applicable value."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 137,
+            "text": "No part of the following statement is established: the nominal voltage of SV6132 is 143.17 mV; the output current of SV6132 is 343.29 mA."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The explicit dominant disclaimer governs both clauses of the following statement, including the target after the semicolon."
+    },
+    {
+      "id": "I6D33",
+      "split": "development",
+      "group": "comparisons",
+      "category": "supported_comparison",
+      "language": "fr",
+      "mode": "comparison",
+      "question": "Compare les tensions nominales de SV6133 et SV6133B.",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D33-document-A",
+          "document_family": "development-instrument-I6D33-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du SV6133 est de 144,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6133 est de 144,17 mV."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "I6D33-document-B",
+          "document_family": "development-instrument-I6D33-B",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "La tension nominale du SV6133B est de 144,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 48,
+            "text": "La tension nominale du SV6133B est de 144,17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D33-document-A",
+          "I6D33-document-B"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D33-document-A",
+            "subject": "SV6133",
+            "quantity": "voltage",
+            "values": [
+              "144.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 47,
+              "text": "La tension nominale du SV6133 est de 144,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G02",
+            "reference_id": "R002",
+            "document_id": "I6D33-document-B",
+            "subject": "SV6133B",
+            "quantity": "voltage",
+            "values": [
+              "144.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 48,
+              "text": "La tension nominale du SV6133B est de 144,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ],
+          [
+            "G02"
+          ]
+        ],
+        "comparisons": [
+          {
+            "id": "C01",
+            "operand_groups": [
+              [
+                "G01"
+              ],
+              [
+                "G02"
+              ]
+            ],
+            "conclusion": "equal",
+            "required": true
+          }
+        ],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6133 est de 144,17 mV."
+          },
+          {
+            "reference_id": "R002",
+            "start": 0,
+            "end": 48,
+            "text": "La tension nominale du SV6133B est de 144,17 mV."
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "Collective subject comparison needs an exact compatible operand for each subject, not both subjects in every source document."
+    },
+    {
+      "id": "I6D34",
+      "split": "development",
+      "group": "comparisons",
+      "category": "supported_comparison",
+      "language": "en",
+      "mode": "comparison",
+      "question": "Compare the nominal voltages of SV6134 and SV6134B.",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D34-document-A",
+          "document_family": "development-instrument-I6D34-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of SV6134 is 145.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6134 is 145.17 mV."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "I6D34-document-B",
+          "document_family": "development-instrument-I6D34-B",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "The nominal voltage of SV6134B is 245.19 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 44,
+            "text": "The nominal voltage of SV6134B is 245.19 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D34-document-A",
+          "I6D34-document-B"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D34-document-A",
+            "subject": "SV6134",
+            "quantity": "voltage",
+            "values": [
+              "145.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 43,
+              "text": "The nominal voltage of SV6134 is 145.17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G02",
+            "reference_id": "R002",
+            "document_id": "I6D34-document-B",
+            "subject": "SV6134B",
+            "quantity": "voltage",
+            "values": [
+              "245.19"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 44,
+              "text": "The nominal voltage of SV6134B is 245.19 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ],
+          [
+            "G02"
+          ]
+        ],
+        "comparisons": [
+          {
+            "id": "C01",
+            "operand_groups": [
+              [
+                "G01"
+              ],
+              [
+                "G02"
+              ]
+            ],
+            "conclusion": "different",
+            "required": true
+          }
+        ],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6134 is 145.17 mV."
+          },
+          {
+            "reference_id": "R002",
+            "start": 0,
+            "end": 44,
+            "text": "The nominal voltage of SV6134B is 245.19 mV."
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "Collective subject comparison needs an exact compatible operand for each subject, not both subjects in every source document."
+    },
+    {
+      "id": "I6D35",
+      "split": "development",
+      "group": "comparisons",
+      "category": "supported_comparison",
+      "language": "fr",
+      "mode": "comparison",
+      "question": "Compare les tensions nominales de SV6135 et SV6135B.",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D35-document-A",
+          "document_family": "development-instrument-I6D35-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du SV6135 est de 146,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6135 est de 146,17 mV."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "I6D35-document-A",
+          "document_family": "development-instrument-I6D35-A",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "La tension nominale du SV6135B est de 146,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 48,
+            "text": "La tension nominale du SV6135B est de 146,17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D35-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D35-document-A",
+            "subject": "SV6135",
+            "quantity": "voltage",
+            "values": [
+              "146.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 47,
+              "text": "La tension nominale du SV6135 est de 146,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G02",
+            "reference_id": "R002",
+            "document_id": "I6D35-document-A",
+            "subject": "SV6135B",
+            "quantity": "voltage",
+            "values": [
+              "146.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 48,
+              "text": "La tension nominale du SV6135B est de 146,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ],
+          [
+            "G02"
+          ]
+        ],
+        "comparisons": [
+          {
+            "id": "C01",
+            "operand_groups": [
+              [
+                "G01"
+              ],
+              [
+                "G02"
+              ]
+            ],
+            "conclusion": "equal",
+            "required": true
+          }
+        ],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6135 est de 146,17 mV."
+          },
+          {
+            "reference_id": "R002",
+            "start": 0,
+            "end": 48,
+            "text": "La tension nominale du SV6135B est de 146,17 mV."
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "Both subjects are documented in the same authorized document; two documents are not required for a subject comparison."
+    },
+    {
+      "id": "I6D36",
+      "split": "development",
+      "group": "comparisons",
+      "category": "supported_comparison",
+      "language": "en",
+      "mode": "comparison",
+      "question": "Do documents A and B give the same nominal voltage for SV6136?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D36-document-A",
+          "document_family": "development-instrument-I6D36-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of SV6136 is 147.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6136 is 147.17 mV."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "I6D36-document-B",
+          "document_family": "development-instrument-I6D36-B",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "The nominal voltage of SV6136 is 147.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6136 is 147.17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D36-document-A",
+          "I6D36-document-B"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D36-document-A",
+            "subject": "SV6136",
+            "quantity": "voltage",
+            "values": [
+              "147.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 43,
+              "text": "The nominal voltage of SV6136 is 147.17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G02",
+            "reference_id": "R002",
+            "document_id": "I6D36-document-B",
+            "subject": "SV6136",
+            "quantity": "voltage",
+            "values": [
+              "147.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 43,
+              "text": "The nominal voltage of SV6136 is 147.17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ],
+          [
+            "G02"
+          ]
+        ],
+        "comparisons": [
+          {
+            "id": "C01",
+            "operand_groups": [
+              [
+                "G01"
+              ],
+              [
+                "G02"
+              ]
+            ],
+            "conclusion": "equal",
+            "required": true
+          }
+        ],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6136 is 147.17 mV."
+          },
+          {
+            "reference_id": "R002",
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6136 is 147.17 mV."
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "A document comparison of one subject requires proof from both documents; identical exact nominal values establish agreement."
+    },
+    {
+      "id": "I6D37",
+      "split": "development",
+      "group": "comparisons",
+      "category": "supported_comparison",
+      "language": "fr",
+      "mode": "comparison",
+      "question": "Dans chaque document, compare les tensions nominales de SV6137 et SV6137B.",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D37-document-A",
+          "document_family": "development-instrument-I6D37-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du SV6137 est de 148,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6137 est de 148,17 mV."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "I6D37-document-A",
+          "document_family": "development-instrument-I6D37-A",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "La tension nominale du SV6137B est de 148,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 48,
+            "text": "La tension nominale du SV6137B est de 148,17 mV."
+          }
+        },
+        {
+          "id": "R003",
+          "kind": "excerpt",
+          "document_id": "I6D37-document-B",
+          "document_family": "development-instrument-I6D37-B",
+          "source_ids": [
+            "S003"
+          ],
+          "text": "La tension nominale du SV6137 est de 148,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 3"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6137 est de 148,17 mV."
+          }
+        },
+        {
+          "id": "R004",
+          "kind": "excerpt",
+          "document_id": "I6D37-document-B",
+          "document_family": "development-instrument-I6D37-B",
+          "source_ids": [
+            "S004"
+          ],
+          "text": "La tension nominale du SV6137B est de 148,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 4"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 48,
+            "text": "La tension nominale du SV6137B est de 148,17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D37-document-A",
+          "I6D37-document-B"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D37-document-A",
+            "subject": "SV6137",
+            "quantity": "voltage",
+            "values": [
+              "148.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 47,
+              "text": "La tension nominale du SV6137 est de 148,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G02",
+            "reference_id": "R002",
+            "document_id": "I6D37-document-A",
+            "subject": "SV6137B",
+            "quantity": "voltage",
+            "values": [
+              "148.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 48,
+              "text": "La tension nominale du SV6137B est de 148,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G03",
+            "reference_id": "R003",
+            "document_id": "I6D37-document-B",
+            "subject": "SV6137",
+            "quantity": "voltage",
+            "values": [
+              "148.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 47,
+              "text": "La tension nominale du SV6137 est de 148,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G04",
+            "reference_id": "R004",
+            "document_id": "I6D37-document-B",
+            "subject": "SV6137B",
+            "quantity": "voltage",
+            "values": [
+              "148.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 48,
+              "text": "La tension nominale du SV6137B est de 148,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ],
+          [
+            "G02"
+          ],
+          [
+            "G03"
+          ],
+          [
+            "G04"
+          ]
+        ],
+        "comparisons": [
+          {
+            "id": "C01",
+            "operand_groups": [
+              [
+                "G01"
+              ],
+              [
+                "G02"
+              ]
+            ],
+            "conclusion": "equal",
+            "required": true
+          },
+          {
+            "id": "C02",
+            "operand_groups": [
+              [
+                "G03"
+              ],
+              [
+                "G04"
+              ]
+            ],
+            "conclusion": "equal",
+            "required": true
+          }
+        ],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6137 est de 148,17 mV."
+          },
+          {
+            "reference_id": "R002",
+            "start": 0,
+            "end": 48,
+            "text": "La tension nominale du SV6137B est de 148,17 mV."
+          },
+          {
+            "reference_id": "R003",
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6137 est de 148,17 mV."
+          },
+          {
+            "reference_id": "R004",
+            "start": 0,
+            "end": 48,
+            "text": "La tension nominale du SV6137B est de 148,17 mV."
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "Each document explicitly contains both subjects; the requested comparison is within each document, not the agreement of each subject across documents."
+    },
+    {
+      "id": "I6D38",
+      "split": "development",
+      "group": "comparisons",
+      "category": "supported_comparison",
+      "language": "en",
+      "mode": "comparison",
+      "question": "Within each document, compare the nominal voltages of SV6138 and SV6138B.",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D38-document-A",
+          "document_family": "development-instrument-I6D38-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of SV6138 is 149.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6138 is 149.17 mV."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "I6D38-document-A",
+          "document_family": "development-instrument-I6D38-A",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "The nominal voltage of SV6138B is 249.19 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 44,
+            "text": "The nominal voltage of SV6138B is 249.19 mV."
+          }
+        },
+        {
+          "id": "R003",
+          "kind": "excerpt",
+          "document_id": "I6D38-document-B",
+          "document_family": "development-instrument-I6D38-B",
+          "source_ids": [
+            "S003"
+          ],
+          "text": "The nominal voltage of SV6138 is 149.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 3"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6138 is 149.17 mV."
+          }
+        },
+        {
+          "id": "R004",
+          "kind": "excerpt",
+          "document_id": "I6D38-document-B",
+          "document_family": "development-instrument-I6D38-B",
+          "source_ids": [
+            "S004"
+          ],
+          "text": "The nominal voltage of SV6138B is 249.19 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 4"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 44,
+            "text": "The nominal voltage of SV6138B is 249.19 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D38-document-A",
+          "I6D38-document-B"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D38-document-A",
+            "subject": "SV6138",
+            "quantity": "voltage",
+            "values": [
+              "149.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 43,
+              "text": "The nominal voltage of SV6138 is 149.17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G02",
+            "reference_id": "R002",
+            "document_id": "I6D38-document-A",
+            "subject": "SV6138B",
+            "quantity": "voltage",
+            "values": [
+              "249.19"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 44,
+              "text": "The nominal voltage of SV6138B is 249.19 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G03",
+            "reference_id": "R003",
+            "document_id": "I6D38-document-B",
+            "subject": "SV6138",
+            "quantity": "voltage",
+            "values": [
+              "149.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 43,
+              "text": "The nominal voltage of SV6138 is 149.17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G04",
+            "reference_id": "R004",
+            "document_id": "I6D38-document-B",
+            "subject": "SV6138B",
+            "quantity": "voltage",
+            "values": [
+              "249.19"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 44,
+              "text": "The nominal voltage of SV6138B is 249.19 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ],
+          [
+            "G02"
+          ],
+          [
+            "G03"
+          ],
+          [
+            "G04"
+          ]
+        ],
+        "comparisons": [
+          {
+            "id": "C01",
+            "operand_groups": [
+              [
+                "G01"
+              ],
+              [
+                "G02"
+              ]
+            ],
+            "conclusion": "different",
+            "required": true
+          },
+          {
+            "id": "C02",
+            "operand_groups": [
+              [
+                "G03"
+              ],
+              [
+                "G04"
+              ]
+            ],
+            "conclusion": "different",
+            "required": true
+          }
+        ],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6138 is 149.17 mV."
+          },
+          {
+            "reference_id": "R002",
+            "start": 0,
+            "end": 44,
+            "text": "The nominal voltage of SV6138B is 249.19 mV."
+          },
+          {
+            "reference_id": "R003",
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6138 is 149.17 mV."
+          },
+          {
+            "reference_id": "R004",
+            "start": 0,
+            "end": 44,
+            "text": "The nominal voltage of SV6138B is 249.19 mV."
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "Each document explicitly contains both subjects; the requested comparison is within each document, not the agreement of each subject across documents."
+    },
+    {
+      "id": "I6D39",
+      "split": "development",
+      "group": "comparisons",
+      "category": "supported_comparison",
+      "language": "fr",
+      "mode": "comparison",
+      "question": "Compare les tensions nominales de SV6139 et SV6139B.",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D39-document-A",
+          "document_family": "development-instrument-I6D39-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du SV6139 est de 150,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6139 est de 150,17 mV."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "I6D39-document-B",
+          "document_family": "development-instrument-I6D39-B",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "La tension nominale du SV6139B est de 150,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 48,
+            "text": "La tension nominale du SV6139B est de 150,17 mV."
+          }
+        },
+        {
+          "id": "R003",
+          "kind": "excerpt",
+          "document_id": "I6D39-document-C",
+          "document_family": "development-instrument-I6D39-C",
+          "source_ids": [
+            "S003"
+          ],
+          "text": "La tension nominale du SV6139 est de 150,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 3"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6139 est de 150,17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D39-document-A",
+          "I6D39-document-B",
+          "I6D39-document-C"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D39-document-A",
+            "subject": "SV6139",
+            "quantity": "voltage",
+            "values": [
+              "150.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 47,
+              "text": "La tension nominale du SV6139 est de 150,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G02",
+            "reference_id": "R002",
+            "document_id": "I6D39-document-B",
+            "subject": "SV6139B",
+            "quantity": "voltage",
+            "values": [
+              "150.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 48,
+              "text": "La tension nominale du SV6139B est de 150,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G03",
+            "reference_id": "R003",
+            "document_id": "I6D39-document-C",
+            "subject": "SV6139",
+            "quantity": "voltage",
+            "values": [
+              "150.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 47,
+              "text": "La tension nominale du SV6139 est de 150,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01",
+            "G03"
+          ],
+          [
+            "G02"
+          ]
+        ],
+        "comparisons": [
+          {
+            "id": "C01",
+            "operand_groups": [
+              [
+                "G01",
+                "G03"
+              ],
+              [
+                "G02"
+              ]
+            ],
+            "conclusion": "equal",
+            "required": true
+          }
+        ],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6139 est de 150,17 mV.",
+            "alternative_reference_ids": [
+              "R001",
+              "R003"
+            ]
+          },
+          {
+            "reference_id": "R002",
+            "start": 0,
+            "end": 48,
+            "text": "La tension nominale du SV6139B est de 150,17 mV."
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "A duplicate independent source for one subject is an alternative operand proof, not a new obligation for the other subject."
+    },
+    {
+      "id": "I6D40",
+      "split": "development",
+      "group": "comparisons",
+      "category": "supported_comparison",
+      "language": "en",
+      "mode": "comparison",
+      "question": "Compare the nominal output currents of SV6140 and SV6140B at TA = 151 °C.",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D40-document-A",
+          "document_family": "development-instrument-I6D40-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal output current of SV6140 is 351.29 mA at TA = 151 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 65,
+            "text": "The nominal output current of SV6140 is 351.29 mA at TA = 151 °C."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "I6D40-document-B",
+          "document_family": "development-instrument-I6D40-B",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "The nominal output current of SV6140B is 251.19 mA at TA = 151 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 66,
+            "text": "The nominal output current of SV6140B is 251.19 mA at TA = 151 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D40-document-A",
+          "I6D40-document-B"
+        ]
+      },
+      "expected": {
+        "exact_support": true,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D40-document-A",
+            "subject": "SV6140",
+            "quantity": "current",
+            "values": [
+              "351.29"
+            ],
+            "unit": "mA",
+            "role": "nominal",
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "151",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 65,
+              "text": "The nominal output current of SV6140 is 351.29 mA at TA = 151 °C."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G02",
+            "reference_id": "R002",
+            "document_id": "I6D40-document-B",
+            "subject": "SV6140B",
+            "quantity": "current",
+            "values": [
+              "251.19"
+            ],
+            "unit": "mA",
+            "role": "nominal",
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "151",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 66,
+              "text": "The nominal output current of SV6140B is 251.19 mA at TA = 151 °C."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [
+          [
+            "G01"
+          ],
+          [
+            "G02"
+          ]
+        ],
+        "comparisons": [
+          {
+            "id": "C01",
+            "operand_groups": [
+              [
+                "G01"
+              ],
+              [
+                "G02"
+              ]
+            ],
+            "conclusion": "different",
+            "required": true
+          }
+        ],
+        "forbidden_comparison_conclusions": [],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 65,
+            "text": "The nominal output current of SV6140 is 351.29 mA at TA = 151 °C."
+          },
+          {
+            "reference_id": "R002",
+            "start": 0,
+            "end": 66,
+            "text": "The nominal output current of SV6140B is 251.19 mA at TA = 151 °C."
+          }
+        ],
+        "status_classes": [
+          "covered"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "Different exact nominal currents with the same property and explicit test point are comparable by subject."
+    },
+    {
+      "id": "I6D41",
+      "split": "development",
+      "group": "comparisons",
+      "category": "incomplete_or_incompatible_comparison",
+      "language": "fr",
+      "mode": "comparison",
+      "question": "Compare les tensions nominales de SV6141 et SV6141B.",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D41-document-A",
+          "document_family": "development-instrument-I6D41-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du SV6141 est de 152,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6141 est de 152,17 mV."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "I6D41-document-B",
+          "document_family": "development-instrument-I6D41-B",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "La tension nominale du SV6141 est de 152,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6141 est de 152,17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D41-document-A",
+          "I6D41-document-B"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D41-document-A",
+            "subject": "SV6141",
+            "quantity": "voltage",
+            "values": [
+              "152.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 47,
+              "text": "La tension nominale du SV6141 est de 152,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G02",
+            "reference_id": "R002",
+            "document_id": "I6D41-document-B",
+            "subject": "SV6141",
+            "quantity": "voltage",
+            "values": [
+              "152.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 47,
+              "text": "La tension nominale du SV6141 est de 152,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [
+          "equal",
+          "different"
+        ],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6141 est de 152,17 mV."
+          },
+          {
+            "reference_id": "R002",
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6141 est de 152,17 mV."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "Both documents describe the first subject; the second requested subject is absent, so no pair can be constructed."
+    },
+    {
+      "id": "I6D42",
+      "split": "development",
+      "group": "comparisons",
+      "category": "incomplete_or_incompatible_comparison",
+      "language": "en",
+      "mode": "comparison",
+      "question": "Within each document, compare the nominal voltages of SV6142 and SV6142B.",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D42-document-A",
+          "document_family": "development-instrument-I6D42-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of SV6142 is 153.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6142 is 153.17 mV."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "I6D42-document-B",
+          "document_family": "development-instrument-I6D42-B",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "The nominal voltage of SV6142B is 153.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 44,
+            "text": "The nominal voltage of SV6142B is 153.17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D42-document-A",
+          "I6D42-document-B"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D42-document-A",
+            "subject": "SV6142",
+            "quantity": "voltage",
+            "values": [
+              "153.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 43,
+              "text": "The nominal voltage of SV6142 is 153.17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G02",
+            "reference_id": "R002",
+            "document_id": "I6D42-document-B",
+            "subject": "SV6142B",
+            "quantity": "voltage",
+            "values": [
+              "153.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 44,
+              "text": "The nominal voltage of SV6142B is 153.17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [
+          "equal",
+          "different"
+        ],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6142 is 153.17 mV."
+          },
+          {
+            "reference_id": "R002",
+            "start": 0,
+            "end": 44,
+            "text": "The nominal voltage of SV6142B is 153.17 mV."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The explicit each-document requirement is unsatisfied: each document is missing the other subject, even though a collective pair would be possible."
+    },
+    {
+      "id": "I6D43",
+      "split": "development",
+      "group": "comparisons",
+      "category": "incomplete_or_incompatible_comparison",
+      "language": "fr",
+      "mode": "comparison",
+      "question": "Compare les courants de sortie nominaux de SV6143 et SV6143B à TA = 154 °C.",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D43-document-A",
+          "document_family": "development-instrument-I6D43-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "Le courant de sortie nominal du SV6143 est de 354,29 mA à TA = 154 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 70,
+            "text": "Le courant de sortie nominal du SV6143 est de 354,29 mA à TA = 154 °C."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "I6D43-document-B",
+          "document_family": "development-instrument-I6D43-B",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "Le courant de sortie nominal du SV6143B est de 354,29 mA à TA = 162 °C.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 71,
+            "text": "Le courant de sortie nominal du SV6143B est de 354,29 mA à TA = 162 °C."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D43-document-A",
+          "I6D43-document-B"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D43-document-A",
+            "subject": "SV6143",
+            "quantity": "current",
+            "values": [
+              "354.29"
+            ],
+            "unit": "mA",
+            "role": "nominal",
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "154",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 70,
+              "text": "Le courant de sortie nominal du SV6143 est de 354,29 mA à TA = 154 °C."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [
+          {
+            "id": "G02",
+            "reference_id": "R002",
+            "document_id": "I6D43-document-B",
+            "subject": "SV6143B",
+            "quantity": "current",
+            "values": [
+              "354.29"
+            ],
+            "unit": "mA",
+            "role": "nominal",
+            "property": "output",
+            "point_conditions": [
+              {
+                "symbol": "TA",
+                "value": "162",
+                "unit": "°C"
+              }
+            ],
+            "annotation_span": {
+              "start": 0,
+              "end": 71,
+              "text": "Le courant de sortie nominal du SV6143B est de 354,29 mA à TA = 162 °C."
+            },
+            "rationale": "A value measured at another point is not applicable to the requested point."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [
+          "equal",
+          "different"
+        ],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 70,
+            "text": "Le courant de sortie nominal du SV6143 est de 354,29 mA à TA = 154 °C."
+          },
+          {
+            "reference_id": "R002",
+            "start": 0,
+            "end": 71,
+            "text": "Le courant de sortie nominal du SV6143B est de 354,29 mA à TA = 162 °C."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The numeric current is the same but the requested common test point is not established for the second subject."
+    },
+    {
+      "id": "I6D44",
+      "split": "development",
+      "group": "comparisons",
+      "category": "incomplete_or_incompatible_comparison",
+      "language": "en",
+      "mode": "comparison",
+      "question": "Compare the nominal voltages of SV6144 and SV6144B.",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D44-document-A",
+          "document_family": "development-instrument-I6D44-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of SV6144 is 155.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6144 is 155.17 mV."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "I6D44-document-B",
+          "document_family": "development-instrument-I6D44-B",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "The maximum voltage of SV6144B is 155.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 44,
+            "text": "The maximum voltage of SV6144B is 155.17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D44-document-A",
+          "I6D44-document-B"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D44-document-A",
+            "subject": "SV6144",
+            "quantity": "voltage",
+            "values": [
+              "155.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 43,
+              "text": "The nominal voltage of SV6144 is 155.17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [
+          {
+            "id": "G02",
+            "reference_id": "R002",
+            "document_id": "I6D44-document-B",
+            "subject": "SV6144B",
+            "quantity": "voltage",
+            "values": [
+              "155.17"
+            ],
+            "unit": "mV",
+            "role": "max",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 44,
+              "text": "The maximum voltage of SV6144B is 155.17 mV."
+            },
+            "rationale": "An explicit maximum is not an exact nominal operand for the requested comparison."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [
+          "equal",
+          "different"
+        ],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6144 is 155.17 mV."
+          },
+          {
+            "reference_id": "R002",
+            "start": 0,
+            "end": 44,
+            "text": "The maximum voltage of SV6144B is 155.17 mV."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "Equal numbers with nominal versus maximum roles do not establish a comparison of two nominal values."
+    },
+    {
+      "id": "I6D45",
+      "split": "development",
+      "group": "comparisons",
+      "category": "incomplete_or_incompatible_comparison",
+      "language": "en",
+      "mode": "comparison",
+      "question": "Compare the nominal voltages of SV6145 and SV6145B.",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D45-document-A",
+          "document_family": "development-instrument-I6D45-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of SV6145 is 156.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6145 is 156.17 mV."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "I6D45-document-A",
+          "document_family": "development-instrument-I6D45-A",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "The nominal voltage of SV6145 is 256.19 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6145 is 256.19 mV."
+          }
+        },
+        {
+          "id": "R003",
+          "kind": "excerpt",
+          "document_id": "I6D45-document-B",
+          "document_family": "development-instrument-I6D45-B",
+          "source_ids": [
+            "S003"
+          ],
+          "text": "The nominal voltage of SV6145B is 156.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 3"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 44,
+            "text": "The nominal voltage of SV6145B is 156.17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D45-document-A",
+          "I6D45-document-B"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D45-document-A",
+            "subject": "SV6145",
+            "quantity": "voltage",
+            "values": [
+              "156.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 43,
+              "text": "The nominal voltage of SV6145 is 156.17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G02",
+            "reference_id": "R002",
+            "document_id": "I6D45-document-A",
+            "subject": "SV6145",
+            "quantity": "voltage",
+            "values": [
+              "256.19"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 43,
+              "text": "The nominal voltage of SV6145 is 256.19 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G03",
+            "reference_id": "R003",
+            "document_id": "I6D45-document-B",
+            "subject": "SV6145B",
+            "quantity": "voltage",
+            "values": [
+              "156.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 44,
+              "text": "The nominal voltage of SV6145B is 156.17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [
+          "equal",
+          "different"
+        ],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6145 is 156.17 mV."
+          },
+          {
+            "reference_id": "R002",
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6145 is 256.19 mV."
+          },
+          {
+            "reference_id": "R003",
+            "start": 0,
+            "end": 44,
+            "text": "The nominal voltage of SV6145B is 156.17 mV."
+          }
+        ],
+        "status_classes": [
+          "conflict"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The first subject has competing exact nominal values under identical context. Both assertions may be quoted, but choosing one as a unique comparative operand is unsupported."
+    },
+    {
+      "id": "I6D46",
+      "split": "development",
+      "group": "comparisons",
+      "category": "incomplete_or_incompatible_comparison",
+      "language": "en",
+      "mode": "comparison",
+      "question": "Compare the nominal voltages of SV6146 and SV6146B.",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D46-document-A",
+          "document_family": "development-instrument-I6D46-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of either SV6146 or SV6146B is 157.17 mV; the source does not identify which device.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 104,
+            "text": "The nominal voltage of either SV6146 or SV6146B is 157.17 mV; the source does not identify which device."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D46-document-A"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [],
+        "forbidden_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D46-document-A",
+            "subject": "SV6146",
+            "quantity": "voltage",
+            "values": [
+              "157.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 104,
+              "text": "The nominal voltage of either SV6146 or SV6146B is 157.17 mV; the source does not identify which device."
+            },
+            "rationale": "The disjunction does not attribute the value to this individual subject."
+          },
+          {
+            "id": "G02",
+            "reference_id": "R001",
+            "document_id": "I6D46-document-A",
+            "subject": "SV6146B",
+            "quantity": "voltage",
+            "values": [
+              "157.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 104,
+              "text": "The nominal voltage of either SV6146 or SV6146B is 157.17 mV; the source does not identify which device."
+            },
+            "rationale": "The disjunction does not attribute the value to this individual subject."
+          }
+        ],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [
+          "equal",
+          "different"
+        ],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 104,
+            "text": "The nominal voltage of either SV6146 or SV6146B is 157.17 mV; the source does not identify which device."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "An unresolved subject disjunction cannot be expanded into two asserted subject-value relations."
+    },
+    {
+      "id": "I6D47",
+      "split": "development",
+      "group": "comparisons",
+      "category": "incomplete_or_incompatible_comparison",
+      "language": "fr",
+      "mode": "comparison",
+      "question": "Compare les tensions nominales de SV6147 et SV6147B.",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D47-document-A",
+          "document_family": "development-instrument-I6D47-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "La tension nominale du SV6147 est de 158,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6147 est de 158,17 mV."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "I6D47-document-B",
+          "document_family": "development-instrument-I6D47-B",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "La tension nominale du SV6147C est de 158,17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 48,
+            "text": "La tension nominale du SV6147C est de 158,17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D47-document-A",
+          "I6D47-document-B"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D47-document-A",
+            "subject": "SV6147",
+            "quantity": "voltage",
+            "values": [
+              "158.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 47,
+              "text": "La tension nominale du SV6147 est de 158,17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G02",
+            "reference_id": "R002",
+            "document_id": "I6D47-document-B",
+            "subject": "SV6147C",
+            "quantity": "voltage",
+            "values": [
+              "158.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 48,
+              "text": "La tension nominale du SV6147C est de 158,17 mV."
+            },
+            "rationale": "This is an explicit assertion about a third subject; it is not applicable as the missing requested subject."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [],
+        "comparisons": [],
+        "forbidden_comparison_conclusions": [
+          "equal",
+          "different"
+        ],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 47,
+            "text": "La tension nominale du SV6147 est de 158,17 mV."
+          }
+        ],
+        "status_classes": [
+          "partial",
+          "ambiguous"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "A value for a third subject cannot replace the missing second requested subject merely because the number agrees."
+    },
+    {
+      "id": "I6D48",
+      "split": "development",
+      "group": "comparisons",
+      "category": "incomplete_or_incompatible_comparison",
+      "language": "en",
+      "mode": "comparison",
+      "question": "Which common nominal voltages do documents A and B establish for both SV6148 and SV6148B?",
+      "sources": [
+        {
+          "id": "R001",
+          "kind": "excerpt",
+          "document_id": "I6D48-document-A",
+          "document_family": "development-instrument-I6D48-A",
+          "source_ids": [
+            "S001"
+          ],
+          "text": "The nominal voltage of SV6148 is 159.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 1"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6148 is 159.17 mV."
+          }
+        },
+        {
+          "id": "R002",
+          "kind": "excerpt",
+          "document_id": "I6D48-document-A",
+          "document_family": "development-instrument-I6D48-A",
+          "source_ids": [
+            "S002"
+          ],
+          "text": "The nominal voltage of SV6148B is 259.19 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 2"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 44,
+            "text": "The nominal voltage of SV6148B is 259.19 mV."
+          }
+        },
+        {
+          "id": "R003",
+          "kind": "excerpt",
+          "document_id": "I6D48-document-B",
+          "document_family": "development-instrument-I6D48-B",
+          "source_ids": [
+            "S003"
+          ],
+          "text": "The nominal voltage of SV6148 is 259.19 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 3"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6148 is 259.19 mV."
+          }
+        },
+        {
+          "id": "R004",
+          "kind": "excerpt",
+          "document_id": "I6D48-document-B",
+          "document_family": "development-instrument-I6D48-B",
+          "source_ids": [
+            "S004"
+          ],
+          "text": "The nominal voltage of SV6148B is 159.17 mV.",
+          "locators": [
+            {
+              "section": "Synthetic independent statement 4"
+            }
+          ],
+          "extraction_method": "native",
+          "annotation_span": {
+            "start": 0,
+            "end": 44,
+            "text": "The nominal voltage of SV6148B is 159.17 mV."
+          }
+        }
+      ],
+      "scope": {
+        "kind": "documents",
+        "document_ids": [
+          "I6D48-document-A",
+          "I6D48-document-B"
+        ]
+      },
+      "expected": {
+        "exact_support": false,
+        "allowed_relations": [
+          {
+            "id": "G01",
+            "reference_id": "R001",
+            "document_id": "I6D48-document-A",
+            "subject": "SV6148",
+            "quantity": "voltage",
+            "values": [
+              "159.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 43,
+              "text": "The nominal voltage of SV6148 is 159.17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G02",
+            "reference_id": "R002",
+            "document_id": "I6D48-document-A",
+            "subject": "SV6148B",
+            "quantity": "voltage",
+            "values": [
+              "259.19"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 44,
+              "text": "The nominal voltage of SV6148B is 259.19 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G03",
+            "reference_id": "R003",
+            "document_id": "I6D48-document-B",
+            "subject": "SV6148",
+            "quantity": "voltage",
+            "values": [
+              "259.19"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 43,
+              "text": "The nominal voltage of SV6148 is 259.19 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          },
+          {
+            "id": "G04",
+            "reference_id": "R004",
+            "document_id": "I6D48-document-B",
+            "subject": "SV6148B",
+            "quantity": "voltage",
+            "values": [
+              "159.17"
+            ],
+            "unit": "mV",
+            "role": "nominal",
+            "property": null,
+            "point_conditions": [],
+            "annotation_span": {
+              "start": 0,
+              "end": 44,
+              "text": "The nominal voltage of SV6148B is 159.17 mV."
+            },
+            "rationale": "Explicit literal relation is applicable to the requested target."
+          }
+        ],
+        "forbidden_relations": [],
+        "required_relation_groups": [],
+        "comparisons": [
+          {
+            "id": "C01",
+            "operand_groups": [
+              [
+                "G01"
+              ],
+              [
+                "G03"
+              ]
+            ],
+            "conclusion": "different",
+            "required": false
+          },
+          {
+            "id": "C02",
+            "operand_groups": [
+              [
+                "G02"
+              ],
+              [
+                "G04"
+              ]
+            ],
+            "conclusion": "different",
+            "required": false
+          }
+        ],
+        "forbidden_comparison_conclusions": [
+          "equal"
+        ],
+        "required_literals": [
+          {
+            "reference_id": "R001",
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6148 is 159.17 mV."
+          },
+          {
+            "reference_id": "R002",
+            "start": 0,
+            "end": 44,
+            "text": "The nominal voltage of SV6148B is 259.19 mV."
+          },
+          {
+            "reference_id": "R003",
+            "start": 0,
+            "end": 43,
+            "text": "The nominal voltage of SV6148 is 259.19 mV."
+          },
+          {
+            "reference_id": "R004",
+            "start": 0,
+            "end": 44,
+            "text": "The nominal voltage of SV6148B is 159.17 mV."
+          }
+        ],
+        "status_classes": [
+          "conflict"
+        ],
+        "missing_target_policy": "Do not substitute another subject, property, role, test point or document for a missing obligation."
+      },
+      "rationale": "The documents contain the same anonymous set of numbers but assign them to opposite subjects. No common subject-specific nominal value is established; reporting disagreement is allowed without arbitration."
+    }
+  ]
+}

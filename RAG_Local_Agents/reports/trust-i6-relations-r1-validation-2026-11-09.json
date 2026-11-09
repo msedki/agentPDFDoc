@@ -1,0 +1,606 @@
+{
+  "schema_version": 1,
+  "role": "I6 R1 checkpoint, development only",
+  "recorded_utc": "2026-11-09T15:42:48.605033+00:00",
+  "protocol_sha256": "14fa52184df49e986422d2b38b9396f6f4744176a5721aa3585d809b373d5012",
+  "fixture_freeze": "trust-i6-relations-fixture-freeze-2026-11-09.json",
+  "tests": {
+    "initial_corrected_red": {
+      "path": "/workspace/scratch/37dafe3f3244/qa/i6-scope-red-v2.xml",
+      "sha256": "ffacb881e846f834891df088d7b43087aa6ede42d7c69c17cf31859437048f79",
+      "tests": 32,
+      "failures": 18,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 1.847
+    },
+    "first_green": {
+      "path": "/workspace/scratch/37dafe3f3244/agentPDFDoc/.runtime/qa/i6-relations/r1-first.xml",
+      "sha256": "ba8747653ce8340296065d89d17a2d2bce39173b072acef83e8f937d15d7d92f",
+      "tests": 32,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 1.587
+    },
+    "final_targeted": {
+      "path": "/workspace/scratch/37dafe3f3244/agentPDFDoc/.runtime/qa/i6-relations/r1-final-targeted.xml",
+      "sha256": "0b7beffa63026be1cd3bdb55019bb66b7973f123e4a00751b7fb739abbba67a6",
+      "tests": 369,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 9.827
+    },
+    "earlier_reviewed_targeted": {
+      "path": "/workspace/scratch/37dafe3f3244/agentPDFDoc/.runtime/qa/i6-relations/r1-reviewed-targeted.xml",
+      "sha256": "027919f86948fe33b70440f63f472ddbccf6f721c1ce9848e60cb274600bb6f1",
+      "tests": 369,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 11.959
+    }
+  },
+  "known_i5_regression": {
+    "result_file": "trust-i6-relations-r1-known-2026-11-09.json",
+    "sha256": "a28ff5fa01266895e1ad98717aa5cfcb4e5391de845ad5a064f6f855e8e4e556",
+    "source_manifest_stable": true,
+    "summary": {
+      "cases": 24,
+      "positive_exact_support": 12,
+      "negative_exact_support": 12,
+      "false_acceptance_count": 0,
+      "false_acceptance_rate": 0.0,
+      "false_rejection_count": 2,
+      "false_rejection_rate": 0.16666666666666666,
+      "positive_exact_coverage": 0.8333333333333334,
+      "case_passed": 22,
+      "all_repeats_case_passed": 22,
+      "any_repeat_false_acceptance_cases": 0,
+      "any_repeat_unsupported_equality_cases": 0,
+      "errors": 0,
+      "cases_with_any_trial_error": 0,
+      "statuses": {
+        "covered": 10,
+        "partial": 14
+      },
+      "literal_evidence_retained": 28,
+      "literal_evidence_total": 28,
+      "literal_evidence_coverage": 1.0,
+      "negative_cases_all_literals_retained": 12,
+      "negative_cases_total": 12,
+      "latency_ms_median": 100.4228425,
+      "latency_ms_p95": 239.655852,
+      "measurement_repeats_not_independent_cases": true,
+      "variable_outcomes": 0
+    },
+    "not_i6_heldout": true,
+    "primary_cases": {
+      "H06": {
+        "exact_support_accepted": true,
+        "exact_support_correct": true,
+        "comparison_correct": true,
+        "decision_passed": true,
+        "passed": true,
+        "matched_relation_count": 1,
+        "numeric_agreements": [],
+        "literal_evidence_retained": 1,
+        "literal_evidence_total": 1,
+        "all_source_literals_retained": true,
+        "status": "covered",
+        "nonexact_does_not_mean_unanswerable": true
+      },
+      "H11": {
+        "exact_support_accepted": false,
+        "exact_support_correct": false,
+        "comparison_correct": false,
+        "decision_passed": false,
+        "passed": false,
+        "matched_relation_count": 2,
+        "numeric_agreements": [],
+        "literal_evidence_retained": 2,
+        "literal_evidence_total": 2,
+        "all_source_literals_retained": true,
+        "status": "partial",
+        "nonexact_does_not_mean_unanswerable": true
+      },
+      "H12": {
+        "exact_support_accepted": false,
+        "exact_support_correct": false,
+        "comparison_correct": false,
+        "decision_passed": false,
+        "passed": false,
+        "matched_relation_count": 2,
+        "numeric_agreements": [],
+        "literal_evidence_retained": 2,
+        "literal_evidence_total": 2,
+        "all_source_literals_retained": true,
+        "status": "partial",
+        "nonexact_does_not_mean_unanswerable": true
+      },
+      "H24": {
+        "exact_support_accepted": false,
+        "exact_support_correct": true,
+        "comparison_correct": true,
+        "decision_passed": true,
+        "passed": true,
+        "matched_relation_count": 0,
+        "numeric_agreements": [],
+        "literal_evidence_retained": 1,
+        "literal_evidence_total": 1,
+        "all_source_literals_retained": true,
+        "status": "partial",
+        "nonexact_does_not_mean_unanswerable": true
+      }
+    }
+  },
+  "discarded_attempt": {
+    "path": "/workspace/scratch/37dafe3f3244/agentPDFDoc/.runtime/qa/i6-relations/r1-known-final.json",
+    "sha256": "21a43a37d4bc75b449bcc3f9290c1b8b7a51c14ee28bcc1f3b7ae45a91a88662",
+    "status": "INVALID_SOURCE_IDENTITY",
+    "reason": "Ruff import formatting changed answer_contract.py during this run. Results not scored; complete as-run output preserved."
+  },
+  "review_corrections": [
+    "Preserve short literal identity header in assertion context.",
+    "Preserve following restriction anchored to the selected second quantity.",
+    "Do not discard a later semicolon correction or crossing grouping."
+  ],
+  "full_portable": "NOT_RUN; final I6 gate pending",
+  "native": "NOT_RUN; final I6 gate pending",
+  "heldout": "CLOSED",
+  "source_manifest": {
+    "services/__init__.py": "c12bdd8738ebad610312111341112496363a2ad42a3a5e5e3118354d83b8bc7e",
+    "services/api/__init__.py": "6e1626978265dd2ee6c3798b50e440e67667d52b97456feda09180feb494f668",
+    "services/api/answer_contract.py": "57f349e3ade0dc636045b6848e5ceb7bd045b8441bb846e6424315447b477d5b",
+    "services/api/background.py": "2391a155b841ecb39eb8f5911937325ec30f0a86c9c3b728e97320006dca906b",
+    "services/api/claims.py": "aa858413c9cd3b567f47af49349b802db3327fa1db1f9925ccde0302a8dd3d86",
+    "services/api/comparison.py": "2959d7fdacad642c38ff5e3e137d1eefc45de473a158a5a31a004996bfb4646c",
+    "services/api/context.py": "66eb847373d2c294476e7d6aff4f2212e41fe05f79453691570cf8e49d5638f2",
+    "services/api/db.py": "a2093fa2b6aa1fd33793ef93a2fc9b354723d73e3b77d5b0d2a5bb1f9dbab382",
+    "services/api/deterministic_calculations.py": "969b651710294a9f671fdcdb1b62c7696cd3646ce3fcec271bb4ad6a57c64c45",
+    "services/api/embedding.py": "af65250c49f398c56560e630a5f955e376dd25a9f367b3a1174212dfb075809a",
+    "services/api/embedding_comparison.py": "4a8b319b381a4d613797079c67326991e4c9d7bfa53f7a023396e488e716b788",
+    "services/api/errors.py": "c5c293e666ed920b18d7c188a9c5afbf43875b553aefcaad5d537292977f47c8",
+    "services/api/evidence_coverage.py": "356d6d43fad73a004893fb165a1d188bfb3d13a610e643dd8b75372f33621f4a",
+    "services/api/evidence_selection.py": "96762f2b53660806e5d9dfaa03152ff60007c20999cf298484851297b72ced27",
+    "services/api/execution_trace.py": "0b65a1724144bb30041065bd31724d47d8c620747bb7522347f0d248562022c6",
+    "services/api/indexing.py": "1c923fbb705bd937b80a1e345142318fdb3907737ef64b091c81c6b37992d7e2",
+    "services/api/jobs.py": "dcb9823ff1e2efe649aa32893f6e444d0306329770e3f84b503a80f86803147f",
+    "services/api/literal_evidence.py": "1c3f92795550fc8e362e235ce520c9048e18c94c0326feb635315be2612a0054",
+    "services/api/main.py": "d1baecda746988777936aacd61626e1d72efa71e8d65e85fddc78e26d5778fd3",
+    "services/api/numeric_semantics.py": "8543b390e8848963300f46d443bdd54ecfc16ccef7f8c865661caea8893e2822",
+    "services/api/office.py": "4e5c6d1ff03c25f92d79a9206573b7d8c9024cde59bd70ad840a998aa2de47c3",
+    "services/api/office_search.py": "12e2270cb5fb5e85e2b3430fe9b37e647c291e99c9fdfbf2d82ecab68077b314",
+    "services/api/ollama.py": "d7e2b2d5eb8baa89349eb6820e0c18dbf497e49ae145948dfc55da920df72a27",
+    "services/api/point_conditions.py": "c30164cf96fcbb257b6cab3564a646fa8dbe39f72b117fc4c2dc0d7b8b79e914",
+    "services/api/qualification.py": "fb83443ff7120b0cad4ef9500f3bc83411f2490586affa934460c6a9b1faa7ac",
+    "services/api/query.py": "6158c54a05b16e9b67251f7327d4ff2db162ce1f0b55397ba1d23e2deb945dd0",
+    "services/api/reconcile.py": "d5d961349d110fab768c7d8c5ee1b0889aeb8c8b50e4478f74971876c70269aa",
+    "services/api/retrieval.py": "64696c81d6bcad01cc08429e8ce8888f346d64f836d61f4005e4201b5af45f3b",
+    "services/api/schemas.py": "b3dfdabcdc413b36d140525962456210fd457b30574cdbc51ed38c9020e70202",
+    "services/api/scope.py": "7d18442404d340e166819e62dcf02584271f288a2cc183afc64f428ed265ded1",
+    "services/api/security.py": "8b096b7bcdcdd635aab11a38a6b6588f2fd36e6d3c4336e024de96b635aa35fa",
+    "services/api/settings.py": "2f7ba38d40a9d7a08c277ea47ecaa782868616a2c757a518b6cc0a85e859b355",
+    "services/api/source_geometry.py": "ad42aeb645d3e618c0e29f7ae155e7cf5b0a7596ec934fc246db4af00a74a2be",
+    "services/api/structured_answer.py": "5f395ecda263fd107fe221e9e571ea7a3432e77e57424c238899f374bfb8cab5",
+    "services/api/table_conditions.py": "2445481da2fb064899833fcb1e2dbd0b777fc15068ae5e62b3dc9670b08c42fc",
+    "services/api/table_subjects.py": "f719d0ecd538efad0281aba10c496e00da06ff9d2c73fa888d09ee4f5e471aaf",
+    "services/ingestion/__init__.py": "0fda437cf4d6d2b96026d6919ceae5564e98f6be1a3e876948106179d4f536af",
+    "services/ingestion/checkpoint.py": "dafc17136017532e848cf1d74b8505a982721abad95177fbc88b1dbd75dfc622",
+    "services/ingestion/config.py": "0105b23ada85675109acc467dfbe1c31c0dd199b0f47fece63f3d2de6a0714d9",
+    "services/ingestion/docling_adapter.py": "4c42ab343bfff282b22f1a461981249f82c99a308fa5e94950c9329635cbb826",
+    "services/ingestion/errors.py": "0a88fda87c3b1e1a8a4c929179b0b7898666e10356885a9f0ad4083a6852ad6e",
+    "services/ingestion/geometry.py": "891a5bf967fead31eeef47ef6c4e8956408d83526cc090e8280c965ace24ccae",
+    "services/ingestion/lifecycle.py": "fdb9b8091a43a292d64612f13e3af75fe08055047f3097e647e6a1b4b7d2122f",
+    "services/ingestion/numeric_evidence.py": "4826f3e32c362fab415af249b11c324da7ee0f451fccb49d6d3ebbb9f20c3015",
+    "services/ingestion/ocr_verification.py": "579dc44801ee959b9291481e3489ef3b74c90e1d64aac098f0daf8def27aad3b",
+    "services/ingestion/office/__init__.py": "e62839058182e1312d19f4f3d65d060d61410419966fa7c94dc4dfc5abdcc517",
+    "services/ingestion/office/docx.py": "b91062fefdd99a1611199df1e456883f3e5d5eef64001359fd6b8ab42cfdc8e3",
+    "services/ingestion/office/models.py": "3adadafcfe20c48054cb6e7b326b5abdc0849d8712f9f1cfc4453a014a301317",
+    "services/ingestion/office/opc.py": "cdded86648de9efdbb4e60f4655224dbe041b3b37ef5f0f725a7454564ae97de",
+    "services/ingestion/office/pipeline.py": "085b0111dea0e82873a5a5a51e21f59bde329d8201461dff76c6dab56de06329",
+    "services/ingestion/office/worker.py": "bb070a8b05d98b4da2488d131663da87834cc8248cdfba850577304007c93c66",
+    "services/ingestion/office/xlsx.py": "59c138a7434744843637cea1b497f40eca72444c87b59f020a4de48e0300a0da",
+    "services/ingestion/pdf_structure.py": "faa320f83fc346320a095483eb5f8fcd45f21ff2fb512733e3a1c2add0c0b159",
+    "services/ingestion/pipeline.py": "188e55d3d610afcfb29baca7662e274213a9aad6f6b49be7c9bed4baa339c14b",
+    "services/ingestion/preflight.py": "7025f16fd81c2cd1a4fff7afdf37b4e6d7ec6a2a3e744dac035e7775a4072f88",
+    "services/ingestion/regional_aspect.py": "dbce34736773642a83623cead4dffda438a9709d7db30cf647dc4d70eb1e02e5",
+    "services/ingestion/regional_grid.py": "bb38466a676dd62513287044e33a976367340bdb351906a60a7621dd97f4942b",
+    "services/ingestion/regional_row_context.py": "6df58f00abe22e5ed32ce4c0c47a82bca7efea384192996e456589cf95b7f8be",
+    "services/ingestion/regional_tables.py": "445cef32d6331410dd2adc1307fc3a03cf110bc91d66ca13d443466ed4aaf0bd",
+    "services/ingestion/source_quality.py": "d7d9868c814f6b459161f9139768adc9ce1ba144305224be66a89ae03b32de4e",
+    "services/ingestion/table_geometry.py": "38fc377bb490cb63ae18b6e64b31ca6d25303b2193be890fdaef157f25ad8610",
+    "services/ingestion/table_rules.py": "ad1ec6d82dd30cb518ef29bf867dedacc29514ec9837ed8be5018b9d562e59da",
+    "services/ingestion/worker.py": "de941aba4c38580d87a1c55ed6e5cc29f3b3a71094730df71cf56685da585775",
+    "services/runtime/__init__.py": "3a80e593d30c4feddf875275eb369560c83d65966133cb6c400beb250fe7d7fe",
+    "services/runtime/accelerator.py": "d24b4dcf6dcd746702aee29a42ae9e93b30d1f3d6385c34ae492e6e15bfc1867",
+    "services/runtime/api_entry.py": "eaeb6bba0f2079aed4dee7cf86b166582572560a0313e17b76e6b67de26b8335",
+    "services/runtime/artifacts.py": "8231361a0ed67434d3bb662b8133c051928a0518516552fe5b897a7dfab68615",
+    "services/runtime/backup.py": "a45e699f7a730a94251cec10d031385e561f6eb433f8860c4a8b0eca11cac61d",
+    "services/runtime/calibration.py": "1e82c6115523de15577d2311ebe6df86b18bc9d124de628eed2cf0f50d4077e2",
+    "services/runtime/cli.py": "23e5c857a7f5cfc5065937e93c056717f0c5f99cda46b0e35b77fbf469774e3b",
+    "services/runtime/comparison_artifacts.py": "636d967b80ba918ec12ab350cfcee04879081b24e94608b622a2712c056175a3",
+    "services/runtime/console_signal.py": "d54867e86373f32556b84a65c4f88a3b66e9d35a6c4aedac8aad17924fd7e08f",
+    "services/runtime/generation_policy.py": "a6ab1854fc1b1fcf5606fa03695a19c52c5df854d58d9587717bfb7071a6ed72",
+    "services/runtime/inventory.py": "a3c6de5b2a2ccfe8a413181457139f57ad36742fc4d7b1bca3c1d818fdd216c1",
+    "services/runtime/model_profiles.py": "d025a2d1ef408c935f6e0c94f18ce21f418d0bdf9cf3f50462c8124f7c548d47",
+    "services/runtime/platforms.py": "938026b84c3e76a1a1708fddd88628ef92cb24adf606c6ee7ed21b74df42b25f",
+    "services/runtime/posix_process.py": "3115d9ea2b163cb28a46f8a0d6b757240ddcda9db47904797cbb498429ea3626",
+    "services/runtime/profile_schema.py": "74dcafbe1cce23fd61561f3248e1924d1188ab9e2e047ec80f4d8346bc8e98d5",
+    "services/runtime/profile_setup.py": "3812faa5dd94d55c9eeb0569be9d252f5670499b1b5bb2fd5d02a8171ffdbdbe",
+    "services/runtime/provisioning.py": "cf18c62e9580c88f91eb958a309300a6c2068deb1b8d3849d75087ff984bf2f3",
+    "services/runtime/resources.py": "89d54542a09e6d8a38af01b728217eeaa574b9b07febfc2889a1163a6d71e8af",
+    "services/runtime/selftest.py": "95989d0636ee5ab6db7eb0106fdab4df451e68e622cd232f287e565bb61990a7",
+    "services/runtime/source_manifest.py": "ec654d0f238439e7baeabcac99aa34116cd446233f1e5971d81954cda84acb1b",
+    "services/runtime/supervisor.py": "3396865f0f2aebb802844508da72ddcbf709c121a6515aa832256686ef01e372",
+    "services/runtime/text_model.py": "e24f49cd01b8952894caac278b8d915711ec4ca7388962f6e355bdab8b3839a7",
+    "services/runtime/verdict.py": "c480d43473880698bb91d6b0a457d4348664dcd61b0301333378062579629049",
+    "services/runtime/windows_process.py": "d55bf2b7f8648f3f304fadd710aa9489f89dfe05147fe7b850557098a1a73d16"
+  },
+  "bounded_prefix_probe": {
+    "kind": "helper only, not query latency",
+    "repetitions": 3,
+    "median_ms_by_clause_count": {
+      "50": 0.247862,
+      "100": 0.307322,
+      "200": 0.604041
+    },
+    "change": "Stop at the first unresolved preceding scope; do not rescan growing prefixes or allow later bypass."
+  },
+  "independent_review": {
+    "status": "PASS",
+    "scope": "R1 public development tests and diff only; no FINAL content",
+    "reviewed_utc": "2026-11-09T15:46:51.970967+00:00",
+    "remaining_semantic_blocker": false
+  },
+  "ruff": {
+    "status": "PASS",
+    "command": ".venv/bin/python -m ruff check services/api/answer_contract.py services/api/literal_evidence.py services/api/point_conditions.py tests/unit/test_i6_relations_scope.py tests/unit/test_i6_clause_dependencies.py"
+  },
+  "documentation_gates": {
+    "docs": {
+      "path": "/workspace/scratch/37dafe3f3244/agentPDFDoc/.runtime/qa/i6-relations/docs-r1-v2.json",
+      "sha256": "b68e37721a1a1ea70a3d94def26539c549c474b4afc32e86d5315f17f1c1e781",
+      "receipt": {
+        "utc": "2026-11-09T15:45:31+00:00",
+        "root": "/workspace/scratch/37dafe3f3244/agentPDFDoc",
+        "status": "PASS",
+        "checks": [
+          {
+            "id": "links",
+            "status": "PASS",
+            "detail": {
+              "relative_links_checked": 1626,
+              "warnings": [],
+              "external_urls_fetched": false
+            }
+          },
+          {
+            "id": "headers",
+            "status": "PASS",
+            "detail": {
+              "documents": 8,
+              "statuses": {
+                "docs/README.md": "stabilise",
+                "docs/architecture/ARCHITECTURE.md": "stabilise",
+                "docs/deploiement/DEPLOIEMENT.md": "stabilise",
+                "docs/exploitation/DEPANNAGE.md": "stabilise",
+                "docs/exploitation/EXPLOITATION.md": "stabilise",
+                "docs/exploitation/SAUVEGARDE-RESTAURATION.md": "stabilise",
+                "docs/interfaces/API.md": "stabilise",
+                "docs/specifications/SPECIFICATIONS.md": "stabilise"
+              }
+            }
+          },
+          {
+            "id": "index",
+            "status": "PASS",
+            "detail": {
+              "indexed_documents": 7
+            }
+          },
+          {
+            "id": "ascii_art",
+            "status": "PASS",
+            "detail": {
+              "code_blocks_checked": 48
+            }
+          },
+          {
+            "id": "images",
+            "status": "PASS",
+            "detail": {
+              "svg_checked": 5,
+              "display_width_px": 880,
+              "min_display_font_px": 11.0
+            }
+          },
+          {
+            "id": "versions",
+            "status": "PASS",
+            "detail": {
+              "version": "0.1.0",
+              "released_sections": [],
+              "warnings": []
+            }
+          },
+          {
+            "id": "entry_point",
+            "status": "PASS",
+            "detail": {
+              "entry_links": [
+                "docs/README.md",
+                "CHANGELOG.md"
+              ]
+            }
+          }
+        ],
+        "network": "none"
+      }
+    },
+    "pack": {
+      "path": "/workspace/scratch/37dafe3f3244/agentPDFDoc/.runtime/qa/i6-relations/pack-r1-v2.json",
+      "sha256": "b3ef498358bccd763f26ccd86b6e097c31d3fc13aa5bbfa13833787af29f5832",
+      "receipt": {
+        "pack": "RAG-LOCAL-16-v2.1",
+        "checked_at_utc": "2026-11-09T15:45:55.966892+00:00",
+        "overall_status": "PASS",
+        "scope": "Documentation, configuration syntax, runtime profile copy, skill format/registry, SQLite reference and deterministic examples ONLY",
+        "python_version": "3.12.14",
+        "pyyaml_version": "6.0.3",
+        "results": [
+          {
+            "id": "markdown_links",
+            "status": "PASS",
+            "detail": {
+              "local_links_checked": 2503,
+              "links_to_project_outside_pack": 358,
+              "git_ignore_check": "PASS",
+              "external_urls_fetched": false
+            }
+          },
+          {
+            "id": "syntax",
+            "status": "PASS",
+            "detail": {
+              "configuration_files": [
+                "app.env",
+                "lexical.sql",
+                "local16-4b.yaml",
+                "local16.yaml",
+                "next.config.mjs",
+                "ollama.chat.smoke.json",
+                "ollama.env",
+                "qdrant.collection.json",
+                "qdrant.yaml"
+              ],
+              "native_runtime_schema_tested": false
+            }
+          },
+          {
+            "id": "configuration_consistency",
+            "status": "PASS",
+            "detail": {
+              "embedding_dimensions": 384,
+              "max_declared_tokens_with_output": 8192,
+              "parameters_are_unqualified_design_targets": true
+            }
+          },
+          {
+            "id": "runtime_profile_copy",
+            "status": "PASS",
+            "detail": {
+              "runtime_profile": "config/local16.yaml",
+              "documentary_copy": "RAG_Local_Agents/config/local16.yaml",
+              "sha256": "6d51003d32df8c4d765ee31d58fad98dd4216911f2e78f4ccf2f4b787e05c212",
+              "byte_identical": true,
+              "additional_profiles": {
+                "local16-4b.yaml": {
+                  "runtime": "config/local16-4b.yaml",
+                  "documentary_copy": "RAG_Local_Agents/config/local16-4b.yaml",
+                  "sha256": "7f8743656a250a0a3d1d487b9d97b5e7b73f8b4a1edcf0db4b7c496a0b5e49da",
+                  "byte_identical": true
+                }
+              },
+              "collection_config": {
+                "runtime": "config/qdrant.collection.json",
+                "documentary_copy": "RAG_Local_Agents/config/qdrant.collection.json",
+                "sha256": "210b83977a299c506549c61c09e5a40816febefcaf06f59f6368913840e6133d",
+                "byte_identical": true
+              }
+            }
+          },
+          {
+            "id": "sqlite_fts5_reference",
+            "status": "PASS",
+            "detail": {
+              "sqlite_version": "3.53.1",
+              "checked": [
+                "create",
+                "insert",
+                "scope-filter",
+                "update",
+                "delete"
+              ],
+              "full_app_schema_tested": false
+            }
+          },
+          {
+            "id": "skill_format",
+            "status": "PASS",
+            "detail": {
+              "skills": [
+                "local-cpu-qualification",
+                "official-source-review",
+                "pdf-workspace-e2e",
+                "rag-pdf-provenance",
+                "rag-retrieval-evaluation"
+              ],
+              "syntax_and_links_only": true,
+              "native_client_discovery_tested": false
+            }
+          },
+          {
+            "id": "agents_skill_format",
+            "status": "PASS",
+            "detail": {
+              "skills": [
+                "agent-introspection-debugging",
+                "backend-patterns",
+                "embedding-comparison-windows",
+                "frontend-design",
+                "frontend-skill",
+                "hybrid-rag-api",
+                "linux-offline-kit",
+                "linux-rag-runtime",
+                "local-llm-qualification",
+                "office-document-ingestion",
+                "pdf-ingestion-windows",
+                "pdf-workspace-web",
+                "project-documentation",
+                "rag-qualification-fixtures",
+                "tesseract-lstm-extension",
+                "windows-rag-runtime"
+              ],
+              "warnings": [
+                "Fichier tiers mal rangé : .agents/skills/SKILL.md (SKILL.md hors dossier de skill, non découvrable)",
+                "Fichier tiers mal rangé : .agents/skills/golang-general-backend-security.md",
+                "Fichier tiers mal rangé : .agents/skills/javascript-express-web-server-security.md",
+                "Fichier tiers mal rangé : .agents/skills/javascript-general-web-frontend-security.md",
+                "Fichier tiers mal rangé : .agents/skills/javascript-jquery-web-frontend-security.md",
+                "Fichier tiers mal rangé : .agents/skills/javascript-typescript-nextjs-web-server-security.md",
+                "Fichier tiers mal rangé : .agents/skills/javascript-typescript-react-web-frontend-security.md",
+                "Fichier tiers mal rangé : .agents/skills/javascript-typescript-vue-web-frontend-security.md",
+                "Fichier tiers mal rangé : .agents/skills/openai.yaml",
+                "Fichier tiers mal rangé : .agents/skills/python-django-web-server-security.md",
+                "Fichier tiers mal rangé : .agents/skills/python-fastapi-web-server-security.md",
+                "Fichier tiers mal rangé : .agents/skills/python-flask-web-server-security.md"
+              ],
+              "syntax_and_links_only": true,
+              "native_client_discovery_tested": false
+            }
+          },
+          {
+            "id": "skills_registry",
+            "status": "PASS",
+            "detail": {
+              "pack": [
+                "local-cpu-qualification",
+                "official-source-review",
+                "pdf-workspace-e2e",
+                "rag-pdf-provenance",
+                "rag-retrieval-evaluation"
+              ],
+              "project": [
+                "embedding-comparison-windows",
+                "hybrid-rag-api",
+                "linux-offline-kit",
+                "linux-rag-runtime",
+                "local-llm-qualification",
+                "office-document-ingestion",
+                "pdf-ingestion-windows",
+                "pdf-workspace-web",
+                "project-documentation",
+                "rag-qualification-fixtures",
+                "tesseract-lstm-extension",
+                "windows-rag-runtime"
+              ],
+              "third_party": [
+                "SKILL.md",
+                "golang-general-backend-security.md",
+                "javascript-express-web-server-security.md",
+                "javascript-general-web-frontend-security.md",
+                "javascript-jquery-web-frontend-security.md",
+                "javascript-typescript-nextjs-web-server-security.md",
+                "javascript-typescript-react-web-frontend-security.md",
+                "javascript-typescript-vue-web-frontend-security.md",
+                "openai.yaml",
+                "python-django-web-server-security.md",
+                "python-fastapi-web-server-security.md",
+                "python-flask-web-server-security.md",
+                "agent-introspection-debugging",
+                "backend-patterns",
+                "frontend-design",
+                "frontend-skill"
+              ],
+              "sha256_checked": 33,
+              "behavior_tested": false
+            }
+          },
+          {
+            "id": "policy_propagation",
+            "status": "PASS",
+            "detail": {
+              "policy_in_primary_instructions": true,
+              "source_and_skill_acceptance": "D11"
+            }
+          },
+          {
+            "id": "deterministic_examples",
+            "status": "PASS",
+            "detail": {
+              "rrf_counterexample": {
+                "exact_score": 0.01639344262295082,
+                "top6_without_exact": [
+                  "near1",
+                  "near2",
+                  "near3",
+                  "near4",
+                  "near5",
+                  "near6"
+                ],
+                "illustrative_selection": [
+                  "exact",
+                  "near1",
+                  "near2",
+                  "near3",
+                  "near4",
+                  "near5"
+                ]
+              },
+              "unicode_roundtrip": true,
+              "dense_25000x384_float32_bytes": 38400000,
+              "wilson_27_of_30_95pct": [
+                0.7437891742081593,
+                0.9654001112526658
+              ],
+              "not_a_test_of_future_application": true
+            }
+          },
+          {
+            "id": "consolidated_brief",
+            "status": "PASS",
+            "detail": {
+              "output": "RAG_LOCAL_BRIEF_COMPLET.md",
+              "canonical_docs_and_configs_included": true
+            }
+          }
+        ],
+        "warnings": [
+          "Fichier tiers mal rangé : .agents/skills/SKILL.md (SKILL.md hors dossier de skill, non découvrable)",
+          "Fichier tiers mal rangé : .agents/skills/golang-general-backend-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-express-web-server-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-general-web-frontend-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-jquery-web-frontend-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-typescript-nextjs-web-server-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-typescript-react-web-frontend-security.md",
+          "Fichier tiers mal rangé : .agents/skills/javascript-typescript-vue-web-frontend-security.md",
+          "Fichier tiers mal rangé : .agents/skills/openai.yaml",
+          "Fichier tiers mal rangé : .agents/skills/python-django-web-server-security.md",
+          "Fichier tiers mal rangé : .agents/skills/python-fastapi-web-server-security.md",
+          "Fichier tiers mal rangé : .agents/skills/python-flask-web-server-security.md"
+        ],
+        "not_executed": [
+          "LLM inference",
+          "Docling or OCR",
+          "Qdrant server/API",
+          "Frontend or browser E2E",
+          "16 GB target qualification",
+          "Native skill installation/discovery/invocation",
+          "External source link accessibility in this offline script"
+        ]
+      }
+    }
+  }
+}

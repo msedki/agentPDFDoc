@@ -9,7 +9,9 @@ H11/H12/D11/D12 et les appels redondants sur les réponses partielles.
 Le [protocole préalable](RAG_Local_Agents/reports/trust-i6-relations-protocol-2026-11-09.md)
 fixe les jeux, mesures et critères avant modification. Le
 [plan](RAG_Local_Agents/PLAN.md) suit la réalisation et les publications
-par lot ; aucune réussite produit n'est déduite de ce cadrage.
+par lot. Le [premier lot R1](RAG_Local_Agents/reports/trust-i6-relations-r1-2026-11-09.md)
+corrige H24/H06 sur les cas connus et passe 369 tests ciblés. Les comparaisons,
+le coût et la qualification finale restent en cours ; le jeu final I6 est fermé.
 
 ## I5-PJ — opérateurs et exceptions, 9 novembre 2026
 

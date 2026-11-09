@@ -22,9 +22,16 @@ CONDITION_MEASURE = re.compile(
     rf"|(?P<symbol>[A-Za-z][A-Za-z0-9_+−-]{{0,15}})\s*=\s*)"
     rf"(?:(?P<alias>[A-Za-z][A-Za-z0-9_+−-]{{0,15}})\s*=\s*)?"
     rf"(?P<value>{NUMBER_PATTERN})\s*(?P<unit>{UNIT_PATTERN})(?![\w/])")
+# Nominal exclusions and direct exception words share one grammar. The
+# caller keeps their exact source offsets; spelling normalization is not an
+# offset conversion and no component, quantity or value is inferred here.
+EXCEPTION_INTRODUCER = (
+    r"(?:unless|except(?:\s+(?:at|when|if|for))?|sauf(?:\s+(?:[àa]|si|quand|lorsque))?|"
+    r"[àa]\s+l['’]\s*(?:exception|exclusion)\s+de|"
+    r"with\s+(?:the\s+)?exception\s+of)")
+EXCEPTION_CONTINUATION = re.compile(r"^\s*" + EXCEPTION_INTRODUCER + r"\b", re.IGNORECASE)
 EXCLUDED_POINT_PREFIX = re.compile(
-    r"\b(?:unless|except(?:\s+(?:at|when|if|for))?|without|"
-    r"sauf(?:\s+(?:[àa]|si|quand|lorsque))?|sans(?:\s+que)?|"
+    r"\b(?:" + EXCEPTION_INTRODUCER + r"|without|sans(?:\s+que)?|"
     r"not(?:\s+(?:at|when|for))?|pas(?:\s+[àa])?)\s*$", re.IGNORECASE)
 POINT_COORDINATION = re.compile(r"\s*(?:\)|\])?\s*(?:,|and|or|et|ou)\s*(?:\(|\[)?\s*", re.IGNORECASE)
 
@@ -38,9 +45,10 @@ def point_is_excluded(text: str, start: int) -> bool:
     """
     cursor = start
     words: list[str] = []
-    # Only three short words can form a prefix in this grammar. Read them
-    # backwards without rescanning the entire preceding document per point.
-    for index in range(3):
+    # Four bounded tokens cover the longest operator. An elision is one
+    # token; punctuation outside these tokens stops the scan. Whitespace
+    # is skipped locally, without rescanning the preceding document.
+    for index in range(4):
         while cursor and text[cursor - 1].isspace():
             cursor -= 1
         if index == 0 and cursor and text[cursor - 1] in "([":
@@ -48,9 +56,9 @@ def point_is_excluded(text: str, start: int) -> bool:
             while cursor and text[cursor - 1].isspace():
                 cursor -= 1
         end = cursor
-        while cursor and text[cursor - 1].isalpha() and end - cursor <= 12:
+        while cursor and (text[cursor - 1].isalpha() or text[cursor - 1] in "'’") and end - cursor <= 16:
             cursor -= 1
-        if cursor == end or end - cursor > 12:
+        if cursor == end or end - cursor > 16:
             break
         words.insert(0, text[cursor:end])
         if EXCLUDED_POINT_PREFIX.fullmatch(" ".join(words)) is not None:

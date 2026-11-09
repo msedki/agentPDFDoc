@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "role": "Reçus de publication par lot de l'itération I6",
+  "baseline": "7ef57fdc38261fa4b14e077e5d1c75aee57f7eea",
+  "branch": "enhanced_version",
+  "publications": [
+    {
+      "lot": "protocol",
+      "local": {
+        "commit": "3979a2499a19ec296d0216252d2f3450d6c20ae9",
+        "tree": "b99c2d8f654da61a762bb2272d6ed360b241871f",
+        "parent": "7ef57fdc38261fa4b14e077e5d1c75aee57f7eea",
+        "base_tree": "8a47b47afc7dfbc5af87292196020fcfe53ffc87",
+        "message": "Fixe le protocole de l’itération I6 sur les relations documentaires\n\nÉtablit les hypothèses, les jeux DEV/final séparés, les critères de fidélité et d’utilité, la campagne native et la publication par lot. Conserve les limites I5-PJ et les travaux non publiés de l’autre copie.\n\nProtocole gelé avant produit ; références primaires vérifiées. Contrôles documentaires et pack PASS, brief synchronisé. Aucun code produit modifié.\n\n"
+      },
+      "remote": {
+        "sha": "141f77f412135b8db599b87c86395d390a664e2c",
+        "node_id": "C_kwDOU0rvktoAKDE0MWY3N2Y0MTIxMzViOGRiNTk5Yjg3Yzg2Mzk1ZDM5MGE2NjRlMmM",
+        "url": "https://api.github.com/repos/msedki/agentPDFDoc/git/commits/141f77f412135b8db599b87c86395d390a664e2c",
+        "html_url": "https://github.com/msedki/agentPDFDoc/commit/141f77f412135b8db599b87c86395d390a664e2c",
+        "author": {
+          "name": "msedki",
+          "email": "57775584+msedki@users.noreply.github.com",
+          "date": "2026-11-09T15:23:40Z"
+        },
+        "committer": {
+          "name": "msedki",
+          "email": "57775584+msedki@users.noreply.github.com",
+          "date": "2026-11-09T15:23:40Z"
+        },
+        "tree": {
+          "sha": "b99c2d8f654da61a762bb2272d6ed360b241871f",
+          "url": "https://api.github.com/repos/msedki/agentPDFDoc/git/trees/b99c2d8f654da61a762bb2272d6ed360b241871f"
+        },
+        "message": "Fixe le protocole de l’itération I6 sur les relations documentaires\n\nÉtablit les hypothèses, les jeux DEV/final séparés, les critères de fidélité et d’utilité, la campagne native et la publication par lot. Conserve les limites I5-PJ et les travaux non publiés de l’autre copie.\n\nProtocole gelé avant produit ; références primaires vérifiées. Contrôles documentaires et pack PASS, brief synchronisé. Aucun code produit modifié.",
+        "parents": [
+          {
+            "sha": "7ef57fdc38261fa4b14e077e5d1c75aee57f7eea",
+            "url": "https://api.github.com/repos/msedki/agentPDFDoc/git/commits/7ef57fdc38261fa4b14e077e5d1c75aee57f7eea",
+            "html_url": "https://github.com/msedki/agentPDFDoc/commit/7ef57fdc38261fa4b14e077e5d1c75aee57f7eea"
+          }
+        ],
+        "verification": {
+          "verified": false,
+          "reason": "unsigned",
+          "signature": null,
+          "payload": null,
+          "verified_at": null
+        }
+      },
+      "files": [
+        {
+          "path": "RAG_Local_Agents/DEFINITION_OF_DONE.md",
+          "bytes": 86317,
+          "characters": 83781,
+          "blob_sha": "a03914964c861481127d24c0f63d7493dcb178f5",
+          "sha256": "a1b71be43377b05ed86534f0ed51729ae5bbe59e4680126b81ab9f681d9893b8",
+          "mode": "100644"
+        },
+        {
+          "path": "RAG_Local_Agents/PLAN.md",
+          "bytes": 435414,
+          "characters": 421581,
+          "blob_sha": "008cc3e4d5f9b6bbc976d43f8b7d7871f59b9e91",
+          "sha256": "432a294accb023e8ae53c915e0d47fd84156a3b1bddc97642f70974662dd620f",
+          "mode": "100644"
+        },
+        {
+          "path": "RAG_Local_Agents/RAG_LOCAL_BRIEF_COMPLET.md",
+          "bytes": 1356428,
+          "characters": 1319791,
+          "blob_sha": "172de0f7d060b6dc860b1abeb03f7e1e537c32fb",
+          "sha256": "97b8c56bb9df3a2e920bf55d1d16901efab6a9454c78c9860c0077835ba47057",
+          "mode": "100644"
+        },
+        {
+          "path": "RAG_Local_Agents/SOURCES.md",
+          "bytes": 328838,
+          "characters": 321654,
+          "blob_sha": "a04cd3bfd0c051dfa951e5292b7c33d75f61c4ee",
+          "sha256": "f7604370b6460d83e0a4ec9746d6891f51c4d90ff53015b3cabae0b3fcde7fdd",
+          "mode": "100644"
+        },
+        {
+          "path": "RAG_Local_Agents/journal/2026-11-09.md",
+          "bytes": 35721,
+          "characters": 34589,
+          "blob_sha": "5eff05df55bdeae4b0c91c6e75ff2c7c96fa983a",
+          "sha256": "0dce6215c77beff9bcc74f49ad76adab6a3908a47c654ce7d30fee83ff4bf889",
+          "mode": "100644"
+        },
+        {
+          "path": "README.md",
+          "bytes": 87759,
+          "characters": 85829,
+          "blob_sha": "a7f89c72601410fb0b194e263f87cc1d8c137ae3",
+          "sha256": "8148176059668e701a5d5f0cf7a461ad65d4da8a39d95c795840939ebb1f51ed",
+          "mode": "100644"
+        },
+        {
+          "path": "RAG_Local_Agents/reports/trust-i6-relations-protocol-2026-11-09.md",
+          "bytes": 11788,
+          "characters": 11419,
+          "blob_sha": "8788e2a6df6a886eddc326756675e9b2bc06b455",
+          "sha256": "14fa52184df49e986422d2b38b9396f6f4744176a5721aa3585d809b373d5012",
+          "mode": "100644"
+        },
+        {
+          "path": "RAG_Local_Agents/reports/trust-i6-relations-protocol-freeze-2026-11-09.json",
+          "bytes": 10647,
+          "characters": 10647,
+          "blob_sha": "3cacc1c506873ccc63b351402d8298cffbe118ae",
+          "sha256": "c4cc3c2809308074ab17b5abbdf82546425359e5ae22647844085939ca1a585f",
+          "mode": "100644"
+        }
+      ],
+      "branch": "enhanced_version",
+      "force": false,
+      "expected_sha": "7ef57fdc38261fa4b14e077e5d1c75aee57f7eea",
+      "branch_reread": "141f77f412135b8db599b87c86395d390a664e2c",
+      "update": {
+        "success": true
+      },
+      "verification": {
+        "verified_utc": "2026-11-09T15:25:08.458947+00:00",
+        "sha": "141f77f412135b8db599b87c86395d390a664e2c",
+        "tree_identical": true
+      }
+    }
+  ],
+  "qualification": "NON ACQUISE — chaque lot et chaque critère conservent leurs limites"
+}

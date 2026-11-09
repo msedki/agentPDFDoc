@@ -17,15 +17,16 @@ copie sont préservés ; ce complément repart du dernier arbre publié.
 
 | Action | Livrable et critère | État / preuve |
 |---|---|---|
-| I6R-01 | Référence immuable, protocole, DEV/final séparés et gelés | EN COURS ; protocole figé avant produit, 48+48 cas prévus ; final fermé |
-| I6R-02 | Portée des exceptions/négations, régressions et publication | À FAIRE ; H24/H06, I6R-D01/D02/D03/D04 |
+| I6R-01 | Référence immuable, protocole, DEV/final séparés et gelés | PASS cadrage ; protocole publié `141f77f4`, 48+48 annotations relues et [gelées](reports/trust-i6-relations-fixture-freeze-2026-11-09.json) avant produit ; final fermé |
+| I6R-02 | Portée des exceptions/négations, régressions et publication | VALIDÉ ciblé ; [lot R1](reports/trust-i6-relations-r1-2026-11-09.md), 369 tests PASS, H24 limité et H06 récupéré sur anciens cas connus ; publication dans ce lot |
 | I6R-03 | Liaison explicite sujets/propriétés/documents, comparaisons et publication | À FAIRE après I6R-02 ; H11/H12/D11/D12, portée par document conservée |
 | I6R-04 | Route partielle bornée, essais natifs 18 positions/bras, HTTP et coût | À FAIRE après I6R-03 ; I6R-D03/D06/D07, aucun modèle ajouté |
 | I6R-05 | Gel final, 48 cas réservés, revue indépendante, bilan et publication | À FAIRE ; I6R-D01 à D08, résultats et échecs complets |
 
-**Points vérifiés :** tête distante identique à la livraison I5-PJ ; copie de
-travail propre avant ce protocole. **Prochaine action :** figer les jeux,
-reproduire les cas connus puis réaliser le premier lot avec ses contre-épreuves.
+**Points vérifiés :** gel préalable des annotations et produit R1 ciblé,
+citations conservées ; [publications vérifiées](reports/trust-i6-relations-publications-2026-11-09.json).
+**Prochaine action :** corriger l'axe des comparaisons puis la route partielle,
+avant les mesures natives et l'ouverture du final.
 Les échecs I5 et I5-PJ restent des résultats historiques, sans reclassement.
 
 ## I5-PJ — complément demandé le 9 novembre 2026 (UTC)

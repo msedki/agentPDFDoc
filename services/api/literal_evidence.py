@@ -7,7 +7,7 @@ caller still establishes the requested relation and source quality separately.
 
 import re
 
-from .point_conditions import condition_measures
+from .point_conditions import EXCEPTION_CONTINUATION, condition_measures
 
 CONTINUATION = re.compile(
     r"^(?:this|that|these|those|such|it|they|its|their|however|except|unless|otherwise|"
@@ -37,6 +37,36 @@ LOCAL_NEGATION = re.compile(
 FINAL_NAMED_CONTEXT = re.compile(
     r"\b(?:for|pour)\s+(?P<name>[A-Za-z][A-Za-z0-9_+-]*\d[A-Za-z0-9_+-]*)\s*[.!]?\s*$",
     re.IGNORECASE)
+
+
+NEGATIVE_CLAUSE_SUBJECT = re.compile(
+    r"^(?P<subject>[^\n:;.!?]{1,160}?)\s+(?:ne\b|n['’](?=\w))", re.IGNORECASE)
+
+
+def explicit_clause_subject(text):
+    """Return a literal nominal head, never a semantic independence verdict.
+
+    The caller must still bind distinct quantities to the heads on both
+    sides of an observed delimiter. A continuation, precondition, pronoun or
+    missing explicit predicate cannot establish that separation. The scan is
+    bounded by the existing 160-character head grammar.
+    """
+    clause = text.lstrip()
+    if (CONTINUATION.match(clause) or EXCEPTION_CONTINUATION.match(clause)
+            or RESTRICTION.match(clause)):
+        return None
+    match = SUBJECT_PREDICATE.match(clause) or NEGATIVE_CLAUSE_SUBJECT.match(clause)
+    if match is None:
+        return None
+    subject = match["subject"].strip()
+    if NEGATION.search(subject) or re.search(r"[()\[\]{}]", subject):
+        return None
+    # The same head grammar is used for repeated restrictions; its modal
+    # predicates are not sufficient to declare an independent assertion.
+    predicate = clause[match.end("subject"):].lstrip()
+    if re.match(r"(?:must|may|can|shall|will)\b", predicate, re.IGNORECASE):
+        return None
+    return subject
 
 
 def _disjoint_local_restriction(anchor, following, predicate_start):
@@ -103,7 +133,7 @@ def sentence_spans(text):
         yield low, high, text[low:high]
 
 
-def proof_envelope(text, start, end, subjects=()):
+def proof_envelope(text, start, end, subjects=(), *, anchor=None):
     """Preserve explicitly dependent following sentences and a short identity.
 
     This grammar does not assert general paragraph independence. Unknown
@@ -122,11 +152,11 @@ def proof_envelope(text, start, end, subjects=()):
                 or re.fullmatch(r"(?:Composant|Component)\s+[A-Za-z][A-Za-z0-9_+\-]*\d[A-Za-z0-9_+\-]*\s*[.!]?",
                                 previous, re.IGNORECASE)):
             start = low
-    anchor = sentences[position][2]
+    anchor = sentences[position][2] if anchor is None else anchor
     for low, high, following in sentences[position + 1:]:
         repeated_limit = (not re.search(r"\n\s*\n", text[end:low])
                           and _repeated_subject_restriction(anchor, following))
-        if not CONTINUATION.match(following) and not repeated_limit:
+        if not CONTINUATION.match(following) and not EXCEPTION_CONTINUATION.match(following) and not repeated_limit:
             break
         end = high
     return start, end

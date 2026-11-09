@@ -8,8 +8,10 @@ Les critères I6R-D01 à D08 sont fixés avant modification dans le
 [protocole I6](reports/trust-i6-relations-protocol-2026-11-09.md), avec un
 [reçu de gel](reports/trust-i6-relations-protocol-freeze-2026-11-09.json).
 Ils portent sur les exceptions/négations, les comparaisons entre sujets,
-la fidélité et le coût d'une route partielle bornée. Leur état initial est
-**NOT_RUN**. Les résultats I5-PJ ci-dessous restent historiques ; le plan
+la fidélité et le coût d'une route partielle bornée. Leur état global est
+**EN COURS** : [R1](reports/trust-i6-relations-r1-2026-11-09.md) passe ses 369
+tests ciblés et corrige H24/H06 connus ; final I6, suite complète et natif
+restent **NOT_RUN**. Les résultats I5-PJ ci-dessous restent historiques ; le plan
 canonique suit les lots et chaque publication. Aucun critère de production
 n'est acquis par la seule définition du protocole.
 
