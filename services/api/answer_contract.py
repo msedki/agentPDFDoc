@@ -40,6 +40,7 @@ from .errors import ApiError
 from .literal_evidence import (
     RESTRICTION,
     explicit_clause_subject,
+    explicit_predicate_spans,
     nonrestrictive_tail_start,
     proof_envelope,
     sentence_spans,
@@ -47,6 +48,7 @@ from .literal_evidence import (
 from .numeric_semantics import has_nonexact_numeric_modifier
 from .point_conditions import condition_measures as _condition_measures
 from .point_conditions import has_excluded_point_condition
+from .predicate_conditions import predicate_conditions, predicates_established
 
 VERIFICATION = "bounded_structural_checks"
 LIMITATION = "Contrôles de couverture explicite et de relations locales ; aucune preuve générale de justesse sémantique."
@@ -161,7 +163,7 @@ BOUND_ROLES = {
 # cannot become an asserted value or feed a comparison/calculation.
 NEGATED_ASSERTION = re.compile(
     r"\b(?:not|never|neither|cannot|can't|isn't|aren't|wasn't|weren't|"
-    r"no\s+(?:range|value|voltage|current|guarantee|evidence|proof)\b|"
+    r"no\s+(?:range|value|voltage|current|guarantee|evidence|proof)\b|no\s+part\s+of\b|"
     r"n['’](?:est|etait|atteint)\s+(?:pas|plus|jamais)|ne\s+[^.!?;]{0,50}\b(?:pas|plus|jamais)|"
     r"ni|aucun\w*|non\s+(?:garanti\w*|valid\w*|verifi\w*))\b")
 UNCERTAIN_ASSERTION = re.compile(
@@ -1004,11 +1006,11 @@ def _relation(reference, *, quantity, role, values, unit, label, condition, quot
 
 
 def _independent_quantity_clauses(left, right, quantity):
-    """Two explicit different quantity heads, not punctuation alone.
+    """Two explicit measured predicates, not punctuation alone.
 
     A grouping crossing the boundary, a dominant predicate, an anaphor or a
-    conditional head cannot establish a local assertion. Repeated heads and
-    different properties of the same quantity remain in the decision scope.
+    conditional head cannot establish a local assertion. Repeated measured
+    heads remain separate assertions, so conflicting values stay observable.
     """
     if any(left.count(opening) != left.count(closing) for opening, closing in (("(", ")"), ("[", "]"), ("{", "}"))):
         return False
@@ -1019,12 +1021,19 @@ def _independent_quantity_clauses(left, right, quantity):
         return False
     quantities = [{name for name, pattern in QUANTITIES.items() if re.search(pattern, folded(head or ""))}
                   for head in heads]
-    return (all(len(items) == 1 for items in quantities) and quantities[0] != quantities[1]
-            and any(quantity in items for items in quantities))
+    if not all(len(items) == 1 for items in quantities) or quantity is not None and not any(quantity in items for items in quantities):
+        return False
+    for clause, names in zip((left, right), quantities, strict=True):
+        if not any(UNITS[UNIT_ALIASES.get(match["unit"], match["unit"])][0] in names for match in MEASURE.finditer(clause)):
+            return False
+    return True
 
 
-def _measure_clause(line, start, end, quantity):
+def _measure_clause(line, start, end, quantity, clause_scopes=()):
     """A local property/role cannot be borrowed from a neighbouring measure."""
+    for low, high in clause_scopes:
+        if low <= start <= end <= high:
+            return low, high, True
     low, high, independent_scope = 0, len(line), False
     separators = list(re.finditer(r"(?<!\d)[,;](?!\d)|\s+(?=(?:drawing|consuming)\b)|"
                                  r"\s+(?:or|ou)\s+(?=(?:a\s+)?(?:single|dual|simple|sym[eé]trique)\b)", line))
@@ -1119,6 +1128,11 @@ def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: st
         if (not re.search(QUANTITIES[quantity], folded(line)) and not _properties(line, quantity)
                 and not re.search(QUANTITIES[quantity], folded(heading)) and not _properties(heading, quantity)):
             continue
+        clause_scopes = explicit_predicate_spans(line)
+        if clause_scopes and not all(
+                _independent_quantity_clauses(line[left[0]:left[1]], line[right[0]:right[1]], None)
+                for left, right in zip(clause_scopes[:-1], clause_scopes[1:], strict=True)):
+            clause_scopes = []
         candidates: list[tuple[re.Match[str], list[Decimal], str, str, str | None]] = []
         for pattern in (SYMMETRIC_RANGE, BETWEEN_RANGE, RANGE_VALUE, LABELLED_RANGE):
             for match in pattern.finditer(line):
@@ -1142,20 +1156,33 @@ def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: st
                     continue
                 if UNITS[unit][0] == quantity:
                     measurements.append((match, [value], unit, "value", None))
-            if len(measurements) == 1:
+            if clause_scopes:
+                for low, high in clause_scopes:
+                    head = explicit_clause_subject(line[low:high]) or ""
+                    if not re.search(QUANTITIES[quantity], folded(head)):
+                        continue
+                    local = [item for item in measurements if low <= item[0].start() <= item[0].end() <= high]
+                    if len(local) == 1:
+                        candidates.extend(local)
+            elif len(measurements) == 1:
                 candidates = measurements
+        line_relations = []
         for match, values, unit, kind, polarity in sorted(candidates, key=lambda item: item[0].start()):
-            clause_start, clause_end, independent_scope = _measure_clause(line, match.start(), match.end(), quantity)
+            clause_start, clause_end, independent_scope = _measure_clause(line, match.start(), match.end(), quantity, clause_scopes)
             if clause_end == len(line) and proof_envelope(raw, line_start, line_end, subjects)[1] == line_end:
                 clause_end = nonrestrictive_tail_start(line, match.end())
             relative_start = match.start() - clause_start
             relative_end = match.end() - clause_start
             prefix, suffix = line[clause_start:match.start()], line[match.end():clause_end]
             suffix_label = re.split(r"[,;]|\b(?:at|when|for|pour|lorsque|a|à)\b", suffix, maxsplit=1, flags=re.IGNORECASE)[0]
+            if clause_scopes:
+                suffix_label = suffix_label.rstrip(" .!?")
             local_label = prefix + " " + suffix_label
             label = local_label if re.search(QUANTITIES[quantity], folded(local_label)) or _properties(local_label, quantity) else heading or prefix
             role = _role(local_label) or _role(heading)
-            if requested_role and role != requested_role or role == "characterization" and requested_role != role:
+            if (role == "characterization" and requested_role != role
+                    or requested_role is not None and requested_role != role
+                    and re.search(ROLES["characterization"], folded(local_label + " " + heading))):
                 continue
             condition = _local_condition(line[clause_start:clause_end], relative_start, relative_end)
             if re.match(r"^\s*(?:supply|alimentation)\s*[.,]?\s*$", condition, re.IGNORECASE):
@@ -1188,7 +1215,22 @@ def _quantity_lines(reference: dict[str, Any], quantity: str, requested_role: st
                                  assertion_text=assertion_text)
             if has_nonexact_numeric_modifier(prefix, suffix):
                 relation["note_issues"].append("numeric_relation_not_exact")
-            yield relation
+            line_relations.append(relation)
+        # A positive occurrence cannot escape an explicit denial of the same
+        # binding and exact value. Keep the encompassing negative assertion;
+        # different affirmative values remain separate facts for conflict checks.
+        groups: dict[tuple, list[dict]] = {}
+        for relation in line_relations:
+            key = (relation["quantity"], relation["property"], relation["role"], relation["guarantee"],
+                   relation.get("bound_role"), relation.get("supply_configuration"), relation.get("polarity"),
+                   tuple(relation["entity_context_identifiers"]), _condition_key(relation["condition"]),
+                   relation["kind"], _base_values(relation))
+            groups.setdefault(key, []).append(relation)
+        for group in groups.values():
+            if {relation["assertion_status"] for relation in group} >= {"asserted", "negated"}:
+                for relation in group:
+                    relation["assertion_status"] = "negated"
+        yield from line_relations
 
 
 def _cell_roles(cell):
@@ -1562,6 +1604,7 @@ class AnswerContract:
     operating_guarantee_requested: bool = field(init=False)
     requested_bound: str | None = field(init=False)
     requested_point_conditions: list[dict[str, Any]] = field(init=False)
+    requested_predicate_conditions: list[dict[str, Any]] = field(init=False)
     requested_temperature_conditions: bool = field(init=False)
     requested_general_conditions: bool = field(init=False)
     qualitative_request: dict[str, Any] | None = field(init=False)
@@ -1596,6 +1639,7 @@ class AnswerContract:
         self.requested_properties = _properties(self.question, self.quantity or "")
         self.requested_bound = _bound_role(self.question)
         self.requested_point_conditions = _condition_measures(self.question)
+        self.requested_predicate_conditions = predicate_conditions(self.question)
         self.requested_condition_alternatives = _point_condition_alternatives(self.question, self.requested_point_conditions)
         self.requested_supply_configurations = [name for name, pattern in SUPPLY_CONFIGURATIONS.items()
                                                if re.search(pattern, normalized)] if re.search(r"\b(?:supply|alimentation)\b", normalized) else []
@@ -1738,6 +1782,7 @@ class AnswerContract:
                     component.guarantee_required = bool(GUARANTEE_LANGUAGE.search(folded(clause)))
                     component.requested_bound = _bound_role(clause)
                     component.requested_point_conditions = _condition_measures(clause)
+                    component.requested_predicate_conditions = predicate_conditions(clause)
                     component.requested_condition_alternatives = _point_condition_alternatives(clause, component.requested_point_conditions)
                     component.requested_supply_configurations = [name for name, pattern in SUPPLY_CONFIGURATIONS.items()
                                                                  if re.search(pattern, normalized_clause)] if quantity == "voltage" else []
@@ -1827,11 +1872,7 @@ class AnswerContract:
             return ((self.kind != "interval" or fact["kind"] == "interval")
                     and (not self.guarantee_required or fact.get("guarantee") == "explicit"
                          or fact.get("assertion_status") != "asserted"
-                         and GUARANTEE_LANGUAGE.search(folded(fact["quote"] + " " + fact["condition"])) is not None)
-                    and (self.requested_role is None or fact["role"] == self.requested_role
-                         or fact.get("bound_role") == self.requested_role)
-                    and (not self.requested_roles or fact["role"] in self.requested_roles
-                         or fact.get("bound_role") in self.requested_roles))
+                         and GUARANTEE_LANGUAGE.search(folded(fact["quote"] + " " + fact["condition"])) is not None))
         for reference in references:
             table_facts = _table_relations(reference, self.quantity, self.subjects, references)
             candidates = table_facts or list(_quantity_lines(reference, self.quantity, self.requested_role, self.subjects, references))
@@ -1847,6 +1888,13 @@ class AnswerContract:
             reasons.append("excluded_point_condition_not_supported")
         if fact.get("assertion_status", "asserted") != "asserted":
             reasons.append("source_assertion_" + fact["assertion_status"])
+        if (self.requested_role is not None and self.requested_role not in {fact["role"], fact.get("bound_role")}
+                or self.requested_roles and not set(self.requested_roles) & {fact["role"], fact.get("bound_role")}):
+            reasons.append("requested_role_not_established")
+        if (self.subjects and not fact.get("subjects")
+                and any(_contains_subject(identity, subject) for identity in fact.get("entity_context_identifiers", [])
+                        for subject in self.subjects)):
+            reasons.append("requested_subject_binding_not_established")
         if (self.comparison_axis == "subjects" and fact.get("subjects")
                 and not any(_contains_subject(identity, subject)
                             for identity in fact.get("entity_context_identifiers", []) for subject in fact["subjects"])):
@@ -1862,6 +1910,8 @@ class AnswerContract:
             reasons.append("requested_guarantee_not_established")
         if not any(self._matches_points(fact, points) for points in self.requested_condition_alternatives):
             reasons.append("requested_condition_not_established")
+        if not predicates_established(fact["condition"], self.requested_predicate_conditions):
+            reasons.append("requested_predicate_condition_not_established")
         return reasons
 
     @staticmethod
@@ -1912,7 +1962,8 @@ class AnswerContract:
             # numeric binding. Keep both exact pieces as a diagnostic when
             # one of these explicit identities is requested; the empty set
             # of admissible subjects must not erase the conflict's title.
-            if self.subjects and not any(subject in fact["subjects"] for subject in self.subjects) and not related_list_conflict:
+            if (self.subjects and not any(subject in fact["subjects"] for subject in self.subjects) and not related_list_conflict
+                    and "requested_subject_binding_not_established" not in reasons):
                 continue
             if self.requested_properties and fact.get("property") not in self.requested_properties:
                 continue
@@ -2184,7 +2235,7 @@ class AnswerContract:
         never become an equality between ambiguous sets of numbers.
         """
         result = []
-        properties = list(self.requested_properties) or list(dict.fromkeys(fact.get("property") for fact in facts)) or [None]
+        properties: list[str | None] = list(self.requested_properties) or list(dict.fromkeys(fact.get("property") for fact in facts)) or [None]
         scopes = [[document] for document in documents] if self.comparison_per_document else [documents]
         for scope_documents in scopes:
             for property_name in properties:

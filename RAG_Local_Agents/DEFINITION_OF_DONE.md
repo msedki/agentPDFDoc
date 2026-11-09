@@ -12,6 +12,9 @@ la fidélité et le coût d'une route partielle bornée. Leur état global est
 **EN COURS** : [R1](reports/trust-i6-relations-r1-2026-11-09.md) passe ses 369
 tests ciblés et corrige H24/H06 connus ; [R2](reports/trust-i6-relations-r2-2026-11-09.md)
 répare les comparaisons connues (48/48 anciens cas, 248 tests ciblés).
+Le [complément R1b](reports/trust-i6-relations-r1b-2026-11-09.md) passe 48/48
+nouveaux DEV et 69/69 littéraux ; son p95 de 319,59 ms dépasse le seuil
+de 250 ms. Ce succès de développement ne ferme pas les critères finaux.
 Final I6 et suite complète restent **NOT_RUN** ; le premier essai natif est
 **INCOMPLET**, sans qualification acquise. Les résultats I5-PJ ci-dessous restent historiques ; le plan
 canonique suit les lots et chaque publication. Aucun critère de production

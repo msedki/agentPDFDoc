@@ -318,6 +318,182 @@
         }
       },
       "verified_utc": "2026-11-09 15:50:10 UTC"
+    },
+    {
+      "lot": "r2",
+      "local": {
+        "commit": "0663a84b4d8ce08acf212ac8ed09f1ef7446908a",
+        "tree": "8ff659be555a4f7cabf2b8bd3000ec6957c0eb08",
+        "parent": "729524cea4372f3bd5614a380698123f25daf532",
+        "base_tree": "c3f751faaa7f5743b768a1dd7dc4a92944c1bf24",
+        "message": "Lie les comparaisons I6 aux sujets et à leurs preuves documentaires",
+        "author": "MOHAMED SEDKI <mohamed.sedki@live.fr>"
+      },
+      "files": [
+        {
+          "path": "RAG_Local_Agents/DEFINITION_OF_DONE.md",
+          "sha": "38365a7da646dd6e28682117b5ce5cafaf393ce2",
+          "mode": "100644",
+          "sha256": "2d5ea77d94612061fd5ca9eee99b268d704d1b5f13bbb70f308c1c3d25cea2a0",
+          "chars": 84127,
+          "bytes": 86667
+        },
+        {
+          "path": "RAG_Local_Agents/PLAN.md",
+          "sha": "a375be51c1cf4e92ef1e03aadada393b30c44091",
+          "mode": "100644",
+          "sha256": "af890bd7c5d046cc07f5ef881deaaa120fa1a2fdda1fe932c2d4e1e96a28ed41",
+          "chars": 421797,
+          "bytes": 435644
+        },
+        {
+          "path": "RAG_Local_Agents/RAG_LOCAL_BRIEF_COMPLET.md",
+          "sha": "81b8f7f8de55dbbd224da727a629dde54516ccaa",
+          "mode": "100644",
+          "sha256": "489227c24c05648255c342a3e16993c26f669b209bb8dfe83ba7637db1b6d8ab",
+          "chars": 1320693,
+          "bytes": 1357348
+        },
+        {
+          "path": "RAG_Local_Agents/journal/2026-11-09.md",
+          "sha": "182b51a42633ed134c17d15c294c95bec9253465",
+          "mode": "100644",
+          "sha256": "ed955d3d6be035ae282712107153aa43d35f238173b14290986868b671126f90",
+          "chars": 36847,
+          "bytes": 38052
+        },
+        {
+          "path": "RAG_Local_Agents/reports/trust-i6-relations-native-attempt1-2026-11-09.json",
+          "sha": "5663490e505391828052ecb4251882873d77b322",
+          "mode": "100644",
+          "sha256": "09e3ec4c3348772360e30aca999af009daf3d6e3fe267c5f26a60bf240ca1ec9",
+          "chars": 19888,
+          "bytes": 19902
+        },
+        {
+          "path": "RAG_Local_Agents/reports/trust-i6-relations-publications-2026-11-09.json",
+          "sha": "71b974785caa0a6d3027527128a193dfe0a2dda0",
+          "mode": "100644",
+          "sha256": "95689e19a54cc5194fa6bec228d09e974e670d6f3b1b30e16ed1d153efb2419f",
+          "chars": 13764,
+          "bytes": 13823
+        },
+        {
+          "path": "RAG_Local_Agents/reports/trust-i6-relations-r2-2026-11-09.md",
+          "sha": "e014983018e2a49ce431d027a4fd3ef57e9f215d",
+          "mode": "100644",
+          "sha256": "3123659082eb7eeff214aebb623577b57fab759a965b9ce45289bfbef63e4548",
+          "chars": 4415,
+          "bytes": 4533
+        },
+        {
+          "path": "RAG_Local_Agents/reports/trust-i6-relations-r2-known-2026-11-09.json",
+          "sha": "e5a54fad772222d8fc879f959408630fce881a82",
+          "mode": "100644",
+          "sha256": "c362c702434b61e022371451f5fddd87a4e521ef8797df606a9818109888d5e0",
+          "chars": 1171937,
+          "bytes": 1173807
+        },
+        {
+          "path": "RAG_Local_Agents/reports/trust-i6-relations-r2-validation-2026-11-09.json",
+          "sha": "4e31d856c0ba66946e91a280c1b25327272f8079",
+          "mode": "100644",
+          "sha256": "db806293cd6703e1a04b7af057968287b6531eeb424c267128964659697b4b26",
+          "chars": 3794,
+          "bytes": 3794
+        },
+        {
+          "path": "README.md",
+          "sha": "e4b5dc176e4e184dd4b0c41254a28bd7e921d1cc",
+          "mode": "100644",
+          "sha256": "e06804dee8cb83abfaadd9cab641ceaa171f9cfea36e24bdd878284948f07604",
+          "chars": 86157,
+          "bytes": 88090
+        },
+        {
+          "path": "services/api/answer_contract.py",
+          "sha": "4b50ddd8bf1890cae6312d96e795c85a78cb5f39",
+          "mode": "100644",
+          "sha256": "c50d9d8496210d2c38568880b05bbf36b0232be79dcbf467245328ac5fc46d37",
+          "chars": 180854,
+          "bytes": 181283
+        },
+        {
+          "path": "services/api/structured_answer.py",
+          "sha": "2c36b2a50635639eab31b30bc7e5600af025cc49",
+          "mode": "100644",
+          "sha256": "771c3f2bc9c34e990031e70d474fd332aab1e4a36305c2f48b344cb01f3fac9b",
+          "chars": 97959,
+          "bytes": 98138
+        },
+        {
+          "path": "tests/unit/test_i6_subject_comparisons.py",
+          "sha": "b2338927b5b9899e0f2fea7a5788598a244c6ec7",
+          "mode": "100644",
+          "sha256": "b2befae4ec7a556873f7264f71cdda5b91581c349d77490ce21dc44a8cf93d5c",
+          "chars": 10701,
+          "bytes": 10707
+        },
+        {
+          "path": "tests/unit/test_iteration2_answer_contract.py",
+          "sha": "907031e62e57bd0006ae035e264db36dbed7a985",
+          "mode": "100644",
+          "sha256": "b93ade3a26584a3b93b8eb3a8803ec532ab0f377939c7f81dd9a35d05d840814",
+          "chars": 28002,
+          "bytes": 28073
+        }
+      ],
+      "remote": {
+        "sha": "5184200c5fb7cc26d7b1738c0494fa2d708fd5a4",
+        "node_id": "C_kwDOU0rvktoAKDUxODQyMDBjNWZiN2NjMjZkN2IxNzM4YzA0OTRmYTJkNzA4ZmQ1YTQ",
+        "url": "https://api.github.com/repos/msedki/agentPDFDoc/git/commits/5184200c5fb7cc26d7b1738c0494fa2d708fd5a4",
+        "html_url": "https://github.com/msedki/agentPDFDoc/commit/5184200c5fb7cc26d7b1738c0494fa2d708fd5a4",
+        "author": {
+          "name": "msedki",
+          "email": "57775584+msedki@users.noreply.github.com",
+          "date": "2026-11-09T16:12:17Z"
+        },
+        "committer": {
+          "name": "msedki",
+          "email": "57775584+msedki@users.noreply.github.com",
+          "date": "2026-11-09T16:12:17Z"
+        },
+        "tree": {
+          "sha": "8ff659be555a4f7cabf2b8bd3000ec6957c0eb08",
+          "url": "https://api.github.com/repos/msedki/agentPDFDoc/git/trees/8ff659be555a4f7cabf2b8bd3000ec6957c0eb08"
+        },
+        "message": "Lie les comparaisons I6 aux sujets et à leurs preuves documentaires",
+        "parents": [
+          {
+            "sha": "729524cea4372f3bd5614a380698123f25daf532",
+            "url": "https://api.github.com/repos/msedki/agentPDFDoc/git/commits/729524cea4372f3bd5614a380698123f25daf532",
+            "html_url": "https://github.com/msedki/agentPDFDoc/commit/729524cea4372f3bd5614a380698123f25daf532"
+          }
+        ],
+        "verification": {
+          "verified": false,
+          "reason": "unsigned",
+          "signature": null,
+          "payload": null,
+          "verified_at": null
+        }
+      },
+      "expected_sha": "729524cea4372f3bd5614a380698123f25daf532",
+      "force": false,
+      "update": {
+        "success": true
+      },
+      "readback": {
+        "ref": "refs/heads/enhanced_version",
+        "node_id": "REF_kwDOU0rvkrtyZWZzL2hlYWRzL2VuaGFuY2VkX3ZlcnNpb24",
+        "url": "https://api.github.com/repos/msedki/agentPDFDoc/git/refs/heads/enhanced_version",
+        "object": {
+          "sha": "5184200c5fb7cc26d7b1738c0494fa2d708fd5a4",
+          "type": "commit",
+          "url": "https://api.github.com/repos/msedki/agentPDFDoc/git/commits/5184200c5fb7cc26d7b1738c0494fa2d708fd5a4"
+        }
+      },
+      "verified_utc": "2026-11-09 16:12:21 UTC"
     }
   ],
   "qualification": "NON ACQUISE — chaque lot et chaque critère conservent leurs limites"

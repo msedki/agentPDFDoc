@@ -18,15 +18,16 @@ copie sont préservés ; ce complément repart du dernier arbre publié.
 | Action | Livrable et critère | État / preuve |
 |---|---|---|
 | I6R-01 | Référence immuable, protocole, DEV/final séparés et gelés | PASS cadrage ; protocole publié `141f77f4`, 48+48 annotations relues et [gelées](reports/trust-i6-relations-fixture-freeze-2026-11-09.json) avant produit ; final fermé |
-| I6R-02 | Portée des exceptions/négations, régressions et publication | PUBLIÉ ciblé `729524ce` ; [R1](reports/trust-i6-relations-r1-2026-11-09.md), 369 tests PASS, H24/H06 connus réparés ; autres frontières DEV en cours |
-| I6R-03 | Liaison explicite sujets/propriétés/documents, comparaisons et publication | VALIDÉ ciblé ; [R2](reports/trust-i6-relations-r2-2026-11-09.md), 248 tests PASS +23 comparaisons avec intégrité, 48/48 anciens cas ; publication dans ce lot |
+| I6R-02 | Portée des exceptions/négations, régressions et publication | R1 publié `729524ce`, complété par [R1b](reports/trust-i6-relations-r1b-2026-11-09.md) : nouveau DEV 48/48, 69/69 littéraux ; p95 319,59 ms au-dessus du seuil, coût à corriger |
+| I6R-03 | Liaison explicite sujets/propriétés/documents, comparaisons et publication | PUBLIÉ `5184200c` ; [R2](reports/trust-i6-relations-r2-2026-11-09.md), 248 tests PASS +23 comparaisons avec intégrité, 48/48 anciens cas |
 | I6R-04 | Route partielle bornée, essais natifs 18 positions/bras, HTTP et coût | EN COURS ; tests rouges R3 préparés, [essai natif incomplet](reports/trust-i6-relations-native-attempt1-2026-11-09.json) après 8 cas ; arrêt de l’ancien espace non prouvé ; reprise isolée après les portes logicielles |
 | I6R-05 | Gel final, 48 cas réservés, revue indépendante, bilan et publication | À FAIRE ; I6R-D01 à D08, résultats et échecs complets |
 
 **Points vérifiés :** gel préalable des annotations et produit R1 ciblé,
 citations conservées ; [publications vérifiées](reports/trust-i6-relations-publications-2026-11-09.json).
-**Prochaine action :** compléter les frontières du nouveau DEV puis la route
-partielle, avant la suite complète, les mesures natives isolées et le final.
+**Prochaine action :** route partielle R3 et réduction des analyses répétées,
+puis suite complète, mesures natives isolées et final. Le nouveau DEV R1b
+passe ses 48 cas, mais la porte de coût de 250 ms reste ouverte.
 Les échecs I5 et I5-PJ restent des résultats historiques, sans reclassement.
 
 ## I5-PJ — complément demandé le 9 novembre 2026 (UTC)

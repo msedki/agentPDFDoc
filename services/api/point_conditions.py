@@ -28,6 +28,7 @@ CONDITION_MEASURE = re.compile(
 EXCEPTION_INTRODUCER = (
     r"(?:unless|except(?:\s+(?:at|when|if|for))?|sauf(?:\s+(?:[àa]|si|quand|lorsque))?|"
     r"[àa]\s+l['’]\s*(?:exception|exclusion)\s+de|"
+    r"exception\s+faite\s+de|"
     r"with\s+(?:the\s+)?exception\s+of)")
 EXCEPTION_CONTINUATION = re.compile(r"^\s*" + EXCEPTION_INTRODUCER + r"\b", re.IGNORECASE)
 EXCLUDED_POINT_PREFIX = re.compile(

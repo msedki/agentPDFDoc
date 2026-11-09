@@ -2654,3 +2654,25 @@ mémoire, de contexte et de délai ne sont pas augmentées.
 
 Le complément est livré avec ses échecs mesurés. Il ne clôt ni les exigences
 historiques I5, ni la qualification des installations et plateformes.
+
+
+## I6 — portée littérale et séparation des axes de comparaison
+
+**Date :** 9 novembre 2026 (UTC). **Statut :** choix implémentés, qualité
+de développement mesurée ; coût et qualification finale encore ouverts.
+**Sources :** [protocole préalable](reports/trust-i6-relations-protocol-2026-11-09.md),
+[R1](reports/trust-i6-relations-r1-2026-11-09.md), [R2](reports/trust-i6-relations-r2-2026-11-09.md)
+et [complément R1b](reports/trust-i6-relations-r1b-2026-11-09.md).
+
+La décision porte sur des formes explicites FR/EN : isoler uniquement les
+prédicats dont l'indépendance est établie localement, garder leurs négations,
+exceptions et dépendances, et conserver les citations complètes. La comparaison
+de sujets recherche chaque sujet dans le périmètre autorisé ; les obligations
+par document sont rétablies quand la question les exige. Un rôle ou sujet
+non établi reste diagnostique et ne fournit pas un opérande.
+
+Les 48 cas de développement passent après corrections ; le p95 de 319,59 ms
+dépasse le seuil préalable. Le choix n'est pas présenté comme une qualification
+finale, une compréhension sémantique générale ou un gain de recherche.
+Le générateur 4B, le profil et les budgets sont conservés ; les répétitions
+de calcul et la route partielle sont le prochain travail autorisé.

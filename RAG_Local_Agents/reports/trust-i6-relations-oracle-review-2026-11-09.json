@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-11-09T16:16:36.256297+00:00",
+  "status": "oracle correction after first DEV only; no final execution",
+  "fixture_annotations_changed": false,
+  "development_sha256": "fbe09846d7fb138ec71b7400e4eba42e2d8fefbcd17e04172a0d28b04b712315",
+  "previous_harness_sha256": "95dbc79eb19c73db336ff156d76efa2353fd02b08feefe522412eb180064071b",
+  "current_harness_sha256": "582dd38ddb970114122d3246ae19f200ff705bc4e3d003e6a7c9accf9018275c",
+  "previous_exact_harness_bytes_preserved": ".runtime/qa/i6-relations/oracle-history/relations_benchmark-95dbc79.py",
+  "correction": {
+    "issue": "required_literals was treated as the complete admissible condition context, incorrectly rejecting a true nonnumeric source context omitted from the minimum public quote",
+    "decision": "Nonnumeric conditional text must reconstruct from the gold fact annotation_span. Explicit numeric points must also be contained in the independently scoped required relation clause (including its written exceptions); this prevents borrowing a point from another quantity.",
+    "additional_check": "Declared comparison operand_groups and comparison_axis, when present, must agree with annotated subject-reference groups.",
+    "why_not_label_tuning": "No gold, threshold or final output changed. Public mutation tests establish the mistaken provenance assumption; same saved DEV outputs were regraded without executing product.",
+    "effects_on_saved_outputs": {
+      "dev-baseline-v2.json": {
+        "I6D07": "FAIL to PASS; D04 remains FAIL for unrelated numeric condition"
+      },
+      "dev-candidate-r1-r2-v1.json": {
+        "I6D07": "FAIL to PASS; every other pass/fail unchanged"
+      }
+    },
+    "validation": "41 targeted oracle tests passed; Ruff and Mypy passed; independent reviewer confirmed guards, mutations and read-only rescoring of all 48 cases in both recorded DEV arms."
+  },
+  "prior_reports_preserved": [
+    "dev-baseline-v1.json",
+    "dev-extractive-v1.json",
+    "development-baseline-v1-execution.json",
+    "dev-baseline-v2.json",
+    "dev-extractive-v2.json",
+    "dev-candidate-r1-r2-v1.json",
+    "development-r1-r2-execution.json"
+  ],
+  "next_step": "Freeze reviewed evaluator, then rerun all development arms under the same evaluator; do not use old timing as a final gate.",
+  "independent_review": {
+    "agent": "scientific_review",
+    "status": "PASS",
+    "received_utc": "2026-11-09T16:26:55.695049+00:00",
+    "harness_sha256": "582dd38ddb970114122d3246ae19f200ff705bc4e3d003e6a7c9accf9018275c",
+    "scope": "Generic condition provenance separation, explicit comparison groups/axis, 48 saved outputs per arm; no new product execution and no final execution.",
+    "observed_regrade_delta": "Only I6D07 FAIL to PASS in both saved arms; baseline I6D04 remains an unexpected relation."
+  }
+}

@@ -1420,6 +1420,9 @@ la fidélité et le coût d'une route partielle bornée. Leur état global est
 **EN COURS** : [R1](reports/trust-i6-relations-r1-2026-11-09.md) passe ses 369
 tests ciblés et corrige H24/H06 connus ; [R2](reports/trust-i6-relations-r2-2026-11-09.md)
 répare les comparaisons connues (48/48 anciens cas, 248 tests ciblés).
+Le [complément R1b](reports/trust-i6-relations-r1b-2026-11-09.md) passe 48/48
+nouveaux DEV et 69/69 littéraux ; son p95 de 319,59 ms dépasse le seuil
+de 250 ms. Ce succès de développement ne ferme pas les critères finaux.
 Final I6 et suite complète restent **NOT_RUN** ; le premier essai natif est
 **INCOMPLET**, sans qualification acquise. Les résultats I5-PJ ci-dessous restent historiques ; le plan
 canonique suit les lots et chaque publication. Aucun critère de production
@@ -2034,15 +2037,16 @@ copie sont préservés ; ce complément repart du dernier arbre publié.
 | Action | Livrable et critère | État / preuve |
 |---|---|---|
 | I6R-01 | Référence immuable, protocole, DEV/final séparés et gelés | PASS cadrage ; protocole publié `141f77f4`, 48+48 annotations relues et [gelées](reports/trust-i6-relations-fixture-freeze-2026-11-09.json) avant produit ; final fermé |
-| I6R-02 | Portée des exceptions/négations, régressions et publication | PUBLIÉ ciblé `729524ce` ; [R1](reports/trust-i6-relations-r1-2026-11-09.md), 369 tests PASS, H24/H06 connus réparés ; autres frontières DEV en cours |
-| I6R-03 | Liaison explicite sujets/propriétés/documents, comparaisons et publication | VALIDÉ ciblé ; [R2](reports/trust-i6-relations-r2-2026-11-09.md), 248 tests PASS +23 comparaisons avec intégrité, 48/48 anciens cas ; publication dans ce lot |
+| I6R-02 | Portée des exceptions/négations, régressions et publication | R1 publié `729524ce`, complété par [R1b](reports/trust-i6-relations-r1b-2026-11-09.md) : nouveau DEV 48/48, 69/69 littéraux ; p95 319,59 ms au-dessus du seuil, coût à corriger |
+| I6R-03 | Liaison explicite sujets/propriétés/documents, comparaisons et publication | PUBLIÉ `5184200c` ; [R2](reports/trust-i6-relations-r2-2026-11-09.md), 248 tests PASS +23 comparaisons avec intégrité, 48/48 anciens cas |
 | I6R-04 | Route partielle bornée, essais natifs 18 positions/bras, HTTP et coût | EN COURS ; tests rouges R3 préparés, [essai natif incomplet](reports/trust-i6-relations-native-attempt1-2026-11-09.json) après 8 cas ; arrêt de l’ancien espace non prouvé ; reprise isolée après les portes logicielles |
 | I6R-05 | Gel final, 48 cas réservés, revue indépendante, bilan et publication | À FAIRE ; I6R-D01 à D08, résultats et échecs complets |
 
 **Points vérifiés :** gel préalable des annotations et produit R1 ciblé,
 citations conservées ; [publications vérifiées](reports/trust-i6-relations-publications-2026-11-09.json).
-**Prochaine action :** compléter les frontières du nouveau DEV puis la route
-partielle, avant la suite complète, les mesures natives isolées et le final.
+**Prochaine action :** route partielle R3 et réduction des analyses répétées,
+puis suite complète, mesures natives isolées et final. Le nouveau DEV R1b
+passe ses 48 cas, mais la porte de coût de 250 ms reste ouverte.
 Les échecs I5 et I5-PJ restent des résultats historiques, sans reclassement.
 
 ## I5-PJ — complément demandé le 9 novembre 2026 (UTC)
@@ -7912,6 +7916,28 @@ mémoire, de contexte et de délai ne sont pas augmentées.
 
 Le complément est livré avec ses échecs mesurés. Il ne clôt ni les exigences
 historiques I5, ni la qualification des installations et plateformes.
+
+
+## I6 — portée littérale et séparation des axes de comparaison
+
+**Date :** 9 novembre 2026 (UTC). **Statut :** choix implémentés, qualité
+de développement mesurée ; coût et qualification finale encore ouverts.
+**Sources :** [protocole préalable](reports/trust-i6-relations-protocol-2026-11-09.md),
+[R1](reports/trust-i6-relations-r1-2026-11-09.md), [R2](reports/trust-i6-relations-r2-2026-11-09.md)
+et [complément R1b](reports/trust-i6-relations-r1b-2026-11-09.md).
+
+La décision porte sur des formes explicites FR/EN : isoler uniquement les
+prédicats dont l'indépendance est établie localement, garder leurs négations,
+exceptions et dépendances, et conserver les citations complètes. La comparaison
+de sujets recherche chaque sujet dans le périmètre autorisé ; les obligations
+par document sont rétablies quand la question les exige. Un rôle ou sujet
+non établi reste diagnostique et ne fournit pas un opérande.
+
+Les 48 cas de développement passent après corrections ; le p95 de 319,59 ms
+dépasse le seuil préalable. Le choix n'est pas présenté comme une qualification
+finale, une compréhension sémantique générale ou un gain de recherche.
+Le générateur 4B, le profil et les budgets sont conservés ; les répétitions
+de calcul et la route partielle sont le prochain travail autorisé.
 
 ---
 

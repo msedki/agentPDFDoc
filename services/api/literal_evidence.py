@@ -8,6 +8,7 @@ caller still establishes the requested relation and source quality separately.
 import re
 
 from .point_conditions import EXCEPTION_CONTINUATION, condition_measures
+from .predicate_conditions import CONNECTOR as PREDICATE_CONDITION_CONNECTOR
 
 CONTINUATION = re.compile(
     r"^(?:this|that|these|those|such|it|they|its|their|however|except|unless|otherwise|"
@@ -41,6 +42,12 @@ FINAL_NAMED_CONTEXT = re.compile(
 
 NEGATIVE_CLAUSE_SUBJECT = re.compile(
     r"^(?P<subject>[^\n:;.!?]{1,160}?)\s+(?:ne\b|n['’](?=\w))", re.IGNORECASE)
+PREDICATE_BOUNDARY = re.compile(
+    r"(?<!\d)[,;](?!\d)(?:\s*(?:but|and|mais|et|tandis\s+que)\b)?|"
+    r"\s+(?:but|and|mais|et|tandis\s+que)\b\s*", re.IGNORECASE)
+PREDICATE_DEPENDENCY = re.compile(
+    r"\b(?:provided\s+that|subject\s+to|only\s+(?:if|when)|"
+    r"(?:uniquement|seulement)\s+(?:si|lorsque)|sous\s+r[ée]serve|[àa]\s+condition)\b", re.IGNORECASE)
 
 
 def explicit_clause_subject(text):
@@ -67,6 +74,38 @@ def explicit_clause_subject(text):
     if re.match(r"(?:must|may|can|shall|will)\b", predicate, re.IGNORECASE):
         return None
     return subject
+
+
+def explicit_predicate_spans(text):
+    """Observed clauses with explicit heads, not a semantic independence test.
+
+    Offsets remain in the original Unicode text. At most 32 clauses are
+    considered; unknown heads, dependent predicates or crossing brackets keep
+    the encompassing scope. The caller must bind each head to its own measure.
+    """
+    spans: list[tuple[int, int]] = []
+    start = 0
+    for boundary in PREDICATE_BOUNDARY.finditer(text):
+        if len(spans) == 31:
+            return []
+        if (";" not in boundary[0] and re.search(r"\b(?:and|et)\b", boundary[0], re.IGNORECASE)
+                and PREDICATE_CONDITION_CONNECTOR.search(text[start:boundary.start()])):
+            # A second explicit predicate may still belong to a preceding
+            # when/if/unless condition. A semicolon closes this local scope;
+            # numeric point qualifiers alone do not veto independent clauses.
+            return []
+        spans.append((start, boundary.start()))
+        start = boundary.end()
+    spans.append((start, len(text)))
+    if len(spans) < 2:
+        return []
+    for start, end in spans:
+        clause = text[start:end].strip()
+        if (explicit_clause_subject(clause) is None or PREDICATE_DEPENDENCY.search(clause)
+                or any(clause.count(opening) != clause.count(closing)
+                       for opening, closing in (("(", ")"), ("[", "]"), ("{", "}")))):
+            return []
+    return spans
 
 
 def _disjoint_local_restriction(anchor, following, predicate_start):
